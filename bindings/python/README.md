@@ -33,28 +33,42 @@ pip install STRling
 Here's a quick example to demonstrate how easy it is to get started with STRling:
 
 ```python
-from STRling import match, group, lib, test
 import re
+from STRling import group, merge, lib, templates as tmp
+# group creates a named capture group
+# merge creates an non-capture group
+# lib stores the basic character templates
+# templates stores regex templates like tmp.phone_number
 
-# Define a group of 3 digits followed by a hyphen
-num3hyp = group('group3', lib.num(3), lib.lit('-'))
+# Define a named capture groups
+first_group = group('first', lib.num(3))
+# first_group.rgx => (?P<first>\d{3})
+second_group = group('second', lib.num(3))
+# second_group.rgx => (?P<second>\d{3})
+third_group = group('third', lib.num(4))
+# third_group.rgx => (?P<third>\d{4})
 
-# Define a group of 4 digits
-num4 = group('group4', lib.num(4))
+phone_num = merge('phone_num', first_group, lib.lit('-'), second_group, lib.lit('-'), third_group)
+# phone_num.rgx => (?:(?P<first>\d{3})\-(?P<second>\d{3})\-(?P<third>\d{4}))
 
-# Create a custom number group
-custom = group('custom', num3hyp(2), num4())
 
-# Define a group of 10 digits
-num10 = group('group10', lib.num(10))
+# Create a phone number group of 10 straight digits or phone_num from above
+custom = lib.num(10)
+# custom.rgx = >\d{10}
 
-# Create a phone number group using either custom or num10
-phone_number = group('phone_number', lib.or_(custom, num10))
+phone_number = group('phone_number', lib.or_(custom, phone_num))
+# phone_number => (?P<phone_number>\d{10}|(?:(?P<first>\d{3})\-(?P<second>\d{3})\-(?P<third>\d{4})))
 
 # Compile the pattern and match against a string
-compiled_pattern = re.compile(phone_number)
+compiled_pattern = re.compile(phone_number.rgx)
 input_string = "123-456-7890"
 match = compiled_pattern.match(input_string)
+
+
+# Groups and Merges can be specified with ranges when invoked
+special_pattern = merge(lib.num(1, 3), lib.lit('&', 1, ''))
+chain = group('chain', special_pattern(1, ''))
+# chain.rgx => (?P<chain>(?:\d{1,3}\&{1,}){1,})
 ```
 
 ### License
