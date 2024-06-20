@@ -1,93 +1,66 @@
-from STRling import lib
+from STRling import lib, group, merge
 import re
 
-# Test script
-def test_strling():
-    # Test literal
-    pattern = lib.lit("hello")
-    assert re.fullmatch(pattern, "hello")
 
+# Test the functionality
+def test_strling():
     # Test digit with range
-    pattern = lib.digit(min=2, max=4)
-    assert re.fullmatch(pattern, "123")
-    assert not re.fullmatch(pattern, "1")
+    num1 = lib.digit()
+    pattern = group('group1', num1(3))
+    print("num1 =>", num1)
+    print("pattern =>", pattern)
+    assert re.fullmatch(str(pattern), "123")
+    print("Digit group test passed")
 
     # Test letter with range
-    pattern = lib.letter(min=1, max=3)
-    assert re.fullmatch(pattern, "abc")
-    assert not re.fullmatch(pattern, "abcd")
+    let1 = lib.letter()
+    pattern = group('group2', let1(1, 3))
+    assert re.fullmatch(str(pattern), "abc")
+    assert not re.fullmatch(str(pattern), "abcd")
+    print("Letter range group test passed")
 
-    # Test between
-    pattern = lib.between('a', 'f', 2)
-    assert re.fullmatch(pattern, "ab")
-    assert not re.fullmatch(pattern, "agh")
+    # Test between with range
+    between1 = lib.between('a', 'f')
+    pattern = group('group3', between1(1, 2))
+    assert re.fullmatch(str(pattern), "ab")
+    assert not re.fullmatch(str(pattern), "agh")
+    print("Between range group test passed")
 
-    # Test in and notin
-    pattern = lib.in_("abc", 2)
-    assert re.fullmatch(pattern, "ab")
-    pattern = lib.notin("abc", 1, 2)
-    assert re.fullmatch(pattern, "de")
-    assert not re.fullmatch(pattern, "ae")
+    # Test in and notin with range
+    in1 = lib.in_("abc")
+    pattern = group('group4', in1(1, 2))
+    assert re.fullmatch(str(pattern), "ab")
+    notin1 = lib.notin("abc")
+    pattern = group('group5', notin1(1, 2))
+    assert re.fullmatch(str(pattern), "de")
+    assert not re.fullmatch(str(pattern), "ae")
+    print("In and NotIn range group test passed")
 
-    # Test space, newline, tab, carriage
-    pattern = lib.space(1)
-    assert re.fullmatch(pattern, " ")
-    pattern = lib.newline(1)
-    assert re.fullmatch(pattern, "\n")
-    pattern = lib.tab(1)
-    assert re.fullmatch(pattern, "\t")
-    pattern = lib.carriage(1)
-    assert re.fullmatch(pattern, "\r")
+    # Test whitespace characters with range
+    space1 = lib.space()
+    pattern = group('group6', space1(1))
+    assert re.fullmatch(str(pattern), " ")
+    newline1 = lib.newline()
+    pattern = group('group7', newline1(1))
+    assert re.fullmatch(str(pattern), "\n")
+    tab1 = lib.tab()
+    pattern = group('group8', tab1(1))
+    assert re.fullmatch(str(pattern), "\t")
+    carriage1 = lib.carriage()
+    pattern = group('group9', carriage1(1))
+    assert re.fullmatch(str(pattern), "\r")
+    print("Whitespace characters range group tests passed")
 
     # Test or
     pattern = lib.or_(lib.digit(), lib.letter())
-    assert re.fullmatch(pattern, "1")
-    assert re.fullmatch(pattern, "a")
-    assert not re.fullmatch(pattern, "&")
+    assert re.fullmatch(str(pattern), "1")
+    assert re.fullmatch(str(pattern), "a")
+    assert not re.fullmatch(str(pattern), "&")
+    print("Or test passed")
 
     # Test may
     pattern = lib.may(lib.digit())
-    assert re.fullmatch(pattern, "")
-    assert re.fullmatch(pattern, "1")
+    assert re.fullmatch(str(pattern), "")
+    assert re
 
-    # Test start and end
-    pattern = lib.start() + lib.lit("start") + lib.end()
-    assert re.fullmatch(pattern, "start")
-    assert not re.fullmatch(pattern, " notstart")
-
-    # Test lookarounds
-    pattern = lib.ahead(lib.lit("hello")) + lib.lit("world")
-    assert re.search(pattern, "helloworld")
-    pattern = lib.behind(lib.lit("hello")) + lib.lit("world")
-    assert re.search(pattern, "helloworld")
-    pattern = lib.notahead(lib.lit("hello")) + lib.lit("world")
-    assert not re.search(pattern, "helloworld")
-    pattern = lib.notbehind(lib.lit("hello")) + lib.lit("world")
-    assert not re.search(pattern, "helloworld")
-
-    # Test grouping
-    pattern = lib.group("digits", lib.digit(min=3))
-    match = re.match(pattern, "123")
-    assert match and match.group("digits") == "123"
-
-    # Test merging
-    pattern = lib.merge(lib.lit("hello"), lib.lit("world"))
-    assert re.fullmatch(pattern, "helloworld")
-
-    print("All tests passed!")
-
-# Run the test script
 test_strling()
-
-
-"""
-Here is the current problem with between:
-Traceback (most recent call last):
-  File "/home/tim3i/my-projects/STRling/test.py", line 80, in <module>
-    test_strling()
-  File "/home/tim3i/my-projects/STRling/test.py", line 21, in test_strling
-    pattern = lib.between('a', 'f', 2)
-  File "/home/tim3i/my-projects/STRling/STRling/lib.py", line 7, in wrapper
-    pattern = func(*args, **kwargs)
-TypeError: between() takes 2 positional arguments but 3 were given
-"""

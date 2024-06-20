@@ -34,41 +34,33 @@ Here's a quick example to demonstrate how easy it is to get started with STRling
 
 ```python
 import re
-from STRling import group, merge, lib, templates as tmp
-# group creates a named capture group
-# merge creates an non-capture group
-# lib stores the basic character templates
-# templates stores regex templates like tmp.phone_number
+from STRling import digit, lit, group, merge, or_
 
-# Define a named capture groups
-first_group = group('first', lib.num(3))
-# first_group => (?P<first>\d{3})
-second_group = group('second', lib.num(3))
-# second_group => (?P<second>\d{3})
-third_group = group('third', lib.num(4))
-# third_group => (?P<third>\d{4})
+# Define a named capture group for phone number
+first_group = group('first', digit()(3))
+second_group = group('second', digit()(3))
+third_group = group('third', digit()(4))
 
-phone_num = merge('phone_num', first_group, lib.lit('-'), second_group, lib.lit('-'), third_group)
-# phone_num => (?:(?P<first>\d{3})\-(?P<second>\d{3})\-(?P<third>\d{4}))
+# Create a non-capturing group for phone number pattern
+phone_num = merge(first_group, lit('-')(), second_group, lit('-')(), third_group)
 
+# Create a phone number group of 10 digits or the phone number pattern
+custom = digit()(10)
+phone_number = group('phone_number', or_(custom, phone_num))
 
-# Create a phone number group of 10 straight digits or phone_num from above
-custom = lib.num(10)
-# custom = >\d{10}
-
-phone_number = group('phone_number', lib.or_(custom, phone_num))
-# phone_number => (?P<phone_number>\d{10}|(?:(?P<first>\d{3})\-(?P<second>\d{3})\-(?P<third>\d{4})))
+# Print the pattern value
+print(str(phone_number))
+# Output: (?P<phone_number>\d{10}|(?:(?P<first>\d{3})-(?P<second>\d{3})-(?P<third>\d{4})))
 
 # Compile the pattern and match against a string
-compiled_pattern = re.compile(phone_number)
+compiled_pattern = re.compile(str(phone_number))
 input_string = "123-456-7890"
 match = compiled_pattern.match(input_string)
 
-
-# Groups and Merges can be specified with ranges when invoked
-special_pattern = merge(lib.num(1, 3), lib.lit('&', 1, ''))
-chain = group('chain', special_pattern(1, ''))
-# chain => (?P<chain>(?:\d{1,3}\&{1,}){1,})
+# Check the match and print the captured groups
+if match:
+    print(match.groupdict())
+# Output: {'phone_number': '123-456-7890', 'first': '123', 'second': '456', 'third': '7890'}
 ```
 
 ### License
