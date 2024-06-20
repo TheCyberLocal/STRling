@@ -2,7 +2,7 @@
 
 ## The Next Generation of Regular Expressions
 
-STRling is a powerful next-generation syntax designed as a user interface for writing regular expressions (RegEx) with an object-oriented approach. STRling is a simpler syntax than RegEx while maintaining the same underlying power and flexibility, making string validation more intuitive and less error-prone.
+STRling is a powerful next-generation syntax designed as a user interface for writing regular expressions (RegEx) with an object-oriented approach. STRling is a simpler syntax than RegEx while maintaining the same underlying power and flexibility, making string validation more intuitive and less error-prone. Best of all, STRling syntax substitutes valid RegEx patterns, making it fully compatible with all traditional RegEx libraries and methods.
 
 ### Why STRling?
 
