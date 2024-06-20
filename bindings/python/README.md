@@ -42,25 +42,25 @@ from STRling import group, merge, lib, templates as tmp
 
 # Define a named capture groups
 first_group = group('first', lib.num(3))
-# first_group.rgx => (?P<first>\d{3})
+# first_group => (?P<first>\d{3})
 second_group = group('second', lib.num(3))
-# second_group.rgx => (?P<second>\d{3})
+# second_group => (?P<second>\d{3})
 third_group = group('third', lib.num(4))
-# third_group.rgx => (?P<third>\d{4})
+# third_group => (?P<third>\d{4})
 
 phone_num = merge('phone_num', first_group, lib.lit('-'), second_group, lib.lit('-'), third_group)
-# phone_num.rgx => (?:(?P<first>\d{3})\-(?P<second>\d{3})\-(?P<third>\d{4}))
+# phone_num => (?:(?P<first>\d{3})\-(?P<second>\d{3})\-(?P<third>\d{4}))
 
 
 # Create a phone number group of 10 straight digits or phone_num from above
 custom = lib.num(10)
-# custom.rgx = >\d{10}
+# custom = >\d{10}
 
 phone_number = group('phone_number', lib.or_(custom, phone_num))
 # phone_number => (?P<phone_number>\d{10}|(?:(?P<first>\d{3})\-(?P<second>\d{3})\-(?P<third>\d{4})))
 
 # Compile the pattern and match against a string
-compiled_pattern = re.compile(phone_number.rgx)
+compiled_pattern = re.compile(phone_number)
 input_string = "123-456-7890"
 match = compiled_pattern.match(input_string)
 
@@ -68,7 +68,7 @@ match = compiled_pattern.match(input_string)
 # Groups and Merges can be specified with ranges when invoked
 special_pattern = merge(lib.num(1, 3), lib.lit('&', 1, ''))
 chain = group('chain', special_pattern(1, ''))
-# chain.rgx => (?P<chain>(?:\d{1,3}\&{1,}){1,})
+# chain => (?P<chain>(?:\d{1,3}\&{1,}){1,})
 ```
 
 ### License
