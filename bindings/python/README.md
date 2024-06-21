@@ -16,7 +16,7 @@ Our mission is to make RegEx a distant and outdated syntax by abstracting the co
 ### Key Features
 
 - **High-Level Template Validation**: Quickly and easily validate common patterns using our template library.
-- **Low-Level Pattern Construction**: Build complex regex patterns using a readable and maintainable, object-oriented syntax.
+- **Low-Level Pattern Construction**: Build complex RegEx patterns using a readable and maintainable, object-oriented syntax.
 - **Escaping RegEx Jargon**: No longer write RegEx using complex jargon.
 - **Dependencies**: Depends solely on built-in python libraries, fostering dependability and compatibility.
 
@@ -60,7 +60,44 @@ cat_or_dog = lib.or_(lib.lit('cat'), lib.lit('dog')) # (?:cat|dog)
 
 # Creating a named group (e.g., capturing a word)
 letter_num = merge(lib.digit(), lib.letter()) # (?:\d[A-Za-z])
-special1 = lib.group('word', lib.letter() + lib.may(letter_num())) # (?P<word>[A-Za-z](?:\d[A-Za-z])?)
+special1 = lib.group('word', lib.letter() + lib.may(letter_num()))
+# special1 is equivalent to the RegEx (?P<word>[A-Za-z](?:\d[A-Za-z])?)
+
+
+first = group('first', lib.digit(3)) # (?P<first>\d{3})
+second = group('second', lib.digit(3)) # (?P<second>\d{3})
+third = group('third', lib.digit(4)) # (?P<third>\d{4})
+h = lib.lit('-') # \-
+
+phone_pattern = lib.group('phone', first + h + second + h + third)
+# phone_pattern is equivalent to the RegEx pattern below
+# (?P<phone>(?P<first>\d{3})\-(?P<second>\d{3})\-(?P<third>\d{4}))
+
+# Sample string containing phone numbers
+text = "Here are some phone numbers: 987-654-3210, 123-456-7890."
+
+# Using the re package to search for the phone number pattern
+matches = re.finditer(phone_pattern, text)
+
+# Displaying the matches
+for match in matches:
+    print('Match Index Range:', match.span())
+    print('"first" group:', match.group('first'))
+    print('"second" group:', match.group('second'))
+    print('"third" group:', match.group('third'))
+    print('"phone" group:', match.group('phone'))
+
+# Match Index Range: (29, 41)
+# "first" group: 987
+# "second" group: 654
+# "third" group: 3210
+# "phone" group: 987-654-3210
+
+# Match Index Range: (43, 55)
+# "first" group: 123
+# "second" group: 456
+# "third" group: 7890
+# "phone" group: 123-456-7890
 
 
 ##############################################################
@@ -143,16 +180,10 @@ group() # (?P<name>pattern1 pattern2)
 merge() # (?:pattern1 pattern2)
 ```
 
-### License
-
-STRling is licensed under the MIT License. See the [LICENSE](https://github.com/TheCyberLocal/STRling/blob/main/LICENSE) file for more information.
-
----
-
 Simplify your string validation and matching tasks with STRling, the all-in-one solution for developers who need powerful yet user-friendly tools for working with strings. Download and start using STRling today!
 
 ---
 
 To learn more about STRling, checkout [STRling on PyPI](https://pypi.org/project/STRling/) and [STRling on GitHub](https://github.com/TheCyberLocal/STRling)
 
-To learn more about traditional RegEx syntax, checkout my GitHub repo at [regEx.md](https://github.com/TheCyberLocal/styled-coding-notes/blob/main/regEx.md)
+To learn more about traditional RegEx syntax, checkout my GitHub repo at [RegEx.md](https://github.com/TheCyberLocal/styled-coding-notes/blob/main/regEx.md)
