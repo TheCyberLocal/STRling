@@ -34,33 +34,113 @@ Here's a quick example to demonstrate how easy it is to get started with STRling
 
 ```python
 import re
-from STRling import digit, lit, group, merge, or_
+from STRling import lit, group, merge
 
-# Define a named capture group for phone number
-first_group = group('first', digit()(3))
-second_group = group('second', digit()(3))
-third_group = group('third', digit()(4))
 
-# Create a non-capturing group for phone number pattern
-phone_num = merge(first_group, lit('-')(), second_group, lit('-')(), third_group)
+##########################################################
+## Here are some real implementations of STRling syntax ##
+##########################################################
 
-# Create a phone number group of 10 digits or the phone number pattern
-custom = digit()(10)
-phone_number = group('phone_number', or_(custom, phone_num))
+# Most invoked functions have the range ability
+# after their positional arguments as lib.letter()
 
-# Print the pattern value
-print(str(phone_number))
-# Output: (?P<phone_number>\d{10}|(?:(?P<first>\d{3})-(?P<second>\d{3})-(?P<third>\d{4})))
+any_letter = lib.letter() # [A-Za-z]
+exactly_four_letters = lib.letter(4) # [A-Za-z]{4}
+two_to_six_letters = lib.letter(2, 6) # [A-Za-z]{2, 6}
+two_or_more_letters = lib.letter(2, '') # [A-Za-z]{2,}
 
-# Compile the pattern and match against a string
-compiled_pattern = re.compile(str(phone_number))
-input_string = "123-456-7890"
-match = compiled_pattern.match(input_string)
+# Using ahead (e.g., match 'foo' only if followed by 'bar')
+foo_if_bar = lib.lit('foo') + lib.ahead('bar') # foo(?=bar)
 
-# Check the match and print the captured groups
-if match:
-    print(match.groupdict())
-# Output: {'phone_number': '123-456-7890', 'first': '123', 'second': '456', 'third': '7890'}
+# Using lookbehind (e.g., match 'bar' only if preceded by 'foo')
+bar_if_foo = lib.behind('foo') + lib.lit('bar') # (?<=foo)bar
+
+# Using or_ (e.g., match either 'cat' or 'dog')
+cat_or_dog = lib.or_(lib.lit('cat'), lib.lit('dog')) # (?:cat|dog)
+
+# Creating a named group (e.g., capturing a word)
+letter_num = merge(lib.digit(), lib.letter()) # (?:\d[A-Za-z])
+special1 = lib.group('word', lib.letter() + lib.may(letter_num())) # (?P<word>[A-Za-z](?:\d[A-Za-z])?)
+
+
+##############################################################
+## Here are all the lib methods with their equivalent RegEx ##
+##############################################################
+
+# Matches the literal provided string (no symbols or variables)
+lib.lit('-*') # \-\*
+
+# Matches any character between and including the two provided
+lib.between('A', 'D') # [A-D]
+
+# Matches any character in the provided string
+lib.in_('abc') # [abc]
+
+# Matches any character not in the provided string
+lib.not_in('abc') # [^abc]
+
+# Matches any digit
+lib.digit() # \d
+
+# Matches any letter
+lib.letter() # [A-Za-z]
+
+# Matches any uppercase letter
+lib.upper() # [A-Z]
+
+# Matches any lowercase letter
+lib.lower() # [a-z]
+
+# Matches any character besides newline
+lib.any() # .
+
+# Matches a newline character
+lib.newline() # \n
+
+# Matches a tab character
+lib.tab() # \t
+
+# Matches a carriage return
+lib.carriage() # \r
+
+# Matches a boundary character
+lib.bound() # \b
+
+# Matches the start of the string
+# Doesn't accept range params
+lib.start() # ^
+
+# Matches the end of the string
+# Doesn't accept range params
+lib.end() # $
+
+# Matches only where the provided pattern is found ahead
+# Doesn't accept range params
+lib.ahead() # (?=pattern)
+
+# Matches only where the provided pattern is found behind
+# Doesn't accept range params
+lib.behind() # (?<=pattern)
+
+# Matches only where the provided pattern is not found ahead
+# Doesn't accept range params
+lib.not_ahead() # (?!pattern)
+
+# Matches only where the provided pattern is not found behind
+# Doesn't accept range params
+lib.not_behind() # (?<!pattern)
+
+# Matches any of the provided patterns
+lib.or_() # pattern1 | pattern2
+
+# Matches 1 otherwise 0 of the provided pattern
+lib.may() # pattern?
+
+# Groups the provided patterns with a name
+group() # (?P<name>pattern1 pattern2)
+
+# Groups the provided patterns without a name
+merge() # (?:pattern1 pattern2)
 ```
 
 ### License
@@ -73,4 +153,6 @@ Simplify your string validation and matching tasks with STRling, the all-in-one 
 
 ---
 
-Feel free to adjust the links and other details as per your project specifics.
+To learn more about STRling, checkout [STRling on PyPI](https://pypi.org/project/STRling/) and [STRling on GitHub](https://github.com/TheCyberLocal/STRling)
+
+To learn more about traditional RegEx syntax, checkout my GitHub repo at [regEx.md](https://github.com/TheCyberLocal/styled-coding-notes/blob/main/regEx.md)
