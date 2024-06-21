@@ -5,6 +5,8 @@ import re
 def repeat(min=None, max=None):
     """Create a range for the preceding symbol."""
     if min is not None and max is not None:
+        if max == '':  # Special case to handle the 'min,' syntax
+            return f'{{{min},}}'
         if min > max:
             raise ValueError('min cannot be greater than max')
         return f'{{{min},{max}}}'
@@ -26,91 +28,82 @@ class Pattern:
 
 
 # Decorators
-def repetition(func):
-    def wrapper(*args, **kwargs):
-        pattern = func(*args, **kwargs)
-        return Pattern(pattern)
-    return wrapper
+def repeat_on_invoke(func, *args):
+    pattern = func(*args)
+    return Pattern(pattern)
 
 
-# Literals
-@repetition
-def lit(text):
+# Symbols with positional arguments
+def lit(text, min=None, max=None):
     """Match the literal string `text`."""
-    return re.escape(text)
+    return re.escape(text) + repeat(min, max)
 
-@repetition
+def between(start_char=None, end_char=None, min=None, max=None):
+    """Match any character between `start_char` and `end_char`."""
+    return f'[{start_char}-{end_char}]' + repeat(min, max)
+
+def in_(chars=None, min=None, max=None):
+    """Match any character in `chars`."""
+    return f'[{chars}]' + repeat(min, max)
+
+def not_in(chars=None, min=None, max=None):
+    """Match any character not in `chars`."""
+    return f'[^{chars}]' + repeat(min, max)
+
+
+# Symbols without positional arguments
+@repeat_on_invoke
 def digit():
     """Match a digit."""
     return r'\d'
 
-@repetition
+@repeat_on_invoke
 def letter():
     """Match a letter."""
     return r'[A-Za-z]'
 
-@repetition
+@repeat_on_invoke
 def upper():
     """Match a letter."""
     return r'[A-Z]'
 
-@repetition
+@repeat_on_invoke
 def lower():
     """Match a letter."""
     return r'[a-z]'
 
-@repetition
-def between(start_char, end_char):
-    """Match any character between `start_char` and `end_char`."""
-    return f'[{start_char}-{end_char}]'
-
-@repetition
-def in_(chars):
-    """Match any character in `chars`."""
-    return f'[{chars}]'
-
-@repetition
-def notin(chars):
-    """Match any character not in `chars`."""
-    return f'[^{chars}]'
-
-@repetition
+@repeat_on_invoke
 def space():
     """Match a space."""
     return r'\s'
 
-@repetition
+@repeat_on_invoke
 def any():
     """Match any character."""
     return r'.'
 
 
 # Whitespace characters
-@repetition
+@repeat_on_invoke
 def newline():
     """Match a newline."""
     return r'\n'
 
-@repetition
+@repeat_on_invoke
 def tab():
     """Match a tab."""
     return r'\t'
 
-@repetition
+@repeat_on_invoke
 def carriage():
     """Match a carriage return."""
     return r'\r'
 
+@repeat_on_invoke
+def bound():
+    """Match the exact word `text`."""
+    return r'\b'
 
-# Conditionals
-def or_(*patterns):
-    """Match any of the given patterns."""
-    joined = '|'.join(str(p) for p in patterns)
-    return Pattern(f'({joined})')
-
-def may(pattern):
-    """Match zero or one occurrence of the pattern."""
-    return Pattern(f'{pattern}?')
 
 
 # Anchors
@@ -122,34 +115,41 @@ def end():
     """Match the end of the string."""
     return Pattern(r'$')
 
-def bound(text):
-    """Match the exact word `text`."""
-    return Pattern(r'\b')
-
 
 # Lookarounds
 def ahead(pattern):
     """Match if the pattern matches ahead."""
-    return Pattern(f'(?={pattern})')
+    return f'(?={pattern})'
 
 def behind(pattern):
     """Match if the pattern matches behind."""
-    return Pattern(f'(?<={pattern})')
+    return f'(?<={pattern})'
 
-def notahead(pattern):
+def not_ahead(pattern):
     """Match if the pattern does not match ahead."""
-    return Pattern(f'(?!{pattern})')
+    return f'(?!{pattern})'
 
-def notbehind(pattern):
+def not_behind(pattern):
     """Match if the pattern does not match behind."""
-    return Pattern(f'(?<!{pattern})')
+    return f'(?<!{pattern})'
+
+
+# Conditionals
+def or_(*patterns):
+    """Match any of the given patterns."""
+    joined = '|'.join(str(p) for p in patterns)
+    return f'(?:{joined})'
+
+def may(pattern):
+    """Match zero or one occurrence of the pattern."""
+    return f'{pattern}?'
 
 
 # Grouping
 def group(name, *patterns):
     """Create a named capture group with the given patterns."""
     joined = ''.join(str(p) for p in patterns)
-    return Pattern(f'(?P<{name}>{joined})')
+    return f'(?P<{name}>{joined})'
 
 def merge(*patterns):
     """Create a non-capturing group with the given patterns."""
