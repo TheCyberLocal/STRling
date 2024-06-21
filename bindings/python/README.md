@@ -2,12 +2,14 @@
 
 ## The Next Generation of Regular Expressions
 
-STRling is a powerful next-generation syntax designed as a user interface for writing regular expressions (RegEx) with an object-oriented approach. STRling is a simpler syntax than RegEx while maintaining the same underlying power and flexibility, making string validation more intuitive and less error-prone. Best of all, STRling syntax substitutes valid RegEx patterns, making it fully compatible with all traditional RegEx libraries and methods.
+STRling is a powerful next-generation syntax designed as a user interface for writing regular expressions (RegEx) with an object-oriented approach. STRling recognizes the cryptic nature of RegEx can be challenging and susceptibility to errors, which is why STRling looks and feels nothing like RegEx, but it maintains the same power and flexibility, making string validation enjoyable rather than a hassle. Best of all, STRling syntax substitutes valid RegEx patterns, making it fully compatible with all traditional RegEx libraries and methods.
 
 ### Why STRling?
 
-STRling recognizes the cryptic nature of RegEx can be challenging and susceptibility to errors. We provide a well-structured syntax that promotes readability and maintainability, empowering developers to focus on application logic rather than wrestling over difficult development tools. Most of all, we aim for a reliable product, which is why we only depend on built-in Python libraries.
-
+1. You need ZERO knowledge of RegEx jargon to create powerful and readable patterns.
+2. STRling exclusively utilizes built-in python libraries, making it a reliable package.
+3. Make your projects clear and consistent by using STRling rather than the individual library string validators that each have their own syntax (Sqlite3, Sequelize, Postgres, WTForms... etc.).
+4. STRling has predefined templates for commonly used patterns, so forget about even writing our simple syntax for most cases. (phone number, email, url... etc.)
 
 ### STRling's Mission
 
@@ -184,6 +186,8 @@ Simplify your string validation and matching tasks with STRling, the all-in-one 
 
 ---
 
-To learn more about STRling, checkout [STRling on PyPI](https://pypi.org/project/STRling/) and [STRling on GitHub](https://github.com/TheCyberLocal/STRling)
+To learn more about STRling, checkout [STRling on PyPI](https://pypi.org/project/STRling/) and [STRling on GitHub](https://github.com/TheCyberLocal/STRling).
 
-To learn more about traditional RegEx syntax, checkout my GitHub repo at [RegEx.md](https://github.com/TheCyberLocal/styled-coding-notes/blob/main/regEx.md)
+To learn more about me, checkout [My LinkedIn](https://www.linkedin.com/in/tzm01/).
+
+To learn more about traditional RegEx syntax, checkout [My RegEx Docs](https://github.com/TheCyberLocal/styled-coding-notes/blob/main/regEx.md).
