@@ -162,7 +162,12 @@ def in_(chars=None, min=None, max=None):
 
     RegEx: [chars]
     """
-    return f'[{chars}]' + repeat(min, max)
+    # When taking user input into a character set
+    # ensure that any sets are flattened
+    # When taking user input into a character set
+    # ensure that any sets are flattened
+    clean_chars = re.sub(r'(?<!\\)[\[\]]', '', chars)
+    return f'[{clean_chars}]' + repeat(min, max)
 
 def not_in(chars=None, min=None, max=None):
     """
@@ -185,7 +190,10 @@ def not_in(chars=None, min=None, max=None):
 
     RegEx: [^chars]
     """
-    return f'[^{chars}]' + repeat(min, max)
+    # When taking user input into a character set
+    # ensure that any sets are flattened
+    clean_chars = re.sub(r'(?<!\\)[\[\]]', '', chars)
+    return f'[^{clean_chars}]' + repeat(min, max)
 
 
 # Symbols without positional arguments
