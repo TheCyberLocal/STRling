@@ -36,12 +36,29 @@ Here's a quick example to demonstrate how easy it is to get started with STRling
 
 ```python
 import re
-from STRling import lit, group, merge
+from STRling import lit, group, merge, templates as tmp
 
 
 ##########################################################
 ## Here are some real implementations of STRling syntax ##
 ##########################################################
+
+phones_in_usa = tmp.phone_number_US
+"""
+The matched formats include:
+- No Delimiters: 1234567890
+- All Groups Separated:
+    - 123 456 7890
+    - 123-456-7890
+    - 123.456.7890
+- Grouped Area Code:
+    - (123) 456 7890
+    - (123) 456-7890
+    - (123) 456.7890
+"""
+# As you can see, we have very complex templates already created,
+# so for the most cases you can forget about even crafting patterns.
+
 
 # Most invoked functions have the range ability
 # after their positional arguments as lib.letter()
@@ -100,6 +117,7 @@ for match in matches:
 # "second" group: 456
 # "third" group: 7890
 # "phone" group: 123-456-7890
+
 
 
 ##############################################################

@@ -1,2 +1,3 @@
+from .lib import group, merge, capture
 from . import lib
-from .lib import group, merge
+from .templates import template as templates

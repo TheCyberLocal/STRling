@@ -354,11 +354,11 @@ def start():
     Match the start of the string.
 
     Returns:
-        Pattern: A Pattern object for the start of the string.
+        str: The start of a line pattern.
 
     RegEx: ^
     """
-    return Pattern(r'^')
+    return r'^'
 
 def end():
     """
@@ -368,11 +368,11 @@ def end():
     Match the end of the string.
 
     Returns:
-        Pattern: A Pattern object for the end of the string.
+        str: The end of a line pattern.
 
     RegEx: $
     """
-    return Pattern(r'$')
+    return r'$'
 
 
 # Lookarounds
@@ -461,10 +461,10 @@ def or_(*patterns):
 
     RegEx: (?:pattern1|pattern2|pattern3|...)
     """
-    joined = '|'.join(str(p) for p in patterns)
+    joined = '|'.join(f'(?:{p})' for p in patterns)
     return Pattern(f'(?:{joined})')
 
-def may(pattern):
+def may(*patterns):
     """
     To be or not to be, that is the question.
     This pattern may or may not be here.
@@ -479,10 +479,55 @@ def may(pattern):
 
     RegEx: (?:pattern)?
     """
-    return f'{pattern}?'
+    joined = merge(*patterns)
+    return f'{joined}?'
 
 
 # Grouping
+def merge(*patterns):
+    """
+    We may not have a team name,
+    but we always work together.
+
+    Create a non-capturing group with the given patterns.
+    A non-capturing group can't be extracted from a match.
+
+    While addition syntax seems to have the same effect,
+    patterns don't truly become one unless they are merged.
+
+    Args:
+        patterns (str): The patterns to include in the group.
+
+    Returns:
+        Pattern: A Pattern object for the non-capturing group.
+
+    RegEx: (?: pattern1 pattern2 pattern3...)
+    """
+    joined = ''.join(str(p) for p in patterns)
+    return Pattern(f'(?:{joined})')
+
+def capture(*patterns):
+    """
+    We may not have a team name,
+    but at least we COUNT.
+
+    Create a numbered capturing group with the given patterns.
+    A capturing group can be extracted from a match.
+
+    While addition syntax seems to have the same effect,
+    captured patterns can be indexed from the match later.
+
+    Args:
+        patterns (str): The patterns to include in the group.
+
+    Returns:
+        Pattern: A Pattern object for the capturing group.
+
+    RegEx: (pattern1 pattern2 pattern3...)
+    """
+    joined = ''.join(str(p) for p in patterns)
+    return Pattern(f'({joined})')
+
 def group(name, *patterns):
     """
     These patterns are now a team, and I want to name them
@@ -502,25 +547,3 @@ def group(name, *patterns):
     """
     joined = ''.join(str(p) for p in patterns)
     return f'(?P<{name}>{joined})'
-
-def merge(*patterns):
-    """
-    We may not have a team name,
-    but we work together anyways.
-
-    Create a non-capturing group with the given patterns.
-    A non-capturing group can't be extracted from a match.
-
-    While addition syntax seems to have the same effect,
-    patterns don't truly become one unless they are merged.
-
-    Args:
-        patterns (str): The patterns to include in the group.
-
-    Returns:
-        Pattern: A Pattern object for the non-capturing group.
-
-    RegEx: (?: pattern1 pattern2 pattern3...)
-    """
-    joined = ''.join(str(p) for p in patterns)
-    return Pattern(f'(?:{joined})')
