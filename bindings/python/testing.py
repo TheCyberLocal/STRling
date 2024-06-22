@@ -3,9 +3,10 @@ import re
 
 # Sample string containing phone numbers
 text = """
-ars
-tim.3imt@gmail.com
-nst
+ars651.345
+john.doe@aol.com
+elon.musk@spaceX.org
+nst5.@34!.ow
 """
 
 # Using the re package to search for the phone number pattern

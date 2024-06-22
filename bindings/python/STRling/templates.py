@@ -34,8 +34,8 @@ class Templates:
         no_nums_behind = lib.not_behind(lib.digit())
         no_nums_ahead = lib.not_ahead(lib.digit())
 
-        phone_pattern = merge(no_nums_behind, main_number, no_nums_ahead)()
-        return phone_pattern
+        phone_pattern = merge(no_nums_behind, main_number, no_nums_ahead)
+        return phone_pattern()
 
     @property
     def email(self):
@@ -44,7 +44,7 @@ class Templates:
         third = group('third', lib.in_(lib.letter(), 2, ''))
 
         email_pattern = merge(first, lib.lit('@'), second, lib.lit('.'), third)
-        return email_pattern
+        return email_pattern()
 
 
 template = Templates()
