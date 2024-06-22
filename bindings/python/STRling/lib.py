@@ -115,7 +115,8 @@ def lit(text, min=None, max=None):
 
     RegEx: escaped\-text{min,max}
     """
-    return re.escape(text) + repeat(min, max)
+    regular_text = text.encode("unicode_escape").decode("utf-8")
+    return re.escape(regular_text).replace(' ', 's') + repeat(min, max)
 
 def between(start_char=None, end_char=None, min=None, max=None):
     """

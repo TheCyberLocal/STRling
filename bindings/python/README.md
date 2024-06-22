@@ -107,7 +107,7 @@ for match in matches:
 ##############################################################
 
 # Matches the literal provided string (no symbols or variables)
-lib.lit('-*') # \-\*
+lib.lit('\s t*') # \\s\st\*
 
 # Matches any character between and including the two provided
 lib.between('A', 'D') # [A-D]
