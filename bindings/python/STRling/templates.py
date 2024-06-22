@@ -39,12 +39,39 @@ class Templates:
 
     @property
     def email(self):
-        first = group('first', lib.in_(lib.letter() + lib.digit() + lib.lit('_.+-'), 1, ''))
-        second = group('second', lib.in_(lib.letter() + lib.digit() + lib.lit('-'), 1, ''))
-        third = group('third', lib.in_(lib.letter(), 2, ''))
+        """
+        The matches include:
+         - user123.name@subdomain.domain.org
+         - randomuser@temporarymail.net
+         - john.doe+spam@gmail.com
+         - webmaster@mywebsite.dev
+         - support@company.co.uk
+        """
+        first = group('first', lib.in_(lib.lower() + lib.digit() + lib.lit('_.+-'), 1, ''))
+        second = group('second', lib.in_(lib.lower() + lib.digit() + lib.lit('.-'), 1, ''))
+        third = group('third', lib.in_(lib.lower(), 2, ''))
 
         email_pattern = merge(first, lib.lit('@'), second, lib.lit('.'), third)
         return email_pattern()
+
+    @property
+    def url(self):
+        """
+        The matches include:
+         - https://example.net
+         - https://mywebsite.dev/user2
+         - http://randomSite33.org/blogs/here
+        """
+        alpha_num = lib.letter() + lib.digit()
+
+        first = lib.may(lib.lit('http') + lib.may(lib.lit('s')) + lib.lit('://'))
+
+        second = lib.in_(alpha_num  + lib.lit('-.'), 1, '') + lib.lit('.') + lib.letter(2,'')
+
+        third = merge(lib.in_(alpha_num + lib.lit('./-')))(0,'')
+
+        url_pattern = merge(first, second, third)
+        return url_pattern()
 
 
 template = Templates()
