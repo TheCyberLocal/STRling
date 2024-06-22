@@ -37,5 +37,14 @@ class Templates:
         phone_pattern = merge(no_nums_behind, main_number, no_nums_ahead)()
         return phone_pattern
 
+    @property
+    def email(self):
+        first = group('first', lib.in_(lib.letter() + lib.digit() + lib.lit('_.+-'), 1, ''))
+        second = group('second', lib.in_(lib.letter() + lib.digit() + lib.lit('-'), 1, ''))
+        third = group('third', lib.in_(lib.letter(), 2, ''))
+
+        email_pattern = merge(first, lib.lit('@'), second, lib.lit('.'), third)
+        return email_pattern
+
 
 template = Templates()
