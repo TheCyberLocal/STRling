@@ -1,6 +1,6 @@
-from STRling import simply as s
+from STRling import simply
 import re
 
-test = s.start()
+test = simply.lit(1)
 print(test)
 re.compile(test.pattern)

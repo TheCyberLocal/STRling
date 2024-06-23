@@ -19,7 +19,7 @@ def or_(*patterns):
             Use `simply.lit('abc123$')` to match literal characters,
             or use a predefined set like `simply.letters()`.
         """)
-        raise Exception(msg)
+        raise ValueError(msg)
     joined = '|'.join(f'(?:{str(p)})' for p in patterns)
     return Pattern(f'(?:{joined})')
 
@@ -34,7 +34,7 @@ def may(*patterns):
             Use `simply.lit('abc123$')` to match literal characters,
             or use a predefined set like `simply.letters()`.
         """)
-        raise Exception(msg)
+        raise ValueError(msg)
 
     if len(patterns) == 1:
         return Pattern(f'{patterns[0]}?')
@@ -55,7 +55,7 @@ def merge(*patterns):
             Use `simply.lit('abc123$')` to match literal characters,
             or use a predefined set like `simply.letters()`.
         """)
-        raise Exception(msg)
+        raise ValueError(msg)
     joined = ''.join(str(p) for p in patterns)
     new_pattern = f'(?:{joined})'
     return Pattern(new_pattern, composite=True)
@@ -71,7 +71,7 @@ def capture(*patterns):
             Use `simply.lit('abc123$')` to match literal characters,
             or use a predefined set like `simply.letters()`.
         """)
-        raise Exception(msg)
+        raise ValueError(msg)
 
     joined = ''.join(str(p) for p in patterns)
     return Pattern(f'({joined})', composite=True)
@@ -87,7 +87,7 @@ def group(name, *patterns):
             Use `simply.lit('abc123$')` to match literal characters,
             or use a predefined set like `simply.letters()`.
         """)
-        raise Exception(msg)
+        raise ValueError(msg)
 
     joined = ''.join(str(p) for p in patterns)
     return Pattern(f'(?P<{name}>{joined})', composite=True, repeatable=False)

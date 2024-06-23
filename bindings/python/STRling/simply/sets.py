@@ -22,7 +22,7 @@ def between(start, end):
             The start and end character must both
             be numbers or letters of the same case.
         """)
-        raise Exception(msg)
+        raise ValueError(msg)
 
     new_pattern = f'[{start}-{end}]'
     return Pattern(new_pattern, custom_set=True)
@@ -40,7 +40,7 @@ def in_(*patterns):
             Use `simply.lit('abc123$')` to match literal characters,
             or use a predefined set like `simply.letters()` as a parameter.
         """)
-        raise Exception(msg)
+        raise ValueError(msg)
 
     if any(pattern.composite for pattern in patterns if isinstance(pattern, Pattern)):
         msg = (
@@ -53,12 +53,12 @@ def in_(*patterns):
         Solution:
             Choose non-composite patterns as parameters.
         """)
-        raise Exception(msg)
+        raise ValueError(msg)
 
     joined = r''
     for pattern in patterns:
         if len(str(pattern)) > 1 and str(pattern)[-1] == '}' and str(pattern)[-2] != "\\":
-            raise Exception('The in_ method cannot take patterns with specified range.')
+            raise ValueError('The in_ method cannot take patterns with specified range.')
         if pattern.custom_set:
             joined += str(pattern)[1:-1]
         else:
@@ -80,7 +80,7 @@ def not_in(*patterns):
             Use `simply.lit('abc123$')` to match literal characters,
             or use a predefined set like `simply.letters()` as a parameter.
         """)
-        raise Exception(msg)
+        raise ValueError(msg)
 
     if any(pattern.composite for pattern in patterns if isinstance(pattern, Pattern)):
         msg = (
@@ -93,12 +93,12 @@ def not_in(*patterns):
         Solution:
             Choose non-composite patterns as parameters.
         """)
-        raise Exception(msg)
+        raise ValueError(msg)
 
     joined = r''
     for pattern in patterns:
         if len(str(pattern)) > 1 and str(pattern)[-1] == '}' and str(pattern)[-2] != "\\":
-            raise Exception('The not_in method cannot take patterns with specified range.')
+            raise ValueError('The not_in method cannot take patterns with specified range.')
         if pattern.custom_set:
             joined += str(pattern)[1:-1]
         else:
