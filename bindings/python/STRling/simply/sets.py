@@ -10,6 +10,17 @@ from .pattern import Pattern
 
 def between(start, end):
     """
+    Creates a Pattern object for a range of characters.
+
+    Parameters:
+        start (str): The starting character of the range.
+        end (str): The ending character of the range.
+
+    Returns:
+        Pattern: A Pattern object representing the character range.
+
+    Raises:
+        ValueError: If the start and end characters are not both numbers or letters of the same case.
     """
     if not (start.isalpha() and end.isalpha() or
         start.isdigit() and end.isdigit()):
