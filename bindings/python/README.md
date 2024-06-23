@@ -2,25 +2,21 @@
 
 ## The Next Generation of Regular Expressions
 
-STRling is a powerful next-generation syntax designed as a user interface for writing regular expressions (RegEx) with an object-oriented approach. STRling recognizes the cryptic nature of RegEx can be challenging and susceptibility to errors, which is why STRling looks and feels nothing like RegEx, but it maintains the same power and flexibility, making string validation enjoyable rather than a hassle. Best of all, STRling syntax substitutes valid RegEx patterns, making it fully compatible with all traditional RegEx libraries and methods.
+STRling is a next-generation production-grade syntax designed as a user interface for writing powerful regular expressions (RegEx) with an object-oriented approach and instructional error handling. STRling recognizes the cryptic nature of raw regular expression can be challenging and susceptibility to errors, which is why STRling looks and feels nothing like RegEx while maintaining the same power and flexibility. String validation should be simple and enjoyable, not a hassle. Best of all, STRling syntax is built upon the RegEx engine, making it fully compatible with all libraries that accept RegEx along with the traditional RegEx methods built in to Python.
 
 ### Why STRling?
 
-1. You need ZERO knowledge of RegEx jargon to create powerful and readable patterns.
-2. STRling exclusively utilizes built-in python libraries, making it a reliable package.
-3. Make your projects clear and consistent by using STRling rather than the individual library string validators that each have their own syntax (Sqlite3, Sequelize, Postgres, WTForms... etc.).
-4. STRling has predefined templates for commonly used patterns, so forget about even writing our simple syntax for most cases. (phone number, email, url... etc.)
+1. Beginner Friendly: You need ZERO knowledge of RegEx jargon to create powerful and clear to read patterns.
+2. Common Templates Built-in: STRling has predefined templates for commonly used patterns, so forget about even writing our simple syntax for most cases. (phone number, email, url... etc.)
+3. Reliable Logic: STRling exclusively utilizes built-in python libraries, making it a reliable package.
+4. Instructional Error Handling: Errors inevitably occur by drafting invalid patterns, so STRling explains to the developer exactly what was done wrong and how to correct it.
+5. Consistent and Readable: Make your projects clear and consistent by using STRling rather than the individual library string validators that each have their own syntax (Sqlite3, Sequelize, Postgres, WTForms... etc.).
+
+These key features collectively emphasis and fortify the claim that STRling truly is a next-generation production-grade syntax for pattern handling.
 
 ### STRling's Mission
 
 Our mission is to make RegEx a distant and outdated syntax by abstracting the complexities of RegEx into a clean, readable, and powerful interface. We strive to simplify string operations and ensure that developers can focus on building their applications without the steep learning curve of traditional RegEx. The previous alternative to RegEx was to learn the string validation syntax specific to each user input library, but STRling aims to unify the disparate syntaxes found across various libraries and frameworks into one simple library using only built-in Python packages.
-
-### Key Features
-
-- **High-Level Template Validation**: Quickly and easily validate common patterns using our template library.
-- **Low-Level Pattern Construction**: Build complex RegEx patterns using a readable and maintainable, object-oriented syntax.
-- **Escaping RegEx Jargon**: No longer write RegEx using complex jargon.
-- **Dependencies**: Depends solely on built-in python libraries, fostering dependability and compatibility.
 
 ### Installation
 
@@ -75,6 +71,11 @@ s.between('A', 'Z')  # Matches any uppercase letter from 'A' to 'Z'.
 
 # Matches any characters in the provided set.
 s.in_(s.letter(), s.digit(), s.lit(',.'))  # Matches letters, digits, commas, and periods.
+# You may notice a resemblance between simply.in_() and simply.any_of().
+# Key distinctions:
+#   - simply.in_() typically processes faster than simply.any_of().
+#   - simply.any_of() can process composite patterns while simply.in_() cannot.
+# A composite pattern is one consisting of smaller combined patterns.
 
 ####################
 # Anchors
@@ -93,7 +94,10 @@ s.end()  # Matches the end of a line.
 ####################
 
 s.any_of()  # Matches any one of the provided patterns.
-# This is similar to simply.in_(), except it can take in composite patterns.
+# You may notice a resemblance between simply.in_() and simply.any_of().
+# Key distinctions:
+#   - simply.in_() typically processes faster than simply.any_of().
+#   - simply.any_of() can process composite patterns while simply.in_() cannot.
 # A composite pattern is one consisting of smaller combined patterns.
 s.any_of(pattern1, pattern2) # Matches only if one of the patterns listed is present.
 
@@ -138,7 +142,7 @@ s.behind()  # Only matches the rest of a pattern if the provided pattern is behi
 s.merge(s.behind(s.digit()), s.letter())  # Only matches a letter preceded by a digit.
 ```
 
-Simplify your string validation and matching tasks with STRling, the all-in-one solution for developers who need powerful yet user-friendly tools for working with strings. Download and start using STRling today!
+Simplify your string validation and matching tasks with STRling, the all-in-one solution for developers who need a powerful yet user-friendly tool for working with strings. No longer write RegEx using complex jargon or the various syntaxes string validation specific to independent libraries. Download and start using STRling today!
 
 ---
 
