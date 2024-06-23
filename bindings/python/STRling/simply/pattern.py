@@ -14,6 +14,7 @@ class Pattern:
     def __init__(self, pattern: str, custom_set=False, composite=False, repeatable=True):
         # character sets must be stripped when passed into new character set
         # grouped patterns or composites may not be submitted into a character set
+        # non-repeatable methods like lookarounds need not to be repeated
         self.pattern = pattern
         self.custom_set = custom_set
         self.composite = composite
@@ -37,7 +38,7 @@ def repeat(min=None, max=None):
     """
     """
     if min is not None and max is not None:
-        if max == '':  # Special case to handle the 'min,' syntax
+        if max == 0:  # Special case to handle the 'min,' syntax
             return f'{{{min},}}'
         if min > max:
             raise ValueError('Min cannot be greater than max.')
