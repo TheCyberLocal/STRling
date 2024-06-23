@@ -24,9 +24,13 @@ class Pattern:
         __add__(other): Allows addition of two Pattern objects.
     """
     def __init__(self, pattern: str, custom_set: bool = False, negated_set: bool = False, composite: bool = False):
+        # The regex pattern string for this instance.
         self.pattern = pattern
+        # A custom set is regex with brackets [a-z]
         self.custom_set = custom_set
+        # A negated set is negated regex with brackets [^a-z]
         self.negated_set = negated_set
+        # A composite is any pattern pattern in parenthesis.
         self.composite = composite
 
     def __call__(self, min: int = None, max: int = None):

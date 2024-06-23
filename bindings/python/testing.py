@@ -1,6 +1,6 @@
 from STRling import simply
 import re
 
-test = simply.between(1)
+test = simply.in_('aA')
 print(test)
 re.compile(test.pattern)
