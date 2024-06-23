@@ -148,6 +148,8 @@ def group(name, *patterns):
     Raises:
         ValueError: If any of the parameters is not an instance of Pattern.
     """
+    if not isinstance(name, str):
+        raise ValueError('The `name` parameter must be a string.')
     if not all(isinstance(pattern, Pattern) for pattern in patterns):
         msg = (
         """
