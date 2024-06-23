@@ -8,106 +8,106 @@ from .pattern import Pattern
 ########
 
 
-def letter(min: int = None, max: int = None):
+def letter(min_rep: int = None, max_rep: int = None):
     """
     Matches any letter (uppercase or lowercase).
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'[A-Za-z]', custom_set=True)(min, max)
+    return Pattern(r'[A-Za-z]', custom_set=True)(min_rep, max_rep)
 
 
-def not_letter(min: int = None, max: int = None):
+def not_letter(min_rep: int = None, max_rep: int = None):
     """
     Matches any character that is not a letter.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'[^A-Za-z]', custom_set=True, negated_set=True)(min, max)
+    return Pattern(r'[^A-Za-z]', custom_set=True, negated_set=True)(min_rep, max_rep)
 
 
-def upper(min: int = None, max: int = None):
+def upper(min_rep: int = None, max_rep: int = None):
     """
     Matches any uppercase letter.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'[A-Z]', custom_set=True)(min, max)
+    return Pattern(r'[A-Z]', custom_set=True)(min_rep, max_rep)
 
 
-def not_upper(min: int = None, max: int = None):
+def not_upper(min_rep: int = None, max_rep: int = None):
     """
     Matches any character that is not an uppercase letter.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'[^A-Z]', custom_set=True, negated_set=True)(min, max)
+    return Pattern(r'[^A-Z]', custom_set=True, negated_set=True)(min_rep, max_rep)
 
 
-def lower(min: int = None, max: int = None):
+def lower(min_rep: int = None, max_rep: int = None):
     """
     Matches any lowercase letter.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'[a-z]', custom_set=True)(min, max)
+    return Pattern(r'[a-z]', custom_set=True)(min_rep, max_rep)
 
 
-def not_lower(min: int = None, max: int = None):
+def not_lower(min_rep: int = None, max_rep: int = None):
     """
     Matches any character that is not a lowercase letter.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'[^a-z]', custom_set=True, negated_set=True)(min, max)
+    return Pattern(r'[^a-z]', custom_set=True, negated_set=True)(min_rep, max_rep)
 
 
 
@@ -116,208 +116,208 @@ def not_lower(min: int = None, max: int = None):
 ########
 
 
-def digit(min: int = None, max: int = None):
+def digit(min_rep: int = None, max_rep: int = None):
     """
     Matches any digit.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'\d')(min, max)
+    return Pattern(r'\d')(min_rep, max_rep)
 
 
-def not_digit(min: int = None, max: int = None):
+def not_digit(min_rep: int = None, max_rep: int = None):
     """
     Matches any character that is not a digit.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'\D')(min, max)
+    return Pattern(r'\D')(min_rep, max_rep)
 
 
-def whitespace(min: int = None, max: int = None):
+def whitespace(min_rep: int = None, max_rep: int = None):
     """
     Matches any whitespace character. (Whitespaces include space, tab, newline, carriage return, etc.)
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'\s')(min, max)
+    return Pattern(r'\s')(min_rep, max_rep)
 
 
-def not_whitespace(min: int = None, max: int = None):
+def not_whitespace(min_rep: int = None, max_rep: int = None):
     """
     Matches any character that is not a whitespace character. (Whitespaces include space, tab, newline, carriage return, etc.)
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'\S')(min, max)
+    return Pattern(r'\S')(min_rep, max_rep)
 
 
-def newline(min: int = None, max: int = None):
+def newline(min_rep: int = None, max_rep: int = None):
     """
     Matches a newline character.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'\n')(min, max)
+    return Pattern(r'\n')(min_rep, max_rep)
 
 
-def not_newline(min: int = None, max: int = None):
+def not_newline(min_rep: int = None, max_rep: int = None):
     """
     Matches any character that is not a newline.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'.')(min, max)
+    return Pattern(r'.')(min_rep, max_rep)
 
 
-def tab(min: int = None, max: int = None):
+def tab(min_rep: int = None, max_rep: int = None):
     """
     Matches a tab character.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'\t')(min, max)
+    return Pattern(r'\t')(min_rep, max_rep)
 
 
-def not_tab(min: int = None, max: int = None):
+def not_tab(min_rep: int = None, max_rep: int = None):
     """
     Matches any character that is not a tab.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'\T')(min, max)
+    return Pattern(r'\T')(min_rep, max_rep)
 
 
-def carriage(min: int = None, max: int = None):
+def carriage(min_rep: int = None, max_rep: int = None):
     """
     Matches a carriage return character.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'\r')(min, max)
+    return Pattern(r'\r')(min_rep, max_rep)
 
 
-def not_carriage(min: int = None, max: int = None):
+def not_carriage(min_rep: int = None, max_rep: int = None):
     """
     Matches any character that is not a carriage return.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'\R')(min, max)
+    return Pattern(r'\R')(min_rep, max_rep)
 
 
-def bound(min: int = None, max: int = None):
+def bound(min_rep: int = None, max_rep: int = None):
     """
     Matches a boundary character.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'\b')(min, max)
+    return Pattern(r'\b')(min_rep, max_rep)
 
 
-def not_bound(min: int = None, max: int = None):
+def not_bound(min_rep: int = None, max_rep: int = None):
     """
     Matches any character that is not a boundary.
 
-    Parameters: (min/exact, max)
-    - min (optional): Specifies the minimum number of characters to match.
-    - max (optional): Specifies the maximum number of characters to match.
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
 
     Special Cases:
-    - If only `min` is specified, it represents the exact number of characters to match.
-    - If `max` is 0, it means there is no upper limit.
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
 
     Returns: An instance of the Pattern class.
     """
-    return Pattern(r'\B')(min, max)
+    return Pattern(r'\B')(min_rep, max_rep)
 
 
 def start():
@@ -329,7 +329,7 @@ def start():
 
     Returns: An instance of the Pattern class.
 
-    Note: Their is no `simply.not_start()` function,
+    Note: There is no `simply.not_start()` function,
     to do this, use `simply.not_behind(simply.start())`.
     """
     return Pattern(r'^')
@@ -344,7 +344,7 @@ def end():
 
     Returns: An instance of the Pattern class.
 
-    Note: Their is no `simply.not_end()` function,
+    Note: There is no `simply.not_end()` function,
     to do this, use `simply.not_ahead(simply.end())`.
     """
     return Pattern(r'$')

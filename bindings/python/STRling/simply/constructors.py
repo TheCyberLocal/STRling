@@ -8,11 +8,9 @@ from .pattern import Pattern
 
 
 
-def or_(*patterns):
+def any_of(*patterns):
     """
-    Creates a pattern that matches any of the given patterns.
-
-    This function constructs a non-capturing group that matches any of the provided patterns.
+    Creates a pattern that matches any one of the provided patterns.
 
     Parameters:
         *patterns (Pattern): One or more Pattern instances to be matched.
@@ -31,17 +29,15 @@ def or_(*patterns):
 
         Solution:
             Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letters()`.
+            or use a predefined set like `simply.letter()`.
         """)
         raise ValueError(msg)
     joined = '|'.join(f'(?:{str(p)})' for p in patterns)
-    return Pattern(f'(?:{joined})')
+    return Pattern(f'(?:{joined})', composite=True)
 
 def may(*patterns):
     """
-    Creates a pattern that optionally matches the given patterns.
-
-    This function constructs a pattern that optionally matches the provided patterns.
+    Creates a pattern that optionally matches the provided patterns.
 
     Parameters:
         *patterns (Pattern): One or more Pattern instances to be optionally matched.
@@ -60,7 +56,7 @@ def may(*patterns):
 
         Solution:
             Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letters()`.
+            or use a predefined set like `simply.letter()`.
         """)
         raise ValueError(msg)
 
@@ -74,9 +70,7 @@ def may(*patterns):
 
 def merge(*patterns):
     """
-    Creates a pattern that matches the concatenation of the given patterns.
-
-    This function constructs a non-capturing group that matches the concatenation of the provided patterns.
+    Combines the provided patterns into one larger pattern.
 
     Parameters:
         *patterns (Pattern): One or more Pattern instances to be concatenated.
@@ -95,7 +89,7 @@ def merge(*patterns):
 
         Solution:
             Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letters()`.
+            or use a predefined set like `simply.letter()`.
         """)
         raise ValueError(msg)
     joined = ''.join(str(p) for p in patterns)
@@ -104,9 +98,7 @@ def merge(*patterns):
 
 def capture(*patterns):
     """
-    Creates a pattern that captures the given patterns.
-
-    This function constructs a capturing group that matches the provided patterns.
+    Creates a numbered group that can be indexed for extracting part of a match.
 
     Parameters:
         *patterns (Pattern): One or more Pattern instances to be captured.
@@ -125,7 +117,7 @@ def capture(*patterns):
 
         Solution:
             Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letters()`.
+            or use a predefined set like `simply.letter()`.
         """)
         raise ValueError(msg)
 
@@ -134,9 +126,7 @@ def capture(*patterns):
 
 def group(name, *patterns):
     """
-    Creates a named capturing group for the given patterns.
-
-    This function constructs a named capturing group that matches the provided patterns.
+    Creates a named group that can be referenced for extracting part of a match.
 
     Parameters:
         name (str): The name of the capturing group.
@@ -158,9 +148,9 @@ def group(name, *patterns):
 
         Solution:
             Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letters()`.
+            or use a predefined set like `simply.letter()`.
         """)
         raise ValueError(msg)
 
     joined = ''.join(str(p) for p in patterns)
-    return Pattern(f'(?P<{name}>{joined})', composite=True)
+    return Pattern(f'(?P<{name}>{joined})', composite=True, named_group=True)

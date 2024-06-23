@@ -30,174 +30,112 @@ Install STRling via pip:
 pip install STRling
 ```
 
-### Documentation - Developmental Guide
+---
 
-Here's a quick example to demonstrate how easy it is to get started with STRling:
-
+# STRling Package Documentation
 ```python
+from STRling import simply as s
 import re
-from STRling import lit, group, merge, templates as tmp
+
+####################
+# Custom Literals
+####################
+
+# Creates a matching pattern from a regular string
+s.lit('$%')  # Matches the literal characters '$' or '%'.
+
+####################
+# Character Sets
+####################
+
+# Note: Each character set below has a negated counterpart.
+# For example, simply.letter() => simply.not_letter()
+
+s.letter()      # Matches any letter (uppercase or lowercase).
+s.upper()       # Matches any uppercase letter.
+s.lower()       # Matches any lowercase letter.
+s.digit()       # Matches any digit.
+s.whitespace()  # Matches any whitespace character (space, tab, newline, carriage return, etc.).
+s.newline()     # Matches a newline character.
+s.tab()         # Matches a tab character.
+s.carriage()    # Matches a carriage return character.
+s.bound()       # Matches a boundary character.
+
+####################
+# Custom Sets
+####################
+
+# Note: Each custom set below has a negated counterpart.
+# For example, simply.between() => simply.not_between()
+
+# Matches all characters within and including the start and end of a letter or number range.
+s.between(0, 9)      # Matches any digit from 0 to 9.
+s.between('a', 'z')  # Matches any lowercase letter from 'a' to 'z'.
+s.between('A', 'Z')  # Matches any uppercase letter from 'A' to 'Z'.
+
+# Matches any characters in the provided set.
+s.in_(s.letter(), s.digit(), s.lit(',.'))  # Matches letters, digits, commas, and periods.
+
+####################
+# Anchors
+####################
+
+s.start()  # Matches the start of a line.
+# There is no `simply.not_start()` function.
+# Instead, use `simply.not_behind(simply.start())`.
+
+s.end()  # Matches the end of a line.
+# There is no `simply.not_end()` function.
+# Instead, use `simply.not_ahead(simply.end())`.
+
+####################
+# Constructors
+####################
+
+s.any_of()  # Matches any one of the provided patterns.
+# This is similar to simply.in_(), except it can take in composite patterns.
+# A composite pattern is one consisting of smaller combined patterns.
+s.any_of(pattern1, pattern2) # Matches only if one of the patterns listed is present.
 
 
-##########################################################
-## Here are some real implementations of STRling syntax ##
-##########################################################
-
-phones_in_usa = tmp.phone_number_US
-"""
-The matched formats include:
-- No Delimiters: 1234567890
-- All Groups Separated:
-    - 123 456 7890
-    - 123-456-7890
-    - 123.456.7890
-- Grouped Area Code:
-    - (123) 456 7890
-    - (123) 456-7890
-    - (123) 456.7890
-"""
-# As you can see, we have very complex templates already created,
-# so for the most cases you can forget about even crafting patterns.
+s.may()  # Optionally matches the provided patterns.
+# If a `may` pattern isn't there, it still will match the rest of the patterns.
+# In the text, "ABC2" the patter below matches ['A', 'B', 'C2']
+s.merge(s.letter(), s.may(s.digit()))
 
 
-# Most invoked functions have the range ability
-# after their positional arguments as lib.letter()
-
-any_letter = lib.letter() # [A-Za-z]
-exactly_four_letters = lib.letter(4) # [A-Za-z]{4}
-two_to_six_letters = lib.letter(2, 6) # [A-Za-z]{2, 6}
-two_or_more_letters = lib.letter(2, '') # [A-Za-z]{2,}
-
-# Using ahead (e.g., match 'foo' only if followed by 'bar')
-foo_if_bar = lib.lit('foo') + lib.ahead('bar') # foo(?=bar)
-
-# Using lookbehind (e.g., match 'bar' only if preceded by 'foo')
-bar_if_foo = lib.behind('foo') + lib.lit('bar') # (?<=foo)bar
-
-# Using or_ (e.g., match either 'cat' or 'dog')
-cat_or_dog = lib.or_(lib.lit('cat'), lib.lit('dog')) # (?:cat|dog)
-
-# Creating a named group (e.g., capturing a word)
-letter_num = merge(lib.digit(), lib.letter()) # (?:\d[A-Za-z])
-special1 = lib.group('word', lib.letter() + lib.may(letter_num()))
-# special1 is equivalent to the RegEx (?P<word>[A-Za-z](?:\d[A-Za-z])?)
+s.merge()  # Combines multiple patterns into one larger pattern.
+# You can see this used for the method above.
 
 
-first = group('first', lib.digit(3)) # (?P<first>\d{3})
-second = group('second', lib.digit(3)) # (?P<second>\d{3})
-third = group('third', lib.digit(4)) # (?P<third>\d{4})
-h = lib.lit('-') # \-
-
-phone_pattern = lib.group('phone', first + h + second + h + third)
-# phone_pattern is equivalent to the RegEx pattern below
-# (?P<phone>(?P<first>\d{3})\-(?P<second>\d{3})\-(?P<third>\d{4}))
-
-# Sample string containing phone numbers
-text = "Here are some phone numbers: 987-654-3210, 123-456-7890."
-
-# Using the re package to search for the phone number pattern
-matches = re.finditer(phone_pattern, text)
-
-# Displaying the matches
-for match in matches:
-    print('Match Index Range:', match.span())
-    print('"first" group:', match.group('first'))
-    print('"second" group:', match.group('second'))
-    print('"third" group:', match.group('third'))
-    print('"phone" group:', match.group('phone'))
-
-# Match Index Range: (29, 41)
-# "first" group: 987
-# "second" group: 654
-# "third" group: 3210
-# "phone" group: 987-654-3210
-
-# Match Index Range: (43, 55)
-# "first" group: 123
-# "second" group: 456
-# "third" group: 7890
-# "phone" group: 123-456-7890
+s.capture()  # Creates a numbered group that can be indexed for extracting part of a match later.
+# Capture is used the same as merge.
+s.capture(s.letter(), s.digit())
 
 
+s.group()  # Creates a named group that can be referenced for extracting part of a match.
+# group is used the same as merge and capture but it takes a string name as the first argument.
+s.group('my_group', s.letter(), s.digit())
+# Unlike merge and capture, merge cannot be repeated.
+# This is because group names must be unique in a pattern.
 
-##############################################################
-## Here are all the lib methods with their equivalent RegEx ##
-##############################################################
+####################
+# Lookarounds
+####################
 
-# Matches the literal provided string (no symbols or variables)
-lib.lit('\s t*') # \\s\st\*
+# Note: Each lookaround below has a negated counterpart.
+# For example, simply.ahead() => simply.not_ahead()
 
-# Matches any character between and including the two provided
-lib.between('A', 'D') # [A-D]
+# These verify a pattern is or isn't ahead or behind
+# without capturing it as part of the pattern matched.
 
-# Matches any character in the provided string
-lib.in_('abc') # [abc]
+s.ahead()  # Only matches the rest of a pattern if the provided pattern is ahead.
+# For example, in the text "123ABC", the pattern below matches 3 but not 1 or 2.
+s.merge(s.digit(), s.ahead(s.letter()))  # Only matches a digit followed by a letter.
 
-# Matches any character not in the provided string
-lib.not_in('abc') # [^abc]
-
-# Matches any digit
-lib.digit() # \d
-
-# Matches any letter
-lib.letter() # [A-Za-z]
-
-# Matches any uppercase letter
-lib.upper() # [A-Z]
-
-# Matches any lowercase letter
-lib.lower() # [a-z]
-
-# Matches any character besides newline
-lib.any() # .
-
-# Matches a newline character
-lib.newline() # \n
-
-# Matches a tab character
-lib.tab() # \t
-
-# Matches a carriage return
-lib.carriage() # \r
-
-# Matches a boundary character
-lib.bound() # \b
-
-# Matches the start of the string
-# Doesn't accept range params
-lib.start() # ^
-
-# Matches the end of the string
-# Doesn't accept range params
-lib.end() # $
-
-# Matches only where the provided pattern is found ahead
-# Doesn't accept range params
-lib.ahead() # (?=pattern)
-
-# Matches only where the provided pattern is found behind
-# Doesn't accept range params
-lib.behind() # (?<=pattern)
-
-# Matches only where the provided pattern is not found ahead
-# Doesn't accept range params
-lib.not_ahead() # (?!pattern)
-
-# Matches only where the provided pattern is not found behind
-# Doesn't accept range params
-lib.not_behind() # (?<!pattern)
-
-# Matches any of the provided patterns
-lib.or_() # pattern1 | pattern2
-
-# Matches 1 otherwise 0 of the provided pattern
-lib.may() # pattern?
-
-# Groups the provided patterns with a name
-group() # (?P<name>pattern1 pattern2)
-
-# Groups the provided patterns without a name
-merge() # (?:pattern1 pattern2)
+s.behind()  # Only matches the rest of a pattern if the provided pattern is behind.
+# For example, in the text "123ABC", the pattern below matches A but not B or C.
+s.merge(s.behind(s.digit()), s.letter())  # Only matches a letter preceded by a digit.
 ```
 
 Simplify your string validation and matching tasks with STRling, the all-in-one solution for developers who need powerful yet user-friendly tools for working with strings. Download and start using STRling today!

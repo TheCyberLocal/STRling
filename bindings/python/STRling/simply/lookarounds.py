@@ -31,7 +31,7 @@ def ahead(pattern):
 
         Solution:
             Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letters()`.
+            or use a predefined set like `simply.letter()`.
         """)
         raise ValueError(msg)
     return Pattern(f'(?={pattern})', composite=True)
@@ -60,7 +60,7 @@ def not_ahead(pattern):
 
         Solution:
             Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letters()`.
+            or use a predefined set like `simply.letter()`.
         """)
         raise ValueError(msg)
     return Pattern(f'(?!{pattern})', composite=True)
@@ -89,7 +89,7 @@ def behind(pattern):
 
         Solution:
             Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letters()`.
+            or use a predefined set like `simply.letter()`.
         """)
         raise ValueError(msg)
     return Pattern(f'(?<={pattern})', composite=True)
@@ -118,7 +118,7 @@ def not_behind(pattern):
 
         Solution:
             Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letters()`.
+            or use a predefined set like `simply.letter()`.
         """)
         raise ValueError(msg)
     return Pattern(f'(?<!{pattern})', composite=True)
