@@ -1,4 +1,6 @@
 from STRling import simply as s
 import re
 
-print(s.in_(s.lit('a\s')))
+test = s.merge('23')
+print(test)
+re.compile(test.pattern)
