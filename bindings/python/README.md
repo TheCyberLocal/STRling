@@ -34,6 +34,25 @@ from STRling import simply as s
 import re
 
 ####################
+# Range Feature
+####################
+
+# Most methods allow the `min_rep` and `max_rep` to be passed in directly or after params.
+# For example, simply.letter(1, 3) will match 1 to 3 letters.
+
+# But some methods take an unknown number of parameters and can't distinguish the range.
+# For example, s.merge(simply.letter(), simply.digit(), 1, 2). <==== THIS IS INVALID
+
+# However, all methods allow setting the range by reinvoking if a range hasn't already been set.
+# For example, simply.letter()(1, 2) is the same as simply.letter(1, 2).
+
+# This external invocation may seem useless, but it can solve our earlier issue.
+# For example, s.merge(simply.letter(), simply.digit())(1, 2). <==== THIS IS VALID
+
+# Notice for all functions (where repetition is valid) we can invoke the range outside the parameters,
+# but it is primarily useful for functions with an unknown number of parameters.
+
+####################
 # Custom Literals
 ####################
 
@@ -136,6 +155,7 @@ s.group('my_group', s.letter(), s.digit())
 s.ahead()  # Only matches the rest of a pattern if the provided pattern is ahead.
 # For example, in the text "123ABC", the pattern below matches 3 but not 1 or 2.
 s.merge(s.digit(), s.ahead(s.letter()))  # Only matches a digit followed by a letter.
+
 
 s.behind()  # Only matches the rest of a pattern if the provided pattern is behind.
 # For example, in the text "123ABC", the pattern below matches A but not B or C.

@@ -60,6 +60,30 @@ class Pattern:
             Consider using an unlabeled group (merge), or a numbered group (capture).
         """)
             raise ValueError(msg)
+        if len(self.pattern) > 1 and self.pattern[-1] == '}' and self.pattern[-2] != '\\':
+            msg = (
+        """
+        Problem:
+            Cannot re-invoke pattern to specify range that already exists.
+
+            Examples of invalid syntax:
+                simply.letter(1, 2)(3, 4) # double invoked range is invalid
+                my_pattern = simply.letter(1, 2) # my_pattern was set range (1, 2) # valid
+                my_new_pattern = my_pattern(3, 4) # my_pattern was reinvoked (3, 4) # invalid
+
+
+        Solution:
+            Set the range on the first invocation, don't reassign it.
+
+            Examples of valid syntax:
+                You can specify the range now:
+                    my_pattern = simply.letter(1, 2)
+
+                Or later:
+                    my_pattern = simply.letter() # my_pattern was never assigned a range
+                    my_new_pattern = my_pattern(1, 2) # my_pattern was invoked with (1, 2) for the first time
+        """)
+            raise ValueError(msg)
         self.pattern += repeat(min_rep, max_rep)
         return self
 
