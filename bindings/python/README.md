@@ -26,9 +26,76 @@ Install STRling via pip:
 pip install STRling
 ```
 
----
+# STRling in action!
+
+```python
+from STRling import simply as s
+import re
+
+
+# Let's make a phone number pattern for the formats below:
+# - (123) 456-7890
+# - 123-456-7890
+# - 123 456 7890
+# - 1234567890
+
+# Separator: either space or hyphen
+separator = s.in_(s.lit(' -'))
+
+# Optional area code part: 123 even if in parenthesis like (123)
+area_code = s.merge( # notice we use merge since we don't want to name the group with parenthesis
+    s.may(s.lit('(')),  # Optional opening parenthesis
+    s.group('area_code', s.digit(3)), # Exactly 3 digits and named for later reference
+    s.may(s.lit(')'))  # Optional closing parenthesis
+)
+
+# Central part: 456
+central_part = s.group('central_part', s.digit(3)) # Exactly 3 digits and named for later reference
+
+# Last part: 7890
+last_part = s.group("last_part", s.digit(4)) # Exactly 4 digits and named for later reference
+
+# Combine all parts into the final phone number pattern
+# Notice we don't name the whole pattern since we can already reference it
+phone_number_pattern = s.merge(
+    area_code,  # Area code part
+    s.may(separator),  # Optional separator after area code
+    central_part,  # Central 3 digits
+    s.may(separator),  # Optional separator after area code
+    last_part  # Last part with hyphen and 4 digits
+)
+
+# Example usage
+# Note: To make a pattern a RegEx string compatible with other engines use `str(pattern)`.
+example_text = "(123) 456-7890 and 123-456-7890"
+pattern = re.compile(str(phone_number_pattern)) # Notice str(pattern)
+matches = pattern.finditer(example_text)
+
+for match in matches:
+    print("Full Match:", match.group())
+    print("Area Code:", match.group("area_code"))
+    print("Central Part:", match.group("central_part"))
+    print("Last Part:", match.group("last_part"))
+    print()
+
+# Output:
+# Full Match: (123) 456-7890
+# Area Code: 123
+# Central Part: 456
+# Last Part: 7890
+
+# Full Match: 123-456-7890
+# Area Code: 123
+# Central Part: 456
+# Last Part: 7890
+```
 
 # STRling Package Documentation
+
+### Don't worry if you can't remember it all!
+We have well structured and explanatory docustrings for each function
+that allow you to understand exactly how it works by just hovering your mouse.
+
 ```python
 from STRling import simply as s
 import re
