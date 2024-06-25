@@ -1,2 +1,2 @@
-from STRling import simply as s
+from STRling import simply
 import re

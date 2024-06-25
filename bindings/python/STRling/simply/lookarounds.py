@@ -1,5 +1,6 @@
 
-from .pattern import Pattern
+from .pattern import Pattern, clean_param
+
 
 
 ############################
@@ -9,116 +10,96 @@ from .pattern import Pattern
 
 def ahead(pattern):
     """
-    Creates a Pattern object that performs a positive lookahead.
+    A positive lookahead checks for the presence of the specified pattern after the current position without including it in the result.
 
-    A positive lookahead checks for the presence of the specified pattern
-    without including it in the result.
+    Example: simply as s
+
+        # Below only matches a digit followed by a letter.
+
+        my_pattern = s.merge(s.digit(), s.ahead(s.letter()))
 
     Parameters:
-        pattern (Pattern): The pattern to look ahead for.
+    - pattern (Pattern/str): The pattern to look ahead for.
 
     Returns:
-        Pattern: A Pattern object representing the positive lookahead.
+    - Pattern: A Pattern object representing the positive lookahead.
 
     Raises:
-        ValueError: If the parameter is not an instance of Pattern.
+    - ValueError: If the parameter is not an instance of Pattern or str.
     """
-    if not isinstance(pattern, Pattern):
-        msg = (
-        """
-        Problem:
-            The parameter is not an instance of Pattern.
 
-        Solution:
-            Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letter()`.
-        """)
-        raise ValueError(msg)
-    return Pattern(f'(?={pattern})', composite=True)
+    clean_pattern = clean_param(pattern)
+
+    return Pattern(f'(?={clean_pattern})', composite=True)
 
 def not_ahead(pattern):
     """
-    Creates a Pattern object that performs a negative lookahead.
+    A negative lookahead checks for the absence of the specified pattern after the current position without including it in the result.
 
-    A negative lookahead checks for the absence of the specified pattern
-    without including it in the result.
+    Example: simply as s
+
+        # Below only matches a digit if not followed by a letter.
+
+        my_pattern = s.merge(s.digit(), s.not_ahead(s.letter()))
 
     Parameters:
-        pattern (Pattern): The pattern to look ahead for and ensure is absent.
+    - pattern (Pattern/str): The pattern to look ahead for and ensure is absent.
 
     Returns:
-        Pattern: A Pattern object representing the negative lookahead.
+    - Pattern: A Pattern object representing the negative lookahead.
 
     Raises:
-        ValueError: If the parameter is not an instance of Pattern.
+    - ValueError: If the parameter is not an instance of Pattern or str.
     """
-    if not isinstance(pattern, Pattern):
-        msg = (
-        """
-        Problem:
-            The parameter is not an instance of Pattern.
 
-        Solution:
-            Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letter()`.
-        """)
-        raise ValueError(msg)
-    return Pattern(f'(?!{pattern})', composite=True)
+    clean_pattern = clean_param(pattern)
+
+    return Pattern(f'(?!{clean_pattern})', composite=True)
 
 def behind(pattern):
     """
-    Creates a Pattern object that performs a positive lookbehind.
+    A positive lookbehind checks for the presence of the specified pattern before the current position without including it in the result.
 
-    A positive lookbehind checks for the presence of the specified pattern
-    before the current position without including it in the result.
+    Example: simply as s
+
+        # Below only matches a letter preceded by a digit.
+
+        my_pattern = s.merge(s.behind(s.digit()), s.letter())
 
     Parameters:
-        pattern (Pattern): The pattern to look behind for.
+    - pattern (Pattern/str): The pattern to look behind for.
 
     Returns:
-        Pattern: A Pattern object representing the positive lookbehind.
+    - Pattern: A Pattern object representing the positive lookbehind.
 
     Raises:
-        ValueError: If the parameter is not an instance of Pattern.
+    - ValueError: If the parameter is not an instance of Pattern or str.
     """
-    if not isinstance(pattern, Pattern):
-        msg = (
-        """
-        Problem:
-            The parameter is not an instance of Pattern.
 
-        Solution:
-            Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letter()`.
-        """)
-        raise ValueError(msg)
-    return Pattern(f'(?<={pattern})', composite=True)
+    clean_pattern = clean_param(pattern)
+
+    return Pattern(f'(?<={clean_pattern})', composite=True)
 
 def not_behind(pattern):
     """
-    Creates a Pattern object that performs a negative lookbehind.
+    A negative lookbehind checks for the absence of the specified pattern before the current position without including it in the result.
 
-    A negative lookbehind checks for the absence of the specified pattern
-    before the current position without including it in the result.
+    Example: simply as s
+
+        # Below only matches a letter if not preceded by a digit.
+
+        my_pattern = s.merge(s.behind(s.digit()), s.letter())
 
     Parameters:
-        pattern (Pattern): The pattern to look behind for and ensure is absent.
+    - pattern (Pattern/str): The pattern to look behind for and ensure is absent.
 
     Returns:
-        Pattern: A Pattern object representing the negative lookbehind.
+    - Pattern: A Pattern object representing the negative lookbehind.
 
     Raises:
-        ValueError: If the parameter is not an instance of Pattern.
+    - ValueError: If the parameter is not an instance of Pattern or str.
     """
-    if not isinstance(pattern, Pattern):
-        msg = (
-        """
-        Problem:
-            The parameter is not an instance of Pattern.
 
-        Solution:
-            Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letter()`.
-        """)
-        raise ValueError(msg)
-    return Pattern(f'(?<!{pattern})', composite=True)
+    clean_pattern = clean_param(pattern)
+
+    return Pattern(f'(?<!{clean_pattern})', composite=True)

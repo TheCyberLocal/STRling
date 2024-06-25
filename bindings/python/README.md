@@ -2,7 +2,7 @@
 
 ## The Next Generation of Regular Expressions
 
-STRling is a next-generation production-grade syntax designed as a user interface for writing powerful regular expressions (RegEx) with an object-oriented approach and instructional error handling. STRling recognizes the cryptic nature of raw regular expression can be challenging and susceptibility to errors, which is why STRling looks and feels nothing like RegEx while maintaining the same power and flexibility. String validation should be simple and enjoyable, not a hassle. Best of all, STRling syntax is built upon the RegEx engine, making it fully compatible with all libraries that accept RegEx along with the traditional RegEx methods built in to Python.
+STRling is a next-generation production-grade syntax designed as a user interface for writing powerful regular expressions (RegEx) with an object-oriented approach and instructional error handling. STRling recognizes the cryptic nature of raw regular expression can be challenging and susceptibility to errors, which is why STRling looks and feels nothing like RegEx while maintaining the same power and flexibility. String validation should be simple and enjoyable, not a hassle. Best of all, STRling syntax is built upon the RegEx engine, making it fully compatible with all libraries that accept RegEx along with the traditional RegEx methods built-in to Python.
 
 ### Why STRling?
 
@@ -40,20 +40,20 @@ import re
 # - 1234567890
 
 # Separator: either space or hyphen
-separator = s.in_(s.lit(' -'))
+separator = s.in_(' -')
 
 # Optional area code part: 123 even if in parenthesis like (123)
 area_code = s.merge( # notice we use merge since we don't want to name the group with parenthesis
-    s.may(s.lit('(')),  # Optional opening parenthesis
+    s.may('('),  # Optional opening parenthesis
     s.group('area_code', s.digit(3)), # Exactly 3 digits and named for later reference
-    s.may(s.lit(')'))  # Optional closing parenthesis
+    s.may(')')  # Optional closing parenthesis
 )
 
 # Central part: 456
-central_part = s.group('central_part', s.digit(3)) # Exactly 3 digits and named for later reference
+central_part = s.group('central_part', s.digit(3))  # Exactly 3 digits and named for later reference
 
 # Last part: 7890
-last_part = s.group("last_part", s.digit(4)) # Exactly 4 digits and named for later reference
+last_part = s.group("last_part", s.digit(4))  # Exactly 4 digits and named for later reference
 
 # Combine all parts into the final phone number pattern
 # Notice we don't name the whole pattern since we can already reference it
@@ -68,7 +68,7 @@ phone_number_pattern = s.merge(
 # Example usage
 # Note: To make a pattern a RegEx string compatible with other engines use `str(pattern)`.
 example_text = "(123) 456-7890 and 123-456-7890"
-pattern = re.compile(str(phone_number_pattern)) # Notice str(pattern)
+pattern = re.compile(str(phone_number_pattern))  # Notice str(pattern)
 matches = pattern.finditer(example_text)
 
 for match in matches:
@@ -108,13 +108,13 @@ import re
 # For example, simply.letter(1, 3) will match 1 to 3 letters.
 
 # But some methods take an unknown number of parameters and can't distinguish the range.
-# For example, s.merge(simply.letter(), simply.digit(), 1, 2). <==== THIS IS INVALID
+# For example, s.merge(simply.letter(), simply.digit(), 1, 2). <==== INVALID
 
-# However, all methods allow setting the range by reinvoking if a range hasn't already been set.
+# However, all methods allow setting the range by externally invoking unless otherwise specified.
 # For example, simply.letter()(1, 2) is the same as simply.letter(1, 2).
 
 # This external invocation may seem useless, but it can solve our earlier issue.
-# For example, s.merge(simply.letter(), simply.digit())(1, 2). <==== THIS IS VALID
+# For example, s.merge(simply.letter(), simply.digit())(1, 2). <==== VALID
 
 # Notice for all functions (where repetition is valid) we can invoke the range outside the parameters,
 # but it is primarily useful for functions with an unknown number of parameters.
@@ -144,26 +144,6 @@ s.carriage()    # Matches a carriage return character.
 s.bound()       # Matches a boundary character.
 
 ####################
-# Custom Sets
-####################
-
-# Note: Each custom set below has a negated counterpart.
-# For example, simply.between() => simply.not_between()
-
-# Matches all characters within and including the start and end of a letter or number range.
-s.between(0, 9)      # Matches any digit from 0 to 9.
-s.between('a', 'z')  # Matches any lowercase letter from 'a' to 'z'.
-s.between('A', 'Z')  # Matches any uppercase letter from 'A' to 'Z'.
-
-# Matches any characters in the provided set.
-s.in_(s.letter(), s.digit(), s.lit(',.'))  # Matches letters, digits, commas, and periods.
-# You may notice a resemblance between simply.in_() and simply.any_of().
-# Key distinctions:
-#   - simply.in_() typically processes faster than simply.any_of().
-#   - simply.any_of() can process composite patterns while simply.in_() cannot.
-# A composite pattern is one consisting of smaller combined patterns.
-
-####################
 # Anchors
 ####################
 
@@ -176,22 +156,37 @@ s.end()  # Matches the end of a line.
 # Instead, use `simply.not_ahead(simply.end())`.
 
 ####################
+# Custom Sets
+####################
+
+# Note: Each custom set below has a negated counterpart.
+# For example, simply.between() => simply.not_between()
+
+# Matches all characters within and including the start and end of a letter or number range.
+s.between(0, 9)      # Matches any digit from 0 to 9.
+s.between('a', 'z')  # Matches any lowercase letter from 'a' to 'z'.
+s.between('A', 'Z')  # Matches any uppercase letter from 'A' to 'Z'.
+
+# Matches any provided patterns, but they can't include subpatterns.
+s.in_(s.letter(), s.digit(), ',.')  # Matches any letter, digit, comma, and period.
+# A composite pattern is one consisting of subpatterns (created by constructors and lookarounds).
+
+####################
 # Constructors
 ####################
 
-s.any_of()  # Matches any one of the provided patterns.
-# You may notice a resemblance between simply.in_() and simply.any_of().
-# Key distinctions:
-#   - simply.in_() typically processes faster than simply.any_of().
-#   - simply.any_of() can process composite patterns while simply.in_() cannot.
-# A composite pattern is one consisting of smaller combined patterns.
-s.any_of(pattern1, pattern2) # Matches only if one of the patterns listed is present.
+s.any_of()  # Matches any pattern, including patterns consisting of subpatterns.
+# A composite pattern is one consisting of subpatterns (created by constructors and lookarounds).
+pattern1 = s.merge(s.digit(3), s.letter(3))  # Matches 3 digits followed by 3 letters.
+pattern2 = s.merge(s.letter(3), s.digit(3))  # Matches 3 letters followed by 3 digits.
+s.any_of(pattern1, pattern2)  # Matches either pattern1 or pattern2
 
 
 s.may()  # Optionally matches the provided patterns.
 # If a `may` pattern isn't there, it still will match the rest of the patterns.
-# In the text, "ABC2" the patter below matches ['A', 'B', 'C2']
 s.merge(s.letter(), s.may(s.digit()))
+# Matches any letter, and includes any digit following the letter.
+# In the text, "AB2" the pattern above matches 'A' and 'B2'.
 
 
 s.merge()  # Combines multiple patterns into one larger pattern.
@@ -202,12 +197,53 @@ s.capture()  # Creates a numbered group that can be indexed for extracting part 
 # Capture is used the same as merge.
 s.capture(s.letter(), s.digit())
 
+# Captures CANNOT be invoked with a range: s.capture(s.digit(), s.letter())(1, 2) <== INVALID
+# Captures CAN be invoked with a number of copies: s.capture(s.digit(), s.letter())(3) <== VALID
+
+three_digit_group = s.capture(s.digit(3))
+four_groups_of_three = three_digit_groups(4)
+
+example_text = "Here is a number: 111222333444"
+match = re.search(str(four_groups_of_three), example_text)  # Notice str(pattern)
+
+print("Full Match:", match.group())
+print("First:", match.group(1))
+print("Second:", match.group(2))
+print("Third:", match.group(3))
+print("Fourth:", match.group(4))
+
+# Output:
+# Full Match: 111222333444
+# First: 111
+# Second: 222
+# Third: 333
+# Fourth: 444
+
 
 s.group()  # Creates a named group that can be referenced for extracting part of a match.
 # group is used the same as merge and capture but it takes a string name as the first argument.
 s.group('my_group', s.letter(), s.digit())
-# Unlike merge and capture, merge cannot be repeated.
+
+# Unlike merge and capture, groups CANNOT be invoked with a range.
 # This is because group names must be unique in a pattern.
+# s.group('unique_name', s.digit())(1, 2) <== INVALID
+
+# Groups can easily be referenced from the match by name
+# assuming the numbers have been grouped and named properly.
+example_text = "Here is a phone number: 123-456-7890."
+match = re.search(str(phone_number_pattern), example_text)  # Notice str(pattern)
+
+print("Full Match:", match.group())
+print("Area Code:", match.group("area_code"))
+print("Central Part:", match.group("central_part"))
+print("Last Part:", match.group("last_part"))
+
+# Output:
+# Full Match: 123-456-7890
+# Area Code: 123
+# Central Part: 456
+# Last Part: 7890
+
 
 ####################
 # Lookarounds

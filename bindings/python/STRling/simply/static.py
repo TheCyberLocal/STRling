@@ -20,7 +20,8 @@ def letter(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'[A-Za-z]', custom_set=True)(min_rep, max_rep)
 
@@ -37,9 +38,10 @@ def not_letter(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
-    return Pattern(r'[^A-Za-z]', custom_set=True, negated_set=True)(min_rep, max_rep)
+    return Pattern(r'[^A-Za-z]', custom_set=True, negated=True)(min_rep, max_rep)
 
 
 def upper(min_rep: int = None, max_rep: int = None):
@@ -54,7 +56,8 @@ def upper(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'[A-Z]', custom_set=True)(min_rep, max_rep)
 
@@ -71,9 +74,10 @@ def not_upper(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
-    return Pattern(r'[^A-Z]', custom_set=True, negated_set=True)(min_rep, max_rep)
+    return Pattern(r'[^A-Z]', custom_set=True, negated=True)(min_rep, max_rep)
 
 
 def lower(min_rep: int = None, max_rep: int = None):
@@ -88,7 +92,8 @@ def lower(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'[a-z]', custom_set=True)(min_rep, max_rep)
 
@@ -105,9 +110,10 @@ def not_lower(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
-    return Pattern(r'[^a-z]', custom_set=True, negated_set=True)(min_rep, max_rep)
+    return Pattern(r'[^a-z]', custom_set=True, negated=True)(min_rep, max_rep)
 
 
 
@@ -128,7 +134,8 @@ def digit(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'\d')(min_rep, max_rep)
 
@@ -145,7 +152,8 @@ def not_digit(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'\D')(min_rep, max_rep)
 
@@ -162,7 +170,8 @@ def whitespace(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'\s')(min_rep, max_rep)
 
@@ -179,7 +188,8 @@ def not_whitespace(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'\S')(min_rep, max_rep)
 
@@ -196,7 +206,8 @@ def newline(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'\n')(min_rep, max_rep)
 
@@ -213,7 +224,8 @@ def not_newline(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'.')(min_rep, max_rep)
 
@@ -230,7 +242,8 @@ def tab(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'\t')(min_rep, max_rep)
 
@@ -247,7 +260,8 @@ def not_tab(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'\T')(min_rep, max_rep)
 
@@ -264,7 +278,8 @@ def carriage(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'\r')(min_rep, max_rep)
 
@@ -281,7 +296,8 @@ def not_carriage(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'\R')(min_rep, max_rep)
 
@@ -298,7 +314,8 @@ def bound(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'\b')(min_rep, max_rep)
 
@@ -315,7 +332,8 @@ def not_bound(min_rep: int = None, max_rep: int = None):
     - If only `min_rep` is specified, it represents the exact number of characters to match.
     - If `max_rep` is 0, it means there is no upper limit.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
     """
     return Pattern(r'\B')(min_rep, max_rep)
 
@@ -327,7 +345,8 @@ def start():
     Parameters: None
     - This method cannot be specified a range.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
 
     Note: There is no `simply.not_start()` function,
     to do this, use `simply.not_behind(simply.start())`.
@@ -342,7 +361,8 @@ def end():
     Parameters: None
     - This method cannot be specified a range.
 
-    Returns: An instance of the Pattern class.
+    Returns:
+        - An instance of the Pattern class.
 
     Note: There is no `simply.not_end()` function,
     to do this, use `simply.not_ahead(simply.end())`.

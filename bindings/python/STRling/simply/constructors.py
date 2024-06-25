@@ -1,5 +1,6 @@
 
-from .pattern import Pattern
+from .pattern import Pattern, clean_params
+
 
 
 ############################
@@ -7,64 +8,61 @@ from .pattern import Pattern
 ########
 
 
-
 def any_of(*patterns):
     """
-    Creates a pattern that matches any one of the provided patterns.
+    Matches any provided pattern, including patterns consisting of subpatterns.
+
+    Example: simply as s
+        pattern1 = s.merge(s.digit(3), s.letter(3))  # Matches 3 digits followed by 3 letters.
+
+        pattern2 = s.merge(s.letter(3), s.digit(3))  # Matches 3 letters followed by 3 digits.
+
+        either_pattern = s.any_of(pattern1, pattern2) # Matches either pattern1 or pattern2
 
     Parameters:
-        *patterns (Pattern): One or more Pattern instances to be matched.
+    - *patterns (Pattern/str): One or more patterns to be matched.
 
     Returns:
-        Pattern: A Pattern object representing the OR combination of the given patterns.
+    - Pattern: A Pattern object representing the OR combination of the given patterns.
 
     Raises:
-        ValueError: If any of the parameters is not an instance of Pattern.
+    - ValueError: If any of the parameters are not an instance of Pattern or str.
     """
-    if not all(isinstance(pattern, Pattern) for pattern in patterns):
-        msg = (
-        """
-        Problem:
-            Not all the parameters are an instance of Pattern.
 
-        Solution:
-            Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letter()`.
-        """)
-        raise ValueError(msg)
-    joined = '|'.join(f'(?:{str(p)})' for p in patterns)
-    return Pattern(f'(?:{joined})', composite=True)
+    clean_patterns = clean_params(*patterns)
+
+    joined = '|'.join(f'(?:{str(p)})' for p in clean_patterns)
+    new_pattern = f'(?:{joined})'
+
+    return Pattern(new_pattern, composite=True)
 
 def may(*patterns):
     """
-    Creates a pattern that optionally matches the provided patterns.
+    Optionally matches the provided patterns. If this pattern is absent, surrounding patterns can still match.
+
+    Example: simply as s
+        my_pattern = s.merge(s.letter(), s.may(s.digit()))
+
+        # Matches any letter, and includes any digit following the letter.
+
+        # In the text, "AB2" the pattern above matches 'A' and 'B2'.
 
     Parameters:
-        *patterns (Pattern): One or more Pattern instances to be optionally matched.
+    - *patterns (Pattern/str): One or more patterns to be optionally matched.
 
     Returns:
-        Pattern: A Pattern object representing the optional match of the given patterns.
+    - Pattern: A Pattern object representing the optional match of the given patterns.
 
     Raises:
-        ValueError: If any of the parameters is not an instance of Pattern.
+    - ValueError: If any of the parameters are not an instance of Pattern or str.
     """
-    if not all(isinstance(pattern, Pattern) for pattern in patterns):
-        msg = (
-        """
-        Problem:
-            Not all the parameters are an instance of Pattern.
 
-        Solution:
-            Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letter()`.
-        """)
-        raise ValueError(msg)
+    clean_patterns = clean_params(*patterns)
 
-    if len(patterns) == 1:
-        return Pattern(f'{patterns[0]}?')
+    joined = merge(*clean_patterns)
+    new_pattern = f'{joined}?'
 
-    joined = merge(*patterns)
-    return Pattern(f'{joined}?', composite=True)
+    return Pattern(new_pattern, composite=True)
 
 
 
@@ -72,85 +70,142 @@ def merge(*patterns):
     """
     Combines the provided patterns into one larger pattern.
 
+    Example: simply as s
+
+        # Below matches any digit, comma, or period.
+
+        my_merged_pattern = s.merge(s.digit(), ',.')
+
     Parameters:
-        *patterns (Pattern): One or more Pattern instances to be concatenated.
+    - *patterns (Pattern/str): One or more patterns to be concatenated.
 
     Returns:
-        Pattern: A Pattern object representing the concatenation of the given patterns.
+    - Pattern: A Pattern object representing the concatenation of the given patterns.
 
     Raises:
-        ValueError: If any of the parameters is not an instance of Pattern.
+    - ValueError: If any of the parameters are not an instance of Pattern or str.
     """
-    if not all(isinstance(pattern, Pattern) for pattern in patterns):
-        msg = (
-        """
-        Problem:
-            Not all the parameters are an instance of Pattern.
 
-        Solution:
-            Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letter()`.
-        """)
-        raise ValueError(msg)
-    joined = ''.join(str(p) for p in patterns)
+    clean_patterns = clean_params(*patterns)
+
+    joined = ''.join(str(p) for p in clean_patterns)
     new_pattern = f'(?:{joined})'
+
     return Pattern(new_pattern, composite=True)
 
 def capture(*patterns):
     """
-    Creates a numbered group that can be indexed for extracting part of a match.
+    Creates a numbered group that can be indexed for extracting this part of the match.
+
+    Captures CANNOT be invoked with a range.
+
+    s.capture(s.digit(), s.letter())(1, 2) <== INVALID
+
+    Captures CAN be invoked with a number of copies.
+
+    s.capture(s.digit(), s.letter())(3) <== VALID
+
+    Example: simply as s
+
+        # Below matches any digit, comma, or period.
+
+        my_captured_pattern = s.capture(s.digit(), ',.')
+
 
     Parameters:
-        *patterns (Pattern): One or more Pattern instances to be captured.
+    - *patterns (Pattern/str): One or more patterns to be captured.
 
     Returns:
-        Pattern: A Pattern object representing the capturing group of the given patterns.
+    - Pattern: A Pattern object representing the capturing group of the given patterns.
 
     Raises:
-        ValueError: If any of the parameters is not an instance of Pattern.
+    - ValueError: If any of the parameters are not an instance of Pattern or str.
+
+    Referencing: simply as s
+        three_digit_group = s.capture(s.digit(3))
+
+        four_groups_of_three = three_digit_groups(4)
+
+        example_text = "Here is a number: 111222333444"
+
+        match = re.search(str(four_groups_of_three), example_text)  # Notice str(pattern)
+
+        print("Full Match:", match.group())
+        print("First:", match.group(1))
+        print("Second:", match.group(2))
+        print("Third:", match.group(3))
+        print("Fourth:", match.group(4))
+
+        # Output:
+        # Full Match: 111222333444
+        # First: 111
+        # Second: 222
+        # Third: 333
+        # Fourth: 444
     """
-    if not all(isinstance(pattern, Pattern) for pattern in patterns):
-        msg = (
-        """
-        Problem:
-            Not all the parameters are an instance of Pattern.
 
-        Solution:
-            Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letter()`.
-        """)
-        raise ValueError(msg)
+    clean_patterns = clean_params(*patterns)
 
-    joined = ''.join(str(p) for p in patterns)
-    return Pattern(f'({joined})', composite=True)
+    joined = ''.join(str(p) for p in clean_patterns)
+    new_pattern = f'({joined})'
+
+    return Pattern(new_pattern, composite=True, numbered_group=True)
 
 def group(name, *patterns):
     """
-    Creates a named group that can be referenced for extracting part of a match.
+    Creates a unique named group that can be referenced for extracting this part of the match.
+
+    Groups CANNOT be invoked with a range.
+
+    s.group('name', s.digit())(1, 2) <== INVALID
+
+    Example: simply as s
+
+        # Below matches any digit, comma, or period.
+
+        my_named_pattern = s.group('my_group', s.digit(), ',.')
 
     Parameters:
-        name (str): The name of the capturing group.
-        *patterns (Pattern): One or more Pattern instances to be captured.
+    - name (str): The name of the capturing group.
+    - *patterns (Pattern/str): One or more patterns to be captured.
 
     Returns:
-        Pattern: A Pattern object representing the named capturing group of the given patterns.
+    - Pattern: A Pattern object representing the named capturing group of the given patterns.
 
     Raises:
-        ValueError: If any of the parameters is not an instance of Pattern.
+    - ValueError: If any of the parameters are not an instance of Pattern or str.
+
+    Referencing: simply as s
+        first = s.group("first", s.digit(3))
+
+        second = s.group("second", s.digit(3))
+
+        third = s.group("third", s.digit(4))
+
+        phone_number_pattern = s.merge(first, "-", second, "-", third)
+
+        example_text = "Here is a phone number: 123-456-7890."
+
+        match = re.search(str(phone_number_pattern), example_text) # Notice str(pattern)
+
+        print("Full Match:", match.group())
+        print("First:", match.group("first"))
+        print("Second:", match.group("second"))
+        print("Third:", match.group("third"))
+
+        # Output:
+        # Full Match: 123-456-7890
+        # First: 123
+        # Second: 456
+        # Third: 7890
     """
+
     if not isinstance(name, str):
-        raise ValueError('The `name` parameter must be a string.')
-    if not all(isinstance(pattern, Pattern) for pattern in patterns):
-        msg = (
-        """
-        Problem:
-            Not all the parameters are an instance of Pattern.
+        raise ValueError("The `name` parameter must be a string like 'my_group_name'.")
 
-        Solution:
-            Use `simply.lit('abc123$')` to match literal characters,
-            or use a predefined set like `simply.letter()`.
-        """)
-        raise ValueError(msg)
+    clean_patterns = clean_params(*patterns)
 
-    joined = ''.join(str(p) for p in patterns)
-    return Pattern(f'(?P<{name}>{joined})', composite=True, named_group=True)
+    joined = ''.join(str(p) for p in clean_patterns)
+    new_pattern = f'(?P<{name}>{joined})'
+
+    return Pattern(new_pattern, composite=True, named_group=True)
