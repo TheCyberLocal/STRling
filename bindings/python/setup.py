@@ -9,7 +9,7 @@ with open('README.md', 'r') as f:
 
 setup(
     name='STRling',
-    version='2.0.0',
+    version='2.1.0',
     packages=find_packages(),
     install_requires=[
         # Add dependencies here.
