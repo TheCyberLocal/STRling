@@ -13,7 +13,7 @@ class STRlingError(ValueError):
         super().__init__(self.problem)
 
     def __str__(self):
-        return f"\n\nSTRlingError: Attempted Constructing Invalid Pattern.\n\n\tProblem:\n\t\t{self.problem}\n\n\tSolution:\n\t\t{self.solution}"
+        return f"\n\nSTRlingError: Invalid Pattern.\n\n\tProblem:\n\t\t{self.problem}\n\n\tSolution:\n\t\t{self.solution}"
 
 
 class Pattern:
@@ -66,6 +66,13 @@ class Pattern:
 
         # If min_rep or max_rep are specified as non-integers
         if min_rep is not None and not isinstance(min_rep, int) or max_rep is not None and not isinstance(max_rep, int):
+            problem = """
+            Cannot add range to `simply.in_chars()`.
+            """
+            solution = """
+            The invoked parameters `min_rep` and `max_rep` must be integers.
+            """
+            raise STRlingError(problem, solution)
             raise ValueError("The invoked parameters `min_rep` and `max_rep` must be integers.")
 
         # If min_rep or max_rep are specified out of valid range
