@@ -26,7 +26,7 @@
 
 #         first_maybe_grouped = merge(lib_v1.may(lib_v1.lit('(')), first, lib_v1.may(lib_v1.lit(')')))
 
-#         sep = lib_v1.in_(lib_v1.lit('. -'))
+#         sep = lib_v1.in_chars(lib_v1.lit('. -'))
 #         maybe_sep = lib_v1.may(sep)
 
 #         main_number = merge(first_maybe_grouped, maybe_sep, second, maybe_sep, third)
@@ -47,9 +47,9 @@
 #          - webmaster@mywebsite.dev
 #          - support@company.co.uk
 #         """
-#         first = group('first', lib_v1.in_(lib_v1.lower() + lib_v1.digit() + lib_v1.lit('_.+-'), 1, ''))
-#         second = group('second', lib_v1.in_(lib_v1.lower() + lib_v1.digit() + lib_v1.lit('.-'), 1, ''))
-#         third = group('third', lib_v1.in_(lib_v1.lower(), 2, ''))
+#         first = group('first', lib_v1.in_chars(lib_v1.lower() + lib_v1.digit() + lib_v1.lit('_.+-'), 1, ''))
+#         second = group('second', lib_v1.in_chars(lib_v1.lower() + lib_v1.digit() + lib_v1.lit('.-'), 1, ''))
+#         third = group('third', lib_v1.in_chars(lib_v1.lower(), 2, ''))
 
 #         email_pattern = merge(first, lib_v1.lit('@'), second, lib_v1.lit('.'), third)
 #         return email_pattern()
@@ -66,9 +66,9 @@
 
 #         first = lib_v1.may(lib_v1.lit('http') + lib_v1.may(lib_v1.lit('s')) + lib_v1.lit('://'))
 
-#         second = lib_v1.in_(alpha_num  + lib_v1.lit('-.'), 1, '') + lib_v1.lit('.') + lib_v1.letter(2,'')
+#         second = lib_v1.in_chars(alpha_num  + lib_v1.lit('-.'), 1, '') + lib_v1.lit('.') + lib_v1.letter(2,'')
 
-#         third = merge(lib_v1.in_(alpha_num + lib_v1.lit('./-')))(0,'')
+#         third = merge(lib_v1.in_chars(alpha_num + lib_v1.lit('./-')))(0,'')
 
 #         url_pattern = merge(first, second, third)
 #         return url_pattern()

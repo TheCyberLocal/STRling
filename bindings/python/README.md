@@ -40,7 +40,7 @@ import re
 # - 1234567890
 
 # Separator: either space or hyphen
-separator = s.in_(' -')
+separator = s.in_chars(' -')
 
 # Optional area code part: 123 even if in parenthesis like (123)
 area_code = s.merge( # notice we use merge since we don't want to name the group with parenthesis
@@ -168,7 +168,7 @@ s.between('a', 'z')  # Matches any lowercase letter from 'a' to 'z'.
 s.between('A', 'Z')  # Matches any uppercase letter from 'A' to 'Z'.
 
 # Matches any provided patterns, but they can't include subpatterns.
-s.in_(s.letter(), s.digit(), ',.')  # Matches any letter, digit, comma, and period.
+s.in_chars(s.letter(), s.digit(), ',.')  # Matches any letter, digit, comma, and period.
 # A composite pattern is one consisting of subpatterns (created by constructors and lookarounds).
 
 ####################

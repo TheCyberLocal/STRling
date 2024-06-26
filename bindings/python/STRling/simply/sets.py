@@ -1,5 +1,5 @@
 
-from .pattern import Pattern, clean_params
+from .pattern import STRlingError, Pattern, clean_params
 
 
 
@@ -13,16 +13,15 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     Matches all characters within and including the start and end of a letter or number range.
 
     Examples:
-
-        # Below matches any digit from 0 to 9.
+        - Matches any digit from 0 to 9.
 
         my_pattern1 = s.between(0, 9)
 
-        # Below matches any lowercase letter from 'a' to 'z'.
+        - Matches any lowercase letter from 'a' to 'z'.
 
         my_pattern2 = s.between('a', 'z')
 
-        # Below matches any uppercase letter from 'A' to 'Z'.
+        - Matches any uppercase letter from 'A' to 'Z'.
 
         my_pattern3 = s.between('A', 'Z')
 
@@ -41,26 +40,74 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
 
     # Verify start and end are both strings or integers
     if (not isinstance(start, str) or not isinstance(start, int)) and type(start) != type(end):
-        raise ValueError("The `start` and `end` characters must both be integers or letters of the same case.")
+        problem = """
+        Invalid Arguments Specified.
+        """
+        solution = """
+        The `start` and `end` arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
+        """
+        raise STRlingError(problem, solution)
 
     # If start is int then end is int
     if isinstance(start, int):
         if start > end:
-            raise ValueError("The `start` integer must not be greater than the `end` integer.")
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` integer must not be greater than the `end` integer.
+            """
+            raise STRlingError(problem, solution)
+
         if not (0 <= start <= 9 and 0 <= end <= 9):
-            raise ValueError("The `start` and `end` integers must be single digits (0-9).")
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` and `end` integers must be single digits (0-9).
+            """
+            raise STRlingError(problem, solution)
+
         new_pattern = f'[{start}-{end}]'
 
     # If start is string then end is string
     if isinstance(start, str):
         if not start.isalpha() or not end.isalpha():
-            raise ValueError("The strings `start` and `end` must both be letters. To use integers ensure they are not strings. ('0' => 0)")
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` and `end` strings must both be letters. To use integers ensure they are not strings. ('0' => 0)
+            """
+            raise STRlingError(problem, solution)
+
         if len(start) != 1 or len(end) != 1:
-            raise ValueError("The `start` and `end` strings must be single characters.")
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` and `end` strings must be single characters.
+            """
+            raise STRlingError(problem, solution)
+
         if start.islower() != end.islower():
-            raise ValueError("The `start` and `end` must be of the same case. (both uppercase or both lowercase)")
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` and `end` must be of the same case. (both uppercase or both lowercase)
+            """
+            raise STRlingError(problem, solution)
+
         if start > end:
-            raise ValueError("The `start` string must not be lexicographically greater than `end`. (A-Z, not Z-A)")
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` string must not be lexicographically greater than `end`. (A-Z, not Z-A)
+            """
+            raise STRlingError(problem, solution)
+
         new_pattern = f'[{start}-{end}]'
 
     return Pattern(new_pattern, custom_set=True)(min_rep, max_rep)
@@ -71,16 +118,15 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     Matches any character not within or including the start and end of a letter or number range.
 
     Examples:
-
-        # Below matches any character that is not a digit from 0 to 9.
+        - Matches any character that is not a digit from 0 to 9.
 
         my_pattern1 = s.not_between(0, 9)
 
-        # Below matches any character that is not a lowercase letter from 'a' to 'z'.
+        - Matches any character that is not a lowercase letter from 'a' to 'z'.
 
         my_pattern2 = s.not_between('a', 'z')
 
-        # Below matches any character that is not a uppercase letter from 'A' to 'Z'.
+        - Matches any character that is not a uppercase letter from 'A' to 'Z'.
 
         my_pattern3 = s.not_between('A', 'Z')
 
@@ -99,40 +145,87 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
 
     # Verify start and end are both strings or integers
     if (not isinstance(start, str) or not isinstance(start, int)) and type(start) != type(end):
-        raise ValueError("The `start` and `end` characters must both be integers or letters of the same case.")
+        problem = """
+        Invalid Arguments Specified.
+        """
+        solution = """
+        The `start` and `end` arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
+        """
+        raise STRlingError(problem, solution)
 
     # If start is int then end is int
     if isinstance(start, int):
         if start > end:
-            raise ValueError("The `start` integer must not be greater than the `end` integer.")
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` integer must not be greater than the `end` integer.
+            """
+            raise STRlingError(problem, solution)
+
         if not (0 <= start <= 9 and 0 <= end <= 9):
-            raise ValueError("The `start` and `end` integers must be single digits (0-9).")
-        new_pattern = f'[{start}-{end}]'
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` and `end` integers must be single digits (0-9).
+            """
+            raise STRlingError(problem, solution)
+
+        new_pattern = f'[^{start}-{end}]'
 
     # If start is string then end is string
     if isinstance(start, str):
         if not start.isalpha() or not end.isalpha():
-            raise ValueError("The strings `start` and `end` must both be letters. To use integers ensure they are not strings. ('0' => 0)")
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` and `end` strings must both be letters. To use integers ensure they are not strings. ('0' => 0)
+            """
+            raise STRlingError(problem, solution)
+
         if len(start) != 1 or len(end) != 1:
-            raise ValueError("The `start` and `end` strings must be single characters.")
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` and `end` strings must be single characters.
+            """
+            raise STRlingError(problem, solution)
+
         if start.islower() != end.islower():
-            raise ValueError("The `start` and `end` must be of the same case. (both uppercase or both lowercase)")
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` and `end` must be of the same case. (both uppercase or both lowercase)
+            """
+            raise STRlingError(problem, solution)
+
         if start > end:
-            raise ValueError("The `start` string must not be lexicographically greater than `end`. (A-Z, not Z-A)")
+            problem = """
+            Invalid Arguments Specified.
+            """
+            solution = """
+            The `start` string must not be lexicographically greater than `end`. (A-Z, not Z-A)
+            """
+            raise STRlingError(problem, solution)
+
         new_pattern = f'[^{start}-{end}]'
 
     return Pattern(new_pattern, custom_set=True, negated=True)(min_rep, max_rep)
 
 
-def in_(*patterns):
+def in_chars(*patterns):
     """
     Matches any provided patterns, but they can't include subpatterns.
 
     Example:
+        - Matches any letter, digit, comma, and period.
 
-        # Below matches any letter, digit, comma, and period.
-
-        my_pattern = s.in_(s.letter(), s.digit(), ',.')
+        my_pattern = s.in_chars(s.letter(), s.digit(), ',.')
 
     Parameters:
     - patterns (Pattern/str): One or more patterns to match.
@@ -152,46 +245,39 @@ def in_(*patterns):
 
     # All pattern must be non-composite
     if any(p.composite for p in clean_patterns):
-        msg = (
+        problem = """
+        Cannot insert composite patterns into a character set.
         """
-        Problem:
-            One or more parameters are composite.
-            These patterns cannot be inserted into a character set.
-
-        Solution:
-            For your given patterns, use `simply.any_of()` instead of `simply.in_()`.
-        """)
-        raise ValueError(msg)
+        solution = """
+        Use `simply.any_of()` instead of `simply.in_chars()`.
+        """
+        raise STRlingError(problem, solution)
 
     joined = r''
     for pattern in clean_patterns:
         # All patterns must not have a specified range
         if len(str(pattern)) > 1 and str(pattern)[-1] == '}' and str(pattern)[-2] != "\\":
-            msg = (
-        """
-        Problem:
-            Adding a range to simply.in_() has no effect.
-
-        Solution:
+            problem = """
+            Cannot add range to `simply.in_chars()`.
+            """
+            solution = """
             Remove the range on you pattern parameter.
             Example: `simply.letter(1, 2)` => `simply.letter()`
-        """)
-            raise ValueError(msg)
+            """
+            raise STRlingError(problem, solution)
 
         # Custom sets must be stripped of brackets and negated sets are not allowed
         if pattern.custom_set:
             if pattern.negated:
-                msg = (
-        """
-        Problem:
-            Cannot add a negated set `simply.not_in()` to a positive set `simply.in_()`.
-
-        Solution:
-            If you want to match the parameters specified,
-            consider putting the parameters of `simply.not_in(*params)`
-            directly into this `simply.in_(*params)` function.
-        """)
-                raise ValueError(msg)
+                problem = """
+                Cannot add a negated set `simply.not_in_chars()` to a positive set `simply.in_chars()`.
+                """
+                solution = """
+                If you want to match the parameters specified,
+                consider putting the parameters of `simply.not_in_chars(*params)`
+                directly into this `simply.in_chars(*params)` function.
+                """
+                raise STRlingError(problem, solution)
             else:
                 joined += str(pattern)[1:-1] # [pattern] => pattern
         else: # Just the unbracketed add pattern
@@ -200,15 +286,15 @@ def in_(*patterns):
     new_pattern = f'[{joined}]'
     return Pattern(new_pattern, custom_set=True)
 
-def not_in(*patterns):
+def not_in_chars(*patterns):
     """
     Matches anything but the provided patterns, but they can't include subpatterns.
 
     Example:
 
-        # Below matches any character that is not a letter, digit, comma, and period.
+        - Matches any character that is not a letter, digit, comma, and period.
 
-        my_pattern = s.not_in(s.letter(), s.digit(), ',.')
+        my_pattern = s.not_in_chars(s.letter(), s.digit(), ',.')
 
     Parameters:
     - patterns (Pattern/str): One or more patterns to match.
@@ -228,31 +314,26 @@ def not_in(*patterns):
 
     # All pattern must be non-composite
     if any(p.composite for p in clean_patterns):
-        msg = (
+        problem = """
+        Cannot insert composite patterns into a character set.
         """
-        Problem:
-            One or more parameters are composite.
-            These patterns cannot be inserted into a character set.
-
-        Solution:
-            For your given patterns, use `simply.any_of()` instead of `simply.in_()`.
-        """)
-        raise ValueError(msg)
+        solution = """
+        Use `simply.any_of()` instead of `simply.in_chars()`.
+        """
+        raise STRlingError(problem, solution)
 
     joined = r''
     for pattern in clean_patterns:
         # All patterns must not have a specified range
         if len(str(pattern)) > 1 and str(pattern)[-1] == '}' and str(pattern)[-2] != "\\":
-            msg = (
-        """
-        Problem:
-            Adding a range to simply.in_() has no effect.
-
-        Solution:
+            problem = """
+            Cannot add range to `simply.in_chars()`.
+            """
+            solution = """
             Remove the range on you pattern parameter.
             Example: `simply.letter(1, 2)` => `simply.letter()`
-        """)
-            raise ValueError(msg)
+            """
+            raise STRlingError(problem, solution)
         if pattern.custom_set:
             if pattern.negated:
                 joined += str(pattern)[2:-1] # [^pattern] => pattern

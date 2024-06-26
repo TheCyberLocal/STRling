@@ -1,10 +1,19 @@
 
-import re
+import re, textwrap
 
 
 ############################
 # Base Functions
 ########
+
+class STRlingError(ValueError):
+    def __init__(self, problem, solution):
+        self.problem = textwrap.dedent(problem).strip().replace('\n', '\n\t\t')
+        self.solution = textwrap.dedent(solution).strip().replace('\n', '\n\t\t')
+        super().__init__(self.problem)
+
+    def __str__(self):
+        return f"\n\nSTRlingError: Attempted Constructing Invalid Pattern.\n\n\tProblem:\n\t\t{self.problem}\n\n\tSolution:\n\t\t{self.solution}"
 
 
 class Pattern:
@@ -22,7 +31,7 @@ class Pattern:
         - __str__(): Returns the pattern as a string.
         - __add__(other): Allows addition of two Pattern objects.
     """
-    def __init__(self, pattern: str, custom_set: bool = False, negated: bool = False, composite: bool = False, named_group: bool = False, numbered_group: bool = False):
+    def __init__(self, pattern: str, custom_set: bool = False, negated: bool = False, composite: bool = False, named_groups: list = [], numbered_group: bool = False):
         # The regex pattern string for this instance.
         self.pattern = pattern
         # A custom set is regex with brackets [a-z]
@@ -31,8 +40,8 @@ class Pattern:
         self.negated = negated
         # A composite pattern is one enclosed in parenthesis.
         self.composite = composite
-        # A named_group is one that cannot repeat.
-        self.named_group = named_group
+        # A pattern with named_groups cannot repeat.
+        self.named_groups = named_groups
         # A numbered_group is one that is copied rather than repeated
         self.numbered_group = numbered_group
 
@@ -51,16 +60,20 @@ class Pattern:
         Returns:
         - A new Pattern object with the repetition pattern applied.
         """
+        # Prevent errors if invoked with no range
+        if min_rep is None and max_rep is None:
+            return self
 
+        # If min_rep or max_rep are specified as non-integers
         if min_rep is not None and not isinstance(min_rep, int) or max_rep is not None and not isinstance(max_rep, int):
             raise ValueError("The invoked parameters `min_rep` and `max_rep` must be integers.")
 
+        # If min_rep or max_rep are specified out of valid range
         if min_rep is not None and min_rep < 1 or max_rep is not None and max_rep < 0:
             raise ValueError("`min_rep` must be greater than 0 and `max_rep` must be 0 or greater.")
 
-
         # Named group is unique and not repeatable
-        if self.named_group:
+        if self.named_groups and min_rep is not None and max_rep is not None:
             msg = (
         """
         Problem:
@@ -108,20 +121,17 @@ class Pattern:
             new_pattern = self.pattern + repeat(min_rep, max_rep)
 
         # Return new instance with updated pattern
-        return Pattern(
-            pattern=new_pattern,
-            custom_set=self.custom_set,
-            negated=self.negated,
-            composite=self.composite,
-            named_group=self.named_group,
-            numbered_group=self.numbered_group
-        )
+        return self.create_modified_instance(new_pattern)
 
     def __str__(self):
         """
         Returns the pattern object as a RegEx string.
         """
         return self.pattern
+
+    @classmethod
+    def create_modified_instance(cls, new_pattern, **kwargs):
+        return cls(new_pattern, **kwargs)
 
 
 def repeat(min_rep: int = None, max_rep: int = None):
@@ -196,8 +206,7 @@ def clean_params(*patterns):
     provided, it is converted to a Pattern object using the lit() function.
 
     Example:
-
-        # Below converts 'abc' to a Pattern object and returns a list of Pattern objects.
+        - Converts 'abc' to a Pattern object and returns a list of Pattern objects.
 
         clean_patterns = clean_params('abc', s.digit())
 
@@ -228,6 +237,7 @@ def clean_params(*patterns):
             raise ValueError(msg)
 
         clean_patterns.append(pattern)
+
     return clean_patterns
 
 def clean_param(pattern):
@@ -239,8 +249,7 @@ def clean_param(pattern):
     provided, it is converted to a Pattern object using the lit() function.
 
     Example:
-
-        # Below 'abc' to a Pattern object and returns it.
+        - Converts 'abc' to a Pattern object and returns it.
 
         clean_pattern = clean_param('abc')
 
@@ -269,3 +278,43 @@ def clean_param(pattern):
         raise ValueError(msg)
 
     return pattern
+
+def check_unique_groups(*patterns):
+    """
+    Checks for duplicate named groups across multiple patterns.
+
+    Args:
+    - patterns: The patterns to check.
+
+    Raises:
+    - ValueError: If there are duplicate named groups.
+    """
+
+    named_group_counts = {}
+
+    for pattern in patterns:
+        for group_name in pattern.named_groups:
+            if group_name in named_group_counts:
+                named_group_counts[group_name] += 1
+            else:
+                named_group_counts[group_name] = 1
+
+    duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
+    if duplicates:
+        duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
+        msg = (
+        f"""
+        Problem:
+            Duplicate named groups found: {duplicate_info}.
+            These must be unique for later reference.
+
+        Solution:
+            Ensure you don't include any specific named group more than once.
+            If you must use the pattern more than once it should not be a named group.
+
+            If you need later reference change the named group to `simply.capture()`.
+            If you don't need later reference change the named group to `simply.merge()`.
+        """)
+        raise ValueError(msg)
+
+    return named_group_counts.keys()
