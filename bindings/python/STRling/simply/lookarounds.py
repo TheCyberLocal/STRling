@@ -24,7 +24,7 @@ def ahead(pattern):
     - Pattern: A Pattern object representing the positive lookahead.
 
     Raises:
-    - ValueError: If the parameter is not an instance of Pattern or str.
+    - STRlingError: If the parameter is not an instance of Pattern or str.
     """
 
     clean_pattern = clean_param(pattern)
@@ -47,7 +47,7 @@ def not_ahead(pattern):
     - Pattern: A Pattern object representing the negative lookahead.
 
     Raises:
-    - ValueError: If the parameter is not an instance of Pattern or str.
+    - STRlingError: If the parameter is not an instance of Pattern or str.
     """
 
     clean_pattern = clean_param(pattern)
@@ -70,7 +70,7 @@ def behind(pattern):
     - Pattern: A Pattern object representing the positive lookbehind.
 
     Raises:
-    - ValueError: If the parameter is not an instance of Pattern or str.
+    - STRlingError: If the parameter is not an instance of Pattern or str.
     """
 
     clean_pattern = clean_param(pattern)
@@ -93,7 +93,7 @@ def not_behind(pattern):
     - Pattern: A Pattern object representing the negative lookbehind.
 
     Raises:
-    - ValueError: If the parameter is not an instance of Pattern or str.
+    - STRlingError: If the parameter is not an instance of Pattern or str.
     """
 
     clean_pattern = clean_param(pattern)

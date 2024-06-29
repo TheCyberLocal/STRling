@@ -1,5 +1,5 @@
 
-from .pattern import Pattern, clean_params, check_unique_groups
+from .pattern import Pattern, clean_params, check_unique_groups, STRlingError
 
 
 
@@ -32,7 +32,7 @@ def any_of(*patterns):
     - Pattern: A Pattern object representing the OR combination of the given patterns.
 
     Raises:
-    - ValueError: If any of the parameters are not an instance of Pattern or str.
+    - STRlingError: If any of the parameters are not an instance of Pattern or str.
     """
 
     clean_patterns = clean_params(*patterns)
@@ -62,7 +62,7 @@ def may(*patterns):
     - Pattern: A Pattern object representing the optional match of the given patterns.
 
     Raises:
-    - ValueError: If any of the parameters are not an instance of Pattern or str.
+    - STRlingError: If any of the parameters are not an instance of Pattern or str.
     """
 
     clean_patterns = clean_params(*patterns)
@@ -92,7 +92,7 @@ def merge(*patterns):
     - Pattern: A Pattern object representing the concatenation of the given patterns.
 
     Raises:
-    - ValueError: If any of the parameters are not an instance of Pattern or str.
+    - STRlingError: If any of the parameters are not an instance of Pattern or str.
     """
 
     clean_patterns = clean_params(*patterns)
@@ -129,7 +129,7 @@ def capture(*patterns):
     - Pattern: A Pattern object representing the capturing group of the given patterns.
 
     Raises:
-    - ValueError: If any of the parameters are not an instance of Pattern or str.
+    - STRlingError: If any of the parameters are not an instance of Pattern or str.
 
     Referencing: simply as s
         three_digit_group = s.capture(s.digit(3))
@@ -184,7 +184,7 @@ def group(name, *patterns):
     - Pattern: A Pattern object representing the named capturing group of the given patterns.
 
     Raises:
-    - ValueError: If any of the parameters are not an instance of Pattern or str.
+    - STRlingError: If any of the parameters are not an instance of Pattern or str.
 
     Referencing: simply as s
         first = s.group("first", s.digit(3))
@@ -212,7 +212,13 @@ def group(name, *patterns):
     """
 
     if not isinstance(name, str):
-        raise ValueError("The `name` parameter must be a string like 'group_name'.")
+        problem = """
+        The group is missing a specified name.
+        """
+        solution = """
+        The `name` parameter must be a string like 'group_name'.
+        """
+        raise STRlingError(problem, solution)
 
     clean_patterns = clean_params(*patterns)
 

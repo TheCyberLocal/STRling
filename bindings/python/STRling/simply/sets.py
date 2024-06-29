@@ -35,7 +35,7 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     - Pattern: A Pattern object representing the character or number range.
 
     Raises:
-    - ValueError: If the range is invalid or if the types of start and end do not match.
+    - STRlingError: If the range is invalid or if the types of start and end do not match.
     """
 
     # Verify start and end are both strings or integers
@@ -140,7 +140,7 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     - Pattern: A Pattern object representing the negated character or number range.
 
     Raises:
-    - ValueError: If the range is invalid or if the types of start and end do not match.
+    - STRlingError: If the range is invalid or if the types of start and end do not match.
     """
 
     # Verify start and end are both strings or integers
@@ -234,8 +234,8 @@ def in_chars(*patterns):
     - Pattern: A Pattern object that matches any of the given patterns.
 
     Raises:
-    - ValueError: If any argument is not an instance of Pattern or str.
-    - ValueError: If any argument is a composite pattern.
+    - STRlingError: If any argument is not an instance of Pattern or str.
+    - STRlingError: If any argument is a composite pattern.
 
     Note: A composite pattern is one consisting of subpatterns,
     they are created by constructors and lookarounds.
@@ -302,8 +302,8 @@ def not_in_chars(*patterns):
     - Pattern: A Pattern object that matches any of the given patterns.
 
     Raises:
-    - ValueError: If any argument is not an instance of Pattern or str.
-    - ValueError: If any argument is a composite pattern.
+    - STRlingError: If any argument is not an instance of Pattern or str.
+    - STRlingError: If any argument is a composite pattern.
 
     Note: A composite pattern is one consisting of subpatterns,
     they are created by constructors and lookarounds.

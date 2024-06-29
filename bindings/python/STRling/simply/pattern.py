@@ -13,7 +13,7 @@ class STRlingError(ValueError):
         super().__init__(self.problem)
 
     def __str__(self):
-        return f"\n\nSTRlingError: Invalid Pattern.\n\n\tProblem:\n\t\t{self.problem}\n\n\tSolution:\n\t\t{self.solution}"
+        return f"\n\nSTRlingError: Invalid Pattern Attempted.\n\n\tProblem:\n\t\t{self.problem}\n\n\tSolution:\n\t\t{self.solution}"
 
 
 class Pattern:
@@ -59,6 +59,15 @@ class Pattern:
 
         Returns:
         - A new Pattern object with the repetition pattern applied.
+
+        Raises:
+        - STRlingError: If the parameters are invalid.
+            - Non-integer values for min_rep or max_rep.
+            - min_rep < 1 or max_rep < 0.
+            - Repetition of a named group.
+            - Reinvocation of a pattern with an existing range.
+            - Use of max_rep with a numbered group.
+            - reversed range (min_rep > max_rep).
         """
         # Prevent errors if invoked with no range
         if min_rep is None and max_rep is None:
@@ -67,44 +76,44 @@ class Pattern:
         # If min_rep or max_rep are specified as non-integers
         if min_rep is not None and not isinstance(min_rep, int) or max_rep is not None and not isinstance(max_rep, int):
             problem = """
-            Cannot add range to `simply.in_chars()`.
+            Cannot form range with non-integers.
             """
             solution = """
-            The invoked parameters `min_rep` and `max_rep` must be integers.
+            The invoked parameters `min_rep` and `max_rep` must be integers, such as pattern(1, 4).
             """
             raise STRlingError(problem, solution)
-            raise ValueError("The invoked parameters `min_rep` and `max_rep` must be integers.")
 
         # If min_rep or max_rep are specified out of valid range
         if min_rep is not None and min_rep < 1 or max_rep is not None and max_rep < 0:
-            raise ValueError("`min_rep` must be greater than 0 and `max_rep` must be 0 or greater.")
+            problem = """
+            Cannot form a range from the specified arguments.
+            """
+            solution = """
+            The invoked parameters `min_rep` must be greater than 0 and `max_rep` must be 0 or greater.
+            """
+            raise STRlingError(problem, solution)
 
         # Named group is unique and not repeatable
         if self.named_groups and min_rep is not None and max_rep is not None:
-            msg = (
-        """
-        Problem:
+            problem = """
             Cannot repeat a named group instance since names must be unique.
-
-        Solution:
+            """
+            solution = """
             Consider using an unlabeled group (merge), or a numbered group (capture).
-        """)
-            raise ValueError(msg)
+            """
+            raise STRlingError(problem, solution)
 
         # A group already assigned a specified range cannot be reassigned
         if len(self.pattern) > 1 and self.pattern[-1] == '}' and self.pattern[-2] != '\\':
-            msg = (
-        """
-        Problem:
+            problem = """
             Cannot re-invoke pattern to specify range that already exists.
 
             Examples of invalid syntax:
                 simply.letter(1, 2)(3, 4) # double invoked range is invalid
                 my_pattern = simply.letter(1, 2) # my_pattern was set range (1, 2) # valid
                 my_new_pattern = my_pattern(3, 4) # my_pattern was reinvoked (3, 4) # invalid
-
-
-        Solution:
+            """
+            solution = """
             Set the range on the first invocation, don't reassign it.
 
             Examples of valid syntax:
@@ -113,14 +122,21 @@ class Pattern:
 
                 Or you can specify the range later:
                     my_pattern = simply.letter() # my_pattern was never assigned a range
-                    my_new_pattern = my_pattern(1, 2) # my_pattern was invoked with (1, 2) for the first time
-        """)
-            raise ValueError(msg)
+                    my_new_pattern = my_pattern(1, 2) # my_pattern was invoked with (1, 2) for the first time.
+            """
+            raise STRlingError(problem, solution)
 
         # Special Case: A numbered group repeats by copying, not amending a range.
         if self.numbered_group:
             if max_rep is not None:
-                raise ValueError("Capture has only one parameter, copies: int = None.")
+                problem = """
+                The parameter `max_rep` was specified when capture takes only one parameter,
+                the exact number of copies.
+                """
+                solution = """
+                Consider using an unlabeled group (merge) for a range.
+                """
+                raise STRlingError(problem, solution)
             else:
                 new_pattern = f'(?:{self.pattern * min_rep})'
         # Regular Case: Add range syntax.
@@ -155,22 +171,24 @@ def repeat(min_rep: int = None, max_rep: int = None):
 
     Returns:
     - A string representing the repetition pattern.
+
+    Raises:
+    - STRlingError: If the parameters are invalid.
+        - Reversed range (min_rep > max_rep).
     """
 
     if min_rep is not None and max_rep is not None:
         if max_rep == 0:  # Special case to handle the 'min_rep,' syntax
             return f'{{{min_rep},}}'
         if min_rep > max_rep:
-            msg = (
-        """
-        Problem:
-            The `min_rep` param cannot be greater than the `max_rep`.
-
-        Solution:
+            problem = """
+            Cannot form a reversed range.
+            """
+            solution = """
             You may have them swapped. Ensure the lesser number
             is on the left and the greater number is on the right.
-        """)
-            raise ValueError(msg)
+            """
+            raise STRlingError(problem, solution)
         return f'{{{min_rep},{max_rep}}}'
     elif min_rep is not None:
         return f'{{{min_rep}}}'
@@ -190,17 +208,18 @@ def lit(text):
 
     Returns:
     - A Pattern object that matches the literal text.
+
+    Raises:
+    - STRlingError: If any parameter is not an instance of str.
     """
     if not isinstance(text, str):
-        msg = (
+        problem = """
+        The text parameter is not a string.
         """
-        Problem:
-            The text parameter is not a string.
-
-        Solution:
-            Specify your literal text in quotes `simply.lit('abc123$')`.
-        """)
-        raise ValueError(msg)
+        solution = """
+        Specify your literal text in quotes `simply.lit('abc123$')`.
+        """
+        raise STRlingError(problem, solution)
     escaped_text = re.escape(text).replace('/', '\/')
     return Pattern(escaped_text)
 
@@ -224,7 +243,7 @@ def clean_params(*patterns):
     - list: A list of validated Pattern objects.
 
     Raises:
-    - ValueError: If any parameter is not an instance of Pattern or str.
+    - STRlingError: If any parameter is not an instance of Pattern or str.
     """
     clean_patterns = []
     for pattern in patterns:
@@ -232,16 +251,14 @@ def clean_params(*patterns):
             pattern = lit(pattern)
 
         if not isinstance(pattern, Pattern):
-            msg = (
-        """
-        Problem:
+            problem = """
             Not all the parameters are an instance of Pattern or str.
-
-        Solution:
+            """
+            solution = """
             For your parameters, use a string such as "123abc$" to match
             literal characters, or use a predefined set like `simply.letter()`.
-        """)
-            raise ValueError(msg)
+            """
+            raise STRlingError(problem, solution)
 
         clean_patterns.append(pattern)
 
@@ -267,22 +284,19 @@ def clean_param(pattern):
     - Pattern: A validated Pattern object.
 
     Raises:
-    - ValueError: If the parameter is not an instance of Pattern or str.
+    - STRlingError: If the parameter is not an instance of Pattern or str.
     """
     if isinstance(pattern, str):
         pattern = lit(pattern)
 
     if not isinstance(pattern, Pattern):
-        msg = (
+        problem = """
+        The parameter is not an instance of Pattern or str.
         """
-        Problem:
-            The parameter is not an instance of Pattern or str.
-
-        Solution:
-            For your parameters, use a string such as "123abc$" to match
-            literal characters, or use a predefined set like `simply.letter()`.
-        """)
-        raise ValueError(msg)
+        solution = """
+        The parameter is not an instance of Pattern or str.
+        """
+        raise STRlingError(problem, solution)
 
     return pattern
 
@@ -294,7 +308,7 @@ def check_unique_groups(*patterns):
     - patterns: The patterns to check.
 
     Raises:
-    - ValueError: If there are duplicate named groups.
+    - STRlingError: If there are duplicate named groups.
     """
 
     named_group_counts = {}
@@ -309,19 +323,17 @@ def check_unique_groups(*patterns):
     duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
     if duplicates:
         duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
-        msg = (
-        f"""
-        Problem:
-            Duplicate named groups found: {duplicate_info}.
-            These must be unique for later reference.
+        problem = f"""
+        Duplicate named groups found: {duplicate_info}.
+        These must be unique for later reference.
+        """
+        solution = """
+        Ensure you don't include any specific named group more than once.
+        If you must use the pattern more than once it should not be a named group.
 
-        Solution:
-            Ensure you don't include any specific named group more than once.
-            If you must use the pattern more than once it should not be a named group.
-
-            If you need later reference change the named group to `simply.capture()`.
-            If you don't need later reference change the named group to `simply.merge()`.
-        """)
-        raise ValueError(msg)
+        If you need later reference change the named group to `simply.capture()`.
+        If you don't need later reference change the named group to `simply.merge()`.
+        """
+        raise STRlingError(problem, solution)
 
     return named_group_counts.keys()
