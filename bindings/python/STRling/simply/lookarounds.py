@@ -1,5 +1,5 @@
 
-from .pattern import Pattern, clean_param
+from .pattern import STRlingError, Pattern, lit
 
 
 
@@ -22,14 +22,22 @@ def ahead(pattern):
 
     Returns:
     - Pattern: A Pattern object representing the positive lookahead.
-
-    Raises:
-    - STRlingError: If the parameter is not an instance of Pattern or str.
     """
 
-    clean_pattern = clean_param(pattern)
+    if isinstance(pattern, str):
+        pattern = lit(pattern)
 
-    return Pattern(f'(?={clean_pattern})', composite=True)
+    if not isinstance(pattern, Pattern):
+        message = """
+        Method: simply.ahead(pattern)
+
+        The parameter must be an instance of `Pattern` or `str`.
+
+        Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
+        """
+        raise STRlingError(message)
+
+    return Pattern(f'(?={pattern})', composite=True)
 
 def not_ahead(pattern):
     """
@@ -45,14 +53,22 @@ def not_ahead(pattern):
 
     Returns:
     - Pattern: A Pattern object representing the negative lookahead.
-
-    Raises:
-    - STRlingError: If the parameter is not an instance of Pattern or str.
     """
 
-    clean_pattern = clean_param(pattern)
+    if isinstance(pattern, str):
+        pattern = lit(pattern)
 
-    return Pattern(f'(?!{clean_pattern})', composite=True)
+    if not isinstance(pattern, Pattern):
+        message = """
+        Method: simply.not_ahead(pattern)
+
+        The parameter must be an instance of `Pattern` or `str`.
+
+        Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
+        """
+        raise STRlingError(message)
+
+    return Pattern(f'(?!{pattern})', composite=True)
 
 def behind(pattern):
     """
@@ -68,14 +84,22 @@ def behind(pattern):
 
     Returns:
     - Pattern: A Pattern object representing the positive lookbehind.
-
-    Raises:
-    - STRlingError: If the parameter is not an instance of Pattern or str.
     """
 
-    clean_pattern = clean_param(pattern)
+    if isinstance(pattern, str):
+        pattern = lit(pattern)
 
-    return Pattern(f'(?<={clean_pattern})', composite=True)
+    if not isinstance(pattern, Pattern):
+        message = """
+        Method: simply.behind(pattern)
+
+        The parameter must be an instance of `Pattern` or `str`.
+
+        Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
+        """
+        raise STRlingError(message)
+
+    return Pattern(f'(?<={pattern})', composite=True)
 
 def not_behind(pattern):
     """
@@ -91,11 +115,19 @@ def not_behind(pattern):
 
     Returns:
     - Pattern: A Pattern object representing the negative lookbehind.
-
-    Raises:
-    - STRlingError: If the parameter is not an instance of Pattern or str.
     """
 
-    clean_pattern = clean_param(pattern)
+    if isinstance(pattern, str):
+        pattern = lit(pattern)
 
-    return Pattern(f'(?<!{clean_pattern})', composite=True)
+    if not isinstance(pattern, Pattern):
+        message = """
+        Method: simply.not_behind(pattern)
+
+        The parameter must be an instance of `Pattern` or `str`.
+
+        Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
+        """
+        raise STRlingError(message)
+
+    return Pattern(f'(?<!{pattern})', composite=True)

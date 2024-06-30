@@ -1,5 +1,5 @@
 
-from .pattern import Pattern, clean_params, check_unique_groups, STRlingError
+from .pattern import STRlingError, Pattern, lit
 
 
 
@@ -30,14 +30,52 @@ def any_of(*patterns):
 
     Returns:
     - Pattern: A Pattern object representing the OR combination of the given patterns.
-
-    Raises:
-    - STRlingError: If any of the parameters are not an instance of Pattern or str.
     """
 
-    clean_patterns = clean_params(*patterns)
+    # Check all patterns are instance of Pattern or str
+    clean_patterns = []
+    for pattern in patterns:
+        if isinstance(pattern, str):
+            pattern = lit(pattern)
 
-    sub_names = check_unique_groups(*clean_patterns)
+        if not isinstance(pattern, Pattern):
+            message = """
+            Method: simply.any_of(*patterns)
+
+            The parameters must be instances of `Pattern` or `str`.
+
+            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
+            """
+            raise STRlingError(message)
+
+        clean_patterns.append(pattern)
+
+
+    # Count named groups and raise error if not unique
+    named_group_counts = {}
+
+    for pattern in clean_patterns:
+        for group_name in pattern.named_groups:
+            if group_name in named_group_counts:
+                named_group_counts[group_name] += 1
+            else:
+                named_group_counts[group_name] = 1
+
+    duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
+    if duplicates:
+        duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
+        message = f"""
+        Method: simply.any_of(*patterns)
+
+        Named groups must be unique.
+        Duplicate named groups found: {duplicate_info}.
+
+        If you need later reference change the named group argument to `simply.capture()`.
+        If you don't need later reference change the named group argument to `simply.merge()`.
+        """
+        raise STRlingError(message)
+
+    sub_names = named_group_counts.keys()
 
     joined = '|'.join(f'(?:{str(p)})' for p in clean_patterns)
     new_pattern = f'(?:{joined})'
@@ -60,14 +98,52 @@ def may(*patterns):
 
     Returns:
     - Pattern: A Pattern object representing the optional match of the given patterns.
-
-    Raises:
-    - STRlingError: If any of the parameters are not an instance of Pattern or str.
     """
 
-    clean_patterns = clean_params(*patterns)
+    # Check all patterns are instance of Pattern or str
+    clean_patterns = []
+    for pattern in patterns:
+        if isinstance(pattern, str):
+            pattern = lit(pattern)
 
-    sub_names = check_unique_groups(*clean_patterns)
+        if not isinstance(pattern, Pattern):
+            message = """
+            Method: simply.may(*patterns)
+
+            The parameters must be instances of `Pattern` or `str`.
+
+            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
+            """
+            raise STRlingError(message)
+
+        clean_patterns.append(pattern)
+
+
+    # Count named groups and raise error if not unique
+    named_group_counts = {}
+
+    for pattern in clean_patterns:
+        for group_name in pattern.named_groups:
+            if group_name in named_group_counts:
+                named_group_counts[group_name] += 1
+            else:
+                named_group_counts[group_name] = 1
+
+    duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
+    if duplicates:
+        duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
+        message = f"""
+        Method: simply.may(*patterns)
+
+        Named groups must be unique.
+        Duplicate named groups found: {duplicate_info}.
+
+        If you need later reference change the named group argument to `simply.capture()`.
+        If you don't need later reference change the named group argument to `simply.merge()`.
+        """
+        raise STRlingError(message)
+
+    sub_names = named_group_counts.keys()
 
     joined = merge(*clean_patterns)
     new_pattern = f'{joined}?'
@@ -90,14 +166,52 @@ def merge(*patterns):
 
     Returns:
     - Pattern: A Pattern object representing the concatenation of the given patterns.
-
-    Raises:
-    - STRlingError: If any of the parameters are not an instance of Pattern or str.
     """
 
-    clean_patterns = clean_params(*patterns)
+    # Check all patterns are instance of Pattern or str
+    clean_patterns = []
+    for pattern in patterns:
+        if isinstance(pattern, str):
+            pattern = lit(pattern)
 
-    sub_names = check_unique_groups(*clean_patterns)
+        if not isinstance(pattern, Pattern):
+            message = """
+            Method: simply.merge(*patterns)
+
+            The parameters must be instances of `Pattern` or `str`.
+
+            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
+            """
+            raise STRlingError(message)
+
+        clean_patterns.append(pattern)
+
+
+    # Count named groups and raise error if not unique
+    named_group_counts = {}
+
+    for pattern in clean_patterns:
+        for group_name in pattern.named_groups:
+            if group_name in named_group_counts:
+                named_group_counts[group_name] += 1
+            else:
+                named_group_counts[group_name] = 1
+
+    duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
+    if duplicates:
+        duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
+        message = f"""
+        Method: simply.merge(*patterns)
+
+        Named groups must be unique.
+        Duplicate named groups found: {duplicate_info}.
+
+        If you need later reference change the named group argument to `simply.capture()`.
+        If you don't need later reference change the named group argument to `simply.merge()`.
+        """
+        raise STRlingError(message)
+
+    sub_names = named_group_counts.keys()
 
     joined = ''.join(str(p) for p in clean_patterns)
     new_pattern = f'(?:{joined})'
@@ -128,9 +242,6 @@ def capture(*patterns):
     Returns:
     - Pattern: A Pattern object representing the capturing group of the given patterns.
 
-    Raises:
-    - STRlingError: If any of the parameters are not an instance of Pattern or str.
-
     Referencing: simply as s
         three_digit_group = s.capture(s.digit(3))
 
@@ -154,9 +265,50 @@ def capture(*patterns):
         # Fourth: 444
     """
 
-    clean_patterns = clean_params(*patterns)
+    # Check all patterns are instance of Pattern or str
+    clean_patterns = []
+    for pattern in patterns:
+        if isinstance(pattern, str):
+            pattern = lit(pattern)
 
-    sub_names = check_unique_groups(*clean_patterns)
+        if not isinstance(pattern, Pattern):
+            message = """
+            Method: simply.capture(*patterns)
+
+            The parameters must be instances of `Pattern` or `str`.
+
+            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
+            """
+            raise STRlingError(message)
+
+        clean_patterns.append(pattern)
+
+
+    # Count named groups and raise error if not unique
+    named_group_counts = {}
+
+    for pattern in clean_patterns:
+        for group_name in pattern.named_groups:
+            if group_name in named_group_counts:
+                named_group_counts[group_name] += 1
+            else:
+                named_group_counts[group_name] = 1
+
+    duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
+    if duplicates:
+        duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
+        message = f"""
+        Method: simply.capture(*patterns)
+
+        Named groups must be unique.
+        Duplicate named groups found: {duplicate_info}.
+
+        If you need later reference change the named group argument to `simply.capture()`.
+        If you don't need later reference change the named group argument to `simply.merge()`.
+        """
+        raise STRlingError(message)
+
+    sub_names = named_group_counts.keys()
 
     joined = ''.join(str(p) for p in clean_patterns)
     new_pattern = f'({joined})'
@@ -182,9 +334,6 @@ def group(name, *patterns):
 
     Returns:
     - Pattern: A Pattern object representing the named capturing group of the given patterns.
-
-    Raises:
-    - STRlingError: If any of the parameters are not an instance of Pattern or str.
 
     Referencing: simply as s
         first = s.group("first", s.digit(3))
@@ -212,17 +361,59 @@ def group(name, *patterns):
     """
 
     if not isinstance(name, str):
-        problem = """
+        message = """
+        Method: simply.group(name, *patterns)
+
         The group is missing a specified name.
-        """
-        solution = """
         The `name` parameter must be a string like 'group_name'.
         """
-        raise STRlingError(problem, solution)
+        raise STRlingError(message)
 
-    clean_patterns = clean_params(*patterns)
 
-    sub_names = check_unique_groups(*clean_patterns)
+    # Check all patterns are instance of Pattern or str
+    clean_patterns = []
+    for pattern in patterns:
+        if isinstance(pattern, str):
+            pattern = lit(pattern)
+
+        if not isinstance(pattern, Pattern):
+            message = """
+            Method: simply.group(name, *patterns)
+
+            The parameters must be instances of `Pattern` or `str`.
+
+            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
+            """
+            raise STRlingError(message)
+
+        clean_patterns.append(pattern)
+
+
+    # Count named groups and raise error if not unique
+    named_group_counts = {}
+
+    for pattern in clean_patterns:
+        for group_name in pattern.named_groups:
+            if group_name in named_group_counts:
+                named_group_counts[group_name] += 1
+            else:
+                named_group_counts[group_name] = 1
+
+    duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
+    if duplicates:
+        duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
+        message = f"""
+        Method: simply.group(name, *patterns)
+
+        Named groups must be unique.
+        Duplicate named groups found: {duplicate_info}.
+
+        If you need later reference change the named group argument to `simply.capture()`.
+        If you don't need later reference change the named group argument to `simply.merge()`.
+        """
+        raise STRlingError(message)
+
+    sub_names = named_group_counts.keys()
 
     joined = ''.join(str(p) for p in clean_patterns)
     new_pattern = f'(?P<{name}>{joined})'
