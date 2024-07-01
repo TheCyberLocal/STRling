@@ -1,6 +1,6 @@
 from STRling import simply as s
 
-class Patterns:
+class Templates:
     @property
     def phone_number_US(self):
         """
@@ -325,4 +325,4 @@ class Patterns:
         )
         return password_pattern
 
-patterns = Patterns()
+templates = Templates()

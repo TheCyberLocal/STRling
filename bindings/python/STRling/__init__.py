@@ -1,2 +1,2 @@
 from . import simply
-from .patterns import patterns
+from .templates import templates
