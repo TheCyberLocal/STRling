@@ -133,10 +133,13 @@ s.lit('$%')  # Matches the literal characters '$' or '%'.
 # Note: Each character set below has a negated counterpart.
 # For example, simply.letter() => simply.not_letter()
 
+s.special_char()     # Matches any special character. => !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+s.word_char()   # Matches any case letter, a digit, or an underscore.
 s.letter()      # Matches any letter (uppercase or lowercase).
 s.upper()       # Matches any uppercase letter.
 s.lower()       # Matches any lowercase letter.
 s.digit()       # Matches any digit.
+s.hex_digit()   # Matches any letter A through F (uppercase or lowercase) or a digit (0-9).
 s.whitespace()  # Matches any whitespace character (space, tab, newline, carriage return, etc.).
 s.newline()     # Matches a newline character.
 s.tab()         # Matches a tab character.

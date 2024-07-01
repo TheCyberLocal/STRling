@@ -96,11 +96,11 @@ class Pattern:
             raise STRlingError(message)
 
         # If min_rep or max_rep are specified out of valid range
-        if min_rep is not None and min_rep < 1 or max_rep is not None and max_rep < 0:
+        if min_rep is not None and min_rep < 0 or max_rep is not None and max_rep < 0:
             message = """
             Method: Pattern.__call__(min_rep, max_rep)
 
-            The `min_rep` must be greater than 0 and `max_rep` must be 0 or greater.
+            The `min_rep` and `max_rep` must be 0 or greater.
             """
             raise STRlingError(message)
 
