@@ -77,7 +77,7 @@ def any_of(*patterns):
 
     sub_names = named_group_counts.keys()
 
-    joined = '|'.join(f'(?:{str(p)})' for p in clean_patterns)
+    joined = '|'.join(str(p) for p in clean_patterns)
     new_pattern = f'(?:{joined})'
 
     return Pattern(new_pattern, composite=True, named_groups=sub_names)

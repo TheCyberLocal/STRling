@@ -1,1 +1,2 @@
-from STRling import simply as s, templates as t
+from STRling import simply as s
+import re

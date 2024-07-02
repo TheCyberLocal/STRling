@@ -27,7 +27,7 @@ pip install STRling
 
 ## ✨ STRling in action!
 
-### 📑 [STRling Documentation](./docs/strling_docs.md)
+### 📑 [STRling Documentation on GitHub](https://github.com/TheCyberLocal/STRling/docs/strling_docs.md)
 
 ```python
 from STRling import simply as s
