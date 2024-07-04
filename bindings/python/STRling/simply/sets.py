@@ -63,18 +63,24 @@ def nums(start: int, end: int, min_rep: int = None, max_rep: int = None):
 
     start, end = str(start), str(end)
 
-    # Formulate upper bound.
-    # This is the range between rounding down to the most significant digit and the max of the range.
-    # For upper bound 1234, the upper bound range would be 1000-1234.
-    upper_range = []
+    # Formulate uppermost bound.
+    # This is the range between rounding the upper bound to the most significant digit and itself.
+    # For 8234, the upper bound range would be 8000-8234.
+    # For 82, the upper bound would be 80-82.
+    # There is no upper bound for single digits (0-9).
+    # For 1000, the upper bound range would be 1000-1000, (just 1000).
+    uppermost_bound = []
     for i in range(1, len(end)):
         static_numbers = end[0:-i]
-        flexible_range = f"[0-{end[-i]}]"
+        first_loop = i == 1
+        loop_upper_range = int(end[-i])-1+first_loop
 
-        # 8765 [0-4] 0
-        # 876 [0-5][0-9] 1
-        # 87 [0-6][0-9]{2} 2
-        # 8 [0-7][0-9]{3} 3
+        if loop_upper_range < 0:
+            continue
+        elif loop_upper_range == 0:
+            flexible_range = "0"
+        else:
+            flexible_range = f"[0-{loop_upper_range}]"
 
         range_gap = i - 1
         if range_gap > 0:
@@ -82,34 +88,33 @@ def nums(start: int, end: int, min_rep: int = None, max_rep: int = None):
         if range_gap > 1:
             flexible_range += f"{{{range_gap}}}"
 
-        upper_range.append(static_numbers + flexible_range)
+        uppermost_bound.append(static_numbers + flexible_range)
 
-    print(upper_range)
+    # print(uppermost_bound)
 
-    # Formulate central upper bound range.
-    # one less than top significant digit
-    top_digit = int(end[0])
-    if top_digit == 1:
-        central_upper_range = ""
-    elif top_digit == 2:
-        central_upper_range = f"1[0-9]{{{len(end)-1}}}"
-    else:
-        central_upper_range = f"[1-{top_digit - 1}][0-9]{{{len(end)-1}}}"
+    # Formulate central upper bound.
+    # This is the range between the upper bound's preceding power of ten
+    #  and one less than rounding the upper bound to the most significant digit.
+    # For 8234, the central upper bound would be 1000-7999.
+    # For 82, the central upper bound would be 10-79.
+    # For 8, the central upper bound would be 0-8.
+    # For 1000, the central upper bound would be 0-8.
 
-    print(central_upper_range)
+    central_upper_bound = []
+    for i in range(1, len(end)):
+        static_numbers = end[0:-i]
+        first_loop = i == 1
+        flexible_range = f"[0-{int(end[-i])-1+first_loop}]"
 
-    # Formulate central range.
-    central_range = []
-    for i in range(len(end)-1):
-        if len(end)-2-i == 0:
-            central_range.append('[0-9]')
-        elif len(end)-2-i == 1:
-            central_range.append('[1-9][0-9]')
-        else:
-            central_range.append(f"[1-9][0-9]{{{len(end)-2}}}")
-    print(central_range)
+        range_gap = i - 1
+        if range_gap > 0:
+            flexible_range += "[0-9]"
+        if range_gap > 1:
+            flexible_range += f"{{{range_gap}}}"
 
-    print('|'.join(upper_range + central_upper_range + central_range))
+        central_upper_bound.append(static_numbers + flexible_range)
+
+    print(central_upper_bound)
 
 
 def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
