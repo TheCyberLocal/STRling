@@ -109,6 +109,8 @@ def nums(start: int, end: int, min_rep: int = None, max_rep: int = None):
             central_range.append(f"[1-9][0-9]{{{len(end)-2}}}")
     print(central_range)
 
+    print('|'.join(upper_range + central_upper_range + central_range))
+
 
 def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     """
