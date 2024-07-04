@@ -63,24 +63,51 @@ def nums(start: int, end: int, min_rep: int = None, max_rep: int = None):
 
     start, end = str(start), str(end)
 
-    if len(start) != len(end):
-        # Formulate upper bound
-        for i in range(1, len(end)):
-            static_numbers = end[0:-i]
-            flexible_range = f"[0-{end[-i]}]"
+    # Formulate upper bound.
+    # This is the range between rounding down to the most significant digit and the max of the range.
+    # For upper bound 1234, the upper bound range would be 1000-1234.
+    upper_range = []
+    for i in range(1, len(end)):
+        static_numbers = end[0:-i]
+        flexible_range = f"[0-{end[-i]}]"
 
-            # 8765 [0-4] 0
-            # 876 [0-5][0-9] 1
-            # 87 [0-6][0-9]{2} 2
-            # 8 [0-7][0-9]{3} 3
+        # 8765 [0-4] 0
+        # 876 [0-5][0-9] 1
+        # 87 [0-6][0-9]{2} 2
+        # 8 [0-7][0-9]{3} 3
 
-            range_gap = i - 1
-            if range_gap > 0:
-                flexible_range += "[0-9]"
-            if range_gap > 1:
-                flexible_range += f"{{{range_gap}}}"
+        range_gap = i - 1
+        if range_gap > 0:
+            flexible_range += "[0-9]"
+        if range_gap > 1:
+            flexible_range += f"{{{range_gap}}}"
 
-            print(static_numbers, flexible_range)
+        upper_range.append(static_numbers + flexible_range)
+
+    print(upper_range)
+
+    # Formulate central upper bound range.
+    # one less than top significant digit
+    top_digit = int(end[0])
+    if top_digit == 1:
+        central_upper_range = ""
+    elif top_digit == 2:
+        central_upper_range = f"1[0-9]{{{len(end)-1}}}"
+    else:
+        central_upper_range = f"[1-{top_digit - 1}][0-9]{{{len(end)-1}}}"
+
+    print(central_upper_range)
+
+    # Formulate central range.
+    central_range = []
+    for i in range(len(end)-1):
+        if len(end)-2-i == 0:
+            central_range.append('[0-9]')
+        elif len(end)-2-i == 1:
+            central_range.append('[1-9][0-9]')
+        else:
+            central_range.append(f"[1-9][0-9]{{{len(end)-2}}}")
+    print(central_range)
 
 
 def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
