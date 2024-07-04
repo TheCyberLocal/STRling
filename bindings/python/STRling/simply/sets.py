@@ -8,6 +8,95 @@ from .pattern import STRlingError, Pattern, lit
 ########
 
 
+def nums(start: int, end: int, min_rep: int = None, max_rep: int = None):
+    """
+    Matches all positive integers within and including the start and end of a number range.
+
+    Examples:
+        - Matches any number from 0 to 255.
+
+        my_pattern1 = s.between(0, 255)
+
+        - Matches any uppercase letter from 10 to 20.
+
+        my_pattern2 = s.between(10, 20)
+
+    Parameters:
+    - start (str or int): The starting character or digit of the range.
+    - end (str or int): The ending character or digit of the range.
+    - min_rep (optional): Specifies the minimum digit of characters to match.
+    - max_rep (optional): Specifies the maximum digit of characters to match.
+
+    Returns:
+    - Pattern: A Pattern object representing a positive integer range.
+    """
+    if not (isinstance(start, int) and isinstance(end, int)):
+        message = """
+        Method: simply.nums(start, end)
+
+        The `start` and `end` arguments must both be positive integers (0+).
+        """
+        raise STRlingError(message)
+
+    if start > end:
+        message = """
+        Method: simply.nums(start, end)
+
+        The `start` integer must not be greater than the `end` integer.
+        """
+        raise STRlingError(message)
+
+    # Matching 0-255, (?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])
+    # Matching 0-255, (?:2[0-5]{2}|1[0-9]{2}|[1-9][0-9]|[0-9])
+
+    # Matching 0-10000, (?:10000|[1-9][0-9]{3}|[1-9][0-9]{2}|[1-9][0-9]|[0-9])
+    # Matching 0-1000,  (?:1000|[1-9][0-9]{2}|[1-9][0-9]|[0-9])
+    # Matching 0-100,   (?:100|[1-9][0-9]|[0-9])
+    # Matching 0-10,    (?:10|[0-9])
+
+    # Matching 1000-10000, (?:10000|[1-9][0-9]{3})
+    # Matching 100-10000, (?:10000|[1-9][0-9]{3}|[1-9][0-9]{2})
+    # Matching 100-1000,(?:1000|[1-9][0-9]{2})
+    # Matching 10-100,  (?:100|[1-9][0-9])
+
+    # Matching 0-14567, (?:1[0-4][0-5][0-6][0-7]|[1-9][0-9]{3}|[1-9][0-9]{2}|[1-9][0-9]|[0-9])
+    # Matching 0-1456, (?:1[0-4][0-5][0-6]|[1-9][0-9]{2}|[1-9][0-9]|[0-9])
+    # Matching 0-155, (?:1[0-5]{2}|[1-9][0-9]|[1-9][0-9]|[0-9])
+    # Matching 0-7456, (?:7[0-4][0-5][0-6]|[1-6][0-9]{3}|[1-9][0-9]{2}|[1-9][0-9]|[0-9])
+
+    # Matching 155-14567, (?:1[0-4][0-5][0-6][0-7]|[1-9][0-9]{3}|[2-9][0-9]{2}|1[6-9][0-9]|15[5-9])
+    # Matching 256-1456, (?:1[0-4][0-5][0-6]|[2-9][5-9][6-9])
+    # Matching 123-158, (?:1[2-5][3-8])
+    # Matching 567-7456, (?:7[0-4][0-5][0-6]|[1-6][0-9]{3}|[5-9][6-9][7-9])
+
+    # For traversing the logic from an end to 0 is as follows:
+    # Matching 0-87654 can be broken down into matching 80000-87654 and 0-79999.
+    # Matching 80000-87654, (?:8765[0-4]|876[0-5][0-9]|87[0-6][0-9]{2}|8[0-7][0-9]{3}).
+    # Matching 0-79999 can be broken down into matching 10000-79999, 1000-9999, 100-999, 10-99, and 0-9.
+    # Matching 10000-79999, (?:[1-7][0-9]{4}|[1-9][0-9]{3}|[1-9][0-9]{2}|[1-9][0-9]|[0-9]).
+
+    if start != 0:
+        raise ValueError("start must be 0 for testing.")
+
+    start, end = str(start), str(end)
+    for i in range(1, len(end)):
+        const_for_upper_bound = end[0:-i]
+        flexible_range = f"[0-{end[-i]}]"
+
+        range_gap = i - 1
+        if range_gap > 0:
+            flexible_range += "[0-9]"
+        if range_gap > 1:
+            flexible_range += f"{{{range_gap}}}"
+
+        # 8765 [0-4] 0
+        # 876 [0-5][0-9] 1
+        # 87 [0-6][0-9]{2} 2
+        # 8 [0-7][0-9]{3} 3
+
+        print(const_for_upper_bound, flexible_range, range_gap)
+
+
 def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     """
     Matches all characters within and including the start and end of a letter or number range.
