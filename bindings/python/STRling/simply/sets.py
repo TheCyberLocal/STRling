@@ -102,7 +102,8 @@ def nums(start: int, end: int, min_rep: int = None, max_rep: int = None):
 
     central_upper_bound = []
     for i in range(1, len(end)):
-        static_numbers = end[0:-i]
+        if len(end) == 1:
+            central_upper_bound.append(f"[0-{int(end[0])-1}]")
         first_loop = i == 1
         flexible_range = f"[0-{int(end[-i])-1+first_loop}]"
 
