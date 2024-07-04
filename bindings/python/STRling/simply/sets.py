@@ -73,7 +73,7 @@ def nums(start: int, end: int, min_rep: int = None, max_rep: int = None):
     # Matching 0-87654 can be broken down into matching 80000-87654 and 0-79999.
     # Matching 80000-87654, (?:8765[0-4]|876[0-5][0-9]|87[0-6][0-9]{2}|8[0-7][0-9]{3}).
     # Matching 0-79999 can be broken down into matching 10000-79999, 1000-9999, 100-999, 10-99, and 0-9.
-    # Matching 10000-79999, (?:[1-7][0-9]{4}|[1-9][0-9]{3}|[1-9][0-9]{2}|[1-9][0-9]|[0-9]).
+    # Matching 0-79999, (?:[1-7][0-9]{4}|[1-9][0-9]{3}|[1-9][0-9]{2}|[1-9][0-9]|[0-9]).
 
     if start != 0:
         raise ValueError("start must be 0 for testing.")
