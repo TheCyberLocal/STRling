@@ -29,7 +29,7 @@ export function anyOf(...patterns) {
   const namedGroupCounts = {};
 
   cleanPatterns.forEach((pattern) => {
-    pattern.named_groups.forEach((groupName) => {
+    pattern.namedGroups.forEach((groupName) => {
       if (namedGroupCounts[groupName]) {
         namedGroupCounts[groupName] += 1;
       } else {
@@ -39,7 +39,7 @@ export function anyOf(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1,
+    ([_, count]) => count > 1
   );
   if (duplicates.length > 0) {
     const duplicateInfo = duplicates
@@ -62,7 +62,11 @@ export function anyOf(...patterns) {
   const joined = cleanPatterns.map((p) => p.toString()).join("|");
   const newPattern = `(?:${joined})`;
 
-  return new Pattern(newPattern, (composite = true), (namedGroups = subNames));
+  return new Pattern({
+    pattern: newPattern,
+    composite: true,
+    namedGroups: subNames,
+  });
 }
 
 /**
@@ -94,7 +98,7 @@ export function may(...patterns) {
   const namedGroupCounts = {};
 
   cleanPatterns.forEach((pattern) => {
-    pattern.named_groups.forEach((groupName) => {
+    pattern.namedGroups.forEach((groupName) => {
       if (namedGroupCounts[groupName]) {
         namedGroupCounts[groupName] += 1;
       } else {
@@ -104,7 +108,7 @@ export function may(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1,
+    ([_, count]) => count > 1
   );
   if (duplicates.length > 0) {
     const duplicateInfo = duplicates
@@ -127,7 +131,11 @@ export function may(...patterns) {
   const joined = merge(...cleanPatterns).toString();
   const newPattern = `${joined}?`;
 
-  return new Pattern(newPattern, (composite = true), (namedGroups = subNames));
+  return new Pattern({
+    pattern: newPattern,
+    composite: true,
+    namedGroups: subNames,
+  });
 }
 
 /**
@@ -159,7 +167,7 @@ export function merge(...patterns) {
   const namedGroupCounts = {};
 
   cleanPatterns.forEach((pattern) => {
-    pattern.named_groups.forEach((groupName) => {
+    pattern.namedGroups.forEach((groupName) => {
       if (namedGroupCounts[groupName]) {
         namedGroupCounts[groupName] += 1;
       } else {
@@ -169,7 +177,7 @@ export function merge(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1,
+    ([_, count]) => count > 1
   );
   if (duplicates.length > 0) {
     const duplicateInfo = duplicates
@@ -192,7 +200,11 @@ export function merge(...patterns) {
   const joined = cleanPatterns.map((p) => p.toString()).join("");
   const newPattern = `(?:${joined})`;
 
-  return new Pattern(newPattern, (composite = true), (namedGroups = subNames));
+  return new Pattern({
+    pattern: newPattern,
+    composite: true,
+    namedGroups: subNames,
+  });
 }
 
 /**
@@ -225,7 +237,7 @@ export function capture(...patterns) {
   const namedGroupCounts = {};
 
   cleanPatterns.forEach((pattern) => {
-    pattern.named_groups.forEach((groupName) => {
+    pattern.namedGroups.forEach((groupName) => {
       if (namedGroupCounts[groupName]) {
         namedGroupCounts[groupName] += 1;
       } else {
@@ -235,7 +247,7 @@ export function capture(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1,
+    ([_, count]) => count > 1
   );
   if (duplicates.length > 0) {
     const duplicateInfo = duplicates
@@ -258,12 +270,12 @@ export function capture(...patterns) {
   const joined = cleanPatterns.map((p) => p.toString()).join("");
   const newPattern = `(${joined})`;
 
-  return new Pattern(
-    newPattern,
-    (composite = true),
-    (numberedGroup = true),
-    (namedGroups = subNames),
-  );
+  return new Pattern({
+    pattern: newPattern,
+    composite: true,
+    numberedGroup: true,
+    namedGroups: subNames,
+  });
 }
 
 /**
@@ -307,7 +319,7 @@ export function group(name, ...patterns) {
   const namedGroupCounts = {};
 
   cleanPatterns.forEach((pattern) => {
-    pattern.named_groups.forEach((groupName) => {
+    pattern.namedGroups.forEach((groupName) => {
       if (namedGroupCounts[groupName]) {
         namedGroupCounts[groupName] += 1;
       } else {
@@ -317,7 +329,7 @@ export function group(name, ...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1,
+    ([_, count]) => count > 1
   );
   if (duplicates.length > 0) {
     const duplicateInfo = duplicates
@@ -340,9 +352,9 @@ export function group(name, ...patterns) {
   const joined = cleanPatterns.map((p) => p.toString()).join("");
   const newPattern = `(?P<${name}>${joined})`;
 
-  return new Pattern(
-    newPattern,
-    (composite = true),
-    (namedGroups = [name, ...subNames]),
-  );
+  return new Pattern({
+    pattern: newPattern,
+    composite: true,
+    namedGroups: [name, ...subNames],
+  });
 }
