@@ -7,41 +7,45 @@ import { STRlingError, Pattern, lit } from "./pattern";
  * @throws {STRlingError} If any pattern is invalid or named groups are not unique.
  */
 function anyOf(...patterns) {
-    const cleanPatterns = patterns.map(pattern => {
-        if (typeof pattern === 'string') {
-            pattern = lit(pattern);
-        }
+  const cleanPatterns = patterns.map((pattern) => {
+    if (typeof pattern === "string") {
+      pattern = lit(pattern);
+    }
 
-        if (!(pattern instanceof Pattern)) {
-            const message = `
+    if (!(pattern instanceof Pattern)) {
+      const message = `
             Method: simply.anyOf(...patterns)
 
             The parameters must be instances of Pattern or string.
 
             Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
             `;
-            throw new STRlingError(message);
-        }
+      throw new STRlingError(message);
+    }
 
-        return pattern;
+    return pattern;
+  });
+
+  const namedGroupCounts = {};
+
+  cleanPatterns.forEach((pattern) => {
+    pattern.named_groups.forEach((groupName) => {
+      if (namedGroupCounts[groupName]) {
+        namedGroupCounts[groupName] += 1;
+      } else {
+        namedGroupCounts[groupName] = 1;
+      }
     });
+  });
 
-    const namedGroupCounts = {};
-
-    cleanPatterns.forEach(pattern => {
-        pattern.named_groups.forEach(groupName => {
-            if (namedGroupCounts[groupName]) {
-                namedGroupCounts[groupName] += 1;
-            } else {
-                namedGroupCounts[groupName] = 1;
-            }
-        });
-    });
-
-    const duplicates = Object.entries(namedGroupCounts).filter(([_, count]) => count > 1);
-    if (duplicates.length > 0) {
-        const duplicateInfo = duplicates.map(([name, count]) => `${name}: ${count}`).join(', ');
-        const message = `
+  const duplicates = Object.entries(namedGroupCounts).filter(
+    ([_, count]) => count > 1,
+  );
+  if (duplicates.length > 0) {
+    const duplicateInfo = duplicates
+      .map(([name, count]) => `${name}: ${count}`)
+      .join(", ");
+    const message = `
         Method: simply.anyOf(...patterns)
 
         Named groups must be unique.
@@ -50,15 +54,15 @@ function anyOf(...patterns) {
         If you need later reference change the named group argument to simply.capture().
         If you don't need later reference change the named group argument to simply.merge().
         `;
-        throw new STRlingError(message);
-    }
+    throw new STRlingError(message);
+  }
 
-    const subNames = Object.keys(namedGroupCounts);
+  const subNames = Object.keys(namedGroupCounts);
 
-    const joined = cleanPatterns.map(p => p.toString()).join('|');
-    const newPattern = `(?:${joined})`;
+  const joined = cleanPatterns.map((p) => p.toString()).join("|");
+  const newPattern = `(?:${joined})`;
 
-    return new Pattern(newPattern, false, false, true, subNames);
+  return new Pattern(newPattern, false, false, true, subNames);
 }
 
 /**
@@ -68,41 +72,45 @@ function anyOf(...patterns) {
  * @throws {STRlingError} If any pattern is invalid or named groups are not unique.
  */
 function may(...patterns) {
-    const cleanPatterns = patterns.map(pattern => {
-        if (typeof pattern === 'string') {
-            pattern = lit(pattern);
-        }
+  const cleanPatterns = patterns.map((pattern) => {
+    if (typeof pattern === "string") {
+      pattern = lit(pattern);
+    }
 
-        if (!(pattern instanceof Pattern)) {
-            const message = `
+    if (!(pattern instanceof Pattern)) {
+      const message = `
             Method: simply.may(...patterns)
 
             The parameters must be instances of Pattern or string.
 
             Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
             `;
-            throw new STRlingError(message);
-        }
+      throw new STRlingError(message);
+    }
 
-        return pattern;
+    return pattern;
+  });
+
+  const namedGroupCounts = {};
+
+  cleanPatterns.forEach((pattern) => {
+    pattern.named_groups.forEach((groupName) => {
+      if (namedGroupCounts[groupName]) {
+        namedGroupCounts[groupName] += 1;
+      } else {
+        namedGroupCounts[groupName] = 1;
+      }
     });
+  });
 
-    const namedGroupCounts = {};
-
-    cleanPatterns.forEach(pattern => {
-        pattern.named_groups.forEach(groupName => {
-            if (namedGroupCounts[groupName]) {
-                namedGroupCounts[groupName] += 1;
-            } else {
-                namedGroupCounts[groupName] = 1;
-            }
-        });
-    });
-
-    const duplicates = Object.entries(namedGroupCounts).filter(([_, count]) => count > 1);
-    if (duplicates.length > 0) {
-        const duplicateInfo = duplicates.map(([name, count]) => `${name}: ${count}`).join(', ');
-        const message = `
+  const duplicates = Object.entries(namedGroupCounts).filter(
+    ([_, count]) => count > 1,
+  );
+  if (duplicates.length > 0) {
+    const duplicateInfo = duplicates
+      .map(([name, count]) => `${name}: ${count}`)
+      .join(", ");
+    const message = `
         Method: simply.may(...patterns)
 
         Named groups must be unique.
@@ -111,15 +119,15 @@ function may(...patterns) {
         If you need later reference change the named group argument to simply.capture().
         If you don't need later reference change the named group argument to simply.merge().
         `;
-        throw new STRlingError(message);
-    }
+    throw new STRlingError(message);
+  }
 
-    const subNames = Object.keys(namedGroupCounts);
+  const subNames = Object.keys(namedGroupCounts);
 
-    const joined = merge(...cleanPatterns).toString();
-    const newPattern = `${joined}?`;
+  const joined = merge(...cleanPatterns).toString();
+  const newPattern = `${joined}?`;
 
-    return new Pattern(newPattern, false, false, true, subNames);
+  return new Pattern(newPattern, false, false, true, subNames);
 }
 
 /**
@@ -129,41 +137,45 @@ function may(...patterns) {
  * @throws {STRlingError} If any pattern is invalid or named groups are not unique.
  */
 function merge(...patterns) {
-    const cleanPatterns = patterns.map(pattern => {
-        if (typeof pattern === 'string') {
-            pattern = lit(pattern);
-        }
+  const cleanPatterns = patterns.map((pattern) => {
+    if (typeof pattern === "string") {
+      pattern = lit(pattern);
+    }
 
-        if (!(pattern instanceof Pattern)) {
-            const message = `
+    if (!(pattern instanceof Pattern)) {
+      const message = `
             Method: simply.merge(...patterns)
 
             The parameters must be instances of Pattern or string.
 
             Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
             `;
-            throw new STRlingError(message);
-        }
+      throw new STRlingError(message);
+    }
 
-        return pattern;
+    return pattern;
+  });
+
+  const namedGroupCounts = {};
+
+  cleanPatterns.forEach((pattern) => {
+    pattern.named_groups.forEach((groupName) => {
+      if (namedGroupCounts[groupName]) {
+        namedGroupCounts[groupName] += 1;
+      } else {
+        namedGroupCounts[groupName] = 1;
+      }
     });
+  });
 
-    const namedGroupCounts = {};
-
-    cleanPatterns.forEach(pattern => {
-        pattern.named_groups.forEach(groupName => {
-            if (namedGroupCounts[groupName]) {
-                namedGroupCounts[groupName] += 1;
-            } else {
-                namedGroupCounts[groupName] = 1;
-            }
-        });
-    });
-
-    const duplicates = Object.entries(namedGroupCounts).filter(([_, count]) => count > 1);
-    if (duplicates.length > 0) {
-        const duplicateInfo = duplicates.map(([name, count]) => `${name}: ${count}`).join(', ');
-        const message = `
+  const duplicates = Object.entries(namedGroupCounts).filter(
+    ([_, count]) => count > 1,
+  );
+  if (duplicates.length > 0) {
+    const duplicateInfo = duplicates
+      .map(([name, count]) => `${name}: ${count}`)
+      .join(", ");
+    const message = `
         Method: simply.merge(...patterns)
 
         Named groups must be unique.
@@ -172,19 +184,164 @@ function merge(...patterns) {
         If you need later reference change the named group argument to simply.capture().
         If you don't need later reference change the named group argument to simply.merge().
         `;
-        throw new STRlingError(message);
+    throw new STRlingError(message);
+  }
+
+  const subNames = Object.keys(namedGroupCounts);
+
+  const joined = cleanPatterns.map((p) => p.toString()).join("");
+  const newPattern = `(?:${joined})`;
+
+  return new Pattern(newPattern, false, false, true, subNames);
+}
+
+/**
+ * Creates a numbered group that can be indexed for extracting this part of the match.
+ * Captures cannot be invoked with a range.
+ * @param {...(Pattern|string)} patterns - One or more patterns to be captured.
+ * @returns {Pattern} A Pattern object representing the capturing group of the given patterns.
+ * @throws {STRlingError} If any pattern is invalid or named groups are not unique.
+ */
+function capture(...patterns) {
+  const cleanPatterns = patterns.map((pattern) => {
+    if (typeof pattern === "string") {
+      pattern = lit(pattern);
     }
 
-    const subNames = Object.keys(namedGroupCounts);
+    if (!(pattern instanceof Pattern)) {
+      const message = `
+            Method: simply.capture(...patterns)
 
-    const joined = cleanPatterns.map(p => p.toString()).join('');
-    const newPattern = `(?:${joined})`;
+            The parameters must be instances of Pattern or string.
 
-    return new Pattern(newPattern, false, false, true, subNames);
+            Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+            `;
+      throw new STRlingError(message);
+    }
+
+    return pattern;
+  });
+
+  const namedGroupCounts = {};
+
+  cleanPatterns.forEach((pattern) => {
+    pattern.named_groups.forEach((groupName) => {
+      if (namedGroupCounts[groupName]) {
+        namedGroupCounts[groupName] += 1;
+      } else {
+        namedGroupCounts[groupName] = 1;
+      }
+    });
+  });
+
+  const duplicates = Object.entries(namedGroupCounts).filter(
+    ([_, count]) => count > 1,
+  );
+  if (duplicates.length > 0) {
+    const duplicateInfo = duplicates
+      .map(([name, count]) => `${name}: ${count}`)
+      .join(", ");
+    const message = `
+        Method: simply.capture(...patterns)
+
+        Named groups must be unique.
+        Duplicate named groups found: ${duplicateInfo}.
+
+        If you need later reference change the named group argument to simply.capture().
+        If you don't need later reference change the named group argument to simply.merge().
+        `;
+    throw new STRlingError(message);
+  }
+
+  const subNames = Object.keys(namedGroupCounts);
+
+  const joined = cleanPatterns.map((p) => p.toString()).join("");
+  const newPattern = `(${joined})`;
+
+  return new Pattern(newPattern, false, false, true, subNames, true);
+}
+
+/**
+ * Creates a unique named group that can be referenced for extracting this part of the match.
+ * Groups cannot be invoked with a range.
+ * @param {string} name - The name of the capturing group.
+ * @param {...(Pattern|string)} patterns - One or more patterns to be captured.
+ * @returns {Pattern} A Pattern object representing the named capturing group of the given patterns.
+ * @throws {STRlingError} If the name is invalid, any pattern is invalid, or named groups are not unique.
+ */
+function group(name, ...patterns) {
+  if (typeof name !== "string") {
+    const message = `
+        Method: simply.group(name, ...patterns)
+
+        The group is missing a specified name.
+        The name parameter must be a string like 'group_name'.
+        `;
+    throw new STRlingError(message);
+  }
+
+  const cleanPatterns = patterns.map((pattern) => {
+    if (typeof pattern === "string") {
+      pattern = lit(pattern);
+    }
+
+    if (!(pattern instanceof Pattern)) {
+      const message = `
+            Method: simply.group(name, ...patterns)
+
+            The parameters must be instances of Pattern or string.
+
+            Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+            `;
+      throw new STRlingError(message);
+    }
+
+    return pattern;
+  });
+
+  const namedGroupCounts = {};
+
+  cleanPatterns.forEach((pattern) => {
+    pattern.named_groups.forEach((groupName) => {
+      if (namedGroupCounts[groupName]) {
+        namedGroupCounts[groupName] += 1;
+      } else {
+        namedGroupCounts[groupName] = 1;
+      }
+    });
+  });
+
+  const duplicates = Object.entries(namedGroupCounts).filter(
+    ([_, count]) => count > 1,
+  );
+  if (duplicates.length > 0) {
+    const duplicateInfo = duplicates
+      .map(([name, count]) => `${name}: ${count}`)
+      .join(", ");
+    const message = `
+        Method: simply.group(name, ...patterns)
+
+        Named groups must be unique.
+        Duplicate named groups found: ${duplicateInfo}.
+
+        If you need later reference change the named group argument to simply.capture().
+        If you don't need later reference change the named group argument to simply.merge().
+        `;
+    throw new STRlingError(message);
+  }
+
+  const subNames = Object.keys(namedGroupCounts);
+
+  const joined = cleanPatterns.map((p) => p.toString()).join("");
+  const newPattern = `(?P<${name}>${joined})`;
+
+  return new Pattern(newPattern, false, false, true, [name, ...subNames]);
 }
 
 module.exports = {
-    anyOf,
-    may,
-    merge
+  anyOf,
+  may,
+  merge,
+  capture,
+  group,
 };

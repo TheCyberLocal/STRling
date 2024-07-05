@@ -47,7 +47,7 @@ const areaCode = s.merge(
   // notice we use merge since we don't want to name the group with parenthesis
   s.may("("), // Optional opening parenthesis
   s.group("areaCode", s.digit(3)), // Exactly 3 digits and named for later reference
-  s.may(")") // Optional closing parenthesis
+  s.may(")"), // Optional closing parenthesis
 );
 
 // Central part: 456
@@ -63,7 +63,7 @@ const phoneNumberPattern = s.merge(
   s.may(separator), // Optional separator after area code
   centralPart, // Central 3 digits
   s.may(separator), // Optional separator after area code
-  lastPart // Last part with hyphen and 4 digits
+  lastPart, // Last part with hyphen and 4 digits
 );
 
 // Example usage
@@ -72,11 +72,11 @@ const exampleText = "(123) 456-7890 and 123-456-7890";
 const matches = exampleText.matchAll(RegExp(phoneNumberPattern));
 
 for (const match of matches) {
-    console.log("Full Match:", match[0]);
-    console.log("Area Code:", match.groups.areaCode);
-    console.log("Central Part:", match.groups.centralPart);
-    console.log("Last Part:", match.groups.lastPart);
-    console.log();
+  console.log("Full Match:", match[0]);
+  console.log("Area Code:", match.groups.areaCode);
+  console.log("Central Part:", match.groups.centralPart);
+  console.log("Last Part:", match.groups.lastPart);
+  console.log();
 }
 
 // Output:
