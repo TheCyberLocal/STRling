@@ -22,7 +22,7 @@ export function ahead(pattern) {
     throw new STRlingError(message);
   }
 
-  return new Pattern(`(?=${pattern})`, false, false, true);
+  return new Pattern(`(?=${pattern})`, (composite = true));
 }
 
 /**
@@ -47,7 +47,7 @@ export function notAhead(pattern) {
     throw new STRlingError(message);
   }
 
-  return new Pattern(`(?!${pattern})`, false, false, true);
+  return new Pattern(`(?!${pattern})`, (composite = true));
 }
 
 /**
@@ -72,7 +72,7 @@ export function behind(pattern) {
     throw new STRlingError(message);
   }
 
-  return new Pattern(`(?<=${pattern})`, false, false, true);
+  return new Pattern(`(?<=${pattern})`, (composite = true));
 }
 
 /**
@@ -97,5 +97,5 @@ export function notBehind(pattern) {
     throw new STRlingError(message);
   }
 
-  return new Pattern(`(?<!${pattern})`, false, false, true);
+  return new Pattern(`(?<!${pattern})`, (composite = true));
 }
