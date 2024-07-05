@@ -1,133 +1,108 @@
+import { STRlingError, Pattern, lit } from "./pattern";
 
-// from .pattern import STRlingError, Pattern, lit
+/**
+ * A positive lookahead checks for the presence of the specified pattern after the current position without including it in the result.
+ * @param {Pattern|string} pattern - The pattern to look ahead for.
+ * @returns {Pattern} A Pattern object representing the positive lookahead.
+ * @throws {STRlingError} If the pattern is not an instance of Pattern or string.
+ */
+function ahead(pattern) {
+  if (typeof pattern === "string") {
+    pattern = lit(pattern);
+  }
 
+  if (!(pattern instanceof Pattern)) {
+    const message = `
+        Method: simply.ahead(pattern)
 
+        The parameter must be an instance of Pattern or string.
 
-// ############################
-// // Lookarounds
-// ########
+        Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+        `;
+    throw new STRlingError(message);
+  }
 
+  return new Pattern(`(?=${pattern})`, false, false, true);
+}
 
-// def ahead(pattern):
-//     """
-//     A positive lookahead checks for the presence of the specified pattern after the current position without including it in the result.
+/**
+ * A negative lookahead checks for the absence of the specified pattern after the current position without including it in the result.
+ * @param {Pattern|string} pattern - The pattern to look ahead for and ensure is absent.
+ * @returns {Pattern} A Pattern object representing the negative lookahead.
+ * @throws {STRlingError} If the pattern is not an instance of Pattern or string.
+ */
+function notAhead(pattern) {
+  if (typeof pattern === "string") {
+    pattern = lit(pattern);
+  }
 
-//     Example: simply as s
-//         - Only matches a digit followed by a letter.
+  if (!(pattern instanceof Pattern)) {
+    const message = `
+        Method: simply.notAhead(pattern)
 
-//         my_pattern = s.merge(s.digit(), s.ahead(s.letter()))
+        The parameter must be an instance of Pattern or string.
 
-//     Parameters:
-//     - pattern (Pattern/str): The pattern to look ahead for.
+        Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+        `;
+    throw new STRlingError(message);
+  }
 
-//     Returns:
-//     - Pattern: A Pattern object representing the positive lookahead.
-//     """
+  return new Pattern(`(?!${pattern})`, false, false, true);
+}
 
-//     if isinstance(pattern, str):
-//         pattern = lit(pattern)
+/**
+ * A positive lookbehind checks for the presence of the specified pattern before the current position without including it in the result.
+ * @param {Pattern|string} pattern - The pattern to look behind for.
+ * @returns {Pattern} A Pattern object representing the positive lookbehind.
+ * @throws {STRlingError} If the pattern is not an instance of Pattern or string.
+ */
+function behind(pattern) {
+  if (typeof pattern === "string") {
+    pattern = lit(pattern);
+  }
 
-//     if not isinstance(pattern, Pattern):
-//         message = """
-//         Method: simply.ahead(pattern)
+  if (!(pattern instanceof Pattern)) {
+    const message = `
+        Method: simply.behind(pattern)
 
-//         The parameter must be an instance of `Pattern` or `str`.
+        The parameter must be an instance of Pattern or string.
 
-//         Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
-//         """
-//         raise STRlingError(message)
+        Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+        `;
+    throw new STRlingError(message);
+  }
 
-//     return Pattern(f'(?={pattern})', composite=true)
+  return new Pattern(`(?<=${pattern})`, false, false, true);
+}
 
-// def not_ahead(pattern):
-//     """
-//     A negative lookahead checks for the absence of the specified pattern after the current position without including it in the result.
+/**
+ * A negative lookbehind checks for the absence of the specified pattern before the current position without including it in the result.
+ * @param {Pattern|string} pattern - The pattern to look behind for and ensure is absent.
+ * @returns {Pattern} A Pattern object representing the negative lookbehind.
+ * @throws {STRlingError} If the pattern is not an instance of Pattern or string.
+ */
+function notBehind(pattern) {
+  if (typeof pattern === "string") {
+    pattern = lit(pattern);
+  }
 
-//     Example: simply as s
-//         - Only matches a digit if not followed by a letter.
+  if (!(pattern instanceof Pattern)) {
+    const message = `
+        Method: simply.notBehind(pattern)
 
-//         my_pattern = s.merge(s.digit(), s.not_ahead(s.letter()))
+        The parameter must be an instance of Pattern or string.
 
-//     Parameters:
-//     - pattern (Pattern/str): The pattern to look ahead for and ensure is absent.
+        Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+        `;
+    throw new STRlingError(message);
+  }
 
-//     Returns:
-//     - Pattern: A Pattern object representing the negative lookahead.
-//     """
+  return new Pattern(`(?<!${pattern})`, false, false, true);
+}
 
-//     if isinstance(pattern, str):
-//         pattern = lit(pattern)
-
-//     if not isinstance(pattern, Pattern):
-//         message = """
-//         Method: simply.not_ahead(pattern)
-
-//         The parameter must be an instance of `Pattern` or `str`.
-
-//         Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
-//         """
-//         raise STRlingError(message)
-
-//     return Pattern(f'(?!{pattern})', composite=true)
-
-// def behind(pattern):
-//     """
-//     A positive lookbehind checks for the presence of the specified pattern before the current position without including it in the result.
-
-//     Example: simply as s
-//         - Only matches a letter preceded by a digit.
-
-//         my_pattern = s.merge(s.behind(s.digit()), s.letter())
-
-//     Parameters:
-//     - pattern (Pattern/str): The pattern to look behind for.
-
-//     Returns:
-//     - Pattern: A Pattern object representing the positive lookbehind.
-//     """
-
-//     if isinstance(pattern, str):
-//         pattern = lit(pattern)
-
-//     if not isinstance(pattern, Pattern):
-//         message = """
-//         Method: simply.behind(pattern)
-
-//         The parameter must be an instance of `Pattern` or `str`.
-
-//         Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
-//         """
-//         raise STRlingError(message)
-
-//     return Pattern(f'(?<={pattern})', composite=true)
-
-// def not_behind(pattern):
-//     """
-//     A negative lookbehind checks for the absence of the specified pattern before the current position without including it in the result.
-
-//     Example: simply as s
-//         - Only matches a letter if not preceded by a digit.
-
-//         my_pattern = s.merge(s.behind(s.digit()), s.letter())
-
-//     Parameters:
-//     - pattern (Pattern/str): The pattern to look behind for and ensure is absent.
-
-//     Returns:
-//     - Pattern: A Pattern object representing the negative lookbehind.
-//     """
-
-//     if isinstance(pattern, str):
-//         pattern = lit(pattern)
-
-//     if not isinstance(pattern, Pattern):
-//         message = """
-//         Method: simply.not_behind(pattern)
-
-//         The parameter must be an instance of `Pattern` or `str`.
-
-//         Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
-//         """
-//         raise STRlingError(message)
-
-//     return Pattern(f'(?<!{pattern})', composite=true)
+module.exports = {
+  ahead,
+  notAhead,
+  behind,
+  notBehind,
+};
