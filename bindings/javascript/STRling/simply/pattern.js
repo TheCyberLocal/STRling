@@ -28,12 +28,12 @@ class STRlingError extends Error {
  * @param {string} text - The text to escape.
  * @returns {Pattern} The escaped pattern.
  */
-function lit(text) {
+const lit = (text) => {
   const escapedText = text
     .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
     .replace(/\//g, "\\/");
   return new Pattern(escapedText);
-}
+};
 
 /**
  * Generates a repetition pattern string.
@@ -42,19 +42,19 @@ function lit(text) {
  * @returns {string} The repetition pattern string.
  * @throws {STRlingError} If minRep is greater than maxRep.
  */
-function repeat(minRep, maxRep) {
+const repeat = (minRep, maxRep) => {
   if (minRep !== undefined && maxRep !== undefined) {
     if (maxRep === 0) {
       return `{${minRep},}`;
     }
     if (minRep > maxRep) {
       const message = `
-            Method: Pattern.__call__(minRep, maxRep)
+        Method: Pattern.call(minRep, maxRep)
 
-            The minRep must not be greater than the maxRep.
+        The minRep must not be greater than the maxRep.
 
-            Ensure the lesser number is on the left and the greater number is on the right.
-            `;
+        Ensure the lesser number is on the left and the greater number is on the right.
+      `;
       throw new STRlingError(message);
     }
     return `{${minRep},${maxRep}}`;
@@ -63,7 +63,7 @@ function repeat(minRep, maxRep) {
   } else {
     return "";
   }
-}
+};
 
 /**
  * Represents a regex pattern.
@@ -84,7 +84,7 @@ class Pattern {
     negated = false,
     composite = false,
     namedGroups = [],
-    numberedGroup = false,
+    numberedGroup = false
   ) {
     this.pattern = pattern;
     this.customSet = customSet;
@@ -111,10 +111,10 @@ class Pattern {
       (maxRep !== undefined && !Number.isInteger(maxRep))
     ) {
       const message = `
-            Method: Pattern.call(minRep, maxRep)
+        Method: Pattern.call(minRep, maxRep)
 
-            The minRep and maxRep arguments must be integers (0-9).
-            `;
+        The minRep and maxRep arguments must be integers (0-9).
+      `;
       throw new STRlingError(message);
     }
 
@@ -123,10 +123,10 @@ class Pattern {
       (maxRep !== undefined && maxRep < 0)
     ) {
       const message = `
-            Method: Pattern.call(minRep, maxRep)
+        Method: Pattern.call(minRep, maxRep)
 
-            The minRep and maxRep must be 0 or greater.
-            `;
+        The minRep and maxRep must be 0 or greater.
+      `;
       throw new STRlingError(message);
     }
 
@@ -136,12 +136,12 @@ class Pattern {
       maxRep !== undefined
     ) {
       const message = `
-            Method: Pattern.call(minRep, maxRep)
+        Method: Pattern.call(minRep, maxRep)
 
-            Named groups cannot be repeated as they must be unique.
+        Named groups cannot be repeated as they must be unique.
 
-            Consider using an unlabeled group (merge) or a numbered group (capture).
-            `;
+        Consider using an unlabeled group (merge) or a numbered group (capture).
+      `;
       throw new STRlingError(message);
     }
 
@@ -151,25 +151,25 @@ class Pattern {
       this.pattern[this.pattern.length - 2] !== "\\"
     ) {
       const message = `
-            Method: Pattern.call(minRep, maxRep)
+        Method: Pattern.call(minRep, maxRep)
 
-            Cannot re-invoke pattern to specify range that already exists.
+        Cannot re-invoke pattern to specify range that already exists.
 
-            Examples of invalid syntax:
-                simply.letter(1, 2)(3, 4) // double invoked range is invalid
-                myPattern = simply.letter(1, 2) // myPattern was set range (1, 2) // valid
-                myNewPattern = myPattern(3, 4) // myPattern was reinvoked (3, 4) // invalid
+        Examples of invalid syntax:
+            simply.letter(1, 2)(3, 4) // double invoked range is invalid
+            myPattern = simply.letter(1, 2) // myPattern was set range (1, 2) // valid
+            myNewPattern = myPattern(3, 4) // myPattern was reinvoked (3, 4) // invalid
 
-            Set the range on the first invocation, don't reassign it.
+        Set the range on the first invocation, don't reassign it.
 
-            Examples of valid syntax:
-                You can either specify the range now:
-                    myPattern = simply.letter(1, 2)
+        Examples of valid syntax:
+            You can either specify the range now:
+                myPattern = simply.letter(1, 2)
 
-                Or you can specify the range later:
-                    myPattern = simply.letter() // myPattern was never assigned a range
-                    myNewPattern = myPattern(1, 2) // myPattern was invoked with (1, 2) for the first time.
-            `;
+            Or you can specify the range later:
+                myPattern = simply.letter() // myPattern was never assigned a range
+                myNewPattern = myPattern(1, 2) // myPattern was invoked with (1, 2) for the first time.
+      `;
       throw new STRlingError(message);
     }
 
@@ -177,12 +177,12 @@ class Pattern {
     if (this.numberedGroup) {
       if (maxRep !== undefined) {
         const message = `
-                Method: Pattern.call(minRep, maxRep)
+          Method: Pattern.call(minRep, maxRep)
 
-                The maxRep parameter was specified when capture takes only one parameter, the exact number of copies.
+          The maxRep parameter was specified when capture takes only one parameter, the exact number of copies.
 
-                Consider using an unlabeled group (merge) for a range.
-                `;
+          Consider using an unlabeled group (merge) for a range.
+        `;
         throw new STRlingError(message);
       } else {
         newPattern = `(?:${this.pattern.repeat(minRep)})`;
