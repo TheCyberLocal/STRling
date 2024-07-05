@@ -1,58 +1,55 @@
-
-import { STRlingError, Pattern, lit } from './pattern';
-
+import { STRlingError, Pattern, lit } from "./pattern";
 
 // Constructor Methods
 
-
 function anyOf(...patterns) {
-    // Check all patterns are instance of Pattern or str
-    const cleanPatterns = []
-    for (let pattern in patterns) {
-        if (pattern instanceof str) {
-            pattern = lit(pattern)
-        }
+  // Check all patterns are instance of Pattern or str
+  const cleanPatterns = [];
+  for (let pattern in patterns) {
+    if (pattern instanceof str) {
+      pattern = lit(pattern);
+    }
 
-        if (!(pattern instanceof Pattern)) {
-            const message = ```
+    if (!(pattern instanceof Pattern)) {
+      const message = ```
             Method: simply.anyOf(...patterns)
 
             The parameters must be instances of 'Pattern' or 'str'.
 
             Use a string such as "123abc$" to match literal characters, or use a predefined set like 'simply.letter()'.
-            ```
-            throw STRlingError(message)
-        }
-
-        cleanPatterns.append(pattern)
+            ```;
+      throw STRlingError(message);
     }
 
-    // Count named groups and raise error if not unique
-    const named_group_counts = {}
+    cleanPatterns.append(pattern);
+  }
 
-    for (const pattern in cleanPatterns) {
-        for (const groupName in pattern.namedGroups) {
-            if (groupName in named_group_counts) {
-                named_group_counts[groupName] += 1
-            } else {
-                named_group_counts[groupName] = 1
-            }
-        }
+  // Count named groups and raise error if not unique
+  const named_group_counts = {};
+
+  for (const pattern in cleanPatterns) {
+    for (const groupName in pattern.namedGroups) {
+      if (groupName in named_group_counts) {
+        named_group_counts[groupName] += 1;
+      } else {
+        named_group_counts[groupName] = 1;
+      }
     }
+  }
 
-    duplicates = {}
-    for (const key in duplicates) {
-        if (named_group_counts[key] > 1) {
-            duplicates[key] = (duplicates[key] ?? 0) + 1
-        }
+  duplicates = {};
+  for (const key in duplicates) {
+    if (named_group_counts[key] > 1) {
+      duplicates[key] = (duplicates[key] ?? 0) + 1;
     }
+  }
 
-    if (duplicates) {
-        const duplicate_info = ", ".join(
-            duplicates.items().map(groupName, count => `${groupName}: ${count}`)
-        );
+  if (duplicates) {
+    const duplicate_info = ", ".join(
+      duplicates.items().map(groupName, (count) => `${groupName}: ${count}`)
+    );
 
-        message = ```
+    message = ```
         Method: simply.anyOf(...patterns)
 
         Named groups must be unique.
@@ -60,20 +57,19 @@ function anyOf(...patterns) {
 
         If you need later reference change the named group argument to 'simply.capture()'.
         If you don't need later reference change the named group argument to 'simply.merge()'.
-        ```
-        throw STRlingError(message)
-    }
+        ```;
+    throw STRlingError(message);
+  }
 
-    sub_names = Object.keys(named_group_counts)
+  sub_names = Object.keys(named_group_counts);
 
-    let cleanPatternStrings = cleanPatterns.map(e => e.toString());
-    cleanPatternStrings
-    joined = cleanPatternStrings.join('|');
-    new_pattern = `?:${joined})`
+  let cleanPatternStrings = cleanPatterns.map((e) => e.toString());
+  cleanPatternStrings;
+  joined = cleanPatternStrings.join("|");
+  new_pattern = `?:${joined})`;
 
-    return Pattern(new_pattern, composite=true, namedGroups=sub_names)
+  return Pattern(new_pattern, (composite = true), (namedGroups = sub_names));
 }
-
 
 // def may(...patterns):
 //     ```
@@ -111,7 +107,6 @@ function anyOf(...patterns) {
 
 //         cleanPatterns.append(pattern)
 
-
 //     // Count named groups and raise error if not unique
 //     named_group_counts = {}
 
@@ -142,8 +137,6 @@ function anyOf(...patterns) {
 //     new_pattern = f'{joined}?'
 
 //     return Pattern(new_pattern, composite=true, namedGroups=sub_names)
-
-
 
 // def merge(...patterns):
 //     ```
@@ -178,7 +171,6 @@ function anyOf(...patterns) {
 //             throw STRlingError(message)
 
 //         cleanPatterns.append(pattern)
-
 
 //     // Count named groups and raise error if not unique
 //     named_group_counts = {}
@@ -228,7 +220,6 @@ function anyOf(...patterns) {
 
 //         captured_pattern = s.capture(s.digit(), ',.')
 
-
 //     Parameters:
 //     - ...patterns (Pattern/str): One or more patterns to be captured.
 
@@ -275,7 +266,6 @@ function anyOf(...patterns) {
 //             throw STRlingError(message)
 
 //         cleanPatterns.append(pattern)
-
 
 //     // Count named groups and raise error if not unique
 //     named_group_counts = {}
@@ -362,7 +352,6 @@ function anyOf(...patterns) {
 //         ```
 //         throw STRlingError(message)
 
-
 //     // Check all patterns are instance of Pattern or str
 //     cleanPatterns = []
 //     for pattern in patterns:
@@ -380,7 +369,6 @@ function anyOf(...patterns) {
 //             throw STRlingError(message)
 
 //         cleanPatterns.append(pattern)
-
 
 //     // Count named groups and raise error if not unique
 //     named_group_counts = {}

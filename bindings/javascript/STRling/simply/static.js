@@ -1,5 +1,4 @@
-
-import { Pattern, lit } from './pattern';
+import { Pattern, lit } from "./pattern";
 
 /**
  * Matches any letter (uppercase or lowercase) or digit.
@@ -8,7 +7,7 @@ import { Pattern, lit } from './pattern';
  * @returns {Pattern} The regex pattern.
  */
 function alphaNum(minRep, maxRep) {
-    return new Pattern('[A-Za-z0-9]', true).call(minRep, maxRep);
+  return new Pattern("[A-Za-z0-9]", true).call(minRep, maxRep);
 }
 
 /**
@@ -18,7 +17,7 @@ function alphaNum(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notAlphaNum(minRep, maxRep) {
-    return new Pattern('[^A-Za-z0-9]', true, true).call(minRep, maxRep);
+  return new Pattern("[^A-Za-z0-9]", true, true).call(minRep, maxRep);
 }
 
 /**
@@ -28,8 +27,8 @@ function notAlphaNum(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function specialChar(minRep, maxRep) {
-    const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
-    return new Pattern(`[${special}]`, true).call(minRep, maxRep);
+  const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
+  return new Pattern(`[${special}]`, true).call(minRep, maxRep);
 }
 
 /**
@@ -39,8 +38,8 @@ function specialChar(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notSpecialChar(minRep, maxRep) {
-    const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
-    return new Pattern(`[^${special}]`, true, true).call(minRep, maxRep);
+  const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
+  return new Pattern(`[^${special}]`, true, true).call(minRep, maxRep);
 }
 
 /**
@@ -50,7 +49,7 @@ function notSpecialChar(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function letter(minRep, maxRep) {
-    return new Pattern('[A-Za-z]', true).call(minRep, maxRep);
+  return new Pattern("[A-Za-z]", true).call(minRep, maxRep);
 }
 
 /**
@@ -60,7 +59,7 @@ function letter(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notLetter(minRep, maxRep) {
-    return new Pattern('[^A-Za-z]', true, true).call(minRep, maxRep);
+  return new Pattern("[^A-Za-z]", true, true).call(minRep, maxRep);
 }
 
 /**
@@ -70,7 +69,7 @@ function notLetter(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function upper(minRep, maxRep) {
-    return new Pattern('[A-Z]', true).call(minRep, maxRep);
+  return new Pattern("[A-Z]", true).call(minRep, maxRep);
 }
 
 /**
@@ -80,7 +79,7 @@ function upper(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notUpper(minRep, maxRep) {
-    return new Pattern('[^A-Z]', true, true).call(minRep, maxRep);
+  return new Pattern("[^A-Z]", true, true).call(minRep, maxRep);
 }
 
 /**
@@ -90,7 +89,7 @@ function notUpper(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function lower(minRep, maxRep) {
-    return new Pattern('[a-z]', true).call(minRep, maxRep);
+  return new Pattern("[a-z]", true).call(minRep, maxRep);
 }
 
 /**
@@ -100,7 +99,7 @@ function lower(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notLower(minRep, maxRep) {
-    return new Pattern('[^a-z]', true, true).call(minRep, maxRep);
+  return new Pattern("[^a-z]", true, true).call(minRep, maxRep);
 }
 
 /**
@@ -110,7 +109,7 @@ function notLower(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function digit(minRep, maxRep) {
-    return new Pattern('\\d').call(minRep, maxRep);
+  return new Pattern("\\d").call(minRep, maxRep);
 }
 
 /**
@@ -120,7 +119,7 @@ function digit(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notDigit(minRep, maxRep) {
-    return new Pattern('\\D').call(minRep, maxRep);
+  return new Pattern("\\D").call(minRep, maxRep);
 }
 
 /**
@@ -131,7 +130,7 @@ function notDigit(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function hexDigit(minRep, maxRep) {
-    return new Pattern('[A-Fa-f\\d]').call(minRep, maxRep);
+  return new Pattern("[A-Fa-f\\d]").call(minRep, maxRep);
 }
 
 /**
@@ -142,7 +141,7 @@ function hexDigit(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notHexDigit(minRep, maxRep) {
-    return new Pattern('[^A-Fa-f\\d]').call(minRep, maxRep);
+  return new Pattern("[^A-Fa-f\\d]").call(minRep, maxRep);
 }
 
 /**
@@ -152,7 +151,7 @@ function notHexDigit(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function whitespace(minRep, maxRep) {
-    return new Pattern('\\s').call(minRep, maxRep);
+  return new Pattern("\\s").call(minRep, maxRep);
 }
 
 /**
@@ -162,7 +161,7 @@ function whitespace(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notWhitespace(minRep, maxRep) {
-    return new Pattern('\\S').call(minRep, maxRep);
+  return new Pattern("\\S").call(minRep, maxRep);
 }
 
 /**
@@ -172,7 +171,7 @@ function notWhitespace(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function newline(minRep, maxRep) {
-    return new Pattern('\\n').call(minRep, maxRep);
+  return new Pattern("\\n").call(minRep, maxRep);
 }
 
 /**
@@ -182,7 +181,7 @@ function newline(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notNewline(minRep, maxRep) {
-    return new Pattern('.').call(minRep, maxRep);
+  return new Pattern(".").call(minRep, maxRep);
 }
 
 /**
@@ -192,7 +191,7 @@ function notNewline(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function tab(minRep, maxRep) {
-    return new Pattern('\\t').call(minRep, maxRep);
+  return new Pattern("\\t").call(minRep, maxRep);
 }
 
 /**
@@ -202,7 +201,7 @@ function tab(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notTab(minRep, maxRep) {
-    return new Pattern('\\T').call(minRep, maxRep); // Note: JavaScript does not support \T. Correcting to something meaningful.
+  return new Pattern("\\T").call(minRep, maxRep); // Note: JavaScript does not support \T. Correcting to something meaningful.
 }
 
 /**
@@ -212,7 +211,7 @@ function notTab(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function carriage(minRep, maxRep) {
-    return new Pattern('\\r').call(minRep, maxRep);
+  return new Pattern("\\r").call(minRep, maxRep);
 }
 
 /**
@@ -222,7 +221,7 @@ function carriage(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notCarriage(minRep, maxRep) {
-    return new Pattern('.').call(minRep, maxRep); // No direct equivalent for \R in JavaScript regex
+  return new Pattern(".").call(minRep, maxRep); // No direct equivalent for \R in JavaScript regex
 }
 
 /**
@@ -232,7 +231,7 @@ function notCarriage(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function bound(minRep, maxRep) {
-    return new Pattern('\\b').call(minRep, maxRep);
+  return new Pattern("\\b").call(minRep, maxRep);
 }
 
 /**
@@ -242,7 +241,7 @@ function bound(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function notBound(minRep, maxRep) {
-    return new Pattern('\\B').call(minRep, maxRep);
+  return new Pattern("\\B").call(minRep, maxRep);
 }
 
 /**
@@ -250,7 +249,7 @@ function notBound(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 function start() {
-    return new Pattern('^');
+  return new Pattern("^");
 }
 
 /**
@@ -258,34 +257,34 @@ function start() {
  * @returns {Pattern} The regex pattern.
  */
 function end() {
-    return new Pattern('$');
+  return new Pattern("$");
 }
 
 module.exports = {
-    alphaNum,
-    notAlphaNum,
-    specialChar,
-    notSpecialChar,
-    letter,
-    notLetter,
-    upper,
-    notUpper,
-    lower,
-    notLower,
-    digit,
-    notDigit,
-    hexDigit,
-    notHexDigit,
-    whitespace,
-    notWhitespace,
-    newline,
-    notNewline,
-    tab,
-    notTab,
-    carriage,
-    notCarriage,
-    bound,
-    notBound,
-    start,
-    end
+  alphaNum,
+  notAlphaNum,
+  specialChar,
+  notSpecialChar,
+  letter,
+  notLetter,
+  upper,
+  notUpper,
+  lower,
+  notLower,
+  digit,
+  notDigit,
+  hexDigit,
+  notHexDigit,
+  whitespace,
+  notWhitespace,
+  newline,
+  notNewline,
+  tab,
+  notTab,
+  carriage,
+  notCarriage,
+  bound,
+  notBound,
+  start,
+  end,
 };
