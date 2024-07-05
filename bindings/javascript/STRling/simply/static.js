@@ -7,7 +7,10 @@ import { Pattern, lit } from "./pattern";
  * @returns {Pattern} The regex pattern.
  */
 export function alphaNum(minRep, maxRep) {
-  return new Pattern("[A-Za-z0-9]", (customSet = true)).rep(minRep, maxRep);
+  return new Pattern({ pattern: "[A-Za-z0-9]", customSet: true }).rep(
+    minRep,
+    maxRep
+  );
 }
 
 /**
@@ -17,10 +20,11 @@ export function alphaNum(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notAlphaNum(minRep, maxRep) {
-  return new Pattern("[^A-Za-z0-9]", (customSet = true), (negated = true)).rep(
-    minRep,
-    maxRep,
-  );
+  return new Pattern({
+    pattern: "[^A-Za-z0-9]",
+    customSet: true,
+    negated: true,
+  }).rep(minRep, maxRep);
 }
 
 /**
@@ -31,7 +35,10 @@ export function notAlphaNum(minRep, maxRep) {
  */
 export function specialChar(minRep, maxRep) {
   const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
-  return new Pattern(`[${special}]`, (customSet = true)).rep(minRep, maxRep);
+  return new Pattern({ pattern: `[${special}]`, customSet: true }).rep(
+    minRep,
+    maxRep
+  );
 }
 
 /**
@@ -42,10 +49,11 @@ export function specialChar(minRep, maxRep) {
  */
 export function notSpecialChar(minRep, maxRep) {
   const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
-  return new Pattern(`[^${special}]`, (customSet = true), (negated = true)).rep(
-    minRep,
-    maxRep,
-  );
+  return new Pattern({
+    pattern: `[^${special}]`,
+    customSet: true,
+    negated: true,
+  }).rep(minRep, maxRep);
 }
 
 /**
@@ -55,7 +63,10 @@ export function notSpecialChar(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function letter(minRep, maxRep) {
-  return new Pattern("[A-Za-z]", (customSet = true)).rep(minRep, maxRep);
+  return new Pattern({ pattern: "[A-Za-z]", customSet: true }).rep(
+    minRep,
+    maxRep
+  );
 }
 
 /**
@@ -65,10 +76,11 @@ export function letter(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notLetter(minRep, maxRep) {
-  return new Pattern("[^A-Za-z]", (customSet = true), (negated = true)).rep(
-    minRep,
-    maxRep,
-  );
+  return new Pattern({
+    pattern: "[^A-Za-z]",
+    customSet: true,
+    negated: true,
+  }).rep(minRep, maxRep);
 }
 
 /**
@@ -78,7 +90,7 @@ export function notLetter(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function upper(minRep, maxRep) {
-  return new Pattern("[A-Z]", (customSet = true)).rep(minRep, maxRep);
+  return new Pattern({ pattern: "[A-Z]", customSet: true }).rep(minRep, maxRep);
 }
 
 /**
@@ -88,9 +100,9 @@ export function upper(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notUpper(minRep, maxRep) {
-  return new Pattern("[^A-Z]", (customSet = true), (negated = true)).rep(
+  return new Pattern({ pattern: "[^A-Z]", customSet: true, negated: true }).rep(
     minRep,
-    maxRep,
+    maxRep
   );
 }
 
@@ -101,7 +113,7 @@ export function notUpper(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function lower(minRep, maxRep) {
-  return new Pattern("[a-z]", (customSet = true)).rep(minRep, maxRep);
+  return new Pattern({ pattern: "[a-z]", customSet: true }).rep(minRep, maxRep);
 }
 
 /**
@@ -111,9 +123,9 @@ export function lower(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notLower(minRep, maxRep) {
-  return new Pattern("[^a-z]", (customSet = true), (negated = true)).rep(
+  return new Pattern({ pattern: "[^a-z]", customSet: true, negated: true }).rep(
     minRep,
-    maxRep,
+    maxRep
   );
 }
 
@@ -125,7 +137,10 @@ export function notLower(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function hexDigit(minRep, maxRep) {
-  return new Pattern("[A-Fa-f\\d]", (customSet = true)).rep(minRep, maxRep);
+  return new Pattern({ pattern: "[A-Fa-f\\d]", customSet: true }).rep(
+    minRep,
+    maxRep
+  );
 }
 
 /**
@@ -136,10 +151,11 @@ export function hexDigit(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notHexDigit(minRep, maxRep) {
-  return new Pattern("[^A-Fa-f\\d]", (customSet = true), (negated = true)).rep(
-    minRep,
-    maxRep,
-  );
+  return new Pattern({
+    pattern: "[^A-Fa-f\\d]",
+    customSet: true,
+    negated: true,
+  }).rep(minRep, maxRep);
 }
 
 /**
@@ -149,7 +165,7 @@ export function notHexDigit(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function digit(minRep, maxRep) {
-  return new Pattern("\\d").rep(minRep, maxRep);
+  return new Pattern({ pattern: "\\d" }).rep(minRep, maxRep);
 }
 
 /**
@@ -159,7 +175,7 @@ export function digit(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notDigit(minRep, maxRep) {
-  return new Pattern("\\D").rep(minRep, maxRep);
+  return new Pattern({ pattern: "\\D" }).rep(minRep, maxRep);
 }
 
 /**
@@ -169,7 +185,7 @@ export function notDigit(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function whitespace(minRep, maxRep) {
-  return new Pattern("\\s").rep(minRep, maxRep);
+  return new Pattern({ pattern: "\\s" }).rep(minRep, maxRep);
 }
 
 /**
@@ -179,7 +195,7 @@ export function whitespace(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notWhitespace(minRep, maxRep) {
-  return new Pattern("\\S").rep(minRep, maxRep);
+  return new Pattern({ pattern: "\\S" }).rep(minRep, maxRep);
 }
 
 /**
@@ -189,7 +205,7 @@ export function notWhitespace(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function newline(minRep, maxRep) {
-  return new Pattern("\\n").rep(minRep, maxRep);
+  return new Pattern({ pattern: "\\n" }).rep(minRep, maxRep);
 }
 
 /**
@@ -199,7 +215,7 @@ export function newline(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notNewline(minRep, maxRep) {
-  return new Pattern(".").rep(minRep, maxRep);
+  return new Pattern({ pattern: "." }).rep(minRep, maxRep);
 }
 
 /**
@@ -209,7 +225,7 @@ export function notNewline(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function tab(minRep, maxRep) {
-  return new Pattern("\\t").rep(minRep, maxRep);
+  return new Pattern({ pattern: "\\t" }).rep(minRep, maxRep);
 }
 
 /**
@@ -219,7 +235,7 @@ export function tab(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function carriage(minRep, maxRep) {
-  return new Pattern("\\r").rep(minRep, maxRep);
+  return new Pattern({ pattern: "\\r" }).rep(minRep, maxRep);
 }
 
 /**
@@ -229,7 +245,7 @@ export function carriage(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function bound(minRep, maxRep) {
-  return new Pattern("\\b").rep(minRep, maxRep);
+  return new Pattern({ pattern: "\\b" }).rep(minRep, maxRep);
 }
 
 /**
@@ -239,7 +255,7 @@ export function bound(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notBound(minRep, maxRep) {
-  return new Pattern("\\B").rep(minRep, maxRep);
+  return new Pattern({ pattern: "\\B" }).rep(minRep, maxRep);
 }
 
 /**
@@ -247,7 +263,7 @@ export function notBound(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function start() {
-  return new Pattern("^");
+  return new Pattern({ pattern: "^" });
 }
 
 /**
@@ -255,5 +271,5 @@ export function start() {
  * @returns {Pattern} The regex pattern.
  */
 export function end() {
-  return new Pattern("$");
+  return new Pattern({ pattern: "$" });
 }
