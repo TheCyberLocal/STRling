@@ -7,7 +7,7 @@ import { Pattern, lit } from "./pattern";
  * @returns {Pattern} The regex pattern.
  */
 export function alphaNum(minRep, maxRep) {
-  return new Pattern("[A-Za-z0-9]", true).rep(minRep, maxRep);
+  return new Pattern("[A-Za-z0-9]", customSet=true).rep(minRep, maxRep);
 }
 
 /**
@@ -17,7 +17,7 @@ export function alphaNum(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notAlphaNum(minRep, maxRep) {
-  return new Pattern("[^A-Za-z0-9]", true, true).rep(minRep, maxRep);
+  return new Pattern("[^A-Za-z0-9]", customSet=true, negated=true).rep(minRep, maxRep);
 }
 
 /**
@@ -28,7 +28,7 @@ export function notAlphaNum(minRep, maxRep) {
  */
 export function specialChar(minRep, maxRep) {
   const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
-  return new Pattern(`[${special}]`, true).rep(minRep, maxRep);
+  return new Pattern(`[${special}]`, customSet=true).rep(minRep, maxRep);
 }
 
 /**
@@ -39,7 +39,7 @@ export function specialChar(minRep, maxRep) {
  */
 export function notSpecialChar(minRep, maxRep) {
   const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
-  return new Pattern(`[^${special}]`, true, true).rep(minRep, maxRep);
+  return new Pattern(`[^${special}]`, customSet=true, negated=true).rep(minRep, maxRep);
 }
 
 /**
@@ -49,7 +49,7 @@ export function notSpecialChar(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function letter(minRep, maxRep) {
-  return new Pattern("[A-Za-z]", true).rep(minRep, maxRep);
+  return new Pattern("[A-Za-z]", customSet=true).rep(minRep, maxRep);
 }
 
 /**
@@ -59,7 +59,7 @@ export function letter(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notLetter(minRep, maxRep) {
-  return new Pattern("[^A-Za-z]", true, true).rep(minRep, maxRep);
+  return new Pattern("[^A-Za-z]", customSet=true, negated=true).rep(minRep, maxRep);
 }
 
 /**
@@ -69,7 +69,7 @@ export function notLetter(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function upper(minRep, maxRep) {
-  return new Pattern("[A-Z]", true).rep(minRep, maxRep);
+  return new Pattern("[A-Z]", customSet=true).rep(minRep, maxRep);
 }
 
 /**
@@ -79,7 +79,7 @@ export function upper(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notUpper(minRep, maxRep) {
-  return new Pattern("[^A-Z]", true, true).rep(minRep, maxRep);
+  return new Pattern("[^A-Z]", customSet=true, negated=true).rep(minRep, maxRep);
 }
 
 /**
@@ -89,7 +89,7 @@ export function notUpper(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function lower(minRep, maxRep) {
-  return new Pattern("[a-z]", true).rep(minRep, maxRep);
+  return new Pattern("[a-z]", customSet=true).rep(minRep, maxRep);
 }
 
 /**
@@ -99,7 +99,7 @@ export function lower(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notLower(minRep, maxRep) {
-  return new Pattern("[^a-z]", true, true).rep(minRep, maxRep);
+  return new Pattern("[^a-z]", customSet=true, negated=true).rep(minRep, maxRep);
 }
 
 /**
@@ -195,16 +195,6 @@ export function tab(minRep, maxRep) {
 }
 
 /**
- * Matches any character that is not a tab.
- * @param {number} [minRep] - The minimum number of characters to match.
- * @param {number} [maxRep] - The maximum number of characters to match.
- * @returns {Pattern} The regex pattern.
- */
-export function notTab(minRep, maxRep) {
-  return new Pattern("\\T").rep(minRep, maxRep); // Note: JavaScript does not support \T. Correcting to something meaningful.
-}
-
-/**
  * Matches a carriage return character.
  * @param {number} [minRep] - The minimum number of characters to match.
  * @param {number} [maxRep] - The maximum number of characters to match.
@@ -212,16 +202,6 @@ export function notTab(minRep, maxRep) {
  */
 export function carriage(minRep, maxRep) {
   return new Pattern("\\r").rep(minRep, maxRep);
-}
-
-/**
- * Matches any character that is not a carriage return.
- * @param {number} [minRep] - The minimum number of characters to match.
- * @param {number} [maxRep] - The maximum number of characters to match.
- * @returns {Pattern} The regex pattern.
- */
-export function notCarriage(minRep, maxRep) {
-  return new Pattern(".").rep(minRep, maxRep); // No direct equivalent for \R in JavaScript regex
 }
 
 /**

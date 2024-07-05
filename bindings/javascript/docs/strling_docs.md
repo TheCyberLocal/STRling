@@ -53,9 +53,13 @@ s.hexDigit();    // Matches any letter A through F (uppercase or lowercase) or a
 
 s.whitespace();  // Matches any whitespace character (space, tab, newline, carriage return, etc.).
 s.newline();     // Matches a newline character.
-s.tab();         // Matches a tab character.
-s.carriage();    // Matches a carriage return character.
 s.bound();       // Matches a boundary character.
+
+// Note: Each character set below doesn't has a negated counterpart.
+// For example, simply.tab(), but there is no simply.notTab().
+
+s.tab()          // Matches a tab character.
+s.carriage()     // Matches a carriage return character.
 
 
 // // // Anchors // // //
