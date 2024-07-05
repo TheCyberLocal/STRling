@@ -190,6 +190,44 @@ def not_lower(min_rep: int = None, max_rep: int = None):
     return Pattern(r'[^a-z]', custom_set=True, negated=True)(min_rep, max_rep)
 
 
+def hex_digit(min_rep: int = None, max_rep: int = None):
+    """
+    Matches any hex-digit character.
+    A hex-digit character is any letter A through F (uppercase or lowercase) or any digit (0-9).
+
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
+
+    Special Cases:
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
+
+    Returns:
+    - An instance of the Pattern class.
+    """
+    return Pattern(r'[A-Fa-f\d]', custom_set=True)(min_rep, max_rep)
+
+
+def not_hex_digit(min_rep: int = None, max_rep: int = None):
+    """
+    Matches anything but a hex-digit character.
+    A hex-digit character is any letter A through F (uppercase or lowercase) or any digit (0-9).
+
+    Parameters: (min_rep/exact_rep, max_rep)
+    - min_rep (optional): Specifies the minimum number of characters to match.
+    - max_rep (optional): Specifies the maximum number of characters to match.
+
+    Special Cases:
+    - If only `min_rep` is specified, it represents the exact number of characters to match.
+    - If `max_rep` is 0, it means there is no upper limit.
+
+    Returns:
+    - An instance of the Pattern class.
+    """
+    return Pattern(r'[^A-Fa-f\d]', custom_set=True, negated=True)(min_rep, max_rep)
+
+
 
 ############################
 # Predefined Char Sets
@@ -230,44 +268,6 @@ def not_digit(min_rep: int = None, max_rep: int = None):
     - An instance of the Pattern class.
     """
     return Pattern(r'\D')(min_rep, max_rep)
-
-
-def hex_digit(min_rep: int = None, max_rep: int = None):
-    """
-    Matches any hex-digit character.
-    A hex-digit character is any letter A through F (uppercase or lowercase) or any digit (0-9).
-
-    Parameters: (min_rep/exact_rep, max_rep)
-    - min_rep (optional): Specifies the minimum number of characters to match.
-    - max_rep (optional): Specifies the maximum number of characters to match.
-
-    Special Cases:
-    - If only `min_rep` is specified, it represents the exact number of characters to match.
-    - If `max_rep` is 0, it means there is no upper limit.
-
-    Returns:
-    - An instance of the Pattern class.
-    """
-    return Pattern(r'[A-Fa-f\d]')(min_rep, max_rep)
-
-
-def not_hex_digit(min_rep: int = None, max_rep: int = None):
-    """
-    Matches anything but a hex-digit character.
-    A hex-digit character is any letter A through F (uppercase or lowercase) or any digit (0-9).
-
-    Parameters: (min_rep/exact_rep, max_rep)
-    - min_rep (optional): Specifies the minimum number of characters to match.
-    - max_rep (optional): Specifies the maximum number of characters to match.
-
-    Special Cases:
-    - If only `min_rep` is specified, it represents the exact number of characters to match.
-    - If `max_rep` is 0, it means there is no upper limit.
-
-    Returns:
-    - An instance of the Pattern class.
-    """
-    return Pattern(r'[^A-Fa-f\d]')(min_rep, max_rep)
 
 
 def whitespace(min_rep: int = None, max_rep: int = None):

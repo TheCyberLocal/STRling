@@ -9,7 +9,7 @@ with open('./docs/pypi_docs.md', 'r') as f:
 
 setup(
     name='STRling',
-    version='2.4.2',
+    version='2.4.3',
     packages=find_packages(),
     install_requires=[
         # Add dependencies here.
