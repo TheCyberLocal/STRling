@@ -11,7 +11,7 @@ import { STRlingError, Pattern, lit } from "./pattern";
  * @returns {Pattern} The regex pattern.
  * @throws {STRlingError} If the arguments are invalid.
  */
-function between(start, end, minRep, maxRep) {
+export function between(start, end, minRep, maxRep) {
   if (
     (typeof start !== "string" || typeof end !== "string") &&
     (typeof start !== "number" || typeof end !== "number")
@@ -103,7 +103,7 @@ function between(start, end, minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  * @throws {STRlingError} If the arguments are invalid.
  */
-function notBetween(start, end, minRep, maxRep) {
+export function notBetween(start, end, minRep, maxRep) {
   if (
     (typeof start !== "string" || typeof end !== "string") &&
     (typeof start !== "number" || typeof end !== "number")
@@ -192,7 +192,7 @@ function notBetween(start, end, minRep, maxRep) {
  * @returns {Pattern} A Pattern object that matches any of the given patterns.
  * @throws {STRlingError} If any pattern is invalid.
  */
-function inChars(...patterns) {
+export function inChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
       pattern = lit(pattern);
@@ -265,7 +265,7 @@ function inChars(...patterns) {
  * @returns {Pattern} A Pattern object that matches any of the given patterns.
  * @throws {STRlingError} If any pattern is invalid.
  */
-function notInChars(...patterns) {
+export function notInChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
       pattern = lit(pattern);
@@ -324,10 +324,3 @@ function notInChars(...patterns) {
   const newPattern = `[^${joined}]`;
   return new Pattern(newPattern, true, true);
 }
-
-module.exports = {
-  between,
-  notBetween,
-  inChars,
-  notInChars,
-};

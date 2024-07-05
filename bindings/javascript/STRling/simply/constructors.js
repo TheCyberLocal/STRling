@@ -6,7 +6,7 @@ import { STRlingError, Pattern, lit } from "./pattern";
  * @returns {Pattern} A Pattern object representing the OR combination of the given patterns.
  * @throws {STRlingError} If any pattern is invalid or named groups are not unique.
  */
-function anyOf(...patterns) {
+export function anyOf(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
       pattern = lit(pattern);
@@ -39,7 +39,7 @@ function anyOf(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1,
+    ([_, count]) => count > 1
   );
   if (duplicates.length > 0) {
     const duplicateInfo = duplicates
@@ -71,7 +71,7 @@ function anyOf(...patterns) {
  * @returns {Pattern} A Pattern object representing the optional match of the given patterns.
  * @throws {STRlingError} If any pattern is invalid or named groups are not unique.
  */
-function may(...patterns) {
+export function may(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
       pattern = lit(pattern);
@@ -104,7 +104,7 @@ function may(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1,
+    ([_, count]) => count > 1
   );
   if (duplicates.length > 0) {
     const duplicateInfo = duplicates
@@ -136,7 +136,7 @@ function may(...patterns) {
  * @returns {Pattern} A Pattern object representing the concatenation of the given patterns.
  * @throws {STRlingError} If any pattern is invalid or named groups are not unique.
  */
-function merge(...patterns) {
+export function merge(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
       pattern = lit(pattern);
@@ -169,7 +169,7 @@ function merge(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1,
+    ([_, count]) => count > 1
   );
   if (duplicates.length > 0) {
     const duplicateInfo = duplicates
@@ -202,7 +202,7 @@ function merge(...patterns) {
  * @returns {Pattern} A Pattern object representing the capturing group of the given patterns.
  * @throws {STRlingError} If any pattern is invalid or named groups are not unique.
  */
-function capture(...patterns) {
+export function capture(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
       pattern = lit(pattern);
@@ -235,7 +235,7 @@ function capture(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1,
+    ([_, count]) => count > 1
   );
   if (duplicates.length > 0) {
     const duplicateInfo = duplicates
@@ -269,7 +269,7 @@ function capture(...patterns) {
  * @returns {Pattern} A Pattern object representing the named capturing group of the given patterns.
  * @throws {STRlingError} If the name is invalid, any pattern is invalid, or named groups are not unique.
  */
-function group(name, ...patterns) {
+export function group(name, ...patterns) {
   if (typeof name !== "string") {
     const message = `
         Method: simply.group(name, ...patterns)
@@ -312,7 +312,7 @@ function group(name, ...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1,
+    ([_, count]) => count > 1
   );
   if (duplicates.length > 0) {
     const duplicateInfo = duplicates
@@ -337,11 +337,3 @@ function group(name, ...patterns) {
 
   return new Pattern(newPattern, false, false, true, [name, ...subNames]);
 }
-
-module.exports = {
-  anyOf,
-  may,
-  merge,
-  capture,
-  group,
-};

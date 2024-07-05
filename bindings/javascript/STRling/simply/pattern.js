@@ -2,7 +2,7 @@
  * Custom error class for STRling.
  * @extends {Error}
  */
-class STRlingError extends Error {
+export class STRlingError extends Error {
   /**
    * Creates an instance of STRlingError.
    * @param {string} message - The error message.
@@ -28,7 +28,7 @@ class STRlingError extends Error {
  * @param {string} text - The text to escape.
  * @returns {Pattern} The escaped pattern.
  */
-const lit = (text) => {
+export const lit = (text) => {
   const escapedText = text
     .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
     .replace(/\//g, "\\/");
@@ -68,7 +68,7 @@ const repeat = (minRep, maxRep) => {
 /**
  * Represents a regex pattern.
  */
-class Pattern {
+export class Pattern {
   /**
    * Creates an instance of Pattern.
    * @param {string} pattern - The regex pattern.
@@ -212,10 +212,3 @@ class Pattern {
     return new Pattern(newPattern, ...Object.values(kwargs));
   }
 }
-
-module.exports = {
-  STRlingError,
-  Pattern,
-  lit,
-  repeat,
-};

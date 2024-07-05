@@ -6,7 +6,7 @@ import { STRlingError, Pattern, lit } from "./pattern";
  * @returns {Pattern} A Pattern object representing the positive lookahead.
  * @throws {STRlingError} If the pattern is not an instance of Pattern or string.
  */
-function ahead(pattern) {
+export function ahead(pattern) {
   if (typeof pattern === "string") {
     pattern = lit(pattern);
   }
@@ -31,7 +31,7 @@ function ahead(pattern) {
  * @returns {Pattern} A Pattern object representing the negative lookahead.
  * @throws {STRlingError} If the pattern is not an instance of Pattern or string.
  */
-function notAhead(pattern) {
+export function notAhead(pattern) {
   if (typeof pattern === "string") {
     pattern = lit(pattern);
   }
@@ -56,7 +56,7 @@ function notAhead(pattern) {
  * @returns {Pattern} A Pattern object representing the positive lookbehind.
  * @throws {STRlingError} If the pattern is not an instance of Pattern or string.
  */
-function behind(pattern) {
+export function behind(pattern) {
   if (typeof pattern === "string") {
     pattern = lit(pattern);
   }
@@ -81,7 +81,7 @@ function behind(pattern) {
  * @returns {Pattern} A Pattern object representing the negative lookbehind.
  * @throws {STRlingError} If the pattern is not an instance of Pattern or string.
  */
-function notBehind(pattern) {
+export function notBehind(pattern) {
   if (typeof pattern === "string") {
     pattern = lit(pattern);
   }
@@ -99,10 +99,3 @@ function notBehind(pattern) {
 
   return new Pattern(`(?<!${pattern})`, false, false, true);
 }
-
-module.exports = {
-  ahead,
-  notAhead,
-  behind,
-  notBehind,
-};

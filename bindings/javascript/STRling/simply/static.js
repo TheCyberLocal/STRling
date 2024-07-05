@@ -6,7 +6,7 @@ import { Pattern, lit } from "./pattern";
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function alphaNum(minRep, maxRep) {
+export function alphaNum(minRep, maxRep) {
   return new Pattern("[A-Za-z0-9]", true).call(minRep, maxRep);
 }
 
@@ -16,7 +16,7 @@ function alphaNum(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notAlphaNum(minRep, maxRep) {
+export function notAlphaNum(minRep, maxRep) {
   return new Pattern("[^A-Za-z0-9]", true, true).call(minRep, maxRep);
 }
 
@@ -26,7 +26,7 @@ function notAlphaNum(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function specialChar(minRep, maxRep) {
+export function specialChar(minRep, maxRep) {
   const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
   return new Pattern(`[${special}]`, true).call(minRep, maxRep);
 }
@@ -37,7 +37,7 @@ function specialChar(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notSpecialChar(minRep, maxRep) {
+export function notSpecialChar(minRep, maxRep) {
   const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
   return new Pattern(`[^${special}]`, true, true).call(minRep, maxRep);
 }
@@ -48,7 +48,7 @@ function notSpecialChar(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function letter(minRep, maxRep) {
+export function letter(minRep, maxRep) {
   return new Pattern("[A-Za-z]", true).call(minRep, maxRep);
 }
 
@@ -58,7 +58,7 @@ function letter(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notLetter(minRep, maxRep) {
+export function notLetter(minRep, maxRep) {
   return new Pattern("[^A-Za-z]", true, true).call(minRep, maxRep);
 }
 
@@ -68,7 +68,7 @@ function notLetter(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function upper(minRep, maxRep) {
+export function upper(minRep, maxRep) {
   return new Pattern("[A-Z]", true).call(minRep, maxRep);
 }
 
@@ -78,7 +78,7 @@ function upper(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notUpper(minRep, maxRep) {
+export function notUpper(minRep, maxRep) {
   return new Pattern("[^A-Z]", true, true).call(minRep, maxRep);
 }
 
@@ -88,7 +88,7 @@ function notUpper(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function lower(minRep, maxRep) {
+export function lower(minRep, maxRep) {
   return new Pattern("[a-z]", true).call(minRep, maxRep);
 }
 
@@ -98,7 +98,7 @@ function lower(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notLower(minRep, maxRep) {
+export function notLower(minRep, maxRep) {
   return new Pattern("[^a-z]", true, true).call(minRep, maxRep);
 }
 
@@ -108,7 +108,7 @@ function notLower(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function digit(minRep, maxRep) {
+export function digit(minRep, maxRep) {
   return new Pattern("\\d").call(minRep, maxRep);
 }
 
@@ -118,7 +118,7 @@ function digit(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notDigit(minRep, maxRep) {
+export function notDigit(minRep, maxRep) {
   return new Pattern("\\D").call(minRep, maxRep);
 }
 
@@ -129,7 +129,7 @@ function notDigit(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function hexDigit(minRep, maxRep) {
+export function hexDigit(minRep, maxRep) {
   return new Pattern("[A-Fa-f\\d]").call(minRep, maxRep);
 }
 
@@ -140,7 +140,7 @@ function hexDigit(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notHexDigit(minRep, maxRep) {
+export function notHexDigit(minRep, maxRep) {
   return new Pattern("[^A-Fa-f\\d]").call(minRep, maxRep);
 }
 
@@ -150,7 +150,7 @@ function notHexDigit(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function whitespace(minRep, maxRep) {
+export function whitespace(minRep, maxRep) {
   return new Pattern("\\s").call(minRep, maxRep);
 }
 
@@ -160,7 +160,7 @@ function whitespace(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notWhitespace(minRep, maxRep) {
+export function notWhitespace(minRep, maxRep) {
   return new Pattern("\\S").call(minRep, maxRep);
 }
 
@@ -170,7 +170,7 @@ function notWhitespace(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function newline(minRep, maxRep) {
+export function newline(minRep, maxRep) {
   return new Pattern("\\n").call(minRep, maxRep);
 }
 
@@ -180,7 +180,7 @@ function newline(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notNewline(minRep, maxRep) {
+export function notNewline(minRep, maxRep) {
   return new Pattern(".").call(minRep, maxRep);
 }
 
@@ -190,7 +190,7 @@ function notNewline(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function tab(minRep, maxRep) {
+export function tab(minRep, maxRep) {
   return new Pattern("\\t").call(minRep, maxRep);
 }
 
@@ -200,7 +200,7 @@ function tab(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notTab(minRep, maxRep) {
+export function notTab(minRep, maxRep) {
   return new Pattern("\\T").call(minRep, maxRep); // Note: JavaScript does not support \T. Correcting to something meaningful.
 }
 
@@ -210,7 +210,7 @@ function notTab(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function carriage(minRep, maxRep) {
+export function carriage(minRep, maxRep) {
   return new Pattern("\\r").call(minRep, maxRep);
 }
 
@@ -220,7 +220,7 @@ function carriage(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notCarriage(minRep, maxRep) {
+export function notCarriage(minRep, maxRep) {
   return new Pattern(".").call(minRep, maxRep); // No direct equivalent for \R in JavaScript regex
 }
 
@@ -230,7 +230,7 @@ function notCarriage(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function bound(minRep, maxRep) {
+export function bound(minRep, maxRep) {
   return new Pattern("\\b").call(minRep, maxRep);
 }
 
@@ -240,7 +240,7 @@ function bound(minRep, maxRep) {
  * @param {number} [maxRep] - The maximum number of characters to match.
  * @returns {Pattern} The regex pattern.
  */
-function notBound(minRep, maxRep) {
+export function notBound(minRep, maxRep) {
   return new Pattern("\\B").call(minRep, maxRep);
 }
 
@@ -248,7 +248,7 @@ function notBound(minRep, maxRep) {
  * Matches the start of a line.
  * @returns {Pattern} The regex pattern.
  */
-function start() {
+export function start() {
   return new Pattern("^");
 }
 
@@ -256,35 +256,6 @@ function start() {
  * Matches the end of a line.
  * @returns {Pattern} The regex pattern.
  */
-function end() {
+export function end() {
   return new Pattern("$");
 }
-
-module.exports = {
-  alphaNum,
-  notAlphaNum,
-  specialChar,
-  notSpecialChar,
-  letter,
-  notLetter,
-  upper,
-  notUpper,
-  lower,
-  notLower,
-  digit,
-  notDigit,
-  hexDigit,
-  notHexDigit,
-  whitespace,
-  notWhitespace,
-  newline,
-  notNewline,
-  tab,
-  notTab,
-  carriage,
-  notCarriage,
-  bound,
-  notBound,
-  start,
-  end,
-};
