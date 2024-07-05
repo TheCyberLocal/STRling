@@ -91,7 +91,7 @@ export function between(start, end, minRep, maxRep) {
     newPattern = `[${start}-${end}]`;
   }
 
-  return new Pattern(newPattern, customSet=true).rep(minRep, maxRep);
+  return new Pattern(newPattern, (customSet = true)).rep(minRep, maxRep);
 }
 
 /**
@@ -183,7 +183,10 @@ export function notBetween(start, end, minRep, maxRep) {
     newPattern = `[^${start}-${end}]`;
   }
 
-  return new Pattern(newPattern, customSet=true, negated=true).rep(minRep, maxRep);
+  return new Pattern(newPattern, (customSet = true), (negated = true)).rep(
+    minRep,
+    maxRep,
+  );
 }
 
 /**
@@ -256,7 +259,7 @@ export function inChars(...patterns) {
   }
 
   const newPattern = `[${joined}]`;
-  return new Pattern(newPattern, customSet=true);
+  return new Pattern(newPattern, (customSet = true));
 }
 
 /**
@@ -322,5 +325,5 @@ export function notInChars(...patterns) {
   }
 
   const newPattern = `[^${joined}]`;
-  return new Pattern(newPattern, customSet=true, negated=true);
+  return new Pattern(newPattern, (customSet = true), (negated = true));
 }

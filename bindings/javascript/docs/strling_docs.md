@@ -24,7 +24,7 @@ import re;
 // For example, simply.letter()(1, 2) is the same as simply.letter(1, 2).
 
 // This external invocation may seem useless, but it can solve our earlier issue.
-// For example, s.merge(simply.letter(), simply.digit())(1, 2). <==== VALID
+// For example, s.merge(simply.letter(), simply.digit()).rep(1, 2). <==== VALID
 
 // Notice for all functions (where repetition is valid) we can invoke the range outside the parameters,
 // but it is primarily useful for functions with an unknown number of parameters.

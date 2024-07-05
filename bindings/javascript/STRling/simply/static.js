@@ -7,7 +7,7 @@ import { Pattern, lit } from "./pattern";
  * @returns {Pattern} The regex pattern.
  */
 export function alphaNum(minRep, maxRep) {
-  return new Pattern("[A-Za-z0-9]", customSet=true).rep(minRep, maxRep);
+  return new Pattern("[A-Za-z0-9]", (customSet = true)).rep(minRep, maxRep);
 }
 
 /**
@@ -17,7 +17,10 @@ export function alphaNum(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notAlphaNum(minRep, maxRep) {
-  return new Pattern("[^A-Za-z0-9]", customSet=true, negated=true).rep(minRep, maxRep);
+  return new Pattern("[^A-Za-z0-9]", (customSet = true), (negated = true)).rep(
+    minRep,
+    maxRep,
+  );
 }
 
 /**
@@ -28,7 +31,7 @@ export function notAlphaNum(minRep, maxRep) {
  */
 export function specialChar(minRep, maxRep) {
   const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
-  return new Pattern(`[${special}]`, customSet=true).rep(minRep, maxRep);
+  return new Pattern(`[${special}]`, (customSet = true)).rep(minRep, maxRep);
 }
 
 /**
@@ -39,7 +42,10 @@ export function specialChar(minRep, maxRep) {
  */
 export function notSpecialChar(minRep, maxRep) {
   const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
-  return new Pattern(`[^${special}]`, customSet=true, negated=true).rep(minRep, maxRep);
+  return new Pattern(`[^${special}]`, (customSet = true), (negated = true)).rep(
+    minRep,
+    maxRep,
+  );
 }
 
 /**
@@ -49,7 +55,7 @@ export function notSpecialChar(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function letter(minRep, maxRep) {
-  return new Pattern("[A-Za-z]", customSet=true).rep(minRep, maxRep);
+  return new Pattern("[A-Za-z]", (customSet = true)).rep(minRep, maxRep);
 }
 
 /**
@@ -59,7 +65,10 @@ export function letter(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notLetter(minRep, maxRep) {
-  return new Pattern("[^A-Za-z]", customSet=true, negated=true).rep(minRep, maxRep);
+  return new Pattern("[^A-Za-z]", (customSet = true), (negated = true)).rep(
+    minRep,
+    maxRep,
+  );
 }
 
 /**
@@ -69,7 +78,7 @@ export function notLetter(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function upper(minRep, maxRep) {
-  return new Pattern("[A-Z]", customSet=true).rep(minRep, maxRep);
+  return new Pattern("[A-Z]", (customSet = true)).rep(minRep, maxRep);
 }
 
 /**
@@ -79,7 +88,10 @@ export function upper(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notUpper(minRep, maxRep) {
-  return new Pattern("[^A-Z]", customSet=true, negated=true).rep(minRep, maxRep);
+  return new Pattern("[^A-Z]", (customSet = true), (negated = true)).rep(
+    minRep,
+    maxRep,
+  );
 }
 
 /**
@@ -89,7 +101,7 @@ export function notUpper(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function lower(minRep, maxRep) {
-  return new Pattern("[a-z]", customSet=true).rep(minRep, maxRep);
+  return new Pattern("[a-z]", (customSet = true)).rep(minRep, maxRep);
 }
 
 /**
@@ -99,7 +111,35 @@ export function lower(minRep, maxRep) {
  * @returns {Pattern} The regex pattern.
  */
 export function notLower(minRep, maxRep) {
-  return new Pattern("[^a-z]", customSet=true, negated=true).rep(minRep, maxRep);
+  return new Pattern("[^a-z]", (customSet = true), (negated = true)).rep(
+    minRep,
+    maxRep,
+  );
+}
+
+/**
+ * Matches any hex-digit character.
+ * A hex-digit character is any letter A through F (uppercase or lowercase) or any digit (0-9).
+ * @param {number} [minRep] - The minimum number of characters to match.
+ * @param {number} [maxRep] - The maximum number of characters to match.
+ * @returns {Pattern} The regex pattern.
+ */
+export function hexDigit(minRep, maxRep) {
+  return new Pattern("[A-Fa-f\\d]", (customSet = true)).rep(minRep, maxRep);
+}
+
+/**
+ * Matches anything but a hex-digit character.
+ * A hex-digit character is any letter A through F (uppercase or lowercase) or any digit (0-9).
+ * @param {number} [minRep] - The minimum number of characters to match.
+ * @param {number} [maxRep] - The maximum number of characters to match.
+ * @returns {Pattern} The regex pattern.
+ */
+export function notHexDigit(minRep, maxRep) {
+  return new Pattern("[^A-Fa-f\\d]", (customSet = true), (negated = true)).rep(
+    minRep,
+    maxRep,
+  );
 }
 
 /**
@@ -120,28 +160,6 @@ export function digit(minRep, maxRep) {
  */
 export function notDigit(minRep, maxRep) {
   return new Pattern("\\D").rep(minRep, maxRep);
-}
-
-/**
- * Matches any hex-digit character.
- * A hex-digit character is any letter A through F (uppercase or lowercase) or any digit (0-9).
- * @param {number} [minRep] - The minimum number of characters to match.
- * @param {number} [maxRep] - The maximum number of characters to match.
- * @returns {Pattern} The regex pattern.
- */
-export function hexDigit(minRep, maxRep) {
-  return new Pattern("[A-Fa-f\\d]").rep(minRep, maxRep);
-}
-
-/**
- * Matches anything but a hex-digit character.
- * A hex-digit character is any letter A through F (uppercase or lowercase) or any digit (0-9).
- * @param {number} [minRep] - The minimum number of characters to match.
- * @param {number} [maxRep] - The maximum number of characters to match.
- * @returns {Pattern} The regex pattern.
- */
-export function notHexDigit(minRep, maxRep) {
-  return new Pattern("[^A-Fa-f\\d]").rep(minRep, maxRep);
 }
 
 /**
