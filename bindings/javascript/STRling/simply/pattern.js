@@ -78,14 +78,14 @@ export class Pattern {
    * @param {Array} [namedGroups=[]] - List of named groups.
    * @param {boolean} [numberedGroup=false] - Indicates if the pattern is a numbered group.
    */
-  constructor(
+  constructor({
     pattern,
     customSet = false,
     negated = false,
     composite = false,
     namedGroups = [],
     numberedGroup = false
-  ) {
+  }) {
     this.pattern = pattern;
     this.customSet = customSet;
     this.negated = negated;
@@ -101,7 +101,7 @@ export class Pattern {
    * @returns {Pattern} A new Pattern object with the repetition pattern applied.
    * @throws {STRlingError} If arguments are invalid.
    */
-  call(minRep, maxRep) {
+  rep(minRep, maxRep) {
     if (minRep === undefined && maxRep === undefined) {
       return this;
     }
