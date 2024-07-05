@@ -84,7 +84,7 @@ export class Pattern {
     negated = false,
     composite = false,
     namedGroups = [],
-    numberedGroup = false
+    numberedGroup = false,
   }) {
     this.pattern = pattern;
     this.customSet = customSet;
