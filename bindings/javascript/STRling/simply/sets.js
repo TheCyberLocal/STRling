@@ -91,7 +91,7 @@ export function between(start, end, minRep, maxRep) {
     newPattern = `[${start}-${end}]`;
   }
 
-  return new Pattern(newPattern, true).call(minRep, maxRep);
+  return new Pattern(newPattern, true).rep(minRep, maxRep);
 }
 
 /**
@@ -183,7 +183,7 @@ export function notBetween(start, end, minRep, maxRep) {
     newPattern = `[^${start}-${end}]`;
   }
 
-  return new Pattern(newPattern, true, true).call(minRep, maxRep);
+  return new Pattern(newPattern, true, true).rep(minRep, maxRep);
 }
 
 /**

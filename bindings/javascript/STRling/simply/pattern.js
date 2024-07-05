@@ -49,7 +49,7 @@ const repeat = (minRep, maxRep) => {
     }
     if (minRep > maxRep) {
       const message = `
-        Method: Pattern.call(minRep, maxRep)
+        Method: Pattern.rep(minRep, maxRep)
 
         The minRep must not be greater than the maxRep.
 
@@ -111,7 +111,7 @@ export class Pattern {
       (maxRep !== undefined && !Number.isInteger(maxRep))
     ) {
       const message = `
-        Method: Pattern.call(minRep, maxRep)
+        Method: Pattern.rep(minRep, maxRep)
 
         The minRep and maxRep arguments must be integers (0-9).
       `;
@@ -123,7 +123,7 @@ export class Pattern {
       (maxRep !== undefined && maxRep < 0)
     ) {
       const message = `
-        Method: Pattern.call(minRep, maxRep)
+        Method: Pattern.rep(minRep, maxRep)
 
         The minRep and maxRep must be 0 or greater.
       `;
@@ -136,7 +136,7 @@ export class Pattern {
       maxRep !== undefined
     ) {
       const message = `
-        Method: Pattern.call(minRep, maxRep)
+        Method: Pattern.rep(minRep, maxRep)
 
         Named groups cannot be repeated as they must be unique.
 
@@ -151,7 +151,7 @@ export class Pattern {
       this.pattern[this.pattern.length - 2] !== "\\"
     ) {
       const message = `
-        Method: Pattern.call(minRep, maxRep)
+        Method: Pattern.rep(minRep, maxRep)
 
         Cannot re-invoke pattern to specify range that already exists.
 
@@ -177,7 +177,7 @@ export class Pattern {
     if (this.numberedGroup) {
       if (maxRep !== undefined) {
         const message = `
-          Method: Pattern.call(minRep, maxRep)
+          Method: Pattern.rep(minRep, maxRep)
 
           The maxRep parameter was specified when capture takes only one parameter, the exact number of copies.
 
