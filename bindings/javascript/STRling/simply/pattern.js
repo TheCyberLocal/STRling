@@ -49,11 +49,11 @@ const repeat = (minRep, maxRep) => {
     }
     if (minRep > maxRep) {
       const message = `
-        Method: Pattern.rep(minRep, maxRep)
+      Method: Pattern.rep(minRep, maxRep)
 
-        The minRep must not be greater than the maxRep.
+      The minRep must not be greater than the maxRep.
 
-        Ensure the lesser number is on the left and the greater number is on the right.
+      Ensure the lesser number is on the left and the greater number is on the right.
       `;
       throw new STRlingError(message);
     }
@@ -111,9 +111,9 @@ export class Pattern {
       (maxRep !== undefined && !Number.isInteger(maxRep))
     ) {
       const message = `
-        Method: Pattern.rep(minRep, maxRep)
+      Method: Pattern.rep(minRep, maxRep)
 
-        The minRep and maxRep arguments must be integers (0-9).
+      The minRep and maxRep arguments must be integers (0-9).
       `;
       throw new STRlingError(message);
     }
@@ -123,9 +123,9 @@ export class Pattern {
       (maxRep !== undefined && maxRep < 0)
     ) {
       const message = `
-        Method: Pattern.rep(minRep, maxRep)
+      Method: Pattern.rep(minRep, maxRep)
 
-        The minRep and maxRep must be 0 or greater.
+      The minRep and maxRep must be 0 or greater.
       `;
       throw new STRlingError(message);
     }
@@ -136,11 +136,11 @@ export class Pattern {
       maxRep !== undefined
     ) {
       const message = `
-        Method: Pattern.rep(minRep, maxRep)
+      Method: Pattern.rep(minRep, maxRep)
 
-        Named groups cannot be repeated as they must be unique.
+      Named groups cannot be repeated as they must be unique.
 
-        Consider using an unlabeled group (merge) or a numbered group (capture).
+      Consider using an unlabeled group (merge) or a numbered group (capture).
       `;
       throw new STRlingError(message);
     }
@@ -151,24 +151,24 @@ export class Pattern {
       this.pattern[this.pattern.length - 2] !== "\\"
     ) {
       const message = `
-        Method: Pattern.rep(minRep, maxRep)
+      Method: Pattern.rep(minRep, maxRep)
 
-        Cannot re-invoke pattern to specify range that already exists.
+      Cannot re-invoke pattern to specify range that already exists.
 
-        Examples of invalid syntax:
-            simply.letter(1, 2)(3, 4) // double invoked range is invalid
-            myPattern = simply.letter(1, 2) // myPattern was set range (1, 2) // valid
-            myNewPattern = myPattern(3, 4) // myPattern was reinvoked (3, 4) // invalid
+      Examples of invalid syntax:
+        simply.letter(1, 2)(3, 4) // double invoked range is invalid
+        myPattern = simply.letter(1, 2) // myPattern was set range (1, 2) // valid
+        myNewPattern = myPattern(3, 4) // myPattern was reinvoked (3, 4) // invalid
 
-        Set the range on the first invocation, don't reassign it.
+      Set the range on the first invocation, don't reassign it.
 
-        Examples of valid syntax:
-            You can either specify the range now:
-                myPattern = simply.letter(1, 2)
+      Examples of valid syntax:
+        You can either specify the range now:
+          myPattern = simply.letter(1, 2)
 
-            Or you can specify the range later:
-                myPattern = simply.letter() // myPattern was never assigned a range
-                myNewPattern = myPattern(1, 2) // myPattern was invoked with (1, 2) for the first time.
+        Or you can specify the range later:
+          myPattern = simply.letter() // myPattern was never assigned a range
+          myNewPattern = myPattern(1, 2) // myPattern was invoked with (1, 2) for the first time.
       `;
       throw new STRlingError(message);
     }
@@ -177,11 +177,11 @@ export class Pattern {
     if (this.numberedGroup) {
       if (maxRep !== undefined) {
         const message = `
-          Method: Pattern.rep(minRep, maxRep)
+        Method: Pattern.rep(minRep, maxRep)
 
-          The maxRep parameter was specified when capture takes only one parameter, the exact number of copies.
+        The maxRep parameter was specified when capture takes only one parameter, the exact number of copies.
 
-          Consider using an unlabeled group (merge) for a range.
+        Consider using an unlabeled group (merge) for a range.
         `;
         throw new STRlingError(message);
       } else {
