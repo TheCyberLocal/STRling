@@ -1,173 +1,199 @@
 
-// import re, textwrap
+/**
+ * Custom error class for STRling.
+ * @extends {Error}
+ */
+class STRlingError extends Error {
+    /**
+     * Creates an instance of STRlingError.
+     * @param {string} message - The error message.
+     */
+    constructor(message) {
+        const formattedMessage = message.replace('\n', '\n\t');
+        super(formattedMessage);
+        this.name = 'STRlingError';
+        this.message = formattedMessage;
+    }
 
+    /**
+     * Returns the error message as a string.
+     * @returns {string} The error message.
+     */
+    toString() {
+        return `\n\nSTRlingError: Invalid Pattern Attempted.\n\n\t${this.message}`;
+    }
+}
 
+/**
+ * Escapes a string to be used as a regex pattern.
+ * @param {string} text - The text to escape.
+ * @returns {Pattern} The escaped pattern.
+ */
+function lit(text) {
+    const escapedText = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\//g, '\\/');
+    return new Pattern(escapedText);
+}
 
-// ############################
-// // Base Functions
-// ########
+/**
+ * Generates a repetition pattern string.
+ * @param {number} [minRep] - The minimum number of repetitions.
+ * @param {number} [maxRep] - The maximum number of repetitions.
+ * @returns {string} The repetition pattern string.
+ * @throws {STRlingError} If minRep is greater than maxRep.
+ */
+function repeat(minRep, maxRep) {
+    if (minRep !== undefined && maxRep !== undefined) {
+        if (maxRep === 0) {
+            return `{${minRep},}`;
+        }
+        if (minRep > maxRep) {
+            const message = `
+            Method: Pattern.__call__(minRep, maxRep)
 
-// class STRlingError(ValueError):
-//     def __init__(self, message):
-//         self.message = textwrap.dedent(message).strip().replace('\n', '\n\t')
-//         super().__init__(self.message)
+            The minRep must not be greater than the maxRep.
 
-//     def __str__(self):
-//         return f"\n\nSTRlingError: Invalid Pattern Attempted.\n\n\t{self.message}"
+            Ensure the lesser number is on the left and the greater number is on the right.
+            `;
+            throw new STRlingError(message);
+        }
+        return `{${minRep},${maxRep}}`;
+    } else if (minRep !== undefined) {
+        return `{${minRep}}`;
+    } else {
+        return '';
+    }
+}
 
-// def lit(text):
-//     escaped_text = re.escape(text).replace('/', '\/')
-//     return Pattern(escaped_text)
+/**
+ * Represents a regex pattern.
+ */
+class Pattern {
+    /**
+     * Creates an instance of Pattern.
+     * @param {string} pattern - The regex pattern.
+     * @param {boolean} [customSet=false] - Indicates if the pattern is a custom character set.
+     * @param {boolean} [negated=false] - Indicates if the pattern is negated.
+     * @param {boolean} [composite=false] - Indicates if the pattern is composite.
+     * @param {Array} [namedGroups=[]] - List of named groups.
+     * @param {boolean} [numberedGroup=false] - Indicates if the pattern is a numbered group.
+     */
+    constructor(pattern, customSet = false, negated = false, composite = false, namedGroups = [], numberedGroup = false) {
+        this.pattern = pattern;
+        this.customSet = customSet;
+        this.negated = negated;
+        this.composite = composite;
+        this.namedGroups = namedGroups;
+        this.numberedGroup = numberedGroup;
+    }
 
-// def repeat(min_rep: int = None, max_rep: int = None):
-//     if min_rep is not None and max_rep is not None:
-//         if max_rep == 0:  // Special case to handle the 'min_rep,' syntax
-//             return f'{{{min_rep},}}'
-//         if min_rep > max_rep:
-//             message = """
-//             Method: Pattern.__call__(min_rep, max_rep)
+    /**
+     * Applies a repetition pattern to the current pattern.
+     * @param {number} [minRep] - The minimum number of repetitions.
+     * @param {number} [maxRep] - The maximum number of repetitions.
+     * @returns {Pattern} A new Pattern object with the repetition pattern applied.
+     * @throws {STRlingError} If arguments are invalid.
+     */
+    call(minRep, maxRep) {
+        if (minRep === undefined && maxRep === undefined) {
+            return this;
+        }
 
-//             The `min_rep` must not be greater than the `max_rep`.
+        if ((minRep !== undefined && !Number.isInteger(minRep)) || (maxRep !== undefined && !Number.isInteger(maxRep))) {
+            const message = `
+            Method: Pattern.call(minRep, maxRep)
 
-//             Ensure the lesser number is on the left and the greater number is on the right.
-//             """
-//             raise STRlingError(message)
-//         return f'{{{min_rep},{max_rep}}}'
-//     elif min_rep is not None:
-//         return f'{{{min_rep}}}'
-//     else:
-//         return ''
+            The minRep and maxRep arguments must be integers (0-9).
+            `;
+            throw new STRlingError(message);
+        }
 
-// class Pattern:
-//     """
-//     A class to construct and compile clean and manageable regex expressions.
+        if ((minRep !== undefined && minRep < 0) || (maxRep !== undefined && maxRep < 0)) {
+            const message = `
+            Method: Pattern.call(minRep, maxRep)
 
-//     Attributes:
-//         - pattern (str): The regex pattern as a string.
-//         - custom_set (bool): Indicates if the pattern is a custom character set.
-//         - composite (bool): Indicates if the pattern is a composite pattern.
-//         - repeatable (bool): Indicates if the pattern can be repeated.
+            The minRep and maxRep must be 0 or greater.
+            `;
+            throw new STRlingError(message);
+        }
 
-//     Methods:
-//         - __call__(min_rep=None, max_rep=None): Returns a new Pattern object with the repetition pattern applied.
-//         - __str__(): Returns the pattern as a string.
-//         - __add__(other): Allows addition of two Pattern objects.
-//     """
-//     def __init__(self, pattern: str, custom_set: bool = false, negated: bool = false, composite: bool = false, named_groups: list = [], numbered_group: bool = false):
-//         // The regex pattern string for this instance.
-//         self.pattern = pattern
-//         // A custom set is regex with brackets [a-z]
-//         self.custom_set = custom_set
-//         // A negated set is negated regex with brackets [^a-z]
-//         self.negated = negated
-//         // A composite pattern is one enclosed in parenthesis.
-//         self.composite = composite
-//         // A pattern with named_groups cannot repeat.
-//         self.named_groups = named_groups
-//         // A numbered_group is one that is copied rather than repeated
-//         self.numbered_group = numbered_group
+        if (this.namedGroups.length && minRep !== undefined && maxRep !== undefined) {
+            const message = `
+            Method: Pattern.call(minRep, maxRep)
 
-//     def __call__(self, min_rep: int = None, max_rep: int = None):
-//         """
-//         Applies a repetition pattern to the current pattern.
+            Named groups cannot be repeated as they must be unique.
 
-//         Parameters: (min_rep/exact_rep, max_rep)
-//         - min_rep (optional): Specifies the minimum number of characters to match.
-//         - max_rep (optional): Specifies the maximum number of characters to match.
+            Consider using an unlabeled group (merge) or a numbered group (capture).
+            `;
+            throw new STRlingError(message);
+        }
 
-//         Special Cases:
-//         - If only `min_rep` is specified, it represents the exact number of characters to match.
-//         - If `max_rep` is 0, it means there is no upper limit.
+        if (this.pattern.length > 1 && this.pattern[this.pattern.length - 1] === '}' && this.pattern[this.pattern.length - 2] !== '\\') {
+            const message = `
+            Method: Pattern.call(minRep, maxRep)
 
-//         Returns:
-//         - A new Pattern object with the repetition pattern applied.
-//         """
-//         // Prevent errors if invoked with no range
-//         if min_rep is None and max_rep is None:
-//             return self
+            Cannot re-invoke pattern to specify range that already exists.
 
-//         // If min_rep or max_rep are specified as non-integers
-//         if min_rep is not None and not isinstance(min_rep, int) or max_rep is not None and not isinstance(max_rep, int):
-//             message = """
-//             Method: Pattern.__call__(min_rep, max_rep)
+            Examples of invalid syntax:
+                simply.letter(1, 2)(3, 4) // double invoked range is invalid
+                myPattern = simply.letter(1, 2) // myPattern was set range (1, 2) // valid
+                myNewPattern = myPattern(3, 4) // myPattern was reinvoked (3, 4) // invalid
 
-//             The `min_rep` and `max_rep` arguments must be integers (0-9).
-//             """
-//             raise STRlingError(message)
+            Set the range on the first invocation, don't reassign it.
 
-//         // If min_rep or max_rep are specified out of valid range
-//         if min_rep is not None and min_rep < 0 or max_rep is not None and max_rep < 0:
-//             message = """
-//             Method: Pattern.__call__(min_rep, max_rep)
+            Examples of valid syntax:
+                You can either specify the range now:
+                    myPattern = simply.letter(1, 2)
 
-//             The `min_rep` and `max_rep` must be 0 or greater.
-//             """
-//             raise STRlingError(message)
+                Or you can specify the range later:
+                    myPattern = simply.letter() // myPattern was never assigned a range
+                    myNewPattern = myPattern(1, 2) // myPattern was invoked with (1, 2) for the first time.
+            `;
+            throw new STRlingError(message);
+        }
 
-//         // Named group is unique and not repeatable
-//         if self.named_groups and min_rep is not None and max_rep is not None:
-//             message = """
-//             Method: Pattern.__call__(min_rep, max_rep)
+        let newPattern;
+        if (this.numberedGroup) {
+            if (maxRep !== undefined) {
+                const message = `
+                Method: Pattern.call(minRep, maxRep)
 
-//             Named groups cannot be repeated as they must be unique.
+                The maxRep parameter was specified when capture takes only one parameter, the exact number of copies.
 
-//             Consider using an unlabeled group (merge) or a numbered group (capture).
-//             """
-//             raise STRlingError(message)
+                Consider using an unlabeled group (merge) for a range.
+                `;
+                throw new STRlingError(message);
+            } else {
+                newPattern = `(?:${this.pattern.repeat(minRep)})`;
+            }
+        } else {
+            newPattern = this.pattern + repeat(minRep, maxRep);
+        }
 
-//         // A group already assigned a specified range cannot be reassigned
-//         if len(self.pattern) > 1 and self.pattern[-1] == '}' and self.pattern[-2] != '\\':
-//             message = """
-//             Method: Pattern.__call__(min_rep, max_rep)
+        return this.createModifiedInstance(newPattern);
+    }
 
-//             Cannot re-invoke pattern to specify range that already exists.
+    /**
+     * Returns the pattern object as a RegEx string.
+     * @returns {string} The pattern string.
+     */
+    toString() {
+        return this.pattern;
+    }
 
-//             Examples of invalid syntax:
-//                 simply.letter(1, 2)(3, 4) // double invoked range is invalid
-//                 my_pattern = simply.letter(1, 2) // my_pattern was set range (1, 2) // valid
-//                 my_new_pattern = my_pattern(3, 4) // my_pattern was reinvoked (3, 4) // invalid
+    /**
+     * Creates a modified instance of the pattern.
+     * @param {string} newPattern - The new pattern string.
+     * @param {Object} [kwargs] - Additional properties for the new instance.
+     * @returns {Pattern} The new Pattern instance.
+     */
+    static createModifiedInstance(newPattern, kwargs = {}) {
+        return new Pattern(newPattern, ...Object.values(kwargs));
+    }
+}
 
-//             Set the range on the first invocation, don't reassign it.
-
-//             Examples of valid syntax:
-//                 You can either specify the range now:
-//                     my_pattern = simply.letter(1, 2)
-
-//                 Or you can specify the range later:
-//                     my_pattern = simply.letter() // my_pattern was never assigned a range
-//                     my_new_pattern = my_pattern(1, 2) // my_pattern was invoked with (1, 2) for the first time.
-//             """
-//             raise STRlingError(message)
-
-//         // Special Case: A numbered group repeats by copying, not amending a range.
-//         if self.numbered_group:
-//             if max_rep is not None:
-//                 message = """
-//                 Method: Pattern.__call__(min_rep, max_rep)
-
-//                 The `max_rep` parameter was specified when capture takes only one parameter, the exact number of copies.
-
-//                 Consider using an unlabeled group (merge) for a range.
-//                 """
-//                 raise STRlingError(message)
-//             else:
-//                 new_pattern = f'(?:{self.pattern * min_rep})'
-//         // Regular Case: Add range syntax.
-//         else:
-//             new_pattern = self.pattern + repeat(min_rep, max_rep)
-
-//         // Return new instance with updated pattern
-//         return self.create_modified_instance(new_pattern)
-
-//     def __str__(self):
-//         """
-//         Returns the pattern object as a RegEx string.
-//         """
-//         return self.pattern
-
-//     @classmethod
-//     def create_modified_instance(cls, new_pattern, **kwargs):
-//         """
-//         Returns a copy of the pattern instance.
-//         """
-//         return cls(new_pattern, **kwargs)
+module.exports = {
+    STRlingError,
+    Pattern,
+    lit,
+    repeat
+};
