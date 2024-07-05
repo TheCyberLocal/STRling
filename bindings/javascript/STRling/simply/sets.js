@@ -17,10 +17,10 @@ export function between(start, end, minRep, maxRep) {
     (typeof start !== "number" || typeof end !== "number")
   ) {
     const message = `
-        Method: simply.between(start, end)
+    Method: simply.between(start, end)
 
-        The start and end arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
-        `;
+    The start and end arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
+    `;
     throw new STRlingError(message);
   }
 
@@ -29,19 +29,19 @@ export function between(start, end, minRep, maxRep) {
   if (typeof start === "number") {
     if (start > end) {
       const message = `
-            Method: simply.between(start, end)
+      Method: simply.between(start, end)
 
-            The start integer must not be greater than the end integer.
-            `;
+      The start integer must not be greater than the end integer.
+      `;
       throw new STRlingError(message);
     }
 
     if (start < 0 || start > 9 || end < 0 || end > 9) {
       const message = `
-            Method: simply.between(start, end)
+      Method: simply.between(start, end)
 
-            The start and end integers must be single digits (0-9).
-            `;
+      The start and end integers must be single digits (0-9).
+      `;
       throw new STRlingError(message);
     }
 
@@ -51,19 +51,19 @@ export function between(start, end, minRep, maxRep) {
   if (typeof start === "string") {
     if (!/^[a-zA-Z]$/.test(start) || !/^[a-zA-Z]$/.test(end)) {
       const message = `
-            Method: simply.between(start, end)
+      Method: simply.between(start, end)
 
-            The start and end must be alphabetical characters.
-            `;
+      The start and end must be alphabetical characters.
+      `;
       throw new STRlingError(message);
     }
 
     if (start.length !== 1 || end.length !== 1) {
       const message = `
-            Method: simply.between(start, end)
+      Method: simply.between(start, end)
 
-            The start and end characters must be single letters.
-            `;
+      The start and end characters must be single letters.
+      `;
       throw new STRlingError(message);
     }
 
@@ -72,19 +72,19 @@ export function between(start, end, minRep, maxRep) {
       (start.toUpperCase() === start && end.toUpperCase() !== end)
     ) {
       const message = `
-            Method: simply.between(start, end)
+      Method: simply.between(start, end)
 
-            The start and end characters must be of the same case.
-            `;
+      The start and end characters must be of the same case.
+      `;
       throw new STRlingError(message);
     }
 
     if (start > end) {
       const message = `
-            Method: simply.between(start, end)
+      Method: simply.between(start, end)
 
-            The start character must not be lexicographically greater than the end character.
-            `;
+      The start character must not be lexicographically greater than the end character.
+      `;
       throw new STRlingError(message);
     }
 
@@ -109,10 +109,10 @@ export function notBetween(start, end, minRep, maxRep) {
     (typeof start !== "number" || typeof end !== "number")
   ) {
     const message = `
-        Method: simply.not_between(start, end)
+    Method: simply.not_between(start, end)
 
-        The start and end arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
-        `;
+    The start and end arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
+    `;
     throw new STRlingError(message);
   }
 
@@ -121,19 +121,19 @@ export function notBetween(start, end, minRep, maxRep) {
   if (typeof start === "number") {
     if (start > end) {
       const message = `
-            Method: simply.not_between(start, end)
+      Method: simply.not_between(start, end)
 
-            The start integer must not be greater than the end integer.
-            `;
+      The start integer must not be greater than the end integer.
+      `;
       throw new STRlingError(message);
     }
 
     if (start < 0 || start > 9 || end < 0 || end > 9) {
       const message = `
-            Method: simply.not_between(start, end)
+      Method: simply.not_between(start, end)
 
-            The start and end integers must be single digits (0-9).
-            `;
+      The start and end integers must be single digits (0-9).
+      `;
       throw new STRlingError(message);
     }
 
@@ -143,19 +143,19 @@ export function notBetween(start, end, minRep, maxRep) {
   if (typeof start === "string") {
     if (!/^[a-zA-Z]$/.test(start) || !/^[a-zA-Z]$/.test(end)) {
       const message = `
-            Method: simply.not_between(start, end)
+      Method: simply.not_between(start, end)
 
-            The start and end must be alphabetical characters.
-            `;
+      The start and end must be alphabetical characters.
+      `;
       throw new STRlingError(message);
     }
 
     if (start.length !== 1 || end.length !== 1) {
       const message = `
-            Method: simply.not_between(start, end)
+      Method: simply.not_between(start, end)
 
-            The start and end characters must be single letters.
-            `;
+      The start and end characters must be single letters.
+      `;
       throw new STRlingError(message);
     }
 
@@ -164,19 +164,19 @@ export function notBetween(start, end, minRep, maxRep) {
       (start.toUpperCase() === start && end.toUpperCase() !== end)
     ) {
       const message = `
-            Method: simply.not_between(start, end)
+      Method: simply.not_between(start, end)
 
-            The start and end characters must be of the same case.
-            `;
+      The start and end characters must be of the same case.
+      `;
       throw new STRlingError(message);
     }
 
     if (start > end) {
       const message = `
-            Method: simply.not_between(start, end)
+      Method: simply.not_between(start, end)
 
-            The start character must not be lexicographically greater than the end character.
-            `;
+      The start character must not be lexicographically greater than the end character.
+      `;
       throw new STRlingError(message);
     }
 
@@ -200,12 +200,12 @@ export function inChars(...patterns) {
 
     if (!(pattern instanceof Pattern)) {
       const message = `
-            Method: simply.inChars(...patterns)
+      Method: simply.inChars(...patterns)
 
-            The parameters must be instances of Pattern or string.
+      The parameters must be instances of Pattern or string.
 
-            Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
-            `;
+      Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+      `;
       throw new STRlingError(message);
     }
 
@@ -214,10 +214,10 @@ export function inChars(...patterns) {
 
   if (cleanPatterns.some((p) => p.composite)) {
     const message = `
-        Method: simply.inChars(...patterns)
+    Method: simply.inChars(...patterns)
 
-        All patterns must be non-composite.
-        `;
+    All patterns must be non-composite.
+    `;
     throw new STRlingError(message);
   }
 
@@ -230,22 +230,22 @@ export function inChars(...patterns) {
       patternStr[patternStr.length - 2] !== "\\"
     ) {
       const message = `
-            Method: simply.inChars(...patterns)
+      Method: simply.inChars(...patterns)
 
-            Patterns must not have specified ranges.
-            `;
+      Patterns must not have specified ranges.
+      `;
       throw new STRlingError(message);
     }
 
     if (pattern.customSet) {
       if (pattern.negated) {
         const message = `
-                Method: simply.inChars(...patterns)
+        Method: simply.inChars(...patterns)
 
-                To match the characters specified in a negated set, move the parameters directly into simply.inChars(...patterns).
+        To match the characters specified in a negated set, move the parameters directly into simply.inChars(...patterns).
 
-                Example: simply.inChars(simply.notInChars(...patterns)) => simply.inChars(...patterns)
-                `;
+        Example: simply.inChars(simply.notInChars(...patterns)) => simply.inChars(...patterns)
+        `;
         throw new STRlingError(message);
       } else {
         joined += patternStr.slice(1, -1); // [pattern] => pattern
@@ -273,12 +273,12 @@ export function notInChars(...patterns) {
 
     if (!(pattern instanceof Pattern)) {
       const message = `
-            Method: simply.notInChars(...patterns)
+      Method: simply.notInChars(...patterns)
 
-            The parameters must be instances of Pattern or string.
+      The parameters must be instances of Pattern or string.
 
-            Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
-            `;
+      Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+      `;
       throw new STRlingError(message);
     }
 
@@ -287,10 +287,10 @@ export function notInChars(...patterns) {
 
   if (cleanPatterns.some((p) => p.composite)) {
     const message = `
-        Method: simply.notInChars(...patterns)
+    Method: simply.notInChars(...patterns)
 
-        All patterns must be non-composite.
-        `;
+    All patterns must be non-composite.
+    `;
     throw new STRlingError(message);
   }
 
@@ -303,10 +303,10 @@ export function notInChars(...patterns) {
       patternStr[patternStr.length - 2] !== "\\"
     ) {
       const message = `
-            Method: simply.notInChars(...patterns)
+      Method: simply.notInChars(...patterns)
 
-            Patterns must not have specified ranges.
-            `;
+      Patterns must not have specified ranges.
+      `;
       throw new STRlingError(message);
     }
 
