@@ -13,12 +13,12 @@ export function ahead(pattern) {
 
   if (!(pattern instanceof Pattern)) {
     const message = `
-        Method: simply.ahead(pattern)
+    Method: simply.ahead(pattern)
 
-        The parameter must be an instance of Pattern or string.
+    The parameter must be an instance of Pattern or string.
 
-        Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
-        `;
+    Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+    `;
     throw new STRlingError(message);
   }
 
@@ -38,12 +38,12 @@ export function notAhead(pattern) {
 
   if (!(pattern instanceof Pattern)) {
     const message = `
-        Method: simply.notAhead(pattern)
+    Method: simply.notAhead(pattern)
 
-        The parameter must be an instance of Pattern or string.
+    The parameter must be an instance of Pattern or string.
 
-        Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
-        `;
+    Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+    `;
     throw new STRlingError(message);
   }
 
@@ -63,12 +63,12 @@ export function behind(pattern) {
 
   if (!(pattern instanceof Pattern)) {
     const message = `
-        Method: simply.behind(pattern)
+    Method: simply.behind(pattern)
 
-        The parameter must be an instance of Pattern or string.
+    The parameter must be an instance of Pattern or string.
 
-        Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
-        `;
+    Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+    `;
     throw new STRlingError(message);
   }
 
@@ -88,12 +88,12 @@ export function notBehind(pattern) {
 
   if (!(pattern instanceof Pattern)) {
     const message = `
-      Method: simply.notBehind(pattern)
+    Method: simply.notBehind(pattern)
 
-      The parameter must be an instance of Pattern or string.
+    The parameter must be an instance of Pattern or string.
 
-      Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
-      `;
+    Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+    `;
     throw new STRlingError(message);
   }
 
