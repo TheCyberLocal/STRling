@@ -41,7 +41,7 @@ s.lit('$%')  # Matches the literal characters '$' or '%'.
 ####################
 
 # Note: Each character set below has a negated counterpart.
-# For example, simply.letter() => simply.not_letter()
+# For example, simply.letter() => simply.not_letter().
 
 s.alpha_num()    # Matches any letter (uppercase or lowercase) or digit.
 s.special_char() # Matches any special character. => !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
@@ -55,9 +55,13 @@ s.hex_digit()    # Matches any letter A through F (uppercase or lowercase) or a 
 
 s.whitespace()   # Matches any whitespace character (space, tab, newline, carriage return, etc.).
 s.newline()      # Matches a newline character.
+s.bound()        # Matches a boundary character.
+
+# Note: Each character set below doesn't has a negated counterpart.
+# For example, simply.tab(), but there is no simply.not_tab().
+
 s.tab()          # Matches a tab character.
 s.carriage()     # Matches a carriage return character.
-s.bound()        # Matches a boundary character.
 
 ####################
 # Anchors
