@@ -2,12 +2,12 @@
 
 ## 🗺️ Project Overview
 
-STRling is a next-generation production-grade syntax designed as a user interface for writing powerful regular expressions (RegEx) with an object-oriented approach and instructional error handling. STRling recognizes the cryptic nature of raw regular expression can be challenging and susceptibility to errors, which is why STRling looks and feels nothing like RegEx while maintaining the same power and flexibility. String validation should be simple and enjoyable, not a hassle. Best of all, STRling syntax is built upon the RegEx engine, making it fully compatible with all libraries that accept RegEx along with the traditional RegEx methods built-in to Python.
+STRling is a next-generation production-grade syntax designed as a user interface for writing powerful regular expressions (RegEx) with an object-oriented approach and instructional error handling. STRling recognizes the cryptic nature of raw regular expression can be challenging and susceptibility to errors, which is why STRling looks and feels nothing like RegEx while maintaining the same power and flexibility. String validation should be simple and enjoyable, not a hassle. Best of all, STRling syntax is built upon the RegEx engine, making it fully compatible with all libraries that accept RegEx along with the traditional RegEx methods built-in to JavaScript.
 
 ## 🗝️ Key Features
 
 1. **Beginner Friendly:** You need ZERO knowledge of RegEx jargon to create powerful and clear to read patterns.
-2. **Reliable Logic:** STRling exclusively utilizes built-in python libraries, making it a reliable package.
+2. **Reliable Logic:** STRling exclusively utilizes built-in JavaScript libraries, making it a reliable package.
 3. **Instructional Error Handling:** Errors inevitably occur by drafting invalid patterns, so STRling explains to the developer exactly what was done wrong and how to correct it.
 4. **Consistent and Readable:** Make your projects clear and consistent by using STRling rather than the individual library string validators that each have their own syntax (Sqlite3, Sequelize, Postgres, WTForms... etc.).
 
@@ -15,11 +15,11 @@ These key features collectively emphasis and fortify the claim that STRling trul
 
 ## 🎯 Project Mission
 
-Our mission is to make RegEx a distant and outdated syntax by abstracting the complexities of RegEx into a clean, readable, and powerful interface. We strive to simplify string operations and ensure that developers can focus on building their applications without the steep learning curve of traditional RegEx. The previous alternative to RegEx was to learn the string validation syntax specific to each user input library, but STRling aims to unify the disparate syntaxes found across various libraries and frameworks into one simple library using only built-in Python packages.
+Our mission is to make RegEx a distant and outdated syntax by abstracting the complexities of RegEx into a clean, readable, and powerful interface. We strive to simplify string operations and ensure that developers can focus on building their applications without the steep learning curve of traditional RegEx. The previous alternative to RegEx was to learn the string validation syntax specific to each user input library, but STRling aims to unify the disparate syntaxes found across various libraries and frameworks into one simple library using only built-in JavaScript packages.
 
 ## 💾 Installation
 
-Install STRling via pip:
+Install STRling via npm:
 
 ```sh
 npm install STRling
