@@ -1,4 +1,4 @@
-import { STRlingError, Pattern, lit } from "./pattern";
+import { STRlingError, Pattern, lit } from "./pattern.js";
 
 // User Char Sets
 

@@ -1,4 +1,4 @@
-import { Pattern, lit } from "./pattern";
+import { Pattern, lit } from "./pattern.js";
 
 /**
  * Matches any letter (uppercase or lowercase) or digit.

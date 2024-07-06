@@ -1,4 +1,4 @@
-import { STRlingError, Pattern, lit } from "./pattern";
+import { STRlingError, Pattern, lit } from "./pattern.js";
 
 /**
  * A positive lookahead checks for the presence of the specified pattern after the current position without including it in the result.

@@ -1,3 +1,5 @@
-import * as simply from "./simply/index.js";
+import * as simply from './simply/index.js';
 
-module.exports = { simply };
+console.log(simply.letter().toString())
+
+export { simply };
