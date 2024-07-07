@@ -2,17 +2,17 @@
 from .pattern import STRlingError, Pattern, lit
 
 
-
-############################
-# Constructor Methods
-########
-
-
 def any_of(*patterns):
     """
     Matches any provided pattern, including patterns consisting of subpatterns.
 
-    Example: simply as s
+    Parameters:
+    - *patterns (Pattern/str): One or more patterns to be matched.
+
+    Returns:
+    - Pattern: A Pattern object representing the OR combination of the given patterns.
+
+    Examples: simply as s
         - Matches 3 digits followed by 3 letters.
 
         pattern1 = s.merge(s.digit(3), s.letter(3))
@@ -24,12 +24,6 @@ def any_of(*patterns):
         - Matches either pattern1 or pattern2.
 
         either_pattern = s.any_of(pattern1, pattern2)
-
-    Parameters:
-    - *patterns (Pattern/str): One or more patterns to be matched.
-
-    Returns:
-    - Pattern: A Pattern object representing the OR combination of the given patterns.
     """
 
     # Check all patterns are instance of Pattern or str
@@ -53,7 +47,6 @@ def any_of(*patterns):
 
     # Count named groups and raise error if not unique
     named_group_counts = {}
-
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
             if group_name in named_group_counts:
@@ -86,18 +79,18 @@ def may(*patterns):
     """
     Optionally matches the provided patterns. If this pattern is absent, surrounding patterns can still match.
 
-    Example: simply as s
-        - Matches any letter, along with any trailing digit.
-
-        pattern = s.merge(s.letter(), s.may(s.digit()))
-
-        In the text, "AB2" the pattern above matches 'A' and 'B2'.
-
     Parameters:
     - *patterns (Pattern/str): One or more patterns to be optionally matched.
 
     Returns:
     - Pattern: A Pattern object representing the optional match of the given patterns.
+
+    Examples: simply as s
+        - Matches any letter, along with any trailing digit.
+
+        pattern = s.merge(s.letter(), s.may(s.digit()))
+
+        In the text "AB2" the pattern above matches 'A' and 'B2'.
     """
 
     # Check all patterns are instance of Pattern or str
@@ -121,7 +114,6 @@ def may(*patterns):
 
     # Count named groups and raise error if not unique
     named_group_counts = {}
-
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
             if group_name in named_group_counts:
@@ -156,16 +148,16 @@ def merge(*patterns):
     """
     Combines the provided patterns into one larger pattern.
 
-    Example: simply as s
-        - Matches any digit, comma, or period.
-
-        merged_pattern = s.merge(s.digit(), ',.')
-
     Parameters:
     - *patterns (Pattern/str): One or more patterns to be concatenated.
 
     Returns:
     - Pattern: A Pattern object representing the concatenation of the given patterns.
+
+    Example: simply as s
+        - Matches any digit, comma, or period.
+
+        merged_pattern = s.merge(s.digit(), ',.')
     """
 
     # Check all patterns are instance of Pattern or str
@@ -189,7 +181,6 @@ def merge(*patterns):
 
     # Count named groups and raise error if not unique
     named_group_counts = {}
-
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
             if group_name in named_group_counts:
@@ -222,6 +213,13 @@ def capture(*patterns):
     """
     Creates a numbered group that can be indexed for extracting this part of the match.
 
+    Parameters:
+    - *patterns (Pattern/str): One or more patterns to be captured.
+
+    Returns:
+    - Pattern: A Pattern object representing the capturing group of the given patterns.
+
+    Ranges:
     - Captures CANNOT be invoked with a range.
 
     s.capture(s.digit(), s.letter())(1, 2) <== INVALID
@@ -234,13 +232,6 @@ def capture(*patterns):
         - Matches any digit, comma, or period.
 
         captured_pattern = s.capture(s.digit(), ',.')
-
-
-    Parameters:
-    - *patterns (Pattern/str): One or more patterns to be captured.
-
-    Returns:
-    - Pattern: A Pattern object representing the capturing group of the given patterns.
 
     Referencing: simply as s
         three_digit_group = s.capture(s.digit(3))
@@ -286,7 +277,6 @@ def capture(*patterns):
 
     # Count named groups and raise error if not unique
     named_group_counts = {}
-
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
             if group_name in named_group_counts:
@@ -319,6 +309,14 @@ def group(name, *patterns):
     """
     Creates a unique named group that can be referenced for extracting this part of the match.
 
+    Parameters:
+    - name (str): The name of the capturing group.
+    - *patterns (Pattern/str): One or more patterns to be captured.
+
+    Returns:
+    - Pattern: A Pattern object representing the named capturing group of the given patterns.
+
+    Ranges:
     - Groups CANNOT be invoked with a range.
 
     s.group('name', s.digit())(1, 2) <== INVALID
@@ -327,13 +325,6 @@ def group(name, *patterns):
         - Matches any digit followed by a comma and period.
 
         named_pattern = s.group('my_group', s.digit(), ',.')
-
-    Parameters:
-    - name (str): The name of the capturing group.
-    - *patterns (Pattern/str): One or more patterns to be captured.
-
-    Returns:
-    - Pattern: A Pattern object representing the named capturing group of the given patterns.
 
     Referencing: simply as s
         first = s.group("first", s.digit(3))
@@ -391,7 +382,6 @@ def group(name, *patterns):
 
     # Count named groups and raise error if not unique
     named_group_counts = {}
-
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
             if group_name in named_group_counts:
