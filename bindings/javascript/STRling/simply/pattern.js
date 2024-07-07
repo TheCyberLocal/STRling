@@ -71,12 +71,13 @@ const repeat = (minRep, maxRep) => {
 export class Pattern {
   /**
    * Creates an instance of Pattern.
-   * @param {string} pattern - The regex pattern.
-   * @param {boolean} [customSet=false] - Indicates if the pattern is a custom character set.
-   * @param {boolean} [negated=false] - Indicates if the pattern is negated.
-   * @param {boolean} [composite=false] - Indicates if the pattern is composite.
-   * @param {Array} [namedGroups=[]] - List of named groups.
-   * @param {boolean} [numberedGroup=false] - Indicates if the pattern is a numbered group.
+   * @param {object} options - The options object.
+   * @param {string} options.pattern - The regex pattern.
+   * @param {boolean} [options.customSet=false] - Indicates if the pattern is a custom character set.
+   * @param {boolean} [options.negated=false] - Indicates if the pattern is negated.
+   * @param {boolean} [options.composite=false] - Indicates if the pattern is composite.
+   * @param {Array<string>} [options.namedGroups=[]] - List of named groups.
+   * @param {boolean} [options.numberedGroup=false] - Indicates if the pattern is a numbered group.
    */
   constructor({
     pattern,
@@ -92,6 +93,13 @@ export class Pattern {
     this.composite = composite;
     this.namedGroups = namedGroups;
     this.numberedGroup = numberedGroup;
+
+    // Return a proxy to intercept function calls
+    return new Proxy(this, {
+      apply: (target, thisArg, argumentsList) => {
+        return target.rep(...argumentsList);
+      },
+    });
   }
 
   /**
@@ -188,10 +196,40 @@ export class Pattern {
         newPattern = `(?:${this.pattern.repeat(minRep)})`;
       }
     } else {
-      newPattern = this.pattern + repeat(minRep, maxRep);
+      newPattern = this.pattern + this.repeat(minRep, maxRep);
     }
 
     return this.createModifiedInstance(newPattern);
+  }
+
+  /**
+   * Generates a repetition pattern string.
+   * @param {number} [minRep] - The minimum number of repetitions.
+   * @param {number} [maxRep] - The maximum number of repetitions.
+   * @returns {string} The repetition pattern string.
+   * @throws {STRlingError} If minRep is greater than maxRep.
+   */
+  repeat(minRep, maxRep) {
+    if (minRep !== undefined && maxRep !== undefined) {
+      if (maxRep === 0) {
+        return `{${minRep},}`;
+      }
+      if (minRep > maxRep) {
+        const message = `
+        Method: Pattern.repeat(minRep, maxRep)
+
+        The minRep must not be greater than the maxRep.
+
+        Ensure the lesser number is on the left and the greater number is on the right.
+        `;
+        throw new STRlingError(message);
+      }
+      return `{${minRep},${maxRep}}`;
+    } else if (minRep !== undefined) {
+      return `{${minRep}}`;
+    } else {
+      return "";
+    }
   }
 
   /**
@@ -203,12 +241,28 @@ export class Pattern {
   }
 
   /**
+   * Handles automatic string conversion.
+   * @param {string} hint - The type hint.
+   * @returns {string} The pattern string.
+   */
+  [Symbol.toPrimitive](hint) {
+    if (hint === "string") {
+      return this.pattern;
+    }
+    return this;
+  }
+
+  /**
    * Creates a modified instance of the pattern.
    * @param {string} newPattern - The new pattern string.
    * @param {Object} [kwargs] - Additional properties for the new instance.
    * @returns {Pattern} The new Pattern instance.
    */
   static createModifiedInstance(newPattern, kwargs = {}) {
-    return new Pattern(newPattern, ...Object.values(kwargs));
+    return new Proxy(new Pattern({ pattern: newPattern, ...kwargs }), {
+      apply: (target, thisArg, argumentsList) => {
+        return target.rep(...argumentsList);
+      },
+    });
   }
 }
