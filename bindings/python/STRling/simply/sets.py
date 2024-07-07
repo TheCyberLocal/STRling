@@ -196,7 +196,7 @@ def in_chars(*patterns):
     """
     Matches any provided patterns, but they can't include subpatterns.
 
-    Example:
+    Examples:
         - Matches any letter, digit, comma, and period.
 
         my_pattern = s.in_chars(s.letter(), s.digit(), ',.')
@@ -266,7 +266,7 @@ def not_in_chars(*patterns):
     """
     Matches anything but the provided patterns, but they can't include subpatterns.
 
-    Example:
+    Examples:
 
         - Matches any character that is not a letter, digit, comma, and period.
 
