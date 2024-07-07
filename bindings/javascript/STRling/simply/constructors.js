@@ -274,7 +274,7 @@ export function capture(...patterns) {
     return pattern;
   });
 
-  // Count named groups and raise error if not unique
+  // Count named groups and throw error if not unique
   const namedGroupCounts = {};
   cleanPatterns.forEach((pattern) => {
     pattern.namedGroups.forEach((groupName) => {
@@ -381,7 +381,7 @@ export function group(name, ...patterns) {
     return pattern;
   });
 
-  // Count named groups and raise error if not unique
+  // Count named groups and throw error if not unique
   const namedGroupCounts = {};
   cleanPatterns.forEach((pattern) => {
     pattern.namedGroups.forEach((groupName) => {
