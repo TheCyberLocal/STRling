@@ -36,36 +36,6 @@ export const lit = (text) => {
 };
 
 /**
- * Generates a repetition pattern string.
- * @param {number} [minRep] - The minimum number of repetitions.
- * @param {number} [maxRep] - The maximum number of repetitions.
- * @returns {string} The repetition pattern string.
- * @throws {STRlingError} If minRep is greater than maxRep.
- */
-const repeat = (minRep, maxRep) => {
-  if (minRep !== undefined && maxRep !== undefined) {
-    if (maxRep === 0) {
-      return `{${minRep},}`;
-    }
-    if (minRep > maxRep) {
-      const message = `
-      Method: Pattern.rep(minRep, maxRep)
-
-      The minRep must not be greater than the maxRep.
-
-      Ensure the lesser number is on the left and the greater number is on the right.
-      `;
-      throw new STRlingError(message);
-    }
-    return `{${minRep},${maxRep}}`;
-  } else if (minRep !== undefined) {
-    return `{${minRep}}`;
-  } else {
-    return "";
-  }
-};
-
-/**
  * Represents a regex pattern.
  */
 export class Pattern {
