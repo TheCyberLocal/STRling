@@ -5,7 +5,7 @@ Matches any provided pattern, including patterns consisting of subpatterns.
 @param {...(Pattern|string)} patterns - One or more patterns to be matched.
 @returns {Pattern} A Pattern object representing the OR combination of the given patterns.
 @example
-// with simply as s
+// Implementing with simply as s
 
 // Matches 3 digits followed by 3 letters.
 const pattern1 = s.merge(s.digit(3), s.letter(3));
@@ -20,7 +20,7 @@ export function anyOf(...patterns) {
   // Check all patterns are instance of Pattern or str
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = new Pattern({ pattern: lit(pattern) });
+      pattern = lit(pattern)
     }
 
     if (!(pattern instanceof Pattern)) {
@@ -85,8 +85,7 @@ Optionally matches the provided patterns. If this pattern is absent, surrounding
 @param {...(Pattern|string)} patterns - One or more patterns to be optionally matched.
 @returns {Pattern} A Pattern object representing the optional match of the given patterns.
 @example
-
-// with simply as s
+// Implementing with simply as s
 
 // Matches any letter, along with any trailing digit.
 const pattern = s.merge(s.letter(), s.may(s.digit()));
@@ -97,7 +96,7 @@ export function may(...patterns) {
   // Check all patterns are instance of Pattern or str
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = new Pattern({ pattern: lit(pattern) });
+      pattern = lit(pattern)
     }
 
     if (!(pattern instanceof Pattern)) {
@@ -162,8 +161,7 @@ Combines the provided patterns into one larger pattern.
 @param {...(Pattern|string)} patterns - One or more patterns to be concatenated.
 @returns {Pattern} A Pattern object representing the concatenation of the given patterns.
 @example
-
-// with simply as s
+// Implementing with simply as s
 
 // Matches any digit, comma, or period.
 const mergedPattern = s.merge(s.digit(), ',.');
@@ -172,7 +170,7 @@ export function merge(...patterns) {
   // Check all patterns are instance of Pattern or str
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = new Pattern({ pattern: lit(pattern) });
+      pattern = lit(pattern)
     }
 
     if (!(pattern instanceof Pattern)) {
@@ -238,13 +236,13 @@ Captures cannot be invoked with a range.
 @param {...(Pattern|string)} patterns - One or more patterns to be captured.
 @returns {Pattern} A Pattern object representing the capturing group of the given patterns.
 @example
-
-// with simply as s
+// Implementing with simply as s
 
 // Matches any digit, comma, or period.
 const capturedPattern = s.capture(s.digit(), ',.');
 
-// Referencing
+@example
+// Referencing group components
 const threeDigitGroup = s.capture(s.digit(3));
 const fourGroupsOfThree = threeDigitGroup.rep(4);
 
@@ -270,7 +268,7 @@ export function capture(...patterns) {
   // Check all patterns are instance of Pattern or str
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = new Pattern({ pattern: lit(pattern) });
+      pattern = lit(pattern)
     }
 
     if (!(pattern instanceof Pattern)) {
@@ -338,13 +336,13 @@ Groups cannot be invoked with a range.
 @param {...(Pattern|string)} patterns - One or more patterns to be captured.
 @returns {Pattern} A Pattern object representing the named capturing group of the given patterns.
 @example
-
-// with simply as s
+// Implementing with simply as s
 
 // Matches any digit, comma, or period.
 const capturedPattern = s.capture(s.digit(), ',.');
 
-// Referencing
+@example
+// Referencing group components
 const first = s.group("first", s.digit(3))
 const second = s.group("second", s.digit(3))
 const third = s.group("third", s.digit(4))
@@ -380,7 +378,7 @@ export function group(name, ...patterns) {
   // Check all patterns are instance of Pattern or str
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = new Pattern({ pattern: lit(pattern) });
+      pattern = lit(pattern)
     }
 
     if (!(pattern instanceof Pattern)) {

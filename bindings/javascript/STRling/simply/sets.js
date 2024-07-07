@@ -202,7 +202,7 @@ export function notBetween(start, end, minRep, maxRep) {
 export function inChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = new Pattern({ pattern: lit(pattern) });
+      pattern = lit(pattern)
     }
 
     if (!(pattern instanceof Pattern)) {
@@ -275,7 +275,7 @@ export function inChars(...patterns) {
 export function notInChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = new Pattern({ pattern: lit(pattern) });
+      pattern = lit(pattern)
     }
 
     if (!(pattern instanceof Pattern)) {

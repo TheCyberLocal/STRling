@@ -8,7 +8,7 @@ import { STRlingError, Pattern, lit } from "./pattern.js";
  */
 export function ahead(pattern) {
   if (typeof pattern === "string") {
-    pattern = new Pattern({ pattern: lit(pattern) });
+    pattern = lit(pattern)
   }
 
   if (!(pattern instanceof Pattern)) {
@@ -33,7 +33,7 @@ export function ahead(pattern) {
  */
 export function notAhead(pattern) {
   if (typeof pattern === "string") {
-    pattern = new Pattern({ pattern: lit(pattern) });
+    pattern = lit(pattern)
   }
 
   if (!(pattern instanceof Pattern)) {
@@ -58,7 +58,7 @@ export function notAhead(pattern) {
  */
 export function behind(pattern) {
   if (typeof pattern === "string") {
-    pattern = new Pattern({ pattern: lit(pattern) });
+    pattern = lit(pattern)
   }
 
   if (!(pattern instanceof Pattern)) {
@@ -83,7 +83,7 @@ export function behind(pattern) {
  */
 export function notBehind(pattern) {
   if (typeof pattern === "string") {
-    pattern = new Pattern({ pattern: lit(pattern) });
+    pattern = lit(pattern)
   }
 
   if (!(pattern instanceof Pattern)) {

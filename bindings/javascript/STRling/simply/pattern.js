@@ -120,7 +120,7 @@ export class Pattern {
       this.pattern[this.pattern.length - 2] !== "\\"
     ) {
       const message = `
-        Method: Pattern.rep(minRep, maxRep)
+      Method: Pattern.rep(minRep, maxRep)
 
         Cannot re-invoke pattern to specify range that already exists.
 
