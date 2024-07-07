@@ -1,4 +1,3 @@
-
 from .pattern import STRlingError, Pattern, lit
 
 
@@ -25,7 +24,6 @@ def any_of(*patterns):
         ```
     """
 
-    # Check all patterns are instance of Pattern or str
     clean_patterns = []
     for pattern in patterns:
         if isinstance(pattern, str):
@@ -44,7 +42,6 @@ def any_of(*patterns):
         clean_patterns.append(pattern)
 
 
-    # Count named groups and raise error if not unique
     named_group_counts = {}
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
@@ -93,7 +90,6 @@ def may(*patterns):
         ```
     """
 
-    # Check all patterns are instance of Pattern or str
     clean_patterns = []
     for pattern in patterns:
         if isinstance(pattern, str):
@@ -112,7 +108,6 @@ def may(*patterns):
         clean_patterns.append(pattern)
 
 
-    # Count named groups and raise error if not unique
     named_group_counts = {}
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
@@ -161,7 +156,6 @@ def merge(*patterns):
         ```
     """
 
-    # Check all patterns are instance of Pattern or str
     clean_patterns = []
     for pattern in patterns:
         if isinstance(pattern, str):
@@ -180,7 +174,6 @@ def merge(*patterns):
         clean_patterns.append(pattern)
 
 
-    # Count named groups and raise error if not unique
     named_group_counts = {}
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
@@ -258,7 +251,6 @@ def capture(*patterns):
         ```
     """
 
-    # Check all patterns are instance of Pattern or str
     clean_patterns = []
     for pattern in patterns:
         if isinstance(pattern, str):
@@ -277,7 +269,6 @@ def capture(*patterns):
         clean_patterns.append(pattern)
 
 
-    # Count named groups and raise error if not unique
     named_group_counts = {}
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
@@ -364,7 +355,6 @@ def group(name, *patterns):
         raise STRlingError(message)
 
 
-    # Check all patterns are instance of Pattern or str
     clean_patterns = []
     for pattern in patterns:
         if isinstance(pattern, str):
@@ -383,7 +373,6 @@ def group(name, *patterns):
         clean_patterns.append(pattern)
 
 
-    # Count named groups and raise error if not unique
     named_group_counts = {}
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
