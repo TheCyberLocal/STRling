@@ -93,7 +93,7 @@ export function between(start, end, minRep, maxRep) {
 
   return new Pattern({ pattern: newPattern, composite: true }).rep(
     minRep,
-    maxRep
+    maxRep,
   );
 }
 

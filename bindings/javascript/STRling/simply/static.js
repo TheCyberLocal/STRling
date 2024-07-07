@@ -9,7 +9,7 @@ import { Pattern, lit } from "./pattern.js";
 export function alphaNum(minRep, maxRep) {
   return new Pattern({ pattern: "[A-Za-z0-9]", customSet: true }).rep(
     minRep,
-    maxRep
+    maxRep,
   );
 }
 
@@ -37,7 +37,7 @@ export function specialChar(minRep, maxRep) {
   const special = lit(`!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`);
   return new Pattern({ pattern: `[${special}]`, customSet: true }).rep(
     minRep,
-    maxRep
+    maxRep,
   );
 }
 
@@ -65,7 +65,7 @@ export function notSpecialChar(minRep, maxRep) {
 export function letter(minRep, maxRep) {
   return new Pattern({ pattern: "[A-Za-z]", customSet: true }).rep(
     minRep,
-    maxRep
+    maxRep,
   );
 }
 
@@ -102,7 +102,7 @@ export function upper(minRep, maxRep) {
 export function notUpper(minRep, maxRep) {
   return new Pattern({ pattern: "[^A-Z]", customSet: true, negated: true }).rep(
     minRep,
-    maxRep
+    maxRep,
   );
 }
 
@@ -125,7 +125,7 @@ export function lower(minRep, maxRep) {
 export function notLower(minRep, maxRep) {
   return new Pattern({ pattern: "[^a-z]", customSet: true, negated: true }).rep(
     minRep,
-    maxRep
+    maxRep,
   );
 }
 
@@ -139,7 +139,7 @@ export function notLower(minRep, maxRep) {
 export function hexDigit(minRep, maxRep) {
   return new Pattern({ pattern: "[A-Fa-f\\d]", customSet: true }).rep(
     minRep,
-    maxRep
+    maxRep,
   );
 }
 
