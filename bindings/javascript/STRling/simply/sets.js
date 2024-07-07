@@ -211,7 +211,7 @@ export function notBetween(start, end, minRep, maxRep) {
 /**
 Matches any provided patterns, but they can't include subpatterns.
 @param {...(Pattern|string)} patterns - One or more non-composite patterns to match.
-@returns {Pattern} A Pattern object that matches any of the given patterns.
+@returns {Pattern} A Pattern instance that matches any of the given patterns.
 @example
 // Matches any letter, digit, comma, and period.
 const myPattern = s.inChars(s.letter(), s.digit(), ',.');
@@ -286,7 +286,7 @@ export function inChars(...patterns) {
 /**
 Matches anything but the provided patterns, but they can't include subpatterns.
 @param {...(Pattern|string)} patterns - One or more non-composite patterns to avoid.
-@returns {Pattern} A Pattern object that matches any of the given patterns.
+@returns {Pattern} A Pattern instance that matches any of the given patterns.
 @example
 // Matches any character that is not a letter, digit, comma, and period.
 const myPattern = s.notInChars(s.letter(), s.digit(), ',.');
