@@ -39,13 +39,15 @@ class Pattern:
     Attributes:
         - pattern (str): The regex pattern as a string.
         - custom_set (bool): Indicates if the pattern is a custom character set.
+        - negated (bool): Indicates if the pattern is a negated custom character set.
         - composite (bool): Indicates if the pattern is a composite pattern.
-        - repeatable (bool): Indicates if the pattern can be repeated.
+        - named_groups (list): Indicates the list of named groups within.
+        - numbered_group (bool): Indicates if the pattern is a numbered group.
 
     Methods:
         - __call__(min_rep=None, max_rep=None): Returns a new Pattern object with the repetition pattern applied.
         - __str__(): Returns the pattern as a string.
-        - __add__(other): Allows addition of two Pattern objects.
+        - create_modified_instance(): Returns an independent copy of the pattern instance.
     """
     def __init__(self, pattern: str, custom_set: bool = False, negated: bool = False, composite: bool = False, named_groups: list = [], numbered_group: bool = False):
         # The regex pattern string for this instance.
