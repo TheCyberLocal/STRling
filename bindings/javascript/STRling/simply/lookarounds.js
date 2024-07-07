@@ -4,7 +4,7 @@ import { STRlingError, Pattern, lit } from "./pattern.js";
 /**
 A positive lookahead checks for the presence of the specified pattern after the current position without including it in the result.
 @param {Pattern|string} pattern - The pattern to look ahead for.
-@returns {Pattern} A Pattern instance representing the positive lookahead.
+@returns {Pattern} An instance of the Pattern class.
 @example
 // Only matches a digit followed by a letter.
 const myPattern = s.merge(s.digit(), s.ahead(s.letter()));
@@ -31,7 +31,7 @@ export function ahead(pattern) {
 /**
 A negative lookahead checks for the absence of the specified pattern after the current position without including it in the result.
 @param {Pattern|string} pattern - The pattern to look ahead for and ensure is absent.
-@returns {Pattern} A Pattern instance representing the negative lookahead.
+@returns {Pattern} An instance of the Pattern class.
 @example
 // Only matches a digit if not followed by a letter.
 const myPattern = s.merge(s.digit(), s.notAhead(s.letter()));
@@ -58,7 +58,7 @@ export function notAhead(pattern) {
 /**
 A positive lookbehind checks for the presence of the specified pattern before the current position without including it in the result.
 @param {Pattern|string} pattern - The pattern to look behind for.
-@returns {Pattern} A Pattern instance representing the positive lookbehind.
+@returns {Pattern} An instance of the Pattern class.
 @example
 // Only matches a letter preceded by a digit.
 const myPattern = s.merge(s.behind(s.digit()), s.letter());
@@ -85,7 +85,7 @@ export function behind(pattern) {
 /**
 A negative lookbehind checks for the absence of the specified pattern before the current position without including it in the result.
 @param {Pattern|string} pattern - The pattern to look behind for and ensure is absent.
-@returns {Pattern} A Pattern instance representing the negative lookbehind.
+@returns {Pattern} An instance of the Pattern class.
 @example
 // Only matches a letter if not preceded by a digit.
 const myPattern = s.merge(s.behind(s.digit()), s.letter());

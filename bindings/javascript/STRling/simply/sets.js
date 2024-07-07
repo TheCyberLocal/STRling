@@ -7,7 +7,7 @@ Matches all characters within and including the start and end of a letter or dig
 @param {string|number} end - The ending character or digit of the range.
 @param {number} [minRep] - The minimum number of characters to match.
 @param {number} [maxRep] - The maximum number of characters to match.
-@returns {Pattern} The regex pattern.
+@returns {Pattern} An instance of the Pattern class.
 @example
 // Matches any digit from 0 to 9.
 const myPattern1 = s.between(0, 9);
@@ -110,7 +110,7 @@ Matches any character not within or including the start and end of a letter or d
 @param {string|number} end - The ending character or digit of the range.
 @param {number} [minRep] - The minimum number of characters to match.
 @param {number} [maxRep] - The maximum number of characters to match.
-@returns {Pattern} The regex pattern.
+@returns {Pattern} An instance of the Pattern class.
 @example
 // Matches any character that is not a digit from 0 to 9.
 const myPattern1 = s.notBetween(0, 9);
@@ -211,7 +211,7 @@ export function notBetween(start, end, minRep, maxRep) {
 /**
 Matches any provided patterns, but they can't include subpatterns.
 @param {...(Pattern|string)} patterns - One or more non-composite patterns to match.
-@returns {Pattern} A Pattern instance that matches any of the given patterns.
+@returns {Pattern} An instance of the Pattern class.
 @example
 // Matches any letter, digit, comma, and period.
 const myPattern = s.inChars(s.letter(), s.digit(), ',.');
@@ -286,7 +286,7 @@ export function inChars(...patterns) {
 /**
 Matches anything but the provided patterns, but they can't include subpatterns.
 @param {...(Pattern|string)} patterns - One or more non-composite patterns to avoid.
-@returns {Pattern} A Pattern instance that matches any of the given patterns.
+@returns {Pattern} An instance of the Pattern class.
 @example
 // Matches any character that is not a letter, digit, comma, and period.
 const myPattern = s.notInChars(s.letter(), s.digit(), ',.');
