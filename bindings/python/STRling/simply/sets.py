@@ -1,29 +1,9 @@
-
 from .pattern import STRlingError, Pattern, lit
-
-
-
-############################
-# User Char Sets
-########
 
 
 def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     """
-    Matches all characters within and including the start and end of a letter or number range.
-
-    Examples:
-        - Matches any digit from 0 to 9.
-
-        my_pattern1 = s.between(0, 9)
-
-        - Matches any lowercase letter from 'a' to 'z'.
-
-        my_pattern2 = s.between('a', 'z')
-
-        - Matches any uppercase letter from 'A' to 'Z'.
-
-        my_pattern3 = s.between('A', 'Z')
+    Matches all characters within and including the start and end of a letter or digit range.
 
     Parameters:
     - start (str or int): The starting character or digit of the range.
@@ -33,13 +13,25 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
 
     Returns:
     - Pattern: A Pattern object representing the character or digit range.
+
+    Examples:
+        ```
+        # Matches any digit from 0 to 9.
+        my_pattern1 = s.between(0, 9)
+
+        # Matches any lowercase letter from 'a' to 'z'.
+        my_pattern2 = s.between('a', 'z')
+
+        # Matches any uppercase letter from 'A' to 'Z'.
+        my_pattern3 = s.between('A', 'Z')
+        ```
     """
 
     if not (isinstance(start, str) and isinstance(end, str)) and not (isinstance(start, int) and isinstance(end, int)):
         message = """
         Method: simply.between(start, end)
 
-        The `start` and `end` arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
+        The 'start' and 'end' arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
         """
         raise STRlingError(message)
 
@@ -48,7 +40,7 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.between(start, end)
 
-            The `start` integer must not be greater than the `end` integer.
+            The 'start' integer must not be greater than the 'end' integer.
             """
             raise STRlingError(message)
 
@@ -56,7 +48,7 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.between(start, end)
 
-            The `start` and `end` integers must be single digits (0-9).
+            The 'start' and 'end' integers must be single digits (0-9).
             """
             raise STRlingError(message)
 
@@ -67,7 +59,7 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.between(start, end)
 
-            The `start` and `end` must be alphabetical characters.
+            The 'start' and 'end' must be alphabetical characters.
             """
             raise STRlingError(message)
 
@@ -75,7 +67,7 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.between(start, end)
 
-            The `start` and `end` characters must be single letters.
+            The 'start' and 'end' characters must be single letters.
             """
             raise STRlingError(message)
 
@@ -83,7 +75,7 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.between(start, end)
 
-            The `start` and `end` characters must be of the same case.
+            The 'start' and 'end' characters must be of the same case.
             """
             raise STRlingError(message)
 
@@ -91,7 +83,7 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.between(start, end)
 
-            The `start` character must not be lexicographically greater than the `end` character.
+            The 'start' character must not be lexicographically greater than the 'end' character.
             """
             raise STRlingError(message)
 
@@ -104,19 +96,6 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     """
     Matches any character not within or including the start and end of a letter or digit range.
 
-    Examples:
-        - Matches any character that is not a digit from 0 to 9.
-
-        my_pattern1 = s.not_between(0, 9)
-
-        - Matches any character that is not a lowercase letter from 'a' to 'z'.
-
-        my_pattern2 = s.not_between('a', 'z')
-
-        - Matches any character that is not a uppercase letter from 'A' to 'Z'.
-
-        my_pattern3 = s.not_between('A', 'Z')
-
     Parameters:
     - start (str or int): The starting character or digit of the range.
     - end (str or int): The ending character or digit of the range.
@@ -125,13 +104,25 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
 
     Returns:
     - Pattern: A Pattern object representing the negated character or digit range.
+
+    Examples:
+        ```
+        # Matches any character that is not a digit from 0 to 9.
+        my_pattern1 = s.not_between(0, 9)
+
+        # Matches any character that is not a lowercase letter from 'a' to 'z'.
+        my_pattern2 = s.not_between('a', 'z')
+
+        # Matches any character that is not a uppercase letter from 'A' to 'Z'.
+        my_pattern3 = s.not_between('A', 'Z')
+        ```
     """
 
     if not (isinstance(start, str) and isinstance(end, str)) and not (isinstance(start, int) and isinstance(end, int)):
         message = """
         Method: simply.not_between(start, end)
 
-        The `start` and `end` arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
+        The 'start' and 'end' arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
         """
         raise STRlingError(message)
 
@@ -140,7 +131,7 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.not_between(start, end)
 
-            The `start` integer must not be greater than the `end` integer.
+            The 'start' integer must not be greater than the 'end' integer.
             """
             raise STRlingError(message)
 
@@ -148,7 +139,7 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.not_between(start, end)
 
-            The `start` and `end` integers must be single digits (0-9).
+            The 'start' and 'end' integers must be single digits (0-9).
             """
             raise STRlingError(message)
 
@@ -159,7 +150,7 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.not_between(start, end)
 
-            The `start` and `end` must be alphabetical characters.
+            The 'start' and 'end' must be alphabetical characters.
             """
             raise STRlingError(message)
 
@@ -167,7 +158,7 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.not_between(start, end)
 
-            The `start` and `end` characters must be single letters.
+            The 'start' and 'end' characters must be single letters.
             """
             raise STRlingError(message)
 
@@ -175,7 +166,7 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.not_between(start, end)
 
-            The `start` and `end` characters must be of the same case.
+            The 'start' and 'end' characters must be of the same case.
             """
             raise STRlingError(message)
 
@@ -183,7 +174,7 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
             message = """
             Method: simply.not_between(start, end)
 
-            The `start` character must not be lexicographically greater than the `end` character.
+            The 'start' character must not be lexicographically greater than the 'end' character.
             """
             raise STRlingError(message)
 
@@ -196,16 +187,17 @@ def in_chars(*patterns):
     """
     Matches any provided patterns, but they can't include subpatterns.
 
-    Examples:
-        - Matches any letter, digit, comma, and period.
-
-        my_pattern = s.in_chars(s.letter(), s.digit(), ',.')
-
     Parameters:
     - patterns (Pattern/str): One or more non-composite patterns to match.
 
     Returns:
     - Pattern: A Pattern object that matches any of the given patterns.
+
+    Examples:
+        ```
+        # Matches any letter, digit, comma, and period.
+        my_pattern = s.in_chars(s.letter(), s.digit(), ',.')
+        ```
     """
 
     # Check all patterns are instance of Pattern or str
@@ -255,7 +247,7 @@ def in_chars(*patterns):
                 """
                 raise STRlingError(message)
             else:
-                joined += str(pattern)[1:-1]  # [pattern] => pattern
+                joined += str(pattern)[1:-1]  # [chars] => chars
         else:
             joined += str(pattern)
 
@@ -266,20 +258,17 @@ def not_in_chars(*patterns):
     """
     Matches anything but the provided patterns, but they can't include subpatterns.
 
-    Examples:
-
-        - Matches any character that is not a letter, digit, comma, and period.
-
-        my_pattern = s.not_in_chars(s.letter(), s.digit(), ',.')
-
     Parameters:
     - patterns (Pattern/str): One or more non-composite patterns to avoid.
 
-    Note: A composite pattern is one consisting of subpatterns,
-    they are created by constructors and lookarounds.
-
     Returns:
     - Pattern: A Pattern object that matches any of the given patterns.
+
+    Examples:
+        ```
+        # Matches any character that is not a letter, digit, comma, and period.
+        my_pattern = s.not_in_chars(s.letter(), s.digit(), ',.')
+        ```
     """
 
     # Check all patterns are instance of Pattern or str
@@ -320,9 +309,9 @@ def not_in_chars(*patterns):
 
         if pattern.custom_set:
             if pattern.negated:
-                joined += str(pattern)[2:-1]  # [^pattern] => pattern
+                joined += str(pattern)[2:-1]  # [^chars] => chars
             else:
-                joined += str(pattern)[1:-1]  # [pattern] => pattern
+                joined += str(pattern)[1:-1]  # [chars] => chars
         else:
             joined += str(pattern)
 
