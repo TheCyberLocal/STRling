@@ -1,16 +1,23 @@
 import { STRlingError, Pattern, lit } from "./pattern.js";
 
-// User Char Sets
 
 /**
-Matches all characters within and including the start and end of a letter or number range.
+Matches all characters within and including the start and end of a letter or digit range.
 @param {string|number} start - The starting character or digit of the range.
 @param {string|number} end - The ending character or digit of the range.
 @param {number} [minRep] - The minimum number of characters to match.
 @param {number} [maxRep] - The maximum number of characters to match.
 @returns {Pattern} The regex pattern.
-@throws {STRlingError} If the arguments are invalid.
- */
+@example
+// Matches any digit from 0 to 9.
+const myPattern1 = s.between(0, 9);
+
+// Matches any lowercase letter from 'a' to 'z'.
+const myPattern2 = s.between('a', 'z');
+
+// Matches any uppercase letter from 'A' to 'Z'.
+const myPattern3 = s.between('A', 'Z');
+*/
 export function between(start, end, minRep, maxRep) {
   if (
     (typeof start !== "string" || typeof end !== "string") &&
@@ -19,7 +26,7 @@ export function between(start, end, minRep, maxRep) {
     const message = `
     Method: simply.between(start, end)
 
-    The start and end arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
+    The 'start' and 'end' arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
     `;
     throw new STRlingError(message);
   }
@@ -31,7 +38,7 @@ export function between(start, end, minRep, maxRep) {
       const message = `
       Method: simply.between(start, end)
 
-      The start integer must not be greater than the end integer.
+      The 'start' integer must not be greater than the 'end' integer.
       `;
       throw new STRlingError(message);
     }
@@ -40,7 +47,7 @@ export function between(start, end, minRep, maxRep) {
       const message = `
       Method: simply.between(start, end)
 
-      The start and end integers must be single digits (0-9).
+      The 'start' and 'end' integers must be single digits (0-9).
       `;
       throw new STRlingError(message);
     }
@@ -53,7 +60,7 @@ export function between(start, end, minRep, maxRep) {
       const message = `
       Method: simply.between(start, end)
 
-      The start and end must be alphabetical characters.
+      The 'start' and 'end' must be alphabetical characters.
       `;
       throw new STRlingError(message);
     }
@@ -62,7 +69,7 @@ export function between(start, end, minRep, maxRep) {
       const message = `
       Method: simply.between(start, end)
 
-      The start and end characters must be single letters.
+      The 'start' and 'end' characters must be single letters.
       `;
       throw new STRlingError(message);
     }
@@ -74,7 +81,7 @@ export function between(start, end, minRep, maxRep) {
       const message = `
       Method: simply.between(start, end)
 
-      The start and end characters must be of the same case.
+      The 'start' and 'end' characters must be of the same case.
       `;
       throw new STRlingError(message);
     }
@@ -83,7 +90,7 @@ export function between(start, end, minRep, maxRep) {
       const message = `
       Method: simply.between(start, end)
 
-      The start character must not be lexicographically greater than the end character.
+      The 'start' character must not be lexicographically greater than the 'end' character.
       `;
       throw new STRlingError(message);
     }
@@ -104,8 +111,16 @@ Matches any character not within or including the start and end of a letter or d
 @param {number} [minRep] - The minimum number of characters to match.
 @param {number} [maxRep] - The maximum number of characters to match.
 @returns {Pattern} The regex pattern.
-@throws {STRlingError} If the arguments are invalid.
- */
+@example
+// Matches any character that is not a digit from 0 to 9.
+const myPattern1 = s.notBetween(0, 9);
+
+// Matches any character that is not a lowercase letter from 'a' to 'z'.
+const myPattern2 = s.notBetween('a', 'z');
+
+// Matches any character that is not a uppercase letter from 'A' to 'Z'.
+const myPattern3 = s.notBetween('A', 'Z');
+*/
 export function notBetween(start, end, minRep, maxRep) {
   if (
     (typeof start !== "string" || typeof end !== "string") &&
@@ -114,7 +129,7 @@ export function notBetween(start, end, minRep, maxRep) {
     const message = `
     Method: simply.notBetween(start, end)
 
-    The start and end arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
+    The 'start' and 'end' arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
     `;
     throw new STRlingError(message);
   }
@@ -126,7 +141,7 @@ export function notBetween(start, end, minRep, maxRep) {
       const message = `
       Method: simply.notBetween(start, end)
 
-      The start integer must not be greater than the end integer.
+      The 'start' integer must not be greater than the 'end' integer.
       `;
       throw new STRlingError(message);
     }
@@ -135,7 +150,7 @@ export function notBetween(start, end, minRep, maxRep) {
       const message = `
       Method: simply.notBetween(start, end)
 
-      The start and end integers must be single digits (0-9).
+      The 'start' and 'end' integers must be single digits (0-9).
       `;
       throw new STRlingError(message);
     }
@@ -148,7 +163,7 @@ export function notBetween(start, end, minRep, maxRep) {
       const message = `
       Method: simply.notBetween(start, end)
 
-      The start and end must be alphabetical characters.
+      The 'start' and 'end' must be alphabetical characters.
       `;
       throw new STRlingError(message);
     }
@@ -157,7 +172,7 @@ export function notBetween(start, end, minRep, maxRep) {
       const message = `
       Method: simply.notBetween(start, end)
 
-      The start and end characters must be single letters.
+      The 'start' and 'end' characters must be single letters.
       `;
       throw new STRlingError(message);
     }
@@ -169,7 +184,7 @@ export function notBetween(start, end, minRep, maxRep) {
       const message = `
       Method: simply.notBetween(start, end)
 
-      The start and end characters must be of the same case.
+      The 'start' and 'end' characters must be of the same case.
       `;
       throw new STRlingError(message);
     }
@@ -178,7 +193,7 @@ export function notBetween(start, end, minRep, maxRep) {
       const message = `
       Method: simply.notBetween(start, end)
 
-      The start character must not be lexicographically greater than the end character.
+      The 'start' character must not be lexicographically greater than the 'end' character.
       `;
       throw new STRlingError(message);
     }
@@ -197,8 +212,10 @@ export function notBetween(start, end, minRep, maxRep) {
 Matches any provided patterns, but they can't include subpatterns.
 @param {...(Pattern|string)} patterns - One or more non-composite patterns to match.
 @returns {Pattern} A Pattern object that matches any of the given patterns.
-@throws {STRlingError} If any pattern is invalid.
- */
+@example
+// Matches any letter, digit, comma, and period.
+const myPattern = s.inChars(s.letter(), s.digit(), ',.');
+*/
 export function inChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
@@ -255,7 +272,7 @@ export function inChars(...patterns) {
         `;
         throw new STRlingError(message);
       } else {
-        joined += patternStr.slice(1, -1); // [pattern] => pattern
+        joined += patternStr.slice(1, -1); // [chars] => chars
       }
     } else {
       joined += patternStr;
@@ -270,8 +287,10 @@ export function inChars(...patterns) {
 Matches anything but the provided patterns, but they can't include subpatterns.
 @param {...(Pattern|string)} patterns - One or more non-composite patterns to avoid.
 @returns {Pattern} A Pattern object that matches any of the given patterns.
-@throws {STRlingError} If any pattern is invalid.
- */
+@example
+// Matches any character that is not a letter, digit, comma, and period.
+const myPattern = s.notInChars(s.letter(), s.digit(), ',.');
+*/
 export function notInChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
@@ -319,9 +338,9 @@ export function notInChars(...patterns) {
 
     if (pattern.customSet) {
       if (pattern.negated) {
-        joined += patternStr.slice(2, -1); // [^pattern] => pattern
+        joined += patternStr.slice(2, -1); // [^chars] => chars
       } else {
-        joined += patternStr.slice(1, -1); // [pattern] => pattern
+        joined += patternStr.slice(1, -1); // [chars] => chars
       }
     } else {
       joined += patternStr;

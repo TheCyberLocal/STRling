@@ -1,5 +1,6 @@
 import { STRlingError, Pattern, lit } from "./pattern.js";
 
+
 /**
 A positive lookahead checks for the presence of the specified pattern after the current position without including it in the result.
 @param {Pattern|string} pattern - The pattern to look ahead for.
@@ -7,7 +8,7 @@ A positive lookahead checks for the presence of the specified pattern after the 
 @example
 // Only matches a digit followed by a letter.
 const myPattern = s.merge(s.digit(), s.ahead(s.letter()));
- */
+*/
 export function ahead(pattern) {
   if (typeof pattern === "string") {
     pattern = lit(pattern)
@@ -34,7 +35,7 @@ A negative lookahead checks for the absence of the specified pattern after the c
 @example
 // Only matches a digit if not followed by a letter.
 const myPattern = s.merge(s.digit(), s.notAhead(s.letter()));
- */
+*/
 export function notAhead(pattern) {
   if (typeof pattern === "string") {
     pattern = lit(pattern)
@@ -61,7 +62,7 @@ A positive lookbehind checks for the presence of the specified pattern before th
 @example
 // Only matches a letter preceded by a digit.
 const myPattern = s.merge(s.behind(s.digit()), s.letter());
- */
+*/
 export function behind(pattern) {
   if (typeof pattern === "string") {
     pattern = lit(pattern)
@@ -88,7 +89,7 @@ A negative lookbehind checks for the absence of the specified pattern before the
 @example
 // Only matches a letter if not preceded by a digit.
 const myPattern = s.merge(s.behind(s.digit()), s.letter());
- */
+*/
 export function notBehind(pattern) {
   if (typeof pattern === "string") {
     pattern = lit(pattern)
