@@ -29,8 +29,8 @@ export class STRlingError extends Error {
  * @returns {Pattern} The escaped pattern.
  */
 export const lit = (text) => {
-  const escapedText = text.replace(/[.*+?^${}()|[\]\\]\//g, "\\$&");
-  return new Pattern(escapedText);
+  const escapedText = text.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&");
+  return new Pattern({ pattern: escapedText });
 };
 
 /**
@@ -157,10 +157,11 @@ export class Pattern {
         newPattern = `(?:${this.pattern.repeat(minRep)})`;
       }
     } else {
-      newPattern = this.pattern + this.repeat(minRep, maxRep);
+      const repPattern = Pattern.repeat(minRep, maxRep);
+      newPattern = this.pattern + repPattern;
     }
 
-    return this.createModifiedInstance(newPattern);
+    return Pattern.createModifiedInstance(newPattern);
   }
 
   /**
@@ -170,7 +171,7 @@ export class Pattern {
    * @returns {string} The repetition pattern string.
    * @throws {STRlingError} If minRep is greater than maxRep.
    */
-  repeat(minRep, maxRep) {
+  static repeat(minRep, maxRep) {
     if (minRep !== undefined && maxRep !== undefined) {
       if (maxRep === 0) {
         return `{${minRep},}`;

@@ -112,7 +112,7 @@ export function notBetween(start, end, minRep, maxRep) {
     (typeof start !== "number" || typeof end !== "number")
   ) {
     const message = `
-    Method: simply.not_between(start, end)
+    Method: simply.notBetween(start, end)
 
     The start and end arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
     `;
@@ -124,7 +124,7 @@ export function notBetween(start, end, minRep, maxRep) {
   if (typeof start === "number") {
     if (start > end) {
       const message = `
-      Method: simply.not_between(start, end)
+      Method: simply.notBetween(start, end)
 
       The start integer must not be greater than the end integer.
       `;
@@ -133,7 +133,7 @@ export function notBetween(start, end, minRep, maxRep) {
 
     if (start < 0 || start > 9 || end < 0 || end > 9) {
       const message = `
-      Method: simply.not_between(start, end)
+      Method: simply.notBetween(start, end)
 
       The start and end integers must be single digits (0-9).
       `;
@@ -146,7 +146,7 @@ export function notBetween(start, end, minRep, maxRep) {
   if (typeof start === "string") {
     if (!/^[a-zA-Z]$/.test(start) || !/^[a-zA-Z]$/.test(end)) {
       const message = `
-      Method: simply.not_between(start, end)
+      Method: simply.notBetween(start, end)
 
       The start and end must be alphabetical characters.
       `;
@@ -155,7 +155,7 @@ export function notBetween(start, end, minRep, maxRep) {
 
     if (start.length !== 1 || end.length !== 1) {
       const message = `
-      Method: simply.not_between(start, end)
+      Method: simply.notBetween(start, end)
 
       The start and end characters must be single letters.
       `;
@@ -167,7 +167,7 @@ export function notBetween(start, end, minRep, maxRep) {
       (start.toUpperCase() === start && end.toUpperCase() !== end)
     ) {
       const message = `
-      Method: simply.not_between(start, end)
+      Method: simply.notBetween(start, end)
 
       The start and end characters must be of the same case.
       `;
@@ -176,7 +176,7 @@ export function notBetween(start, end, minRep, maxRep) {
 
     if (start > end) {
       const message = `
-      Method: simply.not_between(start, end)
+      Method: simply.notBetween(start, end)
 
       The start character must not be lexicographically greater than the end character.
       `;
@@ -202,7 +202,7 @@ export function notBetween(start, end, minRep, maxRep) {
 export function inChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = lit(pattern);
+      pattern = new Pattern({ pattern: lit(pattern) });
     }
 
     if (!(pattern instanceof Pattern)) {
@@ -275,7 +275,7 @@ export function inChars(...patterns) {
 export function notInChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = lit(pattern);
+      pattern = new Pattern({ pattern: lit(pattern) });
     }
 
     if (!(pattern instanceof Pattern)) {
