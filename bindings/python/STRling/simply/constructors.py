@@ -12,18 +12,17 @@ def any_of(*patterns):
     Returns:
     - Pattern: A Pattern object representing the OR combination of the given patterns.
 
-    Examples: simply as s
-        - Matches 3 digits followed by 3 letters.
-
+    Examples:
+        ```
+        # Matches 3 digits followed by 3 letters.
         pattern1 = s.merge(s.digit(3), s.letter(3))
 
-        - Matches 3 letters followed by 3 digits.
-
+        # Matches 3 letters followed by 3 digits.
         pattern2 = s.merge(s.letter(3), s.digit(3))
 
-        - Matches either pattern1 or pattern2.
-
+        # Matches either pattern1 or pattern2.
         either_pattern = s.any_of(pattern1, pattern2)
+        ```
     """
 
     # Check all patterns are instance of Pattern or str
@@ -85,12 +84,13 @@ def may(*patterns):
     Returns:
     - Pattern: A Pattern object representing the optional match of the given patterns.
 
-    Examples: simply as s
-        - Matches any letter, along with any trailing digit.
-
+    Examples:
+        ```
+        # Matches any letter, along with any trailing digit.
         pattern = s.merge(s.letter(), s.may(s.digit()))
 
-        In the text "AB2" the pattern above matches 'A' and 'B2'.
+        # In the text "AB2" the pattern above matches 'A' and 'B2'.
+        ```
     """
 
     # Check all patterns are instance of Pattern or str
@@ -154,10 +154,11 @@ def merge(*patterns):
     Returns:
     - Pattern: A Pattern object representing the concatenation of the given patterns.
 
-    Example: simply as s
-        - Matches any digit, comma, or period.
-
+    Examples:
+        ```
+        # Matches any digit followed by a comma and period.
         merged_pattern = s.merge(s.digit(), ',.')
+        ```
     """
 
     # Check all patterns are instance of Pattern or str
@@ -220,24 +221,24 @@ def capture(*patterns):
     - Pattern: A Pattern object representing the capturing group of the given patterns.
 
     Ranges:
-    - Captures CANNOT be invoked with a range.
+        ```
+        # Captures CANNOT be invoked with a range.
+        s.capture(s.digit(), s.letter())(1, 2) # <== INVALID
 
-    s.capture(s.digit(), s.letter())(1, 2) <== INVALID
+        # Captures CAN be invoked with a number of copies.
+        s.capture(s.digit(), s.letter())(3) # <== VALID
+        ```
 
-    - Captures CAN be invoked with a number of copies.
-
-    s.capture(s.digit(), s.letter())(3) <== VALID
-
-    Example: simply as s
-        - Matches any digit, comma, or period.
-
+    Examples:
+        ```
+        # Matches any digit followed by a comma and period.
         captured_pattern = s.capture(s.digit(), ',.')
+        ```
 
-    Referencing: simply as s
+    Referencing:
+        ```
         three_digit_group = s.capture(s.digit(3))
-
         four_groups_of_three = three_digit_groups(4)
-
         example_text = "Here is a number: 111222333444"
 
         match = re.search(str(four_groups_of_three), example_text)  # Notice str(pattern)
@@ -254,6 +255,7 @@ def capture(*patterns):
         # Second: 222
         # Third: 333
         # Fourth: 444
+        ```
     """
 
     # Check all patterns are instance of Pattern or str
@@ -317,26 +319,26 @@ def group(name, *patterns):
     - Pattern: A Pattern object representing the named capturing group of the given patterns.
 
     Ranges:
-    - Groups CANNOT be invoked with a range.
+        ```
+        # Groups CANNOT be invoked with a range.
+        s.group('name', s.digit())(1, 2) # <== INVALID
+        ```
 
-    s.group('name', s.digit())(1, 2) <== INVALID
-
-    Example: simply as s
-        - Matches any digit followed by a comma and period.
-
+    Examples:
+        ```
+        # Matches any digit followed by a comma and period.
         named_pattern = s.group('my_group', s.digit(), ',.')
+        ```
 
-    Referencing: simply as s
+    Referencing:
+        ```
         first = s.group("first", s.digit(3))
-
         second = s.group("second", s.digit(3))
-
         third = s.group("third", s.digit(4))
 
         phone_number_pattern = s.merge(first, "-", second, "-", third)
 
         example_text = "Here is a phone number: 123-456-7890."
-
         match = re.search(str(phone_number_pattern), example_text) # Notice str(pattern)
 
         print("Full Match:", match.group())
@@ -349,6 +351,7 @@ def group(name, *patterns):
         # First: 123
         # Second: 456
         # Third: 7890
+        ```
     """
 
     if not isinstance(name, str):

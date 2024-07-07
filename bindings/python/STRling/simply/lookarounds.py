@@ -12,7 +12,7 @@ def ahead(pattern):
     """
     A positive lookahead checks for the presence of the specified pattern after the current position without including it in the result.
 
-    Example: simply as s
+    Example:
         - Only matches a digit followed by a letter.
 
         my_pattern = s.merge(s.digit(), s.ahead(s.letter()))
@@ -43,7 +43,7 @@ def not_ahead(pattern):
     """
     A negative lookahead checks for the absence of the specified pattern after the current position without including it in the result.
 
-    Example: simply as s
+    Example:
         - Only matches a digit if not followed by a letter.
 
         my_pattern = s.merge(s.digit(), s.not_ahead(s.letter()))
@@ -74,7 +74,7 @@ def behind(pattern):
     """
     A positive lookbehind checks for the presence of the specified pattern before the current position without including it in the result.
 
-    Example: simply as s
+    Example:
         - Only matches a letter preceded by a digit.
 
         my_pattern = s.merge(s.behind(s.digit()), s.letter())
@@ -105,7 +105,7 @@ def not_behind(pattern):
     """
     A negative lookbehind checks for the absence of the specified pattern before the current position without including it in the result.
 
-    Example: simply as s
+    Example:
         - Only matches a letter if not preceded by a digit.
 
         my_pattern = s.merge(s.behind(s.digit()), s.letter())
