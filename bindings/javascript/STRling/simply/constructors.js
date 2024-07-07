@@ -1,5 +1,6 @@
 import { STRlingError, Pattern, lit } from "./pattern.js";
 
+
 /**
 Matches any provided pattern, including patterns consisting of subpatterns.
 @param {...(Pattern|string)} patterns - One or more patterns to be matched.
@@ -15,7 +16,6 @@ const pattern2 = s.merge(s.letter(3), s.digit(3));
 const eitherPattern = s.anyOf(pattern1, pattern2);
 */
 export function anyOf(...patterns) {
-  // Check all patterns are instance of Pattern or str
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
       pattern = lit(pattern)
@@ -35,7 +35,6 @@ export function anyOf(...patterns) {
     return pattern;
   });
 
-  // Count named groups and throw error if not unique
   const namedGroupCounts = {};
   cleanPatterns.forEach((pattern) => {
     pattern.namedGroups.forEach((groupName) => {
@@ -89,7 +88,6 @@ const pattern = s.merge(s.letter(), s.may(s.digit()));
 // In the text "AB2" the pattern above matches 'A' and 'B2'.
 */
 export function may(...patterns) {
-  // Check all patterns are instance of Pattern or str
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
       pattern = lit(pattern)
@@ -109,7 +107,6 @@ export function may(...patterns) {
     return pattern;
   });
 
-  // Count named groups and throw error if not unique
   const namedGroupCounts = {};
   cleanPatterns.forEach((pattern) => {
     pattern.namedGroups.forEach((groupName) => {
@@ -161,7 +158,6 @@ Combines the provided patterns into one larger pattern.
 const mergedPattern = s.merge(s.digit(), ',.');
 */
 export function merge(...patterns) {
-  // Check all patterns are instance of Pattern or str
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
       pattern = lit(pattern)
@@ -181,7 +177,6 @@ export function merge(...patterns) {
     return pattern;
   });
 
-  // Count named groups and throw error if not unique
   const namedGroupCounts = {};
   cleanPatterns.forEach((pattern) => {
     pattern.namedGroups.forEach((groupName) => {
@@ -234,11 +229,9 @@ s.capture(s.digit(), s.letter())(1, 2) // <== INVALID
 
 // Captures CAN be invoked with a number of copies.
 s.capture(s.digit(), s.letter())(3) // <== VALID
-
 @example
 // Matches any digit followed by a comma and period.
 const capturedPattern = s.capture(s.digit(), ',.');
-
 @example
 const threeDigitGroup = s.capture(s.digit(3));
 const fourGroupsOfThree = threeDigitGroup.rep(4);
@@ -262,7 +255,6 @@ console.log("Fourth:", match[4]);
 // Fourth: 444
 */
 export function capture(...patterns) {
-  // Check all patterns are instance of Pattern or str
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
       pattern = lit(pattern)
@@ -334,11 +326,9 @@ Creates a unique named group that can be referenced for extracting this part of 
 @example
 // Groups CANNOT be invoked with a range.
 s.group('name', s.digit())(1, 2) # <== INVALID
-
 @example
 // Matches any digit followed by a comma and period.
 const capturedPattern = s.capture(s.digit(), ',.');
-
 @example
 const first = s.group("first", s.digit(3))
 const second = s.group("second", s.digit(3))
@@ -372,7 +362,6 @@ export function group(name, ...patterns) {
     throw new STRlingError(message);
   }
 
-  // Check all patterns are instance of Pattern or str
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
       pattern = lit(pattern)
