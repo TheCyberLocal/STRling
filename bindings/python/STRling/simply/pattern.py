@@ -1,11 +1,5 @@
-
 import re, textwrap
 
-
-
-############################
-# Base Functions
-########
 
 class STRlingError(ValueError):
     def __init__(self, message):
@@ -21,7 +15,7 @@ def lit(text):
 
 def repeat(min_rep: int = None, max_rep: int = None):
     if min_rep is not None and max_rep is not None:
-        if max_rep == 0:  # Special case to handle the 'min_rep,' syntax
+        if max_rep == 0:
             return f'{{{min_rep},}}'
         if min_rep > max_rep:
             message = """
@@ -73,11 +67,7 @@ class Pattern:
 
         Parameters: (min_rep/exact_rep, max_rep)
         - min_rep (optional): Specifies the minimum number of characters to match.
-        - max_rep (optional): Specifies the maximum number of characters to match.
-
-        Special Cases:
-        - If only `min_rep` is specified, it represents the exact number of characters to match.
-        - If `max_rep` is 0, it means there is no upper limit.
+        - max_rep (optional): Specifies the maximum number of characters to match, 0 means unlimited, None means match exact count of min_rep.
 
         Returns:
         - A new Pattern object with the repetition pattern applied.
@@ -139,7 +129,7 @@ class Pattern:
             """
             raise STRlingError(message)
 
-        # Special Case: A numbered group repeats by copying, not amending a range.
+        # A numbered group repeats by copying, not amending a range.
         if self.numbered_group:
             if max_rep is not None:
                 message = """

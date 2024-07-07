@@ -12,7 +12,7 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     - max_rep (optional): Specifies the maximum digit of characters to match.
 
     Returns:
-    - Pattern: A Pattern object representing the character or digit range.
+    - An instance of the Pattern class.
 
     Examples:
         ```
@@ -103,7 +103,7 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     - max_rep (optional): Specifies the maximum digit of characters to match.
 
     Returns:
-    - Pattern: A Pattern object representing the negated character or digit range.
+    - An instance of the Pattern class.
 
     Examples:
         ```
@@ -191,7 +191,7 @@ def in_chars(*patterns):
     - patterns (Pattern/str): One or more non-composite patterns to match.
 
     Returns:
-    - Pattern: A Pattern object that matches any of the given patterns.
+    - An instance of the Pattern class.
 
     Examples:
         ```
@@ -262,7 +262,7 @@ def not_in_chars(*patterns):
     - patterns (Pattern/str): One or more non-composite patterns to avoid.
 
     Returns:
-    - Pattern: A Pattern object that matches any of the given patterns.
+    - An instance of the Pattern class.
 
     Examples:
         ```

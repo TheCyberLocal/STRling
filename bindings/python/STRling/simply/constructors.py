@@ -9,7 +9,7 @@ def any_of(*patterns):
     - *patterns (Pattern/str): One or more patterns to be matched.
 
     Returns:
-    - Pattern: A Pattern object representing the OR combination of the given patterns.
+    - An instance of the Pattern class.
 
     Examples:
         ```
@@ -79,7 +79,7 @@ def may(*patterns):
     - *patterns (Pattern/str): One or more patterns to be optionally matched.
 
     Returns:
-    - Pattern: A Pattern object representing the optional match of the given patterns.
+    - An instance of the Pattern class.
 
     Examples:
         ```
@@ -147,7 +147,7 @@ def merge(*patterns):
     - *patterns (Pattern/str): One or more patterns to be concatenated.
 
     Returns:
-    - Pattern: A Pattern object representing the concatenation of the given patterns.
+    - An instance of the Pattern class.
 
     Examples:
         ```
@@ -211,7 +211,7 @@ def capture(*patterns):
     - *patterns (Pattern/str): One or more patterns to be captured.
 
     Returns:
-    - Pattern: A Pattern object representing the capturing group of the given patterns.
+    - An instance of the Pattern class.
 
     Ranges:
         ```
@@ -307,7 +307,7 @@ def group(name, *patterns):
     - *patterns (Pattern/str): One or more patterns to be captured.
 
     Returns:
-    - Pattern: A Pattern object representing the named capturing group of the given patterns.
+    - An instance of the Pattern class.
 
     Ranges:
         ```

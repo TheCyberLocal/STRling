@@ -9,7 +9,7 @@ def ahead(pattern):
     - pattern (Pattern/str): The pattern to look ahead for.
 
     Returns:
-    - Pattern: A Pattern object representing the positive lookahead.
+    - An instance of the Pattern class.
 
     Examples:
         ```
@@ -41,7 +41,7 @@ def not_ahead(pattern):
     - pattern (Pattern/str): The pattern to look ahead for and ensure is absent.
 
     Returns:
-    - Pattern: A Pattern object representing the negative lookahead.
+    - An instance of the Pattern class.
 
     Examples:
         ```
@@ -73,7 +73,7 @@ def behind(pattern):
     - pattern (Pattern/str): The pattern to look behind for.
 
     Returns:
-    - Pattern: A Pattern object representing the positive lookbehind.
+    - An instance of the Pattern class.
 
     Examples:
         ```
@@ -105,7 +105,7 @@ def not_behind(pattern):
     - pattern (Pattern/str): The pattern to look behind for and ensure is absent.
 
     Returns:
-    - Pattern: A Pattern object representing the negative lookbehind.
+    - An instance of the Pattern class.
 
     Examples:
         ```
