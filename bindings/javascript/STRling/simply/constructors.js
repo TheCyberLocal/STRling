@@ -5,8 +5,6 @@ Matches any provided pattern, including patterns consisting of subpatterns.
 @param {...(Pattern|string)} patterns - One or more patterns to be matched.
 @returns {Pattern} A Pattern object representing the OR combination of the given patterns.
 @example
-// Implementing with simply as s
-
 // Matches 3 digits followed by 3 letters.
 const pattern1 = s.merge(s.digit(3), s.letter(3));
 
@@ -85,8 +83,6 @@ Optionally matches the provided patterns. If this pattern is absent, surrounding
 @param {...(Pattern|string)} patterns - One or more patterns to be optionally matched.
 @returns {Pattern} A Pattern object representing the optional match of the given patterns.
 @example
-// Implementing with simply as s
-
 // Matches any letter, along with any trailing digit.
 const pattern = s.merge(s.letter(), s.may(s.digit()));
 
@@ -161,9 +157,7 @@ Combines the provided patterns into one larger pattern.
 @param {...(Pattern|string)} patterns - One or more patterns to be concatenated.
 @returns {Pattern} A Pattern object representing the concatenation of the given patterns.
 @example
-// Implementing with simply as s
-
-// Matches any digit, comma, or period.
+// Matches any digit followed by a comma and period.
 const mergedPattern = s.merge(s.digit(), ',.');
 */
 export function merge(...patterns) {
@@ -232,17 +226,20 @@ export function merge(...patterns) {
 
 /**
 Creates a numbered group that can be indexed for extracting this part of the match.
-Captures cannot be invoked with a range.
 @param {...(Pattern|string)} patterns - One or more patterns to be captured.
 @returns {Pattern} A Pattern object representing the capturing group of the given patterns.
 @example
-// Implementing with simply as s
+// Captures CANNOT be invoked with a range.
+s.capture(s.digit(), s.letter())(1, 2) // <== INVALID
 
-// Matches any digit, comma, or period.
+// Captures CAN be invoked with a number of copies.
+s.capture(s.digit(), s.letter())(3) // <== VALID
+
+@example
+// Matches any digit followed by a comma and period.
 const capturedPattern = s.capture(s.digit(), ',.');
 
 @example
-// Referencing group components
 const threeDigitGroup = s.capture(s.digit(3));
 const fourGroupsOfThree = threeDigitGroup.rep(4);
 
@@ -331,18 +328,18 @@ export function capture(...patterns) {
 
 /**
 Creates a unique named group that can be referenced for extracting this part of the match.
-Groups cannot be invoked with a range.
 @param {string} name - The name of the capturing group.
 @param {...(Pattern|string)} patterns - One or more patterns to be captured.
 @returns {Pattern} A Pattern object representing the named capturing group of the given patterns.
 @example
-// Implementing with simply as s
+// Groups CANNOT be invoked with a range.
+s.group('name', s.digit())(1, 2) # <== INVALID
 
-// Matches any digit, comma, or period.
+@example
+// Matches any digit followed by a comma and period.
 const capturedPattern = s.capture(s.digit(), ',.');
 
 @example
-// Referencing group components
 const first = s.group("first", s.digit(3))
 const second = s.group("second", s.digit(3))
 const third = s.group("third", s.digit(4))
