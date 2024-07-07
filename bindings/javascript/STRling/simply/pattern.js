@@ -1,11 +1,11 @@
 /**
- * Custom error class for STRling.
- * @extends {Error}
+Custom error class for STRling.
+@extends {Error}
  */
 export class STRlingError extends Error {
   /**
-   * Creates an instance of STRlingError.
-   * @param {string} message - The error message.
+  Creates an instance of STRlingError.
+  @param {string} message - The error message.
    */
   constructor(message) {
     const formattedMessage = message.replace("\n", "\n\t");
@@ -15,8 +15,8 @@ export class STRlingError extends Error {
   }
 
   /**
-   * Returns the error message as a string.
-   * @returns {string} The error message.
+  Returns the error message as a string.
+  @returns {string} The error message.
    */
   toString() {
     return `\n\nSTRlingError: Invalid Pattern Attempted.\n\n\t${this.message}`;
@@ -24,9 +24,9 @@ export class STRlingError extends Error {
 }
 
 /**
- * Escapes a string to be used as a regex pattern.
- * @param {string} text - The text to escape.
- * @returns {Pattern} The escaped pattern.
+Escapes a string to be used as a regex pattern.
+@param {string} text - The text to escape.
+@returns {Pattern} The escaped pattern.
  */
 export const lit = (text) => {
   const escapedText = text.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&");
@@ -34,18 +34,18 @@ export const lit = (text) => {
 };
 
 /**
- * Represents a regex pattern.
+Represents a regex pattern.
  */
 export class Pattern {
   /**
-   * Creates an instance of Pattern.
-   * @param {object} options - The options object.
-   * @param {string} options.pattern - The regex pattern.
-   * @param {boolean} [options.customSet=false] - Indicates if the pattern is a custom character set.
-   * @param {boolean} [options.negated=false] - Indicates if the pattern is negated.
-   * @param {boolean} [options.composite=false] - Indicates if the pattern is composite.
-   * @param {Array<string>} [options.namedGroups=[]] - List of named groups.
-   * @param {boolean} [options.numberedGroup=false] - Indicates if the pattern is a numbered group.
+  Creates an instance of Pattern.
+  @param {object} options - The options object.
+  @param {string} options.pattern - The regex pattern.
+  @param {boolean} [options.customSet=false] - Indicates if the pattern is a custom character set.
+  @param {boolean} [options.negated=false] - Indicates if the pattern is negated.
+  @param {boolean} [options.composite=false] - Indicates if the pattern is composite.
+  @param {Array<string>} [options.namedGroups=[]] - List of named groups.
+  @param {boolean} [options.numberedGroup=false] - Indicates if the pattern is a numbered group.
    */
   constructor({
     pattern,
@@ -64,11 +64,11 @@ export class Pattern {
   }
 
   /**
-   * Applies a repetition pattern to the current pattern.
-   * @param {number} [minRep] - The minimum number of repetitions.
-   * @param {number} [maxRep] - The maximum number of repetitions.
-   * @returns {Pattern} A new Pattern object with the repetition pattern applied.
-   * @throws {STRlingError} If arguments are invalid.
+  Applies a repetition pattern to the current pattern.
+  @param {number} [minRep] - The minimum number of repetitions.
+  @param {number} [maxRep] - The maximum number of repetitions.
+  @returns {Pattern} A new Pattern object with the repetition pattern applied.
+  @throws {STRlingError} If arguments are invalid.
    */
   rep(minRep, maxRep) {
     if (minRep === undefined && maxRep === undefined) {
@@ -165,11 +165,11 @@ export class Pattern {
   }
 
   /**
-   * Generates a repetition pattern string.
-   * @param {number} [minRep] - The minimum number of repetitions.
-   * @param {number} [maxRep] - The maximum number of repetitions.
-   * @returns {string} The repetition pattern string.
-   * @throws {STRlingError} If minRep is greater than maxRep.
+  Generates a repetition pattern string.
+  @param {number} [minRep] - The minimum number of repetitions.
+  @param {number} [maxRep] - The maximum number of repetitions.
+  @returns {string} The repetition pattern string.
+  @throws {STRlingError} If minRep is greater than maxRep.
    */
   static repeat(minRep, maxRep) {
     if (minRep !== undefined && maxRep !== undefined) {
@@ -195,17 +195,17 @@ export class Pattern {
   }
 
   /**
-   * Returns the pattern object as a RegEx string.
-   * @returns {string} The pattern string.
+  Returns the pattern object as a RegEx string.
+  @returns {string} The pattern string.
    */
   toString() {
     return this.pattern;
   }
 
   /**
-   * Handles automatic string conversion.
-   * @param {string} hint - The type hint.
-   * @returns {string} The pattern string.
+  Handles automatic string conversion.
+  @param {string} hint - The type hint.
+  @returns {string} The pattern string.
    */
   [Symbol.toPrimitive](hint) {
     if (hint === "string") {
@@ -215,10 +215,10 @@ export class Pattern {
   }
 
   /**
-   * Creates a modified instance of the pattern.
-   * @param {string} newPattern - The new pattern string.
-   * @param {Object} [kwargs] - Additional properties for the new instance.
-   * @returns {Pattern} The new Pattern instance.
+  Creates a modified instance of the pattern.
+  @param {string} newPattern - The new pattern string.
+  @param {Object} [kwargs] - Additional properties for the new instance.
+  @returns {Pattern} The new Pattern instance.
    */
   static createModifiedInstance(newPattern, kwargs = {}) {
     return new Proxy(new Pattern({ pattern: newPattern, ...kwargs }), {

@@ -3,13 +3,13 @@ import { STRlingError, Pattern, lit } from "./pattern.js";
 // User Char Sets
 
 /**
- * Matches all characters within and including the start and end of a letter or number range.
- * @param {string|number} start - The starting character or digit of the range.
- * @param {string|number} end - The ending character or digit of the range.
- * @param {number} [minRep] - The minimum number of characters to match.
- * @param {number} [maxRep] - The maximum number of characters to match.
- * @returns {Pattern} The regex pattern.
- * @throws {STRlingError} If the arguments are invalid.
+Matches all characters within and including the start and end of a letter or number range.
+@param {string|number} start - The starting character or digit of the range.
+@param {string|number} end - The ending character or digit of the range.
+@param {number} [minRep] - The minimum number of characters to match.
+@param {number} [maxRep] - The maximum number of characters to match.
+@returns {Pattern} The regex pattern.
+@throws {STRlingError} If the arguments are invalid.
  */
 export function between(start, end, minRep, maxRep) {
   if (
@@ -98,13 +98,13 @@ export function between(start, end, minRep, maxRep) {
 }
 
 /**
- * Matches any character not within or including the start and end of a letter or digit range.
- * @param {string|number} start - The starting character or digit of the range.
- * @param {string|number} end - The ending character or digit of the range.
- * @param {number} [minRep] - The minimum number of characters to match.
- * @param {number} [maxRep] - The maximum number of characters to match.
- * @returns {Pattern} The regex pattern.
- * @throws {STRlingError} If the arguments are invalid.
+Matches any character not within or including the start and end of a letter or digit range.
+@param {string|number} start - The starting character or digit of the range.
+@param {string|number} end - The ending character or digit of the range.
+@param {number} [minRep] - The minimum number of characters to match.
+@param {number} [maxRep] - The maximum number of characters to match.
+@returns {Pattern} The regex pattern.
+@throws {STRlingError} If the arguments are invalid.
  */
 export function notBetween(start, end, minRep, maxRep) {
   if (
@@ -194,10 +194,10 @@ export function notBetween(start, end, minRep, maxRep) {
 }
 
 /**
- * Matches any provided patterns, but they can't include subpatterns.
- * @param {...(Pattern|string)} patterns - One or more non-composite patterns to match.
- * @returns {Pattern} A Pattern object that matches any of the given patterns.
- * @throws {STRlingError} If any pattern is invalid.
+Matches any provided patterns, but they can't include subpatterns.
+@param {...(Pattern|string)} patterns - One or more non-composite patterns to match.
+@returns {Pattern} A Pattern object that matches any of the given patterns.
+@throws {STRlingError} If any pattern is invalid.
  */
 export function inChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
@@ -267,10 +267,10 @@ export function inChars(...patterns) {
 }
 
 /**
- * Matches anything but the provided patterns, but they can't include subpatterns.
- * @param {...(Pattern|string)} patterns - One or more non-composite patterns to avoid.
- * @returns {Pattern} A Pattern object that matches any of the given patterns.
- * @throws {STRlingError} If any pattern is invalid.
+Matches anything but the provided patterns, but they can't include subpatterns.
+@param {...(Pattern|string)} patterns - One or more non-composite patterns to avoid.
+@returns {Pattern} A Pattern object that matches any of the given patterns.
+@throws {STRlingError} If any pattern is invalid.
  */
 export function notInChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
