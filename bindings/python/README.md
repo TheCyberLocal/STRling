@@ -99,7 +99,7 @@ Simplify your string validation and matching tasks with STRling, the all-in-one 
 [![](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling-Py)
 
 ### STRling for JavaScript
-[![](https://img.shields.io/npm/v/your-package-name?color=blue&logo=npm)](.)
+[![](https://img.shields.io/npm/v/@thecyberlocal/strling?color=blue&logo=npm)](https://www.npmjs.com/package/@thecyberlocal/strling)
 [![](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling-JS)
 
 ## 🌐 Socials
