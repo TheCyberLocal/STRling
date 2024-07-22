@@ -20,13 +20,13 @@ import re;
 // But some methods take an unknown number of parameters and can't distinguish the range.
 // For example, s.merge(simply.letter(), simply.digit(), 1, 2). <==== INVALID
 
-// However, all methods allow setting the range by externally invoking unless otherwise specified.
-// For example, simply.letter()(1, 2) is the same as simply.letter(1, 2).
+// However, all methods allow setting the range using the rep method unless otherwise specified.
+// For example, simply.letter().rep(1, 2) is the same as simply.letter(1, 2).
 
 // This external invocation may seem useless, but it can solve our earlier issue.
 // For example, s.merge(simply.letter(), simply.digit()).rep(1, 2). <==== VALID
 
-// Notice for all functions (where repetition is valid) we can invoke the range outside the parameters,
+// Notice for all functions (where repetition is valid) we can use the rep method,
 // but it is primarily useful for functions with an unknown number of parameters.
 
 
@@ -109,11 +109,11 @@ s.capture();  // Creates a numbered group that can be indexed for extracting par
 // Capture is used the same as merge.
 s.capture(s.letter(), s.digit());
 
-// Captures CANNOT be invoked with a range: s.capture(s.digit(), s.letter())(1, 2) <== INVALID
-// Captures CAN be invoked with a number of copies: s.capture(s.digit(), s.letter())(3) <== VALID
+// Captures CANNOT have a range: s.capture(s.digit(), s.letter()).rep(1, 2) <== INVALID
+// Captures CAN match an exact number of copies: s.capture(s.digit(), s.letter()).rep(3) <== VALID
 
 const threeDigitGroup = s.capture(s.digit(3));
-const fourGroupsOfThree = threeDigitGroup(4);
+const fourGroupsOfThree = threeDigitGroup.rep(4);
 
 const exampleText = "Here is a number: 111222333444";
 const match = exampleText.match(new RegExp(fourGroupsOfThree.toString()));  // Notice toString(pattern)
@@ -137,7 +137,7 @@ s.group('my_group', s.letter(), s.digit());
 
 // Unlike merge and capture, groups CANNOT be invoked with a range.
 // This is because group names must be unique in a pattern.
-// s.group('unique_name', s.digit())(1, 2) <== INVALID
+// s.group('unique_name', s.digit()).rep(1, 2) <== INVALID
 
 // Groups can easily be referenced from the match by name
 // assuming the numbers have been grouped and named properly.

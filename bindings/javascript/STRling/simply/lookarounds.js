@@ -1,6 +1,5 @@
 import { STRlingError, Pattern, lit } from "./pattern.js";
 
-
 /**
 A positive lookahead checks for the presence of the specified pattern after the current position without including it in the result.
 @param {Pattern|string} pattern - The pattern to look ahead for.
@@ -11,7 +10,7 @@ const myPattern = s.merge(s.digit(), s.ahead(s.letter()));
 */
 export function ahead(pattern) {
   if (typeof pattern === "string") {
-    pattern = lit(pattern)
+    pattern = lit(pattern);
   }
 
   if (!(pattern instanceof Pattern)) {
@@ -38,7 +37,7 @@ const myPattern = s.merge(s.digit(), s.notAhead(s.letter()));
 */
 export function notAhead(pattern) {
   if (typeof pattern === "string") {
-    pattern = lit(pattern)
+    pattern = lit(pattern);
   }
 
   if (!(pattern instanceof Pattern)) {
@@ -65,7 +64,7 @@ const myPattern = s.merge(s.behind(s.digit()), s.letter());
 */
 export function behind(pattern) {
   if (typeof pattern === "string") {
-    pattern = lit(pattern)
+    pattern = lit(pattern);
   }
 
   if (!(pattern instanceof Pattern)) {
@@ -92,7 +91,7 @@ const myPattern = s.merge(s.behind(s.digit()), s.letter());
 */
 export function notBehind(pattern) {
   if (typeof pattern === "string") {
-    pattern = lit(pattern)
+    pattern = lit(pattern);
   }
 
   if (!(pattern instanceof Pattern)) {

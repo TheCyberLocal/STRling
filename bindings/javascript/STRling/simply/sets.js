@@ -1,6 +1,5 @@
 import { STRlingError, Pattern, lit } from "./pattern.js";
 
-
 /**
 Matches all characters within and including the start and end of a letter or digit range.
 @param {string|number} start - The starting character or digit of the range.
@@ -219,7 +218,7 @@ const myPattern = s.inChars(s.letter(), s.digit(), ',.');
 export function inChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = lit(pattern)
+      pattern = lit(pattern);
     }
 
     if (!(pattern instanceof Pattern)) {
@@ -294,7 +293,7 @@ const myPattern = s.notInChars(s.letter(), s.digit(), ',.');
 export function notInChars(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = lit(pattern)
+      pattern = lit(pattern);
     }
 
     if (!(pattern instanceof Pattern)) {

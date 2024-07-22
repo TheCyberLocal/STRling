@@ -46,7 +46,7 @@ export function anyOf(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1
+    ([_, count]) => count > 1,
   );
   if (duplicates.length) {
     const duplicateInfo = duplicates
@@ -118,7 +118,7 @@ export function may(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1
+    ([_, count]) => count > 1,
   );
   if (duplicates.length) {
     const duplicateInfo = duplicates
@@ -188,7 +188,7 @@ export function merge(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1
+    ([_, count]) => count > 1,
   );
   if (duplicates.length) {
     const duplicateInfo = duplicates
@@ -286,7 +286,7 @@ export function capture(...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1
+    ([_, count]) => count > 1,
   );
   if (duplicates.length) {
     const duplicateInfo = duplicates
@@ -393,7 +393,7 @@ export function group(name, ...patterns) {
   });
 
   const duplicates = Object.entries(namedGroupCounts).filter(
-    ([_, count]) => count > 1
+    ([_, count]) => count > 1,
   );
   if (duplicates.length) {
     const duplicateInfo = duplicates
