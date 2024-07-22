@@ -1,6 +1,5 @@
 import { STRlingError, Pattern, lit } from "./pattern.js";
 
-
 /**
 Matches any provided pattern, including patterns consisting of subpatterns.
 @param {...(Pattern|string)} patterns - One or more patterns to be matched.
@@ -18,7 +17,7 @@ const eitherPattern = s.anyOf(pattern1, pattern2);
 export function anyOf(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = lit(pattern)
+      pattern = lit(pattern);
     }
 
     if (!(pattern instanceof Pattern)) {
@@ -90,7 +89,7 @@ const pattern = s.merge(s.letter(), s.may(s.digit()));
 export function may(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = lit(pattern)
+      pattern = lit(pattern);
     }
 
     if (!(pattern instanceof Pattern)) {
@@ -160,7 +159,7 @@ const mergedPattern = s.merge(s.digit(), ',.');
 export function merge(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = lit(pattern)
+      pattern = lit(pattern);
     }
 
     if (!(pattern instanceof Pattern)) {
@@ -257,7 +256,7 @@ console.log("Fourth:", match[4]);
 export function capture(...patterns) {
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = lit(pattern)
+      pattern = lit(pattern);
     }
 
     if (!(pattern instanceof Pattern)) {
@@ -364,7 +363,7 @@ export function group(name, ...patterns) {
 
   const cleanPatterns = patterns.map((pattern) => {
     if (typeof pattern === "string") {
-      pattern = lit(pattern)
+      pattern = lit(pattern);
     }
 
     if (!(pattern instanceof Pattern)) {
