@@ -8,7 +8,12 @@ export class STRlingError extends Error {
   @param {string} message - The error message.
   */
   constructor(message) {
-    const formattedMessage = message.replace("\n", "\n\t");
+    const lines = message.split("\n");
+    const match = lines[1].match(/^\s*/);
+    const indentedSpaces = match ? match[0].length : 0;
+    const formattedMessage = message.split("\n").map((line) => {
+      return line.replace(new RegExp("\\s".repeat(indentedSpaces)), "        ");
+    }).join("\n");
     super(formattedMessage);
     this.name = "STRlingError";
     this.message = formattedMessage;
