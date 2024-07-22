@@ -128,3 +128,67 @@ def not_behind(pattern):
         raise STRlingError(message)
 
     return Pattern(f'(?<!{pattern})', composite=True)
+
+def has(pattern):
+    """
+    A lookaround that checks for the presence of the specified pattern anywhere in the string without including it in the result.
+
+    Parameters:
+    - pattern (Pattern/str): The pattern to look for.
+
+    Returns:
+    - An instance of the Pattern class.
+
+    Examples:
+        ```
+        # Only matches if the string contains the pattern.
+        my_pattern = s.has(pattern)
+        ```
+    """
+
+    if isinstance(pattern, str):
+        pattern = lit(pattern)
+
+    if not isinstance(pattern, Pattern):
+        message = """
+        Method: simply.has(pattern)
+
+        The parameter must be an instance of `Pattern` or `str`.
+
+        Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
+        """
+        raise STRlingError(message)
+
+    return Pattern(f'(?=.*{pattern})', composite=True)
+
+def has_not(pattern):
+    """
+    A lookaround that checks for the absence of the specified pattern everywhere in the string without including it in the result.
+
+    Parameters:
+    - pattern (Pattern/str): The pattern to look for and ensure is absent.
+
+    Returns:
+    - An instance of the Pattern class.
+
+    Examples:
+        ```
+        # Only matches if the string doesn't contain the pattern.
+        my_pattern = s.has_not(pattern)
+        ```
+    """
+
+    if isinstance(pattern, str):
+        pattern = lit(pattern)
+
+    if not isinstance(pattern, Pattern):
+        message = """
+        Method: simply.has(pattern)
+
+        The parameter must be an instance of `Pattern` or `str`.
+
+        Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
+        """
+        raise STRlingError(message)
+
+    return Pattern(f'(?!.*{pattern})', composite=True)
