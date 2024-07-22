@@ -22,7 +22,7 @@ Our mission is to make RegEx a distant and outdated syntax by abstracting the co
 Install STRling via npm:
 
 ```sh
-npm install STRling
+npm install @thecyberlocal/strling
 ```
 
 ## ✨ STRling in action!
@@ -30,8 +30,7 @@ npm install STRling
 ### 📑 [STRling Documentation](./docs/strling_docs.md)
 
 ```js
-import { simply as s } from "STRling";
-import re;
+import { simply as s } from "@thecyberlocal/strling";
 
 // Let's make a phone number pattern for the formats below:
 // - (123) 456-7890
@@ -68,7 +67,7 @@ const phoneNumberPattern = s.merge(
 // Example usage
 // Note: To make a pattern a RegEx string compatible with other engines use `toString(pattern)`.
 const exampleText = "(123) 456-7890 and 123-456-7890";
-const pattern = new RegExp(phoneNumberPattern.toString());  // Notice toString(pattern)
+const pattern = new RegExp(phoneNumberPattern.toString(), "g");  // Notice toString(pattern)
 const matches = exampleText.matchAll(pattern);
 
 for (const match of matches) {

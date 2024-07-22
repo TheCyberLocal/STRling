@@ -8,8 +8,7 @@ We have well structured and explanatory docustrings for each function
 that allow you to understand exactly how it works by just hovering your mouse.
 
 ```js
-import { simply as s } from "STRling";
-import re;
+import { simply as s } from "@thecyberlocal/strling";
 
 
 // // // Range Feature // // //

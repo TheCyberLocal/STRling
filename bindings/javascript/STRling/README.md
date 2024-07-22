@@ -30,7 +30,7 @@ npm install STRling
 ### 📑 [STRling Documentation on GitHub](https://github.com/TheCyberLocal/STRling-Py/blob/main/docs/strling_docs.md)
 
 ```js
-import { simply as s } from "STRling";
+import { simply as s } from "@thecyberlocal/strling";
 
 // Let's make a phone number pattern for the formats below:
 // - (123) 456-7890
@@ -46,7 +46,7 @@ const areaCode = s.merge(
   // notice we use merge since we don't want to name the group with parenthesis
   s.may("("), // Optional opening parenthesis
   s.group("area_code", s.digit(3)), // Exactly 3 digits and named for later reference
-  s.may(")"), // Optional closing parenthesis
+  s.may(")") // Optional closing parenthesis
 );
 
 // Central part: 456
@@ -62,7 +62,7 @@ const phoneNumberPattern = s.merge(
   s.may(separator), // Optional separator after area code
   centralPart, // Central 3 digits
   s.may(separator), // Optional separator after central part
-  lastPart, // Last part with hyphen and 4 digits
+  lastPart // Last part with hyphen and 4 digits
 );
 
 // Example usage
