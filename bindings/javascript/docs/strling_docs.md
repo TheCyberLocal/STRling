@@ -163,6 +163,11 @@ s.merge(s.digit(), s.ahead(s.letter())); // Only matches a digit followed by a l
 s.behind(); // Only matches the rest of a pattern if the provided pattern is behind.
 // For example, in the text "123ABC", the pattern below matches A but not B or C.
 s.merge(s.behind(s.digit()), s.letter()); // Only matches a letter preceded by a digit.
+
+s.has(); // Only matches the rest of a pattern if the provided pattern is not within.
+// For example, in the text "123ABC", the pattern below will only match because it contains a digit.
+s.has(s.digit()); // Only matches a because it contains a digit.
+// Note, the negated counterpart of simply.has() is simply.hasNot().
 ```
 
 Simplify your string validation and matching tasks with STRling, the all-in-one solution for developers who need a powerful yet user-friendly tool for working with strings. No longer write RegEx using complex jargon or the various syntaxes string validation specific to independent libraries. Download and start using STRling today!

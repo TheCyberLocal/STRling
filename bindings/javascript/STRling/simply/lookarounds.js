@@ -107,3 +107,57 @@ export function notBehind(pattern) {
 
   return new Pattern({ pattern: `(?<!${pattern})`, composite: true });
 }
+
+/**
+A lookaround that checks for the presence of the specified pattern anywhere in the string without including it in the result.
+@param {Pattern|string} pattern - The pattern to look for.
+@returns {Pattern} An instance of the Pattern class.
+@example
+// Only matches if the string contains the pattern.
+const myPattern = s.has(pattern);
+*/
+export function has(pattern) {
+  if (typeof pattern === "string") {
+    pattern = lit(pattern);
+  }
+
+  if (!(pattern instanceof Pattern)) {
+    const message = `
+    Method: simply.has(pattern)
+
+    The parameter must be an instance of Pattern or string.
+
+    Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+    `;
+    throw new STRlingError(message);
+  }
+
+  return new Pattern({ pattern: `(?=.*${pattern})`, composite: true });
+}
+
+/**
+A lookaround that checks for the absence of the specified pattern everywhere in the string without including it in the result.
+@param {Pattern|string} pattern - The pattern to look for and ensure is absent.
+@returns {Pattern} An instance of the Pattern class.
+@example
+// Only matches if the string doesn't contain the pattern.
+const myPattern = s.hasNot(pattern);
+*/
+export function hasNot(pattern) {
+  if (typeof pattern === "string") {
+    pattern = lit(pattern);
+  }
+
+  if (!(pattern instanceof Pattern)) {
+    const message = `
+    Method: simply.hasNot(pattern)
+
+    The parameter must be an instance of Pattern or string.
+
+    Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+    `;
+    throw new STRlingError(message);
+  }
+
+  return new Pattern({ pattern: `(?!.*${pattern})`, composite: true });
+}
