@@ -1,42 +1,58 @@
-import { simply as s } from "../STRling/index.js";
+import { simply as s } from "STRling";
 
-s.anyOf(); // Matches any pattern, including patterns consisting of subpatterns.
-// A composite pattern is one consisting of subpatterns (created by constructors and lookarounds).
-const pattern1 = s.merge(s.digit(3), s.letter(3)); // Matches 3 digits followed by 3 letters.
-const pattern2 = s.merge(s.letter(3), s.digit(3)); // Matches 3 letters followed by 3 digits.
-s.anyOf(pattern1, pattern2); // Matches either pattern1 or pattern2
+// Let's make a phone number pattern for the formats below:
+// - (123) 456-7890
+// - 123-456-7890
+// - 123 456 7890
+// - 1234567890
 
-s.may(); // Optionally matches the provided patterns.
-// If a `may` pattern isn't there, it still will match the rest of the patterns.
-s.merge(s.letter(), s.may(s.digit()));
-// Matches any letter, and includes any digit following the letter.
-// In the text, "AB2" the pattern above matches 'A' and 'B2'.
+// Separator: either space or hyphen
+const separator = s.inChars(' -');
 
-s.merge(); // Combines multiple patterns into one larger pattern.
-// You can see this used for the method above.
+// Optional area code part: 123 even if in parenthesis like (123)
+const areaCode = s.merge(  // notice we use merge since we don't want to name the group with parenthesis
+    s.may('('),  // Optional opening parenthesis
+    s.group('area_code', s.digit(3)), // Exactly 3 digits and named for later reference
+    s.may(')')  // Optional closing parenthesis
+);
 
-s.capture(); // Creates a numbered group that can be indexed for extracting part of a match later.
-// Capture is used the same as merge.
-s.capture(s.letter(), s.digit());
+// Central part: 456
+const centralPart = s.group('central_part', s.digit(3));  // Exactly 3 digits and named for later reference
 
-// Captures CANNOT be invoked with a range: s.capture(s.digit(), s.letter())(1, 2) <== INVALID
-// Captures CAN be invoked with a number of copies: s.capture(s.digit(), s.letter())(3) <== VALID
+// Last part: 7890
+const lastPart = s.group("last_part", s.digit(4));  // Exactly 4 digits and named for later reference
 
-const threeDigitGroup = s.capture(s.digit(3));
-const fourGroupsOfThree = threeDigitGroup.rep(4);
+// Combine all parts into the final phone number pattern
+// Notice we don't name the whole pattern since we can already reference it
+const phoneNumberPattern = s.merge(
+    areaCode,  // Area code part
+    s.may(separator),  // Optional separator after area code
+    centralPart,  // Central 3 digits
+    s.may(separator),  // Optional separator after central part
+    lastPart  // Last part with hyphen and 4 digits
+);
 
-const exampleText = "Here is a number: 111222333444";
-const match = exampleText.match(new RegExp(fourGroupsOfThree.toString())); // Notice toString(pattern)
+// Example usage
+// Note: To make a pattern a RegEx string compatible with other engines use `toString(pattern)`.
+const exampleText = "(123) 456-7890 and 123-456-7890";
+const pattern = new RegExp(phoneNumberPattern.toString());  // Notice toString(pattern)
+const matches = exampleText.matchAll(pattern);
 
-console.log("Full Match:", match[0]);
-console.log("First:", match[1]);
-console.log("Second:", match[2]);
-console.log("Third:", match[3]);
-console.log("Fourth:", match[4]);
+for (const match of matches) {
+    console.log("Full Match:", match[0]);
+    console.log("Area Code:", match.groups.area_code);
+    console.log("Central Part:", match.groups.central_part);
+    console.log("Last Part:", match.groups.last_part);
+    console.log();
+}
 
 // Output:
-// Full Match: 111222333444
-// First: 111
-// Second: 222
-// Third: 333
-// Fourth: 444
+// Full Match: (123) 456-7890
+// Area Code: 123
+// Central Part: 456
+// Last Part: 7890
+
+// Full Match: 123-456-7890
+// Area Code: 123
+// Central Part: 456
+// Last Part: 7890
