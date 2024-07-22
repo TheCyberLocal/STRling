@@ -22,7 +22,7 @@ Our mission is to make RegEx a distant and outdated syntax by abstracting the co
 Install STRling via npm:
 
 ```sh
-npm install STRling
+npm install @thecyberlocal/strling
 ```
 
 ## ✨ STRling in action!
