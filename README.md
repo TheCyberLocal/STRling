@@ -1,5 +1,7 @@
 # STRling
 
+<img width="25%" src="./STRling-Logo.jpg" alt="" />
+
 ## 🗺️ Project Overview
 
 STRling is a next-generation production-grade syntax designed as a user interface for writing powerful regular expressions (RegEx) with an object-oriented approach and instructional error handling. STRling recognizes the cryptic nature of raw regular expression is challenging and susceptible to errors, which is why STRling keeps it as far from you as possible while maintaining the same power and flexibility. String validation should be simple and enjoyable, not a hassle. Best of all, STRling syntax is built upon the RegEx engine, making it fully compatible with all libraries that accept RegEx along with the traditional built-in RegEx methods.
