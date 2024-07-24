@@ -2,7 +2,12 @@
 
 ## 🗺️ [Project Overview](https://github.com/TheCyberLocal/STRling)
 
-STRling is a next-generation production-grade syntax designed as a user interface for writing powerful regular expressions (RegEx) with an object-oriented approach and instructional error handling. STRling recognizes the cryptic nature of raw regular expression is challenging and susceptible to errors, which is why STRling keeps it as far from you as possible while maintaining the same power and flexibility. String validation should be simple and enjoyable, not a hassle. Best of all, STRling syntax is built upon the RegEx engine, making it fully compatible with all libraries that accept RegEx along with the traditional built-in RegEx methods.
+<table>
+  <tr>
+    <td style="padding: 10px;"><img src="https://github.com/TheCyberLocal/STRling/blob/main/STRling-Logo.jpg" alt="" /></td>
+    <td style="padding: 10px;">STRling is a next-generation production-grade syntax designed as a user interface for writing powerful regular expressions (RegEx) with an object-oriented approach and instructional error handling. STRling recognizes the cryptic nature of raw regular expression is challenging and susceptible to errors, which is why STRling keeps it as far from you as possible while maintaining the same power and flexibility. String validation should be simple and enjoyable, not a hassle. Best of all, STRling syntax is built upon the RegEx engine, making it fully compatible with all libraries that accept RegEx along with the traditional built-in RegEx methods.</td>
+  </tr>
+</table>
 
 ## 🗝️ Key Features
 
@@ -47,7 +52,7 @@ const areaCode = s.merge(
   // notice we use merge since we don't want to name the group with parenthesis
   s.may("("), // Optional opening parenthesis
   s.group("area_code", s.digit(3)), // Exactly 3 digits and named for later reference
-  s.may(")"), // Optional closing parenthesis
+  s.may(")") // Optional closing parenthesis
 );
 
 // Central part: 456
@@ -63,7 +68,7 @@ const phoneNumberPattern = s.merge(
   s.may(separator), // Optional separator after area code
   centralPart, // Central 3 digits
   s.may(separator), // Optional separator after central part
-  lastPart, // Last part with hyphen and 4 digits
+  lastPart // Last part with hyphen and 4 digits
 );
 
 // Example usage
