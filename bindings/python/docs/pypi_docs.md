@@ -28,7 +28,7 @@ pip install STRling
 
 ## ✨ STRling in action!
 
-### 📑 [STRling Documentation on GitHub](https://github.com/TheCyberLocal/STRling-Py/blob/main/docs/strling_docs.md)
+### 📑 [STRling Documentation on GitHub](https://github.com/TheCyberLocal/STRling.py/blob/main/docs/strling_docs.md)
 
 ```python
 from STRling import simply as s
@@ -96,15 +96,17 @@ Simplify your string validation and matching tasks with STRling, the all-in-one 
 
 ## 🌎 Locations
 
+### [STRling Project Index](https://github.com/TheCyberLocal/STRling)
+
 ### STRling for Python
 
 [![](https://img.shields.io/pypi/v/STRling?color=blue&logo=pypi)](https://pypi.org/project/STRling/)
-[![](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling-Py)
+[![](https://img.shields.io/badge/STRling.py-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling.py)
 
 ### STRling for JavaScript
 
 [![](https://img.shields.io/npm/v/@thecyberlocal/strling?color=blue&logo=npm)](https://www.npmjs.com/package/@thecyberlocal/strling)
-[![](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling-JS)
+[![](https://img.shields.io/badge/STRling.js-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling.js)
 
 ## 🌐 Socials
 
