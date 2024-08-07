@@ -1,6 +1,6 @@
 {
   "name": "@thecyberlocal/strling",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "A next-generation object-oriented interface for regular expressions.",
   "main": "index.js",
   "type": "module",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TheCyberLocal/STRling-JS.git"
+    "url": "git+https://github.com/TheCyberLocal/STRling.js.git"
   },
   "keywords": [
     "pattern",
@@ -26,7 +26,7 @@
   "author": "Timothy Macfarlane",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/TheCyberLocal/STRling-JS/issues"
+    "url": "https://github.com/TheCyberLocal/STRling.js/issues"
   },
-  "homepage": "https://github.com/TheCyberLocal/STRling-JS#readme"
+  "homepage": "https://github.com/TheCyberLocal/STRling.js#readme"
 }

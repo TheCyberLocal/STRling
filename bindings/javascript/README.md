@@ -4,7 +4,7 @@
 
 <table>
   <tr>
-    <td style="padding: 10px;"><img src="https://github.com/TheCyberLocal/STRling/blob/main/STRling-Logo.jpg" alt="" /></td>
+    <td style="padding: 10px;"><img src="https://github.com/TheCyberLocal/STRling/blob/main/strling_logo.jpg" alt="" /></td>
     <td style="padding: 10px;">STRling is a next-generation production-grade syntax designed as a user interface for writing powerful regular expressions (RegEx) with an object-oriented approach and instructional error handling. STRling recognizes the cryptic nature of raw regular expression is challenging and susceptible to errors, which is why STRling keeps it as far from you as possible while maintaining the same power and flexibility. String validation should be simple and enjoyable, not a hassle. Best of all, STRling syntax is built upon the RegEx engine, making it fully compatible with all libraries that accept RegEx along with the traditional built-in RegEx methods.</td>
   </tr>
 </table>
@@ -104,12 +104,12 @@ Simplify your string validation and matching tasks with STRling, the all-in-one 
 ### STRling for Python
 
 [![](https://img.shields.io/pypi/v/STRling?color=blue&logo=pypi)](https://pypi.org/project/STRling/)
-[![](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling-Py)
+[![](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling.py)
 
 ### STRling for JavaScript
 
 [![](https://img.shields.io/npm/v/@thecyberlocal/strling?color=blue&logo=npm)](https://www.npmjs.com/package/@thecyberlocal/strling)
-[![](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling-JS)
+[![](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling.js)
 
 ## 🌐 Socials
 
