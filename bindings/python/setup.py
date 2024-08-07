@@ -3,7 +3,6 @@
 # twine upload dist/*
 from setuptools import setup, find_packages
 
-
 with open('./docs/pypi_docs.md', 'r') as f:
     description = f.read()
 
