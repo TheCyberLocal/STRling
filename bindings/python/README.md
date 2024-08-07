@@ -2,7 +2,6 @@
 
 ## 🗺️ [Project Overview](https://github.com/TheCyberLocal/STRling)
 
-
 <table>
   <tr>
     <td style="padding: 10px;"><img src="https://github.com/TheCyberLocal/STRling/blob/main/strling_logo.jpg" alt="" /></td>
@@ -101,8 +100,6 @@ for match in matches:
 Simplify your string validation and matching tasks with STRling, the all-in-one solution for developers who need a powerful yet user-friendly tool for working with strings. No longer write RegEx using complex jargon or the various syntaxes string validation specific to independent libraries. Download and start using STRling today!
 
 ## 🌎 Locations
-
-### [STRling Project Index](https://github.com/TheCyberLocal/STRling)
 
 ### STRling for Python
 

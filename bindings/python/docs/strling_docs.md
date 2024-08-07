@@ -3,6 +3,7 @@
 ### [⇦ Back to Project Overview](../README.md)
 
 ## 😅 Don't worry if you can't remember it all!
+
 We have well structured and explanatory docustrings for each function
 that allow you to understand exactly how it works by just hovering your mouse.
 

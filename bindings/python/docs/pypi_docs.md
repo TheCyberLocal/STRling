@@ -96,8 +96,6 @@ Simplify your string validation and matching tasks with STRling, the all-in-one 
 
 ## 🌎 Locations
 
-### [STRling Project Index](https://github.com/TheCyberLocal/STRling)
-
 ### STRling for Python
 
 [![](https://img.shields.io/pypi/v/STRling?color=blue&logo=pypi)](https://pypi.org/project/STRling/)
