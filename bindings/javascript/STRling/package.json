@@ -1,6 +1,6 @@
 {
   "name": "@thecyberlocal/strling",
-  "version": "2.5.2",
+  "version": "2.5.3",
   "description": "A next-generation object-oriented interface for regular expressions.",
   "main": "index.js",
   "type": "module",
