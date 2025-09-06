@@ -1,6 +1,6 @@
 {
     "name": "@thecyberlocal/strling",
-    "version": "2.5.5",
+    "version": "2.5.6",
     "description": "STRling: a safer, portable, developer-friendly pattern language and builder",
     "main": "STRling/index.js",
     "type": "module",

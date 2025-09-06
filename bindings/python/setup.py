@@ -6,7 +6,7 @@ readme = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name='STRling',
-    version='2.5.5',
+    version='2.5.6',
     packages=find_packages(),
     install_requires=[],
     long_description=readme,
