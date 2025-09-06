@@ -28,12 +28,12 @@ Our mission is to make RegEx a distant and outdated syntax by abstracting the co
 ### STRling for Python
 
 [![](https://img.shields.io/pypi/v/STRling?color=blue&logo=pypi)](https://pypi.org/project/STRling/)
-[![](https://img.shields.io/badge/STRling.py-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling.py)
+[![](https://img.shields.io/badge/STRling.py-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling/tree/main/bindings/python)
 
 ### STRling for JavaScript
 
 [![](https://img.shields.io/npm/v/@thecyberlocal/strling?color=blue&logo=npm)](https://www.npmjs.com/package/@thecyberlocal/strling)
-[![](https://img.shields.io/badge/STRling.js-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling.js)
+[![](https://img.shields.io/badge/STRling.js-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling/tree/main/bindings/javascript)
 
 ## 🌐 Socials
 
