@@ -1,4 +1,4 @@
-# STRling
+# STRling.py
 
 ## 🗺️ Overview
 
@@ -8,11 +8,11 @@ STRling makes string validation and matching **readable, safe, and consistent** 
 
 ## 🗝️ Key Features
 
-- **Beginner Friendly**: No regex jargon required.
-- **Reliable**: Built only on standard libraries.
-- **Instructional Errors**: Explains what went wrong and how to fix it.
-- **Consistent**: Works across frameworks and libraries without custom validators.
-- **Multilingual**: Available across popular programming languages.
+-   **Beginner Friendly**: No regex jargon required.
+-   **Reliable**: Built only on standard libraries.
+-   **Instructional Errors**: Explains what went wrong and how to fix it.
+-   **Consistent**: Works across frameworks and libraries without custom validators.
+-   **Multilingual**: Available across popular programming languages.
 
 ## 💾 Installation
 

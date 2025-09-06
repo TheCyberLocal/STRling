@@ -8,11 +8,11 @@ STRling makes string validation and matching **readable, safe, and consistent** 
 
 ## 🗝️ Key Features
 
-- **Beginner Friendly**: No regex jargon required.
-- **Reliable**: Built only on standard libraries.
-- **Instructional Errors**: Explains what went wrong and how to fix it.
-- **Consistent**: Works across frameworks and libraries without custom validators.
-- **Multilingual**: Available across popular programming languages.
+-   **Beginner Friendly**: No regex jargon required.
+-   **Reliable**: Built only on standard libraries.
+-   **Instructional Errors**: Explains what went wrong and how to fix it.
+-   **Consistent**: Works across frameworks and libraries without custom validators.
+-   **Multilingual**: Available across popular programming languages.
 
 ## 💾 Installation
 
@@ -28,19 +28,19 @@ import { simply as s } from "@thecyberlocal/strling";
 // Define parts of a US phone number pattern
 const separator = s.inChars(" -");
 const areaCode = s.merge(
-  s.may("("),
-  s.group("area_code", s.digit(3)),
-  s.may(")")
+    s.may("("),
+    s.group("area_code", s.digit(3)),
+    s.may(")")
 );
 const centralPart = s.group("central_part", s.digit(3));
 const lastPart = s.group("last_part", s.digit(4));
 
 const phoneNumberPattern = s.merge(
-  areaCode,
-  s.may(separator),
-  centralPart,
-  s.may(separator),
-  lastPart
+    areaCode,
+    s.may(separator),
+    centralPart,
+    s.may(separator),
+    lastPart
 );
 
 // Compile to RegEx
@@ -48,10 +48,10 @@ const exampleText = "(123) 456-7890 and 123-456-7890";
 const pattern = new RegExp(phoneNumberPattern.toString(), "g");
 
 for (const match of exampleText.matchAll(pattern)) {
-  console.log("Full:", match[0]);
-  console.log("Area:", match.groups.area_code);
-  console.log("Central:", match.groups.central_part);
-  console.log("Last:", match.groups.last_part);
+    console.log("Full:", match[0]);
+    console.log("Area:", match.groups.area_code);
+    console.log("Central:", match.groups.central_part);
+    console.log("Last:", match.groups.last_part);
 }
 ```
 
