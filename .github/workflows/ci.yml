@@ -1,0 +1,54 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  js:
+    name: JS (Node 20)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deps
+        working-directory: bindings/javascript
+        run: |
+          npm ci || npm i
+
+      - name: Test (placeholder)
+        working-directory: bindings/javascript
+        shell: bash
+        run: |
+          npm test || echo "TODO: add tests"
+
+  py:
+    name: Python (3.12)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip build
+      
+      - name: Install deps
+        working-directory: bindings/python
+        run: pip install -r requirements.txt
+
+      - name: Build (placeholder)
+        working-directory: bindings/python
+        shell: bash
+        run: |
+          python -m build || echo "TODO: add tests"

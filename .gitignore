@@ -1,0 +1,40 @@
+# ---- General ----
+*.log
+*.tmp
+*.swp
+.DS_Store
+
+# ---- Node / JavaScript ----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.tgz
+bindings/javascript/test-folder/node_modules/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+coverage.xml
+htmlcov/
+.tox/
+.venv/
+
+# ---- IDEs ----
+.vscode/
+.idea/
+*.iml
+
+# ---- OS ----
+Thumbs.db

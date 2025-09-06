@@ -1,0 +1,21 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "TargetArtifact (base)",
+    "type": "object",
+    "required": [
+        "version",
+        "target",
+        "pattern"
+    ],
+    "properties": {
+        "version": {
+            "type": "string"
+        },
+        "target": {
+            "type": "string"
+        },
+        "pattern": {
+            "type": "string"
+        }
+    }
+}
