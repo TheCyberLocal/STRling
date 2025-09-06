@@ -44,8 +44,4 @@ Our mission is to make RegEx a distant and outdated syntax by abstracting the co
 
 ## 💖 Support
 
-If you find my content helpful or interesting, consider buying me a coffee. Every cup is greatly appreciated and fuels my work!
-
-[![Buy Me a Coffee](https://img.shields.io/badge/-buy_me_a%C2%A0coffee-gray?logo=buy-me-a-coffee)](https://buymeacoffee.com/thecyberlocal)
-[![PayPal](https://img.shields.io/badge/PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/TheCyberLocal)
-[![Venmo](https://img.shields.io/badge/Venmo-008CFF?logo=venmo&logoColor=white)](https://www.venmo.com/TheCyberLocal)
+If you find STRling useful, consider [buying me a coffee](https://buymeacoffee.com/thecyberlocal).
