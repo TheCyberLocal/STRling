@@ -1,32 +1,52 @@
 from __future__ import annotations
-from typing import List, Tuple
+from typing import Optional, Literal
+from typing import List
 import re
 
-from ..core.ir import (
-    IROp, IRAlt, IRSeq, IRLit, IRDot, IRAnchor,
-    IRCharClass, IRClassItem, IRClassLiteral, IRClassRange, IRClassEscape,
-    IRQuant, IRGroup, IRBackref, IRLook
+from STRling.core.ir import (
+    IROp,
+    IRAlt,
+    IRSeq,
+    IRLit,
+    IRDot,
+    IRAnchor,
+    IRCharClass,
+    IRClassItem,
+    IRClassLiteral,
+    IRClassRange,
+    IRClassEscape,
+    IRQuant,
+    IRGroup,
+    IRBackref,
+    IRLook,
 )
 
+
 def _escape_literal(s: str) -> str:
-    return re.sub(r'([.^$|()?*+{}\[\]\\])', r'\\\1', s)
+    return re.sub(r"([.^$|()?*+{}\[\]\\])", r"\\\1", s)
+
 
 def _escape_class_char(ch: str) -> str:
-    if ch in r'[]\-\\^':
+    if ch in r"[]\-\\^":
         return "\\" + ch
     return ch
 
+
 def _emit_class(cc: IRCharClass) -> str:
     parts: List[str] = []
-    for it in cc.items:
+    # use IRClassItem typing for the items list
+    items: List[IRClassItem] = cc.items
+    for it in items:
         if isinstance(it, IRClassLiteral):
             parts.append(_escape_class_char(it.ch))
         elif isinstance(it, IRClassRange):
-            parts.append(f"{_escape_class_char(it.from_ch)}-{_escape_class_char(it.to_ch)}")
+            parts.append(
+                f"{_escape_class_char(it.from_ch)}-{_escape_class_char(it.to_ch)}"
+            )
         elif isinstance(it, IRClassEscape):
-            if it.type in ('d','D','w','W','s','S'):
+            if it.type in ("d", "D", "w", "W", "s", "S"):
                 parts.append("\\" + it.type)
-            elif it.type in ('p','P') and it.property:
+            elif it.type in ("p", "P") and it.property:
                 parts.append(f"\\{it.type}{{{it.property}}}")
             else:
                 parts.append("\\" + it.type)
@@ -35,7 +55,10 @@ def _emit_class(cc: IRCharClass) -> str:
     inner = "".join(parts)
     return f"[{'^' if cc.negated else ''}{inner}]"
 
-def _emit_quant_suffix(minv, maxv, mode: str) -> str:
+
+def _emit_quant_suffix(
+    minv: int | Literal[0, 1] | str, maxv: int | Literal[0, 1] | str, mode: str
+) -> str:
     if minv == 0 and maxv == "Inf":
         q = "*"
     elif minv == 1 and maxv == "Inf":
@@ -54,6 +77,7 @@ def _emit_quant_suffix(minv, maxv, mode: str) -> str:
         q += "+"
     return q
 
+
 def _needs_group_for_quant(child: IROp) -> bool:
     if isinstance(child, (IRCharClass, IRDot, IRGroup, IRBackref)):
         return False
@@ -62,6 +86,7 @@ def _needs_group_for_quant(child: IROp) -> bool:
     if isinstance(child, (IRSeq, IRAlt, IRLook, IRAnchor)):
         return True
     return False
+
 
 def _emit_group_open(g: IRGroup) -> str:
     if g.atomic:
@@ -72,6 +97,7 @@ def _emit_group_open(g: IRGroup) -> str:
         return "("
     else:
         return "(?:"
+
 
 def _emit_node(node: IROp, parent_kind: str = "") -> str:
     if isinstance(node, IRLit):
@@ -124,15 +150,21 @@ def _emit_node(node: IROp, parent_kind: str = "") -> str:
         return "(" + op + _emit_node(node.body, parent_kind="Look") + ")"
     raise NotImplementedError(f"Emitter missing for {type(node)}")
 
-def emit(ir_root: IROp, flags: dict | None = None) -> str:
+
+def emit(ir_root: IROp, flags: Optional[dict[str, bool]] = None) -> str:
     prefix = ""
     if flags:
         letters = ""
-        if flags.get("ignoreCase"): letters += "i"
-        if flags.get("multiline"): letters += "m"
-        if flags.get("dotAll"): letters += "s"
-        if flags.get("unicode"): letters += "u"
-        if flags.get("extended"): letters += "x"
+        if flags.get("ignoreCase"):
+            letters += "i"
+        if flags.get("multiline"):
+            letters += "m"
+        if flags.get("dotAll"):
+            letters += "s"
+        if flags.get("unicode"):
+            letters += "u"
+        if flags.get("extended"):
+            letters += "x"
         if letters:
             prefix = "(?" + letters + ")"
     return prefix + _emit_node(ir_root, parent_kind="")

@@ -1,18 +1,37 @@
-
 """
 STRling v3 — Parser (Sprint 3)
 Hand-rolled recursive-descent parser for the STRling regex-like DSL.
 Produces AST nodes defined in nodes.py and a Base TargetArtifact.
 """
+
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Dict, Any
-import json, re
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
+import re
 
 from .nodes import (
-    Flags, Node, Alt, Seq, Lit, Dot, Anchor, CharClass, ClassLiteral,
-    ClassRange, ClassEscape, Quant, Group, Backref, Look
+    Flags,
+    Node,
+    Alt,
+    Seq,
+    Lit,
+    Dot,
+    Anchor,
+    CharClass,
+    ClassLiteral,
+    ClassRange,
+    ClassEscape,
+    Quant,
+    Group,
+    Backref,
+    Look,
+    ClassItem,  # <-- Import ClassItem from nodes.py
 )
+
+# Remove local ClassItem alias
+# ClassItem = Union[ClassLiteral, ClassRange, ClassEscape]
+
 
 # ---------------- Errors ----------------
 class ParseError(Exception):
@@ -20,6 +39,7 @@ class ParseError(Exception):
         super().__init__(f"{message} at {pos}")
         self.message = message
         self.pos = pos
+
 
 # ---------------- Lexer helpers ----------------
 @dataclass
@@ -32,7 +52,7 @@ class Cursor:
     def eof(self) -> bool:
         return self.i >= len(self.text)
 
-    def peek(self, n: int=0) -> str:
+    def peek(self, n: int = 0) -> str:
         j = self.i + n
         return "" if j >= len(self.text) else self.text[j]
 
@@ -49,8 +69,8 @@ class Cursor:
             return True
         return False
 
-    def skip_ws_and_comments(self):
-        if not self.extended_mode or self.in_class>0:
+    def skip_ws_and_comments(self) -> None:
+        if not self.extended_mode or self.in_class > 0:
             return
         # In free-spacing mode, ignore spaces/tabs/newlines and #-to-EOL comments
         while not self.eof():
@@ -64,6 +84,7 @@ class Cursor:
                     self.i += 1
                 continue
             break
+
 
 # ---------------- Parser ----------------
 class Parser:
@@ -80,16 +101,16 @@ class Parser:
         for line in text.splitlines(keepends=True):
             striped = line.strip()
             # Skip leading blank lines or comments
-            if striped == '' or striped.startswith('#'):
+            if striped == "" or striped.startswith("#"):
                 consumed += len(line)
                 continue
-            if striped.startswith('%flags'):
+            if striped.startswith("%flags"):
                 consumed += len(line)
                 rest = striped[6:].strip()
-                letters = rest.replace(',', ' ').replace('[','').replace(']','')
+                letters = rest.replace(",", " ").replace("[", "").replace("]", "")
                 flags = Flags.from_letters(letters)
                 continue
-            if striped.startswith('%'):
+            if striped.startswith("%"):
                 consumed += len(line)
                 continue
             # First non-directive content line -> stop
@@ -105,7 +126,7 @@ class Parser:
 
     # alt := seq ('|' seq)+ | seq
     def parse_alt(self) -> Node:
-        branches = [self.parse_seq()]
+        branches: List[Node] = [self.parse_seq()]
         self.cur.skip_ws_and_comments()
         while self.cur.peek() == "|":
             self.cur.take()
@@ -137,31 +158,32 @@ class Parser:
 
     def parse_quant_if_any(self, child: Node) -> Node:
         cur = self.cur
-        start = cur.i
         ch = cur.peek()
         if ch in "*+?":
             mode = "Greedy"
             if ch == "*":
-                q = (0, "Inf")
+                q: Tuple[int, Union[int, str]] = (0, "Inf")
             elif ch == "+":
                 q = (1, "Inf")
             else:
                 q = (0, 1)
             cur.take()
-            if cur.peek() in "?+":
-                mode = "Lazy" if cur.peek() == "?" else "Possessive"
+            nxt = cur.peek()
+            if nxt in "?+":
+                mode = "Lazy" if nxt == "?" else "Possessive"
                 cur.take()
             return Quant(child, q[0], q[1], mode)
         if ch == "{":
             save = cur.i
             mmin, mmax, mode = self.parse_brace_quant()
             if mmin is not None:
+                assert mmax is not None  # for type checkers
                 return Quant(child, mmin, mmax, mode)
             # else fallthrough (no quantifier actually parsed)
             cur.i = save
         return child
 
-    def parse_brace_quant(self) -> Tuple[Optional[int], Optional[int], str]:
+    def parse_brace_quant(self) -> Tuple[Optional[int], Optional[Union[int, str]], str]:
         cur = self.cur
         if not cur.match("{"):
             return None, None, "Greedy"
@@ -182,8 +204,9 @@ class Parser:
                 raise ParseError("Unterminated {n}", cur.i)
             mmin, mmax = m, m
         mode = "Greedy"
-        if cur.peek() in "?+":
-            mode = "Lazy" if cur.peek()=="?" else "Possessive"
+        nxt = cur.peek()
+        if nxt in "?+":
+            mode = "Lazy" if nxt == "?" else "Possessive"
             cur.take()
         return mmin, mmax, mode
 
@@ -192,7 +215,7 @@ class Parser:
         s = ""
         while cur.peek().isdigit():
             s += cur.take()
-        return int(s) if s!="" else None
+        return int(s) if s != "" else None
 
     # ---- atom ----
     def parse_atom(self) -> Node:
@@ -221,27 +244,30 @@ class Parser:
 
     # literal character outside special set
     def _take_literal_char(self) -> str:
-        cur = self.cur
-        ch = cur.take()
-        return ch
+        return self.cur.take()
 
     # ---- escapes and atoms formed by escapes ----
     def parse_escape_atom(self) -> Node:
         cur = self.cur
         assert cur.take() == "\\"
         nxt = cur.peek()
-        # Backref by index \1..
+        # Backref by index \1.. (but not \0)
         if nxt.isdigit() and nxt != "0":
             num = self._read_decimal()
             return Backref(byIndex=num)
-        # Anchors \b \B and absolute anchors \A \Z \z
-        if nxt in ("b","B","A","Z","z"):
+        # Anchors \b \B \A \Z \z
+        if nxt in ("b", "B", "A", "Z", "z"):
             ch = cur.take()
-            if ch == "b":  return Anchor("WordBoundary")
-            if ch == "B":  return Anchor("NotWordBoundary")
-            if ch == "A":  return Anchor("AbsoluteStart")
-            if ch == "Z":  return Anchor("EndBeforeFinalNewline")
-            if ch == "z":  return Anchor("AbsoluteEnd")
+            if ch == "b":
+                return Anchor("WordBoundary")
+            if ch == "B":
+                return Anchor("NotWordBoundary")
+            if ch == "A":
+                return Anchor("AbsoluteStart")
+            if ch == "Z":
+                return Anchor("EndBeforeFinalNewline")
+            if ch == "z":
+                return Anchor("AbsoluteEnd")
         # \k<name> named backref
         if nxt == "k":
             cur.take()
@@ -264,7 +290,6 @@ class Parser:
                 raise ParseError("Unterminated \\p{...}", cur.i)
             return CharClass(False, [ClassEscape(tp, prop)])
         # Escaped literal or hex/unicode/null escapes -> literal
-        # Handle \xHH, \x{...}, \uHHHH, \u{...}, \U........, \0
         if nxt == "x":
             return Lit(self._parse_hex_escape())
         if nxt == "u" or nxt == "U":
@@ -272,8 +297,7 @@ class Parser:
         if nxt == "0":
             cur.take()
             return Lit("\x00")
-        # Identity escape for special metachars
-        # Consume next char literally
+        # Identity escape: treat next char literally
         ch = cur.take()
         return Lit(ch)
 
@@ -306,10 +330,13 @@ class Parser:
             cp = int(hexs or "0", 16)
             return chr(cp)
         # \xHH
-        h1 = cur.take(); h2 = cur.take()
-        if not (re.match(r"[0-9A-Fa-f]", h1 or "") and re.match(r"[0-9A-Fa-f]", h2 or "")):
+        h1 = cur.take()
+        h2 = cur.take()
+        if not (
+            re.match(r"[0-9A-Fa-f]", h1 or "") and re.match(r"[0-9A-Fa-f]", h2 or "")
+        ):
             raise ParseError("Invalid \\xHH escape", cur.i)
-        return chr(int(h1+h2, 16))
+        return chr(int(h1 + h2, 16))
 
     def _parse_unicode_escape(self) -> str:
         cur = self.cur
@@ -344,23 +371,18 @@ class Parser:
         assert cur.take() == "["
         self.cur.in_class += 1
         neg = False
-        items = []
+        items: List[ClassItem] = []
         if cur.peek() == "^":
-            neg = True; cur.take()
-        while True:
-            if cur.eof():
-                raise ParseError("Unterminated character class", cur.i)
-            if cur.peek() == "]" and len(items) > 0:
-                cur.take()
-                self.cur.in_class -= 1
-                return CharClass(neg, items)
-            # Escape sequences allowed in class
+            neg = True
+            cur.take()
+
+        # helper: read one class item (escape or literal)
+        def read_item() -> ClassItem:
             if cur.peek() == "\\":
                 cur.take()
                 nxt = cur.peek()
                 if nxt in "dDwWsS":
-                    items.append(ClassEscape(cur.take()))
-                    continue
+                    return ClassEscape(cur.take())
                 if nxt in "pP":
                     tp = cur.take()
                     if not cur.match("{"):
@@ -368,54 +390,57 @@ class Parser:
                     prop = self._read_until("}")
                     if not cur.match("}"):
                         raise ParseError("Unterminated \\p{...}", cur.i)
-                    items.append(ClassEscape(tp, prop))
-                    continue
-                if nxt in ("x","u","U","0"):
-                    # treat as literal character from escape
-                    if nxt=="x":
+                    return ClassEscape(tp, prop)
+                if nxt in ("x", "u", "U", "0"):
+                    if nxt == "x":
                         ch = self._parse_hex_escape()
-                    elif nxt in ("u","U"):
+                    elif nxt in ("u", "U"):
                         ch = self._parse_unicode_escape()
                     else:
-                        cur.take(); ch = "\x00"
-                    items.append(ClassLiteral(ch))
-                    continue
-                # identity escape
-                ch = cur.take()
-                items.append(ClassLiteral(ch))
-                continue
-            # Range or literal
-            ch = cur.take()
-            if ch == "-" and (items and cur.peek() not in "]"):
-                # range
-                to_ch = cur.take()
-                if to_ch == "\\":
-                    # support escapes in range end as identity or hex/unicode
-                    nxt = cur.peek()
-                    if nxt in ("x","u","U","0"):
-                        if nxt=="x":
-                            to_real = self._parse_hex_escape()
-                        elif nxt in ("u","U"):
-                            to_real = self._parse_unicode_escape()
-                        else:
-                            cur.take(); to_real = "\x00"
-                    else:
-                        to_real = cur.take()
-                    items.append(ClassRange(items.pop().to_dict()["char"], to_real))  # type: ignore
+                        cur.take()
+                        ch = "\x00"
+                    return ClassLiteral(ch)
+                # identity escape -> literal
+                return ClassLiteral(cur.take())
+            # regular literal
+            return ClassLiteral(cur.take())
+
+        while True:
+            if cur.eof():
+                self.cur.in_class -= 1
+                raise ParseError("Unterminated character class", cur.i)
+
+            # ']' closes only if we've parsed at least one item; at position 0 it's a literal
+            if cur.peek() == "]" and len(items) > 0:
+                cur.take()
+                self.cur.in_class -= 1
+                return CharClass(neg, items)
+
+            # Range handling: '-' makes a range only if previous is a literal and next isn't ']'
+            if (
+                cur.peek() == "-"
+                and items
+                and isinstance(items[-1], ClassLiteral)
+                and cur.peek(1) != "]"
+            ):
+                # consume '-' and read the end item
+                cur.take()
+                end_item = read_item()
+                if isinstance(end_item, ClassLiteral):
+                    start_lit = cast(
+                        ClassLiteral, items.pop()
+                    )  # Explicitly cast for type checker
+                    start_ch: str = start_lit.ch
+                    end_ch: str = end_item.ch
+                    items.append(ClassRange(start_ch, end_ch))
                 else:
-                    # previous must be literal for range; if not, downgrade to literals
-                    prev = items.pop()
-                    if isinstance(prev, ClassLiteral) and len(to_ch)==1:
-                        items.append(ClassRange(prev.ch, to_ch))
-                    else:
-                        # push back as literals (approximation)
-                        if isinstance(prev, ClassLiteral):
-                            items.append(prev)
-                        items.append(ClassLiteral("-"))
-                        # reconsume to_ch
-                        items.append(ClassLiteral(to_ch))
-            else:
-                items.append(ClassLiteral(ch))
+                    # Can't form range with a class escape; degrade to literals (“-” + end_item)
+                    items.append(ClassLiteral("-"))
+                    items.append(end_item)
+                continue
+
+            # General case: read one item
+            items.append(read_item())
 
     # ---- Groups, lookarounds ----
     def parse_group_or_look(self) -> Node:
@@ -465,18 +490,20 @@ class Parser:
             raise ParseError("Unterminated group", cur.i)
         return Group(True, body)
 
+
 # ---------------- Public API ----------------
 def parse(src: str) -> Tuple[Flags, Node]:
     p = Parser(src)
     return p.flags, p.parse()
 
+
 def parse_to_artifact(src: str) -> Dict[str, Any]:
     flags, root = parse(src)
-    artifact = {
+    artifact: Dict[str, Any] = {
         "version": "1.0.0",
         "flags": flags.to_dict(),
         "root": root.to_dict(),
-        "warnings": [],
-        "errors": [],
+        "warnings": [],  # type: List[str]
+        "errors": [],  # type: List[str]
     }
     return artifact
