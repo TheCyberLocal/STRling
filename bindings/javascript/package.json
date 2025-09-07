@@ -1,31 +1,20 @@
 {
     "name": "@thecyberlocal/strling",
-    "version": "2.5.6",
-    "description": "STRling: a safer, portable, developer-friendly pattern language and builder",
-    "main": "STRling/index.js",
+    "version": "3.0.0-alpha",
     "type": "module",
-    "scripts": {
-        "test": "echo \"TODO: add tests\" && exit 0"
+    "exports": {
+        ".": "./dist/index.js",
+        "./core": "./dist/core/index.js",
+        "./emitters/pcre2": "./dist/emitters/pcre2.js",
+        "./simply": "./dist/simply/index.js"
     },
-    "keywords": [
-        "pattern",
-        "regex",
-        "string",
-        "text",
-        "matching",
-        "processing",
-        "parsing",
-        "validation"
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist/**/*"
     ],
-    "author": "Timothy Macfarlane",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/TheCyberLocal/STRling.git",
-        "directory": "bindings/javascript"
-    },
-    "bugs": {
-        "url": "https://github.com/TheCyberLocal/STRling/issues"
-    },
-    "homepage": "https://github.com/TheCyberLocal/STRling"
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "clean": "rimraf dist"
+    }
 }
