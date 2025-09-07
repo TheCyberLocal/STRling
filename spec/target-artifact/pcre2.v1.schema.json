@@ -1,9 +1,0 @@
-{
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "PCRE2 TargetArtifact v1",
-    "allOf": [
-        {
-            "$ref": "./base.schema.json"
-        }
-    ]
-}
