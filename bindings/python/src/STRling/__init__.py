@@ -1,0 +1,1 @@
+from STRling import simply
