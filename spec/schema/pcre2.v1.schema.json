@@ -1,0 +1,36 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/schema/pcre2.v1.schema.json",
+    "title": "STRling TargetArtifact → PCRE2 v1",
+    "allOf": [{ "$ref": "./base.schema.json" }],
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "emitter": { "const": "pcre2" },
+
+        "compat": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "variableLengthLookbehind": { "const": false },
+                "atomicGroups": { "const": true },
+                "unicodeProperties": { "const": true },
+                "ucpShorthandUsesUnicode": {
+                    "const": true,
+                    "description": "With UCP, \\w/\\d/\\s use Unicode properties."
+                },
+                "freeSpacing": { "const": true },
+                "absoluteAnchors": { "const": true }
+            },
+            "required": [
+                "variableLengthLookbehind",
+                "atomicGroups",
+                "unicodeProperties",
+                "ucpShorthandUsesUnicode",
+                "freeSpacing",
+                "absoluteAnchors"
+            ]
+        }
+    },
+    "required": ["emitter"]
+}

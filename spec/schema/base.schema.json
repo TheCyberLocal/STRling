@@ -1,0 +1,309 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/schema/base.schema.json",
+    "title": "STRling TargetArtifact (Base v1)",
+    "type": "object",
+    "required": ["version", "flags", "root"],
+    "additionalProperties": false,
+    "properties": {
+        "version": { "type": "string", "const": "1.0.0" },
+
+        "flags": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ignoreCase": { "type": "boolean" },
+                "multiline": { "type": "boolean" },
+                "dotAll": { "type": "boolean" },
+                "unicode": { "type": "boolean" },
+                "extended": { "type": "boolean" }
+            },
+            "required": [
+                "ignoreCase",
+                "multiline",
+                "dotAll",
+                "unicode",
+                "extended"
+            ]
+        },
+
+        "root": { "$ref": "#/$defs/Node" },
+
+        "warnings": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/Diagnostic" }
+        },
+
+        "errors": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/Diagnostic" }
+        },
+
+        "compat": {
+            "type": "object",
+            "description": "Engine feature gates / compatibility facts (engine-specific keys).",
+            "additionalProperties": {
+                "type": [
+                    "boolean",
+                    "string",
+                    "number",
+                    "object",
+                    "array",
+                    "null"
+                ]
+            }
+        },
+
+        "emitter": {
+            "type": "string",
+            "description": "Emitter identifier (engine name). Optional in base; required by engine-specific schemas."
+        }
+    },
+
+    "$defs": {
+        "Node": {
+            "oneOf": [
+                { "$ref": "#/$defs/Alt" },
+                { "$ref": "#/$defs/Seq" },
+                { "$ref": "#/$defs/Lit" },
+                { "$ref": "#/$defs/Dot" },
+                { "$ref": "#/$defs/Anchor" },
+                { "$ref": "#/$defs/CharClass" },
+                { "$ref": "#/$defs/Quant" },
+                { "$ref": "#/$defs/Group" },
+                { "$ref": "#/$defs/Backref" },
+                { "$ref": "#/$defs/Look" }
+            ]
+        },
+
+        "Alt": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "branches"],
+            "properties": {
+                "kind": { "const": "Alt" },
+                "branches": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": { "$ref": "#/$defs/Node" }
+                }
+            }
+        },
+
+        "Seq": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "parts"],
+            "properties": {
+                "kind": { "const": "Seq" },
+                "parts": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/Node" }
+                }
+            }
+        },
+
+        "Lit": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "value"],
+            "properties": {
+                "kind": { "const": "Lit" },
+                "value": { "type": "string", "minLength": 1 }
+            }
+        },
+
+        "Dot": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind"],
+            "properties": { "kind": { "const": "Dot" } }
+        },
+
+        "Anchor": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "at"],
+            "properties": {
+                "kind": { "const": "Anchor" },
+                "at": {
+                    "enum": [
+                        "Start",
+                        "End",
+                        "WordBoundary",
+                        "NotWordBoundary",
+                        "AbsoluteStart",
+                        "EndBeforeFinalNewline",
+                        "AbsoluteEnd"
+                    ]
+                }
+            }
+        },
+
+        "CharClass": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "negated", "items"],
+            "properties": {
+                "kind": { "const": "CharClass" },
+                "negated": { "type": "boolean" },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "oneOf": [
+                            { "$ref": "#/$defs/ClassRange" },
+                            { "$ref": "#/$defs/ClassLiteral" },
+                            { "$ref": "#/$defs/ClassEscape" }
+                        ]
+                    }
+                }
+            }
+        },
+
+        "ClassRange": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "from", "to"],
+            "properties": {
+                "kind": { "const": "Range" },
+                "from": { "type": "string", "minLength": 1, "maxLength": 1 },
+                "to": { "type": "string", "minLength": 1, "maxLength": 1 }
+            }
+        },
+
+        "ClassLiteral": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "char"],
+            "properties": {
+                "kind": { "const": "Char" },
+                "char": { "type": "string", "minLength": 1, "maxLength": 1 }
+            }
+        },
+
+        "ClassEscape": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "type"],
+            "properties": {
+                "kind": { "const": "Esc" },
+                "type": { "enum": ["d", "D", "w", "W", "s", "S", "p", "P"] },
+                "property": {
+                    "type": "string",
+                    "description": "Unicode property name or name=value (e.g., L, Letter, Script=Greek) for p/P."
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": { "type": { "enum": ["p", "P"] } },
+                        "required": ["type"]
+                    },
+                    "then": { "required": ["property"] }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": { "enum": ["d", "D", "w", "W", "s", "S"] }
+                        },
+                        "required": ["type"]
+                    },
+                    "then": { "not": { "required": ["property"] } }
+                }
+            ]
+        },
+
+        "Quant": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "child", "min", "max", "mode"],
+            "properties": {
+                "kind": { "const": "Quant" },
+                "child": { "$ref": "#/$defs/Node" },
+                "min": { "type": "integer", "minimum": 0 },
+                "max": {
+                    "anyOf": [
+                        { "type": "integer", "minimum": 0 },
+                        { "const": "Inf" }
+                    ]
+                },
+                "mode": {
+                    "enum": ["Greedy", "Lazy", "Possessive"]
+                }
+            }
+        },
+
+        "Group": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "capturing", "body"],
+            "properties": {
+                "kind": { "const": "Group" },
+                "capturing": { "type": "boolean" },
+                "name": { "type": "string", "minLength": 1 },
+                "atomic": {
+                    "type": "boolean",
+                    "description": "Atomic group (extension)"
+                },
+                "body": { "$ref": "#/$defs/Node" }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": { "capturing": { "const": false } },
+                        "required": ["capturing"]
+                    },
+                    "then": { "not": { "required": ["name"] } }
+                }
+            ]
+        },
+
+        "Backref": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind"],
+            "properties": {
+                "kind": { "const": "Backref" },
+                "byIndex": { "type": "integer", "minimum": 1 },
+                "byName": { "type": "string", "minLength": 1 }
+            },
+            "oneOf": [{ "required": ["byIndex"] }, { "required": ["byName"] }]
+        },
+
+        "Look": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "dir", "neg", "body"],
+            "properties": {
+                "kind": { "const": "Look" },
+                "dir": { "enum": ["Ahead", "Behind"] },
+                "neg": { "type": "boolean" },
+                "body": { "$ref": "#/$defs/Node" }
+            }
+        },
+
+        "Diagnostic": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "message", "location"],
+            "properties": {
+                "code": { "type": "string", "minLength": 1 },
+                "message": { "type": "string", "minLength": 1 },
+                "severity": { "enum": ["error", "warning", "info"] },
+                "location": { "$ref": "#/$defs/SourceRange" },
+                "hint": { "type": "string" }
+            }
+        },
+
+        "SourceRange": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["start", "end"],
+            "properties": {
+                "start": { "type": "integer", "minimum": 0 },
+                "end": { "type": "integer", "minimum": 0 }
+            },
+            "description": "Half-open range [start, end) in UTF-32 code-point indices."
+        }
+    }
+}
