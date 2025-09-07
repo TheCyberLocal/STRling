@@ -1,0 +1,2 @@
+%flags u,i
+^(?<area>\d{3})-(?<exch>\d{3})-(?<num>\d{4})$

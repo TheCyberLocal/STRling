@@ -1,0 +1,37 @@
+{
+    "version": "1.0.0",
+    "emitter": "pcre2",
+    "flags": {
+        "ignoreCase": false,
+        "multiline": false,
+        "dotAll": false,
+        "unicode": true,
+        "extended": false
+    },
+    "root": {
+        "kind": "Seq",
+        "parts": [
+            {
+                "kind": "Look",
+                "dir": "Behind",
+                "neg": false,
+                "body": { "kind": "Lit", "value": "$" }
+            },
+            {
+                "kind": "Quant",
+                "min": 1,
+                "max": "Inf",
+                "mode": "Greedy",
+                "child": {
+                    "kind": "CharClass",
+                    "negated": false,
+                    "items": [
+                        { "kind": "Esc", "type": "d" },
+                        { "kind": "Char", "char": "," }
+                    ]
+                }
+            }
+        ]
+    },
+    "compat": { "variableLengthLookbehind": false, "atomicGroups": true }
+}

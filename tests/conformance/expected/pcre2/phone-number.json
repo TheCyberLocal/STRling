@@ -1,0 +1,69 @@
+{
+    "version": "1.0.0",
+    "emitter": "pcre2",
+    "flags": {
+        "ignoreCase": true,
+        "multiline": false,
+        "dotAll": false,
+        "unicode": true,
+        "extended": false
+    },
+    "root": {
+        "kind": "Seq",
+        "parts": [
+            { "kind": "Anchor", "at": "Start" },
+            {
+                "kind": "Group",
+                "capturing": true,
+                "name": "area",
+                "body": {
+                    "kind": "Quant",
+                    "child": {
+                        "kind": "CharClass",
+                        "negated": false,
+                        "items": [{ "kind": "Esc", "type": "d" }]
+                    },
+                    "min": 3,
+                    "max": 3,
+                    "mode": "Greedy"
+                }
+            },
+            { "kind": "Lit", "value": "-" },
+            {
+                "kind": "Group",
+                "capturing": true,
+                "name": "exch",
+                "body": {
+                    "kind": "Quant",
+                    "child": {
+                        "kind": "CharClass",
+                        "negated": false,
+                        "items": [{ "kind": "Esc", "type": "d" }]
+                    },
+                    "min": 3,
+                    "max": 3,
+                    "mode": "Greedy"
+                }
+            },
+            { "kind": "Lit", "value": "-" },
+            {
+                "kind": "Group",
+                "capturing": true,
+                "name": "num",
+                "body": {
+                    "kind": "Quant",
+                    "child": {
+                        "kind": "CharClass",
+                        "negated": false,
+                        "items": [{ "kind": "Esc", "type": "d" }]
+                    },
+                    "min": 4,
+                    "max": 4,
+                    "mode": "Greedy"
+                }
+            },
+            { "kind": "Anchor", "at": "End" }
+        ]
+    },
+    "compat": { "variableLengthLookbehind": false, "atomicGroups": true }
+}
