@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "STRling"
+version = "3.0.0a0"
+description = "Next-gen string pattern DSL & compiler"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "TheCyberLocal" }]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+]
+
+[project.urls]
+Homepage = "https://github.com/TheCyberLocal/STRling"
+Documentation = "https://github.com/TheCyberLocal/STRling/tree/main/docs"
+Issues = "https://github.com/TheCyberLocal/STRling/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}   # map package root to ./src  (src layout)
+
+# Optional but explicit:
+[tool.setuptools.packages.find]
+where = ["src"]              # search here
+include = ["STRling*"]       # find STRling and subpackages
+# exclude = ["tests*"]       # (optional) keep tests out of the wheel
