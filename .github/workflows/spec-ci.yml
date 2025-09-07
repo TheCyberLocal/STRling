@@ -1,0 +1,32 @@
+name: Spec & Schema CI
+on:
+    push:
+        paths: ["spec/**", "tests/conformance/**"]
+    pull_request:
+        paths: ["spec/**", "tests/conformance/**"]
+
+jobs:
+    validate:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with: { node-version: "20" }
+            - run: npm i -g ajv-cli@5.0.0 ajv-formats@2.1.1
+
+            - name: Validate schemas and artifacts
+              run: |
+                  for f in tests/conformance/expected/pcre2/*.json; do
+                    ajv validate -s spec/schema/pcre2.v1.schema.json -d "$f"
+                  done
+            - name: Check for orphan .strl files
+              run: |
+                  fail=0
+                  for c in tests/conformance/cases/*.strl; do
+                    base=$(basename "$c" .strl)
+                    if [ ! -f "tests/conformance/expected/pcre2/${base}.json" ]; then
+                      echo "::error file=$c::Missing expected artifact for case: $base"
+                      fail=1
+                    fi
+                  done
+                  exit $fail
