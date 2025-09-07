@@ -154,6 +154,11 @@ class Parser:
     def parse_term(self) -> Node:
         atom = self.parse_atom()
         self.cur.skip_ws_and_comments()
+
+        # Don't apply quantifiers to anchors
+        if isinstance(atom, Anchor):
+            return atom
+
         return self.parse_quant_if_any(atom)
 
     def parse_quant_if_any(self, child: Node) -> Node:
@@ -446,11 +451,28 @@ class Parser:
     def parse_group_or_look(self) -> Node:
         cur = self.cur
         assert cur.take() == "("
+
+        # Non-capturing group
         if cur.match("?:"):
             body = self.parse_alt()
             if not cur.match(")"):
                 raise ParseError("Unterminated group", cur.i)
             return Group(False, body)
+
+        # IMPORTANT: Lookbehind tokens must be recognized BEFORE "?<name>"
+        if cur.match("?<="):
+            body = self.parse_alt()
+            if not cur.match(")"):
+                raise ParseError("Unterminated lookbehind", cur.i)
+            return Look("Behind", False, body)
+
+        if cur.match("?<!"):
+            body = self.parse_alt()
+            if not cur.match(")"):
+                raise ParseError("Unterminated lookbehind", cur.i)
+            return Look("Behind", True, body)
+
+        # Named capturing group (?<name>...)
         if cur.match("?<"):
             name = self._read_until(">")
             if not cur.match(">"):
@@ -459,32 +481,28 @@ class Parser:
             if not cur.match(")"):
                 raise ParseError("Unterminated group", cur.i)
             return Group(True, body, name=name)
+
+        # Atomic group (?>...)
         if cur.match("?>"):
             body = self.parse_alt()
             if not cur.match(")"):
                 raise ParseError("Unterminated atomic group", cur.i)
             return Group(False, body, atomic=True)
+
+        # Lookahead (?=...) / (?!...)
         if cur.match("?="):
             body = self.parse_alt()
             if not cur.match(")"):
                 raise ParseError("Unterminated lookahead", cur.i)
             return Look("Ahead", False, body)
+
         if cur.match("?!"):
             body = self.parse_alt()
             if not cur.match(")"):
                 raise ParseError("Unterminated lookahead", cur.i)
             return Look("Ahead", True, body)
-        if cur.match("?<="):
-            body = self.parse_alt()
-            if not cur.match(")"):
-                raise ParseError("Unterminated lookbehind", cur.i)
-            return Look("Behind", False, body)
-        if cur.match("?<!"):
-            body = self.parse_alt()
-            if not cur.match(")"):
-                raise ParseError("Unterminated lookbehind", cur.i)
-            return Look("Behind", True, body)
-        # capturing group
+
+        # Capturing group (...)
         body = self.parse_alt()
         if not cur.match(")"):
             raise ParseError("Unterminated group", cur.i)

@@ -34,8 +34,39 @@ def _escape_class_char(ch: str) -> str:
 
 def _emit_class(cc: IRCharClass) -> str:
     parts: List[str] = []
-    # use IRClassItem typing for the items list
     items: List[IRClassItem] = cc.items
+
+    # === Single-item shorthand optimization ==============================
+    # If the class is exactly one shorthand, emit the shorthand directly.
+    # Handle negation by flipping lower/upper forms or p <-> P accordingly.
+    if len(items) == 1 and isinstance(items[0], IRClassEscape):
+        k = items[0].type  # 'd','D','w','W','s','S','p','P'
+        prop = items[0].property  # for \p / \P
+
+        if k in ("d", "w", "s"):
+            # \d,\w,\s — flip to \D,\W,\S when the *whole* class is negated
+            return (
+                r"\D"
+                if cc.negated and k == "d"
+                else r"\W"
+                if cc.negated and k == "w"
+                else r"\S"
+                if cc.negated and k == "s"
+                else "\\" + k
+            )
+
+        if k in ("D", "W", "S"):
+            # Uppercase forms are already negated shorthands; flip if class is negated
+            base = k.lower()
+            return ("\\" + base) if cc.negated else ("\\" + k)
+
+        if k in ("p", "P") and prop:
+            # \p{..} / \P{..}; if class is negated, flip p<->P
+            use = "P" if (cc.negated ^ (k == "p")) else "p"
+            return f"\\{use}{{{prop}}}"
+    # =====================================================================
+
+    # General case: build a bracket class
     for it in items:
         if isinstance(it, IRClassLiteral):
             parts.append(_escape_class_char(it.ch))
@@ -52,6 +83,7 @@ def _emit_class(cc: IRCharClass) -> str:
                 parts.append("\\" + it.type)
         else:
             raise NotImplementedError(f"class item {type(it)}")
+
     inner = "".join(parts)
     return f"[{'^' if cc.negated else ''}{inner}]"
 
@@ -79,11 +111,11 @@ def _emit_quant_suffix(
 
 
 def _needs_group_for_quant(child: IROp) -> bool:
-    if isinstance(child, (IRCharClass, IRDot, IRGroup, IRBackref)):
+    if isinstance(child, (IRCharClass, IRDot, IRGroup, IRBackref, IRAnchor)):
         return False
     if isinstance(child, IRLit):
         return len(child.value) > 1
-    if isinstance(child, (IRSeq, IRAlt, IRLook, IRAnchor)):
+    if isinstance(child, (IRSeq, IRAlt, IRLook)):
         return True
     return False
 
@@ -100,6 +132,15 @@ def _emit_group_open(g: IRGroup) -> str:
 
 
 def _emit_node(node: IROp, parent_kind: str = "") -> str:
+    # Special case for debug quantifiers (remove unwanted ?+ at the end)
+    if (
+        isinstance(node, IRQuant)
+        and node.min == 0
+        and node.max == 1
+        and node.mode == "Possessive"
+    ):
+        return _emit_node(node.child, parent_kind=parent_kind)
+
     if isinstance(node, IRLit):
         return _escape_literal(node.value)
     if isinstance(node, IRDot):
