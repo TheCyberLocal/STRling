@@ -1,0 +1,22 @@
+{
+    "atomic_group": {
+        "pcre2": true,
+        "python": true,
+        "ecmascript": false
+    },
+    "possessive_quantifier": {
+        "pcre2": true,
+        "python": true,
+        "ecmascript": false
+    },
+    "lookbehind": {
+        "pcre2": true,
+        "python": true,
+        "ecmascript": true
+    },
+    "named_capture_group": {
+        "pcre2": true,
+        "python": true,
+        "ecmascript": true
+    }
+}
