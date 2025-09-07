@@ -19,6 +19,7 @@ jobs:
                   for f in tests/conformance/expected/pcre2/*.json; do
                     ajv validate -s spec/schema/pcre2.v1.schema.json -d "$f"
                   done
+
             - name: Check for orphan .strl files
               run: |
                   fail=0
