@@ -1,0 +1,124 @@
+(* STRling v3 Canonical Grammar *)
+(* This EBNF is aligned with the semantics.md document for Base Schema 1.0.0. *)
+
+(* --- Lexical Tokens ------------------------------------------------------ *)
+LETTER          = ? A through Z, a through z ? ;
+DIGIT           = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+HEX_DIGIT       = DIGIT | "A" | "B" | "C" | "D" | "E" | "F"
+                        | "a" | "b" | "c" | "d" | "e" | "f" ;
+
+IDENT_START     = LETTER | "_" ;
+IDENT_CONT      = IDENT_START | DIGIT ;
+IDENTIFIER      = IDENT_START, { IDENT_CONT } ;
+
+INTEGER         = DIGIT, { DIGIT } ;
+WHITESPACE      = " " | "\t" | "\r" | "\n" ;
+
+(* --- Top-Level Structure ------------------------------------------------- *)
+File            = { WHITESPACE }, [ Directives ], Pattern, { WHITESPACE } ;
+
+Directives      = Directive, { { WHITESPACE }, Directive } ;
+Directive       = "%flags", { WHITESPACE }, FlagList
+                | "%engine", { WHITESPACE }, IDENTIFIER
+                | "%lang", { WHITESPACE }, IDENTIFIER
+                ;
+FlagList        = Flag, { ",", Flag } ;
+Flag            = "i" | "m" | "s" | "u" | "x" ;
+
+(* --- Pattern Structure --------------------------------------------------- *)
+Pattern         = [ Alternation ] ; (* Allows for empty patterns *)
+Alternation     = Concatenation, { "|", Concatenation } ;
+Concatenation   = { Term } ;
+
+Term            = Atom, [ Quantifier ] ;
+
+Atom            = Group
+                | CharClass
+                | Dot
+                | Anchor
+                | Backreference
+                | Literal
+                ;
+
+(* --- Quantifiers --------------------------------------------------------- *)
+Quantifier      = ( GreedyQuant | LazyQuant | PossessiveQuant ) ;
+
+GreedyQuant     = "?" | "*" | "+"
+                | "{", INTEGER, "}"
+                | "{", INTEGER, ",", "}"
+                | "{", INTEGER, ",", INTEGER, "}"
+                ;
+LazyQuant       = GreedyQuant, "?" ;
+PossessiveQuant = GreedyQuant, "+" ; (* Extension Feature *)
+
+(* --- Atoms: Groups & Lookarounds ----------------------------------------- *)
+Group           = "(", GroupPrefix, Pattern, ")" ;
+
+GroupPrefix     =                      (* empty *)
+                | "?" GroupSpec ;
+
+GroupSpec       = ":"                  (* Non-capturing *)
+                | ">"                  (* Atomic group — Extension *)
+                | LookSigil            (* Lookaround *)
+                | "<" IDENTIFIER ">"   (* Named capture *)
+                ;
+
+LookSigil       = "=" | "!" | "<=" | "<!" ;
+
+(* --- Atoms: Character Classes -------------------------------------------- *)
+CharClass       = "[", [ "^" ], { ClassItem }, "]" ;
+ClassItem       = Range | SingleClassAtom ;
+Range           = SingleClassAtom, "-", SingleClassAtom ;
+
+SingleClassAtom = ClassShorthand
+                | PosixClass    (* Extension Feature *)
+                | LiteralChar
+                ;
+
+ClassShorthand  = EscapeSequence
+                | UnicodeProperty
+                ;
+
+UnicodeProperty = ("\p" | "\P"), "{", IDENTIFIER, [ "=", IDENTIFIER ], "}" ;
+
+PosixClass      = "[", ":", IDENTIFIER, ":", "]" ; (* e.g., [[:alpha:]] *)
+
+(* --- Atoms: Other -------------------------------------------------------- *)
+Dot             = "." ;
+
+Anchor          = "^" | "$" | CoreAnchorEscape | AbsoluteAnchorEscape ;
+CoreAnchorEscape = "\b" | "\B" ;
+AbsoluteAnchorEscape = "\A" | "\Z" | "\z" ; (* Extension Feature *)
+
+Backreference   = "\", INTEGER
+                | "\k<", IDENTIFIER, ">"
+                ;
+
+Literal         = LiteralChar ;
+LiteralChar     = EscapeSequence | ? Any character that is not a metacharacter ? ;
+
+(* --- Escape Sequences ---------------------------------------------------- *)
+EscapeSequence  = ControlEscape
+                | IdentityEscape
+                | HexEscape
+                | UnicodeEscape
+                | NullByteEscape
+                ;
+
+ControlEscape   = "\", ( "n" | "r" | "t" | "f" | "v" )          (* Core *)
+                | "\", ( "a" | "e" | "c", LETTER )              (* Extension *)
+                ;
+IdentityEscape  = "\", ? One of . \ | ( ) [ ] { } ^ $ * + ? ? ;
+
+HexEscape       = "\x", HEX_DIGIT, HEX_DIGIT
+                | "\x{", { HEX_DIGIT }, "}"
+                ;
+UnicodeEscape   = "\u", HEX_DIGIT, HEX_DIGIT, HEX_DIGIT, HEX_DIGIT
+                | "\u{", { HEX_DIGIT }, "}"
+                | "\U", HEX_DIGIT, HEX_DIGIT, HEX_DIGIT, HEX_DIGIT,
+                        HEX_DIGIT, HEX_DIGIT, HEX_DIGIT, HEX_DIGIT
+                ;
+NullByteEscape  = "\0" ; (* Only permitted octal-like escape *)
+
+(* Note: Ambiguous octal escapes and \Q...\E are explicitly excluded. *)
+(* Note: Inline modifiers like (?i) are explicitly excluded. *)
