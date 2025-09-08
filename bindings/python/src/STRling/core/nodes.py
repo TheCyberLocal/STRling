@@ -185,9 +185,9 @@ class Backref(Node):
     byName: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        data = {"kind": "Backref"}
+        data: Dict[str, Any] = {"kind": "Backref"}
         if self.byIndex is not None:
-            data["byIndex"] = str(self.byIndex)
+            data["byIndex"] = self.byIndex
         if self.byName is not None:
             data["byName"] = self.byName
         return data

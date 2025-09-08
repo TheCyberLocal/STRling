@@ -26,11 +26,8 @@ from .nodes import (
     Group,
     Backref,
     Look,
-    ClassItem,  # <-- Import ClassItem from nodes.py
+    ClassItem,
 )
-
-# Remove local ClassItem alias
-# ClassItem = Union[ClassLiteral, ClassRange, ClassEscape]
 
 
 # ---------------- Errors ----------------
@@ -138,6 +135,9 @@ class Parser:
         return Alt(branches)
 
     # seq := { term }
+    # FIX #1: The logic from the old `parse_term` was moved directly into `parse_seq`.
+    # This resolves the core bug where the parser was incorrectly associating
+    # quantifiers with entire sequences instead of individual atoms.
     def parse_seq(self) -> Node:
         parts: List[Node] = []
         while True:
@@ -145,48 +145,59 @@ class Parser:
             ch = self.cur.peek()
             if ch == "" or ch in ")|":
                 break
-            parts.append(self.parse_term())
+
+            atom = self.parse_atom()
+
+            # Don't apply quantifiers to anchors
+            if isinstance(atom, Anchor):
+                parts.append(atom)
+                continue
+
+            quantified_atom = self.parse_quant_if_any(atom)
+            parts.append(quantified_atom)
+
         if len(parts) == 1:
             return parts[0]
         return Seq(parts)
 
-    # term := atom quant?
-    def parse_term(self) -> Node:
-        atom = self.parse_atom()
-        self.cur.skip_ws_and_comments()
-
-        # Don't apply quantifiers to anchors
-        if isinstance(atom, Anchor):
-            return atom
-
-        return self.parse_quant_if_any(atom)
-
     def parse_quant_if_any(self, child: Node) -> Node:
         cur = self.cur
         ch = cur.peek()
-        if ch in "*+?":
-            mode = "Greedy"
-            if ch == "*":
-                q: Tuple[int, Union[int, str]] = (0, "Inf")
-            elif ch == "+":
-                q = (1, "Inf")
-            else:
-                q = (0, 1)
+
+        min_val, max_val, mode = None, None, "Greedy"
+
+        if ch == "*":
+            min_val, max_val = 0, "Inf"
             cur.take()
-            nxt = cur.peek()
-            if nxt in "?+":
-                mode = "Lazy" if nxt == "?" else "Possessive"
-                cur.take()
-            return Quant(child, q[0], q[1], mode)
-        if ch == "{":
+        elif ch == "+":
+            min_val, max_val = 1, "Inf"
+            cur.take()
+        elif ch == "?":
+            min_val, max_val = 0, 1
+            cur.take()
+        elif ch == "{":
             save = cur.i
-            mmin, mmax, mode = self.parse_brace_quant()
-            if mmin is not None:
-                assert mmax is not None  # for type checkers
-                return Quant(child, mmin, mmax, mode)
-            # else fallthrough (no quantifier actually parsed)
-            cur.i = save
-        return child
+            # This function returns (min, max, mode)
+            m, n, parsed_mode = self.parse_brace_quant()
+            if m is not None:
+                min_val, max_val, mode = m, n, parsed_mode
+            else:
+                cur.i = save  # Backtrack if it wasn't a quantifier
+
+        # If we didn't parse a quantifier, we're done
+        if min_val is None:
+            return child
+
+        # Now check for lazy/possessive modifiers
+        nxt = cur.peek()
+        if nxt == "?":
+            mode = "Lazy"
+            cur.take()
+        elif nxt == "+":
+            mode = "Possessive"
+            cur.take()
+
+        return Quant(child, min_val, max_val if max_val is not None else "Inf", mode)
 
     def parse_brace_quant(self) -> Tuple[Optional[int], Optional[Union[int, str]], str]:
         cur = self.cur
@@ -195,7 +206,8 @@ class Parser:
         # Parse integers
         m = self._read_int_optional()
         if m is None:
-            raise ParseError("Expected integer in {m,n}", cur.i)
+            # This is not a quantifier, it's a literal '{'. Backtrack.
+            return None, None, "Greedy"
         if cur.match(","):
             n = self._read_int_optional()
             if not cur.match("}"):
@@ -209,10 +221,7 @@ class Parser:
                 raise ParseError("Unterminated {n}", cur.i)
             mmin, mmax = m, m
         mode = "Greedy"
-        nxt = cur.peek()
-        if nxt in "?+":
-            mode = "Lazy" if nxt == "?" else "Possessive"
-            cur.take()
+        # Note: The lazy/possessive modifier is now handled in parse_quant_if_any
         return mmin, mmax, mode
 
     def _read_int_optional(self) -> Optional[int]:
@@ -374,12 +383,14 @@ class Parser:
     def parse_char_class(self) -> CharClass:
         cur = self.cur
         assert cur.take() == "["
+        start_pos = cur.i
         self.cur.in_class += 1
         neg = False
         items: List[ClassItem] = []
         if cur.peek() == "^":
             neg = True
             cur.take()
+            start_pos = cur.i
 
         # helper: read one class item (escape or literal)
         def read_item() -> ClassItem:
@@ -415,8 +426,8 @@ class Parser:
                 self.cur.in_class -= 1
                 raise ParseError("Unterminated character class", cur.i)
 
-            # ']' closes only if we've parsed at least one item; at position 0 it's a literal
-            if cur.peek() == "]" and len(items) > 0:
+            # FIX #2: Correctly handle ']' as a literal at the start of a class.
+            if cur.peek() == "]" and cur.i > start_pos:
                 cur.take()
                 self.cur.in_class -= 1
                 return CharClass(neg, items)
@@ -451,6 +462,10 @@ class Parser:
     def parse_group_or_look(self) -> Node:
         cur = self.cur
         assert cur.take() == "("
+
+        # FIX: Explicitly reject inline modifiers like `(?i)` which are not supported.
+        if cur.peek() == "?" and cur.peek(1) in "imsx":
+            raise ParseError("Inline modifiers `(?imsx)` are not supported", cur.i)
 
         # Non-capturing group
         if cur.match("?:"):
