@@ -89,6 +89,8 @@ class Parser:
         # Extract directives first
         self.flags, self.src = self._parse_directives(text)
         self.cur = Cursor(self.src, 0, self.flags.extended, 0)
+        self._cap_count: int = 0
+        self._cap_names: set[str] = set()
 
     # -- Directives --
 
@@ -268,6 +270,8 @@ class Parser:
         # Backref by index \1.. (but not \0)
         if nxt.isdigit() and nxt != "0":
             num = self._read_decimal()
+            if num > self._cap_count:
+                raise ParseError(f"Backreference to undefined group \\{num}", cur.i)
             return Backref(byIndex=num)
         # Anchors \b \B \A \Z \z
         if nxt in ("b", "B", "A", "Z", "z"):
@@ -290,6 +294,8 @@ class Parser:
             name = self._read_ident_until(">")
             if not cur.match(">"):
                 raise ParseError("Unterminated named backref", cur.i)
+            if name not in self._cap_names:
+                raise ParseError(f"Backreference to undefined group <{name}>", cur.i)
             return Backref(byName=name)
         # Shorthand classes \d \D \w \W \s \S or property \p{..} \P{..}
         if nxt in "dDwWsS":
@@ -463,7 +469,7 @@ class Parser:
         cur = self.cur
         assert cur.take() == "("
 
-        # FIX: Explicitly reject inline modifiers like `(?i)` which are not supported.
+        # Explicitly reject inline modifiers like `(?i)` which are not supported.
         if cur.peek() == "?" and cur.peek(1) in "imsx":
             raise ParseError("Inline modifiers `(?imsx)` are not supported", cur.i)
 
@@ -492,6 +498,8 @@ class Parser:
             name = self._read_until(">")
             if not cur.match(">"):
                 raise ParseError("Unterminated group name", cur.i)
+            self._cap_count += 1
+            self._cap_names.add(name)
             body = self.parse_alt()
             if not cur.match(")"):
                 raise ParseError("Unterminated group", cur.i)
@@ -518,6 +526,7 @@ class Parser:
             return Look("Ahead", True, body)
 
         # Capturing group (...)
+        self._cap_count += 1
         body = self.parse_alt()
         if not cur.match(")"):
             raise ParseError("Unterminated group", cur.i)

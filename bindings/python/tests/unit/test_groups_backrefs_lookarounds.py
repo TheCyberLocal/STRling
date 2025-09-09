@@ -26,7 +26,6 @@ def test_numeric_backref():
     assert parts[-1]["kind"] == "Backref" and parts[-1]["byIndex"] == 1
 
 
-@pytest.mark.xfail(reason="Forward ref detection may not be implemented yet")
 def test_forward_backref_should_error():
     with pytest.raises(ParseError):
         p2a(r"\1(a)")

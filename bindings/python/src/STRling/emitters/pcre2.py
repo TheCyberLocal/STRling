@@ -145,15 +145,6 @@ def _emit_group_open(g: IRGroup) -> str:
 
 
 def _emit_node(node: IROp, parent_kind: str = "") -> str:
-    # Discard pathological "debug" pattern: (child)?+  -> just child
-    if (
-        isinstance(node, IRQuant)
-        and node.min == 0
-        and node.max == 1
-        and node.mode == "Possessive"
-    ):
-        return _emit_node(node.child, parent_kind=parent_kind)
-
     if isinstance(node, IRLit):
         return _escape_literal(node.value)
 
