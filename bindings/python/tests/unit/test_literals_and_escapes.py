@@ -1,47 +1,215 @@
-from __future__ import annotations
+r"""
+Test Design — test_literals_and_escapes.py
 
-from typing import Any, Mapping, cast
+## Purpose
+This test suite validates the parser's handling of all literal characters and
+every form of escape sequence defined in the STRling DSL. It ensures that valid
+forms are correctly parsed into `Lit` AST nodes and that malformed or
+unsupported sequences raise the appropriate `ParseError`.
+
+## Description
+Literals and escapes are the most fundamental **atoms** in a STRling pattern,
+representing single, concrete characters. This module tests the parser's ability
+to distinguish between literal characters and special metacharacters, and to
+correctly interpret the full range of escape syntaxes (identity, control, hex,
+and Unicode). The expected behavior is for the parser to consume these tokens
+and produce a `nodes.Lit` object containing the corresponding character value.
+
+## Scope
+-   **In scope:**
+    -   Parsing of single literal characters.
+
+    -   Parsing of all supported escape sequences (`\x`, `\u`, `\U`, `\0`, identity).
+
+    -   Error handling for malformed or unsupported escapes (like octal).
+
+    -   The shape of the resulting `Lit` AST node.
+
+-   **Out of scope:**
+    -   How literals are quantified (covered in `test_quantifiers.py`).
+
+    -   How literals behave inside character classes (covered in `test_char_classes.py`).
+
+    -   Emitter-specific escaping (covered in `test_emitter_edges.py`).
+
+"""
 
 import pytest
-from STRling.core.parser import parse_to_artifact as p2a, ParseError
+
+from STRling.core.parser import parse, ParseError
+from STRling.core.nodes import Lit, Seq, Backref
+
+# --- Test Suite -----------------------------------------------------------------
 
 
-def node(art: Mapping[str, Any]) -> Mapping[str, Any]:
-    return cast(Mapping[str, Any], art["root"])
+class TestCategoryAPositiveCases:
+    """
+    Covers all positive cases for valid literal and escape syntax.
+    """
+
+    @pytest.mark.parametrize(
+        "input_dsl, expected_char",
+        [
+            # A.1: Plain Literals
+            ("a", "a"),
+            ("_", "_"),
+            # A.2: Identity Escapes
+            (r"\.", "."),
+            (r"\(", "("),
+            (r"\*", "*"),
+            (r"\\", "\\"),
+            # A.3: Control & Whitespace Escapes
+            (r"\n", "\n"),
+            (r"\t", "\t"),
+            (r"\r", "\r"),
+            (r"\f", "\f"),
+            (r"\v", "\v"),
+            # A.4: Hexadecimal Escapes
+            (r"\x41", "A"),
+            (r"\x4a", "J"),
+            (r"\x{41}", "A"),
+            (r"\x{1F600}", "😀"),
+            # A.5: Unicode Escapes
+            (r"\u0041", "A"),
+            (r"\u{41}", "A"),
+            (r"\u{1f600}", "😀"),
+            (r"\U0001F600", "😀"),
+            # A.6: Null Byte Escape
+            (r"\0", "\x00"),
+        ],
+        ids=[
+            "plain_literal_letter",
+            "plain_literal_underscore",
+            "identity_escape_dot",
+            "identity_escape_paren",
+            "identity_escape_star",
+            "identity_escape_backslash",
+            "control_escape_newline",
+            "control_escape_tab",
+            "control_escape_carriage_return",
+            "control_escape_form_feed",
+            "control_escape_vertical_tab",
+            "hex_escape_fixed",
+            "hex_escape_fixed_case",
+            "hex_escape_brace",
+            "hex_escape_brace_non_bmp",
+            "unicode_escape_fixed",
+            "unicode_escape_brace_bmp",
+            "unicode_escape_brace_non_bmp",
+            "unicode_escape_fixed_supplementary",
+            "null_byte_escape",
+        ],
+    )
+    def test_valid_literals_and_escapes_are_parsed_correctly(
+        self, input_dsl: str, expected_char: str
+    ):
+        """
+        Tests that a valid literal or escape sequence is parsed into the correct
+        Lit AST node.
+        """
+        _flags, ast = parse(input_dsl)
+        assert ast == Lit(expected_char)
 
 
-def test_literal_sequence_and_dot() -> None:
-    art = p2a("ab.c")
-    seq = node(art)
-    assert seq["kind"] == "Seq"
-    kinds = [p["kind"] for p in seq["parts"]]
-    assert kinds == ["Lit", "Lit", "Dot", "Lit"]
+class TestCategoryBNegativeCases:
+    """
+    Covers negative cases for malformed or unsupported syntax.
+    """
+
+    @pytest.mark.parametrize(
+        "invalid_dsl, error_message_prefix, error_position",
+        [
+            # B.1: Malformed Hex/Unicode
+            (r"\x{12", "Unterminated \\x{...}", 4),
+            (r"\xG", "Invalid \\xHH escape", 3),
+            (r"\u{1F60", "Unterminated \\u{...}", 6),
+            (r"\u123", "Invalid \\uHHHH", 5),
+            (r"\U1234567", "Invalid \\UHHHHHHHH", 9),
+            # B.2: Stray Metacharacters
+            (")", "Unexpected token", 0),
+            ("|", "Unexpected trailing input", 0),
+        ],
+        ids=[
+            "unterminated_hex_brace",
+            "invalid_hex_char_short",
+            "unterminated_unicode_brace",
+            "incomplete_unicode_fixed",
+            "incomplete_unicode_supplementary",
+            "stray_closing_paren",
+            "stray_pipe",
+        ],
+    )
+    def test_malformed_syntax_raises_parse_error(
+        self, invalid_dsl: str, error_message_prefix: str, error_position: int
+    ):
+        """
+        Tests that malformed escape syntax raises a ParseError with the correct
+        message and position.
+        """
+        with pytest.raises(ParseError, match=error_message_prefix) as excinfo:
+            parse(invalid_dsl)
+        assert excinfo.value.pos == error_position
+
+    def test_forbidden_octal_escape_parses_as_backref_and_literals(self):
+        """
+        Tests that a forbidden octal escape (e.g., \123) is parsed as a
+        backreference followed by literals, per parser logic, not a single
+        character.
+        """
+        _flags, ast = parse(r"\123")
+        assert ast == Seq(parts=[Backref(byIndex=1), Lit("2"), Lit("3")])
 
 
-def test_identity_escape_of_metachar() -> None:
-    art = p2a(r"\.\(\)\[\]\{\}\^\$\*\+\?\|\\")
-    vals = [p["value"] for p in node(art)["parts"]]
-    assert "".join(vals) == ".()[]{}^$*+?|\\"
+class TestCategoryCEdgeCases:
+    """
+    Covers edge cases for literals and escapes.
+    """
+
+    @pytest.mark.parametrize(
+        "input_dsl, expected_char",
+        [
+            (r"\u{10FFFF}", "\U00010fffF"),
+            (r"\x{0}", "\x00"),
+            (r"\x{}", "\x00"),
+        ],
+        ids=[
+            "max_unicode_value",
+            "zero_value_hex_brace",
+            "empty_hex_brace",
+        ],
+    )
+    def test_edge_case_escapes(self, input_dsl: str, expected_char: str):
+        """Tests unusual but valid escape sequences."""
+        _flags, ast = parse(input_dsl)
+        assert ast == Lit(expected_char)
+
+    def test_escaped_null_byte(self):
+        """
+        Tests that an escaped backslash followed by a zero is not parsed as
+        a null byte.
+        """
+        _flags, ast = parse(r"\\0")
+        assert ast == Seq(parts=[Lit("\\"), Lit("0")])
 
 
-def test_null_and_hex_escapes() -> None:
-    art = p2a(r"\0\x41")
-    seq = node(art)
-    vals = [p["value"] for p in seq["parts"]]
-    assert vals == ["\x00", "A"]
+class TestCategoryDInteractionCases:
+    """
+    Covers interactions between literals/escapes and free-spacing mode.
+    """
 
+    def test_free_spacing_ignores_whitespace_between_literals(self):
+        """
+        Tests that in free-spacing mode, whitespace between literals is
+        ignored, resulting in a sequence of Lit nodes.
 
-def test_unicode_escapes_short_and_braced_and_long() -> None:
-    art = p2a(r"\u0041\u{1F600}\U0000005A")  # A, 😀, Z
-    vals = [p["value"] for p in node(art)["parts"]]
-    assert vals == ["A", "😀", "Z"]
+        """
+        _flags, ast = parse("%flags x\n a b #comment\n c")
+        assert ast == Seq(parts=[Lit("a"), Lit("b"), Lit("c")])
 
-
-def test_bad_hex_raises() -> None:
-    with pytest.raises(ParseError):
-        p2a(r"\xG1")
-
-
-def test_bad_unicode_raises() -> None:
-    with pytest.raises(ParseError):
-        p2a(r"\u12Z4")
+    def test_free_spacing_respects_escaped_whitespace(self):
+        """
+        Tests that in free-spacing mode, an escaped space is parsed as a
+        literal space character.
+        """
+        _flags, ast = parse("%flags x\n a \\ b ")
+        assert ast == Seq(parts=[Lit("a"), Lit(" "), Lit("b")])
