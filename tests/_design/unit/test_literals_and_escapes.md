@@ -13,13 +13,13 @@ Literals and escapes are the most fundamental **atoms** in a STRling pattern, re
 -   **In scope:**
 
     -   Parsing of single, non-metacharacter literals.
-    -   [cite_start]Parsing of all supported escape sequences: identity (`\.`, `\\`, etc.), control (`\n`, `\t`), hex (`\xHH`, `\x{...}`), Unicode (`\uHHHH`, `\U...`, `\u{...}`), and the null byte (`\0`). [cite: 59, 60, 61, 62]
-    -   [cite_start]Error handling for invalid, malformed, or explicitly forbidden escape sequences (e.g., incomplete hex escapes, octal escapes). [cite: 72]
+    -   Parsing of all supported escape sequences: identity (`\.`, `\\`, etc.), control (`\n`, `\t`), hex (`\xHH`, `\x{...}`), Unicode (`\uHHHH`, `\U...`, `\u{...}`), and the null byte (`\0`).
+    -   Error handling for invalid, malformed, or explicitly forbidden escape sequences (e.g., incomplete hex escapes, octal escapes).
     -   The structure and value of the resulting `nodes.Lit` AST node.
 
 -   **Out of scope:**
     -   Quantification of literals (covered in `test_quantifiers.py`).
-    -   [cite_start]Behavior of literals and escapes inside a character class (covered in `test_char_classes.py`). [cite: 41]
+    -   Behavior of literals and escapes inside a character class (covered in `test_char_classes.py`).
     -   Emitter-specific escaping of literals (covered in `test_emitter_edges.py`).
 
 ## Categories of Tests
@@ -27,16 +27,16 @@ Literals and escapes are the most fundamental **atoms** in a STRling pattern, re
 ### Category A — Positive Cases (Valid Syntax)
 
 -   **Plain Literals**: Test that non-metacharacters like `a`, `Z`, `1`, `_`, and `-` are parsed into a `Lit` node with the same character value.
--   [cite_start]**Identity Escapes**: Test that escaped metacharacters (`\.`, `\(`, `\|`, `\^`, `\$`, `\*`, `\+`, `\?`, `\{`, `\[`, `\\`) are parsed as `Lit` nodes of the literal character. [cite: 65, 66]
--   [cite_start]**Control & Whitespace Escapes**: Test that `\n`, `\r`, `\t`, `\f`, and `\v` are parsed as `Lit` nodes containing their respective control characters. [cite: 63]
+-   **Identity Escapes**: Test that escaped metacharacters (`\.`, `\(`, `\|`, `\^`, `\$`, `\*`, `\+`, `\?`, `\{`, `\[`, `\\`) are parsed as `Lit` nodes of the literal character.
+-   **Control & Whitespace Escapes**: Test that `\n`, `\r`, `\t`, `\f`, and `\v` are parsed as `Lit` nodes containing their respective control characters.
 -   **Hexadecimal Escapes**:
-    -   [cite_start]Test the fixed-width form `\xHH` (e.g., `\x41` → `Lit('A')`). [cite: 67]
-    -   [cite_start]Test the variable-width brace form `\x{...}` with varying numbers of digits (e.g., `\x{41}` → `Lit('A')`, `\x{1F600}` → `Lit('😀')`). [cite: 68]
+    -   Test the fixed-width form `\xHH` (e.g., `\x41` → `Lit('A')`).
+    -   Test the variable-width brace form `\x{...}` with varying numbers of digits (e.g., `\x{41}` → `Lit('A')`, `\x{1F600}` → `Lit('😀')`).
 -   **Unicode Escapes**:
-    -   [cite_start]Test the fixed-width BMP form `\uHHHH` (e.g., `\u0041` → `Lit('A')`). [cite: 69]
-    -   [cite_start]Test the fixed-width supplementary plane form `\UHHHHHHHH` (e.g., `\U0001F600` → `Lit('😀')`). [cite: 71]
-    -   [cite_start]Test the variable-width brace form `\u{...}` for both BMP and supplementary plane characters (e.g., `\u{41}` → `Lit('A')`, `\u{1f600}` → `Lit('😀')`). [cite: 70]
--   [cite_start]**Null Byte Escape**: Test that `\0` is correctly parsed as a `Lit` node containing the null character (`\x00`). [cite: 72]
+    -   Test the fixed-width BMP form `\uHHHH` (e.g., `\u0041` → `Lit('A')`).
+    -   Test the fixed-width supplementary plane form `\UHHHHHHHH` (e.g., `\U0001F600` → `Lit('😀')`).
+    -   Test the variable-width brace form `\u{...}` for both BMP and supplementary plane characters (e.g., `\u{41}` → `Lit('A')`, `\u{1f600}` → `Lit('😀')`).
+-   **Null Byte Escape**: Test that `\0` is correctly parsed as a `Lit` node containing the null character (`\x00`).
 
 ### Category B — Negative Cases (Parse Errors)
 
@@ -49,14 +49,14 @@ Literals and escapes are the most fundamental **atoms** in a STRling pattern, re
     -   Incomplete fixed-width forms: `\u123` and `\U1234567` must raise errors for invalid length.
 -   **Forbidden Escapes (per `semantics.md`)**:
     -   Octal escapes other than `\0` (e.g., `\123`) must raise a `ParseError`. The parser logic shows this will be parsed as a backreference (`\1`) followed by literals (`23`), so the test should confirm this behavior rather than a specific "octal forbidden" error for now.
-    -   [cite_start]Unsupported control escapes like `\a` or `\e` should parse as identity escapes (`Lit('a')`, `Lit('e')`). [cite: 64]
+    -   Unsupported control escapes like `\a` or `\e` should parse as identity escapes (`Lit('a')`, `Lit('e')`).
 -   **Stray Metacharacters**: An unescaped `)` that doesn't close a group should raise `ParseError("Unexpected token", 0)`.
 
 ### Category C — Edge Cases
 
 -   **Max Unicode Value**: Test the highest valid Unicode code point: `\u{10FFFF}`.
--   **Empty Brace Escapes**: Test `\x{}` and `\u{}`. [cite_start]The parser should treat these as `\x00`. [cite: 68, 70]
--   [cite_start]**Case Insensitivity**: Hex escape forms should be case-insensitive (e.g., `\x4a` and `\x4A` should both parse to `Lit('J')`). [cite: 4, 5, 6]
+-   **Empty Brace Escapes**: Test `\x{}` and `\u{}`. The parser should treat these as `\x00`.
+-   **Case Insensitivity**: Hex escape forms should be case-insensitive (e.g., `\x4a` and `\x4A` should both parse to `Lit('J')`).
 -   **Escaped Null Byte**: Test that the sequence `\\0` is parsed as a `Seq` of `Lit('\\')` and `Lit('0')`, not as a single null character.
 
 ### Category D — Cross-Semantics / Interaction
