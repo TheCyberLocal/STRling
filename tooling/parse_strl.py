@@ -9,7 +9,7 @@ from STRling.core.validator import validate_artifact
 
 
 def main():
-    ap = argparse.ArgumentParser(description="STRling Parser & Emitter (Sprint 3+4)")
+    ap = argparse.ArgumentParser(description="STRling Parser & Emitter")
     ap.add_argument("input", help=".strl file path or '-' for stdin")
     ap.add_argument("--schema", help="Path to base.schema.json for validation")
     ap.add_argument(
