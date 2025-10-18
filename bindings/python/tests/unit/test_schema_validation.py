@@ -46,7 +46,7 @@ from STRling.core.validator import validate_artifact
 # --- Test Suite Setup -----------------------------------------------------------
 
 # Define a robust path to the schema files relative to this test file
-SPEC_DIR = Path(__file__).parent.parent.parent.parent / "spec/schema"
+SPEC_DIR = Path(__file__).parent.parent.parent.parent.parent / "spec/schema"
 BASE_SCHEMA_PATH = str(SPEC_DIR / "base.schema.json")
 PCRE2_SCHEMA_PATH = str(SPEC_DIR / "pcre2.v1.schema.json")
 

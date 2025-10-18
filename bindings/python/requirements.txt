@@ -3,3 +3,4 @@ wheel
 build
 twine
 pytest
+jsonschema

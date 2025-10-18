@@ -43,7 +43,7 @@ from pathlib import Path
 
 # Define robust paths relative to this test file
 TEST_DIR = Path(__file__).parent
-PROJECT_ROOT = TEST_DIR.parent.parent.parent
+PROJECT_ROOT = TEST_DIR.parent.parent.parent.parent
 CLI_PATH = str(PROJECT_ROOT / "tooling" / "parse_strl.py")
 SPEC_DIR = PROJECT_ROOT / "spec" / "schema"
 BASE_SCHEMA_PATH = str(SPEC_DIR / "base.schema.json")
