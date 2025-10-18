@@ -3,17 +3,44 @@ from typing import Mapping, Any
 from pathlib import Path
 import json
 
-# jsonschema is typed on modern versions
-from jsonschema import validate
+from jsonschema import Draft202012Validator
+
+try:
+    # referencing>=0.36 exposes Registry at the top level
+    from referencing import Registry  # type: ignore
+except Exception:  # pragma: no cover – fallback if very old referencing
+    Registry = None  # type: ignore[assignment]
 
 Schema = Mapping[str, Any]
 
 
-def validate_artifact(artifact: Mapping[str, Any], schema_path: str) -> None:
-    """
-    Validate a TargetArtifact against a JSON Schema.
-    Raises jsonschema.exceptions.ValidationError on failure.
+def validate_artifact(
+    artifact: Mapping[str, Any],
+    schema_path: str,
+    registry: "Registry | None" = None,
+) -> None:
+    """Validate a TargetArtifact against a JSON Schema (draft 2020-12).
+
+    Parameters
+    ----------
+    artifact : Mapping[str, Any]
+        The concrete artifact to validate.
+    schema_path : str
+        Filesystem path to the JSON schema (can contain $ref).
+    registry : referencing.Registry | None
+        Optional pre-built referencing registry to resolve $ref / $dynamicRef.
+
+    Raises
+    ------
+    jsonschema.exceptions.ValidationError
+        If validation fails.
     """
     schema_text = Path(schema_path).read_text(encoding="utf-8")
     schema: Schema = json.loads(schema_text)
-    validate(instance=artifact, schema=schema)
+
+    if registry is not None:
+        validator = Draft202012Validator(schema, registry=registry)
+    else:
+        validator = Draft202012Validator(schema)
+
+    validator.validate(instance=artifact)

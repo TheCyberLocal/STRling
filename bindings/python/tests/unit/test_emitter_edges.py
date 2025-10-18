@@ -57,6 +57,84 @@ from STRling.core.ir import (
     IROp,
 )
 
+# Add these imports at the top if not already present
+import re
+from STRling.emitters.pcre2 import _escape_literal, _escape_class_char
+
+# Add these new test functions within a test class (e.g., TestCategoryAEscapingLogic)
+# or as standalone test functions in the file.
+
+# --- Temporary Tests for _escape_literal (outside class) ---
+
+
+def test_escape_literal_dot():
+    """Verify how _escape_literal handles '.'"""
+    assert _escape_literal(".") == re.escape(".")  # Expected: r'\.'
+
+
+def test_escape_literal_backslash():
+    """Verify how _escape_literal handles '\'"""
+    assert _escape_literal("\\") == re.escape("\\")  # Expected: r'\\'
+
+
+def test_escape_literal_bracket():
+    """Verify how _escape_literal handles '['"""
+    assert _escape_literal("[") == re.escape("[")  # Expected: r'\['
+
+
+def test_escape_literal_brace():
+    """Verify how _escape_literal handles '{'"""
+    assert _escape_literal("{") == re.escape("{")  # Expected: r'\{'
+
+
+def test_escape_literal_plain():
+    """Verify how _escape_literal handles a plain char 'a'"""
+    assert _escape_literal("a") == re.escape("a")  # Expected: 'a'
+
+
+# --- Temporary Tests for _escape_class_char (inside class) ---
+
+
+def test_escape_class_char_closing_bracket():
+    """Verify how _escape_class_char handles ']' inside class"""
+    assert _escape_class_char("]") == r"\]"  # Expected: \]
+
+
+def test_escape_class_char_backslash():
+    """Verify how _escape_class_char handles '\' inside class"""
+    assert _escape_class_char("\\") == r"\\"  # Expected: \\
+
+
+def test_escape_class_char_hyphen():
+    """Verify how _escape_class_char handles '-' inside class"""
+    # Assuming _emit_class handles placement, this should only escape if needed
+    # Let's test the current function's direct output
+    assert _escape_class_char("-") == r"\-"  # Expected based on last attempt: \-
+
+
+def test_escape_class_char_caret():
+    """Verify how _escape_class_char handles '^' inside class"""
+    # Should generally be literal unless at the very start (handled by _emit_class)
+    assert _escape_class_char("^") == "^"  # Expected: ^ (unescaped)
+
+
+def test_escape_class_char_opening_bracket():
+    """Verify how _escape_class_char handles '[' inside class"""
+    # Should be literal inside a class
+    assert _escape_class_char("[") == "["  # Expected: [ (unescaped)
+
+
+def test_escape_class_char_dot():
+    """Verify how _escape_class_char handles '.' inside class"""
+    # Should be literal
+    assert _escape_class_char(".") == "."  # Expected: . (unescaped)
+
+
+def test_escape_class_char_newline():
+    """Verify how _escape_class_char handles '\n' inside class"""
+    assert _escape_class_char("\n") == r"\n"  # Expected: \n
+
+
 # --- Test Suite -----------------------------------------------------------------
 
 

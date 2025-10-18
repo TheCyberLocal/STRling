@@ -38,7 +38,10 @@ import pytest
 from pathlib import Path
 from typing import Dict, Any
 
-from jsonschema.exceptions import ValidationError  # type: ignore
+import json
+
+from jsonschema.exceptions import ValidationError
+from referencing import Registry, Resource
 
 from STRling.core.parser import parse_to_artifact
 from STRling.core.validator import validate_artifact
@@ -46,10 +49,29 @@ from STRling.core.validator import validate_artifact
 # --- Test Suite Setup -----------------------------------------------------------
 
 # Define a robust path to the schema files relative to this test file
-SPEC_DIR = Path(__file__).parent.parent.parent.parent.parent / "spec/schema"
-BASE_SCHEMA_PATH = str(SPEC_DIR / "base.schema.json")
-PCRE2_SCHEMA_PATH = str(SPEC_DIR / "pcre2.v1.schema.json")
+SPEC_DIR = Path(__file__).parent.parent.parent.parent.parent / "spec" / "schema"
+BASE_SCHEMA_PATH = SPEC_DIR / "base.schema.json"
+PCRE2_SCHEMA_PATH = SPEC_DIR / "pcre2.v1.schema.json"
 
+# Define the schema IDs from the $id fields in the JSON files
+BASE_SCHEMA_ID = "https://strling.dev/schema/base.schema.json"
+PCRE2_SCHEMA_ID = "https://strling.dev/schema/pcre2.v1.schema.json"
+
+# Load schema contents into Resource objects
+base_schema_resource = Resource.from_contents(
+    json.loads(BASE_SCHEMA_PATH.read_text(encoding="utf-8"))
+)
+pcre2_schema_resource = Resource.from_contents(
+    json.loads(PCRE2_SCHEMA_PATH.read_text(encoding="utf-8"))
+)
+
+# Create a registry that maps the network URLs to our local file resources
+test_registry = Registry().with_resources(
+    [
+        (BASE_SCHEMA_ID, base_schema_resource),
+        (PCRE2_SCHEMA_ID, pcre2_schema_resource),
+    ]
+)
 
 # --- Test Suite -----------------------------------------------------------------
 
@@ -65,7 +87,7 @@ class TestCategoryAPositiveCases:
         base schema.
         """
         artifact = parse_to_artifact("a")
-        validate_artifact(artifact, BASE_SCHEMA_PATH)  # Should not raise
+        validate_artifact(artifact, str(BASE_SCHEMA_PATH), registry=test_registry)
 
     def test_comprehensive_artifact_validates(self):
         """
@@ -77,7 +99,7 @@ class TestCategoryAPositiveCases:
             r"(?<A>a|b)? - (?<=\b) \d+ \k<A>"
         )
         artifact = parse_to_artifact(complex_dsl)
-        validate_artifact(artifact, BASE_SCHEMA_PATH)  # Should not raise
+        validate_artifact(artifact, str(BASE_SCHEMA_PATH), registry=test_registry)
 
     def test_pcre2_specific_artifact_validates(self):
         """
@@ -95,7 +117,7 @@ class TestCategoryAPositiveCases:
             "freeSpacing": True,
             "absoluteAnchors": True,
         }
-        validate_artifact(artifact, PCRE2_SCHEMA_PATH)  # Should not raise
+        validate_artifact(artifact, str(PCRE2_SCHEMA_PATH), registry=test_registry)
 
 
 class TestCategoryBNegativeCases:
@@ -151,7 +173,9 @@ class TestCategoryBNegativeCases:
         with a descriptive message.
         """
         with pytest.raises(ValidationError) as excinfo:
-            validate_artifact(invalid_artifact, BASE_SCHEMA_PATH)
+            validate_artifact(
+                invalid_artifact, str(BASE_SCHEMA_PATH), registry=test_registry
+            )
         assert error_substring in str(excinfo.value)
 
 
@@ -165,11 +189,11 @@ class TestCategoryCEdgeCases:
         Tests that an artifact generated from an empty DSL string is valid.
         """
         artifact = parse_to_artifact("")
-        validate_artifact(artifact, BASE_SCHEMA_PATH)
+        validate_artifact(artifact, str(BASE_SCHEMA_PATH), registry=test_registry)
 
     def test_flags_only_artifact_validates(self):
         """
         Tests that an artifact from a source with only a flags directive is valid.
         """
         artifact = parse_to_artifact("%flags i,m")
-        validate_artifact(artifact, BASE_SCHEMA_PATH)
+        validate_artifact(artifact, str(BASE_SCHEMA_PATH), registry=test_registry)

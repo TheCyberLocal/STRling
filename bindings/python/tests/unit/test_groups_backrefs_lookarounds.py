@@ -137,8 +137,8 @@ class TestCategoryBNegativeCases:
             (r"\k<A", "Unterminated named backref", 4),
             # B.2: Invalid backreferences
             (r"\k<A>(?<A>a)", "Backreference to undefined group <A>", 0),
-            (r"\2(a)(b)", "Backreference to undefined group \\2", 0),
-            (r"(a)\2", "Backreference to undefined group \\2", 3),
+            (r"\2(a)(b)", "Backreference to undefined group \\\\2", 0),
+            (r"(a)\2", "Backreference to undefined group \\\\2", 3),
             # B.3: Invalid syntax
             ("(?i)a", "Inline modifiers", 1),
         ],

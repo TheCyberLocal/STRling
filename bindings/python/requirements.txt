@@ -4,3 +4,4 @@ build
 twine
 pytest
 jsonschema
+referencing

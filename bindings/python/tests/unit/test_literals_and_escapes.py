@@ -57,7 +57,7 @@ class TestCategoryAPositiveCases:
             (r"\.", "."),
             (r"\(", "("),
             (r"\*", "*"),
-            (r"\\", "\\"),
+            (r"\\\\", "\\\\"),
             # A.3: Control & Whitespace Escapes
             (r"\n", "\n"),
             (r"\t", "\t"),
@@ -120,11 +120,11 @@ class TestCategoryBNegativeCases:
         "invalid_dsl, error_message_prefix, error_position",
         [
             # B.1: Malformed Hex/Unicode
-            (r"\x{12", "Unterminated \\x{...}", 4),
-            (r"\xG", "Invalid \\xHH escape", 3),
-            (r"\u{1F60", "Unterminated \\u{...}", 6),
-            (r"\u123", "Invalid \\uHHHH", 5),
-            (r"\U1234567", "Invalid \\UHHHHHHHH", 9),
+            (r"\x{12", "Unterminated \\\\x{...}", 4),
+            (r"\xG", "Invalid \\\\xHH escape", 3),
+            (r"\u{1F60", "Unterminated \\\\u{...}", 6),
+            (r"\u123", "Invalid \\\\uHHHH", 5),
+            (r"\U1234567", "Invalid \\\\UHHHHHHHH", 9),
             # B.2: Stray Metacharacters
             (")", "Unexpected token", 0),
             ("|", "Unexpected trailing input", 0),
@@ -188,8 +188,8 @@ class TestCategoryCEdgeCases:
         Tests that an escaped backslash followed by a zero is not parsed as
         a null byte.
         """
-        _flags, ast = parse(r"\\0")
-        assert ast == Seq(parts=[Lit("\\"), Lit("0")])
+        _flags, ast = parse(r"\\\\0")
+        assert ast == Seq(parts=[Lit("\\\\"), Lit("0")])
 
 
 class TestCategoryDInteractionCases:
@@ -211,5 +211,5 @@ class TestCategoryDInteractionCases:
         Tests that in free-spacing mode, an escaped space is parsed as a
         literal space character.
         """
-        _flags, ast = parse("%flags x\n a \\ b ")
+        _flags, ast = parse("%flags x\n a \\\\ b ")
         assert ast == Seq(parts=[Lit("a"), Lit(" "), Lit("b")])

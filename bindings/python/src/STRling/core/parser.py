@@ -91,36 +91,47 @@ class Parser:
         self.cur = Cursor(self.src, 0, self.flags.extended, 0)
         self._cap_count: int = 0
         self._cap_names: set[str] = set()
+        self.CONTROL_ESCAPES = {
+            "n": "\n",
+            "r": "\r",
+            "t": "\t",
+            "f": "\f",
+            "v": "\v",
+        }
 
     # -- Directives --
 
     def _parse_directives(self, text: str) -> Tuple[Flags, str]:
         flags = Flags()
-        consumed = 0
-        for line in text.splitlines(keepends=True):
+        lines = text.splitlines(keepends=True)
+        pattern_lines: List[str] = []
+        for line in lines:
             striped = line.strip()
             # Skip leading blank lines or comments
             if striped == "" or striped.startswith("#"):
-                consumed += len(line)
                 continue
             if striped.startswith("%flags"):
-                consumed += len(line)
                 rest = striped[6:].strip()
                 letters = rest.replace(",", " ").replace("[", "").replace("]", "")
                 flags = Flags.from_letters(letters)
                 continue
             if striped.startswith("%"):
-                consumed += len(line)
                 continue
-            # First non-directive content line -> stop
-            break
-        return flags, text[consumed:]
+            # All other lines are pattern content
+            pattern_lines.append(line)
+        # Join all pattern lines, preserving original whitespace and newlines
+        pattern = "".join(pattern_lines)
+        return flags, pattern
 
     def parse(self) -> Node:
         node = self.parse_alt()
         self.cur.skip_ws_and_comments()
         if not self.cur.eof():
-            raise ParseError("Unexpected trailing input", self.cur.i)
+            if self.cur.peek() == "|":
+                # Alternation must have a right-hand side
+                raise ParseError("Alternation lacks right-hand side", self.cur.i)
+            else:
+                raise ParseError("Unexpected trailing input", self.cur.i)
         return node
 
     # alt := seq ('|' seq)+ | seq
@@ -145,21 +156,26 @@ class Parser:
         while True:
             self.cur.skip_ws_and_comments()
             ch = self.cur.peek()
+            # Stop parsing sequence if we hit end, closing paren, or alternation pipe
             if ch == "" or ch in ")|":
                 break
 
+            # Parse the fundamental unit (literal, class, group, escape, etc.)
             atom = self.parse_atom()
 
-            # Don't apply quantifiers to anchors
+            # Anchors cannot be quantified, add directly and continue
             if isinstance(atom, Anchor):
                 parts.append(atom)
                 continue
 
+            # Parse any quantifier (*, +, ?, {m,n}) that might follow the atom
             quantified_atom = self.parse_quant_if_any(atom)
             parts.append(quantified_atom)
 
+        # If the sequence ended up being just one (potentially quantified) atom, return it directly
         if len(parts) == 1:
             return parts[0]
+        # Otherwise, return a Sequence node containing all parts
         return Seq(parts)
 
     def parse_quant_if_any(self, child: Node) -> Node:
@@ -309,6 +325,10 @@ class Parser:
             if not cur.match("}"):
                 raise ParseError("Unterminated \\p{...}", cur.i)
             return CharClass(False, [ClassEscape(tp, prop)])
+        # Core control escapes \n \t \r \f \v
+        if nxt in self.CONTROL_ESCAPES:
+            ch = cur.take()
+            return Lit(self.CONTROL_ESCAPES[ch])
         # Escaped literal or hex/unicode/null escapes -> literal
         if nxt == "x":
             return Lit(self._parse_hex_escape())
@@ -346,6 +366,7 @@ class Parser:
             while re.match(r"[0-9A-Fa-f]", cur.peek() or ""):
                 hexs += cur.take()
             if not cur.match("}"):
+                # Use cur.i which is *after* the last read hex digit
                 raise ParseError("Unterminated \\x{...}", cur.i)
             cp = int(hexs or "0", 16)
             return chr(cp)
@@ -401,10 +422,12 @@ class Parser:
         # helper: read one class item (escape or literal)
         def read_item() -> ClassItem:
             if cur.peek() == "\\":
-                cur.take()
+                cur.take()  # Consume the backslash
                 nxt = cur.peek()
+                # Handle standard shorthands \d \D etc.
                 if nxt in "dDwWsS":
                     return ClassEscape(cur.take())
+                # Handle unicode properties \p{...} \P{...}
                 if nxt in "pP":
                     tp = cur.take()
                     if not cur.match("{"):
@@ -413,18 +436,33 @@ class Parser:
                     if not cur.match("}"):
                         raise ParseError("Unterminated \\p{...}", cur.i)
                     return ClassEscape(tp, prop)
-                if nxt in ("x", "u", "U", "0"):
-                    if nxt == "x":
-                        ch = self._parse_hex_escape()
-                    elif nxt in ("u", "U"):
-                        ch = self._parse_unicode_escape()
-                    else:
-                        cur.take()
-                        ch = "\x00"
+                # Handle hex, unicode, null escapes -> literal char
+                if nxt == "x":
+                    ch = self._parse_hex_escape()
                     return ClassLiteral(ch)
-                # identity escape -> literal
+                if nxt in ("u", "U"):
+                    ch = self._parse_unicode_escape()
+                    return ClassLiteral(ch)
+                if nxt == "0":
+                    cur.take()
+                    return ClassLiteral("\x00")
+                # Handle core control escapes \n, \t, \r, \f, \v
+                # AND handle \b as backspace (0x08) INSIDE a class
+                if nxt in self.CONTROL_ESCAPES:
+                    ch_val = self.CONTROL_ESCAPES[cur.take()]
+                    return ClassLiteral(ch_val)
+                if nxt == "b":  # Special case: \b inside class is backspace
+                    cur.take()
+                    return ClassLiteral("\x08")
+                # Identity escape: treat next char literally (e.g., \-, \^, \])
                 return ClassLiteral(cur.take())
-            # regular literal
+            # Regular literal character (not preceded by \)
+            # Need special handling for ] and - if they aren't escaped
+            ch = cur.peek()
+            # If ] is encountered *after* the first char and *not* escaped, it closes the class.
+            # This is handled in the main loop, so here we just take the literal.
+            # If - is encountered *not* at start/end and *not* escaped, it denotes a range.
+            # This is handled in the main loop, so here we just take the literal.
             return ClassLiteral(cur.take())
 
         while True:

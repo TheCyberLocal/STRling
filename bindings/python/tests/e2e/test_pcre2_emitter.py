@@ -37,6 +37,7 @@ PCRE2-specific extension features like atomic groups.
 
 """
 
+import re
 import pytest
 
 from STRling.core.parser import parse, ParseError
@@ -67,17 +68,17 @@ class TestCategoryACoreLanguageFeatures:
         [
             # A.1: Complex pattern with named groups, classes, quantifiers, and flags
             (
-                r"%flags x\n(?<area>\d{3}) - (?<exchange>\d{3}) - (?<line>\d{4})",
+                "%flags x\n(?<area>\\d{3}) - (?<exchange>\\d{3}) - (?<line>\\d{4})",
                 r"(?x)(?<area>\d{3})-(?<exchange>\d{3})-(?<line>\d{4})",
             ),
             # A.2: Alternation requiring automatic grouping for precedence
-            (r"start(?:a|b|c)end", r"start(?:a|b|c)end"),
+            ("start(?:a|b|c)end", r"start(?:a|b|c)end"),
             # A.3: Lookarounds and anchors
-            (r"(?<=^foo)\w+", r"(?<=^foo)\w+"),
+            ("(?<=^foo)\\w+", r"(?<=^foo)\w+"),
             # A.4: Unicode properties with the unicode flag
-            (r"%flags u\n\p{L}+", r"(?u)\p{L}+"),
+            ("%flags u\n\\p{L}+", r"(?u)\p{L}+"),
             # A.5: Backreferences and lazy quantifiers
-            (r"<(?<tag>\w+)>.*?</\k<tag>>", r"<(?<tag>\w+)>.*?</\k<tag>>"),
+            ("<(?<tag>\\w+)>.*?</\\k<tag>>", r"<(?<tag>\w+)>.*?</\k<tag>>"),
         ],
         ids=[
             "golden_phone_number",
@@ -112,7 +113,7 @@ class TestCategoryBEmitterSpecificSyntax:
         literals.
         """
         metachars = r".^$|()?*+{}\[]\\"
-        escaped_metachars = r"\.\^\$\|\(\)\?\*\+\{\}\[\]\\"
+        escaped_metachars = re.escape(metachars)
         assert compile_to_pcre(metachars) == escaped_metachars
 
 

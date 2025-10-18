@@ -25,14 +25,43 @@ from STRling.core.ir import (
 
 
 def _escape_literal(s: str) -> str:
-    """Escape literal characters that are metacharacters in PCRE2."""
-    return re.sub(r"([.^$|()?*+{}\[\]\\])", r"\\\1", s)
+    """Escape PCRE2 metacharacters outside character classes, but do NOT escape dashes (-)."""
+    # Use re.escape, then unescape any escaped dashes.
+    escaped = re.escape(s)
+    # Remove unnecessary escaping for dashes
+    escaped = escaped.replace(r'\-', '-')
+    return escaped
 
 
 def _escape_class_char(ch: str) -> str:
-    """Escape a single character for use inside a [...] character class."""
-    if ch in r"[]\\-^":
+    """Escape a char for use inside [...] per PCRE2 rules."""
+    # Inside [], only ], \, and sometimes - and ^ are special.
+    # ] and \ ALWAYS need escaping.
+    if ch == "\\" or ch == "]":
         return "\\" + ch
+
+    # - needs escaping ONLY if it's not the first/last char
+    # ^ needs escaping ONLY if it's the first char after [
+    # However, the _emit_class function handles the placement of ^ for negation
+    # and should handle placement of - literals safely (e.g., at the end).
+    # Therefore, we usually don't need to escape - or ^ here *if* _emit_class is smart.
+    # Let's assume _emit_class handles '-' placement. We only escape \ and ].
+
+    # Handle non-printable chars / whitespace for clarity
+    if ch == "\n":
+        return r"\n"
+    if ch == "\r":
+        return r"\r"
+    if ch == "\t":
+        return r"\t"
+    if ch == "\f":
+        return r"\f"
+    if ch == "\v":
+        return r"\v"
+    if not ch.isprintable() or ord(ch) < 32:
+        return f"\\x{ord(ch):02x}"
+
+    # All other characters are literal within [] including ., *, ?, [, etc.
     return ch
 
 
@@ -69,28 +98,41 @@ def _emit_class(cc: IRCharClass) -> str:
 
         if k in ("p", "P") and prop:
             # For \p{..}/\P{..}, flip p<->P iff exactly-negated class.
-            use = "P" if (cc.negated ^ (k == "p")) else "p"
+            use = "P" if (cc.negated ^ (k == "P")) else "p"
             return f"\\{use}{{{prop}}}"
 
     # --- General case: build a bracket class --------------------------------
+    has_literal_hyphen = False
+    parts: List[str] = []
     for it in items:
         if isinstance(it, IRClassLiteral):
+            # Check for literal hyphen and handle it separately
+            if it.ch == "-":
+                has_literal_hyphen = True
+                continue  # Add it at the end
             parts.append(_escape_class_char(it.ch))
         elif isinstance(it, IRClassRange):
+            # Escape ends of range appropriately
             parts.append(
                 f"{_escape_class_char(it.from_ch)}-{_escape_class_char(it.to_ch)}"
             )
         elif isinstance(it, IRClassEscape):
+            # Shorthands like \d, \p{L} are used directly
             if it.type in ("d", "D", "w", "W", "s", "S"):
                 parts.append("\\" + it.type)
             elif it.type in ("p", "P") and it.property:
                 parts.append(f"\\{it.type}{{{it.property}}}")
+            # Fallback for potentially unknown escapes (shouldn't happen with valid IR)
             else:
                 parts.append("\\" + it.type)
         else:
             raise NotImplementedError(f"class item {type(it)}")
 
+    # Assemble the inner part, placing literal hyphen at the end if present
     inner = "".join(parts)
+    if has_literal_hyphen:
+        inner += "-"  # Append unescaped hyphen at the end
+
     return f"[{'^' if cc.negated else ''}{inner}]"
 
 
@@ -129,8 +171,11 @@ def _needs_group_for_quant(child: IROp) -> bool:
         return False
     if isinstance(child, IRLit):
         return len(child.value) > 1
-    if isinstance(child, (IRSeq, IRAlt, IRLook)):
+    # Group Alt/Look, but only group Seq if it's > 1 part
+    if isinstance(child, (IRAlt, IRLook)):
         return True
+    if isinstance(child, IRSeq):
+        return len(child.parts) > 1
     return False
 
 
@@ -211,6 +256,7 @@ class _SupportsToDictFlags(Protocol):
 
 
 def _emit_prefix_from_flags(flags: dict[str, bool]) -> str:
+    # Build the inline **prefix** form expected by tests, e.g. "(?imx)"
     letters = ""
     if flags.get("ignoreCase"):
         letters += "i"
@@ -246,4 +292,6 @@ def emit(
             flag_dict = None
 
     prefix = _emit_prefix_from_flags(flag_dict) if flag_dict else ""
-    return prefix + _emit_node(ir_root, parent_kind="")
+    body = _emit_node(ir_root, parent_kind="")
+    # IMPORTANT: Always return prefix + body (no localized "(?imx:...)" groups)
+    return prefix + body
