@@ -98,7 +98,7 @@ class TestCategoryAPositiveCases:
         [
             ("%flags x\na b c", Seq([Lit("a"), Lit("b"), Lit("c")])),
             ("%flags x\na # comment\n b", Seq([Lit("a"), Lit("b")])),
-            ("%flags x\na\\ b", Seq([Lit("a"), Lit(" ")])),
+            ("%flags x\na\\ b", Seq([Lit("a"), Lit(" "), Lit("b")])),
         ],
         ids=[
             "whitespace_is_ignored",

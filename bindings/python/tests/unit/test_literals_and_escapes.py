@@ -37,7 +37,7 @@ and produce a `nodes.Lit` object containing the corresponding character value.
 import pytest
 
 from STRling.core.parser import parse, ParseError
-from STRling.core.nodes import Lit, Seq, Backref
+from STRling.core.nodes import Lit, Seq, Backref, Node
 
 # --- Test Suite -----------------------------------------------------------------
 
@@ -48,34 +48,34 @@ class TestCategoryAPositiveCases:
     """
 
     @pytest.mark.parametrize(
-        "input_dsl, expected_char",
+        "input_dsl, expected_ast",
         [
             # A.1: Plain Literals
-            ("a", "a"),
-            ("_", "_"),
+            ("a", Lit("a")),
+            ("_", Lit("_")),
             # A.2: Identity Escapes
-            (r"\.", "."),
-            (r"\(", "("),
-            (r"\*", "*"),
-            (r"\\\\", "\\\\"),
+            (r"\.", Lit(".")),
+            (r"\(", Lit("(")),
+            (r"\*", Lit("*")),
+            (r"\\\\", Seq([Lit("\\"), Lit("\\")])),
             # A.3: Control & Whitespace Escapes
-            (r"\n", "\n"),
-            (r"\t", "\t"),
-            (r"\r", "\r"),
-            (r"\f", "\f"),
-            (r"\v", "\v"),
+            (r"\n", Lit("\n")),
+            (r"\t", Lit("\t")),
+            (r"\r", Lit("\r")),
+            (r"\f", Lit("\f")),
+            (r"\v", Lit("\v")),
             # A.4: Hexadecimal Escapes
-            (r"\x41", "A"),
-            (r"\x4a", "J"),
-            (r"\x{41}", "A"),
-            (r"\x{1F600}", "😀"),
+            (r"\x41", Lit("A")),
+            (r"\x4a", Lit("J")),
+            (r"\x{41}", Lit("A")),
+            (r"\x{1F600}", Lit("😀")),
             # A.5: Unicode Escapes
-            (r"\u0041", "A"),
-            (r"\u{41}", "A"),
-            (r"\u{1f600}", "😀"),
-            (r"\U0001F600", "😀"),
+            (r"\u0041", Lit("A")),
+            (r"\u{41}", Lit("A")),
+            (r"\u{1f600}", Lit("😀")),
+            (r"\U0001F600", Lit("😀")),
             # A.6: Null Byte Escape
-            (r"\0", "\x00"),
+            (r"\0", Lit("\x00")),
         ],
         ids=[
             "plain_literal_letter",
@@ -101,14 +101,14 @@ class TestCategoryAPositiveCases:
         ],
     )
     def test_valid_literals_and_escapes_are_parsed_correctly(
-        self, input_dsl: str, expected_char: str
+        self, input_dsl: str, expected_ast: Node
     ):
         """
         Tests that a valid literal or escape sequence is parsed into the correct
         Lit AST node.
         """
         _flags, ast = parse(input_dsl)
-        assert ast == Lit(expected_char)
+        assert ast == expected_ast
 
 
 class TestCategoryBNegativeCases:
@@ -211,5 +211,5 @@ class TestCategoryDInteractionCases:
         Tests that in free-spacing mode, an escaped space is parsed as a
         literal space character.
         """
-        _flags, ast = parse("%flags x\n a \\\\ b ")
+        _flags, ast = parse("%flags x\n a \\ b ")
         assert ast == Seq(parts=[Lit("a"), Lit(" "), Lit("b")])

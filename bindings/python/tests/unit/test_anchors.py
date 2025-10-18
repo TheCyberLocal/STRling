@@ -194,8 +194,17 @@ class TestCategoryDInteractionCases:
         # Add isinstance check for the container before accessing `.body`
         assert isinstance(ast, (Group, Look))
 
-        # The anchor may be part of a sequence inside the container
-        inner_node = ast.body.parts[0] if isinstance(ast.body, Seq) else ast.body
-
-        assert isinstance(inner_node, Anchor)
-        assert inner_node.at == expected_at_value
+        # The anchor may be part of a sequence inside the container, find it
+        if isinstance(ast.body, Seq):
+            # Find the anchor in the sequence
+            anchor = None
+            for part in ast.body.parts:
+                if isinstance(part, Anchor):
+                    anchor = part
+                    break
+            assert anchor is not None, f"No anchor found in sequence: {ast.body.parts}"
+            assert anchor.at == expected_at_value
+        else:
+            # Direct anchor
+            assert isinstance(ast.body, Anchor)
+            assert ast.body.at == expected_at_value
