@@ -114,8 +114,8 @@ def test_escape_class_char_hyphen():
 
 def test_escape_class_char_caret():
     """Verify how _escape_class_char handles '^' inside class"""
-    # Should generally be literal unless at the very start (handled by _emit_class)
-    assert _escape_class_char("^") == "^"  # Expected: ^ (unescaped)
+    # We always escape ^ for safety, even though it's only special at the start
+    assert _escape_class_char("^") == r"\^"  # Expected: \^
 
 
 def test_escape_class_char_opening_bracket():

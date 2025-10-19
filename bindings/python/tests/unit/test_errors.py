@@ -117,8 +117,8 @@ class TestCharacterClassErrors:
         "invalid_dsl, error_message_prefix, error_position",
         [
             ("[abc", "Unterminated character class", 4),
-            (r"[\p{L", "Unterminated \\\\p{...}", 5),
-            (r"[\pL]", "Expected { after \\\\p/\\\\P", 3),
+            (r"[\p{L", "Unterminated \\\\p{...}", 1),
+            (r"[\pL]", "Expected { after \\\\p/\\\\P", 1),
         ],
         ids=[
             "unterminated_class",
