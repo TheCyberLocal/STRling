@@ -281,13 +281,14 @@ class Parser:
     # ---- escapes and atoms formed by escapes ----
     def parse_escape_atom(self) -> Node:
         cur = self.cur
+        start_pos = cur.i  # Save position at start of escape
         assert cur.take() == "\\"
         nxt = cur.peek()
         # Backref by index \1.. (but not \0)
         if nxt.isdigit() and nxt != "0":
             num = self._read_decimal()
             if num > self._cap_count:
-                raise ParseError(f"Backreference to undefined group \\{num}", cur.i)
+                raise ParseError(f"Backreference to undefined group \\{num}", start_pos)
             return Backref(byIndex=num)
         # Anchors \b \B \A \Z \z
         if nxt in ("b", "B", "A", "Z", "z"):
@@ -306,12 +307,12 @@ class Parser:
         if nxt == "k":
             cur.take()
             if not cur.match("<"):
-                raise ParseError(r"Expected '<' after \k", cur.i)
+                raise ParseError(r"Expected '<' after \k", start_pos)
             name = self._read_ident_until(">")
             if not cur.match(">"):
-                raise ParseError("Unterminated named backref", cur.i)
+                raise ParseError("Unterminated named backref", start_pos)
             if name not in self._cap_names:
-                raise ParseError(f"Backreference to undefined group <{name}>", cur.i)
+                raise ParseError(f"Backreference to undefined group <{name}>", start_pos)
             return Backref(byName=name)
         # Shorthand classes \d \D \w \W \s \S or property \p{..} \P{..}
         if nxt in "dDwWsS":
@@ -331,9 +332,9 @@ class Parser:
             return Lit(self.CONTROL_ESCAPES[ch])
         # Escaped literal or hex/unicode/null escapes -> literal
         if nxt == "x":
-            return Lit(self._parse_hex_escape())
+            return Lit(self._parse_hex_escape(start_pos))
         if nxt == "u" or nxt == "U":
-            return Lit(self._parse_unicode_escape())
+            return Lit(self._parse_unicode_escape(start_pos))
         if nxt == "0":
             cur.take()
             return Lit("\x00")
@@ -358,7 +359,7 @@ class Parser:
     def _read_until(self, end: str) -> str:
         return self._read_ident_until(end)
 
-    def _parse_hex_escape(self) -> str:
+    def _parse_hex_escape(self, start_pos: int) -> str:
         cur = self.cur
         assert cur.take() == "x"
         if cur.match("{"):
@@ -366,8 +367,8 @@ class Parser:
             while re.match(r"[0-9A-Fa-f]", cur.peek() or ""):
                 hexs += cur.take()
             if not cur.match("}"):
-                # Use cur.i which is *after* the last read hex digit
-                raise ParseError("Unterminated \\x{...}", cur.i)
+                # Use start_pos for error reporting
+                raise ParseError("Unterminated \\x{...}", start_pos)
             cp = int(hexs or "0", 16)
             return chr(cp)
         # \xHH
@@ -376,10 +377,10 @@ class Parser:
         if not (
             re.match(r"[0-9A-Fa-f]", h1 or "") and re.match(r"[0-9A-Fa-f]", h2 or "")
         ):
-            raise ParseError("Invalid \\xHH escape", cur.i)
+            raise ParseError("Invalid \\xHH escape", start_pos)
         return chr(int(h1 + h2, 16))
 
-    def _parse_unicode_escape(self) -> str:
+    def _parse_unicode_escape(self, start_pos: int) -> str:
         cur = self.cur
         tp = cur.take()  # u or U
         if tp == "u" and cur.match("{"):
@@ -387,14 +388,14 @@ class Parser:
             while re.match(r"[0-9A-Fa-f]", cur.peek() or ""):
                 hexs += cur.take()
             if not cur.match("}"):
-                raise ParseError("Unterminated \\u{...}", cur.i)
+                raise ParseError("Unterminated \\u{...}", start_pos)
             return chr(int(hexs or "0", 16))
         if tp == "U":
             hexs = ""
             for _ in range(8):
                 ch = cur.take()
                 if not re.match(r"[0-9A-Fa-f]", ch or ""):
-                    raise ParseError("Invalid \\UHHHHHHHH", cur.i)
+                    raise ParseError("Invalid \\UHHHHHHHH", start_pos)
                 hexs += ch
             return chr(int(hexs, 16))
         # \uHHHH
@@ -402,7 +403,7 @@ class Parser:
         for _ in range(4):
             ch = cur.take()
             if not re.match(r"[0-9A-Fa-f]", ch or ""):
-                raise ParseError("Invalid \\uHHHH", cur.i)
+                raise ParseError("Invalid \\uHHHH", start_pos)
             hexs += ch
         return chr(int(hexs, 16))
 
@@ -422,6 +423,7 @@ class Parser:
         # helper: read one class item (escape or literal)
         def read_item() -> ClassItem:
             if cur.peek() == "\\":
+                escape_start = cur.i  # Save position at start of escape
                 cur.take()  # Consume the backslash
                 nxt = cur.peek()
                 # Handle standard shorthands \d \D etc.
@@ -431,17 +433,17 @@ class Parser:
                 if nxt in "pP":
                     tp = cur.take()
                     if not cur.match("{"):
-                        raise ParseError("Expected { after \\p/\\P", cur.i)
+                        raise ParseError("Expected { after \\p/\\P", escape_start)
                     prop = self._read_until("}")
                     if not cur.match("}"):
-                        raise ParseError("Unterminated \\p{...}", cur.i)
+                        raise ParseError("Unterminated \\p{...}", escape_start)
                     return ClassEscape(tp, prop)
                 # Handle hex, unicode, null escapes -> literal char
                 if nxt == "x":
-                    ch = self._parse_hex_escape()
+                    ch = self._parse_hex_escape(escape_start)
                     return ClassLiteral(ch)
                 if nxt in ("u", "U"):
-                    ch = self._parse_unicode_escape()
+                    ch = self._parse_unicode_escape(escape_start)
                     return ClassLiteral(ch)
                 if nxt == "0":
                     cur.take()
