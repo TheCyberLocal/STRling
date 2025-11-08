@@ -57,7 +57,7 @@ class TestCategoryAPositiveCases:
             (r"\.", Lit(".")),
             (r"\(", Lit("(")),
             (r"\*", Lit("*")),
-            (r"\\\\", Seq([Lit("\\"), Lit("\\")])),
+            (r"\\\\", Lit("\\\\")),
             # A.3: Control & Whitespace Escapes
             (r"\n", Lit("\n")),
             (r"\t", Lit("\t")),
@@ -126,8 +126,8 @@ class TestCategoryBNegativeCases:
             (r"\u123", "Invalid \\\\uHHHH", 0),
             (r"\U1234567", "Invalid \\\\UHHHHHHHH", 0),
             # B.2: Stray Metacharacters
-            (")", "Unexpected token", 0),
-            ("|", "Unexpected trailing input", 0),
+            (")", "Unexpected trailing input", 0),
+            ("|", "Alternation lacks left-hand side", 0),
         ],
         ids=[
             "unterminated_hex_brace",
@@ -152,12 +152,11 @@ class TestCategoryBNegativeCases:
 
     def test_forbidden_octal_escape_parses_as_backref_and_literals(self):
         """
-        Tests that a forbidden octal escape (e.g., \123) is parsed as a
-        backreference followed by literals, per parser logic, not a single
-        character.
+        Tests that a forbidden octal escape (e.g., \123) with no groups defined
+        raises a ParseError for undefined backreference.
         """
-        _flags, ast = parse(r"\123")
-        assert ast == Seq(parts=[Backref(byIndex=1), Lit("2"), Lit("3")])
+        with pytest.raises(ParseError, match="Backreference to undefined group"):
+            parse(r"\123")
 
 
 class TestCategoryCEdgeCases:
