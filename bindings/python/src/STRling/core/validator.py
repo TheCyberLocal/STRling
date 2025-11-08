@@ -3,7 +3,7 @@ from typing import Mapping, Any
 from pathlib import Path
 import json
 
-from jsonschema import Draft202012Validator, RefResolver
+from jsonschema import Draft202012Validator
 
 try:
     # referencing>=0.36 exposes Registry at the top level
@@ -39,20 +39,8 @@ def validate_artifact(
     schema: Schema = json.loads(schema_text)
 
     if registry is not None:
-        # Convert Registry to RefResolver for compatibility with jsonschema 4.x
-        # Build a store dictionary from all resources in the registry
-        store = {}
-        for uri in registry.keys():
-            resource = registry.get(uri)
-            if resource is not None:
-                store[uri] = resource.contents
-        
-        resolver = RefResolver(
-            base_uri=schema.get("$id", ""),
-            referrer=schema,
-            store=store
-        )
-        validator = Draft202012Validator(schema, resolver=resolver)
+        # Use the referencing.Registry directly with the modern jsonschema API
+        validator = Draft202012Validator(schema, registry=registry)
     else:
         validator = Draft202012Validator(schema)
 
