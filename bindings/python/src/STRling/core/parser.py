@@ -346,11 +346,36 @@ class Parser:
         assert cur.take() == "\\"
         nxt = cur.peek()
         # Backref by index \1.. (but not \0)
+        # Consume digits greedily up to the highest valid capture group
         if nxt.isdigit() and nxt != "0":
+            saved_pos = cur.i
+            num_str = ""
+            
+            # Read digits one at a time and check if they form a valid backref
+            while cur.peek().isdigit():
+                num_str += cur.take()
+                num = int(num_str)
+                
+                # If this number is valid, remember it
+                if num <= self._cap_count:
+                    # This is a valid backref, keep consuming
+                    continue
+                else:
+                    # This number is too large, backtrack one digit
+                    cur.i -= 1
+                    num_str = num_str[:-1]
+                    break
+            
+            # If we got a valid backref number, use it
+            if num_str:
+                num = int(num_str)
+                if num <= self._cap_count:
+                    return Backref(byIndex=num)
+            
+            # No valid backref found, reset and raise error
+            cur.i = saved_pos
             num = self._read_decimal()
-            if num > self._cap_count:
-                raise ParseError(f"Backreference to undefined group \\{num}", start_pos)
-            return Backref(byIndex=num)
+            raise ParseError(f"Backreference to undefined group \\{num}", start_pos)
         # Anchors \b \B \A \Z \z
         if nxt in ("b", "B", "A", "Z", "z"):
             ch = cur.take()
