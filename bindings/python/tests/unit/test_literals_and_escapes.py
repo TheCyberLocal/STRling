@@ -212,3 +212,180 @@ class TestCategoryDInteractionCases:
         """
         _flags, ast = parse("%flags x\n a \\ b ")
         assert ast == Seq(parts=[Lit("a"), Lit(" "), Lit("b")])
+
+
+# --- New Test Stubs for 3-Test Standard Compliance -----------------------------
+
+
+class TestCategoryELiteralSequencesAndCoalescing:
+    """
+    Tests for sequences of literals and how the parser handles coalescing.
+    """
+
+    def test_multiple_plain_literals_in_sequence(self):
+        """
+        Tests sequence of plain literals: abc
+        Should parse as single Lit("abc") or Seq([Lit("a"), Lit("b"), Lit("c")]).
+        Verify actual parser behavior.
+        """
+        pytest.fail("Not implemented")
+
+    def test_literals_with_escaped_metachar_sequence(self):
+        """
+        Tests literals mixed with escaped metachars: a\\*b\\+c
+        """
+        pytest.fail("Not implemented")
+
+    def test_sequence_of_only_escapes(self):
+        """
+        Tests sequence of only escape sequences: \\n\\t\\r
+        """
+        pytest.fail("Not implemented")
+
+    def test_mixed_escape_types_in_sequence(self):
+        """
+        Tests mixed escape types in sequence: \\x41\\u0042\\n
+        Hex, Unicode, and control escapes together.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryFEscapeInteractions:
+    """
+    Tests for interactions between different escape types and literals.
+    """
+
+    def test_literal_after_control_escape(self):
+        """
+        Tests literal after control escape: \\na (newline followed by 'a')
+        """
+        pytest.fail("Not implemented")
+
+    def test_literal_after_hex_escape(self):
+        """
+        Tests literal after hex escape: \\x41b (A followed by 'b')
+        """
+        pytest.fail("Not implemented")
+
+    def test_escape_after_escape(self):
+        """
+        Tests escape after escape: \\n\\t (newline followed by tab)
+        Already covered but confirming.
+        """
+        pytest.fail("Not implemented")
+
+    def test_identity_escape_after_literal(self):
+        """
+        Tests identity escape after literal: a\\* ('a' followed by '*')
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryGBackslashEscapeCombinations:
+    """
+    Tests for various backslash escape combinations.
+    """
+
+    def test_double_backslash(self):
+        """
+        Tests double backslash: \\\\\\\\
+        Should parse as single backslash character.
+        Already covered but confirming.
+        """
+        pytest.fail("Not implemented")
+
+    def test_quadruple_backslash(self):
+        """
+        Tests quadruple backslash: \\\\\\\\\\\\\\\\
+        Should parse as two backslash characters.
+        """
+        pytest.fail("Not implemented")
+
+    def test_backslash_before_literal(self):
+        """
+        Tests backslash followed by non-metachar: \\\\a
+        Should parse as backslash followed by 'a'.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryHEscapeEdgeCasesExpanded:
+    """
+    Additional edge cases for escape sequences.
+    """
+
+    def test_hex_escape_min_value(self):
+        """
+        Tests minimum hex value: \\x00
+        """
+        pytest.fail("Not implemented")
+
+    def test_hex_escape_max_value(self):
+        """
+        Tests maximum single-byte hex value: \\xFF
+        """
+        pytest.fail("Not implemented")
+
+    def test_unicode_escape_bmp_boundary(self):
+        """
+        Tests Unicode at BMP boundary: \\uFFFF
+        """
+        pytest.fail("Not implemented")
+
+    def test_unicode_escape_supplementary_plane(self):
+        """
+        Tests Unicode in supplementary plane: \\U00010000
+        First character outside BMP.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryIOctalAndBackrefDisambiguation:
+    """
+    Tests for the parser's handling of octal-like sequences and
+    their disambiguation with backreferences.
+    """
+
+    def test_single_digit_after_backslash_with_no_groups(self):
+        """
+        Tests that \\1 with no groups raises backreference error, not octal.
+        Already partially covered, confirming.
+        """
+        pytest.fail("Not implemented")
+
+    def test_two_digit_sequence_with_one_group(self):
+        """
+        Tests (a)\\12: should be backref \\1 followed by literal '2'.
+        """
+        pytest.fail("Not implemented")
+
+    def test_three_digit_sequence_behavior(self):
+        """
+        Tests \\123 parsing behavior (backref or error).
+        Already covered, confirming behavior.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryJLiteralsInComplexContexts:
+    """
+    Tests for literal behavior in complex syntactic contexts.
+    """
+
+    def test_literal_between_quantifiers(self):
+        """
+        Tests literal between quantified atoms: a*Xb+
+        """
+        pytest.fail("Not implemented")
+
+    def test_literal_in_alternation(self):
+        """
+        Tests literal in alternation: a|b|c
+        """
+        pytest.fail("Not implemented")
+
+    def test_escaped_literal_in_group(self):
+        """
+        Tests escaped literal inside group: (\\*)
+        """
+        pytest.fail("Not implemented")
