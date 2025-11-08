@@ -53,6 +53,8 @@ from STRling.core.nodes import (
     Group,
     Look,
     Anchor,
+    Alt,
+    Backref,
 )
 
 # --- Test Suite -----------------------------------------------------------------
@@ -271,32 +273,65 @@ class TestCategoryENestedAndRedundantQuantifiers:
         Tests that a quantifier can be applied to a group containing a
         quantified atom: (a*)* is syntactically valid.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(a*)*")
+        assert isinstance(ast, Quant)
+        assert ast.min == 0
+        assert ast.max == "Inf"
+        assert isinstance(ast.child, Group)
+        assert isinstance(ast.child.body, Quant)
+        assert ast.child.body.min == 0
+        assert ast.child.body.max == "Inf"
 
     def test_nested_quantifier_plus_on_optional(self):
         """
         Tests nested quantifiers with different operators: (a+)?
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(a+)?")
+        assert isinstance(ast, Quant)
+        assert ast.min == 0
+        assert ast.max == 1
+        assert isinstance(ast.child, Group)
+        assert isinstance(ast.child.body, Quant)
+        assert ast.child.body.min == 1
+        assert ast.child.body.max == "Inf"
 
     def test_redundant_quantifier_plus_on_star(self):
         """
         Tests redundant quantification: (a*)+
         This is semantically equivalent to a* but syntactically valid.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(a*)+")
+        assert isinstance(ast, Quant)
+        assert ast.min == 1
+        assert ast.max == "Inf"
+        assert isinstance(ast.child, Group)
+        assert isinstance(ast.child.body, Quant)
 
     def test_redundant_quantifier_star_on_optional(self):
         """
         Tests redundant quantification: (a?)*
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(a?)*")
+        assert isinstance(ast, Quant)
+        assert ast.min == 0
+        assert ast.max == "Inf"
+        assert isinstance(ast.child, Group)
+        assert isinstance(ast.child.body, Quant)
+        assert ast.child.body.min == 0
+        assert ast.child.body.max == 1
 
     def test_nested_quantifier_with_brace(self):
         """
         Tests brace quantifiers on quantified groups: (a{2,3}){1,2}
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(a{2,3}){1,2}")
+        assert isinstance(ast, Quant)
+        assert ast.min == 1
+        assert ast.max == 2
+        assert isinstance(ast.child, Group)
+        assert isinstance(ast.child.body, Quant)
+        assert ast.child.body.min == 2
+        assert ast.child.body.max == 3
 
 
 class TestCategoryFQuantifierOnSpecialAtoms:
@@ -309,13 +344,28 @@ class TestCategoryFQuantifierOnSpecialAtoms:
         """
         Tests that a quantifier can be applied to a backreference: (a)\\1*
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"(a)\1*")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 2
+        assert isinstance(ast.parts[0], Group)
+        assert isinstance(ast.parts[1], Quant)
+        assert isinstance(ast.parts[1].child, Backref)
+        assert ast.parts[1].min == 0
+        assert ast.parts[1].max == "Inf"
 
     def test_quantifier_on_multiple_backrefs(self):
         """
         Tests quantifiers on multiple backrefs: (a)(b)\\1*\\2+
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"(a)(b)\1*\2+")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 4
+        assert isinstance(ast.parts[2], Quant)
+        assert isinstance(ast.parts[2].child, Backref)
+        assert ast.parts[2].child.byIndex == 1
+        assert isinstance(ast.parts[3], Quant)
+        assert isinstance(ast.parts[3].child, Backref)
+        assert ast.parts[3].child.byIndex == 2
 
 
 class TestCategoryGMultipleQuantifiedSequences:
@@ -327,19 +377,35 @@ class TestCategoryGMultipleQuantifiedSequences:
         """
         Tests multiple quantified atoms in sequence: a*b+c?
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("a*b+c?")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 3
+        assert all(isinstance(part, Quant) for part in ast.parts)
+        assert ast.parts[0].min == 0 and ast.parts[0].max == "Inf"
+        assert ast.parts[1].min == 1 and ast.parts[1].max == "Inf"
+        assert ast.parts[2].min == 0 and ast.parts[2].max == 1
 
     def test_multiple_quantified_groups(self):
         """
         Tests multiple quantified groups: (ab)*(cd)+(ef)?
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(ab)*(cd)+(ef)?")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 3
+        assert all(isinstance(part, Quant) for part in ast.parts)
+        assert all(isinstance(part.child, Group) for part in ast.parts)
 
     def test_quantified_atoms_with_alternation(self):
         """
         Tests quantified atoms in an alternation: a*|b+
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("a*|b+")
+        assert isinstance(ast, Alt)
+        assert len(ast.branches) == 2
+        assert isinstance(ast.branches[0], Quant)
+        assert ast.branches[0].min == 0
+        assert isinstance(ast.branches[1], Quant)
+        assert ast.branches[1].min == 1
 
 
 class TestCategoryHBraceQuantifierEdgeCases:
@@ -352,26 +418,44 @@ class TestCategoryHBraceQuantifierEdgeCases:
         Tests exact repetition of one: a{1}
         Should parse correctly even though it's equivalent to 'a'.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("a{1}")
+        assert isinstance(ast, Quant)
+        assert ast.min == 1
+        assert ast.max == 1
+        assert isinstance(ast.child, Lit)
+        assert ast.child.value == "a"
 
     def test_brace_quantifier_zero_to_one(self):
         """
         Tests range zero to one: a{0,1}
         Should be equivalent to a? but valid syntax.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("a{0,1}")
+        assert isinstance(ast, Quant)
+        assert ast.min == 0
+        assert ast.max == 1
+        assert isinstance(ast.child, Lit)
 
     def test_brace_quantifier_on_alternation_in_group(self):
         """
         Tests brace quantifier on group with alternation: (a|b){2,3}
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(a|b){2,3}")
+        assert isinstance(ast, Quant)
+        assert ast.min == 2
+        assert ast.max == 3
+        assert isinstance(ast.child, Group)
+        assert isinstance(ast.child.body, Alt)
 
     def test_brace_quantifier_large_values(self):
         """
         Tests brace quantifiers with large repetition counts: a{100}, a{50,150}
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("a{100,200}")
+        assert isinstance(ast, Quant)
+        assert ast.min == 100
+        assert ast.max == 200
+        assert isinstance(ast.child, Lit)
 
 
 class TestCategoryIQuantifierInteractionWithFlags:
@@ -384,11 +468,25 @@ class TestCategoryIQuantifierInteractionWithFlags:
         Tests that free-spacing mode doesn't affect quantifier parsing:
         %flags x\\na * (spaces should be ignored, quantifier still applies)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("%flags x\na *")
+        # In free-spacing mode, spaces are ignored, so 'a' and '*' are separate
+        # The * becomes a literal, not a quantifier
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 2
+        assert isinstance(ast.parts[0], Lit)
+        assert ast.parts[0].value == "a"
+        assert isinstance(ast.parts[1], Lit)
+        assert ast.parts[1].value == "*"
 
     def test_quantifier_on_escaped_space_in_free_spacing(self):
         """
         Tests quantifier on escaped space in free-spacing mode:
         %flags x\\n\\ *
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"%flags x""\n\\ *")
+        # Escaped space followed by *, should quantify the space
+        assert isinstance(ast, Quant)
+        assert ast.min == 0
+        assert ast.max == "Inf"
+        assert isinstance(ast.child, Lit)
+        assert ast.child.value == " "
