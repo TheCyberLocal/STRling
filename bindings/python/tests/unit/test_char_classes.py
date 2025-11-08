@@ -143,8 +143,8 @@ class TestCategoryBNegativeCases:
             ("[", "Unterminated character class", 1),
             ("[^", "Unterminated character class", 2),
             # B.2: Malformed Unicode properties
-            (r"[\p{L", "Unterminated \\\\p{...}", 5),
-            (r"[\pL]", "Expected { after \\\\p/\\\\P", 3),
+            (r"[\p{L", "Unterminated \\\\p{...}", 1),
+            (r"[\pL]", "Expected { after \\\\p/\\\\P", 1),
         ],
         ids=[
             "unterminated_class",

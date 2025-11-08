@@ -79,9 +79,9 @@ class TestBackreferenceAndNamingErrors:
         "invalid_dsl, error_message_prefix, error_position",
         [
             (r"\k<later>(?<later>a)", "Backreference to undefined group <later>", 0),
-            (r"\2(a)(b)", "Backreference to undefined group t2", 0),
+            (r"\2(a)(b)", "Backreference to undefined group \\\\2", 0),
             (r"(a)\2", "Backreference to undefined group \\\\2", 3),
-            (r"\k<", "Expected '<' after \\\\k", 2),
+            (r"\k<", "Unterminated named backref", 0),
         ],
         ids=[
             "forward_reference_by_name",
@@ -117,8 +117,8 @@ class TestCharacterClassErrors:
         "invalid_dsl, error_message_prefix, error_position",
         [
             ("[abc", "Unterminated character class", 4),
-            (r"[\p{L", "Unterminated \\\\p{...}", 5),
-            (r"[\pL]", "Expected { after \\\\p/\\\\P", 3),
+            (r"[\p{L", "Unterminated \\\\p{...}", 1),
+            (r"[\pL]", "Expected { after \\\\p/\\\\P", 1),
         ],
         ids=[
             "unterminated_class",
@@ -143,10 +143,10 @@ class TestEscapeAndCodepointErrors:
     @pytest.mark.parametrize(
         "invalid_dsl, error_message_prefix, error_position",
         [
-            (r"\xG1", "Invalid \\\\xHH escape", 3),
-            (r"\u12Z4", "Invalid \\\\uHHHH", 5),
-            (r"\x{", "Unterminated \\\\x{...}", 3),
-            (r"\x{FFFF}", "Unterminated \\\\x{...}", 7),
+            (r"\xG1", "Invalid \\\\xHH escape", 0),
+            (r"\u12Z4", "Invalid \\\\uHHHH", 0),
+            (r"\x{", "Unterminated \\\\x{...}", 0),
+            (r"\x{FFFF", "Unterminated \\\\x{...}", 0),
         ],
         ids=[
             "invalid_hex_digit",

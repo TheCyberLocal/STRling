@@ -112,9 +112,11 @@ class TestCategoryBEmitterSpecificSyntax:
         Tests that all regex metacharacters are correctly escaped when used as
         literals.
         """
-        metachars = r".^$|()?*+{}\[]\\"
-        escaped_metachars = re.escape(metachars)
-        assert compile_to_pcre(metachars) == escaped_metachars
+        # To test literal metacharacters, escape them in the DSL source
+        metachars_dsl = r"\.\^\$\|\(\)\?\*\+\{\}\[\]\\"
+        metachars_literal = ".^$|()?*+{}[]\\"
+        escaped_metachars = re.escape(metachars_literal)
+        assert compile_to_pcre(metachars_dsl) == escaped_metachars
 
 
 class TestCategoryCExtensionFeatures:

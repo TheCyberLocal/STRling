@@ -114,8 +114,8 @@ def test_escape_class_char_hyphen():
 
 def test_escape_class_char_caret():
     """Verify how _escape_class_char handles '^' inside class"""
-    # Should generally be literal unless at the very start (handled by _emit_class)
-    assert _escape_class_char("^") == "^"  # Expected: ^ (unescaped)
+    # We always escape ^ for safety, even though it's only special at the start
+    assert _escape_class_char("^") == r"\^"  # Expected: \^
 
 
 def test_escape_class_char_opening_bracket():
@@ -147,7 +147,7 @@ class TestCategoryAEscapingLogic:
         """
         Tests that all PCRE2 metacharacters are escaped when in an IRLit node.
         """
-        metachars = r".^$|()?*+{}\[]\\"
+        metachars = ".^$|()?*+{}[]\\"
         expected = r"\.\^\$\|\(\)\?\*\+\{\}\[\]\\"
         assert emit(IRLit(metachars)) == expected
 
@@ -155,7 +155,7 @@ class TestCategoryAEscapingLogic:
         """
         Tests that special characters inside a character class are escaped.
         """
-        metachars = r"[]\-^"
+        metachars = "]-^"
         expected = r"[\]\-\^]"
         items: List[IRClassItem] = [IRClassLiteral(c) for c in metachars]
         assert emit(IRCharClass(negated=False, items=items)) == expected
@@ -296,7 +296,7 @@ class TestCategoryEExtensionFeatures:
     @pytest.mark.parametrize(
         "ir_node, expected_str",
         [
-            (IRGroup(False, IRLit("a+"), atomic=True), "(?>a+)"),
+            (IRGroup(False, IRQuant(IRLit("a"), 1, "Inf", "Greedy"), atomic=True), "(?>a+)"),
             (IRQuant(IRLit("a"), 0, "Inf", "Possessive"), "a*+"),
             (IRQuant(IRCharClass(False, []), 1, "Inf", "Possessive"), "[]++"),
             (IRAnchor("AbsoluteStart"), r"\A"),

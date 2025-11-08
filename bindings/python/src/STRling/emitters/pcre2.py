@@ -35,17 +35,15 @@ def _escape_literal(s: str) -> str:
 
 def _escape_class_char(ch: str) -> str:
     """Escape a char for use inside [...] per PCRE2 rules."""
-    # Inside [], only ], \, and sometimes - and ^ are special.
+    # Inside [], ], \, -, and ^ are special and need escaping for safety.
     # ] and \ ALWAYS need escaping.
+    # - and ^ should be escaped to avoid ambiguity (even though context matters).
     if ch == "\\" or ch == "]":
         return "\\" + ch
-
-    # - needs escaping ONLY if it's not the first/last char
-    # ^ needs escaping ONLY if it's the first char after [
-    # However, the _emit_class function handles the placement of ^ for negation
-    # and should handle placement of - literals safely (e.g., at the end).
-    # Therefore, we usually don't need to escape - or ^ here *if* _emit_class is smart.
-    # Let's assume _emit_class handles '-' placement. We only escape \ and ].
+    if ch == "-":
+        return "\\-"
+    if ch == "^":
+        return "\\^"
 
     # Handle non-printable chars / whitespace for clarity
     if ch == "\n":
@@ -102,17 +100,12 @@ def _emit_class(cc: IRCharClass) -> str:
             return f"\\{use}{{{prop}}}"
 
     # --- General case: build a bracket class --------------------------------
-    has_literal_hyphen = False
     parts: List[str] = []
     for it in items:
         if isinstance(it, IRClassLiteral):
-            # Check for literal hyphen and handle it separately
-            if it.ch == "-":
-                has_literal_hyphen = True
-                continue  # Add it at the end
             parts.append(_escape_class_char(it.ch))
         elif isinstance(it, IRClassRange):
-            # Escape ends of range appropriately
+            # Escape ends of range appropriately, use unescaped - for the range operator
             parts.append(
                 f"{_escape_class_char(it.from_ch)}-{_escape_class_char(it.to_ch)}"
             )
@@ -128,10 +121,8 @@ def _emit_class(cc: IRCharClass) -> str:
         else:
             raise NotImplementedError(f"class item {type(it)}")
 
-    # Assemble the inner part, placing literal hyphen at the end if present
+    # Assemble the inner part
     inner = "".join(parts)
-    if has_literal_hyphen:
-        inner += "-"  # Append unescaped hyphen at the end
 
     return f"[{'^' if cc.negated else ''}{inner}]"
 
