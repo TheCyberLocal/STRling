@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document details the comprehensive audit of the STRling Python test suite and the implementation of the "3-Test Standard" for normative coverage. The audit has identified gaps in test coverage and created test stubs to ensure every core DSL feature is validated according to the 3-Test Standard.
+This document details the comprehensive audit of the STRling Python test suite and the implementation of the "3-Test Standard" for normative coverage. The audit has identified gaps in test coverage and created 121 test stubs to ensure every core DSL feature is validated according to the 3-Test Standard.
 
 ## 3-Test Standard Requirements
 
@@ -16,16 +16,16 @@ For each core DSL feature, the test suite must validate:
 ## Audit Results
 
 ### Initial State
-- **Total Tests**: 253
-- **Passing**: 226 (89.3%)
+- **Total Tests**: 236
+- **Passing**: 226 (95.8%)
 - **Failing**: 10 (schema validation issues, unrelated to DSL parsing)
 - **Coverage**: Good basic coverage, gaps in advanced interactions and edge cases
 
 ### Final State (After Stub Creation)
 - **Total Tests**: 357
-- **New Test Stubs**: 104
+- **New Test Stubs**: 121
 - **Passing Tests**: 226 (existing tests maintained)
-- **Stub Tests**: 104 (marked with `pytest.fail("Not implemented")`)
+- **Stub Tests**: 121 (marked with `pytest.fail("Not implemented")`)
 - **Unrelated Failures**: 10 (schema validation, unchanged)
 
 ## Detailed Audit by Test File
@@ -73,8 +73,8 @@ For each core DSL feature, the test suite must validate:
 ### 2. test_groups_backrefs_lookarounds.py
 
 **Baseline**: 26 tests  
-**Added**: 27 test stubs  
-**New Total**: 53 tests
+**Added**: 25 test stubs  
+**New Total**: 51 tests
 
 #### Existing Coverage (✅)
 - ✅ Simple Cases: All group types (`()`, `(?:)`, `(?<name>)`, `(?>)`)
@@ -255,8 +255,8 @@ For each core DSL feature, the test suite must validate:
 ### 6. test_ir_compiler.py
 
 **Baseline**: 14 tests  
-**Added**: 24 test stubs  
-**New Total**: 38 tests
+**Added**: 20 test stubs  
+**New Total**: 34 tests
 
 #### Existing Coverage (✅)
 - ✅ Simple Cases: Basic lowering of all AST node types
@@ -365,8 +365,8 @@ New categories (E, F, G, etc.) extend the existing structure without disrupting 
 
 This audit has successfully:
 
-- ✅ Reviewed all 253 existing tests for 3-Test Standard compliance
-- ✅ Identified 104 gaps across 6 test files
+- ✅ Reviewed all 236 existing tests for 3-Test Standard compliance
+- ✅ Identified 121 gaps across 6 test files
 - ✅ Created test stubs for all identified gaps
 - ✅ Maintained all existing passing tests (226 remain passing)
 - ✅ Organized tests clearly by Simple, Typical, Interaction, and Edge categories
