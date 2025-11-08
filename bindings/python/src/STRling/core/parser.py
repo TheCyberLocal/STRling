@@ -180,14 +180,9 @@ class Parser:
             # Parse the fundamental unit (literal, class, group, escape, etc.)
             atom = self.parse_atom()
 
-            # Anchors cannot be quantified, add directly and continue
-            if isinstance(atom, Anchor):
-                parts.append(atom)
-                prev_had_failed_quant = False
-                continue
-
             # Parse any quantifier (*, +, ?, {m,n}) that might follow the atom
             # This returns (quantified_atom, had_failed_quant_parse)
+            # Note: If atom is an Anchor, parse_quant_if_any will raise an error if a quantifier is present
             quantified_atom, had_failed_quant_parse = self.parse_quant_if_any(atom)
             
             # Coalesce adjacent Lit nodes: if the new atom is a Lit and the last part
@@ -275,6 +270,10 @@ class Parser:
         # If we didn't parse a quantifier, we're done
         if min_val is None:
             return child, had_failed_quant_parse
+
+        # Semantic validation: Cannot quantify anchors
+        if isinstance(child, Anchor):
+            raise ParseError("Cannot quantify anchor", cur.i)
 
         # Now check for lazy/possessive modifiers
         nxt = cur.peek()
@@ -633,6 +632,9 @@ class Parser:
             name = self._read_until(">")
             if not cur.match(">"):
                 raise ParseError("Unterminated group name", cur.i)
+            # Check for duplicate group name
+            if name in self._cap_names:
+                raise ParseError(f"Duplicate group name <{name}>", cur.i)
             self._cap_count += 1
             self._cap_names.add(name)
             body = self.parse_alt()
