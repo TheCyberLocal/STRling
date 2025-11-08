@@ -37,8 +37,8 @@ produce the corresponding `nodes.Anchor` AST object.
 import pytest
 from typing import Type, cast
 
-from STRling.core.parser import parse
-from STRling.core.nodes import Node, Anchor, Seq, Group, Look
+from STRling.core.parser import parse, ParseError
+from STRling.core.nodes import Node, Anchor, Seq, Group, Look, Lit, Quant, Alt, Dot, CharClass
 
 # --- Test Suite -----------------------------------------------------------------
 
@@ -223,26 +223,49 @@ class TestCategoryEAnchorsInComplexSequences:
         Tests anchor between quantified atoms: a*^b+
         The ^ anchor appears between two quantified literals.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("a*^b+")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 3
+        assert isinstance(ast.parts[0], Quant)
+        assert isinstance(ast.parts[1], Anchor)
+        assert ast.parts[1].at == "Start"
+        assert isinstance(ast.parts[2], Quant)
 
     def test_anchor_after_quantified_group(self):
         """
         Tests anchor after quantified group: (ab)*$
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(ab)*$")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 2
+        assert isinstance(ast.parts[0], Quant)
+        assert isinstance(ast.parts[1], Anchor)
+        assert ast.parts[1].at == "End"
 
     def test_multiple_anchors_of_same_type(self):
         """
         Tests multiple same anchors: ^^
         Edge case: semantically redundant but syntactically valid.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("^^")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 2
+        assert isinstance(ast.parts[0], Anchor)
+        assert ast.parts[0].at == "Start"
+        assert isinstance(ast.parts[1], Anchor)
+        assert ast.parts[1].at == "Start"
 
     def test_multiple_end_anchors(self):
         """
         Tests multiple end anchors: $$
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("$$")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 2
+        assert isinstance(ast.parts[0], Anchor)
+        assert ast.parts[0].at == "End"
+        assert isinstance(ast.parts[1], Anchor)
+        assert ast.parts[1].at == "End"
 
 
 class TestCategoryFAnchorsInAlternation:
@@ -255,19 +278,53 @@ class TestCategoryFAnchorsInAlternation:
         Tests anchor in one branch of alternation: ^a|b$
         Parses as (^a)|(b$).
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("^a|b$")
+        assert isinstance(ast, Alt)
+        assert len(ast.branches) == 2
+        # First branch: ^a
+        assert isinstance(ast.branches[0], Seq)
+        assert len(ast.branches[0].parts) == 2
+        assert isinstance(ast.branches[0].parts[0], Anchor)
+        assert ast.branches[0].parts[0].at == "Start"
+        assert isinstance(ast.branches[0].parts[1], Lit)
+        # Second branch: b$
+        assert isinstance(ast.branches[1], Seq)
+        assert len(ast.branches[1].parts) == 2
+        assert isinstance(ast.branches[1].parts[0], Lit)
+        assert isinstance(ast.branches[1].parts[1], Anchor)
+        assert ast.branches[1].parts[1].at == "End"
 
     def test_anchors_in_group_alternation(self):
         """
         Tests anchors in grouped alternation: (^|$)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(^|$)")
+        assert isinstance(ast, Group)
+        assert ast.capturing is True
+        assert isinstance(ast.body, Alt)
+        assert len(ast.body.branches) == 2
+        assert isinstance(ast.body.branches[0], Anchor)
+        assert ast.body.branches[0].at == "Start"
+        assert isinstance(ast.body.branches[1], Anchor)
+        assert ast.body.branches[1].at == "End"
 
     def test_word_boundary_in_alternation(self):
         """
         Tests word boundary in alternation: \\ba|\\bb
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\ba|\bb")
+        assert isinstance(ast, Alt)
+        assert len(ast.branches) == 2
+        # First branch: \ba
+        assert isinstance(ast.branches[0], Seq)
+        assert len(ast.branches[0].parts) == 2
+        assert isinstance(ast.branches[0].parts[0], Anchor)
+        assert ast.branches[0].parts[0].at == "WordBoundary"
+        # Second branch: \bb
+        assert isinstance(ast.branches[1], Seq)
+        assert len(ast.branches[1].parts) == 2
+        assert isinstance(ast.branches[1].parts[0], Anchor)
+        assert ast.branches[1].parts[0].at == "WordBoundary"
 
 
 class TestCategoryGAnchorsInAtomicGroups:
@@ -279,19 +336,40 @@ class TestCategoryGAnchorsInAtomicGroups:
         """
         Tests start anchor in atomic group: (?>^a)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?>^a)")
+        assert isinstance(ast, Group)
+        assert ast.atomic is True
+        assert isinstance(ast.body, Seq)
+        assert len(ast.body.parts) == 2
+        assert isinstance(ast.body.parts[0], Anchor)
+        assert ast.body.parts[0].at == "Start"
+        assert isinstance(ast.body.parts[1], Lit)
 
     def test_end_anchor_in_atomic_group(self):
         """
         Tests end anchor in atomic group: (?>a$)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?>a$)")
+        assert isinstance(ast, Group)
+        assert ast.atomic is True
+        assert isinstance(ast.body, Seq)
+        assert len(ast.body.parts) == 2
+        assert isinstance(ast.body.parts[0], Lit)
+        assert isinstance(ast.body.parts[1], Anchor)
+        assert ast.body.parts[1].at == "End"
 
     def test_word_boundary_in_atomic_group(self):
         """
         Tests word boundary in atomic group: (?>\\ba)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"(?>\ba)")
+        assert isinstance(ast, Group)
+        assert ast.atomic is True
+        assert isinstance(ast.body, Seq)
+        assert len(ast.body.parts) == 2
+        assert isinstance(ast.body.parts[0], Anchor)
+        assert ast.body.parts[0].at == "WordBoundary"
+        assert isinstance(ast.body.parts[1], Lit)
 
 
 class TestCategoryHWordBoundaryEdgeCases:
@@ -304,19 +382,41 @@ class TestCategoryHWordBoundaryEdgeCases:
         Tests word boundary with non-word character: \\b.\\b
         The dot matches any character, boundaries on both sides.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\b.\b")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 3
+        assert isinstance(ast.parts[0], Anchor)
+        assert ast.parts[0].at == "WordBoundary"
+        assert isinstance(ast.parts[1], Dot)
+        assert isinstance(ast.parts[2], Anchor)
+        assert ast.parts[2].at == "WordBoundary"
 
     def test_word_boundary_with_digit(self):
         """
         Tests word boundary with digit: \\b\\d\\b
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\b\d\b")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 3
+        assert isinstance(ast.parts[0], Anchor)
+        assert ast.parts[0].at == "WordBoundary"
+        assert isinstance(ast.parts[1], CharClass)
+        assert isinstance(ast.parts[2], Anchor)
+        assert ast.parts[2].at == "WordBoundary"
 
     def test_not_word_boundary_usage(self):
         """
         Tests not-word-boundary: \\Ba\\B
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\Ba\B")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 3
+        assert isinstance(ast.parts[0], Anchor)
+        assert ast.parts[0].at == "NotWordBoundary"
+        assert isinstance(ast.parts[1], Lit)
+        assert ast.parts[1].value == "a"
+        assert isinstance(ast.parts[2], Anchor)
+        assert ast.parts[2].at == "NotWordBoundary"
 
 
 class TestCategoryIMultipleAnchorTypes:
@@ -329,19 +429,51 @@ class TestCategoryIMultipleAnchorTypes:
         Tests both start and end anchors: ^abc$
         Already covered but confirming as typical case.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("^abc$")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 3
+        assert isinstance(ast.parts[0], Anchor)
+        assert ast.parts[0].at == "Start"
+        assert isinstance(ast.parts[1], Lit)
+        assert ast.parts[1].value == "abc"
+        assert isinstance(ast.parts[2], Anchor)
+        assert ast.parts[2].at == "End"
 
     def test_absolute_and_line_anchors(self):
         """
         Tests absolute and line anchors together: \\A^abc$\\z
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\A^abc$\z")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 5
+        assert isinstance(ast.parts[0], Anchor)
+        assert ast.parts[0].at == "AbsoluteStart"
+        assert isinstance(ast.parts[1], Anchor)
+        assert ast.parts[1].at == "Start"
+        assert isinstance(ast.parts[2], Lit)
+        assert ast.parts[2].value == "abc"
+        assert isinstance(ast.parts[3], Anchor)
+        assert ast.parts[3].at == "End"
+        assert isinstance(ast.parts[4], Anchor)
+        assert ast.parts[4].at == "AbsoluteEnd"
 
     def test_word_boundaries_and_line_anchors(self):
         """
         Tests word boundaries with line anchors: ^\\ba\\b$
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"^\ba\b$")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 5
+        assert isinstance(ast.parts[0], Anchor)
+        assert ast.parts[0].at == "Start"
+        assert isinstance(ast.parts[1], Anchor)
+        assert ast.parts[1].at == "WordBoundary"
+        assert isinstance(ast.parts[2], Lit)
+        assert ast.parts[2].value == "a"
+        assert isinstance(ast.parts[3], Anchor)
+        assert ast.parts[3].at == "WordBoundary"
+        assert isinstance(ast.parts[4], Anchor)
+        assert ast.parts[4].at == "End"
 
 
 class TestCategoryJAnchorsWithQuantifiers:
@@ -351,13 +483,14 @@ class TestCategoryJAnchorsWithQuantifiers:
 
     def test_anchor_not_quantified_directly(self):
         """
-        Tests that ^* parses as ^ followed by *, not quantified anchor.
-        The * applies to nothing (or errors).
+        Tests that ^* raises an error (cannot quantify anchor).
         """
-        pytest.fail("Not implemented")
+        with pytest.raises(ParseError, match="Cannot quantify anchor"):
+            parse("^*")
 
     def test_end_anchor_followed_by_quantifier(self):
         """
-        Tests $+ behavior: should not quantify the anchor.
+        Tests $+ raises an error (cannot quantify anchor).
         """
-        pytest.fail("Not implemented")
+        with pytest.raises(ParseError, match="Cannot quantify anchor"):
+            parse("$+")
