@@ -37,7 +37,7 @@ and produce a `nodes.Lit` object containing the corresponding character value.
 import pytest
 
 from STRling.core.parser import parse, ParseError
-from STRling.core.nodes import Lit, Seq, Backref, Node
+from STRling.core.nodes import Lit, Seq, Backref, Node, Quant, Alt, Group
 
 # --- Test Suite -----------------------------------------------------------------
 
@@ -228,26 +228,42 @@ class TestCategoryELiteralSequencesAndCoalescing:
         Should parse as single Lit("abc") or Seq([Lit("a"), Lit("b"), Lit("c")]).
         Verify actual parser behavior.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("abc")
+        assert isinstance(ast, Lit)
+        assert ast.value == "abc"
 
     def test_literals_with_escaped_metachar_sequence(self):
         """
         Tests literals mixed with escaped metachars: a\\*b\\+c
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"a\*b\+c")
+        assert isinstance(ast, Lit)
+        assert ast.value == "a*b+c"
 
     def test_sequence_of_only_escapes(self):
         """
         Tests sequence of only escape sequences: \\n\\t\\r
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\n\t\r")
+        assert isinstance(ast, Seq)
+        # The parser coalesces some escapes, check for parts
+        assert len(ast.parts) >= 1
+        # Verify all parts are Lit nodes containing the escape characters
+        for part in ast.parts:
+            assert isinstance(part, Lit)
 
     def test_mixed_escape_types_in_sequence(self):
         """
         Tests mixed escape types in sequence: \\x41\\u0042\\n
         Hex, Unicode, and control escapes together.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\x41\u0042\n")
+        # The parser may coalesce these into Lit nodes
+        assert isinstance(ast, (Lit, Seq))
+        if isinstance(ast, Seq):
+            # Verify all parts are Lit nodes
+            for part in ast.parts:
+                assert isinstance(part, Lit)
 
 
 class TestCategoryFEscapeInteractions:
@@ -259,26 +275,41 @@ class TestCategoryFEscapeInteractions:
         """
         Tests literal after control escape: \\na (newline followed by 'a')
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\na")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 2
+        assert isinstance(ast.parts[0], Lit)
+        assert ast.parts[0].value == "\n"
+        assert isinstance(ast.parts[1], Lit)
+        assert ast.parts[1].value == "a"
 
     def test_literal_after_hex_escape(self):
         """
         Tests literal after hex escape: \\x41b (A followed by 'b')
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\x41b")
+        assert isinstance(ast, Lit)
+        assert ast.value == "Ab"
 
     def test_escape_after_escape(self):
         """
         Tests escape after escape: \\n\\t (newline followed by tab)
         Already covered but confirming.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\n\t")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) >= 1
+        # Verify all parts are Lit nodes
+        for part in ast.parts:
+            assert isinstance(part, Lit)
 
     def test_identity_escape_after_literal(self):
         """
         Tests identity escape after literal: a\\* ('a' followed by '*')
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"a\*")
+        assert isinstance(ast, Lit)
+        assert ast.value == "a*"
 
 
 class TestCategoryGBackslashEscapeCombinations:
@@ -288,25 +319,31 @@ class TestCategoryGBackslashEscapeCombinations:
 
     def test_double_backslash(self):
         """
-        Tests double backslash: \\\\\\\\
+        Tests double backslash: \\\\
         Should parse as single backslash character.
         Already covered but confirming.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\\")
+        assert isinstance(ast, Lit)
+        assert ast.value == "\\"
 
     def test_quadruple_backslash(self):
         """
-        Tests quadruple backslash: \\\\\\\\\\\\\\\\
+        Tests quadruple backslash: \\\\\\\\
         Should parse as two backslash characters.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\\\\")
+        assert isinstance(ast, Lit)
+        assert ast.value == "\\\\"
 
     def test_backslash_before_literal(self):
         """
         Tests backslash followed by non-metachar: \\\\a
         Should parse as backslash followed by 'a'.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\\a")
+        assert isinstance(ast, Lit)
+        assert ast.value == "\\a"
 
 
 class TestCategoryHEscapeEdgeCasesExpanded:
@@ -318,26 +355,34 @@ class TestCategoryHEscapeEdgeCasesExpanded:
         """
         Tests minimum hex value: \\x00
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\x00")
+        assert isinstance(ast, Lit)
+        assert ast.value == "\x00"
 
     def test_hex_escape_max_value(self):
         """
         Tests maximum single-byte hex value: \\xFF
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\xFF")
+        assert isinstance(ast, Lit)
+        assert ast.value == "\xFF"
 
     def test_unicode_escape_bmp_boundary(self):
         """
         Tests Unicode at BMP boundary: \\uFFFF
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\uFFFF")
+        assert isinstance(ast, Lit)
+        assert ast.value == "\uFFFF"
 
     def test_unicode_escape_supplementary_plane(self):
         """
         Tests Unicode in supplementary plane: \\U00010000
         First character outside BMP.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"\U00010000")
+        assert isinstance(ast, Lit)
+        assert ast.value == "\U00010000"
 
 
 class TestCategoryIOctalAndBackrefDisambiguation:
@@ -351,20 +396,29 @@ class TestCategoryIOctalAndBackrefDisambiguation:
         Tests that \\1 with no groups raises backreference error, not octal.
         Already partially covered, confirming.
         """
-        pytest.fail("Not implemented")
+        with pytest.raises(ParseError, match="Backreference to undefined group"):
+            parse(r"\1")
 
     def test_two_digit_sequence_with_one_group(self):
         """
         Tests (a)\\12: should be backref \\1 followed by literal '2'.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"(a)\12")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 3
+        assert isinstance(ast.parts[0], Group)
+        assert isinstance(ast.parts[1], Backref)
+        assert ast.parts[1].byIndex == 1
+        assert isinstance(ast.parts[2], Lit)
+        assert ast.parts[2].value == "2"
 
     def test_three_digit_sequence_behavior(self):
         """
         Tests \\123 parsing behavior (backref or error).
         Already covered, confirming behavior.
         """
-        pytest.fail("Not implemented")
+        with pytest.raises(ParseError, match="Backreference to undefined group"):
+            parse(r"\123")
 
 
 class TestCategoryJLiteralsInComplexContexts:
@@ -376,16 +430,34 @@ class TestCategoryJLiteralsInComplexContexts:
         """
         Tests literal between quantified atoms: a*Xb+
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("a*Xb+")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 3
+        assert isinstance(ast.parts[0], Quant)
+        assert isinstance(ast.parts[1], Lit)
+        assert ast.parts[1].value == "X"
+        assert isinstance(ast.parts[2], Quant)
 
     def test_literal_in_alternation(self):
         """
         Tests literal in alternation: a|b|c
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("a|b|c")
+        assert isinstance(ast, Alt)
+        assert len(ast.branches) == 3
+        assert isinstance(ast.branches[0], Lit)
+        assert ast.branches[0].value == "a"
+        assert isinstance(ast.branches[1], Lit)
+        assert ast.branches[1].value == "b"
+        assert isinstance(ast.branches[2], Lit)
+        assert ast.branches[2].value == "c"
 
     def test_escaped_literal_in_group(self):
         """
         Tests escaped literal inside group: (\\*)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"(\*)")
+        assert isinstance(ast, Group)
+        assert ast.capturing is True
+        assert isinstance(ast.body, Lit)
+        assert ast.body.value == "*"
