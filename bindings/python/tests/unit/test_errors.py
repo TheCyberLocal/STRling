@@ -98,13 +98,12 @@ class TestBackreferenceAndNamingErrors:
             parse(invalid_dsl)
         assert excinfo.value.pos == error_position
 
-    @pytest.mark.xfail(reason="Parser does not yet check for duplicate group names.")
     def test_duplicate_group_name_raises_error(self):
         """
         Tests that duplicate group names raise a semantic error.
 
         """
-        with pytest.raises(Exception, match="Duplicate group name"):
+        with pytest.raises(ParseError, match="Duplicate group name"):
             parse("(?<name>a)(?<name>b)")
 
 

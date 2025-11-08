@@ -633,6 +633,9 @@ class Parser:
             name = self._read_until(">")
             if not cur.match(">"):
                 raise ParseError("Unterminated group name", cur.i)
+            # Check for duplicate group name
+            if name in self._cap_names:
+                raise ParseError(f"Duplicate group name <{name}>", cur.i)
             self._cap_count += 1
             self._cap_names.add(name)
             body = self.parse_alt()
