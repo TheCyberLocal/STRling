@@ -141,7 +141,104 @@ class TestCategoryCExtensionFeatures:
         assert compile_to_pcre(input_dsl) == expected_regex
 
 
-class TestCategoryDErrorHandling:
+class TestCategoryDGoldenPatterns:
+    """
+    Covers real-world "golden" patterns that validate STRling can solve
+    complete, production-grade validation and parsing problems.
+    """
+
+    @pytest.mark.parametrize(
+        "input_dsl, expected_regex, description",
+        [
+            # Category 1: Common Validation Patterns
+            # US Phone Number (already exists in TestCategoryACoreLanguageFeatures)
+            
+            # Email Address (RFC 5322 subset - simplified)
+            (
+                r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",
+                r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}",
+                "Email address validation (simplified RFC 5322)",
+            ),
+            # UUID v4
+            (
+                r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}",
+                r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}",
+                "UUID v4 validation",
+            ),
+            # Semantic Version (SemVer)
+            (
+                r"(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<prerelease>[0-9A-Za-z-.]+))?(?:\+(?<build>[0-9A-Za-z-.]+))?",
+                r"(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<prerelease>[0-9A-Za-z\-.]+))?(?:\+(?<build>[0-9A-Za-z\-.]+))?",
+                "Semantic version validation",
+            ),
+            # URL / URI
+            (
+                r"(?<scheme>https?)://(?<host>[a-zA-Z0-9.-]+)(?::(?<port>\d+))?(?<path>/\S*)?",
+                r"(?<scheme>https?)://(?<host>[a-zA-Z0-9.\-]+)(?::(?<port>\d+))?(?<path>/\S*)?",
+                "HTTP/HTTPS URL validation",
+            ),
+            
+            # Category 2: Common Parsing/Extraction Patterns
+            # Simple HTML/XML Tag (already exists in TestCategoryACoreLanguageFeatures)
+            
+            # Log File Line (Nginx access log format)
+            (
+                r'(?<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\ -\ (?<user>\S+)\ \[(?<time>[^\]]+)\]\ "(?<method>\w+)\ (?<path>\S+)\ HTTP/(?<version>[\d.]+)"\ (?<status>\d+)\ (?<size>\d+)',
+                r'(?<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\ -\ (?<user>\S+)\ \[(?<time>[^\]]+)\]\ "(?<method>\w+)\ (?<path>\S+)\ HTTP/(?<version>[\d.]+)"\ (?<status>\d+)\ (?<size>\d+)',
+                "Nginx access log parsing",
+            ),
+            # ISO 8601 Timestamp
+            (
+                r"(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})T(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})(?:\.(?<fraction>\d+))?(?<tz>Z|[+\-]\d{2}:\d{2})?",
+                r"(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})T(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})(?:\.(?<fraction>\d+))?(?<tz>Z|[+\-]\d{2}:\d{2})?",
+                "ISO 8601 timestamp parsing",
+            ),
+            
+            # Category 3: Advanced Feature Stress Tests
+            # Unicode Property (already exists in TestCategoryACoreLanguageFeatures)
+            
+            # Password Policy (multiple lookaheads)
+            (
+                r"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}",
+                r"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}",
+                "Password policy with multiple lookaheads",
+            ),
+            # ReDoS-Safe Pattern using atomic group
+            (
+                r"(?>a+)b",
+                r"(?>a+)b",
+                "ReDoS-safe pattern with atomic group",
+            ),
+            # ReDoS-Safe Pattern using possessive quantifier
+            (
+                r"a*+b",
+                r"a*+b",
+                "ReDoS-safe pattern with possessive quantifier",
+            ),
+        ],
+        ids=[
+            "golden_email_address",
+            "golden_uuid_v4",
+            "golden_semver",
+            "golden_url",
+            "golden_nginx_log",
+            "golden_iso8601",
+            "golden_password_policy",
+            "golden_redos_safe_atomic",
+            "golden_redos_safe_possessive",
+        ],
+    )
+    def test_golden_patterns_real_world(
+        self, input_dsl: str, expected_regex: str, description: str
+    ):
+        """
+        Tests that STRling can compile real-world patterns used in production
+        for validation, parsing, and extraction tasks.
+        """
+        assert compile_to_pcre(input_dsl) == expected_regex
+
+
+class TestCategoryEErrorHandling:
     """
     Covers how errors from the pipeline are propagated.
     """
