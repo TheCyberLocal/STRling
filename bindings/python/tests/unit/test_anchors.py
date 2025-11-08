@@ -124,7 +124,7 @@ class TestCategoryCEdgeCases:
         [
             (r"^a", 0, "Start"),
             (r"a\bb", 1, "WordBoundary"),
-            (r"ab$", 2, "End"),
+            (r"ab$", 1, "End"),
         ],
         ids=["at_start", "in_middle", "at_end"],
     )

@@ -141,11 +141,20 @@ class Parser:
 
     # alt := seq ('|' seq)+ | seq
     def parse_alt(self) -> Node:
+        # Check if the pattern starts with a pipe (no left-hand side)
+        self.cur.skip_ws_and_comments()
+        if self.cur.peek() == "|":
+            raise ParseError("Alternation lacks left-hand side", self.cur.i)
+        
         branches: List[Node] = [self.parse_seq()]
         self.cur.skip_ws_and_comments()
         while self.cur.peek() == "|":
+            pipe_pos = self.cur.i
             self.cur.take()
             self.cur.skip_ws_and_comments()
+            # Check if the pipe is followed by end-of-input (no right-hand side)
+            if self.cur.peek() == "":
+                raise ParseError("Alternation lacks right-hand side", pipe_pos)
             branches.append(self.parse_seq())
             self.cur.skip_ws_and_comments()
         if len(branches) == 1:

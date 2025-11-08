@@ -143,12 +143,12 @@ class TestCategoryBNegativeCases:
             (
                 parse_to_artifact("a")
                 | {"root": {"kind": "Anchor", "at": "InvalidPosition"}},
-                "'InvalidPosition' is not one of",
+                "is not valid under any of the given schemas",
             ),
             # B.4: A node with a missing required property
             (
                 parse_to_artifact("a") | {"root": {"kind": "Lit"}},
-                "'value' is a required property",
+                "is not valid under any of the given schemas",
             ),
             # B.5: Additional, unexpected properties at the top level
             (

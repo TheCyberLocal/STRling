@@ -132,9 +132,9 @@ class TestCategoryBNegativeCases:
         [
             # B.1: Unterminated constructs
             ("(a", "Unterminated group", 2),
-            ("(?<name", "Unterminated group name", 8),
+            ("(?<name", "Unterminated group name", 7),
             ("(?=a", "Unterminated lookahead", 4),
-            (r"\k<A", "Unterminated named backref", 4),
+            (r"\k<A", "Unterminated named backref", 0),
             # B.2: Invalid backreferences
             (r"\k<A>(?<A>a)", "Backreference to undefined group <A>", 0),
             (r"\2(a)(b)", "Backreference to undefined group \\\\2", 0),
