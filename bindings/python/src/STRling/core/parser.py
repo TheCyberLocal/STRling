@@ -105,19 +105,24 @@ class Parser:
         flags = Flags()
         lines = text.splitlines(keepends=True)
         pattern_lines: List[str] = []
+        in_pattern = False  # Track whether we've started the pattern section
+        
         for line in lines:
             striped = line.strip()
             # Skip leading blank lines or comments
-            if striped == "" or striped.startswith("#"):
+            if not in_pattern and (striped == "" or striped.startswith("#")):
                 continue
-            if striped.startswith("%flags"):
+            # Process directives only before pattern content
+            if not in_pattern and striped.startswith("%flags"):
                 rest = striped[6:].strip()
                 letters = rest.replace(",", " ").replace("[", "").replace("]", "")
                 flags = Flags.from_letters(letters)
                 continue
-            if striped.startswith("%"):
+            if not in_pattern and striped.startswith("%"):
                 continue
             # All other lines are pattern content
+            # Once we hit pattern content, we stop processing directives
+            in_pattern = True
             pattern_lines.append(line)
         # Join all pattern lines, preserving original whitespace and newlines
         pattern = "".join(pattern_lines)
@@ -153,6 +158,9 @@ class Parser:
     # quantifiers with entire sequences instead of individual atoms.
     def parse_seq(self) -> Node:
         parts: List[Node] = []
+        # Track whether the previous atom had a failed quantifier parse to prevent coalescing across that boundary
+        prev_had_failed_quant = False
+        
         while True:
             self.cur.skip_ws_and_comments()
             ch = self.cur.peek()
@@ -166,11 +174,57 @@ class Parser:
             # Anchors cannot be quantified, add directly and continue
             if isinstance(atom, Anchor):
                 parts.append(atom)
+                prev_had_failed_quant = False
                 continue
 
             # Parse any quantifier (*, +, ?, {m,n}) that might follow the atom
-            quantified_atom = self.parse_quant_if_any(atom)
-            parts.append(quantified_atom)
+            # This returns (quantified_atom, had_failed_quant_parse)
+            quantified_atom, had_failed_quant_parse = self.parse_quant_if_any(atom)
+            
+            # Coalesce adjacent Lit nodes: if the new atom is a Lit and the last part
+            # is also a Lit, merge them into a single Lit with concatenated values.
+            # However, don't coalesce if:
+            # 1. We're in free-spacing mode (whitespace separation is semantic)
+            # 2. The previous atom had a failed quantifier parse (semantic boundary)
+            # 3. The current Lit is a digit following a backslash (avoid \digit ambiguity)
+            # 4. The previous part is a Backref (keep digit literals separate)
+            # 5. Either Lit contains a newline (line boundaries are semantic)
+            avoid_digit_after_backslash = (
+                isinstance(quantified_atom, Lit) and
+                len(quantified_atom.value) == 1 and
+                quantified_atom.value.isdigit() and
+                len(parts) > 0 and
+                isinstance(parts[-1], Lit) and
+                len(parts[-1].value) > 0 and
+                parts[-1].value[-1] == "\\"
+            )
+            
+            # Don't coalesce across newlines (line boundaries are semantic)
+            contains_newline = (
+                (isinstance(quantified_atom, Lit) and "\n" in quantified_atom.value) or
+                (len(parts) > 0 and isinstance(parts[-1], Lit) and "\n" in parts[-1].value)
+            )
+            
+            # Don't coalesce after a Backref to keep the digit literals separate
+            prev_is_backref = len(parts) > 0 and isinstance(parts[-1], Backref)
+            
+            should_coalesce = (
+                isinstance(quantified_atom, Lit) and 
+                len(parts) > 0 and 
+                isinstance(parts[-1], Lit) and
+                not self.cur.extended_mode and  # Don't coalesce in free-spacing mode
+                not prev_had_failed_quant and
+                not avoid_digit_after_backslash and
+                not contains_newline and
+                not prev_is_backref
+            )
+            
+            if should_coalesce:
+                parts[-1] = Lit(parts[-1].value + quantified_atom.value)
+            else:
+                parts.append(quantified_atom)
+            
+            prev_had_failed_quant = had_failed_quant_parse
 
         # If the sequence ended up being just one (potentially quantified) atom, return it directly
         if len(parts) == 1:
@@ -178,11 +232,16 @@ class Parser:
         # Otherwise, return a Sequence node containing all parts
         return Seq(parts)
 
-    def parse_quant_if_any(self, child: Node) -> Node:
+    def parse_quant_if_any(self, child: Node) -> Tuple[Node, bool]:
+        """
+        Parse a quantifier if present and return (quantified_node, had_failed_quant_parse).
+        had_failed_quant_parse is True if we started parsing a brace quantifier but had to backtrack.
+        """
         cur = self.cur
         ch = cur.peek()
 
         min_val, max_val, mode = None, None, "Greedy"
+        had_failed_quant_parse = False
 
         if ch == "*":
             min_val, max_val = 0, "Inf"
@@ -200,11 +259,13 @@ class Parser:
             if m is not None:
                 min_val, max_val, mode = m, n, parsed_mode
             else:
+                # We attempted to parse a brace quantifier but failed
+                had_failed_quant_parse = True
                 cur.i = save  # Backtrack if it wasn't a quantifier
 
         # If we didn't parse a quantifier, we're done
         if min_val is None:
-            return child
+            return child, had_failed_quant_parse
 
         # Now check for lazy/possessive modifiers
         nxt = cur.peek()
@@ -215,7 +276,7 @@ class Parser:
             mode = "Possessive"
             cur.take()
 
-        return Quant(child, min_val, max_val if max_val is not None else "Inf", mode)
+        return Quant(child, min_val, max_val if max_val is not None else "Inf", mode), had_failed_quant_parse
 
     def parse_brace_quant(self) -> Tuple[Optional[int], Optional[Union[int, str]], str]:
         cur = self.cur
@@ -285,11 +346,36 @@ class Parser:
         assert cur.take() == "\\"
         nxt = cur.peek()
         # Backref by index \1.. (but not \0)
+        # Consume digits greedily up to the highest valid capture group
         if nxt.isdigit() and nxt != "0":
+            saved_pos = cur.i
+            num_str = ""
+            
+            # Read digits one at a time and check if they form a valid backref
+            while cur.peek().isdigit():
+                num_str += cur.take()
+                num = int(num_str)
+                
+                # If this number is valid, remember it
+                if num <= self._cap_count:
+                    # This is a valid backref, keep consuming
+                    continue
+                else:
+                    # This number is too large, backtrack one digit
+                    cur.i -= 1
+                    num_str = num_str[:-1]
+                    break
+            
+            # If we got a valid backref number, use it
+            if num_str:
+                num = int(num_str)
+                if num <= self._cap_count:
+                    return Backref(byIndex=num)
+            
+            # No valid backref found, reset and raise error
+            cur.i = saved_pos
             num = self._read_decimal()
-            if num > self._cap_count:
-                raise ParseError(f"Backreference to undefined group \\{num}", start_pos)
-            return Backref(byIndex=num)
+            raise ParseError(f"Backreference to undefined group \\{num}", start_pos)
         # Anchors \b \B \A \Z \z
         if nxt in ("b", "B", "A", "Z", "z"):
             ch = cur.take()
