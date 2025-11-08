@@ -105,19 +105,24 @@ class Parser:
         flags = Flags()
         lines = text.splitlines(keepends=True)
         pattern_lines: List[str] = []
+        in_pattern = False  # Track whether we've started the pattern section
+        
         for line in lines:
             striped = line.strip()
             # Skip leading blank lines or comments
-            if striped == "" or striped.startswith("#"):
+            if not in_pattern and (striped == "" or striped.startswith("#")):
                 continue
-            if striped.startswith("%flags"):
+            # Process directives only before pattern content
+            if not in_pattern and striped.startswith("%flags"):
                 rest = striped[6:].strip()
                 letters = rest.replace(",", " ").replace("[", "").replace("]", "")
                 flags = Flags.from_letters(letters)
                 continue
-            if striped.startswith("%"):
+            if not in_pattern and striped.startswith("%"):
                 continue
             # All other lines are pattern content
+            # Once we hit pattern content, we stop processing directives
+            in_pattern = True
             pattern_lines.append(line)
         # Join all pattern lines, preserving original whitespace and newlines
         pattern = "".join(pattern_lines)
@@ -179,9 +184,11 @@ class Parser:
             # Coalesce adjacent Lit nodes: if the new atom is a Lit and the last part
             # is also a Lit, merge them into a single Lit with concatenated values.
             # However, don't coalesce if:
-            # 1. The previous atom had a failed quantifier parse (semantic boundary)
-            # 2. The current Lit is a digit and previous Lit ends with backslash (to avoid \digit ambiguity)
-            # 3. The previous part is a Backref (keep digit literals separate)
+            # 1. We're in free-spacing mode (whitespace separation is semantic)
+            # 2. The previous atom had a failed quantifier parse (semantic boundary)
+            # 3. The current Lit is a digit following a backslash (avoid \digit ambiguity)
+            # 4. The previous part is a Backref (keep digit literals separate)
+            # 5. Either Lit contains a newline (line boundaries are semantic)
             avoid_digit_after_backslash = (
                 isinstance(quantified_atom, Lit) and
                 len(quantified_atom.value) == 1 and
@@ -192,6 +199,12 @@ class Parser:
                 parts[-1].value[-1] == "\\"
             )
             
+            # Don't coalesce across newlines (line boundaries are semantic)
+            contains_newline = (
+                (isinstance(quantified_atom, Lit) and "\n" in quantified_atom.value) or
+                (len(parts) > 0 and isinstance(parts[-1], Lit) and "\n" in parts[-1].value)
+            )
+            
             # Don't coalesce after a Backref to keep the digit literals separate
             prev_is_backref = len(parts) > 0 and isinstance(parts[-1], Backref)
             
@@ -199,8 +212,10 @@ class Parser:
                 isinstance(quantified_atom, Lit) and 
                 len(parts) > 0 and 
                 isinstance(parts[-1], Lit) and
+                not self.cur.extended_mode and  # Don't coalesce in free-spacing mode
                 not prev_had_failed_quant and
                 not avoid_digit_after_backslash and
+                not contains_newline and
                 not prev_is_backref
             )
             

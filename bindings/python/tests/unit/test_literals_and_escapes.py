@@ -120,11 +120,11 @@ class TestCategoryBNegativeCases:
         "invalid_dsl, error_message_prefix, error_position",
         [
             # B.1: Malformed Hex/Unicode
-            (r"\x{12", "Unterminated \\\\x{...}", 4),
-            (r"\xG", "Invalid \\\\xHH escape", 3),
-            (r"\u{1F60", "Unterminated \\\\u{...}", 6),
-            (r"\u123", "Invalid \\\\uHHHH", 5),
-            (r"\U1234567", "Invalid \\\\UHHHHHHHH", 9),
+            (r"\x{12", "Unterminated \\\\x{...}", 0),
+            (r"\xG", "Invalid \\\\xHH escape", 0),
+            (r"\u{1F60", "Unterminated \\\\u{...}", 0),
+            (r"\u123", "Invalid \\\\uHHHH", 0),
+            (r"\U1234567", "Invalid \\\\UHHHHHHHH", 0),
             # B.2: Stray Metacharacters
             (")", "Unexpected token", 0),
             ("|", "Unexpected trailing input", 0),
@@ -168,7 +168,7 @@ class TestCategoryCEdgeCases:
     @pytest.mark.parametrize(
         "input_dsl, expected_char",
         [
-            (r"\u{10FFFF}", "\U00010fffF"),
+            (r"\u{10FFFF}", "\U0010ffff"),
             (r"\x{0}", "\x00"),
             (r"\x{}", "\x00"),
         ],

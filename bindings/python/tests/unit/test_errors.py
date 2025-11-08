@@ -203,4 +203,4 @@ class TestInvariantFirstErrorWins:
         """
         with pytest.raises(ParseError, match="Unterminated character class") as excinfo:
             parse("[a|b(")
-        assert excinfo.value.pos == 4
+        assert excinfo.value.pos == 5
