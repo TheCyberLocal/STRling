@@ -208,3 +208,156 @@ class TestCategoryDInteractionCases:
             # Direct anchor
             assert isinstance(ast.body, Anchor)
             assert ast.body.at == expected_at_value
+
+
+# --- New Test Stubs for 3-Test Standard Compliance -----------------------------
+
+
+class TestCategoryEAnchorsInComplexSequences:
+    """
+    Tests for anchors in complex sequences with quantified atoms.
+    """
+
+    def test_anchor_between_quantified_atoms(self):
+        """
+        Tests anchor between quantified atoms: a*^b+
+        The ^ anchor appears between two quantified literals.
+        """
+        pytest.fail("Not implemented")
+
+    def test_anchor_after_quantified_group(self):
+        """
+        Tests anchor after quantified group: (ab)*$
+        """
+        pytest.fail("Not implemented")
+
+    def test_multiple_anchors_of_same_type(self):
+        """
+        Tests multiple same anchors: ^^
+        Edge case: semantically redundant but syntactically valid.
+        """
+        pytest.fail("Not implemented")
+
+    def test_multiple_end_anchors(self):
+        """
+        Tests multiple end anchors: $$
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryFAnchorsInAlternation:
+    """
+    Tests for anchors used in alternation patterns.
+    """
+
+    def test_anchor_in_alternation_branch(self):
+        """
+        Tests anchor in one branch of alternation: ^a|b$
+        Parses as (^a)|(b$).
+        """
+        pytest.fail("Not implemented")
+
+    def test_anchors_in_group_alternation(self):
+        """
+        Tests anchors in grouped alternation: (^|$)
+        """
+        pytest.fail("Not implemented")
+
+    def test_word_boundary_in_alternation(self):
+        """
+        Tests word boundary in alternation: \\ba|\\bb
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryGAnchorsInAtomicGroups:
+    """
+    Tests for anchors inside atomic groups.
+    """
+
+    def test_start_anchor_in_atomic_group(self):
+        """
+        Tests start anchor in atomic group: (?>^a)
+        """
+        pytest.fail("Not implemented")
+
+    def test_end_anchor_in_atomic_group(self):
+        """
+        Tests end anchor in atomic group: (?>a$)
+        """
+        pytest.fail("Not implemented")
+
+    def test_word_boundary_in_atomic_group(self):
+        """
+        Tests word boundary in atomic group: (?>\\ba)
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryHWordBoundaryEdgeCases:
+    """
+    Tests for word boundary anchors in various contexts.
+    """
+
+    def test_word_boundary_with_non_word_char(self):
+        """
+        Tests word boundary with non-word character: \\b.\\b
+        The dot matches any character, boundaries on both sides.
+        """
+        pytest.fail("Not implemented")
+
+    def test_word_boundary_with_digit(self):
+        """
+        Tests word boundary with digit: \\b\\d\\b
+        """
+        pytest.fail("Not implemented")
+
+    def test_not_word_boundary_usage(self):
+        """
+        Tests not-word-boundary: \\Ba\\B
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryIMultipleAnchorTypes:
+    """
+    Tests for patterns combining different anchor types.
+    """
+
+    def test_start_and_end_anchors(self):
+        """
+        Tests both start and end anchors: ^abc$
+        Already covered but confirming as typical case.
+        """
+        pytest.fail("Not implemented")
+
+    def test_absolute_and_line_anchors(self):
+        """
+        Tests absolute and line anchors together: \\A^abc$\\z
+        """
+        pytest.fail("Not implemented")
+
+    def test_word_boundaries_and_line_anchors(self):
+        """
+        Tests word boundaries with line anchors: ^\\ba\\b$
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryJAnchorsWithQuantifiers:
+    """
+    Tests confirming that anchors themselves cannot be quantified.
+    """
+
+    def test_anchor_not_quantified_directly(self):
+        """
+        Tests that ^* parses as ^ followed by *, not quantified anchor.
+        The * applies to nothing (or errors).
+        """
+        pytest.fail("Not implemented")
+
+    def test_end_anchor_followed_by_quantifier(self):
+        """
+        Tests $+ behavior: should not quantify the anchor.
+        """
+        pytest.fail("Not implemented")

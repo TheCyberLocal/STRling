@@ -224,3 +224,176 @@ class TestCategoryDInteractionCases:
         _flags, ast = parse(input_dsl)
         assert isinstance(ast, CharClass)
         assert ast.items == expected_items
+
+
+# --- New Test Stubs for 3-Test Standard Compliance -----------------------------
+
+
+class TestCategoryEMinimalCharClasses:
+    """
+    Tests for character classes with minimal content.
+    """
+
+    def test_single_literal_in_class(self):
+        """
+        Tests character class with single literal: [a]
+        """
+        pytest.fail("Not implemented")
+
+    def test_single_literal_negated_class(self):
+        """
+        Tests negated class with single literal: [^x]
+        """
+        pytest.fail("Not implemented")
+
+    def test_single_range_in_class(self):
+        """
+        Tests class with only a single range: [a-z]
+        Already exists but validating explicit simple case.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryFEscapedMetacharsInClasses:
+    """
+    Tests for escaped metacharacters inside character classes.
+    """
+
+    def test_escaped_dot_in_class(self):
+        """
+        Tests escaped dot in class: [\\.]
+        The dot should be literal, not a wildcard.
+        """
+        pytest.fail("Not implemented")
+
+    def test_escaped_star_in_class(self):
+        """
+        Tests escaped star in class: [\\*]
+        """
+        pytest.fail("Not implemented")
+
+    def test_escaped_plus_in_class(self):
+        """
+        Tests escaped plus in class: [\\+]
+        """
+        pytest.fail("Not implemented")
+
+    def test_multiple_escaped_metachars(self):
+        """
+        Tests multiple escaped metacharacters: [\\.\\*\\+\\?]
+        """
+        pytest.fail("Not implemented")
+
+    def test_escaped_backslash_in_class(self):
+        """
+        Tests escaped backslash in class: [\\\\\\\\]
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryGComplexRangeCombinations:
+    """
+    Tests for character classes with complex range combinations.
+    """
+
+    def test_multiple_non_overlapping_ranges(self):
+        """
+        Tests multiple separate ranges: [a-zA-Z0-9]
+        Already covered but validating as typical case.
+        """
+        pytest.fail("Not implemented")
+
+    def test_range_with_literals_mixed(self):
+        """
+        Tests ranges mixed with literals: [a-z_0-9-]
+        """
+        pytest.fail("Not implemented")
+
+    def test_adjacent_ranges(self):
+        """
+        Tests adjacent character ranges: [a-z][A-Z]
+        Note: This is two separate classes, not one.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryHUnicodePropertyCombinations:
+    """
+    Tests for combinations of Unicode property escapes.
+    """
+
+    def test_multiple_unicode_properties(self):
+        """
+        Tests multiple Unicode properties in one class: [\\p{L}\\p{N}]
+        """
+        pytest.fail("Not implemented")
+
+    def test_unicode_property_with_literals(self):
+        """
+        Tests Unicode property mixed with literals: [\\p{L}abc]
+        """
+        pytest.fail("Not implemented")
+
+    def test_unicode_property_with_range(self):
+        """
+        Tests Unicode property mixed with range: [\\p{L}0-9]
+        """
+        pytest.fail("Not implemented")
+
+    def test_negated_unicode_property_in_class(self):
+        """
+        Tests negated Unicode property: [\\P{L}]
+        Already exists but confirming coverage.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryINegatedClassVariations:
+    """
+    Tests for negated character classes with various contents.
+    """
+
+    def test_negated_class_with_range(self):
+        """
+        Tests negated class with range: [^a-z]
+        """
+        pytest.fail("Not implemented")
+
+    def test_negated_class_with_shorthand(self):
+        """
+        Tests negated class with shorthand: [^\\d\\s]
+        """
+        pytest.fail("Not implemented")
+
+    def test_negated_class_with_unicode_property(self):
+        """
+        Tests negated class with Unicode property: [^\\p{L}]
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryJCharClassErrorCases:
+    """
+    Additional error cases for character classes.
+    """
+
+    def test_truly_empty_class_raises_error(self):
+        """
+        Tests that [] without the special ] handling raises an error.
+        Note: []a] is valid (] is literal), but [] alone should error.
+        """
+        pytest.fail("Not implemented")
+
+    def test_invalid_range_reversed_endpoints(self):
+        """
+        Tests invalid range with reversed endpoints: [z-a]
+        Should raise ParseError.
+        """
+        pytest.fail("Not implemented")
+
+    def test_incomplete_range_at_end(self):
+        """
+        Tests incomplete range at class end: [a-]
+        This is actually valid (hyphen is literal), confirm behavior.
+        """
+        pytest.fail("Not implemented")

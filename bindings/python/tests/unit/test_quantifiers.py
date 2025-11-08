@@ -254,3 +254,141 @@ class TestCategoryDInteractionCases:
         _flags, ast = parse(input_dsl)
         assert isinstance(ast, Quant)
         assert isinstance(ast.child, expected_child_type)
+
+
+# --- New Test Stubs for 3-Test Standard Compliance -----------------------------
+
+
+class TestCategoryENestedAndRedundantQuantifiers:
+    """
+    Tests for nested quantifiers and redundant quantification patterns.
+    These are edge cases that test the parser's ability to handle
+    syntactically valid but semantically unusual patterns.
+    """
+
+    def test_nested_quantifier_star_on_star(self):
+        """
+        Tests that a quantifier can be applied to a group containing a
+        quantified atom: (a*)* is syntactically valid.
+        """
+        pytest.fail("Not implemented")
+
+    def test_nested_quantifier_plus_on_optional(self):
+        """
+        Tests nested quantifiers with different operators: (a+)?
+        """
+        pytest.fail("Not implemented")
+
+    def test_redundant_quantifier_plus_on_star(self):
+        """
+        Tests redundant quantification: (a*)+
+        This is semantically equivalent to a* but syntactically valid.
+        """
+        pytest.fail("Not implemented")
+
+    def test_redundant_quantifier_star_on_optional(self):
+        """
+        Tests redundant quantification: (a?)*
+        """
+        pytest.fail("Not implemented")
+
+    def test_nested_quantifier_with_brace(self):
+        """
+        Tests brace quantifiers on quantified groups: (a{2,3}){1,2}
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryFQuantifierOnSpecialAtoms:
+    """
+    Tests for quantifiers applied to special atom types like backreferences
+    and anchors.
+    """
+
+    def test_quantifier_on_backref(self):
+        """
+        Tests that a quantifier can be applied to a backreference: (a)\\1*
+        """
+        pytest.fail("Not implemented")
+
+    def test_quantifier_on_multiple_backrefs(self):
+        """
+        Tests quantifiers on multiple backrefs: (a)(b)\\1*\\2+
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryGMultipleQuantifiedSequences:
+    """
+    Tests for patterns with multiple consecutive quantified atoms.
+    """
+
+    def test_multiple_consecutive_quantified_literals(self):
+        """
+        Tests multiple quantified atoms in sequence: a*b+c?
+        """
+        pytest.fail("Not implemented")
+
+    def test_multiple_quantified_groups(self):
+        """
+        Tests multiple quantified groups: (ab)*(cd)+(ef)?
+        """
+        pytest.fail("Not implemented")
+
+    def test_quantified_atoms_with_alternation(self):
+        """
+        Tests quantified atoms in an alternation: a*|b+
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryHBraceQuantifierEdgeCases:
+    """
+    Additional edge cases for brace quantifiers.
+    """
+
+    def test_brace_quantifier_exact_one(self):
+        """
+        Tests exact repetition of one: a{1}
+        Should parse correctly even though it's equivalent to 'a'.
+        """
+        pytest.fail("Not implemented")
+
+    def test_brace_quantifier_zero_to_one(self):
+        """
+        Tests range zero to one: a{0,1}
+        Should be equivalent to a? but valid syntax.
+        """
+        pytest.fail("Not implemented")
+
+    def test_brace_quantifier_on_alternation_in_group(self):
+        """
+        Tests brace quantifier on group with alternation: (a|b){2,3}
+        """
+        pytest.fail("Not implemented")
+
+    def test_brace_quantifier_large_values(self):
+        """
+        Tests brace quantifiers with large repetition counts: a{100}, a{50,150}
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryIQuantifierInteractionWithFlags:
+    """
+    Tests for how quantifiers interact with DSL flags.
+    """
+
+    def test_quantifier_with_free_spacing_mode(self):
+        """
+        Tests that free-spacing mode doesn't affect quantifier parsing:
+        %flags x\\na * (spaces should be ignored, quantifier still applies)
+        """
+        pytest.fail("Not implemented")
+
+    def test_quantifier_on_escaped_space_in_free_spacing(self):
+        """
+        Tests quantifier on escaped space in free-spacing mode:
+        %flags x\\n\\ *
+        """
+        pytest.fail("Not implemented")

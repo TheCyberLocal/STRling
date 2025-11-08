@@ -221,3 +221,174 @@ class TestCategoryDMetadataGeneration:
         metadata = artifact["metadata"]
         assert isinstance(metadata, dict)
         assert metadata["features_used"] == []
+
+
+# --- New Test Stubs for 3-Test Standard Compliance -----------------------------
+
+
+class TestCategoryEDeeplyNestedAlternations:
+    """
+    Tests for deeply nested alternation structures and their normalization.
+    """
+
+    def test_three_level_nested_alternation(self):
+        """
+        Tests deeply nested alternation: (a|(b|(c|d)))
+        Should be flattened to IRAlt([a, b, c, d]).
+        """
+        pytest.fail("Not implemented")
+
+    def test_alternation_with_sequences(self):
+        """
+        Tests alternation containing sequences: (ab|cd|ef)
+        """
+        pytest.fail("Not implemented")
+
+    def test_mixed_alternation_and_sequence_nesting(self):
+        """
+        Tests mixed nesting: ((a|b)(c|d))
+        Two alternations in a sequence inside a group.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryFComplexSequenceNormalization:
+    """
+    Tests for complex sequence normalization scenarios.
+    """
+
+    def test_deeply_nested_sequences(self):
+        """
+        Tests deeply nested sequences: Seq([Lit("a"), Seq([Lit("b"), Seq([Lit("c")])])])
+        Should normalize to IRLit("abc").
+        """
+        pytest.fail("Not implemented")
+
+    def test_sequence_with_non_literal_in_middle(self):
+        """
+        Tests sequence with non-literal: Seq([Lit("a"), Dot(), Lit("b")])
+        Should normalize to IRSeq([IRLit("a"), IRDot(), IRLit("b")]).
+        """
+        pytest.fail("Not implemented")
+
+    def test_empty_sequence_normalization(self):
+        """
+        Tests normalization of empty sequence: Seq([])
+        Should produce IRSeq([]) or equivalent.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryGLiteralFusionEdgeCases:
+    """
+    Tests for edge cases in literal fusion during normalization.
+    """
+
+    def test_fusion_with_escaped_chars(self):
+        """
+        Tests fusion of literals with escape sequences: Lit("a") + Lit("\\n") + Lit("b")
+        Should fuse to single IRLit("a\\nb").
+        """
+        pytest.fail("Not implemented")
+
+    def test_fusion_with_unicode(self):
+        """
+        Tests fusion of Unicode literals: Lit("😀") + Lit("a")
+        """
+        pytest.fail("Not implemented")
+
+    def test_no_fusion_across_non_literals(self):
+        """
+        Tests that literals don't fuse across non-literal nodes:
+        Seq([Lit("a"), Dot(), Lit("b")]) should keep three separate nodes.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryHQuantifierNormalization:
+    """
+    Tests for quantifier normalization scenarios.
+    """
+
+    def test_quantifier_of_single_item_sequence(self):
+        """
+        Tests quantifier wrapping sequence with single item:
+        Quant(Seq([Lit("a")]), ...)
+        Should potentially unwrap to Quant(Lit("a"), ...).
+        """
+        pytest.fail("Not implemented")
+
+    def test_quantifier_of_empty_sequence(self):
+        """
+        Tests quantifier of empty sequence: Quant(Seq([]), ...)
+        Edge case behavior.
+        """
+        pytest.fail("Not implemented")
+
+    def test_nested_quantifiers_normalization(self):
+        """
+        Tests normalization of nested quantifiers: Quant(Quant(Lit("a"), ...), ...)
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryIFeatureDetectionComprehensive:
+    """
+    Comprehensive tests for feature detection in metadata.
+    """
+
+    def test_feature_detection_for_named_groups(self):
+        """
+        Tests feature detection for named groups.
+        """
+        pytest.fail("Not implemented")
+
+    def test_feature_detection_for_backreferences(self):
+        """
+        Tests feature detection for backreferences (if tracked).
+        """
+        pytest.fail("Not implemented")
+
+    def test_feature_detection_for_lookahead(self):
+        """
+        Tests feature detection for lookahead assertions.
+        """
+        pytest.fail("Not implemented")
+
+    def test_feature_detection_for_unicode_properties(self):
+        """
+        Tests feature detection for Unicode properties (if tracked).
+        """
+        pytest.fail("Not implemented")
+
+    def test_multiple_features_in_one_pattern(self):
+        """
+        Tests pattern with multiple special features:
+        atomic group + possessive quantifier + lookbehind.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryJAlternationNormalizationEdgeCases:
+    """
+    Edge cases for alternation normalization.
+    """
+
+    def test_alternation_with_single_branch(self):
+        """
+        Tests alternation with only one branch: Alt([Lit("a")])
+        Should potentially unwrap to just Lit("a").
+        """
+        pytest.fail("Not implemented")
+
+    def test_alternation_with_empty_branches(self):
+        """
+        Tests alternation with empty alternatives: Alt([Lit("a"), Seq([])])
+        """
+        pytest.fail("Not implemented")
+
+    def test_nested_alternations_different_depths(self):
+        """
+        Tests alternations nested at different depths in different branches.
+        """
+        pytest.fail("Not implemented")

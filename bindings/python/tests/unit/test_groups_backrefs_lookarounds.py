@@ -239,3 +239,190 @@ class TestCategoryDInteractionCases:
         assert isinstance(ast, Group)
         assert ast.name == "name"
         assert ast.body == Seq(parts=[Lit("a"), Lit("b")])
+
+
+# --- New Test Stubs for 3-Test Standard Compliance -----------------------------
+
+
+class TestCategoryENestedGroups:
+    """
+    Tests for nested groups of the same and different types.
+    Validates that the parser correctly handles deep nesting.
+    """
+
+    def test_nested_capturing_groups(self):
+        """
+        Tests nested capturing groups: ((a))
+        """
+        pytest.fail("Not implemented")
+
+    def test_nested_non_capturing_groups(self):
+        """
+        Tests nested non-capturing groups: (?:(?:a))
+        """
+        pytest.fail("Not implemented")
+
+    def test_nested_atomic_groups(self):
+        """
+        Tests nested atomic groups: (?>(?>(a)))
+        """
+        pytest.fail("Not implemented")
+
+    def test_mixed_nesting_capturing_in_non_capturing(self):
+        """
+        Tests capturing group inside non-capturing: (?:(a))
+        """
+        pytest.fail("Not implemented")
+
+    def test_mixed_nesting_named_in_capturing(self):
+        """
+        Tests named group inside capturing: ((?<name>a))
+        """
+        pytest.fail("Not implemented")
+
+    def test_mixed_nesting_atomic_in_non_capturing(self):
+        """
+        Tests atomic group inside non-capturing: (?:(?>a))
+        """
+        pytest.fail("Not implemented")
+
+    def test_deeply_nested_groups_three_levels(self):
+        """
+        Tests deeply nested groups (3+ levels): ((?:(?<x>(?>a))))
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryFLookaroundWithComplexContent:
+    """
+    Tests for lookarounds containing complex patterns like alternations
+    and nested lookarounds.
+    """
+
+    def test_lookahead_with_alternation(self):
+        """
+        Tests positive lookahead with alternation: (?=a|b)
+        """
+        pytest.fail("Not implemented")
+
+    def test_lookbehind_with_alternation(self):
+        """
+        Tests positive lookbehind with alternation: (?<=x|y)
+        """
+        pytest.fail("Not implemented")
+
+    def test_negative_lookahead_with_alternation(self):
+        """
+        Tests negative lookahead with alternation: (?!a|b|c)
+        """
+        pytest.fail("Not implemented")
+
+    def test_nested_lookaheads(self):
+        """
+        Tests nested positive lookaheads: (?=(?=a))
+        """
+        pytest.fail("Not implemented")
+
+    def test_nested_lookbehinds(self):
+        """
+        Tests nested lookbehinds: (?<=(?<!a))
+        """
+        pytest.fail("Not implemented")
+
+    def test_mixed_nested_lookarounds(self):
+        """
+        Tests lookahead inside lookbehind: (?<=a(?=b))
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryGAtomicGroupEdgeCases:
+    """
+    Tests for atomic groups with complex content.
+    """
+
+    def test_atomic_group_with_alternation(self):
+        """
+        Tests atomic group with alternation: (?>(a|b))
+        """
+        pytest.fail("Not implemented")
+
+    def test_atomic_group_with_quantified_content(self):
+        """
+        Tests atomic group with quantified atoms: (?>a+b*)
+        """
+        pytest.fail("Not implemented")
+
+    def test_atomic_group_empty(self):
+        """
+        Tests empty atomic group: (?>)
+        Edge case: should parse correctly.
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryHMultipleBackreferences:
+    """
+    Tests for patterns with multiple backreferences and complex
+    backreference interactions.
+    """
+
+    def test_multiple_numeric_backrefs_sequential(self):
+        """
+        Tests multiple sequential backreferences: (a)(b)\\1\\2
+        """
+        pytest.fail("Not implemented")
+
+    def test_multiple_named_backrefs(self):
+        """
+        Tests multiple named backreferences: (?<x>a)(?<y>b)\\k<x>\\k<y>
+        """
+        pytest.fail("Not implemented")
+
+    def test_mixed_numeric_and_named_backrefs(self):
+        """
+        Tests mixed backreference types: (a)(?<x>b)\\1\\k<x>
+        """
+        pytest.fail("Not implemented")
+
+    def test_backref_in_alternation(self):
+        """
+        Tests backreference in alternation: (a)(\\1|b)
+        """
+        pytest.fail("Not implemented")
+
+    def test_backref_to_earlier_alternation_branch(self):
+        """
+        Tests backreference to group in alternation: (a|b)c\\1
+        """
+        pytest.fail("Not implemented")
+
+    def test_repeated_backreference(self):
+        """
+        Tests same backreference used multiple times: (a)\\1\\1
+        """
+        pytest.fail("Not implemented")
+
+
+class TestCategoryIGroupsInAlternation:
+    """
+    Tests for groups and lookarounds inside alternation patterns.
+    """
+
+    def test_groups_in_alternation_branches(self):
+        """
+        Tests capturing groups in alternation: (a)|(b)
+        """
+        pytest.fail("Not implemented")
+
+    def test_lookarounds_in_alternation(self):
+        """
+        Tests lookarounds in alternation: (?=a)|(?=b)
+        """
+        pytest.fail("Not implemented")
+
+    def test_mixed_group_types_in_alternation(self):
+        """
+        Tests mixed group types in alternation: (a)|(?:b)|(?<x>c)
+        """
+        pytest.fail("Not implemented")
