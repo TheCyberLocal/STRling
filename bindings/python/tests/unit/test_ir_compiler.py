@@ -236,20 +236,65 @@ class TestCategoryEDeeplyNestedAlternations:
         Tests deeply nested alternation: (a|(b|(c|d)))
         Should be flattened to IRAlt([a, b, c, d]).
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        # Build: Alt([Lit("a"), Alt([Lit("b"), Alt([Lit("c"), Lit("d")])])])
+        ast = N.Alt([
+            N.Lit("a"),
+            N.Alt([
+                N.Lit("b"),
+                N.Alt([N.Lit("c"), N.Lit("d")])
+            ])
+        ])
+        ir = compiler.compile(ast)
+        assert ir == IR.IRAlt([
+            IR.IRLit("a"),
+            IR.IRLit("b"),
+            IR.IRLit("c"),
+            IR.IRLit("d")
+        ])
 
     def test_alternation_with_sequences(self):
         """
         Tests alternation containing sequences: (ab|cd|ef)
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Alt([
+            N.Seq([N.Lit("a"), N.Lit("b")]),
+            N.Seq([N.Lit("c"), N.Lit("d")]),
+            N.Seq([N.Lit("e"), N.Lit("f")])
+        ])
+        ir = compiler.compile(ast)
+        # Each sequence should be fused into a single literal
+        assert ir == IR.IRAlt([
+            IR.IRLit("ab"),
+            IR.IRLit("cd"),
+            IR.IRLit("ef")
+        ])
 
     def test_mixed_alternation_and_sequence_nesting(self):
         """
         Tests mixed nesting: ((a|b)(c|d))
         Two alternations in a sequence inside a group.
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Group(
+            False,  # non-capturing
+            N.Seq([
+                N.Alt([N.Lit("a"), N.Lit("b")]),
+                N.Alt([N.Lit("c"), N.Lit("d")])
+            ])
+        )
+        ir = compiler.compile(ast)
+        # Should preserve structure: Group with Seq containing two Alts
+        assert ir == IR.IRGroup(
+            False,
+            IR.IRSeq([
+                IR.IRAlt([IR.IRLit("a"), IR.IRLit("b")]),
+                IR.IRAlt([IR.IRLit("c"), IR.IRLit("d")])
+            ]),
+            None,
+            None
+        )
 
 
 class TestCategoryFComplexSequenceNormalization:
@@ -262,21 +307,39 @@ class TestCategoryFComplexSequenceNormalization:
         Tests deeply nested sequences: Seq([Lit("a"), Seq([Lit("b"), Seq([Lit("c")])])])
         Should normalize to IRLit("abc").
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Seq([
+            N.Lit("a"),
+            N.Seq([
+                N.Lit("b"),
+                N.Seq([N.Lit("c")])
+            ])
+        ])
+        ir = compiler.compile(ast)
+        # All literals should be fused into one
+        assert ir == IR.IRLit("abc")
 
     def test_sequence_with_non_literal_in_middle(self):
         """
         Tests sequence with non-literal: Seq([Lit("a"), Dot(), Lit("b")])
         Should normalize to IRSeq([IRLit("a"), IRDot(), IRLit("b")]).
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Seq([N.Lit("a"), N.Dot(), N.Lit("b")])
+        ir = compiler.compile(ast)
+        # Should preserve structure with no fusion across Dot
+        assert ir == IR.IRSeq([IR.IRLit("a"), IR.IRDot(), IR.IRLit("b")])
 
     def test_empty_sequence_normalization(self):
         """
         Tests normalization of empty sequence: Seq([])
         Should produce IRSeq([]) or equivalent.
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Seq([])
+        ir = compiler.compile(ast)
+        # Empty sequence should remain empty sequence
+        assert ir == IR.IRSeq([])
 
 
 class TestCategoryGLiteralFusionEdgeCases:
@@ -289,20 +352,32 @@ class TestCategoryGLiteralFusionEdgeCases:
         Tests fusion of literals with escape sequences: Lit("a") + Lit("\\n") + Lit("b")
         Should fuse to single IRLit("a\\nb").
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Seq([N.Lit("a"), N.Lit("\n"), N.Lit("b")])
+        ir = compiler.compile(ast)
+        # Literals with escape sequences should fuse normally
+        assert ir == IR.IRLit("a\nb")
 
     def test_fusion_with_unicode(self):
         """
         Tests fusion of Unicode literals: Lit("😀") + Lit("a")
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Seq([N.Lit("😀"), N.Lit("a")])
+        ir = compiler.compile(ast)
+        # Unicode literals should fuse normally
+        assert ir == IR.IRLit("😀a")
 
     def test_no_fusion_across_non_literals(self):
         """
         Tests that literals don't fuse across non-literal nodes:
         Seq([Lit("a"), Dot(), Lit("b")]) should keep three separate nodes.
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Seq([N.Lit("a"), N.Dot(), N.Lit("b")])
+        ir = compiler.compile(ast)
+        # Should NOT fuse across the Dot
+        assert ir == IR.IRSeq([IR.IRLit("a"), IR.IRDot(), IR.IRLit("b")])
 
 
 class TestCategoryHQuantifierNormalization:
@@ -316,20 +391,40 @@ class TestCategoryHQuantifierNormalization:
         Quant(Seq([Lit("a")]), ...)
         Should potentially unwrap to Quant(Lit("a"), ...).
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Quant(N.Seq([N.Lit("a")]), 1, "Inf", "Greedy")
+        ir = compiler.compile(ast)
+        # Single-item sequence should be unwrapped
+        assert ir == IR.IRQuant(IR.IRLit("a"), 1, "Inf", "Greedy")
 
     def test_quantifier_of_empty_sequence(self):
         """
         Tests quantifier of empty sequence: Quant(Seq([]), ...)
         Edge case behavior.
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Quant(N.Seq([]), 0, "Inf", "Greedy")
+        ir = compiler.compile(ast)
+        # Quantifier of empty sequence should preserve structure
+        assert ir == IR.IRQuant(IR.IRSeq([]), 0, "Inf", "Greedy")
 
     def test_nested_quantifiers_normalization(self):
         """
         Tests normalization of nested quantifiers: Quant(Quant(Lit("a"), ...), ...)
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        # This is an unusual case - quantifier of a quantifier
+        # We'll just test that it doesn't crash and preserves structure
+        ast = N.Quant(
+            N.Quant(N.Lit("a"), 1, 3, "Greedy"),
+            0, 1, "Greedy"
+        )
+        ir = compiler.compile(ast)
+        # Should preserve the nested structure (no special normalization for this case)
+        assert ir == IR.IRQuant(
+            IR.IRQuant(IR.IRLit("a"), 1, 3, "Greedy"),
+            0, 1, "Greedy"
+        )
 
 
 class TestCategoryIFeatureDetectionComprehensive:
@@ -341,32 +436,76 @@ class TestCategoryIFeatureDetectionComprehensive:
         """
         Tests feature detection for named groups.
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Group(True, N.Lit("a"), name="mygroup")
+        artifact = compiler.compile_with_metadata(ast)
+        
+        metadata = artifact["metadata"]
+        assert isinstance(metadata, dict)
+        assert "named_group" in metadata["features_used"]
 
     def test_feature_detection_for_backreferences(self):
         """
         Tests feature detection for backreferences (if tracked).
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        # Create an AST with a backreference
+        ast = N.Seq([
+            N.Group(True, N.Lit("a")),
+            N.Backref(byIndex=1)
+        ])
+        artifact = compiler.compile_with_metadata(ast)
+        
+        metadata = artifact["metadata"]
+        assert isinstance(metadata, dict)
+        assert "backreference" in metadata["features_used"]
 
     def test_feature_detection_for_lookahead(self):
         """
         Tests feature detection for lookahead assertions.
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Look("Ahead", False, N.Lit("a"))
+        artifact = compiler.compile_with_metadata(ast)
+        
+        metadata = artifact["metadata"]
+        assert isinstance(metadata, dict)
+        assert "lookahead" in metadata["features_used"]
 
     def test_feature_detection_for_unicode_properties(self):
         """
         Tests feature detection for Unicode properties (if tracked).
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        # Create a character class with Unicode property escape
+        ast = N.CharClass(
+            False,
+            [N.ClassEscape("UnicodeProperty", "Letter")]
+        )
+        artifact = compiler.compile_with_metadata(ast)
+        
+        metadata = artifact["metadata"]
+        assert isinstance(metadata, dict)
+        assert "unicode_property" in metadata["features_used"]
 
     def test_multiple_features_in_one_pattern(self):
         """
         Tests pattern with multiple special features:
         atomic group + possessive quantifier + lookbehind.
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Seq([
+            N.Group(False, N.Lit("a"), atomic=True),
+            N.Quant(N.Lit("b"), 1, "Inf", "Possessive"),
+            N.Look("Behind", False, N.Lit("c"))
+        ])
+        artifact = compiler.compile_with_metadata(ast)
+        
+        metadata = artifact["metadata"]
+        assert isinstance(metadata, dict)
+        assert "atomic_group" in metadata["features_used"]
+        assert "possessive_quantifier" in metadata["features_used"]
+        assert "lookbehind" in metadata["features_used"]
 
 
 class TestCategoryJAlternationNormalizationEdgeCases:
@@ -379,16 +518,38 @@ class TestCategoryJAlternationNormalizationEdgeCases:
         Tests alternation with only one branch: Alt([Lit("a")])
         Should potentially unwrap to just Lit("a").
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Alt([N.Lit("a")])
+        ir = compiler.compile(ast)
+        # Single-branch alternation should be unwrapped
+        assert ir == IR.IRLit("a")
 
     def test_alternation_with_empty_branches(self):
         """
         Tests alternation with empty alternatives: Alt([Lit("a"), Seq([])])
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        ast = N.Alt([N.Lit("a"), N.Seq([])])
+        ir = compiler.compile(ast)
+        # Should preserve both branches, with empty sequence normalized
+        assert ir == IR.IRAlt([IR.IRLit("a"), IR.IRSeq([])])
 
     def test_nested_alternations_different_depths(self):
         """
         Tests alternations nested at different depths in different branches.
         """
-        pytest.fail("Not implemented")
+        compiler = Compiler()
+        # Alt([Lit("a"), Alt([Lit("b"), Lit("c")]), Lit("d")])
+        ast = N.Alt([
+            N.Lit("a"),
+            N.Alt([N.Lit("b"), N.Lit("c")]),
+            N.Lit("d")
+        ])
+        ir = compiler.compile(ast)
+        # Nested alternation should be flattened
+        assert ir == IR.IRAlt([
+            IR.IRLit("a"),
+            IR.IRLit("b"),
+            IR.IRLit("c"),
+            IR.IRLit("d")
+        ])
