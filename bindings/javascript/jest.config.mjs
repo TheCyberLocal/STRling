@@ -1,9 +1,27 @@
 // jest.config.mjs
 export default {
-    preset: "ts-jest",
+    preset: "ts-jest/presets/default-esm",
     testEnvironment: "node",
     testMatch: ["**/__tests__/**/*.test.[jt]s?(x)"],
-    // Only list extensions Jest *can't* infer as ESM from package.json
     extensionsToTreatAsEsm: [".ts", ".tsx"],
-    transform: {}, // no Babel/ts-jest transforms right now
+    moduleNameMapper: {
+        "^(\\.{1,2}/.*)\\.js$": "$1",
+    },
+    transform: {
+        "^.+\\.tsx?$": [
+            "ts-jest",
+            {
+                useESM: true,
+            },
+        ],
+        "^.+\\.jsx?$": [
+            "ts-jest",
+            {
+                useESM: true,
+            },
+        ],
+    },
+    transformIgnorePatterns: [
+        "node_modules/(?!(.*\\.mjs$))",
+    ],
 };
