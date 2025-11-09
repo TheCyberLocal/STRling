@@ -252,3 +252,355 @@ describe("Category D: Interaction Cases", () => {
         expect(groupNode.body).toEqual(new Seq([new Lit("a"), new Lit("b")]));
     });
 });
+
+// --- New Test Categories for 3-Test Standard Compliance ------------------------
+
+describe('Category E: Nested Groups', () => {
+  /**
+   * Tests for nested groups of the same and different types.
+   * Validates that the parser correctly handles deep nesting.
+   */
+
+  test('should parse nested capturing groups', () => {
+    const [, ast] = parse('((a))');
+    expect(ast).toBeInstanceOf(Group);
+    const group1 = ast as Group;
+    expect(group1.capturing).toBe(true);
+    expect(group1.body).toBeInstanceOf(Group);
+    const group2 = group1.body as Group;
+    expect(group2.capturing).toBe(true);
+    expect(group2.body).toBeInstanceOf(Lit);
+    expect((group2.body as Lit).value).toBe('a');
+  });
+
+  test('should parse nested non-capturing groups', () => {
+    const [, ast] = parse('(?:(?:a))');
+    expect(ast).toBeInstanceOf(Group);
+    const group1 = ast as Group;
+    expect(group1.capturing).toBe(false);
+    expect(group1.body).toBeInstanceOf(Group);
+    const group2 = group1.body as Group;
+    expect(group2.capturing).toBe(false);
+    expect(group2.body).toBeInstanceOf(Lit);
+    expect((group2.body as Lit).value).toBe('a');
+  });
+
+  test('should parse nested atomic groups', () => {
+    const [, ast] = parse('(?>(?>(a)))');
+    expect(ast).toBeInstanceOf(Group);
+    const group1 = ast as Group;
+    expect(group1.atomic).toBe(true);
+    expect(group1.body).toBeInstanceOf(Group);
+    const group2 = group1.body as Group;
+    expect(group2.atomic).toBe(true);
+    expect(group2.body).toBeInstanceOf(Group);
+    const group3 = group2.body as Group;
+    expect(group3.capturing).toBe(true);
+    expect(group3.body).toBeInstanceOf(Lit);
+  });
+
+  test('should parse capturing group inside non-capturing', () => {
+    const [, ast] = parse('(?:(a))');
+    expect(ast).toBeInstanceOf(Group);
+    const group1 = ast as Group;
+    expect(group1.capturing).toBe(false);
+    expect(group1.body).toBeInstanceOf(Group);
+    const group2 = group1.body as Group;
+    expect(group2.capturing).toBe(true);
+    expect(group2.body).toBeInstanceOf(Lit);
+    expect((group2.body as Lit).value).toBe('a');
+  });
+
+  test('should parse named group inside capturing', () => {
+    const [, ast] = parse('((?<name>a))');
+    expect(ast).toBeInstanceOf(Group);
+    const group1 = ast as Group;
+    expect(group1.capturing).toBe(true);
+    expect(group1.name).toBeNull();
+    expect(group1.body).toBeInstanceOf(Group);
+    const group2 = group1.body as Group;
+    expect(group2.capturing).toBe(true);
+    expect(group2.name).toBe('name');
+    expect(group2.body).toBeInstanceOf(Lit);
+  });
+
+  test('should parse atomic group inside non-capturing', () => {
+    const [, ast] = parse('(?:(?>a))');
+    expect(ast).toBeInstanceOf(Group);
+    const group1 = ast as Group;
+    expect(group1.capturing).toBe(false);
+    expect(group1.body).toBeInstanceOf(Group);
+    const group2 = group1.body as Group;
+    expect(group2.atomic).toBe(true);
+    expect(group2.body).toBeInstanceOf(Lit);
+    expect((group2.body as Lit).value).toBe('a');
+  });
+
+  test('should parse deeply nested groups (3+ levels)', () => {
+    const [, ast] = parse('((?:(?<x>(?>a))))');
+    expect(ast).toBeInstanceOf(Group);
+    const level1 = ast as Group;
+    expect(level1.capturing).toBe(true);
+    // Level 2
+    expect(level1.body).toBeInstanceOf(Group);
+    const level2 = level1.body as Group;
+    expect(level2.capturing).toBe(false);
+    // Level 3
+    expect(level2.body).toBeInstanceOf(Group);
+    const level3 = level2.body as Group;
+    expect(level3.capturing).toBe(true);
+    expect(level3.name).toBe('x');
+    // Level 4
+    expect(level3.body).toBeInstanceOf(Group);
+    const level4 = level3.body as Group;
+    expect(level4.atomic).toBe(true);
+    expect(level4.body).toBeInstanceOf(Lit);
+  });
+});
+
+describe('Category F: Lookaround With Complex Content', () => {
+  /**
+   * Tests for lookarounds containing complex patterns like alternations
+   * and nested lookarounds.
+   */
+
+  test('should parse lookahead with alternation', () => {
+    const [, ast] = parse('(?=a|b)');
+    expect(ast).toBeInstanceOf(Look);
+    const lookNode = ast as Look;
+    expect(lookNode.dir).toBe('Ahead');
+    expect(lookNode.neg).toBe(false);
+    expect(lookNode.body.constructor.name).toBe('Alt');
+    expect((lookNode.body as any).branches).toHaveLength(2);
+  });
+
+  test('should parse lookbehind with alternation', () => {
+    const [, ast] = parse('(?<=x|y)');
+    expect(ast).toBeInstanceOf(Look);
+    const lookNode = ast as Look;
+    expect(lookNode.dir).toBe('Behind');
+    expect(lookNode.neg).toBe(false);
+    expect(lookNode.body.constructor.name).toBe('Alt');
+    expect((lookNode.body as any).branches).toHaveLength(2);
+  });
+
+  test('should parse negative lookahead with alternation', () => {
+    const [, ast] = parse('(?!a|b|c)');
+    expect(ast).toBeInstanceOf(Look);
+    const lookNode = ast as Look;
+    expect(lookNode.dir).toBe('Ahead');
+    expect(lookNode.neg).toBe(true);
+    expect(lookNode.body.constructor.name).toBe('Alt');
+    expect((lookNode.body as any).branches).toHaveLength(3);
+  });
+
+  test('should parse nested lookaheads', () => {
+    const [, ast] = parse('(?=(?=a))');
+    expect(ast).toBeInstanceOf(Look);
+    const outer = ast as Look;
+    expect(outer.dir).toBe('Ahead');
+    expect(outer.body).toBeInstanceOf(Look);
+    const inner = outer.body as Look;
+    expect(inner.dir).toBe('Ahead');
+    expect(inner.body).toBeInstanceOf(Lit);
+  });
+
+  test('should parse nested lookbehinds', () => {
+    const [, ast] = parse('(?<=(?<!a))');
+    expect(ast).toBeInstanceOf(Look);
+    const outer = ast as Look;
+    expect(outer.dir).toBe('Behind');
+    expect(outer.neg).toBe(false);
+    expect(outer.body).toBeInstanceOf(Look);
+    const inner = outer.body as Look;
+    expect(inner.dir).toBe('Behind');
+    expect(inner.neg).toBe(true);
+    expect(inner.body).toBeInstanceOf(Lit);
+  });
+
+  test('should parse lookahead inside lookbehind', () => {
+    const [, ast] = parse('(?<=a(?=b))');
+    expect(ast).toBeInstanceOf(Look);
+    const lookNode = ast as Look;
+    expect(lookNode.dir).toBe('Behind');
+    expect(lookNode.body).toBeInstanceOf(Seq);
+    const seqBody = lookNode.body as Seq;
+    expect(seqBody.parts).toHaveLength(2);
+    expect(seqBody.parts[0]).toBeInstanceOf(Lit);
+    expect(seqBody.parts[1]).toBeInstanceOf(Look);
+    expect((seqBody.parts[1] as Look).dir).toBe('Ahead');
+  });
+});
+
+describe('Category G: Atomic Group Edge Cases', () => {
+  /**
+   * Tests for atomic groups with complex content.
+   */
+
+  test('should parse atomic group with alternation', () => {
+    const [, ast] = parse('(?>(a|b))');
+    expect(ast).toBeInstanceOf(Group);
+    const atomicGroup = ast as Group;
+    expect(atomicGroup.atomic).toBe(true);
+    // The atomic group contains a capturing group with alternation
+    expect(atomicGroup.body).toBeInstanceOf(Group);
+    const innerGroup = atomicGroup.body as Group;
+    expect(innerGroup.capturing).toBe(true);
+    expect(innerGroup.body.constructor.name).toBe('Alt');
+    expect((innerGroup.body as any).branches).toHaveLength(2);
+  });
+
+  test('should parse atomic group with quantified content', () => {
+    const [, ast] = parse('(?>a+b*)');
+    expect(ast).toBeInstanceOf(Group);
+    const atomicGroup = ast as Group;
+    expect(atomicGroup.atomic).toBe(true);
+    expect(atomicGroup.body).toBeInstanceOf(Seq);
+    const seqBody = atomicGroup.body as Seq;
+    expect(seqBody.parts).toHaveLength(2);
+    expect(seqBody.parts[0]).toBeInstanceOf(Quant);
+    expect(seqBody.parts[1]).toBeInstanceOf(Quant);
+  });
+
+  test('should parse empty atomic group', () => {
+    const [, ast] = parse('(?>)');
+    expect(ast).toBeInstanceOf(Group);
+    const atomicGroup = ast as Group;
+    expect(atomicGroup.atomic).toBe(true);
+    expect(atomicGroup.body).toBeInstanceOf(Seq);
+    const seqBody = atomicGroup.body as Seq;
+    expect(seqBody.parts).toHaveLength(0);
+  });
+});
+
+describe('Category H: Multiple Backreferences', () => {
+  /**
+   * Tests for patterns with multiple backreferences and complex
+   * backreference interactions.
+   */
+
+  test('should parse multiple numeric backrefs sequential', () => {
+    const [, ast] = parse('(a)(b)\\1\\2');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(4);
+    expect(seqNode.parts[0]).toBeInstanceOf(Group);
+    expect(seqNode.parts[1]).toBeInstanceOf(Group);
+    expect(seqNode.parts[2]).toBeInstanceOf(Backref);
+    expect((seqNode.parts[2] as Backref).byIndex).toBe(1);
+    expect(seqNode.parts[3]).toBeInstanceOf(Backref);
+    expect((seqNode.parts[3] as Backref).byIndex).toBe(2);
+  });
+
+  test('should parse multiple named backrefs', () => {
+    const [, ast] = parse('(?<x>a)(?<y>b)\\k<x>\\k<y>');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(4);
+    expect(seqNode.parts[0]).toBeInstanceOf(Group);
+    expect((seqNode.parts[0] as Group).name).toBe('x');
+    expect(seqNode.parts[1]).toBeInstanceOf(Group);
+    expect((seqNode.parts[1] as Group).name).toBe('y');
+    expect(seqNode.parts[2]).toBeInstanceOf(Backref);
+    expect((seqNode.parts[2] as Backref).byName).toBe('x');
+    expect(seqNode.parts[3]).toBeInstanceOf(Backref);
+    expect((seqNode.parts[3] as Backref).byName).toBe('y');
+  });
+
+  test('should parse mixed numeric and named backrefs', () => {
+    const [, ast] = parse('(a)(?<x>b)\\1\\k<x>');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(4);
+    expect(seqNode.parts[0]).toBeInstanceOf(Group);
+    expect(seqNode.parts[1]).toBeInstanceOf(Group);
+    expect((seqNode.parts[1] as Group).name).toBe('x');
+    expect(seqNode.parts[2]).toBeInstanceOf(Backref);
+    expect((seqNode.parts[2] as Backref).byIndex).toBe(1);
+    expect(seqNode.parts[3]).toBeInstanceOf(Backref);
+    expect((seqNode.parts[3] as Backref).byName).toBe('x');
+  });
+
+  test('should parse backref in alternation', () => {
+    const [, ast] = parse('(a)(\\1|b)');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(2);
+    expect(seqNode.parts[0]).toBeInstanceOf(Group);
+    expect(seqNode.parts[1]).toBeInstanceOf(Group);
+    const group2 = seqNode.parts[1] as Group;
+    expect(group2.body.constructor.name).toBe('Alt');
+    const altBody = group2.body as any;
+    expect(altBody.branches).toHaveLength(2);
+    expect(altBody.branches[0]).toBeInstanceOf(Backref);
+    expect(altBody.branches[0].byIndex).toBe(1);
+  });
+
+  test('should parse backref to earlier alternation branch', () => {
+    const [, ast] = parse('(a|b)c\\1');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(3);
+    expect(seqNode.parts[0]).toBeInstanceOf(Group);
+    const group = seqNode.parts[0] as Group;
+    expect(group.body.constructor.name).toBe('Alt');
+    expect(seqNode.parts[1]).toBeInstanceOf(Lit);
+    expect(seqNode.parts[2]).toBeInstanceOf(Backref);
+    expect((seqNode.parts[2] as Backref).byIndex).toBe(1);
+  });
+
+  test('should parse repeated backreference', () => {
+    const [, ast] = parse('(a)\\1\\1');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(3);
+    expect(seqNode.parts[0]).toBeInstanceOf(Group);
+    expect(seqNode.parts[1]).toBeInstanceOf(Backref);
+    expect((seqNode.parts[1] as Backref).byIndex).toBe(1);
+    expect(seqNode.parts[2]).toBeInstanceOf(Backref);
+    expect((seqNode.parts[2] as Backref).byIndex).toBe(1);
+  });
+});
+
+describe('Category I: Groups In Alternation', () => {
+  /**
+   * Tests for groups and lookarounds inside alternation patterns.
+   */
+
+  test('should parse groups in alternation branches', () => {
+    const [, ast] = parse('(a)|(b)');
+    expect(ast.constructor.name).toBe('Alt');
+    const altNode = ast as any;
+    expect(altNode.branches).toHaveLength(2);
+    expect(altNode.branches[0]).toBeInstanceOf(Group);
+    expect(altNode.branches[0].capturing).toBe(true);
+    expect(altNode.branches[1]).toBeInstanceOf(Group);
+    expect(altNode.branches[1].capturing).toBe(true);
+  });
+
+  test('should parse lookarounds in alternation', () => {
+    const [, ast] = parse('(?=a)|(?=b)');
+    expect(ast.constructor.name).toBe('Alt');
+    const altNode = ast as any;
+    expect(altNode.branches).toHaveLength(2);
+    expect(altNode.branches[0]).toBeInstanceOf(Look);
+    expect(altNode.branches[0].dir).toBe('Ahead');
+    expect(altNode.branches[1]).toBeInstanceOf(Look);
+    expect(altNode.branches[1].dir).toBe('Ahead');
+  });
+
+  test('should parse mixed group types in alternation', () => {
+    const [, ast] = parse('(a)|(?:b)|(?<x>c)');
+    expect(ast.constructor.name).toBe('Alt');
+    const altNode = ast as any;
+    expect(altNode.branches).toHaveLength(3);
+    expect(altNode.branches[0]).toBeInstanceOf(Group);
+    expect(altNode.branches[0].capturing).toBe(true);
+    expect(altNode.branches[0].name).toBeNull();
+    expect(altNode.branches[1]).toBeInstanceOf(Group);
+    expect(altNode.branches[1].capturing).toBe(false);
+    expect(altNode.branches[2]).toBeInstanceOf(Group);
+    expect(altNode.branches[2].capturing).toBe(true);
+    expect(altNode.branches[2].name).toBe('x');
+  });
+});

@@ -159,3 +159,134 @@ describe('Category D: Interaction Cases', () => {
     expect((ast as CharClass).items).toEqual(expectedItems);
   });
 });
+// --- New Test Categories for 3-Test Standard Compliance ------------------------
+
+describe('Category E: Minimal Char Classes', () => {
+  test.each<[string, boolean, number, string]>([
+    ['[a]', false, 1, 'single_literal'],
+    ['[^x]', true, 1, 'single_literal_negated'],
+    ['[a-z]', false, 1, 'single_range'],
+  ])('should parse minimal character classes (ID: %s)', (inputDsl, expectedNegated, expectedLength) => {
+    const [, ast] = parse(inputDsl);
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.negated).toBe(expectedNegated);
+    expect(ccNode.items).toHaveLength(expectedLength);
+  });
+});
+
+describe('Category F: Escaped Metachars In Classes', () => {
+  test.each<[string, string, string]>([
+    ['[\\.]', '.', 'escaped_dot'],
+    ['[\\*]', '*', 'escaped_star'],
+    ['[\\+]', '+', 'escaped_plus'],
+    ['[\\\\]', '\\', 'escaped_backslash'],
+  ])('should parse escaped metacharacters in classes (ID: %s)', (inputDsl, expectedChar) => {
+    const [, ast] = parse(inputDsl);
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.items).toHaveLength(1);
+    expect(ccNode.items[0].ch).toBe(expectedChar);
+  });
+
+  test('should parse multiple escaped metachars', () => {
+    const [, ast] = parse('[\\.\\ *\\+\\?]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.items).toHaveLength(4);
+  });
+});
+
+describe('Category G: Complex Range Combinations', () => {
+  test('should parse multiple non-overlapping ranges', () => {
+    const [, ast] = parse('[a-zA-Z0-9]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.items).toHaveLength(3);
+  });
+
+  test('should parse range with adjacent bounds', () => {
+    const [, ast] = parse('[a-b]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.items).toHaveLength(1);
+    expect(ccNode.items[0].from_ch).toBe('a');
+    expect(ccNode.items[0].to_ch).toBe('b');
+  });
+
+  test('should parse literals mixed with ranges', () => {
+    const [, ast] = parse('[a-zX0-9Y]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.items).toHaveLength(4);
+  });
+});
+
+describe('Category H: Unicode Property Combinations', () => {
+  test('should parse single unicode property', () => {
+    const [, ast] = parse('[\\p{L}]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.items).toHaveLength(1);
+    expect(ccNode.items[0].constructor.name).toBe('UnicodeCategory');
+  });
+
+  test('should parse multiple unicode properties', () => {
+    const [, ast] = parse('[\\p{L}\\p{N}]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.items).toHaveLength(2);
+  });
+
+  test('should parse unicode property mixed with ranges', () => {
+    const [, ast] = parse('[\\p{L}a-z]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.items).toHaveLength(2);
+  });
+});
+
+describe('Category I: Negated Class Variations', () => {
+  test('should parse negated class with range', () => {
+    const [, ast] = parse('[^a-z]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.negated).toBe(true);
+    expect(ccNode.items).toHaveLength(1);
+  });
+
+  test('should parse negated class with shorthands', () => {
+    const [, ast] = parse('[^\\d\\s]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.negated).toBe(true);
+    expect(ccNode.items).toHaveLength(2);
+  });
+
+  test('should parse negated unicode class', () => {
+    const [, ast] = parse('[^\\p{L}]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.negated).toBe(true);
+  });
+});
+
+describe('Category J: Char Class Error Cases', () => {
+  test('should raise error for invalid range', () => {
+    expect(() => parse('[z-a]')).toThrow(ParseError);
+  });
+
+  test('should raise error for incomplete range', () => {
+    expect(() => parse('[a-]')).toThrow(ParseError);
+  });
+
+  test('should raise error for hyphen at start', () => {
+    expect(() => parse('[-a]')).toThrow(ParseError);
+  });
+});
+
+// --- Additional Char Class Test Cases for Parity ------------------------
+
+
+// --- Additional tests to reach parity with Python ------------------------
+

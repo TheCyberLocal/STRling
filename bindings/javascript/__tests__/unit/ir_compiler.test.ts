@@ -39,6 +39,7 @@
  */
 
 import { Compiler } from "../../src/STRling/core/compiler";
+import { parse } from "../../src/STRling/core/parser";
 import * as N from "../../src/STRling/core/nodes";
 import * as IR from "../../src/STRling/core/ir";
 
@@ -243,3 +244,154 @@ describe("Category D: Metadata Generation", () => {
         expect(artifact.metadata.features_used).toEqual([]);
     });
 });
+
+// --- New Test Categories for 3-Test Standard Compliance ------------------------
+
+describe('Category E: Deeply Nested Alternations', () => {
+  test('should compile deeply nested alternations', () => {
+    const [flags, ast] = parse('a|(b|(c|d))');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRAlt');
+  });
+
+  test('should compile alternation with multiple branches', () => {
+    const [flags, ast] = parse('a|b|c|d|e');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRAlt');
+    expect((ir as any).branches).toHaveLength(5);
+  });
+
+  test('should compile nested alternation in groups', () => {
+    const [flags, ast] = parse('(a|(b|c))');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRGroup');
+  });
+});
+
+describe('Category F: Complex Sequence Normalization', () => {
+  test('should normalize simple sequence', () => {
+    const [flags, ast] = parse('abc');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRLit');
+    expect((ir as any).value).toBe('abc');
+  });
+
+  test('should normalize sequence with groups', () => {
+    const [flags, ast] = parse('a(b)c');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRSeq');
+  });
+
+  test('should normalize mixed sequences', () => {
+    const [flags, ast] = parse('a\\d(bc)');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRSeq');
+  });
+});
+
+describe('Category G: Literal Fusion Edge Cases', () => {
+  test('should fuse adjacent literals', () => {
+    const [flags, ast] = parse('abc');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRLit');
+    expect((ir as any).value).toBe('abc');
+  });
+
+  test('should not fuse across groups', () => {
+    const [flags, ast] = parse('a(b)c');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRSeq');
+  });
+
+  test('should fuse literals in alternation branches', () => {
+    const [flags, ast] = parse('abc|def');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRAlt');
+  });
+});
+
+describe('Category H: Quantifier Normalization', () => {
+  test('should normalize zero quantifier', () => {
+    const [flags, ast] = parse('a{0}');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRQuant');
+    expect((ir as any).min).toBe(0);
+    expect((ir as any).max).toBe(0);
+  });
+
+  test('should normalize quantifier on group', () => {
+    const [flags, ast] = parse('(abc)+');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRQuant');
+  });
+
+  test('should normalize nested quantifiers', () => {
+    const [flags, ast] = parse('(a+)*');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRQuant');
+  });
+});
+
+describe('Category I: Feature Detection Comprehensive', () => {
+  test('should compile atomic groups', () => {
+    const [flags, ast] = parse('(?>a)');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRGroup');
+    expect((ir as any).atomic).toBe(true);
+  });
+
+  test('should compile possessive quantifiers', () => {
+    const [flags, ast] = parse('a*+');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRQuant');
+    expect((ir as any).mode).toBe('Possessive');
+  });
+
+  test('should compile absolute anchors', () => {
+    const [flags, ast] = parse('\A');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRAnchor');
+    expect((ir as any).at).toBe('AbsoluteStart');
+  });
+});
+
+describe('Category J: Alternation Normalization Edge Cases', () => {
+  test('should normalize single branch alternation', () => {
+    const [flags, ast] = parse('(a|b)');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRGroup');
+  });
+
+  test('should normalize empty branch in alternation', () => {
+    const [flags, ast] = parse('a||b');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRAlt');
+  });
+
+  test('should normalize alternation with quantified branches', () => {
+    const [flags, ast] = parse('a+|b*');
+    const compiler = new Compiler();
+    const ir = compiler.compile(ast);
+    expect(ir.constructor.name).toBe('IRAlt');
+  });
+});
+
+// --- Additional tests to reach parity with Python ------------------------
+

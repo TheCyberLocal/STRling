@@ -34,8 +34,8 @@
  * backspace literal (covered in `char_classes.test.ts`).
  */
 
-import { parse } from '../../src/STRling/core/parser';
-import { Node, Anchor, Seq, Group, Look } from '../../src/STRling/core/nodes';
+import { parse, ParseError } from '../../src/STRling/core/parser';
+import { Node, Anchor, Seq, Group, Look, Lit, Dot, CharClass, Alt, Quant } from '../../src/STRling/core/nodes';
 
 // --- Test Suite -----------------------------------------------------------------
 
@@ -177,3 +177,335 @@ describe('Category D: Interaction Cases', () => {
     expect((anchorNode as Anchor).at).toBe(expectedAtValue);
   });
 });
+// --- New Test Categories for 3-Test Standard Compliance ------------------------
+
+describe('Category E: Anchors in Complex Sequences', () => {
+  /**
+   * Tests for anchors in complex sequences with quantified atoms.
+   */
+
+  test('should parse anchor between quantified atoms', () => {
+    /**
+     * Tests anchor between quantified atoms: a*^b+
+     * The ^ anchor appears between two quantified literals.
+     */
+    const [, ast] = parse('a*^b+');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(3);
+    expect(seqNode.parts[0]).toBeInstanceOf(Quant);
+    expect(seqNode.parts[1]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[1] as Anchor).at).toBe('Start');
+    expect(seqNode.parts[2]).toBeInstanceOf(Quant);
+  });
+
+  test('should parse anchor after quantified group', () => {
+    /**
+     * Tests anchor after quantified group: (ab)*$
+     */
+    const [, ast] = parse('(ab)*$');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(2);
+    expect(seqNode.parts[0]).toBeInstanceOf(Quant);
+    expect(seqNode.parts[1]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[1] as Anchor).at).toBe('End');
+  });
+
+  test('should parse multiple anchors of same type', () => {
+    /**
+     * Tests multiple same anchors: ^^
+     * Edge case: semantically redundant but syntactically valid.
+     */
+    const [, ast] = parse('^^');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(2);
+    expect(seqNode.parts[0]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[0] as Anchor).at).toBe('Start');
+    expect(seqNode.parts[1]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[1] as Anchor).at).toBe('Start');
+  });
+
+  test('should parse multiple end anchors', () => {
+    /**
+     * Tests multiple end anchors: $$
+     */
+    const [, ast] = parse('$$');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(2);
+    expect(seqNode.parts[0]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[0] as Anchor).at).toBe('End');
+    expect(seqNode.parts[1]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[1] as Anchor).at).toBe('End');
+  });
+});
+
+describe('Category F: Anchors in Alternation', () => {
+  /**
+   * Tests for anchors used in alternation patterns.
+   */
+
+  test('should parse anchor in alternation branch', () => {
+    /**
+     * Tests anchor in one branch of alternation: ^a|b$
+     * Parses as (^a)|(b$).
+     */
+    const [, ast] = parse('^a|b$');
+    expect(ast).toBeInstanceOf(Alt);
+    const altNode = ast as Alt;
+    expect(altNode.branches).toHaveLength(2);
+    // First branch: ^a
+    expect(altNode.branches[0]).toBeInstanceOf(Seq);
+    const branch0 = altNode.branches[0] as Seq;
+    expect(branch0.parts).toHaveLength(2);
+    expect(branch0.parts[0]).toBeInstanceOf(Anchor);
+    expect((branch0.parts[0] as Anchor).at).toBe('Start');
+    expect(branch0.parts[1]).toBeInstanceOf(Lit);
+    // Second branch: b$
+    expect(altNode.branches[1]).toBeInstanceOf(Seq);
+    const branch1 = altNode.branches[1] as Seq;
+    expect(branch1.parts).toHaveLength(2);
+    expect(branch1.parts[0]).toBeInstanceOf(Lit);
+    expect(branch1.parts[1]).toBeInstanceOf(Anchor);
+    expect((branch1.parts[1] as Anchor).at).toBe('End');
+  });
+
+  test('should parse anchors in group alternation', () => {
+    /**
+     * Tests anchors in grouped alternation: (^|$)
+     */
+    const [, ast] = parse('(^|$)');
+    expect(ast).toBeInstanceOf(Group);
+    const groupNode = ast as Group;
+    expect(groupNode.capturing).toBe(true);
+    expect(groupNode.body).toBeInstanceOf(Alt);
+    const altBody = groupNode.body as Alt;
+    expect(altBody.branches).toHaveLength(2);
+    expect(altBody.branches[0]).toBeInstanceOf(Anchor);
+    expect((altBody.branches[0] as Anchor).at).toBe('Start');
+    expect(altBody.branches[1]).toBeInstanceOf(Anchor);
+    expect((altBody.branches[1] as Anchor).at).toBe('End');
+  });
+
+  test('should parse word boundary in alternation', () => {
+    /**
+     * Tests word boundary in alternation: \\ba|\\bb
+     */
+    const [, ast] = parse('\\ba|\\bb');
+    expect(ast).toBeInstanceOf(Alt);
+    const altNode = ast as Alt;
+    expect(altNode.branches).toHaveLength(2);
+    // First branch: \ba
+    expect(altNode.branches[0]).toBeInstanceOf(Seq);
+    const branch0 = altNode.branches[0] as Seq;
+    expect(branch0.parts).toHaveLength(2);
+    expect(branch0.parts[0]).toBeInstanceOf(Anchor);
+    expect((branch0.parts[0] as Anchor).at).toBe('WordBoundary');
+    // Second branch: \bb
+    expect(altNode.branches[1]).toBeInstanceOf(Seq);
+    const branch1 = altNode.branches[1] as Seq;
+    expect(branch1.parts).toHaveLength(2);
+    expect(branch1.parts[0]).toBeInstanceOf(Anchor);
+    expect((branch1.parts[0] as Anchor).at).toBe('WordBoundary');
+  });
+});
+
+describe('Category G: Anchors in Atomic Groups', () => {
+  /**
+   * Tests for anchors inside atomic groups.
+   */
+
+  test('should parse start anchor in atomic group', () => {
+    /**
+     * Tests start anchor in atomic group: (?>^a)
+     */
+    const [, ast] = parse('(?>^a)');
+    expect(ast).toBeInstanceOf(Group);
+    const groupNode = ast as Group;
+    expect(groupNode.atomic).toBe(true);
+    expect(groupNode.body).toBeInstanceOf(Seq);
+    const seqBody = groupNode.body as Seq;
+    expect(seqBody.parts).toHaveLength(2);
+    expect(seqBody.parts[0]).toBeInstanceOf(Anchor);
+    expect((seqBody.parts[0] as Anchor).at).toBe('Start');
+    expect(seqBody.parts[1]).toBeInstanceOf(Lit);
+  });
+
+  test('should parse end anchor in atomic group', () => {
+    /**
+     * Tests end anchor in atomic group: (?>a$)
+     */
+    const [, ast] = parse('(?>a$)');
+    expect(ast).toBeInstanceOf(Group);
+    const groupNode = ast as Group;
+    expect(groupNode.atomic).toBe(true);
+    expect(groupNode.body).toBeInstanceOf(Seq);
+    const seqBody = groupNode.body as Seq;
+    expect(seqBody.parts).toHaveLength(2);
+    expect(seqBody.parts[0]).toBeInstanceOf(Lit);
+    expect(seqBody.parts[1]).toBeInstanceOf(Anchor);
+    expect((seqBody.parts[1] as Anchor).at).toBe('End');
+  });
+
+  test('should parse word boundary in atomic group', () => {
+    /**
+     * Tests word boundary in atomic group: (?>\\ba)
+     */
+    const [, ast] = parse('(?>\\ba)');
+    expect(ast).toBeInstanceOf(Group);
+    const groupNode = ast as Group;
+    expect(groupNode.atomic).toBe(true);
+    expect(groupNode.body).toBeInstanceOf(Seq);
+    const seqBody = groupNode.body as Seq;
+    expect(seqBody.parts).toHaveLength(2);
+    expect(seqBody.parts[0]).toBeInstanceOf(Anchor);
+    expect((seqBody.parts[0] as Anchor).at).toBe('WordBoundary');
+    expect(seqBody.parts[1]).toBeInstanceOf(Lit);
+  });
+});
+
+describe('Category H: Word Boundary Edge Cases', () => {
+  /**
+   * Tests for word boundary anchors in various contexts.
+   */
+
+  test('should parse word boundary with non-word character', () => {
+    /**
+     * Tests word boundary with non-word character: \\b.\\b
+     * The dot matches any character, boundaries on both sides.
+     */
+    const [, ast] = parse('\\b.\\b');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(3);
+    expect(seqNode.parts[0]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[0] as Anchor).at).toBe('WordBoundary');
+    expect(seqNode.parts[1]).toBeInstanceOf(Dot);
+    expect(seqNode.parts[2]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[2] as Anchor).at).toBe('WordBoundary');
+  });
+
+  test('should parse word boundary with digit', () => {
+    /**
+     * Tests word boundary with digit: \\b\\d\\b
+     */
+    const [, ast] = parse('\\b\\d\\b');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(3);
+    expect(seqNode.parts[0]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[0] as Anchor).at).toBe('WordBoundary');
+    expect(seqNode.parts[1]).toBeInstanceOf(CharClass);
+    expect(seqNode.parts[2]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[2] as Anchor).at).toBe('WordBoundary');
+  });
+
+  test('should parse not-word-boundary usage', () => {
+    /**
+     * Tests not-word-boundary: \\Ba\\B
+     */
+    const [, ast] = parse('\\Ba\\B');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(3);
+    expect(seqNode.parts[0]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[0] as Anchor).at).toBe('NotWordBoundary');
+    expect(seqNode.parts[1]).toBeInstanceOf(Lit);
+    expect((seqNode.parts[1] as Lit).value).toBe('a');
+    expect(seqNode.parts[2]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[2] as Anchor).at).toBe('NotWordBoundary');
+  });
+});
+
+describe('Category I: Multiple Anchor Types', () => {
+  /**
+   * Tests for patterns combining different anchor types.
+   */
+
+  test('should parse start and end anchors together', () => {
+    /**
+     * Tests both start and end anchors: ^abc$
+     * Already covered but confirming as typical case.
+     */
+    const [, ast] = parse('^abc$');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(3);
+    expect(seqNode.parts[0]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[0] as Anchor).at).toBe('Start');
+    expect(seqNode.parts[1]).toBeInstanceOf(Lit);
+    expect((seqNode.parts[1] as Lit).value).toBe('abc');
+    expect(seqNode.parts[2]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[2] as Anchor).at).toBe('End');
+  });
+
+  test('should parse absolute and line anchors together', () => {
+    /**
+     * Tests absolute and line anchors together: \\A^abc$\\z
+     */
+    const [, ast] = parse('\\A^abc$\\z');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(5);
+    expect(seqNode.parts[0]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[0] as Anchor).at).toBe('AbsoluteStart');
+    expect(seqNode.parts[1]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[1] as Anchor).at).toBe('Start');
+    expect(seqNode.parts[2]).toBeInstanceOf(Lit);
+    expect((seqNode.parts[2] as Lit).value).toBe('abc');
+    expect(seqNode.parts[3]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[3] as Anchor).at).toBe('End');
+    expect(seqNode.parts[4]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[4] as Anchor).at).toBe('AbsoluteEnd');
+  });
+
+  test('should parse word boundaries and line anchors together', () => {
+    /**
+     * Tests word boundaries with line anchors: ^\\ba\\b$
+     */
+    const [, ast] = parse('^\\ba\\b$');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(5);
+    expect(seqNode.parts[0]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[0] as Anchor).at).toBe('Start');
+    expect(seqNode.parts[1]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[1] as Anchor).at).toBe('WordBoundary');
+    expect(seqNode.parts[2]).toBeInstanceOf(Lit);
+    expect((seqNode.parts[2] as Lit).value).toBe('a');
+    expect(seqNode.parts[3]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[3] as Anchor).at).toBe('WordBoundary');
+    expect(seqNode.parts[4]).toBeInstanceOf(Anchor);
+    expect((seqNode.parts[4] as Anchor).at).toBe('End');
+  });
+});
+
+describe('Category J: Anchors with Quantifiers', () => {
+  /**
+   * Tests confirming that anchors themselves cannot be quantified.
+   */
+
+  test('should raise error for anchor quantified directly (^*)', () => {
+    /**
+     * Tests that ^* raises an error (cannot quantify anchor).
+     */
+    expect(() => parse('^*')).toThrow(ParseError);
+    expect(() => parse('^*')).toThrow(/Cannot quantify anchor/);
+  });
+
+  test('should raise error for end anchor followed by quantifier ($+)', () => {
+    /**
+     * Tests $+ raises an error (cannot quantify anchor).
+     */
+    expect(() => parse('$+')).toThrow(ParseError);
+    expect(() => parse('$+')).toThrow(/Cannot quantify anchor/);
+  });
+});
+
+// --- Additional Anchor Test Cases for Parity ------------------------
+
+
+// --- Additional tests to reach parity with Python ------------------------
+
