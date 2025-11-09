@@ -102,7 +102,7 @@ STRling defines both a formal grammar (`spec/grammar/dsl.ebnf`) and normative se
 - ✅ Provides clear validation criteria for emitters and bindings
 - ⚠️ Requires coordination when evolving the DSL (must touch multiple files)
 
-See the [Formal Language Specification](spec_links.md) for links to all specification artifacts.
+See the Formal Language Specification (via Developer Hub) for links to all specification artifacts.
 
 ---
 
@@ -127,3 +127,9 @@ STRling maintains a clear separation between components:
 ## Design Decisions Archive
 
 For historical context on architectural decisions, see the archived ADR (Architecture Decision Records) that informed these principles. The principles documented here represent the current, authoritative design philosophy.
+
+---
+
+## Related Documentation
+
+- **[Developer Hub](index.md)**: Return to the central documentation hub

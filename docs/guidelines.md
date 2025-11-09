@@ -17,7 +17,7 @@ This is the **definitive rulebook** for contributing to STRling. It defines the 
 - When tempted to copy/paste, create a link instead
 
 **Examples:**
-- ✅ Good: "See the [3-Test Standard](testing_standard.md) for details on our testing approach."
+- ✅ Good: "See the Test Design Standard (via Developer Hub) for details on our testing approach."
 - ❌ Bad: Copying the entire 3-Test Standard explanation into multiple files
 
 ### 2. Single Responsibility
@@ -158,7 +158,7 @@ Follow the test-driven development workflow:
 3. Refactor while keeping tests green
 4. Ensure all three test types pass (unit, E2E, conformance)
 
-See the [Normative Testing Standard](testing_standard.md) for complete testing requirements.
+See the Testing Philosophy & Workflow document (via Developer Hub) for complete testing requirements.
 
 ### Keep Changes Minimal
 
@@ -190,7 +190,7 @@ See the [Normative Testing Standard](testing_standard.md) for complete testing r
    - Define unit, E2E, and conformance test cases
 4. **Implement tests**:
    - Write failing tests in appropriate test directories
-   - Ensure tests follow the 3-Test Standard
+   - Ensure tests follow the 3-Test Standard (see Test Design Standard via Developer Hub)
 5. **Implement feature**:
    - Update core compiler/IR as needed
    - Update emitters to handle new construct
@@ -265,7 +265,7 @@ Pull requests are evaluated on:
 
 - **Correctness**: Does it solve the stated problem?
 - **Completeness**: Does it follow the full development workflow?
-- **Testing**: Does it meet the 3-Test Standard?
+- **Testing**: Does it meet the 3-Test Standard (see Test Design Standard via Developer Hub)?
 - **Documentation**: Are docs updated and accurate?
 - **Code quality**: Is it clear, maintainable, and minimal?
 - **Specification alignment**: Does it comply with grammar and semantics?
@@ -315,12 +315,9 @@ Before submitting documentation changes, verify:
 
 ---
 
-## Getting Help
+## Related Documentation
 
-- **Questions about architecture?** See [Architectural Principles](architecture.md)
-- **Questions about testing?** See [Normative Testing Standard](testing_standard.md)
-- **Questions about the specification?** See [Formal Language Specification](spec_links.md)
-- **Questions about usage?** See the binding READMEs ([Python](../bindings/python/README.md) | [JavaScript](../bindings/javascript/README.md))
+- **[Developer Hub](index.md)**: Return to the central documentation hub for architecture, testing, specifications, and more
 
 ---
 

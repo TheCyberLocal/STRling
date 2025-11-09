@@ -2,7 +2,7 @@
 
 This guide explains the **directory layout** and **test execution philosophy** for developers working in the `tests/` directory.
 
-For comprehensive testing philosophy, standards, and the complete development workflow, see the [Documentation Hub](../docs/README.md#testing-philosophy).
+For comprehensive testing philosophy, standards, and the complete development workflow, see the [Testing Documentation](../docs/index.md#testing-documentation).
 
 ## Quick Reference
 
@@ -36,7 +36,7 @@ Every feature must pass three types of tests:
 2. **E2E Tests**: Validate complete workflows from input to output
 3. **Conformance Tests**: Ensure consistent behavior across regex engines
 
-**See the [Testing Philosophy](../docs/README.md#testing-philosophy) section in the Documentation Hub for detailed explanations of each test type.**
+**See the [Test Design Standard](../docs/testing_design.md#the-3-test-standard) for detailed explanations of each test type.**
 
 ## Test Design Documents
 
@@ -119,10 +119,13 @@ The complete test-driven development workflow:
 5. **Verification**: Ensure coverage and mutation testing pass
 6. **Refinement**: Refactor while keeping tests green
 
-**For complete details, see the [Development Workflow](../docs/README.md#development-workflow) in the Documentation Hub.**
+**For complete details, see the [Testing Philosophy & Workflow](../docs/testing_workflow.md#contribution-workflow).**
 
 ## Additional Resources
 
-- **[Developer Hub](../docs/index.md)**: Complete testing philosophy and development workflow
+- **[Test Setup Guide](../docs/testing_setup.md)**: How to run tests locally
+- **[Test Design Standard](../docs/testing_design.md)**: How to write effective tests
+- **[Testing Philosophy & Workflow](../docs/testing_workflow.md)**: Testing philosophy and contribution process
+- **[Developer Hub](../docs/index.md)**: Central documentation landing page
 - **[Specification Hub](../spec/README.md)**: Formal grammar and semantics
 - **[Contribution Guidelines](../docs/guidelines.md)**: Development workflow and documentation standards
