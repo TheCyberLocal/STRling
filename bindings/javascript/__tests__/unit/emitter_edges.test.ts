@@ -67,7 +67,7 @@ describe("Category A: Escaping Logic", () => {
          * Tests that all PCRE2 metacharacters are escaped when in an IRLit node.
          *
          */
-        const metachars = ".^$|()?*+{}\\[]\\";
+        const metachars = ".^$|()?*+{}[]\\";
         const expected = "\\.\\^\\$\\|\\(\\)\\?\\*\\+\\{\\}\\[\\]\\\\";
         expect(emit(new IRLit(metachars))).toBe(expected);
     });
@@ -77,7 +77,7 @@ describe("Category A: Escaping Logic", () => {
          * Tests that special characters inside a character class are escaped.
          *
          */
-        const metachars = "[]\\-^";
+        const metachars = "]\\-^";
         const expected = "[\\]\\\\\\-\\^]";
         const items: IRClassItem[] = metachars
             .split("")
@@ -259,7 +259,7 @@ describe("Category E: Extension Features", () => {
 
     test.each<[IROp, string, string]>([
         [
-            new IRGroup(false, new IRLit("a+"), undefined, true),
+            new IRGroup(false, new IRQuant(new IRLit("a"), 1, "Inf", "Greedy"), undefined, true),
             "(?>a+)",
             "atomic_group",
         ],

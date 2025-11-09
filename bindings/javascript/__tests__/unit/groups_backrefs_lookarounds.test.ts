@@ -214,7 +214,7 @@ describe("Category C: Edge Cases", () => {
          *
          */
         const [, ast] = parse("\\0");
-        expect(ast).toEqual(new Lit("\\x00"));
+        expect(ast).toEqual(new Lit("\x00"));
     });
 });
 
