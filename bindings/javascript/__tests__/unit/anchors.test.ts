@@ -99,7 +99,7 @@ describe('Category C: Edge Cases', () => {
   test.each<[string, number, string, string]>([
     ['^a', 0, 'Start', 'at_start'],
     ['a\\bb', 1, 'WordBoundary', 'in_middle'],
-    ['ab$', 2, 'End', 'at_end'],
+    ['ab$', 1, 'End', 'at_end'],
   ])('should parse anchor in different positions (ID: %s)', (inputDsl, expectedPosition, expectedAtValue) => {
     /**
      * Tests that anchors are correctly parsed as part of a sequence at

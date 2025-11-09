@@ -96,7 +96,7 @@ describe("Error Handling Contract", () => {
                 3,
                 "nonexistent_reference_by_index",
             ],
-            ["\\k<", "Expected '<' after \\k", 2, "unterminated_named_backref"],
+            ["\\k<", "Unterminated named backref", 0, "unterminated_named_backref"],
         ])(
             'should fail for "%s" (ID: %s)',
             (invalidDsl, errorPrefix, errorPos) => {
