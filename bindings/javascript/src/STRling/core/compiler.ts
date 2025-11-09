@@ -12,11 +12,13 @@ import * as N from "./nodes.js";
 import * as IR from "./ir.js";
 
 export class Compiler {
+    featuresUsed: Set<string>;
+
     constructor() {
         this.featuresUsed = new Set();
     }
 
-    compileWithMetadata(rootNode) {
+    compileWithMetadata(rootNode: N.Node): { ir: IR.IROp; metadata: { features_used: string[] } } {
         /**
          * Compiles the AST and returns a full artifact with metadata.
          */
@@ -32,7 +34,7 @@ export class Compiler {
         };
     }
 
-    _analyzeFeatures(node) {
+    _analyzeFeatures(node: IR.IROp): void {
         /**
          * Recursively walk the IR tree and log features used.
          */
@@ -82,81 +84,89 @@ export class Compiler {
         }
     }
 
-    compile(root) {
+    compile(root: N.Node): IR.IROp {
         let ir = this._lower(root);
         ir = this._normalize(ir);
         return ir;
     }
 
     // ---------- Lowering (AST -> IR) ----------
-    _lower(node) {
+    _lower(node: N.Node): IR.IROp {
         const t = node.constructor.name;
         
         if (t === "Seq") {
-            return new IR.IRSeq(node.parts.map((p) => this._lower(p)));
+            return new IR.IRSeq((node as N.Seq).parts.map((p) => this._lower(p)));
         }
         if (t === "Alt") {
-            return new IR.IRAlt(node.branches.map((b) => this._lower(b)));
+            return new IR.IRAlt((node as N.Alt).branches.map((b) => this._lower(b)));
         }
         if (t === "Lit") {
-            return new IR.IRLit(node.value);
+            return new IR.IRLit((node as N.Lit).value);
         }
         if (t === "Dot") {
             return new IR.IRDot();
         }
         if (t === "Anchor") {
-            return new IR.IRAnchor(node.at);
+            return new IR.IRAnchor((node as N.Anchor).at);
         }
         if (t === "CharClass") {
-            const items = [];
-            for (const it of node.items) {
+            const charClass = node as N.CharClass;
+            const items: IR.IRClassItem[] = [];
+            for (const it of charClass.items) {
                 const itT = it.constructor.name;
                 if (itT === "ClassRange") {
-                    items.push(new IR.IRClassRange(it.fromCh, it.toCh));
+                    const range = it as N.ClassRange;
+                    items.push(new IR.IRClassRange(range.fromCh, range.toCh));
                 } else if (itT === "ClassLiteral") {
-                    items.push(new IR.IRClassLiteral(it.ch));
+                    const lit = it as N.ClassLiteral;
+                    items.push(new IR.IRClassLiteral(lit.ch));
                 } else if (itT === "ClassEscape") {
-                    items.push(new IR.IRClassEscape(it.type, it.property));
+                    const esc = it as N.ClassEscape;
+                    items.push(new IR.IRClassEscape(esc.type, esc.property));
                 } else {
                     throw new Error(`Unknown class item ${itT}`);
                 }
             }
-            return new IR.IRCharClass(node.negated, items);
+            return new IR.IRCharClass(charClass.negated, items);
         }
         if (t === "Quant") {
+            const quant = node as N.Quant;
             return new IR.IRQuant(
-                this._lower(node.child),
-                node.min,
-                node.max,
-                node.mode
+                this._lower(quant.child),
+                quant.min,
+                quant.max,
+                quant.mode
             );
         }
         if (t === "Group") {
+            const group = node as N.Group;
             return new IR.IRGroup(
-                node.capturing,
-                this._lower(node.body),
-                node.name,
-                node.atomic
+                group.capturing,
+                this._lower(group.body),
+                group.name,
+                group.atomic
             );
         }
         if (t === "Backref") {
-            return new IR.IRBackref(node.byIndex, node.byName);
+            const backref = node as N.Backref;
+            return new IR.IRBackref(backref.byIndex, backref.byName);
         }
         if (t === "Look") {
-            return new IR.IRLook(node.dir, node.neg, this._lower(node.body));
+            const look = node as N.Look;
+            return new IR.IRLook(look.dir, look.neg, this._lower(look.body));
         }
         throw new Error(`No lowering for AST node ${t}`);
     }
 
     // ---------- Normalization ----------
-    _normalize(node) {
+    _normalize(node: IR.IROp): IR.IROp {
         /**
          * Flatten alt/seq and fuse adjacent literals.
          */
         if (node instanceof IR.IRSeq) {
-            const parts = [];
+            const parts: IR.IROp[] = [];
             for (const p of node.parts) {
-                const pNorm = this._normalize(p);
+                const pNorm: IR.IROp = this._normalize(p);
                 if (pNorm instanceof IR.IRSeq) {
                     parts.push(...pNorm.parts);
                 } else {
@@ -164,7 +174,7 @@ export class Compiler {
                 }
             }
             
-            const fused = [];
+            const fused: IR.IROp[] = [];
             let buf = "";
             for (const p of parts) {
                 if (p instanceof IR.IRLit) {
@@ -184,9 +194,9 @@ export class Compiler {
         }
         
         if (node instanceof IR.IRAlt) {
-            const branches = [];
+            const branches: IR.IROp[] = [];
             for (const b of node.branches) {
-                const bNorm = this._normalize(b);
+                const bNorm: IR.IROp = this._normalize(b);
                 if (bNorm instanceof IR.IRAlt) {
                     branches.push(...bNorm.branches);
                 } else {
@@ -197,7 +207,7 @@ export class Compiler {
         }
         
         if (node instanceof IR.IRQuant) {
-            const child = this._normalize(node.child);
+            const child: IR.IROp = this._normalize(node.child);
             return new IR.IRQuant(child, node.min, node.max, node.mode);
         }
         
