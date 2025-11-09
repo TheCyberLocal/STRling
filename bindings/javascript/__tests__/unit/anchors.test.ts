@@ -506,3 +506,6 @@ describe('Category J: Anchors with Quantifiers', () => {
 
 // --- Additional Anchor Test Cases for Parity ------------------------
 
+
+// --- Additional tests to reach parity with Python ------------------------
+

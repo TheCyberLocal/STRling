@@ -392,3 +392,6 @@ describe('Category J: Alternation Normalization Edge Cases', () => {
     expect(ir.constructor.name).toBe('IRAlt');
   });
 });
+
+// --- Additional tests to reach parity with Python ------------------------
+

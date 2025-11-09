@@ -287,3 +287,6 @@ describe('Category J: Char Class Error Cases', () => {
 
 // --- Additional Char Class Test Cases for Parity ------------------------
 
+
+// --- Additional tests to reach parity with Python ------------------------
+

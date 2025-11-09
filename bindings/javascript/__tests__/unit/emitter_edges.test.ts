@@ -45,7 +45,6 @@ import {
     IRClassLiteral,
     IRClassEscape,
     IRClassRange,
-    IRClassEscape,
     IRQuant,
     IRSeq,
     IRAlt,
