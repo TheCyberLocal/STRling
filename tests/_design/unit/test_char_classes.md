@@ -68,12 +68,78 @@ Character classes (`[...]`) are a fundamental feature of the STRling DSL, allowi
 
 -   **Free-Spacing Mode (`%flags x`)**: Test that whitespace and `#` comments inside a character class are treated as literal characters and are not ignored, as specified in `semantics.md`. Example: `[a #b]` should parse to `CharClass(items=[ClassLiteral('a'), ClassLiteral(' '), ClassLiteral('#'), ClassLiteral('b')])`.
 
+### Category E — Minimal Character Classes
+
+-   **Single Character Classes**:
+    -   Test minimal positive classes with a single literal, like `[a]`.
+    -   Test minimal negated classes, like `[^a]`.
+-   **Two-Character Classes**:
+    -   Test classes with exactly two characters, like `[ab]` and `[^ab]`.
+
+### Category F — Escaped Metacharacters in Classes
+
+-   **Escaping Special Characters**:
+    -   Test escaped metacharacters that have special meaning in classes, such as `[\[\]]` for literal brackets.
+    -   Test escaped backslash within classes, like `[\\]`.
+-   **Escaped Hyphen**:
+    -   Test that escaped hyphen `\-` is parsed as a literal hyphen even in range position.
+-   **Escaped Caret**:
+    -   Test escaped caret `\^` within a class.
+
+### Category G — Complex Range Combinations
+
+-   **Multiple Ranges**:
+    -   Test classes with multiple ranges, like `[a-zA-Z0-9]`.
+-   **Overlapping Ranges**:
+    -   Test classes with overlapping ranges, such as `[a-mh-z]`.
+-   **Adjacent Ranges**:
+    -   Test adjacent ranges like `[a-z0-9]` to ensure correct parsing without merging.
+-   **Ranges with Mixed Content**:
+    -   Test ranges intermixed with literals and escapes, like `[a-z\d_-]`.
+
+### Category H — Unicode Property Combinations
+
+-   **Multiple Unicode Properties**:
+    -   Test classes containing multiple Unicode properties, like `[\p{L}\p{N}]`.
+-   **Mixed Unicode and Shorthand**:
+    -   Test combinations of Unicode properties and shorthand escapes, such as `[\p{L}\d]`.
+-   **Unicode Property with Literals**:
+    -   Test Unicode properties mixed with literal characters, like `[\p{L}abc]`.
+-   **Script-Specific Properties**:
+    -   Test Unicode properties with script values, like `[\p{Script=Greek}]`.
+
+### Category I — Negated Class Variations
+
+-   **Negated Classes with Ranges**:
+    -   Test negated classes containing ranges, like `[^a-z]`.
+-   **Negated Classes with Shorthand**:
+    -   Test negated classes with shorthand escapes, such as `[^\d]`.
+-   **Negated Classes with Unicode Properties**:
+    -   Test negated classes containing Unicode properties, like `[^\p{L}]`.
+-   **Complex Negated Classes**:
+    -   Test negated classes with mixed content, such as `[^a-z\d\p{P}]`.
+
+### Category J — Character Class Error Cases
+
+-   **Unterminated Classes**:
+    -   Test various unterminated class scenarios beyond the basic case.
+-   **Invalid Unicode Property Syntax**:
+    -   Test malformed Unicode properties with various error conditions.
+-   **Empty or Minimal Error Conditions**:
+    -   Test edge cases that might trigger parse errors in character class context.
+
 ## Completion Criteria
 
--   [ ] All grammar rules from `dsl.ebnf` related to `CharClass` and `ClassItem` are covered.
--   [ ] Both positive (`[...]`) and negative (`[^...]`) forms are tested.
--   [ ] All supported shorthands (`\d`, `\w`, etc.) and Unicode properties (`\p{...}`) are tested inside a class.
--   [ ] All special character rules (`-`, `]`, `^`, `\b`) defined in `semantics.md` are verified.
--   [ ] All expected `ParseError` conditions from `parser.py` are tested.
--   [ ] The AST shape (`nodes.CharClass` with a list of `ClassItem` objects) is asserted for all positive cases.
--   [ ] The interaction with free-spacing mode is explicitly tested.
+-   [x] All grammar rules from `dsl.ebnf` related to `CharClass` and `ClassItem` are covered.
+-   [x] Both positive (`[...]`) and negative (`[^...]`) forms are tested.
+-   [x] All supported shorthands (`\d`, `\w`, etc.) and Unicode properties (`\p{...}`) are tested inside a class.
+-   [x] All special character rules (`-`, `]`, `^`, `\b`) defined in `semantics.md` are verified.
+-   [x] All expected `ParseError` conditions from `parser.py` are tested.
+-   [x] The AST shape (`nodes.CharClass` with a list of `ClassItem` objects) is asserted for all positive cases.
+-   [x] The interaction with free-spacing mode is explicitly tested.
+-   [x] Minimal character classes (single and two-character) are validated.
+-   [x] Escaped metacharacters within classes are thoroughly tested.
+-   [x] Complex range combinations including overlapping and adjacent ranges are covered.
+-   [x] Unicode property combinations with mixed content are tested.
+-   [x] Negated class variations with all content types are verified.
+-   [x] Comprehensive error cases for character classes are validated.
