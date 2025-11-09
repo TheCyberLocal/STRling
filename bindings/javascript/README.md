@@ -12,7 +12,7 @@ STRling makes string validation and matching **readable, safe, and consistent** 
 -   **Reliable**: Built only on standard libraries.
 -   **Instructional Errors**: Explains what went wrong and how to fix it.
 -   **Consistent**: Works across frameworks and libraries without custom validators.
--   **Multilingual**: Available across popular programming languages.
+-   **Multilingual**: Available across popular programming languages ([Python](../python/README.md), and more coming soon).
 
 ## 💾 Installation
 
@@ -21,6 +21,8 @@ npm install @thecyberlocal/strling
 ```
 
 ## ✨ STRling in action!
+
+### Basic Example: US Phone Number
 
 ```js
 import { simply as s } from "@thecyberlocal/strling";
@@ -54,6 +56,53 @@ for (const match of exampleText.matchAll(pattern)) {
     console.log("Last:", match.groups.last_part);
 }
 ```
+
+### Advanced Features
+
+For comprehensive syntax reference and advanced features, see the [STRling Semantics Specification](../../spec/grammar/semantics.md).
+
+**Example: Character Classes and Quantifiers**
+
+```js
+import { simply as s } from "@thecyberlocal/strling";
+
+// Match 3-5 lowercase letters
+const pattern = s.inRange("a", "z", { min: 3, max: 5 });
+console.log(pattern.toString());  // Compiles to regex
+
+// Match one or more digits
+const digits = s.digit({ min: 1 });
+
+// Match optional whitespace
+const whitespace = s.may(s.whitespace());
+```
+
+**Example: Groups and Backreferences**
+
+```js
+import { simply as s } from "@thecyberlocal/strling";
+
+// Capture and reference groups
+const tagPattern = s.merge(
+    "<",
+    s.group("tag", s.inRange("a", "z", { min: 1 })),
+    ">",
+    s.any(),  // Content
+    "</",
+    s.backref("tag"),  // Reference captured tag name
+    ">"
+);
+```
+
+## 📚 Documentation
+
+- **[STRling Documentation Hub](../../docs/README.md)**: Architecture, philosophy, and development workflow
+- **[Formal Specification](../../spec/README.md)**: Grammar and semantics reference
+- **[Python Binding](../python/README.md)**: STRling for Python
+
+## 🧪 Testing
+
+For information on the test suite and development workflow, see the [Test Suite Guide](../../tests/README.md).
 
 ## 💖 Support
 

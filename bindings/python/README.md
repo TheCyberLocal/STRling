@@ -12,7 +12,7 @@ STRling makes string validation and matching **readable, safe, and consistent** 
 -   **Reliable**: Built only on standard libraries.
 -   **Instructional Errors**: Explains what went wrong and how to fix it.
 -   **Consistent**: Works across frameworks and libraries without custom validators.
--   **Multilingual**: Available across popular programming languages.
+-   **Multilingual**: Available across popular programming languages ([JavaScript](../javascript/README.md), and more coming soon).
 
 ## 💾 Installation
 
@@ -23,6 +23,8 @@ pip install STRling
 ```
 
 ## ✨ STRling in action!
+
+### Basic Example: US Phone Number
 
 ```python
 from STRling import simply as s
@@ -57,6 +59,53 @@ for match in matches:
     print("Central Part:", match.group("central_part"))
     print("Last Part:", match.group("last_part"))
 ```
+
+### Advanced Features
+
+For comprehensive syntax reference and advanced features, see the [STRling Semantics Specification](../../spec/grammar/semantics.md).
+
+**Example: Character Classes and Quantifiers**
+
+```python
+from STRling import simply as s
+
+# Match 3-5 lowercase letters
+pattern = s.in_range("a", "z", min=3, max=5)
+print(str(pattern))  # Compiles to regex
+
+# Match one or more digits
+digits = s.digit(min=1)
+
+# Match optional whitespace
+whitespace = s.may(s.whitespace())
+```
+
+**Example: Groups and Backreferences**
+
+```python
+from STRling import simply as s
+
+# Capture and reference groups
+tag_pattern = s.merge(
+    "<",
+    s.group("tag", s.in_range("a", "z", min=1)),
+    ">",
+    s.any(),  # Content
+    "</",
+    s.backref("tag"),  # Reference captured tag name
+    ">"
+)
+```
+
+## 📚 Documentation
+
+- **[STRling Documentation Hub](../../docs/README.md)**: Architecture, philosophy, and development workflow
+- **[Formal Specification](../../spec/README.md)**: Grammar and semantics reference
+- **[JavaScript Binding](../javascript/README.md)**: STRling for JavaScript/Node.js
+
+## 🧪 Testing
+
+For information on the test suite and development workflow, see the [Test Suite Guide](../../tests/README.md).
 
 ## 💖 Support
 
