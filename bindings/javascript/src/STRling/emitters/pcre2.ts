@@ -9,7 +9,7 @@ import * as IR from "../core/ir.js";
 
 // ---- helpers ----------------------------------------------------------------
 
-function _escapeLiteral(s) {
+function _escapeLiteral(s: string): string {
     /**
      * Escape PCRE2 metacharacters outside character classes, but do NOT escape dashes (-).
      */
@@ -18,7 +18,7 @@ function _escapeLiteral(s) {
     return s.replace(metachars, "\\$&");
 }
 
-function _escapeClassChar(ch) {
+function _escapeClassChar(ch: string): string {
     /**
      * Escape a char for use inside [...] per PCRE2 rules.
      */
@@ -49,7 +49,7 @@ function _escapeClassChar(ch) {
     return ch;
 }
 
-function _emitClass(cc) {
+function _emitClass(cc: IR.IRCharClass): string {
     /**
      * Emit a PCRE2 character class. If the class is exactly one shorthand escape
      * (like \d or \p{Lu}), prefer the shorthand (with negation flipping) instead
@@ -84,7 +84,7 @@ function _emitClass(cc) {
     }
 
     // --- General case: build a bracket class --------------------------------
-    const parts = [];
+    const parts: string[] = [];
     for (const it of items) {
         if (it instanceof IR.IRClassLiteral) {
             parts.push(_escapeClassChar(it.ch));
@@ -107,11 +107,11 @@ function _emitClass(cc) {
     return `[${cc.negated ? "^" : ""}${inner}]`;
 }
 
-function _emitQuantSuffix(minv, maxv, mode) {
+function _emitQuantSuffix(minv: number, maxv: number | string, mode: string): string {
     /**
      * Emit *, +, ?, {m}, {m,}, {m,n} plus optional lazy/possessive suffix.
      */
-    let q;
+    let q: string;
     if (minv === 0 && maxv === "Inf") {
         q = "*";
     } else if (minv === 1 && maxv === "Inf") {
@@ -134,7 +134,7 @@ function _emitQuantSuffix(minv, maxv, mode) {
     return q;
 }
 
-function _needsGroupForQuant(child) {
+function _needsGroupForQuant(child: IR.IROp): boolean {
     /**
      * Return true if 'child' needs a non-capturing group when quantifying.
      */
@@ -159,7 +159,7 @@ function _needsGroupForQuant(child) {
     return false;
 }
 
-function _emitGroupOpen(g) {
+function _emitGroupOpen(g: IR.IRGroup): string {
     if (g.atomic) {
         return "(?>";
     }
@@ -172,7 +172,7 @@ function _emitGroupOpen(g) {
     return "(?:";
 }
 
-function _emitNode(node, parentKind = "") {
+function _emitNode(node: IR.IROp, parentKind: string = ""): string {
     if (node instanceof IR.IRLit) {
         return _escapeLiteral(node.value);
     }
@@ -182,7 +182,7 @@ function _emitNode(node, parentKind = "") {
     }
 
     if (node instanceof IR.IRAnchor) {
-        const mapping = {
+        const mapping: { [key: string]: string } = {
             Start: "^",
             End: "$",
             WordBoundary: "\\b",
@@ -209,17 +209,17 @@ function _emitNode(node, parentKind = "") {
     }
 
     if (node instanceof IR.IRSeq) {
-        return node.parts.map((p) => _emitNode(p, "Seq")).join("");
+        return node.parts.map((p: IR.IROp): string => _emitNode(p, "Seq")).join("");
     }
 
     if (node instanceof IR.IRAlt) {
-        const body = node.branches.map((b) => _emitNode(b, "Alt")).join("|");
+        const body: string = node.branches.map((b: IR.IROp): string => _emitNode(b, "Alt")).join("|");
         // Alt inside sequence/quant should be grouped
         return ["Seq", "Quant"].includes(parentKind) ? `(?:${body})` : body;
     }
 
     if (node instanceof IR.IRQuant) {
-        let childStr = _emitNode(node.child, "Quant");
+        let childStr: string = _emitNode(node.child, "Quant");
         if (_needsGroupForQuant(node.child) && !(node.child instanceof IR.IRGroup)) {
             childStr = `(?:${childStr})`;
         }
@@ -231,7 +231,7 @@ function _emitNode(node, parentKind = "") {
     }
 
     if (node instanceof IR.IRLook) {
-        let op;
+        let op: string;
         if (node.dir === "Ahead" && !node.neg) {
             op = "?=";
         } else if (node.dir === "Ahead" && node.neg) {
@@ -247,7 +247,7 @@ function _emitNode(node, parentKind = "") {
     throw new Error(`Emitter missing for ${node.constructor.name}`);
 }
 
-function _emitPrefixFromFlags(flags) {
+function _emitPrefixFromFlags(flags: any): string {
     /**
      * Build the inline prefix form expected by tests, e.g. "(?imx)"
      */
@@ -260,13 +260,13 @@ function _emitPrefixFromFlags(flags) {
     return letters ? `(?${letters})` : "";
 }
 
-export function emit(irRoot, flags = null) {
+export function emit(irRoot: IR.IROp, flags: any = null): string {
     /**
      * Emit a PCRE2 pattern string from IR.
      * 
      * If 'flags' is provided, it can be a plain object or a Flags object with .toDict().
      */
-    let flagDict = null;
+    let flagDict: any = null;
     if (flags !== null) {
         if (typeof flags === "object" && !flags.toDict) {
             flagDict = flags;

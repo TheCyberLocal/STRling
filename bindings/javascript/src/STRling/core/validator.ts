@@ -11,13 +11,13 @@ import * as fs from "fs";
 // For now, we'll create a simple placeholder that can be enhanced later
 
 export class ValidationError extends Error {
-    constructor(message) {
+    constructor(message: string) {
         super(message);
         this.name = "ValidationError";
     }
 }
 
-export function validateArtifact(artifact, schemaPath, registry = null) {
+export function validateArtifact(artifact: any, schemaPath: string, registry: any = null): boolean {
     /**
      * Validate a TargetArtifact against a JSON Schema (draft 2020-12).
      * 
