@@ -362,7 +362,7 @@ describe('Category I: Feature Detection Comprehensive', () => {
   });
 
   test('should compile absolute anchors', () => {
-    const [flags, ast] = parse('\A');
+    const [flags, ast] = parse('\\A');
     const compiler = new Compiler();
     const ir = compiler.compile(ast);
     expect(ir.constructor.name).toBe('IRAnchor');
