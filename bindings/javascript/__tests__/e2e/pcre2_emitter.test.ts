@@ -154,3 +154,8 @@ describe("Category D: Error Handling", () => {
         expect(() => compileToPcre("a(b")).toThrow("Unterminated group");
     });
 });
+
+// --- Additional E2E Test Cases for Parity ------------------------
+
+
+

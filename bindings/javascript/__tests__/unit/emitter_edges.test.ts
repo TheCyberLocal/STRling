@@ -44,6 +44,8 @@ import {
     IRClassItem,
     IRClassLiteral,
     IRClassEscape,
+    IRClassRange,
+    IRClassEscape,
     IRQuant,
     IRSeq,
     IRAlt,
@@ -286,3 +288,8 @@ describe("Category E: Extension Features", () => {
         }
     );
 });
+
+// --- Additional Test Cases for Coverage ------------------------
+
+
+

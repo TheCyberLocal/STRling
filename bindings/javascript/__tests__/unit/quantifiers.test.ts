@@ -499,3 +499,6 @@ describe('Category I: Quantifier Interaction With Flags', () => {
     expect((quantNode.child as Lit).value).toBe(' ');
   });
 });
+
+// --- Additional Quantifier Test Cases for Parity ------------------------
+

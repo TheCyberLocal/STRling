@@ -312,3 +312,6 @@ describe('Category J: Literals In Complex Contexts', () => {
     expect((altNode.branches[1] as Lit).value).toBe('def');
   });
 });
+
+// --- Additional Literal Test Cases for Parity ------------------------
+

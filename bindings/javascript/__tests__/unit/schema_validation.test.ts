@@ -192,3 +192,6 @@ describe("Category C: Edge Cases", () => {
         ).not.toThrow();
     });
 });
+
+// --- Additional Schema Validation Test Cases ------------------------
+

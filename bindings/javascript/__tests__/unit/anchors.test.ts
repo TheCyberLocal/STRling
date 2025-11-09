@@ -503,3 +503,6 @@ describe('Category J: Anchors with Quantifiers', () => {
     expect(() => parse('$+')).toThrow(/Cannot quantify anchor/);
   });
 });
+
+// --- Additional Anchor Test Cases for Parity ------------------------
+

@@ -284,3 +284,6 @@ describe('Category J: Char Class Error Cases', () => {
     expect(() => parse('[-a]')).toThrow(ParseError);
   });
 });
+
+// --- Additional Char Class Test Cases for Parity ------------------------
+

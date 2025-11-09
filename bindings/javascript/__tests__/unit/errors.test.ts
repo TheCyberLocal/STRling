@@ -249,3 +249,7 @@ describe("Error Handling Contract", () => {
         });
     });
 });
+
+// --- Additional Error Test Cases ------------------------
+
+
