@@ -76,6 +76,6 @@ When implementing STRling bindings:
 
 ## Related Documentation
 
-- **[Documentation Hub](../docs/README.md)**: Architecture, philosophy, and contribution guides
+- **[Developer Hub](../docs/index.md)**: Architecture, philosophy, and contribution guides
 - **[Test Suite Guide](../tests/README.md)**: Testing strategy and directory structure
-- **[Documentation Guidelines](../docs/DOCUMENTATION_GUIDELINES.md)**: Standards for all documentation
+- **[Contribution Guidelines](../docs/guidelines.md)**: Development workflow and documentation standards

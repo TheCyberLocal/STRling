@@ -123,6 +123,6 @@ The complete test-driven development workflow:
 
 ## Additional Resources
 
-- **[Documentation Hub](../docs/README.md)**: Complete testing philosophy and development workflow
+- **[Developer Hub](../docs/index.md)**: Complete testing philosophy and development workflow
 - **[Specification Hub](../spec/README.md)**: Formal grammar and semantics
-- **[Documentation Guidelines](../docs/DOCUMENTATION_GUIDELINES.md)**: Standards for documentation
+- **[Contribution Guidelines](../docs/guidelines.md)**: Development workflow and documentation standards
