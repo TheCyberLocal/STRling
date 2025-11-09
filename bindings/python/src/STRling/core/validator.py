@@ -41,26 +41,9 @@ def validate_artifact(
     schema: Schema = json.loads(schema_text)
 
     if registry is not None and HAVE_REFERENCING:
-        # For jsonschema 4.x compatibility with referencing library
-        # We need to create a custom store from the registry
-        store = {}
-        # Extract all resources from the registry using keys() and get()
-        for uri in registry.keys():
-            resource = registry.get(uri)
-            if resource is not None:
-                store[uri] = resource.contents
-        
-        # Import RefResolver locally to avoid module-level deprecation warning
-        # This is only used when a registry is provided for $ref resolution
-        from jsonschema import RefResolver
-        
-        # Create resolver with the store
-        resolver = RefResolver(
-            base_uri=schema.get("$id", ""),
-            referrer=schema,
-            store=store
-        )
-        validator = Draft202012Validator(schema, resolver=resolver)
+        # Use the modern jsonschema API with referencing.Registry directly
+        # This avoids the deprecated RefResolver class
+        validator = Draft202012Validator(schema, registry=registry)
     else:
         validator = Draft202012Validator(schema)
     
