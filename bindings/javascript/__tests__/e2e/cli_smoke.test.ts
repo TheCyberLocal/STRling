@@ -47,9 +47,14 @@ interface CliResult {
  * Runs the Python CLI script as a subprocess.
  */
 function runCli(args: string[], stdin?: string): CliResult {
+    const pythonPath = path.join(PROJECT_ROOT, "bindings", "python", "src");
     const options: SpawnSyncOptions = {
         encoding: "utf-8",
         stdio: ["pipe", "pipe", "pipe"], // [stdin, stdout, stderr]
+        env: {
+            ...process.env,
+            PYTHONPATH: pythonPath,
+        },
     };
 
     const result = spawnSync(PYTHON_EXEC, [CLI_PATH, ...args], {

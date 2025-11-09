@@ -458,11 +458,11 @@ class Parser {
         if ("pP".includes(nxt)) {
             const tp = cur.take();
             if (!cur.match("{")) {
-                throw new ParseError("Expected { after \\p/\\P", cur.i);
+                throw new ParseError("Expected { after \\p/\\P", startPos);
             }
             const prop = this._readUntil("}");
             if (!cur.match("}")) {
-                throw new ParseError("Unterminated \\p{...}", cur.i);
+                throw new ParseError("Unterminated \\p{...}", startPos);
             }
             return new CharClass(false, [new ClassEscape(tp, prop)]);
         }
@@ -649,11 +649,11 @@ class Parser {
         if ("pP".includes(nxt)) {
             const tp = cur.take();
             if (!cur.match("{")) {
-                throw new ParseError("Expected { after \\p/\\P", cur.i);
+                throw new ParseError("Expected { after \\p/\\P", startPos);
             }
             const prop = this._readUntil("}");
             if (!cur.match("}")) {
-                throw new ParseError("Unterminated \\p{...}", cur.i);
+                throw new ParseError("Unterminated \\p{...}", startPos);
             }
             return new ClassEscape(tp, prop);
         }
