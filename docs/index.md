@@ -16,9 +16,21 @@ Return to the main STRling project overview for a high-level introduction and fe
 
 Learn about STRling's foundational design decisions, including the `parse → compile (IR) → emit` pipeline, the Iron Law of Emitters, and grammar-semantics alignment.
 
-### [Normative Testing Standard](testing_standard.md)
+### Testing Documentation
 
-The comprehensive definition of STRling's testing philosophy: the 3-Test Standard, Combinatorial E2E Testing, and Golden Pattern Testing.
+STRling's testing system is organized into three specialized guides:
+
+#### [Test Environment Setup](testing_setup.md)
+
+Copy-pasteable commands for setting up your local test environment for Python and JavaScript bindings.
+
+#### [Test Design Standard](testing_design.md)
+
+The technical, normative standard for writing new tests: the 3-Test Standard, Combinatorial E2E Testing, and Golden Pattern Testing.
+
+#### [Testing Philosophy & Workflow](testing_workflow.md)
+
+High-level testing principles, the Iron Law of test parity, and contribution workflow requirements.
 
 ### [Contribution & Documentation Guidelines](guidelines.md)
 
