@@ -12,6 +12,16 @@ STRling employs a **spec-driven, test-driven development workflow**: **specifica
 
 All features must be fully specified before implementation begins, and all code must be validated through comprehensive testing at multiple levels.
 
+### Normative Design Standards
+
+The following documents define the formal testing standards that guide all test implementations:
+
+- **[Unit Test Design](../tests/_design/unit_test_design.md)**: The "3-Test Standard" for validating individual features in isolation
+- **[E2E Combinatorial Design](../tests/_design/e2e_combinatorial_design.md)**: Risk-based, tiered approach for testing feature interactions
+- **[E2E Golden Pattern Design](../tests/_design/e2e_golden_pattern_design.md)**: Real-world pattern validation strategy
+
+These standards are language-agnostic and serve as the authoritative baseline for both Python and JavaScript test suites.
+
 ---
 
 ## The 3-Test Standard

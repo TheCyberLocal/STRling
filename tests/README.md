@@ -49,6 +49,16 @@ Before writing any test code, create a **Test Charter** in `tests/_design/`. Thi
 - Specifies the "definition of done" for the feature
 - Serves as living documentation
 
+### Design Standards
+
+STRling's testing architecture follows three normative design standards:
+
+- **[Unit Test Design](_design/unit_test_design.md)**: The "3-Test Standard" for testing individual features
+- **[E2E Combinatorial Design](_design/e2e_combinatorial_design.md)**: Tiered approach for testing feature interactions
+- **[E2E Golden Pattern Design](_design/e2e_golden_pattern_design.md)**: Real-world pattern validation strategy
+
+These documents define the testing philosophy and standards that all test implementations must follow.
+
 ### Creating a Test Charter
 
 1. Copy `tests/_design/__template.md` to the appropriate subdirectory
