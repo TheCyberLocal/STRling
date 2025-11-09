@@ -38,23 +38,28 @@ export class ParseError extends Error {
 
 // ---------------- Lexer helpers ----------------
 class Cursor {
-    constructor(text, i = 0, extendedMode = false, inClass = 0) {
+    text: string;
+    i: number;
+    extendedMode: boolean;
+    inClass: number;
+
+    constructor(text: string, i: number = 0, extendedMode: boolean = false, inClass: number = 0) {
         this.text = text;
         this.i = i;
         this.extendedMode = extendedMode;
         this.inClass = inClass; // nesting count for char classes
     }
 
-    eof() {
+    eof(): boolean {
         return this.i >= this.text.length;
     }
 
-    peek(n = 0) {
+    peek(n: number = 0): string {
         const j = this.i + n;
         return j >= this.text.length ? "" : this.text[j];
     }
 
-    take() {
+    take(): string {
         if (this.eof()) {
             return "";
         }
@@ -63,7 +68,7 @@ class Cursor {
         return ch;
     }
 
-    match(s) {
+    match(s: string): boolean {
         if (this.text.startsWith(s, this.i)) {
             this.i += s.length;
             return true;
@@ -71,7 +76,7 @@ class Cursor {
         return false;
     }
 
-    skipWsAndComments() {
+    skipWsAndComments(): void {
         if (!this.extendedMode || this.inClass > 0) {
             return;
         }
@@ -96,7 +101,14 @@ class Cursor {
 
 // ---------------- Parser ----------------
 class Parser {
-    constructor(text) {
+    flags: Flags;
+    src: string;
+    cur: Cursor;
+    _capCount: number;
+    _capNames: Set<string>;
+    CONTROL_ESCAPES: { [key: string]: string };
+
+    constructor(text: string) {
         // Extract directives first
         const [flags, src] = this._parseDirectives(text);
         this.flags = flags;
@@ -114,15 +126,15 @@ class Parser {
     }
 
     // -- Directives --
-    _parseDirectives(text) {
+    _parseDirectives(text: string): [Flags, string] {
         let flags = new Flags();
-        const lines = text.split(/(\r?\n)/g).reduce((acc, part, i) => {
+        const lines = text.split(/(\r?\n)/g).reduce((acc: string[], part: string, i: number) => {
             if (i % 2 === 0) acc[acc.length - 1] += part;
             else acc.push("");
             return acc;
         }, [""]);
         
-        const patternLines = [];
+        const patternLines: string[] = [];
         let inPattern = false;
 
         for (const line of lines) {
@@ -149,7 +161,7 @@ class Parser {
         return [flags, pattern];
     }
 
-    parse() {
+    parse(): Node {
         const node = this.parseAlt();
         this.cur.skipWsAndComments();
         if (!this.cur.eof()) {
@@ -163,7 +175,7 @@ class Parser {
     }
 
     // alt := seq ('|' seq)+ | seq
-    parseAlt() {
+    parseAlt(): Node {
         this.cur.skipWsAndComments();
         if (this.cur.peek() === "|") {
             throw new ParseError("Alternation lacks left-hand side", this.cur.i);
@@ -189,8 +201,8 @@ class Parser {
         return new Alt(branches);
     }
     // seq := { term }
-    parseSeq() {
-        const parts = [];
+    parseSeq(): Node {
+        const parts: Node[] = [];
         let prevHadFailedQuant = false;
 
         while (true) {
@@ -211,13 +223,13 @@ class Parser {
                 /\d/.test(quantifiedAtom.value) &&
                 parts.length > 0 &&
                 parts[parts.length - 1] instanceof Lit &&
-                parts[parts.length - 1].value.length > 0 &&
-                parts[parts.length - 1].value[parts[parts.length - 1].value.length - 1] === "\\"
+                (parts[parts.length - 1] as Lit).value.length > 0 &&
+                (parts[parts.length - 1] as Lit).value[(parts[parts.length - 1] as Lit).value.length - 1] === "\\"
             );
 
             const containsNewline = (
                 (quantifiedAtom instanceof Lit && quantifiedAtom.value.includes("\n")) ||
-                (parts.length > 0 && parts[parts.length - 1] instanceof Lit && parts[parts.length - 1].value.includes("\n"))
+                (parts.length > 0 && parts[parts.length - 1] instanceof Lit && (parts[parts.length - 1] as Lit).value.includes("\n"))
             );
 
             const prevIsBackref = parts.length > 0 && parts[parts.length - 1] instanceof Backref;
@@ -234,7 +246,7 @@ class Parser {
             );
 
             if (shouldCoalesce) {
-                parts[parts.length - 1] = new Lit(parts[parts.length - 1].value + quantifiedAtom.value);
+                parts[parts.length - 1] = new Lit((parts[parts.length - 1] as Lit).value + quantifiedAtom.value);
             } else {
                 parts.push(quantifiedAtom);
             }
@@ -248,13 +260,13 @@ class Parser {
         return new Seq(parts);
     }
 
-    parseQuantIfAny(child) {
+    parseQuantIfAny(child: Node): [Node, boolean] {
         const cur = this.cur;
         const ch = cur.peek();
 
-        let minVal = null;
-        let maxVal = null;
-        let mode = "Greedy";
+        let minVal: number | null = null;
+        let maxVal: number | string | null = null;
+        let mode: string = "Greedy";
         let hadFailedQuantParse = false;
 
         if (ch === "*") {
@@ -299,10 +311,10 @@ class Parser {
             cur.take();
         }
 
-        return [new Quant(child, minVal, maxVal !== null ? maxVal : "Inf", mode), hadFailedQuantParse];
+        return [new Quant(child, minVal, maxVal !== null ? maxVal as number | string : "Inf", mode), hadFailedQuantParse];
     }
 
-    parseBraceQuant() {
+    parseBraceQuant(): [number | null, number | string | null, string] {
         const cur = this.cur;
         if (!cur.match("{")) {
             return [null, null, "Greedy"];
@@ -327,7 +339,7 @@ class Parser {
         }
     }
 
-    _readIntOptional() {
+    _readIntOptional(): number | null {
         const cur = this.cur;
         let s = "";
         while (/\d/.test(cur.peek())) {
@@ -336,7 +348,7 @@ class Parser {
         return s !== "" ? parseInt(s, 10) : null;
     }
     // ---- atom ----
-    parseAtom() {
+    parseAtom(): Node {
         const cur = this.cur;
         cur.skipWsAndComments();
         const ch = cur.peek();
@@ -487,7 +499,7 @@ class Parser {
         return s ? parseInt(s, 10) : 0;
     }
 
-    _readIdentUntil(end) {
+    _readIdentUntil(end: string): string {
         const cur = this.cur;
         let s = "";
         while (!cur.eof() && cur.peek() !== end) {
@@ -496,11 +508,11 @@ class Parser {
         return s;
     }
 
-    _readUntil(end) {
+    _readUntil(end: string): string {
         return this._readIdentUntil(end);
     }
 
-    _parseHexEscape(startPos) {
+    _parseHexEscape(startPos: number): string {
         const cur = this.cur;
         if (cur.take() !== "x") throw new Error("Expected 'x'");
         
@@ -525,7 +537,7 @@ class Parser {
         return String.fromCharCode(parseInt(h1 + h2, 16));
     }
 
-    _parseUnicodeEscape(startPos) {
+    _parseUnicodeEscape(startPos: number): string {
         const cur = this.cur;
         const tp = cur.take(); // u or U
 
@@ -605,7 +617,7 @@ class Parser {
                 cur.take();
                 const endItem = readItem();
                 if (endItem instanceof ClassLiteral) {
-                    const startLit = items.pop();
+                    const startLit = items.pop() as ClassLiteral;
                     const startCh = startLit.ch;
                     const endCh = endItem.ch;
                     items.push(new ClassRange(startCh, endCh));
@@ -763,12 +775,12 @@ class Parser {
 }
 
 // ---------------- Public API ----------------
-export function parse(src) {
+export function parse(src: string): [Flags, Node] {
     const p = new Parser(src);
     return [p.flags, p.parse()];
 }
 
-export function parseToArtifact(src) {
+export function parseToArtifact(src: string): any {
     const [flags, root] = parse(src);
     const artifact = {
         version: "1.0.0",

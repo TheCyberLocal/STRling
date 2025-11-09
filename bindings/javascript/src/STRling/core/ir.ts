@@ -7,13 +7,15 @@
 
 // Base class for IR nodes
 export class IROp {
-    toDict() {
+    toDict(): any {
         throw new Error("toDict() must be implemented by subclass");
     }
 }
 
 export class IRAlt extends IROp {
-    constructor(branches) {
+    branches: IROp[];
+
+    constructor(branches: IROp[]) {
         super();
         this.branches = branches;
     }
@@ -27,7 +29,9 @@ export class IRAlt extends IROp {
 }
 
 export class IRSeq extends IROp {
-    constructor(parts) {
+    parts: IROp[];
+
+    constructor(parts: IROp[]) {
         super();
         this.parts = parts;
     }
@@ -41,7 +45,9 @@ export class IRSeq extends IROp {
 }
 
 export class IRLit extends IROp {
-    constructor(value) {
+    value: string;
+
+    constructor(value: string) {
         super();
         this.value = value;
     }
@@ -63,7 +69,9 @@ export class IRDot extends IROp {
 }
 
 export class IRAnchor extends IROp {
-    constructor(at) {
+    at: string;
+
+    constructor(at: string) {
         super();
         this.at = at;
     }
@@ -77,13 +85,16 @@ export class IRAnchor extends IROp {
 }
 
 export class IRClassItem {
-    toDict() {
+    toDict(): any {
         throw new Error("toDict() must be implemented by IRClassItem subclass");
     }
 }
 
 export class IRClassRange extends IRClassItem {
-    constructor(fromCh, toCh) {
+    fromCh: string;
+    toCh: string;
+
+    constructor(fromCh: string, toCh: string) {
         super();
         this.fromCh = fromCh;
         this.toCh = toCh;
@@ -99,7 +110,9 @@ export class IRClassRange extends IRClassItem {
 }
 
 export class IRClassLiteral extends IRClassItem {
-    constructor(ch) {
+    ch: string;
+
+    constructor(ch: string) {
         super();
         this.ch = ch;
     }
@@ -113,14 +126,17 @@ export class IRClassLiteral extends IRClassItem {
 }
 
 export class IRClassEscape extends IRClassItem {
-    constructor(type, property = null) {
+    type: string;
+    property: string | null;
+
+    constructor(type: string, property: string | null = null) {
         super();
         this.type = type;
         this.property = property;
     }
 
     toDict() {
-        const d = {
+        const d: any = {
             ir: "Esc",
             type: this.type,
         };
@@ -132,7 +148,10 @@ export class IRClassEscape extends IRClassItem {
 }
 
 export class IRCharClass extends IROp {
-    constructor(negated, items) {
+    negated: boolean;
+    items: IRClassItem[];
+
+    constructor(negated: boolean, items: IRClassItem[]) {
         super();
         this.negated = negated;
         this.items = items;
@@ -148,7 +167,12 @@ export class IRCharClass extends IROp {
 }
 
 export class IRQuant extends IROp {
-    constructor(child, min, max, mode) {
+    child: IROp;
+    min: number;
+    max: number | string;
+    mode: string;
+
+    constructor(child: IROp, min: number, max: number | string, mode: string) {
         super();
         this.child = child;
         this.min = min;
@@ -168,7 +192,12 @@ export class IRQuant extends IROp {
 }
 
 export class IRGroup extends IROp {
-    constructor(capturing, body, name = null, atomic = null) {
+    capturing: boolean;
+    body: IROp;
+    name: string | null;
+    atomic: boolean | null;
+
+    constructor(capturing: boolean, body: IROp, name: string | null = null, atomic: boolean | null = null) {
         super();
         this.capturing = capturing;
         this.body = body;
@@ -177,7 +206,7 @@ export class IRGroup extends IROp {
     }
 
     toDict() {
-        const d = {
+        const d: any = {
             ir: "Group",
             capturing: this.capturing,
             body: this.body.toDict(),
@@ -193,7 +222,10 @@ export class IRGroup extends IROp {
 }
 
 export class IRBackref extends IROp {
-    constructor(byIndexOrObj = null, byName = null) {
+    byIndex: number | null;
+    byName: string | null;
+
+    constructor(byIndexOrObj: number | { byIndex?: number; byName?: string } | null = null, byName: string | null = null) {
         super();
         // Handle both constructor styles: new IRBackref({byIndex: 1}) or new IRBackref(1, null)
         if (typeof byIndexOrObj === "object" && byIndexOrObj !== null) {
@@ -206,7 +238,7 @@ export class IRBackref extends IROp {
     }
 
     toDict() {
-        const d = { ir: "Backref" };
+        const d: any = { ir: "Backref" };
         if (this.byIndex !== null) {
             d.byIndex = this.byIndex;
         }
@@ -218,7 +250,11 @@ export class IRBackref extends IROp {
 }
 
 export class IRLook extends IROp {
-    constructor(dir, neg, body) {
+    dir: string;
+    neg: boolean;
+    body: IROp;
+
+    constructor(dir: string, neg: boolean, body: IROp) {
         super();
         this.dir = dir;
         this.neg = neg;
