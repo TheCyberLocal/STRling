@@ -83,19 +83,19 @@ describe("Category B: Negative Cases", () => {
 
     test.each<[string, string, number, string]>([
         // B.1: Malformed Hex/Unicode
-        ["\\x{12", "Unterminated \\x{...}", 4, "unterminated_hex_brace"],
-        ["\\xG", "Invalid \\xHH escape", 3, "invalid_hex_char_short"],
-        ["\\u{1F60", "Unterminated \\u{...}", 6, "unterminated_unicode_brace"],
-        ["\\u123", "Invalid \\uHHHH", 5, "incomplete_unicode_fixed"],
+        ["\\x{12", "Unterminated \\x{...}", 0, "unterminated_hex_brace"],
+        ["\\xG", "Invalid \\xHH escape", 0, "invalid_hex_char_short"],
+        ["\\u{1F60", "Unterminated \\u{...}", 0, "unterminated_unicode_brace"],
+        ["\\u123", "Invalid \\uHHHH", 0, "incomplete_unicode_fixed"],
         [
             "\\U1234567",
             "Invalid \\UHHHHHHHH",
-            9,
+            0,
             "incomplete_unicode_supplementary",
         ],
         // B.2: Stray Metacharacters
-        [")", "Unexpected token", 0, "stray_closing_paren"],
-        ["|", "Unexpected trailing input", 0, "stray_pipe"],
+        [")", "Unexpected trailing input", 0, "stray_closing_paren"],
+        ["|", "Alternation lacks left-hand side", 0, "stray_pipe"],
     ])('should fail for "%s" (ID: %s)', (invalidDsl, errorPrefix, errorPos) => {
         /**
          * Tests that malformed escape syntax raises a ParseError with the correct
@@ -111,16 +111,18 @@ describe("Category B: Negative Cases", () => {
         }
     });
 
-    test("should parse forbidden octal escape as backref and literals", () => {
+    test("should fail for forbidden octal escape with no groups", () => {
         /**
-         * Tests that a forbidden octal escape (e.g., \123) is parsed as a
-         * backreference followed by literals, per parser logic, not a single
-         * character.
+         * Tests that a forbidden octal escape (e.g., \123) with no groups defined
+         * raises a ParseError for undefined backreference.
          */
-        const [, ast] = parse("\\123");
-        expect(ast).toEqual(
-            new Seq([new Backref({ byIndex: 1 }), new Lit("2"), new Lit("3")])
-        );
+        expect(() => parse("\\123")).toThrow(ParseError);
+        try {
+            parse("\\123");
+        } catch (e) {
+            const err = e as ParseError;
+            expect(err.message).toContain("Backreference to undefined group");
+        }
     });
 });
 

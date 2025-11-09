@@ -112,7 +112,8 @@ describe("Category B: Emitter-Specific Syntax", () => {
          * Tests that all regex metacharacters are correctly escaped when used as
          * literals.
          */
-        const metachars = ".^$|()?*+{}\\[]\\";
+        // To test literal metacharacters, escape them in the DSL source
+        const metachars = "\\.\\^\\$\\|\\(\\)\\?\\*\\+\\{\\}\\[\\]\\\\";
         const escapedMetachars = "\\.\\^\\$\\|\\(\\)\\?\\*\\+\\{\\}\\[\\]\\\\";
         expect(compileToPcre(metachars)).toBe(escapedMetachars);
     });

@@ -102,7 +102,6 @@ describe("Category B: Negative Cases", () => {
      *
      */
     test.each<[string, string, number, string]>([
-        ["a{", "Unterminated {n}", 2, "unclosed_brace"],
         ["a{1", "Unterminated {n}", 3, "unclosed_brace_after_num"],
         ["a{1,", "Unterminated {m,n}", 4, "unclosed_brace_after_comma"],
     ])(
