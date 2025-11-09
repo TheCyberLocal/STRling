@@ -13,9 +13,18 @@ function _escapeLiteral(s: string): string {
     /**
      * Escape PCRE2 metacharacters outside character classes, but do NOT escape dashes (-).
      */
-    // JavaScript's simple escape for regex metachars
-    const metachars = /[\\^$.*+?()[\]{}|]/g;
-    return s.replace(metachars, "\\$&");
+    // Escape all PCRE2 metacharacters: . ^ $ * + ? ( ) [ ] { } | \
+    // Process character by character to handle all cases correctly
+    const metacharSet = new Set(['.', '^', '$', '*', '+', '?', '(', ')', '[', ']', '{', '}', '|', '\\']);
+    let result = "";
+    for (const ch of s) {
+        if (metacharSet.has(ch)) {
+            result += "\\" + ch;
+        } else {
+            result += ch;
+        }
+    }
+    return result;
 }
 
 function _escapeClassChar(ch: string): string {
