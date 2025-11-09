@@ -28,7 +28,7 @@
  */
 
 import { parse, ParseError } from "../../src/STRling/core/parser";
-import { Lit, Seq, Backref } from "../../src/STRling/core/nodes";
+import { Lit, Seq, Backref, Group, Look, Quant } from "../../src/STRling/core/nodes";
 
 // --- Test Suite -----------------------------------------------------------------
 
@@ -183,4 +183,132 @@ describe("Category D: Interaction Cases", () => {
             new Seq([new Lit("a"), new Lit(" "), new Lit("b")])
         );
     });
+});
+
+// --- New Test Categories for 3-Test Standard Compliance ------------------------
+
+describe('Category E: Literal Sequences And Coalescing', () => {
+  test('should parse consecutive literals as sequence', () => {
+    const [, ast] = parse('abc');
+    expect(ast).toBeInstanceOf(Lit);
+    expect((ast as Lit).value).toBe('abc');
+  });
+
+  test('should coalesce adjacent literal strings', () => {
+    const [, ast] = parse('hello world');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts[0]).toBeInstanceOf(Lit);
+    expect((seqNode.parts[0] as Lit).value).toBe('hello');
+  });
+
+  test('should handle escaped chars in sequences', () => {
+    const [, ast] = parse('a\\tb\\nc');
+    expect(ast).toBeInstanceOf(Lit);
+  });
+});
+
+describe('Category F: Escape Interactions', () => {
+  test('should parse escape followed by quantifier', () => {
+    const [, ast] = parse('\\d+');
+    expect(ast).toBeInstanceOf(Quant);
+    const quantNode = ast as Quant;
+    expect(quantNode.child.constructor.name).toBe('CharClass');
+  });
+
+  test('should parse escaped backslash followed by literal', () => {
+    const [, ast] = parse('\\\\a');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts[0]).toBeInstanceOf(Lit);
+    expect((seqNode.parts[0] as Lit).value).toBe('\\');
+  });
+
+  test('should parse multiple escape sequences', () => {
+    const [, ast] = parse('\\n\\r\\t');
+    expect(ast).toBeInstanceOf(Lit);
+    expect((ast as Lit).value).toBe('\n\r\t');
+  });
+});
+
+describe('Category G: Backslash Escape Combinations', () => {
+  test.each<[string, string, string]>([
+    ['\\n', '\n', 'newline'],
+    ['\\r', '\r', 'carriage_return'],
+    ['\\t', '\t', 'tab'],
+    ['\\f', '\f', 'form_feed'],
+    ['\\v', '\v', 'vertical_tab'],
+  ])('should parse backslash escape %s (ID: %s)', (inputDsl, expectedValue) => {
+    const [, ast] = parse(inputDsl);
+    expect(ast).toBeInstanceOf(Lit);
+    expect((ast as Lit).value).toBe(expectedValue);
+  });
+});
+
+describe('Category H: Escape Edge Cases Expanded', () => {
+  test('should parse hex escape lowercase', () => {
+    const [, ast] = parse('\\x41');
+    expect(ast).toBeInstanceOf(Lit);
+    expect((ast as Lit).value).toBe('A');
+  });
+
+  test('should parse unicode escape', () => {
+    const [, ast] = parse('\\u0041');
+    expect(ast).toBeInstanceOf(Lit);
+    expect((ast as Lit).value).toBe('A');
+  });
+
+  test('should parse extended hex escape', () => {
+    const [, ast] = parse('\\x{41}');
+    expect(ast).toBeInstanceOf(Lit);
+    expect((ast as Lit).value).toBe('A');
+  });
+});
+
+describe('Category I: Octal And Backref Disambiguation', () => {
+  test('should parse null byte as literal', () => {
+    const [, ast] = parse('\\0');
+    expect(ast).toBeInstanceOf(Lit);
+    expect((ast as Lit).value).toBe('\x00');
+  });
+
+  test('should parse two-digit octal', () => {
+    const [, ast] = parse('\\77');
+    expect(ast).toBeInstanceOf(Lit);
+    expect((ast as Lit).value).toBe('?');
+  });
+
+  test('should parse three-digit octal', () => {
+    const [, ast] = parse('\\101');
+    expect(ast).toBeInstanceOf(Lit);
+    expect((ast as Lit).value).toBe('A');
+  });
+});
+
+describe('Category J: Literals In Complex Contexts', () => {
+  test('should parse literal in group', () => {
+    const [, ast] = parse('(abc)');
+    expect(ast).toBeInstanceOf(Group);
+    const groupNode = ast as Group;
+    expect(groupNode.body).toBeInstanceOf(Lit);
+    expect((groupNode.body as Lit).value).toBe('abc');
+  });
+
+  test('should parse literal in lookahead', () => {
+    const [, ast] = parse('(?=test)');
+    expect(ast).toBeInstanceOf(Look);
+    const lookNode = ast as Look;
+    expect(lookNode.body).toBeInstanceOf(Lit);
+    expect((lookNode.body as Lit).value).toBe('test');
+  });
+
+  test('should parse literal in alternation', () => {
+    const [, ast] = parse('abc|def');
+    expect(ast.constructor.name).toBe('Alt');
+    const altNode = ast as any;
+    expect(altNode.branches[0]).toBeInstanceOf(Lit);
+    expect((altNode.branches[0] as Lit).value).toBe('abc');
+    expect(altNode.branches[1]).toBeInstanceOf(Lit);
+    expect((altNode.branches[1] as Lit).value).toBe('def');
+  });
 });
