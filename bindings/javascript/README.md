@@ -1,4 +1,4 @@
-# STRling.js
+# STRling for JavaScript (Quick Start)
 
 ## 🗺️ Overview
 
@@ -57,52 +57,16 @@ for (const match of exampleText.matchAll(pattern)) {
 }
 ```
 
-### Advanced Features
+## 📚 Complete API Documentation
 
-For comprehensive syntax reference and advanced features, see the [STRling Semantics Specification](../../spec/grammar/semantics.md).
+For comprehensive syntax reference and all available features, see the **[JavaScript API Reference](docs/api_reference.md)**.
 
-**Example: Character Classes and Quantifiers**
+## 📖 Related Documentation
 
-```js
-import { simply as s } from "@thecyberlocal/strling";
-
-// Match 3-5 lowercase letters
-const pattern = s.inRange("a", "z", { min: 3, max: 5 });
-console.log(pattern.toString());  // Compiles to regex
-
-// Match one or more digits
-const digits = s.digit({ min: 1 });
-
-// Match optional whitespace
-const whitespace = s.may(s.whitespace());
-```
-
-**Example: Groups and Backreferences**
-
-```js
-import { simply as s } from "@thecyberlocal/strling";
-
-// Capture and reference groups
-const tagPattern = s.merge(
-    "<",
-    s.group("tag", s.inRange("a", "z", { min: 1 })),
-    ">",
-    s.any(),  // Content
-    "</",
-    s.backref("tag"),  // Reference captured tag name
-    ">"
-);
-```
-
-## 📚 Documentation
-
-- **[STRling Documentation Hub](../../docs/README.md)**: Architecture, philosophy, and development workflow
+- **[JavaScript API Reference](docs/api_reference.md)**: Complete API documentation for JavaScript
+- **[Developer Documentation Hub](../../docs/index.md)**: Architecture, philosophy, and development workflow
 - **[Formal Specification](../../spec/README.md)**: Grammar and semantics reference
 - **[Python Binding](../python/README.md)**: STRling for Python
-
-## 🧪 Testing
-
-For information on the test suite and development workflow, see the [Test Suite Guide](../../tests/README.md).
 
 ## 💖 Support
 
