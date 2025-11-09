@@ -1,6 +1,4 @@
-# STRling
-
-## 🗺️ Project Overview
+# STRling Project Overview
 
 <table>
   <tr>
@@ -23,17 +21,27 @@ These key features collectively emphasize and fortify the claim that STRling tru
 
 Our mission is to make RegEx a distant and outdated syntax by abstracting the complexities of RegEx into a clean, readable, and powerful interface. We strive to simplify string operations and ensure that developers can focus on building their applications without the steep learning curve of traditional RegEx. The previous alternative to RegEx was to learn the string validation syntax specific to each user input library, but STRling aims to unify the disparate syntaxes found across various libraries and frameworks into one simple library using only built-in packages.
 
-## 🌎 Languages
+## 🚀 Quick Start
 
-### STRling for Python
+Choose your language to get started:
+
+### [STRling for Python](bindings/python/README.md)
 
 [![](https://img.shields.io/pypi/v/STRling?color=blue&logo=pypi)](https://pypi.org/project/STRling/)
-[![](https://img.shields.io/badge/STRling.py-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling/tree/main/bindings/python)
 
-### STRling for JavaScript
+Quick installation and usage guide for Python developers.
+
+### [STRling for JavaScript](bindings/javascript/README.md)
 
 [![](https://img.shields.io/npm/v/@thecyberlocal/strling?color=blue&logo=npm)](https://www.npmjs.com/package/@thecyberlocal/strling)
-[![](https://img.shields.io/badge/STRling.js-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal/STRling/tree/main/bindings/javascript)
+
+Quick installation and usage guide for JavaScript/Node.js developers.
+
+## 📚 Documentation
+
+### [Developer Documentation Hub](docs/index.md)
+
+Complete technical documentation including architecture, testing standards, and contribution guidelines.
 
 ## 🌐 Socials
 

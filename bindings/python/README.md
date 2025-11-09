@@ -1,4 +1,4 @@
-# STRling.py
+# STRling for Python (Quick Start)
 
 ## 🗺️ Overview
 
@@ -60,52 +60,16 @@ for match in matches:
     print("Last Part:", match.group("last_part"))
 ```
 
-### Advanced Features
+## 📚 Complete API Documentation
 
-For comprehensive syntax reference and advanced features, see the [STRling Semantics Specification](../../spec/grammar/semantics.md).
+For comprehensive syntax reference and all available features, see the **[Python API Reference](docs/api_reference.md)**.
 
-**Example: Character Classes and Quantifiers**
+## 📖 Related Documentation
 
-```python
-from STRling import simply as s
-
-# Match 3-5 lowercase letters
-pattern = s.in_range("a", "z", min=3, max=5)
-print(str(pattern))  # Compiles to regex
-
-# Match one or more digits
-digits = s.digit(min=1)
-
-# Match optional whitespace
-whitespace = s.may(s.whitespace())
-```
-
-**Example: Groups and Backreferences**
-
-```python
-from STRling import simply as s
-
-# Capture and reference groups
-tag_pattern = s.merge(
-    "<",
-    s.group("tag", s.in_range("a", "z", min=1)),
-    ">",
-    s.any(),  # Content
-    "</",
-    s.backref("tag"),  # Reference captured tag name
-    ">"
-)
-```
-
-## 📚 Documentation
-
-- **[STRling Documentation Hub](../../docs/README.md)**: Architecture, philosophy, and development workflow
+- **[Python API Reference](docs/api_reference.md)**: Complete API documentation for Python
+- **[Developer Documentation Hub](../../docs/index.md)**: Architecture, philosophy, and development workflow
 - **[Formal Specification](../../spec/README.md)**: Grammar and semantics reference
 - **[JavaScript Binding](../javascript/README.md)**: STRling for JavaScript/Node.js
-
-## 🧪 Testing
-
-For information on the test suite and development workflow, see the [Test Suite Guide](../../tests/README.md).
 
 ## 💖 Support
 
