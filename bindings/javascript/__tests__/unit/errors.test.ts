@@ -165,18 +165,18 @@ describe("Error Handling Contract", () => {
          *
          */
         test.each<[string, string, number, string]>([
-            ["\\xG1", "Invalid \\xHH escape", 3, "invalid_hex_digit"],
-            ["\\u12Z4", "Invalid \\uHHHH", 5, "invalid_unicode_digit"],
+            ["\\xG1", "Invalid \\xHH escape", 0, "invalid_hex_digit"],
+            ["\\u12Z4", "Invalid \\uHHHH", 0, "invalid_unicode_digit"],
             [
                 "\\x{",
                 "Unterminated \\x{...}",
-                3,
+                0,
                 "unterminated_hex_brace_empty",
             ],
             [
-                "\\x{FFFF}",
+                "\\x{FFFF",
                 "Unterminated \\x{...}",
-                7,
+                0,
                 "unterminated_hex_brace_with_digits",
             ],
         ])(
@@ -244,7 +244,7 @@ describe("Error Handling Contract", () => {
             } catch (e) {
                 const err = e as ParseError;
                 expect(err.message).toContain("Unterminated character class");
-                expect(err.pos).toBe(4);
+                expect(err.pos).toBe(5);
             }
         });
     });

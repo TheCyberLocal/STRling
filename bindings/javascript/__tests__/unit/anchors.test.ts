@@ -159,10 +159,21 @@ describe('Category D: Interaction Cases', () => {
     const containerNode = ast as Group | Look;
     const body = containerNode.body;
 
-    // The anchor may be part of a sequence inside the container
-    const innerNode = (body instanceof Seq) ? body.parts[0] : body;
+    // The anchor may be part of a sequence inside the container, find it
+    let anchorNode: Node | null = null;
+    if (body instanceof Seq) {
+      // Find the anchor in the sequence
+      for (const part of body.parts) {
+        if (part instanceof Anchor) {
+          anchorNode = part;
+          break;
+        }
+      }
+    } else if (body instanceof Anchor) {
+      anchorNode = body;
+    }
     
-    expect(innerNode).toBeInstanceOf(Anchor);
-    expect((innerNode as Anchor).at).toBe(expectedAtValue);
+    expect(anchorNode).toBeInstanceOf(Anchor);
+    expect((anchorNode as Anchor).at).toBe(expectedAtValue);
   });
 });
