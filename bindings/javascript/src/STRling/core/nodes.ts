@@ -7,12 +7,24 @@
 
 // ---- Flags container ----
 export class Flags {
+    ignoreCase: boolean;
+    multiline: boolean;
+    dotAll: boolean;
+    unicode: boolean;
+    extended: boolean;
+
     constructor({
         ignoreCase = false,
         multiline = false,
         dotAll = false,
         unicode = false,
         extended = false,
+    }: {
+        ignoreCase?: boolean;
+        multiline?: boolean;
+        dotAll?: boolean;
+        unicode?: boolean;
+        extended?: boolean;
     } = {}) {
         this.ignoreCase = ignoreCase;
         this.multiline = multiline;
@@ -31,7 +43,7 @@ export class Flags {
         };
     }
 
-    static fromLetters(letters) {
+    static fromLetters(letters: string): Flags {
         const f = new Flags();
         for (const ch of letters.replace(/[, ]/g, "")) {
             if (ch === "i") {
@@ -56,14 +68,16 @@ export class Flags {
 
 // ---- Base node ----
 export class Node {
-    toDict() {
+    toDict(): any {
         throw new Error("toDict() must be implemented by subclass");
     }
 }
 
 // ---- Concrete nodes matching Base Schema ----
 export class Alt extends Node {
-    constructor(branches) {
+    branches: Node[];
+
+    constructor(branches: Node[]) {
         super();
         this.branches = branches;
     }
@@ -77,7 +91,9 @@ export class Alt extends Node {
 }
 
 export class Seq extends Node {
-    constructor(parts) {
+    parts: Node[];
+
+    constructor(parts: Node[]) {
         super();
         this.parts = parts;
     }
@@ -91,7 +107,9 @@ export class Seq extends Node {
 }
 
 export class Lit extends Node {
-    constructor(value) {
+    value: string;
+
+    constructor(value: string) {
         super();
         this.value = value;
     }
@@ -113,9 +131,11 @@ export class Dot extends Node {
 }
 
 export class Anchor extends Node {
-    constructor(at) {
+    at: string; // "Start"|"End"|"WordBoundary"|"NotWordBoundary"|Absolute* variants
+
+    constructor(at: string) {
         super();
-        this.at = at; // "Start"|"End"|"WordBoundary"|"NotWordBoundary"|Absolute* variants
+        this.at = at;
     }
 
     toDict() {
@@ -128,7 +148,7 @@ export class Anchor extends Node {
 
 // --- CharClass --
 export class ClassItem {
-    toDict() {
+    toDict(): any {
         throw new Error(
             "toDict() must be implemented by ClassItem subclass"
         );
@@ -136,7 +156,10 @@ export class ClassItem {
 }
 
 export class ClassRange extends ClassItem {
-    constructor(fromCh, toCh) {
+    fromCh: string;
+    toCh: string;
+
+    constructor(fromCh: string, toCh: string) {
         super();
         this.fromCh = fromCh;
         this.toCh = toCh;
@@ -152,7 +175,9 @@ export class ClassRange extends ClassItem {
 }
 
 export class ClassLiteral extends ClassItem {
-    constructor(ch) {
+    ch: string;
+
+    constructor(ch: string) {
         super();
         this.ch = ch;
     }
@@ -166,14 +191,17 @@ export class ClassLiteral extends ClassItem {
 }
 
 export class ClassEscape extends ClassItem {
-    constructor(type, property = null) {
+    type: string; // d D w W s S p P
+    property: string | null;
+
+    constructor(type: string, property: string | null = null) {
         super();
-        this.type = type; // d D w W s S p P
+        this.type = type;
         this.property = property;
     }
 
     toDict() {
-        const data = {
+        const data: any = {
             kind: "Esc",
             type: this.type,
         };
@@ -185,7 +213,10 @@ export class ClassEscape extends ClassItem {
 }
 
 export class CharClass extends Node {
-    constructor(negated, items) {
+    negated: boolean;
+    items: ClassItem[];
+
+    constructor(negated: boolean, items: ClassItem[]) {
         super();
         this.negated = negated;
         this.items = items;
@@ -201,12 +232,17 @@ export class CharClass extends Node {
 }
 
 export class Quant extends Node {
-    constructor(child, min, max, mode) {
+    child: Node;
+    min: number;
+    max: number | string; // number or "Inf" for unbounded
+    mode: string; // "Greedy" | "Lazy" | "Possessive"
+
+    constructor(child: Node, min: number, max: number | string, mode: string) {
         super();
         this.child = child;
         this.min = min;
-        this.max = max; // number or "Inf" for unbounded
-        this.mode = mode; // "Greedy" | "Lazy" | "Possessive"
+        this.max = max;
+        this.mode = mode;
     }
 
     toDict() {
@@ -221,16 +257,21 @@ export class Quant extends Node {
 }
 
 export class Group extends Node {
-    constructor(capturing, body, name = null, atomic = null) {
+    capturing: boolean;
+    body: Node;
+    name: string | null;
+    atomic: boolean | null; // extension
+
+    constructor(capturing: boolean, body: Node, name: string | null = null, atomic: boolean | null = null) {
         super();
         this.capturing = capturing;
         this.body = body;
         this.name = name;
-        this.atomic = atomic; // extension
+        this.atomic = atomic;
     }
 
     toDict() {
-        const data = {
+        const data: any = {
             kind: "Group",
             capturing: this.capturing,
             body: this.body.toDict(),
@@ -246,14 +287,23 @@ export class Group extends Node {
 }
 
 export class Backref extends Node {
-    constructor(byIndex = null, byName = null) {
+    byIndex: number | null;
+    byName: string | null;
+
+    constructor(byIndexOrObj: number | { byIndex?: number; byName?: string } | null = null, byName: string | null = null) {
         super();
-        this.byIndex = byIndex;
-        this.byName = byName;
+        // Handle both constructor styles: new Backref({byIndex: 1}) or new Backref(1, null)
+        if (typeof byIndexOrObj === "object" && byIndexOrObj !== null) {
+            this.byIndex = byIndexOrObj.byIndex || null;
+            this.byName = byIndexOrObj.byName || null;
+        } else {
+            this.byIndex = byIndexOrObj;
+            this.byName = byName;
+        }
     }
 
     toDict() {
-        const data = { kind: "Backref" };
+        const data: any = { kind: "Backref" };
         if (this.byIndex !== null) {
             data.byIndex = this.byIndex;
         }
@@ -265,9 +315,13 @@ export class Backref extends Node {
 }
 
 export class Look extends Node {
-    constructor(dir, neg, body) {
+    dir: string; // "Ahead" | "Behind"
+    neg: boolean;
+    body: Node;
+
+    constructor(dir: string, neg: boolean, body: Node) {
         super();
-        this.dir = dir; // "Ahead" | "Behind"
+        this.dir = dir;
         this.neg = neg;
         this.body = body;
     }

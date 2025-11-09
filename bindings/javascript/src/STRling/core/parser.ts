@@ -26,7 +26,10 @@ import {
 
 // ---------------- Errors ----------------
 export class ParseError extends Error {
-    constructor(message, pos) {
+    message: string;
+    pos: number;
+
+    constructor(message: string, pos: number) {
         super(`${message} at ${pos}`);
         this.message = message;
         this.pos = pos;

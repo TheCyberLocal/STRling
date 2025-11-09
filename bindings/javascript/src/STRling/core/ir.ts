@@ -193,10 +193,16 @@ export class IRGroup extends IROp {
 }
 
 export class IRBackref extends IROp {
-    constructor(byIndex = null, byName = null) {
+    constructor(byIndexOrObj = null, byName = null) {
         super();
-        this.byIndex = byIndex;
-        this.byName = byName;
+        // Handle both constructor styles: new IRBackref({byIndex: 1}) or new IRBackref(1, null)
+        if (typeof byIndexOrObj === "object" && byIndexOrObj !== null) {
+            this.byIndex = byIndexOrObj.byIndex || null;
+            this.byName = byIndexOrObj.byName || null;
+        } else {
+            this.byIndex = byIndexOrObj;
+            this.byName = byName;
+        }
     }
 
     toDict() {
