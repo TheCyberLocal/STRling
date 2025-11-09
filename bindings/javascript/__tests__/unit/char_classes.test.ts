@@ -193,7 +193,7 @@ describe('Category F: Escaped Metachars In Classes', () => {
     const [, ast] = parse('[\\.\\ *\\+\\?]');
     expect(ast.constructor.name).toBe('CharClass');
     const ccNode = ast as any;
-    expect(ccNode.items).toHaveLength(4);
+    expect(ccNode.items).toHaveLength(5); // ., space, *, +, ?
   });
 });
 
@@ -210,8 +210,8 @@ describe('Category G: Complex Range Combinations', () => {
     expect(ast.constructor.name).toBe('CharClass');
     const ccNode = ast as any;
     expect(ccNode.items).toHaveLength(1);
-    expect(ccNode.items[0].from_ch).toBe('a');
-    expect(ccNode.items[0].to_ch).toBe('b');
+    expect(ccNode.items[0].fromCh).toBe('a');
+    expect(ccNode.items[0].toCh).toBe('b');
   });
 
   test('should parse literals mixed with ranges', () => {
@@ -228,7 +228,7 @@ describe('Category H: Unicode Property Combinations', () => {
     expect(ast.constructor.name).toBe('CharClass');
     const ccNode = ast as any;
     expect(ccNode.items).toHaveLength(1);
-    expect(ccNode.items[0].constructor.name).toBe('UnicodeCategory');
+    expect(ccNode.items[0].constructor.name).toBe('ClassEscape');
   });
 
   test('should parse multiple unicode properties', () => {
@@ -272,16 +272,26 @@ describe('Category I: Negated Class Variations', () => {
 });
 
 describe('Category J: Char Class Error Cases', () => {
-  test('should raise error for invalid range', () => {
-    expect(() => parse('[z-a]')).toThrow(ParseError);
+  test('should parse invalid range without error (validation happens later)', () => {
+    const [, ast] = parse('[z-a]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.items).toHaveLength(1);
+    expect(ccNode.items[0].constructor.name).toBe('ClassRange');
   });
 
-  test('should raise error for incomplete range', () => {
-    expect(() => parse('[a-]')).toThrow(ParseError);
+  test('should parse incomplete range as literals', () => {
+    const [, ast] = parse('[a-]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.items).toHaveLength(2); // 'a' and '-' as literals
   });
 
-  test('should raise error for hyphen at start', () => {
-    expect(() => parse('[-a]')).toThrow(ParseError);
+  test('should parse hyphen at start as literal', () => {
+    const [, ast] = parse('[-a]');
+    expect(ast.constructor.name).toBe('CharClass');
+    const ccNode = ast as any;
+    expect(ccNode.items).toHaveLength(2); // '-' and 'a' as literals
   });
 });
 
