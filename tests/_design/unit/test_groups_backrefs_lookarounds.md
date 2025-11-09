@@ -76,13 +76,71 @@ This suite verifies that the parser correctly implements the rich syntax and val
 -   **Group inside Lookaround**: A lookaround can contain complex expressions, including groups. Test `(?=(a|b))`.
 -   **Free-Spacing Mode (`%flags x`)**: Test that free-spacing and comments work correctly inside groups, but not inside the `<name>` part of a named group. Example: `(?< name > a #comment \n b)`.
 
+### Category E — Nested Groups
+
+-   **Multiple Levels of Nesting**:
+    -   Test deeply nested capturing and non-capturing groups.
+-   **Named Groups in Nested Structures**:
+    -   Test named groups nested within other groups.
+-   **Capture Index Assignment**:
+    -   Test that capture indices are correctly assigned in nested group structures.
+-   **Mixed Group Types**:
+    -   Test nesting of different group types (capturing, non-capturing, named, atomic).
+
+### Category F — Lookaround with Complex Content
+
+-   **Lookaround with Alternation**:
+    -   Test lookarounds containing alternation patterns.
+-   **Lookaround with Quantifiers**:
+    -   Test lookarounds containing quantified atoms.
+-   **Lookaround with Character Classes**:
+    -   Test lookarounds with character class content.
+-   **Nested Lookarounds**:
+    -   Test lookarounds nested within other lookarounds.
+
+### Category G — Atomic Group Edge Cases
+
+-   **Atomic Group with Alternation**:
+    -   Test atomic groups containing alternation.
+-   **Atomic Group with Quantifiers**:
+    -   Test atomic groups with quantified content.
+-   **Nested Atomic Groups**:
+    -   Test atomic groups nested within other atomic groups.
+-   **Atomic Group Interaction**:
+    -   Test atomic groups in combination with other features.
+
+### Category H — Multiple Backreferences
+
+-   **Sequential Backreferences**:
+    -   Test patterns with multiple backreferences in sequence.
+-   **Backreferences to Multiple Groups**:
+    -   Test backreferences referring to different groups.
+-   **Named and Numeric Backreferences**:
+    -   Test mixing of named and numeric backreference styles.
+-   **Backreferences in Complex Patterns**:
+    -   Test backreferences within complex nested structures.
+
+### Category I — Groups in Alternation
+
+-   **Groups in Alternation Branches**:
+    -   Test groups appearing within alternation branches.
+-   **Capturing Groups in Alternation**:
+    -   Test that capture indices work correctly across alternation branches.
+-   **Named Groups in Alternation**:
+    -   Test named groups within alternation patterns.
+
 ## Completion Criteria
 
--   [ ] All group syntaxes from `dsl.ebnf` are covered (`Group`, `GroupPrefix`, `GroupSpec`).
--   [ ] All backreference syntaxes are covered (`Backreference`).
--   [ ] All lookaround syntaxes are covered (`LookSigil`).
--   [ ] The AST shape (`nodes.Group`, `nodes.Backref`, `nodes.Look`) is verified for all valid forms.
--   [ ] All specified `ParseError` conditions, especially for invalid backreferences, are tested.
--   [ ] The critical rule that **forward references are forbidden** is exhaustively tested.
--   [ ] The rule that atomic groups are a non-core extension is noted.
--   [ ] The behavior of nested groups and their capture index assignment is tested.
+-   [x] All group syntaxes from `dsl.ebnf` are covered (`Group`, `GroupPrefix`, `GroupSpec`).
+-   [x] All backreference syntaxes are covered (`Backreference`).
+-   [x] All lookaround syntaxes are covered (`LookSigil`).
+-   [x] The AST shape (`nodes.Group`, `nodes.Backref`, `nodes.Look`) is verified for all valid forms.
+-   [x] All specified `ParseError` conditions, especially for invalid backreferences, are tested.
+-   [x] The critical rule that **forward references are forbidden** is exhaustively tested.
+-   [x] The rule that atomic groups are a non-core extension is noted.
+-   [x] The behavior of nested groups and their capture index assignment is tested.
+-   [x] Multiple levels of group nesting with various group types are validated.
+-   [x] Lookarounds with complex content including alternation, quantifiers, and nesting are tested.
+-   [x] Atomic group edge cases and interactions are thoroughly covered.
+-   [x] Multiple backreference scenarios and combinations are validated.
+-   [x] Groups within alternation and their capture behavior are tested.

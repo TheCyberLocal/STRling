@@ -58,11 +58,66 @@ Quantifiers specify the number of times a preceding atom can occur in a pattern.
     -   **Alternations**: `(?:a|b)+`. The `Quant` node must wrap the `Group` node that contains the `Alt` node.
     -   **Lookarounds**: `(?=a)+`. The `Quant` node must wrap the `Look` node.
 
+### Category E — Nested and Redundant Quantifiers
+
+-   **Nested Quantifiers**:
+    -   Test patterns with nested quantifiers like `(a*)*` to verify correct AST structure.
+    -   Test multiple levels of nesting in quantified groups.
+-   **Redundant Quantifiers**:
+    -   Test semantically redundant but syntactically valid patterns like `a**` or `(a+)+`.
+-   **Quantifiers on Quantified Expressions**:
+    -   Test quantifiers applied to already-quantified atoms within groups.
+
+### Category F — Quantifiers on Special Atoms
+
+-   **Quantifiers on Dot**:
+    -   Test dot quantification patterns like `.*`, `.+`, `.?`, `.{3,5}`.
+-   **Quantifiers on Character Classes**:
+    -   Test various character class quantifications like `[a-z]*`, `[\d\s]+`.
+-   **Quantifiers on Lookarounds**:
+    -   Test quantified lookahead and lookbehind assertions, such as `(?=a)*` (though semantically unusual).
+-   **Quantifiers on Atomic Groups**:
+    -   Test possessive/atomic group quantification like `(?>a+)*`.
+
+### Category G — Multiple Quantified Sequences
+
+-   **Adjacent Quantified Atoms**:
+    -   Test sequences of multiple quantified atoms, like `a*b+c?`.
+-   **Quantified Atoms with Literals**:
+    -   Test mixed sequences like `abc*def+`.
+-   **Complex Sequences**:
+    -   Test longer sequences with multiple quantified and non-quantified atoms.
+
+### Category H — Brace Quantifier Edge Cases
+
+-   **Large Numbers in Braces**:
+    -   Test brace quantifiers with large numeric values, like `a{100}` or `a{10,1000}`.
+-   **Equal Min and Max**:
+    -   Test redundant range syntax where min equals max, like `a{3,3}`.
+-   **Zero-Based Ranges**:
+    -   Test ranges starting from zero, such as `a{0,5}`.
+-   **Open-Ended Ranges**:
+    -   Test various open-ended ranges like `a{5,}`.
+
+### Category I — Quantifier Interaction with Flags
+
+-   **Quantifiers with Free-Spacing**:
+    -   Test that quantifiers work correctly with free-spacing mode (`%flags x`).
+-   **Quantifiers with Case-Insensitive Flag**:
+    -   Test quantified patterns with case-insensitive flag to verify no AST changes.
+-   **Quantifiers with Other Flags**:
+    -   Test quantifier behavior remains consistent across different flag combinations.
+
 ## Completion Criteria
 
--   [ ] All quantifier syntax forms from `dsl.ebnf` are tested (`GreedyQuant`, `LazyQuant`, `PossessiveQuant`).
--   [ ] The AST shape (`nodes.Quant`) is verified for all valid forms, checking `min`, `max`, and `mode` values.
--   [ ] The specified `ParseError` conditions for malformed quantifiers are tested.
--   [ ] The critical test for quantifier precedence (`ab*`) is included.
--   [ ] Tests cover quantifying all major atom types (literals, classes, groups, etc.) to ensure correct AST structure.
--   [ ] Possessive quantifiers are tested and marked as an extension feature as noted in `semantics.md`.
+-   [x] All quantifier syntax forms from `dsl.ebnf` are tested (`GreedyQuant`, `LazyQuant`, `PossessiveQuant`).
+-   [x] The AST shape (`nodes.Quant`) is verified for all valid forms, checking `min`, `max`, and `mode` values.
+-   [x] The specified `ParseError` conditions for malformed quantifiers are tested.
+-   [x] The critical test for quantifier precedence (`ab*`) is included.
+-   [x] Tests cover quantifying all major atom types (literals, classes, groups, etc.) to ensure correct AST structure.
+-   [x] Possessive quantifiers are tested and marked as an extension feature as noted in `semantics.md`.
+-   [x] Nested and redundant quantifier patterns are validated.
+-   [x] Quantifiers on all special atom types (dot, character classes, lookarounds, atomic groups) are tested.
+-   [x] Multiple quantified sequences and complex combinations are covered.
+-   [x] Brace quantifier edge cases including large numbers and zero-based ranges are verified.
+-   [x] Quantifier interaction with all flags is tested to ensure consistent behavior.

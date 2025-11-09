@@ -61,11 +61,67 @@ Anchors are zero-width assertions that do not consume characters but instead mat
 -   **Anchors Inside Lookarounds**:
     -   Test that anchors are parsed correctly within lookarounds. Examples: `(?=^a)`, `(?<!\b)`.
 
+### Category E — Anchors in Complex Sequences
+
+-   **Anchors Between Quantified Atoms**:
+    -   Test anchors appearing between quantified atoms in a sequence, such as `a*^b+`.
+-   **Anchors After Quantified Groups**:
+    -   Test anchors following quantified groups, like `(ab)*$`.
+-   **Multiple Identical Anchors**:
+    -   Test patterns with multiple same anchors (e.g., `^^`, `$$`), which are semantically redundant but syntactically valid.
+
+### Category F — Anchors in Alternation
+
+-   **Anchors in Alternation Branches**:
+    -   Test anchors appearing in one or more branches of an alternation, such as `^a|b$`.
+-   **Anchors in Grouped Alternation**:
+    -   Test anchors within alternation inside a group, like `(^|$)`.
+-   **Word Boundaries in Alternation**:
+    -   Test word boundary anchors in alternation patterns, such as `\ba|\bb`.
+
+### Category G — Anchors in Atomic Groups
+
+-   **Start Anchor in Atomic Group**:
+    -   Test start anchor within an atomic group, like `(?>^a)`.
+-   **End Anchor in Atomic Group**:
+    -   Test end anchor within an atomic group, like `(?>a$)`.
+-   **Word Boundary in Atomic Group**:
+    -   Test word boundary anchors in atomic groups, such as `(?>\ba)`.
+
+### Category H — Word Boundary Edge Cases
+
+-   **Word Boundary with Non-Word Character**:
+    -   Test word boundaries around non-word characters, like `\b.\b`.
+-   **Word Boundary with Character Classes**:
+    -   Test word boundaries with character class shorthands, such as `\b\d\b`.
+-   **Not-Word-Boundary Usage**:
+    -   Test the `\B` anchor in various contexts, like `\Ba\B`.
+
+### Category I — Multiple Anchor Types
+
+-   **Start and End Anchors Together**:
+    -   Test patterns combining line start and end anchors, like `^abc$`.
+-   **Absolute and Line Anchors**:
+    -   Test patterns combining absolute and line anchors, such as `\A^abc$\z`.
+-   **Word Boundaries with Line Anchors**:
+    -   Test combinations of word boundaries and line anchors, like `^\ba\b$`.
+
+### Category J — Anchors with Quantifiers
+
+-   **Error Cases**:
+    -   Test that attempting to quantify anchors (e.g., `^*`, `$+`) correctly raises a parse error with message "Cannot quantify anchor".
+
 ## Completion Criteria
 
--   [ ] All anchor forms from `dsl.ebnf` are tested (`^`, `$`, `CoreAnchorEscape`, `AbsoluteAnchorEscape`).
--   [ ] The AST shape (`nodes.Anchor`) and its `at` property are verified for all valid forms, matching the `enum` in `base.schema.json`.
--   [ ] The parser correctly handles anchors in different positions within a sequence.
--   [ ] The test suite confirms that the presence of the `m` flag does not change the parsed AST for `^` and `$`.
--   [ ] The non-core status of absolute anchors (`\A`, `\Z`, `\z`) is noted in the test design.
--   [ ] Tests confirm that anchors are parsed correctly when nested inside groups and lookarounds.
+-   [x] All anchor forms from `dsl.ebnf` are tested (`^`, `$`, `CoreAnchorEscape`, `AbsoluteAnchorEscape`).
+-   [x] The AST shape (`nodes.Anchor`) and its `at` property are verified for all valid forms, matching the `enum` in `base.schema.json`.
+-   [x] The parser correctly handles anchors in different positions within a sequence.
+-   [x] The test suite confirms that the presence of the `m` flag does not change the parsed AST for `^` and `$`.
+-   [x] The non-core status of absolute anchors (`\A`, `\Z`, `\z`) is noted in the test design.
+-   [x] Tests confirm that anchors are parsed correctly when nested inside groups and lookarounds.
+-   [x] Complex sequences with anchors between quantified atoms are tested.
+-   [x] Anchors in alternation patterns (both simple and grouped) are validated.
+-   [x] Atomic group support for anchors is verified.
+-   [x] Word boundary edge cases with various character types are covered.
+-   [x] Combinations of multiple anchor types in single patterns are tested.
+-   [x] Error handling for invalid anchor quantification is verified.

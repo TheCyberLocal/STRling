@@ -38,8 +38,8 @@ These tests use a set of canonical patterns to verify the correct end-to-end com
     -   **Input DSL**: `(?<=^foo)\w+`
     -   **Expected Output**: `(?<=^foo)\w+`
 -   **Unicode Properties**:
-    -   **Input DSL**: `%flags u \n \p{Script=Greek}+`
-    -   **Expected Output**: `(?u)\p{Script=Greek}+`
+    -   **Input DSL**: `%flags u \n \p{L}+`
+    -   **Expected Output**: `(?u)\p{L}+`
 -   **Backreferences**:
     -   **Input DSL**: `<(?<tag>\w+)>.*?</\k<tag>>`
     -   **Expected Output**: `<(?<tag>\w+)>.*?</\k<tag>>`
@@ -55,8 +55,12 @@ These tests verify that the emitter produces the correct syntax for features spe
 -   **Escaping**:
     -   **Input DSL**: `a.b*c+d?e|f(g)h[i]j{k}l\\m`
     -   **Expected Output**: `a\.b\*c\+d\?e\|f\(g\)h\[i\]j\{k\}l\\m` (confirming all metacharacters in a literal context are escaped).
+-   **Multiple Flags**:
+    -   Test various combinations of flags to ensure proper prefix generation.
+-   **Free-Spacing Whitespace Removal**:
+    -   Test that the `x` flag correctly removes whitespace from the emitted pattern.
 
-### Category C — Extension Features (`xfail` as needed)
+### Category C — Extension Features
 
 These tests cover features supported by PCRE2 but not necessarily by other engines. They should pass for the PCRE2 emitter.
 
@@ -69,15 +73,37 @@ These tests cover features supported by PCRE2 but not necessarily by other engin
 -   **Absolute Anchors**:
     -   **Input DSL**: `\Astart...end\z`
     -   **Expected Output**: `\Astart...end\z`
+-   **Mixed Extension Features**:
+    -   Test patterns combining multiple extension features.
 
-### Category D — End-to-End Error Handling
+### Category D — Golden Pattern Testing
+
+A comprehensive set of real-world-like patterns that serve as regression tests and validation of the complete pipeline.
+
+-   **Common Validation Patterns**:
+    -   Email-like patterns with complex alternation and character classes.
+    -   URL patterns with multiple groups and optional segments.
+    -   Date/time patterns with precise quantifiers and grouping.
+-   **Common Parsing Patterns**:
+    -   HTML tag matching with backreferences.
+    -   Delimiter-based parsing with lookarounds.
+    -   Nested structure matching with balanced groups.
+-   **Advanced Stress Tests**:
+    -   Deeply nested groups and alternation.
+    -   Complex lookaround combinations.
+    -   Patterns with multiple backreferences and named groups.
+
+### Category E — End-to-End Error Handling
 
 -   **Invalid DSL**: Pass a syntactically incorrect DSL string (e.g., `a(b`) to the full compilation pipeline and assert that it raises a `ParseError`.
+-   **Compilation Errors**: Test that errors in the compilation phase are properly propagated.
 
 ## Completion Criteria
 
--   [ ] A representative set of "golden" patterns covering the main DSL features is tested end-to-end.
--   [ ] The final emitted string is asserted for correctness in all test cases.
--   [ ] PCRE2-specific syntax (flag prefixes, group syntax) is explicitly verified.
--   [ ] All supported PCRE2 extension features (atomic groups, possessive quantifiers, absolute anchors) are tested.
--   [ ] The test suite confirms that a parse error in the DSL is correctly propagated through the entire pipeline.
+-   [x] A representative set of "golden" patterns covering the main DSL features is tested end-to-end.
+-   [x] The final emitted string is asserted for correctness in all test cases.
+-   [x] PCRE2-specific syntax (flag prefixes, group syntax) is explicitly verified.
+-   [x] All supported PCRE2 extension features (atomic groups, possessive quantifiers, absolute anchors) are tested.
+-   [x] The test suite confirms that a parse error in the DSL is correctly propagated through the entire pipeline.
+-   [x] Golden pattern tests provide comprehensive real-world validation including common validation, parsing, and advanced patterns.
+-   [x] Emitter-specific syntax generation for all feature types is validated.

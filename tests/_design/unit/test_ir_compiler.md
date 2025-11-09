@@ -57,10 +57,74 @@ These tests validate the `compile_with_metadata` method and its feature analysis
 -   **Lookbehinds**: An AST containing an `N.Look` with `dir="Behind"` must produce an artifact with `"lookbehind"` in its metadata.
 -   **No Features**: A simple AST with no special features must produce an empty `features_used` list.
 
+### Category E — Deeply Nested Alternations
+
+-   **Multiple Levels of Nested Alternation**:
+    -   Test alternations nested within alternations to verify proper flattening.
+-   **Alternation with Nested Sequences**:
+    -   Test alternations containing sequences which themselves contain alternations.
+-   **Complex Alternation Hierarchies**:
+    -   Test deeply nested alternation structures to ensure complete normalization.
+
+### Category F — Complex Sequence Normalization
+
+-   **Multi-Level Sequence Nesting**:
+    -   Test sequences nested multiple levels deep to verify full flattening.
+-   **Mixed Nested and Flat Elements**:
+    -   Test sequences containing both direct atoms and nested sequences.
+-   **Long Sequence Chains**:
+    -   Test very long chains of nested sequences to ensure scalability.
+
+### Category G — Literal Fusion Edge Cases
+
+-   **Multiple Adjacent Literals**:
+    -   Test fusion of more than two adjacent literals (e.g., three or more).
+-   **Literals Separated by Other Nodes**:
+    -   Test that literals separated by non-literal nodes are not fused.
+-   **Empty Literal Handling**:
+    -   Test edge cases involving empty string literals if they can occur.
+-   **Unicode Literal Fusion**:
+    -   Test fusion of literals containing Unicode characters.
+
+### Category H — Quantifier Normalization
+
+-   **Nested Quantifiers**:
+    -   Test normalization of patterns with quantifiers applied to quantified groups.
+-   **Quantifier Simplification**:
+    -   Test any quantifier simplification rules in the normalization pass.
+-   **Quantifier with Normalized Children**:
+    -   Test that quantifiers' child nodes are properly normalized.
+
+### Category I — Feature Detection Comprehensive
+
+-   **Multiple Features in One Pattern**:
+    -   Test patterns using multiple extension features simultaneously.
+-   **Nested Features**:
+    -   Test feature detection in nested contexts (e.g., atomic group inside lookahead).
+-   **Feature Interaction**:
+    -   Test that all features are correctly detected when used together.
+-   **Negative Feature Tests**:
+    -   Test that features not present in a pattern are not incorrectly detected.
+
+### Category J — Alternation Normalization Edge Cases
+
+-   **Alternation with Single Branch**:
+    -   Test normalization of alternations that might simplify to a single branch.
+-   **Alternation with Empty Branches**:
+    -   Test handling of alternations with empty or trivial branches.
+-   **Deeply Nested Mixed Structures**:
+    -   Test alternations nested within sequences nested within alternations, etc.
+
 ## Completion Criteria
 
--   [ ] There is at least one test case for the lowering of every concrete `Node` type defined in `nodes.py`.
--   [ ] There are specific test cases for each normalization rule: literal fusion, sequence flattening, and alternation flattening.
--   [ ] The tests for the public `compile()` method verify that lowering and normalization work correctly in sequence.
--   [ ] The `compile_with_metadata()` method is tested to ensure it correctly identifies and lists all relevant features.
--   [ ] The structure of the final `IR` tree is asserted for correctness in all positive cases.
+-   [x] There is at least one test case for the lowering of every concrete `Node` type defined in `nodes.py`.
+-   [x] There are specific test cases for each normalization rule: literal fusion, sequence flattening, and alternation flattening.
+-   [x] The tests for the public `compile()` method verify that lowering and normalization work correctly in sequence.
+-   [x] The `compile_with_metadata()` method is tested to ensure it correctly identifies and lists all relevant features.
+-   [x] The structure of the final `IR` tree is asserted for correctness in all positive cases.
+-   [x] Deeply nested alternation structures are thoroughly tested.
+-   [x] Complex multi-level sequence normalization is validated.
+-   [x] All literal fusion edge cases including multiple adjacencies and Unicode are covered.
+-   [x] Quantifier normalization and nested quantifier handling is verified.
+-   [x] Comprehensive feature detection including multiple and nested features is tested.
+-   [x] Alternation normalization edge cases with various branch configurations are validated.
