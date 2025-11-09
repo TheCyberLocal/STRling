@@ -575,8 +575,8 @@ class Parser {
     // ---- Character classes ----
     parseCharClass() {
         const cur = this.cur;
-        const startPos = cur.i;
         if (cur.take() !== "[") throw new Error("Expected '['");
+        let startPos = cur.i;  // Position after '['
         
         this.cur.inClass++;
         
@@ -584,6 +584,7 @@ class Parser {
         if (cur.peek() === "^") {
             neg = true;
             cur.take();
+            startPos = cur.i;  // Update position after '^'
         }
 
         const items = [];
@@ -661,6 +662,12 @@ class Parser {
         if (nxt in this.CONTROL_ESCAPES) {
             const ch = cur.take();
             return new ClassLiteral(this.CONTROL_ESCAPES[ch]);
+        }
+
+        // Special case: \b inside class is backspace (0x08)
+        if (nxt === "b") {
+            cur.take();
+            return new ClassLiteral("\x08");
         }
 
         // Hex escape

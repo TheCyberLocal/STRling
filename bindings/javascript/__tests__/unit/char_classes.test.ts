@@ -75,7 +75,7 @@ describe('Category A: Positive Cases', () => {
     ['[-az]', false, [new ClassLiteral('-'), new ClassLiteral('a'), new ClassLiteral('z')], 'special_char_hyphen_at_start'],
     ['[az-]', false, [new ClassLiteral('a'), new ClassLiteral('z'), new ClassLiteral('-')], 'special_char_hyphen_at_end'],
     ['[a^b]', false, [new ClassLiteral('a'), new ClassLiteral('^'), new ClassLiteral('b')], 'special_char_caret_in_middle'],
-    ['[\\b]', false, [new ClassLiteral('\\x08')], 'special_char_backspace_escape'],
+    ['[\\b]', false, [new ClassLiteral('\x08')], 'special_char_backspace_escape'],
   ])('should parse valid char class "%s" (ID: %s)', (inputDsl, expectedNegated, expectedItems) => {
     /**
      * Tests that various valid character classes are parsed into the correct
@@ -128,7 +128,7 @@ describe('Category C: Edge Cases', () => {
   test.each<[string, ClassItem[], string]>([
     ['[a\\-c]', [new ClassLiteral('a'), new ClassLiteral('-'), new ClassLiteral('c')], 'escaped_hyphen_is_literal'],
     ['[\\x41-\\x5A]', [new ClassRange('A', 'Z')], 'range_with_escaped_endpoints'],
-    ['[\\n\\t\\d]', [new ClassLiteral('\\n'), new ClassLiteral('\\t'), new ClassEscape('d')], 'class_with_only_escapes'],
+    ['[\\n\\t\\d]', [new ClassLiteral('\n'), new ClassLiteral('\t'), new ClassEscape('d')], 'class_with_only_escapes'],
   ])('should correctly parse edge case class "%s" (ID: %s)', (inputDsl, expectedItems) => {
     /**
      * Tests unusual but valid character class constructs.
@@ -146,8 +146,8 @@ describe('Category D: Interaction Cases', () => {
    */
 
   test.each<[string, ClassItem[], string]>([
-    ['%flags x\\n[a b]', [new ClassLiteral('a'), new ClassLiteral(' '), new ClassLiteral('b')], 'whitespace_is_literal'],
-    ['%flags x\\n[a#b]', [new ClassLiteral('a'), new ClassLiteral('#'), new ClassLiteral('b')], 'comment_char_is_literal'],
+    ["%flags x\n[a b]", [new ClassLiteral('a'), new ClassLiteral(' '), new ClassLiteral('b')], 'whitespace_is_literal'],
+    ["%flags x\n[a#b]", [new ClassLiteral('a'), new ClassLiteral('#'), new ClassLiteral('b')], 'comment_char_is_literal'],
   ])('should correctly handle "%s" in free-spacing mode (ID: %s)', (inputDsl, expectedItems) => {
     /**
      * Tests that in free-spacing mode, whitespace and '#' are treated as
