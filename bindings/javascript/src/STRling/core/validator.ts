@@ -6,7 +6,7 @@
  */
 
 import * as fs from "fs";
-import Ajv2020 from "ajv/dist/2020";
+import Ajv2020 from "ajv/dist/2020.js";
 
 // Note: Using 'ajv' library for JSON Schema validation (draft 2020-12)
 
