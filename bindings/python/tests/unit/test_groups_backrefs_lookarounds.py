@@ -49,7 +49,7 @@ import pytest
 from typing import Optional, cast
 
 from STRling.core.parser import parse, ParseError
-from STRling.core.nodes import Group, Backref, Look, Seq, Lit, Quant
+from STRling.core.nodes import Group, Backref, Look, Seq, Lit, Quant, Alt
 
 # --- Test Suite -----------------------------------------------------------------
 
@@ -254,43 +254,94 @@ class TestCategoryENestedGroups:
         """
         Tests nested capturing groups: ((a))
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("((a))")
+        assert isinstance(ast, Group)
+        assert ast.capturing is True
+        assert isinstance(ast.body, Group)
+        assert ast.body.capturing is True
+        assert isinstance(ast.body.body, Lit)
+        assert ast.body.body.value == "a"
 
     def test_nested_non_capturing_groups(self):
         """
         Tests nested non-capturing groups: (?:(?:a))
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?:(?:a))")
+        assert isinstance(ast, Group)
+        assert ast.capturing is False
+        assert isinstance(ast.body, Group)
+        assert ast.body.capturing is False
+        assert isinstance(ast.body.body, Lit)
+        assert ast.body.body.value == "a"
 
     def test_nested_atomic_groups(self):
         """
         Tests nested atomic groups: (?>(?>(a)))
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?>(?>(a)))")
+        assert isinstance(ast, Group)
+        assert ast.atomic is True
+        assert isinstance(ast.body, Group)
+        assert ast.body.atomic is True
+        assert isinstance(ast.body.body, Group)
+        assert ast.body.body.capturing is True
+        assert isinstance(ast.body.body.body, Lit)
 
     def test_mixed_nesting_capturing_in_non_capturing(self):
         """
         Tests capturing group inside non-capturing: (?:(a))
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?:(a))")
+        assert isinstance(ast, Group)
+        assert ast.capturing is False
+        assert isinstance(ast.body, Group)
+        assert ast.body.capturing is True
+        assert isinstance(ast.body.body, Lit)
+        assert ast.body.body.value == "a"
 
     def test_mixed_nesting_named_in_capturing(self):
         """
         Tests named group inside capturing: ((?<name>a))
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("((?<name>a))")
+        assert isinstance(ast, Group)
+        assert ast.capturing is True
+        assert ast.name is None
+        assert isinstance(ast.body, Group)
+        assert ast.body.capturing is True
+        assert ast.body.name == "name"
+        assert isinstance(ast.body.body, Lit)
 
     def test_mixed_nesting_atomic_in_non_capturing(self):
         """
         Tests atomic group inside non-capturing: (?:(?>a))
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?:(?>a))")
+        assert isinstance(ast, Group)
+        assert ast.capturing is False
+        assert isinstance(ast.body, Group)
+        assert ast.body.atomic is True
+        assert isinstance(ast.body.body, Lit)
+        assert ast.body.body.value == "a"
 
     def test_deeply_nested_groups_three_levels(self):
         """
         Tests deeply nested groups (3+ levels): ((?:(?<x>(?>a))))
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("((?:(?<x>(?>a))))")
+        assert isinstance(ast, Group)
+        assert ast.capturing is True
+        # Level 2
+        assert isinstance(ast.body, Group)
+        assert ast.body.capturing is False
+        # Level 3
+        assert isinstance(ast.body.body, Group)
+        assert ast.body.body.capturing is True
+        assert ast.body.body.name == "x"
+        # Level 4
+        assert isinstance(ast.body.body.body, Group)
+        assert ast.body.body.body.atomic is True
+        assert isinstance(ast.body.body.body.body, Lit)
 
 
 class TestCategoryFLookaroundWithComplexContent:
@@ -303,37 +354,71 @@ class TestCategoryFLookaroundWithComplexContent:
         """
         Tests positive lookahead with alternation: (?=a|b)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?=a|b)")
+        assert isinstance(ast, Look)
+        assert ast.dir == "Ahead"
+        assert ast.neg is False
+        assert isinstance(ast.body, Alt)
+        assert len(ast.body.branches) == 2
 
     def test_lookbehind_with_alternation(self):
         """
         Tests positive lookbehind with alternation: (?<=x|y)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?<=x|y)")
+        assert isinstance(ast, Look)
+        assert ast.dir == "Behind"
+        assert ast.neg is False
+        assert isinstance(ast.body, Alt)
+        assert len(ast.body.branches) == 2
 
     def test_negative_lookahead_with_alternation(self):
         """
         Tests negative lookahead with alternation: (?!a|b|c)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?!a|b|c)")
+        assert isinstance(ast, Look)
+        assert ast.dir == "Ahead"
+        assert ast.neg is True
+        assert isinstance(ast.body, Alt)
+        assert len(ast.body.branches) == 3
 
     def test_nested_lookaheads(self):
         """
         Tests nested positive lookaheads: (?=(?=a))
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?=(?=a))")
+        assert isinstance(ast, Look)
+        assert ast.dir == "Ahead"
+        assert isinstance(ast.body, Look)
+        assert ast.body.dir == "Ahead"
+        assert isinstance(ast.body.body, Lit)
 
     def test_nested_lookbehinds(self):
         """
         Tests nested lookbehinds: (?<=(?<!a))
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?<=(?<!a))")
+        assert isinstance(ast, Look)
+        assert ast.dir == "Behind"
+        assert ast.neg is False
+        assert isinstance(ast.body, Look)
+        assert ast.body.dir == "Behind"
+        assert ast.body.neg is True
+        assert isinstance(ast.body.body, Lit)
 
     def test_mixed_nested_lookarounds(self):
         """
         Tests lookahead inside lookbehind: (?<=a(?=b))
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?<=a(?=b))")
+        assert isinstance(ast, Look)
+        assert ast.dir == "Behind"
+        assert isinstance(ast.body, Seq)
+        assert len(ast.body.parts) == 2
+        assert isinstance(ast.body.parts[0], Lit)
+        assert isinstance(ast.body.parts[1], Look)
+        assert ast.body.parts[1].dir == "Ahead"
 
 
 class TestCategoryGAtomicGroupEdgeCases:
@@ -345,20 +430,37 @@ class TestCategoryGAtomicGroupEdgeCases:
         """
         Tests atomic group with alternation: (?>(a|b))
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?>(a|b))")
+        assert isinstance(ast, Group)
+        assert ast.atomic is True
+        # The atomic group contains a capturing group with alternation
+        assert isinstance(ast.body, Group)
+        assert ast.body.capturing is True
+        assert isinstance(ast.body.body, Alt)
+        assert len(ast.body.body.branches) == 2
 
     def test_atomic_group_with_quantified_content(self):
         """
         Tests atomic group with quantified atoms: (?>a+b*)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?>a+b*)")
+        assert isinstance(ast, Group)
+        assert ast.atomic is True
+        assert isinstance(ast.body, Seq)
+        assert len(ast.body.parts) == 2
+        assert isinstance(ast.body.parts[0], Quant)
+        assert isinstance(ast.body.parts[1], Quant)
 
     def test_atomic_group_empty(self):
         """
         Tests empty atomic group: (?>)
         Edge case: should parse correctly.
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?>)")
+        assert isinstance(ast, Group)
+        assert ast.atomic is True
+        assert isinstance(ast.body, Seq)
+        assert len(ast.body.parts) == 0
 
 
 class TestCategoryHMultipleBackreferences:
@@ -371,37 +473,86 @@ class TestCategoryHMultipleBackreferences:
         """
         Tests multiple sequential backreferences: (a)(b)\\1\\2
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"(a)(b)\1\2")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 4
+        assert isinstance(ast.parts[0], Group)
+        assert isinstance(ast.parts[1], Group)
+        assert isinstance(ast.parts[2], Backref)
+        assert ast.parts[2].byIndex == 1
+        assert isinstance(ast.parts[3], Backref)
+        assert ast.parts[3].byIndex == 2
 
     def test_multiple_named_backrefs(self):
         """
         Tests multiple named backreferences: (?<x>a)(?<y>b)\\k<x>\\k<y>
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"(?<x>a)(?<y>b)\k<x>\k<y>")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 4
+        assert isinstance(ast.parts[0], Group)
+        assert ast.parts[0].name == "x"
+        assert isinstance(ast.parts[1], Group)
+        assert ast.parts[1].name == "y"
+        assert isinstance(ast.parts[2], Backref)
+        assert ast.parts[2].byName == "x"
+        assert isinstance(ast.parts[3], Backref)
+        assert ast.parts[3].byName == "y"
 
     def test_mixed_numeric_and_named_backrefs(self):
         """
         Tests mixed backreference types: (a)(?<x>b)\\1\\k<x>
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"(a)(?<x>b)\1\k<x>")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 4
+        assert isinstance(ast.parts[0], Group)
+        assert isinstance(ast.parts[1], Group)
+        assert ast.parts[1].name == "x"
+        assert isinstance(ast.parts[2], Backref)
+        assert ast.parts[2].byIndex == 1
+        assert isinstance(ast.parts[3], Backref)
+        assert ast.parts[3].byName == "x"
 
     def test_backref_in_alternation(self):
         """
         Tests backreference in alternation: (a)(\\1|b)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"(a)(\1|b)")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 2
+        assert isinstance(ast.parts[0], Group)
+        assert isinstance(ast.parts[1], Group)
+        assert isinstance(ast.parts[1].body, Alt)
+        assert len(ast.parts[1].body.branches) == 2
+        assert isinstance(ast.parts[1].body.branches[0], Backref)
+        assert ast.parts[1].body.branches[0].byIndex == 1
 
     def test_backref_to_earlier_alternation_branch(self):
         """
         Tests backreference to group in alternation: (a|b)c\\1
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"(a|b)c\1")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 3
+        assert isinstance(ast.parts[0], Group)
+        assert isinstance(ast.parts[0].body, Alt)
+        assert isinstance(ast.parts[1], Lit)
+        assert isinstance(ast.parts[2], Backref)
+        assert ast.parts[2].byIndex == 1
 
     def test_repeated_backreference(self):
         """
         Tests same backreference used multiple times: (a)\\1\\1
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse(r"(a)\1\1")
+        assert isinstance(ast, Seq)
+        assert len(ast.parts) == 3
+        assert isinstance(ast.parts[0], Group)
+        assert isinstance(ast.parts[1], Backref)
+        assert ast.parts[1].byIndex == 1
+        assert isinstance(ast.parts[2], Backref)
+        assert ast.parts[2].byIndex == 1
 
 
 class TestCategoryIGroupsInAlternation:
@@ -413,16 +564,38 @@ class TestCategoryIGroupsInAlternation:
         """
         Tests capturing groups in alternation: (a)|(b)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(a)|(b)")
+        assert isinstance(ast, Alt)
+        assert len(ast.branches) == 2
+        assert isinstance(ast.branches[0], Group)
+        assert ast.branches[0].capturing is True
+        assert isinstance(ast.branches[1], Group)
+        assert ast.branches[1].capturing is True
 
     def test_lookarounds_in_alternation(self):
         """
         Tests lookarounds in alternation: (?=a)|(?=b)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(?=a)|(?=b)")
+        assert isinstance(ast, Alt)
+        assert len(ast.branches) == 2
+        assert isinstance(ast.branches[0], Look)
+        assert ast.branches[0].dir == "Ahead"
+        assert isinstance(ast.branches[1], Look)
+        assert ast.branches[1].dir == "Ahead"
 
     def test_mixed_group_types_in_alternation(self):
         """
         Tests mixed group types in alternation: (a)|(?:b)|(?<x>c)
         """
-        pytest.fail("Not implemented")
+        _flags, ast = parse("(a)|(?:b)|(?<x>c)")
+        assert isinstance(ast, Alt)
+        assert len(ast.branches) == 3
+        assert isinstance(ast.branches[0], Group)
+        assert ast.branches[0].capturing is True
+        assert ast.branches[0].name is None
+        assert isinstance(ast.branches[1], Group)
+        assert ast.branches[1].capturing is False
+        assert isinstance(ast.branches[2], Group)
+        assert ast.branches[2].capturing is True
+        assert ast.branches[2].name == "x"
