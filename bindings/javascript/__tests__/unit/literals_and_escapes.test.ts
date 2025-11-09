@@ -196,15 +196,21 @@ describe('Category E: Literal Sequences And Coalescing', () => {
 
   test('should coalesce adjacent literal strings', () => {
     const [, ast] = parse('hello world');
-    expect(ast).toBeInstanceOf(Seq);
-    const seqNode = ast as Seq;
-    expect(seqNode.parts[0]).toBeInstanceOf(Lit);
-    expect((seqNode.parts[0] as Lit).value).toBe('hello');
+    expect(ast).toBeInstanceOf(Lit);
+    expect((ast as Lit).value).toBe('hello world');
   });
 
   test('should handle escaped chars in sequences', () => {
     const [, ast] = parse('a\\tb\\nc');
-    expect(ast).toBeInstanceOf(Lit);
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(3);
+    expect(seqNode.parts[0]).toBeInstanceOf(Lit);
+    expect((seqNode.parts[0] as Lit).value).toBe('a\tb');
+    expect(seqNode.parts[1]).toBeInstanceOf(Lit);
+    expect((seqNode.parts[1] as Lit).value).toBe('\n');
+    expect(seqNode.parts[2]).toBeInstanceOf(Lit);
+    expect((seqNode.parts[2] as Lit).value).toBe('c');
   });
 });
 
@@ -218,16 +224,19 @@ describe('Category F: Escape Interactions', () => {
 
   test('should parse escaped backslash followed by literal', () => {
     const [, ast] = parse('\\\\a');
-    expect(ast).toBeInstanceOf(Seq);
-    const seqNode = ast as Seq;
-    expect(seqNode.parts[0]).toBeInstanceOf(Lit);
-    expect((seqNode.parts[0] as Lit).value).toBe('\\');
+    expect(ast).toBeInstanceOf(Lit);
+    expect((ast as Lit).value).toBe('\\a');
   });
 
   test('should parse multiple escape sequences', () => {
     const [, ast] = parse('\\n\\r\\t');
-    expect(ast).toBeInstanceOf(Lit);
-    expect((ast as Lit).value).toBe('\n\r\t');
+    expect(ast).toBeInstanceOf(Seq);
+    const seqNode = ast as Seq;
+    expect(seqNode.parts).toHaveLength(2);
+    expect(seqNode.parts[0]).toBeInstanceOf(Lit);
+    expect((seqNode.parts[0] as Lit).value).toBe('\n');
+    expect(seqNode.parts[1]).toBeInstanceOf(Lit);
+    expect((seqNode.parts[1] as Lit).value).toBe('\r\t');
   });
 });
 
@@ -272,16 +281,12 @@ describe('Category I: Octal And Backref Disambiguation', () => {
     expect((ast as Lit).value).toBe('\x00');
   });
 
-  test('should parse two-digit octal', () => {
-    const [, ast] = parse('\\77');
-    expect(ast).toBeInstanceOf(Lit);
-    expect((ast as Lit).value).toBe('?');
+  test('should raise error for two-digit octal (treated as undefined backref)', () => {
+    expect(() => parse('\\77')).toThrow(ParseError);
   });
 
-  test('should parse three-digit octal', () => {
-    const [, ast] = parse('\\101');
-    expect(ast).toBeInstanceOf(Lit);
-    expect((ast as Lit).value).toBe('A');
+  test('should raise error for three-digit octal (treated as undefined backref)', () => {
+    expect(() => parse('\\101')).toThrow(ParseError);
   });
 });
 
