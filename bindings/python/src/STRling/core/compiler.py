@@ -29,12 +29,25 @@ class Compiler:
 
     def _analyze_features(self, node: IR.IROp):
         """Recursively walk the IR tree and log features used."""
-        if isinstance(node, IR.IRGroup) and node.atomic:
-            self.features_used.add("atomic_group")
+        if isinstance(node, IR.IRGroup):
+            if node.atomic:
+                self.features_used.add("atomic_group")
+            if node.name is not None:
+                self.features_used.add("named_group")
         if isinstance(node, IR.IRQuant) and node.mode == "Possessive":
             self.features_used.add("possessive_quantifier")
-        if isinstance(node, IR.IRLook) and node.dir == "Behind":
-            self.features_used.add("lookbehind")
+        if isinstance(node, IR.IRLook):
+            if node.dir == "Behind":
+                self.features_used.add("lookbehind")
+            elif node.dir == "Ahead":
+                self.features_used.add("lookahead")
+        if isinstance(node, IR.IRBackref):
+            self.features_used.add("backreference")
+        if isinstance(node, IR.IRCharClass):
+            # Check for Unicode property escapes in character class items
+            for item in node.items:
+                if isinstance(item, IR.IRClassEscape) and item.type == "UnicodeProperty":
+                    self.features_used.add("unicode_property")
 
         # --- Recurse into children ---
         if isinstance(node, (IR.IRSeq, IR.IRAlt)):
