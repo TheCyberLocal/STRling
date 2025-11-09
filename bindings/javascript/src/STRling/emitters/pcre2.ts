@@ -1,7 +1,7 @@
 /**
  * STRling v3 — PCRE2 Emitter
  * Emit PCRE2 pattern string from IR.
- * 
+ *
  * Ported from Python reference implementation.
  */
 
@@ -9,13 +9,28 @@ import * as IR from "../core/ir.js";
 
 // ---- helpers ----------------------------------------------------------------
 
-function _escapeLiteral(s: string): string {
+export function _escapeLiteral(s: string): string {
     /**
      * Escape PCRE2 metacharacters outside character classes, but do NOT escape dashes (-).
      */
     // Escape all PCRE2 metacharacters: . ^ $ * + ? ( ) [ ] { } | \
     // Process character by character to handle all cases correctly
-    const metacharSet = new Set(['.', '^', '$', '*', '+', '?', '(', ')', '[', ']', '{', '}', '|', '\\']);
+    const metacharSet = new Set([
+        ".",
+        "^",
+        "$",
+        "*",
+        "+",
+        "?",
+        "(",
+        ")",
+        "[",
+        "]",
+        "{",
+        "}",
+        "|",
+        "\\",
+    ]);
     let result = "";
     for (const ch of s) {
         if (metacharSet.has(ch)) {
@@ -27,7 +42,7 @@ function _escapeLiteral(s: string): string {
     return result;
 }
 
-function _escapeClassChar(ch: string): string {
+export function _escapeClassChar(ch: string): string {
     /**
      * Escape a char for use inside [...] per PCRE2 rules.
      */
@@ -48,7 +63,7 @@ function _escapeClassChar(ch: string): string {
     if (ch === "\t") return "\\t";
     if (ch === "\f") return "\\f";
     if (ch === "\v") return "\\v";
-    
+
     const code = ch.charCodeAt(0);
     if (code < 32 || (code >= 127 && code <= 159)) {
         return `\\x${code.toString(16).padStart(2, "0")}`;
@@ -87,7 +102,7 @@ function _emitClass(cc: IR.IRCharClass): string {
 
         if (["p", "P"].includes(k) && prop) {
             // For \p{..}/\P{..}, flip p<->P iff exactly-negated class
-            const use = (cc.negated !== (k === "P")) ? "P" : "p";
+            const use = cc.negated !== (k === "P") ? "P" : "p";
             return `\\${use}{${prop}}`;
         }
     }
@@ -98,7 +113,9 @@ function _emitClass(cc: IR.IRCharClass): string {
         if (it instanceof IR.IRClassLiteral) {
             parts.push(_escapeClassChar(it.ch));
         } else if (it instanceof IR.IRClassRange) {
-            parts.push(`${_escapeClassChar(it.fromCh)}-${_escapeClassChar(it.toCh)}`);
+            parts.push(
+                `${_escapeClassChar(it.fromCh)}-${_escapeClassChar(it.toCh)}`
+            );
         } else if (it instanceof IR.IRClassEscape) {
             if (["d", "D", "w", "W", "s", "S"].includes(it.type)) {
                 parts.push("\\" + it.type);
@@ -116,7 +133,11 @@ function _emitClass(cc: IR.IRCharClass): string {
     return `[${cc.negated ? "^" : ""}${inner}]`;
 }
 
-function _emitQuantSuffix(minv: number, maxv: number | string, mode: string): string {
+function _emitQuantSuffix(
+    minv: number,
+    maxv: number | string,
+    mode: string
+): string {
     /**
      * Emit *, +, ?, {m}, {m,}, {m,n} plus optional lazy/possessive suffix.
      */
@@ -218,18 +239,25 @@ function _emitNode(node: IR.IROp, parentKind: string = ""): string {
     }
 
     if (node instanceof IR.IRSeq) {
-        return node.parts.map((p: IR.IROp): string => _emitNode(p, "Seq")).join("");
+        return node.parts
+            .map((p: IR.IROp): string => _emitNode(p, "Seq"))
+            .join("");
     }
 
     if (node instanceof IR.IRAlt) {
-        const body: string = node.branches.map((b: IR.IROp): string => _emitNode(b, "Alt")).join("|");
+        const body: string = node.branches
+            .map((b: IR.IROp): string => _emitNode(b, "Alt"))
+            .join("|");
         // Alt inside sequence/quant should be grouped
         return ["Seq", "Quant"].includes(parentKind) ? `(?:${body})` : body;
     }
 
     if (node instanceof IR.IRQuant) {
         let childStr: string = _emitNode(node.child, "Quant");
-        if (_needsGroupForQuant(node.child) && !(node.child instanceof IR.IRGroup)) {
+        if (
+            _needsGroupForQuant(node.child) &&
+            !(node.child instanceof IR.IRGroup)
+        ) {
             childStr = `(?:${childStr})`;
         }
         return childStr + _emitQuantSuffix(node.min, node.max, node.mode);
@@ -272,7 +300,7 @@ function _emitPrefixFromFlags(flags: any): string {
 export function emit(irRoot: IR.IROp, flags: any = null): string {
     /**
      * Emit a PCRE2 pattern string from IR.
-     * 
+     *
      * If 'flags' is provided, it can be a plain object or a Flags object with .toDict().
      */
     let flagDict: any = null;

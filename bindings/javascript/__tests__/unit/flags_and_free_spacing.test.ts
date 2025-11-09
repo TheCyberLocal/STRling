@@ -37,6 +37,7 @@
  *
  */
 
+// Note: Adjust import paths as needed for your project structure
 import { parse } from "../../src/STRling/core/parser";
 import {
     Flags,
@@ -45,6 +46,7 @@ import {
     CharClass,
     ClassItem,
     ClassLiteral,
+    Node, // Imported for type safety in test cases
 } from "../../src/STRling/core/nodes";
 
 // --- Test Suite -----------------------------------------------------------------
@@ -52,7 +54,6 @@ import {
 describe("Category A: Positive Cases", () => {
     /**
      * Covers all positive cases for parsing flags and applying free-spacing mode.
-     *
      */
 
     test.each<[string, Flags, string]>([
@@ -85,10 +86,9 @@ describe("Category A: Positive Cases", () => {
         ],
     ])(
         'should parse flag directive "%s" correctly (ID: %s)',
-        (inputDsl, expectedFlags) => {
+        (inputDsl, expectedFlags, id) => {
             /**
              * Tests that the %flags directive is correctly parsed into a Flags object.
-             *
              */
             const [flags] = parse(inputDsl);
             expect(flags).toEqual(expectedFlags);
@@ -107,13 +107,13 @@ describe("Category A: Positive Cases", () => {
             "comments_are_ignored",
         ],
         [
-            "%flags x\na\\ b",
+            String.raw`%flags x\na\ b`,
             new Seq([new Lit("a"), new Lit(" "), new Lit("b")]),
             "escaped_whitespace_is_literal",
         ],
     ])(
         'should handle free-spacing mode for "%s" (ID: %s)',
-        (inputDsl, expectedAst) => {
+        (inputDsl, expectedAst, id) => {
             /**
              * Tests that the parser correctly handles whitespace and comments when the
              * 'x' flag is active.
@@ -127,26 +127,27 @@ describe("Category A: Positive Cases", () => {
 describe("Category B: Negative Cases", () => {
     /**
      * Covers lenient handling of malformed or unknown directives.
-     *
      */
 
     test.each<[string, string]>([
         ["%flags z", "unknown_flag"],
         ["%flagg i", "malformed_directive"],
-    ])('should handle bad directive "%s" leniently (ID: %s)', (inputDsl) => {
-        /**
-         * Tests that the parser ignores unknown flags and malformed directives,
-         * returning a default Flags object.
-         */
-        const [flags] = parse(inputDsl);
-        expect(flags).toEqual(new Flags()); // Default flags
-    });
+    ])(
+        'should handle bad directive "%s" leniently (ID: %s)',
+        (inputDsl, id) => {
+            /**
+             * Tests that the parser ignores unknown flags and malformed directives,
+             * returning a default Flags object.
+             */
+            const [flags] = parse(inputDsl);
+            expect(flags).toEqual(new Flags()); // Default flags
+        }
+    );
 });
 
 describe("Category C: Edge Cases", () => {
     /**
      * Covers edge cases for flag parsing and free-spacing mode.
-     *
      */
 
     test("should handle an empty flags directive", () => {
@@ -179,7 +180,6 @@ describe("Category C: Edge Cases", () => {
 describe("Category D: Interaction Cases", () => {
     /**
      * Covers the critical interaction between free-spacing mode and character classes.
-     *
      */
 
     test.each<[string, ClassItem[], string]>([
@@ -203,11 +203,10 @@ describe("Category D: Interaction Cases", () => {
         ],
     ])(
         'should disable free-spacing inside char class for "%s" (ID: %s)',
-        (inputDsl, expectedItems) => {
+        (inputDsl, expectedItems, id) => {
             /**
              * Tests that in free-spacing mode, whitespace and '#' are treated as
              * literal characters inside a class, per the specification.
-             *
              */
             const [, ast] = parse(inputDsl);
             expect(ast).toBeInstanceOf(CharClass);
@@ -215,7 +214,3 @@ describe("Category D: Interaction Cases", () => {
         }
     );
 });
-
-// --- Additional Flag Test Cases ------------------------
-
-

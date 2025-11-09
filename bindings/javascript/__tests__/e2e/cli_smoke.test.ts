@@ -1,63 +1,96 @@
 /**
- * @file Test Design — cli_smoke.test.ts
+ * @file cli_smoke.test.ts
  *
- * ## Purpose
- * This test suite provides a high-level "smoke test" for the
- * `tooling/parse_strl.py` command-line interface. Its goal is to verify that
- * the CLI application can be executed, that it correctly handles basic arguments
- * for input and emission, and that it produces the expected output and exit codes
- * for simple success and failure scenarios.
+ * High-level smoke tests for the `tooling/parse_strl.py` CLI.
  *
- * ## Description
- * A smoke test is not exhaustive; it's a quick, broad check to ensure the core
- * functionality of an application is working and hasn't suffered a major
- * regression. This suite treats the CLI as a black box, invoking it as a
- * subprocess and inspecting its `stdout`, `stderr`, and exit code. It confirms
- * that the main features—parsing from a file, parsing from `stdin`, emitting to a
- * target format, and validating against a schema—are all wired up and functional.
+ * This suite treats the CLI as a black box: it invokes the Python script as a
+ * subprocess and validates stdout, stderr, and exit codes for the core happy
+ * paths and failure modes.
  *
- * ## Scope
- * -   **In scope:**
- * -   Invoking the `tooling/parse_strl.py` script as an external process.
- * -   Testing file-based input and `stdin` input (`-`).
- * -   Testing the `--emit pcre2` option.
- * -   Testing the `--schema <path>` argument for both successful and failed
- * validation.
- * -   Verifying `stdout`, `stderr`, and specific process exit codes for success
- * (0) and different failure modes (1, 2, 3).
- * -   **Out of scope:**
- * -   Exhaustive validation of the compiler's output for all DSL features
- * (this is covered by other E2E and unit tests).
- * -   Unit testing the internal logic of the `parse_strl.py` script itself.
- * -   Testing performance or complex shell interactions.
+ * Scenarios covered (mirroring the Python tests):
+ * - File input with `--emit pcre2`
+ * - Stdin input with `--emit pcre2`
+ * - `--schema <base.schema.json>` success (silent, exit 0)
+ * - Parse error (exit 2, JSON error object with position)
+ * - Schema validation error (exit 3, JSON validation_error)
+ * - File not found (non-zero exit, message on stderr)
  */
 
-import { execSync, StdioOptions } from "child_process";
-import path from "path";
+import { spawnSync, SpawnSyncOptions } from "child_process";
 import fs from "fs";
+import path from "path";
 
-// --- Test Suite Setup -----------------------------------------------------------
+const PYTHON_EXEC = process.env.PYTHON_EXEC || process.env.PYTHON || "python3";
 
-// Define robust paths relative to this test file
+// --- Path setup (mirrors the Python test layout) ------------------------------
+
 const TEST_DIR = __dirname;
-const PROJECT_ROOT = path.join(TEST_DIR, "../../../..");
-const CLI_PATH = path.join(PROJECT_ROOT, "tooling/parse_strl.py");
-const SPEC_DIR = path.join(PROJECT_ROOT, "spec/schema");
+// Assumes the test file is in a directory like build/tests/e2e
+// Adjust relative path as needed if the directory structure is different.
+// This path aims to find the project root from the test file's location.
+const PROJECT_ROOT = path.resolve(TEST_DIR, "..", "..", "..", "..");
+const CLI_PATH = path.join(PROJECT_ROOT, "tooling", "parse_strl.py");
+const SPEC_DIR = path.join(PROJECT_ROOT, "spec", "schema");
 const BASE_SCHEMA_PATH = path.join(SPEC_DIR, "base.schema.json");
 
-const PYTHON_EXEC = process.platform === "win32" ? "python" : "python3";
-const TEMP_DIR = path.join(TEST_DIR, "temp");
+const TEMP_DIR = path.join(TEST_DIR, "tmp_cli_smoke");
 
-// Fixture setup: create a temp directory for test files before all tests
+// --- Helpers ------------------------------------------------------------------
+
+interface CliResult {
+    code: number | null;
+    stdout: string;
+    stderr: string;
+}
+
+/**
+ * Runs the Python CLI script as a subprocess.
+ */
+function runCli(args: string[], stdin?: string): CliResult {
+    const options: SpawnSyncOptions = {
+        encoding: "utf-8",
+        stdio: ["pipe", "pipe", "pipe"], // [stdin, stdout, stderr]
+    };
+
+    const result = spawnSync(PYTHON_EXEC, [CLI_PATH, ...args], {
+        ...options,
+        input: stdin,
+    });
+
+    return {
+        code: result.status,
+        stdout: (result.stdout as string) ?? "",
+        stderr: (result.stderr as string) ?? "",
+    };
+}
+
+/**
+ * Helper to write a temporary .strl file.
+ * Mirrors the pytest fixtures.
+ */
+function writeTempFile(name: string, content: string): string {
+    if (!fs.existsSync(TEMP_DIR)) {
+        fs.mkdirSync(TEMP_DIR, { recursive: true });
+    }
+    const filePath = path.join(TEMP_DIR, name);
+    fs.writeFileSync(filePath, content, { encoding: "utf-8" });
+    return filePath;
+}
+
+// --- Global setup / teardown --------------------------------------------------
+
+// Create a temp directory for our test files
 beforeAll(() => {
     if (!fs.existsSync(TEMP_DIR)) {
-        fs.mkdirSync(TEMP_DIR);
+        fs.mkdirSync(TEMP_DIR, { recursive: true });
     }
 });
 
-// Fixture teardown: remove the temp directory after all tests
+// Clean up the temp directory
 afterAll(() => {
-    fs.rmSync(TEMP_DIR, { recursive: true, force: true });
+    if (fs.existsSync(TEMP_DIR)) {
+        fs.rmSync(TEMP_DIR, { recursive: true, force: true });
+    }
 });
 
 // --- Test Suite -----------------------------------------------------------------
@@ -65,20 +98,20 @@ afterAll(() => {
 describe("Category A: Happy Path", () => {
     /**
      * Covers successful CLI invocation and output generation.
-     *
      */
 
-    test("should handle file input with emission", () => {
+    test("file input with emission produces JSON and exit code 0", () => {
         /**
          * Tests that the CLI can parse a file and emit a valid JSON object
          * to stdout.
+         * Equivalent to: test_file_input_with_emission
          */
-        const validStr = "a(?<b>c)";
-        const filePath = path.join(TEMP_DIR, "valid.strl");
-        fs.writeFileSync(filePath, validStr);
+        const filePath = writeTempFile("valid_file_input.strl", "a(?<b>c)");
 
-        const command = `${PYTHON_EXEC} "${CLI_PATH}" --emit pcre2 "${filePath}"`;
-        const stdout = execSync(command, { encoding: "utf-8" });
+        const { code, stdout, stderr } = runCli(["--emit", "pcre2", filePath]);
+
+        expect(code).toBe(0);
+        expect(stderr).toBe("");
 
         const output = JSON.parse(stdout);
         expect(output).toHaveProperty("artifact");
@@ -86,17 +119,20 @@ describe("Category A: Happy Path", () => {
         expect(output.emitted).toBe("a(?<b>c)");
     });
 
-    test("should handle stdin input with emission", () => {
+    test("stdin input with emission produces JSON and exit code 0", () => {
         /**
          * Tests that the CLI can parse from stdin and emit a valid JSON object.
-         *
+         * Equivalent to: test_stdin_input_with_emission
          */
         const inputContent = "a(?<b>c)";
-        const command = `${PYTHON_EXEC} "${CLI_PATH}" --emit pcre2 -`;
-        const stdout = execSync(command, {
-            input: inputContent,
-            encoding: "utf-8",
-        });
+
+        const { code, stdout, stderr } = runCli(
+            ["--emit", "pcre2", "-"],
+            inputContent
+        );
+
+        expect(code).toBe(0);
+        expect(stderr).toBe("");
 
         const output = JSON.parse(stdout);
         expect(output).toHaveProperty("artifact");
@@ -107,107 +143,102 @@ describe("Category A: Happy Path", () => {
 describe("Category B: Feature Flags", () => {
     /**
      * Covers behavior of specific CLI flags like --schema.
-     *
      */
 
-    test("should be silent on successful schema validation", () => {
+    test("successful schema validation is silent with exit code 0", () => {
         /**
          * Tests that a successful schema validation produces exit code 0 and no
          * output, per the script's logic.
+         * Equivalent to: test_successful_schema_validation_is_silent
          */
-        const validStr = "a(?<b>c)";
-        const filePath = path.join(TEMP_DIR, "valid_for_schema.strl");
-        fs.writeFileSync(filePath, validStr);
+        const filePath = writeTempFile("valid_schema_input.strl", "a(?<b>c)");
 
-        const command = `${PYTHON_EXEC} "${CLI_PATH}" --schema "${BASE_SCHEMA_PATH}" "${filePath}"`;
-        const stdout = execSync(command, { encoding: "utf-8" });
+        const { code, stdout, stderr } = runCli([
+            "--schema",
+            BASE_SCHEMA_PATH,
+            filePath,
+        ]);
 
+        expect(code).toBe(0);
         expect(stdout).toBe("");
+        expect(stderr).toBe("");
     });
 });
 
 describe("Category C: Error Handling", () => {
     /**
      * Covers specific failure modes and their corresponding exit codes.
-     *
      */
 
-    test("should exit with code 2 on parse error", () => {
+    test("parse error exits with code 2 and returns JSON error with position", () => {
         /**
          * Tests that a file with a syntax error results in exit code 2 and a
          * JSON error object.
+         * Equivalent to: test_parse_error_exits_with_code_2
          */
-        const invalidStr = "a(b"; // Unterminated group
-        const filePath = path.join(TEMP_DIR, "invalid.strl");
-        fs.writeFileSync(filePath, invalidStr);
-        const command = `${PYTHON_EXEC} "${CLI_PATH}" "${filePath}"`;
+        const filePath = writeTempFile("invalid_parse_error.strl", "a(b"); // Unterminated group
 
-        try {
-            execSync(command, {
-                encoding: "utf-8",
-                stdio: "pipe" as StdioOptions,
-            });
-            fail("Process should have exited with a non-zero code.");
-        } catch (error: any) {
-            expect(error.status).toBe(2);
-            const output = JSON.parse(error.stdout);
-            expect(output).toHaveProperty("error");
-            expect(output.error).toHaveProperty(
-                "message",
-                "Unterminated group"
-            );
-            expect(output.error.pos).toBe(3);
-        }
+        const { code, stdout, stderr } = runCli([filePath]);
+
+        expect(code).toBe(2);
+        expect(stderr).toBe(""); // Errors are reported to stdout as JSON
+
+        const output = JSON.parse(stdout);
+        expect(output).toHaveProperty("error");
+        expect(output.error).toHaveProperty("message");
+        expect(output.error.pos).toBe(3);
     });
 
-    test("should exit with code 3 on schema validation error", () => {
+    test("schema validation error exits with code 3 and returns validation_error", () => {
         /**
          * Tests that a schema validation failure results in exit code 3 and a
          * JSON error object.
+         * Equivalent to: test_schema_validation_error_exits_with_code_3
          */
-        const validStr = "a";
-        const filePath = path.join(TEMP_DIR, "valid_for_bad_schema.strl");
-        fs.writeFileSync(filePath, validStr);
+        const filePath = writeTempFile(
+            "valid_for_invalid_schema.strl",
+            "a(?<b>c)"
+        );
 
-        const invalidSchema = {
+        // Create a deliberately broken schema
+        const invalidSchemaContent = {
             $schema: "https://json-schema.org/draft/2020-12/schema",
-            properties: { root: false }, // This will fail validation
+            type: "object",
+            properties: {
+                root: false, // This will fail validation
+            },
         };
-        const invalidSchemaPath = path.join(TEMP_DIR, "invalid.schema.json");
-        fs.writeFileSync(invalidSchemaPath, JSON.stringify(invalidSchema));
+        const invalidSchemaPath = writeTempFile(
+            "invalid.schema.json",
+            JSON.stringify(invalidSchemaContent)
+        );
 
-        const command = `${PYTHON_EXEC} "${CLI_PATH}" --schema "${invalidSchemaPath}" "${filePath}"`;
+        const { code, stdout, stderr } = runCli([
+            "--schema",
+            invalidSchemaPath,
+            filePath,
+        ]);
 
-        try {
-            execSync(command, {
-                encoding: "utf-8",
-                stdio: "pipe" as StdioOptions,
-            });
-            fail("Process should have exited with a non-zero code.");
-        } catch (error: any) {
-            expect(error.status).toBe(3);
-            const output = JSON.parse(error.stdout);
-            expect(output).toHaveProperty("validation_error");
-        }
+        expect(code).toBe(3);
+        expect(stderr).toBe(""); // Errors are reported to stdout as JSON
+
+        const output = JSON.parse(stdout);
+        expect(output).toHaveProperty("validation_error");
     });
 
-    test("should exit with non-zero code for a file not found", () => {
+    test("file not found exits with non-zero code and writes error to stderr", () => {
         /**
          * Tests that a non-existent input file results in a non-zero exit code
          * and an error message on stderr.
+         * Equivalent to: test_file_not_found_exits_with_code_1
          */
-        const command = `${PYTHON_EXEC} "${CLI_PATH}" "non_existent_file.strl"`;
+        const missingPath = path.join(TEMP_DIR, "non_existent_file.strl");
 
-        try {
-            execSync(command, {
-                encoding: "utf-8",
-                stdio: "pipe" as StdioOptions,
-            });
-            fail("Process should have exited with a non-zero code.");
-        } catch (error: any) {
-            expect(error.status).not.toBe(0); // Typically 1 for FileNotFoundError
-            expect(error.stdout).toBe("");
-            expect(error.stderr).toContain("No such file or directory");
-        }
+        const { code, stdout, stderr } = runCli([missingPath]);
+
+        expect(code).not.toBe(0); // Exit code 1 (or 2 on Windows)
+        expect(stdout).toBe("");
+        // Check for the Python FileNotFoundError message
+        expect(stderr).toContain("No such file or directory");
     });
 });

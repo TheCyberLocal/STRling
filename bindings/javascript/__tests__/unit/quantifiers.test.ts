@@ -20,12 +20,18 @@
  * ## Scope
  * -   **In scope:**
  * -   Parsing of all standard quantifiers: `*`, `+`, `?`.
+ *
  * -   Parsing of all brace-based quantifiers: `{n}`, `{m,}`, `{m,n}`.
- * -   Parsing of lazy (`*?`) and possessive (`*+`) mode modifiers.
+ *
+ * -   Parsing of lazy (`*?`) and possessive (`*+`) mode modifiers
+ * .
  * -   The structure and values of the resulting `nodes.Quant` AST node
  * (including `min`, `max`, and `mode` fields).
+ *
  * -   Error handling for malformed brace quantifiers (e.g., `a{1,`).
+ *
  * -   The parser's correct identification of the atom to be quantified.
+ *
  * -   **Out of scope:**
  * -   Static analysis for ReDoS risks on nested quantifiers
  * (this is a Sprint 6 feature).
@@ -33,6 +39,7 @@
  * groups (covered in `test_emitter_edges.ts`).
  */
 
+// Note: Adjust import paths as needed for your project structure
 import { parse, ParseError } from "../../src/STRling/core/parser";
 import {
     Node,
@@ -44,6 +51,8 @@ import {
     Group,
     Look,
     Anchor,
+    Alt,
+    Backref,
 } from "../../src/STRling/core/nodes";
 
 // --- Test Suite -----------------------------------------------------------------
@@ -51,8 +60,8 @@ import {
 describe("Category A: Positive Cases", () => {
     /**
      * Covers all positive cases for valid quantifier syntax and modes.
-     *
      */
+
     test.each<[string, number, number | string, string, string]>([
         // A.1: Star Quantifier
         ["a*", 0, "Inf", "Greedy", "star_greedy"],
@@ -80,7 +89,7 @@ describe("Category A: Positive Cases", () => {
         ["a{3,5}+", 3, 5, "Possessive", "brace_range_possessive"],
     ])(
         'should parse quantifier "%s" correctly (ID: %s)',
-        (inputDsl, expectedMin, expectedMax, expectedMode) => {
+        (inputDsl, expectedMin, expectedMax, expectedMode, id) => {
             /**
              * Tests that all quantifier forms and modes are parsed into a Quant node
              * with the correct min, max, and mode attributes.
@@ -99,21 +108,21 @@ describe("Category A: Positive Cases", () => {
 describe("Category B: Negative Cases", () => {
     /**
      * Covers negative cases for malformed quantifier syntax.
-     *
      */
+
     test.each<[string, string, number, string]>([
         ["a{1", "Unterminated {n}", 3, "unclosed_brace_after_num"],
         ["a{1,", "Unterminated {m,n}", 4, "unclosed_brace_after_comma"],
     ])(
         'should fail for malformed brace quantifier "%s" (ID: %s)',
-        (invalidDsl, errorPrefix, errorPos) => {
+        (invalidDsl, errorPrefix, errorPos, id) => {
             /**
              * Tests that malformed brace quantifiers raise a ParseError.
-             *
              */
             expect(() => parse(invalidDsl)).toThrow(ParseError);
             try {
                 parse(invalidDsl);
+                fail("ParseError was not thrown");
             } catch (e) {
                 const err = e as ParseError;
                 expect(err.message).toContain(errorPrefix);
@@ -135,15 +144,15 @@ describe("Category B: Negative Cases", () => {
 describe("Category C: Edge Cases", () => {
     /**
      * Covers edge cases for quantifiers.
-     *
      */
+
     test.each<[string, number, number | string, string]>([
         ["a{0}", 0, 0, "exact_zero"],
         ["a{0,5}", 0, 5, "range_from_zero"],
         ["a{0,}", 0, "Inf", "at_least_zero"],
     ])(
         'should parse zero-repetition quantifier "%s" (ID: %s)',
-        (inputDsl, expectedMin, expectedMax) => {
+        (inputDsl, expectedMin, expectedMax, id) => {
             /** Tests that quantifiers with zero values are parsed correctly. */
             const [, ast] = parse(inputDsl);
             expect(ast).toBeInstanceOf(Quant);
@@ -157,7 +166,8 @@ describe("Category C: Edge Cases", () => {
         /** Tests that a quantifier can be applied to an empty group. */
         const [, ast] = parse("(?:)*");
         expect(ast).toBeInstanceOf(Quant);
-        const groupNode = (ast as Quant).child as Group;
+        const quantNode = ast as Quant;
+        const groupNode = quantNode.child as Group;
         expect(groupNode.capturing).toBe(false);
         expect(groupNode.body).toEqual(new Seq([]));
     });
@@ -180,8 +190,8 @@ describe("Category C: Edge Cases", () => {
 describe("Category D: Interaction Cases", () => {
     /**
      * Covers the interaction of quantifiers with different atoms and sequences.
-     *
      */
+
     test("should demonstrate correct quantifier precedence", () => {
         /**
          * A critical test to ensure a quantifier binds only to the immediately
@@ -197,7 +207,7 @@ describe("Category D: Interaction Cases", () => {
     type NodeConstructor = new (...args: any[]) => Node;
 
     test.each<[string, NodeConstructor, string]>([
-        ["\\d*", CharClass, "quantify_shorthand"],
+        [String.raw`\d*`, CharClass, "quantify_shorthand"],
         [".*", Dot, "quantify_dot"],
         ["[a-z]*", CharClass, "quantify_char_class"],
         ["(abc)*", Group, "quantify_group"],
@@ -205,10 +215,9 @@ describe("Category D: Interaction Cases", () => {
         ["(?=a)+", Look, "quantify_lookaround"],
     ])(
         'should correctly quantify different atom types for "%s" (ID: %s)',
-        (inputDsl, expectedChildType) => {
+        (inputDsl, expectedChildType, id) => {
             /**
              * Tests that quantifiers correctly wrap various types of AST nodes.
-             *
              */
             const [, ast] = parse(inputDsl);
             expect(ast).toBeInstanceOf(Quant);
@@ -217,288 +226,297 @@ describe("Category D: Interaction Cases", () => {
     );
 });
 
-// --- New Test Categories for 3-Test Standard Compliance ------------------------
+// --- New Test Stubs for 3-Test Standard Compliance -----------------------------
 
-describe('Category E: Nested and Redundant Quantifiers', () => {
-  /**
-   * Tests for nested quantifiers and redundant quantification patterns.
-   * These are edge cases that test the parser's ability to handle
-   * syntactically valid but semantically unusual patterns.
-   */
-
-  test('should parse nested quantifier star on star', () => {
+describe("Category E: Nested and Redundant Quantifiers", () => {
     /**
-     * Tests that a quantifier can be applied to a group containing a
-     * quantified atom: (a*)* is syntactically valid.
+     * Tests for nested quantifiers and redundant quantification patterns.
+     * These are edge cases that test the parser's ability to handle
+     * syntactically valid but semantically unusual patterns.
      */
-    const [, ast] = parse('(a*)*');
-    expect(ast).toBeInstanceOf(Quant);
-    const quantNode = ast as Quant;
-    expect(quantNode.min).toBe(0);
-    expect(quantNode.max).toBe('Inf');
-    expect(quantNode.child).toBeInstanceOf(Group);
-    const groupChild = quantNode.child as Group;
-    expect(groupChild.body).toBeInstanceOf(Quant);
-    const innerQuant = groupChild.body as Quant;
-    expect(innerQuant.min).toBe(0);
-    expect(innerQuant.max).toBe('Inf');
-  });
 
-  test('should parse nested quantifier plus on optional', () => {
-    /**
-     * Tests nested quantifiers with different operators: (a+)?
-     */
-    const [, ast] = parse('(a+)?');
-    expect(ast).toBeInstanceOf(Quant);
-    const quantNode = ast as Quant;
-    expect(quantNode.min).toBe(0);
-    expect(quantNode.max).toBe(1);
-    expect(quantNode.child).toBeInstanceOf(Group);
-    const groupChild = quantNode.child as Group;
-    expect(groupChild.body).toBeInstanceOf(Quant);
-    const innerQuant = groupChild.body as Quant;
-    expect(innerQuant.min).toBe(1);
-    expect(innerQuant.max).toBe('Inf');
-  });
+    test("should parse nested quantifier star on star", () => {
+        /**
+         * Tests that a quantifier can be applied to a group containing a
+         * quantified atom: (a*)* is syntactically valid.
+         */
+        const [, ast] = parse("(a*)*");
+        expect(ast).toBeInstanceOf(Quant);
+        const quantNode = ast as Quant;
+        expect(quantNode.min).toBe(0);
+        expect(quantNode.max).toBe("Inf");
+        expect(quantNode.child).toBeInstanceOf(Group);
+        const groupChild = quantNode.child as Group;
+        expect(groupChild.body).toBeInstanceOf(Quant);
+        const innerQuant = groupChild.body as Quant;
+        expect(innerQuant.min).toBe(0);
+        expect(innerQuant.max).toBe("Inf");
+    });
 
-  test('should parse redundant quantifier plus on star', () => {
-    /**
-     * Tests redundant quantification: (a*)+
-     * This is semantically equivalent to a* but syntactically valid.
-     */
-    const [, ast] = parse('(a*)+');
-    expect(ast).toBeInstanceOf(Quant);
-    const quantNode = ast as Quant;
-    expect(quantNode.min).toBe(1);
-    expect(quantNode.max).toBe('Inf');
-    expect(quantNode.child).toBeInstanceOf(Group);
-    const groupChild = quantNode.child as Group;
-    expect(groupChild.body).toBeInstanceOf(Quant);
-  });
+    test("should parse nested quantifier plus on optional", () => {
+        /**
+         * Tests nested quantifiers with different operators: (a+)?
+         */
+        const [, ast] = parse("(a+)?");
+        expect(ast).toBeInstanceOf(Quant);
+        const quantNode = ast as Quant;
+        expect(quantNode.min).toBe(0);
+        expect(quantNode.max).toBe(1);
+        expect(quantNode.child).toBeInstanceOf(Group);
+        const groupChild = quantNode.child as Group;
+        expect(groupChild.body).toBeInstanceOf(Quant);
+        const innerQuant = groupChild.body as Quant;
+        expect(innerQuant.min).toBe(1);
+        expect(innerQuant.max).toBe("Inf");
+    });
 
-  test('should parse redundant quantifier star on optional', () => {
-    /**
-     * Tests redundant quantification: (a?)*
-     */
-    const [, ast] = parse('(a?)*');
-    expect(ast).toBeInstanceOf(Quant);
-    const quantNode = ast as Quant;
-    expect(quantNode.min).toBe(0);
-    expect(quantNode.max).toBe('Inf');
-    expect(quantNode.child).toBeInstanceOf(Group);
-    const groupChild = quantNode.child as Group;
-    expect(groupChild.body).toBeInstanceOf(Quant);
-    const innerQuant = groupChild.body as Quant;
-    expect(innerQuant.min).toBe(0);
-    expect(innerQuant.max).toBe(1);
-  });
+    test("should parse redundant quantifier plus on star", () => {
+        /**
+         * Tests redundant quantification: (a*)+
+         * This is semantically equivalent to a* but syntactically valid.
+         */
+        const [, ast] = parse("(a*)+");
+        expect(ast).toBeInstanceOf(Quant);
+        const quantNode = ast as Quant;
+        expect(quantNode.min).toBe(1);
+        expect(quantNode.max).toBe("Inf");
+        expect(quantNode.child).toBeInstanceOf(Group);
+        expect((quantNode.child as Group).body).toBeInstanceOf(Quant);
+    });
 
-  test('should parse nested quantifier with brace', () => {
-    /**
-     * Tests brace quantifiers on quantified groups: (a{2,3}){1,2}
-     */
-    const [, ast] = parse('(a{2,3}){1,2}');
-    expect(ast).toBeInstanceOf(Quant);
-    const quantNode = ast as Quant;
-    expect(quantNode.min).toBe(1);
-    expect(quantNode.max).toBe(2);
-    expect(quantNode.child).toBeInstanceOf(Group);
-    const groupChild = quantNode.child as Group;
-    expect(groupChild.body).toBeInstanceOf(Quant);
-    const innerQuant = groupChild.body as Quant;
-    expect(innerQuant.min).toBe(2);
-    expect(innerQuant.max).toBe(3);
-  });
+    test("should parse redundant quantifier star on optional", () => {
+        /**
+         * Tests redundant quantification: (a?)*
+         */
+        const [, ast] = parse("(a?)*");
+        expect(ast).toBeInstanceOf(Quant);
+        const quantNode = ast as Quant;
+        expect(quantNode.min).toBe(0);
+        expect(quantNode.max).toBe("Inf");
+        expect(quantNode.child).toBeInstanceOf(Group);
+        const groupChild = quantNode.child as Group;
+        expect(groupChild.body).toBeInstanceOf(Quant);
+        const innerQuant = groupChild.body as Quant;
+        expect(innerQuant.min).toBe(0);
+        expect(innerQuant.max).toBe(1);
+    });
+
+    test("should parse nested quantifier with brace", () => {
+        /**
+         * Tests brace quantifiers on quantified groups: (a{2,3}){1,2}
+         */
+        const [, ast] = parse("(a{2,3}){1,2}");
+        expect(ast).toBeInstanceOf(Quant);
+        const quantNode = ast as Quant;
+        expect(quantNode.min).toBe(1);
+        expect(quantNode.max).toBe(2);
+        expect(quantNode.child).toBeInstanceOf(Group);
+        const groupChild = quantNode.child as Group;
+        expect(groupChild.body).toBeInstanceOf(Quant);
+        const innerQuant = groupChild.body as Quant;
+        expect(innerQuant.min).toBe(2);
+        expect(innerQuant.max).toBe(3);
+    });
 });
 
-describe('Category F: Quantifier on Special Atoms', () => {
-  /**
-   * Tests for quantifiers applied to special atom types like backreferences
-   * and anchors.
-   */
-
-  test('should parse quantifier on backref', () => {
+describe("Category F: Quantifier On Special Atoms", () => {
     /**
-     * Tests that a quantifier can be applied to a backreference: (a)\\1*
+     * Tests for quantifiers applied to special atom types like backreferences
+     * and anchors.
      */
-    const [, ast] = parse('(a)\\1*');
-    expect(ast).toBeInstanceOf(Seq);
-    const seqNode = ast as Seq;
-    expect(seqNode.parts).toHaveLength(2);
-    expect(seqNode.parts[0]).toBeInstanceOf(Group);
-    expect(seqNode.parts[1]).toBeInstanceOf(Quant);
-    const quantNode = seqNode.parts[1] as Quant;
-    expect(quantNode.child.constructor.name).toBe('Backref');
-    expect(quantNode.min).toBe(0);
-    expect(quantNode.max).toBe('Inf');
-  });
 
-  test('should parse quantifier on multiple backrefs', () => {
-    /**
-     * Tests quantifiers on multiple backrefs: (a)(b)\\1*\\2+
-     */
-    const [, ast] = parse('(a)(b)\\1*\\2+');
-    expect(ast).toBeInstanceOf(Seq);
-    const seqNode = ast as Seq;
-    expect(seqNode.parts).toHaveLength(4);
-    expect(seqNode.parts[2]).toBeInstanceOf(Quant);
-    const quant1 = seqNode.parts[2] as Quant;
-    expect(quant1.child.constructor.name).toBe('Backref');
-    expect((quant1.child as any).byIndex).toBe(1);
-    expect(seqNode.parts[3]).toBeInstanceOf(Quant);
-    const quant2 = seqNode.parts[3] as Quant;
-    expect(quant2.child.constructor.name).toBe('Backref');
-    expect((quant2.child as any).byIndex).toBe(2);
-  });
+    test("should parse quantifier on backref", () => {
+        /**
+         * Tests that a quantifier can be applied to a backreference: (a)\1*
+         */
+        const [, ast] = parse(String.raw`(a)\1*`);
+        expect(ast).toBeInstanceOf(Seq);
+        const seqNode = ast as Seq;
+        expect(seqNode.parts).toHaveLength(2);
+        expect(seqNode.parts[0]).toBeInstanceOf(Group);
+        const quantNode = seqNode.parts[1] as Quant;
+        expect(quantNode).toBeInstanceOf(Quant);
+        expect(quantNode.child).toBeInstanceOf(Backref);
+        expect(quantNode.min).toBe(0);
+        expect(quantNode.max).toBe("Inf");
+    });
+
+    test("should parse quantifier on multiple backrefs", () => {
+        /**
+         * Tests quantifiers on multiple backrefs: (a)(b)\1*\2+
+         */
+        const [, ast] = parse(String.raw`(a)(b)\1*\2+`);
+        expect(ast).toBeInstanceOf(Seq);
+        const seqNode = ast as Seq;
+        expect(seqNode.parts).toHaveLength(4);
+
+        const quant1 = seqNode.parts[2] as Quant;
+        expect(quant1).toBeInstanceOf(Quant);
+        expect(quant1.child).toBeInstanceOf(Backref);
+        expect((quant1.child as Backref).byIndex).toBe(1);
+
+        const quant2 = seqNode.parts[3] as Quant;
+        expect(quant2).toBeInstanceOf(Quant);
+        expect(quant2.child).toBeInstanceOf(Backref);
+        expect((quant2.child as Backref).byIndex).toBe(2);
+    });
 });
 
-describe('Category G: Multiple Quantified Sequences', () => {
-  /**
-   * Tests for patterns with multiple consecutive quantified atoms.
-   */
-
-  test('should parse multiple consecutive quantified literals', () => {
+describe("Category G: Multiple Quantified Sequences", () => {
     /**
-     * Tests multiple quantified atoms in sequence: a*b+c?
+     * Tests for patterns with multiple consecutive quantified atoms.
      */
-    const [, ast] = parse('a*b+c?');
-    expect(ast).toBeInstanceOf(Seq);
-    const seqNode = ast as Seq;
-    expect(seqNode.parts).toHaveLength(3);
-    expect(seqNode.parts.every((part) => part instanceof Quant)).toBe(true);
-    const quants = seqNode.parts as Quant[];
-    expect(quants[0].min).toBe(0);
-    expect(quants[0].max).toBe('Inf');
-    expect(quants[1].min).toBe(1);
-    expect(quants[1].max).toBe('Inf');
-    expect(quants[2].min).toBe(0);
-    expect(quants[2].max).toBe(1);
-  });
 
-  test('should parse multiple quantified groups', () => {
-    /**
-     * Tests multiple quantified groups: (ab)*(cd)+(ef)?
-     */
-    const [, ast] = parse('(ab)*(cd)+(ef)?');
-    expect(ast).toBeInstanceOf(Seq);
-    const seqNode = ast as Seq;
-    expect(seqNode.parts).toHaveLength(3);
-    expect(seqNode.parts.every((part) => part instanceof Quant)).toBe(true);
-    const quants = seqNode.parts as Quant[];
-    expect(quants.every((q) => q.child instanceof Group)).toBe(true);
-  });
+    test("should parse multiple consecutive quantified literals", () => {
+        /**
+         * Tests multiple quantified atoms in sequence: a*b+c?
+         */
+        const [, ast] = parse("a*b+c?");
+        expect(ast).toBeInstanceOf(Seq);
+        const seqNode = ast as Seq;
+        expect(seqNode.parts).toHaveLength(3);
+        expect(seqNode.parts.every((part) => part instanceof Quant)).toBe(true);
 
-  test('should parse quantified atoms with alternation', () => {
-    /**
-     * Tests quantified atoms in an alternation: a*|b+
-     */
-    const [, ast] = parse('a*|b+');
-    expect(ast.constructor.name).toBe('Alt');
-    const altNode = ast as any;
-    expect(altNode.branches).toHaveLength(2);
-    expect(altNode.branches[0]).toBeInstanceOf(Quant);
-    expect((altNode.branches[0] as Quant).min).toBe(0);
-    expect(altNode.branches[1]).toBeInstanceOf(Quant);
-    expect((altNode.branches[1] as Quant).min).toBe(1);
-  });
+        const quant0 = seqNode.parts[0] as Quant;
+        expect(quant0.min).toBe(0);
+        expect(quant0.max).toBe("Inf");
+
+        const quant1 = seqNode.parts[1] as Quant;
+        expect(quant1.min).toBe(1);
+        expect(quant1.max).toBe("Inf");
+
+        const quant2 = seqNode.parts[2] as Quant;
+        expect(quant2.min).toBe(0);
+        expect(quant2.max).toBe(1);
+    });
+
+    test("should parse multiple quantified groups", () => {
+        /**
+         * Tests multiple quantified groups: (ab)*(cd)+(ef)?
+         */
+        const [, ast] = parse("(ab)*(cd)+(ef)?");
+        expect(ast).toBeInstanceOf(Seq);
+        const seqNode = ast as Seq;
+        expect(seqNode.parts).toHaveLength(3);
+        expect(seqNode.parts.every((part) => part instanceof Quant)).toBe(true);
+        expect(
+            seqNode.parts.every(
+                (part) => (part as Quant).child instanceof Group
+            )
+        ).toBe(true);
+    });
+
+    test("should parse quantified atoms with alternation", () => {
+        /**
+         * Tests quantified atoms in an alternation: a*|b+
+         */
+        const [, ast] = parse("a*|b+");
+        expect(ast).toBeInstanceOf(Alt);
+        const altNode = ast as Alt;
+        expect(altNode.branches).toHaveLength(2);
+
+        const branch0 = altNode.branches[0] as Quant;
+        expect(branch0).toBeInstanceOf(Quant);
+        expect(branch0.min).toBe(0);
+
+        const branch1 = altNode.branches[1] as Quant;
+        expect(branch1).toBeInstanceOf(Quant);
+        expect(branch1.min).toBe(1);
+    });
 });
 
-describe('Category H: Brace Quantifier Edge Cases', () => {
-  /**
-   * Additional edge cases for brace quantifiers.
-   */
-
-  test('should parse brace quantifier exact one', () => {
+describe("Category H: Brace Quantifier Edge Cases", () => {
     /**
-     * Tests exact repetition of one: a{1}
-     * Should parse correctly even though it's equivalent to 'a'.
+     * Additional edge cases for brace quantifiers.
      */
-    const [, ast] = parse('a{1}');
-    expect(ast).toBeInstanceOf(Quant);
-    const quantNode = ast as Quant;
-    expect(quantNode.min).toBe(1);
-    expect(quantNode.max).toBe(1);
-    expect(quantNode.child).toBeInstanceOf(Lit);
-    expect((quantNode.child as Lit).value).toBe('a');
-  });
 
-  test('should parse brace quantifier zero to one', () => {
-    /**
-     * Tests range zero to one: a{0,1}
-     * Should be equivalent to a? but valid syntax.
-     */
-    const [, ast] = parse('a{0,1}');
-    expect(ast).toBeInstanceOf(Quant);
-    const quantNode = ast as Quant;
-    expect(quantNode.min).toBe(0);
-    expect(quantNode.max).toBe(1);
-    expect(quantNode.child).toBeInstanceOf(Lit);
-  });
+    test("should parse brace quantifier exact one", () => {
+        /**
+         * Tests exact repetition of one: a{1}
+         * Should parse correctly even though it's equivalent to 'a'.
+         */
+        const [, ast] = parse("a{1}");
+        expect(ast).toBeInstanceOf(Quant);
+        const quantNode = ast as Quant;
+        expect(quantNode.min).toBe(1);
+        expect(quantNode.max).toBe(1);
+        expect(quantNode.child).toBeInstanceOf(Lit);
+        expect((quantNode.child as Lit).value).toBe("a");
+    });
 
-  test('should parse brace quantifier on alternation in group', () => {
-    /**
-     * Tests brace quantifier on group with alternation: (a|b){2,3}
-     */
-    const [, ast] = parse('(a|b){2,3}');
-    expect(ast).toBeInstanceOf(Quant);
-    const quantNode = ast as Quant;
-    expect(quantNode.min).toBe(2);
-    expect(quantNode.max).toBe(3);
-    expect(quantNode.child).toBeInstanceOf(Group);
-    const groupChild = quantNode.child as Group;
-    expect(groupChild.body.constructor.name).toBe('Alt');
-  });
+    test("should parse brace quantifier zero to one", () => {
+        /**
+         * Tests range zero to one: a{0,1}
+         * Should be equivalent to a? but valid syntax.
+         */
+        const [, ast] = parse("a{0,1}");
+        expect(ast).toBeInstanceOf(Quant);
+        const quantNode = ast as Quant;
+        expect(quantNode.min).toBe(0);
+        expect(quantNode.max).toBe(1);
+        expect(quantNode.child).toBeInstanceOf(Lit);
+    });
 
-  test('should parse brace quantifier large values', () => {
-    /**
-     * Tests brace quantifiers with large repetition counts: a{100}, a{50,150}
-     */
-    const [, ast] = parse('a{100,200}');
-    expect(ast).toBeInstanceOf(Quant);
-    const quantNode = ast as Quant;
-    expect(quantNode.min).toBe(100);
-    expect(quantNode.max).toBe(200);
-    expect(quantNode.child).toBeInstanceOf(Lit);
-  });
+    test("should parse brace quantifier on alternation in group", () => {
+        /**
+         * Tests brace quantifier on group with alternation: (a|b){2,3}
+         */
+        const [, ast] = parse("(a|b){2,3}");
+        expect(ast).toBeInstanceOf(Quant);
+        const quantNode = ast as Quant;
+        expect(quantNode.min).toBe(2);
+        expect(quantNode.max).toBe(3);
+        expect(quantNode.child).toBeInstanceOf(Group);
+        expect((quantNode.child as Group).body).toBeInstanceOf(Alt);
+    });
+
+    test("should parse brace quantifier large values", () => {
+        /**
+         * Tests brace quantifiers with large repetition counts: a{100}, a{50,150}
+         */
+        const [, ast] = parse("a{100,200}");
+        expect(ast).toBeInstanceOf(Quant);
+        const quantNode = ast as Quant;
+        expect(quantNode.min).toBe(100);
+        expect(quantNode.max).toBe(200);
+        expect(quantNode.child).toBeInstanceOf(Lit);
+    });
 });
 
-describe('Category I: Quantifier Interaction With Flags', () => {
-  /**
-   * Tests for how quantifiers interact with DSL flags.
-   */
-
-  test('should parse quantifier with free spacing mode', () => {
+describe("Category I: Quantifier Interaction With Flags", () => {
     /**
-     * Tests that free-spacing mode doesn't affect quantifier parsing:
-     * %flags x\\na * (spaces should be ignored, quantifier still applies)
+     * Tests for how quantifiers interact with DSL flags.
      */
-    const [, ast] = parse('%flags x\na *');
-    // In free-spacing mode, spaces are ignored, so 'a' and '*' are separate
-    // The * becomes a literal, not a quantifier
-    expect(ast).toBeInstanceOf(Seq);
-    const seqNode = ast as Seq;
-    expect(seqNode.parts).toHaveLength(2);
-    expect(seqNode.parts[0]).toBeInstanceOf(Lit);
-    expect((seqNode.parts[0] as Lit).value).toBe('a');
-    expect(seqNode.parts[1]).toBeInstanceOf(Lit);
-    expect((seqNode.parts[1] as Lit).value).toBe('*');
-  });
 
-  test('should parse quantifier on escaped space in free spacing', () => {
-    /**
-     * Tests quantifier on escaped space in free-spacing mode:
-     * %flags x\\n\\ *
-     */
-    const [, ast] = parse('%flags x\n\\ *');
-    // Escaped space followed by *, should quantify the space
-    expect(ast).toBeInstanceOf(Quant);
-    const quantNode = ast as Quant;
-    expect(quantNode.min).toBe(0);
-    expect(quantNode.max).toBe('Inf');
-    expect(quantNode.child).toBeInstanceOf(Lit);
-    expect((quantNode.child as Lit).value).toBe(' ');
-  });
+    test("should parse quantifier with free spacing mode", () => {
+        /**
+         * Tests that free-spacing mode doesn't affect quantifier parsing:
+         * %flags x\na * (spaces should be ignored, quantifier still applies)
+         */
+        const [, ast] = parse("%flags x\na *");
+        // In free-spacing mode, spaces are ignored, so 'a' and '*' are separate
+        // The * becomes a literal, not a quantifier
+        expect(ast).toBeInstanceOf(Seq);
+        const seqNode = ast as Seq;
+        expect(seqNode.parts).toHaveLength(2);
+        expect(seqNode.parts[0]).toBeInstanceOf(Lit);
+        expect((seqNode.parts[0] as Lit).value).toBe("a");
+        expect(seqNode.parts[1]).toBeInstanceOf(Lit);
+        expect((seqNode.parts[1] as Lit).value).toBe("*");
+    });
+
+    test("should parse quantifier on escaped space in free spacing", () => {
+        /**
+         * Tests quantifier on escaped space in free-spacing mode:
+         * %flags x\n\ *
+         */
+        const [, ast] = parse(String.raw`%flags x\n\ *`);
+        // Escaped space followed by *, should quantify the space
+        expect(ast).toBeInstanceOf(Quant);
+        const quantNode = ast as Quant;
+        expect(quantNode.min).toBe(0);
+        expect(quantNode.max).toBe("Inf");
+        expect(quantNode.child).toBeInstanceOf(Lit);
+        expect((quantNode.child as Lit).value).toBe(" ");
+    });
 });
-
-// --- Additional Quantifier Test Cases for Parity ------------------------
-

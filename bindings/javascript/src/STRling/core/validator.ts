@@ -1,7 +1,7 @@
 /**
  * STRling v3 — Validator
  * Validates TargetArtifact against JSON Schema (draft 2020-12).
- * 
+ *
  * Ported from Python reference implementation.
  */
 
@@ -21,32 +21,39 @@ export class ValidationError extends Error {
 const ajv = new Ajv2020({
     strict: false,
     allErrors: true,
-    verbose: true
+    verbose: true,
 });
 
 const loadedSchemas = new Set<string>();
 
-export function validateArtifact(artifact: any, schemaPath: string, registry: any = null): boolean {
+export function validateArtifact(
+    artifact: any,
+    schemaPath: string,
+    registry: any = null
+): boolean {
     /**
      * Validate a TargetArtifact against a JSON Schema (draft 2020-12).
-     * 
+     *
      * @param {object} artifact - The concrete artifact to validate
      * @param {string} schemaPath - Filesystem path to the JSON schema
      * @param {object} registry - Optional registry to resolve $ref (currently unused, for future compatibility)
      * @throws {ValidationError} If validation fails
      */
-    
+
     // Read the schema file
     const schemaText = fs.readFileSync(schemaPath, "utf-8");
     const schema = JSON.parse(schemaText);
 
     // Add base schema to handle $ref if needed
     // Determine if we need to load the base schema
-    const schemaDir = schemaPath.substring(0, schemaPath.lastIndexOf('/'));
-    const baseSchemaPath = schemaDir + '/base.schema.json';
-    
+    const schemaDir = schemaPath.substring(0, schemaPath.lastIndexOf("/"));
+    const baseSchemaPath = schemaDir + "/base.schema.json";
+
     // Check if the schema has a reference to base.schema.json
-    if (JSON.stringify(schema).includes('base.schema.json') && !loadedSchemas.has(baseSchemaPath)) {
+    if (
+        JSON.stringify(schema).includes("base.schema.json") &&
+        !loadedSchemas.has(baseSchemaPath)
+    ) {
         try {
             const baseSchemaText = fs.readFileSync(baseSchemaPath, "utf-8");
             const baseSchema = JSON.parse(baseSchemaText);
@@ -67,9 +74,9 @@ export function validateArtifact(artifact: any, schemaPath: string, registry: an
     } else {
         validate = ajv.compile(schema);
     }
-    
+
     const valid = validate(artifact);
-    
+
     if (!valid) {
         // Construct error message from validation errors
         if (validate.errors && validate.errors.length > 0) {
