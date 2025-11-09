@@ -110,7 +110,7 @@ test('ECMAScript-specific feature', () => {
 Specifically:
 
 1. **New features** must include:
-   - Unit tests following the [3-Test Standard](testing_design.md#the-3-test-standard)
+   - Unit tests following the 3-Test Standard (see Test Design Standard via Developer Hub)
    - E2E tests covering the complete workflow
    - Conformance tests if the feature is portable across engines
    - Tests in both Python and JavaScript
@@ -144,7 +144,7 @@ npm test
 Ensure:
 - All tests pass
 - No new warnings or errors
-- Code coverage meets requirements (see [testing_design.md](testing_design.md#code-coverage-requirements))
+- Code coverage meets requirements (see Test Design Standard via Developer Hub)
 
 ### Test Charter Process
 
@@ -296,8 +296,4 @@ Example utilities:
 
 ## Related Documentation
 
-- **[Developer Hub](index.md)**: Central documentation landing page
-- **[Test Setup Guide](testing_setup.md)**: How to run tests
-- **[Test Design Standard](testing_design.md)**: How to write tests
-- **[Contribution Guidelines](guidelines.md)**: Development workflow and standards
-- **[Architectural Principles](architecture.md)**: STRling's foundational design decisions
+- **[Developer Hub](index.md)**: Return to the central documentation hub for all testing guides and standards

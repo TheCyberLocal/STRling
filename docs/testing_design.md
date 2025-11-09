@@ -386,7 +386,4 @@ Before a feature is considered complete:
 
 ## Related Documentation
 
-- **[Developer Hub](index.md)**: Central documentation landing page
-- **[Test Setup Guide](testing_setup.md)**: How to run tests
-- **[Testing Workflow](testing_workflow.md)**: Testing philosophy and contribution process
-- **[Contribution Guidelines](guidelines.md)**: Development workflow and standards
+- **[Developer Hub](index.md)**: Return to the central documentation hub for all testing guides and standards

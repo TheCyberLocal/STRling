@@ -99,7 +99,7 @@ The EBNF grammar and semantics document are **both normative** and must evolve i
 - **Grammar** defines _what is parsable_ (syntax)
 - **Semantics** defines _what parsed constructs mean_ (behavior)
 
-For complete details, see the [Grammar and Semantics Alignment](architecture.md#grammar-and-semantics-alignment) principle in the Architectural Principles document.
+For complete details, see the Grammar and Semantics Alignment principle in the Architectural Principles document (accessible via the Developer Hub).
 
 ### Any New Feature Must Include
 
@@ -127,7 +127,7 @@ Emitter implementations must conform to:
 - The behavioral contracts defined in the semantics
 - The schema constraints defined in the JSON schemas
 
-See the [Iron Law of Emitters](architecture.md#the-iron-law-of-emitters) for emitter design principles.
+See the Iron Law of Emitters section in the Architectural Principles document (accessible via the Developer Hub) for emitter design principles.
 
 ### For Binding Developers
 
@@ -141,7 +141,5 @@ When implementing STRling bindings:
 
 ## Related Documentation
 
-- **[Developer Hub](index.md)**: Central documentation landing page
-- **[Architectural Principles](architecture.md)**: Design decisions and principles
+- **[Developer Hub](index.md)**: Return to the central documentation hub for architecture, guidelines, and more
 - **[Specification Hub](../spec/README.md)**: Detailed specification overview
-- **[Contribution Guidelines](guidelines.md)**: Development workflow and standards
