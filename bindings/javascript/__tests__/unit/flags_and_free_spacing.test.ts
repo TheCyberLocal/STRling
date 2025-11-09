@@ -38,7 +38,7 @@
  */
 
 import { parse } from "../../src/STRling/core/parser";
-import { Lit } from "../../src/STRling/core/nodes";import {
+import {
     Flags,
     Seq,
     Lit,
