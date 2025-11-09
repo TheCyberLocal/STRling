@@ -107,7 +107,7 @@ describe("Category A: Positive Cases", () => {
             "comments_are_ignored",
         ],
         [
-            String.raw`%flags x\na\ b`,
+            `%flags x\na\\ b`,
             new Seq([new Lit("a"), new Lit(" "), new Lit("b")]),
             "escaped_whitespace_is_literal",
         ],

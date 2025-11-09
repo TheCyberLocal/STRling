@@ -166,7 +166,7 @@ describe("Category C: Edge Cases", () => {
          * Tests that an escaped backslash followed by a zero is not parsed as
          * a null byte.
          */
-        const [, ast] = parse(String.raw`\\0`);
+        const [, ast] = parse(String.raw`\\\\0`);
         expect(ast).toEqual(new Seq([new Lit("\\\\"), new Lit("0")]));
     });
 });
@@ -192,7 +192,7 @@ describe("Category D: Interaction Cases", () => {
          * Tests that in free-spacing mode, an escaped space is parsed as a
          * literal space character.
          */
-        const [, ast] = parse(String.raw`%flags x\n a \ b `);
+        const [, ast] = parse(`%flags x\n a \\ b `);
         expect(ast).toEqual(
             new Seq([new Lit("a"), new Lit(" "), new Lit("b")])
         );

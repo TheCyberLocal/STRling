@@ -510,7 +510,7 @@ describe("Category I: Quantifier Interaction With Flags", () => {
          * Tests quantifier on escaped space in free-spacing mode:
          * %flags x\n\ *
          */
-        const [, ast] = parse(String.raw`%flags x\n\ *`);
+        const [, ast] = parse(`%flags x\n\\ *`);
         // Escaped space followed by *, should quantify the space
         expect(ast).toBeInstanceOf(Quant);
         const quantNode = ast as Quant;

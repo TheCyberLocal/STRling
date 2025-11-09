@@ -12,29 +12,23 @@ import * as IR from "../core/ir.js";
 export function _escapeLiteral(s: string): string {
     /**
      * Escape PCRE2 metacharacters outside character classes, but do NOT escape dashes (-).
+     * Matches Python's re.escape() behavior.
      */
-    // Escape all PCRE2 metacharacters: . ^ $ * + ? ( ) [ ] { } | \
-    // Process character by character to handle all cases correctly
-    const metacharSet = new Set([
-        ".",
-        "^",
-        "$",
-        "*",
-        "+",
-        "?",
-        "(",
-        ")",
-        "[",
-        "]",
-        "{",
-        "}",
-        "|",
-        "\\",
+    // These are the characters that Python's re.escape() escapes
+    const toEscape = new Set([
+        " ", "#", "$", "&", "(", ")", "*", "+", "-", ".",
+        "?", "[", "\\", "]", "^", "{", "|", "}", "~"
     ]);
+    
     let result = "";
     for (const ch of s) {
-        if (metacharSet.has(ch)) {
-            result += "\\" + ch;
+        if (toEscape.has(ch)) {
+            // Don't escape dash (matching Python implementation's post-processing)
+            if (ch === "-") {
+                result += ch;
+            } else {
+                result += "\\" + ch;
+            }
         } else {
             result += ch;
         }
