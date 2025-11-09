@@ -112,11 +112,9 @@ describe("Error Handling Contract", () => {
             }
         );
 
-        test.skip("duplicate group name raises error", () => {
+        test("duplicate group name raises error", () => {
             /**
              * Tests that duplicate group names raise a semantic error.
-             * SKIPPED: Parser does not yet check for duplicate group names.
-             *
              */
             expect(() => parse("(?<name>a)(?<name>b)")).toThrow(
                 /Duplicate group name/
@@ -216,11 +214,9 @@ describe("Error Handling Contract", () => {
             }
         });
 
-        test.skip("quantifying a non-quantifiable atom raises error", () => {
+        test("quantifying a non-quantifiable atom raises error", () => {
             /**
              * Tests that attempting to quantify an anchor raises a semantic error.
-             * SKIPPED: Parser does not yet perform semantic validation on quantifiers.
-             *
              */
             expect(() => parse("^*")).toThrow(/Cannot quantify anchor/);
         });

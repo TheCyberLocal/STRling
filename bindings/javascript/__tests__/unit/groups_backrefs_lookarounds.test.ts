@@ -161,11 +161,9 @@ describe("Category B: Negative Cases", () => {
         }
     });
 
-    test.skip("duplicate group name raises error", () => {
+    test("duplicate group name raises error", () => {
         /**
          * Tests that duplicate group names raise a semantic error.
-         * SKIPPED: Parser does not yet check for duplicate group names.
-         *
          */
         expect(() => parse("(?<name>a)(?<name>b)")).toThrow(
             /Duplicate group name/
