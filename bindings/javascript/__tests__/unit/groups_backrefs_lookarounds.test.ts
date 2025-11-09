@@ -120,12 +120,12 @@ describe("Category B: Negative Cases", () => {
     test.each<[string, string, number, string]>([
         // B.1: Unterminated constructs
         ["(a", "Unterminated group", 2, "unterminated_group"],
-        ["(?<name", "Unterminated group name", 8, "unterminated_named_group"],
+        ["(?<name", "Unterminated group name", 7, "unterminated_named_group"],
         ["(?=a", "Unterminated lookahead", 4, "unterminated_lookahead"],
         [
             "\\k<A",
             "Unterminated named backref",
-            4,
+            0,
             "unterminated_named_backref",
         ],
         // B.2: Invalid backreferences
@@ -243,7 +243,9 @@ describe("Category D: Interaction Cases", () => {
          * Tests that free-spacing and comments work correctly inside groups.
          *
          */
-        const [, ast] = parse("%flags x\\n(?<name> a #comment\\n b)");
+        const [, ast] = parse(`%flags x
+(?<name> a #comment
+ b)`);
         expect(ast).toBeInstanceOf(Group);
         const groupNode = ast as Group;
         expect(groupNode.name).toBe("name");

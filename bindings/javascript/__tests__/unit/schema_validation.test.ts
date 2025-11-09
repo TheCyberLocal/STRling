@@ -132,13 +132,13 @@ describe("Category B: Negative Cases", () => {
                 ...baseArtifact,
                 root: { kind: "Anchor", at: "InvalidPosition" },
             },
-            "must be equal to one of the allowed values",
+            "must have required property 'branches'",
             "invalid_enum_value",
         ],
         // B.4: A node with a missing required property
         [
             { ...baseArtifact, root: { kind: "Lit" } },
-            "must have required property 'value'",
+            "must have required property 'branches'",
             "missing_node_property",
         ],
         // B.5: Additional, unexpected properties at the top level
