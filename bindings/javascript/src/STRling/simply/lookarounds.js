@@ -8,7 +8,7 @@
  * in both directions (ahead/behind), plus convenience functions for common patterns.
  */
 
-import { STRlingError, Pattern, lit, createPattern } from "./pattern.js";
+import { STRlingError, Pattern, lit, createPattern, nodes } from "./pattern.js";
 
 /**
  * Creates a positive lookahead assertion that checks for a pattern ahead without consuming it.
@@ -57,12 +57,7 @@ export function ahead(pattern) {
         throw new STRlingError(message);
     }
 
-    const node = {
-        ir: "Look",
-        dir: "Ahead",
-        neg: false,
-        body: pattern.node,
-    };
+    const node = new nodes.Look("Ahead", false, pattern.node,);
 
     return createPattern({
         node,
@@ -116,12 +111,7 @@ export function notAhead(pattern) {
         throw new STRlingError(message);
     }
 
-    const node = {
-        ir: "Look",
-        dir: "Ahead",
-        neg: true,
-        body: pattern.node,
-    };
+    const node = new nodes.Look("Ahead", true, pattern.node,);
 
     return createPattern({
         node,
@@ -175,12 +165,7 @@ export function behind(pattern) {
         throw new STRlingError(message);
     }
 
-    const node = {
-        ir: "Look",
-        dir: "Behind",
-        neg: false,
-        body: pattern.node,
-    };
+    const node = new nodes.Look("Behind", false, pattern.node,);
 
     return createPattern({
         node,
@@ -233,12 +218,7 @@ export function notBehind(pattern) {
         throw new STRlingError(message);
     }
 
-    const node = {
-        ir: "Look",
-        dir: "Behind",
-        neg: true,
-        body: pattern.node,
-    };
+    const node = new nodes.Look("Behind", true, pattern.node,);
 
     return createPattern({
         node,
@@ -298,25 +278,11 @@ export function has(pattern) {
         throw new STRlingError(message);
     }
 
-    const dotStarNode = {
-        ir: "Quant",
-        child: { ir: "Dot" },
-        min: 0,
-        max: "Inf",
-        mode: "Greedy",
-    };
+    const dotStarNode = new nodes.Quant(new nodes.Dot(), 0, "Inf", "Greedy");
 
-    const seqNode = {
-        ir: "Seq",
-        parts: [dotStarNode, pattern.node],
-    };
+    const seqNode = new nodes.Seq([dotStarNode, pattern.node]);
 
-    const node = {
-        ir: "Look",
-        dir: "Ahead",
-        neg: false,
-        body: seqNode,
-    };
+    const node = new nodes.Look("Ahead", false, seqNode,);
 
     return createPattern({
         node,
@@ -376,25 +342,11 @@ export function hasNot(pattern) {
         throw new STRlingError(message);
     }
 
-    const dotStarNode = {
-        ir: "Quant",
-        child: { ir: "Dot" },
-        min: 0,
-        max: "Inf",
-        mode: "Greedy",
-    };
+    const dotStarNode = new nodes.Quant(new nodes.Dot(), 0, "Inf", "Greedy");
 
-    const seqNode = {
-        ir: "Seq",
-        parts: [dotStarNode, pattern.node],
-    };
+    const seqNode = new nodes.Seq([dotStarNode, pattern.node]);
 
-    const node = {
-        ir: "Look",
-        dir: "Ahead",
-        neg: true,
-        body: seqNode,
-    };
+    const node = new nodes.Look("Ahead", true, seqNode,);
 
     return createPattern({
         node,

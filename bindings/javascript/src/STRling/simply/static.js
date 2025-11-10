@@ -8,7 +8,7 @@
  * like \d, \w, \s, etc.
  */
 
-import { Pattern, lit } from "./pattern.js";
+import { Pattern, lit, nodes } from "./pattern.js";
 
 /**
 Matches any letter (uppercase or lowercase) or digit.
@@ -17,15 +17,11 @@ Matches any letter (uppercase or lowercase) or digit.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function alphaNum(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [
-            { ir: "Range", from: "A", to: "Z" },
-            { ir: "Range", from: "a", to: "z" },
-            { ir: "Range", from: "0", to: "9" },
-        ],
-    };
+    const node = new nodes.CharClass(false, [
+        new nodes.ClassRange("A", "Z"),
+        new nodes.ClassRange("a", "z"),
+        new nodes.ClassRange("0", "9"),
+    ]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -37,15 +33,11 @@ Matches any character that is not a letter or digit.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function notAlphaNum(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: true,
-        items: [
-            { ir: "Range", from: "A", to: "Z" },
-            { ir: "Range", from: "a", to: "z" },
-            { ir: "Range", from: "0", to: "9" },
-        ],
-    };
+    const node = new nodes.CharClass(true, [
+            new nodes.ClassRange("A", "Z"),
+            new nodes.ClassRange("a", "z"),
+            new nodes.ClassRange("0", "9"),
+        ]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -58,10 +50,9 @@ Matches any special character.
 */
 export function specialChar(minRep, maxRep) {
     const specialChars = `!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`;
-    const items = Array.from(specialChars).map((char) => ({
-        ir: "Char",
-        value: char,
-    }));
+    const items = Array.from(specialChars).map((char) => 
+        new nodes.ClassLiteral(char)
+    );
 
     const node = {
         ir: "CharClass",
@@ -80,10 +71,9 @@ Matches any character that is not a special character.
 */
 export function notSpecialChar(minRep, maxRep) {
     const specialChars = `!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`;
-    const items = Array.from(specialChars).map((char) => ({
-        ir: "Char",
-        value: char,
-    }));
+    const items = Array.from(specialChars).map((char) => 
+        new nodes.ClassLiteral(char)
+    );
 
     const node = {
         ir: "CharClass",
@@ -101,14 +91,10 @@ Matches any letter (uppercase or lowercase).
 @returns {Pattern} An instance of the Pattern class.
 */
 export function letter(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [
-            { ir: "Range", from: "A", to: "Z" },
-            { ir: "Range", from: "a", to: "z" },
-        ],
-    };
+    const node = new nodes.CharClass(false, [
+            new nodes.ClassRange("A", "Z"),
+            new nodes.ClassRange("a", "z"),
+        ]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -120,14 +106,10 @@ Matches any character that is not a letter.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function notLetter(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: true,
-        items: [
-            { ir: "Range", from: "A", to: "Z" },
-            { ir: "Range", from: "a", to: "z" },
-        ],
-    };
+    const node = new nodes.CharClass(true, [
+            new nodes.ClassRange("A", "Z"),
+            new nodes.ClassRange("a", "z"),
+        ]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -139,11 +121,7 @@ Matches any uppercase letter.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function upper(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [{ ir: "Range", from: "A", to: "Z" }],
-    };
+    const node = new nodes.CharClass(false, [new nodes.ClassRange("A", "Z")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -155,11 +133,7 @@ Matches any character that is not an uppercase letter.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function notUpper(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: true,
-        items: [{ ir: "Range", from: "A", to: "Z" }],
-    };
+    const node = new nodes.CharClass(true, [new nodes.ClassRange("A", "Z")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -171,11 +145,7 @@ Matches any lowercase letter.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function lower(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [{ ir: "Range", from: "a", to: "z" }],
-    };
+    const node = new nodes.CharClass(false, [new nodes.ClassRange("a", "z")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -187,11 +157,7 @@ Matches any character that is not a lowercase letter.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function notLower(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: true,
-        items: [{ ir: "Range", from: "a", to: "z" }],
-    };
+    const node = new nodes.CharClass(true, [new nodes.ClassRange("a", "z")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -204,15 +170,11 @@ A hex-digit character is any letter A through F (uppercase or lowercase) or any 
 @returns {Pattern} An instance of the Pattern class.
 */
 export function hexDigit(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [
-            { ir: "Range", from: "A", to: "F" },
-            { ir: "Range", from: "a", to: "f" },
-            { ir: "Range", from: "0", to: "9" },
-        ],
-    };
+    const node = new nodes.CharClass(false, [
+            new nodes.ClassRange("A", "F"),
+            new nodes.ClassRange("a", "f"),
+            new nodes.ClassRange("0", "9"),
+        ]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -225,15 +187,11 @@ A hex-digit character is any letter A through F (uppercase or lowercase) or any 
 @returns {Pattern} An instance of the Pattern class.
 */
 export function notHexDigit(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: true,
-        items: [
-            { ir: "Range", from: "A", to: "F" },
-            { ir: "Range", from: "a", to: "f" },
-            { ir: "Range", from: "0", to: "9" },
-        ],
-    };
+    const node = new nodes.CharClass(true, [
+            new nodes.ClassRange("A", "F"),
+            new nodes.ClassRange("a", "f"),
+            new nodes.ClassRange("0", "9"),
+        ]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -245,11 +203,7 @@ Matches any digit.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function digit(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [{ ir: "Esc", type: "d" }],
-    };
+    const node = new nodes.CharClass(false, [new nodes.ClassEscape("d")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -261,11 +215,7 @@ Matches any character that is not a digit.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function notDigit(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [{ ir: "Esc", type: "D" }],
-    };
+    const node = new nodes.CharClass(false, [new nodes.ClassEscape("D")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -277,11 +227,7 @@ Matches any whitespace character.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function whitespace(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [{ ir: "Esc", type: "s" }],
-    };
+    const node = new nodes.CharClass(false, [new nodes.ClassEscape("s")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -293,11 +239,7 @@ Matches any character that is not a whitespace character. (Whitespaces include s
 @returns {Pattern} An instance of the Pattern class.
 */
 export function notWhitespace(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: true,
-        items: [{ ir: "Esc", type: "s" }],
-    };
+    const node = new nodes.CharClass(true, [new nodes.ClassEscape("s")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -309,11 +251,7 @@ Matches a newline character.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function newline(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [{ ir: "Esc", type: "n" }],
-    };
+    const node = new nodes.CharClass(false, [new nodes.ClassEscape("n")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -325,11 +263,7 @@ Matches any character that is not a newline.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function notNewline(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: true,
-        items: [{ ir: "Esc", type: "n" }],
-    };
+    const node = new nodes.CharClass(true, [new nodes.ClassEscape("n")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -341,11 +275,7 @@ Matches a tab character.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function tab(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [{ ir: "Esc", type: "t" }],
-    };
+    const node = new nodes.CharClass(false, [new nodes.ClassEscape("t")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -357,11 +287,7 @@ Matches a carriage return character.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function carriage(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [{ ir: "Esc", type: "r" }],
-    };
+    const node = new nodes.CharClass(false, [new nodes.ClassEscape("r")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -373,11 +299,7 @@ Matches a boundary character.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function bound(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [{ ir: "Esc", type: "b" }],
-    };
+    const node = new nodes.CharClass(false, [new nodes.ClassEscape("b")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -389,11 +311,7 @@ Matches any character that is not a boundary.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function notBound(minRep, maxRep) {
-    const node = {
-        ir: "CharClass",
-        negated: true,
-        items: [{ ir: "Esc", type: "b" }],
-    };
+    const node = new nodes.CharClass(true, [new nodes.ClassEscape("b")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -403,7 +321,7 @@ Matches the start of a line.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function start() {
-    return Pattern.createModifiedInstance({ ir: "Anchor", type: "Start" }, {});
+    return Pattern.createModifiedInstance(new nodes.Anchor("Start"), {});
 }
 
 /**
@@ -411,5 +329,5 @@ Matches the end of a line.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function end() {
-    return Pattern.createModifiedInstance({ ir: "Anchor", type: "End" }, {});
+    return Pattern.createModifiedInstance(new nodes.Anchor("End"), {});
 }
