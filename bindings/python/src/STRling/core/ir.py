@@ -1,17 +1,55 @@
+"""
+STRling Intermediate Representation (IR) Node Definitions
+
+This module defines the complete set of IR node classes that represent
+language-agnostic regex constructs. The IR serves as an intermediate layer
+between the parsed AST and the target-specific emitters (e.g., PCRE2).
+
+IR nodes are designed to be:
+  - Simple and composable
+  - Easy to serialize (via to_dict methods)
+  - Independent of any specific regex flavor
+  - Optimized for transformation and analysis
+
+Each IR node corresponds to a fundamental regex operation (alternation,
+sequencing, character classes, quantification, etc.) and can be serialized
+to a dictionary representation for further processing or debugging.
+"""
+
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Optional, Union, Any, Dict
 
 
 class IROp:
-    """Base class for IR nodes (language-agnostic regex constructs)."""
+    """
+    Base class for all IR operations.
+    
+    All IR nodes extend this base class and must implement the to_dict() method
+    for serialization to a dictionary representation.
+    """
 
     def to_dict(self) -> Dict[str, Any]:
+        """
+        Serialize the IR node to a dictionary representation.
+        
+        Returns:
+            The dictionary representation of this IR node.
+            
+        Raises:
+            NotImplementedError: If not implemented by subclass.
+        """
         raise NotImplementedError
 
 
 @dataclass
 class IRAlt(IROp):
+    """
+    Represents an alternation (OR) operation in the IR.
+    
+    Matches any one of the provided branches. Equivalent to the | operator
+    in traditional regex syntax.
+    """
     branches: List["IROp"]
 
     def to_dict(self) -> Dict[str, Any]:

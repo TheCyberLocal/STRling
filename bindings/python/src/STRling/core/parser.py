@@ -1,7 +1,19 @@
 """
-STRling v3 — Parser (Sprint 3)
-Hand-rolled recursive-descent parser for the STRling regex-like DSL.
-Produces AST nodes defined in nodes.py and a Base TargetArtifact.
+STRling Parser - Recursive Descent Parser for STRling DSL
+
+This module implements a hand-rolled recursive-descent parser that transforms
+STRling pattern syntax into Abstract Syntax Tree (AST) nodes. The parser handles:
+  - Alternation and sequencing
+  - Character classes and ranges
+  - Quantifiers (greedy, lazy, possessive)
+  - Groups (capturing, non-capturing, named, atomic)
+  - Lookarounds (lookahead and lookbehind, positive and negative)
+  - Anchors and special escapes
+  - Extended/free-spacing mode with comments
+
+The parser produces AST nodes (defined in nodes.py) that can be compiled
+to IR and ultimately emitted as target-specific regex patterns. It includes
+comprehensive error handling with position tracking for helpful diagnostics.
 """
 
 from __future__ import annotations

@@ -1,3 +1,19 @@
+"""
+STRling Compiler - AST to IR Transformation
+
+This module implements the compiler that transforms Abstract Syntax Tree (AST)
+nodes from the parser into an optimized Intermediate Representation (IR). The
+compilation process includes:
+  - Lowering AST nodes to IR operations
+  - Flattening nested sequences and alternations
+  - Coalescing adjacent literal nodes for efficiency
+  - Ensuring quantifier children are properly grouped
+  - Analyzing and tracking regex features used
+
+The IR is designed to be easily consumed by target emitters (e.g., PCRE2)
+while maintaining semantic accuracy and enabling optimizations.
+"""
+
 from __future__ import annotations
 from STRling.core import nodes as N, ir as IR
 from typing import cast
@@ -5,6 +21,11 @@ from typing import cast
 
 class Compiler:
     """
+    Compiler for transforming AST nodes into optimized IR.
+    
+    The Compiler class handles the complete transformation pipeline from parsed
+    AST to normalized IR, including feature detection for metadata generation.
+    
     AST -> IR lowering with normalization:
       - Flatten nested Seq/Alt
       - Coalesce adjacent Lit nodes
@@ -15,7 +36,18 @@ class Compiler:
         self.features_used: set[str] = set()
 
     def compile_with_metadata(self, root_node: N.Node) -> dict[str, object]:
-        """Compiles the AST and returns a full artifact with metadata."""
+        """
+        Compile an AST node and return IR with metadata.
+        
+        This is the main entry point for compilation with full metadata tracking.
+        It performs lowering, normalization, and feature analysis.
+        
+        Args:
+            root_node: The root AST node to compile.
+            
+        Returns:
+            Dictionary containing the compiled IR and metadata about features used.
+        """
         ir_root = self._lower(root_node)
         ir_root = self._normalize(ir_root)
 

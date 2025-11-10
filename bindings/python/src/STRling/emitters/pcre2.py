@@ -1,3 +1,19 @@
+"""
+STRling PCRE2 Emitter - IR to PCRE2 Pattern String
+
+This module implements the emitter that transforms STRling's Intermediate
+Representation (IR) into PCRE2-compatible regex pattern strings. The emitter:
+  - Converts IR operations to PCRE2 syntax
+  - Handles proper escaping of metacharacters
+  - Manages character classes and ranges
+  - Emits quantifiers, groups, and lookarounds
+  - Applies regex flags as needed
+
+The emitter is the final stage of the compilation pipeline, producing actual
+regex patterns that can be used with PCRE2-compatible regex engines (which
+includes most modern regex implementations).
+"""
+
 from __future__ import annotations
 
 from typing import List, Optional, Literal, Protocol, Union, runtime_checkable

@@ -1,3 +1,14 @@
+"""
+Core Pattern class and error types for STRling.
+
+This module defines the fundamental Pattern class that represents all STRling
+patterns, along with the STRlingError exception class and compilation utilities.
+The Pattern class provides chainable methods for applying quantifiers, repetitions,
+and other modifiers to patterns. It serves as the foundation for all pattern
+construction in the Simply API, wrapping internal AST nodes and providing a
+user-friendly interface for pattern manipulation and compilation.
+"""
+
 import textwrap, json, re
 from STRling.core import nodes
 from STRling.core.compiler import Compiler
@@ -7,12 +18,24 @@ from STRling.emitters.pcre2 import emit as emit_pcre2
 class Simply:
     """
     Central manager for pattern compilation and emission.
+    
+    This internal class handles the compilation pipeline, transforming Pattern
+    objects through the AST -> IR -> emitted regex string stages.
     """
     def __init__(self):
         self.compiler = Compiler()
         
     def build(self, pattern_obj, flags=None):
-        """Compile a Pattern object's node to a regex string"""
+        """
+        Compile a Pattern object's node to a regex string.
+        
+        Args:
+            pattern_obj: The Pattern object to compile.
+            flags: Optional regex flags to apply.
+            
+        Returns:
+            The compiled regex string in PCRE2 format.
+        """
         ir_root = self.compiler.compile(pattern_obj.node)
         return emit_pcre2(ir_root, flags)
 
@@ -22,14 +45,67 @@ s = Simply()
 
 
 class STRlingError(ValueError):
+    """
+    Custom error class for STRling pattern errors.
+    
+    This error class provides formatted, user-friendly error messages when invalid
+    patterns are constructed or invalid arguments are provided to pattern functions.
+    Error messages are automatically formatted with consistent indentation for
+    better readability in console output.
+    """
     def __init__(self, message):
+        """
+        Create a new STRlingError with formatted message.
+        
+        Args:
+            message: The error message (can be multiline and will be reformatted).
+        """
         self.message = textwrap.dedent(message).strip().replace('\n', '\n\t')
         super().__init__(self.message)
 
     def __str__(self):
+        """
+        Return the formatted error message with header and indentation.
+        
+        Returns:
+            Formatted error message string.
+        """
         return f"\n\nSTRlingError: Invalid Pattern Attempted.\n\n\t{self.message}"
 
 def lit(text):
+    """
+    Create a literal pattern from a string.
+    
+    This function wraps a plain string in a Pattern object, treating all characters
+    as literals (no special regex meaning). It's the foundation for mixing literal
+    text with pattern-based matching.
+    
+    Args:
+        text: The text to use as a literal.
+        
+    Returns:
+        A Pattern object representing the literal text.
+        
+    Examples:
+        Simple Use: Match literal text
+            >>> import STRling.simply as s
+            >>> pattern = s.lit('hello')
+            >>> bool(re.search(str(pattern), 'hello world'))
+            True
+            
+        Advanced Use: Combine literal with patterns
+            >>> email = s.merge(
+            ...     s.letter(1, 0),
+            ...     s.lit('@'),
+            ...     s.letter(1, 0),
+            ...     s.lit('.'),
+            ...     s.letter(2, 4)
+            ... )
+            
+    See Also:
+        Pattern : The Pattern class that wraps all patterns
+        merge : For combining multiple patterns
+    """
     # Create a Literal node instead of escaping text
     return Pattern(nodes.Lit(text))
 
