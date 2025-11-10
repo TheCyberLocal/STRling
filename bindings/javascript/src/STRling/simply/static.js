@@ -311,7 +311,7 @@ Matches any character that is not a boundary.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function notBound(minRep, maxRep) {
-    const node = new nodes.CharClass(true, [new nodes.ClassEscape("b")]);
+    const node = new nodes.CharClass(false, [new nodes.ClassEscape("B")]);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
