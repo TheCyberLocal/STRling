@@ -4,25 +4,60 @@ from STRling.core import nodes
 
 def any_of(*patterns):
     """
-    Matches any provided pattern, including patterns consisting of subpatterns.
+    Matches any one of the provided patterns (alternation/OR operation).
 
-    Parameters:
-    - *patterns (Pattern/str): One or more patterns to be matched.
+    This function creates a pattern that succeeds if any of the provided patterns
+    match at the current position. It's equivalent to the | operator in regular
+    expressions.
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    *patterns : Pattern or str
+        One or more patterns to be matched. Strings are automatically converted
+        to literal patterns.
 
-    Examples:
-        ```
-        # Matches 3 digits followed by 3 letters.
-        pattern1 = s.merge(s.digit(3), s.letter(3))
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the alternation of all provided patterns.
 
-        # Matches 3 letters followed by 3 digits.
-        pattern2 = s.merge(s.letter(3), s.digit(3))
+    Examples
+    --------
+    Simple Use: Match either 'cat' or 'dog'
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.any_of('cat', 'dog')
+        >>> bool(re.search(str(pattern), 'I have a cat'))
+        True
+        >>> bool(re.search(str(pattern), 'I have a dog'))
+        True
 
-        # Matches either pattern1 or pattern2.
-        either_pattern = s.any_of(pattern1, pattern2)
-        ```
+    Advanced Use: Match different number formats
+        >>> # Matches 3 digits followed by 3 letters, OR 3 letters followed by 3 digits
+        >>> pattern1 = s.merge(s.digit(3), s.letter(3))
+        >>> pattern2 = s.merge(s.letter(3), s.digit(3))
+        >>> either_pattern = s.any_of(pattern1, pattern2)
+        >>> bool(re.search(str(either_pattern), 'ABC123'))
+        True
+        >>> bool(re.search(str(either_pattern), '123ABC'))
+        True
+
+    Raises
+    ------
+    STRlingError
+        If any parameter is not a Pattern or string, or if duplicate named groups
+        are found across the patterns.
+
+    Notes
+    -----
+    Named groups must be unique across all alternatives. If you need to use the
+    same group name in different branches, consider using numbered capture groups
+    with `s.capture()` instead.
+
+    See Also
+    --------
+    merge : For concatenating patterns sequentially
+    may : For optional patterns
     """
 
     clean_patterns = []
@@ -75,21 +110,59 @@ def any_of(*patterns):
 
 def may(*patterns):
     """
-    Optionally matches the provided patterns. If this pattern is absent, surrounding patterns can still match.
+    Makes the provided patterns optional (matches 0 or 1 times).
 
-    Parameters:
-    - *patterns (Pattern/str): One or more patterns to be optionally matched.
+    This function creates a pattern that may or may not be present. If the pattern
+    is absent, the overall match can still succeed. This is equivalent to the ?
+    quantifier in regular expressions.
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    *patterns : Pattern or str
+        One or more patterns to be optionally matched. Strings are automatically
+        converted to literal patterns. Multiple patterns are concatenated together.
 
-    Examples:
-        ```
-        # Matches any letter, along with any trailing digit.
-        pattern = s.merge(s.letter(), s.may(s.digit()))
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the optional pattern(s).
 
-        # In the text "AB2" the pattern above matches 'A' and 'B2'.
-        ```
+    Examples
+    --------
+    Simple Use: Match a letter with optional trailing digit
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.merge(s.letter(), s.may(s.digit()))
+        >>> matches = re.findall(str(pattern), 'A B2 C')
+        >>> matches
+        ['A', 'B2', 'C']
+
+    Advanced Use: Optional protocol in URL pattern
+        >>> protocol = s.may(s.merge(s.any_of('http', 'https'), '://'))
+        >>> domain = s.merge(s.letter(1, 0), '.', s.letter(2, 3))
+        >>> url_pattern = s.merge(protocol, domain)
+        >>> bool(re.search(str(url_pattern), 'https://example.com'))
+        True
+        >>> bool(re.search(str(url_pattern), 'example.com'))
+        True
+
+    Raises
+    ------
+    STRlingError
+        If any parameter is not a Pattern or string, or if duplicate named groups
+        are found.
+
+    Notes
+    -----
+    When multiple patterns are provided, they are concatenated together before
+    being made optional. For example, `s.may(s.digit(), s.letter())` matches
+    zero or one occurrence of a digit followed by a letter, not zero or one
+    of each individually.
+
+    See Also
+    --------
+    any_of : For alternation between patterns
+    merge : For concatenating patterns
     """
 
     clean_patterns = []
@@ -149,19 +222,58 @@ def may(*patterns):
 
 def merge(*patterns):
     """
-    Combines the provided patterns into one larger pattern.
+    Concatenates the provided patterns into a single sequential pattern.
 
-    Parameters:
-    - *patterns (Pattern/str): One or more patterns to be concatenated.
+    This function creates a pattern that matches all provided patterns in order,
+    one after another. It's the fundamental operation for building complex patterns
+    from simpler components.
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    *patterns : Pattern or str
+        One or more patterns to be concatenated. Strings are automatically
+        converted to literal patterns.
 
-    Examples:
-        ```
-        # Matches any digit followed by a comma and period.
-        merged_pattern = s.merge(s.digit(), ',.')
-        ```
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the concatenated sequence.
+
+    Examples
+    --------
+    Simple Use: Match digit followed by literal text
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.merge(s.digit(), ',.')
+        >>> match = re.search(str(pattern), 'test5,.')
+        >>> match.group()
+        '5,.'
+
+    Advanced Use: Build a complete email pattern
+        >>> username = s.merge(s.alpha_num(1, 0), s.may(s.merge('.', s.alpha_num(1, 0))))
+        >>> at_sign = s.lit('@')
+        >>> domain = s.merge(s.alpha_num(1, 0), '.', s.letter(2, 4))
+        >>> email = s.merge(username, at_sign, domain)
+        >>> bool(re.search(str(email), 'user@example.com'))
+        True
+
+    Raises
+    ------
+    STRlingError
+        If any parameter is not a Pattern or string, or if duplicate named groups
+        are found across the patterns.
+
+    Notes
+    -----
+    All named groups within merged patterns must be unique. If the same named
+    group appears multiple times, use `s.capture()` for numbered groups or
+    ensure each named group has a distinct name.
+
+    See Also
+    --------
+    any_of : For alternation (OR operation)
+    capture : For creating numbered capture groups
+    group : For creating named capture groups
     """
 
     clean_patterns = []
@@ -218,50 +330,70 @@ def merge(*patterns):
 
 def capture(*patterns):
     """
-    Creates a numbered group that can be indexed for extracting this part of the match.
+    Creates a numbered capture group for extracting matched content by index.
 
-    Parameters:
-    - *patterns (Pattern/str): One or more patterns to be captured.
+    Capture groups allow you to extract specific portions of a matched pattern
+    using numeric indices. Unlike named groups, capture groups can be repeated
+    with quantifiers, and each repetition creates a new numbered group.
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    *patterns : Pattern or str
+        One or more patterns to be captured. Strings are automatically
+        converted to literal patterns. Multiple patterns are concatenated.
 
-    Ranges:
-        ```
-        # Captures CANNOT be invoked with a range.
-        s.capture(s.digit(), s.letter())(1, 2) # <== INVALID
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the numbered capture group.
 
-        # Captures CAN be invoked with a number of copies.
-        s.capture(s.digit(), s.letter())(3) # <== VALID
-        ```
+    Examples
+    --------
+    Simple Use: Capture a digit-comma-period sequence
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.capture(s.digit(), ',.')
+        >>> match = re.search(str(pattern), '5,.')
+        >>> match.group(0)  # Full match
+        '5,.'
+        >>> match.group(1)  # First capture group
+        '5,.'
 
-    Examples:
-        ```
-        # Matches any digit followed by a comma and period.
-        captured_pattern = s.capture(s.digit(), ',.')
-        ```
+    Advanced Use: Multiple captures with repetition
+        >>> three_digit_group = s.capture(s.digit(3))
+        >>> four_groups = three_digit_group.rep(4)
+        >>> text = "Here is a number: 111222333444"
+        >>> match = re.search(str(four_groups), text)
+        >>> match.group(0)  # Full match
+        '111222333444'
+        >>> match.group(1)  # First capture
+        '111'
+        >>> match.group(2)  # Second capture
+        '222'
+        >>> match.group(3)  # Third capture
+        '333'
+        >>> match.group(4)  # Fourth capture
+        '444'
 
-    Referencing:
-        ```
-        three_digit_group = s.capture(s.digit(3))
-        four_groups_of_three = three_digit_groups(4)
-        example_text = "Here is a number: 111222333444"
+    Raises
+    ------
+    STRlingError
+        If any parameter is not a Pattern or string, or if duplicate named groups
+        are found within the captured patterns.
 
-        match = re.search(str(four_groups_of_three), example_text)  # Notice str(pattern)
+    Notes
+    -----
+    Captures can be repeated with `.rep(n)` or `.rep(min, max)`, and each
+    repetition creates a new numbered group. However, captures CANNOT be
+    invoked with a range using the call syntax:
+    
+    - VALID: `s.capture(s.digit(), s.letter()).rep(3)`
+    - INVALID: `s.capture(s.digit(), s.letter())(1, 2)`
 
-        print("Full Match:", match.group())
-        print("First:", match.group(1))
-        print("Second:", match.group(2))
-        print("Third:", match.group(3))
-        print("Fourth:", match.group(4))
-
-        # Output:
-        # Full Match: 111222333444
-        # First: 111
-        # Second: 222
-        # Third: 333
-        # Fourth: 444
-        ```
+    See Also
+    --------
+    group : For creating named capture groups
+    merge : For non-capturing concatenation
     """
 
 
@@ -324,49 +456,76 @@ def capture(*patterns):
 
 def group(name, *patterns):
     """
-    Creates a unique named group that can be referenced for extracting this part of the match.
+    Creates a named capture group that can be referenced by name for extracting matched content.
 
-    Parameters:
-    - name (str): The name of the capturing group.
-    - *patterns (Pattern/str): One or more patterns to be captured.
+    Named groups allow you to extract specific portions of a matched pattern using
+    descriptive names rather than numeric indices, making your code more readable
+    and maintainable.
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    name : str
+        The unique name for the group (e.g., 'area_code'). Must be a valid Python
+        identifier and must be unique within the entire pattern.
+    *patterns : Pattern or str
+        One or more patterns to be captured. Strings are automatically converted
+        to literal patterns. Multiple patterns are concatenated.
 
-    Ranges:
-        ```
-        # Groups CANNOT be invoked with a range.
-        s.group('name', s.digit())(1, 2) # <== INVALID
-        ```
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the named capture group.
 
-    Examples:
-        ```
-        # Matches any digit followed by a comma and period.
-        named_pattern = s.group('my_group', s.digit(), ',.')
-        ```
+    Examples
+    --------
+    Simple Use: Capture a digit-comma-period sequence with a name
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.group('my_group', s.digit(), ',.')
+        >>> match = re.search(str(pattern), '5,.')
+        >>> match.group('my_group')
+        '5,.'
 
-    Referencing:
-        ```
-        first = s.group("first", s.digit(3))
-        second = s.group("second", s.digit(3))
-        third = s.group("third", s.digit(4))
+    Advanced Use: Build a phone number pattern with named groups
+        >>> first = s.group("first", s.digit(3))
+        >>> second = s.group("second", s.digit(3))
+        >>> third = s.group("third", s.digit(4))
+        >>> phone_pattern = s.merge(first, "-", second, "-", third)
+        >>> text = "Here is a phone number: 123-456-7890."
+        >>> match = re.search(str(phone_pattern), text)
+        >>> match.group()
+        '123-456-7890'
+        >>> match.group("first")
+        '123'
+        >>> match.group("second")
+        '456'
+        >>> match.group("third")
+        '7890'
 
-        phone_number_pattern = s.merge(first, "-", second, "-", third)
+    Raises
+    ------
+    STRlingError
+        If name is not a string, if any pattern parameter is not a Pattern or
+        string, or if duplicate named groups are found.
 
-        example_text = "Here is a phone number: 123-456-7890."
-        match = re.search(str(phone_number_pattern), example_text) # Notice str(pattern)
+    Notes
+    -----
+    Named groups CANNOT be repeated with quantifiers like `.rep(1, 3)` because
+    each repetition would create multiple groups with the same name, which is not
+    allowed. For repeatable patterns, use `s.capture()` for numbered groups or
+    `s.merge()` for non-capturing concatenation.
+    
+    Groups cannot be invoked with ranges using the call syntax:
+    - INVALID: `s.group('name', s.digit())(1, 2)`
+    
+    All named groups must have unique names throughout the entire pattern. If you
+    need to use the same pattern multiple times, create it once and reference it,
+    or use numbered captures instead.
 
-        print("Full Match:", match.group())
-        print("First:", match.group("first"))
-        print("Second:", match.group("second"))
-        print("Third:", match.group("third"))
-
-        # Output:
-        # Full Match: 123-456-7890
-        # First: 123
-        # Second: 456
-        # Third: 7890
-        ```
+    See Also
+    --------
+    capture : For numbered, repeatable capture groups
+    merge : For non-capturing concatenation
     """
 
     if not isinstance(name, str):
