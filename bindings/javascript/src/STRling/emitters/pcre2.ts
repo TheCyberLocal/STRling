@@ -1,19 +1,34 @@
 /**
- * STRling v3 — PCRE2 Emitter
- * Emit PCRE2 pattern string from IR.
+ * STRling PCRE2 Emitter - IR to PCRE2 Pattern String
  *
- * Ported from Python reference implementation.
+ * This module implements the emitter that transforms STRling's Intermediate
+ * Representation (IR) into PCRE2-compatible regex pattern strings. The emitter:
+ *   - Converts IR operations to PCRE2 syntax
+ *   - Handles proper escaping of metacharacters
+ *   - Manages character classes and ranges
+ *   - Emits quantifiers, groups, and lookarounds
+ *   - Applies regex flags as needed
+ *
+ * The emitter is the final stage of the compilation pipeline, producing actual
+ * regex patterns that can be used with PCRE2-compatible regex engines (which
+ * includes most modern regex implementations).
  */
 
 import * as IR from "../core/ir.js";
 
 // ---- helpers ----------------------------------------------------------------
 
+/**
+ * Escapes PCRE2 metacharacters in literal strings.
+ *
+ * Escapes characters that have special meaning in PCRE2 regex syntax when
+ * used outside character classes. This ensures literal strings are matched
+ * exactly as written.
+ *
+ * @param s - The literal string to escape.
+ * @returns The escaped string safe for use in PCRE2 patterns.
+ */
 export function _escapeLiteral(s: string): string {
-    /**
-     * Escape PCRE2 metacharacters outside character classes, but do NOT escape dashes (-).
-     * Matches Python's re.escape() behavior.
-     */
     // These are the characters that Python's re.escape() escapes
     const toEscape = new Set([
         " ", "#", "$", "&", "(", ")", "*", "+", "-", ".",

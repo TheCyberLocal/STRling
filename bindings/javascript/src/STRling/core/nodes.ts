@@ -1,11 +1,29 @@
 /**
- * STRling v3 — AST node definitions (Sprint 3)
- * The AST serializes to the Base TargetArtifact schema's Node defs.
+ * STRling AST Node Definitions
  *
- * Ported from Python reference implementation.
+ * This module defines the complete set of Abstract Syntax Tree (AST) node classes
+ * that represent the parsed structure of STRling patterns. The AST is the direct
+ * output of the parser and represents the syntactic structure of the pattern before
+ * optimization and lowering to IR.
+ *
+ * AST nodes are designed to:
+ *   - Closely mirror the source pattern syntax
+ *   - Be easily serializable to the Base TargetArtifact schema
+ *   - Provide a clean separation between parsing and compilation
+ *   - Support multiple target regex flavors through the compilation pipeline
+ *
+ * Each AST node type corresponds to a syntactic construct in the STRling DSL
+ * (alternation, sequencing, character classes, anchors, etc.) and can be
+ * serialized to a dictionary representation for debugging or storage.
  */
 
-// ---- Flags container ----
+/**
+ * Container for regex flags/modifiers.
+ *
+ * Flags control the behavior of pattern matching (case sensitivity, multiline
+ * mode, etc.). This class encapsulates all standard regex flags and provides
+ * utilities for creating flags from string representations.
+ */
 export class Flags {
     ignoreCase: boolean;
     multiline: boolean;
@@ -13,6 +31,11 @@ export class Flags {
     unicode: boolean;
     extended: boolean;
 
+    /**
+     * Creates a new Flags instance.
+     *
+     * @param options - Object containing flag values (all default to false).
+     */
     constructor({
         ignoreCase = false,
         multiline = false,
@@ -33,6 +56,11 @@ export class Flags {
         this.extended = extended;
     }
 
+    /**
+     * Serializes the flags to a dictionary representation.
+     *
+     * @returns Object containing all flag values.
+     */
     toDict() {
         return {
             ignoreCase: this.ignoreCase,
@@ -43,6 +71,12 @@ export class Flags {
         };
     }
 
+    /**
+     * Creates Flags from a string of flag letters.
+     *
+     * @param letters - String containing flag letters (i, m, s, u, x).
+     * @returns A new Flags instance with the specified flags enabled.
+     */
     static fromLetters(letters: string): Flags {
         const f = new Flags();
         for (const ch of letters.replace(/[, ]/g, "")) {
@@ -66,17 +100,38 @@ export class Flags {
     }
 }
 
-// ---- Base node ----
+/**
+ * Base class for all AST nodes.
+ *
+ * All AST nodes extend this base class and must implement the toDict() method
+ * for serialization to a dictionary/object representation.
+ */
 export class Node {
+    /**
+     * Serializes the AST node to a dictionary representation.
+     *
+     * @returns The dictionary representation of this AST node.
+     * @throws Error if not implemented by subclass.
+     */
     toDict(): any {
         throw new Error("toDict() must be implemented by subclass");
     }
 }
 
-// ---- Concrete nodes matching Base Schema ----
+/**
+ * Represents an alternation (OR) in the AST.
+ *
+ * Matches any one of the provided branches. Corresponds to the | operator
+ * in traditional regex syntax.
+ */
 export class Alt extends Node {
     branches: Node[];
 
+    /**
+     * Creates an alternation AST node.
+     *
+     * @param branches - Array of AST nodes representing the alternative branches.
+     */
     constructor(branches: Node[]) {
         super();
         this.branches = branches;
