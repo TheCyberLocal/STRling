@@ -8,7 +8,7 @@
  * in both directions (ahead/behind), plus convenience functions for common patterns.
  */
 
-import { STRlingError, Pattern, lit } from "./pattern.js";
+import { STRlingError, Pattern, lit, createPattern } from "./pattern.js";
 
 /**
  * Creates a positive lookahead assertion that checks for a pattern ahead without consuming it.
@@ -64,7 +64,7 @@ export function ahead(pattern) {
         body: pattern.node,
     };
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: pattern.namedGroups,
     });
@@ -123,7 +123,7 @@ export function notAhead(pattern) {
         body: pattern.node,
     };
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: pattern.namedGroups,
     });
@@ -182,7 +182,7 @@ export function behind(pattern) {
         body: pattern.node,
     };
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: pattern.namedGroups,
     });
@@ -240,7 +240,7 @@ export function notBehind(pattern) {
         body: pattern.node,
     };
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: pattern.namedGroups,
     });
@@ -249,7 +249,38 @@ export function notBehind(pattern) {
 /**
  * Creates a lookahead that checks for pattern presence anywhere in the remaining string.
  *
+ * This function creates a lookahead assertion that succeeds if the specified
+ * pattern can be found anywhere in the string after the current position. It's
+ * useful for validating that certain content exists without consuming it.
  * Implemented as a positive lookahead containing `.*pattern`.
+ *
+ * @param {Pattern|string} pattern - The pattern to search for in the remaining string.
+ *                                    Strings are automatically converted to literal patterns.
+ * @returns {Pattern} A new Pattern object representing the presence check.
+ *
+ * @throws {STRlingError} If the pattern parameter is not a Pattern or string.
+ *
+ * @example
+ * // Simple Use: Verify a string contains a digit somewhere
+ * const pattern = s.has(s.digit());
+ * new RegExp('^' + pattern).test('abc123');  // true
+ * new RegExp('^' + pattern).test('abcdef');  // false
+ *
+ * @example
+ * // Advanced Use: Password must contain both letter and digit
+ * const hasLetter = s.has(s.letter());
+ * const hasDigit = s.has(s.digit());
+ * const password = s.merge(hasLetter, hasDigit, s.any(8, 0));
+ * new RegExp('^' + password).test('pass1word');  // true
+ * new RegExp('^' + password).test('password');   // false
+ *
+ * @pitfall
+ * Since this is a lookahead, it doesn't consume any characters. You can use
+ * multiple `has()` assertions to check for multiple required patterns. Remember
+ * to anchor the pattern (e.g., with `^`) when testing entire strings.
+ *
+ * @see {@link hasNot} For checking pattern absence anywhere in the string
+ * @see {@link ahead} For checking pattern at the immediate next position
  */
 export function has(pattern) {
     if (typeof pattern === "string") {
@@ -287,7 +318,7 @@ export function has(pattern) {
         body: seqNode,
     };
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: pattern.namedGroups,
     });
@@ -296,7 +327,38 @@ export function has(pattern) {
 /**
  * Creates a lookahead that checks for pattern absence anywhere in the remaining string.
  *
- * Implemented as a negative lookahead containing `.*pattern`.
+ * This function creates a lookahead assertion that succeeds only if the specified
+ * pattern cannot be found anywhere in the string after the current position. It's
+ * useful for validation that certain content does NOT exist. Implemented as a
+ * negative lookahead containing `.*pattern`.
+ *
+ * @param {Pattern|string} pattern - The pattern to verify is absent from the remaining string.
+ *                                    Strings are automatically converted to literal patterns.
+ * @returns {Pattern} A new Pattern object representing the absence check.
+ *
+ * @throws {STRlingError} If the pattern parameter is not a Pattern or string.
+ *
+ * @example
+ * // Simple Use: Verify a string contains no digits
+ * const pattern = s.hasNot(s.digit());
+ * new RegExp('^' + pattern).test('abcdef');  // true
+ * new RegExp('^' + pattern).test('abc123');  // false
+ *
+ * @example
+ * // Advanced Use: Password must not contain spaces or special characters
+ * const noSpaces = s.hasNot(s.lit(' '));
+ * const noSpecial = s.hasNot(s.specialChar());
+ * const password = s.merge(noSpaces, noSpecial, s.alphaNum(8, 0));
+ * new RegExp('^' + password).test('password123');  // true
+ * new RegExp('^' + password).test('pass word');    // false
+ *
+ * @pitfall
+ * Since this is a lookahead, it doesn't consume any characters. You can use
+ * multiple `hasNot()` assertions to check for multiple forbidden patterns.
+ * Remember to anchor the pattern (e.g., with `^`) when testing entire strings.
+ *
+ * @see {@link has} For checking pattern presence anywhere in the string
+ * @see {@link notAhead} For checking pattern absence at the immediate next position
  */
 export function hasNot(pattern) {
     if (typeof pattern === "string") {
@@ -334,7 +396,7 @@ export function hasNot(pattern) {
         body: seqNode,
     };
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: pattern.namedGroups,
     });

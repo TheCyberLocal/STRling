@@ -8,7 +8,7 @@
  * rules without dealing with raw regex character class syntax.
  */
 
-import { STRlingError, Pattern, lit } from "./pattern.js";
+import { STRlingError, Pattern, lit, createPattern } from "./pattern.js";
 
 /**
 Matches all characters within and including the start and end of a letter or digit range.
@@ -121,7 +121,7 @@ export function between(start, end, minRep, maxRep) {
         items: [rangeNode],
     };
 
-    const pattern = new Pattern({ node });
+    const pattern = createPattern({ node });
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -222,7 +222,7 @@ export function notBetween(start, end, minRep, maxRep) {
         newPattern = `[^${start}-${end}]`;
     }
 
-    return new Pattern({
+    return createPattern({
         pattern: newPattern,
         composite: true,
         negated: true,

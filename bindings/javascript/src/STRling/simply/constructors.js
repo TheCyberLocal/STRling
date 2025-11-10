@@ -8,7 +8,7 @@
  * readable and maintainable way.
  */
 
-import { STRlingError, Pattern, lit } from "./pattern.js";
+import { STRlingError, Pattern, lit, createPattern } from "./pattern.js";
 
 /**
  * Matches any one of the provided patterns (alternation/OR operation).
@@ -99,7 +99,7 @@ export function anyOf(...patterns) {
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: allNamedGroups,
     });
@@ -206,7 +206,7 @@ export function may(...patterns) {
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: allNamedGroups,
     });
@@ -308,7 +308,7 @@ export function merge(...patterns) {
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: allNamedGroups,
     });
@@ -421,7 +421,7 @@ export function capture(...patterns) {
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: allNamedGroups,
         numberedGroup: true,
@@ -553,7 +553,7 @@ export function group(name, ...patterns) {
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: [...allNamedGroups, name],
     });

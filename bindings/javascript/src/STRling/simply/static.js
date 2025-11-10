@@ -26,7 +26,7 @@ export function alphaNum(minRep, maxRep) {
             { ir: "Range", from: "0", to: "9" },
         ],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -46,7 +46,7 @@ export function notAlphaNum(minRep, maxRep) {
             { ir: "Range", from: "0", to: "9" },
         ],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -68,7 +68,7 @@ export function specialChar(minRep, maxRep) {
         negated: false,
         items: items,
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -90,7 +90,7 @@ export function notSpecialChar(minRep, maxRep) {
         negated: true,
         items: items,
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -109,7 +109,7 @@ export function letter(minRep, maxRep) {
             { ir: "Range", from: "a", to: "z" },
         ],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -128,7 +128,7 @@ export function notLetter(minRep, maxRep) {
             { ir: "Range", from: "a", to: "z" },
         ],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -144,7 +144,7 @@ export function upper(minRep, maxRep) {
         negated: false,
         items: [{ ir: "Range", from: "A", to: "Z" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -160,7 +160,7 @@ export function notUpper(minRep, maxRep) {
         negated: true,
         items: [{ ir: "Range", from: "A", to: "Z" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -176,7 +176,7 @@ export function lower(minRep, maxRep) {
         negated: false,
         items: [{ ir: "Range", from: "a", to: "z" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -192,7 +192,7 @@ export function notLower(minRep, maxRep) {
         negated: true,
         items: [{ ir: "Range", from: "a", to: "z" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -213,7 +213,7 @@ export function hexDigit(minRep, maxRep) {
             { ir: "Range", from: "0", to: "9" },
         ],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -234,7 +234,7 @@ export function notHexDigit(minRep, maxRep) {
             { ir: "Range", from: "0", to: "9" },
         ],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -250,7 +250,7 @@ export function digit(minRep, maxRep) {
         negated: false,
         items: [{ ir: "Esc", type: "d" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -266,7 +266,7 @@ export function notDigit(minRep, maxRep) {
         negated: false,
         items: [{ ir: "Esc", type: "D" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -282,7 +282,7 @@ export function whitespace(minRep, maxRep) {
         negated: false,
         items: [{ ir: "Esc", type: "s" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -298,7 +298,7 @@ export function notWhitespace(minRep, maxRep) {
         negated: true,
         items: [{ ir: "Esc", type: "s" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -314,7 +314,7 @@ export function newline(minRep, maxRep) {
         negated: false,
         items: [{ ir: "Esc", type: "n" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -330,7 +330,7 @@ export function notNewline(minRep, maxRep) {
         negated: true,
         items: [{ ir: "Esc", type: "n" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -346,7 +346,7 @@ export function tab(minRep, maxRep) {
         negated: false,
         items: [{ ir: "Esc", type: "t" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -362,7 +362,7 @@ export function carriage(minRep, maxRep) {
         negated: false,
         items: [{ ir: "Esc", type: "r" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -378,7 +378,7 @@ export function bound(minRep, maxRep) {
         negated: false,
         items: [{ ir: "Esc", type: "b" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -394,7 +394,7 @@ export function notBound(minRep, maxRep) {
         negated: true,
         items: [{ ir: "Esc", type: "b" }],
     };
-    const pattern = new Pattern({ node });
+    const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -403,7 +403,7 @@ Matches the start of a line.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function start() {
-    return new Pattern({ node: { ir: "Anchor", type: "Start" } });
+    return Pattern.createModifiedInstance({ ir: "Anchor", type: "Start" }, {});
 }
 
 /**
@@ -411,5 +411,5 @@ Matches the end of a line.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function end() {
-    return new Pattern({ node: { ir: "Anchor", type: "End" } });
+    return Pattern.createModifiedInstance({ ir: "Anchor", type: "End" }, {});
 }
