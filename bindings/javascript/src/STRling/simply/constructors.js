@@ -391,18 +391,10 @@ export function capture(...patterns) {
     if (cleanPatterns.length === 1) {
         bodyNode = cleanPatterns[0].node;
     } else {
-        bodyNode = {
-            ir: "Seq",
-            parts: cleanPatterns.map((pattern) => pattern.node),
-        };
+        bodyNode = new nodes.Seq(cleanPatterns.map((pattern) => pattern.node));
     }
 
-    const node = {
-        ir: "Group",
-        capturing: true,
-        name: null,
-        body: bodyNode,
-    };
+    const node = new nodes.Group(true, bodyNode, null);
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 
@@ -523,18 +515,10 @@ export function group(name, ...patterns) {
     if (cleanPatterns.length === 1) {
         bodyNode = cleanPatterns[0].node;
     } else {
-        bodyNode = {
-            ir: "Seq",
-            parts: cleanPatterns.map((pattern) => pattern.node),
-        };
+        bodyNode = new nodes.Seq(cleanPatterns.map((pattern) => pattern.node));
     }
 
-    const node = {
-        ir: "Group",
-        capturing: true,
-        name: name,
-        body: bodyNode,
-    };
+    const node = new nodes.Group(true, bodyNode, name);
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 

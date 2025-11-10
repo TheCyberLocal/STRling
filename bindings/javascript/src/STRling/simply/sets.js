@@ -247,51 +247,38 @@ export function inChars(...patterns) {
         return pattern;
     });
 
-    if (cleanPatterns.some((p) => p.composite)) {
-        const message = `
+    // Check if any pattern is composite (Seq, Alt, Group, Quant, Look, etc.)
+    const compositeNodeTypes = ["Seq", "Alt", "Group", "Quant", "Look"];
+    for (const p of cleanPatterns) {
+        const nodeType = p.node.constructor.name;
+        if (compositeNodeTypes.includes(nodeType)) {
+            const message = `
     Method: simply.inChars(...patterns)
 
     All patterns must be non-composite.
     `;
-        throw new STRlingError(message);
-    }
-
-    let joined = "";
-    for (const pattern of cleanPatterns) {
-        const patternStr = pattern.toString();
-        if (
-            patternStr.length > 1 &&
-            patternStr[patternStr.length - 1] === "}" &&
-            patternStr[patternStr.length - 2] !== "\\"
-        ) {
-            const message = `
-      Method: simply.inChars(...patterns)
-
-      Patterns must not have specified ranges.
-      `;
             throw new STRlingError(message);
         }
-
-        if (pattern.customSet) {
-            if (pattern.negated) {
-                const message = `
-        Method: simply.inChars(...patterns)
-
-        To match the characters specified in a negated set, move the parameters directly into simply.inChars(...patterns).
-
-        Example: simply.inChars(simply.notInChars(...patterns)) => simply.inChars(...patterns)
-        `;
-                throw new STRlingError(message);
-            } else {
-                joined += patternStr.slice(1, -1); // [chars] => chars
-            }
-        } else {
-            joined += patternStr;
-        }
     }
 
-    const newPattern = `[${joined}]`;
-    return new Pattern({ pattern: newPattern, composite: true });
+    // Build the character class items by extracting them from input patterns
+    let items = [];
+    for (const pattern of cleanPatterns) {
+        if (pattern.node.constructor.name === "Lit") {
+            // For literals, add each character as a ClassLiteral item
+            items = items.concat(
+                Array.from(pattern.node.value).map((c) => new nodes.ClassLiteral(c))
+            );
+        } else if (pattern.node.constructor.name === "CharClass") {
+            // For character classes, add their items directly
+            items = items.concat(pattern.node.items);
+        }
+        // Handle other node types as needed
+    }
+
+    const node = new nodes.CharClass(false, items);
+
+    return createPattern({ node });
 }
 
 /**
@@ -334,24 +321,19 @@ export function notInChars(...patterns) {
     // Build the character class items by extracting them from input patterns
     let items = [];
     for (const pattern of cleanPatterns) {
-        if (pattern.node.ir === "Lit") {
+        if (pattern.node.constructor.name === "Lit") {
             // For literals, add each character as a Char item
             items = items.concat(
-                Array.from(pattern.node.value).map((c) => (new nodes.ClassLiteral(c,
-                )))
+                Array.from(pattern.node.value).map((c) => new nodes.ClassLiteral(c))
             );
-        } else if (pattern.node.ir === "CharClass") {
+        } else if (pattern.node.constructor.name === "CharClass") {
             // For character classes, add their items directly
             items = items.concat(pattern.node.items);
         }
         // Handle other node types as needed
     }
 
-    const node = {
-        ir: "CharClass",
-        negated: true,
-        items: items,
-    };
+    const node = new nodes.CharClass(true, items);
 
-    return new Pattern({ node });
+    return createPattern({ node });
 }

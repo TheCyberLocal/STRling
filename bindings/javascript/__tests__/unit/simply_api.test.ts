@@ -151,8 +151,7 @@ describe("Category A: Sets Module Tests (sets.py)", () => {
         test("Test inChars used with repetition", () => {
             /**Test inChars used with repetition*/
             const vowels = s.inChars("aeiou");
-            // @ts-ignore
-            const pattern = vowels(2, 3);
+            const pattern = vowels.rep(2, 3);
             const regex = String(pattern);
             // Should match 2-3 vowels
             const match = "xaea".match(new RegExp(regex));
