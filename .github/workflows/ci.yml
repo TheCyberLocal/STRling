@@ -1,54 +1,145 @@
-name: CI
+# .github/workflows/ci.yml
+# This single file handles both CI and CD.
+
+name: STRling CI/CD Pipeline
 on:
     push:
+        branches:
+            - main
+            - dev
+            - 'feature/**'
+        paths:
+            - 'bindings/**'
+            - 'spec/**'
+            - 'tests/**'
+            - '.github/workflows/**'
     pull_request:
+        paths:
+            - 'bindings/**'
+            - 'spec/**'
+            - 'tests/**'
+            - '.github/workflows/**'
 
 jobs:
-    js:
-        name: JS (Node 20)
+    # --- 1. PYTHON CI (TESTING) ---
+    test-python:
+        name: Test Python (3.12)
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Setup Node
+            - name: Setup Python 3.12
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Install Python build tools
+              run: |
+                  python -m pip install --upgrade pip build wheel
+
+            - name: Install Python dependencies
+              run: pip install -r bindings/python/requirements.txt
+
+            - name: Install Python binding (editable)
+              run: pip install -e bindings/python
+
+            - name: Run Python test suite
+              run: pytest bindings/python/tests/
+
+    # --- 2. JAVASCRIPT CI (TESTING) ---
+    test-javascript:
+        name: Test JS (Node 20)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node 20
               uses: actions/setup-node@v4
               with:
                   node-version: "20"
 
-            - name: Install deps
-              working-directory: bindings/javascript
-              run: |
-                  npm ci || npm i
+            # JS E2E tests call the Python CLI, so Python setup is required
+            - name: Setup Python 3.12
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
 
-            - name: Test (placeholder)
-              working-directory: bindings/javascript
-              shell: bash
+            - name: Install Python dependencies
               run: |
-                  npm test || echo "TODO: add tests"
+                  python -m pip install --upgrade pip
+                  pip install -r bindings/python/requirements.txt
 
-    py:
-        name: Python (3.12)
+            - name: Install Python binding (for E2E)
+              run: pip install -e bindings/python
+
+            - name: Install JS dependencies
+              working-directory: bindings/javascript
+              run: npm ci
+
+            - name: Run JS test suite
+              working-directory: bindings/javascript
+              run: npm test
+
+    # --- 3. PYTHON CD (DEPLOYMENT) ---
+    deploy-python:
+        name: Deploy Python to PyPI
         runs-on: ubuntu-latest
+        # Only run on a push to main AND only if both test jobs passed
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        needs: [test-python, test-javascript]
+
         steps:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Setup Python
+            - name: Setup Python 3.12
               uses: actions/setup-python@v5
               with:
                   python-version: "3.12"
 
             - name: Install build tools
-              run: |
-                  python -m pip install --upgrade pip build
+              run: python -m pip install --upgrade pip build twine
 
-            - name: Install deps
+            - name: Build package
               working-directory: bindings/python
-              run: pip install -r requirements.txt
+              run: python -m build
 
-            - name: Build (placeholder)
+            - name: Publish to PyPI
               working-directory: bindings/python
-              shell: bash
-              run: |
-                  echo "TODO: add tests"
+              env:
+                  # This token is stored in GitHub Secrets
+                  TWINE_USERNAME: __token__
+                  TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+              run: twine upload dist/*
+
+    # --- 4. JAVASCRIPT CD (DEPLOYMENT) ---
+    deploy-javascript:
+        name: Deploy JS to NPM
+        runs-on: ubuntu-latest
+        # Only run on a push to main AND only if both test jobs passed
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        needs: [test-python, test-javascript]
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node 20
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+                  # Configure Node for NPM publishing
+                  registry-url: 'https://registry.npmjs.org'
+
+            - name: Install JS dependencies
+              working-directory: bindings/javascript
+              run: npm ci
+
+            - name: Publish to NPM
+              working-directory: bindings/javascript
+              env:
+                  # This token is stored in GitHub Secrets
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: npm publish
