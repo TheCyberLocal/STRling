@@ -8,7 +8,7 @@
  * rules without dealing with raw regex character class syntax.
  */
 
-import { STRlingError, Pattern, lit } from "./pattern.js";
+import { STRlingError, Pattern, lit, createPattern, nodes } from "./pattern.js";
 
 /**
 Matches all characters within and including the start and end of a letter or digit range.
@@ -61,11 +61,8 @@ export function between(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        rangeNode = {
-            ir: "Range",
-            from: start.toString(),
-            to: end.toString(),
-        };
+        rangeNode = new nodes.ClassRange(start.toString(), end.toString(),
+        );
     }
 
     if (typeof start === "string") {
@@ -108,20 +105,13 @@ export function between(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        rangeNode = {
-            ir: "Range",
-            from: start,
-            to: end,
-        };
+        rangeNode = new nodes.ClassRange(start, end,
+        );
     }
 
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: [rangeNode],
-    };
+    const node = new nodes.CharClass(false, [rangeNode]);
 
-    const pattern = new Pattern({ node });
+    const pattern = createPattern({ node });
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
@@ -155,7 +145,7 @@ export function notBetween(start, end, minRep, maxRep) {
         throw new STRlingError(message);
     }
 
-    let newPattern;
+    let startChar, endChar;
 
     if (typeof start === "number") {
         if (start > end) {
@@ -176,7 +166,8 @@ export function notBetween(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        newPattern = `[^${start}-${end}]`;
+        startChar = String(start);
+        endChar = String(end);
     }
 
     if (typeof start === "string") {
@@ -219,14 +210,13 @@ export function notBetween(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        newPattern = `[^${start}-${end}]`;
+        startChar = start;
+        endChar = end;
     }
 
-    return new Pattern({
-        pattern: newPattern,
-        composite: true,
-        negated: true,
-    }).rep(minRep, maxRep);
+    const node = new nodes.CharClass(true, [new nodes.ClassRange(startChar, endChar)]);
+    const pattern = createPattern({ node });
+    return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
 /**
@@ -347,10 +337,8 @@ export function notInChars(...patterns) {
         if (pattern.node.ir === "Lit") {
             // For literals, add each character as a Char item
             items = items.concat(
-                Array.from(pattern.node.value).map((c) => ({
-                    ir: "Char",
-                    value: c,
-                }))
+                Array.from(pattern.node.value).map((c) => (new nodes.ClassLiteral(c,
+                )))
             );
         } else if (pattern.node.ir === "CharClass") {
             // For character classes, add their items directly

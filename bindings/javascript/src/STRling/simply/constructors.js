@@ -8,7 +8,7 @@
  * readable and maintainable way.
  */
 
-import { STRlingError, Pattern, lit } from "./pattern.js";
+import { STRlingError, Pattern, lit, createPattern, nodes } from "./pattern.js";
 
 /**
  * Matches any one of the provided patterns (alternation/OR operation).
@@ -92,14 +92,11 @@ export function anyOf(...patterns) {
     }
 
     const childNodes = cleanPatterns.map((pattern) => pattern.node);
-    const node = {
-        ir: "Alt",
-        branches: childNodes,
-    };
+    const node = new nodes.Alt(childNodes);
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: allNamedGroups,
     });
@@ -190,23 +187,14 @@ export function may(...patterns) {
     if (cleanPatterns.length === 1) {
         bodyNode = cleanPatterns[0].node;
     } else {
-        bodyNode = {
-            ir: "Seq",
-            parts: cleanPatterns.map((pattern) => pattern.node),
-        };
+        bodyNode = new nodes.Seq(cleanPatterns.map((pattern) => pattern.node));
     }
 
-    const node = {
-        ir: "Quant",
-        child: bodyNode,
-        min: 0,
-        max: 1,
-        mode: "Greedy",
-    };
+    const node = new nodes.Quant(bodyNode, 0, 1, "Greedy");
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: allNamedGroups,
     });
@@ -301,14 +289,11 @@ export function merge(...patterns) {
         return cleanPatterns[0];
     }
 
-    const node = {
-        ir: "Seq",
-        parts: childNodes,
-    };
+    const node = new nodes.Seq(childNodes);
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: allNamedGroups,
     });
@@ -421,7 +406,7 @@ export function capture(...patterns) {
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: allNamedGroups,
         numberedGroup: true,
@@ -553,7 +538,7 @@ export function group(name, ...patterns) {
 
     const allNamedGroups = cleanPatterns.flatMap((p) => p.namedGroups || []);
 
-    return new Pattern({
+    return createPattern({
         node,
         namedGroups: [...allNamedGroups, name],
     });

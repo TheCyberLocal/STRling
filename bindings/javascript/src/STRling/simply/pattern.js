@@ -9,6 +9,16 @@
  * manipulation and compilation.
  */
 
+import { Compiler } from "../core/compiler.js";
+import { emit as emitPCRE2 } from "../emitters/pcre2.js";
+import * as nodes from "../core/nodes.js";
+
+// Create a compiler instance
+const compiler = new Compiler();
+
+// Export nodes so other simply modules can use them
+export { nodes };
+
 /**
  * Custom error class for STRling pattern errors.
  *
@@ -105,7 +115,22 @@ export class STRlingError extends Error {
  * @see {@link merge} For combining multiple patterns
  */
 export const lit = (text) => {
-    return new Pattern({ node: { ir: "Lit", value: text } });
+    return Pattern.createModifiedInstance(new nodes.Lit(text), {});
+};
+
+/**
+ * Helper function to create a callable Pattern instance.
+ * 
+ * This is used internally by all pattern creation functions to ensure
+ * patterns are callable (can be invoked as functions to apply repetitions).
+ *
+ * @param {object} options - The options object.
+ * @param {object} options.node - The IR node object.
+ * @param {Array<string>} [options.namedGroups=[]] - List of named capture groups.
+ * @returns {Pattern} A callable Pattern instance.
+ */
+export const createPattern = ({ node, namedGroups = [] }) => {
+    return Pattern.createModifiedInstance(node, { namedGroups });
 };
 
 /**
@@ -221,18 +246,37 @@ export class Pattern {
             throw new STRlingError(message);
         }
 
+        // A group already assigned a specified range cannot be reassigned
+        if (this.node instanceof nodes.Quant) {
+            const message = `
+    Method: Pattern.rep(minRep, maxRep)
+
+    Cannot re-invoke pattern to specify range that already exists.
+
+    Examples of invalid syntax:
+        simply.letter(1, 2)(3, 4) # double invoked range is invalid
+        my_pattern = simply.letter(1, 2) # my_pattern was set range (1, 2) # valid
+        my_new_pattern = my_pattern(3, 4) # my_pattern was reinvoked (3, 4) # invalid
+
+    Set the range on the first invocation, don't reassign it.
+
+    Examples of valid syntax:
+        You can either specify the range now:
+            my_pattern = simply.letter(1, 2)
+
+        Or you can specify the range later:
+            my_pattern = simply.letter() # my_pattern was never assigned a range
+            my_new_pattern = my_pattern(1, 2) # my_pattern was invoked with (1, 2) for the first time.
+    `;
+            throw new STRlingError(message);
+        }
+
         // Create a Quant node that wraps the current node
         const qMin = minRep;
         const qMax =
             maxRep === 0 ? "Inf" : maxRep !== undefined ? maxRep : minRep;
 
-        const newNode = {
-            ir: "Quant",
-            child: this.node,
-            min: qMin,
-            max: qMax,
-            mode: "Greedy", // Default mode
-        };
+        const newNode = new nodes.Quant(this.node, qMin, qMax, "Greedy");
 
         return Pattern.createModifiedInstance(newNode, {
             namedGroups: this.namedGroups,
@@ -240,20 +284,22 @@ export class Pattern {
     }
 
     /**
-     * Returns the pattern object as a JSON string.
+     * Returns the pattern object as a compiled regex string.
      *
-     * Serializes the internal IR node structure to JSON format. Mainly used
-     * for debugging and internal operations.
+     * Compiles the internal IR node structure to a PCRE2 regex string that can
+     * be used with JavaScript's RegExp. This method is called automatically when
+     * a Pattern is converted to a string.
      *
-     * @returns {string} The pattern's IR as a JSON string.
+     * @returns {string} The compiled regex pattern string.
      *
      * @example
      * const pattern = s.digit(3);
-     * console.log(pattern.toString());
-     * // '{"ir":"Quant","child":{"ir":"CharClass",...},"min":3,"max":3,"mode":"Greedy"}'
+     * console.log(pattern.toString());  // '\d{3}'
+     * console.log(String(pattern));      // '\d{3}'
      */
     toString() {
-        return JSON.stringify(this.node);
+        const ir = compiler.compile(this.node);
+        return emitPCRE2(ir);
     }
 
     /**
@@ -281,22 +327,31 @@ export class Pattern {
      * Creates a modified instance of the pattern (internal factory method).
      *
      * This static method creates new Pattern instances with modified IR nodes,
-     * wrapped in a Proxy to support callable patterns (function-like syntax for
-     * applying repetitions). Used internally by pattern transformation methods.
+     * wrapped in a callable function to support function-like syntax for
+     * applying repetitions. Used internally by pattern transformation methods.
      *
      * @param {object} newNode - The new IR node object.
      * @param {Object} [kwargs] - Additional properties for the new instance (e.g., namedGroups).
-     * @returns {Pattern} The new Pattern instance wrapped in a Proxy.
+     * @returns {Pattern} The new Pattern instance wrapped in a callable function.
      *
      * @example
      * // Internal use - creates a pattern that can be called as a function
      * const newPattern = Pattern.createModifiedInstance(irNode, { namedGroups: [] });
      */
     static createModifiedInstance(newNode, kwargs = {}) {
-        return new Proxy(new Pattern({ node: newNode, ...kwargs }), {
-            apply: (target, thisArg, argumentsList) => {
-                return target.rep(...argumentsList);
-            },
-        });
+        const instance = new Pattern({ node: newNode, ...kwargs });
+        
+        // Create a callable function that also has Pattern's properties
+        const callable = function(...args) {
+            return instance.rep(...args);
+        };
+        
+        // Copy all instance properties to the callable function
+        Object.assign(callable, instance);
+        
+        // Set the prototype so instanceof checks work
+        Object.setPrototypeOf(callable, Pattern.prototype);
+        
+        return callable;
     }
 }
