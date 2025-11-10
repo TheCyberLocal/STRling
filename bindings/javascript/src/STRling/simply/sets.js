@@ -1,3 +1,13 @@
+/**
+ * Character set and range functions for pattern matching in STRling.
+ *
+ * This module provides functions for creating character class patterns, including
+ * ranges (between), custom sets (customSet), and utilities for combining sets.
+ * Character sets are fundamental building blocks for matching specific groups of
+ * characters, and these functions make it easy to define complex character matching
+ * rules without dealing with raw regex character class syntax.
+ */
+
 import { STRlingError, Pattern, lit } from "./pattern.js";
 
 /**

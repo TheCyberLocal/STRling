@@ -1,3 +1,13 @@
+/**
+ * Pattern constructors for building composite patterns in STRling.
+ *
+ * This module provides high-level functions for creating complex pattern structures
+ * through composition. Functions here handle alternation (anyOf), optionality (may),
+ * concatenation (merge), and grouping operations (capture, group). These are the
+ * primary building blocks for constructing sophisticated regex patterns in a
+ * readable and maintainable way.
+ */
+
 import { STRlingError, Pattern, lit } from "./pattern.js";
 
 /**
