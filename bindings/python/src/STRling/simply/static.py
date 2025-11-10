@@ -1,11 +1,11 @@
-"""
+r"""
 Predefined character classes and static patterns for STRling.
 
 This module provides convenient functions for matching common character types
 (letters, digits, whitespace, etc.) and special patterns (any character, word
 boundaries, etc.). These are the most frequently used building blocks for
 pattern construction, offering a clean alternative to regex shorthand classes
-like \\d, \\w, \\s, etc.
+like \d, \w, \s, etc.
 """
 
 from .pattern import Pattern, lit
@@ -325,7 +325,7 @@ def not_hex_digit(min_rep: int = None, max_rep: int = None):
 
 
 def digit(min_rep: int = None, max_rep: int = None):
-    """
+    r"""
     Matches any decimal digit (0-9).
 
     Creates a pattern that matches any digit from 0 to 9. This is equivalent
@@ -393,7 +393,7 @@ def not_digit(min_rep: int = None, max_rep: int = None):
 
 
 def whitespace(min_rep: int = None, max_rep: int = None):
-    """
+    r"""
     Matches any whitespace character.
 
     Creates a pattern that matches whitespace characters including space, tab,
