@@ -10,7 +10,7 @@
  * cryptic regex syntax with readable function calls and method chains.
  */
 
-export { Pattern, lit } from "./pattern.js";
+export { Pattern, lit, STRlingError } from "./pattern.js";
 export * from "./constructors.js";
 export * from "./lookarounds.js";
 export * from "./sets.js";

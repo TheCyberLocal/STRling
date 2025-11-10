@@ -245,3 +245,97 @@ export function notBehind(pattern) {
         namedGroups: pattern.namedGroups,
     });
 }
+
+/**
+ * Creates a lookahead that checks for pattern presence anywhere in the remaining string.
+ *
+ * Implemented as a positive lookahead containing `.*pattern`.
+ */
+export function has(pattern) {
+    if (typeof pattern === "string") {
+        pattern = lit(pattern);
+    }
+
+    if (!(pattern instanceof Pattern)) {
+        const message = `
+    Method: simply.has(pattern)
+
+    The parameter must be an instance of Pattern or string.
+
+    Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+    `;
+        throw new STRlingError(message);
+    }
+
+    const dotStarNode = {
+        ir: "Quant",
+        child: { ir: "Dot" },
+        min: 0,
+        max: "Inf",
+        mode: "Greedy",
+    };
+
+    const seqNode = {
+        ir: "Seq",
+        parts: [dotStarNode, pattern.node],
+    };
+
+    const node = {
+        ir: "Look",
+        dir: "Ahead",
+        neg: false,
+        body: seqNode,
+    };
+
+    return new Pattern({
+        node,
+        namedGroups: pattern.namedGroups,
+    });
+}
+
+/**
+ * Creates a lookahead that checks for pattern absence anywhere in the remaining string.
+ *
+ * Implemented as a negative lookahead containing `.*pattern`.
+ */
+export function hasNot(pattern) {
+    if (typeof pattern === "string") {
+        pattern = lit(pattern);
+    }
+
+    if (!(pattern instanceof Pattern)) {
+        const message = `
+    Method: simply.hasNot(pattern)
+
+    The parameter must be an instance of Pattern or string.
+
+    Use a string such as "123abc$" to match literal characters, or use a predefined set like simply.letter().
+    `;
+        throw new STRlingError(message);
+    }
+
+    const dotStarNode = {
+        ir: "Quant",
+        child: { ir: "Dot" },
+        min: 0,
+        max: "Inf",
+        mode: "Greedy",
+    };
+
+    const seqNode = {
+        ir: "Seq",
+        parts: [dotStarNode, pattern.node],
+    };
+
+    const node = {
+        ir: "Look",
+        dir: "Ahead",
+        neg: true,
+        body: seqNode,
+    };
+
+    return new Pattern({
+        node,
+        namedGroups: pattern.namedGroups,
+    });
+}
