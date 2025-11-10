@@ -4,14 +4,55 @@ from STRling.core import nodes
 
 def alpha_num(min_rep: int = None, max_rep: int = None):
     """
-    Matches any letter (uppercase or lowercase) or digit.
+    Matches any alphanumeric character (letter or digit).
 
-    Parameters: (min_rep, max_rep)
-    - min_rep (optional): Specifies the minimum number of characters to match.
-    - max_rep (optional): Specifies the maximum number of characters to match, 0 means unlimited, None means match exact count of min_rep.
+    Creates a pattern that matches uppercase letters (A-Z), lowercase letters
+    (a-z), or digits (0-9). This is equivalent to `[A-Za-z0-9]` in traditional regex.
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    min_rep : int, optional
+        Minimum number of characters to match. If None, matches exactly once.
+    max_rep : int, optional
+        Maximum number of characters to match. Use 0 for unlimited repetition.
+        If None, matches exactly min_rep times.
+
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the alphanumeric character class.
+
+    Examples
+    --------
+    Simple Use: Match a single alphanumeric character
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.alpha_num()
+        >>> bool(re.search(str(pattern), 'A'))
+        True
+        >>> bool(re.search(str(pattern), '5'))
+        True
+        >>> bool(re.search(str(pattern), '@'))
+        False
+
+    Advanced Use: Match username (3-16 alphanumeric characters)
+        >>> username = s.alpha_num(3, 16)
+        >>> bool(re.match(str(username), 'user123'))
+        True
+        >>> bool(re.match(str(username), 'ab'))
+        False
+
+    Notes
+    -----
+    When min_rep and max_rep are both None, matches exactly one character.
+    When only min_rep is provided and max_rep is None, matches exactly min_rep characters.
+    When max_rep is 0, matches min_rep or more characters (unlimited).
+
+    See Also
+    --------
+    not_alpha_num : For matching non-alphanumeric characters
+    letter : For matching only letters
+    digit : For matching only digits
     """
     node = nodes.CharClass(False, [
         nodes.ClassRange('A', 'Z'),
@@ -82,12 +123,49 @@ def letter(min_rep: int = None, max_rep: int = None):
     """
     Matches any letter (uppercase or lowercase).
 
-    Parameters: (min_rep, max_rep)
-    - min_rep (optional): Specifies the minimum number of characters to match.
-    - max_rep (optional): Specifies the maximum number of characters to match, 0 means unlimited, None means match exact count of min_rep.
+    Creates a pattern that matches uppercase letters (A-Z) or lowercase letters
+    (a-z). This is equivalent to `[A-Za-z]` in traditional regex.
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    min_rep : int, optional
+        Minimum number of characters to match. If None, matches exactly once.
+    max_rep : int, optional
+        Maximum number of characters to match. Use 0 for unlimited repetition.
+        If None, matches exactly min_rep times.
+
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the letter character class.
+
+    Examples
+    --------
+    Simple Use: Match a single letter
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.letter()
+        >>> bool(re.search(str(pattern), 'A'))
+        True
+        >>> bool(re.search(str(pattern), '5'))
+        False
+
+    Advanced Use: Match word (1 or more letters)
+        >>> word = s.letter(1, 0)
+        >>> bool(re.match(str(word), 'hello'))
+        True
+
+    Notes
+    -----
+    This matches both uppercase and lowercase letters. For case-specific
+    matching, use `upper()` or `lower()` instead.
+
+    See Also
+    --------
+    not_letter : For matching non-letter characters
+    upper : For matching only uppercase letters
+    lower : For matching only lowercase letters
+    alpha_num : For matching letters or digits
     """
     node = nodes.CharClass(False, [
         nodes.ClassRange('A', 'Z'),
@@ -238,14 +316,50 @@ def not_hex_digit(min_rep: int = None, max_rep: int = None):
 
 def digit(min_rep: int = None, max_rep: int = None):
     """
-    Matches any digit.
+    Matches any decimal digit (0-9).
 
-    Parameters: (min_rep, max_rep)
-    - min_rep (optional): Specifies the minimum number of characters to match.
-    - max_rep (optional): Specifies the maximum number of characters to match, 0 means unlimited, None means match exact count of min_rep.
+    Creates a pattern that matches any digit from 0 to 9. This is equivalent
+    to `[0-9]` or `\d` in traditional regex.
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    min_rep : int, optional
+        Minimum number of digits to match. If None, matches exactly once.
+    max_rep : int, optional
+        Maximum number of digits to match. Use 0 for unlimited repetition.
+        If None, matches exactly min_rep times.
+
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the digit character class.
+
+    Examples
+    --------
+    Simple Use: Match a single digit
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.digit()
+        >>> bool(re.search(str(pattern), '5'))
+        True
+        >>> bool(re.search(str(pattern), 'A'))
+        False
+
+    Advanced Use: Match phone number (10 digits)
+        >>> phone = s.digit(10)
+        >>> bool(re.match(str(phone), '5551234567'))
+        True
+
+    Advanced Use: Match year (4 digits)
+        >>> year = s.digit(4, 4)
+        >>> bool(re.match(str(year), '2024'))
+        True
+
+    See Also
+    --------
+    not_digit : For matching non-digit characters
+    hex_digit : For matching hexadecimal digits (0-9, A-F)
+    alpha_num : For matching letters or digits
     """
     node = nodes.CharClass(False, [nodes.ClassEscape('d')])
     p = Pattern(node)
@@ -270,14 +384,53 @@ def not_digit(min_rep: int = None, max_rep: int = None):
 
 def whitespace(min_rep: int = None, max_rep: int = None):
     """
-    Matches any whitespace character. (Whitespaces include space, tab, newline, carriage return, etc.)
+    Matches any whitespace character.
 
-    Parameters: (min_rep, max_rep)
-    - min_rep (optional): Specifies the minimum number of characters to match.
-    - max_rep (optional): Specifies the maximum number of characters to match, 0 means unlimited, None means match exact count of min_rep.
+    Creates a pattern that matches whitespace characters including space, tab,
+    newline, carriage return, form feed, and vertical tab. This is equivalent
+    to `\s` in traditional regex.
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    min_rep : int, optional
+        Minimum number of whitespace characters to match. If None, matches exactly once.
+    max_rep : int, optional
+        Maximum number of whitespace characters to match. Use 0 for unlimited
+        repetition. If None, matches exactly min_rep times.
+
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the whitespace character class.
+
+    Examples
+    --------
+    Simple Use: Match a single whitespace
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.whitespace()
+        >>> bool(re.search(str(pattern), ' '))
+        True
+        >>> bool(re.search(str(pattern), '\t'))
+        True
+
+    Advanced Use: Match words separated by whitespace
+        >>> word = s.letter(1, 0)
+        >>> space = s.whitespace(1, 0)
+        >>> words = s.merge(word, space, word)
+        >>> bool(re.match(str(words), 'hello world'))
+        True
+
+    Notes
+    -----
+    Whitespace characters include: space ( ), tab (\t), newline (\n),
+    carriage return (\r), form feed (\f), and vertical tab (\v).
+
+    See Also
+    --------
+    not_whitespace : For matching non-whitespace characters
+    newline : For matching only newline characters
+    tab : For matching only tab characters
     """
     node = nodes.CharClass(False, [nodes.ClassEscape('s')])
     p = Pattern(node)

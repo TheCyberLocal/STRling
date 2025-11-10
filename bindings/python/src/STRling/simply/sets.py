@@ -4,28 +4,67 @@ from STRling.core import nodes
 
 def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     """
-    Matches all characters within and including the start and end of a letter or digit range.
+    Matches characters within a specified range (e.g., 'a' to 'z' or 0 to 9).
 
-    Parameters:
-    - start (str or int): The starting character or digit of the range.
-    - end (str or int): The ending character or digit of the range.
-    - min_rep (optional): Specifies the minimum digit of characters to match.
-    - max_rep (optional): Specifies the maximum digit of characters to match.
+    Creates a character class that matches any character between and including
+    the start and end characters. The range must be either digits (0-9) or
+    letters of the same case (A-Z or a-z).
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    start : str or int
+        The starting character or digit of the range. Must be a single character
+        or digit 0-9.
+    end : str or int
+        The ending character or digit of the range. Must be a single character
+        or digit 0-9, and must not be less than start.
+    min_rep : int, optional
+        Minimum number of characters to match. If None, matches exactly once.
+    max_rep : int, optional
+        Maximum number of characters to match. Use 0 for unlimited. If None,
+        matches exactly min_rep times.
 
-    Examples:
-        ```
-        # Matches any digit from 0 to 9.
-        my_pattern1 = s.between(0, 9)
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the character range.
 
-        # Matches any lowercase letter from 'a' to 'z'.
-        my_pattern2 = s.between('a', 'z')
+    Examples
+    --------
+    Simple Use: Match digits 0-9
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.between(0, 9)
+        >>> bool(re.search(str(pattern), '5'))
+        True
 
-        # Matches any uppercase letter from 'A' to 'Z'.
-        my_pattern3 = s.between('A', 'Z')
-        ```
+    Advanced Use: Match lowercase vowels with repetition
+        >>> vowels = s.between('a', 'e')  # matches a, b, c, d, e
+        >>> pattern = s.merge(s.between('a', 'z', 3, 5))  # 3-5 lowercase letters
+        >>> bool(re.match(str(pattern), 'abc'))
+        True
+        >>> bool(re.match(str(pattern), 'abcdef'))
+        True
+
+    Raises
+    ------
+    STRlingError
+        If start and end are not both integers or both letters of same case,
+        if start > end, or if values are out of valid range.
+
+    Notes
+    -----
+    Both start and end must be:
+    - Either both integers in range 0-9
+    - Or both single letters of the same case (both uppercase or both lowercase)
+    
+    The range is inclusive on both ends. For example, `between('a', 'c')` matches
+    'a', 'b', and 'c'.
+
+    See Also
+    --------
+    not_between : For matching characters outside a range
+    in_chars : For matching specific characters (not a range)
     """
 
     if not (isinstance(start, str) and isinstance(end, str)) and not (isinstance(start, int) and isinstance(end, int)):
@@ -98,28 +137,64 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
 
 def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     """
-    Matches any character not within or including the start and end of a letter or digit range.
+    Matches characters outside a specified range (inverse of between).
 
-    Parameters:
-    - start (str or int): The starting character or digit of the range.
-    - end (str or int): The ending character or digit of the range.
-    - min_rep (optional): Specifies the minimum digit of characters to match.
-    - max_rep (optional): Specifies the maximum digit of characters to match.
+    Creates a negated character class that matches any character NOT between
+    the start and end characters (inclusive). The range must be either digits
+    (0-9) or letters of the same case (A-Z or a-z).
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    start : str or int
+        The starting character or digit of the range to exclude. Must be a
+        single character or digit 0-9.
+    end : str or int
+        The ending character or digit of the range to exclude. Must be a
+        single character or digit 0-9, and must not be less than start.
+    min_rep : int, optional
+        Minimum number of characters to match. If None, matches exactly once.
+    max_rep : int, optional
+        Maximum number of characters to match. Use 0 for unlimited. If None,
+        matches exactly min_rep times.
 
-    Examples:
-        ```
-        # Matches any character that is not a digit from 0 to 9.
-        my_pattern1 = s.not_between(0, 9)
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the negated character range.
 
-        # Matches any character that is not a lowercase letter from 'a' to 'z'.
-        my_pattern2 = s.not_between('a', 'z')
+    Examples
+    --------
+    Simple Use: Match non-digits
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.not_between(0, 9)
+        >>> bool(re.search(str(pattern), 'A'))
+        True
+        >>> bool(re.search(str(pattern), '5'))
+        False
 
-        # Matches any character that is not a uppercase letter from 'A' to 'Z'.
-        my_pattern3 = s.not_between('A', 'Z')
-        ```
+    Advanced Use: Match characters that are not vowels
+        >>> not_vowels = s.not_between('a', 'e')  # excludes a, b, c, d, e
+        >>> pattern = s.not_between('a', 'z', 1, 0)  # One or more non-lowercase
+        >>> bool(re.match(str(pattern), 'ABC'))
+        True
+
+    Raises
+    ------
+    STRlingError
+        If start and end are not both integers or both letters of same case,
+        if start > end, or if values are out of valid range.
+
+    Notes
+    -----
+    This is the inverse of `between()`. It matches any character that is NOT
+    in the specified range. For example, `not_between('a', 'c')` matches any
+    character except 'a', 'b', and 'c'.
+
+    See Also
+    --------
+    between : For matching characters within a range
+    not_in_chars : For excluding specific characters (not a range)
     """
 
     if not (isinstance(start, str) and isinstance(end, str)) and not (isinstance(start, int) and isinstance(end, int)):
@@ -192,19 +267,63 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
 
 def in_chars(*patterns):
     """
-    Matches any provided patterns, but they can't include subpatterns.
+    Matches any one of the specified characters or character classes.
 
-    Parameters:
-    - patterns (Pattern/str): One or more non-composite patterns to match.
+    Creates a character class containing all provided patterns. Patterns must be
+    non-composite (individual characters or character sets), not complex patterns
+    with subpatterns.
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    *patterns : Pattern or str
+        One or more non-composite patterns to include in the character class.
+        Strings are automatically converted to literal patterns.
 
-    Examples:
-        ```
-        # Matches any letter, digit, comma, and period.
-        my_pattern = s.in_chars(s.letter(), s.digit(), ',.')
-        ```
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the character class.
+
+    Examples
+    --------
+    Simple Use: Match letters, digits, or punctuation
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.in_chars(s.letter(), s.digit(), ',.')
+        >>> bool(re.search(str(pattern), 'A'))
+        True
+        >>> bool(re.search(str(pattern), '5'))
+        True
+        >>> bool(re.search(str(pattern), ','))
+        True
+
+    Advanced Use: Build a custom identifier character set
+        >>> # Allow letters, digits, underscore, and hyphen
+        >>> id_chars = s.in_chars(s.letter(), s.digit(), '_-')
+        >>> identifier = s.merge(s.letter(), id_chars.rep(0, 0))
+        >>> bool(re.match(str(identifier), 'my_id-123'))
+        True
+
+    Raises
+    ------
+    STRlingError
+        If any parameter is not a Pattern or string, or if any pattern is
+        composite (contains subpatterns).
+
+    Notes
+    -----
+    All patterns must be non-composite. This means you cannot use `in_chars()`
+    with patterns like `s.merge()`, `s.capture()`, or `s.any_of()`. Use only
+    simple character sets like `s.letter()`, `s.digit()`, or literal strings.
+    
+    This is similar to a character class `[abc]` in traditional regex, where
+    you specify individual characters to match.
+
+    See Also
+    --------
+    not_in_chars : For matching characters NOT in the set
+    between : For matching a range of characters
+    any_of : For alternation between composite patterns
     """
 
     # Check all patterns are instance of Pattern or str
@@ -253,19 +372,59 @@ def in_chars(*patterns):
 
 def not_in_chars(*patterns):
     """
-    Matches anything but the provided patterns, but they can't include subpatterns.
+    Matches any character NOT in the specified set (negated character class).
 
-    Parameters:
-    - patterns (Pattern/str): One or more non-composite patterns to avoid.
+    Creates a negated character class that matches any character that is NOT
+    one of the provided patterns. Patterns must be non-composite (individual
+    characters or character sets), not complex patterns with subpatterns.
 
-    Returns:
-    - An instance of the Pattern class.
+    Parameters
+    ----------
+    *patterns : Pattern or str
+        One or more non-composite patterns to exclude from matches. Strings
+        are automatically converted to literal patterns.
 
-    Examples:
-        ```
-        # Matches any character that is not a letter, digit, comma, and period.
-        my_pattern = s.not_in_chars(s.letter(), s.digit(), ',.')
-        ```
+    Returns
+    -------
+    Pattern
+        A new Pattern object representing the negated character class.
+
+    Examples
+    --------
+    Simple Use: Match anything except letters, digits, and punctuation
+        >>> import STRling.simply as s
+        >>> import re
+        >>> pattern = s.not_in_chars(s.letter(), s.digit(), ',.')
+        >>> bool(re.search(str(pattern), '@'))
+        True
+        >>> bool(re.search(str(pattern), 'A'))
+        False
+
+    Advanced Use: Validate input contains only allowed characters
+        >>> # Ensure no special characters in username
+        >>> allowed = s.merge(s.in_chars(s.alpha_num(), '_-'), s.rep(0, 0))
+        >>> forbidden = s.not_in_chars(s.alpha_num(), '_-')
+        >>> has_forbidden = s.has(forbidden)
+
+    Raises
+    ------
+    STRlingError
+        If any parameter is not a Pattern or string, or if any pattern is
+        composite (contains subpatterns).
+
+    Notes
+    -----
+    All patterns must be non-composite. This means you cannot use `not_in_chars()`
+    with patterns like `s.merge()`, `s.capture()`, or `s.any_of()`. Use only
+    simple character sets like `s.letter()`, `s.digit()`, or literal strings.
+    
+    This is similar to a negated character class `[^abc]` in traditional regex,
+    which matches any character except those listed.
+
+    See Also
+    --------
+    in_chars : For matching characters in the set
+    not_between : For excluding a range of characters
     """
 
     # Check all patterns are instance of Pattern or str
