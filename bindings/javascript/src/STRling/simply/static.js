@@ -54,11 +54,7 @@ export function specialChar(minRep, maxRep) {
         new nodes.ClassLiteral(char)
     );
 
-    const node = {
-        ir: "CharClass",
-        negated: false,
-        items: items,
-    };
+    const node = new nodes.CharClass(false, items);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -75,11 +71,7 @@ export function notSpecialChar(minRep, maxRep) {
         new nodes.ClassLiteral(char)
     );
 
-    const node = {
-        ir: "CharClass",
-        negated: true,
-        items: items,
-    };
+    const node = new nodes.CharClass(true, items);
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -311,7 +303,7 @@ Matches any character that is not a boundary.
 @returns {Pattern} An instance of the Pattern class.
 */
 export function notBound(minRep, maxRep) {
-    const node = new nodes.CharClass(false, [new nodes.ClassEscape("B")]);
+    const node = new nodes.Anchor("NotWordBoundary");
     const pattern = Pattern.createModifiedInstance(node, {});
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
