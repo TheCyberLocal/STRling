@@ -129,6 +129,23 @@ class Parser:
         return flags, pattern
 
     def parse(self) -> Node:
+        """
+        Parse the entire STRling pattern into an AST.
+
+        Entry point for parsing. Parses the pattern (after directives have been
+        extracted) and validates that the entire input has been consumed.
+
+        Returns
+        -------
+        Node
+            The root AST node representing the entire pattern.
+
+        Raises
+        ------
+        ParseError
+            If there is unexpected trailing input or if the pattern ends with
+            an incomplete alternation.
+        """
         node = self.parse_alt()
         self.cur.skip_ws_and_comments()
         if not self.cur.eof():
@@ -238,8 +255,41 @@ class Parser:
 
     def parse_quant_if_any(self, child: Node) -> Tuple[Node, bool]:
         """
-        Parse a quantifier if present and return (quantified_node, had_failed_quant_parse).
-        had_failed_quant_parse is True if we started parsing a brace quantifier but had to backtrack.
+        Parse an optional quantifier following an atom and apply it if present.
+
+        Checks if the next character(s) represent a quantifier (*, +, ?, {m,n}) and
+        if so, wraps the child node in a Quant node. Also handles lazy (?) and
+        possessive (+) modifiers.
+
+        Parameters
+        ----------
+        child : Node
+            The AST node to potentially quantify (e.g., a Lit, CharClass, or Group).
+
+        Returns
+        -------
+        tuple[Node, bool]
+            A tuple containing:
+            - The possibly quantified node (either the original child or a Quant node)
+            - A boolean indicating if brace quantifier parsing was attempted but failed
+              (used to prevent literal coalescing at semantic boundaries)
+
+        Raises
+        ------
+        ParseError
+            If attempting to quantify an anchor, which is semantically invalid.
+
+        Notes
+        -----
+        Quantifiers specify repetition:
+        - * : 0 or more (greedy)
+        - + : 1 or more (greedy)
+        - ? : 0 or 1 (greedy)
+        - {m,n} : between m and n times (greedy)
+        
+        Modifiers can follow quantifiers:
+        - ? makes it lazy (non-greedy)
+        - + makes it possessive (no backtracking)
         """
         cur = self.cur
         ch = cur.peek()
@@ -312,6 +362,17 @@ class Parser:
         return mmin, mmax, mode
 
     def _read_int_optional(self) -> Optional[int]:
+        """
+        Read an optional integer from the current cursor position.
+
+        Consumes consecutive digit characters and converts them to an integer.
+        If no digits are found, returns None without advancing the cursor.
+
+        Returns
+        -------
+        int or None
+            The parsed integer value, or None if no digits were found.
+        """
         cur = self.cur
         s = ""
         while cur.peek().isdigit():
@@ -320,6 +381,28 @@ class Parser:
 
     # ---- atom ----
     def parse_atom(self) -> Node:
+        """
+        Parse an atomic pattern element (the most basic building blocks).
+
+        Atoms are the fundamental units of a pattern:
+        - Dot (.) for any character
+        - Anchors (^ for start, $ for end)
+        - Groups and lookarounds (parentheses)
+        - Character classes (square brackets)
+        - Escapes (backslash sequences)
+        - Literal characters
+
+        Returns
+        -------
+        Node
+            An AST node representing the parsed atom (Dot, Anchor, Group, CharClass,
+            Lit, etc.).
+
+        Raises
+        ------
+        ParseError
+            If an unexpected token is encountered (e.g., | or ) without proper context).
+        """
         cur = self.cur
         cur.skip_ws_and_comments()
         ch = cur.peek()
