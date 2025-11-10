@@ -1,3 +1,13 @@
+/**
+ * Predefined character classes and static patterns for STRling.
+ *
+ * This module provides convenient functions for matching common character types
+ * (letters, digits, whitespace, etc.) and special patterns (any character, word
+ * boundaries, etc.). These are the most frequently used building blocks for
+ * pattern construction, offering a clean alternative to regex shorthand classes
+ * like \d, \w, \s, etc.
+ */
+
 import { Pattern, lit } from "./pattern.js";
 
 /**

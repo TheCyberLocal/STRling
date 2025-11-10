@@ -1,6 +1,20 @@
 """
-STRling v3 — AST node definitions (Sprint 3)
-The AST serializes to the Base TargetArtifact schema's Node defs.
+STRling AST Node Definitions
+
+This module defines the complete set of Abstract Syntax Tree (AST) node classes
+that represent the parsed structure of STRling patterns. The AST is the direct
+output of the parser and represents the syntactic structure of the pattern before
+optimization and lowering to IR.
+
+AST nodes are designed to:
+  - Closely mirror the source pattern syntax
+  - Be easily serializable to the Base TargetArtifact schema
+  - Provide a clean separation between parsing and compilation
+  - Support multiple target regex flavors through the compilation pipeline
+
+Each AST node type corresponds to a syntactic construct in the STRling DSL
+(alternation, sequencing, character classes, anchors, etc.) and can be
+serialized to a dictionary representation for debugging or storage.
 """
 
 from __future__ import annotations
@@ -11,6 +25,12 @@ from typing import List, Optional, Union, Dict, Any
 # ---- Flags container ----
 @dataclass
 class Flags:
+    """
+    Container for regex flags/modifiers.
+    
+    Flags control the behavior of pattern matching (case sensitivity, multiline
+    mode, etc.). This class encapsulates all standard regex flags.
+    """
     ignoreCase: bool = False
     multiline: bool = False
     dotAll: bool = False

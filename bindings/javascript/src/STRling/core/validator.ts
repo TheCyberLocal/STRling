@@ -1,8 +1,13 @@
 /**
- * STRling v3 — Validator
- * Validates TargetArtifact against JSON Schema (draft 2020-12).
+ * STRling Validator - JSON Schema Validation for Target Artifacts
  *
- * Ported from Python reference implementation.
+ * This module provides validation functionality for STRling TargetArtifact objects
+ * against their JSON Schema definitions (draft 2020-12). It ensures that compiled
+ * patterns conform to the expected structure before emission.
+ *
+ * The validator uses the AJV library to validate artifacts against schemas located
+ * in the spec/schema directory. It provides detailed error messages when validation
+ * fails, helping to catch structural issues early in the compilation pipeline.
  */
 
 import * as fs from "fs";
@@ -10,7 +15,15 @@ import Ajv2020 from "ajv/dist/2020";
 
 // Note: Using 'ajv' library for JSON Schema validation (draft 2020-12)
 
+/**
+ * Error thrown when artifact validation fails.
+ */
 export class ValidationError extends Error {
+    /**
+     * Creates a new ValidationError.
+     *
+     * @param message - The error message describing the validation failure.
+     */
     constructor(message: string) {
         super(message);
         this.name = "ValidationError";
@@ -26,6 +39,16 @@ const ajv = new Ajv2020({
 
 const loadedSchemas = new Set<string>();
 
+/**
+ * Validates a TargetArtifact against its JSON schema.
+ *
+ * Loads the appropriate schema from the spec/schema directory and validates
+ * the artifact structure. Throws a ValidationError if validation fails.
+ *
+ * @param artifact - The TargetArtifact object to validate.
+ * @param schemaPath - Path to the JSON schema file.
+ * @throws ValidationError if the artifact doesn't conform to the schema.
+ */
 export function validateArtifact(
     artifact: any,
     schemaPath: string,

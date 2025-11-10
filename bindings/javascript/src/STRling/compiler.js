@@ -1,3 +1,16 @@
+/**
+ * STRling Compiler Utilities - Pattern Compilation and RegExp Creation
+ *
+ * This module provides utilities for compiling STRling Pattern objects into
+ * executable regular expressions. It supports both Node.js and browser environments:
+ *   - Node.js: Direct compilation via Python tooling
+ *   - Browser: Compilation via HTTP endpoint
+ *
+ * The compiler functions bridge the gap between STRling's high-level API and
+ * actual regex engines, handling the complete compilation pipeline from Pattern
+ * objects to RegExp instances.
+ */
+
 import { Pattern } from "./simply/pattern.js";
 
 /**

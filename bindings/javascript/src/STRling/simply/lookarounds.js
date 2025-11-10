@@ -1,3 +1,13 @@
+/**
+ * Lookaround assertions for advanced pattern matching in STRling.
+ *
+ * This module provides lookahead and lookbehind assertion functions that enable
+ * zero-width pattern matching - checking for pattern presence or absence without
+ * consuming characters. These are essential for complex validation rules and
+ * conditional matching scenarios. Includes both positive and negative assertions
+ * in both directions (ahead/behind), plus convenience functions for common patterns.
+ */
+
 import { STRlingError, Pattern, lit } from "./pattern.js";
 
 /**

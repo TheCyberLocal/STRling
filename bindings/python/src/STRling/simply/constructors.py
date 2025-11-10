@@ -1,3 +1,13 @@
+"""
+Pattern constructors for building composite patterns in STRling.
+
+This module provides high-level functions for creating complex pattern structures
+through composition. Functions here handle alternation (any_of), optionality (may),
+concatenation (merge), and grouping operations (capture, group). These are the
+primary building blocks for constructing sophisticated regex patterns in a
+readable and maintainable way.
+"""
+
 from .pattern import STRlingError, Pattern, lit
 from STRling.core import nodes
 

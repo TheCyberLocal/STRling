@@ -1,27 +1,48 @@
 /**
- * STRling v3 — Compiler
- * AST -> IR lowering with normalization:
- *  - Flatten nested Seq/Alt
- *  - Coalesce adjacent Lit nodes
- *  - Ensure quantifier children are grouped appropriately
- * 
- * Ported from Python reference implementation.
+ * STRling Compiler - AST to IR Transformation
+ *
+ * This module implements the compiler that transforms Abstract Syntax Tree (AST)
+ * nodes from the parser into an optimized Intermediate Representation (IR). The
+ * compilation process includes:
+ *   - Lowering AST nodes to IR operations
+ *   - Flattening nested sequences and alternations
+ *   - Coalescing adjacent literal nodes for efficiency
+ *   - Ensuring quantifier children are properly grouped
+ *   - Analyzing and tracking regex features used
+ *
+ * The IR is designed to be easily consumed by target emitters (e.g., PCRE2)
+ * while maintaining semantic accuracy and enabling optimizations.
  */
 
 import * as N from "./nodes.js";
 import * as IR from "./ir.js";
 
+/**
+ * Compiler for transforming AST nodes into optimized IR.
+ *
+ * The Compiler class handles the complete transformation pipeline from parsed
+ * AST to normalized IR, including feature detection for metadata generation.
+ */
 export class Compiler {
     featuresUsed: Set<string>;
 
+    /**
+     * Creates a new Compiler instance.
+     */
     constructor() {
         this.featuresUsed = new Set();
     }
 
+    /**
+     * Compiles an AST node and returns IR with metadata.
+     *
+     * This is the main entry point for compilation with full metadata tracking.
+     * It performs lowering, normalization, and feature analysis.
+     *
+     * @param rootNode - The root AST node to compile.
+     * @returns An object containing the compiled IR and metadata about features used.
+     */
     compileWithMetadata(rootNode: N.Node): { ir: IR.IROp; metadata: { features_used: string[] } } {
-        /**
-         * Compiles the AST and returns a full artifact with metadata.
-         */
         let irRoot = this._lower(rootNode);
         irRoot = this._normalize(irRoot);
 
@@ -34,10 +55,16 @@ export class Compiler {
         };
     }
 
+    /**
+     * Recursively analyzes the IR tree to detect and log features used.
+     *
+     * This method walks the entire IR tree and identifies special regex features
+     * that are being used (e.g., named groups, lookarounds, atomic groups).
+     * The detected features are stored in the featuresUsed set for metadata.
+     *
+     * @param node - The IR node to analyze.
+     */
     _analyzeFeatures(node: IR.IROp): void {
-        /**
-         * Recursively walk the IR tree and log features used.
-         */
         if (node instanceof IR.IRGroup) {
             if (node.atomic) {
                 this.featuresUsed.add("atomic_group");
@@ -84,6 +111,15 @@ export class Compiler {
         }
     }
 
+    /**
+     * Compiles an AST node into optimized IR.
+     *
+     * This is the standard compilation entry point without metadata tracking.
+     * Performs lowering and normalization but doesn't analyze features.
+     *
+     * @param root - The root AST node to compile.
+     * @returns The compiled and normalized IR tree.
+     */
     compile(root: N.Node): IR.IROp {
         let ir = this._lower(root);
         ir = this._normalize(ir);
@@ -91,6 +127,18 @@ export class Compiler {
     }
 
     // ---------- Lowering (AST -> IR) ----------
+    /**
+     * Lowers an AST node to its IR equivalent.
+     *
+     * This method recursively transforms AST nodes into their corresponding
+     * IR operations. Each AST node type is mapped to an IR operation that
+     * represents the same semantic meaning but in a form optimized for
+     * emission to target regex engines.
+     *
+     * @param node - The AST node to lower.
+     * @returns The corresponding IR operation.
+     * @throws Error if an unknown AST node type is encountered.
+     */
     _lower(node: N.Node): IR.IROp {
         const t = node.constructor.name;
         
@@ -159,10 +207,22 @@ export class Compiler {
     }
 
     // ---------- Normalization ----------
+    /**
+     * Normalizes an IR tree by flattening and coalescing.
+     *
+     * This method performs several optimization passes on the IR tree:
+     *   - Flattens nested sequences (Seq within Seq) and alternations (Alt within Alt)
+     *   - Coalesces adjacent literal nodes into single literals for efficiency
+     *   - Recursively normalizes all child nodes
+     *
+     * These optimizations reduce the complexity of the IR tree while maintaining
+     * semantic equivalence, making it easier for emitters to generate efficient
+     * target regex code.
+     *
+     * @param node - The IR node to normalize.
+     * @returns The normalized IR node.
+     */
     _normalize(node: IR.IROp): IR.IROp {
-        /**
-         * Flatten alt/seq and fuse adjacent literals.
-         */
         if (node instanceof IR.IRSeq) {
             const parts: IR.IROp[] = [];
             for (const p of node.parts) {
