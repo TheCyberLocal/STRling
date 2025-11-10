@@ -155,7 +155,7 @@ export function notBetween(start, end, minRep, maxRep) {
         throw new STRlingError(message);
     }
 
-    let newPattern;
+    let rangeNode;
 
     if (typeof start === "number") {
         if (start > end) {
@@ -176,7 +176,11 @@ export function notBetween(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        newPattern = `[^${start}-${end}]`;
+        rangeNode = {
+            ir: "Range",
+            from: String(start),
+            to: String(end),
+        };
     }
 
     if (typeof start === "string") {
@@ -219,14 +223,21 @@ export function notBetween(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        newPattern = `[^${start}-${end}]`;
+        rangeNode = {
+            ir: "Range",
+            from: start,
+            to: end,
+        };
     }
 
-    return new Pattern({
-        pattern: newPattern,
-        composite: true,
+    const node = {
+        ir: "CharClass",
         negated: true,
-    }).rep(minRep, maxRep);
+        items: [rangeNode],
+    };
+
+    const pattern = new Pattern({ node });
+    return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
 
 /**
