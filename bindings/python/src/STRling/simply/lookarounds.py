@@ -375,8 +375,7 @@ def has(pattern):
         raise STRlingError(message)
 
     # Create a Look node with dir="Ahead" and a body that matches .*pattern
-    dot_star = nodes.CharClass(False, [nodes.ClassEscape('s')])
-    dot_star_node = nodes.Quant(child=dot_star, min=0, max=float('inf'), mode="Greedy")
+    dot_star_node = nodes.Quant(child=nodes.Dot(), min=0, max="Inf", mode="Greedy")
     seq_node = nodes.Seq([dot_star_node, pattern.node])
     
     node = nodes.Look(dir="Ahead", neg=False, body=seq_node)
@@ -453,8 +452,7 @@ def has_not(pattern):
         raise STRlingError(message)
 
     # Create a Look node with dir="Ahead", neg=True and a body that matches .*pattern
-    dot_star = nodes.CharClass(False, [nodes.ClassEscape('s')])
-    dot_star_node = nodes.Quant(child=dot_star, min=0, max=float('inf'), mode="Greedy")
+    dot_star_node = nodes.Quant(child=nodes.Dot(), min=0, max="Inf", mode="Greedy")
     seq_node = nodes.Seq([dot_star_node, pattern.node])
     
     node = nodes.Look(dir="Ahead", neg=True, body=seq_node)

@@ -195,7 +195,7 @@ class Pattern:
             raise STRlingError(message)
 
         # A group already assigned a specified range cannot be reassigned
-        if len(self.pattern) > 1 and self.pattern[-1] == '}' and self.pattern[-2] != '\\':
+        if isinstance(self.node, nodes.Quant):
             message = """
             Method: Pattern.__call__(min_rep, max_rep)
 
@@ -236,7 +236,7 @@ class Pattern:
                 return self.create_modified_instance(new_node)
         else:
             # Regular case: create a quantifier node
-            q_max = float('inf') if max_rep == 0 else max_rep if max_rep is not None else min_rep
+            q_max = "Inf" if max_rep == 0 else max_rep if max_rep is not None else min_rep
             new_node = nodes.Quant(child=self.node, min=min_rep, max=q_max, mode="Greedy")
             return self.create_modified_instance(new_node)
 

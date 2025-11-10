@@ -572,7 +572,8 @@ def start():
     Note: There is no `simply.not_start()` function,
     to do this, use `simply.not_behind(simply.start())`.
     """
-    return Pattern(r'^')
+    node = nodes.Anchor("Start")
+    return Pattern(node)
 
 
 def end():
@@ -588,4 +589,5 @@ def end():
     Note: There is no `simply.not_end()` function,
     to do this, use `simply.not_ahead(simply.end())`.
     """
-    return Pattern(r'$')
+    node = nodes.Anchor("End")
+    return Pattern(node)
