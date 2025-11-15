@@ -7,18 +7,18 @@ on:
         branches:
             - main
             - dev
-            - 'feature/**'
+            - "feature/**"
         paths:
-            - 'bindings/**'
-            - 'spec/**'
-            - 'tests/**'
-            - '.github/workflows/**'
+            - "bindings/**"
+            - "spec/**"
+            - "tests/**"
+            - ".github/workflows/**"
     pull_request:
         paths:
-            - 'bindings/**'
-            - 'spec/**'
-            - 'tests/**'
-            - '.github/workflows/**'
+            - "bindings/**"
+            - "spec/**"
+            - "tests/**"
+            - ".github/workflows/**"
 
 jobs:
     # --- 1. PYTHON CI (TESTING) ---
@@ -95,7 +95,7 @@ jobs:
         needs: [test-python, test-javascript]
         permissions:
             contents: read
-
+            id-token: write
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -105,20 +105,16 @@ jobs:
               with:
                   python-version: "3.12"
 
-            - name: Install build tools
-              run: python -m pip install --upgrade pip build twine
-
-            - name: Build package
+            - name: Install build tools and build package
               working-directory: bindings/python
-              run: python -m build
+              run: |
+                  python -m pip install --upgrade pip build
+                  python -m build
 
-            - name: Publish to PyPI
-              working-directory: bindings/python
-              env:
-                  # This token is stored in GitHub Secrets
-                  TWINE_USERNAME: __token__
-                  TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-              run: twine upload dist/*
+            - name: Publish package to PyPI
+              uses: pypa/gh-action-pypi-publish@release/v1
+              with:
+                  packages-dir: bindings/python/dist/
 
     # --- 4. JAVASCRIPT CD (DEPLOYMENT) ---
     deploy-javascript:
@@ -137,9 +133,26 @@ jobs:
             - name: Setup Node 20
               uses: actions/setup-node@v4
               with:
-                  node-version: '20'
+                  node-version: "20"
                   # Configure Node for NPM publishing
-                  registry-url: 'https://registry.npmjs.org'
+                  registry-url: "https://registry.npmjs.org"
+
+            - name: Check NPM package version bump
+              id: check_version
+              working-directory: bindings/javascript
+              run: |
+                  PACKAGE_NAME="@thecyberlocal/strling"
+                  CURRENT_VERSION=$(node -pe "require('./package.json').version")
+
+                  echo "Checking NPM registry for version $CURRENT_VERSION..."
+
+                  # npm view will succeed (exit code 0) if the package version exists.
+                  if npm view $PACKAGE_NAME@$CURRENT_VERSION version >/dev/null 2>&1; then
+                    echo "::error title=Deployment Blocked::Version $CURRENT_VERSION already exists on NPM for package $PACKAGE_NAME. Please bump the version in bindings/javascript/package.json before merging to 'main'."
+                    exit 1 # Forces a failure and stops the pipeline
+                  else
+                    echo "Version $CURRENT_VERSION is unique. Proceeding with deployment."
+                  fi
 
             - name: Install JS dependencies
               working-directory: bindings/javascript
