@@ -33,18 +33,13 @@ import {
     Backref,
     Look,
 } from "./nodes.js";
+import { STRlingParseError } from "./errors.js";
+import { getHint } from "./hint_engine.js";
 
 // ---------------- Errors ----------------
-export class ParseError extends Error {
-    message: string;
-    pos: number;
-
-    constructor(message: string, pos: number) {
-        super(`${message} at ${pos}`);
-        this.message = message;
-        this.pos = pos;
-    }
-}
+// Keep ParseError as an alias for backward compatibility (both value and type)
+export const ParseError = STRlingParseError;
+export type ParseError = STRlingParseError;
 
 // ---------------- Lexer helpers ----------------
 class Cursor {
@@ -117,8 +112,11 @@ class Parser {
     _capCount: number;
     _capNames: Set<string>;
     CONTROL_ESCAPES: { [key: string]: string };
+    private _originalText: string;
 
     constructor(text: string) {
+        // Store original text for error reporting
+        this._originalText = text;
         // Extract directives first
         const [flags, src] = this._parseDirectives(text);
         this.flags = flags;
@@ -133,6 +131,18 @@ class Parser {
             f: "\f",
             v: "\v",
         };
+    }
+
+    /**
+     * Raise a STRlingParseError with an instructional hint.
+     *
+     * @param message - The error message
+     * @param pos - The position where the error occurred
+     * @throws {STRlingParseError} Always throws with context and hint
+     */
+    private _raiseError(message: string, pos: number): never {
+        const hint = getHint(message, this.src, pos);
+        throw new STRlingParseError(message, pos, this.src, hint);
     }
 
     // -- Directives --
@@ -176,9 +186,9 @@ class Parser {
         this.cur.skipWsAndComments();
         if (!this.cur.eof()) {
             if (this.cur.peek() === "|") {
-                throw new ParseError("Alternation lacks right-hand side", this.cur.i);
+                this._raiseError("Alternation lacks right-hand side", this.cur.i);
             } else {
-                throw new ParseError("Unexpected trailing input", this.cur.i);
+                this._raiseError("Unexpected trailing input", this.cur.i);
             }
         }
         return node;
@@ -188,7 +198,7 @@ class Parser {
     parseAlt(): Node {
         this.cur.skipWsAndComments();
         if (this.cur.peek() === "|") {
-            throw new ParseError("Alternation lacks left-hand side", this.cur.i);
+            this._raiseError("Alternation lacks left-hand side", this.cur.i);
         }
 
         const branches = [this.parseSeq()];
@@ -199,7 +209,7 @@ class Parser {
             this.cur.take();
             this.cur.skipWsAndComments();
             if (this.cur.peek() === "") {
-                throw new ParseError("Alternation lacks right-hand side", pipePos);
+                this._raiseError("Alternation lacks right-hand side", pipePos);
             }
             branches.push(this.parseSeq());
             this.cur.skipWsAndComments();
@@ -309,7 +319,7 @@ class Parser {
         }
 
         if (child instanceof Anchor) {
-            throw new ParseError("Cannot quantify anchor", cur.i);
+            this._raiseError("Cannot quantify anchor", cur.i);
         }
 
         const nxt = cur.peek();
@@ -338,12 +348,12 @@ class Parser {
         if (cur.match(",")) {
             const n = this._readIntOptional();
             if (!cur.match("}")) {
-                throw new ParseError("Unterminated {m,n}", cur.i);
+                this._raiseError("Unterminated {m,n}", cur.i);
             }
             return [m, n !== null ? n : "Inf", "Greedy"];
         } else {
             if (!cur.match("}")) {
-                throw new ParseError("Unterminated {n}", cur.i);
+                this._raiseError("Unterminated {n}", cur.i);
             }
             return [m, m, "Greedy"];
         }
@@ -385,7 +395,7 @@ class Parser {
             return this.parseEscapeAtom();
         }
         if ("|)".includes(ch)) {
-            throw new ParseError("Unexpected token", cur.i);
+            this._raiseError("Unexpected token", cur.i);
         }
         return new Lit(this._takeLiteralChar());
     }
@@ -429,7 +439,7 @@ class Parser {
 
             cur.i = savedPos;
             const num = this._readDecimal();
-            throw new ParseError(`Backreference to undefined group \\${num}`, startPos);
+            this._raiseError(`Backreference to undefined group \\${num}`, startPos);
         }
 
         // Anchors \b \B \A \Z \z
@@ -446,14 +456,14 @@ class Parser {
         if (nxt === "k") {
             cur.take();
             if (!cur.match("<")) {
-                throw new ParseError("Expected '<' after \\k", startPos);
+                this._raiseError("Expected '<' after \\k", startPos);
             }
             const name = this._readIdentUntil(">");
             if (!cur.match(">")) {
-                throw new ParseError("Unterminated named backref", startPos);
+                this._raiseError("Unterminated named backref", startPos);
             }
             if (!this._capNames.has(name)) {
-                throw new ParseError(`Backreference to undefined group <${name}>`, startPos);
+                this._raiseError(`Backreference to undefined group <${name}>`, startPos);
             }
             return new Backref(null, name);
         }
@@ -468,11 +478,11 @@ class Parser {
         if ("pP".includes(nxt)) {
             const tp = cur.take();
             if (!cur.match("{")) {
-                throw new ParseError("Expected { after \\p/\\P", startPos);
+                this._raiseError("Expected { after \\p/\\P", startPos);
             }
             const prop = this._readUntil("}");
             if (!cur.match("}")) {
-                throw new ParseError("Unterminated \\p{...}", startPos);
+                this._raiseError("Unterminated \\p{...}", startPos);
             }
             return new CharClass(false, [new ClassEscape(tp, prop)]);
         }
@@ -532,7 +542,7 @@ class Parser {
                 hexs += cur.take();
             }
             if (!cur.match("}")) {
-                throw new ParseError("Unterminated \\x{...}", startPos);
+                this._raiseError("Unterminated \\x{...}", startPos);
             }
             const cp = parseInt(hexs || "0", 16);
             return String.fromCodePoint(cp);
@@ -542,7 +552,7 @@ class Parser {
         const h1 = cur.take();
         const h2 = cur.take();
         if (!/[0-9A-Fa-f]/.test(h1 || "") || !/[0-9A-Fa-f]/.test(h2 || "")) {
-            throw new ParseError("Invalid \\xHH escape", startPos);
+            this._raiseError("Invalid \\xHH escape", startPos);
         }
         return String.fromCharCode(parseInt(h1 + h2, 16));
     }
@@ -557,7 +567,7 @@ class Parser {
                 hexs += cur.take();
             }
             if (!cur.match("}")) {
-                throw new ParseError("Unterminated \\u{...}", startPos);
+                this._raiseError("Unterminated \\u{...}", startPos);
             }
             const cp = parseInt(hexs || "0", 16);
             return String.fromCodePoint(cp);
@@ -566,7 +576,7 @@ class Parser {
         if (tp === "u") {
             const hexs = cur.take() + cur.take() + cur.take() + cur.take();
             if (hexs.length !== 4 || !/^[0-9A-Fa-f]{4}$/.test(hexs)) {
-                throw new ParseError("Invalid \\uHHHH escape", startPos);
+                this._raiseError("Invalid \\uHHHH escape", startPos);
             }
             return String.fromCodePoint(parseInt(hexs, 16));
         }
@@ -575,12 +585,12 @@ class Parser {
             const hexs = cur.take() + cur.take() + cur.take() + cur.take() + 
                          cur.take() + cur.take() + cur.take() + cur.take();
             if (hexs.length !== 8 || !/^[0-9A-Fa-f]{8}$/.test(hexs)) {
-                throw new ParseError("Invalid \\UHHHHHHHH escape", startPos);
+                this._raiseError("Invalid \\UHHHHHHHH escape", startPos);
             }
             return String.fromCodePoint(parseInt(hexs, 16));
         }
 
-        throw new ParseError("Invalid unicode escape", startPos);
+        this._raiseError("Invalid unicode escape", startPos);
     }
     // ---- Character classes ----
     parseCharClass() {
@@ -609,7 +619,7 @@ class Parser {
         while (true) {
             if (cur.eof()) {
                 this.cur.inClass--;
-                throw new ParseError("Unterminated character class", cur.i);
+                this._raiseError("Unterminated character class", cur.i);
             }
 
             if (cur.peek() === "]" && cur.i > startPos) {
@@ -659,11 +669,11 @@ class Parser {
         if ("pP".includes(nxt)) {
             const tp = cur.take();
             if (!cur.match("{")) {
-                throw new ParseError("Expected { after \\p/\\P", startPos);
+                this._raiseError("Expected { after \\p/\\P", startPos);
             }
             const prop = this._readUntil("}");
             if (!cur.match("}")) {
-                throw new ParseError("Unterminated \\p{...}", startPos);
+                this._raiseError("Unterminated \\p{...}", startPos);
             }
             return new ClassEscape(tp, prop);
         }
@@ -708,14 +718,14 @@ class Parser {
 
         // Reject inline modifiers
         if (cur.peek() === "?" && "imsx".includes(cur.peek(1))) {
-            throw new ParseError("Inline modifiers `(?imsx)` are not supported", cur.i);
+            this._raiseError("Inline modifiers `(?imsx)` are not supported", cur.i);
         }
 
         // Non-capturing group
         if (cur.match("?:")) {
             const body = this.parseAlt();
             if (!cur.match(")")) {
-                throw new ParseError("Unterminated group", cur.i);
+                this._raiseError("Unterminated group", cur.i);
             }
             return new Group(false, body);
         }
@@ -724,7 +734,7 @@ class Parser {
         if (cur.match("?<=")) {
             const body = this.parseAlt();
             if (!cur.match(")")) {
-                throw new ParseError("Unterminated lookbehind", cur.i);
+                this._raiseError("Unterminated lookbehind", cur.i);
             }
             return new Look("Behind", false, body);
         }
@@ -732,7 +742,7 @@ class Parser {
         if (cur.match("?<!")) {
             const body = this.parseAlt();
             if (!cur.match(")")) {
-                throw new ParseError("Unterminated lookbehind", cur.i);
+                this._raiseError("Unterminated lookbehind", cur.i);
             }
             return new Look("Behind", true, body);
         }
@@ -741,16 +751,16 @@ class Parser {
         if (cur.match("?<")) {
             const name = this._readUntil(">");
             if (!cur.match(">")) {
-                throw new ParseError("Unterminated group name", cur.i);
+                this._raiseError("Unterminated group name", cur.i);
             }
             if (this._capNames.has(name)) {
-                throw new ParseError(`Duplicate group name <${name}>`, cur.i);
+                this._raiseError(`Duplicate group name <${name}>`, cur.i);
             }
             this._capCount++;
             this._capNames.add(name);
             const body = this.parseAlt();
             if (!cur.match(")")) {
-                throw new ParseError("Unterminated group", cur.i);
+                this._raiseError("Unterminated group", cur.i);
             }
             return new Group(true, body, name);
         }
@@ -759,7 +769,7 @@ class Parser {
         if (cur.match("?>")) {
             const body = this.parseAlt();
             if (!cur.match(")")) {
-                throw new ParseError("Unterminated atomic group", cur.i);
+                this._raiseError("Unterminated atomic group", cur.i);
             }
             return new Group(false, body, null, true);
         }
@@ -768,7 +778,7 @@ class Parser {
         if (cur.match("?=")) {
             const body = this.parseAlt();
             if (!cur.match(")")) {
-                throw new ParseError("Unterminated lookahead", cur.i);
+                this._raiseError("Unterminated lookahead", cur.i);
             }
             return new Look("Ahead", false, body);
         }
@@ -776,7 +786,7 @@ class Parser {
         if (cur.match("?!")) {
             const body = this.parseAlt();
             if (!cur.match(")")) {
-                throw new ParseError("Unterminated lookahead", cur.i);
+                this._raiseError("Unterminated lookahead", cur.i);
             }
             return new Look("Ahead", true, body);
         }
@@ -785,7 +795,7 @@ class Parser {
         this._capCount++;
         const body = this.parseAlt();
         if (!cur.match(")")) {
-            throw new ParseError("Unterminated group", cur.i);
+            this._raiseError("Unterminated group", cur.i);
         }
         return new Group(true, body);
     }
