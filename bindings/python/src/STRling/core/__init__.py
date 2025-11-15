@@ -8,7 +8,7 @@ convenient, single import location for compiler internals and for tests.
 
 Key exports:
     - `parse`, `parse_to_artifact`, `ParseError` from the parser
-    - AST node classes (Flags, Node, Alt, Seq, Lit, Dot, Anchor, CharClass, ...)
+    - AST node classes (Flags, Node, Alt, Seq, Lit, Dot, Anchor, ...)
 
 The module mirrors the documentation style used across other `core` modules.
 """
