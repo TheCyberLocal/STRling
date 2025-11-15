@@ -160,6 +160,13 @@ jobs:
                     echo "Version $CURRENT_VERSION is unique. Proceeding with deployment."
                   fi
 
+            # 4. Upload synced JS package (NEW STEP)
+            - name: Upload synced JS package
+              uses: actions/upload-artifact@v4
+              with:
+                  name: javascript-package
+                  path: bindings/javascript/
+
             # --- FUTURE CHECKS ---
             # - name: Check RubyGems package version bump
             #   run: |
@@ -207,22 +214,37 @@ jobs:
             contents: read
 
         steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+            # 1. Download the artifact (REPLACES CHECKOUT)
+            - name: Download synced JS package
+              uses: actions/download-artifact@v4
+              with:
+                  name: javascript-package
+                  path: bindings/javascript/
 
+            # 2. Setup Node 20 (Including NPM Caching)
             - name: Setup Node 20
               uses: actions/setup-node@v4
               with:
                   node-version: "20"
-                  # Configure Node for NPM publishing
                   registry-url: "https://registry.npm.org"
+                  cache: "npm"
+                  cache-dependency-path: "bindings/javascript/package-lock.json"
 
+            # 3. Install JS dependencies (now uses correct versioned files)
             - name: Install JS dependencies
               working-directory: bindings/javascript
               run: npm ci
 
-            - name: Publish to NPM
+            # 4. Publish to NPM (Adding Retry Loop for resilience)
+            - name: Publish to NPM with Retries
               working-directory: bindings/javascript
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: npm publish
+              run: |
+                  for i in 1 2 3; do
+                    npm publish && exit 0
+                    echo "Publish failed. Retrying ($i/3)..."
+                    sleep 5
+                  done
+                  echo "::error::Failed to publish to NPM after 3 attempts."
+                  exit 1
