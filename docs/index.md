@@ -36,6 +36,10 @@ High-level testing principles, the Iron Law of test parity, and contribution wor
 
 The definitive rulebook for contributing to STRling. Covers the DRY principle, docstring standards, tone of voice, and contribution workflows.
 
+### [CI/CD Pipeline Setup](ci_cd_setup.md)
+
+Complete guide for setting up and managing the automated CI/CD pipeline. Includes instructions for configuring GitHub Secrets, understanding workflow triggers, and managing deployments to PyPI and NPM.
+
 ### [Formal Language Specification (Links)](spec_links.md)
 
 A curated index linking to the formal grammar (EBNF), semantics, and JSON schemas that define the STRling DSL.
