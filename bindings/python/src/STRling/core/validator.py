@@ -12,7 +12,7 @@ pipeline.
 """
 
 from __future__ import annotations
-from typing import Mapping, Any
+from typing import Mapping, Any, Union
 from pathlib import Path
 import json
 
@@ -24,7 +24,6 @@ try:
     HAVE_REFERENCING = True
 except ImportError:  # pragma: no cover
     HAVE_REFERENCING = False
-    Registry = None  # type: ignore[assignment,misc]
 
 Schema = Mapping[str, Any]
 
@@ -32,7 +31,7 @@ Schema = Mapping[str, Any]
 def validate_artifact(
     artifact: Mapping[str, Any],
     schema_path: str,
-    registry: "Registry | None" = None,
+    registry: "Union[Registry, None]" = None,
 ) -> None:
     """Validate a TargetArtifact against a JSON Schema (draft 2020-12).
 
