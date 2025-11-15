@@ -235,16 +235,9 @@ jobs:
               working-directory: bindings/javascript
               run: npm ci
 
-            # 4. Publish to NPM (Adding Retry Loop for resilience)
-            - name: Publish to NPM with Retries
+            # 4. Publish to NPM
+            - name: Publish to NPM
               working-directory: bindings/javascript
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: |
-                  for i in 1 2 3; do
-                    npm publish && exit 0
-                    echo "Publish failed. Retrying ($i/3)..."
-                    sleep 5
-                  done
-                  echo "::error::Failed to publish to NPM after 3 attempts."
-                  exit 1
+              run: npm publish
