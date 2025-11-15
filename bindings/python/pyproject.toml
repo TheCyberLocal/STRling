@@ -4,15 +4,34 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "STRling"
-version = "3.0.0a0"
+version = "2.5.7"
 description = "Next-gen string pattern DSL & compiler"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
 authors = [{ name = "TheCyberLocal" }]
+keywords = [
+    "strling",
+    "regex",
+    "regexp",
+    "regular expression",
+    "string",
+    "validation",
+    "pattern",
+    "parser",
+    "compiler",
+    "dsl",
+    "readable",
+    "beginner"
+]
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Compilers",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Text Processing"
 ]
 
 [project.urls]

@@ -1,6 +1,31 @@
 {
     "name": "@thecyberlocal/strling",
     "version": "3.0.0-alpha",
+    "description": "Next-gen string pattern DSL & compiler",
+    "keywords": [
+        "strling",
+        "regex",
+        "regexp",
+        "regular expression",
+        "string",
+        "validation",
+        "pattern",
+        "parser",
+        "compiler",
+        "dsl",
+        "readable",
+        "beginner"
+    ],
+    "author": "TheCyberLocal",
+    "license": "MIT",
+    "homepage": "https://github.com/TheCyberLocal/STRling",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/TheCyberLocal/STRling.git"
+    },
+    "bugs": {
+        "url": "https://github.com/TheCyberLocal/STRling/issues"
+    },
     "type": "module",
     "exports": {
         ".": "./dist/index.js",
