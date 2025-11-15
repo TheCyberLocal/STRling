@@ -105,6 +105,34 @@ jobs:
               with:
                   python-version: "3.12"
 
+            - name: Sync Python SSOT to JavaScript Version
+              run: |
+                  python -c "
+                  import json, tomllib
+
+                  # 1. Read the SSOT version from Python's pyproject.toml
+                  with open('bindings/python/pyproject.toml', 'rb') as f:
+                      toml_data = tomllib.load(f)
+                  ssot_version = toml_data['project']['version']
+                  print(f'Single Source of Truth (Python) version is: {ssot_version}')
+
+                  # 2. Load the JavaScript package.json
+                  js_pkg_path = 'bindings/javascript/package.json'
+                  with open(js_pkg_path, 'r') as f:
+                      js_data = json.load(f)
+
+                  original_js_version = js_data.get('version', 'N/A')
+
+                  # 3. Update and write the new version if it's different
+                  if original_js_version != ssot_version:
+                      js_data['version'] = ssot_version
+                      with open(js_pkg_path, 'w') as f:
+                          json.dump(js_data, f, indent=2) # Use indent=2 to match project's .prettierrc
+                      print(f'Updated JavaScript version from {original_js_version} to {ssot_version}')
+                  else:
+                      print(f'JavaScript version ({original_js_version}) is already in sync.')
+                  "
+
             - name: Install build tools and build package
               working-directory: bindings/python
               run: |
@@ -130,6 +158,39 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
+            - name: Setup Python 3.12 (for sync script)
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Sync Python SSOT to JavaScript Version
+              run: |
+                  python -c "
+                  import json, tomllib
+
+                  # 1. Read the SSOT version from Python's pyproject.toml
+                  with open('bindings/python/pyproject.toml', 'rb') as f:
+                      toml_data = tomllib.load(f)
+                  ssot_version = toml_data['project']['version']
+                  print(f'Single Source of Truth (Python) version is: {ssot_version}')
+
+                  # 2. Load the JavaScript package.json
+                  js_pkg_path = 'bindings/javascript/package.json'
+                  with open(js_pkg_path, 'r') as f:
+                      js_data = json.load(f)
+
+                  original_js_version = js_data.get('version', 'N/A')
+
+                  # 3. Update and write the new version if it's different
+                  if original_js_version != ssot_version:
+                      js_data['version'] = ssot_version
+                      with open(js_pkg_path, 'w') as f:
+                          json.dump(js_data, f, indent=2) # Use indent=2 to match project's .prettierrc
+                      print(f'Updated JavaScript version from {original_js_version} to {ssot_version}')
+                  else:
+                      print(f'JavaScript version ({original_js_version}) is already in sync.')
+                  "
+
             - name: Setup Node 20
               uses: actions/setup-node@v4
               with:
@@ -138,7 +199,6 @@ jobs:
                   registry-url: "https://registry.npmjs.org"
 
             - name: Check NPM package version bump
-              id: check_version
               working-directory: bindings/javascript
               run: |
                   PACKAGE_NAME="@thecyberlocal/strling"
@@ -148,7 +208,7 @@ jobs:
 
                   # npm view will succeed (exit code 0) if the package version exists.
                   if npm view $PACKAGE_NAME@$CURRENT_VERSION version >/dev/null 2>&1; then
-                    echo "::error title=Deployment Blocked::Version $CURRENT_VERSION already exists on NPM for package $PACKAGE_NAME. Please bump the version in bindings/javascript/package.json before merging to 'main'."
+                    echo "::error title=Deployment Blocked::Version $CURRENT_VERSION already exists on NPM for package $PACKAGE_NAME. Please bump the version in bindings/python/pyproject.toml before merging to 'main'."
                     exit 1 # Forces a failure and stops the pipeline
                   else
                     echo "Version $CURRENT_VERSION is unique. Proceeding with deployment."
