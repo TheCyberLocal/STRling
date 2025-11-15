@@ -207,37 +207,39 @@ jobs:
     deploy-javascript:
         name: Deploy JS to NPM
         runs-on: ubuntu-latest
-        # Only run on a push to main AND only if both test jobs passed
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         needs: [pre-flight-checks]
         permissions:
             contents: read
 
         steps:
-            # 1. Download the artifact (REPLACES CHECKOUT)
+            # 1. Download the artifact (Correct)
             - name: Download synced JS package
               uses: actions/download-artifact@v4
               with:
                   name: javascript-package
                   path: bindings/javascript/
 
-            # 2. Setup Node 20 (Including NPM Caching)
+            # 2. Setup Node 20 (Correct)
             - name: Setup Node 20
               uses: actions/setup-node@v4
               with:
                   node-version: "20"
-                  registry-url: "https://registry.npm.org"
+                  registry-url: "https://registry.npmjs.org"
                   cache: "npm"
                   cache-dependency-path: "bindings/javascript/package-lock.json"
 
-            # 3. Install JS dependencies (now uses correct versioned files)
+            # 3. Install JS dependencies (Correct)
+            # This step will now correctly use NO_PROXY
             - name: Install JS dependencies
               working-directory: bindings/javascript
               run: npm ci
 
-            # 4. Publish to NPM
+            # 4. Publish to NPM (Correct)
+            # This step will also use NO_PROXY from the job level
             - name: Publish to NPM
               working-directory: bindings/javascript
               env:
+                  # The auth token is specific to this step
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: npm publish
