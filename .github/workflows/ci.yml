@@ -86,26 +86,35 @@ jobs:
               working-directory: bindings/javascript
               run: npm test
 
-    # --- 3. PYTHON CD (DEPLOYMENT) ---
-    deploy-python:
-        name: Deploy Python to PyPI
+    # --- 3. PRE-FLIGHT CHECKS (THE GATE) ---
+    pre-flight-checks:
+        name: Gate Pre-Flight Checks
         runs-on: ubuntu-latest
         # Only run on a push to main AND only if both test jobs passed
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         needs: [test-python, test-javascript]
         permissions:
-            contents: read
-            id-token: write
+            contents: read # Needs read access to check out code and read files
+        outputs:
+            ssot_version: ${{ steps.sync.outputs.ssot_version }}
+
         steps:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Setup Python 3.12
+            - name: Setup Python 3.12 (for SSOT script)
               uses: actions/setup-python@v5
               with:
                   python-version: "3.12"
 
+            - name: Setup Node 20 (for NPM check)
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  registry-url: "https://registry.npmjs.org"
+
             - name: Sync Python SSOT to JavaScript Version
+              id: sync # Give this step an ID to output the version
               run: |
                   python -c "
                   import json, tomllib
@@ -131,7 +140,50 @@ jobs:
                       print(f'Updated JavaScript version from {original_js_version} to {ssot_version}')
                   else:
                       print(f'JavaScript version ({original_js_version}) is already in sync.')
+
+                  # 4. Output the version for other jobs to use (optional but clean)
+                  print(f'::set-output name=ssot_version::{ssot_version}')
                   "
+
+            - name: Check NPM package version bump
+              working-directory: bindings/javascript
+              run: |
+                  PACKAGE_NAME="@thecyberlocal/strling"
+                  CURRENT_VERSION=$(node -pe "require('./package.json').version")
+
+                  echo "Checking NPM registry for version $CURRENT_VERSION..."
+
+                  if npm view $PACKAGE_NAME@$CURRENT_VERSION version >/dev/null 2>&1; then
+                    echo "::error title=Deployment Blocked::Version $CURRENT_VERSION already exists on NPM for package $PACKAGE_NAME. Please bump the version in bindings/python/pyproject.toml before merging to 'main'."
+                    exit 1 # Forces a failure and stops the pipeline
+                  else
+                    echo "Version $CURRENT_VERSION is unique. Proceeding with deployment."
+                  fi
+
+            # --- FUTURE CHECKS ---
+            # - name: Check RubyGems package version bump
+            #   run: |
+            #     # Logic to check RubyGems would go here
+            #     echo "Ruby check passed"
+
+    # --- 4. PYTHON CD (DEPLOYMENT) ---
+    deploy-python:
+        name: Deploy Python to PyPI
+        runs-on: ubuntu-latest
+        # Only run on a push to main AND only if the gate passed
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        needs: [pre-flight-checks]
+        permissions:
+            contents: read
+            id-token: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Python 3.12
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
 
             - name: Install build tools and build package
               working-directory: bindings/python
@@ -150,7 +202,7 @@ jobs:
         runs-on: ubuntu-latest
         # Only run on a push to main AND only if both test jobs passed
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        needs: [test-python, test-javascript]
+        needs: [pre-flight-checks]
         permissions:
             contents: read
 
@@ -158,61 +210,12 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Setup Python 3.12 (for sync script)
-              uses: actions/setup-python@v5
-              with:
-                  python-version: "3.12"
-
-            - name: Sync Python SSOT to JavaScript Version
-              run: |
-                  python -c "
-                  import json, tomllib
-
-                  # 1. Read the SSOT version from Python's pyproject.toml
-                  with open('bindings/python/pyproject.toml', 'rb') as f:
-                      toml_data = tomllib.load(f)
-                  ssot_version = toml_data['project']['version']
-                  print(f'Single Source of Truth (Python) version is: {ssot_version}')
-
-                  # 2. Load the JavaScript package.json
-                  js_pkg_path = 'bindings/javascript/package.json'
-                  with open(js_pkg_path, 'r') as f:
-                      js_data = json.load(f)
-
-                  original_js_version = js_data.get('version', 'N/A')
-
-                  # 3. Update and write the new version if it's different
-                  if original_js_version != ssot_version:
-                      js_data['version'] = ssot_version
-                      with open(js_pkg_path, 'w') as f:
-                          json.dump(js_data, f, indent=2) # Use indent=2 to match project's .prettierrc
-                      print(f'Updated JavaScript version from {original_js_version} to {ssot_version}')
-                  else:
-                      print(f'JavaScript version ({original_js_version}) is already in sync.')
-                  "
-
             - name: Setup Node 20
               uses: actions/setup-node@v4
               with:
                   node-version: "20"
                   # Configure Node for NPM publishing
-                  registry-url: "https://registry.npmjs.org"
-
-            - name: Check NPM package version bump
-              working-directory: bindings/javascript
-              run: |
-                  PACKAGE_NAME="@thecyberlocal/strling"
-                  CURRENT_VERSION=$(node -pe "require('./package.json').version")
-
-                  echo "Checking NPM registry for version $CURRENT_VERSION..."
-
-                  # npm view will succeed (exit code 0) if the package version exists.
-                  if npm view $PACKAGE_NAME@$CURRENT_VERSION version >/dev/null 2>&1; then
-                    echo "::error title=Deployment Blocked::Version $CURRENT_VERSION already exists on NPM for package $PACKAGE_NAME. Please bump the version in bindings/python/pyproject.toml before merging to 'main'."
-                    exit 1 # Forces a failure and stops the pipeline
-                  else
-                    echo "Version $CURRENT_VERSION is unique. Proceeding with deployment."
-                  fi
+                  registry-url: "https://registry.npm.org"
 
             - name: Install JS dependencies
               working-directory: bindings/javascript
@@ -221,6 +224,5 @@ jobs:
             - name: Publish to NPM
               working-directory: bindings/javascript
               env:
-                  # This token is stored in GitHub Secrets
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: npm publish
