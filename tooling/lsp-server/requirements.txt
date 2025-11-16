@@ -1,0 +1,5 @@
+# Language Server Protocol library
+pygls>=1.0.0
+
+# STRling parser (installed in development mode from parent package)
+# -e ../../bindings/python

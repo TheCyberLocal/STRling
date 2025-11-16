@@ -1,0 +1,5 @@
+# Error Example: Unknown Escape Sequence
+# Expected: Error at line 4, character 0
+# Message: "Unknown escape sequence \z"
+
+\z

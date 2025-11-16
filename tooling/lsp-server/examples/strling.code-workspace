@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.associations": {
+      "*.strl": "strling",
+      "*.strling": "strling"
+    },
+    "genericLanguageServer.languageConfigs": {
+      "strling": {
+        "command": "python",
+        "args": [
+          "${workspaceFolder}/tooling/lsp-server/server.py",
+          "--stdio"
+        ],
+        "filetypes": ["strl", "strling"],
+        "rootPatterns": [".git", "pyproject.toml"]
+      }
+    }
+  }
+}

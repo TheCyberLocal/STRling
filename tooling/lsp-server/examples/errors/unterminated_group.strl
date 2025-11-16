@@ -1,0 +1,6 @@
+# Error Example: Unterminated Group
+# Expected: Error on line 4, character 12
+# Message: "Unterminated group"
+# Hint: "This group was opened with '(' but never closed. Add a matching ')' to close the group."
+
+(hello world

@@ -1,0 +1,5 @@
+# Error Example: Cannot Quantify Anchor
+# Expected: Error at line 4, character 1
+# Message: "Cannot quantify anchor"
+
+^*

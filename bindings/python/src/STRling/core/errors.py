@@ -126,3 +126,65 @@ class STRlingParseError(Exception):
             The formatted error message (same as `str(error)`).
         """
         return self._format_error()
+    
+    def to_lsp_diagnostic(self) -> dict:
+        """
+        Convert the error to LSP Diagnostic format.
+        
+        Returns a dictionary compatible with the Language Server Protocol
+        Diagnostic specification, which can be serialized to JSON for
+        communication with LSP clients.
+        
+        Returns
+        -------
+        dict
+            A dictionary containing:
+            - range: The line/column range where the error occurred
+            - severity: Error severity (1 = Error)
+            - message: The error message with hint if available
+            - source: "STRling"
+            - code: A normalized error code derived from the message
+        """
+        # Find the line and column containing the error
+        lines = self.text.splitlines(keepends=False) if self.text else []
+        current_pos = 0
+        line_num = 0  # 0-indexed for LSP
+        col = self.pos
+        
+        for i, line in enumerate(lines):
+            line_len = len(line) + 1  # +1 for newline
+            if current_pos + line_len > self.pos:
+                line_num = i
+                col = self.pos - current_pos
+                break
+            current_pos += line_len
+        else:
+            # Error is beyond the last line
+            if lines:
+                line_num = len(lines) - 1
+                col = len(lines[-1])
+            else:
+                line_num = 0
+                col = self.pos
+        
+        # Build the diagnostic message
+        diagnostic_message = self.message
+        if self.hint:
+            diagnostic_message += f"\n\nHint: {self.hint}"
+        
+        # Create error code from message (normalize to snake_case)
+        error_code = self.message.lower()
+        for char in [" ", "'", '"', "(", ")", "[", "]", "{", "}", "\\", "/"]:
+            error_code = error_code.replace(char, "_")
+        error_code = "_".join(filter(None, error_code.split("_")))
+        
+        return {
+            "range": {
+                "start": {"line": line_num, "character": col},
+                "end": {"line": line_num, "character": col + 1}
+            },
+            "severity": 1,  # 1 = Error, 2 = Warning, 3 = Information, 4 = Hint
+            "message": diagnostic_message,
+            "source": "STRling",
+            "code": error_code
+        }
