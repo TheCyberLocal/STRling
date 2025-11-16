@@ -1,0 +1,29 @@
+[package]
+name = "strling_core"
+version = "3.0.0-alpha"
+authors = ["TheCyberLocal"]
+edition = "2021"
+rust-version = "1.70"
+license = "MIT"
+description = "STRling core library - Next-gen string pattern DSL & compiler for Rust"
+homepage = "https://github.com/TheCyberLocal/STRling"
+repository = "https://github.com/TheCyberLocal/STRling"
+documentation = "https://github.com/TheCyberLocal/STRling/tree/main/docs"
+keywords = ["strling", "regex", "regexp", "pattern", "parser"]
+categories = ["parsing", "text-processing", "development-tools"]
+
+[dependencies]
+# Error handling
+thiserror = "1.0"
+
+# Serialization (for to_dict-like functionality)
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+# Benchmarking
+criterion = "0.5"
+
+[lib]
+name = "strling_core"
+path = "src/lib.rs"
