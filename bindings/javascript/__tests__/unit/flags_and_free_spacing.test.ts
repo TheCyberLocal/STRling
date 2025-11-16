@@ -38,7 +38,7 @@
  */
 
 // Note: Adjust import paths as needed for your project structure
-import { parse } from "../../src/STRling/core/parser";
+import { parse, ParseError } from "../../src/STRling/core/parser";
 import {
     Flags,
     Seq,
@@ -132,17 +132,12 @@ describe("Category B: Negative Cases", () => {
     test.each<[string, string]>([
         ["%flags z", "unknown_flag"],
         ["%flagg i", "malformed_directive"],
-    ])(
-        'should handle bad directive "%s" leniently (ID: %s)',
-        (inputDsl, id) => {
-            /**
-             * Tests that the parser ignores unknown flags and malformed directives,
-             * returning a default Flags object.
-             */
-            const [flags] = parse(inputDsl);
-            expect(flags).toEqual(new Flags()); // Default flags
-        }
-    );
+    ])('should reject bad directive "%s" (ID: %s)', (inputDsl, id) => {
+        /**
+         * IEH audit requires unknown flags to be rejected. Expect a parse error.
+         */
+        expect(() => parse(inputDsl)).toThrow(ParseError);
+    });
 });
 
 describe("Category C: Edge Cases", () => {
@@ -156,15 +151,13 @@ describe("Category C: Edge Cases", () => {
         expect(flags).toEqual(new Flags());
     });
 
-    test("should ignore a directive that appears after content", () => {
+    test("should reject a directive that appears after content", () => {
         /**
-         * Tests that a directive appearing after pattern content is ignored by the
-         * directive parser.
+         * IEH audit requires directives appearing after pattern content to be
+         * rejected. Expect a parse error indicating the directive must appear
+         * at the start of the pattern.
          */
-        const [flags, ast] = parse("a\n%flags i");
-        expect(flags).toEqual(new Flags()); // Should be default, not ignoreCase=True
-        expect(ast).toBeInstanceOf(Seq);
-        expect((ast as Seq).parts[0]).toEqual(new Lit("a"));
+        expect(() => parse("a\n%flags i")).toThrow(ParseError);
     });
 
     test("should handle a pattern with only comments and whitespace", () => {

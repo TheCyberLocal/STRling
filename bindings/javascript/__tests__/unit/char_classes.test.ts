@@ -646,18 +646,13 @@ describe("Category J: Char Class Error Cases", () => {
         expect(() => parse("[]")).toThrow("Unterminated character class");
     });
 
-    test("should parse invalid range (reversed) as valid", () => {
+    test("should reject reversed range [z-a] as invalid", () => {
         /**
-         * Tests invalid range with reversed endpoints: [z-a]
-         * The parser currently accepts this, so we test that it parses successfully.
+         * Per IEH audit, reversed character ranges (e.g., [z-a]) are invalid
+         * and should be reported as a parse error.
          */
-        const [, ast] = parse("[z-a]");
-        expect(ast).toBeInstanceOf(CharClass);
-        const ccNode = ast as CharClass;
-        expect(ccNode.items).toHaveLength(1);
-        expect(ccNode.items[0]).toBeInstanceOf(ClassRange);
-        expect((ccNode.items[0] as ClassRange).fromCh).toBe("z");
-        expect((ccNode.items[0] as ClassRange).toCh).toBe("a");
+        expect(() => parse("[z-a]")).toThrow(ParseError);
+        expect(() => parse("[z-a]")).toThrow(/Invalid character range/);
     });
 
     test("should parse incomplete range at end as literal", () => {

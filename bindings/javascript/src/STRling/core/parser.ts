@@ -173,15 +173,114 @@ class Parser {
             }
             // Process directives only before pattern content
             if (!inPattern && stripped.startsWith("%flags")) {
-                const rest = stripped.slice(6).trim();
-                const letters = rest.replace(/[,\[\] ]/g, "");
-                flags = Flags.fromLetters(letters);
+                // Work from the original `line` so we can detect inline pattern
+                const idx = line.indexOf("%flags");
+                const after = line.slice(idx + "%flags".length);
+                // scan allowed chars for the flags token (spaces, tabs, commas,
+                // brackets and known flag letters). Stop at first char that is
+                // not allowed — that's the start of inline pattern content.
+                const allowed = new Set(Array.from(" \t,[]imsuxIMSUX"));
+                let j = 0;
+                while (j < after.length && allowed.has(after[j])) j++;
+                const flagsToken = after.slice(0, j);
+                const remainder = after.slice(j);
+                const letters = flagsToken
+                    .replace(/[,\[\]\s]+/g, " ")
+                    .trim()
+                    .toLowerCase();
+                if (letters.replace(/ /g, "") === "") {
+                    // No valid letters parsed; if remainder contains non-space
+                    // characters this is an invalid-flag error.
+                    if (remainder.trim() !== "") {
+                        const leadingWS =
+                            remainder.length - remainder.trimStart().length;
+                        const ch = remainder.trimStart()[0];
+                        const pos =
+                            lines.slice(0, lines.indexOf(line)).join("")
+                                .length +
+                            idx +
+                            j +
+                            leadingWS;
+                        const hint = getHint(
+                            `Invalid flag '${ch}'`,
+                            this._originalText,
+                            pos
+                        );
+                        throw new STRlingParseError(
+                            `Invalid flag '${ch}'`,
+                            pos,
+                            this._originalText,
+                            hint
+                        );
+                    }
+                } else {
+                    // Validate parsed flags
+                    for (const ch of letters.replace(/ /g, "")) {
+                        if (!"imsux".includes(ch)) {
+                            const pos =
+                                lines.slice(0, lines.indexOf(line)).join("")
+                                    .length + idx;
+                            const hint = getHint(
+                                `Invalid flag '${ch}'`,
+                                this._originalText,
+                                pos
+                            );
+                            throw new STRlingParseError(
+                                `Invalid flag '${ch}'`,
+                                pos,
+                                this._originalText,
+                                hint
+                            );
+                        }
+                    }
+                    flags = Flags.fromLetters(letters.replace(/ /g, ""));
+                    // If remainder exists on same line treat it as start of pattern
+                    if (remainder.trim() !== "") {
+                        inPattern = true;
+                        patternLines.push(remainder);
+                    }
+                }
                 continue;
             }
             if (!inPattern && stripped.startsWith("%")) {
-                continue;
+                // Any other percent-directive (e.g. malformed ones) are
+                // considered invalid. IEH requires malformed directives to
+                // raise a parse error rather than being silently ignored.
+                const idx = line.indexOf("%");
+                const pos =
+                    lines.slice(0, lines.indexOf(line)).join("").length + idx;
+                const hint = getHint(
+                    "Malformed directive",
+                    this._originalText,
+                    pos
+                );
+                throw new STRlingParseError(
+                    "Malformed directive",
+                    pos,
+                    this._originalText,
+                    hint
+                );
             }
-            // All other lines are pattern content
+            // All other lines are pattern content. If a `%flags` directive
+            // appears after pattern content has started, treat it as an
+            // explicit error rather than silently allowing it inside the
+            // pattern body.
+            if (line.indexOf("%flags") !== -1) {
+                const idx = line.indexOf("%flags");
+                const pos =
+                    lines.slice(0, lines.indexOf(line)).join("").length + idx;
+                const hint = getHint(
+                    "Directive after pattern",
+                    this._originalText,
+                    pos
+                );
+                throw new STRlingParseError(
+                    "Directive after pattern",
+                    pos,
+                    this._originalText,
+                    hint
+                );
+            }
             inPattern = true;
             patternLines.push(line);
         }
@@ -232,6 +331,9 @@ class Parser {
             if (this.cur.peek() === "") {
                 this._raiseError("Alternation lacks right-hand side", pipePos);
             }
+            if (this.cur.peek() === "|") {
+                this._raiseError("Empty alternation", pipePos);
+            }
             branches.push(this.parseSeq());
             this.cur.skipWsAndComments();
         }
@@ -251,13 +353,8 @@ class Parser {
             const ch = this.cur.peek();
             // Invalid quantifier at start of sequence/group (no previous atom)
             if (ch !== "" && "*+?{".includes(ch) && parts.length === 0) {
-                // Use the same instructional hint as the Python binding (match corpus)
-                throw new STRlingParseError(
-                    `Invalid quantifier '${ch}'`,
-                    this.cur.i,
-                    this.src,
-                    "The quantifier '*' cannot be at the start of a pattern or group. It must follow a character or group it can quantify."
-                );
+                // Delegate to hint engine for a context-aware hint
+                this._raiseError(`Invalid quantifier '${ch}'`, this.cur.i);
             }
 
             if (ch === "" || "|)".includes(ch)) {
@@ -354,6 +451,13 @@ class Parser {
 
         if (minVal === null) {
             return [child, hadFailedQuantParse];
+        }
+
+        // Validate quantifier numeric range (m <= n)
+        if (typeof minVal === "number" && typeof maxVal === "number") {
+            if (minVal > (maxVal as number)) {
+                this._raiseError("Invalid quantifier range", cur.i);
+            }
         }
 
         if (child instanceof Anchor) {
@@ -618,13 +722,8 @@ class Parser {
             this._raiseError("Unexpected end of escape", startPos);
         }
         if (!allowedIdentity.has(peekCh)) {
-            // Throw explicit STRlingParseError with the exact corpus hint
-            throw new STRlingParseError(
-                `Unknown escape sequence \\${peekCh}`,
-                startPos,
-                this.src,
-                "'\\z' is not a recognized escape sequence. Did you mean '\\Z' (end of string) or '\\' (a literal 'z')?"
-            );
+            // Use hint engine to provide a context-aware hint for unknown escapes
+            this._raiseError(`Unknown escape sequence \\${peekCh}`, startPos);
         }
         const ch = cur.take();
         return new Lit(ch);
@@ -768,6 +867,18 @@ class Parser {
                     const startLit = items.pop() as ClassLiteral;
                     const startCh = startLit.ch;
                     const endCh = endItem.ch;
+                    // Validate ascending order for ranges when both endpoints
+                    // are letters or digits. Reject reversed ranges like [z-a]
+                    // or [9-0].
+                    const sc = startCh.charCodeAt(0);
+                    const ec = endCh.charCodeAt(0);
+                    const bothDigits =
+                        /[0-9]/.test(startCh) && /[0-9]/.test(endCh);
+                    const bothLetters =
+                        /[A-Za-z]/.test(startCh) && /[A-Za-z]/.test(endCh);
+                    if ((bothDigits || bothLetters) && sc > ec) {
+                        this._raiseError("Invalid character range", cur.i);
+                    }
                     items.push(new ClassRange(startCh, endCh));
                 } else {
                     items.push(new ClassLiteral("-"));
@@ -879,9 +990,15 @@ class Parser {
 
         // Named capturing group
         if (cur.match("?<")) {
+            const nameStartPos = cur.i;
             const name = this._readUntil(">");
             if (!cur.match(">")) {
                 this._raiseError("Unterminated group name", cur.i);
+            }
+            // Validate identifier per EBNF: IDENT_START = LETTER | "_";
+            // IDENT_CONT = IDENT_START | DIGIT
+            if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+                this._raiseError(`Invalid group name <${name}>`, nameStartPos);
             }
             if (this._capNames.has(name)) {
                 this._raiseError(`Duplicate group name <${name}>`, cur.i);
