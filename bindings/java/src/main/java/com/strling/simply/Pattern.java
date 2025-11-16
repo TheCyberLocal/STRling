@@ -26,7 +26,8 @@ public class Pattern {
     // Global Simply instance for compilation
     private static final Simply s = new Simply();
 
-    private final Nodes.Node node;
+    // Package-private to allow access from other Simply classes
+    final Nodes.Node node;
     private final boolean customSet;
     private final boolean negated;
     private final boolean composite;
@@ -40,6 +41,18 @@ public class Pattern {
      */
     public Pattern(Nodes.Node node) {
         this(node, false, false, false, new ArrayList<>(), false);
+    }
+
+    /**
+     * Create a new Pattern with custom set attributes.
+     *
+     * @param node The AST node representing this pattern.
+     * @param customSet Indicates if the pattern is a custom character set.
+     * @param negated Indicates if the pattern is a negated custom character set.
+     * @param composite Indicates if the pattern is a composite pattern.
+     */
+    public Pattern(Nodes.Node node, boolean customSet, boolean negated, boolean composite) {
+        this(node, customSet, negated, composite, new ArrayList<>(), false);
     }
 
     /**

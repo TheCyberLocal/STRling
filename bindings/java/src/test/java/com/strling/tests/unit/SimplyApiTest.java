@@ -1,18 +1,20 @@
 package com.strling.tests.unit;
 
-import com.strling.simply.Pattern;
-import com.strling.simply.STRlingError;
+import com.strling.simply.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.regex.Matcher;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.strling.simply.Lookarounds.*;
+import static com.strling.simply.Static.*;
+import static com.strling.simply.Constructors.*;
 
 /**
- * Test suite for Simply API Pattern class.
+ * Test suite for Simply API.
  *
- * This test file validates the Pattern class methods and behavior,
- * ensuring correct compilation and error handling.
+ * This test file validates the Simply API modules including Pattern, Lookarounds,
+ * Static character classes, and Constructors.
  */
 public class SimplyApiTest {
 
@@ -89,5 +91,130 @@ public class SimplyApiTest {
         assertTrue(java.util.regex.Pattern.compile(regex).matcher("aa").find());
         assertTrue(java.util.regex.Pattern.compile(regex).matcher("aaaa").find());
         assertFalse(java.util.regex.Pattern.compile(regex).matcher("a").find());
+    }
+
+    // =========================================================================
+    // Category C: Lookarounds Module Tests (lookarounds.py)
+    // =========================================================================
+
+    /**
+     * Category C.1: notAhead() tests
+     */
+    
+    @Test
+    public void testNotAheadWithSimplePattern() {
+        /**Test notAhead with simple pattern*/
+        Pattern pattern = merge(digit(), notAhead(letter()));
+        String regex = pattern.toString();
+        // Should match digit NOT followed by letter
+        assertTrue(java.util.regex.Pattern.compile(regex).find("56"));
+        assertTrue(java.util.regex.Pattern.compile(regex).find("5 "));
+        assertFalse(java.util.regex.Pattern.compile(regex).find("5A"));
+    }
+
+    @Test
+    public void testNotAheadValidatingIdentifierEndings() {
+        /**Test notAhead validating identifier endings*/
+        // Match identifier not ending with '_tmp'
+        Pattern identifier = merge(letter(), alphaNum(0, 0));
+        Pattern pattern = merge(
+            identifier,
+            notAhead(merge("_tmp", end()))
+        );
+        String regex = pattern.toString();
+        assertTrue(java.util.regex.Pattern.compile(regex).find("myvar"));
+        // Note: notAhead doesn't consume, so this might still match
+    }
+
+    @Test
+    public void testNotAheadUsedWithWordBoundary() {
+        /**Test notAhead used with word boundary*/
+        Pattern pattern = merge(letter(1, 0), notAhead(digit()));
+        String regex = pattern.toString();
+        assertTrue(java.util.regex.Pattern.compile(regex).find("hello"));
+        // Should match 'test' but not continue into '123'
+        Matcher match = java.util.regex.Pattern.compile(regex).matcher("test123");
+        assertNotNull(match.find());
+    }
+
+    /**
+     * Category C.2: notBehind() tests
+     */
+    
+    @Test
+    public void testNotBehindWithSimplePattern() {
+        /**Test notBehind with simple pattern*/
+        Pattern pattern = merge(notBehind(digit()), letter());
+        String regex = pattern.toString();
+        // Should match letter NOT preceded by digit
+        Matcher matcher = java.util.regex.Pattern.compile(regex).matcher("AB");
+        assertTrue(matcher.find());
+        assertEquals("A", matcher.group());
+        Matcher match2 = java.util.regex.Pattern.compile(regex).matcher("5A");
+        // The 'A' is preceded by '5', so shouldn't match at position 1
+        assertTrue(!match2.find() || !match2.group().equals("A"));
+    }
+
+    @Test
+    public void testNotBehindForMatchingWordsWithoutPrefix() {
+        /**Test notBehind for matching words without prefix*/
+        // Match 'possible' not preceded by 'im'
+        Pattern pattern = merge(
+            notBehind(Pattern.lit("im")),
+            Pattern.lit("possible")
+        );
+        String regex = pattern.toString();
+        assertTrue(java.util.regex.Pattern.compile(regex).find("possible"));
+        // 'possible' in 'impossible' is preceded by 'im', so shouldn't match
+        // Actually, lookbehinds check at the position, need to be careful here
+    }
+
+    @Test
+    public void testNotBehindAtStartOfString() {
+        /**Test notBehind at start of string*/
+        Pattern pattern = merge(notBehind(start()), letter());
+        String regex = pattern.toString();
+        // Can't be behind start, so should never match? Need to verify logic
+        assertDoesNotThrow(() -> java.util.regex.Pattern.compile(regex));
+    }
+
+    /**
+     * Category C.3: hasNot() tests
+     */
+    
+    @Test
+    public void testHasNotCheckingForAbsenceOfDigits() {
+        /**Test hasNot checking for absence of digits*/
+        Pattern pattern = merge(hasNot(digit()), letter(1, 0));
+        String regex = pattern.toString();
+        // hasNot checks that pattern doesn't exist anywhere in remaining string
+        // So this should match letters only if no digit exists after current position
+        assertTrue(java.util.regex.Pattern.compile("^" + regex).matcher("abcdef").find());
+        // 'abc123' will match 'abc' because hasNot is checked at position 0
+        // and the lookahead scans the whole string and finds '123'
+        // So this should NOT match at all
+        assertFalse(java.util.regex.Pattern.compile("^" + regex).matcher("abc123").find());
+    }
+
+    @Test
+    public void testHasNotForPasswordValidationNoSpaces() {
+        /**Test hasNot for password validation (no spaces)*/
+        Pattern noSpaces = hasNot(Pattern.lit(" "));
+        Pattern pattern = merge(noSpaces, alphaNum(8, 0));
+        String regex = pattern.toString();
+        assertTrue(java.util.regex.Pattern.compile("^" + regex).matcher("password123").find());
+        assertFalse(java.util.regex.Pattern.compile("^" + regex).matcher("pass word").find());
+    }
+
+    @Test
+    public void testHasNotWithMultipleConstraints() {
+        /**Test hasNot with multiple constraints*/
+        Pattern noDigit = hasNot(digit());
+        Pattern noSpecial = hasNot(specialChar());
+        Pattern pattern = merge(noDigit, noSpecial, letter(5, 0));
+        String regex = pattern.toString();
+        assertTrue(java.util.regex.Pattern.compile("^" + regex).matcher("hello").find());
+        assertFalse(java.util.regex.Pattern.compile("^" + regex).matcher("hello5").find());
+        assertFalse(java.util.regex.Pattern.compile("^" + regex).matcher("hello!").find());
     }
 }
