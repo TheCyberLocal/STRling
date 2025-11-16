@@ -138,8 +138,10 @@ class Parser:
         lines = text.splitlines(keepends=True)
         pattern_lines: List[str] = []
         in_pattern = False  # Track whether we've started the pattern section
+        line_num = 0
         
         for line in lines:
+            line_num += 1
             striped = line.strip()
             # Skip leading blank lines or comments
             if not in_pattern and (striped == "" or striped.startswith("#")):
@@ -148,10 +150,24 @@ class Parser:
             if not in_pattern and striped.startswith("%flags"):
                 rest = striped[6:].strip()
                 letters = rest.replace(",", " ").replace("[", "").replace("]", "")
+                # Validate flag letters
+                valid_flags = set("imsux")
+                for ch in letters.replace(" ", ""):
+                    if ch and ch not in valid_flags:
+                        # Calculate position in original text and raise error directly
+                        pos = sum(len(l) for l in lines[:line_num-1]) + line.index("%flags")
+                        hint = get_hint(f"Invalid flag '{ch}'", self._original_text, pos)
+                        raise STRlingParseError(f"Invalid flag '{ch}'", pos, self._original_text, hint)
                 flags = Flags.from_letters(letters)
                 continue
             if not in_pattern and striped.startswith("%"):
                 continue
+            # This is pattern content
+            # Check if %flags appears anywhere in this line (would be misplaced)
+            if "%flags" in line:
+                pos = sum(len(l) for l in lines[:line_num-1]) + line.index("%flags")
+                hint = get_hint("Directive after pattern content", self._original_text, pos)
+                raise STRlingParseError("Directive after pattern content", pos, self._original_text, hint)
             # All other lines are pattern content
             # Once we hit pattern content, we stop processing directives
             in_pattern = True
@@ -213,6 +229,9 @@ class Parser:
             # Check if the pipe is followed by end-of-input (no right-hand side)
             if self.cur.peek() == "":
                 self._raise_error("Alternation lacks right-hand side", pipe_pos)
+            # Check if the pipe is followed by another pipe (empty branch)
+            if self.cur.peek() == "|":
+                self._raise_error("Empty alternation branch", pipe_pos)
             branches.append(self.parse_seq())
             self.cur.skip_ws_and_comments()
         if len(branches) == 1:
@@ -233,13 +252,8 @@ class Parser:
             ch = self.cur.peek()
             # Invalid quantifier at start of sequence/group (no previous atom)
             if ch != "" and ch in "*+?{" and len(parts) == 0:
-                # Provide an explicit instructional hint matching the corpus
-                raise STRlingParseError(
-                    f"Invalid quantifier '{ch}'",
-                    self.cur.i,
-                    self.src,
-                    "The quantifier '*' cannot be at the start of a pattern or group. It must follow a character or group it can quantify.",
-                )
+                # Raise error with context-aware hint from hint_engine
+                self._raise_error(f"Invalid quantifier '{ch}'", self.cur.i)
             # Stop parsing sequence if we hit end, closing paren, or alternation pipe
             if ch == "" or ch in ")|":
                 break
@@ -390,6 +404,7 @@ class Parser:
         cur = self.cur
         if not cur.match("{"):
             return None, None, "Greedy"
+        quant_start = cur.i - 1  # Save position of '{'
         # Parse integers
         m = self._read_int_optional()
         if m is None:
@@ -411,6 +426,9 @@ class Parser:
             if n is None:
                 mmin, mmax = m, "Inf"
             else:
+                # Validate that m <= n
+                if m > n:
+                    self._raise_error(f"Invalid quantifier range {{{m},{n}}}", quant_start)
                 mmin, mmax = m, n
         else:
             if not cur.match("}"):
@@ -607,13 +625,8 @@ class Parser:
         if ch == "":
             self._raise_error("Unexpected end of escape", start_pos)
         if ch not in allowed_identity_escapes:
-            # Unknown escape sequence -> raise with the explicit corpus hint
-            raise STRlingParseError(
-                f"Unknown escape sequence \\{ch}",
-                start_pos,
-                self.src,
-                "'\\z' is not a recognized escape sequence. Did you mean '\\Z' (end of string) or '\\' (a literal 'z')?",
-            )
+            # Unknown escape sequence -> raise with context-aware hint from hint_engine
+            self._raise_error(f"Unknown escape sequence \\{ch}", start_pos)
         # consume and return literal
         ch = cur.take()
         return Lit(ch)
@@ -634,6 +647,29 @@ class Parser:
 
     def _read_until(self, end: str) -> str:
         return self._read_ident_until(end)
+    
+    def _is_valid_identifier(self, name: str) -> bool:
+        """
+        Validate that a name conforms to the EBNF IDENTIFIER rule.
+        
+        Per the grammar:
+        - IDENT_START = LETTER | "_"
+        - IDENT_CONT = IDENT_START | DIGIT
+        - IDENTIFIER = IDENT_START, { IDENT_CONT }
+        
+        Returns False for empty names, names starting with digits, or names
+        containing invalid characters like hyphens.
+        """
+        if not name:
+            return False
+        # First character must be letter or underscore
+        if not (name[0].isalpha() or name[0] == '_'):
+            return False
+        # Remaining characters must be letter, digit, or underscore
+        for ch in name[1:]:
+            if not (ch.isalnum() or ch == '_'):
+                return False
+        return True
 
     def _parse_hex_escape(self, start_pos: int) -> str:
         cur = self.cur
@@ -762,6 +798,7 @@ class Parser:
                 and cur.peek(1) != "]"
             ):
                 # consume '-' and read the end item
+                dash_pos = cur.i
                 cur.take()
                 end_item = read_item()
                 if isinstance(end_item, ClassLiteral):
@@ -770,6 +807,9 @@ class Parser:
                     )  # Explicitly cast for type checker
                     start_ch: str = start_lit.ch
                     end_ch: str = end_item.ch
+                    # Validate that start <= end in the range
+                    if ord(start_ch) > ord(end_ch):
+                        self._raise_error(f"Invalid character range [{start_ch}-{end_ch}]", dash_pos)
                     items.append(ClassRange(start_ch, end_ch))
                 else:
                     # Can't form range with a class escape; degrade to literals (“-” + end_item)
@@ -811,9 +851,14 @@ class Parser:
 
         # Named capturing group (?<name>...)
         if cur.match("?<"):
+            name_start_pos = cur.i
             name = self._read_until(">")
             if not cur.match(">"):
                 self._raise_error("Unterminated group name", cur.i)
+            # Validate group name per EBNF: IDENTIFIER = IDENT_START, { IDENT_CONT }
+            # IDENT_START = LETTER | "_", IDENT_CONT = IDENT_START | DIGIT
+            if not self._is_valid_identifier(name):
+                self._raise_error(f"Invalid group name <{name}>", name_start_pos)
             # Check for duplicate group name
             if name in self._cap_names:
                 self._raise_error(f"Duplicate group name <{name}>", cur.i)

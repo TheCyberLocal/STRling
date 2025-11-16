@@ -40,7 +40,7 @@ while treating them as literals inside character classes.
 import pytest
 from typing import List
 
-from STRling.core.parser import parse
+from STRling.core.parser import parse, ParseError
 from STRling.core.nodes import (
     Flags,
     Seq,
@@ -124,19 +124,23 @@ class TestCategoryBNegativeCases:
         "input_dsl",
         [
             "%flags z",
-            "%flagg i",
         ],
         ids=[
             "unknown_flag",
-            "malformed_directive",
         ],
     )
-    def test_lenient_parsing_of_bad_directives(self, input_dsl: str):
+    def test_invalid_flags_are_rejected(self, input_dsl: str):
         """
-        Tests that the parser ignores unknown flags and malformed directives,
-        returning a default Flags object.
+        Tests that the parser now rejects unknown flags per IEH audit.
         """
-        flags, _ast = parse(input_dsl)
+        with pytest.raises(ParseError, match="Invalid flag"):
+            parse(input_dsl)
+    
+    def test_lenient_parsing_of_malformed_directive(self):
+        """
+        Tests that malformed directives (not starting with %flags exactly) are ignored.
+        """
+        flags, _ast = parse("%flagg i")
         assert flags == Flags()  # Default flags
 
 
@@ -150,15 +154,12 @@ class TestCategoryCEdgeCases:
         flags, _ast = parse("%flags")
         assert flags == Flags()
 
-    def test_directive_after_content_is_ignored(self):
+    def test_directive_after_content_is_rejected(self):
         """
-        Tests that a directive appearing after pattern content is ignored by the
-        directive parser.
+        Tests that a directive appearing after pattern content is now rejected per IEH audit.
         """
-        flags, ast = parse("a\n%flags i")
-        assert flags == Flags()  # Should be default, not ignoreCase=True
-        assert isinstance(ast, Seq)
-        assert ast.parts[0] == Lit("a")
+        with pytest.raises(ParseError, match="Directive after pattern"):
+            parse("a\n%flags i")
 
     def test_pattern_with_only_comments_and_whitespace(self):
         """

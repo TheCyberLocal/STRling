@@ -20,6 +20,7 @@ class HintEngine:
     def __init__(self):
         """Initialize the hint engine with error pattern mappings."""
         # Map error message patterns to hint generators
+        # NOTE: More specific patterns must come before more general ones
         self._hint_generators: Dict[str, Callable[[str, str, int], str]] = {
             "Unterminated group": self._hint_unterminated_group,
             "Unterminated character class": self._hint_unterminated_char_class,
@@ -30,13 +31,22 @@ class HintEngine:
             "Unterminated atomic group": self._hint_unterminated_atomic_group,
             "Unterminated {m,n}": self._hint_unterminated_brace_quant,
             "Unterminated {n}": self._hint_unterminated_brace_quant,
+            "Invalid quantifier range": self._hint_invalid_quantifier_range,  # More specific, comes first
+            "Invalid quantifier": self._hint_invalid_quantifier,  # More general, comes second
+            "Invalid character range": self._hint_invalid_character_range,
+            "Invalid flag": self._hint_invalid_flag,
+            "Directive after pattern content": self._hint_directive_after_pattern,
+            "Unknown escape sequence": self._hint_unknown_escape,
             "Unexpected token": self._hint_unexpected_token,
             "Unexpected trailing input": self._hint_unexpected_trailing,
             "Cannot quantify anchor": self._hint_cannot_quantify_anchor,
             "Backreference to undefined group": self._hint_undefined_backref,
             "Duplicate group name": self._hint_duplicate_group_name,
+            "Invalid group name": self._hint_invalid_group_name,
+            "Empty alternation branch": self._hint_empty_alternation,
             "Alternation lacks left-hand side": self._hint_alternation_no_lhs,
             "Alternation lacks right-hand side": self._hint_alternation_no_rhs,
+            "Expected '<' after \\k": self._hint_incomplete_named_backref,
             "Inline modifiers": self._hint_inline_modifiers,
             "Invalid \\xHH escape": self._hint_invalid_hex,
             "Invalid \\uHHHH": self._hint_invalid_unicode,
@@ -122,6 +132,67 @@ class HintEngine:
             "Make sure to close the quantifier with '}'."
         )
     
+    def _hint_invalid_quantifier_range(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "Quantifier range {m,n} must have m ≤ n. "
+            "Check that the minimum value is not greater than the maximum value."
+        )
+    
+    def _hint_invalid_quantifier(self, msg: str, text: str, pos: int) -> str:
+        # Extract the actual quantifier from the message
+        # Message format: "Invalid quantifier 'X'"
+        import re
+        match = re.search(r"'([*+?{])'", msg)
+        quant = match.group(1) if match else "*"
+        return (
+            f"The quantifier '{quant}' cannot be at the start of a pattern or group. "
+            f"It must follow a character or group it can quantify."
+        )
+    
+    def _hint_invalid_character_range(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "Character ranges must be in ascending order. "
+            "For example, use [a-z] instead of [z-a], or [0-9] instead of [9-0]."
+        )
+    
+    def _hint_invalid_flag(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "Unknown flag. Valid flags are: "
+            "i (case-insensitive), m (multiline), s (dotAll), u (unicode), x (extended/free-spacing)."
+        )
+    
+    def _hint_directive_after_pattern(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "Directives like %flags must appear at the start of the pattern, "
+            "before any regex content."
+        )
+    
+    def _hint_unknown_escape(self, msg: str, text: str, pos: int) -> str:
+        # Extract the actual escape character from the message
+        # Message format: "Unknown escape sequence \X"
+        import re
+        match = re.search(r'\\(.)', msg)
+        if match:
+            ch = match.group(1)
+            # Provide context-specific hints for common mistakes
+            if ch == 'z':
+                return (
+                    "'\\z' is not a recognized escape sequence. "
+                    "Did you mean '\\Z' (end of string) or just 'z' (a literal 'z')?"
+                )
+            elif ch.isupper():
+                # Suggest lowercase version
+                return (
+                    f"'\\{ch}' is not a recognized escape sequence. "
+                    f"To match literal '{ch}', use '{ch}' without the backslash."
+                )
+            else:
+                return (
+                    f"'\\{ch}' is not a recognized escape sequence. "
+                    f"To match literal '{ch}', use '{ch}' or escape special characters with '\\'."
+                )
+        return "This is not a recognized escape sequence."
+    
     def _hint_unexpected_token(self, msg: str, text: str, pos: int) -> str:
         # Try to identify the unexpected character
         if pos < len(text):
@@ -163,6 +234,19 @@ class HintEngine:
             "Use different names for different groups, or use unnamed groups ()."
         )
     
+    def _hint_invalid_group_name(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "Group names must follow the IDENTIFIER rule: start with a letter or "
+            "underscore, followed by letters, digits, or underscores. "
+            "Use (?<name>...) with a valid identifier."
+        )
+    
+    def _hint_empty_alternation(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "Empty alternation branch detected (consecutive '|' operators). "
+            "Use 'a|b' instead of 'a||b', or '(a|)b' if you want to match optional 'a'."
+        )
+    
     def _hint_alternation_no_lhs(self, msg: str, text: str, pos: int) -> str:
         return (
             "The alternation operator '|' requires an expression on the left side. "
@@ -173,6 +257,12 @@ class HintEngine:
         return (
             "The alternation operator '|' requires an expression on the right side. "
             "Use 'a|b' to match either 'a' or 'b'."
+        )
+    
+    def _hint_incomplete_named_backref(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "Named backreferences use the syntax \\k<name>. "
+            "The '<' is required after \\k, like \\k<groupname>."
         )
     
     def _hint_inline_modifiers(self, msg: str, text: str, pos: int) -> str:
