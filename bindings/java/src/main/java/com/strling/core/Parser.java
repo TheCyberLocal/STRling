@@ -205,10 +205,20 @@ public class Parser {
                 int idx = line.indexOf("%flags");
                 String after = line.substring(idx + "%flags".length());
                 
-                // Extract flags - simple version
+                // Extract and validate flags
                 String flagsStr = after.replaceAll("[\\s,\\[\\]]+", " ").trim().toLowerCase();
+                Set<Character> validFlags = new HashSet<>(Arrays.asList('i', 'm', 's', 'u', 'x'));
+                
                 for (char ch : flagsStr.toCharArray()) {
                     if (ch == ' ') continue;
+                    if (!validFlags.contains(ch)) {
+                        throw new STRlingParseError(
+                            String.format("Invalid flag '%c'", ch),
+                            idx,
+                            text,
+                            "Valid flags are: i (ignore case), m (multiline), s (dotAll), u (unicode), x (extended)"
+                        );
+                    }
                     switch (ch) {
                         case 'i': flags.ignoreCase = true; break;
                         case 'm': flags.multiline = true; break;
@@ -219,6 +229,26 @@ public class Parser {
                 }
                 inPattern = true;
                 continue;
+            }
+            // Reject unknown directives starting with %
+            if (!inPattern && stripped.startsWith("%")) {
+                int idx = line.indexOf("%");
+                throw new STRlingParseError(
+                    "Unknown directive",
+                    idx,
+                    text,
+                    "Only %flags directive is supported. Check your pattern syntax."
+                );
+            }
+            // Check if %flags appears in pattern content (misplaced directive)
+            if (inPattern && line.contains("%flags")) {
+                int idx = line.indexOf("%flags");
+                throw new STRlingParseError(
+                    "Directive after pattern content",
+                    idx,
+                    text,
+                    "The %flags directive must appear before pattern content."
+                );
             }
             // Once we see non-directive content, we're in the pattern
             inPattern = true;
