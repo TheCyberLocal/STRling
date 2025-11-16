@@ -173,7 +173,8 @@ class TestQuantifierErrors:
         Tests that an unterminated brace quantifier like {m,n raises an error.
 
         """
-        with pytest.raises(ParseError, match="Unterminated {m,n}") as excinfo:
+        # New, stricter contract: parser should provide an explicit hint
+        with pytest.raises(ParseError, match="Incomplete quantifier") as excinfo:
             parse("a{2,5")
         assert excinfo.value.pos == 5
 

@@ -63,10 +63,10 @@ For comprehensive syntax reference and all available features, see the **[JavaSc
 
 ## 📖 Related Documentation
 
-- **[JavaScript API Reference](docs/api_reference.md)**: Complete API documentation for JavaScript
-- **[Developer Documentation Hub](../../docs/index.md)**: Architecture, philosophy, and development workflow
-- **[Formal Specification](../../spec/README.md)**: Grammar and semantics reference
-- **[Python Binding](../python/README.md)**: STRling for Python
+-   **[JavaScript API Reference](docs/api_reference.md)**: Complete API documentation for JavaScript
+-   **[Developer Documentation Hub](../../docs/index.md)**: Architecture, philosophy, and development workflow
+-   **[Formal Specification](../../spec/README.md)**: Grammar and semantics reference
+-   **[Python Binding](../python/README.md)**: STRling for Python
 
 ## 💖 Support
 

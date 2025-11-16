@@ -52,7 +52,7 @@
         "typescript": "^5.9.2"
     },
     "dependencies": {
-        "@thecyberlocal/strling": "^3.0.0-a0",
+        "@thecyberlocal/strling": "file:../..",
         "ajv": "^8.17.1"
     }
 }

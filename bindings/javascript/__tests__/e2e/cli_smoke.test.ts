@@ -20,9 +20,9 @@ import { spawnSync, SpawnSyncOptions } from "child_process";
 import fs from "fs";
 import path from "path";
 
-const PYTHON_EXEC = process.env.PYTHON_EXEC || process.env.PYTHON || "python3";
-
 // --- Path setup (mirrors the Python test layout) ------------------------------
+
+const PYTHON_EXEC = process.env.PYTHON_EXEC || process.env.PYTHON || "python3";
 
 const TEST_DIR = __dirname;
 // Assumes the test file is in a directory like build/tests/e2e
@@ -57,7 +57,7 @@ function runCli(args: string[], stdin?: string): CliResult {
         },
     };
 
-    const result = spawnSync(PYTHON_EXEC, [CLI_PATH, ...args], {
+    const result = spawnSync(PYTHON_EXEC!, [CLI_PATH, ...args], {
         ...options,
         input: stdin,
     });

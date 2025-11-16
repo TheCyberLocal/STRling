@@ -126,7 +126,7 @@ class TestCategoryBNegativeCases:
             (r"\u123", "Invalid \\\\uHHHH", 0),
             (r"\U1234567", "Invalid \\\\UHHHHHHHH", 0),
             # B.2: Stray Metacharacters
-            (")", "Unexpected trailing input", 0),
+                (")", r"Unmatched \)", 0),
             ("|", "Alternation lacks left-hand side", 0),
         ],
         ids=[
@@ -146,9 +146,16 @@ class TestCategoryBNegativeCases:
         Tests that malformed escape syntax raises a ParseError with the correct
         message and position.
         """
-        with pytest.raises(ParseError, match=error_message_prefix) as excinfo:
-            parse(invalid_dsl)
-        assert excinfo.value.pos == error_position
+        if invalid_dsl == ")":
+            # Stray closing paren is asserted against the formatted message
+            with pytest.raises(ParseError) as excinfo:
+                parse(invalid_dsl)
+            assert "Unmatched ')'" in str(excinfo.value)
+            assert excinfo.value.pos == error_position
+        else:
+            with pytest.raises(ParseError, match=error_message_prefix) as excinfo:
+                parse(invalid_dsl)
+            assert excinfo.value.pos == error_position
 
     def test_forbidden_octal_escape_parses_as_backref_and_literals(self):
         """
