@@ -20,15 +20,6 @@ import { spawnSync, SpawnSyncOptions } from "child_process";
 import fs from "fs";
 import path from "path";
 
-// Require the test runner to provide the Python interpreter path so tests
-// are portable and do not rely on hardcoded paths.
-const PYTHON_EXEC = process.env.STRLING_PYTHON_EXEC;
-if (!PYTHON_EXEC) {
-    throw new Error(
-        'Environment variable STRLING_PYTHON_EXEC must be set to the path of the Python interpreter (e.g., "./.venv/bin/python") to run CLI E2E tests.'
-    );
-}
-
 // --- Path setup (mirrors the Python test layout) ------------------------------
 
 const TEST_DIR = __dirname;
@@ -41,6 +32,9 @@ const SPEC_DIR = path.join(PROJECT_ROOT, "spec", "schema");
 const BASE_SCHEMA_PATH = path.join(SPEC_DIR, "base.schema.json");
 
 const TEMP_DIR = path.join(TEST_DIR, "tmp_cli_smoke");
+
+// Build the hardcoded path to the project's venv executable
+const PYTHON_EXEC = path.join(PROJECT_ROOT, ".venv", "bin", "python");
 
 // --- Helpers ------------------------------------------------------------------
 
