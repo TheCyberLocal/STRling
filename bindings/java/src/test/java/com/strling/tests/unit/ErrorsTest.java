@@ -194,7 +194,7 @@ public class ErrorsTest {
             Parser.parse(invalidDsl);
         });
         // New, stricter contract: parser should provide an explicit hint
-        assertEquals("Incomplete quantifier", error.getMessage());
+        assertEquals("Incomplete quantifier", error.getErrorMessage());
         assertEquals(5, error.getPos());
     }
 

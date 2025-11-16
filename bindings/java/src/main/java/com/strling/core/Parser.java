@@ -649,6 +649,22 @@ public class Parser {
             return new Lit(CONTROL_ESCAPES.get(ch));
         }
         
+        // Hex escapes: backslash-x-HH and backslash-x-brace-...-brace
+        if (nxt.equals("x")) {
+            return new Lit(parseHexEscape(startPos));
+        }
+        
+        // Unicode escapes: backslash-u-HHHH, backslash-u-brace..., backslash-U-00000000
+        if (nxt.equals("u") || nxt.equals("U")) {
+            return new Lit(parseUnicodeEscape(startPos));
+        }
+        
+        // Null byte: backslash-0
+        if (nxt.equals("0")) {
+            cur.take();
+            return new Lit("\0");
+        }
+        
         // Escaped literal
         if (!nxt.isEmpty()) {
             String escapedChar = cur.take();
@@ -702,6 +718,86 @@ public class Parser {
             result.append(cur.take());
         }
         return result.toString();
+    }
+    
+    /**
+     * Parse a hex escape sequence (backslash-x-HH or backslash-x-brace-...-brace).
+     *
+     * @param startPos The position where the escape started
+     * @return The character represented by the hex escape
+     */
+    private String parseHexEscape(int startPos) {
+        assert cur.take().equals("x");
+        
+        if (cur.match("{")) {
+            // backslash-x-brace-...-brace format
+            StringBuilder hexs = new StringBuilder();
+            while (!cur.eof() && cur.peek().matches("[0-9A-Fa-f]")) {
+                hexs.append(cur.take());
+            }
+            if (!cur.match("}")) {
+                raiseError("Unterminated \\x{...}", startPos);
+            }
+            int cp = Integer.parseInt(hexs.length() > 0 ? hexs.toString() : "0", 16);
+            return String.valueOf((char) cp);
+        }
+        
+        // backslash-x-HH format
+        String h1 = cur.take();
+        String h2 = cur.take();
+        if (!h1.matches("[0-9A-Fa-f]") || !h2.matches("[0-9A-Fa-f]")) {
+            raiseError("Invalid \\xHH escape", startPos);
+        }
+        return String.valueOf((char) Integer.parseInt(h1 + h2, 16));
+    }
+    
+    /**
+     * Parse a Unicode escape sequence (backslash-u-HHHH, backslash-u-brace..., or backslash-U-00000000).
+     *
+     * @param startPos The position where the escape started
+     * @return The character represented by the Unicode escape
+     */
+    private String parseUnicodeEscape(int startPos) {
+        String tp = cur.take(); // u or U
+        
+        if (tp.equals("u") && cur.match("{")) {
+            // backslash-u-brace-...-brace format
+            StringBuilder hexs = new StringBuilder();
+            while (!cur.eof() && cur.peek().matches("[0-9A-Fa-f]")) {
+                hexs.append(cur.take());
+            }
+            if (!cur.match("}")) {
+                raiseError("Unterminated \\u{...}", startPos);
+            }
+            int cp = Integer.parseInt(hexs.length() > 0 ? hexs.toString() : "0", 16);
+            return String.valueOf((char) cp);
+        }
+        
+        if (tp.equals("U")) {
+            // backslash-U-00000000 format (8 hex digits)
+            StringBuilder hexs = new StringBuilder();
+            for (int i = 0; i < 8; i++) {
+                String ch = cur.take();
+                if (!ch.matches("[0-9A-Fa-f]")) {
+                    raiseError("Invalid \\UHHHHHHHH", startPos);
+                }
+                hexs.append(ch);
+            }
+            int cp = Integer.parseInt(hexs.toString(), 16);
+            return String.valueOf((char) cp);
+        }
+        
+        // backslash-u-HHHH format (4 hex digits)
+        StringBuilder hexs = new StringBuilder();
+        for (int i = 0; i < 4; i++) {
+            String ch = cur.take();
+            if (!ch.matches("[0-9A-Fa-f]")) {
+                raiseError("Invalid \\uHHHH", startPos);
+            }
+            hexs.append(ch);
+        }
+        int cp = Integer.parseInt(hexs.toString(), 16);
+        return String.valueOf((char) cp);
     }
     
     /**
