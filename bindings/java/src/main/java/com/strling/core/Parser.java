@@ -1143,4 +1143,32 @@ public class Parser {
         Node ast = p.parseInternal();
         return new ParseResult(p.flags, ast);
     }
+    
+    /**
+     * Public API: Parse a STRling pattern string and return a complete artifact.
+     * 
+     * <p>This method parses the input pattern and wraps the result in a standard
+     * artifact structure suitable for validation and emission. The artifact includes:</p>
+     * <ul>
+     *   <li>version: The STRling artifact format version</li>
+     *   <li>flags: The parsed flags as a dictionary</li>
+     *   <li>root: The parsed AST root node as a dictionary</li>
+     *   <li>warnings: List of any warnings (currently empty)</li>
+     *   <li>errors: List of any errors (currently empty)</li>
+     * </ul>
+     *
+     * @param src The STRling pattern string
+     * @return Map representing the artifact structure
+     * @throws STRlingParseError If the pattern is invalid
+     */
+    public static Map<String, Object> parseToArtifact(String src) {
+        ParseResult result = parse(src);
+        Map<String, Object> artifact = new HashMap<>();
+        artifact.put("version", "1.0.0");
+        artifact.put("flags", result.flags.toDict());
+        artifact.put("root", result.ast.toDict());
+        artifact.put("warnings", new ArrayList<>());
+        artifact.put("errors", new ArrayList<>());
+        return artifact;
+    }
 }
