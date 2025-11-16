@@ -22,6 +22,8 @@ import path from "path";
 
 // --- Path setup (mirrors the Python test layout) ------------------------------
 
+const PYTHON_EXEC = process.env.PYTHON_EXEC || process.env.PYTHON || "python3";
+
 const TEST_DIR = __dirname;
 // Assumes the test file is in a directory like build/tests/e2e
 // Adjust relative path as needed if the directory structure is different.
@@ -32,9 +34,6 @@ const SPEC_DIR = path.join(PROJECT_ROOT, "spec", "schema");
 const BASE_SCHEMA_PATH = path.join(SPEC_DIR, "base.schema.json");
 
 const TEMP_DIR = path.join(TEST_DIR, "tmp_cli_smoke");
-
-// Build the hardcoded path to the project's venv executable
-const PYTHON_EXEC = path.join(PROJECT_ROOT, ".venv", "bin", "python");
 
 // --- Helpers ------------------------------------------------------------------
 
