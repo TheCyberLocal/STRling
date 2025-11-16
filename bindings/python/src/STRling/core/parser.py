@@ -115,14 +115,14 @@ class Parser:
     def _raise_error(self, message: str, pos: int) -> None:
         """
         Raise a STRlingParseError with an instructional hint.
-        
+
         Parameters
         ----------
         message : str
             The error message
         pos : int
             The position where the error occurred
-        
+
         Raises
         ------
         STRlingParseError
@@ -139,7 +139,7 @@ class Parser:
         pattern_lines: List[str] = []
         in_pattern = False  # Track whether we've started the pattern section
         line_num = 0
-        
+
         for line in lines:
             line_num += 1
             striped = line.strip()
@@ -148,32 +148,86 @@ class Parser:
                 continue
             # Process directives only before pattern content
             if not in_pattern and striped.startswith("%flags"):
-                rest = striped[6:].strip()
-                letters = rest.replace(",", " ").replace("[", "").replace("]", "")
-                # Validate flag letters
+                # Work from the original line so we can preserve any remainder
+                # after the flags directive as the beginning of the pattern.
+                idx = line.index("%flags")
+                after = line[idx + len("%flags") :]
+                # Scan the remainder to separate the flags token from any
+                # inline pattern content. Accept spaces/tabs, commas, brackets
+                # and the known flag letters; stop at the first character that
+                # can't be part of the flags token (this is the start of the
+                # pattern on the same line).
+                allowed = set(list(" ,\t[]imsuxIMSUX"))
+                j = 0
+                while j < len(after) and after[j] in allowed:
+                    j += 1
+                flags_token = after[:j]
+                remainder = after[j:]
+                # Normalize separators and whitespace to single spaces
+                letters = re.sub(r"[,\[\]\s]+", " ", flags_token).strip().lower()
                 valid_flags = set("imsux")
-                for ch in letters.replace(" ", ""):
-                    if ch and ch not in valid_flags:
-                        # Calculate position in original text and raise error directly
-                        pos = sum(len(l) for l in lines[:line_num-1]) + line.index("%flags")
-                        hint = get_hint(f"Invalid flag '{ch}'", self._original_text, pos)
-                        raise STRlingParseError(f"Invalid flag '{ch}'", pos, self._original_text, hint)
-                flags = Flags.from_letters(letters)
+                # If no valid flag letters were found but something remains on
+                # the same line, treat the first non-space char as an
+                # invalid-flag error (e.g. "%flags z").
+                if letters.replace(" ", "") == "":
+                    if remainder.strip() == "":
+                        # directive-only line with no flags
+                        pass
+                    else:
+                        ch = remainder.lstrip()[0]
+                        leading_ws = len(remainder) - len(remainder.lstrip())
+                        pos = (
+                            sum(len(l) for l in lines[: line_num - 1])
+                            + idx
+                            + j
+                            + leading_ws
+                        )
+                        hint = get_hint(
+                            f"Invalid flag '{ch}'", self._original_text, pos
+                        )
+                        raise STRlingParseError(
+                            f"Invalid flag '{ch}'", pos, self._original_text, hint
+                        )
+                else:
+                    # Validate and accept the flags we found
+                    for ch in letters.replace(" ", ""):
+                        if ch and ch not in valid_flags:
+                            pos = sum(len(l) for l in lines[: line_num - 1]) + idx
+                            hint = get_hint(
+                                f"Invalid flag '{ch}'", self._original_text, pos
+                            )
+                            raise STRlingParseError(
+                                f"Invalid flag '{ch}'", pos, self._original_text, hint
+                            )
+                    flags = Flags.from_letters(letters)
+                    # If remainder contains pattern content on the same line,
+                    # treat it as the start of the pattern
+                    if remainder.strip() != "":
+                        in_pattern = True
+                        pattern_lines.append(remainder)
                 continue
             if not in_pattern and striped.startswith("%"):
                 continue
             # This is pattern content
             # Check if %flags appears anywhere in this line (would be misplaced)
             if "%flags" in line:
-                pos = sum(len(l) for l in lines[:line_num-1]) + line.index("%flags")
-                hint = get_hint("Directive after pattern content", self._original_text, pos)
-                raise STRlingParseError("Directive after pattern content", pos, self._original_text, hint)
+                pos = sum(len(l) for l in lines[: line_num - 1]) + line.index("%flags")
+                hint = get_hint(
+                    "Directive after pattern content", self._original_text, pos
+                )
+                raise STRlingParseError(
+                    "Directive after pattern content", pos, self._original_text, hint
+                )
             # All other lines are pattern content
             # Once we hit pattern content, we stop processing directives
             in_pattern = True
             pattern_lines.append(line)
         # Join all pattern lines, preserving original whitespace and newlines
         pattern = "".join(pattern_lines)
+        # DEBUG
+        # print('DEBUG lines:', lines)
+        # print('DEBUG pattern_lines:', pattern_lines)
+        # print('DEBUG pattern repr:', repr(pattern))
         return flags, pattern
 
     def parse(self) -> Node:
@@ -219,7 +273,7 @@ class Parser:
         self.cur.skip_ws_and_comments()
         if self.cur.peek() == "|":
             self._raise_error("Alternation lacks left-hand side", self.cur.i)
-        
+
         branches: List[Node] = [self.parse_seq()]
         self.cur.skip_ws_and_comments()
         while self.cur.peek() == "|":
@@ -246,7 +300,7 @@ class Parser:
         parts: List[Node] = []
         # Track whether the previous atom had a failed quantifier parse to prevent coalescing across that boundary
         prev_had_failed_quant = False
-        
+
         while True:
             self.cur.skip_ws_and_comments()
             ch = self.cur.peek()
@@ -265,7 +319,7 @@ class Parser:
             # This returns (quantified_atom, had_failed_quant_parse)
             # Note: If atom is an Anchor, parse_quant_if_any will raise an error if a quantifier is present
             quantified_atom, had_failed_quant_parse = self.parse_quant_if_any(atom)
-            
+
             # Coalesce adjacent Lit nodes: if the new atom is a Lit and the last part
             # is also a Lit, merge them into a single Lit with concatenated values.
             # However, don't coalesce if:
@@ -275,40 +329,43 @@ class Parser:
             # 4. The previous part is a Backref (keep digit literals separate)
             # 5. Either Lit contains a newline (line boundaries are semantic)
             avoid_digit_after_backslash = (
-                isinstance(quantified_atom, Lit) and
-                len(quantified_atom.value) == 1 and
-                quantified_atom.value.isdigit() and
-                len(parts) > 0 and
-                isinstance(parts[-1], Lit) and
-                len(parts[-1].value) > 0 and
-                parts[-1].value[-1] == "\\"
+                isinstance(quantified_atom, Lit)
+                and len(quantified_atom.value) == 1
+                and quantified_atom.value.isdigit()
+                and len(parts) > 0
+                and isinstance(parts[-1], Lit)
+                and len(parts[-1].value) > 0
+                and parts[-1].value[-1] == "\\"
             )
-            
+
             # Don't coalesce across newlines (line boundaries are semantic)
             contains_newline = (
-                (isinstance(quantified_atom, Lit) and "\n" in quantified_atom.value) or
-                (len(parts) > 0 and isinstance(parts[-1], Lit) and "\n" in parts[-1].value)
+                isinstance(quantified_atom, Lit) and "\n" in quantified_atom.value
+            ) or (
+                len(parts) > 0
+                and isinstance(parts[-1], Lit)
+                and "\n" in parts[-1].value
             )
-            
+
             # Don't coalesce after a Backref to keep the digit literals separate
             prev_is_backref = len(parts) > 0 and isinstance(parts[-1], Backref)
-            
+
             should_coalesce = (
-                isinstance(quantified_atom, Lit) and 
-                len(parts) > 0 and 
-                isinstance(parts[-1], Lit) and
-                not self.cur.extended_mode and  # Don't coalesce in free-spacing mode
-                not prev_had_failed_quant and
-                not avoid_digit_after_backslash and
-                not contains_newline and
-                not prev_is_backref
+                isinstance(quantified_atom, Lit)
+                and len(parts) > 0
+                and isinstance(parts[-1], Lit)
+                and not self.cur.extended_mode  # Don't coalesce in free-spacing mode
+                and not prev_had_failed_quant
+                and not avoid_digit_after_backslash
+                and not contains_newline
+                and not prev_is_backref
             )
-            
+
             if should_coalesce:
                 parts[-1] = Lit(parts[-1].value + quantified_atom.value)
             else:
                 parts.append(quantified_atom)
-            
+
             prev_had_failed_quant = had_failed_quant_parse
 
         # If the sequence ended up being just one (potentially quantified) atom, return it directly
@@ -350,7 +407,7 @@ class Parser:
         - + : 1 or more (greedy)
         - ? : 0 or 1 (greedy)
         - {m,n} : between m and n times (greedy)
-        
+
         Modifiers can follow quantifiers:
         - ? makes it lazy (non-greedy)
         - + makes it possessive (no backtracking)
@@ -398,7 +455,9 @@ class Parser:
             mode = "Possessive"
             cur.take()
 
-        return Quant(child, min_val, max_val if max_val is not None else "Inf", mode), had_failed_quant_parse
+        return Quant(
+            child, min_val, max_val if max_val is not None else "Inf", mode
+        ), had_failed_quant_parse
 
     def parse_brace_quant(self) -> Tuple[Optional[int], Optional[Union[int, str]], str]:
         cur = self.cur
@@ -428,7 +487,9 @@ class Parser:
             else:
                 # Validate that m <= n
                 if m > n:
-                    self._raise_error(f"Invalid quantifier range {{{m},{n}}}", quant_start)
+                    self._raise_error(
+                        f"Invalid quantifier range {{{m},{n}}}", quant_start
+                    )
                 mmin, mmax = m, n
         else:
             if not cur.match("}"):
@@ -535,12 +596,12 @@ class Parser:
         if nxt.isdigit() and nxt != "0":
             saved_pos = cur.i
             num_str = ""
-            
+
             # Read digits one at a time and check if they form a valid backref
             while cur.peek().isdigit():
                 num_str += cur.take()
                 num = int(num_str)
-                
+
                 # If this number is valid, remember it
                 if num <= self._cap_count:
                     # This is a valid backref, keep consuming
@@ -550,13 +611,13 @@ class Parser:
                     cur.i -= 1
                     num_str = num_str[:-1]
                     break
-            
+
             # If we got a valid backref number, use it
             if num_str:
                 num = int(num_str)
                 if num <= self._cap_count:
                     return Backref(byIndex=num)
-            
+
             # No valid backref found, reset and raise error
             cur.i = saved_pos
             num = self._read_decimal()
@@ -583,7 +644,9 @@ class Parser:
             if not cur.match(">"):
                 self._raise_error("Unterminated named backref", start_pos)
             if name not in self._cap_names:
-                self._raise_error(f"Backreference to undefined group <{name}>", start_pos)
+                self._raise_error(
+                    f"Backreference to undefined group <{name}>", start_pos
+                )
             return Backref(byName=name)
         # Shorthand classes \d \D \w \W \s \S or property \p{..} \P{..}
         if nxt in "dDwWsS":
@@ -618,9 +681,7 @@ class Parser:
         # Identity escape: validate allowed identity escapes and treat next
         # char literally. If the escape is not recognized (e.g. \z), raise
         # an instructional STRlingParseError using the corpus hint.
-        allowed_identity_escapes = set(
-            list(r".\^$*+?()[]{}|\\") + ["/", "-", ":", ","]
-        )
+        allowed_identity_escapes = set(list(r".\^$*+?()[]{}|\\") + ["/", "-", ":", ","])
         ch = cur.peek()
         if ch == "":
             self._raise_error("Unexpected end of escape", start_pos)
@@ -647,27 +708,27 @@ class Parser:
 
     def _read_until(self, end: str) -> str:
         return self._read_ident_until(end)
-    
+
     def _is_valid_identifier(self, name: str) -> bool:
         """
         Validate that a name conforms to the EBNF IDENTIFIER rule.
-        
+
         Per the grammar:
         - IDENT_START = LETTER | "_"
         - IDENT_CONT = IDENT_START | DIGIT
         - IDENTIFIER = IDENT_START, { IDENT_CONT }
-        
+
         Returns False for empty names, names starting with digits, or names
         containing invalid characters like hyphens.
         """
         if not name:
             return False
         # First character must be letter or underscore
-        if not (name[0].isalpha() or name[0] == '_'):
+        if not (name[0].isalpha() or name[0] == "_"):
             return False
         # Remaining characters must be letter, digit, or underscore
         for ch in name[1:]:
-            if not (ch.isalnum() or ch == '_'):
+            if not (ch.isalnum() or ch == "_"):
                 return False
         return True
 
@@ -809,7 +870,9 @@ class Parser:
                     end_ch: str = end_item.ch
                     # Validate that start <= end in the range
                     if ord(start_ch) > ord(end_ch):
-                        self._raise_error(f"Invalid character range [{start_ch}-{end_ch}]", dash_pos)
+                        self._raise_error(
+                            f"Invalid character range [{start_ch}-{end_ch}]", dash_pos
+                        )
                     items.append(ClassRange(start_ch, end_ch))
                 else:
                     # Can't form range with a class escape; degrade to literals (“-” + end_item)
