@@ -688,42 +688,42 @@ package STRling::Core::parser::Parser {
         if ($ch eq 'd') {
             $cur->take();
             return STRling::Core::Nodes::CharClass->new(
-                positive => 1,
+                negated => 0,
                 items    => [STRling::Core::Nodes::ClassEscape->new(kind => 'digit')],
             );
         }
         if ($ch eq 'D') {
             $cur->take();
             return STRling::Core::Nodes::CharClass->new(
-                positive => 0,
+                negated => 1,
                 items    => [STRling::Core::Nodes::ClassEscape->new(kind => 'digit')],
             );
         }
         if ($ch eq 'w') {
             $cur->take();
             return STRling::Core::Nodes::CharClass->new(
-                positive => 1,
+                negated => 0,
                 items    => [STRling::Core::Nodes::ClassEscape->new(kind => 'word')],
             );
         }
         if ($ch eq 'W') {
             $cur->take();
             return STRling::Core::Nodes::CharClass->new(
-                positive => 0,
+                negated => 1,
                 items    => [STRling::Core::Nodes::ClassEscape->new(kind => 'word')],
             );
         }
         if ($ch eq 's') {
             $cur->take();
             return STRling::Core::Nodes::CharClass->new(
-                positive => 1,
+                negated => 0,
                 items    => [STRling::Core::Nodes::ClassEscape->new(kind => 'space')],
             );
         }
         if ($ch eq 'S') {
             $cur->take();
             return STRling::Core::Nodes::CharClass->new(
-                positive => 0,
+                negated => 1,
                 items    => [STRling::Core::Nodes::ClassEscape->new(kind => 'space')],
             );
         }
@@ -801,8 +801,8 @@ package STRling::Core::parser::Parser {
             }
             $cur->take();
             return STRling::Core::Nodes::CharClass->new(
-                positive => !$negative,
-                items    => [STRling::Core::Nodes::ClassEscape->new(kind => "unicode_$prop")],
+                negated => $negative,
+                items   => [STRling::Core::Nodes::ClassEscape->new(kind => "unicode_$prop")],
             );
         }
         
@@ -822,9 +822,9 @@ package STRling::Core::parser::Parser {
         my $cur = $self->cur;
         $cur->take();  # consume '['
         
-        my $positive = 1;
+        my $negated = 0;
         if ($cur->peek() eq '^') {
-            $positive = 0;
+            $negated = 1;
             $cur->take();
         }
         
@@ -873,8 +873,8 @@ package STRling::Core::parser::Parser {
         $cur->in_class($cur->in_class - 1);
         
         return STRling::Core::Nodes::CharClass->new(
-            positive => $positive,
-            items    => \@items,
+            negated => $negated,
+            items   => \@items,
         );
     }
     
