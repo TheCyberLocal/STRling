@@ -475,7 +475,7 @@ public class Parser {
             
             cur.skipWsAndComments();
             if (!cur.match("}")) {
-                raiseError("Unterminated brace quantifier", start);
+                raiseError("Incomplete quantifier", cur.i);
             }
             
             return new BraceQuantResult(min, max);
@@ -736,7 +736,7 @@ public class Parser {
         }
         
         if (!cur.match("]")) {
-            raiseError("Unterminated character class", startPos);
+            raiseError("Unterminated character class", cur.i);
         }
         
         cur.inClass--;
@@ -757,7 +757,7 @@ public class Parser {
             // Non-capturing group
             Node body = parseAlt();
             if (!cur.match(")")) {
-                raiseError("Unterminated group", startPos);
+                raiseError("Unterminated group", cur.i);
             }
             return new Group(false, body);
         }
@@ -766,7 +766,7 @@ public class Parser {
             // Atomic group
             Node body = parseAlt();
             if (!cur.match(")")) {
-                raiseError("Unterminated group", startPos);
+                raiseError("Unterminated group", cur.i);
             }
             return new Group(false, body, null, true);
         }
@@ -775,7 +775,7 @@ public class Parser {
             // Positive lookahead
             Node body = parseAlt();
             if (!cur.match(")")) {
-                raiseError("Unterminated lookahead", startPos);
+                raiseError("Unterminated lookahead", cur.i);
             }
             return new Look("Ahead", false, body);
         }
@@ -784,7 +784,7 @@ public class Parser {
             // Negative lookahead
             Node body = parseAlt();
             if (!cur.match(")")) {
-                raiseError("Unterminated lookahead", startPos);
+                raiseError("Unterminated lookahead", cur.i);
             }
             return new Look("Ahead", true, body);
         }
@@ -793,7 +793,7 @@ public class Parser {
             // Positive lookbehind
             Node body = parseAlt();
             if (!cur.match(")")) {
-                raiseError("Unterminated lookbehind", startPos);
+                raiseError("Unterminated lookbehind", cur.i);
             }
             return new Look("Behind", false, body);
         }
@@ -802,7 +802,7 @@ public class Parser {
             // Negative lookbehind
             Node body = parseAlt();
             if (!cur.match(")")) {
-                raiseError("Unterminated lookbehind", startPos);
+                raiseError("Unterminated lookbehind", cur.i);
             }
             return new Look("Behind", true, body);
         }
@@ -811,22 +811,31 @@ public class Parser {
             // Named capturing group
             String name = readIdentUntil(">");
             if (!cur.match(">")) {
-                raiseError("Unterminated named group", startPos);
+                raiseError("Unterminated group name", cur.i);
+            }
+            // Check for duplicate group name
+            if (capNames.contains(name)) {
+                raiseError("Duplicate group name <" + name + ">", startPos);
             }
             capNames.add(name);
             capCount++;
             Node body = parseAlt();
             if (!cur.match(")")) {
-                raiseError("Unterminated group", startPos);
+                raiseError("Unterminated group", cur.i);
             }
             return new Group(true, body, name);
+        }
+        
+        // Check for inline modifiers (not supported)
+        if (cur.peek().equals("?")) {
+            raiseError("Inline modifiers are not supported", startPos + 1);
         }
         
         // Default: capturing group
         capCount++;
         Node body = parseAlt();
         if (!cur.match(")")) {
-            raiseError("Unterminated group", startPos);
+            raiseError("Unterminated group", cur.i);
         }
         return new Group(true, body);
     }
