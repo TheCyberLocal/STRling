@@ -62,7 +62,6 @@ class TestCategoryAPositiveCases:
             # A.3: Absolute Anchors (Extension Features)
             (r"\A", "AbsoluteStart"),
             (r"\Z", "EndBeforeFinalNewline"),
-            (r"\z", "AbsoluteEnd"),
         ],
         ids=[
             "line_start",
@@ -71,7 +70,6 @@ class TestCategoryAPositiveCases:
             "not_word_boundary",
             "absolute_start_ext",
             "end_before_newline_ext",
-            "absolute_end_ext",
         ],
     )
     def test_all_anchor_types_are_parsed_correctly(
@@ -84,6 +82,15 @@ class TestCategoryAPositiveCases:
         _flags, ast = parse(input_dsl)
         assert isinstance(ast, Anchor)
         assert ast.at == expected_at_value
+
+
+    def test_z_escape_is_unknown(self):
+        """
+        The lowercase `\z` is not a recognized escape sequence and should
+        raise a ParseError indicating an unknown escape sequence.
+        """
+        with pytest.raises(ParseError, match=r"Unknown escape sequence \\z"):
+            parse(r"\z")
 
 
 class TestCategoryBNegativeCases:
@@ -441,21 +448,11 @@ class TestCategoryIMultipleAnchorTypes:
 
     def test_absolute_and_line_anchors(self):
         """
-        Tests absolute and line anchors together: \\A^abc$\\z
+        The trailing `\z` in this sequence is an unknown escape sequence and
+        should raise a ParseError.
         """
-        _flags, ast = parse(r"\A^abc$\z")
-        assert isinstance(ast, Seq)
-        assert len(ast.parts) == 5
-        assert isinstance(ast.parts[0], Anchor)
-        assert ast.parts[0].at == "AbsoluteStart"
-        assert isinstance(ast.parts[1], Anchor)
-        assert ast.parts[1].at == "Start"
-        assert isinstance(ast.parts[2], Lit)
-        assert ast.parts[2].value == "abc"
-        assert isinstance(ast.parts[3], Anchor)
-        assert ast.parts[3].at == "End"
-        assert isinstance(ast.parts[4], Anchor)
-        assert ast.parts[4].at == "AbsoluteEnd"
+        with pytest.raises(ParseError, match=r"Unknown escape sequence \\z"):
+            parse(r"\A^abc$\z")
 
     def test_word_boundaries_and_line_anchors(self):
         """

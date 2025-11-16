@@ -110,7 +110,7 @@ describe("Category B: Negative Cases", () => {
         [String.raw`\u123`, "Invalid \\uHHHH", 0, "incomplete_unicode_fixed"],
         [String.raw`\U1234567`, "Invalid \\UHHHHHHHH", 0, "incomplete_unicode_supplementary"],
         // B.2: Stray Metacharacters
-        [")", "Unexpected trailing input", 0, "stray_closing_paren"],
+            [")", "Unmatched ')'", 0, "stray_closing_paren"],
         ["|", "Alternation lacks left-hand side", 0, "stray_pipe"],
     ])(
         'should fail for "%s" (ID: %s)',
@@ -125,7 +125,11 @@ describe("Category B: Negative Cases", () => {
                 fail("ParseError was not thrown");
             } catch (e) {
                 const err = e as ParseError;
-                expect(err.message).toContain(errorPrefix);
+                if (id === "stray_closing_paren") {
+                    expect(err.message).toBe("Unmatched ')'");
+                } else {
+                    expect(err.message).toContain(errorPrefix);
+                }
                 expect(err.pos).toBe(errorPos);
             }
         }

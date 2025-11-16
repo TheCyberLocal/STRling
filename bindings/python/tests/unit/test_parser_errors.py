@@ -29,11 +29,11 @@ class TestRichErrorFormatting:
         
         # Check all components of visionary format
         assert "STRling Parse Error:" in formatted
-        assert "Unexpected trailing input" in formatted
+        assert "Unmatched ')'" in formatted
         assert "> 1 | (a|b))" in formatted
         assert "^" in formatted
         assert "Hint:" in formatted
-        assert "unexpected content after the pattern ended" in formatted
+        assert "Did you mean to escape it" in formatted
     
     def test_unterminated_group_shows_helpful_hint(self):
         """Test unterminated group error includes hint."""
@@ -208,7 +208,7 @@ class TestComplexErrorScenarios:
             parse("abc{2,")
         
         error = excinfo.value
-        assert "Unterminated {m,n}" in error.message
+        assert "Incomplete quantifier" in error.message
         # Position should be at the end where '}' is expected
         assert error.pos == 6
 

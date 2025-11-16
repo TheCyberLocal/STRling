@@ -115,3 +115,14 @@ class STRlingParseError(Exception):
     def __str__(self) -> str:
         """Return the formatted error message."""
         return self._format_error()
+
+    def to_formatted_string(self) -> str:
+        """
+        Backwards/JS-friendly alias for getting the formatted error string.
+
+        Returns
+        -------
+        str
+            The formatted error message (same as `str(error)`).
+        """
+        return self._format_error()

@@ -27,11 +27,11 @@ describe("Rich Error Formatting", () => {
             
             // Check all components of visionary format
             expect(formatted).toContain("STRling Parse Error:");
-            expect(formatted).toContain("Unexpected trailing input");
+            expect(formatted).toContain("Unmatched ')'");
             expect(formatted).toContain("> 1 | (a|b))");
             expect(formatted).toContain("^");
             expect(formatted).toContain("Hint:");
-            expect(formatted).toContain("unexpected content after the pattern ended");
+            expect(formatted).toContain("Did you mean to escape it");      
         }
     });
 
@@ -235,7 +235,7 @@ describe("Complex Error Scenarios", () => {
             fail("Expected STRlingParseError");
         } catch (error) {
             const err = error as STRlingParseError;
-            expect(err.message).toContain("Unterminated {m,n}");
+            expect(err.message).toContain("Incomplete quantifier");
             // Position should be at the end where '}' is expected
             expect(err.pos).toBe(6);
         }

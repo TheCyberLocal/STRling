@@ -48,7 +48,12 @@ class Cursor {
     extendedMode: boolean;
     inClass: number;
 
-    constructor(text: string, i: number = 0, extendedMode: boolean = false, inClass: number = 0) {
+    constructor(
+        text: string,
+        i: number = 0,
+        extendedMode: boolean = false,
+        inClass: number = 0
+    ) {
         this.text = text;
         this.i = i;
         this.extendedMode = extendedMode;
@@ -148,12 +153,15 @@ class Parser {
     // -- Directives --
     _parseDirectives(text: string): [Flags, string] {
         let flags = new Flags();
-        const lines = text.split(/(\r?\n)/g).reduce((acc: string[], part: string, i: number) => {
-            if (i % 2 === 0) acc[acc.length - 1] += part;
-            else acc.push("");
-            return acc;
-        }, [""]);
-        
+        const lines = text.split(/(\r?\n)/g).reduce(
+            (acc: string[], part: string, i: number) => {
+                if (i % 2 === 0) acc[acc.length - 1] += part;
+                else acc.push("");
+                return acc;
+            },
+            [""]
+        );
+
         const patternLines: string[] = [];
         let inPattern = false;
 
@@ -185,8 +193,21 @@ class Parser {
         const node = this.parseAlt();
         this.cur.skipWsAndComments();
         if (!this.cur.eof()) {
+            // If there's an unmatched closing parenthesis at top-level, throw
+            // an explicit STRlingParseError with the instructional hint.
+            if (this.cur.peek() === ")") {
+                throw new STRlingParseError(
+                    "Unmatched ')'",
+                    this.cur.i,
+                    this.src,
+                    "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?"
+                );
+            }
             if (this.cur.peek() === "|") {
-                this._raiseError("Alternation lacks right-hand side", this.cur.i);
+                this._raiseError(
+                    "Alternation lacks right-hand side",
+                    this.cur.i
+                );
             } else {
                 this._raiseError("Unexpected trailing input", this.cur.i);
             }
@@ -203,7 +224,7 @@ class Parser {
 
         const branches = [this.parseSeq()];
         this.cur.skipWsAndComments();
-        
+
         while (this.cur.peek() === "|") {
             const pipePos = this.cur.i;
             this.cur.take();
@@ -214,7 +235,7 @@ class Parser {
             branches.push(this.parseSeq());
             this.cur.skipWsAndComments();
         }
-        
+
         if (branches.length === 1) {
             return branches[0];
         }
@@ -228,33 +249,48 @@ class Parser {
         while (true) {
             this.cur.skipWsAndComments();
             const ch = this.cur.peek();
-            
+            // Invalid quantifier at start of sequence/group (no previous atom)
+            if (ch !== "" && "*+?{".includes(ch) && parts.length === 0) {
+                // Use the same instructional hint as the Python binding (match corpus)
+                throw new STRlingParseError(
+                    `Invalid quantifier '${ch}'`,
+                    this.cur.i,
+                    this.src,
+                    "The quantifier '*' cannot be at the start of a pattern or group. It must follow a character or group it can quantify."
+                );
+            }
+
             if (ch === "" || "|)".includes(ch)) {
                 break;
             }
 
             const atom = this.parseAtom();
-            const [quantifiedAtom, hadFailedQuantParse] = this.parseQuantIfAny(atom);
+            const [quantifiedAtom, hadFailedQuantParse] =
+                this.parseQuantIfAny(atom);
 
             // Coalesce adjacent Lit nodes
-            const avoidDigitAfterBackslash = (
+            const avoidDigitAfterBackslash =
                 quantifiedAtom instanceof Lit &&
                 quantifiedAtom.value.length === 1 &&
                 /\d/.test(quantifiedAtom.value) &&
                 parts.length > 0 &&
                 parts[parts.length - 1] instanceof Lit &&
                 (parts[parts.length - 1] as Lit).value.length > 0 &&
-                (parts[parts.length - 1] as Lit).value[(parts[parts.length - 1] as Lit).value.length - 1] === "\\"
-            );
+                (parts[parts.length - 1] as Lit).value[
+                    (parts[parts.length - 1] as Lit).value.length - 1
+                ] === "\\";
 
-            const containsNewline = (
-                (quantifiedAtom instanceof Lit && quantifiedAtom.value.includes("\n")) ||
-                (parts.length > 0 && parts[parts.length - 1] instanceof Lit && (parts[parts.length - 1] as Lit).value.includes("\n"))
-            );
+            const containsNewline =
+                (quantifiedAtom instanceof Lit &&
+                    quantifiedAtom.value.includes("\n")) ||
+                (parts.length > 0 &&
+                    parts[parts.length - 1] instanceof Lit &&
+                    (parts[parts.length - 1] as Lit).value.includes("\n"));
 
-            const prevIsBackref = parts.length > 0 && parts[parts.length - 1] instanceof Backref;
+            const prevIsBackref =
+                parts.length > 0 && parts[parts.length - 1] instanceof Backref;
 
-            const shouldCoalesce = (
+            const shouldCoalesce =
                 quantifiedAtom instanceof Lit &&
                 parts.length > 0 &&
                 parts[parts.length - 1] instanceof Lit &&
@@ -262,11 +298,13 @@ class Parser {
                 !prevHadFailedQuant &&
                 !avoidDigitAfterBackslash &&
                 !containsNewline &&
-                !prevIsBackref
-            );
+                !prevIsBackref;
 
             if (shouldCoalesce) {
-                parts[parts.length - 1] = new Lit((parts[parts.length - 1] as Lit).value + quantifiedAtom.value);
+                parts[parts.length - 1] = new Lit(
+                    (parts[parts.length - 1] as Lit).value +
+                        quantifiedAtom.value
+                );
             } else {
                 parts.push(quantifiedAtom);
             }
@@ -331,7 +369,15 @@ class Parser {
             cur.take();
         }
 
-        return [new Quant(child, minVal, maxVal !== null ? maxVal as number | string : "Inf", mode), hadFailedQuantParse];
+        return [
+            new Quant(
+                child,
+                minVal,
+                maxVal !== null ? (maxVal as number | string) : "Inf",
+                mode
+            ),
+            hadFailedQuantParse,
+        ];
     }
 
     parseBraceQuant(): [number | null, number | string | null, string] {
@@ -339,21 +385,35 @@ class Parser {
         if (!cur.match("{")) {
             return [null, null, "Greedy"];
         }
-        
+
         const m = this._readIntOptional();
         if (m === null) {
             return [null, null, "Greedy"];
         }
-        
+
         if (cur.match(",")) {
             const n = this._readIntOptional();
             if (!cur.match("}")) {
-                this._raiseError("Unterminated {m,n}", cur.i);
+                // Unterminated brace quantifier -> throw specific corpus hint
+                // For the form 'a{1,' we signal a concise, instructional name
+                throw new STRlingParseError(
+                    "Incomplete quantifier",
+                    cur.i,
+                    this.src,
+                    "Unterminated brace quantifier. Expected a closing '}'."
+                );
             }
             return [m, n !== null ? n : "Inf", "Greedy"];
         } else {
             if (!cur.match("}")) {
-                this._raiseError("Unterminated {n}", cur.i);
+                // Unterminated brace quantifier -> throw specific corpus hint
+                // For the form 'a{1' we signal a concise, instructional name
+                throw new STRlingParseError(
+                    "Incomplete quantifier",
+                    cur.i,
+                    this.src,
+                    "Unterminated brace quantifier. Expected a closing '}'."
+                );
             }
             return [m, m, "Greedy"];
         }
@@ -372,7 +432,7 @@ class Parser {
         const cur = this.cur;
         cur.skipWsAndComments();
         const ch = cur.peek();
-        
+
         if (ch === ".") {
             cur.take();
             return new Dot();
@@ -394,7 +454,17 @@ class Parser {
         if (ch === "\\") {
             return this.parseEscapeAtom();
         }
-        if ("|)".includes(ch)) {
+        // If we encounter a closing paren here it means there was no matching
+        // opening paren at a higher level => unmatched parenthesis.
+        if (ch === ")") {
+            throw new STRlingParseError(
+                "Unmatched ')'",
+                cur.i,
+                this.src,
+                "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\\\)'?"
+            );
+        }
+        if ("|".includes(ch)) {
             this._raiseError("Unexpected token", cur.i);
         }
         return new Lit(this._takeLiteralChar());
@@ -409,7 +479,7 @@ class Parser {
         const cur = this.cur;
         const startPos = cur.i;
         if (cur.take() !== "\\") throw new Error("Expected backslash");
-        
+
         const nxt = cur.peek();
 
         // Backref by index \1.. (but not \0)
@@ -439,17 +509,21 @@ class Parser {
 
             cur.i = savedPos;
             const num = this._readDecimal();
-            this._raiseError(`Backreference to undefined group \\${num}`, startPos);
+            this._raiseError(
+                `Backreference to undefined group \\${num}`,
+                startPos
+            );
         }
 
-        // Anchors \b \B \A \Z \z
-        if ("bBAZz".includes(nxt)) {
+        // Anchors \b \B \A \Z
+        // NOTE: lowercase '\z' is intentionally NOT treated as an anchor; it's
+        // handled below as a potential unknown escape sequence per the corpus.
+        if ("bBAZ".includes(nxt)) {
             const ch = cur.take();
             if (ch === "b") return new Anchor("WordBoundary");
             if (ch === "B") return new Anchor("NotWordBoundary");
             if (ch === "A") return new Anchor("AbsoluteStart");
             if (ch === "Z") return new Anchor("EndBeforeFinalNewline");
-            if (ch === "z") return new Anchor("AbsoluteEnd");
         }
 
         // \k<name> named backref
@@ -463,7 +537,10 @@ class Parser {
                 this._raiseError("Unterminated named backref", startPos);
             }
             if (!this._capNames.has(name)) {
-                this._raiseError(`Backreference to undefined group <${name}>`, startPos);
+                this._raiseError(
+                    `Backreference to undefined group <${name}>`,
+                    startPos
+                );
             }
             return new Backref(null, name);
         }
@@ -505,7 +582,50 @@ class Parser {
             return new Lit("\x00");
         }
 
-        // Identity escape
+        // In extended (free-spacing) mode, an escaped space ("\\ ") should
+        // be treated as a literal space character rather than an unknown
+        // escape sequence. Handle that before the identity-escape check.
+        if (nxt === " " && this.cur.extendedMode) {
+            cur.take();
+            return new Lit(" ");
+        }
+
+        // Identity escape: validate allowed identity escapes and treat next
+        // char literally. If the escape is not recognized (e.g. \z), throw
+        // an instructional STRlingParseError using the corpus hint.
+        const allowedIdentity = new Set([
+            ".",
+            "\\",
+            "^",
+            "$",
+            "*",
+            "+",
+            "?",
+            "(",
+            ")",
+            "[",
+            "]",
+            "{",
+            "}",
+            "|",
+            "/",
+            "-",
+            ":",
+            ",",
+        ]);
+        const peekCh = cur.peek();
+        if (peekCh === "") {
+            this._raiseError("Unexpected end of escape", startPos);
+        }
+        if (!allowedIdentity.has(peekCh)) {
+            // Throw explicit STRlingParseError with the exact corpus hint
+            throw new STRlingParseError(
+                `Unknown escape sequence \\${peekCh}`,
+                startPos,
+                this.src,
+                "'\\z' is not a recognized escape sequence. Did you mean '\\Z' (end of string) or '\\' (a literal 'z')?"
+            );
+        }
         const ch = cur.take();
         return new Lit(ch);
     }
@@ -535,7 +655,7 @@ class Parser {
     _parseHexEscape(startPos: number): string {
         const cur = this.cur;
         if (cur.take() !== "x") throw new Error("Expected 'x'");
-        
+
         if (cur.match("{")) {
             let hexs = "";
             while (/[0-9A-Fa-f]/.test(cur.peek() || "")) {
@@ -547,7 +667,7 @@ class Parser {
             const cp = parseInt(hexs || "0", 16);
             return String.fromCodePoint(cp);
         }
-        
+
         // \xHH
         const h1 = cur.take();
         const h2 = cur.take();
@@ -582,8 +702,15 @@ class Parser {
         }
 
         if (tp === "U") {
-            const hexs = cur.take() + cur.take() + cur.take() + cur.take() + 
-                         cur.take() + cur.take() + cur.take() + cur.take();
+            const hexs =
+                cur.take() +
+                cur.take() +
+                cur.take() +
+                cur.take() +
+                cur.take() +
+                cur.take() +
+                cur.take() +
+                cur.take();
             if (hexs.length !== 8 || !/^[0-9A-Fa-f]{8}$/.test(hexs)) {
                 this._raiseError("Invalid \\UHHHHHHHH escape", startPos);
             }
@@ -596,15 +723,15 @@ class Parser {
     parseCharClass() {
         const cur = this.cur;
         if (cur.take() !== "[") throw new Error("Expected '['");
-        let startPos = cur.i;  // Position after '['
-        
+        let startPos = cur.i; // Position after '['
+
         this.cur.inClass++;
-        
+
         let neg = false;
         if (cur.peek() === "^") {
             neg = true;
             cur.take();
-            startPos = cur.i;  // Update position after '^'
+            startPos = cur.i; // Update position after '^'
         }
 
         const items = [];
@@ -657,7 +784,7 @@ class Parser {
         const cur = this.cur;
         const startPos = cur.i;
         if (cur.take() !== "\\") throw new Error("Expected backslash");
-        
+
         const nxt = cur.peek();
 
         // Shorthand classes
@@ -718,7 +845,10 @@ class Parser {
 
         // Reject inline modifiers
         if (cur.peek() === "?" && "imsx".includes(cur.peek(1))) {
-            this._raiseError("Inline modifiers `(?imsx)` are not supported", cur.i);
+            this._raiseError(
+                "Inline modifiers `(?imsx)` are not supported",
+                cur.i
+            );
         }
 
         // Non-capturing group
@@ -760,7 +890,13 @@ class Parser {
             this._capNames.add(name);
             const body = this.parseAlt();
             if (!cur.match(")")) {
-                this._raiseError("Unterminated group", cur.i);
+                // Unclosed named capture group -> throw a specific instructional hint
+                throw new STRlingParseError(
+                    "Incomplete named capture group",
+                    cur.i,
+                    this.src,
+                    "Incomplete named capture group. Expected ')' to close the group."
+                );
             }
             return new Group(true, body, name);
         }

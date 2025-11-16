@@ -212,7 +212,8 @@ describe("Quantifier Errors", () => {
             fail("ParseError was not thrown");
         } catch (e) {
             const err = e as ParseError;
-            expect(err.message).toContain("Unterminated {m,n}");
+            // New, stricter contract: parser should provide an explicit hint
+            expect(err.message).toBe("Incomplete quantifier");
             expect(err.pos).toBe(5);
         }
     });

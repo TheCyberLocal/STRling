@@ -20,7 +20,14 @@ import { spawnSync, SpawnSyncOptions } from "child_process";
 import fs from "fs";
 import path from "path";
 
-const PYTHON_EXEC = process.env.PYTHON_EXEC || process.env.PYTHON || "python3";
+// Require the test runner to provide the Python interpreter path so tests
+// are portable and do not rely on hardcoded paths.
+const PYTHON_EXEC = process.env.STRLING_PYTHON_EXEC;
+if (!PYTHON_EXEC) {
+    throw new Error(
+        'Environment variable STRLING_PYTHON_EXEC must be set to the path of the Python interpreter (e.g., "./.venv/bin/python") to run CLI E2E tests.'
+    );
+}
 
 // --- Path setup (mirrors the Python test layout) ------------------------------
 
@@ -57,7 +64,7 @@ function runCli(args: string[], stdin?: string): CliResult {
         },
     };
 
-    const result = spawnSync(PYTHON_EXEC, [CLI_PATH, ...args], {
+    const result = spawnSync(PYTHON_EXEC!, [CLI_PATH, ...args], {
         ...options,
         input: stdin,
     });

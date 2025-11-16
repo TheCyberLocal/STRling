@@ -68,7 +68,6 @@ describe("Category A: Positive Cases", () => {
         // A.3: Absolute Anchors (Extension Features)
         [String.raw`\A`, "AbsoluteStart", "absolute_start_ext"],
         [String.raw`\Z`, "EndBeforeFinalNewline", "end_before_newline_ext"],
-        [String.raw`\z`, "AbsoluteEnd", "absolute_end_ext"],
     ])("should parse anchor '%s' (ID: %s)", (inputDsl, expectedAtValue, id) => {
         /**
          * Tests that each individual anchor token is parsed into the correct
@@ -477,23 +476,18 @@ describe("Category I: Multiple Anchor Types", () => {
     });
 
     test("should parse absolute and line anchors", () => {
-        /**
-         * Tests absolute and line anchors together: \A^abc$\z
-         */
-        const [, ast] = parse(String.raw`\A^abc$\z`);
-        expect(ast).toBeInstanceOf(Seq);
-        const seqNode = ast as Seq;
-        expect(seqNode.parts).toHaveLength(5);
-        expect(seqNode.parts[0]).toBeInstanceOf(Anchor);
-        expect((seqNode.parts[0] as Anchor).at).toBe("AbsoluteStart");
-        expect(seqNode.parts[1]).toBeInstanceOf(Anchor);
-        expect((seqNode.parts[1] as Anchor).at).toBe("Start");
-        expect(seqNode.parts[2]).toBeInstanceOf(Lit);
-        expect((seqNode.parts[2] as Lit).value).toBe("abc");
-        expect(seqNode.parts[3]).toBeInstanceOf(Anchor);
-        expect((seqNode.parts[3] as Anchor).at).toBe("End");
-        expect(seqNode.parts[4]).toBeInstanceOf(Anchor);
-        expect((seqNode.parts[4] as Anchor).at).toBe("AbsoluteEnd");
+        /** The trailing `\z` is an unknown escape sequence and must raise */
+        expect(() => parse(String.raw`\A^abc$\z`)).toThrow(ParseError);
+        expect(() => parse(String.raw`\A^abc$\z`)).toThrow(
+            /Unknown escape sequence \\z/
+        );
+    });
+
+    test("should treat lowercase \\z as unknown escape", () => {
+        expect(() => parse(String.raw`\z`)).toThrow(ParseError);
+        expect(() => parse(String.raw`\z`)).toThrow(
+            /Unknown escape sequence \\z/
+        );
     });
 
     test("should parse word boundaries and line anchors", () => {

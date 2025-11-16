@@ -141,8 +141,8 @@ class TestCategoryBNegativeCases:
     @pytest.mark.parametrize(
         "invalid_dsl, error_message_prefix, error_position",
         [
-            ("a{1", "Unterminated {n}", 3),
-            ("a{1,", "Unterminated {m,n}", 4),
+            ("a{1", "Incomplete quantifier", 3),
+            ("a{1,", "Incomplete quantifier", 4),
         ],
         ids=[
             "unclosed_brace_after_num",

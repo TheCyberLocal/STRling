@@ -111,8 +111,8 @@ describe("Category B: Negative Cases", () => {
      */
 
     test.each<[string, string, number, string]>([
-        ["a{1", "Unterminated {n}", 3, "unclosed_brace_after_num"],
-        ["a{1,", "Unterminated {m,n}", 4, "unclosed_brace_after_comma"],
+        ["a{1", "Incomplete quantifier", 3, "unclosed_brace_after_num"],
+        ["a{1,", "Incomplete quantifier", 4, "unclosed_brace_after_comma"],
     ])(
         'should fail for malformed brace quantifier "%s" (ID: %s)',
         (invalidDsl, errorPrefix, errorPos, id) => {

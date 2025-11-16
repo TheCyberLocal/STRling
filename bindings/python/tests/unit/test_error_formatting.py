@@ -58,6 +58,11 @@ class TestSTRlingParseError:
         # Should show line 2
         assert "> 2 | def" in formatted
 
+    def test_to_formatted_string_method(self):
+        """Test the `to_formatted_string` alias returns same as str()."""
+        err = STRlingParseError("Test", 0, "abc")
+        assert err.to_formatted_string() == str(err)
+
 
 class TestHintEngine:
     """Test the hint engine."""

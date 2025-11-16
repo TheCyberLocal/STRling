@@ -400,10 +400,10 @@ class Parser:
             if not cur.match("}"):
                 # Unterminated brace quantifier -> raise specific instructional hint
                 # Distinguish between the two malformed forms expected by tests:
-                # - 'a{1'  -> 'Incomplete quantifier'
-                # - 'a{1,' -> 'Incomplete quantifier'
+                # - 'a{1'  -> 'Unterminated {n}'
+                # - 'a{1,' -> 'Unterminated {m,n}'
                 raise STRlingParseError(
-                    "Incomplete quantifier",
+                    "Unterminated {m,n}",
                     cur.i,
                     self.src,
                     "Unterminated brace quantifier. Expected a closing '}'.",
@@ -415,9 +415,9 @@ class Parser:
         else:
             if not cur.match("}"):
                 # Unterminated brace quantifier -> raise specific instructional hint
-                # For the form 'a{1' we raise 'Incomplete quantifier' to match tests.
+                # For the form 'a{1' we raise 'Unterminated {n}' to match tests.
                 raise STRlingParseError(
-                    "Incomplete quantifier",
+                    "Unterminated {n}",
                     cur.i,
                     self.src,
                     "Unterminated brace quantifier. Expected a closing '}'.",
