@@ -18,6 +18,7 @@
 
 require_relative 'nodes'
 require_relative 'errors'
+require_relative 'hint_engine'
 
 module Strling
   module Core
@@ -130,8 +131,7 @@ module Strling
       private
 
       def raise_error(message, pos)
-        # TODO: Implement hint engine
-        hint = nil # get_hint(message, @src, pos)
+        hint = Strling::Core.get_hint(message, @src, pos)
         raise STRlingParseError.new(message, pos, text: @src, hint: hint)
       end
 

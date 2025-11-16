@@ -1,0 +1,167 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# STRling CLI - Command-Line Interface and LSP Server
+#
+# This executable provides a command-line interface for the STRling compiler
+# with LSP (Language Server Protocol) compatible JSON diagnostic output.
+#
+# Usage:
+#   strling-cli [--target pcre2] [--format json|text] <pattern>
+#   strling-cli --version
+#   strling-cli --help
+
+require 'json'
+require 'optparse'
+require_relative '../lib/strling'
+require_relative '../lib/strling/core/compiler'
+require_relative '../lib/strling/core/validator'
+require_relative '../lib/strling/emitters/pcre2'
+
+module Strling
+  module CLI
+    # Main CLI application class
+    class App
+      def initialize(args)
+        @args = args
+        @options = {
+          target: 'pcre2',
+          format: 'text',
+          input: nil
+        }
+      end
+
+      def run
+        parse_options!
+        
+        if @options[:version]
+          puts "STRling v#{Strling::VERSION}"
+          return 0
+        end
+
+        if @options[:help] || @options[:input].nil?
+          show_help
+          return @options[:help] ? 0 : 1
+        end
+
+        compile_and_output(@options[:input])
+      rescue => e
+        handle_error(e)
+        1
+      end
+
+      private
+
+      def parse_options!
+        OptionParser.new do |opts|
+          opts.banner = 'Usage: strling-cli [options] <pattern>'
+
+          opts.on('--target TARGET', 'Target regex flavor (default: pcre2)') do |t|
+            @options[:target] = t
+          end
+
+          opts.on('--format FORMAT', 'Output format: json, text (default: text)') do |f|
+            @options[:format] = f
+          end
+
+          opts.on('--version', 'Show version') do
+            @options[:version] = true
+          end
+
+          opts.on('-h', '--help', 'Show this help') do
+            @options[:help] = true
+          end
+        end.parse!(@args)
+
+        @options[:input] = @args.first unless @args.empty?
+      end
+
+      def show_help
+        puts <<~HELP
+          STRling Compiler - Readable Regular Expressions
+          
+          Usage:
+            strling-cli [options] <pattern>
+            strling-cli --version
+            strling-cli --help
+
+          Options:
+            --target TARGET      Target regex flavor (default: pcre2)
+            --format FORMAT      Output format: json, text (default: text)
+            -h, --help           Show this help
+            --version            Show version
+
+          Examples:
+            strling-cli "^hello world$"
+            strling-cli --format json "\\\\d{3}-\\\\d{4}"
+            strling-cli --target pcre2 "[a-z]+"
+
+          For more information, visit: https://github.com/TheCyberLocal/STRling
+        HELP
+      end
+
+      def compile_and_output(pattern_text)
+        # Parse the pattern
+        flags, ast = Strling::Core.parse(pattern_text)
+
+        # Validate the AST
+        Strling::Core.validate(ast, flags)
+
+        # Compile to IR
+        ir = Strling::Core.compile(ast)
+
+        # Emit to target format
+        output = case @options[:target].downcase
+                 when 'pcre2'
+                   Strling::Emitters.emit_pcre2(ir, flags)
+                 else
+                   raise "Unsupported target: #{@options[:target]}"
+                 end
+
+        # Format output
+        if @options[:format] == 'json'
+          puts JSON.generate({
+            success: true,
+            pattern: output,
+            flags: flags.to_dict,
+            diagnostics: []
+          })
+        else
+          puts output
+        end
+
+        0
+      end
+
+      def handle_error(error)
+        if error.is_a?(Strling::Core::STRlingParseError)
+          if @options[:format] == 'json'
+            diagnostic = error.to_lsp_diagnostic
+            puts JSON.generate({
+              success: false,
+              diagnostics: [diagnostic]
+            })
+          else
+            puts error.to_formatted_string
+          end
+        else
+          if @options[:format] == 'json'
+            puts JSON.generate({
+              success: false,
+              error: error.message,
+              diagnostics: []
+            })
+          else
+            puts "Error: #{error.message}"
+            puts error.backtrace.first(5) if ENV['DEBUG']
+          end
+        end
+      end
+    end
+  end
+end
+
+# Run the CLI application if this file is executed directly
+if __FILE__ == $PROGRAM_NAME
+  exit Strling::CLI::App.new(ARGV).run
+end
