@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * STRling Error Classes - Rich Error Handling for Instructional Diagnostics.
- * 
- * <p>This class provides enhanced error handling that delivers context-aware,
+ * STRling Error Classes - Rich Error Handling for Instructional Diagnostics
+ *
+ * <p>This module provides enhanced error classes that deliver context-aware,
  * instructional error messages. The STRlingParseError class stores detailed
  * information about syntax errors including position, context, and beginner-friendly
  * hints for resolution.</p>
@@ -33,7 +33,7 @@ public class STRlingParseError extends RuntimeException {
     private final String hint;
     
     /**
-     * Initialize a STRlingParseError.
+     * Initializes a STRlingParseError.
      * 
      * @param message A concise description of what went wrong
      * @param pos The character position (0-indexed) where the error occurred
@@ -49,7 +49,7 @@ public class STRlingParseError extends RuntimeException {
     }
     
     /**
-     * Initialize a STRlingParseError without a hint.
+     * Initializes a STRlingParseError without a hint.
      * 
      * @param message A concise description of what went wrong
      * @param pos The character position (0-indexed) where the error occurred
@@ -60,7 +60,7 @@ public class STRlingParseError extends RuntimeException {
     }
     
     /**
-     * Initialize a STRlingParseError without text or hint.
+     * Initializes a STRlingParseError without text or hint.
      * 
      * @param message A concise description of what went wrong
      * @param pos The character position (0-indexed) where the error occurred
@@ -70,7 +70,7 @@ public class STRlingParseError extends RuntimeException {
     }
     
     /**
-     * Get the error message.
+     * Gets the error message.
      * 
      * @return The error message
      */
@@ -79,7 +79,7 @@ public class STRlingParseError extends RuntimeException {
     }
     
     /**
-     * Get the error position.
+     * Gets the error position.
      * 
      * @return The character position where the error occurred
      */
@@ -88,7 +88,7 @@ public class STRlingParseError extends RuntimeException {
     }
     
     /**
-     * Get the input text.
+     * Gets the input text.
      * 
      * @return The full input text being parsed
      */
@@ -97,7 +97,7 @@ public class STRlingParseError extends RuntimeException {
     }
     
     /**
-     * Get the hint.
+     * Gets the hint.
      * 
      * @return The instructional hint, or null if none provided
      */
@@ -106,7 +106,7 @@ public class STRlingParseError extends RuntimeException {
     }
     
     /**
-     * Format the error in the visionary state format.
+     * Formats the error in the visionary state format.
      * 
      * @param message The error message
      * @param pos The character position where the error occurred
@@ -173,27 +173,29 @@ public class STRlingParseError extends RuntimeException {
     }
     
     /**
-     * Backwards/JS-friendly alias for getting the formatted error string.
+     * Gets the formatted error message.
      * 
-     * @return The formatted error message (same as getMessage())
+     * @return The formatted error string
      */
     public String toFormattedString() {
         return getMessage();
     }
     
     /**
-     * Convert the error to LSP Diagnostic format.
+     * Converts the error to LSP Diagnostic format.
      * 
      * <p>Returns a Map compatible with the Language Server Protocol
      * Diagnostic specification, which can be serialized to JSON for
      * communication with LSP clients.</p>
      * 
      * @return A Map containing:
-     *         - range: The line/column range where the error occurred
-     *         - severity: Error severity (1 = Error)
-     *         - message: The error message with hint if available
-     *         - source: "STRling"
-     *         - code: A normalized error code derived from the message
+     *         <ul>
+     *         <li>range: The line/column range where the error occurred</li>
+     *         <li>severity: Error severity (1 = Error)</li>
+     *         <li>message: The error message with hint if available</li>
+     *         <li>source: "STRling"</li>
+     *         <li>code: A normalized error code derived from the message</li>
+     *         </ul>
      */
     public Map<String, Object> toLspDiagnostic() {
         // Find the line and column containing the error
