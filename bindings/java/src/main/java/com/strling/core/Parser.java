@@ -204,27 +204,67 @@ public class Parser {
             if (!inPattern && stripped.startsWith("%flags")) {
                 int idx = line.indexOf("%flags");
                 String after = line.substring(idx + "%flags".length());
-                
-                // Extract and validate flags
-                String flagsStr = after.replaceAll("[\\s,\\[\\]]+", " ").trim().toLowerCase();
+
+                // Scan the remainder to separate the flags token from any
+                // inline pattern content. Accept spaces/tabs, commas, brackets
+                // and the known flag letters; stop at the first character that
+                // can't be part of the flags token (this is the start of the
+                // pattern on the same line).
+                String allowed = " \\t,[]imsuxIMSUX";
+                int j = 0;
+                while (j < after.length() && allowed.indexOf(after.charAt(j)) >= 0) {
+                    j++;
+                }
+                // Use regex to capture the leading flags token (spaces, commas,
+                // brackets and flag letters). Stop at the first character that's
+                // not part of the flags token and treat the remainder as pattern.
+                Pattern p = Pattern.compile("^[\\s,\\[\\]imsuxIMSUX]*");
+                Matcher m = p.matcher(after);
+                int end = 0;
+                if (m.find()) end = m.end();
+                String flagsToken = after.substring(0, end);
+                String remainder = after.substring(end);
+
+                // Normalize separators and whitespace to single spaces
+                String letters = flagsToken.replaceAll("[\\,\\[\\]\\s]+", " ").trim().toLowerCase();
                 Set<Character> validFlags = new HashSet<>(Arrays.asList('i', 'm', 's', 'u', 'x'));
-                
-                for (char ch : flagsStr.toCharArray()) {
-                    if (ch == ' ') continue;
-                    if (!validFlags.contains(ch)) {
+
+                if (letters.replace(" ", "").isEmpty()) {
+                    if (remainder.trim().isEmpty()) {
+                        // directive-only line with no flags
+                    } else {
+                        char ch = remainder.trim().charAt(0);
+                        int pos = line.indexOf(ch, idx + "%flags".length());
                         throw new STRlingParseError(
                             String.format("Invalid flag '%c'", ch),
-                            idx,
+                            pos,
                             text,
                             "Valid flags are: i (ignore case), m (multiline), s (dotAll), u (unicode), x (extended)"
                         );
                     }
-                    switch (ch) {
-                        case 'i': flags.ignoreCase = true; break;
-                        case 'm': flags.multiline = true; break;
-                        case 's': flags.dotAll = true; break;
-                        case 'u': flags.unicode = true; break;
-                        case 'x': flags.extended = true; break;
+                } else {
+                    for (char ch : letters.replace(" ", "").toCharArray()) {
+                        if (!validFlags.contains(ch)) {
+                            throw new STRlingParseError(
+                                String.format("Invalid flag '%c'", ch),
+                                idx,
+                                text,
+                                "Valid flags are: i (ignore case), m (multiline), s (dotAll), u (unicode), x (extended)"
+                            );
+                        }
+                        switch (ch) {
+                            case 'i': flags.ignoreCase = true; break;
+                            case 'm': flags.multiline = true; break;
+                            case 's': flags.dotAll = true; break;
+                            case 'u': flags.unicode = true; break;
+                            case 'x': flags.extended = true; break;
+                        }
+                    }
+                    // If remainder contains pattern content on the same line,
+                    // treat it as the start of the pattern
+                    if (remainder.trim().length() != 0) {
+                        inPattern = true;
+                        patternLines.add(remainder);
                     }
                 }
                 inPattern = true;
@@ -407,7 +447,6 @@ public class Parser {
      * @return QuantResult containing the (possibly quantified) node and whether quantifier parsing failed
      */
     private QuantResult parseQuantIfAny(Node child) {
-        cur.skipWsAndComments();
         String ch = cur.peek();
         
         // Check if child is an anchor - anchors cannot be quantified
@@ -446,7 +485,6 @@ public class Parser {
         }
         
         // Check for mode suffix (?, +)
-        cur.skipWsAndComments();
         String mode = "Greedy";
         String suffix = cur.peek();
         if (suffix.equals("?")) {
@@ -480,41 +518,75 @@ public class Parser {
      */
     private BraceQuantResult parseBraceQuant() {
         if (!cur.match("{")) return null;
-        
-        int start = cur.i;
+
+        // Save positions for possible backtracking / error reporting
+        int quantStart = cur.i - 1; // position of '{'
+        int start = cur.i; // position right after '{'
         StringBuilder digits = new StringBuilder();
-        
+
         // Read first number
         while (!cur.eof() && Character.isDigit(cur.peek().charAt(0))) {
             digits.append(cur.take());
         }
-        
+
         Integer min = digits.length() > 0 ? Integer.parseInt(digits.toString()) : null;
-        
+
         cur.skipWsAndComments();
+        if (min == null) {
+            // No leading digits. Look ahead (without consuming) to see if a
+            // closing '}' exists and whether the content between '{' and '}'
+            // contains non-digit/non-comma characters (e.g. {foo}). If so,
+            // raise a specific error. If no closing '}' is found, treat '{'
+            // as a literal (backtrack).
+            int j = 0;
+            StringBuilder content = new StringBuilder();
+            while (true) {
+                String ch = cur.peek(j);
+                if (ch.isEmpty()) break;
+                if (ch.equals("}")) break;
+                if (ch.equals("\r") || ch.equals("\n")) break;
+                content.append(ch);
+                j++;
+            }
+            if (cur.peek(j).equals("}")) {
+                // If content has chars other than digits or commas, reject
+                if (content.toString().matches(".*[^0-9,].*")) {
+                    raiseError("Brace quantifier: Invalid brace quantifier content", quantStart);
+                }
+                // Otherwise, it's not a quantifier — treat as literal and backtrack.
+                // Restore cursor to before '{'
+                cur.i = quantStart;
+                return null;
+            }
+            // No closing '}', treat as literal/backtrack
+            cur.i = quantStart;
+            return null;
+        }
+
         if (cur.peek().equals(",")) {
             cur.take();
             cur.skipWsAndComments();
-            
+
             digits = new StringBuilder();
             while (!cur.eof() && Character.isDigit(cur.peek().charAt(0))) {
                 digits.append(cur.take());
             }
-            
+
             Object max = digits.length() > 0 ? (Object) Integer.parseInt(digits.toString()) : "Inf";
-            
+
             cur.skipWsAndComments();
             if (!cur.match("}")) {
                 raiseError("Incomplete quantifier", cur.i);
             }
-            
+
             return new BraceQuantResult(min, max);
         } else if (cur.peek().equals("}")) {
             cur.take();
             return new BraceQuantResult(min, min);
         }
-        
-        raiseError("Invalid brace quantifier", start);
+
+        // Unterminated brace quantifier (e.g. "a{1") -> raise specific error
+        raiseError("Incomplete quantifier", cur.i);
         return null;
     }
     
@@ -663,12 +735,13 @@ public class Parser {
         // Property escapes \p{...} \P{...}
         if (nxt.equals("p") || nxt.equals("P")) {
             String tp = cur.take();
+            int propPos = startPos + 1; // report position pointing at the 'p'
             if (!cur.match("{")) {
-                raiseError("Expected { after \\p/\\P", cur.i);
+                raiseError("Expected { after \\p/\\P", propPos);
             }
             String prop = readUntil("}");
             if (!cur.match("}")) {
-                raiseError("Unterminated \\p{...}", cur.i);
+                raiseError("Unterminated \\p{...}", propPos);
             }
             return new CharClass(false, Collections.singletonList(new ClassEscape(tp, prop)));
         }
@@ -912,12 +985,13 @@ public class Parser {
             // Handle unicode properties \p{...} \P{...}
             if (nxt.equals("p") || nxt.equals("P")) {
                 String tp = cur.take();
+                int propPos = escapeStart; // report at the backslash (matches Python in-class behavior)
                 if (!cur.match("{")) {
-                    raiseError("Expected { after \\p/\\P", escapeStart);
+                    raiseError("Expected { after \\p/\\P", propPos);
                 }
                 String prop = readUntil("}");
                 if (!cur.match("}")) {
-                    raiseError("Unterminated \\p{...}", escapeStart);
+                    raiseError("Unterminated \\p{...}", propPos);
                 }
                 return new ClassEscape(tp, prop);
             }
