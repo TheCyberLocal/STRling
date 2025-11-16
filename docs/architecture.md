@@ -15,9 +15,10 @@ STRling follows a classic compiler architecture with three distinct phases:
 3. **Emit**: Generate target-specific output (PCRE2, ECMAScript, etc.) from the IR
 
 This separation ensures:
-- **Portability**: New target engines can be added without changing the parser or IR
-- **Testability**: Each phase can be tested independently
-- **Maintainability**: Changes to one phase don't cascade to others
+
+-   **Portability**: New target engines can be added without changing the parser or IR
+-   **Testability**: Each phase can be tested independently
+-   **Maintainability**: Changes to one phase don't cascade to others
 
 ---
 
@@ -30,39 +31,42 @@ Emitters are the core abstraction that translate STRling's internal representati
 ### Requirements
 
 1. **Single, well-documented interface** with:
-   - Concise initialization API (config + dependencies)
-   - Single render/emit method accepting a canonical internal model
-   - No side effects (emitters return strings/bytes or write to provided streams)
-   - Deterministic output for a given model + config
+
+    - Concise initialization API (config + dependencies)
+    - Single render/emit method accepting a canonical internal model
+    - No side effects (emitters return strings/bytes or write to provided streams)
+    - Deterministic output for a given model + config
 
 2. **Shared concerns** (format helpers, validation, escaping) live in `core/` or `emitters/utils/` — not duplicated in each emitter
 
 ### Benefits
 
-- New output formats are easier to add and review
-- Testing is simplified: call render with a model → assert string/bytes
-- Performance-sensitive emitters may provide streaming helpers without breaking the deterministic contract
+-   New output formats are easier to add and review
+-   Testing is simplified: call render with a model → assert string/bytes
+-   Performance-sensitive emitters may provide streaming helpers without breaking the deterministic contract
 
 ### Example Structure
 
 **Python:**
+
 ```python
 class PCRE2Emitter:
     def __init__(self, config: EmitterConfig):
         self.config = config
-    
+
     def emit(self, model: IRModel) -> str:
         # Deterministic transformation
         return self._render(model)
 ```
 
 **JavaScript:**
+
 ```typescript
 class PCRE2Emitter {
     constructor(config: EmitterConfig) {
         this.config = config;
     }
-    
+
     emit(model: IRModel): string {
         // Deterministic transformation
         return this._render(model);
@@ -80,14 +84,14 @@ STRling defines both a formal grammar (`spec/grammar/dsl.ebnf`) and normative se
 
 ### The Contract
 
-- **EBNF Grammar** is the canonical definition of **syntax** (what is parsable)
-- **Semantics Document** is the canonical definition of **behavior** (what parsed constructs mean)
-- Both artifacts are versioned together and are equally authoritative
+-   **EBNF Grammar** is the canonical definition of **syntax** (what is parsable)
+-   **Semantics Document** is the canonical definition of **behavior** (what parsed constructs mean)
+-   Both artifacts are versioned together and are equally authoritative
 
 ### Feature Categorization
 
-- **Core features**: Portable across all supported regex engines
-- **Extension features**: Engine-specific, clearly documented as such
+-   **Core features**: Portable across all supported regex engines
+-   **Extension features**: Engine-specific, clearly documented as such
 
 ### Any New Feature Must Include
 
@@ -97,10 +101,10 @@ STRling defines both a formal grammar (`spec/grammar/dsl.ebnf`) and normative se
 
 ### Benefits
 
-- ✅ Eliminates drift between grammar and semantics
-- ✅ Ensures every feature is backed by both parse rules and behavioral contracts
-- ✅ Provides clear validation criteria for emitters and bindings
-- ⚠️ Requires coordination when evolving the DSL (must touch multiple files)
+-   ✅ Eliminates drift between grammar and semantics
+-   ✅ Ensures every feature is backed by both parse rules and behavioral contracts
+-   ✅ Provides clear validation criteria for emitters and bindings
+-   ⚠️ Requires coordination when evolving the DSL (must touch multiple files)
 
 See the Formal Language Specification (via Developer Hub) for links to all specification artifacts.
 
@@ -110,17 +114,17 @@ See the Formal Language Specification (via Developer Hub) for links to all speci
 
 STRling maintains a clear separation between components:
 
-- **Specification** (`spec/`): Formal grammar, semantics, and schemas
-- **Core** (`core/`): Language-agnostic compiler and IR
-- **Emitters** (`emitters/`): Target-specific code generators
-- **Bindings** (`bindings/`): Language-specific APIs and convenience wrappers
-- **Tests** (`tests/`): Validation and verification
+-   **Specification** (`spec/`): Formal grammar, semantics, and schemas
+-   **Core** (`core/`): Language-agnostic compiler and IR
+-   **Emitters** (`emitters/`): Target-specific code generators
+-   **Bindings** (`bindings/`): Language-specific APIs and convenience wrappers
+-   **Tests** (`tests/`): Validation and verification
 
 ### Benefits
 
-- Changes to one component don't cascade unnecessarily
-- Each component can be understood independently
-- Testing can be targeted and efficient
+-   Changes to one component don't cascade unnecessarily
+-   Each component can be understood independently
+-   Testing can be targeted and efficient
 
 ---
 
@@ -130,6 +134,34 @@ For historical context on architectural decisions, see the archived ADR (Archite
 
 ---
 
+## Real-Time Diagnostics Architecture
+
+STRling's real-time diagnostics feature introduces a small, explicit architecture that complements the existing compiler pipeline. The model is intentionally binding-agnostic and focuses on a clear contract between interactive editors and the parser runtime.
+
+The execution flow is:
+
+-   **Editor → LSP Server → CLI Server → Parser**
+
+1. **Editor**: Any text editor with LSP support (VS Code, Neovim, etc.) sends document changes and receives diagnostics and code actions.
+2. **LSP Server**: Implements the Language Server Protocol, converts text edits into diagnostic requests, formats `to_lsp_diagnostic()` output, and provides code-actions where applicable.
+3. **CLI Server**: A small, language-neutral service (invoked by the LSP server or bindings) that marshals input to the parser and normalizes responses into a diagnostic contract.
+4. **Parser**: The authoritative parser that produces `STRlingParseError` objects and machine-readable diagnostics.
+
+Key design constraints and guarantees:
+
+-   **Binding-agnostic contract**: The CLI Server exposes a stable, versioned contract that every binding (Python, JavaScript, other) can call. The contract returns structured diagnostics and optional fix suggestions.
+-   **Idempotence**: Diagnostic responses are deterministic for a given document state.
+-   **Partial parsing**: The parser supports incremental checks for fast, near-real-time feedback.
+-   **Security**: No sensitive information is returned in diagnostics; error hints are limited to the pattern content and suggested remediation.
+
+Responsibility split:
+
+-   The **Parser** remains the source of truth for syntax and semantics.
+-   The **CLI Server** normalizes parser output and enforces the binding-agnostic diagnostic schema.
+-   The **LSP Server** handles editor protocol concerns, UI-level formatting, and context-sensitive code-actions.
+
+This architecture ensures that editor integrations can be built rapidly while maintaining a single, testable source of truth for diagnostics and suggestions.
+
 ## Related Documentation
 
-- **[Developer Hub](index.md)**: Return to the central documentation hub
+-   **[Developer Hub](index.md)**: Return to the central documentation hub

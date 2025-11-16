@@ -12,30 +12,31 @@ This is the **definitive rulebook** for contributing to STRling. It defines the 
 
 **Never duplicate significant bodies of text across multiple files.**
 
-- Use hyperlinks to reference detailed information in other documents
-- Each concept should have a single source of truth
-- When tempted to copy/paste, create a link instead
+-   Use hyperlinks to reference detailed information in other documents
+-   Each concept should have a single source of truth
+-   When tempted to copy/paste, create a link instead
 
 **Examples:**
-- ✅ Good: "See the Test Design Standard (via Developer Hub) for details on our testing approach."
-- ❌ Bad: Copying the entire 3-Test Standard explanation into multiple files
+
+-   ✅ Good: "See the Test Design Standard (via Developer Hub) for details on our testing approach."
+-   ❌ Bad: Copying the entire 3-Test Standard explanation into multiple files
 
 ### 2. Single Responsibility
 
 Each file (code or documentation) must have a clearly defined scope:
 
-- Each module solves one problem
-- Each document covers one topic
-- Dependencies are explicit and minimal
-- Changes to one component don't cascade unnecessarily
+-   Each module solves one problem
+-   Each document covers one topic
+-   Dependencies are explicit and minimal
+-   Changes to one component don't cascade unnecessarily
 
 ### 3. Hyperlinks Over Duplication
 
 Use hyperlinks extensively to create an interconnected system:
 
-- Link to the authoritative source when referencing concepts
-- Use relative paths for internal links (e.g., `../spec/grammar/dsl.ebnf`)
-- Ensure links are descriptive (e.g., "formal grammar specification" not "click here")
+-   Link to the authoritative source when referencing concepts
+-   Use relative paths for internal links (e.g., `../spec/grammar/dsl.ebnf`)
+-   Ensure links are descriptive (e.g., "formal grammar specification" not "click here")
 
 ---
 
@@ -43,39 +44,39 @@ Use hyperlinks extensively to create an interconnected system:
 
 ### Tone and Voice
 
-- **Be clear and concise**: Prefer short sentences and simple language
-- **Be authoritative**: Use declarative statements, not tentative language
-  - ✅ "The emitter must return a string"
-  - ❌ "The emitter should probably return a string"
-- **Be helpful**: Anticipate reader questions and address them proactively
-- **Be consistent**: Use the same terminology throughout all documents
+-   **Be clear and concise**: Prefer short sentences and simple language
+-   **Be authoritative**: Use declarative statements, not tentative language
+    -   ✅ "The emitter must return a string"
+    -   ❌ "The emitter should probably return a string"
+-   **Be helpful**: Anticipate reader questions and address them proactively
+-   **Be consistent**: Use the same terminology throughout all documents
 
 ### Formatting
 
 #### Headers
 
-- Use sentence case for headers (e.g., "Getting started" not "Getting Started")
-- Maintain a clear hierarchy: H1 → H2 → H3
-- Avoid skipping header levels
+-   Use sentence case for headers (e.g., "Getting started" not "Getting Started")
+-   Maintain a clear hierarchy: H1 → H2 → H3
+-   Avoid skipping header levels
 
 #### Lists
 
-- Use bullet points for unordered lists
-- Use numbered lists for sequential steps
-- Keep list items parallel in structure
+-   Use bullet points for unordered lists
+-   Use numbered lists for sequential steps
+-   Keep list items parallel in structure
 
 #### Code Examples
 
-- Always include language identifiers in code blocks (```python, ```javascript, etc.)
-- Provide complete, runnable examples when possible
-- Include comments for complex logic
-- Show both Python and JavaScript examples when documenting cross-binding features
+-   Always include language identifiers in code blocks (`python, `javascript, etc.)
+-   Provide complete, runnable examples when possible
+-   Include comments for complex logic
+-   Show both Python and JavaScript examples when documenting cross-binding features
 
 #### Links
 
-- Use descriptive link text that makes sense out of context
-- Use relative paths for internal links
-- Verify all links are working before committing
+-   Use descriptive link text that makes sense out of context
+-   Use relative paths for internal links
+-   Verify all links are working before committing
 
 ---
 
@@ -86,6 +87,7 @@ Use hyperlinks extensively to create an interconnected system:
 Use Google-style docstrings with complete type information and examples.
 
 **Example:**
+
 ```python
 def compile_pattern(pattern: str, flags: int = 0) -> Pattern:
     """Compile a STRling pattern to a regex Pattern object.
@@ -113,6 +115,7 @@ def compile_pattern(pattern: str, flags: int = 0) -> Pattern:
 Use JSDoc format with type annotations and examples.
 
 **Example:**
+
 ```javascript
 /**
  * Compile a STRling pattern to a RegExp object.
@@ -133,10 +136,10 @@ function compilePattern(pattern, flags = "") {
 
 ### Code Comments
 
-- Use comments to explain **why**, not **what**
-- Document non-obvious decisions or workarounds
-- Keep comments up-to-date with code changes
-- Remove outdated or redundant comments
+-   Use comments to explain **why**, not **what**
+-   Document non-obvious decisions or workarounds
+-   Keep comments up-to-date with code changes
+-   Remove outdated or redundant comments
 
 ---
 
@@ -144,10 +147,10 @@ function compilePattern(pattern, flags = "") {
 
 ### Follow Existing Patterns
 
-- Match the style and structure of existing code
-- Use the same naming conventions
-- Respect established architectural patterns
-- Maintain consistency with the codebase
+-   Match the style and structure of existing code
+-   Use the same naming conventions
+-   Respect established architectural patterns
+-   Maintain consistency with the codebase
 
 ### Write Tests First
 
@@ -162,17 +165,17 @@ See the Testing Philosophy & Workflow document (via Developer Hub) for complete 
 
 ### Keep Changes Minimal
 
-- Make the smallest change that solves the problem
-- Don't refactor unrelated code
-- Don't add unnecessary features
-- Each commit should have a single, clear purpose
+-   Make the smallest change that solves the problem
+-   Don't refactor unrelated code
+-   Don't add unnecessary features
+-   Each commit should have a single, clear purpose
 
 ### Document as You Go
 
-- Update documentation in the same commit as code changes
-- Keep docstrings synchronized with implementation
-- Update relevant guides when changing architecture
-- Add examples for new features
+-   Update documentation in the same commit as code changes
+-   Keep docstrings synchronized with implementation
+-   Update relevant guides when changing architecture
+-   Add examples for new features
 
 ---
 
@@ -182,26 +185,26 @@ See the Testing Philosophy & Workflow document (via Developer Hub) for complete 
 
 1. **Propose** the feature with use cases and examples
 2. **Update specification**:
-   - Add syntax rules to `spec/grammar/dsl.ebnf`
-   - Add semantics to `spec/grammar/semantics.md`
-   - Update schemas in `spec/schema/` if needed
+    - Add syntax rules to `spec/grammar/dsl.ebnf`
+    - Add semantics to `spec/grammar/semantics.md`
+    - Update schemas in `spec/schema/` if needed
 3. **Design tests**:
-   - Create Test Charter in `tests/_design/`
-   - Define unit, E2E, and conformance test cases
+    - Create Test Charter in `tests/_design/`
+    - Define unit, E2E, and conformance test cases
 4. **Implement tests**:
-   - Write failing tests in appropriate test directories
-   - Ensure tests follow the 3-Test Standard (see Test Design Standard via Developer Hub)
+    - Write failing tests in appropriate test directories
+    - Ensure tests follow the 3-Test Standard (see Test Design Standard via Developer Hub)
 5. **Implement feature**:
-   - Update core compiler/IR as needed
-   - Update emitters to handle new construct
-   - Update bindings to expose new functionality
+    - Update core compiler/IR as needed
+    - Update emitters to handle new construct
+    - Update bindings to expose new functionality
 6. **Verify**:
-   - All tests pass
-   - Code coverage meets standards
-   - Mutation testing shows tests are effective
+    - All tests pass
+    - Code coverage meets standards
+    - Mutation testing shows tests are effective
 7. **Document**:
-   - Update binding READMEs with examples
-   - Update feature registry in `spec/features.json`
+    - Update binding READMEs with examples
+    - Update feature registry in `spec/features.json`
 8. **Review and merge**
 
 ### Fixing a Bug
@@ -236,10 +239,10 @@ See the Testing Philosophy & Workflow document (via Developer Hub) for complete 
 
 1. **Write a clear title** that summarizes the change
 2. **Provide a detailed description** including:
-   - What problem does this solve?
-   - What approach did you take?
-   - What tests were added/modified?
-   - What documentation was updated?
+    - What problem does this solve?
+    - What approach did you take?
+    - What tests were added/modified?
+    - What documentation was updated?
 3. **Link to related issues** if applicable
 4. **Request review** from appropriate reviewers
 
@@ -263,12 +266,12 @@ See the Testing Philosophy & Workflow document (via Developer Hub) for complete 
 
 Pull requests are evaluated on:
 
-- **Correctness**: Does it solve the stated problem?
-- **Completeness**: Does it follow the full development workflow?
-- **Testing**: Does it meet the 3-Test Standard (see Test Design Standard via Developer Hub)?
-- **Documentation**: Are docs updated and accurate?
-- **Code quality**: Is it clear, maintainable, and minimal?
-- **Specification alignment**: Does it comply with grammar and semantics?
+-   **Correctness**: Does it solve the stated problem?
+-   **Completeness**: Does it follow the full development workflow?
+-   **Testing**: Does it meet the 3-Test Standard (see Test Design Standard via Developer Hub)?
+-   **Documentation**: Are docs updated and accurate?
+-   **Code quality**: Is it clear, maintainable, and minimal?
+-   **Specification alignment**: Does it comply with grammar and semantics?
 
 ---
 
@@ -278,20 +281,22 @@ Pull requests are evaluated on:
 
 Write clear, descriptive commit messages:
 
-- Use the imperative mood ("Add feature" not "Added feature")
-- Keep the first line under 50 characters
-- Provide details in the body if needed
-- Reference issue numbers when applicable
+-   Use the imperative mood ("Add feature" not "Added feature")
+-   Keep the first line under 50 characters
+-   Provide details in the body if needed
+-   Reference issue numbers when applicable
 
 **Good examples:**
-- `Add support for Unicode character classes`
-- `Fix off-by-one error in quantifier parsing`
-- `Update Python binding documentation`
+
+-   `Add support for Unicode character classes`
+-   `Fix off-by-one error in quantifier parsing`
+-   `Update Python binding documentation`
 
 **Bad examples:**
-- `changes`
-- `fix stuff`
-- `WIP`
+
+-   `changes`
+-   `fix stuff`
+-   `WIP`
 
 ### Updating Documentation
 
@@ -306,18 +311,18 @@ When making code changes that affect documentation:
 
 Before submitting documentation changes, verify:
 
-- [ ] No content is duplicated across files
-- [ ] All internal links use relative paths and are working
-- [ ] Cross-references point to the authoritative source
-- [ ] Tone and formatting follow these guidelines
-- [ ] Code examples are complete and tested
-- [ ] Spelling and grammar are correct
+-   [ ] No content is duplicated across files
+-   [ ] All internal links use relative paths and are working
+-   [ ] Cross-references point to the authoritative source
+-   [ ] Tone and formatting follow these guidelines
+-   [ ] Code examples are complete and tested
+-   [ ] Spelling and grammar are correct
 
 ---
 
 ## Related Documentation
 
-- **[Developer Hub](index.md)**: Return to the central documentation hub for architecture, testing, specifications, and more
+-   **[Developer Hub](index.md)**: Return to the central documentation hub for architecture, testing, specifications, and more
 
 ---
 
@@ -325,8 +330,28 @@ Before submitting documentation changes, verify:
 
 These guidelines are **mandatory** for all contributions to STRling:
 
-- Pull requests will be reviewed against these standards
-- Violations of the DRY principle will be rejected
-- Missing or broken hyperlinks must be fixed before merging
-- Inconsistent tone or formatting should be corrected during review
-- Code without appropriate tests will not be merged
+-   Pull requests will be reviewed against these standards
+-   Violations of the DRY principle will be rejected
+-   Missing or broken hyperlinks must be fixed before merging
+-   Inconsistent tone or formatting should be corrected during review
+-   Code without appropriate tests will not be merged
+
+## Standards for Instructional Hints
+
+STRling introduces a standardized approach for diagnostic content surfaced to users in editors. The method `to_lsp_diagnostic()` is the canonical converter that transforms internal `STRlingParseError` objects into Language Server Protocol diagnostics. The philosophy for writing these hints is:
+
+-   **Instructional first**: Hints must explain _why_ the error occurred and _how_ to fix it in one or two simple sentences.
+-   **Actionable suggestion**: Every hint should include at least one concrete remediation (e.g., "escape the `.` as `\\.`", "wrap this token in a quantifier", "add a closing parenthesis").
+-   **Keep it short**: Limit text to a single paragraph (40–120 characters preferred) for quick readability in editors.
+-   **No code dumps**: Avoid long code examples in diagnostics; link to fuller examples in docs when needed.
+-   **Severity and tags**: Specify a clear severity (Error, Warning, Information) and include tags for `unnecessary`, `deprecated`, or `quickfix` when applicable.
+-   **Localization-ready**: Write messages in simple English and avoid idioms to make future localization straightforward.
+-   **Tested and stable**: Every new hint must have a unit test validating the diagnostic produced and an LSP functional test demonstrating how the editor receives it (see `testing_workflow.md`).
+
+Example (conceptual):
+
+`STRlingParseError`: Unexpected token ']' at column 12
+
+`to_lsp_diagnostic()` output (editor): "Unmatched closing bracket — remove the extra ']' or add a matching '[' before position 12. (Try removing the character at column 12)"
+
+Guiding principle: diagnostic content should reduce friction. When in doubt, make the hint clearer and more prescriptive rather than more verbose.

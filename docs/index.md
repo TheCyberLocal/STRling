@@ -36,6 +36,22 @@ High-level testing principles, the Iron Law of test parity, and contribution wor
 
 The definitive rulebook for contributing to STRling. Covers the DRY principle, docstring standards, tone of voice, and contribution workflows.
 
+### Real-Time Syntax Validation & Instructional Error Handling
+
+STRling now provides real-time syntax validation and instructional error feedback in compatible editors via the Language Server (LSP) integration. This feature delivers:
+
+-   **Live diagnostics**: Syntax and semantic issues are surfaced as you type.
+-   **Instructional hints**: Errors include short, actionable guidance produced by `to_lsp_diagnostic()` for common mistakes and suggested fixes.
+-   **Binding-agnostic behavior**: The diagnostic flow is supported for all bindings through a standard `Editor → LSP Server → CLI Server → Parser` contract (see `architecture.md`).
+
+Benefits:
+
+-   Faster iteration for users writing STRling patterns.
+-   Better onboarding for new contributors via contextual, example-driven hints.
+-   Consistent diagnostic content across editors and bindings.
+
+See also: [Architectural Principles](architecture.md), [Contribution & Documentation Guidelines](guidelines.md), and [Testing Philosophy & Workflow](testing_workflow.md).
+
 ### [CI/CD Pipeline Setup](ci_cd_setup.md)
 
 Complete guide for setting up and managing the automated CI/CD pipeline. Includes instructions for configuring GitHub Secrets, understanding workflow triggers, and managing deployments to PyPI and NPM.
@@ -48,7 +64,7 @@ A curated index linking to the formal grammar (EBNF), semantics, and JSON schema
 
 ## Related Documentation
 
-- **[Specification Hub](../spec/README.md)**: Formal language specification (grammar, semantics, schemas)
-- **[Test Suite Guide](../tests/README.md)**: Test directory structure and quick reference
-- **[Python Binding Quick Start](../bindings/python/README.md)**: Installation and usage for Python
-- **[JavaScript Binding Quick Start](../bindings/javascript/README.md)**: Installation and usage for JavaScript
+-   **[Specification Hub](../spec/README.md)**: Formal language specification (grammar, semantics, schemas)
+-   **[Test Suite Guide](../tests/README.md)**: Test directory structure and quick reference
+-   **[Python Binding Quick Start](../bindings/python/README.md)**: Installation and usage for Python
+-   **[JavaScript Binding Quick Start](../bindings/javascript/README.md)**: Installation and usage for JavaScript
