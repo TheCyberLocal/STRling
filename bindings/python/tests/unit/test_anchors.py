@@ -85,7 +85,7 @@ class TestCategoryAPositiveCases:
 
 
     def test_z_escape_is_unknown(self):
-        """
+        r"""
         The lowercase `\z` is not a recognized escape sequence and should
         raise a ParseError indicating an unknown escape sequence.
         """
@@ -447,7 +447,7 @@ class TestCategoryIMultipleAnchorTypes:
         assert ast.parts[2].at == "End"
 
     def test_absolute_and_line_anchors(self):
-        """
+        r"""
         The trailing `\z` in this sequence is an unknown escape sequence and
         should raise a ParseError.
         """
