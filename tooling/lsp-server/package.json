@@ -1,0 +1,27 @@
+{
+  "name": "strling-lsp-server",
+  "version": "1.0.0",
+  "description": "Language Server Protocol implementation for STRling - providing real-time diagnostics for STRling pattern files",
+  "main": "server.py",
+  "scripts": {
+    "start": "python server.py"
+  },
+  "keywords": [
+    "strling",
+    "lsp",
+    "language-server",
+    "diagnostics",
+    "regex",
+    "pattern"
+  ],
+  "author": "TheCyberLocal",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheCyberLocal/STRling.git",
+    "directory": "tooling/lsp-server"
+  },
+  "engines": {
+    "python": ">=3.8"
+  }
+}
