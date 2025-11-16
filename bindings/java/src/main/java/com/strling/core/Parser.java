@@ -800,7 +800,7 @@ public class Parser {
                 raiseError("Unterminated \\u{...}", startPos);
             }
             int cp = Integer.parseInt(hexs.length() > 0 ? hexs.toString() : "0", 16);
-            return String.valueOf((char) cp);
+            return new String(Character.toChars(cp));
         }
         
         if (tp.equals("U")) {
@@ -814,7 +814,7 @@ public class Parser {
                 hexs.append(ch);
             }
             int cp = Integer.parseInt(hexs.toString(), 16);
-            return String.valueOf((char) cp);
+            return new String(Character.toChars(cp));
         }
         
         // backslash-u-HHHH format (4 hex digits)
@@ -827,7 +827,7 @@ public class Parser {
             hexs.append(ch);
         }
         int cp = Integer.parseInt(hexs.toString(), 16);
-        return String.valueOf((char) cp);
+        return new String(Character.toChars(cp));
     }
     
     /**
