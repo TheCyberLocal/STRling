@@ -1,0 +1,50 @@
+# Invalid STRling Pattern Examples
+# These patterns demonstrate common errors that the LSP will catch
+
+# Error: Unterminated group
+# The LSP will show: "Unterminated group" with hint to add closing ')'
+(hello world
+
+# Error: Unterminated character class  
+# The LSP will show: "Unterminated character class"
+[a-z
+
+# Error: Cannot quantify anchor
+# The LSP will show: "Cannot quantify anchor"
+^*
+
+# Error: Alternation without right-hand side
+# The LSP will show: "Alternation lacks right-hand side"
+cat|
+
+# Error: Alternation without left-hand side
+# The LSP will show: "Alternation lacks left-hand side"
+|dog
+
+# Error: Invalid brace quantifier
+# The LSP will show: "Incomplete quantifier"
+a{2,5
+
+# Error: Backreference to undefined group
+# The LSP will show: "Backreference to undefined group"
+\2(a)(b)
+
+# Error: Unknown escape sequence
+# The LSP will show: "Unknown escape sequence"
+\z
+
+# Error: Invalid hex escape
+# The LSP will show: "Invalid \xHH escape"
+\xGG
+
+# Error: Unterminated named group
+# The LSP will show: "Unterminated group name"
+(?<nameabc)
+
+# Error: Duplicate group name
+# The LSP will show: "Duplicate group name"
+(?<foo>a)(?<foo>b)
+
+# Error: Invalid group name (starts with digit)
+# The LSP will show: "Invalid group name"
+(?<1name>a)

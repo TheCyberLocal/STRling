@@ -1,0 +1,5 @@
+# Error Example: Unterminated Character Class
+# Expected: Error at end of line 4
+# Message: "Unterminated character class"
+
+[a-z

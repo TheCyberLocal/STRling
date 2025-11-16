@@ -1,0 +1,5 @@
+# Error Example: Alternation Lacks Right-Hand Side
+# Expected: Error at line 4, character 3
+# Message: "Alternation lacks right-hand side"
+
+cat|
