@@ -28,7 +28,7 @@ public class FlagsAndFreeSpacingTest {
     @MethodSource("flagsPositive")
     void testFlagsDirective(String input, boolean i, boolean m, boolean s, boolean u, boolean x) {
         Parser.ParseResult res = Parser.parse(input);
-        Nodes.Flags flags = res.flags;
+        Flags flags = res.flags;
         assertEquals(i, flags.ignoreCase);
         assertEquals(m, flags.multiline);
         assertEquals(s, flags.dotAll);
@@ -77,7 +77,7 @@ public class FlagsAndFreeSpacingTest {
     @Test
     void testEmptyFlagsDirectiveAndDirectiveAfterContent() {
         Parser.ParseResult res = Parser.parse("%flags");
-        Nodes.Flags flags = res.flags;
+        Flags flags = res.flags;
         assertFalse(flags.ignoreCase);
 
         assertThrows(STRlingParseError.class, () -> Parser.parse("a\n%flags i"));
