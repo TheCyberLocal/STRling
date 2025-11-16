@@ -206,5 +206,35 @@ describe("IEH Audit Gap Remediation (ported from Python)", () => {
             expect(() => parse("%flags i\nabc")).not.toThrow();
             expect(() => parse("%flags imsux\nabc")).not.toThrow();
         });
+
+        test("brace quantifier rejects non-digits", () => {
+            expect(() => parse("a{foo}")).toThrow(STRlingParseError);
+            try {
+                parse("a{foo}");
+            } catch (e: any) {
+                expect(e.hint).toBeTruthy();
+                expect(e.hint).toMatch(/digit|number|digits/);
+            }
+        });
+
+        test("unterminated brace quantifier reports hint", () => {
+            expect(() => parse("a{5")).toThrow(STRlingParseError);
+            try {
+                parse("a{5");
+            } catch (e: any) {
+                expect(e.hint).toBeTruthy();
+                expect(e.hint).toMatch(/closing '\}'|Unterminated brace/);
+            }
+        });
+
+        test("empty character class reports hint", () => {
+            expect(() => parse("[]")).toThrow(STRlingParseError);
+            try {
+                parse("[]");
+            } catch (e: any) {
+                expect(e.hint).toBeTruthy();
+                expect(e.hint).toMatch(/empty|add characters/);
+            }
+        });
     });
 });

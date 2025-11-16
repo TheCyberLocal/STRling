@@ -22,6 +22,8 @@ class HintEngine:
         # Map error message patterns to hint generators
         # NOTE: More specific patterns must come before more general ones
         self._hint_generators: Dict[str, Callable[[str, str, int], str]] = {
+            "Invalid brace quantifier content": self._hint_invalid_brace_quant_content,
+            "Empty character class": self._hint_empty_character_class,
             "Unterminated group": self._hint_unterminated_group,
             "Unterminated character class": self._hint_unterminated_char_class,
             "Unterminated named backref": self._hint_unterminated_named_backref,
@@ -130,6 +132,19 @@ class HintEngine:
         return (
             "Brace quantifiers use the syntax {m,n} or {n}. "
             "Make sure to close the quantifier with '}'."
+        )
+
+    def _hint_invalid_brace_quant_content(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "Brace quantifiers require numeric digits: use {n}, {m,n}, or {m,}. "
+            "Only numbers are valid inside braces — to match a literal '{', escape it with '\\{'."
+        )
+
+    def _hint_empty_character_class(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "Empty character class '[]' detected. "
+            "Character classes must contain at least one element (e.g., [a-z]) — do not leave them empty. "
+            "If you meant a literal '[', escape it with '\\['."
         )
     
     def _hint_invalid_quantifier_range(self, msg: str, text: str, pos: int) -> str:

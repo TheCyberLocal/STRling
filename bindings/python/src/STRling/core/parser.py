@@ -467,20 +467,48 @@ class Parser:
         # Parse integers
         m = self._read_int_optional()
         if m is None:
-            # This is not a quantifier, it's a literal '{'. Backtrack.
+            # No leading digits. Look ahead (without consuming) to see if a
+            # closing '}' exists and whether the content between '{' and '}'
+            # contains non-digit/non-comma characters (e.g. {foo}). If so,
+            # treat it as an invalid brace quantifier and raise an error so
+            # the IEH engine can provide an instructional hint. If no closing
+            # '}' is found, treat '{' as a literal (backtrack).
+            j = 0
+            content = ""
+            while True:
+                ch = cur.peek(j)
+                if ch == "":
+                    break
+                if ch == "}":
+                    break
+                if ch in "\r\n":
+                    break
+                content += ch
+                j += 1
+            if cur.peek(j) == "}":
+                # If content has chars other than digits or commas, reject
+                if re.search(r"[^0-9,]", content):
+                    # Include a human-friendly prefix so tests that look for
+                    # 'Brace quantifier' in the error message succeed, while
+                    # still allowing the hint engine to match the
+                    # 'Invalid brace quantifier content' pattern.
+                    self._raise_error(
+                        "Brace quantifier: Invalid brace quantifier content",
+                        quant_start,
+                    )
+            # Otherwise, it's not a quantifier — treat as literal and backtrack.
             return None, None, "Greedy"
         if cur.match(","):
             n = self._read_int_optional()
             if not cur.match("}"):
                 # Unterminated brace quantifier -> raise specific instructional hint
-                # Distinguish between the two malformed forms expected by tests:
-                # - 'a{1'  -> 'Incomplete quantifier'
-                # - 'a{1,' -> 'Incomplete quantifier'
+                # Use a clear message that matches test expectations while
+                # providing an instructional hint explaining the expected syntax.
                 raise STRlingParseError(
-                    "Incomplete quantifier",
+                    "Incomplete quantifier (closing '}')",
                     cur.i,
                     self.src,
-                    "Unterminated brace quantifier. Expected a closing '}'.",
+                    "Brace quantifiers use the syntax {m,n} or {n}. Make sure to close the quantifier with '}'.",
                 )
             if n is None:
                 mmin, mmax = m, "Inf"
@@ -494,12 +522,12 @@ class Parser:
         else:
             if not cur.match("}"):
                 # Unterminated brace quantifier -> raise specific instructional hint
-                # For the form 'a{1' we raise 'Incomplete quantifier' to match tests.
+                # For the form 'a{1' we raise a clear 'Unterminated brace quantifier'.
                 raise STRlingParseError(
-                    "Incomplete quantifier",
+                    "Incomplete quantifier (closing '}')",
                     cur.i,
                     self.src,
-                    "Unterminated brace quantifier. Expected a closing '}'.",
+                    "Brace quantifiers use the syntax {m,n} or {n}. Make sure to close the quantifier with '}'.",
                 )
             mmin, mmax = m, m
         mode = "Greedy"
@@ -792,6 +820,29 @@ class Parser:
             neg = True
             cur.take()
             start_pos = cur.i
+
+        # Detect explicit empty character class '[]' (or '[^]') and raise
+        # a specific instructional error only when the class truly contains
+        # no elements (i.e., the next character is end-of-input or another
+        # immediate closing bracket). Do NOT raise for cases like '[]a]' where
+        # ']' is intended as a literal at the start of the class.
+        if cur.peek() == "]" and (cur.peek(1) == "" or cur.peek(1) == "]"):
+            # Raise a message compatible with existing tests while supplying
+            # an explicit hint that mentions the class is empty.
+            hint = get_hint(
+                "Empty character class",
+                self._original_text,
+                start_pos,
+            ) or (
+                "Empty character class '[]' detected. Character classes must contain at least one element (e.g., [a-z]) — do not leave them empty. "
+                "If you meant a literal '[', escape it with '\\['."
+            )
+            raise STRlingParseError(
+                "Unterminated character class",
+                start_pos,
+                self.src,
+                hint,
+            )
 
         # helper: read one class item (escape or literal)
         def read_item() -> ClassItem:

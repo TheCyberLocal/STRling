@@ -23,6 +23,7 @@ class HintEngine {
     constructor() {
         this.hintGenerators = new Map<string, HintGenerator>([
             ["Unterminated group", this.hintUnterminatedGroup],
+            ["Empty character class", this.hintEmptyCharacterClass],
             ["Unterminated character class", this.hintUnterminatedCharClass],
             ["Unterminated named backref", this.hintUnterminatedNamedBackref],
             ["Unterminated group name", this.hintUnterminatedGroupName],
@@ -45,6 +46,10 @@ class HintEngine {
             ["Unterminated \\u{...}", this.hintUnterminatedUnicodeBrace],
             ["Unterminated \\p{...}", this.hintUnterminatedUnicodeProperty],
             ["Expected { after \\p/\\P", this.hintUnicodePropertyMissingBrace],
+            [
+                "Invalid brace quantifier content",
+                this.hintInvalidBraceQuantContent,
+            ],
             ["Invalid group name", this.hintInvalidGroupName],
             ["Invalid quantifier range", this.hintInvalidQuantifierRange],
             ["Invalid character range", this.hintInvalidCharacterRange],
@@ -401,6 +406,29 @@ class HintEngine {
         const m = msg.match(/Invalid quantifier '(.)'/);
         const ch = m ? m[1] : "*";
         return `The quantifier '${ch}' must follow an atom (a character or group). Place '${ch}' after the thing it should quantify, e.g., 'a${ch}'.`;
+    }
+
+    private hintInvalidBraceQuantContent(
+        msg: string,
+        text: string,
+        pos: number
+    ): string {
+        return (
+            "Brace quantifiers require numeric digits: use {n}, {m,n}, or {m,}. " +
+            "Only numbers are valid inside braces — to match a literal '{', escape it with '\\{'."
+        );
+    }
+
+    private hintEmptyCharacterClass(
+        msg: string,
+        text: string,
+        pos: number
+    ): string {
+        return (
+            "Empty character class '[]' detected. " +
+            "Character classes must contain at least one element (e.g., [a-z]) — do not leave them empty. " +
+            "If you meant a literal '[', escape it with '\\['."
+        );
     }
 
     private hintUnicodePropertyMissingBrace(
