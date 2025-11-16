@@ -1,7 +1,22 @@
+/**
+ * @file Test Design — ieh_audit_gaps.test.ts
+ *
+ * ## Purpose
+ * Tests coverage for the Intelligent Error Handling (IEH) audit gaps. This
+ * suite verifies that parser validation and the hint engine provide
+ * context-aware, instructional error messages for the audit's critical
+ * findings and that valid inputs remain accepted.
+ *
+ * ## Description
+ * Each test maps to one or more audit gaps and asserts both that invalid
+ * inputs raise a `STRlingParseError` containing an actionable `hint`, and
+ * that valid inputs continue to parse successfully.
+ */
+
 import { parse, ParseError } from "../../src/STRling/core/parser";
 import { STRlingParseError } from "../../src/STRling/core/errors";
 
-describe("IEH Audit Gap Remediation (ported from Python)", () => {
+describe("Intelligent Error Handling Gap Coverage", () => {
     describe("Group name validation", () => {
         test("group name cannot start with digit", () => {
             expect(() => parse("(?<1a>)")).toThrow(STRlingParseError);

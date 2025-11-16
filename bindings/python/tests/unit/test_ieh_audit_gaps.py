@@ -1,14 +1,28 @@
-"""
-Test IEH Audit Gap Remediation
+r"""
+Test Design — test_ieh_audit_gaps.py
 
-This test suite validates that all 16 critical gaps identified in the
-IEH_Audit_Report.md have been fixed. These tests ensure that:
+## Purpose
+This test suite validates remediation coverage for the Intelligent Error
+Handling (IEH) audit findings. It verifies that the parser and hint engine
+provide useful, context-aware validation errors and instructional hints for
+the critical gaps called out in the IEH audit.
 
-1. Invalid syntax is properly rejected with validation errors
-2. Helpful, instructional hints are provided for all error cases
-3. Hints are context-aware and not hardcoded
+## Description
+Each test in this module maps to one or more audit gaps and asserts both that
+invalid patterns are rejected with a rich `STRlingParseError` and that the
+`hint` field contains actionable guidance (where applicable). The suite also
+verifies that valid inputs continue to parse successfully.
 
-Each test corresponds to one or more gaps from the audit report.
+## Scope
+- **In scope:**
+        - Parser validation for syntactic issues (group names, quantifiers,
+            character-class ranges, alternation branches, directives, escapes).
+        - The presence and quality of hints produced by the hint engine.
+        - Sanity checks that valid patterns still parse.
+- **Out of scope:**
+        - Engine/runtime behavior beyond parsing and hint generation (emitters,
+            matching semantics, performance tuning).
+
 """
 
 import pytest
