@@ -11,6 +11,7 @@ STRling makes string validation and matching **readable, safe, and consistent** 
 -   **Beginner Friendly**: No regex jargon required.
 -   **Reliable**: Built only on standard libraries.
 -   **Instructional Errors**: Explains what went wrong and how to fix it.
+-   **Live Diagnostics**: Real-time syntax validation in compatible editors.
 -   **Consistent**: Works across frameworks and libraries without custom validators.
 -   **Multilingual**: Available across popular programming languages ([Python](../python/README.md), and more coming soon).
 

@@ -11,6 +11,7 @@ STRling makes string validation and matching **readable, safe, and consistent** 
 -   **Beginner Friendly**: No regex jargon required.
 -   **Reliable**: Built only on standard libraries.
 -   **Instructional Errors**: Explains what went wrong and how to fix it.
+-   **Live Diagnostics**: Real-time syntax validation in compatible editors.
 -   **Consistent**: Works across frameworks and libraries without custom validators.
 -   **Multilingual**: Available across popular programming languages ([JavaScript](../javascript/README.md), and more coming soon).
 
@@ -66,10 +67,10 @@ For comprehensive syntax reference and all available features, see the **[Python
 
 ## 📖 Related Documentation
 
-- **[Python API Reference](docs/api_reference.md)**: Complete API documentation for Python
-- **[Developer Documentation Hub](../../docs/index.md)**: Architecture, philosophy, and development workflow
-- **[Formal Specification](../../spec/README.md)**: Grammar and semantics reference
-- **[JavaScript Binding](../javascript/README.md)**: STRling for JavaScript/Node.js
+-   **[Python API Reference](docs/api_reference.md)**: Complete API documentation for Python
+-   **[Developer Documentation Hub](../../docs/index.md)**: Architecture, philosophy, and development workflow
+-   **[Formal Specification](../../spec/README.md)**: Grammar and semantics reference
+-   **[JavaScript Binding](../javascript/README.md)**: STRling for JavaScript/Node.js
 
 ## 💖 Support
 
