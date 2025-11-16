@@ -8,10 +8,13 @@
 //! # Modules
 //!
 //! - `core`: Core data structures including AST nodes, IR nodes, and error types
+//! - `emitters`: Target-specific code emitters
 
 pub mod core;
+pub mod emitters;
 
 // Re-export commonly used types for convenience
 pub use core::errors::STRlingParseError;
 pub use core::ir::IROp;
 pub use core::nodes::{Flags, Node};
+pub use core::parser::{parse, Parser};
