@@ -17,10 +17,14 @@ hints for resolution.
 
 use strict;
 use warnings;
-use Moo;
-use overload '""' => \&to_formatted_string, fallback => 1;
 
 our $VERSION = '3.0.0-alpha';
+
+# ---- STRlingParseError ----
+
+package STRling::Core::Errors::STRlingParseError {
+    use Moo;
+    use overload '""' => \&to_formatted_string, fallback => 1;
 
 =head1 CLASSES
 
@@ -263,5 +267,7 @@ sub to_lsp_diagnostic {
 =back
 
 =cut
+
+}
 
 1;
