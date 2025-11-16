@@ -1,0 +1,41 @@
+# Dist::Zilla
+/.build/
+/_build/
+/Build
+/blib/
+/STRling-*.tar.gz
+/.prove
+
+# Perl modules
+*.bs
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+
+# CPAN build files
+/MANIFEST
+/MANIFEST.bak
+/META.*
+/MYMETA.*
+/Makefile
+/Makefile.old
+/pm_to_blib
+
+# Editor/IDE files
+*~
+*.swp
+*.swo
+.*.sw[a-z]
+*.bak
+.DS_Store
+
+# Test coverage
+/cover_db/
+/nytprof.out
+/nytprof/
+
+# Other
+/local/
+/.carton/
