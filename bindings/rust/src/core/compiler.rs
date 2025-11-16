@@ -74,12 +74,18 @@ impl Compiler {
                 let branches: Vec<IROp> = alt.branches.iter().map(|b| self.lower(b)).collect();
                 IROp::Alt(IRAlt { branches })
             }
-            Node::Quant(quant) => IROp::Quant(IRQuant {
-                child: Box::new(self.lower(&quant.child)),
-                min: quant.min,
-                max: quant.max,
-                mode: quant.mode.clone(),
-            }),
+            Node::Quant(quant) => {
+                let max = match &quant.max {
+                    MaxBound::Finite(n) => IRMaxBound::Finite(*n),
+                    MaxBound::Infinite(s) => IRMaxBound::Infinite(s.clone()),
+                };
+                IROp::Quant(IRQuant {
+                    child: Box::new(self.lower(&quant.child)),
+                    min: quant.min,
+                    max,
+                    mode: quant.mode.clone(),
+                })
+            }
             Node::Group(group) => IROp::Group(IRGroup {
                 capturing: group.capturing,
                 name: group.name.clone(),
@@ -88,12 +94,12 @@ impl Compiler {
             }),
             Node::Look(look) => IROp::Look(IRLook {
                 dir: look.dir.clone(),
-                positive: look.positive,
+                neg: look.neg,
                 body: Box::new(self.lower(&look.body)),
             }),
             Node::Backref(backref) => IROp::Backref(IRBackref {
-                num: backref.num,
-                name: backref.name.clone(),
+                by_index: backref.by_index,
+                by_name: backref.by_name.clone(),
             }),
             Node::CharClass(cc) => IROp::CharClass(IRCharClass {
                 negated: cc.negated,
@@ -105,16 +111,16 @@ impl Compiler {
     /// Lower a class item from AST to IR
     fn lower_class_item(&self, item: &ClassItem) -> IRClassItem {
         match item {
-            ClassItem::Literal(lit) => IRClassItem::Literal(IRClassLiteral {
-                value: lit.value.clone(),
+            ClassItem::Char(lit) => IRClassItem::Char(IRClassLiteral {
+                ch: lit.ch.clone(),
             }),
             ClassItem::Range(range) => IRClassItem::Range(IRClassRange {
-                from: range.from.clone(),
-                to: range.to.clone(),
+                from_ch: range.from_ch.clone(),
+                to_ch: range.to_ch.clone(),
             }),
-            ClassItem::Escape(esc) => IRClassItem::Escape(IRClassEscape {
+            ClassItem::Esc(esc) => IRClassItem::Esc(IRClassEscape {
                 escape_type: esc.escape_type.clone(),
-                value: esc.value.clone(),
+                property: esc.property.clone(),
             }),
         }
     }
@@ -122,7 +128,7 @@ impl Compiler {
     /// Normalize IR (flatten, coalesce, etc.)
     fn normalize(&self, node: IROp) -> IROp {
         match node {
-            IROp::Seq(mut seq) => {
+            IROp::Seq(seq) => {
                 // Flatten nested sequences
                 let mut new_parts = Vec::new();
                 for part in seq.parts {
@@ -175,6 +181,7 @@ impl Compiler {
             }
             IROp::Group(mut group) => {
                 group.body = Box::new(self.normalize(*group.body));
+                // Normalize atomic from Option<bool> if needed
                 IROp::Group(group)
             }
             IROp::Look(mut look) => {
@@ -189,7 +196,7 @@ impl Compiler {
     fn analyze_features(&mut self, node: &IROp) {
         match node {
             IROp::Group(group) => {
-                if group.atomic {
+                if group.atomic.unwrap_or(false) {
                     self.features_used.insert("atomic_group".to_string());
                 }
                 if group.name.is_some() {
@@ -216,8 +223,8 @@ impl Compiler {
             }
             IROp::CharClass(cc) => {
                 for item in &cc.items {
-                    if let IRClassItem::Escape(esc) = item {
-                        if esc.escape_type == "UnicodeProperty" {
+                    if let IRClassItem::Esc(esc) = item {
+                        if esc.escape_type == "p" || esc.escape_type == "P" {
                             self.features_used.insert("unicode_property".to_string());
                         }
                     }

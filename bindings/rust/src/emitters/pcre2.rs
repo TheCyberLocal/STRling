@@ -53,13 +53,13 @@ impl PCRE2Emitter {
             }
             IROp::Quant(quant) => {
                 let child = self.emit_node(&quant.child);
-                let quantifier = match (quant.min, quant.max.as_ref()) {
-                    (0, None) => "*".to_string(),
-                    (1, None) => "+".to_string(),
-                    (0, Some(1)) => "?".to_string(),
-                    (min, None) => format!("{{{},}}", min),
-                    (min, Some(max)) if min == *max => format!("{{{}}}", min),
-                    (min, Some(max)) => format!("{{{},{}}}", min, max),
+                let quantifier = match (&quant.max, quant.min) {
+                    (IRMaxBound::Infinite(_), 0) => "*".to_string(),
+                    (IRMaxBound::Infinite(_), 1) => "+".to_string(),
+                    (IRMaxBound::Finite(1), 0) => "?".to_string(),
+                    (IRMaxBound::Infinite(_), min) => format!("{{{},}}", min),
+                    (IRMaxBound::Finite(max), min) if min == *max => format!("{{{}}}", min),
+                    (IRMaxBound::Finite(max), min) => format!("{{{},{}}}", min, max),
                 };
                 
                 let mode_suffix = match quant.mode.as_str() {
@@ -72,7 +72,7 @@ impl PCRE2Emitter {
             }
             IROp::Group(group) => {
                 let body = self.emit_node(&group.body);
-                if group.atomic {
+                if group.atomic.unwrap_or(false) {
                     format!("(?>{})", body)
                 } else if let Some(name) = &group.name {
                     format!("(?<{}>{})", name, body)
@@ -84,21 +84,21 @@ impl PCRE2Emitter {
             }
             IROp::Look(look) => {
                 let body = self.emit_node(&look.body);
-                match (look.dir.as_str(), look.positive) {
-                    ("Ahead", true) => format!("(?={})", body),
-                    ("Ahead", false) => format!("(?!{})", body),
-                    ("Behind", true) => format!("(?<={})", body),
-                    ("Behind", false) => format!("(?<!{})", body),
+                match (look.dir.as_str(), look.neg) {
+                    ("Ahead", false) => format!("(?={})", body),
+                    ("Ahead", true) => format!("(?!{})", body),
+                    ("Behind", false) => format!("(?<={})", body),
+                    ("Behind", true) => format!("(?<!{})", body),
                     _ => panic!("Unknown lookaround type"),
                 }
             }
             IROp::Backref(backref) => {
-                if let Some(name) = &backref.name {
+                if let Some(name) = &backref.by_name {
                     format!("\\k<{}>", name)
-                } else if let Some(num) = backref.num {
+                } else if let Some(num) = backref.by_index {
                     format!("\\{}", num)
                 } else {
-                    panic!("Backref must have either name or num")
+                    panic!("Backref must have either name or index")
                 }
             }
             IROp::CharClass(cc) => {
@@ -118,21 +118,23 @@ impl PCRE2Emitter {
     /// Emit a character class item
     fn emit_class_item(&self, item: &IRClassItem) -> String {
         match item {
-            IRClassItem::Literal(lit) => self.escape_class_char(&lit.value),
+            IRClassItem::Char(lit) => self.escape_class_char(&lit.ch),
             IRClassItem::Range(range) => {
                 format!("{}-{}", 
-                    self.escape_class_char(&range.from),
-                    self.escape_class_char(&range.to))
+                    self.escape_class_char(&range.from_ch),
+                    self.escape_class_char(&range.to_ch))
             }
-            IRClassItem::Escape(esc) => {
+            IRClassItem::Esc(esc) => {
                 match esc.escape_type.as_str() {
-                    "Digit" => "\\d".to_string(),
-                    "NotDigit" => "\\D".to_string(),
-                    "Word" => "\\w".to_string(),
-                    "NotWord" => "\\W".to_string(),
-                    "Space" => "\\s".to_string(),
-                    "NotSpace" => "\\S".to_string(),
-                    _ => esc.value.clone(),
+                    "d" => "\\d".to_string(),
+                    "D" => "\\D".to_string(),
+                    "w" => "\\w".to_string(),
+                    "W" => "\\W".to_string(),
+                    "s" => "\\s".to_string(),
+                    "S" => "\\S".to_string(),
+                    "p" => format!("\\p{{{}}}", esc.property.as_ref().unwrap_or(&"".to_string())),
+                    "P" => format!("\\P{{{}}}", esc.property.as_ref().unwrap_or(&"".to_string())),
+                    _ => format!("\\{}", esc.escape_type),
                 }
             }
         }
@@ -236,7 +238,7 @@ mod tests {
                 value: "a".to_string(),
             })),
             min: 0,
-            max: None,
+            max: IRMaxBound::Infinite("Inf".to_string()),
             mode: "Greedy".to_string(),
         });
         assert_eq!(emitter.emit(&ir), "a*");
@@ -248,7 +250,7 @@ mod tests {
         let ir = IROp::Group(IRGroup {
             capturing: true,
             name: None,
-            atomic: false,
+            atomic: Some(false),
             body: Box::new(IROp::Lit(IRLit {
                 value: "test".to_string(),
             })),

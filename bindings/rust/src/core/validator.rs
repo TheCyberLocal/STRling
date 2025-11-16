@@ -15,7 +15,7 @@ use serde_json::Value;
 /// # Returns
 ///
 /// Result indicating success or validation errors
-pub fn validate(node: &Node) -> Result<(), ValidationError> {
+pub fn validate(_node: &Node) -> Result<(), ValidationError> {
     // TODO: Implement full validation logic
     Ok(())
 }

@@ -15,7 +15,7 @@
 /// # Returns
 ///
 /// An optional hint string providing guidance on how to fix the error
-pub fn get_hint(error_message: &str, text: &str, pos: usize) -> Option<String> {
+pub fn get_hint(error_message: &str, _text: &str, _pos: usize) -> Option<String> {
     // TODO: Implement full hint engine logic from Python
     
     if error_message.contains("Unterminated group") {

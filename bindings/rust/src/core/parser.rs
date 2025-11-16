@@ -134,7 +134,7 @@ impl Parser {
         
         // Parse directives
         let (flags, src) = parser.parse_directives(&text);
-        parser.flags = flags;
+        parser.flags = flags.clone();
         parser.src = src.clone();
         parser.cur = Cursor::new(src, 0, flags.extended, 0);
         
@@ -336,26 +336,26 @@ impl Parser {
 
     /// Try to parse a quantifier if present
     /// Returns Option<(min, max, mode)>
-    fn try_parse_quantifier(&mut self) -> Result<Option<(usize, Option<usize>, String)>, STRlingParseError> {
+    fn try_parse_quantifier(&mut self) -> Result<Option<(i32, MaxBound, String)>, STRlingParseError> {
         if self.cur.eof() {
             return Ok(None);
         }
         
-        let start_pos = self.cur.i;
+        let _start_pos = self.cur.i;
         let ch = self.cur.peek_char(0);
         
         let (min, max) = match ch {
             Some('*') => {
                 self.cur.take();
-                (0, None)
+                (0, MaxBound::Infinite("Inf".to_string()))
             }
             Some('+') => {
                 self.cur.take();
-                (1, None)
+                (1, MaxBound::Infinite("Inf".to_string()))
             }
             Some('?') => {
                 self.cur.take();
-                (0, Some(1))
+                (0, MaxBound::Finite(1))
             }
             Some('{') => {
                 // Parse {m,n} or {n}
@@ -465,15 +465,9 @@ impl Parser {
             'd' | 'D' | 'w' | 'W' | 's' | 'S' => {
                 Ok(Node::CharClass(CharClass {
                     negated: ch.is_uppercase(),
-                    items: vec![ClassItem::Escape(ClassEscape {
-                        escape_type: if ch.to_ascii_lowercase() == 'd' {
-                            "Digit".to_string()
-                        } else if ch.to_ascii_lowercase() == 'w' {
-                            "Word".to_string()
-                        } else {
-                            "Space".to_string()
-                        },
-                        value: ch.to_string(),
+                    items: vec![ClassItem::Esc(ClassEscape {
+                        escape_type: ch.to_ascii_lowercase().to_string(),
+                        property: None,
                     })],
                 }))
             }
@@ -513,7 +507,7 @@ impl Parser {
                         return Ok(Node::Group(Group {
                             capturing: false,
                             name: None,
-                            atomic: false,
+                            atomic: Some(false),
                             body: Box::new(body),
                         }));
                     }
@@ -525,7 +519,7 @@ impl Parser {
                         self.expect_char(')', "Unterminated lookahead")?;
                         return Ok(Node::Look(Look {
                             dir: "Ahead".to_string(),
-                            positive,
+                            neg: !positive,
                             body: Box::new(body),
                         }));
                     }
@@ -541,7 +535,7 @@ impl Parser {
                                 self.expect_char(')', "Unterminated lookbehind")?;
                                 return Ok(Node::Look(Look {
                                     dir: "Behind".to_string(),
-                                    positive,
+                                    neg: !positive,
                                     body: Box::new(body),
                                 }));
                             } else {
@@ -555,7 +549,7 @@ impl Parser {
                                 return Ok(Node::Group(Group {
                                     capturing: true,
                                     name: Some(name),
-                                    atomic: false,
+                                    atomic: Some(false),
                                     body: Box::new(body),
                                 }));
                             }
@@ -569,7 +563,7 @@ impl Parser {
                         return Ok(Node::Group(Group {
                             capturing: false,
                             name: None,
-                            atomic: true,
+                            atomic: Some(true),
                             body: Box::new(body),
                         }));
                     }
@@ -590,7 +584,7 @@ impl Parser {
         Ok(Node::Group(Group {
             capturing: true,
             name: None,
-            atomic: false,
+            atomic: Some(false),
             body: Box::new(body),
         }))
     }
@@ -628,8 +622,8 @@ impl Parser {
             // Parse one class item
             // TODO: Implement full class item parsing (ranges, escapes, etc.)
             let ch = self.cur.take().unwrap();
-            items.push(ClassItem::Literal(ClassLiteral {
-                value: ch.to_string(),
+            items.push(ClassItem::Char(ClassLiteral {
+                ch: ch.to_string(),
             }));
         }
         
@@ -769,7 +763,10 @@ mod tests {
         match node {
             Node::Quant(quant) => {
                 assert_eq!(quant.min, 0);
-                assert_eq!(quant.max, None);
+                match quant.max {
+                    MaxBound::Infinite(_) => {},
+                    _ => panic!("Expected infinite max"),
+                }
             }
             _ => panic!("Expected Quant node"),
         }
