@@ -681,6 +681,12 @@ package STRling::Core::parser::Parser {
                 $self->_raise_error("Unterminated named backref", $cur->i);
             }
             $cur->take();
+            
+            # Validate that the named group exists (no forward references)
+            if (!exists $self->_cap_names->{$name}) {
+                $self->_raise_error("Backreference to undefined group <$name>", $cur->i - length($name) - 3);
+            }
+            
             return STRling::Core::Nodes::Backref->new(name => $name);
         }
         
