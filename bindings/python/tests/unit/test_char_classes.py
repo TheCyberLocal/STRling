@@ -503,14 +503,10 @@ class TestCategoryJCharClassErrorCases:
     def test_invalid_range_reversed_endpoints(self):
         """
         Tests invalid range with reversed endpoints: [z-a]
-        The parser currently accepts this, so we test that it parses successfully.
+        Per IEH audit, the parser should reject this with a validation error.
         """
-        _flags, ast = parse("[z-a]")
-        assert isinstance(ast, CharClass)
-        assert len(ast.items) == 1
-        assert isinstance(ast.items[0], ClassRange)
-        assert ast.items[0].from_ch == "z"
-        assert ast.items[0].to_ch == "a"
+        with pytest.raises(ParseError, match="Invalid character range"):
+            parse("[z-a]")
 
     def test_incomplete_range_at_end(self):
         """

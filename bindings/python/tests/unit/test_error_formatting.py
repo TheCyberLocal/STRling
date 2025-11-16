@@ -1,5 +1,26 @@
-"""
-Test the STRlingParseError class and hint engine.
+r"""
+Test Design — test_error_formatting.py
+
+## Purpose
+This module tests the `STRlingParseError` formatting and the hint engine's
+behavior. Tests assert that formatted errors include position indicators,
+source context, and that hints are generated when appropriate.
+
+## Description
+The suite validates string formatting for single-line and multi-line source
+text, checks caret positioning, and ensures that the hint engine returns
+useful, contextual hints for known parse failures and `None` for unknown
+errors.
+
+## Scope
+- **In scope:**
+    - `STRlingParseError` string formatting and helper methods.
+    - `get_hint` responses for common parse failures (unterminated groups,
+      character classes, unexpected tokens, quantifier/anchor hints, inline
+      modifier guidance).
+- **Out of scope:**
+    - Emitter or runtime behavior unrelated to error formatting.
+
 """
 
 import pytest

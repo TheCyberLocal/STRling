@@ -40,7 +40,7 @@ Documentation = "https://github.com/TheCyberLocal/STRling/tree/main/docs"
 Issues = "https://github.com/TheCyberLocal/STRling/issues"
 
 [tool.pytest.ini_options]
-pythonpath = ["bindings/python/src"]
+pythonpath = ["src"]
 testpaths = ["tests"]
 
 [tool.setuptools]
