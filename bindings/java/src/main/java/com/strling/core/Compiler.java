@@ -6,7 +6,7 @@ import com.strling.core.IR.*;
 import java.util.*;
 
 /**
- * STRling Compiler - AST to IR Transformation.
+ * STRling Compiler - AST to IR Transformation
  * 
  * <p>This module implements the compiler that transforms Abstract Syntax Tree (AST)
  * nodes from the parser into an optimized Intermediate Representation (IR). The
@@ -27,15 +27,22 @@ public class Compiler {
     private Set<String> featuresUsed;
     
     /**
-     * Create a new Compiler instance.
+     * Compiler for transforming AST nodes into optimized IR.
+     *
+     * <p>The Compiler class handles the complete transformation pipeline from parsed
+     * AST to normalized IR, including feature detection for metadata generation.</p>
+     */
+    
+    /**
+     * Creates a new Compiler instance.
      */
     public Compiler() {
         this.featuresUsed = new HashSet<>();
     }
     
     /**
-     * Compile an AST node and return IR with metadata.
-     * 
+     * Compiles an AST node and returns IR with metadata.
+     *
      * <p>This is the main entry point for compilation with full metadata tracking.
      * It performs lowering, normalization, and feature analysis.</p>
      * 
@@ -62,10 +69,13 @@ public class Compiler {
     }
     
     /**
-     * Compile an AST node to IR without metadata.
+     * Compiles an AST node into optimized IR.
+     *
+     * <p>This is the standard compilation entry point without metadata tracking.
+     * Performs lowering and normalization but doesn't analyze features.</p>
      * 
      * @param root The root AST node to compile
-     * @return The compiled IR node
+     * @return The compiled and normalized IR tree
      */
     public IROp compile(Node root) {
         IROp ir = lower(root);
@@ -74,11 +84,18 @@ public class Compiler {
     }
     
     /**
-     * Lower an AST node to IR (direct translation).
-     * Public for testing (TypeScript uses @ts-ignore for private access).
+     * Lowers an AST node to its IR equivalent.
+     *
+     * <p>This method recursively transforms AST nodes into their corresponding
+     * IR operations. Each AST node type is mapped to an IR operation that
+     * represents the same semantic meaning but in a form optimized for
+     * emission to target regex engines.</p>
+     * 
+     * <p>Public for testing (TypeScript uses @ts-ignore for private access).</p>
      * 
      * @param node The AST node to lower
-     * @return The corresponding IR node
+     * @return The corresponding IR operation
+     * @throws IllegalArgumentException if an unknown AST node type is encountered
      */
     public IROp lower(Node node) {
         if (node instanceof Lit) {
@@ -149,8 +166,20 @@ public class Compiler {
     }
     
     /**
-     * Normalize IR (flatten sequences/alternations, coalesce literals).
-     * Public for testing (TypeScript uses @ts-ignore for private access).
+     * Normalizes an IR tree by flattening and coalescing.
+     *
+     * <p>This method performs several optimization passes on the IR tree:</p>
+     * <ul>
+     *   <li>Flattens nested sequences (Seq within Seq) and alternations (Alt within Alt)</li>
+     *   <li>Coalesces adjacent literal nodes into single literals for efficiency</li>
+     *   <li>Recursively normalizes all child nodes</li>
+     * </ul>
+     *
+     * <p>These optimizations reduce the complexity of the IR tree while maintaining
+     * semantic equivalence, making it easier for emitters to generate efficient
+     * target regex code.</p>
+     * 
+     * <p>Public for testing (TypeScript uses @ts-ignore for private access).</p>
      * 
      * @param node The IR node to normalize
      * @return The normalized IR node
@@ -184,7 +213,10 @@ public class Compiler {
     }
     
     /**
-     * Normalize a sequence: flatten nested sequences and coalesce adjacent literals.
+     * Normalizes a sequence: flattens nested sequences and coalesces adjacent literals.
+     * 
+     * @param seq The sequence to normalize
+     * @return The normalized IR node
      */
     private IROp normalizeSeq(IRSeq seq) {
         List<IROp> flatParts = new ArrayList<>();
@@ -229,7 +261,10 @@ public class Compiler {
     }
     
     /**
-     * Normalize an alternation: flatten nested alternations.
+     * Normalizes an alternation: flattens nested alternations.
+     * 
+     * @param alt The alternation to normalize
+     * @return The normalized IR node
      */
     private IROp normalizeAlt(IRAlt alt) {
         List<IROp> flatBranches = new ArrayList<>();
@@ -249,7 +284,13 @@ public class Compiler {
     }
     
     /**
-     * Recursively analyze IR tree and track features used.
+     * Recursively analyzes the IR tree to detect and log features used.
+     *
+     * <p>This method walks the entire IR tree and identifies special regex features
+     * that are being used (e.g., named groups, lookarounds, atomic groups).
+     * The detected features are stored in the featuresUsed set for metadata.</p>
+     * 
+     * @param node The IR node to analyze
      */
     private void analyzeFeatures(IROp node) {
         if (node instanceof IRGroup) {
