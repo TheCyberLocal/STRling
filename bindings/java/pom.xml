@@ -49,9 +49,25 @@
         
         <!-- Dependency versions -->
         <junit.version>5.10.1</junit.version>
+        <jackson.version>2.16.0</jackson.version>
+        <json-schema-validator.version>1.4.0</json-schema-validator.version>
     </properties>
 
     <dependencies>
+        <!-- Jackson for JSON processing -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        
+        <!-- JSON Schema Validator -->
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>${json-schema-validator.version}</version>
+        </dependency>
+        
         <!-- JUnit 5 for testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -62,6 +78,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>

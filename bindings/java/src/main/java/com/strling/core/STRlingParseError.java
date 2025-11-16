@@ -11,7 +11,7 @@ import java.util.Map;
  * information about syntax errors including position, context, and beginner-friendly
  * hints for resolution.</p>
  */
-public class STRlingParseError extends Exception {
+public class STRlingParseError extends RuntimeException {
     /**
      * A concise description of what went wrong.
      */
