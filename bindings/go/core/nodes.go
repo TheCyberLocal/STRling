@@ -296,7 +296,7 @@ type Look struct {
 	// Dir is "Ahead" or "Behind"
 	Dir string
 	// Neg indicates whether this is a negative lookaround
-	Neg bool
+	Neg  bool
 	Body Node
 }
 
