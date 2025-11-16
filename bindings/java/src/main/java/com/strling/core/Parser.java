@@ -814,29 +814,120 @@ public class Parser {
         if (cur.peek().equals("^")) {
             negated = true;
             cur.take();
+            startPos = cur.i;
         }
         
         List<ClassItem> items = new ArrayList<>();
         
-        while (!cur.eof() && !cur.peek().equals("]")) {
-            String ch = cur.take();
-            
-            // Check for range
-            if (cur.peek().equals("-") && !cur.peek(1).equals("]")) {
-                cur.take(); // consume -
-                String toCh = cur.take();
-                items.add(new ClassRange(ch, toCh));
-            } else {
-                items.add(new ClassLiteral(ch));
+        // Helper to read one class item (escape or literal)
+        while (true) {
+            if (cur.eof()) {
+                cur.inClass--;
+                raiseError("Unterminated character class", cur.i);
             }
+            
+            // ] closes the class (except at the very start)
+            if (cur.peek().equals("]") && cur.i > startPos) {
+                cur.take();
+                cur.inClass--;
+                return new CharClass(negated, items);
+            }
+            
+            // Check for range: '-' makes a range only if previous is a literal and next isn't ']'
+            if (cur.peek().equals("-") 
+                && !items.isEmpty() 
+                && items.get(items.size() - 1) instanceof ClassLiteral
+                && !cur.peek(1).equals("]")) {
+                int dashPos = cur.i;
+                cur.take(); // consume -
+                ClassItem endItem = readClassItem();
+                if (endItem instanceof ClassLiteral) {
+                    ClassLiteral startLit = (ClassLiteral) items.remove(items.size() - 1);
+                    String startCh = startLit.ch;
+                    String endCh = ((ClassLiteral) endItem).ch;
+                    // Validate that start <= end in the range
+                    if (startCh.charAt(0) > endCh.charAt(0)) {
+                        raiseError(String.format("Invalid character range [%s-%s]", startCh, endCh), dashPos);
+                    }
+                    items.add(new ClassRange(startCh, endCh));
+                } else {
+                    // Can't form range with a class escape; degrade to literals
+                    items.add(new ClassLiteral("-"));
+                    items.add(endItem);
+                }
+                continue;
+            }
+            
+            // General case: read one item
+            items.add(readClassItem());
+        }
+    }
+    
+    /**
+     * Read one character class item (escape or literal).
+     *
+     * @return ClassItem representing the parsed item
+     */
+    private ClassItem readClassItem() {
+        if (cur.peek().equals("\\")) {
+            int escapeStart = cur.i;
+            cur.take(); // consume backslash
+            String nxt = cur.peek();
+            
+            // Handle standard shorthands \d \D \w \W \s \S
+            if ("dDwWsS".indexOf(nxt) >= 0) {
+                return new ClassEscape(cur.take());
+            }
+            
+            // Handle unicode properties \p{...} \P{...}
+            if (nxt.equals("p") || nxt.equals("P")) {
+                String tp = cur.take();
+                if (!cur.match("{")) {
+                    raiseError("Expected { after \\p/\\P", escapeStart);
+                }
+                String prop = readUntil("}");
+                if (!cur.match("}")) {
+                    raiseError("Unterminated \\p{...}", escapeStart);
+                }
+                return new ClassEscape(tp, prop);
+            }
+            
+            // Handle hex escapes -> literal char
+            if (nxt.equals("x")) {
+                String ch = parseHexEscape(escapeStart);
+                return new ClassLiteral(ch);
+            }
+            
+            // Handle unicode escapes -> literal char
+            if (nxt.equals("u") || nxt.equals("U")) {
+                String ch = parseUnicodeEscape(escapeStart);
+                return new ClassLiteral(ch);
+            }
+            
+            // Handle null byte
+            if (nxt.equals("0")) {
+                cur.take();
+                return new ClassLiteral("\0");
+            }
+            
+            // Handle core control escapes \n \t \r \f \v
+            if (CONTROL_ESCAPES.containsKey(nxt)) {
+                String ch = cur.take();
+                return new ClassLiteral(CONTROL_ESCAPES.get(ch));
+            }
+            
+            // Special case: \b inside class is backspace (0x08)
+            if (nxt.equals("b")) {
+                cur.take();
+                return new ClassLiteral("\b");
+            }
+            
+            // Identity escape: treat next char literally (e.g., \-, \^, \])
+            return new ClassLiteral(cur.take());
         }
         
-        if (!cur.match("]")) {
-            raiseError("Unterminated character class", cur.i);
-        }
-        
-        cur.inClass--;
-        return new CharClass(negated, items);
+        // Regular literal character (not preceded by \)
+        return new ClassLiteral(cur.take());
     }
     
     /**
