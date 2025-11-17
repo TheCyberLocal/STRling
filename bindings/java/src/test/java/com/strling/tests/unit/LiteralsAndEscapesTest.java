@@ -208,8 +208,8 @@ public class LiteralsAndEscapesTest {
              * ignored, resulting in a sequence of Lit nodes.
              */
             Node ast = parseToAST("%flags x\n a b #comment\n c");
-            // Parser coalesces adjacent literals
-            assertEquals(new Lit("abc").toDict(), ast.toDict());
+            // In free-spacing mode, literals are NOT coalesced
+            assertEquals(new Seq(Arrays.asList(new Lit("a"), new Lit("b"), new Lit("c"))).toDict(), ast.toDict());
         }
 
         @Test
@@ -219,8 +219,8 @@ public class LiteralsAndEscapesTest {
              * literal space character.
              */
             Node ast = parseToAST("%flags x\n a \\ b ");
-            // Parser coalesces adjacent literals: Lit("a"), Lit(" "), Lit("b")
-            assertEquals(new Lit("a b").toDict(), ast.toDict());
+            // In free-spacing mode, literals are NOT coalesced
+            assertEquals(new Seq(Arrays.asList(new Lit("a"), new Lit(" "), new Lit("b"))).toDict(), ast.toDict());
         }
     }
 

@@ -158,7 +158,7 @@ public class IehAuditGapsTest {
             try {
                 Parser.parse("abc%flags i");
             } catch (STRlingParseError e) {
-                assertTrue(e.getErrorMessage().matches(".*Directive after pattern.*"));
+                assertTrue(e.getErrorMessage().matches(".*Directive must appear at the start.*"));
                 assertNotNull(e.getHint());
                 assertTrue(e.getHint().matches(".*start of the pattern.*"));
             }
