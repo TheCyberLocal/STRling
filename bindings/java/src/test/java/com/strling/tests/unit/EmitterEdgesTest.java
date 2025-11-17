@@ -308,6 +308,11 @@ public class EmitterEdgesTest {
                 new Flags(),
                 "",
                 "default_flags"
+            ),
+            Arguments.of(
+                null,
+                "",
+                "no_flags_object"
             )
         );
     }
