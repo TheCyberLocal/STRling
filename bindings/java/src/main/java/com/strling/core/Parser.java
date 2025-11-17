@@ -405,23 +405,6 @@ public class Parser {
             boolean hadFailedQuantParse = quantResult.hadFailedParse;
             
             // Coalesce adjacent Lit nodes if appropriate
-            // Check if current atom is a single digit that would follow a backslash
-            boolean avoidDigitAfterBackslash = quantifiedAtom instanceof Lit
-                && ((Lit) quantifiedAtom).value.length() == 1
-                && Character.isDigit(((Lit) quantifiedAtom).value.charAt(0))
-                && !parts.isEmpty()
-                && parts.get(parts.size() - 1) instanceof Lit
-                && ((Lit) parts.get(parts.size() - 1)).value.length() > 0
-                && ((Lit) parts.get(parts.size() - 1)).value.charAt(
-                    ((Lit) parts.get(parts.size() - 1)).value.length() - 1) == '\\';
-            
-            // Check if either literal contains a newline
-            boolean containsNewline = (quantifiedAtom instanceof Lit
-                    && ((Lit) quantifiedAtom).value.contains("\n"))
-                || (!parts.isEmpty()
-                    && parts.get(parts.size() - 1) instanceof Lit
-                    && ((Lit) parts.get(parts.size() - 1)).value.contains("\n"));
-            
             // Check if previous node is a backref
             boolean prevIsBackref = !parts.isEmpty() && parts.get(parts.size() - 1) instanceof Backref;
             
@@ -430,8 +413,6 @@ public class Parser {
                 && parts.get(parts.size() - 1) instanceof Lit
                 && !cur.extendedMode
                 && !prevHadFailedQuant
-                && !avoidDigitAfterBackslash
-                && !containsNewline
                 && !prevIsBackref;
             
             if (shouldCoalesce) {
@@ -659,7 +640,7 @@ public class Parser {
         if (ch.equals("[")) {
             return parseCharClass();
         }
-        if (ch.equals("\\")) {
+        if (ch.length() == 1 && ch.charAt(0) == '\\') {
             return parseEscapeAtom();
         }
         // literal
