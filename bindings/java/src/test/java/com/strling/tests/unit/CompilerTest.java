@@ -294,29 +294,356 @@ public class CompilerTest {
             "Features list should be empty for simple patterns");
     }
 
+    /**
+     * Category E: Deeply Nested Alternations
+     * <p>
+     * Tests for deeply nested alternation structures and their normalization.
+     */
+
     @Test
-    void testMultipleFeaturesDetected() {
+    void testFlattenThreeLevelNestedAlternation() {
         /**
-         * Tests that multiple features are correctly detected in a complex pattern.
+         * Tests deeply nested alternation: (a|(b|(c|d)))
+         * Should be flattened to IRAlt([a, b, c, d]).
          */
         Compiler compiler = new Compiler();
-        // Pattern with atomic group containing a lookbehind
-        Node ast = new Group(false, 
-            new Look("Behind", false, new Lit("a")),
-            null, true);
-        
+        // Build: Alt([Lit("a"), Alt([Lit("b"), Alt([Lit("c"), Lit("d")])])])
+        Node ast = new Alt(Arrays.asList(
+            new Lit("a"),
+            new Alt(Arrays.asList(
+                new Lit("b"),
+                new Alt(Arrays.asList(new Lit("c"), new Lit("d")))
+            ))
+        ));
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRAlt(Arrays.asList(
+            new IRLit("a"),
+            new IRLit("b"),
+            new IRLit("c"),
+            new IRLit("d")
+        ));
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    @Test
+    void testFuseSequencesWithinAlternation() {
+        /**
+         * Tests alternation containing sequences: (ab|cd|ef)
+         * Each sequence should be fused into a single literal.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Alt(Arrays.asList(
+            new Seq(Arrays.asList(new Lit("a"), new Lit("b"))),
+            new Seq(Arrays.asList(new Lit("c"), new Lit("d"))),
+            new Seq(Arrays.asList(new Lit("e"), new Lit("f")))
+        ));
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRAlt(Arrays.asList(
+            new IRLit("ab"),
+            new IRLit("cd"),
+            new IRLit("ef")
+        ));
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    @Test
+    void testMixedAlternationAndSequenceNesting() {
+        /**
+         * Tests mixed nesting: ((a|b)(c|d))
+         * Two alternations in a sequence inside a non-capturing group.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Group(
+            false, // non-capturing
+            new Seq(Arrays.asList(
+                new Alt(Arrays.asList(new Lit("a"), new Lit("b"))),
+                new Alt(Arrays.asList(new Lit("c"), new Lit("d")))
+            )),
+            null
+        );
+        IROp ir = compiler.compile(ast);
+        // Should preserve structure: Group with Seq containing two Alts
+        IROp expected = new IRGroup(
+            false,
+            new IRSeq(Arrays.asList(
+                new IRAlt(Arrays.asList(new IRLit("a"), new IRLit("b"))),
+                new IRAlt(Arrays.asList(new IRLit("c"), new IRLit("d")))
+            )),
+            null
+        );
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    /**
+     * Category F: Complex Sequence Normalization
+     * <p>
+     * Tests for complex sequence normalization scenarios.
+     */
+
+    @Test
+    void testFlattenDeeplyNestedSequences() {
+        /**
+         * Tests deeply nested sequences: Seq([Lit("a"), Seq([Lit("b"), Seq([Lit("c")])])])
+         * All literals should be fused into one.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Seq(Arrays.asList(
+            new Lit("a"),
+            new Seq(Arrays.asList(new Lit("b"), new Seq(Arrays.asList(new Lit("c")))))
+        ));
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRLit("abc");
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    @Test
+    void testSequenceWithNonLiteralInMiddle() {
+        /**
+         * Tests sequence with non-literal: Seq([Lit("a"), Dot(), Lit("b")])
+         * Should preserve structure with no fusion across Dot.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Seq(Arrays.asList(new Lit("a"), new Dot(), new Lit("b")));
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRSeq(Arrays.asList(
+            new IRLit("a"),
+            new IRDot(),
+            new IRLit("b")
+        ));
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    @Test
+    void testNormalizeEmptySequence() {
+        /**
+         * Tests normalization of empty sequence: Seq([])
+         * Should produce IRSeq([]).
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Seq(Arrays.asList());
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRSeq(Arrays.asList());
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    /**
+     * Category G: Literal Fusion Edge Cases
+     * <p>
+     * Tests for edge cases in literal fusion during normalization.
+     */
+
+    @Test
+    void testFuseLiteralsWithEscapedChars() {
+        /**
+         * Tests fusion of literals with escape sequences: Lit("a") + Lit("\n") + Lit("b")
+         * Should fuse to single IRLit("a\nb").
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Seq(Arrays.asList(
+            new Lit("a"),
+            new Lit("\n"),
+            new Lit("b")
+        ));
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRLit("a\nb");
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    @Test
+    void testFuseUnicodeLiterals() {
+        /**
+         * Tests fusion of Unicode literals: Lit("😀") + Lit("a")
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Seq(Arrays.asList(new Lit("😀"), new Lit("a")));
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRLit("😀a");
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    @Test
+    void testNotFuseAcrossNonLiterals() {
+        /**
+         * Tests that literals don't fuse across non-literal nodes:
+         * Seq([Lit("a"), Dot(), Lit("b")]) should keep three separate nodes.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Seq(Arrays.asList(new Lit("a"), new Dot(), new Lit("b")));
+        IROp ir = compiler.compile(ast);
+        // Should NOT fuse across the Dot
+        IROp expected = new IRSeq(Arrays.asList(
+            new IRLit("a"),
+            new IRDot(),
+            new IRLit("b")
+        ));
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    /**
+     * Category H: Quantifier Normalization
+     * <p>
+     * Tests for quantifier normalization scenarios.
+     */
+
+    @Test
+    void testUnwrapQuantifierOfSingleItemSequence() {
+        /**
+         * Tests quantifier wrapping sequence with single item:
+         * Quant(Seq([Lit("a")]), ...)
+         * Single-item sequence should be unwrapped.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Quant(
+            new Seq(Arrays.asList(new Lit("a"))),
+            1,
+            "Inf",
+            "Greedy"
+        );
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRQuant(new IRLit("a"), 1, "Inf", "Greedy");
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    @Test
+    void testPreserveQuantifierOfEmptySequence() {
+        /**
+         * Tests quantifier of empty sequence: Quant(Seq([]), ...)
+         * Quantifier of empty sequence should preserve structure.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Quant(new Seq(Arrays.asList()), 0, "Inf", "Greedy");
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRQuant(new IRSeq(Arrays.asList()), 0, "Inf", "Greedy");
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    @Test
+    void testPreserveNestedQuantifiers() {
+        /**
+         * Tests normalization of nested quantifiers: Quant(Quant(Lit("a"), ...), ...)
+         * Should preserve the nested structure.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Quant(
+            new Quant(new Lit("a"), 1, 3, "Greedy"),
+            0,
+            1,
+            "Greedy"
+        );
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRQuant(
+            new IRQuant(new IRLit("a"), 1, 3, "Greedy"),
+            0,
+            1,
+            "Greedy"
+        );
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    /**
+     * Category I: Feature Detection Comprehensive
+     * <p>
+     * Comprehensive tests for feature detection in metadata.
+     */
+
+    @Test
+    void testDetectUnicodeProperties() {
+        /**
+         * Tests feature detection for Unicode properties.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new CharClass(false, Arrays.asList(
+            new ClassEscape("p", "L")
+        ));
         Map<String, Object> artifact = compiler.compileWithMetadata(ast);
-        
+
         @SuppressWarnings("unchecked")
         Map<String, Object> metadata = (Map<String, Object>) artifact.get("metadata");
         @SuppressWarnings("unchecked")
         List<String> featuresUsed = (List<String>) metadata.get("features_used");
-        
-        assertTrue(featuresUsed.contains("atomic_group"),
-            "Should detect atomic_group");
-        assertTrue(featuresUsed.contains("lookbehind"),
-            "Should detect lookbehind");
-        assertEquals(2, featuresUsed.size(),
-            "Should detect exactly 2 features");
+
+        assertTrue(featuresUsed.contains("unicode_property"));
+    }
+
+    @Test
+    void testDetectMultipleFeaturesInOnePattern() {
+        /**
+         * Tests pattern with multiple special features:
+         * atomic group + possessive quantifier + lookbehind.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Seq(Arrays.asList(
+            new Group(false, new Lit("a"), null, true), // atomic
+            new Quant(new Lit("b"), 1, "Inf", "Possessive"),
+            new Look("Behind", false, new Lit("c"))
+        ));
+        Map<String, Object> artifact = compiler.compileWithMetadata(ast);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> metadata = (Map<String, Object>) artifact.get("metadata");
+        @SuppressWarnings("unchecked")
+        List<String> featuresUsed = (List<String>) metadata.get("features_used");
+
+        assertTrue(featuresUsed.contains("atomic_group"));
+        assertTrue(featuresUsed.contains("possessive_quantifier"));
+        assertTrue(featuresUsed.contains("lookbehind"));
+    }
+
+    /**
+     * Category J: Alternation Normalization Edge Cases
+     * <p>
+     * Edge cases for alternation normalization.
+     */
+
+    @Test
+    void testUnwrapAlternationWithSingleBranch() {
+        /**
+         * Tests alternation with only one branch: Alt([Lit("a")])
+         * Single-branch alternation should be unwrapped to just Lit("a").
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Alt(Arrays.asList(new Lit("a")));
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRLit("a");
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    @Test
+    void testPreserveAlternationWithEmptyBranches() {
+        /**
+         * Tests alternation with empty alternatives: Alt([Lit("a"), Seq([])])
+         * Should preserve both branches, with empty sequence normalized.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Alt(Arrays.asList(new Lit("a"), new Seq(Arrays.asList())));
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRAlt(Arrays.asList(
+            new IRLit("a"),
+            new IRSeq(Arrays.asList())
+        ));
+        assertEquals(expected.toDict(), ir.toDict());
+    }
+
+    @Test
+    void testFlattenAlternationsNestedAtDifferentDepths() {
+        /**
+         * Tests alternations nested at different depths in different branches.
+         * Alt([Lit("a"), Alt([Lit("b"), Lit("c")]), Lit("d")])
+         * Nested alternation should be flattened.
+         */
+        Compiler compiler = new Compiler();
+        Node ast = new Alt(Arrays.asList(
+            new Lit("a"),
+            new Alt(Arrays.asList(new Lit("b"), new Lit("c"))),
+            new Lit("d")
+        ));
+        IROp ir = compiler.compile(ast);
+        IROp expected = new IRAlt(Arrays.asList(
+            new IRLit("a"),
+            new IRLit("b"),
+            new IRLit("c"),
+            new IRLit("d")
+        ));
+        assertEquals(expected.toDict(), ir.toDict());
     }
 }
