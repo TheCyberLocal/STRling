@@ -245,7 +245,7 @@ public class Pcre2Emitter {
      * Generate opening for group based on type.
      */
     private static String emitGroupOpen(IRGroup g) {
-        if (g.atomic) {
+        if (Boolean.TRUE.equals(g.atomic)) {
             return "(?>";
         }
         if (g.capturing) {

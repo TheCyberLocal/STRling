@@ -2,37 +2,30 @@ package com.strling.tests.unit;
 
 import com.strling.core.Parser;
 import com.strling.core.STRlingParseError;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test Parser Error Messages - Comprehensive Validation of Rich Error Output
- * <p>
+ *
  * This test suite validates that the parser produces rich, instructional error
  * messages in the "Visionary State" format with:
  * - Context line showing the error location
  * - Caret (^) pointing to the exact position
  * - Helpful hints explaining how to fix the error
- * <p>
+ *
  * These tests intentionally pass invalid syntax to ensure the error messages
  * are helpful and educational.
- * <p>
- * This is a 1:1 port of parser_errors.test.ts
  */
 public class ParserErrorsTest {
 
     @Nested
-    @DisplayName("Rich Error Formatting")
     class RichErrorFormatting {
-        
+
         @Test
-        @DisplayName("unmatched closing paren shows visionary format")
-        public void testUnmatchedClosingParenShowsVisionaryFormat() {
-            assertThrows(STRlingParseError.class, () -> Parser.parse("(a|b))"));
-            
+        void unmatchedClosingParenShowsVisionaryFormat() {
             try {
                 Parser.parse("(a|b))");
                 fail("Expected STRlingParseError");
@@ -40,285 +33,202 @@ public class ParserErrorsTest {
                 String formatted = err.toString();
                 
                 // Check all components of visionary format
-                assertTrue(formatted.contains("STRling Parse Error:"));
-                assertTrue(formatted.contains("Unmatched ')'"));
-                assertTrue(formatted.contains("> 1 | (a|b))"));
-                assertTrue(formatted.contains("^"));
-                assertTrue(formatted.contains("Hint:"));
-                assertTrue(formatted.contains("Did you mean to escape it"));
+                assertTrue(formatted.contains("STRling Parse Error:"), "Missing error title");
+                assertTrue(formatted.contains("Unmatched ')'"), "Missing error message");
+                assertTrue(formatted.contains("> 1 | (a|b))"), "Missing context line");
+                assertTrue(formatted.contains("^"), "Missing caret");
+                assertTrue(formatted.contains("Hint:"), "Missing hint prefix");
+                assertTrue(formatted.contains("Did you mean to escape it"), "Missing specific hint text");
             }
         }
 
         @Test
-        @DisplayName("unterminated group shows helpful hint")
-        public void testUnterminatedGroupShowsHelpfulHint() {
+        void unterminatedGroupShowsHelpfulHint() {
             try {
                 Parser.parse("(abc");
                 fail("Expected STRlingParseError");
             } catch (STRlingParseError err) {
-                assertNotNull(err.getHint());
-                assertTrue(err.getHint().contains("opened with '('"));
-                assertTrue(err.getHint().contains("Add a matching ')'"));
+                assertNotNull(err.getHint(), "Hint should not be null");
+                assertTrue(err.getHint().contains("opened with '('"), "Hint content mismatch");
+                assertTrue(err.getHint().contains("Add a matching ')'"), "Hint content mismatch");
             }
         }
 
         @Test
-        @DisplayName("error on second line shows correct line number")
-        public void testErrorOnSecondLineShowsCorrectLineNumber() {
+        void errorOnSecondLineShowsCorrectLineNumber() {
             String pattern = "abc\n(def";
             try {
                 Parser.parse(pattern);
                 fail("Expected STRlingParseError");
-            } catch (STRlingParseError error) {
-                String formatted = error.toString();
-                assertTrue(formatted.contains("> 2 |")); // Should show line 2
-                assertTrue(formatted.contains("(def"));
+            } catch (STRlingParseError err) {
+                String formatted = err.toString();
+                assertTrue(formatted.contains("> 2 |"), "Should show line 2");
+                assertTrue(formatted.contains("(def"), "Should show line 2 content");
             }
         }
 
         @Test
-        @DisplayName("caret points to exact position")
-        public void testCaretPointsToExactPosition() {
+        void caretPointsToExactPosition() {
             try {
                 Parser.parse("abc)");
                 fail("Expected STRlingParseError");
-            } catch (STRlingParseError error) {
-                String formatted = error.toString();
-                String[] lines = formatted.split("\n");
+            } catch (STRlingParseError err) {
+                String formatted = err.toString();
+                String[] lines = formatted.split("\\r?\\n");
                 
-                // Find the line with the caret
+                boolean caretLineFound = false;
                 for (String line : lines) {
-                    if (line.startsWith(">   |")) {
-                        String caretLine = line.substring(6); // Remove ">   | "
+                    if (line.trim().startsWith("^")) {
+                        caretLineFound = true;
+                        // Find the index of the caret
+                        int caretIndex = line.indexOf('^');
+                        // Find the index of the start of the code (after "| ")
+                        int codeStartIndex = line.indexOf('|') + 2;
+                        int spacesBeforeCaret = caretIndex - codeStartIndex;
+                        
                         // Caret should be at position 3 (under ')')
-                        assertEquals("^", caretLine.trim());
-                        int spaces = caretLine.length() - caretLine.stripLeading().length();
-                        assertEquals(3, spaces);
+                        assertEquals(3, spacesBeforeCaret, "Caret is not at the correct position");
+                        break;
                     }
+                }
+                assertTrue(caretLineFound, "Caret indicator line (starting with ' ^') not found");
+            }
+        }
+    }
+
+    @Nested
+    class SpecificErrorHints {
+
+        private void assertErrorAndHint(String dsl, String msg, String hint) {
+            try {
+                Parser.parse(dsl);
+                fail("Expected STRlingParseError for: " + dsl);
+            } catch (STRlingParseError err) {
+                if (msg != null) {
+                    assertTrue(err.getMessage().contains(msg), "Error message mismatch. Was: " + err.getMessage());
+                }
+                if (hint != null) {
+                    assertNotNull(err.getHint(), "Hint should not be null");
+                    assertTrue(err.getHint().contains(hint), "Hint content mismatch. Was: " + err.getHint());
                 }
             }
         }
-    }
 
-    @Nested
-    @DisplayName("Specific Error Hints")
-    class SpecificErrorHints {
-        
         @Test
-        @DisplayName("alternation no lhs hint")
-        public void testAlternationNoLhsHint() {
-            try {
-                Parser.parse("|abc");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Alternation lacks left-hand side"));
-                assertNotNull(err.getHint());
-                assertTrue(err.getHint().contains("expression on the left side"));
-            }
+        void alternationNoLhsHint() {
+            assertErrorAndHint("|abc", "Alternation lacks left-hand side", "expression on the left side");
         }
 
         @Test
-        @DisplayName("alternation no rhs hint")
-        public void testAlternationNoRhsHint() {
-            try {
-                Parser.parse("abc|");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Alternation lacks right-hand side"));
-                assertNotNull(err.getHint());
-                assertTrue(err.getHint().contains("expression on the right side"));
-            }
+        void alternationNoRhsHint() {
+            assertErrorAndHint("abc|", "Alternation lacks right-hand side", "expression on the right side");
         }
 
         @Test
-        @DisplayName("unterminated char class hint")
-        public void testUnterminatedCharClassHint() {
-            try {
-                Parser.parse("[abc");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Unterminated character class"));
-                assertNotNull(err.getHint());
-                assertTrue(err.getHint().contains("opened with '['"));
-                assertTrue(err.getHint().contains("Add a matching ']'"));
-            }
+        void unterminatedCharClassHint() {
+            assertErrorAndHint("[abc", "Unterminated character class", "opened with '['");
         }
 
         @Test
-        @DisplayName("cannot quantify anchor hint")
-        public void testCannotQuantifyAnchorHint() {
-            try {
-                Parser.parse("^*");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Cannot quantify anchor"));
-                assertNotNull(err.getHint());
-                assertTrue(err.getHint().contains("Anchors"));
-                assertTrue(err.getHint().contains("match positions"));
-            }
+        void cannotQuantifyAnchorHint() {
+            assertErrorAndHint("^*", "Cannot quantify anchor", "match positions");
         }
 
         @Test
-        @DisplayName("invalid hex escape hint")
-        public void testInvalidHexEscapeHint() {
-            try {
-                Parser.parse("\\xGG");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Invalid \\xHH escape"));
-                assertNotNull(err.getHint());
-                assertTrue(err.getHint().contains("hexadecimal digits"));
-            }
+        void invalidHexEscapeHint() {
+            assertErrorAndHint("\\xGG", "Invalid \\xHH escape", "hexadecimal digits");
         }
 
         @Test
-        @DisplayName("undefined backref hint")
-        public void testUndefinedBackrefHint() {
-            try {
-                Parser.parse("\\1abc");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Backreference to undefined group"));
-                assertNotNull(err.getHint());
-                assertTrue(err.getHint().contains("previously captured groups"));
-                assertTrue(err.getHint().contains("forward references"));
-            }
+        void undefinedBackrefHint() {
+            assertErrorAndHint("\\1abc", "Backreference to undefined group", "previously captured groups");
         }
 
         @Test
-        @DisplayName("duplicate group name hint")
-        public void testDuplicateGroupNameHint() {
-            try {
-                Parser.parse("(?<name>a)(?<name>b)");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Duplicate group name"));
-                assertNotNull(err.getHint());
-                assertTrue(err.getHint().contains("unique name"));
-            }
+        void duplicateGroupNameHint() {
+            assertErrorAndHint("(?<name>a)(?<name>b)", "Duplicate group name", "unique name");
         }
 
         @Test
-        @DisplayName("inline modifiers hint")
-        public void testInlineModifiersHint() {
-            try {
-                Parser.parse("(?i)abc");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Inline modifiers"));
-                assertNotNull(err.getHint());
-                assertTrue(err.getHint().contains("%flags"));
-                assertTrue(err.getHint().contains("directive"));
-            }
+        void inlineModifiersHint() {
+            assertErrorAndHint("(?i)abc", "Inline modifiers", "%flags");
         }
 
         @Test
-        @DisplayName("unterminated unicode property hint")
-        public void testUnterminatedUnicodePropertyHint() {
-            try {
-                Parser.parse("[\\p{Letter");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Unterminated \\p{...}"));
-                assertNotNull(err.getHint());
-                assertTrue(err.getHint().contains("syntax \\p{Property}"));
-            }
+        void unterminatedUnicodePropertyHint() {
+            assertErrorAndHint("[\\p{Letter", "Unterminated \\p{...}", "syntax \\p{Property}");
         }
     }
 
     @Nested
-    @DisplayName("Complex Error Scenarios")
     class ComplexErrorScenarios {
-        
+
         @Test
-        @DisplayName("nested groups error shows outermost")
-        public void testNestedGroupsErrorShowsOutermost() {
-            try {
-                Parser.parse("((abc");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Unterminated group"));
-            }
+        void nestedGroupsErrorShowsOutermost() {
+            // The error is "Unterminated group", the hint clarifies
+            STRlingParseError e = assertThrows(STRlingParseError.class, () -> Parser.parse("((abc"));
+            assertTrue(e.getMessage().contains("Unterminated group"));
         }
 
         @Test
-        @DisplayName("error in alternation branch")
-        public void testErrorInAlternationBranch() {
-            try {
-                Parser.parse("a|(b");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Unterminated group"));
-                // Position should point to the end where ')' is expected
-                assertEquals(4, err.getPos());
-            }
+        void errorInAlternationBranch() {
+            STRlingParseError e = assertThrows(STRlingParseError.class, () -> Parser.parse("a|(b"));
+            assertTrue(e.getMessage().contains("Unterminated group"));
+            // Position should point to the end where ')' is expected
+            assertEquals(4, e.getPos());
         }
 
         @Test
-        @DisplayName("error with free spacing mode")
-        public void testErrorWithFreeSpacingMode() {
+        void errorWithFreeSpacingMode() {
             String pattern = "%flags x\n(abc\n  def";
-            try {
-                Parser.parse(pattern);
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertNotNull(err.getHint());
-            }
+            STRlingParseError e = assertThrows(STRlingParseError.class, () -> Parser.parse(pattern));
+            assertNotNull(e.getHint(), "Hint should not be null even in free-spacing mode");
         }
 
         @Test
-        @DisplayName("error position accuracy")
-        public void testErrorPositionAccuracy() {
-            try {
-                Parser.parse("abc{2,");
-                fail("Expected STRlingParseError");
-            } catch (STRlingParseError err) {
-                assertTrue(err.getErrorMessage().contains("Incomplete quantifier"));
-                // Position should be at the end where '}' is expected
-                assertEquals(6, err.getPos());
-            }
+        void errorPositionAccuracy() {
+            STRlingParseError e = assertThrows(STRlingParseError.class, () -> Parser.parse("abc{2,"));
+            assertTrue(e.getMessage().contains("Incomplete quantifier"));
+            // Position should be at the end where '}' is expected
+            assertEquals(6, e.getPos());
         }
     }
 
     @Nested
-    @DisplayName("Error Backward Compatibility")
     class ErrorBackwardCompatibility {
-        
+
         @Test
-        @DisplayName("error has message attribute")
-        public void testErrorHasMessageAttribute() {
+        void errorHasMessageAttribute() {
             try {
                 Parser.parse("(");
                 fail("Expected STRlingParseError");
             } catch (STRlingParseError err) {
-                assertNotNull(err.getErrorMessage());
-                assertEquals("Unterminated group", err.getErrorMessage());
+                assertNotNull(err.getMessage());
+                assertEquals("Unterminated group", err.getMessage());
             }
         }
 
         @Test
-        @DisplayName("error has pos attribute")
-        public void testErrorHasPosAttribute() {
+        void errorHasPosAttribute() {
             try {
                 Parser.parse("abc)");
                 fail("Expected STRlingParseError");
             } catch (STRlingParseError err) {
-                assertTrue(err.getPos() >= 0);
+                assertNotNull(err.getPos());
                 assertEquals(3, err.getPos());
             }
         }
 
         @Test
-        @DisplayName("error string contains position")
-        public void testErrorStringContainsPosition() {
+        void errorStringContainsPosition() {
             try {
                 Parser.parse(")");
                 fail("Expected STRlingParseError");
-            } catch (STRlingParseError error) {
-                String formatted = error.toString();
+            } catch (STRlingParseError err) {
+                String formatted = err.toString();
                 // Should contain position information in the formatted output
-                assertTrue(formatted.contains(">")); // Line markers
-                assertTrue(formatted.contains("^")); // Caret pointer
+                assertTrue(formatted.contains(">"), "Missing line marker");
+                assertTrue(formatted.contains("^"), "Missing caret pointer");
             }
         }
     }

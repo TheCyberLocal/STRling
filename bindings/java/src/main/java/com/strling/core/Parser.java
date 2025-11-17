@@ -771,10 +771,21 @@ public class Parser {
         // Escaped literal
         if (!nxt.isEmpty()) {
             String escapedChar = cur.take();
-            // Check for unknown escapes
+            // Treat alphabetic escapes as unknown (they should have been handled earlier).
             if ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(escapedChar) >= 0) {
                 raiseError(String.format("Unknown escape sequence \\%s", escapedChar), startPos);
             }
+
+            // Escaped whitespace: in free-spacing (extended) mode an escaped space
+            // should be treated as a literal space; in normal mode it's an unknown
+            // escape and should raise.
+            if (escapedChar.length() == 1 && Character.isWhitespace(escapedChar.charAt(0))) {
+                if (!cur.extendedMode) {
+                    raiseError(String.format("Unknown escape sequence \\%s", escapedChar), startPos);
+                }
+                return new Lit(escapedChar);
+            }
+
             return new Lit(escapedChar);
         }
         
