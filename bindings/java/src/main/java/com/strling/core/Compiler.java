@@ -120,10 +120,20 @@ public class Compiler {
                 } else if (item instanceof ClassEscape) {
                     ClassEscape e = (ClassEscape) item;
                     if (e.property != null) {
-                        // Unicode property - mark type as "UnicodeProperty" for feature detection
-                        irItems.add(new IRClassEscape("UnicodeProperty", e.property));
+                        // Unicode property - use shorthand 'p' so emitters see \p{...}
+                        irItems.add(new IRClassEscape("p", e.property));
                     } else {
-                        irItems.add(new IRClassEscape(e.type));
+                        String t;
+                        switch (e.type) {
+                            case "Digit": t = "d"; break;
+                            case "Word": t = "w"; break;
+                            case "Whitespace": t = "s"; break;
+                            case "NotDigit": t = "D"; break;
+                            case "NotWord": t = "W"; break;
+                            case "NotWhitespace": t = "S"; break;
+                            default: t = e.type; break;
+                        }
+                        irItems.add(new IRClassEscape(t));
                     }
                 }
             }
