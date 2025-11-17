@@ -120,8 +120,8 @@ public class Compiler {
                 } else if (item instanceof ClassEscape) {
                     ClassEscape e = (ClassEscape) item;
                     if (e.property != null) {
-                        // Unicode property - use shorthand 'p' so emitters see \p{...}
-                        irItems.add(new IRClassEscape("p", e.property));
+                        // Unicode property - pass through type (p or P) for emitters
+                        irItems.add(new IRClassEscape(e.type, e.property));
                     } else {
                         String t;
                         switch (e.type) {
@@ -290,7 +290,8 @@ public class Compiler {
             }
         }
         
-        return new IRAlt(flatBranches);
+        // Unwrap single-branch alternations
+        return flatBranches.size() == 1 ? flatBranches.get(0) : new IRAlt(flatBranches);
     }
     
     /**
@@ -333,7 +334,8 @@ public class Compiler {
             for (IRClassItem item : cc.items) {
                 if (item instanceof IRClassEscape) {
                     IRClassEscape esc = (IRClassEscape) item;
-                    if ("UnicodeProperty".equals(esc.type)) {
+                    // Check for Unicode property escapes (\p{...} or \P{...})
+                    if ((esc.type.equals("p") || esc.type.equals("P")) && esc.property != null) {
                         featuresUsed.add("unicode_property");
                     }
                 }
