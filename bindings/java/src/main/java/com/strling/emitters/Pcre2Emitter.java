@@ -73,11 +73,14 @@ public class Pcre2Emitter {
         }
         char c = ch.charAt(0);
         
-        // Inside [], ], \, -, and ^ are special and need escaping for safety.
+        // Inside [], ], \, -, ^ and [ are special and need escaping for safety.
         // ] and \ ALWAYS need escaping.
-        // - and ^ should be escaped to avoid ambiguity (even though context matters).
+        // -, ^ and [ should be escaped to avoid ambiguity (Java's regex engine requires [ to be escaped).
         if (c == '\\' || c == ']') {
             return "\\" + c;
+        }
+        if (c == '[') {
+            return "\\[";
         }
         if (c == '-') {
             return "\\-";

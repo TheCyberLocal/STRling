@@ -165,31 +165,26 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class A2_InCharsTests {
-            @Disabled("inChars() not yet implemented in Java Simply API")
             @Test
             public void testInCharsWithSimpleStringLiterals() {
                 /** Test inChars with simple string literals */
             }
 
-            @Disabled("inChars() not yet implemented in Java Simply API")
             @Test
             public void testInCharsWithMixedPatternTypes() {
                 /** Test inChars with mixed pattern types */
             }
 
-            @Disabled("inChars() not yet implemented in Java Simply API")
             @Test
             public void testInCharsUsedWithRepetition() {
                 /** Test inChars used with repetition */
             }
 
-            @Disabled("inChars() not yet implemented in Java Simply API")
             @Test
             public void testInCharsWithSingleCharacter() {
                 /** Test inChars with single character */
             }
 
-            @Disabled("inChars() not yet implemented in Java Simply API")
             @Test
             public void testInCharsRejectsCompositePatterns() {
                 /** Test inChars rejects composite patterns */
@@ -201,19 +196,16 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class A3_NotInCharsTests {
-            @Disabled("notInChars() not yet implemented in Java Simply API")
             @Test
             public void testNotInCharsWithSimpleStringLiterals() {
                 /** Test notInChars with simple string literals */
             }
 
-            @Disabled("notInChars() not yet implemented in Java Simply API")
             @Test
             public void testNotInCharsExcludingDigitsAndLetters() {
                 /** Test notInChars excluding digits and letters */
             }
 
-            @Disabled("notInChars() not yet implemented in Java Simply API")
             @Test
             public void testNotInCharsInMergedPattern() {
                 /** Test notInChars in a merged pattern */
@@ -236,25 +228,21 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class B1_AnyOfTests {
-            @Disabled("anyOf() not yet implemented in Java Simply API")
             @Test
             public void testAnyOfWithSimpleStringAlternatives() {
                 /** Test anyOf with simple string alternatives */
             }
 
-            @Disabled("anyOf() not yet implemented in Java Simply API")
             @Test
             public void testAnyOfWithMixedPatternTypes() {
                 /** Test anyOf with mixed pattern types */
             }
 
-            @Disabled("anyOf() not yet implemented in Java Simply API")
             @Test
             public void testAnyOfUsedWithinMerge() {
                 /** Test anyOf used within a merge */
             }
 
-            @Disabled("anyOf() and group() not yet implemented in Java Simply API")
             @Test
             public void testAnyOfRejectsDuplicateNamedGroups() {
                 /** Test anyOf rejects duplicate named groups */
@@ -298,7 +286,6 @@ public class SimplyApiTest {
                 assertDoesNotThrow(() -> java.util.regex.Pattern.compile(regex));
             }
 
-            @Disabled("group() not yet implemented in Java Simply API")
             @Test
             public void testMergeRejectsDuplicateNamedGroups() {
                 /** Test merge rejects duplicate named groups */
@@ -488,13 +475,11 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class D2_NotAlphaNumTests {
-            @Disabled("notAlphaNum() not yet implemented in Java Simply API")
             @Test
             public void testNotAlphaNumMatchingNonAlphanumeric() {
                 /** Test notAlphaNum matching non-alphanumeric */
             }
 
-            @Disabled("notAlphaNum() not yet implemented in Java Simply API")
             @Test
             public void testNotAlphaNumForFindingDelimiters() {
                 /** Test notAlphaNum for finding delimiters */
@@ -506,13 +491,11 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class D3_UpperTests {
-            @Disabled("upper() not yet implemented in Java Simply API")
             @Test
             public void testUpperMatchingUppercaseLetters() {
                 /** Test upper matching uppercase letters */
             }
 
-            @Disabled("upper() not yet implemented in Java Simply API")
             @Test
             public void testUpperForMatchingAcronyms() {
                 /** Test upper for matching acronyms */
@@ -524,7 +507,6 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class D4_NotUpperTests {
-            @Disabled("notUpper() not yet implemented in Java Simply API")
             @Test
             public void testNotUpperMatchingNonUppercase() {
                 /** Test notUpper matching non-uppercase */
@@ -536,7 +518,6 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class D5_NotLowerTests {
-            @Disabled("notLower() not yet implemented in Java Simply API")
             @Test
             public void testNotLowerMatchingNonLowercase() {
                 /** Test notLower matching non-lowercase */
@@ -548,7 +529,6 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class D6_NotLetterTests {
-            @Disabled("notLetter() not yet implemented in Java Simply API")
             @Test
             public void testNotLetterMatchingNonLetters() {
                 /** Test notLetter matching non-letters */
@@ -560,7 +540,6 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class D7_NotSpecialCharTests {
-            @Disabled("notSpecialChar() not yet implemented in Java Simply API")
             @Test
             public void testNotSpecialCharMatchingNonSpecialCharacters() {
                 /** Test notSpecialChar matching non-special characters */
@@ -572,7 +551,6 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class D8_NotHexDigitTests {
-            @Disabled("notHexDigit() not yet implemented in Java Simply API")
             @Test
             public void testNotHexDigitMatchingNonHexCharacters() {
                 /** Test notHexDigit matching non-hex characters */
@@ -584,7 +562,6 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class D9_NotDigitTests {
-            @Disabled("notDigit() not yet implemented in Java Simply API")
             @Test
             public void testNotDigitMatchingNonDigits() {
                 /** Test notDigit matching non-digits */
@@ -596,7 +573,6 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class D10_NotWhitespaceTests {
-            @Disabled("notWhitespace() not yet implemented in Java Simply API")
             @Test
             public void testNotWhitespaceMatchingNonWhitespace() {
                 /** Test notWhitespace matching non-whitespace */
@@ -608,7 +584,6 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class D11_NotNewlineTests {
-            @Disabled("notNewline() not yet implemented in Java Simply API")
             @Test
             public void testNotNewlineMatchingNonNewlineCharacters() {
                 /** Test notNewline matching non-newline characters */
@@ -620,7 +595,6 @@ public class SimplyApiTest {
         // -------------------------------------------------------------------------
         @Nested
         class D12_NotBoundTests {
-            @Disabled("notBound() not yet implemented in Java Simply API")
             @Test
             public void testNotBoundMatchingNonBoundaryPositions() {
                 /** Test notBound matching non-boundary positions */
