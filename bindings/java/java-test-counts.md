@@ -1,6 +1,6 @@
 # Java Test Counts (surefire)
 
--   **Total tests (sum):**: 576
+-   **Total tests (sum):**: 581
 
 ## Per-file counts
 
@@ -12,7 +12,7 @@
 -   `error_formatting.test`: 11 tests
 -   `errors.test`: 20 tests
 -   `flags_and_free_spacing.test`: 15 tests
--   `groups_backrefs_lookarounds.test`: 48 tests
+-   `groups_backrefs_lookarounds.test`: 51 tests
 -   `i_r_compiler.test`: 40 tests
 -   `ieh_audit_gaps.test`: 23 tests
 -   `literals_and_escapes.test`: 55 tests
@@ -20,4 +20,4 @@
 -   `pcre2_emitter.test`: 20 tests
 -   `quantifiers.test`: 49 tests
 -   `schema_validator.test`: 10 tests
--   `simply_api.test`: 52 tests
+-   `simply_api.test`: 54 tests

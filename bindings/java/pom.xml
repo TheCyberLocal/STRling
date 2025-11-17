@@ -98,6 +98,8 @@
                 <configuration>
                     <source>11</source>
                     <target>11</target>
+                    <testSource>17</testSource>
+                    <testTarget>17</testTarget>
                 </configuration>
             </plugin>
 
