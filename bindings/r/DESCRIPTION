@@ -1,0 +1,17 @@
+Package: strling
+Type: Package
+Title: STRling Regex Domain-Specific Language Bindings for R
+Version: 0.1.0
+Authors@R: person(given = "STRling", family = "Project", role = c("aut", "cre"), email = "noreply@example.com")
+Description: "Core data structures for the STRling DSL ported to R (AST, IR, Errors). This package provides R-side representations only; parsing and compilation are out-of-scope for this initial scaffolding."
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports:
+R6
+
+Suggests:
+testthat
+
+URL: https://github.com/TheCyberLocal/STRling
+BugReports: https://github.com/TheCyberLocal/STRling/issues

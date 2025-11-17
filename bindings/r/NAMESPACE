@@ -1,0 +1,2 @@
+# Minimal NAMESPACE: export non-dot symbols
+exportPattern("^[^\\.]")
