@@ -49,10 +49,6 @@ for name, tests in raw:
     if not matched:
         others.append((name, tests))
 
-# Write grouped entries first (so e2e summaries mirror JS output)
-for k in ('e2e_combinatorial.test', 'pcre2_emitter.test', 'cli_smoke.test'):
-    lines.append(f"- `{k}`: {agg.get(k, 0)} tests")
-
 # Aggregate remaining Java class-based names into file-like keys so the
 # Java output mirrors the JS output's per-file grouping. We take the
 # simple class name, strip common test suffixes, convert CamelCase to
