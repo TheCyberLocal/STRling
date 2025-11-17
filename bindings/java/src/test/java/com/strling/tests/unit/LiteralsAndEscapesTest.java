@@ -78,7 +78,7 @@ public class LiteralsAndEscapesTest {
                 Arguments.of("\\(", new Lit("("), "identity_escape_paren"),
                 Arguments.of("\\*", new Lit("*"), "identity_escape_star"),
                 // DSL `\\\\` (4) parses to Lit("\\") (2). See Category G.
-                Arguments.of("\\\\", new Lit("\\\\"), "identity_escape_backslash"),
+                Arguments.of("\\\\\\\\", new Lit("\\\\"), "identity_escape_backslash"),
                 // A.3: Control & Whitespace Escapes
                 Arguments.of("\\n", new Lit("\n"), "control_escape_newline"),
                 Arguments.of("\\t", new Lit("\t"), "control_escape_tab"),
@@ -437,20 +437,8 @@ public class LiteralsAndEscapesTest {
             Node ast = parseToAST("(a)\\12");
             assertInstanceOf(Seq.class, ast);
             Seq seqNode = (Seq) ast;
-            assertEquals(2, seqNode.parts.size()); // Parser coalesces the Lit("2") with... nothing. Wait.
-            // The Java parser design is different. (a) is Group. \1 is Backref. 2 is Lit.
-            // But the parser coalesces adjacent Lits.
-            // Let's re-check the JS parser behavior.
-            // JS: `parse(String.raw`(a)\12`)`
-            // AST: Seq([Group(Lit('a')), Backref(1), Lit('2')])
-            // Ah, so the Java test should expect 3 parts.
-            // The original Java test was `assertEquals(2, seqNode.parts.size());` which is wrong.
-            // It should be 3 parts.
-            // Let's assume the Java parser does *not* coalesce Lit("2") with anything.
-            // No, the JS parser *also* coalesces.
-            // `(a)` is a Group. `\1` is a Backref. `2` is a Lit.
-            // The sequence is `[Group, Backref, Lit]`.
-            // The JS test `(a)\12` expects `Seq` with 3 parts.
+            // The sequence is: Group(Lit('a')), Backref(1), Lit('2')
+            // So we expect 3 parts in the sequence.
             assertEquals(3, seqNode.parts.size());
             assertInstanceOf(Group.class, seqNode.parts.get(0));
             assertInstanceOf(Backref.class, seqNode.parts.get(1));

@@ -53,9 +53,10 @@ public class CliSmokeTest {
     private static final String PYTHON_EXEC = getPythonExec();
 
     /**
-     * Assumes tests are run from the project root (common in Maven/Gradle).
+     * Assumes tests are run from the bindings/java directory.
+     * The project root is two levels up from user.dir.
      */
-    private static final Path PROJECT_ROOT = Paths.get(System.getProperty("user.dir"));
+    private static final Path PROJECT_ROOT = Paths.get(System.getProperty("user.dir")).getParent().getParent();
     private static final Path CLI_PATH = PROJECT_ROOT.resolve(Path.of("tooling", "parse_strl.py"));
     private static final Path SPEC_DIR = PROJECT_ROOT.resolve(Path.of("spec", "schema"));
     private static final Path BASE_SCHEMA_PATH = SPEC_DIR.resolve("base.schema.json");
@@ -236,9 +237,9 @@ public class CliSmokeTest {
             assertTrue(result.stdout().contains("\"error\":"), "Stdout should contain 'error' key");
             assertTrue(result.stdout().contains("\"message\":"), "Stdout should contain 'message' key");
             
-            // Regex to robustly check for "pos": 3 (allowing for whitespace)
+            // Regex to robustly check for "pos": 3 (allowing for whitespace and newlines)
             assertTrue(
-                result.stdout().matches(".*\"pos\"\\s*:\\s*3.*"), 
+                result.stdout().matches("(?s).*\"pos\"\\s*:\\s*3.*"), 
                 "Stdout should contain '\"pos\": 3'"
             );
         }
