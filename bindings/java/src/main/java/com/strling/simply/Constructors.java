@@ -6,12 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Constructor functions for building complex patterns in STRling.
+ * Pattern constructors for building composite patterns in STRling.
  *
- * <p>This module provides functions for combining patterns (merge), creating
- * groups, alternations, and other structural regex elements. These are
- * essential building blocks for creating sophisticated patterns from simpler
- * components.
+ * <p>This module provides high-level functions for creating complex pattern structures
+ * through composition. Functions here handle alternation (anyOf), optionality (may),
+ * concatenation (merge), and grouping operations (capture, group). These are the
+ * primary building blocks for constructing sophisticated regex patterns in a
+ * readable and maintainable way.</p>
  */
 public class Constructors {
 
@@ -20,14 +21,14 @@ public class Constructors {
      *
      * <p>Creates a single pattern that matches all the provided patterns in order.
      * This is the fundamental operation for building complex patterns from simpler
-     * components.
+     * components.</p>
      *
      * @param patterns Variable number of Pattern objects or strings to merge.
-     *                Strings are automatically converted to literal patterns.
-     * @return A new Pattern object representing the merged sequence.
-     * @throws STRlingError If any parameter is not a Pattern or string.
+     *                Strings are automatically converted to literal patterns
+     * @return A new Pattern object representing the merged sequence
+     * @throws STRlingError If any parameter is not a Pattern or string
      *
-     * <p><b>Examples:</b>
+     * <p><b>Examples:</b></p>
      * <pre>
      * // Match digit followed by letter
      * Pattern pattern = merge(digit(), letter());
@@ -37,7 +38,7 @@ public class Constructors {
      * </pre>
      *
      * <p><b>Notes:</b> Empty input results in an empty pattern. Single input returns
-     * that pattern unchanged. Multiple patterns are combined into a Seq node.
+     * that pattern unchanged. Multiple patterns are combined into a Seq node.</p>
      */
     public static Pattern merge(Object... patterns) {
         if (patterns == null || patterns.length == 0) {

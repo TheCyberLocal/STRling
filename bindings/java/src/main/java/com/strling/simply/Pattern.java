@@ -5,22 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A class to construct and compile clean and manageable regex expressions.
+ * Core Pattern class and error types for STRling.
  *
- * <p>The Pattern class is the foundation for all pattern construction in the Simply API.
- * It wraps internal AST nodes and provides a user-friendly interface for pattern
- * manipulation and compilation. Pattern objects are immutable - all methods return
- * new Pattern instances rather than modifying the existing object.
- *
- * <p>Attributes:
- * <ul>
- *   <li>node: The AST node representing this pattern piece
- *   <li>customSet: Indicates if the pattern is a custom character set
- *   <li>negated: Indicates if the pattern is a negated custom character set
- *   <li>composite: Indicates if the pattern is a composite pattern
- *   <li>namedGroups: List of named groups within the pattern
- *   <li>numberedGroup: Indicates if the pattern is a numbered group
- * </ul>
+ * <p>This module defines the fundamental Pattern class that represents all STRling
+ * patterns, along with the STRlingError exception class. The Pattern class provides
+ * chainable methods for applying quantifiers, repetitions, and other modifiers to
+ * patterns. It serves as the foundation for all pattern construction in the Simply API,
+ * wrapping internal AST nodes and providing a user-friendly interface for pattern
+ * manipulation and compilation.</p>
  */
 public class Pattern {
     // Global Simply instance for compilation
@@ -35,35 +27,35 @@ public class Pattern {
     private final boolean numberedGroup;
 
     /**
-     * Create a new Pattern with default attributes.
+     * Creates a new Pattern with default attributes.
      *
-     * @param node The AST node representing this pattern.
+     * @param node The AST node representing this pattern
      */
     public Pattern(Nodes.Node node) {
         this(node, false, false, false, new ArrayList<>(), false);
     }
 
     /**
-     * Create a new Pattern with custom set attributes.
+     * Creates a new Pattern with custom set attributes.
      *
-     * @param node The AST node representing this pattern.
-     * @param customSet Indicates if the pattern is a custom character set.
-     * @param negated Indicates if the pattern is a negated custom character set.
-     * @param composite Indicates if the pattern is a composite pattern.
+     * @param node The AST node representing this pattern
+     * @param customSet Indicates if the pattern is a custom character set
+     * @param negated Indicates if the pattern is a negated custom character set
+     * @param composite Indicates if the pattern is a composite pattern
      */
     public Pattern(Nodes.Node node, boolean customSet, boolean negated, boolean composite) {
         this(node, customSet, negated, composite, new ArrayList<>(), false);
     }
 
     /**
-     * Create a new Pattern with all attributes.
+     * Creates a new Pattern with all attributes.
      *
-     * @param node The AST node representing this pattern.
-     * @param customSet Indicates if the pattern is a custom character set.
-     * @param negated Indicates if the pattern is a negated custom character set.
-     * @param composite Indicates if the pattern is a composite pattern.
-     * @param namedGroups List of named groups within the pattern.
-     * @param numberedGroup Indicates if the pattern is a numbered group.
+     * @param node The AST node representing this pattern
+     * @param customSet Indicates if the pattern is a custom character set
+     * @param negated Indicates if the pattern is a negated custom character set
+     * @param composite Indicates if the pattern is a composite pattern
+     * @param namedGroups List of named groups within the pattern
+     * @param numberedGroup Indicates if the pattern is a numbered group
      */
     public Pattern(Nodes.Node node, boolean customSet, boolean negated, boolean composite,
                    List<String> namedGroups, boolean numberedGroup) {

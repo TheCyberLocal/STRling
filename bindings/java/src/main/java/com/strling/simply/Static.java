@@ -1,5 +1,7 @@
 package com.strling.simply;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.strling.core.Nodes.*;
 
@@ -23,8 +25,8 @@ public class Static {
      */
     public static Pattern digit(Integer minRep, Integer maxRep) {
         Node node = new CharClass(false, Arrays.<ClassItem>asList(
-            new new ClassRange(String.valueOf('0'), String.valueOf('9'))
-        });
+            new ClassRange(String.valueOf('0'), String.valueOf('9'))
+        ));
         Pattern p = new Pattern(node, true, false, false);
         return (minRep != null) ? p.call(minRep, maxRep) : p;
     }
@@ -47,9 +49,9 @@ public class Static {
      */
     public static Pattern letter(Integer minRep, Integer maxRep) {
         Node node = new CharClass(false, Arrays.<ClassItem>asList(
-            new new ClassRange(String.valueOf('A'), String.valueOf('Z')),
-            new new ClassRange(String.valueOf('a'), String.valueOf('z'))
-        });
+            new ClassRange(String.valueOf('A'), String.valueOf('Z')),
+            new ClassRange(String.valueOf('a'), String.valueOf('z'))
+        ));
         Pattern p = new Pattern(node, true, false, false);
         return (minRep != null) ? p.call(minRep, maxRep) : p;
     }
@@ -72,10 +74,10 @@ public class Static {
      */
     public static Pattern alphaNum(Integer minRep, Integer maxRep) {
         Node node = new CharClass(false, Arrays.<ClassItem>asList(
-            new new ClassRange(String.valueOf('A'), String.valueOf('Z')),
-            new new ClassRange(String.valueOf('a'), String.valueOf('z')),
-            new new ClassRange(String.valueOf('0'), String.valueOf('9'))
-        });
+            new ClassRange(String.valueOf('A'), String.valueOf('Z')),
+            new ClassRange(String.valueOf('a'), String.valueOf('z')),
+            new ClassRange(String.valueOf('0'), String.valueOf('9'))
+        ));
         Pattern p = new Pattern(node, true, false, false);
         return (minRep != null) ? p.call(minRep, maxRep) : p;
     }
@@ -98,9 +100,9 @@ public class Static {
      */
     public static Pattern specialChar(Integer minRep, Integer maxRep) {
         String specialChars = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
-        Node[] items = new Node[specialChars.length()];
+        List<ClassItem> items = new ArrayList<>();
         for (int i = 0; i < specialChars.length(); i++) {
-            items[i] = new new ClassLiteral(String.valueOf(specialChars.charAt(i)));
+            items.add(new ClassLiteral(String.valueOf(specialChars.charAt(i))));
         }
         Node node = new CharClass(false, items);
         Pattern p = new Pattern(node, true, false, false);

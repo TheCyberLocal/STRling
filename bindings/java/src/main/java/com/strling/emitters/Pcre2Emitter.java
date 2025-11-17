@@ -24,7 +24,14 @@ import java.util.Map;
 public class Pcre2Emitter {
     
     /**
-     * Escape PCRE2 metacharacters outside character classes, but do NOT escape dashes (-).
+     * Escapes PCRE2 metacharacters in literal strings.
+     *
+     * <p>Escapes characters that have special meaning in PCRE2 regex syntax when
+     * used outside character classes. This ensures literal strings are matched
+     * exactly as written.</p>
+     * 
+     * @param s The literal string to escape
+     * @return The escaped string safe for use in PCRE2 patterns
      */
     public static String escapeLiteral(String s) {
         // Escape PCRE2 metacharacters: . ^ $ | ( ) ? * + { } [ ] \
@@ -55,7 +62,10 @@ public class Pcre2Emitter {
     }
     
     /**
-     * Escape a char for use inside [...] per PCRE2 rules.
+     * Escapes a character for use inside [...] per PCRE2 rules.
+     * 
+     * @param ch The character to escape
+     * @return The escaped character safe for use inside character classes
      */
     public static String escapeClassChar(String ch) {
         if (ch.length() != 1) {
