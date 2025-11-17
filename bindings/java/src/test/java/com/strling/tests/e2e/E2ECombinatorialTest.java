@@ -71,7 +71,19 @@ public class E2ECombinatorialTest {
      * Tests all pairwise (N=2) combinations of core STRling features.
      */
     @Nested
-    class Tier1PairwiseTests {
+    static class Tier1PairwiseTests {
+
+        /**
+         * Helper to run the full DSL -> PCRE2 string pipeline.
+         */
+        private String compileToPcre(String src) {
+            Parser.ParseResult result = Parser.parse(src);
+            Flags flags = result.flags;
+            Node ast = result.ast;
+            Compiler compiler = new Compiler();
+            IROp irRoot = compiler.compile(ast);
+            return Pcre2Emitter.emit(irRoot, flags);
+        }
 
         /**
          * Flags + other features
@@ -305,7 +317,19 @@ public class E2ECombinatorialTest {
      * and Alternation.
      */
     @Nested
-    class Tier2StrategicTripletTests {
+    static class Tier2StrategicTripletTests {
+
+        /**
+         * Helper to run the full DSL -> PCRE2 string pipeline.
+         */
+        private String compileToPcre(String src) {
+            Parser.ParseResult result = Parser.parse(src);
+            Flags flags = result.flags;
+            Node ast = result.ast;
+            Compiler compiler = new Compiler();
+            IROp irRoot = compiler.compile(ast);
+            return Pcre2Emitter.emit(irRoot, flags);
+        }
 
         static Stream<Arguments> strategicTriplets() {
             return Stream.of(
@@ -348,7 +372,19 @@ public class E2ECombinatorialTest {
      * Tests complex nested combinations that are especially prone to bugs.
      */
     @Nested
-    class ComplexNestedFeatureTests {
+    static class ComplexNestedFeatureTests {
+
+        /**
+         * Helper to run the full DSL -> PCRE2 string pipeline.
+         */
+        private String compileToPcre(String src) {
+            Parser.ParseResult result = Parser.parse(src);
+            Flags flags = result.flags;
+            Node ast = result.ast;
+            Compiler compiler = new Compiler();
+            IROp irRoot = compiler.compile(ast);
+            return Pcre2Emitter.emit(irRoot, flags);
+        }
 
         static Stream<Arguments> complexNestedFeatures() {
             return Stream.of(
