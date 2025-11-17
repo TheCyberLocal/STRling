@@ -107,9 +107,9 @@ public class SimplyApiTest {
         Pattern pattern = merge(digit(), notAhead(letter()));
         String regex = pattern.toString();
         // Should match digit NOT followed by letter
-        assertTrue(java.util.regex.Pattern.compile(regex).find("56"));
-        assertTrue(java.util.regex.Pattern.compile(regex).find("5 "));
-        assertFalse(java.util.regex.Pattern.compile(regex).find("5A"));
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("56").find());
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("5 ").find());
+        assertFalse(java.util.regex.Pattern.compile(regex).matcher("5A").find());
     }
 
     @Test
@@ -122,7 +122,7 @@ public class SimplyApiTest {
             notAhead(merge("_tmp", end()))
         );
         String regex = pattern.toString();
-        assertTrue(java.util.regex.Pattern.compile(regex).find("myvar"));
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("myvar").find());
         // Note: notAhead doesn't consume, so this might still match
     }
 
@@ -131,10 +131,10 @@ public class SimplyApiTest {
         /**Test notAhead used with word boundary*/
         Pattern pattern = merge(letter(1, 0), notAhead(digit()));
         String regex = pattern.toString();
-        assertTrue(java.util.regex.Pattern.compile(regex).find("hello"));
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("hello").find());
         // Should match 'test' but not continue into '123'
         Matcher match = java.util.regex.Pattern.compile(regex).matcher("test123");
-        assertNotNull(match.find());
+        assertTrue(match.find());
     }
 
     /**
@@ -164,7 +164,7 @@ public class SimplyApiTest {
             Pattern.lit("possible")
         );
         String regex = pattern.toString();
-        assertTrue(java.util.regex.Pattern.compile(regex).find("possible"));
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("possible").find());
         // 'possible' in 'impossible' is preceded by 'im', so shouldn't match
         // Actually, lookbehinds check at the position, need to be careful here
     }
