@@ -178,6 +178,119 @@ public class Sets {
         return (minRep != null) ? p.call(minRep, maxRep) : p;
     }
     
-    // Additional methods from sets.js would be implemented here following the same pattern
-    // (inChars, notInChars, customSet, etc.)
+    /**
+     * Matches any of the provided patterns, but they can't include subpatterns.
+     *
+     * @param patterns One or more non-composite patterns to match
+     * @return An instance of the Pattern class
+     */
+    public static Pattern inChars(Object... patterns) {
+        List<Pattern> cleanPatterns = new ArrayList<>();
+        for (Object obj : patterns) {
+            if (obj instanceof String) {
+                obj = Pattern.lit((String) obj);
+            }
+            
+            if (!(obj instanceof Pattern)) {
+                String message = "\n" +
+                    "Method: simply.inChars(...patterns)\n\n" +
+                    "The parameters must be instances of Pattern or string.\n\n" +
+                    "Use a string such as \"123abc$\" to match literal characters, or use a predefined set like simply.letter().";
+                throw new STRlingError(message);
+            }
+            
+            cleanPatterns.add((Pattern) obj);
+        }
+        
+        // Check if any pattern is composite (Seq, Alt, Group, Quant, Look, etc.)
+        String[] compositeNodeTypes = {"Seq", "Alt", "Group", "Quant", "Look"};
+        for (Pattern p : cleanPatterns) {
+            String nodeType = p.node.getClass().getSimpleName();
+            for (String compType : compositeNodeTypes) {
+                if (nodeType.equals(compType)) {
+                    String message = "\n" +
+                        "Method: simply.inChars(...patterns)\n\n" +
+                        "All patterns must be non-composite.";
+                    throw new STRlingError(message);
+                }
+            }
+        }
+        
+        // Build the character class items by extracting them from input patterns
+        List<ClassItem> items = new ArrayList<>();
+        for (Pattern pattern : cleanPatterns) {
+            String nodeType = pattern.node.getClass().getSimpleName();
+            if (nodeType.equals("Lit")) {
+                // For literals, add each character as a ClassLiteral item
+                Lit litNode = (Lit) pattern.node;
+                for (char c : litNode.value.toCharArray()) {
+                    items.add(new ClassLiteral(String.valueOf(c)));
+                }
+            } else if (nodeType.equals("CharClass")) {
+                // For character classes, add their items directly
+                CharClass ccNode = (CharClass) pattern.node;
+                items.addAll(ccNode.items);
+            }
+            // Handle other node types as needed
+        }
+        
+        Node node = new CharClass(false, items);
+        return new Pattern(node, true, false, false);
+    }
+    
+    /**
+     * Matches anything but the provided patterns, but they can't include subpatterns.
+     *
+     * @param patterns One or more non-composite patterns to avoid
+     * @return An instance of the Pattern class
+     */
+    public static Pattern notInChars(Object... patterns) {
+        List<Pattern> cleanPatterns = new ArrayList<>();
+        for (Object obj : patterns) {
+            if (obj instanceof String) {
+                obj = Pattern.lit((String) obj);
+            }
+            
+            if (!(obj instanceof Pattern)) {
+                String message = "\n" +
+                    "Method: simply.notInChars(...patterns)\n\n" +
+                    "The parameters must be instances of Pattern or string.\n\n" +
+                    "Use a string such as \"123abc$\" to match literal characters, or use a predefined set like simply.letter().";
+                throw new STRlingError(message);
+            }
+            
+            cleanPatterns.add((Pattern) obj);
+        }
+        
+        // Check if any pattern is composite
+        for (Pattern p : cleanPatterns) {
+            if (p.isComposite()) {
+                String message = "\n" +
+                    "Method: simply.notInChars(...patterns)\n\n" +
+                    "All patterns must be non-composite.";
+                throw new STRlingError(message);
+            }
+        }
+        
+        // Build the character class items by extracting them from input patterns
+        List<ClassItem> items = new ArrayList<>();
+        for (Pattern pattern : cleanPatterns) {
+            String nodeType = pattern.node.getClass().getSimpleName();
+            if (nodeType.equals("Lit")) {
+                // For literals, add each character as a ClassLiteral item
+                Lit litNode = (Lit) pattern.node;
+                for (char c : litNode.value.toCharArray()) {
+                    items.add(new ClassLiteral(String.valueOf(c)));
+                }
+            } else if (nodeType.equals("CharClass")) {
+                // For character classes, add their items directly
+                CharClass ccNode = (CharClass) pattern.node;
+                items.addAll(ccNode.items);
+            }
+            // Handle other node types as needed
+        }
+        
+        Node node = new CharClass(true, items);
+        return new Pattern(node, true, false, false);
+    }
 }
