@@ -402,30 +402,11 @@ public class Parser {
             boolean hadFailedQuantParse = quantResult.hadFailedParse;
             
             // Coalesce adjacent Lit nodes if appropriate
-            // Avoid coalescing if: digit after backslash, contains newline, or previous is backref
-            boolean avoidDigitAfterBackslash = quantifiedAtom instanceof Lit
-                && ((Lit) quantifiedAtom).value.length() == 1
-                && Character.isDigit(((Lit) quantifiedAtom).value.charAt(0))
-                && !parts.isEmpty()
-                && parts.get(parts.size() - 1) instanceof Lit
-                && ((Lit) parts.get(parts.size() - 1)).value.length() > 0
-                && ((Lit) parts.get(parts.size() - 1)).value.endsWith("\\");
-            
-            boolean containsNewline = (quantifiedAtom instanceof Lit && ((Lit) quantifiedAtom).value.contains("\n"))
-                || (!parts.isEmpty() 
-                    && parts.get(parts.size() - 1) instanceof Lit 
-                    && ((Lit) parts.get(parts.size() - 1)).value.contains("\n"));
-            
-            boolean prevIsBackref = !parts.isEmpty() && parts.get(parts.size() - 1) instanceof Backref;
-            
             boolean shouldCoalesce = quantifiedAtom instanceof Lit
                 && !parts.isEmpty()
                 && parts.get(parts.size() - 1) instanceof Lit
                 && !cur.extendedMode
-                && !prevHadFailedQuant
-                && !avoidDigitAfterBackslash
-                && !containsNewline
-                && !prevIsBackref;
+                && !prevHadFailedQuant;
             
             if (shouldCoalesce) {
                 Lit prevLit = (Lit) parts.get(parts.size() - 1);
