@@ -28,6 +28,11 @@ use Exception;
 class STRlingParseError extends Exception
 {
     /**
+     * @var string The original error message
+     */
+    private string $errorMessage;
+    
+    /**
      * @var int The character position (0-indexed) where the error occurred
      */
     public int $pos;
@@ -56,6 +61,7 @@ class STRlingParseError extends Exception
         string $text = "",
         ?string $hint = null
     ) {
+        $this->errorMessage = $message;
         $this->pos = $pos;
         $this->text = $text;
         $this->hint = $hint;
@@ -73,7 +79,7 @@ class STRlingParseError extends Exception
     {
         if (empty($this->text)) {
             // Fallback to simple format if no text provided
-            return $this->message . " at position " . $this->pos;
+            return $this->errorMessage . " at position " . $this->pos;
         }
         
         // Find the line containing the error
@@ -105,7 +111,7 @@ class STRlingParseError extends Exception
         }
         
         // Build the formatted error message
-        $parts = ["STRling Parse Error: " . $this->message, ""];
+        $parts = ["STRling Parse Error: " . $this->errorMessage, ""];
         $parts[] = "> " . $lineNum . " | " . $lineText;
         $parts[] = ">   | " . str_repeat(' ', $col) . "^";
         
@@ -158,34 +164,36 @@ class STRlingParseError extends Exception
         $currentPos = 0;
         $lineNum = 0;  // 0-indexed for LSP
         $col = $this->pos;
+        $found = false;
         
         foreach ($lines as $i => $line) {
             $lineLen = strlen($line) + 1;  // +1 for newline
             if ($currentPos + $lineLen > $this->pos) {
                 $lineNum = $i;
                 $col = $this->pos - $currentPos;
+                $found = true;
                 break;
             }
             $currentPos += $lineLen;
         }
         
-        // Error is beyond the last line
-        if ($currentPos <= $this->pos && count($lines) > 0) {
+        // Error is beyond the last line (only if not found)
+        if (!$found && count($lines) > 0) {
             $lineNum = count($lines) - 1;
             $col = strlen($lines[count($lines) - 1]);
-        } elseif (count($lines) === 0) {
+        } elseif (!$found && count($lines) === 0) {
             $lineNum = 0;
             $col = $this->pos;
         }
         
         // Build the diagnostic message
-        $diagnosticMessage = $this->message;
+        $diagnosticMessage = $this->errorMessage;
         if ($this->hint !== null) {
             $diagnosticMessage .= "\n\nHint: " . $this->hint;
         }
         
         // Create error code from message (normalize to snake_case)
-        $errorCode = strtolower($this->message);
+        $errorCode = strtolower($this->errorMessage);
         $charsToReplace = [' ', "'", '"', '(', ')', '[', ']', '{', '}', '\\', '/'];
         $errorCode = str_replace($charsToReplace, '_', $errorCode);
         $errorCode = implode('_', array_filter(explode('_', $errorCode)));
