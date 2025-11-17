@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test Design — CompilerTest.java
+ * Test Design — IRCompilerTest.java
  *
  * <h2>Purpose</h2>
  * This test suite validates the compiler's two primary responsibilities: the
@@ -54,7 +54,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *   </ul>
  * </ul>
  */
-public class CompilerTest {
+public class IRCompilerTest {
 
     /**
      * Category A: AST to IR Lowering

@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test Design — ValidatorTest.java
+ * Test Design — SchemaValidatorTest.java
  *
  * <h2>Purpose</h2>
  * This test suite verifies that the JSON artifacts produced by the STRling
@@ -54,7 +54,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *   </ul>
  * </ul>
  */
-public class ValidatorTest {
+public class SchemaValidatorTest {
     
     // Define robust paths to the schema files relative to the project root
     private static final String SPEC_DIR = Paths.get("").toAbsolutePath()

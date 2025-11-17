@@ -77,16 +77,22 @@ for name, tests in others:
         key = _camel_to_snake(simple) + '.test'
     file_agg[key] += tests
 
-# Write aggregated per-file counts sorted for stable output
-for k in sorted(file_agg.keys()):
-    lines.append(f"- `{k}`: {file_agg[k]} tests")
+# Merge grouped e2e keys and per-class aggregated keys into a single mapping
+from collections import defaultdict as _defaultdict
 
-# totals
-try:
-    total = sum(int(l.split(': ')[1].split()[0]) for l in lines if l.startswith('- `'))
-except Exception:
-    total = 0
+combined = _defaultdict(int)
+for k, v in agg.items():
+    combined[k] += v
+for k, v in file_agg.items():
+    combined[k] += v
+
+# totals (compute directly from merged data)
+total = sum(combined.values())
 lines.insert(2, f"- **Total tests (sum):**: {total}")
+
+# Write all per-file entries in alphabetical order
+for k in sorted(combined.keys()):
+    lines.append(f"- `{k}`: {combined[k]} tests")
 
 open(out, 'w', encoding='utf8').write('\n'.join(lines))
 print('Wrote', out)
