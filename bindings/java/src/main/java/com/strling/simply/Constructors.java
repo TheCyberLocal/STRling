@@ -74,4 +74,89 @@ public class Constructors {
         Node seqNode = new Seq(nodes);
         return new Pattern(seqNode, false, false, true);
     }
+
+    /**
+     * Matches any one of the provided patterns (alternation/OR operation).
+     *
+     * <p>This function creates a pattern that succeeds if any of the provided patterns
+     * match at the current position. It's equivalent to the | operator in regular
+     * expressions.</p>
+     *
+     * @param patterns One or more patterns to be matched.
+     *                Strings are automatically converted to literal patterns.
+     * @return A new Pattern object representing the alternation of all provided patterns.
+     * @throws STRlingError If any parameter is not a Pattern or string, or if duplicate named groups
+     *                      are found across the patterns.
+     *
+     * <p><b>Examples:</b></p>
+     * <pre>
+     * // Match either 'cat' or 'dog'
+     * Pattern pattern = anyOf("cat", "dog");
+     *
+     * // Match different number formats
+     * Pattern pattern1 = merge(digit(3), letter(3));
+     * Pattern pattern2 = merge(letter(3), digit(3));
+     * Pattern eitherPattern = anyOf(pattern1, pattern2);
+     * </pre>
+     */
+    public static Pattern anyOf(Object... patterns) {
+        List<Pattern> cleanPatterns = new ArrayList<>();
+        for (Object obj : patterns) {
+            if (obj instanceof String) {
+                obj = Pattern.lit((String) obj);
+            }
+
+            if (!(obj instanceof Pattern)) {
+                String message = "\n" +
+                    "Method: simply.anyOf(...patterns)\n\n" +
+                    "The parameters must be instances of Pattern or string.\n\n" +
+                    "Use a string such as \"123abc$\" to match literal characters, or use a predefined set like simply.letter().";
+                throw new STRlingError(message);
+            }
+
+            cleanPatterns.add((Pattern) obj);
+        }
+
+        // Check for duplicate named groups
+        java.util.Map<String, Integer> namedGroupCounts = new java.util.HashMap<>();
+        for (Pattern pattern : cleanPatterns) {
+            for (String groupName : pattern.getNamedGroups()) {
+                namedGroupCounts.put(groupName, namedGroupCounts.getOrDefault(groupName, 0) + 1);
+            }
+        }
+
+        // Find duplicates
+        List<String> duplicates = new ArrayList<>();
+        for (java.util.Map.Entry<String, Integer> entry : namedGroupCounts.entrySet()) {
+            if (entry.getValue() > 1) {
+                duplicates.add(entry.getKey() + ": " + entry.getValue());
+            }
+        }
+
+        if (!duplicates.isEmpty()) {
+            String duplicateInfo = String.join(", ", duplicates);
+            String message = "\n" +
+                "Method: simply.anyOf(...patterns)\n\n" +
+                "Named groups must be unique.\n" +
+                "Duplicate named groups found: " + duplicateInfo + ".\n\n" +
+                "If you need later reference change the named group argument to simply.capture().\n" +
+                "If you don't need later reference change the named group argument to simply.merge().";
+            throw new STRlingError(message);
+        }
+
+        // Build alternation
+        List<Node> childNodes = new ArrayList<>();
+        for (Pattern pattern : cleanPatterns) {
+            childNodes.add(pattern.node);
+        }
+        Node node = new Alt(childNodes);
+
+        // Collect all named groups
+        List<String> allNamedGroups = new ArrayList<>();
+        for (Pattern pattern : cleanPatterns) {
+            allNamedGroups.addAll(pattern.getNamedGroups());
+        }
+
+        return new Pattern(node, false, false, true, allNamedGroups, false);
+    }
 }
