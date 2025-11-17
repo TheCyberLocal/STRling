@@ -12,9 +12,9 @@ const ir = compiler.compile(node);
 console.log("Compiled IR:", ir);
 
 // Use the simply API (demonstrative)
-if (simply && (simply).lit) {
-  const lit = (simply).lit("hello");
-  console.log("Simply lit:", lit);
+if (simply && simply.lit) {
+    const lit = simply.lit("hello");
+    console.log("Simply lit:", lit);
 }
 
 console.log("Run-example completed");
