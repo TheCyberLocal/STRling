@@ -148,25 +148,15 @@ public class Parser {
     }
     
     /**
-     * Simple hint generation for common error cases.
+     * Get hint for error message using the HintEngine.
      * 
      * @param message The error message
      * @param source The source text
      * @param pos The error position
-     * @return A helpful hint message
+     * @return A helpful hint message, or null if no hint available
      */
     private static String getHint(String message, String source, int pos) {
-        // Simple hint generation - can be enhanced later
-        if (message.contains("Cannot quantify anchor")) {
-            return "Anchors like ^, $, \\b, and \\B match positions, not characters, so they cannot be quantified.";
-        }
-        if (message.contains("Unknown escape sequence")) {
-            return "This escape sequence is not recognized. Check the documentation for valid escape sequences.";
-        }
-        if (message.contains("Invalid quantifier")) {
-            return "Quantifiers (*, +, ?, {n,m}) must follow an atom (literal, group, character class, etc.).";
-        }
-        return "Please check your pattern syntax.";
+        return HintEngine.getHint(message, source, pos);
     }
     
     /**
