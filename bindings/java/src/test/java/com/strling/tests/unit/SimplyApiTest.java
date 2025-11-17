@@ -2,6 +2,7 @@ package com.strling.tests.unit;
 
 import com.strling.simply.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 import java.util.regex.Matcher;
 
@@ -17,6 +18,371 @@ import static com.strling.simply.Constructors.*;
  * Static character classes, and Constructors.
  */
 public class SimplyApiTest {
+
+    // =========================================================================
+    // Category A: Sets Module Tests (sets.py)
+    // =========================================================================
+
+    /**
+     * Category A.1: notBetween() tests
+     */
+
+    @Test
+    public void testNotBetweenWithSimpleDigitRange() {
+        /** Test notBetween with simple digit range */
+        Pattern pattern = Sets.notBetween(0, 9);
+        String regex = pattern.toString();
+        // Should match non-digits
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("A").find());
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher(" ").find());
+        assertFalse(java.util.regex.Pattern.compile(regex).matcher("5").find());
+    }
+
+    @Test
+    public void testNotBetweenWithTypicalLowercaseLetterRange() {
+        /** Test notBetween with typical lowercase letter range */
+        Pattern pattern = Sets.notBetween("a", "z");
+        String regex = pattern.toString();
+        // Should match anything except lowercase letters
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("A").find());
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("5").find());
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("!").find());
+        assertFalse(java.util.regex.Pattern.compile(regex).matcher("m").find());
+    }
+
+    @Test
+    public void testNotBetweenInteractingWithRepetition() {
+        /** Test notBetween interacting with repetition */
+        Pattern pattern = Sets.notBetween("a", "e", 2, 4);
+        String regex = pattern.toString();
+        // Should match 2-4 characters that are not a-e
+        Matcher match = java.util.regex.Pattern.compile(regex).matcher("XYZ");
+        assertTrue(match.find());
+        assertEquals("XYZ", match.group());
+    }
+
+    @Test
+    public void testNotBetweenWithSameStartAndEnd() {
+        /** Test notBetween with same start and end */
+        Pattern pattern = Sets.notBetween("a", "a");
+        String regex = pattern.toString();
+        // Should match everything except 'a'
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("b").find());
+        assertFalse(java.util.regex.Pattern.compile(regex).matcher("a").find());
+    }
+
+    @Test
+    public void testNotBetweenWithUppercaseLetters() {
+        /** Test notBetween with uppercase letters */
+        Pattern pattern = Sets.notBetween("A", "Z");
+        String regex = pattern.toString();
+        // Should match anything except uppercase letters
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("a").find());
+        assertFalse(java.util.regex.Pattern.compile(regex).matcher("M").find());
+    }
+
+    @Test
+    public void testNotBetweenRejectsInvalidRange() {
+        /** Test notBetween rejects invalid range (start > end) */
+        assertThrows(STRlingError.class, () -> Sets.notBetween(9, 0));
+        try {
+            Sets.notBetween(9, 0);
+            fail("Should have thrown STRlingError");
+        } catch (STRlingError e) {
+            assertTrue(e.getMessage().contains("start") || e.getMessage().contains("must not be greater"));
+        }
+    }
+
+    @Test
+    public void testNotBetweenRejectsMixedTypes() {
+        /** Test notBetween rejects mixed types */
+        assertThrows(STRlingError.class, () -> Sets.notBetween("a", 9));
+        try {
+            Sets.notBetween("a", 9);
+            fail("Should have thrown STRlingError");
+        } catch (STRlingError e) {
+            assertTrue(e.getMessage().contains("both be integers") || e.getMessage().contains("letters"));
+        }
+    }
+
+    @Test
+    public void testNotBetweenRejectsMixedCaseLetters() {
+        /** Test notBetween rejects mixed case letters */
+        assertThrows(STRlingError.class, () -> Sets.notBetween("a", "Z"));
+        try {
+            Sets.notBetween("a", "Z");
+            fail("Should have thrown STRlingError");
+        } catch (STRlingError e) {
+            assertTrue(e.getMessage().contains("same case"));
+        }
+    }
+
+    /**
+     * Category A.2: inChars() tests
+     * Note: inChars() not yet implemented in Java Simply API - tests disabled
+     */
+
+    @Disabled("inChars() not yet implemented in Java Simply API")
+    @Test
+    public void testInCharsWithSimpleStringLiterals() {
+        /** Test inChars with simple string literals */
+        // This test is disabled until inChars() is implemented
+    }
+
+    @Disabled("inChars() not yet implemented in Java Simply API")
+    @Test
+    public void testInCharsWithMixedPatternTypes() {
+        /** Test inChars with mixed pattern types */
+        // This test is disabled until inChars() is implemented
+    }
+
+    @Disabled("inChars() not yet implemented in Java Simply API")
+    @Test
+    public void testInCharsUsedWithRepetition() {
+        /** Test inChars used with repetition */
+        // This test is disabled until inChars() is implemented
+    }
+
+    @Disabled("inChars() not yet implemented in Java Simply API")
+    @Test
+    public void testInCharsWithSingleCharacter() {
+        /** Test inChars with single character */
+        // This test is disabled until inChars() is implemented
+    }
+
+    @Disabled("inChars() not yet implemented in Java Simply API")
+    @Test
+    public void testInCharsRejectsCompositePatterns() {
+        /** Test inChars rejects composite patterns */
+        // This test is disabled until inChars() is implemented
+    }
+
+    /**
+     * Category A.3: notInChars() tests
+     * Note: notInChars() not yet implemented in Java Simply API - tests disabled
+     */
+
+    @Disabled("notInChars() not yet implemented in Java Simply API")
+    @Test
+    public void testNotInCharsWithSimpleStringLiterals() {
+        /** Test notInChars with simple string literals */
+        // This test is disabled until notInChars() is implemented
+    }
+
+    @Disabled("notInChars() not yet implemented in Java Simply API")
+    @Test
+    public void testNotInCharsExcludingDigitsAndLetters() {
+        /** Test notInChars excluding digits and letters */
+        // This test is disabled until notInChars() is implemented
+    }
+
+    @Disabled("notInChars() not yet implemented in Java Simply API")
+    @Test
+    public void testNotInCharsInMergedPattern() {
+        /** Test notInChars in a merged pattern */
+        // This test is disabled until notInChars() is implemented
+    }
+
+    // =========================================================================
+    // Category B: Constructors Module Tests (constructors.py)
+    // =========================================================================
+
+    /**
+     * Category B.1: anyOf() tests
+     * Note: anyOf() not yet implemented in Java Simply API - tests disabled
+     */
+
+    @Disabled("anyOf() not yet implemented in Java Simply API")
+    @Test
+    public void testAnyOfWithSimpleStringAlternatives() {
+        /** Test anyOf with simple string alternatives */
+        // This test is disabled until anyOf() is implemented
+    }
+
+    @Disabled("anyOf() not yet implemented in Java Simply API")
+    @Test
+    public void testAnyOfWithMixedPatternTypes() {
+        /** Test anyOf with mixed pattern types */
+        // This test is disabled until anyOf() is implemented
+    }
+
+    @Disabled("anyOf() not yet implemented in Java Simply API")
+    @Test
+    public void testAnyOfUsedWithinMerge() {
+        /** Test anyOf used within a merge */
+        // This test is disabled until anyOf() is implemented
+    }
+
+    @Disabled("anyOf() and group() not yet implemented in Java Simply API")
+    @Test
+    public void testAnyOfRejectsDuplicateNamedGroups() {
+        /** Test anyOf rejects duplicate named groups */
+        // This test is disabled until anyOf() and group() are implemented
+    }
+
+    /**
+     * Category B.2: merge() tests
+     */
+
+    @Test
+    public void testMergeWithSimpleStringLiterals() {
+        /** Test merge with simple string literals */
+        Pattern pattern = merge("hello", " ", "world");
+        String regex = pattern.toString();
+        // Should match exact sequence 'hello world'
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("hello world").find());
+        assertFalse(java.util.regex.Pattern.compile("^" + regex + "$").matcher("hello").find());
+    }
+
+    @Test
+    public void testMergeWithComplexPatternComposition() {
+        /** Test merge with complex pattern composition */
+        Pattern areaCode = digit(3, null);
+        Pattern separator = Pattern.lit("[-  ]"); // Using lit for character class pattern
+        Pattern pattern = merge(areaCode, separator, digit(3, null), separator, digit(4, null));
+        String regex = pattern.toString();
+        // Should compile as valid regex
+        assertDoesNotThrow(() -> java.util.regex.Pattern.compile(regex));
+    }
+
+    @Test
+    public void testMergeWhereMergedPatternIsQuantified() {
+        /** Test merge where merged pattern is quantified */
+        Pattern word = merge(letter(1, 0));
+        Pattern space = Pattern.lit(" ");
+        Pattern pattern = merge(word, space.call(1, 0), word);
+        String regex = pattern.toString();
+        // Should compile as valid regex
+        assertDoesNotThrow(() -> java.util.regex.Pattern.compile(regex));
+    }
+
+    @Disabled("group() not yet implemented in Java Simply API")
+    @Test
+    public void testMergeRejectsDuplicateNamedGroups() {
+        /** Test merge rejects duplicate named groups */
+        // This test is disabled until group() is implemented
+    }
+
+    // =========================================================================
+    // Category D: Static Module Tests (static.py)
+    // =========================================================================
+
+    /**
+     * Category D.1: alphaNum() tests
+     */
+
+    @Test
+    public void testAlphaNumMatchingSingleAlphanumericCharacter() {
+        /** Test alphaNum matching single alphanumeric character */
+        Pattern pattern = alphaNum();
+        String regex = pattern.toString();
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("A").find());
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("5").find());
+        assertTrue(java.util.regex.Pattern.compile(regex).matcher("z").find());
+        assertFalse(java.util.regex.Pattern.compile(regex).matcher("@").find());
+    }
+
+    @Test
+    public void testAlphaNumForUsernamePattern() {
+        /** Test alphaNum for username pattern */
+        Pattern pattern = alphaNum(3, 16);
+        String regex = pattern.toString();
+        assertTrue(java.util.regex.Pattern.compile("^" + regex).matcher("user123").find());
+        assertTrue(java.util.regex.Pattern.compile("^" + regex).matcher("ABC").find());
+        assertFalse(java.util.regex.Pattern.compile("^" + regex + "$").matcher("ab").find()); // Too short
+    }
+
+    @Test
+    public void testAlphaNumInMergedPattern() {
+        /** Test alphaNum in merged pattern */
+        // Alphanumeric username starting with letter
+        Pattern pattern = merge(letter(), alphaNum(0, 0));
+        String regex = pattern.toString();
+        assertTrue(java.util.regex.Pattern.compile("^" + regex).matcher("user123").find());
+        assertFalse(java.util.regex.Pattern.compile("^" + regex).matcher("123user").find());
+    }
+
+    /**
+     * Category D.2-D.10: not* methods tests
+     * Note: Most not* methods not yet implemented in Java Simply API - tests disabled
+     */
+
+    @Disabled("notAlphaNum() not yet implemented in Java Simply API")
+    @Test
+    public void testNotAlphaNumMatchingNonAlphanumeric() {
+        /** Test notAlphaNum matching non-alphanumeric */
+        // This test is disabled until notAlphaNum() is implemented
+    }
+
+    @Disabled("notAlphaNum() not yet implemented in Java Simply API")
+    @Test
+    public void testNotAlphaNumForFindingDelimiters() {
+        /** Test notAlphaNum for finding delimiters */
+        // This test is disabled until notAlphaNum() is implemented
+    }
+
+    @Disabled("upper() not yet implemented in Java Simply API")
+    @Test
+    public void testUpperMatchingUppercaseLetters() {
+        /** Test upper matching uppercase letters */
+        // This test is disabled until upper() is implemented
+    }
+
+    @Disabled("upper() not yet implemented in Java Simply API")
+    @Test
+    public void testUpperForMatchingAcronyms() {
+        /** Test upper for matching acronyms */
+        // This test is disabled until upper() is implemented
+    }
+
+    @Disabled("notUpper() not yet implemented in Java Simply API")
+    @Test
+    public void testNotUpperMatchingNonUppercase() {
+        /** Test notUpper matching non-uppercase */
+        // This test is disabled until notUpper() is implemented
+    }
+
+    @Disabled("notLower() not yet implemented in Java Simply API")
+    @Test
+    public void testNotLowerMatchingNonLowercase() {
+        /** Test notLower matching non-lowercase */
+        // This test is disabled until notLower() is implemented
+    }
+
+    @Disabled("notLetter() not yet implemented in Java Simply API")
+    @Test
+    public void testNotLetterMatchingNonLetters() {
+        /** Test notLetter matching non-letters */
+        // This test is disabled until notLetter() is implemented
+    }
+
+    @Disabled("notSpecialChar() not yet implemented in Java Simply API")
+    @Test
+    public void testNotSpecialCharMatchingNonSpecialCharacters() {
+        /** Test notSpecialChar matching non-special characters */
+        // This test is disabled until notSpecialChar() is implemented
+    }
+
+    @Disabled("notHexDigit() not yet implemented in Java Simply API")
+    @Test
+    public void testNotHexDigitMatchingNonHexCharacters() {
+        /** Test notHexDigit matching non-hex characters */
+        // This test is disabled until notHexDigit() is implemented
+    }
+
+    @Disabled("notDigit() not yet implemented in Java Simply API")
+    @Test
+    public void testNotDigitMatchingNonDigits() {
+        /** Test notDigit matching non-digits */
+        // This test is disabled until notDigit() is implemented
+    }
+
+    @Disabled("notWhitespace() not yet implemented in Java Simply API")
+    @Test
+    public void testNotWhitespaceMatchingNonWhitespace() {
+        /** Test notWhitespace matching non-whitespace */
+        // This test is disabled until notWhitespace() is implemented
+    }
 
     // =========================================================================
     // Category E: Pattern Class Methods Tests (pattern.py)
