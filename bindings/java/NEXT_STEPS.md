@@ -1,73 +1,26 @@
 # Next Steps for Test Parity Completion
 
 ## Current Status
-- **Completed**: 306/581 tests (53%)
-- **Remaining**: 275 tests across 5 files
+- **Completed**: 340/581 tests (59%)
+- **Remaining**: 241 tests across 4 files
 
-## Files Completed (12/17)
+## Files Completed (13/17)
 ✅ All E2E tests (116 tests)
-✅ 9 unit test files with perfect parity
+✅ 10 unit test files with perfect parity
+
+## Recently Completed
+
+### ✅ QuantifiersTest.java (+34 tests) - COMPLETED
+Expanded parameterized tests to cover all modes (Greedy/Lazy/Possessive) for all quantifier types.
+Added individual tests for edge cases, nested quantifiers, special atoms, and flags interaction.
 
 ## Immediate Next Steps
 
-### 1. QuantifiersTest.java (+34 tests)
+### 1. LiteralsAndEscapesTest.java (+36 tests)
 **Current**: 15 tests (8 parameterized + 7 individual)  
 **Target**: 49 tests
 
-**What to Add** (based on JavaScript test file):
-
-**Expand Parameterized Tests:**
-- Category A (quantifierCases): Add missing modes
-  - Plus lazy: `a+?`
-  - Plus possessive: `a++`
-  - Optional lazy: `a??`
-  - Optional possessive: `a?+`
-  - Exact lazy/possessive: `a{3}?`, `a{3}+`
-  - At-least lazy/possessive: `a{3,}?`, `a{3,}+`
-  - Range lazy/possessive: `a{3,5}?`, `a{3,5}+`
-
-**Add New Individual Tests:**
-- Category C (Edge Cases):
-  - testZeroRangeQuantifier (`a{0,5}`)
-  - testAtLeastZeroQuantifier (`a{0,}`)
-  - testQuantifierOnEmptyGroup (already exists)
-  - testQuantifierVsAnchorPrecedence (`a?^`)
-
-- Category D (Interaction):
-  - testQuantifierPrecedence (already exists)
-  - testQuantifyCharClass (`[a-z]*`)
-  - testQuantifyDot (`.*`)
-  - testQuantifyGroup (`(abc)*`)
-  - testQuantifyAlternationInGroup (`(?:a|b)+`)
-  - testQuantifyLookaround (`(?=a)+`)
-
-- Category E (Nested Quantifiers):
-  - testNestedStarOnStar (`(a*)*`)
-  - testNestedPlusOnOptional (`(a+)?`)
-  - testRedundantPlusOnStar (`(a*)+`)
-  - testRedundantStarOnOptional (`(a?)*`)
-  - testNestedBraceQuantifier (`(a{2,3}){1,2}`)
-
-- Category F (Special Atoms):
-  - testQuantifierOnBackref (`(a)\1*`)
-  - testQuantifierOnMultipleBackrefs (`(a)(b)\1*\2+`)
-
-- Category G (Multiple Sequences):
-  - testMultipleConsecutiveQuantifiedLiterals (`a*b+c?`)
-  - testMultipleQuantifiedGroups (`(ab)*(cd)+(ef)?`)
-  - testQuantifiedAtomsInAlternation (`a*|b+`)
-
-- Category H (Brace Edge Cases):
-  - testBraceExactOne (`a{1}`)
-  - testBraceZeroToOne (`a{0,1}`)
-  - testBraceOnAlternationInGroup (`(a|b){2,3}`)
-  - testBraceLargeValues (`a{100,200}`)
-
-- Category I (Flags Interaction):
-  - testQuantifierWithFreeSpacingMode (`%flags x\na *`)
-  - testQuantifierOnEscapedSpaceInFreeSpacing (`%flags x\n\ *`)
-
-**Reference**: `bindings/javascript/__tests__/unit/quantifiers.test.ts`
+**Status**: ✅ COMPLETED
 
 ### 2. LiteralsAndEscapesTest.java (+36 tests)
 **Current**: 19 tests  
@@ -124,13 +77,13 @@ For each file:
 
 | File | Tests | Est. Time | Cumulative |
 |------|-------|-----------|------------|
-| QuantifiersTest | +34 | 3-4 hours | 340 tests |
+| QuantifiersTest | +34 | 3-4 hours | ✅ 340 tests |
 | LiteralsAndEscapesTest | +36 | 3-4 hours | 376 tests |
 | CharClassesTest | +37 | 3-4 hours | 413 tests |
 | GroupsBackrefsLookaroundsTest | +38 | 3-4 hours | 451 tests |
 | SimplyApiTest | +40 | 4-5 hours | 491 tests |
 
-**Total Remaining**: 15-21 hours of focused implementation work
+**Total Remaining**: 12-17 hours of focused implementation work
 
 ## Success Criteria
 

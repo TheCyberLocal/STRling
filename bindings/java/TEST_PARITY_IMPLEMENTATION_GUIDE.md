@@ -4,10 +4,10 @@
 
 ### Overall Progress
 - **Target**: 581 tests (matching JavaScript SSOT)
-- **Current**: 306 tests
-- **Remaining**: 275 tests (53% complete)
+- **Current**: 340 tests
+- **Remaining**: 241 tests (59% complete)
 
-### Completed Files (12/17 files - 71% file parity)
+### Completed Files (13/17 files - 76% file parity)
 
 #### E2E Tests (100% Complete)
 - ✅ **CliSmokeTest**: 6/6 tests
@@ -16,20 +16,20 @@
 
 #### Unit Tests (100% Complete)
 - ✅ **AnchorsTest**: 34/34 tests
-- ✅ **CompilerTest**: 40/40 tests *(recently completed)*
+- ✅ **CompilerTest**: 40/40 tests
 - ✅ **EmitterEdgesTest**: 36/36 tests
 - ✅ **ErrorFormattingTest**: 11/11 tests
 - ✅ **ErrorsTest**: 20/20 tests
 - ✅ **FlagsAndFreeSpacingTest**: 15/15 tests
 - ✅ **IehAuditGapsTest**: 23/23 tests
 - ✅ **ParserErrorsTest**: 20/20 tests
+- ✅ **QuantifiersTest**: 49/49 tests *(recently completed)*
 - ✅ **ValidatorTest** (schema_validation): 10/10 tests
 
-### Files Requiring Implementation (5 files, 275 tests)
+### Files Requiring Implementation (4 files, 241 tests)
 
 | File | Current | Target | Gap | Priority |
 |------|---------|--------|-----|----------|
-| QuantifiersTest.java | 15 | 49 | **+34** | High |
 | LiteralsAndEscapesTest.java | 19 | 55 | **+36** | High |
 | CharClassesTest.java | 10 | 47 | **+37** | High |
 | GroupsBackrefsLookaroundsTest.java | 13 | 51 | **+38** | High |
@@ -74,16 +74,26 @@ Reference: `bindings/javascript/__tests__/unit/ir_compiler.test.ts`
 
 **Status**: ✅ Complete - 40/40 tests (1 expected failure due to upstream gap)
 
-### 2. QuantifiersTest.java (+34 tests)
+### ✅ 2. QuantifiersTest.java (+34 tests) - COMPLETED
 
-Currently has 15 tests via parameterized tests. JavaScript has 49 individual test cases covering:
-- Basic quantifiers (*, +, ?, {n}, {n,m})
-- Edge cases (zero quantifiers, max limits)
-- Greedy vs lazy vs possessive modes
-- Quantifier interactions
-- Error cases
+Added all missing quantifier modes and edge cases:
+
+**Expanded Parameterized Tests (21 cases):**
+- All combinations of *, +, ? with Greedy/Lazy/Possessive modes
+- All combinations of {n}, {n,}, {n,m} with Greedy/Lazy/Possessive modes
+
+**Individual Tests Added:**
+- Category C (Edge Cases): 5 tests
+- Category D (Interaction): 5 tests
+- Category E (Nested Quantifiers): 5 tests
+- Category F (Special Atoms): 2 tests
+- Category G (Multiple Sequences): 3 tests
+- Category H (Brace Edge Cases): 4 tests
+- Category I (Flags Interaction): 2 tests
 
 Reference: `bindings/javascript/__tests__/unit/quantifiers.test.ts`
+
+**Status**: ✅ Complete - 49/49 tests (all tests passing)
 
 ### 3. LiteralsAndEscapesTest.java (+36 tests)
 
@@ -202,12 +212,12 @@ Record the total in the progress table above.
 | File | Tests to Add | Est. Time | Status |
 |------|--------------|-----------|--------|
 | CompilerTest | 16 | 1-2 hours | ✅ DONE |
-| QuantifiersTest | 34 | 3-4 hours | ⏭️ NEXT |
-| LiteralsAndEscapesTest | 36 | 3-4 hours | Pending |
+| QuantifiersTest | 34 | 3-4 hours | ✅ DONE |
+| LiteralsAndEscapesTest | 36 | 3-4 hours | ⏭️ NEXT |
 | CharClassesTest | 37 | 3-4 hours | Pending |
 | GroupsBackrefsLookaroundsTest | 38 | 3-4 hours | Pending |
 | SimplyApiTest | 40 | 4-5 hours | Pending |
-| **Total** | **201** | **17-23 hours** | **16 of 201 done** |
+| **Total** | **201** | **17-23 hours** | **50 of 201 done** |
 
 ## Resources
 
