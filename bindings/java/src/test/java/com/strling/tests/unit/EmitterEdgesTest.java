@@ -129,8 +129,9 @@ public class EmitterEdgesTest {
 
     @Test
     void verifyHow_escapeClassCharHandlesOpenBracketInsideClass() {
-        // Expected: [ (unescaped)
-        assertEquals("[", Pcre2Emitter.escapeClassChar("["));
+        // Expected: \[ (escaped for Java regex engine compatibility)
+        // Java's regex engine requires [ to be escaped inside character classes
+        assertEquals("\\[", Pcre2Emitter.escapeClassChar("["));
     }
 
     @Test
