@@ -73,6 +73,8 @@ except Exception as e:
 
 test_results = data.get('testResults') or []
 
+# Collect per-file counts into a list, then sort alphabetically for deterministic output
+entries = []
 for tr in test_results:
     # test file name
     name = tr.get('name') or tr.get('testFilePath') or ''
@@ -110,11 +112,18 @@ for tr in test_results:
         except Exception:
             count = 0 # Give up, count is 0
 
+    entries.append((name, count))
+
+# Sort entries by filename (case-insensitive)
+entries.sort(key=lambda x: x[0].lower())
+
+# Append sorted per-file lines
+for name, count in entries:
     lines.append(f"- `{name}`: {count} tests")
 
-# totals
+# totals (compute from entries for reliability)
 try:
-    total = sum(int(l.split(': ')[1].split()[0]) for l in lines if l.startswith('- `'))
+    total = sum(count for _, count in entries)
 except Exception:
     total = 0
 lines.insert(2, f"- **Total tests (sum):**: {total}")

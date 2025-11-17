@@ -1,6 +1,6 @@
-# JS Test Counts (jest)
+# Python Test Counts (pytest)
 
--   **Total tests (sum):**: 581
+-   **Total tests (sum):**: 593
 
 ## Per-file counts
 
@@ -16,6 +16,7 @@
 -   `ieh_audit_gaps.test`: 23 tests
 -   `ir_compiler.test`: 40 tests
 -   `literals_and_escapes.test`: 55 tests
+-   `lsp_diagnostics.test`: 12 tests
 -   `parser_errors.test`: 20 tests
 -   `pcre2_emitter.test`: 20 tests
 -   `quantifiers.test`: 49 tests
