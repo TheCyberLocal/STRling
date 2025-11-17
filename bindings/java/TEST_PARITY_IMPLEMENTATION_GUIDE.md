@@ -4,10 +4,10 @@
 
 ### Overall Progress
 - **Target**: 581 tests (matching JavaScript SSOT)
-- **Current**: 290 tests
-- **Remaining**: 291 tests (50% complete)
+- **Current**: 306 tests
+- **Remaining**: 275 tests (53% complete)
 
-### Completed Files (11/17 files - 65% file parity)
+### Completed Files (12/17 files - 71% file parity)
 
 #### E2E Tests (100% Complete)
 - ✅ **CliSmokeTest**: 6/6 tests
@@ -16,66 +16,63 @@
 
 #### Unit Tests (100% Complete)
 - ✅ **AnchorsTest**: 34/34 tests
-- ✅ **EmitterEdgesTest**: 36/36 tests *(recently completed)*
+- ✅ **CompilerTest**: 40/40 tests *(recently completed)*
+- ✅ **EmitterEdgesTest**: 36/36 tests
 - ✅ **ErrorFormattingTest**: 11/11 tests
 - ✅ **ErrorsTest**: 20/20 tests
-- ✅ **FlagsAndFreeSpacingTest**: 15/15 tests *(recently completed)*
+- ✅ **FlagsAndFreeSpacingTest**: 15/15 tests
 - ✅ **IehAuditGapsTest**: 23/23 tests
 - ✅ **ParserErrorsTest**: 20/20 tests
 - ✅ **ValidatorTest** (schema_validation): 10/10 tests
 
-### Files Requiring Implementation (6 files, 291 tests)
+### Files Requiring Implementation (5 files, 275 tests)
 
 | File | Current | Target | Gap | Priority |
 |------|---------|--------|-----|----------|
-| CompilerTest.java | 24 | 40 | **+16** | High |
-| QuantifiersTest.java | 15 | 49 | **+34** | Medium |
-| LiteralsAndEscapesTest.java | 19 | 55 | **+36** | Medium |
-| CharClassesTest.java | 10 | 47 | **+37** | Medium |
-| GroupsBackrefsLookaroundsTest.java | 13 | 51 | **+38** | Medium |
-| SimplyApiTest.java | 14 | 54 | **+40** | Medium |
+| QuantifiersTest.java | 15 | 49 | **+34** | High |
+| LiteralsAndEscapesTest.java | 19 | 55 | **+36** | High |
+| CharClassesTest.java | 10 | 47 | **+37** | High |
+| GroupsBackrefsLookaroundsTest.java | 13 | 51 | **+38** | High |
+| SimplyApiTest.java | 14 | 54 | **+40** | High |
 
 ## Implementation Approach
 
-### 1. CompilerTest.java (+16 tests)
+### ✅ 1. CompilerTest.java (+16 tests) - COMPLETED
 
-**Missing Categories**: E, F, G, H, I, J (JavaScript has A-J, Java has A-D)
+Added missing Categories E, F, G, H, I, J from JavaScript test suite:
 
-```java
-// Category E: Deeply Nested Alternations (3 tests)
-- should flatten three-level nested alternation
-- should fuse sequences within an alternation
-- should handle mixed alternation and sequence nesting
+**Category E: Deeply Nested Alternations (3 tests)**
+- testFlattenThreeLevelNestedAlternation
+- testFuseSequencesWithinAlternation
+- testMixedAlternationAndSequenceNesting
 
-// Category F: Complex Sequence Normalization (3 tests)
-- should flatten deeply nested sequences
-- should handle sequence with non-literal in middle
-- should normalize an empty sequence
+**Category F: Complex Sequence Normalization (3 tests)**
+- testFlattenDeeplyNestedSequences
+- testSequenceWithNonLiteralInMiddle
+- testNormalizeEmptySequence
 
-// Category G: Literal Fusion Edge Cases (3 tests)
-- should fuse literals with escaped chars
-- should fuse unicode literals
-- should not fuse across non-literals
+**Category G: Literal Fusion Edge Cases (3 tests)**
+- testFuseLiteralsWithEscapedChars
+- testFuseUnicodeLiterals
+- testNotFuseAcrossNonLiterals
 
-// Category H: Quantifier Normalization (3 tests)
-- should unwrap quantifier of single-item sequence
-- should preserve quantifier of empty sequence
-- should preserve nested quantifiers
+**Category H: Quantifier Normalization (3 tests)**
+- testUnwrapQuantifierOfSingleItemSequence
+- testPreserveQuantifierOfEmptySequence
+- testPreserveNestedQuantifiers
 
-// Category I: Feature Detection Comprehensive (5 tests)
-- should detect named groups
-- should detect backreferences
-- should detect lookahead
-- should detect unicode properties
-- should detect multiple features in one pattern
+**Category I: Feature Detection Comprehensive (2 tests)**
+- testDetectUnicodeProperties
+- testDetectMultipleFeaturesInOnePattern
 
-// Category J: Alternation Normalization Edge Cases (3 tests)
-- should unwrap alternation with a single branch
-- should preserve alternation with empty branches
-- should flatten alternations nested at different depths
-```
+**Category J: Alternation Normalization Edge Cases (3 tests)**
+- testUnwrapAlternationWithSingleBranch
+- testPreserveAlternationWithEmptyBranches
+- testFlattenAlternationsNestedAtDifferentDepths
 
-Reference: `bindings/javascript/__tests__/unit/ir_compiler.test.ts` lines 200-400
+Reference: `bindings/javascript/__tests__/unit/ir_compiler.test.ts`
+
+**Status**: ✅ Complete - 40/40 tests (1 expected failure due to upstream gap)
 
 ### 2. QuantifiersTest.java (+34 tests)
 
@@ -202,15 +199,15 @@ Record the total in the progress table above.
 
 ## Estimated Effort
 
-| File | Tests to Add | Est. Time |
-|------|--------------|-----------|
-| CompilerTest | 16 | 1-2 hours |
-| QuantifiersTest | 34 | 3-4 hours |
-| LiteralsAndEscapesTest | 36 | 3-4 hours |
-| CharClassesTest | 37 | 3-4 hours |
-| GroupsBackrefsLookaroundsTest | 38 | 3-4 hours |
-| SimplyApiTest | 40 | 4-5 hours |
-| **Total** | **291** | **17-23 hours** |
+| File | Tests to Add | Est. Time | Status |
+|------|--------------|-----------|--------|
+| CompilerTest | 16 | 1-2 hours | ✅ DONE |
+| QuantifiersTest | 34 | 3-4 hours | ⏭️ NEXT |
+| LiteralsAndEscapesTest | 36 | 3-4 hours | Pending |
+| CharClassesTest | 37 | 3-4 hours | Pending |
+| GroupsBackrefsLookaroundsTest | 38 | 3-4 hours | Pending |
+| SimplyApiTest | 40 | 4-5 hours | Pending |
+| **Total** | **201** | **17-23 hours** | **16 of 201 done** |
 
 ## Resources
 
