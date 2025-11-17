@@ -1,192 +1,300 @@
 package com.strling.tests.e2e;
 
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test Design — e2e/CliSmokeTest.java
+ * @file CliSmokeTest.java
  *
- * <h2>Purpose</h2>
- * High-level smoke tests for a STRling CLI tool (when implemented).
+ * High-level smoke tests for the `tooling/parse_strl.py` CLI.
  *
- * <h2>Description</h2>
- * This suite treats the CLI as a black box: it would invoke the Java CLI as a
- * subprocess and validate stdout, stderr, and exit codes for the core happy
+ * This suite treats the CLI as a black box: it invokes the Python script as a
+ * subprocess and validates stdout, stderr, and exit codes for the core happy
  * paths and failure modes.
  *
- * <h2>Current Status</h2>
- * <strong>DISABLED:</strong> These tests are currently disabled because no Java CLI
- * tool exists yet. The tooling/parse_strl.py is Python-specific and cannot be
- * tested from Java in a meaningful way. These tests serve as documentation of
- * what should be implemented when a Java CLI is created.
- *
- * <h2>Scenarios to cover (when CLI is implemented):</h2>
+ * Scenarios covered (mirroring the Python/JS tests):
  * <ul>
- *   <li>File input with {@code --emit pcre2}</li>
- *   <li>Stdin input with {@code --emit pcre2}</li>
- *   <li>{@code --schema <base.schema.json>} success (silent, exit 0)</li>
- *   <li>Parse error (exit 2, JSON error object with position)</li>
- *   <li>Schema validation error (exit 3, JSON validation_error)</li>
- *   <li>File not found (non-zero exit, message on stderr)</li>
- * </ul>
- *
- * <h2>Scope</h2>
- * <ul>
- *   <li><strong>In scope (when implemented):</strong></li>
- *   <ul>
- *     <li>CLI invocation and process management</li>
- *     <li>Exit code validation</li>
- *     <li>stdout/stderr content validation</li>
- *     <li>JSON output parsing and structure validation</li>
- *   </ul>
- *   <li><strong>Out of scope:</strong></li>
- *   <ul>
- *     <li>Core parsing/compilation logic (covered in unit tests)</li>
- *     <li>Testing the Python CLI from Java</li>
- *   </ul>
+ * <li>File input with {@code --emit pcre2}</li>
+ * <li>Stdin input with {@code --emit pcre2}</li>
+ * <li>{@code --schema <base.schema.json>} success (silent, exit 0)</li>
+ * <li>Parse error (exit 2, JSON error object with position)</li>
+ * <li>Schema validation error (exit 3, JSON validation_error)</li>
+ * <li>File not found (non-zero exit, message on stderr)</li>
  * </ul>
  */
-@Disabled("No Java CLI exists yet - these are placeholder tests for future implementation")
 public class CliSmokeTest {
 
-    /**
-     * Category A: Happy Path
-     * <p>
-     * Covers successful CLI invocation and output generation.
-     */
-
-    @Test
-    void testFileInputWithEmissionProducesJsonAndExitCode0() {
-        /**
-         * Tests that the CLI can parse a file and emit a valid JSON object
-         * to stdout.
-         * 
-         * <p>Expected behavior:</p>
-         * <ul>
-         *   <li>Create temp file with content: "a(?<b>c)"</li>
-         *   <li>Run: cli --emit pcre2 tempfile.strl</li>
-         *   <li>Assert: exit code = 0</li>
-         *   <li>Assert: stderr is empty</li>
-         *   <li>Assert: stdout contains valid JSON with "artifact" and "emitted" fields</li>
-         *   <li>Assert: emitted field equals "a(?<b>c)"</li>
-         * </ul>
-         * 
-         * Equivalent to JavaScript test: "file input with emission produces JSON and exit code 0"
-         */
-        fail("CLI not yet implemented - placeholder test");
-    }
-
-    @Test
-    void testStdinInputWithEmissionProducesJsonAndExitCode0() {
-        /**
-         * Tests that the CLI can parse from stdin and emit a valid JSON object.
-         * 
-         * <p>Expected behavior:</p>
-         * <ul>
-         *   <li>Run: echo "a(?<b>c)" | cli --emit pcre2 -</li>
-         *   <li>Assert: exit code = 0</li>
-         *   <li>Assert: stderr is empty</li>
-         *   <li>Assert: stdout contains valid JSON with "artifact" and "emitted" fields</li>
-         * </ul>
-         * 
-         * Equivalent to JavaScript test: "stdin input with emission produces JSON and exit code 0"
-         */
-        fail("CLI not yet implemented - placeholder test");
-    }
+    // --- Path setup (mirrors the JS/Python test layout) ---------------------
 
     /**
-     * Category B: Feature Flags
-     * <p>
-     * Covers behavior of specific CLI flags like --schema.
+     * Helper to find the correct python executable, mirroring the JS logic.
      */
+    private static String getPythonExec() {
+        String exec = System.getenv("PYTHON_EXEC");
+        if (exec != null && !exec.isBlank()) return exec;
+        exec = System.getenv("PYTHON");
+        if (exec != null && !exec.isBlank()) return exec;
+        return "python3";
+    }
 
-    @Test
-    void testSuccessfulSchemaValidationIsSilentWithExitCode0() {
-        /**
-         * Tests that a successful schema validation produces exit code 0 and no
-         * output, per the script's logic.
-         * 
-         * <p>Expected behavior:</p>
-         * <ul>
-         *   <li>Create temp file with content: "a(?<b>c)"</li>
-         *   <li>Run: cli --schema spec/schema/base.schema.json tempfile.strl</li>
-         *   <li>Assert: exit code = 0</li>
-         *   <li>Assert: stdout is empty</li>
-         *   <li>Assert: stderr is empty</li>
-         * </ul>
-         * 
-         * Equivalent to JavaScript test: "successful schema validation is silent with exit code 0"
-         */
-        fail("CLI not yet implemented - placeholder test");
+    private static final String PYTHON_EXEC = getPythonExec();
+
+    /**
+     * Assumes tests are run from the project root (common in Maven/Gradle).
+     */
+    private static final Path PROJECT_ROOT = Paths.get(System.getProperty("user.dir"));
+    private static final Path CLI_PATH = PROJECT_ROOT.resolve(Path.of("tooling", "parse_strl.py"));
+    private static final Path SPEC_DIR = PROJECT_ROOT.resolve(Path.of("spec", "schema"));
+    private static final Path BASE_SCHEMA_PATH = SPEC_DIR.resolve("base.schema.json");
+    private static final String PYTHON_PATH_ENV = PROJECT_ROOT
+            .resolve(Path.of("bindings", "python", "src"))
+            .toAbsolutePath()
+            .toString();
+
+    /**
+     * Injected by JUnit 5. This directory is created before all tests
+     * and automatically cleaned up afterward.
+     */
+    @TempDir
+    static Path tempDir;
+
+    // --- Helpers ------------------------------------------------------------
+
+    /**
+     * A simple data carrier for the CLI process result.
+     * Equivalent to the `CliResult` interface in TypeScript.
+     */
+    private record CliResult(int code, String stdout, String stderr) {}
+
+    /**
+     * Runs the Python CLI script as a subprocess.
+     * Equivalent to the `runCli` helper in TypeScript.
+     *
+     * @param args  A list of command-line arguments (e.g., "--emit", "pcre2").
+     * @param stdin Optional string content to be piped into the process's stdin.
+     * @return A {@link CliResult} record with the exit code, stdout, and stderr.
+     */
+    private CliResult runCli(List<String> args, String stdin) throws IOException, InterruptedException {
+        List<String> command = new ArrayList<>();
+        command.add(PYTHON_EXEC);
+        command.add(CLI_PATH.toAbsolutePath().toString());
+        command.addAll(args);
+
+        ProcessBuilder pb = new ProcessBuilder(command);
+        
+        // Set PYTHONPATH environment variable so imports work
+        Map<String, String> env = pb.environment();
+        env.put("PYTHONPATH", PYTHON_PATH_ENV);
+
+        Process process = pb.start();
+
+        // Write to stdin if provided
+        if (stdin != null) {
+            try (OutputStreamWriter writer = new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8)) {
+                writer.write(stdin);
+            } // try-with-resources automatically closes the stream, signaling EOF
+        }
+
+        // Wait for the process to exit
+        int exitCode = process.waitFor();
+
+        // Read stdout and stderr
+        String stdout = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        String stderr = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
+
+        return new CliResult(exitCode, stdout, stderr);
     }
 
     /**
-     * Category C: Error Handling
-     * <p>
-     * Covers specific failure modes and their corresponding exit codes.
+     * Helper to write a temporary .strl file.
+     * Mirrors the `writeTempFile` helper in TypeScript.
+     *
+     * @param name    The name of the file to create (e.g., "test.strl").
+     * @param content The string content to write to the file.
+     * @return The {@link Path} to the newly created file.
      */
-
-    @Test
-    void testParseErrorExitsWithCode2AndReturnsJsonErrorWithPosition() {
-        /**
-         * Tests that a file with a syntax error results in exit code 2 and a
-         * JSON error object.
-         * 
-         * <p>Expected behavior:</p>
-         * <ul>
-         *   <li>Create temp file with content: "a(b" (unterminated group)</li>
-         *   <li>Run: cli tempfile.strl</li>
-         *   <li>Assert: exit code = 2</li>
-         *   <li>Assert: stderr is empty (errors go to stdout as JSON)</li>
-         *   <li>Assert: stdout contains valid JSON with "error" field</li>
-         *   <li>Assert: error.message exists</li>
-         *   <li>Assert: error.pos = 3</li>
-         * </ul>
-         * 
-         * Equivalent to JavaScript test: "parse error exits with code 2 and returns JSON error with position"
-         */
-        fail("CLI not yet implemented - placeholder test");
+    private Path writeTempFile(String name, String content) throws IOException {
+        Path filePath = tempDir.resolve(name);
+        Files.writeString(filePath, content, StandardCharsets.UTF_8);
+        return filePath;
     }
 
-    @Test
-    void testSchemaValidationErrorExitsWithCode3AndReturnsValidationError() {
+    // --- Test Suite ---------------------------------------------------------
+
+    @Nested
+    class CategoryAHappyPath {
         /**
-         * Tests that a schema validation failure results in exit code 3 and a
-         * JSON error object.
-         * 
-         * <p>Expected behavior:</p>
-         * <ul>
-         *   <li>Create temp file with valid STRling content: "a(?<b>c)"</li>
-         *   <li>Create invalid schema file (deliberately broken)</li>
-         *   <li>Run: cli --schema invalid.schema.json tempfile.strl</li>
-         *   <li>Assert: exit code = 3</li>
-         *   <li>Assert: stderr is empty (errors go to stdout as JSON)</li>
-         *   <li>Assert: stdout contains valid JSON with "validation_error" field</li>
-         * </ul>
-         * 
-         * Equivalent to JavaScript test: "schema validation error exits with code 3 and returns validation_error"
+         * Covers successful CLI invocation and output generation.
          */
-        fail("CLI not yet implemented - placeholder test");
+
+        @Test
+        void fileInputWithEmissionProducesJsonAndExitCode0() throws IOException, InterruptedException {
+            /**
+             * Tests that the CLI can parse a file and emit a valid JSON object
+             * to stdout.
+             * Equivalent to: test_file_input_with_emission (Python)
+             * Equivalent to: "file input with emission produces JSON and exit code 0" (JS)
+             */
+            Path filePath = writeTempFile("valid_file_input.strl", "a(?<b>c)");
+
+            CliResult result = runCli(
+                    List.of("--emit", "pcre2", filePath.toAbsolutePath().toString()),
+                    null
+            );
+
+            assertEquals(0, result.code(), "Exit code should be 0");
+            assertTrue(result.stderr().isEmpty(), "Stderr should be empty");
+
+            // Basic JSON structure validation
+            assertTrue(result.stdout().contains("\"artifact\":"), "Stdout should contain 'artifact' key");
+            assertTrue(result.stdout().contains("\"emitted\":"), "Stdout should contain 'emitted' key");
+            assertTrue(result.stdout().contains("\"emitted\": \"a(?<b>c)\""), "Stdout should contain correct emitted value");
+        }
+
+        @Test
+        void stdinInputWithEmissionProducesJsonAndExitCode0() throws IOException, InterruptedException {
+            /**
+             * Tests that the CLI can parse from stdin and emit a valid JSON object.
+             * Equivalent to: test_stdin_input_with_emission (Python)
+             * Equivalent to: "stdin input with emission produces JSON and exit code 0" (JS)
+             */
+            String inputContent = "a(?<b>c)";
+
+            CliResult result = runCli(List.of("--emit", "pcre2", "-"), inputContent);
+
+            assertEquals(0, result.code(), "Exit code should be 0");
+            assertTrue(result.stderr().isEmpty(), "Stderr should be empty");
+
+            // Basic JSON structure validation
+            assertTrue(result.stdout().contains("\"artifact\":"), "Stdout should contain 'artifact' key");
+            assertTrue(result.stdout().contains("\"emitted\":"), "Stdout should contain 'emitted' key");
+        }
     }
 
-    @Test
-    void testFileNotFoundExitsWithNonZeroCodeAndWritesErrorToStderr() {
+    @Nested
+    class CategoryBFeatureFlags {
         /**
-         * Tests that a non-existent input file results in a non-zero exit code
-         * and an error message on stderr.
-         * 
-         * <p>Expected behavior:</p>
-         * <ul>
-         *   <li>Run: cli non_existent_file.strl</li>
-         *   <li>Assert: exit code != 0 (exit code 1 or 2)</li>
-         *   <li>Assert: stdout is empty</li>
-         *   <li>Assert: stderr contains "No such file or directory" or similar</li>
-         * </ul>
-         * 
-         * Equivalent to JavaScript test: "file not found exits with non-zero code and writes error to stderr"
+         * Covers behavior of specific CLI flags like --schema.
          */
-        fail("CLI not yet implemented - placeholder test");
+
+        @Test
+        void successfulSchemaValidationIsSilentWithExitCode0() throws IOException, InterruptedException {
+            /**
+             * Tests that a successful schema validation produces exit code 0 and no
+             * output, per the script's logic.
+             * Equivalent to: test_successful_schema_validation_is_silent (Python)
+             * Equivalent to: "successful schema validation is silent with exit code 0" (JS)
+             */
+            Path filePath = writeTempFile("valid_schema_input.strl", "a(?<b>c)");
+
+            CliResult result = runCli(
+                    List.of("--schema", BASE_SCHEMA_PATH.toAbsolutePath().toString(), filePath.toAbsolutePath().toString()),
+                    null
+            );
+
+            assertEquals(0, result.code(), "Exit code should be 0");
+            assertTrue(result.stdout().isEmpty(), "Stdout should be empty");
+            assertTrue(result.stderr().isEmpty(), "Stderr should be empty");
+        }
+    }
+
+    @Nested
+    class CategoryCErrorHandling {
+        /**
+         * Covers specific failure modes and their corresponding exit codes.
+         */
+
+        @Test
+        void parseErrorExitsWithCode2AndReturnsJsonErrorWithPosition() throws IOException, InterruptedException {
+            /**
+             * Tests that a file with a syntax error results in exit code 2 and a
+             * JSON error object.
+             * Equivalent to: test_parse_error_exits_with_code_2 (Python)
+             * Equivalent to: "parse error exits with code 2 and returns JSON error with position" (JS)
+             */
+            Path filePath = writeTempFile("invalid_parse_error.strl", "a(b"); // Unterminated group
+
+            CliResult result = runCli(List.of(filePath.toAbsolutePath().toString()), null);
+
+            assertEquals(2, result.code(), "Exit code should be 2 for parse errors");
+            assertTrue(result.stderr().isEmpty(), "Errors should be reported to stdout as JSON");
+
+            // Check for JSON error structure
+            assertTrue(result.stdout().contains("\"error\":"), "Stdout should contain 'error' key");
+            assertTrue(result.stdout().contains("\"message\":"), "Stdout should contain 'message' key");
+            
+            // Regex to robustly check for "pos": 3 (allowing for whitespace)
+            assertTrue(
+                result.stdout().matches(".*\"pos\"\\s*:\\s*3.*"), 
+                "Stdout should contain '\"pos\": 3'"
+            );
+        }
+
+        @Test
+        void schemaValidationErrorExitsWithCode3AndReturnsValidationError() throws IOException, InterruptedException {
+            /**
+             * Tests that a schema validation failure results in exit code 3 and a
+             * JSON error object.
+             * Equivalent to: test_schema_validation_error_exits_with_code_3 (Python)
+             * Equivalent to: "schema validation error exits with code 3 and returns validation_error" (JS)
+             */
+            Path filePath = writeTempFile("valid_for_invalid_schema.strl", "a(?<b>c)");
+
+            // Create a deliberately broken schema
+            String invalidSchemaContent = """
+              {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "root": false
+                }
+              }
+            """;
+            Path invalidSchemaPath = writeTempFile("invalid.schema.json", invalidSchemaContent);
+
+            CliResult result = runCli(
+                    List.of("--schema", invalidSchemaPath.toAbsolutePath().toString(), filePath.toAbsolutePath().toString()),
+                    null
+            );
+
+            assertEquals(3, result.code(), "Exit code should be 3 for schema validation errors");
+            assertTrue(result.stderr().isEmpty(), "Errors should be reported to stdout as JSON");
+
+            // Check for validation error structure
+            assertTrue(result.stdout().contains("\"validation_error\":"), "Stdout should contain 'validation_error' key");
+        }
+
+        @Test
+        void fileNotFoundExitsWithNonZeroCodeAndWritesErrorToStderr() throws IOException, InterruptedException {
+            /**
+             * Tests that a non-existent input file results in a non-zero exit code
+             * and an error message on stderr.
+             * Equivalent to: test_file_not_found_exits_with_code_1 (Python)
+             * Equivalent to: "file not found exits with non-zero code and writes error to stderr" (JS)
+             */
+            Path missingPath = tempDir.resolve("non_existent_file.strl");
+            // We do not create the file, so it is guaranteed to be missing
+
+            CliResult result = runCli(List.of(missingPath.toAbsolutePath().toString()), null);
+
+            assertNotEquals(0, result.code(), "Exit code should be non-zero");
+            assertTrue(result.stdout().isEmpty(), "Stdout should be empty");
+            
+            // Check for the Python FileNotFoundError message
+            assertTrue(result.stderr().contains("No such file or directory"), "Stderr should contain file not found message");
+        }
     }
 }

@@ -13,10 +13,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Test Design — e2e/E2ECombinatorialTest.java
+ * @file Test Design — e2e/E2ECombinatorialTest.java
  *
  * <h2>Purpose</h2>
  * This test suite provides systematic combinatorial E2E validation to ensure that
@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unlike unit tests that test individual features in isolation, this suite tests
  * feature interactions using two strategies:
  * <ol>
- *   <li><strong>Tier 1 (Pairwise):</strong> Tests all N=2 combinations of core features</li>
- *   <li><strong>Tier 2 (Strategic Triplets):</strong> Tests N=3 combinations of high-risk features</li>
+ * <li><strong>Tier 1 (Pairwise):</strong> Tests all N=2 combinations of core features</li>
+ * <li><strong>Tier 2 (Strategic Triplets):</strong> Tests N=3 combinations of high-risk features</li>
  * </ol>
  *
  * <p>The tests verify that the full compile pipeline (parse -&gt; compile -&gt; emit)
@@ -36,25 +36,28 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * <h2>Scope</h2>
  * <ul>
- *   <li><strong>In scope:</strong></li>
- *   <ul>
- *     <li>Pairwise (N=2) combinations of all core features</li>
- *     <li>Strategic triplet (N=3) combinations of high-risk features</li>
- *     <li>End-to-end validation from DSL to PCRE2 output</li>
- *     <li>Detection of interaction bugs between features</li>
- *   </ul>
- *   <li><strong>Out of scope:</strong></li>
- *   <ul>
- *     <li>Exhaustive N³ or higher combinations</li>
- *     <li>Runtime behavior validation (covered by conformance tests)</li>
- *     <li>Individual feature testing (covered by unit tests)</li>
- *   </ul>
+ * <li><strong>In scope:</strong></li>
+ * <ul>
+ * <li>Pairwise (N=2) combinations of all core features</li>
+ * <li>Strategic triplet (N=3) combinations of high-risk features</li>
+ * <li>End-to-end validation from DSL to PCRE2 output</li>
+ * <li>Detection of interaction bugs between features</li>
+ * </ul>
+ * <li><strong>Out of scope:</strong></li>
+ * <ul>
+ * <li>Exhaustive N³ or higher combinations</li>
+ * <li>Runtime behavior validation (covered by conformance tests)</li>
+ * <li>Individual feature testing (covered by unit tests)</li>
+ * </ul>
  * </ul>
  */
 public class E2ECombinatorialTest {
 
+    // --- Helper Function --------------------------------------------------------
+
     /**
-     * Helper to run the full DSL -> PCRE2 string pipeline.
+     * A helper to run the full DSL -> PCRE2 string pipeline.
+     * This single helper is used by all nested test classes.
      */
     private String compileToPcre(String src) {
         Parser.ParseResult result = Parser.parse(src);
@@ -65,271 +68,271 @@ public class E2ECombinatorialTest {
         return Pcre2Emitter.emit(irRoot, flags);
     }
 
+    // --- Tier 1: Pairwise Combinatorial Tests (N=2) -----------------------------
+
     /**
-     * Tier 1: Pairwise Combinatorial Tests (N=2)
-     * <p>
      * Tests all pairwise (N=2) combinations of core STRling features.
      */
     @Nested
-    static class Tier1PairwiseTests {
-
-        /**
-         * Helper to run the full DSL -> PCRE2 string pipeline.
-         */
-        private String compileToPcre(String src) {
-            Parser.ParseResult result = Parser.parse(src);
-            Flags flags = result.flags;
-            Node ast = result.ast;
-            Compiler compiler = new Compiler();
-            IROp irRoot = compiler.compile(ast);
-            return Pcre2Emitter.emit(irRoot, flags);
-        }
+    class Tier1PairwiseTests {
 
         /**
          * Flags + other features
          */
-        static Stream<Arguments> flagsAndOtherFeatures() {
-            return Stream.of(
-                // Flags + Literals
-                Arguments.of("flags_literals_case_insensitive", "%flags i\nhello", "(?i)hello"),
-                Arguments.of("flags_literals_free_spacing", "%flags x\na b c", "(?x)abc"),
-                // Flags + Character Classes
-                Arguments.of("flags_charclass_case_insensitive", "%flags i\n[a-z]+", "(?i)[a-z]+"),
-                Arguments.of("flags_charclass_unicode", "%flags u\n\\p{L}+", "(?u)\\p{L}+"),
-                // Flags + Anchors
-                Arguments.of("flags_anchor_multiline_start", "%flags m\n^start", "(?m)^start"),
-                Arguments.of("flags_anchor_multiline_end", "%flags m\nend$", "(?m)end$"),
-                // Flags + Quantifiers
-                Arguments.of("flags_quantifier_dotall", "%flags s\na*", "(?s)a*"),
-                Arguments.of("flags_quantifier_free_spacing", "%flags x\na{2,5}", "(?x)a{2,5}"),
-                // Flags + Groups
-                Arguments.of("flags_group_case_insensitive", "%flags i\n(hello)", "(?i)(hello)"),
-                Arguments.of("flags_group_named_free_spacing", "%flags x\n(?<name>\\d+)", "(?x)(?<name>\\d+)"),
-                // Flags + Lookarounds
-                Arguments.of("flags_lookahead_case_insensitive", "%flags i\n(?=test)", "(?i)(?=test)"),
-                Arguments.of("flags_lookbehind_multiline", "%flags m\n(?<=^foo)", "(?m)(?<=^foo)"),
-                // Flags + Alternation
-                Arguments.of("flags_alternation_case_insensitive", "%flags i\na|b|c", "(?i)a|b|c"),
-                Arguments.of("flags_alternation_free_spacing", "%flags x\nfoo | bar", "(?x)foo|bar"),
-                // Flags + Backreferences
-                Arguments.of("flags_backref_case_insensitive", "%flags i\n(\\w+)\\s+\\1", "(?i)(\\w+)\\s+\\1")
-            );
-        }
+        @Nested
+        class FlagsAndOtherFeatures {
+            static Stream<Arguments> testCases() {
+                return Stream.of(
+                    // Flags + Literals
+                    Arguments.of("flags_literals_case_insensitive", "%flags i\nhello", "(?i)hello"),
+                    Arguments.of("flags_literals_free_spacing", "%flags x\na b c", "(?x)abc"),
+                    // Flags + Character Classes
+                    Arguments.of("flags_charclass_case_insensitive", "%flags i\n[a-z]+", "(?i)[a-z]+"),
+                    Arguments.of("flags_charclass_unicode", "%flags u\n\\p{L}+", "(?u)\\p{L}+"),
+                    // Flags + Anchors
+                    Arguments.of("flags_anchor_multiline_start", "%flags m\n^start", "(?m)^start"),
+                    Arguments.of("flags_anchor_multiline_end", "%flags m\nend$", "(?m)end$"),
+                    // Flags + Quantifiers
+                    Arguments.of("flags_quantifier_dotall", "%flags s\na*", "(?s)a*"),
+                    Arguments.of("flags_quantifier_free_spacing", "%flags x\na{2,5}", "(?x)a{2,5}"),
+                    // Flags + Groups
+                    Arguments.of("flags_group_case_insensitive", "%flags i\n(hello)", "(?i)(hello)"),
+                    Arguments.of("flags_group_named_free_spacing", "%flags x\n(?<name>\\d+)", "(?x)(?<name>\\d+)"),
+                    // Flags + Lookarounds
+                    Arguments.of("flags_lookahead_case_insensitive", "%flags i\n(?=test)", "(?i)(?=test)"),
+                    Arguments.of("flags_lookbehind_multiline", "%flags m\n(?<=^foo)", "(?m)(?<=^foo)"),
+                    // Flags + Alternation
+                    Arguments.of("flags_alternation_case_insensitive", "%flags i\na|b|c", "(?i)a|b|c"),
+                    Arguments.of("flags_alternation_free_spacing", "%flags x\nfoo | bar", "(?x)foo|bar"),
+                    // Flags + Backreferences
+                    Arguments.of("flags_backref_case_insensitive", "%flags i\n(\\w+)\\s+\\1", "(?i)(\\w+)\\s+\\1")
+                );
+            }
 
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("flagsAndOtherFeatures")
-        void testFlagsCombinations(String id, String input, String expected) {
-            /** Tests flags combined with each other core feature. */
-            assertEquals(expected, compileToPcre(input));
+            @ParameterizedTest(name = "{0}")
+            @MethodSource("testCases")
+            void testFlagsCombinations(String id, String input, String expected) {
+                /** Tests flags combined with each other core feature. */
+                assertEquals(expected, compileToPcre(input));
+            }
         }
 
         /**
          * Literals + other features
          */
-        static Stream<Arguments> literalsAndOtherFeatures() {
-            return Stream.of(
-                // Literals + Character Classes
-                Arguments.of("literals_charclass", "abc[xyz]", "abc[xyz]"),
-                Arguments.of("literals_charclass_mixed", "\\d\\d\\d-[0-9]", "\\d\\d\\d-[0-9]"),
-                // Literals + Anchors
-                Arguments.of("literals_anchor_start", "^hello", "^hello"),
-                Arguments.of("literals_anchor_end", "world$", "world$"),
-                Arguments.of("literals_anchor_word_boundary", "\\bhello\\b", "\\bhello\\b"),
-                // Literals + Quantifiers
-                Arguments.of("literals_quantifier_plus", "a+bc", "a+bc"),
-                Arguments.of("literals_quantifier_brace", "test\\d{3}", "test\\d{3}"),
-                // Literals + Groups
-                Arguments.of("literals_group_capturing", "hello(world)", "hello(world)"),
-                Arguments.of("literals_group_noncapturing", "test(?:group)", "test(?:group)"),
-                // Literals + Lookarounds
-                Arguments.of("literals_lookahead", "hello(?=world)", "hello(?=world)"),
-                Arguments.of("literals_lookbehind", "(?<=test)result", "(?<=test)result"),
-                // Literals + Alternation
-                Arguments.of("literals_alternation_words", "hello|world", "hello|world"),
-                Arguments.of("literals_alternation_chars", "a|b|c", "a|b|c"),
-                // Literals + Backreferences
-                Arguments.of("literals_backref", "(\\w+)=\\1", "(\\w+)=\\1")
-            );
-        }
+        @Nested
+        class LiteralsAndOtherFeatures {
+            static Stream<Arguments> testCases() {
+                return Stream.of(
+                    // Literals + Character Classes
+                    Arguments.of("literals_charclass", "abc[xyz]", "abc[xyz]"),
+                    Arguments.of("literals_charclass_mixed", "\\d\\d\\d-[0-9]", "\\d\\d\\d-[0-9]"),
+                    // Literals + Anchors
+                    Arguments.of("literals_anchor_start", "^hello", "^hello"),
+                    Arguments.of("literals_anchor_end", "world$", "world$"),
+                    Arguments.of("literals_anchor_word_boundary", "\\bhello\\b", "\\bhello\\b"),
+                    // Literals + Quantifiers
+                    Arguments.of("literals_quantifier_plus", "a+bc", "a+bc"),
+                    Arguments.of("literals_quantifier_brace", "test\\d{3}", "test\\d{3}"),
+                    // Literals + Groups
+                    Arguments.of("literals_group_capturing", "hello(world)", "hello(world)"),
+                    Arguments.of("literals_group_noncapturing", "test(?:group)", "test(?:group)"),
+                    // Literals + Lookarounds
+                    Arguments.of("literals_lookahead", "hello(?=world)", "hello(?=world)"),
+                    Arguments.of("literals_lookbehind", "(?<=test)result", "(?<=test)result"),
+                    // Literals + Alternation
+                    Arguments.of("literals_alternation_words", "hello|world", "hello|world"),
+                    Arguments.of("literals_alternation_chars", "a|b|c", "a|b|c"),
+                    // Literals + Backreferences
+                    Arguments.of("literals_backref", "(\\w+)=\\1", "(\\w+)=\\1")
+                );
+            }
 
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("literalsAndOtherFeatures")
-        void testLiteralsCombinations(String id, String input, String expected) {
-            /** Tests literals combined with each other core feature. */
-            assertEquals(expected, compileToPcre(input));
+            @ParameterizedTest(name = "{0}")
+            @MethodSource("testCases")
+            void testLiteralsCombinations(String id, String input, String expected) {
+                /** Tests literals combined with each other core feature. */
+                assertEquals(expected, compileToPcre(input));
+            }
         }
 
         /**
          * Character classes + other features
          */
-        static Stream<Arguments> charClassesAndOtherFeatures() {
-            return Stream.of(
-                // Character Classes + Anchors
-                Arguments.of("charclass_anchor_start", "^[a-z]+", "^[a-z]+"),
-                Arguments.of("charclass_anchor_end", "[0-9]+$", "[0-9]+$"),
-                // Character Classes + Quantifiers
-                Arguments.of("charclass_quantifier_star", "[a-z]*", "[a-z]*"),
-                Arguments.of("charclass_quantifier_brace", "[0-9]{2,4}", "[0-9]{2,4}"),
-                Arguments.of("charclass_quantifier_lazy", "\\w+?", "\\w+?"),
-                // Character Classes + Groups
-                Arguments.of("charclass_group_capturing", "([a-z]+)", "([a-z]+)"),
-                Arguments.of("charclass_group_noncapturing", "(?:[0-9]+)", "(?:[0-9]+)"),
-                // Character Classes + Lookarounds
-                Arguments.of("charclass_lookahead", "(?=[a-z])", "(?=[a-z])"),
-                Arguments.of("charclass_lookbehind", "(?<=\\d)", "(?<=\\d)"),
-                // Character Classes + Alternation
-                Arguments.of("charclass_alternation_classes", "[a-z]|[0-9]", "[a-z]|[0-9]"),
-                Arguments.of("charclass_alternation_shorthands", "\\w|\\s", "\\w|\\s"),
-                // Character Classes + Backreferences
-                Arguments.of("charclass_backref", "([a-z])\\1", "([a-z])\\1")
-            );
-        }
+        @Nested
+        class CharClassesAndOtherFeatures {
+            static Stream<Arguments> testCases() {
+                return Stream.of(
+                    // Character Classes + Anchors
+                    Arguments.of("charclass_anchor_start", "^[a-z]+", "^[a-z]+"),
+                    Arguments.of("charclass_anchor_end", "[0-9]+$", "[0-9]+$"),
+                    // Character Classes + Quantifiers
+                    Arguments.of("charclass_quantifier_star", "[a-z]*", "[a-z]*"),
+                    Arguments.of("charclass_quantifier_brace", "[0-9]{2,4}", "[0-9]{2,4}"),
+                    Arguments.of("charclass_quantifier_lazy", "\\w+?", "\\w+?"),
+                    // Character Classes + Groups
+                    Arguments.of("charclass_group_capturing", "([a-z]+)", "([a-z]+)"),
+                    Arguments.of("charclass_group_noncapturing", "(?:[0-9]+)", "(?:[0-9]+)"),
+                    // Character Classes + Lookarounds
+                    Arguments.of("charclass_lookahead", "(?=[a-z])", "(?=[a-z])"),
+                    Arguments.of("charclass_lookbehind", "(?<=\\d)", "(?<=\\d)"),
+                    // Character Classes + Alternation
+                    Arguments.of("charclass_alternation_classes", "[a-z]|[0-9]", "[a-z]|[0-9]"),
+                    Arguments.of("charclass_alternation_shorthands", "\\w|\\s", "\\w|\\s"),
+                    // Character Classes + Backreferences
+                    Arguments.of("charclass_backref", "([a-z])\\1", "([a-z])\\1")
+                );
+            }
 
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("charClassesAndOtherFeatures")
-        void testCharClassesCombinations(String id, String input, String expected) {
-            /** Tests character classes combined with each other core feature. */
-            assertEquals(expected, compileToPcre(input));
+            @ParameterizedTest(name = "{0}")
+            @MethodSource("testCases")
+            void testCharClassesCombinations(String id, String input, String expected) {
+                /** Tests character classes combined with each other core feature. */
+                assertEquals(expected, compileToPcre(input));
+            }
         }
 
         /**
          * Anchors + other features
          */
-        static Stream<Arguments> anchorsAndOtherFeatures() {
-            return Stream.of(
-                // Anchors + Quantifiers
-                Arguments.of("anchor_quantifier_start", "^a+", "^a+"),
-                Arguments.of("anchor_quantifier_boundary", "\\b\\w+", "\\b\\w+"),
-                // Anchors + Groups
-                Arguments.of("anchor_group_start", "^(test)", "^(test)"),
-                Arguments.of("anchor_group_end", "(start)$", "(start)$"),
-                // Anchors + Lookarounds
-                Arguments.of("anchor_lookahead", "^(?=test)", "^(?=test)"),
-                Arguments.of("anchor_lookbehind", "(?<=^foo)", "(?<=^foo)"),
-                // Anchors + Alternation
-                Arguments.of("anchor_alternation", "^a|b$", "^a|b$"),
-                // Anchors + Backreferences
-                Arguments.of("anchor_backref", "^(\\w+)\\s+\\1$", "^(\\w+)\\s+\\1$")
-            );
-        }
+        @Nested
+        class AnchorsAndOtherFeatures {
+            static Stream<Arguments> testCases() {
+                return Stream.of(
+                    // Anchors + Quantifiers
+                    Arguments.of("anchor_quantifier_start", "^a+", "^a+"),
+                    Arguments.of("anchor_quantifier_boundary", "\\b\\w+", "\\b\\w+"),
+                    // Anchors + Groups
+                    Arguments.of("anchor_group_start", "^(test)", "^(test)"),
+                    Arguments.of("anchor_group_end", "(start)$", "(start)$"),
+                    // Anchors + Lookarounds
+                    Arguments.of("anchor_lookahead", "^(?=test)", "^(?=test)"),
+                    Arguments.of("anchor_lookbehind", "(?<=^foo)", "(?<=^foo)"),
+                    // Anchors + Alternation
+                    Arguments.of("anchor_alternation", "^a|b$", "^a|b$"),
+                    // Anchors + Backreferences
+                    Arguments.of("anchor_backref", "^(\\w+)\\s+\\1$", "^(\\w+)\\s+\\1$")
+                );
+            }
 
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("anchorsAndOtherFeatures")
-        void testAnchorsCombinations(String id, String input, String expected) {
-            /** Tests anchors combined with each other core feature. */
-            assertEquals(expected, compileToPcre(input));
+            @ParameterizedTest(name = "{0}")
+            @MethodSource("testCases")
+            void testAnchorsCombinations(String id, String input, String expected) {
+                /** Tests anchors combined with each other core feature. */
+                assertEquals(expected, compileToPcre(input));
+            }
         }
 
         /**
          * Quantifiers + other features
          */
-        static Stream<Arguments> quantifiersAndOtherFeatures() {
-            return Stream.of(
-                // Quantifiers + Groups
-                Arguments.of("quantifier_group_capturing", "(abc)+", "(abc)+"),
-                Arguments.of("quantifier_group_noncapturing", "(?:test)*", "(?:test)*"),
-                Arguments.of("quantifier_group_named", "(?<name>\\d)+", "(?<name>\\d)+"),
-                // Quantifiers + Lookarounds
-                Arguments.of("quantifier_lookahead", "(?=a)+", "(?:(?=a))+"),
-                Arguments.of("quantifier_lookbehind", "test(?<=\\d)*", "test(?:(?<=\\d))*"),
-                // Quantifiers + Alternation
-                Arguments.of("quantifier_alternation_group", "(a|b)+", "(a|b)+"),
-                Arguments.of("quantifier_alternation_noncapturing", "(?:foo|bar)*", "(?:foo|bar)*"),
-                // Quantifiers + Backreferences
-                Arguments.of("quantifier_backref_repeated", "(\\w)\\1+", "(\\w)\\1+"),
-                Arguments.of("quantifier_backref_specific", "(\\d+)-\\1{2}", "(\\d+)-\\1{2}")
-            );
-        }
+        @Nested
+        class QuantifiersAndOtherFeatures {
+            static Stream<Arguments> testCases() {
+                return Stream.of(
+                    // Quantifiers + Groups
+                    Arguments.of("quantifier_group_capturing", "(abc)+", "(abc)+"),
+                    Arguments.of("quantifier_group_noncapturing", "(?:test)*", "(?:test)*"),
+                    Arguments.of("quantifier_group_named", "(?<name>\\d)+", "(?<name>\\d)+"),
+                    // Quantifiers + Lookarounds
+                    Arguments.of("quantifier_lookahead", "(?=a)+", "(?:(?=a))+"),
+                    Arguments.of("quantifier_lookbehind", "test(?<=\\d)*", "test(?:(?<=\\d))*"),
+                    // Quantifiers + Alternation
+                    Arguments.of("quantifier_alternation_group", "(a|b)+", "(a|b)+"),
+                    Arguments.of("quantifier_alternation_noncapturing", "(?:foo|bar)*", "(?:foo|bar)*"),
+                    // Quantifiers + Backreferences
+                    Arguments.of("quantifier_backref_repeated", "(\\w)\\1+", "(\\w)\\1+"),
+                    Arguments.of("quantifier_backref_specific", "(\\d+)-\\1{2}", "(\\d+)-\\1{2}")
+                );
+            }
 
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("quantifiersAndOtherFeatures")
-        void testQuantifiersCombinations(String id, String input, String expected) {
-            /** Tests quantifiers combined with each other core feature. */
-            assertEquals(expected, compileToPcre(input));
+            @ParameterizedTest(name = "{0}")
+            @MethodSource("testCases")
+            void testQuantifiersCombinations(String id, String input, String expected) {
+                /** Tests quantifiers combined with each other core feature. */
+                assertEquals(expected, compileToPcre(input));
+            }
         }
 
         /**
          * Groups + other features
          */
-        static Stream<Arguments> groupsAndOtherFeatures() {
-            return Stream.of(
-                // Groups + Lookarounds
-                Arguments.of("group_lookahead_inside", "((?=test)abc)", "((?=test)abc)"),
-                Arguments.of("group_lookbehind_inside", "(?:(?<=\\d)result)", "(?:(?<=\\d)result)"),
-                // Groups + Alternation
-                Arguments.of("group_alternation_capturing", "(a|b|c)", "(a|b|c)"),
-                Arguments.of("group_alternation_noncapturing", "(?:foo|bar)", "(?:foo|bar)"),
-                // Groups + Backreferences
-                Arguments.of("group_backref_numbered", "(\\w+)\\s+\\1", "(\\w+)\\s+\\1"),
-                Arguments.of("group_backref_named", "(?<tag>\\w+)\\k<tag>", "(?<tag>\\w+)\\k<tag>")
-            );
-        }
+        @Nested
+        class GroupsAndOtherFeatures {
+            static Stream<Arguments> testCases() {
+                return Stream.of(
+                    // Groups + Lookarounds
+                    Arguments.of("group_lookahead_inside", "((?=test)abc)", "((?=test)abc)"),
+                    Arguments.of("group_lookbehind_inside", "(?:(?<=\\d)result)", "(?:(?<=\\d)result)"),
+                    // Groups + Alternation
+                    Arguments.of("group_alternation_capturing", "(a|b|c)", "(a|b|c)"),
+                    Arguments.of("group_alternation_noncapturing", "(?:foo|bar)", "(?:foo|bar)"),
+                    // Groups + Backreferences
+                    Arguments.of("group_backref_numbered", "(\\w+)\\s+\\1", "(\\w+)\\s+\\1"),
+                    Arguments.of("group_backref_named", "(?<tag>\\w+)\\k<tag>", "(?<tag>\\w+)\\k<tag>")
+                );
+            }
 
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("groupsAndOtherFeatures")
-        void testGroupsCombinations(String id, String input, String expected) {
-            /** Tests groups combined with each other core feature. */
-            assertEquals(expected, compileToPcre(input));
+            @ParameterizedTest(name = "{0}")
+            @MethodSource("testCases")
+            void testGroupsCombinations(String id, String input, String expected) {
+                /** Tests groups combined with each other core feature. */
+                assertEquals(expected, compileToPcre(input));
+            }
         }
 
         /**
          * Lookarounds + other features
          */
-        static Stream<Arguments> lookaroundsAndOtherFeatures() {
-            return Stream.of(
-                // Lookarounds + Alternation
-                Arguments.of("lookahead_alternation", "(?=a|b)", "(?=a|b)"),
-                Arguments.of("lookbehind_alternation", "(?<=foo|bar)", "(?<=foo|bar)"),
-                // Lookarounds + Backreferences
-                Arguments.of("lookahead_backref", "(\\w+)(?=\\1)", "(\\w+)(?=\\1)")
-            );
-        }
+        @Nested
+        class LookaroundsAndOtherFeatures {
+            static Stream<Arguments> testCases() {
+                return Stream.of(
+                    // Lookarounds + Alternation
+                    Arguments.of("lookahead_alternation", "(?=a|b)", "(?=a|b)"),
+                    Arguments.of("lookbehind_alternation", "(?<=foo|bar)", "(?<=foo|bar)"),
+                    // Lookarounds + Backreferences
+                    Arguments.of("lookahead_backref", "(\\w+)(?=\\1)", "(\\w+)(?=\\1)")
+                );
+            }
 
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("lookaroundsAndOtherFeatures")
-        void testLookaroundsCombinations(String id, String input, String expected) {
-            /** Tests lookarounds combined with each other core feature. */
-            assertEquals(expected, compileToPcre(input));
+            @ParameterizedTest(name = "{0}")
+            @MethodSource("testCases")
+            void testLookaroundsCombinations(String id, String input, String expected) {
+                /** Tests lookarounds combined with each other core feature. */
+                assertEquals(expected, compileToPcre(input));
+            }
         }
 
         /**
          * Alternation + backreferences
          */
-        static Stream<Arguments> alternationAndBackreferences() {
-            return Stream.of(
-                Arguments.of("alternation_backref", "(a)\\1|(b)\\2", "(a)\\1|(b)\\2")
-            );
-        }
+        @Nested
+        class AlternationAndBackreferences {
+            static Stream<Arguments> testCases() {
+                return Stream.of(
+                    Arguments.of("alternation_backref", "(a)\\1|(b)\\2", "(a)\\1|(b)\\2")
+                );
+            }
 
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("alternationAndBackreferences")
-        void testAlternationBackrefCombinations(String id, String input, String expected) {
-            /** Tests alternation combined with backreferences. */
-            assertEquals(expected, compileToPcre(input));
+            @ParameterizedTest(name = "{0}")
+            @MethodSource("testCases")
+            void testAlternationBackrefCombinations(String id, String input, String expected) {
+                /** Tests alternation combined with backreferences. */
+                assertEquals(expected, compileToPcre(input));
+            }
         }
     }
 
+    // --- Tier 2: Strategic Triplet Tests (N=3) ----------------------------------
+
     /**
-     * Tier 2: Strategic Triplet Tests (N=3)
-     * <p>
      * Tests strategic triplet (N=3) combinations of high-risk features where
      * bugs are most likely to hide: Flags, Groups, Quantifiers, Lookarounds,
      * and Alternation.
      */
     @Nested
-    static class Tier2StrategicTripletTests {
-
-        /**
-         * Helper to run the full DSL -> PCRE2 string pipeline.
-         */
-        private String compileToPcre(String src) {
-            Parser.ParseResult result = Parser.parse(src);
-            Flags flags = result.flags;
-            Node ast = result.ast;
-            Compiler compiler = new Compiler();
-            IROp irRoot = compiler.compile(ast);
-            return Pcre2Emitter.emit(irRoot, flags);
-        }
+    class Tier2StrategicTripletTests {
 
         static Stream<Arguments> strategicTriplets() {
             return Stream.of(
@@ -366,25 +369,13 @@ public class E2ECombinatorialTest {
         }
     }
 
+    // --- Complex Nested Feature Tests -------------------------------------------
+
     /**
-     * Complex Nested Feature Tests
-     * <p>
      * Tests complex nested combinations that are especially prone to bugs.
      */
     @Nested
-    static class ComplexNestedFeatureTests {
-
-        /**
-         * Helper to run the full DSL -> PCRE2 string pipeline.
-         */
-        private String compileToPcre(String src) {
-            Parser.ParseResult result = Parser.parse(src);
-            Flags flags = result.flags;
-            Node ast = result.ast;
-            Compiler compiler = new Compiler();
-            IROp irRoot = compiler.compile(ast);
-            return Pcre2Emitter.emit(irRoot, flags);
-        }
+    class ComplexNestedFeatureTests {
 
         static Stream<Arguments> complexNestedFeatures() {
             return Stream.of(
@@ -397,7 +388,7 @@ public class E2ECombinatorialTest {
                 // Quantified lookaround with backreference
                 Arguments.of("quantified_lookaround_backref", "(\\w)(?=\\1)+", "(\\w)(?:(?=\\1))+"),
                 // Complex free spacing with all features
-                Arguments.of("complex_free_spacing", "%flags x\n(?<tag> \\w+ ) \\s* = \\s* (?<value> [^>]+ ) \\k<tag>", 
+                Arguments.of("complex_free_spacing", "%flags x\n(?<tag> \\w+ ) \\s* = \\s* (?<value> [^>]+ ) \\k<tag>",
                     "(?x)(?<tag>\\w+)\\s*=\\s*(?<value>[^>]+)\\k<tag>"),
                 // Atomic group with quantifiers
                 Arguments.of("atomic_group_quantifier", "(?>a+)b", "(?>a+)b"),
