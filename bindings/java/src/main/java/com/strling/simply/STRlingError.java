@@ -3,18 +3,21 @@ package com.strling.simply;
 /**
  * Custom error class for STRling pattern errors.
  *
- * This error class provides formatted, user-friendly error messages when invalid
+ * <p>This error class provides formatted, user-friendly error messages when invalid
  * patterns are constructed or invalid arguments are provided to pattern functions.
  * Error messages are automatically formatted with consistent indentation for
- * better readability in console output.
+ * better readability in console output.</p>
  */
 public class STRlingError extends RuntimeException {
     private final String message;
 
     /**
-     * Create a new STRlingError with formatted message.
+     * Creates an instance of STRlingError.
      *
-     * @param message The error message (can be multiline and will be reformatted).
+     * <p>The error message is automatically formatted with consistent indentation
+     * for improved readability when displayed in terminals or logs.</p>
+     *
+     * @param message The error message. Can be multiline and will be reformatted
      */
     public STRlingError(String message) {
         // Dedent and format the message
@@ -22,9 +25,12 @@ public class STRlingError extends RuntimeException {
     }
 
     /**
-     * Return the formatted error message with header and indentation.
+     * Returns the error message as a formatted string.
      *
-     * @return Formatted error message string.
+     * <p>Formats the error message with a clear header and indented content
+     * for improved visibility in console output.</p>
+     *
+     * @return The formatted error message with header and indentation
      */
     @Override
     public String getMessage() {
@@ -32,9 +38,9 @@ public class STRlingError extends RuntimeException {
     }
 
     /**
-     * Return the formatted error message.
+     * Returns the formatted error message.
      *
-     * @return Formatted error message string.
+     * @return The formatted error string
      */
     @Override
     public String toString() {
@@ -42,10 +48,10 @@ public class STRlingError extends RuntimeException {
     }
 
     /**
-     * Dedent a multi-line string by removing common leading whitespace.
+     * Dedents a multi-line string by removing common leading whitespace.
      *
-     * @param text The text to dedent.
-     * @return Dedented text.
+     * @param text The text to dedent
+     * @return Dedented text
      */
     private static String dedent(String text) {
         if (text == null || text.isEmpty()) {
