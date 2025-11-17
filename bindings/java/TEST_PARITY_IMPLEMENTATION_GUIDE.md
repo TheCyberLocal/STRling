@@ -4,10 +4,10 @@
 
 ### Overall Progress
 - **Target**: 581 tests (matching JavaScript SSOT)
-- **Current**: 340 tests
-- **Remaining**: 241 tests (59% complete)
+- **Current**: 413 tests
+- **Remaining**: 168 tests (71% complete)
 
-### Completed Files (13/17 files - 76% file parity)
+### Completed Files (15/17 files - 88% file parity)
 
 #### E2E Tests (100% Complete)
 - ✅ **CliSmokeTest**: 6/6 tests
@@ -16,22 +16,22 @@
 
 #### Unit Tests (100% Complete)
 - ✅ **AnchorsTest**: 34/34 tests
+- ✅ **CharClassesTest**: 47/47 tests *(recently completed)*
 - ✅ **CompilerTest**: 40/40 tests
 - ✅ **EmitterEdgesTest**: 36/36 tests
 - ✅ **ErrorFormattingTest**: 11/11 tests
 - ✅ **ErrorsTest**: 20/20 tests
 - ✅ **FlagsAndFreeSpacingTest**: 15/15 tests
 - ✅ **IehAuditGapsTest**: 23/23 tests
+- ✅ **LiteralsAndEscapesTest**: 55/55 tests *(recently completed)*
 - ✅ **ParserErrorsTest**: 20/20 tests
-- ✅ **QuantifiersTest**: 49/49 tests *(recently completed)*
+- ✅ **QuantifiersTest**: 49/49 tests
 - ✅ **ValidatorTest** (schema_validation): 10/10 tests
 
-### Files Requiring Implementation (4 files, 241 tests)
+### Files Requiring Implementation (2 files, 168 tests)
 
 | File | Current | Target | Gap | Priority |
 |------|---------|--------|-----|----------|
-| LiteralsAndEscapesTest.java | 19 | 55 | **+36** | High |
-| CharClassesTest.java | 10 | 47 | **+37** | High |
 | GroupsBackrefsLookaroundsTest.java | 13 | 51 | **+38** | High |
 | SimplyApiTest.java | 14 | 54 | **+40** | High |
 
@@ -93,9 +93,33 @@ Added all missing quantifier modes and edge cases:
 
 Reference: `bindings/javascript/__tests__/unit/quantifiers.test.ts`
 
-**Status**: ✅ Complete - 49/49 tests (all tests passing)
+**Status**: ✅ Complete - 55/55 tests (5 expected failures due to upstream gaps)
 
-### 3. LiteralsAndEscapesTest.java (+36 tests)
+### ✅ 3. CharClassesTest.java (+37 tests) - COMPLETED
+
+Expanded parameterized tests to cover all character class variations:
+
+**Positive Cases (41 test cases):**
+- Basic classes: [abc], [^abc]
+- Ranges: [a-z], [A-Za-z0-9], [0-9]
+- Shorthand escapes: [\d\s\w], [\D\S\W]
+- Unicode properties: [\p{L}], [\p{Letter}], [\P{Number}], [\p{Script=Greek}]
+- Special character handling: []a], [^]a], [-az], [az-], [a^b], [\b]
+- Edge cases: [a\-c], [\x41-\x5A], [\n\t\d]
+- Additional common patterns: hex ranges, unicode ranges, escaped metacharacters
+
+**Negative Cases (5 test cases):**
+- Unterminated classes: [abc, [, [^
+- Malformed unicode properties: [\p{L, [\pL]
+
+**Individual Test (1 test):**
+- testEscapedMetacharsInClass
+
+Reference: `bindings/javascript/__tests__/unit/char_classes.test.ts`
+
+**Status**: ✅ Complete - 47/47 tests (1 expected failure due to upstream gap)
+
+### 4. GroupsBackrefsLookaroundsTest.java (+38 tests)
 
 Currently has 19 tests. JavaScript has 55 covering:
 - Literal metacharacter escaping
@@ -213,11 +237,11 @@ Record the total in the progress table above.
 |------|--------------|-----------|--------|
 | CompilerTest | 16 | 1-2 hours | ✅ DONE |
 | QuantifiersTest | 34 | 3-4 hours | ✅ DONE |
-| LiteralsAndEscapesTest | 36 | 3-4 hours | ⏭️ NEXT |
-| CharClassesTest | 37 | 3-4 hours | Pending |
-| GroupsBackrefsLookaroundsTest | 38 | 3-4 hours | Pending |
+| LiteralsAndEscapesTest | 36 | 3-4 hours | ✅ DONE |
+| CharClassesTest | 37 | 3-4 hours | ✅ DONE |
+| GroupsBackrefsLookaroundsTest | 38 | 3-4 hours | ⏭️ NEXT |
 | SimplyApiTest | 40 | 4-5 hours | Pending |
-| **Total** | **201** | **17-23 hours** | **50 of 201 done** |
+| **Total** | **201** | **17-23 hours** | **123 of 201 done** |
 
 ## Resources
 
