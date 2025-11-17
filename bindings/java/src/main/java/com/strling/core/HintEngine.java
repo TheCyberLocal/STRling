@@ -1,6 +1,7 @@
 package com.strling.core;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,7 +25,7 @@ public final class HintEngine {
         String generate(String msg, String text, int pos);
     }
 
-    private static final Map<String, HintGenerator> HINT_GENERATORS = new HashMap<>();
+    private static final Map<String, HintGenerator> HINT_GENERATORS = new LinkedHashMap<>();
 
     static {
         HINT_GENERATORS.put("Unterminated group", HintEngine::hintUnterminatedGroup);
@@ -37,6 +38,7 @@ public final class HintEngine {
         HINT_GENERATORS.put("Unterminated atomic group", HintEngine::hintUnterminatedAtomicGroup);
         HINT_GENERATORS.put("Unterminated {m,n}", HintEngine::hintUnterminatedBraceQuant);
         HINT_GENERATORS.put("Unterminated {n}", HintEngine::hintUnterminatedBraceQuant);
+        HINT_GENERATORS.put("Incomplete quantifier", HintEngine::hintUnterminatedBraceQuant);  // Maps to same hint
         HINT_GENERATORS.put("Unexpected token", HintEngine::hintUnexpectedToken);
         HINT_GENERATORS.put("Unexpected trailing input", HintEngine::hintUnexpectedTrailing);
         HINT_GENERATORS.put("Cannot quantify anchor", HintEngine::hintCannotQuantifyAnchor);
@@ -130,7 +132,7 @@ public final class HintEngine {
 
     private static String hintUnterminatedBraceQuant(String msg, String text, int pos) {
         return "Brace quantifiers use the syntax {m,n} or {n}. " +
-               "Make sure to close the quantifier with '}'.";
+               "Make sure to include the closing '}'.";
     }
 
     private static String hintUnexpectedToken(String msg, String text, int pos) {
