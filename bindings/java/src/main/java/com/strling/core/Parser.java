@@ -148,25 +148,15 @@ public class Parser {
     }
     
     /**
-     * Simple hint generation for common error cases.
+     * Get hint for error message using the HintEngine.
      * 
      * @param message The error message
      * @param source The source text
      * @param pos The error position
-     * @return A helpful hint message
+     * @return A helpful hint message, or null if no hint available
      */
     private static String getHint(String message, String source, int pos) {
-        // Simple hint generation - can be enhanced later
-        if (message.contains("Cannot quantify anchor")) {
-            return "Anchors like ^, $, \\b, and \\B match positions, not characters, so they cannot be quantified.";
-        }
-        if (message.contains("Unknown escape sequence")) {
-            return "This escape sequence is not recognized. Check the documentation for valid escape sequences.";
-        }
-        if (message.contains("Invalid quantifier")) {
-            return "Quantifiers (*, +, ?, {n,m}) must follow an atom (literal, group, character class, etc.).";
-        }
-        return "Please check your pattern syntax.";
+        return HintEngine.getHint(message, source, pos);
     }
     
     /**
@@ -280,14 +270,27 @@ public class Parser {
                     "Only %flags directive is supported. Check your pattern syntax."
                 );
             }
-            // Check if %flags appears in pattern content (misplaced directive)
-            if (inPattern && line.contains("%flags")) {
+            // All other lines are pattern content. If a `%flags` directive
+            // appears after pattern content has started (or anywhere in non-directive
+            // lines), treat it as an explicit error rather than silently allowing it
+            // inside the pattern body.
+            if (line.contains("%flags")) {
                 int idx = line.indexOf("%flags");
+                int pos = 0;
+                // Calculate position by summing up previous line lengths
+                for (int i = 0; i < lines.length; i++) {
+                    if (lines[i].equals(line)) {
+                        break;
+                    }
+                    pos += lines[i].length() + 1; // +1 for newline
+                }
+                pos += idx;
+                String hint = HintEngine.getHint("Directive after pattern", text, pos);
                 throw new STRlingParseError(
-                    "Directive after pattern content",
-                    idx,
+                    "Directive after pattern",
+                    pos,
                     text,
-                    "The %flags directive must appear before pattern content."
+                    hint
                 );
             }
             // Once we see non-directive content, we're in the pattern
@@ -482,6 +485,11 @@ public class Parser {
         } else {
             // No quantifier
             return new QuantResult(child, false);
+        }
+        
+        // Validate quantifier numeric range (m <= n)
+        if (max instanceof Integer && min > (Integer) max) {
+            raiseError("Invalid quantifier range", cur.i);
         }
         
         // Check for mode suffix (?, +)
@@ -853,7 +861,7 @@ public class Parser {
                 raiseError("Unterminated \\x{...}", startPos);
             }
             int cp = Integer.parseInt(hexs.length() > 0 ? hexs.toString() : "0", 16);
-            return String.valueOf((char) cp);
+            return new String(Character.toChars(cp));
         }
         
         // backslash-x-HH format
@@ -938,6 +946,29 @@ public class Parser {
             if (cur.eof()) {
                 cur.inClass--;
                 raiseError("Unterminated character class", cur.i);
+            }
+            
+            // Detect explicit empty character class '[]' (or '[^]') and raise a
+            // specific instructional error only when the class truly contains no
+            // elements (i.e., the next character is end-of-input or immediately
+            // another closing bracket). Do NOT raise for cases like '[]a]' where
+            // ']' is a literal at the start of the class.
+            if (cur.peek().equals("]") && items.isEmpty() &&
+                (cur.peek(1).isEmpty() || cur.peek(1).equals("]"))) {
+                // Throw with message 'Unterminated character class' for
+                // compatibility with existing tests, but provide an explicit
+                // instructional hint that mentions the class is empty.
+                String hint = HintEngine.getHint("Empty character class", src, startPos);
+                if (hint == null) {
+                    hint = "Empty character class '[]' detected. Character classes must contain at least one element (e.g., [a-z]) — do not leave them empty. If you meant a literal '[', escape it with '\\['.";
+                }
+                cur.inClass--;
+                throw new STRlingParseError(
+                    "Unterminated character class",
+                    startPos,
+                    src,
+                    hint
+                );
             }
             
             // ] closes the class (except at the very start)
@@ -1111,9 +1142,16 @@ public class Parser {
         
         if (cur.match("?<")) {
             // Named capturing group
+            int nameStartPos = cur.i;
             String name = readIdentUntil(">");
             if (!cur.match(">")) {
                 raiseError("Unterminated group name", cur.i);
+            }
+            // Validate identifier per EBNF: IDENT_START = LETTER | "_";
+            // IDENT_CONT = IDENT_START | DIGIT
+            // Group name must not be empty and must match pattern: [A-Za-z_][A-Za-z0-9_]*
+            if (!name.matches("^[A-Za-z_][A-Za-z0-9_]*$")) {
+                raiseError("Invalid group name <" + name + ">", nameStartPos);
             }
             // Check for duplicate group name
             if (capNames.contains(name)) {

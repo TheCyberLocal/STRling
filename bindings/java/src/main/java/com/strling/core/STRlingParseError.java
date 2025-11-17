@@ -41,7 +41,7 @@ public class STRlingParseError extends RuntimeException {
      * @param hint An instructional hint explaining how to fix the error (default: null)
      */
     public STRlingParseError(String message, int pos, String text, String hint) {
-        super(formatError(message, pos, text, hint));
+        super(message);  // Store just the message in the exception
         this.message = message;
         this.pos = pos;
         this.text = text != null ? text : "";
@@ -178,7 +178,17 @@ public class STRlingParseError extends RuntimeException {
      * @return The formatted error string
      */
     public String toFormattedString() {
-        return getMessage();
+        return formatError(message, pos, text, hint);
+    }
+    
+    /**
+     * Override toString to return formatted error.
+     * 
+     * @return The formatted error string
+     */
+    @Override
+    public String toString() {
+        return formatError(message, pos, text, hint);
     }
     
     /**
