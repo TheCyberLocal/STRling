@@ -28,15 +28,27 @@
     },
     "type": "module",
     "exports": {
-        ".": "./dist/index.js",
-        "./core": "./dist/core/index.js",
-        "./emitters/pcre2": "./dist/emitters/pcre2.js",
-        "./simply": "./dist/simply/index.js"
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.js"
+        },
+        "./core": {
+            "import": "./dist/core/index.js",
+            "require": "./dist/core/index.js"
+        },
+        "./emitters/pcre2": {
+            "import": "./dist/emitters/pcre2.js",
+            "require": "./dist/emitters/pcre2.js"
+        },
+        "./simply": {
+            "import": "./dist/simply/index.js",
+            "require": "./dist/simply/index.js"
+        }
     },
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "files": [
-        "dist/**/*"
+        "dist"
     ],
     "scripts": {
         "build": "tsc -p tsconfig.json",

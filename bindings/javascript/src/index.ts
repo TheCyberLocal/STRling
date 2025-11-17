@@ -1,9 +1,21 @@
 /**
  * STRling TypeScript Entry Point
  *
- * This module serves as the root TypeScript entry point for the STRling library.
- * Currently a placeholder that can be extended with TypeScript-specific exports
- * and type definitions as the library evolves.
+ * This module provides a small, idiomatic TypeScript surface for consumers.
+ * It re-exports the primary parts of the internal `STRling` tree so that
+ * TypeScript projects can import from the package root.
  */
 
-export const ok = true;
+import * as simply from "./STRling/simply/index.js";
+import { parse, parseToArtifact, ParseError } from "./STRling/core/parser.js";
+import { Compiler } from "./STRling/core/compiler.js";
+
+export { simply, parse, parseToArtifact, ParseError, Compiler };
+
+export default {
+    simply,
+    parse,
+    parseToArtifact,
+    ParseError,
+    Compiler,
+};
