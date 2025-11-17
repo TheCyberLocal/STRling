@@ -267,10 +267,9 @@ mvn test 2>&1 | grep "Tests run:"
 
 ## Next Steps
 
-1. Implement CompilerTest (+16 tests) - smallest remaining gap
-2. Move to larger files in priority order
-3. Update this guide after each completion
-4. Final verification: ensure 581 total tests
+1. Complete remaining 2 test files (GroupsBackrefsLookaroundsTest, SimplyApiTest)
+2. Update this guide after each completion
+3. Final verification: ensure 581 total tests
 
 ## Acceptance Criteria
 
