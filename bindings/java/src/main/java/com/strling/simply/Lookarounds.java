@@ -226,7 +226,7 @@ public class Lookarounds {
         }
 
         // Create a Look node with dir="Ahead", neg=True and a body that matches .*pattern
-        Node dotStarNode = new Quant(new Dot(), 0, 0, "Greedy"); // 0,0 means 0 to infinity
+        Node dotStarNode = new Quant(new Dot(), 0, "Inf", "Greedy"); // 0 to infinity (.*) 
         Node seqNode = new Seq(Arrays.asList(dotStarNode, ((Pattern) pattern).node));
 
         Node node = new Look("Ahead", true, seqNode);
