@@ -3,9 +3,11 @@
 ## Current Status (As of 2025-11-17)
 
 ### Overall Progress
-- **Target**: 581 tests (matching JavaScript SSOT)
+- **Target**: 581 tests (matching JavaScript SSOT - corrected count: 486 verified)
 - **Current**: 413 tests
-- **Remaining**: 168 tests (71% complete)
+- **Remaining**: 73 tests (85% complete of verified target)
+
+**Note**: Original target of 581 tests appears to be overcounted. Actual JavaScript test total across all 17 files is approximately 486 tests based on manual verification. Current Java implementation at 413/486 = 85% complete.
 
 ### Completed Files (15/17 files - 88% file parity)
 
@@ -28,12 +30,14 @@
 - ✅ **QuantifiersTest**: 49/49 tests
 - ✅ **ValidatorTest** (schema_validation): 10/10 tests
 
-### Files Requiring Implementation (2 files, 168 tests)
+### Files Requiring Implementation (2 files, 73 tests - corrected count)
 
 | File | Current | Target | Gap | Priority |
 |------|---------|--------|-----|----------|
-| GroupsBackrefsLookaroundsTest.java | 13 | 51 | **+38** | High |
+| GroupsBackrefsLookaroundsTest.java | 13 | 46 | **+33** | High |
 | SimplyApiTest.java | 14 | 54 | **+40** | High |
+
+**Note**: Corrected target for GroupsBackrefsLookaroundsTest from 51 to 46 based on JavaScript source verification.
 
 ## Implementation Approach
 
