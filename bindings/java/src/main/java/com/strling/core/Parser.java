@@ -287,7 +287,7 @@ public class Parser {
                 pos += idx;
                 String hint = HintEngine.getHint("Directive after pattern", text, pos);
                 throw new STRlingParseError(
-                    "Directive after pattern",
+                    "Directive must appear at the start of the pattern",
                     pos,
                     text,
                     hint
@@ -405,11 +405,15 @@ public class Parser {
             boolean hadFailedQuantParse = quantResult.hadFailedParse;
             
             // Coalesce adjacent Lit nodes if appropriate
+            // Check if previous node is a backref
+            boolean prevIsBackref = !parts.isEmpty() && parts.get(parts.size() - 1) instanceof Backref;
+            
             boolean shouldCoalesce = quantifiedAtom instanceof Lit
                 && !parts.isEmpty()
                 && parts.get(parts.size() - 1) instanceof Lit
                 && !cur.extendedMode
-                && !prevHadFailedQuant;
+                && !prevHadFailedQuant
+                && !prevIsBackref;
             
             if (shouldCoalesce) {
                 Lit prevLit = (Lit) parts.get(parts.size() - 1);
@@ -636,7 +640,7 @@ public class Parser {
         if (ch.equals("[")) {
             return parseCharClass();
         }
-        if (ch.equals("\\")) {
+        if (ch.length() == 1 && ch.charAt(0) == '\\') {
             return parseEscapeAtom();
         }
         // literal
@@ -928,15 +932,15 @@ public class Parser {
      * @return CharClass node
      */
     private Node parseCharClass() {
-        int startPos = cur.i;
         cur.take(); // consume [
+        int startPos = cur.i; // Position after '['
         cur.inClass++;
         
         boolean negated = false;
         if (cur.peek().equals("^")) {
             negated = true;
             cur.take();
-            startPos = cur.i;
+            startPos = cur.i; // Update position after '^'
         }
         
         List<ClassItem> items = new ArrayList<>();

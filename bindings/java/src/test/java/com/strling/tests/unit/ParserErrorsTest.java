@@ -78,7 +78,8 @@ public class ParserErrorsTest {
                 
                 boolean caretLineFound = false;
                 for (String line : lines) {
-                    if (line.trim().startsWith("^")) {
+                    // Check if line contains the caret indicator (line with '|' followed by '^')
+                    if (line.contains("|") && line.contains("^") && line.indexOf('^') > line.indexOf('|')) {
                         caretLineFound = true;
                         // Find the index of the caret
                         int caretIndex = line.indexOf('^');

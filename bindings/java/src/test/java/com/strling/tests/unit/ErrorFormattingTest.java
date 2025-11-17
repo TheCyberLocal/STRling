@@ -50,7 +50,8 @@ public class ErrorFormattingTest {
             // The caret should be under 'd' (position 4)
             String[] lines = formatted.split("\\r?\\n");
             for (String line : lines) {
-                if (line.trim().startsWith("^")) {
+                // Check if line contains the caret indicator (line with '|' followed by '^')
+                if (line.contains("|") && line.contains("^") && line.indexOf('^') > line.indexOf('|')) {
                     // Find the index of the caret
                     int caretIndex = line.indexOf('^');
                     // Find the index of the start of the code (after "| ")
