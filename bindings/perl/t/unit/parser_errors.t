@@ -1,8 +1,5 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
-use Test::More;
-
+#
 # Test Parser Error Messages - Comprehensive Validation of Rich Error Output
 #
 # This test suite validates that the parser produces rich, instructional error
@@ -14,216 +11,226 @@ use Test::More;
 # These tests intentionally pass invalid syntax to ensure the error messages
 # are helpful and educational.
 
-use lib 'lib';
-use STRling::Core::Parser qw(parse);
+use strict;
+use warnings;
+use Test::More;
+use Test::Exception;
+use FindBin;
+use lib "$FindBin::Bin/../../lib";
+
+use STRling::Core::parser qw(parse);
 use STRling::Core::Errors;
 
-# Rich Error Formatting
 subtest 'Rich Error Formatting' => sub {
     subtest 'unmatched closing paren shows visionary format' => sub {
-        eval { parse('(a|b))') };
-        ok($@, 'throws error');
+        dies_ok { parse('(a|b))') } 'parse throws on unmatched )';
         
-        if (my $err = $@) {
-            isa_ok($err, 'STRling::Core::Errors::STRlingParseError');
-            my $formatted = "$err";
-            
-            like($formatted, qr/STRling Parse Error:/, 'contains error header');
-            like($formatted, qr/Unmatched '\)'/, 'contains error message');
-            like($formatted, qr/> 1 \| \(a\|b\)\)/, 'contains context line');
-            like($formatted, qr/\^/, 'contains caret pointer');
-            like($formatted, qr/Hint:/, 'contains hint section');
-            like($formatted, qr/Did you mean to escape it/, 'contains helpful hint');
-        }
+        eval { parse('(a|b))') };
+        my $err = $@;
+        isa_ok($err, 'STRling::Core::Errors::STRlingParseError');
+        
+        my $formatted = "$err";
+        
+        # Check all components of visionary format
+        like($formatted, qr/STRling Parse Error:/, 'Contains error header');
+        like($formatted, qr/Unmatched '\)'/, 'Contains error message');
+        like($formatted, qr/> 1 \| \(a\|b\)\)/, 'Contains source line');
+        like($formatted, qr/\^/, 'Contains caret indicator');
+        like($formatted, qr/Hint:/, 'Contains hint marker');
+        like($formatted, qr/Did you mean to escape it/, 'Contains escape hint');
     };
     
     subtest 'unterminated group shows helpful hint' => sub {
         eval { parse('(abc') };
-        if (my $err = $@) {
-            ok(defined $err->hint, 'error has hint');
-            like($err->hint, qr/opened with '\('/, 'hint mentions opening paren');
-            like($err->hint, qr/Add a matching '\)'/, 'hint suggests adding closing paren');
-        }
+        my $err = $@;
+        isa_ok($err, 'STRling::Core::Errors::STRlingParseError');
+        
+        ok(defined $err->hint, 'Hint is defined');
+        like($err->hint, qr/opened with '\('/, "Contains 'opened with'");
+        like($err->hint, qr/Add a matching '\)'/, "Contains 'Add a matching'");
     };
     
     subtest 'error on second line shows correct line number' => sub {
         my $pattern = "abc\n(def";
         eval { parse($pattern) };
-        if (my $err = $@) {
-            my $formatted = "$err";
-            like($formatted, qr/> 2 \|/, 'shows line 2');
-            like($formatted, qr/\(def/, 'shows context from line 2');
-        }
+        my $err = $@;
+        
+        my $formatted = "$err";
+        like($formatted, qr/> 2 \|/, 'Shows line 2');
+        like($formatted, qr/\(def/, 'Contains error line content');
     };
     
     subtest 'caret points to exact position' => sub {
         eval { parse('abc)') };
-        if (my $err = $@) {
-            my $formatted = "$err";
-            my @lines = split /\n/, $formatted;
-            
-            for my $line (@lines) {
-                if ($line =~ /^>   \|/) {
-                    my $caret_line = substr($line, 6);
-                    $caret_line =~ s/^\s+//;
-                    is($caret_line, '^', 'caret is properly placed');
-                    
-                    # Count spaces before caret
-                    my $spaces = length($line) - length($line =~ s/^>   \|\s*//r) - 1;
-                    is($spaces, 3, 'caret points to position 3');
-                }
+        my $err = $@;
+        
+        my $formatted = "$err";
+        my @lines = split /\n/, $formatted;
+        
+        # Find the line with the caret
+        my $found = 0;
+        for my $line (@lines) {
+            if ($line =~ /^>   \| (.*)$/) {
+                my $caret_line = $1;
+                # Caret should be at position 3 (under ')')
+                is($caret_line =~ s/\s//gr, '^', 'Caret is the only character');
+                my $spaces = length($caret_line) - length($caret_line =~ s/^ +//r);
+                is($spaces, 3, 'Caret is at position 3');
+                $found = 1;
+                last;
             }
         }
+        ok($found, 'Found caret line');
     };
 };
 
-# Specific Error Hints
 subtest 'Specific Error Hints' => sub {
     subtest 'alternation no lhs hint' => sub {
         eval { parse('|abc') };
-        if (my $err = $@) {
-            like($err->message, qr/Alternation lacks left-hand side/, 'correct error message');
-            ok(defined $err->hint, 'error has hint');
-            like($err->hint, qr/expression on the left side/, 'helpful hint about lhs');
-        }
+        my $err = $@;
+        
+        like($err->message, qr/Alternation lacks left-hand side/, 'Error message correct');
+        ok(defined $err->hint, 'Hint is defined');
+        like($err->hint, qr/expression on the left side/, 'Contains left side hint');
     };
     
     subtest 'alternation no rhs hint' => sub {
         eval { parse('abc|') };
-        if (my $err = $@) {
-            like($err->message, qr/Alternation lacks right-hand side/, 'correct error message');
-            ok(defined $err->hint, 'error has hint');
-            like($err->hint, qr/expression on the right side/, 'helpful hint about rhs');
-        }
+        my $err = $@;
+        
+        like($err->message, qr/Alternation lacks right-hand side/, 'Error message correct');
+        ok(defined $err->hint, 'Hint is defined');
+        like($err->hint, qr/expression on the right side/, 'Contains right side hint');
     };
     
     subtest 'unterminated char class hint' => sub {
         eval { parse('[abc') };
-        if (my $err = $@) {
-            like($err->message, qr/Unterminated character class/, 'correct error message');
-            ok(defined $err->hint, 'error has hint');
-            like($err->hint, qr/opened with '\['/, 'hint mentions opening bracket');
-            like($err->hint, qr/Add a matching '\]'/, 'hint suggests adding closing bracket');
-        }
+        my $err = $@;
+        
+        like($err->message, qr/Unterminated character class/, 'Error message correct');
+        ok(defined $err->hint, 'Hint is defined');
+        like($err->hint, qr/opened with '\['/, "Contains 'opened with'");
+        like($err->hint, qr/Add a matching '\]'/, "Contains 'Add a matching'");
     };
     
     subtest 'cannot quantify anchor hint' => sub {
         eval { parse('^*') };
-        if (my $err = $@) {
-            like($err->message, qr/Cannot quantify anchor/, 'correct error message');
-            ok(defined $err->hint, 'error has hint');
-            like($err->hint, qr/Anchors/, 'hint mentions anchors');
-            like($err->hint, qr/match positions/, 'hint explains anchor behavior');
-        }
+        my $err = $@;
+        
+        like($err->message, qr/Cannot quantify anchor/, 'Error message correct');
+        ok(defined $err->hint, 'Hint is defined');
+        like($err->hint, qr/Anchors/, 'Contains Anchors');
+        like($err->hint, qr/match positions/, 'Contains match positions');
     };
     
     subtest 'invalid hex escape hint' => sub {
-        eval { parse('\xGG') };
-        if (my $err = $@) {
-            like($err->message, qr/Invalid \\xHH escape/, 'correct error message');
-            ok(defined $err->hint, 'error has hint');
-            like($err->hint, qr/hexadecimal digits/, 'hint explains hex requirement');
-        }
+        eval { parse('\\xGG') };
+        my $err = $@;
+        
+        like($err->message, qr/Invalid \\xHH escape/, 'Error message correct');
+        ok(defined $err->hint, 'Hint is defined');
+        like($err->hint, qr/hexadecimal digits/, 'Contains hexadecimal hint');
     };
     
     subtest 'undefined backref hint' => sub {
-        eval { parse('\1abc') };
-        if (my $err = $@) {
-            like($err->message, qr/Backreference to undefined group/, 'correct error message');
-            ok(defined $err->hint, 'error has hint');
-            like($err->hint, qr/previously captured groups/, 'hint explains group requirement');
-            like($err->hint, qr/forward references/, 'hint mentions forward references');
-        }
+        eval { parse('\\1abc') };
+        my $err = $@;
+        
+        like($err->message, qr/Backreference to undefined group/, 'Error message correct');
+        ok(defined $err->hint, 'Hint is defined');
+        like($err->hint, qr/previously captured groups/, 'Contains captured groups hint');
+        like($err->hint, qr/forward references/, 'Contains forward references hint');
     };
     
     subtest 'duplicate group name hint' => sub {
         eval { parse('(?<name>a)(?<name>b)') };
-        if (my $err = $@) {
-            like($err->message, qr/Duplicate group name/, 'correct error message');
-            ok(defined $err->hint, 'error has hint');
-            like($err->hint, qr/unique name/, 'hint explains uniqueness requirement');
-        }
+        my $err = $@;
+        
+        like($err->message, qr/Duplicate group name/, 'Error message correct');
+        ok(defined $err->hint, 'Hint is defined');
+        like($err->hint, qr/unique name/, 'Contains unique name hint');
     };
     
     subtest 'inline modifiers hint' => sub {
         eval { parse('(?i)abc') };
-        if (my $err = $@) {
-            like($err->message, qr/Inline modifiers/, 'correct error message');
-            ok(defined $err->hint, 'error has hint');
-            like($err->hint, qr/%flags/, 'hint mentions %flags directive');
-            like($err->hint, qr/directive/, 'hint explains directive usage');
-        }
+        my $err = $@;
+        
+        like($err->message, qr/Inline modifiers/, 'Error message correct');
+        ok(defined $err->hint, 'Hint is defined');
+        like($err->hint, qr/%flags/, 'Contains %flags');
+        like($err->hint, qr/directive/, 'Contains directive');
     };
     
     subtest 'unterminated unicode property hint' => sub {
-        eval { parse('[\p{Letter') };
-        if (my $err = $@) {
-            like($err->message, qr/Unterminated \\p\{\.\.\.}/, 'correct error message');
-            ok(defined $err->hint, 'error has hint');
-            like($err->hint, qr/syntax \\p\{Property}/, 'hint shows correct syntax');
-        }
+        eval { parse('[\\p{Letter') };
+        my $err = $@;
+        
+        like($err->message, qr/Unterminated \\p\{\.\.\.}/, 'Error message correct');
+        ok(defined $err->hint, 'Hint is defined');
+        like($err->hint, qr/syntax \\p\{Property}/, 'Contains property syntax hint');
     };
 };
 
-# Complex Error Scenarios
 subtest 'Complex Error Scenarios' => sub {
     subtest 'nested groups error shows outermost' => sub {
         eval { parse('((abc') };
-        if (my $err = $@) {
-            like($err->message, qr/Unterminated group/, 'correct error message');
-        }
+        my $err = $@;
+        
+        like($err->message, qr/Unterminated group/, 'Error message correct');
     };
     
     subtest 'error in alternation branch' => sub {
         eval { parse('a|(b') };
-        if (my $err = $@) {
-            like($err->message, qr/Unterminated group/, 'correct error message');
-            is($err->pos, 4, 'position points to end where ) is expected');
-        }
+        my $err = $@;
+        
+        like($err->message, qr/Unterminated group/, 'Error message correct');
+        # Position should point to the end where ')' is expected
+        is($err->pos, 4, 'Error position is correct');
     };
     
     subtest 'error with free spacing mode' => sub {
         my $pattern = "%flags x\n(abc\n  def";
         eval { parse($pattern) };
-        if (my $err = $@) {
-            ok(defined $err->hint, 'error has hint in free spacing mode');
-        }
+        my $err = $@;
+        
+        ok(defined $err->hint, 'Hint is defined for free spacing mode error');
     };
     
     subtest 'error position accuracy' => sub {
         eval { parse('abc{2,') };
-        if (my $err = $@) {
-            like($err->message, qr/Incomplete quantifier/, 'correct error message');
-            is($err->pos, 6, 'position points to end where } is expected');
-        }
+        my $err = $@;
+        
+        like($err->message, qr/Incomplete quantifier/, 'Error message correct');
+        # Position should be at the end where '}' is expected
+        is($err->pos, 6, 'Error position is correct');
     };
 };
 
-# Error Backward Compatibility
 subtest 'Error Backward Compatibility' => sub {
     subtest 'error has message attribute' => sub {
         eval { parse('(') };
-        if (my $err = $@) {
-            ok(defined $err->message, 'error has message attribute');
-            is($err->message, 'Unterminated group', 'correct message');
-        }
+        my $err = $@;
+        
+        ok(defined $err->message, 'Error has message attribute');
+        is($err->message, 'Unterminated group', 'Message is correct');
     };
     
     subtest 'error has pos attribute' => sub {
         eval { parse('abc)') };
-        if (my $err = $@) {
-            ok(defined $err->pos, 'error has pos attribute');
-            is($err->pos, 3, 'correct position');
-        }
+        my $err = $@;
+        
+        ok(defined $err->pos, 'Error has pos attribute');
+        is($err->pos, 3, 'Position is correct');
     };
     
     subtest 'error string contains position' => sub {
         eval { parse(')') };
-        if (my $err = $@) {
-            my $formatted = "$err";
-            like($formatted, qr/>/, 'contains line markers');
-            like($formatted, qr/\^/, 'contains caret pointer');
-        }
+        my $err = $@;
+        
+        my $formatted = "$err";
+        # Should contain position information in the formatted output
+        like($formatted, qr/>/, 'Contains line markers');
+        like($formatted, qr/\^/, 'Contains caret pointer');
     };
 };
 
