@@ -1,21 +1,99 @@
 /**
  * @file cli_smoke_test.c
+ * @brief End-to-End Smoke Tests for the libstrling C API.
  *
- * NOTE: This test file is a stub because the C binding does not provide
- * a CLI. The C binding is a library (libstrling.a) only.
+ * ADAPTATION NOTE:
+ * The reference `cli_smoke.test.ts` validates the Python CLI (tooling/parse_strl.py),
+ * checking behavior like argument parsing, file IO, and exit codes.
+ *
+ * Since the C binding is a library (`libstrling.a`) without a CLI, this test suite
+ * adapts those "smoke" scenarios to the `strling_compile()` API entry point:
+ *
+ * 1. `test_smoke_compile_valid` maps to CLI "Happy Path" (stdin/file input).
+ * 2. `test_smoke_compile_invalid` maps to CLI "Schema/Validation Error".
+ *
+ * These tests ensure the library is correctly linked and functioning for basic
+ * operations before more granular unit tests are executed.
  */
 
-#include <stdio.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
+#include <stdint.h>
 #include <cmocka.h>
+#include <string.h>
 
-static void test_stub(void** state) {
+// Public API header for the library
+#include "strling.h"
+
+/**
+ * @brief Smoke Test: Verify compilation of a valid, minimal JSON AST.
+ *
+ * Equivalent to running the CLI with a valid input file.
+ * Input AST: Literal("hello")
+ * Expected PCRE2: "hello"
+ */
+static void test_smoke_compile_valid(void **state) {
     (void)state;
-    /* No-op - CLI not provided in C binding */
+
+    // 1. Define a valid JSON AST payload
+    const char *valid_ast_json = 
+        "{"
+            "\"type\": \"Literal\","
+            "\"value\": \"hello\""
+        "}";
+
+    // 2. Call the real library API
+    strling_result_t result = strling_compile(valid_ast_json, NULL);
+
+    // 3. Assertions
+    // The operation must succeed (STRling_OK)
+    assert_int_equal(result.error_code, STRling_OK);
+    
+    // The output pattern must match expected PCRE2
+    assert_non_null(result.pcre2_pattern);
+    assert_string_equal(result.pcre2_pattern, "hello");
+
+    // 4. Cleanup
+    strling_result_free(&result);
+}
+
+/**
+ * @brief Smoke Test: Verify rejection of invalid JSON AST.
+ *
+ * Equivalent to running the CLI with an input that fails schema validation.
+ * Input AST: {"type": "InvalidNode", ...}
+ * Expected Result: Error code (not STRling_OK)
+ */
+static void test_smoke_compile_invalid(void **state) {
+    (void)state;
+
+    // 1. Define an invalid JSON AST payload (Unknown Node Type)
+    const char *invalid_ast_json = 
+        "{"
+            "\"type\": \"ThisNodeDoesNotExist\","
+            "\"value\": \"test\""
+        "}";
+
+    // 2. Call the real library API
+    strling_result_t result = strling_compile(invalid_ast_json, NULL);
+
+    // 3. Assertions
+    // The operation must fail
+    assert_int_not_equal(result.error_code, STRling_OK);
+    
+    // The success output (pattern) should ideally be NULL on error, 
+    // or at least we shouldn't rely on it.
+    // (Specific error message checking is handled in unit/test_errors.c)
+
+    // 4. Cleanup
+    strling_result_free(&result);
 }
 
 int main(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_stub),
+        cmocka_unit_test(test_smoke_compile_valid),
+        cmocka_unit_test(test_smoke_compile_invalid),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

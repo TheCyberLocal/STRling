@@ -1,195 +1,376 @@
 /**
  * @file quantifiers_test.c
+ * @brief Unit Tests for Quantifier Compilation (49 Tests).
  *
- * Refactored to test the real STRling C library API.
- * Tests quantifier compilation from JSON AST to PCRE2 patterns.
+ * PURPOSE:
+ * Validates the translation of Quantifier nodes from the JSON AST into PCRE2 patterns.
+ * Matches the test count (49) of 'bindings/javascript/__tests__/unit/quantifiers.test.ts'.
+ *
+ * ADAPTATION NOTE:
+ * The reference JS tests parse DSL strings. Since the C library accepts JSON AST,
+ * 'Syntax Errors' (e.g. unterminated braces) are adapted into 'Validation Errors'
+ * (e.g. missing fields or invalid values in the AST).
+ *
+ * COVERAGE:
+ * - Category A: Positive Cases (18 tests: 6 forms * 3 modes)
+ * - Category B: Negative/Validation Cases (3 tests)
+ * - Category C: Edge Cases (5 tests)
+ * - Category D: Interaction Cases (7 tests)
+ * - Category E: Nested/Redundant (5 tests)
+ * - Category F: Special Atoms (2 tests)
+ * - Category G: Multiple Sequences (3 tests)
+ * - Category H: Brace Edges (4 tests)
+ * - Category I: Flag Interactions (2 tests)
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
+#include <stdint.h>
 #include <cmocka.h>
+#include <string.h>
+#include <stdio.h>
+
 #include "strling.h"
 
-/* Helper to run a test case */
-static void test_compile(const char* json, const char* expected_pattern) {
-    STRlingResult* result = strling_compile(json, NULL);
+// --- Test Infrastructure ----------------------------------------------------
+
+typedef struct {
+    const char *id;
+    const char *json_input;
+    const char *expected_pcre;
+    int expected_error; // 1 = expect error, 0 = expect success
+} TestCase;
+
+static void run_test_batch(void **state, const TestCase *cases, size_t count) {
+    (void)state;
     
-    /* Should succeed */
-    if (result->error) {
-        printf("Unexpected error: %s\n", result->error->message);
+    for (size_t i = 0; i < count; i++) {
+        strling_result_t result = strling_compile(cases[i].json_input, NULL);
+        
+        if (cases[i].expected_error) {
+            if (result.error_code == STRling_OK) {
+                printf("FAIL [%s]: Expected error but got success. Output: %s\n", 
+                       cases[i].id, result.pcre2_pattern);
+            }
+            assert_int_not_equal(result.error_code, STRling_OK);
+        } else {
+            if (result.error_code != STRling_OK) {
+                printf("FAIL [%s]: Compilation error: %s\n", cases[i].id, result.error_message);
+            }
+            assert_int_equal(result.error_code, STRling_OK);
+            assert_non_null(result.pcre2_pattern);
+            
+            if (strcmp(result.pcre2_pattern, cases[i].expected_pcre) != 0) {
+                printf("FAIL [%s]:\n  Expected: '%s'\n  Got:      '%s'\n", 
+                       cases[i].id, cases[i].expected_pcre, result.pcre2_pattern);
+            }
+            assert_string_equal(result.pcre2_pattern, cases[i].expected_pcre);
+        }
+        
+        strling_result_free(&result);
     }
-    assert_null(result->error);
-    assert_non_null(result->pattern);
-    
-    /* Check the pattern */
-    if (strcmp(result->pattern, expected_pattern) != 0) {
-        printf("Expected: %s\nGot: %s\n", expected_pattern, result->pattern);
-    }
-    assert_string_equal(result->pattern, expected_pattern);
-    
-    /* Cleanup */
-    strling_result_free(result);
 }
 
-/**
- * Test Category A: Standard Quantifiers (*, +, ?)
- */
-static void test_standard_quantifiers(void** state) {
-    (void)state;
-    
-    /* a* - Zero or more */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a*"
-    );
-    
-    /* a+ - One or more */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 1, \"max\": null, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a+"
-    );
-    
-    /* a? - Zero or one */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a?"
-    );
+// --- Category A: Positive Cases (18 Tests) ----------------------------------
+
+static void test_category_a_star(void **state) {
+    const TestCase cases[] = {
+        {"star_greedy", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a*"},
+        {"star_lazy", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a*?"},
+        {"star_possessive", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a*+"}
+    };
+    run_test_batch(state, cases, 3);
 }
 
-/**
- * Test Category B: Brace Quantifiers ({m,n})
- */
-static void test_brace_quantifiers(void** state) {
-    (void)state;
-    
-    /* a{3} - Exactly 3 */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 3, \"max\": 3, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a{3}"
-    );
-    
-    /* a{2,} - At least 2 */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 2, \"max\": null, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a{2,}"
-    );
-    
-    /* a{1,5} - Between 1 and 5 */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 1, \"max\": 5, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a{1,5}"
-    );
+static void test_category_a_plus(void **state) {
+    const TestCase cases[] = {
+        {"plus_greedy", "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a+"},
+        {"plus_lazy", "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a+?"},
+        {"plus_possessive", "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a++"}
+    };
+    run_test_batch(state, cases, 3);
 }
 
-/**
- * Test Category C: Lazy Quantifiers
- */
-static void test_lazy_quantifiers(void** state) {
-    (void)state;
-    
-    /* a*? - Zero or more (lazy) */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, "
-        "\"lazy\": true, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a*?"
-    );
-    
-    /* a+? - One or more (lazy) */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 1, \"max\": null, "
-        "\"lazy\": true, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a+?"
-    );
-    
-    /* a?? - Zero or one (lazy) */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, "
-        "\"lazy\": true, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a??"
-    );
-    
-    /* a{2,}? - At least 2 (lazy) */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 2, \"max\": null, "
-        "\"lazy\": true, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a{2,}?"
-    );
+static void test_category_a_optional(void **state) {
+    const TestCase cases[] = {
+        {"opt_greedy", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a?"},
+        {"opt_lazy", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a??"},
+        {"opt_possessive", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a?+"}
+    };
+    run_test_batch(state, cases, 3);
 }
 
-/**
- * Test Category D: Possessive Quantifiers
- */
-static void test_possessive_quantifiers(void** state) {
-    (void)state;
-    
-    /* a*+ - Zero or more (possessive) */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, "
-        "\"possessive\": true, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a*+"
-    );
-    
-    /* a++ - One or more (possessive) */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 1, \"max\": null, "
-        "\"possessive\": true, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a++"
-    );
-    
-    /* a?+ - Zero or one (possessive) */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, "
-        "\"possessive\": true, "
-        "\"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}",
-        "a?+"
-    );
+static void test_category_a_exact(void **state) {
+    const TestCase cases[] = {
+        {"exact_greedy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 3, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3}"},
+        {"exact_lazy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 3, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3}?"},
+        {"exact_possessive", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 3, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3}+"}
+    };
+    run_test_batch(state, cases, 3);
 }
 
-/**
- * Test Category E: Quantified Groups and Classes
- */
-static void test_quantified_groups_and_classes(void** state) {
-    (void)state;
-    
-    /* (abc)+ - Quantified group */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 1, \"max\": null, "
-        "\"target\": {\"type\": \"Group\", \"body\": {\"type\": \"Literal\", \"value\": \"abc\"}}}}",
-        "(abc)+"
-    );
-    
-    /* [a-z]* - Quantified character class */
-    test_compile(
-        "{\"pattern\": {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, "
-        "\"target\": {\"type\": \"CharacterClass\", \"negated\": false, \"members\": ["
-        "{\"type\": \"Range\", \"from\": \"a\", \"to\": \"z\"}"
-        "]}}}",
-        "[a-z]*"
-    );
+static void test_category_a_at_least(void **state) {
+    const TestCase cases[] = {
+        {"at_least_greedy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,}"},
+        {"at_least_lazy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": null, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,}?"},
+        {"at_least_possessive", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": null, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,}+"}
+    };
+    run_test_batch(state, cases, 3);
 }
 
-/* Main test runner */
+static void test_category_a_range(void **state) {
+    const TestCase cases[] = {
+        {"range_greedy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 5, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,5}"},
+        {"range_lazy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 5, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,5}?"},
+        {"range_possessive", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 5, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,5}+"}
+    };
+    run_test_batch(state, cases, 3);
+}
+
+// --- Category B: Validation/Syntax Errors (3 Tests) -------------------------
+
+static void test_category_b_validation(void **state) {
+    const TestCase cases[] = {
+        // B.1: Invalid Range Syntax 'a{1' -> Adapted to Missing 'max' in AST validation if required
+        // or Malformed AST node. Here we test a node missing 'max' but not marked infinite.
+        // Actually, 'max' is usually nullable. Let's simulate invalid range logic instead.
+        {"val_min_gt_max", 
+         "{\"type\": \"Quantifier\", \"min\": 5, \"max\": 3, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+         NULL, 1},
+
+        // B.2: Unterminated Brace 'a{1,' -> Missing 'max' value?
+        // In DSL this is a syntax error. In AST, let's test Missing 'min' (required field).
+        {"val_missing_min", 
+         "{\"type\": \"Quantifier\", \"max\": 5, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+         NULL, 1},
+
+        // B.3: Brace missing min 'a{,5}' -> Parsed as Literal
+        // We verify that if we explicitly construct an AST for the literal "{,5}", it emits correctly.
+        {"literal_brace", 
+         "{\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Literal\", \"value\": \"{,5}\"}]}", 
+         "a\\{,5\\}", 0}
+    };
+    run_test_batch(state, cases, 3);
+}
+
+// --- Category C: Edge Cases (5 Tests) ---------------------------------------
+
+static void test_category_c_edges(void **state) {
+    const TestCase cases[] = {
+        // C.1: Zero Exact 'a{0}'
+        {"zero_exact", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 0, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{0}"},
+        
+        // C.2: Zero Range 'a{0,5}'
+        {"zero_range", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 5, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{0,5}"},
+        
+        // C.3: Zero Min Open 'a{0,}' -> Same as *
+        {"zero_min_open", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a*"},
+
+        // C.4: Quantify Empty Group '(?:)*'
+        {"quant_empty_group", 
+         "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": false, \"expression\": {\"type\": \"Sequence\", \"parts\": []}}}", 
+         "(?:)*"},
+
+        // C.5: Quantifier before Anchor 'a?^'
+        {"quant_before_anchor", 
+         "{\"type\": \"Sequence\", \"parts\": ["
+             "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}},"
+             "{\"type\": \"Anchor\", \"at\": \"Start\"}"
+         "]}", 
+         "a?^"}
+    };
+    run_test_batch(state, cases, 5);
+}
+
+// --- Category D: Interaction Cases (7 Tests) --------------------------------
+
+static void test_category_d_interactions(void **state) {
+    const TestCase cases[] = {
+        // D.1: Precedence 'ab*'
+        {"prec_sequence", 
+         "{\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"b\"}}]}", 
+         "ab*"},
+
+        // D.2: Quantify Shorthand '\d*'
+        {"quant_shorthand", 
+         "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"CharacterClass\", \"members\": [{\"type\": \"Escape\", \"kind\": \"digit\"}]}}", 
+         "\\d*"},
+
+        // D.3: Quantify Dot '.*'
+        {"quant_dot", 
+         "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Dot\"}}", 
+         ".*"},
+
+        // D.4: Quantify Class '[a-z]*'
+        {"quant_class", 
+         "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"CharacterClass\", \"members\": [{\"type\": \"Range\", \"from\": \"a\", \"to\": \"z\"}]}}", 
+         "[a-z]*"},
+
+        // D.5: Quantify Group '(abc)*'
+        {"quant_group", 
+         "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"abc\"}}}", 
+         "(abc)*"},
+
+        // D.6: Quantify Alternation '(?:a|b)+'
+        {"quant_alt", 
+         "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": false, \"expression\": {\"type\": \"Alternation\", \"alternatives\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Literal\", \"value\": \"b\"}]}}}", 
+         "(?:a|b)+"},
+
+        // D.7: Quantify Lookaround '(?=a)+' -> '(?:(?=a))+'
+        {"quant_lookaround", 
+         "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Lookaround\", \"kind\": \"lookahead\", \"negated\": false, \"expression\": {\"type\": \"Literal\", \"value\": \"a\"}}}", 
+         "(?:(?=a))+"}
+    };
+    run_test_batch(state, cases, 7);
+}
+
+// --- Category E: Nested/Redundant (5 Tests) ---------------------------------
+
+static void test_category_e_nested(void **state) {
+    const TestCase cases[] = {
+        // E.1: (a*)*
+        {"nested_star_star", 
+         "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}}", 
+         "(a*)*"},
+
+        // E.2: (a+)?
+        {"nested_plus_opt", 
+         "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}}", 
+         "(a+)?"},
+
+        // E.3: (a*)+
+        {"nested_star_plus", 
+         "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}}", 
+         "(a*)+"},
+
+        // E.4: (a?)*
+        {"nested_opt_star", 
+         "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}}", 
+         "(a?)*"},
+
+        // E.5: (a{2,3}){1,2}
+        {"nested_braces", 
+         "{\"type\": \"Quantifier\", \"min\": 1, \"max\": 2, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Quantifier\", \"min\": 2, \"max\": 3, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}}}", 
+         "(a{2,3}){1,2}"}
+    };
+    run_test_batch(state, cases, 5);
+}
+
+// --- Category F: Special Atoms (2 Tests) ------------------------------------
+
+static void test_category_f_special(void **state) {
+    const TestCase cases[] = {
+        // F.1: Quantified Backref '(a)\1*'
+        {"quant_backref", 
+         "{\"type\": \"Sequence\", \"parts\": ["
+             "{\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"a\"}},"
+             "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"BackReference\", \"kind\": \"numbered\", \"ref\": 1}}"
+         "]}", 
+         "(a)\\1*"},
+
+        // F.2: Multiple Backrefs '(a)(b)\1*\2+'
+        {"quant_multi_backref", 
+         "{\"type\": \"Sequence\", \"parts\": ["
+             "{\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"a\"}},"
+             "{\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"b\"}},"
+             "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"BackReference\", \"kind\": \"numbered\", \"ref\": 1}},"
+             "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"BackReference\", \"kind\": \"numbered\", \"ref\": 2}}"
+         "]}", 
+         "(a)(b)\\1*\\2+"}
+    };
+    run_test_batch(state, cases, 2);
+}
+
+// --- Category G: Multiple Sequences (3 Tests) -------------------------------
+
+static void test_category_g_sequences(void **state) {
+    const TestCase cases[] = {
+        // G.1: a*b+c?
+        {"seq_literals", 
+         "{\"type\": \"Sequence\", \"parts\": ["
+             "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}},"
+             "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"b\"}},"
+             "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"c\"}}"
+         "]}", 
+         "a*b+c?"},
+
+        // G.2: (ab)*(cd)+(ef)?
+        {"seq_groups", 
+         "{\"type\": \"Sequence\", \"parts\": ["
+             "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"ab\"}}},"
+             "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"cd\"}}},"
+             "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"ef\"}}}"
+         "]}", 
+         "(ab)*(cd)+(ef)?"},
+
+        // G.3: a*|b+
+        {"seq_alt", 
+         "{\"type\": \"Alternation\", \"alternatives\": ["
+             "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}},"
+             "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"b\"}}"
+         "]}", 
+         "a*|b+"}
+    };
+    run_test_batch(state, cases, 3);
+}
+
+// --- Category H: Brace Edges (4 Tests) --------------------------------------
+
+static void test_category_h_brace_edges(void **state) {
+    const TestCase cases[] = {
+        // H.1: Exact One 'a{1}'
+        {"brace_one", "{\"type\": \"Quantifier\", \"min\": 1, \"max\": 1, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{1}"},
+        
+        // H.2: Zero to One 'a{0,1}'
+        {"brace_zero_one", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{0,1}"},
+
+        // H.3: Alternation in Group '(a|b){2,3}'
+        {"brace_alt_group", 
+         "{\"type\": \"Quantifier\", \"min\": 2, \"max\": 3, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Alternation\", \"alternatives\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Literal\", \"value\": \"b\"}]}}}", 
+         "(a|b){2,3}"},
+
+        // H.4: Large Values 'a{100,200}'
+        {"brace_large", "{\"type\": \"Quantifier\", \"min\": 100, \"max\": 200, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{100,200}"}
+    };
+    run_test_batch(state, cases, 4);
+}
+
+// --- Category I: Flag Interactions (2 Tests) --------------------------------
+
+static void test_category_i_flags(void **state) {
+    const TestCase cases[] = {
+        // I.1: Free spacing, space ignored, * literal
+        // Input AST: Literal("a"), Literal("*")
+        {"flag_x_space_ignored", 
+         "{\"flags\": \"x\", \"pattern\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Literal\", \"value\": \"*\"}]}}", 
+         "(?x)a\\*"},
+
+        // I.2: Free spacing, escaped space quantified
+        // Input AST: Quantifier(Literal(" "))
+        {"flag_x_escaped_space", 
+         "{\"flags\": \"x\", \"pattern\": {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \" \"}}}", 
+         "(?x)\\ *"}
+    };
+    run_test_batch(state, cases, 2);
+}
+
 int main(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_standard_quantifiers),
-        cmocka_unit_test(test_brace_quantifiers),
-        cmocka_unit_test(test_lazy_quantifiers),
-        cmocka_unit_test(test_possessive_quantifiers),
-        cmocka_unit_test(test_quantified_groups_and_classes),
+        cmocka_unit_test(test_category_a_star),
+        cmocka_unit_test(test_category_a_plus),
+        cmocka_unit_test(test_category_a_optional),
+        cmocka_unit_test(test_category_a_exact),
+        cmocka_unit_test(test_category_a_at_least),
+        cmocka_unit_test(test_category_a_range),
+        cmocka_unit_test(test_category_b_validation),
+        cmocka_unit_test(test_category_c_edges),
+        cmocka_unit_test(test_category_d_interactions),
+        cmocka_unit_test(test_category_e_nested),
+        cmocka_unit_test(test_category_f_special),
+        cmocka_unit_test(test_category_g_sequences),
+        cmocka_unit_test(test_category_h_brace_edges),
+        cmocka_unit_test(test_category_i_flags),
     };
-    
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
