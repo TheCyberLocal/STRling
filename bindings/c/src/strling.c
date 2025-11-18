@@ -260,6 +260,157 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
         return result;
     }
     
+    /* Handle CharacterClass */
+    if (strcmp(type, "CharacterClass") == 0) {
+        json_t* negated_obj = json_object_get(node, "negated");
+        json_t* members = json_object_get(node, "members");
+        
+        if (!members || !json_is_array(members)) return strdup("");
+        
+        bool negated = negated_obj && json_is_true(negated_obj);
+        size_t n = json_array_size(members);
+        
+        /* Build the character class string */
+        size_t result_capacity = 256; /* Initial capacity */
+        char* result = (char*)malloc(result_capacity);
+        size_t result_len = 0;
+        
+        /* Start with [ */
+        result[result_len++] = '[';
+        
+        /* Add ^ if negated */
+        if (negated) {
+            result[result_len++] = '^';
+        }
+        
+        /* Process each member */
+        for (size_t i = 0; i < n; i++) {
+            json_t* member = json_array_get(members, i);
+            if (!member) continue;
+            
+            const char* member_type = get_node_type(member);
+            if (!member_type) continue;
+            
+            /* Ensure we have enough space (conservative estimate) */
+            if (result_len + 50 > result_capacity) {
+                result_capacity *= 2;
+                char* new_result = (char*)realloc(result, result_capacity);
+                if (!new_result) {
+                    free(result);
+                    return strdup("");
+                }
+                result = new_result;
+            }
+            
+            /* Handle Range: {"type": "Range", "from": "a", "to": "z"} */
+            if (strcmp(member_type, "Range") == 0) {
+                json_t* from_obj = json_object_get(member, "from");
+                json_t* to_obj = json_object_get(member, "to");
+                
+                if (from_obj && json_is_string(from_obj) && 
+                    to_obj && json_is_string(to_obj)) {
+                    const char* from = json_string_value(from_obj);
+                    const char* to = json_string_value(to_obj);
+                    
+                    /* Ensure strings are not empty before accessing [0] */
+                    if (from && from[0] && to && to[0]) {
+                        /* Emit as "from-to" */
+                        result[result_len++] = from[0];
+                        result[result_len++] = '-';
+                        result[result_len++] = to[0];
+                    }
+                }
+            }
+            /* Handle Meta: {"type": "Meta", "value": "d"} */
+            else if (strcmp(member_type, "Meta") == 0) {
+                json_t* value_obj = json_object_get(member, "value");
+                if (value_obj && json_is_string(value_obj)) {
+                    const char* value = json_string_value(value_obj);
+                    /* Ensure string is not empty before accessing [0] */
+                    if (value && value[0]) {
+                        /* Emit as \value */
+                        result[result_len++] = '\\';
+                        result[result_len++] = value[0];
+                    }
+                }
+            }
+            /* Handle Literal: {"type": "Literal", "value": "x"} */
+            else if (strcmp(member_type, "Literal") == 0) {
+                json_t* value_obj = json_object_get(member, "value");
+                if (value_obj && json_is_string(value_obj)) {
+                    const char* value = json_string_value(value_obj);
+                    /* Ensure string is not empty before accessing [0] */
+                    if (value && value[0]) {
+                        /* Special characters in character classes that need escaping */
+                        char c = value[0];
+                        if (c == ']' || c == '\\' || c == '^') {
+                            result[result_len++] = '\\';
+                        }
+                        result[result_len++] = c;
+                    }
+                }
+            }
+            /* Handle UnicodeProperty: {"type": "UnicodeProperty", "name": "Script", "value": "Latin", "negated": false} */
+            else if (strcmp(member_type, "UnicodeProperty") == 0) {
+                json_t* name_obj = json_object_get(member, "name");
+                json_t* value_obj = json_object_get(member, "value");
+                json_t* neg_obj = json_object_get(member, "negated");
+                
+                bool is_negated = neg_obj && json_is_true(neg_obj);
+                
+                if (value_obj && json_is_string(value_obj)) {
+                    const char* value = json_string_value(value_obj);
+                    const char* name = NULL;
+                    size_t value_len = value ? strlen(value) : 0;
+                    size_t name_len = 0;
+                    
+                    if (name_obj && json_is_string(name_obj)) {
+                        name = json_string_value(name_obj);
+                        name_len = name ? strlen(name) : 0;
+                    }
+                    
+                    /* Calculate total space needed: \p{name=value} or \p{value} */
+                    size_t needed = 4 + value_len + name_len + (name ? 1 : 0); /* \p{} + name= + value */
+                    
+                    /* Ensure we have enough space */
+                    while (result_len + needed >= result_capacity) {
+                        result_capacity *= 2;
+                        char* new_result = (char*)realloc(result, result_capacity);
+                        if (!new_result) {
+                            free(result);
+                            return strdup("");
+                        }
+                        result = new_result;
+                    }
+                    
+                    /* Start with \p or \P */
+                    result[result_len++] = '\\';
+                    result[result_len++] = is_negated ? 'P' : 'p';
+                    result[result_len++] = '{';
+                    
+                    /* Add name=value if name is present, otherwise just value */
+                    if (name && name_len > 0) {
+                        memcpy(result + result_len, name, name_len);
+                        result_len += name_len;
+                        result[result_len++] = '=';
+                    }
+                    
+                    if (value && value_len > 0) {
+                        memcpy(result + result_len, value, value_len);
+                        result_len += value_len;
+                    }
+                    result[result_len++] = '}';
+                }
+            }
+        }
+        
+        /* Close with ] */
+        result[result_len++] = ']';
+        result[result_len] = '\0';
+        
+        return result;
+    }
+    
     /* Unsupported node types return empty for now */
     return strdup("");
 }
@@ -289,7 +440,7 @@ STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags) 
     /* Compile the pattern */
     char* pcre2_pattern = compile_node_to_pcre2(pattern_node, flags);
     
-    /* Add flags if present */
+    /* Determine which flags to use */
     json_t* flags_obj = json_object_get(root, "flags");
     STRlingFlags local_flags = {0};
     if (flags) {
@@ -308,14 +459,35 @@ STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags) 
         if (ex && json_is_boolean(ex)) local_flags.extended = json_boolean_value(ex);
     }
     
-    /* Build final pattern with flags */
-    size_t final_len = strlen(pcre2_pattern) + 20; /* room for flags */
-    char* final_pattern = (char*)malloc(final_len);
-    strcpy(final_pattern, pcre2_pattern);
-    free(pcre2_pattern);
+    /* Build flag prefix string if any flags are set */
+    char flag_prefix[16] = "";
+    int flag_count = 0;
     
-    /* PCRE2 inline flags would go here if needed */
-    /* For now, just return the pattern as-is */
+    if (local_flags.ignoreCase || local_flags.multiline || local_flags.dotAll || local_flags.extended) {
+        flag_prefix[flag_count++] = '(';
+        flag_prefix[flag_count++] = '?';
+        
+        if (local_flags.ignoreCase) flag_prefix[flag_count++] = 'i';
+        if (local_flags.multiline) flag_prefix[flag_count++] = 'm';
+        if (local_flags.dotAll) flag_prefix[flag_count++] = 's';
+        if (local_flags.extended) flag_prefix[flag_count++] = 'x';
+        
+        flag_prefix[flag_count++] = ')';
+        flag_prefix[flag_count] = '\0';
+    }
+    
+    /* Build final pattern with flags prefix */
+    size_t final_len = strlen(pcre2_pattern) + strlen(flag_prefix) + 1;
+    char* final_pattern = (char*)malloc(final_len);
+    
+    if (flag_prefix[0] != '\0') {
+        strcpy(final_pattern, flag_prefix);
+        strcat(final_pattern, pcre2_pattern);
+    } else {
+        strcpy(final_pattern, pcre2_pattern);
+    }
+    
+    free(pcre2_pattern);
     
     json_decref(root);
     STRlingResult* result = create_success_result(final_pattern);
