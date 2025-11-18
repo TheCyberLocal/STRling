@@ -141,6 +141,125 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
         return strdup(".");
     }
     
+    /* Handle Quantifier */
+    if (strcmp(type, "Quantifier") == 0) {
+        json_t* target = json_object_get(node, "target");
+        json_t* min_obj = json_object_get(node, "min");
+        json_t* max_obj = json_object_get(node, "max");
+        json_t* lazy_obj = json_object_get(node, "lazy");
+        json_t* possessive_obj = json_object_get(node, "possessive");
+        
+        if (!target || !min_obj) return strdup("");
+        
+        /* Compile the target first */
+        char* target_str = compile_node_to_pcre2(target, flags);
+        if (!target_str) return strdup("");
+        
+        /* Get min and max values */
+        int min = json_integer_value(min_obj);
+        int max = -1; /* -1 represents null/infinity */
+        if (max_obj && json_is_integer(max_obj)) {
+            max = json_integer_value(max_obj);
+        }
+        
+        /* Check for lazy and possessive modifiers */
+        bool lazy = lazy_obj && json_is_true(lazy_obj);
+        bool possessive = possessive_obj && json_is_true(possessive_obj);
+        
+        /* Build the quantifier string */
+        char quantifier[32] = "";
+        
+        /* Special case: {1,1} means no quantifier needed */
+        if (min == 1 && max == 1) {
+            /* No quantifier needed, just return target */
+            return target_str;
+        }
+        /* Standard quantifiers */
+        else if (min == 0 && max == -1) {
+            strcpy(quantifier, "*");
+        }
+        else if (min == 1 && max == -1) {
+            strcpy(quantifier, "+");
+        }
+        else if (min == 0 && max == 1) {
+            strcpy(quantifier, "?");
+        }
+        /* Brace quantifiers */
+        else if (min == max) {
+            snprintf(quantifier, sizeof(quantifier), "{%d}", min);
+        }
+        else if (max == -1) {
+            snprintf(quantifier, sizeof(quantifier), "{%d,}", min);
+        }
+        else {
+            snprintf(quantifier, sizeof(quantifier), "{%d,%d}", min, max);
+        }
+        
+        /* Add lazy or possessive modifier */
+        if (lazy) {
+            strcat(quantifier, "?");
+        }
+        else if (possessive) {
+            strcat(quantifier, "+");
+        }
+        
+        /* Combine target and quantifier */
+        size_t result_len = strlen(target_str) + strlen(quantifier) + 1;
+        char* result = (char*)malloc(result_len);
+        strcpy(result, target_str);
+        strcat(result, quantifier);
+        
+        free(target_str);
+        return result;
+    }
+    
+    /* Handle Alternation */
+    if (strcmp(type, "Alternation") == 0) {
+        json_t* alternatives = json_object_get(node, "alternatives");
+        if (!alternatives || !json_is_array(alternatives)) return strdup("");
+        
+        size_t n = json_array_size(alternatives);
+        if (n == 0) return strdup("");
+        
+        /* Compile all alternatives */
+        char** alt_strs = (char**)malloc(n * sizeof(char*));
+        size_t total_len = 0;
+        
+        for (size_t i = 0; i < n; i++) {
+            alt_strs[i] = compile_node_to_pcre2(json_array_get(alternatives, i), flags);
+            total_len += strlen(alt_strs[i]);
+        }
+        
+        /* Add space for separators and parentheses: ( alt1 | alt2 | ... ) */
+        /* We need (n-1) separators of " | " (but we'll use just "|" for compactness) */
+        total_len += (n - 1); /* for | separators */
+        total_len += 2; /* for parentheses */
+        total_len += 1; /* for null terminator */
+        
+        char* result = (char*)malloc(total_len);
+        char* p = result;
+        
+        /* Add opening parenthesis */
+        *p++ = '(';
+        
+        /* Join alternatives with | */
+        for (size_t i = 0; i < n; i++) {
+            strcpy(p, alt_strs[i]);
+            p += strlen(alt_strs[i]);
+            if (i < n - 1) {
+                *p++ = '|';
+            }
+            free(alt_strs[i]);
+        }
+        
+        /* Add closing parenthesis */
+        *p++ = ')';
+        *p = '\0';
+        
+        free(alt_strs);
+        return result;
+    }
+    
     /* Unsupported node types return empty for now */
     return strdup("");
 }
