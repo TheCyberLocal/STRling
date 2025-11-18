@@ -216,7 +216,7 @@ class FlagsAndFreeSpacingTests: XCTestCase {
         let expectedAST1: ASTNode = .charClass(negated: false, items: [
             .literal("a"), .literal(" "), .literal("b")
         ])
-        XRequestTrue(res1.flags.x)
+        XCTAssertTrue(res1.flags.x)
         XCTAssertEqual(res1.ast, expectedAST1, "Whitespace should be literal inside class")
 
         // Test: "comment_char_is_literal_in_class"

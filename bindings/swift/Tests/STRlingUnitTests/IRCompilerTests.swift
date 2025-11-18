@@ -252,10 +252,10 @@ fileprivate class Compiler {
             return Artifact(ir: .look("Ahead", false, .lit("a")), metadata: .init(features_used: ["lookahead"]))
         // I: "unicode properties"
         case .charClass(false, [.escape("UnicodeProperty", "Letter")]):
-            return Artifact(ir: .charClass(false, []), metadata: .init(features_used: ["unicode_property"])) // Mock IR simplified
+            return Artifact(ir: .charClass(negated: false, items: []), metadata: .init(features_used: ["unicode_property"])) // Mock IR simplified
         // I: "multiple features"
         case .seq([.group(false, .lit("a"), nil, true), .quant(.lit("b"), 1, "Inf", "Possessive"), .look("Behind", false, .lit("c"))]):
-            let ir = .seq([.group(false, .lit("a"), nil, true), .quant(.lit("b"), 1, "Inf", "Possessive"), .look("Behind", false, .lit("c"))])
+            let ir = IRNode.seq([.group(false, .lit("a"), nil, true), .quant(.lit("b"), 1, "Inf", "Possessive"), .look("Behind", false, .lit("c"))])
             return Artifact(ir: ir, metadata: .init(features_used: ["atomic_group", "possessive_quantifier", "lookbehind"]))
             
         default:
@@ -471,7 +471,7 @@ class IRCompilerTests: XCTestCase {
         XCTAssertTrue(artifact.metadata.features_used.contains("lookahead"))
         
         // "unicode properties"
-        let ast4 = ASTNode.charClass(false, [.escape("UnicodeProperty", "Letter")])
+        let ast4 = ASTNode.charClass(negated: false, items: [.escape("UnicodeProperty", "Letter")])
         artifact = compiler.compileWithMetadata(ast4)
         XCTAssertTrue(artifact.metadata.features_used.contains("unicode_property"))
 

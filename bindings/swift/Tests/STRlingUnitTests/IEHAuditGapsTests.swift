@@ -45,6 +45,20 @@ fileprivate struct ParseResult: Equatable {
 // This is the key type being tested. It mirrors the JS `STRlingParseError`.
 fileprivate enum STRlingParseError: Error, Equatable {
     case testError(message: String, hint: String)
+    
+    var message: String {
+        switch self {
+        case .testError(let message, _):
+            return message
+        }
+    }
+    
+    var hint: String {
+        switch self {
+        case .testError(_, let hint):
+            return hint
+        }
+    }
 }
 
 // --- Mock `parse` Function (SUT) ----------------------------------------------

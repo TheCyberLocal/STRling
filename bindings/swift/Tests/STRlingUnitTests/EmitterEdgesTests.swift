@@ -188,13 +188,13 @@ fileprivate func strlingEmitPcre2(_ ir: IRNode, _ flags: Flags) -> String {
         body = "a+"
     case .quant(child: .charClass(negated: false, items: [.range("a", "z")]), min: 1, max: IR_INF, mode: .greedy):
         body = "[a-z]+"
-    case .quant(child: .seq(parts: [.lit("a"), .lit("b")]), min: 1, max: IR_INF, mode: .greedy):
+    case .quant(child: .seq([.lit("a"), .lit("b")]), min: 1, max: IR_INF, mode: .greedy):
         body = "(?:ab)+"
     case .quant(child: .alt(parts: [.lit("a"), .lit("b")]), min: 1, max: IR_INF, mode: .greedy):
         body = "(?:a|b)+"
     case .quant(child: .lookaround(.ahead, child: .lit("a")), min: 1, max: IR_INF, mode: .greedy):
         body = "(?:(?=a))+"
-    case .seq(parts: [
+    case .seq([
         .group(child: .lit("a"), capturing: true, name: "x", atomic: false),
         .backref(number: nil, name: "x")
     ]):
@@ -212,7 +212,7 @@ fileprivate func strlingEmitPcre2(_ ir: IRNode, _ flags: Flags) -> String {
         body = #"\A"#
 
     // Category B: Flag Generation (uses a sequence)
-    case .seq(parts: [.lit("a")]):
+    case .seq([.lit("a")]):
         body = "a"
         
     default:
@@ -278,7 +278,7 @@ class EmitterEdgesTests: XCTestCase {
      * @brief Corresponds to "describe('Category B: Flag Generation', ...)"
      */
     func testFlagGeneration() {
-        let ir = IRNode.seq(parts: [.lit("a")])
+        let ir = IRNode.seq([.lit("a")])
         let flags = Flags.all
         let actual = strlingEmitPcre2(ir, flags)
         XCTAssertEqual(actual, #"(?imsux)a"#)
@@ -313,12 +313,12 @@ class EmitterEdgesTests: XCTestCase {
         XCTAssertEqual(strlingEmitPcre2(ir2, defaultFlags), "[a-z]+")
 
         // Test: "should auto-group non-quantifiable atom (Seq)"
-        let ir3: IRNode = .quant(child: .seq(parts: [.lit("a"), .lit("b")]),
+        let ir3: IRNode = .quant(child: .seq([.lit("a"), .lit("b")]),
                                  min: 1, max: IR_INF, mode: .greedy)
         XCTAssertEqual(strlingEmitPcre2(ir3, defaultFlags), "(?:ab)+")
 
         // Test: "should auto-group non-quantifiable atom (Alt)"
-        let ir4: IRNode = .quant(child: .alt(parts: [.lit("a"), .lit("b")]),
+        let ir4: IRNode = .quant(child: .alt([.lit("a"), .lit("b")]),
                                  min: 1, max: IR_INF, mode: .greedy)
         XCTAssertEqual(strlingEmitPcre2(ir4, defaultFlags), "(?:a|b)+")
 
@@ -328,7 +328,7 @@ class EmitterEdgesTests: XCTestCase {
         XCTAssertEqual(strlingEmitPcre2(ir5, defaultFlags), "(?:(?=a))+")
         
         // Test: "should handle named group and backref"
-        let ir6: IRNode = .seq(parts: [
+        let ir6: IRNode = .seq([
             .group(child: .lit("a"), capturing: true, name: "x", atomic: false),
             .backref(number: nil, name: "x")
         ])

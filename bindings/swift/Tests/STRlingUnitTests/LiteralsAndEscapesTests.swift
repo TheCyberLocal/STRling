@@ -59,6 +59,20 @@ fileprivate struct ParseResult: Equatable {
 // Mock Parse Error (Matches the `ParseError` imported in the JS test)
 fileprivate enum ParseError: Error, Equatable {
     case testError(message: String, pos: Int)
+    
+    var message: String {
+        switch self {
+        case .testError(let message, _):
+            return message
+        }
+    }
+    
+    var pos: Int {
+        switch self {
+        case .testError(_, let pos):
+            return pos
+        }
+    }
 }
 
 // --- Mock `parse` Function (SUT) ----------------------------------------------

@@ -159,10 +159,12 @@ fileprivate struct Simply {
         
         let startCase = (start.uppercased() == start)
         let endCase = (end.uppercased() == end)
-        if start.isLetter != end.isLetter {
+        let startIsLetter = start.rangeOfCharacter(from: .letters) != nil
+        let endIsLetter = end.rangeOfCharacter(from: .letters) != nil
+        if startIsLetter != endIsLetter {
              throw STRlingError.validationError("both be integers or letters")
         }
-        if start.isLetter && (startCase != endCase) {
+        if startIsLetter && (startCase != endCase) {
              throw STRlingError.validationError("same case")
         }
         return MockPattern("[^\(start)-\(end)]")

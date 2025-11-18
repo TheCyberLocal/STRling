@@ -46,11 +46,18 @@ let PCRE2_SCHEMA_PATH = "pcre2.v1.schema.json"
 
 /// A typealias for the `Artifact` object, represented as a dictionary
 /// to match the dynamic nature of JSON and the JS tests.
-typealias Artifact = [String: Any]
+fileprivate typealias Artifact = [String: Any]
 
 /// Mock error for the validator, matching the `ValidationError` in the JS test.
 fileprivate enum ValidationError: Error, Equatable {
     case testError(message: String)
+    
+    var message: String {
+        switch self {
+        case .testError(let message):
+            return message
+        }
+    }
 }
 
 // --- Mock Fixtures (Test Data) ------------------------------------------------
@@ -65,7 +72,7 @@ let baseFlags: [String: Bool] = [
 ]
 
 // Simulates the output of `parseToArtifact("a")`
-let minimalArtifact: Artifact = [
+fileprivate let minimalArtifact: Artifact = [
     "version": "1.0.0",
     "flags": baseFlags,
     "root": [
@@ -75,7 +82,7 @@ let minimalArtifact: Artifact = [
 ]
 
 // Simulates the output of the complex DSL
-let comprehensiveArtifact: Artifact = [
+fileprivate let comprehensiveArtifact: Artifact = [
     "version": "1.0.0",
     "flags": [
         "ignoreCase": true,
@@ -95,7 +102,7 @@ let comprehensiveArtifact: Artifact = [
 ]
 
 // Simulates the output of `parseToArtifact("")`
-let emptyArtifact: Artifact = [
+fileprivate let emptyArtifact: Artifact = [
     "version": "1.0.0",
     "flags": baseFlags,
     "root": [
@@ -105,7 +112,7 @@ let emptyArtifact: Artifact = [
 ]
 
 // Simulates the output of `parseToArtifact("%flags i,m")`
-let flagsOnlyArtifact: Artifact = [
+fileprivate let flagsOnlyArtifact: Artifact = [
     "version": "1.0.0",
     "flags": [
         "ignoreCase": true,
