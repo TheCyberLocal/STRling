@@ -18,8 +18,7 @@ target format, and validating against a schema—are all wired up and functional
 
 ## Scope
 -   **In scope:**
-    -   Invoking the `tooling/parse_strl.py` script as an external process
-       .
+    -   Invoking the `tooling/parse_strl.py` script as an external process.
     -   Testing file-based input and `stdin` input (`-`).
     -   Testing the `--emit pcre2` option.
     -   Testing the `--schema <path>` argument for both successful and failed
