@@ -615,3 +615,322 @@ mod quantifiers {
     }
 }
 
+
+// ============================================================================
+// GROUP TESTS (Basic)
+// ============================================================================
+
+#[cfg(test)]
+mod groups {
+    use super::*;
+
+    #[test]
+    fn test_capturing_group() {
+        let ast = parse_ok("(a)");
+        match ast {
+            Node::Group(group) => {
+                assert!(group.capturing);
+                assert_eq!(group.name, None);
+                assert_eq!(group.atomic, Some(false));
+            }
+            _ => panic!("Expected Group node"),
+        }
+    }
+
+    #[test]
+    fn test_non_capturing_group() {
+        let ast = parse_ok("(?:a)");
+        match ast {
+            Node::Group(group) => {
+                assert!(!group.capturing);
+                assert_eq!(group.name, None);
+                assert_eq!(group.atomic, Some(false));
+            }
+            _ => panic!("Expected Group node"),
+        }
+    }
+
+    #[test]
+    fn test_named_capturing_group() {
+        let ast = parse_ok("(?<name>a)");
+        match ast {
+            Node::Group(group) => {
+                assert!(group.capturing);
+                assert_eq!(group.name, Some("name".to_string()));
+                assert_eq!(group.atomic, Some(false));
+            }
+            _ => panic!("Expected Group node"),
+        }
+    }
+
+    #[test]
+    fn test_atomic_group() {
+        let ast = parse_ok("(?>a)");
+        match ast {
+            Node::Group(group) => {
+                assert!(!group.capturing);
+                assert_eq!(group.name, None);
+                assert_eq!(group.atomic, Some(true));
+            }
+            _ => panic!("Expected Group node"),
+        }
+    }
+
+    #[test]
+    fn test_nested_groups() {
+        let ast = parse_ok("((a))");
+        match ast {
+            Node::Group(outer) => {
+                match &*outer.body {
+                    Node::Group(_) => {
+                        // Success - nested group found
+                    }
+                    _ => panic!("Expected nested Group in body"),
+                }
+            }
+            _ => panic!("Expected Group node"),
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Unterminated group")]
+    fn test_unterminated_group() {
+        parse_ok("(a");
+    }
+}
+
+// ============================================================================
+// LOOKAROUND TESTS
+// ============================================================================
+
+#[cfg(test)]
+mod lookarounds {
+    use super::*;
+
+    #[test]
+    fn test_positive_lookahead() {
+        let ast = parse_ok("a(?=b)");
+        match ast {
+            Node::Seq(seq) => {
+                assert_eq!(seq.parts.len(), 2);
+                match &seq.parts[1] {
+                    Node::Look(look) => {
+                        assert_eq!(look.dir, "Ahead");
+                        assert!(!look.neg);
+                    }
+                    _ => panic!("Expected Look node"),
+                }
+            }
+            _ => panic!("Expected Seq node"),
+        }
+    }
+
+    #[test]
+    fn test_negative_lookahead() {
+        let ast = parse_ok("a(?!b)");
+        match ast {
+            Node::Seq(seq) => {
+                match &seq.parts[1] {
+                    Node::Look(look) => {
+                        assert_eq!(look.dir, "Ahead");
+                        assert!(look.neg);
+                    }
+                    _ => panic!("Expected Look node"),
+                }
+            }
+            _ => panic!("Expected Seq node"),
+        }
+    }
+
+    #[test]
+    fn test_positive_lookbehind() {
+        let ast = parse_ok("(?<=a)b");
+        match ast {
+            Node::Seq(seq) => {
+                match &seq.parts[0] {
+                    Node::Look(look) => {
+                        assert_eq!(look.dir, "Behind");
+                        assert!(!look.neg);
+                    }
+                    _ => panic!("Expected Look node"),
+                }
+            }
+            _ => panic!("Expected Seq node"),
+        }
+    }
+
+    #[test]
+    fn test_negative_lookbehind() {
+        let ast = parse_ok("(?<!a)b");
+        match ast {
+            Node::Seq(seq) => {
+                match &seq.parts[0] {
+                    Node::Look(look) => {
+                        assert_eq!(look.dir, "Behind");
+                        assert!(look.neg);
+                    }
+                    _ => panic!("Expected Look node"),
+                }
+            }
+            _ => panic!("Expected Seq node"),
+        }
+    }
+}
+
+// ============================================================================
+// ALTERNATION TESTS
+// ============================================================================
+
+#[cfg(test)]
+mod alternation {
+    use super::*;
+
+    #[test]
+    fn test_simple_alternation() {
+        let ast = parse_ok("a|b");
+        match ast {
+            Node::Alt(alt) => {
+                assert_eq!(alt.branches.len(), 2);
+            }
+            _ => panic!("Expected Alt node"),
+        }
+    }
+
+    #[test]
+    fn test_multiple_alternation() {
+        let ast = parse_ok("a|b|c|d");
+        match ast {
+            Node::Alt(alt) => {
+                assert_eq!(alt.branches.len(), 4);
+            }
+            _ => panic!("Expected Alt node"),
+        }
+    }
+
+    #[test]
+    fn test_alternation_with_sequences() {
+        let ast = parse_ok("ab|cd");
+        match ast {
+            Node::Alt(alt) => {
+                assert_eq!(alt.branches.len(), 2);
+                // Each branch should be a sequence
+                for branch in &alt.branches {
+                    match branch {
+                        Node::Seq(_) => {},
+                        _ => panic!("Expected Seq branches"),
+                    }
+                }
+            }
+            _ => panic!("Expected Alt node"),
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Alternation lacks left-hand side")]
+    fn test_alternation_no_lhs() {
+        parse_ok("|a");
+    }
+
+    #[test]
+    #[should_panic(expected = "Alternation lacks right-hand side")]
+    fn test_alternation_no_rhs() {
+        parse_ok("a|");
+    }
+
+    #[test]
+    #[should_panic(expected = "Empty alternation branch")]
+    fn test_empty_alternation_branch() {
+        parse_ok("a||b");
+    }
+}
+
+// ============================================================================
+// FLAGS TESTS
+// ============================================================================
+
+#[cfg(test)]
+mod flags {
+    use super::*;
+
+    #[test]
+    fn test_ignore_case_flag() {
+        let (flags, _) = parse("%flags i\na").unwrap();
+        assert!(flags.ignore_case);
+        assert!(!flags.multiline);
+        assert!(!flags.dot_all);
+    }
+
+    #[test]
+    fn test_multiline_flag() {
+        let (flags, _) = parse("%flags m\na").unwrap();
+        assert!(!flags.ignore_case);
+        assert!(flags.multiline);
+        assert!(!flags.dot_all);
+    }
+
+    #[test]
+    fn test_multiple_flags() {
+        let (flags, _) = parse("%flags i,m,s\na").unwrap();
+        assert!(flags.ignore_case);
+        assert!(flags.multiline);
+        assert!(flags.dot_all);
+    }
+
+    #[test]
+    fn test_flags_without_separators() {
+        let (flags, _) = parse("%flags ims\na").unwrap();
+        assert!(flags.ignore_case);
+        assert!(flags.multiline);
+        assert!(flags.dot_all);
+    }
+}
+
+// ============================================================================
+// DOT TESTS
+// ============================================================================
+
+#[cfg(test)]
+mod dot {
+    use super::*;
+
+    #[test]
+    fn test_dot() {
+        let ast = parse_ok(".");
+        match ast {
+            Node::Dot(_) => {},
+            _ => panic!("Expected Dot node"),
+        }
+    }
+
+    #[test]
+    fn test_dot_in_sequence() {
+        let ast = parse_ok("a.b");
+        match ast {
+            Node::Seq(seq) => {
+                assert_eq!(seq.parts.len(), 3);
+                match &seq.parts[1] {
+                    Node::Dot(_) => {},
+                    _ => panic!("Expected Dot in middle"),
+                }
+            }
+            _ => panic!("Expected Seq node"),
+        }
+    }
+
+    #[test]
+    fn test_multiple_dots() {
+        let ast = parse_ok("...");
+        match ast {
+            Node::Seq(seq) => {
+                assert_eq!(seq.parts.len(), 3);
+                for part in &seq.parts {
+                    match part {
+                        Node::Dot(_) => {},
+                        _ => panic!("Expected Dot nodes"),
+                    }
+                }
+            }
+            _ => panic!("Expected Seq node"),
+        }
+    }
+}
