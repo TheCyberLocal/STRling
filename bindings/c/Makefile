@@ -30,8 +30,8 @@ $(LIB): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Build individual test binaries
-$(TESTDIR)/%_test: $(TESTDIR)/%_test.c
-	$(CC) $(TEST_CFLAGS) $< -o $@ $(TEST_LDFLAGS)
+$(TESTDIR)/%_test: $(TESTDIR)/%_test.c $(LIB)
+	$(CC) $(TEST_CFLAGS) $< -o $@ $(LIB) $(TEST_LDFLAGS)
 
 # Build all tests
 build-tests: $(TEST_BINS)
