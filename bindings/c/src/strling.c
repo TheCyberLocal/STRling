@@ -312,10 +312,13 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
                     const char* from = json_string_value(from_obj);
                     const char* to = json_string_value(to_obj);
                     
-                    /* Emit as "from-to" */
-                    result[result_len++] = from[0];
-                    result[result_len++] = '-';
-                    result[result_len++] = to[0];
+                    /* Ensure strings are not empty before accessing [0] */
+                    if (from && from[0] && to && to[0]) {
+                        /* Emit as "from-to" */
+                        result[result_len++] = from[0];
+                        result[result_len++] = '-';
+                        result[result_len++] = to[0];
+                    }
                 }
             }
             /* Handle Meta: {"type": "Meta", "value": "d"} */
@@ -323,9 +326,12 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
                 json_t* value_obj = json_object_get(member, "value");
                 if (value_obj && json_is_string(value_obj)) {
                     const char* value = json_string_value(value_obj);
-                    /* Emit as \value */
-                    result[result_len++] = '\\';
-                    result[result_len++] = value[0];
+                    /* Ensure string is not empty before accessing [0] */
+                    if (value && value[0]) {
+                        /* Emit as \value */
+                        result[result_len++] = '\\';
+                        result[result_len++] = value[0];
+                    }
                 }
             }
             /* Handle Literal: {"type": "Literal", "value": "x"} */
@@ -333,12 +339,15 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
                 json_t* value_obj = json_object_get(member, "value");
                 if (value_obj && json_is_string(value_obj)) {
                     const char* value = json_string_value(value_obj);
-                    /* Special characters in character classes that need escaping */
-                    char c = value[0];
-                    if (c == ']' || c == '\\' || c == '^') {
-                        result[result_len++] = '\\';
+                    /* Ensure string is not empty before accessing [0] */
+                    if (value && value[0]) {
+                        /* Special characters in character classes that need escaping */
+                        char c = value[0];
+                        if (c == ']' || c == '\\' || c == '^') {
+                            result[result_len++] = '\\';
+                        }
+                        result[result_len++] = c;
                     }
-                    result[result_len++] = c;
                 }
             }
             /* Handle UnicodeProperty: {"type": "UnicodeProperty", "name": "Script", "value": "Latin", "negated": false} */
@@ -351,6 +360,28 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
                 
                 if (value_obj && json_is_string(value_obj)) {
                     const char* value = json_string_value(value_obj);
+                    const char* name = NULL;
+                    size_t value_len = value ? strlen(value) : 0;
+                    size_t name_len = 0;
+                    
+                    if (name_obj && json_is_string(name_obj)) {
+                        name = json_string_value(name_obj);
+                        name_len = name ? strlen(name) : 0;
+                    }
+                    
+                    /* Calculate total space needed: \p{name=value} or \p{value} */
+                    size_t needed = 4 + value_len + name_len + (name ? 1 : 0); /* \p{} + name= + value */
+                    
+                    /* Ensure we have enough space */
+                    while (result_len + needed >= result_capacity) {
+                        result_capacity *= 2;
+                        char* new_result = (char*)realloc(result, result_capacity);
+                        if (!new_result) {
+                            free(result);
+                            return strdup("");
+                        }
+                        result = new_result;
+                    }
                     
                     /* Start with \p or \P */
                     result[result_len++] = '\\';
@@ -358,15 +389,16 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
                     result[result_len++] = '{';
                     
                     /* Add name=value if name is present, otherwise just value */
-                    if (name_obj && json_is_string(name_obj)) {
-                        const char* name = json_string_value(name_obj);
-                        strcpy(result + result_len, name);
-                        result_len += strlen(name);
+                    if (name && name_len > 0) {
+                        memcpy(result + result_len, name, name_len);
+                        result_len += name_len;
                         result[result_len++] = '=';
                     }
                     
-                    strcpy(result + result_len, value);
-                    result_len += strlen(value);
+                    if (value && value_len > 0) {
+                        memcpy(result + result_len, value, value_len);
+                        result_len += value_len;
+                    }
                     result[result_len++] = '}';
                 }
             }
