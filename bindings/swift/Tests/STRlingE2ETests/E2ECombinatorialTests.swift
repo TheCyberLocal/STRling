@@ -40,15 +40,15 @@ import XCTest
 
 // --- Stub Protocols and Structs ---
 
-protocol ASTNode {}
-protocol IRNode {}
-struct Flags {} // Empty stub
+fileprivate protocol ASTNode {}
+fileprivate protocol IRNode {}
+fileprivate struct Flags {} // Empty stub
 
-struct ParseResult {
+fileprivate struct ParseResult {
     let ast: ASTNode
     let flags: Flags
 }
-struct IrRoot {
+fileprivate struct IrRoot {
     let root: IRNode
 }
 
@@ -57,13 +57,13 @@ struct IrRoot {
 // for the test cases. In a real test, you'd import the *actual* modules.
 
 // Create dummy node types just for this test that pass the string through
-struct MockASTNode: ASTNode { let dsl: String }
-struct MockIRNode: IRNode { let dsl: String }
+fileprivate struct MockASTNode: ASTNode { let dsl: String }
+fileprivate struct MockIRNode: IRNode { let dsl: String }
 
 /**
  * [SUT STUB] Swift equivalent of `parse(src)`.
  */
-func strlingParse(src: String) -> ParseResult {
+fileprivate func strlingParse(src: String) -> ParseResult {
     // The AST node just holds the original string for our mock pipeline
     return ParseResult(ast: MockASTNode(dsl: src), flags: Flags())
 }
@@ -71,7 +71,7 @@ func strlingParse(src: String) -> ParseResult {
 /**
  * [SUT STUB] Swift equivalent of `new Compiler()`.
  */
-class Compiler {
+fileprivate class Compiler {
     /**
      * [SUT STUB] Swift equivalent of `compiler.compile(ast)`.
      */
@@ -90,7 +90,7 @@ class Compiler {
  * *exact* logic of the original test cases by returning the
  * hard-coded expected string for each input.
  */
-func strlingEmitPcre2(ir: IrRoot, flags: Flags) -> String {
+fileprivate func strlingEmitPcre2(ir: IrRoot, flags: Flags) -> String {
     guard let mockIr = ir.root as? MockIRNode else {
         fatalError("Invalid IRNode type passed to mock emitter")
     }
@@ -199,7 +199,7 @@ func strlingEmitPcre2(ir: IrRoot, flags: Flags) -> String {
  * @brief A helper to run the full DSL -> PCRE2 string pipeline.
  * Swift equivalent of `compileToPcre(src)`.
  */
-func compileToPcre(_ src: String) -> String {
+fileprivate func compileToPcre(_ src: String) -> String {
     let parseResult = strlingParse(src: src)
     let compiler = Compiler()
     let irRoot = compiler.compile(ast: parseResult.ast)
@@ -208,7 +208,7 @@ func compileToPcre(_ src: String) -> String {
 }
 
 // Type alias for test cases
-struct TestCase {
+fileprivate struct TestCase {
     let id: String
     let input: String
     let expected: String

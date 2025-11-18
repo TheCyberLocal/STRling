@@ -47,7 +47,7 @@ import XCTest
  * @enum ShorthandType
  * Represents the specific shorthand (d, s, w, h, v).
  */
-enum ShorthandType: Equatable {
+fileprivate enum ShorthandType: Equatable {
     case digit
     case whitespace
     case word
@@ -60,7 +60,7 @@ enum ShorthandType: Equatable {
  * Represents the items *inside* a `CharClass`.
  * Mirrors `ClassLiteral`, `ClassRange`, `ClassShorthand`, `UnicodeProperty`.
  */
-enum ClassItem: Equatable {
+fileprivate enum ClassItem: Equatable {
     case literal(String)
     case range(String, String)
     case shorthand(ShorthandType, negated: Bool)
@@ -71,7 +71,7 @@ enum ClassItem: Equatable {
  * @enum ASTNode
  * A base enum for all AST nodes.
  */
-enum ASTNode: Equatable {
+fileprivate indirect enum ASTNode: Equatable {
     case charClass(negated: Bool, items: [ClassItem])
     // Other node types would be added here (e.g., .lit, .seq)
 }
@@ -80,7 +80,7 @@ enum ASTNode: Equatable {
  * @struct Flags
  * A mock of the `Flags` object returned by the parser.
  */
-struct Flags: Equatable {
+fileprivate struct Flags: Equatable {
     // We don't test any flags in this suite, but the parser returns it.
 }
 
@@ -88,7 +88,7 @@ struct Flags: Equatable {
  * @enum ParseError
  * A mock error conforming to Swift's `Error` protocol.
  */
-enum ParseError: Error, LocalizedError, Equatable {
+fileprivate enum ParseError: Error, LocalizedError, Equatable {
     case unterminatedCharacterClass
     case invalidCharacterRange
     
@@ -109,7 +109,7 @@ enum ParseError: Error, LocalizedError, Equatable {
  * Swift equivalent of the `parse` function under test.
  * Throws an error on failure.
  */
-func strlingParse(src: String) throws -> (Flags, ASTNode) {
+fileprivate func strlingParse(src: String) throws -> (Flags, ASTNode) {
     switch src {
     // Category A: Positive and Negative
     case "[a]":

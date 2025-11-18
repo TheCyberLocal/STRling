@@ -35,7 +35,7 @@ import XCTest
 // --- Mock AST Node Definitions (Self-contained) -------------------------------
 
 // Note: These must be Hashable to be used as `case` values in the mock parser.
-enum ASTNode: Equatable, Hashable {
+fileprivate indirect enum ASTNode: Equatable, Hashable {
     case lit(String)
     case seq([ASTNode])
     case quant(body: ASTNode, min: Int, max: String, mode: String)
@@ -49,19 +49,19 @@ enum ASTNode: Equatable, Hashable {
 }
 
 // Mock Flags (Required for ParseResult)
-struct Flags: Equatable {
+fileprivate struct Flags: Equatable {
     var extended: Bool = false
     static let `default` = Flags()
 }
 
 // Mock Parse Result
-struct ParseResult: Equatable {
+fileprivate struct ParseResult: Equatable {
     let flags: Flags
     let ast: ASTNode
 }
 
 // Mock Parse Error (Matches the `ParseError` imported in the JS test)
-enum ParseError: Error, Equatable {
+fileprivate enum ParseError: Error, Equatable {
     case testError(message: String, pos: Int)
 }
 
@@ -71,7 +71,7 @@ enum ParseError: Error, Equatable {
  * @brief Mock parser that returns a hard-coded result for known inputs.
  * This switch statement contains all the test cases from the JS file.
  */
-func strlingParse(src: String) throws -> ParseResult {
+fileprivate func strlingParse(src: String) throws -> ParseResult {
     var flags = Flags.default
     var astString = src
 

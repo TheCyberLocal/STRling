@@ -49,7 +49,7 @@ let PCRE2_SCHEMA_PATH = "pcre2.v1.schema.json"
 typealias Artifact = [String: Any]
 
 /// Mock error for the validator, matching the `ValidationError` in the JS test.
-enum ValidationError: Error, Equatable {
+fileprivate enum ValidationError: Error, Equatable {
     case testError(message: String)
 }
 
@@ -127,7 +127,7 @@ let flagsOnlyArtifact: Artifact = [
  * This function is the "System Under Test" for this test file.
  * It simulates the logic of a JSON schema validator.
  */
-func validateArtifact(_ artifact: Artifact, _ schemaPath: String) throws {
+fileprivate func validateArtifact(_ artifact: Artifact, _ schemaPath: String) throws {
     
     // --- Category B: Negative Cases ---
     // This function is hard-coded to throw errors for the specific

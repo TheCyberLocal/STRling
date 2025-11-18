@@ -32,7 +32,7 @@ import XCTest
 
 // --- Mock Error Definition ----------------------------------------------------
 
-enum STRlingError: Error, Equatable {
+fileprivate enum STRlingError: Error, Equatable {
     case validationError(String)
     case duplicateGroup
 }
@@ -45,7 +45,7 @@ enum STRlingError: Error, Equatable {
  * It stores the regex string and the names of any groups it defines
  * to check for duplicates, as required by the tests.
  */
-struct MockPattern: CustomStringConvertible, Equatable {
+fileprivate struct MockPattern: CustomStringConvertible, Equatable {
     let regex: String
     let groupNames: Set<String>
     
@@ -99,7 +99,7 @@ struct MockPattern: CustomStringConvertible, Equatable {
  * The functions are hard-coded to produce the regex strings and
  * errors seen in the Javascript tests.
  */
-struct Simply {
+fileprivate struct Simply {
     
     // MARK: - Helpers
     

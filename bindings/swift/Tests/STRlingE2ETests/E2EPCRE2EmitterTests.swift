@@ -45,24 +45,24 @@ import XCTest
 // These stubs simulate the core STRling library behavior for the E2E tests.
 
 // --- Stub Protocols and Structs ---
-protocol ASTNode {}
-protocol IRNode {}
+fileprivate protocol ASTNode {}
+fileprivate protocol IRNode {}
 
-struct Flags {
+fileprivate struct Flags {
     var i, m, s, u, x: Bool
     static let `default` = Flags(i: false, m: false, s: false, u: false, x: false)
 }
 
-struct ParseResult {
+fileprivate struct ParseResult {
     let ast: ASTNode
     let flags: Flags
 }
-struct IrRoot {
+fileprivate struct IrRoot {
     let root: IRNode
 }
 
 // Custom error to replace ParseError
-enum ParseError: Error, Equatable {
+fileprivate enum ParseError: Error, Equatable {
     case unterminatedGroup
     case unknownEscapeSequence(String)
 }
@@ -71,14 +71,14 @@ enum ParseError: Error, Equatable {
 // These mocks are hard-coded to return the expected values
 // for the test cases. In a real test, you'd import the *actual* modules.
 
-struct MockASTNode: ASTNode { let dsl: String }
-struct MockIRNode: IRNode { let dsl: String }
+fileprivate struct MockASTNode: ASTNode { let dsl: String }
+fileprivate struct MockIRNode: IRNode { let dsl: String }
 
 /**
  * [SUT STUB] Swift equivalent of `parse(src)`.
  * This version `throws` on specific inputs to test error handling.
  */
-func strlingParse(src: String) throws -> ParseResult {
+fileprivate func strlingParse(src: String) throws -> ParseResult {
     // --- Mocked Error Handling (replicates jest .toThrow) ---
     if src == "a(b" {
         throw ParseError.unterminatedGroup
@@ -113,7 +113,7 @@ func strlingParse(src: String) throws -> ParseResult {
 /**
  * [SUT STUB] Swift equivalent of `new Compiler()`.
  */
-class Compiler {
+fileprivate class Compiler {
     /**
      * [SUT STUB] Swift equivalent of `compiler.compile(ast)`.
      */
@@ -129,7 +129,7 @@ class Compiler {
  * [SUT STUB] Swift equivalent of `emitPcre2(irRoot, flags)`.
  * This stub returns hard-coded strings based on the input DSL.
  */
-func strlingEmitPcre2(ir: IrRoot, flags: Flags) -> String {
+fileprivate func strlingEmitPcre2(ir: IrRoot, flags: Flags) -> String {
     guard let mockIr = ir.root as? MockIRNode else {
         fatalError("Invalid IRNode type passed to mock emitter")
     }
@@ -208,7 +208,7 @@ func strlingEmitPcre2(ir: IrRoot, flags: Flags) -> String {
  * @brief A helper to run the full DSL -> PCRE2 string pipeline.
  * Swift equivalent of `compileToPcre(src)`.
  */
-func compileToPcre(_ src: String) throws -> String {
+fileprivate func compileToPcre(_ src: String) throws -> String {
     let parseResult = try strlingParse(src: src)
     let compiler = Compiler()
     let irRoot = compiler.compile(ast: parseResult.ast)
@@ -217,7 +217,7 @@ func compileToPcre(_ src: String) throws -> String {
 }
 
 // Type alias for test cases
-struct TestCase {
+fileprivate struct TestCase {
     let input: String
     let expected: String
     let id: String

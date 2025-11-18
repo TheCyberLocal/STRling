@@ -25,7 +25,7 @@ import XCTest
 
 // A dummy result for the `strlingParse` signature.
 // These tests only ever expect an error.
-struct ParseResult: Equatable {
+fileprivate struct ParseResult: Equatable {
     // No content needed
 }
 
@@ -34,7 +34,7 @@ struct ParseResult: Equatable {
  * A mock error that replicates the behavior of the "Visionary State" error,
  * including the `toString()` (aka `description`) formatting.
  */
-struct STRlingParseError: Error, Equatable, CustomStringConvertible {
+fileprivate struct STRlingParseError: Error, Equatable, CustomStringConvertible {
     let message: String
     let hint: String?
     let pos: Int
@@ -91,7 +91,7 @@ struct STRlingParseError: Error, Equatable, CustomStringConvertible {
  * @brief Mock parser that throws a hard-coded error for known inputs.
  * This switch statement contains all the test cases from the JS file.
  */
-func strlingParse(src: String) throws -> ParseResult {
+fileprivate func strlingParse(src: String) throws -> ParseResult {
     
     // This switch maps 1-to-1 with the test cases in the .ts file.
     switch src {

@@ -45,7 +45,7 @@ import XCTest
  * A Swift struct mirroring the properties of the `ParseError` class.
  * It conforms to `Error` for Swift's native error handling.
  */
-struct ParseError: Error, LocalizedError, Equatable {
+fileprivate struct ParseError: Error, LocalizedError, Equatable {
     let message: String
     let pos: Int
     
@@ -57,15 +57,15 @@ struct ParseError: Error, LocalizedError, Equatable {
 // --- Mock SUT (`strlingParse`) -----------------------------------------------
 
 // A dummy struct to represent a successful parse
-struct MockASTNode: Equatable {}
-struct Flags: Equatable {} // Mock Flags struct
+fileprivate struct MockASTNode: Equatable {}
+fileprivate struct Flags: Equatable {} // Mock Flags struct
 
 /**
  * @brief Mock of the `parse` function (System Under Test).
  * It throws a `ParseError` on failure, mimicking
  * the original test's exception behavior.
  */
-func strlingParse(src: String) throws -> (Flags, MockASTNode) {
+fileprivate func strlingParse(src: String) throws -> (Flags, MockASTNode) {
     // --- Category: Parser Syntax Errors ---
     switch src {
     case "[":

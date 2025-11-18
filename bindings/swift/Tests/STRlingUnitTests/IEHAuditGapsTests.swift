@@ -26,24 +26,24 @@ import XCTest
 // Note: These tests don't check the AST, only the error.
 // These mocks are the minimum needed for the `strlingParse` signature.
 
-enum ASTNode: Equatable {
+fileprivate indirect enum ASTNode: Equatable {
     // A dummy node, since the AST is not being tested
     case valid
 }
 
-struct Flags: Equatable {
+fileprivate struct Flags: Equatable {
     // We don't care about flags in this test
     static let `default` = Flags()
 }
 
-struct ParseResult: Equatable {
+fileprivate struct ParseResult: Equatable {
     let flags: Flags
     let ast: ASTNode
 }
 
 // Mock Parse Error
 // This is the key type being tested. It mirrors the JS `STRlingParseError`.
-enum STRlingParseError: Error, Equatable {
+fileprivate enum STRlingParseError: Error, Equatable {
     case testError(message: String, hint: String)
 }
 
@@ -53,7 +53,7 @@ enum STRlingParseError: Error, Equatable {
  * @brief Mock parser that returns a hard-coded result for known inputs.
  * This switch statement contains all the test cases from the JS file.
  */
-func strlingParse(src: String) throws -> ParseResult {
+fileprivate func strlingParse(src: String) throws -> ParseResult {
     let flags = Flags.default
     
     // This switch maps 1-to-1 with the test cases in the .ts file.

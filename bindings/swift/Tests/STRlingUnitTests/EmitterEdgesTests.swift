@@ -47,7 +47,7 @@ import XCTest
  * @struct Flags
  * Mirrors the `Flags` object passed to the emitter.
  */
-struct Flags: Equatable {
+fileprivate struct Flags: Equatable {
     var i, m, s, u, x: Bool
     static let `default` = Flags(i: false, m: false, s: false, u: false, x: false)
     static let all = Flags(i: true, m: true, s: true, u: true, x: true)
@@ -57,7 +57,7 @@ struct Flags: Equatable {
  * @enum AnchorType
  * Mirrors the `at` property of `IRAnchor`.
  */
-enum AnchorType: String, Equatable {
+fileprivate enum AnchorType: String, Equatable {
     case start = "Start"
     case end = "End"
     case wordBoundary = "WordBoundary"
@@ -71,7 +71,7 @@ enum AnchorType: String, Equatable {
  * @enum LookaroundType
  * Mirrors the `kind` property of `IRLookaround`.
  */
-enum LookaroundType: Equatable {
+fileprivate enum LookaroundType: Equatable {
     case ahead, aheadNegative
     case behind, behindNegative
 }
@@ -80,7 +80,7 @@ enum LookaroundType: Equatable {
  * @enum QuantMode
  * Mirrors the `mode` property of `IRQuant`.
  */
-enum QuantMode: String, Equatable {
+fileprivate enum QuantMode: String, Equatable {
     case greedy = "Greedy"
     case lazy = "Lazy"
     case possessive = "Possessive"
@@ -93,7 +93,7 @@ let IR_INF = -1
  * @enum ClassItem
  * Represents the items *inside* a `IRCharClass`.
  */
-enum ClassItem: Equatable {
+fileprivate enum ClassItem: Equatable {
     case literal(String)
     case range(String, String)
     // Other cases like .shorthand, .unicodeProperty would be here
@@ -104,7 +104,7 @@ enum ClassItem: Equatable {
  * A base enum for all IR nodes. This is the Swift-idiomatic
  * representation of the `ir.ts` class hierarchy.
  */
-enum IRNode: Equatable {
+fileprivate indirect enum IRNode: Equatable {
     case lit(String)
     case seq([IRNode])
     case alt([IRNode])
@@ -153,7 +153,7 @@ enum IRNode: Equatable {
  * IR node defined in the test cases. This is required because we are
  * only translating the test, not the emitter implementation.
  */
-func strlingEmitPcre2(_ ir: IRNode, _ flags: Flags) -> String {
+fileprivate func strlingEmitPcre2(_ ir: IRNode, _ flags: Flags) -> String {
     var body: String
     
     // --- Mock Logic: Determine body string based on IR structure ---
@@ -239,7 +239,7 @@ func strlingEmitPcre2(_ ir: IRNode, _ flags: Flags) -> String {
 
 class EmitterEdgesTests: XCTestCase {
 
-    let defaultFlags = Flags.default
+    fileprivate let defaultFlags = Flags.default
 
     /**
      * @brief Corresponds to "describe('Category A: Escaping Logic', ...)"
