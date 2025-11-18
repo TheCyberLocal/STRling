@@ -11,21 +11,12 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+/* Include public header for STRlingFlags */
+#include "../../include/strling.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* Flags container (regex modifiers) */
-typedef struct STRlingFlags {
-    bool ignoreCase;
-    bool multiline;
-    bool dotAll;
-    bool unicode;
-    bool extended;
-} STRlingFlags;
-
-STRlingFlags* strling_flags_create(void);
-void strling_flags_free(STRlingFlags* f);
 
 /* Forward declare AST node */
 typedef struct STRlingASTNode STRlingASTNode;

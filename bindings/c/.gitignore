@@ -1,0 +1,21 @@
+# Build artifacts
+*.o
+*.a
+libstrling.a
+
+# Test binaries
+tests/simple_test
+tests/unit/*_test
+tests/e2e/*_test
+!tests/**/*.c
+
+# IDE and editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
