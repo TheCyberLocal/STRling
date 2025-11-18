@@ -5,6 +5,7 @@ libstrling.a
 
 # Test binaries
 tests/simple_test
+tests/quantifier_alternation_test
 tests/unit/*_test
 tests/e2e/*_test
 !tests/**/*.c
