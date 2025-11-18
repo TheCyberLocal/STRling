@@ -283,7 +283,7 @@ jobs:
 
     test-swift:
         name: Test Swift (5.9)
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04 # Not all Swift releases are published for 24.04 yet
         permissions:
             contents: read
         steps:
