@@ -21,9 +21,9 @@ on:
             - ".github/workflows/**"
 
 jobs:
-    # --- 1. PYTHON CI (TESTING) ---
-    test-python:
-        name: Test Python (3.12)
+    # --- TEST JOBS (ALPHABETICALLY ORDERED) ---
+    test-c:
+        name: Test C (C99)
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -31,27 +31,40 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Setup Python 3.12
-              uses: actions/setup-python@v5
+            - name: Run C test suite
+              run: echo "C tests not yet implemented" && true
+
+    test-cpp:
+        name: Test C++ (C++17)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Run C++ test suite
+              run: echo "C++ tests not yet implemented" && true
+
+    test-csharp:
+        name: Test C# (.NET 8)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup .NET 8
+              uses: actions/setup-dotnet@v4
               with:
-                  python-version: "3.12"
+                  dotnet-version: "8.0"
 
-            - name: Install Python build tools
-              run: |
-                  python -m pip install --upgrade pip build wheel
+            - name: Run C# test suite
+              run: echo "C# tests not yet implemented" && true
 
-            - name: Install Python dependencies
-              run: pip install -r bindings/python/requirements.txt
-
-            - name: Install Python binding (editable)
-              run: pip install -e bindings/python
-
-            - name: Run Python test suite
-              run: pytest bindings/python/tests/
-
-    # --- 2. JAVASCRIPT CI (TESTING) ---
-    test-javascript:
-        name: Test JS (Node 20)
+    test-fsharp:
+        name: Test F# (.NET 8)
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -59,16 +72,68 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Setup Node 20
+            - name: Setup .NET 8
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: "8.0"
+
+            - name: Run F# test suite
+              run: echo "F# tests not yet implemented" && true
+
+    test-go:
+        name: Test Go (1.22)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Go 1.22
+              uses: actions/setup-go@v5
+              with:
+                  go-version: "1.22"
+
+            - name: Run Go test suite
+              run: echo "Go tests not yet implemented" && true
+
+    test-java:
+        name: Test Java (11 LTS)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Java 11
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "temurin"
+                  java-version: "11"
+
+            - name: Run Java test suite
+              run: echo "Java tests not yet implemented" && true
+
+    test-javascript:
+        name: Test JavaScript (Node.js 22 LTS)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js 22
               uses: actions/setup-node@v4
               with:
-                  node-version: "20"
+                  node-version: "22"
 
             # JS E2E tests call the Python CLI, so Python setup is required
-            - name: Setup Python 3.12
+            - name: Setup Python 3.10
               uses: actions/setup-python@v5
               with:
-                  python-version: "3.12"
+                  python-version: "3.10"
 
             - name: Install Python dependencies
               run: |
@@ -86,35 +151,200 @@ jobs:
               working-directory: bindings/javascript
               run: npm test
 
-    # --- 3. PRE-FLIGHT CHECKS (THE GATE) ---
-    pre-flight-checks:
-        name: Gate Pre-Flight Checks
+    test-kotlin:
+        name: Test Kotlin (1.9.x)
         runs-on: ubuntu-latest
-        # Only run on a push to main AND only if both test jobs passed
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        needs: [test-python, test-javascript]
         permissions:
-            contents: read # Needs read access to check out code and read files
-        outputs:
-            ssot_version: ${{ steps.sync.outputs.ssot_version }}
-
+            contents: read
         steps:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Setup Python 3.12 (for SSOT script)
+            - name: Setup Java 11 (for Kotlin)
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "temurin"
+                  java-version: "11"
+
+            - name: Run Kotlin test suite
+              run: echo "Kotlin tests not yet implemented" && true
+
+    test-perl:
+        name: Test Perl (5.32)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Perl 5.32
+              uses: shogo82148/actions-setup-perl@v1
+              with:
+                  perl-version: "5.32"
+
+            - name: Run Perl test suite
+              run: echo "Perl tests not yet implemented" && true
+
+    test-php:
+        name: Test PHP (8.2)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup PHP 8.2
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.2"
+
+            - name: Run PHP test suite
+              run: echo "PHP tests not yet implemented" && true
+
+    test-python:
+        name: Test Python (3.10)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Python 3.10
               uses: actions/setup-python@v5
               with:
-                  python-version: "3.12"
+                  python-version: "3.10"
 
-            - name: Setup Node 20 (for NPM check)
+            - name: Install Python build tools
+              run: |
+                  python -m pip install --upgrade pip build wheel
+
+            - name: Install Python dependencies
+              run: pip install -r bindings/python/requirements.txt
+
+            - name: Install Python binding (editable)
+              run: pip install -e bindings/python
+
+            - name: Run Python test suite
+              run: pytest bindings/python/tests/
+
+    test-r:
+        name: Test R (4.2.x)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup R 4.2
+              uses: r-lib/actions/setup-r@v2
+              with:
+                  r-version: "4.2"
+
+            - name: Run R test suite
+              run: echo "R tests not yet implemented" && true
+
+    test-ruby:
+        name: Test Ruby (3.2)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Ruby 3.2
+              uses: ruby/setup-ruby@v1
+              with:
+                  ruby-version: "3.2"
+
+            - name: Run Ruby test suite
+              run: echo "Ruby tests not yet implemented" && true
+
+    test-rust:
+        name: Test Rust (2021 Edition)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Rust (1.65+)
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  toolchain: "1.65"
+
+            - name: Run Rust test suite
+              run: echo "Rust tests not yet implemented" && true
+
+    test-swift:
+        name: Test Swift (5.9)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Swift 5.9
+              uses: swift-actions/setup-swift@v2
+              with:
+                  swift-version: "5.9"
+
+            - name: Run Swift test suite
+              run: echo "Swift tests not yet implemented" && true
+
+    # --- DEPLOYMENT JOBS (ALPHABETICALLY ORDERED) ---
+    deploy-java:
+        name: Deploy Java to Maven Central
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        needs: [test-java]
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Java 11
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "temurin"
+                  java-version: "11"
+
+            - name: Build and deploy to Maven Central
+              working-directory: bindings/java
+              run: echo "Java deployment not yet implemented" && true
+              # Placeholder for future Maven deployment
+              # run: mvn deploy
+
+    deploy-javascript:
+        name: Deploy JavaScript to NPM
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        needs: [test-javascript]
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Python 3.10 (for SSOT script)
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.10"
+
+            - name: Setup Node.js 22
               uses: actions/setup-node@v4
               with:
-                  node-version: "20"
+                  node-version: "22"
                   registry-url: "https://registry.npmjs.org"
 
             - name: Sync Python SSOT to JavaScript Version
-              id: sync # Give this step an ID to output the version
               run: |
                   python -c "
                   import json, tomllib
@@ -136,13 +366,10 @@ jobs:
                   if original_js_version != ssot_version:
                       js_data['version'] = ssot_version
                       with open(js_pkg_path, 'w') as f:
-                          json.dump(js_data, f, indent=2) # Use indent=2 to match project's .prettierrc
+                          json.dump(js_data, f, indent=2)
                       print(f'Updated JavaScript version from {original_js_version} to {ssot_version}')
                   else:
                       print(f'JavaScript version ({original_js_version}) is already in sync.')
-
-                  # 4. Output the version for other jobs to use (optional but clean)
-                  print(f'::set-output name=ssot_version::{ssot_version}')
                   "
 
             - name: Check NPM package version bump
@@ -155,31 +382,26 @@ jobs:
 
                   if npm view $PACKAGE_NAME@$CURRENT_VERSION version >/dev/null 2>&1; then
                     echo "::error title=Deployment Blocked::Version $CURRENT_VERSION already exists on NPM for package $PACKAGE_NAME. Please bump the version in bindings/python/pyproject.toml before merging to 'main'."
-                    exit 1 # Forces a failure and stops the pipeline
+                    exit 1
                   else
                     echo "Version $CURRENT_VERSION is unique. Proceeding with deployment."
                   fi
 
-            # 4. Upload synced JS package (NEW STEP)
-            - name: Upload synced JS package
-              uses: actions/upload-artifact@v4
-              with:
-                  name: javascript-package
-                  path: bindings/javascript/
+            - name: Install JS dependencies
+              working-directory: bindings/javascript
+              run: npm ci
 
-            # --- FUTURE CHECKS ---
-            # - name: Check RubyGems package version bump
-            #   run: |
-            #     # Logic to check RubyGems would go here
-            #     echo "Ruby check passed"
+            - name: Publish to NPM
+              working-directory: bindings/javascript
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: npm publish
 
-    # --- 4. PYTHON CD (DEPLOYMENT) ---
     deploy-python:
         name: Deploy Python to PyPI
         runs-on: ubuntu-latest
-        # Only run on a push to main AND only if the gate passed
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        needs: [pre-flight-checks]
+        needs: [test-python]
         permissions:
             contents: read
             id-token: write
@@ -187,10 +409,10 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - name: Setup Python 3.12
+            - name: Setup Python 3.10
               uses: actions/setup-python@v5
               with:
-                  python-version: "3.12"
+                  python-version: "3.10"
 
             - name: Install build tools and build package
               working-directory: bindings/python
@@ -202,44 +424,3 @@ jobs:
               uses: pypa/gh-action-pypi-publish@release/v1
               with:
                   packages-dir: bindings/python/dist/
-
-    # --- 4. JAVASCRIPT CD (DEPLOYMENT) ---
-    deploy-javascript:
-        name: Deploy JS to NPM
-        runs-on: ubuntu-latest
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        needs: [pre-flight-checks]
-        permissions:
-            contents: read
-
-        steps:
-            # 1. Download the artifact (Correct)
-            - name: Download synced JS package
-              uses: actions/download-artifact@v4
-              with:
-                  name: javascript-package
-                  path: bindings/javascript/
-
-            # 2. Setup Node 20 (Correct)
-            - name: Setup Node 20
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
-                  registry-url: "https://registry.npmjs.org"
-                  cache: "npm"
-                  cache-dependency-path: "bindings/javascript/package-lock.json"
-
-            # 3. Install JS dependencies (Correct)
-            # This step will now correctly use NO_PROXY
-            - name: Install JS dependencies
-              working-directory: bindings/javascript
-              run: npm ci
-
-            # 4. Publish to NPM (Correct)
-            # This step will also use NO_PROXY from the job level
-            - name: Publish to NPM
-              working-directory: bindings/javascript
-              env:
-                  # The auth token is specific to this step
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: npm publish
