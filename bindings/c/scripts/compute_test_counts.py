@@ -1,96 +1,101 @@
 #!/usr/bin/env python3
+"""
+Compute test counts for C bindings by running test executables with XML output.
+Maps test files like 'anchors_test.c' to 'anchors.test' in the output.
+"""
 import xml.etree.ElementTree as ET
-import glob, os, re
+import subprocess
+import glob
+import os
+import re
+import tempfile
 from collections import defaultdict
 
-# Search for likely XML test report files under the C bindings directory
+# Find the C bindings directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-cands = []
-# common patterns: surefire-style TEST-*.xml and CTestTestfile.xml produced by CTest
-cands += glob.glob(os.path.join(base_dir, '**', 'TEST-*.xml'), recursive=True)
-cands += glob.glob(os.path.join(base_dir, '**', 'CTestTestfile.xml'), recursive=True)
-# fallback: any XML directly under a test-reports or build/test-reports directories
-cands += glob.glob(os.path.join(base_dir, '**', 'test-reports', '*.xml'), recursive=True)
-cands = sorted(set(cands))
-
 out = os.path.join(base_dir, 'c-test-counts.md')
 
-lines = ['# C Test Counts', '', '## Per-file counts', '']
+# Find all test executables (excluding temporary phase/demo tests)
+unit_tests = glob.glob(os.path.join(base_dir, 'tests/unit/*_test'))
+e2e_tests = glob.glob(os.path.join(base_dir, 'tests/e2e/*_test'))
+all_tests = sorted(unit_tests + e2e_tests)
 
-raw = []
-for f in cands:
-    tests = 0
+print(f"Found {len(all_tests)} test executables")
+
+# Collect test counts by running each test with XML output
+test_counts = {}
+
+for test_path in all_tests:
+    if not os.path.exists(test_path):
+        print(f"Warning: Test executable not found: {test_path}")
+        continue
+    
+    # Extract test name from path: tests/unit/anchors_test -> anchors_test
+    test_name = os.path.basename(test_path)
+    
+    # Skip if this is a temporary/scaffolding test
+    if any(skip in test_name for skip in ['simple', 'phase3', 'phase4', 'demo', 'quantifier_alternation']):
+        print(f"Skipping scaffolding test: {test_name}")
+        continue
+    
     try:
-        tree = ET.parse(f)
-        root = tree.getroot()
-        # prefer explicit attribute, else count <testcase> elements
-        tests = int(root.attrib.get('tests') or root.attrib.get('test') or 0)
-        if not tests:
-            tests = len(root.findall('.//testcase'))
-    except Exception:
-        # best-effort fallback: zero if parsing fails
-        tests = 0
-    name = os.path.basename(f)
-    # For CTestTestfile.xml use the parent directory as the test "name"
-    if name == 'CTestTestfile.xml':
-        name = os.path.basename(os.path.dirname(f))
-    else:
-        name = name.replace('TEST-', '').replace('.xml', '')
-    raw.append((name, tests))
+        # Run test with XML output and capture stdout
+        env = os.environ.copy()
+        env['CMOCKA_MESSAGE_OUTPUT'] = 'xml'
+        
+        result = subprocess.run(
+            [test_path],
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=30
+        )
+        
+        # Parse XML output from stdout
+        if result.stdout.strip():
+            try:
+                root = ET.fromstring(result.stdout)
+                # Count testcase elements in the XML
+                test_count = len(root.findall('.//testcase'))
+                
+                # Map filename: anchors_test -> anchors.test
+                display_name = test_name.replace('_test', '.test')
+                test_counts[display_name] = test_count
+                print(f"  {display_name}: {test_count} tests")
+                
+            except ET.ParseError as e:
+                print(f"Warning: Failed to parse XML from {test_name}: {e}")
+                test_counts[test_name.replace('_test', '.test')] = 0
+        else:
+            print(f"Warning: No XML output from {test_name}")
+            test_counts[test_name.replace('_test', '.test')] = 0
+            
+    except subprocess.TimeoutExpired:
+        print(f"Warning: Test {test_name} timed out")
+        test_counts[test_name.replace('_test', '.test')] = 0
+    except Exception as e:
+        print(f"Warning: Failed to run {test_name}: {e}")
+        test_counts[test_name.replace('_test', '.test')] = 0
 
-# Optional explicit grouping to mirror Java script e2e keys if C reports use similar names.
-groups = {
-    'e2e_combinatorial': 'e2e_combinatorial.test',
-    'pcre2_emitter': 'pcre2_emitter.test',
-    'cli_smoke': 'cli_smoke.test',
-}
+# Calculate total
+total = sum(test_counts.values())
 
-agg = {v: 0 for v in groups.values()}
-others = []
+# Generate markdown report
+lines = [
+    '# C Test Counts',
+    '',
+    f'- **Total tests (sum):**: {total}',
+    '## Per-file counts',
+    ''
+]
 
-for name, tests in raw:
-    matched = False
-    for prefix, outname in groups.items():
-        if name == prefix or name.startswith(prefix + '_') or name.startswith(prefix + '-'):
-            agg[outname] += tests
-            matched = True
-            break
-    if not matched:
-        others.append((name, tests))
+# Sort and add each file's count
+for test_file in sorted(test_counts.keys()):
+    lines.append(f'- `{test_file}`: {test_counts[test_file]} tests')
 
-def _camel_to_snake(s: str) -> str:
-    # Insert underscores before capital letters (except at start) and normalize separators
-    s = re.sub(r'(?<!^)(?=[A-Z])', '_', s).replace('-', '_')
-    s = re.sub(r'[^0-9a-zA-Z_]', '_', s)
-    return s.lower()
+# Write output
+with open(out, 'w', encoding='utf8') as f:
+    f.write('\n'.join(lines))
 
-file_agg = defaultdict(int)
-for name, tests in others:
-    # strip common suffixes and extension-like parts
-    simple = name.split('.')[-1]
-    simple = simple.split('$')[0]
-    for suf in ('Test', 'Tests', 'TestCase', 'IT'):
-        if simple.endswith(suf) and len(simple) > len(suf):
-            simple = simple[:-len(suf)]
-            break
-    if not simple:
-        key = name
-    else:
-        key = _camel_to_snake(simple) + '.test'
-    file_agg[key] += tests
-
-from collections import defaultdict as _defaultdict
-combined = _defaultdict(int)
-for k, v in agg.items():
-    combined[k] += v
-for k, v in file_agg.items():
-    combined[k] += v
-
-total = sum(combined.values())
-lines.insert(2, f"- **Total tests (sum):**: {total}")
-
-for k in sorted(combined.keys()):
-    lines.append(f"- `{k}`: {combined[k]} tests")
-
-open(out, 'w', encoding='utf8').write('\n'.join(lines))
-print('Wrote', out)
+print(f'\nWrote {out}')
+print(f'Total tests: {total}')
