@@ -105,8 +105,14 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
         json_t* parts = json_object_get(node, "parts");
         if (!parts || !json_is_array(parts)) return strdup("");
         
-        size_t result_len = 0;
         size_t n = json_array_size(parts);
+        
+        /* Handle empty sequence */
+        if (n == 0) {
+            return strdup("");
+        }
+        
+        size_t result_len = 0;
         char** part_strs = (char**)malloc(n * sizeof(char*));
         
         for (size_t i = 0; i < n; i++) {
@@ -121,6 +127,7 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
             p += strlen(part_strs[i]);
             free(part_strs[i]);
         }
+        *p = '\0'; /* Ensure null termination */
         free(part_strs);
         return result;
     }
