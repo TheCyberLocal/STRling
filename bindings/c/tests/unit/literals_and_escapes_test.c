@@ -175,10 +175,10 @@ static void test_literal_sequences(void** state) {
 /* Main test runner */
 int main(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_basic_literals),
-        cmocka_unit_test(test_escaped_metacharacters),
-        cmocka_unit_test(test_dot),
-        cmocka_unit_test(test_literal_sequences),
+        {"test_basic_literals", test_basic_literals, NULL, NULL, NULL},
+        {"test_escaped_metacharacters", test_escaped_metacharacters, NULL, NULL, NULL},
+        {"test_dot", test_dot, NULL, NULL, NULL},
+        {"test_literal_sequences", test_literal_sequences, NULL, NULL, NULL},
     };
     
     return cmocka_run_group_tests(tests, NULL, NULL);

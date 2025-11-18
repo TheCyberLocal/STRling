@@ -1,6 +1,6 @@
 # C Test Counts
 
--   **Total tests (sum):**: 469
+-   **Total tests (sum):**: 473
 
 ## Per-file counts
 
@@ -15,7 +15,7 @@
 -   `groups_backrefs_lookarounds.test`: 51 tests
 -   `ieh_audit_gaps.test`: 23 tests
 -   `ir_compiler.test`: 40 tests
--   `literals_and_escapes.test`: 0 tests
+-   `literals_and_escapes.test`: 4 tests
 -   `parser_errors.test`: 20 tests
 -   `pcre2_emitter.test`: 20 tests
 -   `quantifiers.test`: 49 tests
