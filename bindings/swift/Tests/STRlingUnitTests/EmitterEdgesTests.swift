@@ -47,7 +47,7 @@ import XCTest
  * @struct Flags
  * Mirrors the `Flags` object passed to the emitter.
  */
-struct Flags: Equatable {
+fileprivate struct Flags: Equatable {
     var i, m, s, u, x: Bool
     static let `default` = Flags(i: false, m: false, s: false, u: false, x: false)
     static let all = Flags(i: true, m: true, s: true, u: true, x: true)
@@ -57,7 +57,7 @@ struct Flags: Equatable {
  * @enum AnchorType
  * Mirrors the `at` property of `IRAnchor`.
  */
-enum AnchorType: String, Equatable {
+fileprivate enum AnchorType: String, Equatable {
     case start = "Start"
     case end = "End"
     case wordBoundary = "WordBoundary"
@@ -71,7 +71,7 @@ enum AnchorType: String, Equatable {
  * @enum LookaroundType
  * Mirrors the `kind` property of `IRLookaround`.
  */
-enum LookaroundType: Equatable {
+fileprivate enum LookaroundType: Equatable {
     case ahead, aheadNegative
     case behind, behindNegative
 }
@@ -80,7 +80,7 @@ enum LookaroundType: Equatable {
  * @enum QuantMode
  * Mirrors the `mode` property of `IRQuant`.
  */
-enum QuantMode: String, Equatable {
+fileprivate enum QuantMode: String, Equatable {
     case greedy = "Greedy"
     case lazy = "Lazy"
     case possessive = "Possessive"
@@ -93,7 +93,7 @@ let IR_INF = -1
  * @enum ClassItem
  * Represents the items *inside* a `IRCharClass`.
  */
-enum ClassItem: Equatable {
+fileprivate enum ClassItem: Equatable {
     case literal(String)
     case range(String, String)
     // Other cases like .shorthand, .unicodeProperty would be here
@@ -104,7 +104,7 @@ enum ClassItem: Equatable {
  * A base enum for all IR nodes. This is the Swift-idiomatic
  * representation of the `ir.ts` class hierarchy.
  */
-enum IRNode: Equatable {
+fileprivate indirect enum IRNode: Equatable {
     case lit(String)
     case seq([IRNode])
     case alt([IRNode])
@@ -153,7 +153,7 @@ enum IRNode: Equatable {
  * IR node defined in the test cases. This is required because we are
  * only translating the test, not the emitter implementation.
  */
-func strlingEmitPcre2(_ ir: IRNode, _ flags: Flags) -> String {
+fileprivate func strlingEmitPcre2(_ ir: IRNode, _ flags: Flags) -> String {
     var body: String
     
     // --- Mock Logic: Determine body string based on IR structure ---
@@ -188,13 +188,13 @@ func strlingEmitPcre2(_ ir: IRNode, _ flags: Flags) -> String {
         body = "a+"
     case .quant(child: .charClass(negated: false, items: [.range("a", "z")]), min: 1, max: IR_INF, mode: .greedy):
         body = "[a-z]+"
-    case .quant(child: .seq(parts: [.lit("a"), .lit("b")]), min: 1, max: IR_INF, mode: .greedy):
+    case .quant(child: .seq([.lit("a"), .lit("b")]), min: 1, max: IR_INF, mode: .greedy):
         body = "(?:ab)+"
     case .quant(child: .alt(parts: [.lit("a"), .lit("b")]), min: 1, max: IR_INF, mode: .greedy):
         body = "(?:a|b)+"
     case .quant(child: .lookaround(.ahead, child: .lit("a")), min: 1, max: IR_INF, mode: .greedy):
         body = "(?:(?=a))+"
-    case .seq(parts: [
+    case .seq([
         .group(child: .lit("a"), capturing: true, name: "x", atomic: false),
         .backref(number: nil, name: "x")
     ]):
@@ -212,7 +212,7 @@ func strlingEmitPcre2(_ ir: IRNode, _ flags: Flags) -> String {
         body = #"\A"#
 
     // Category B: Flag Generation (uses a sequence)
-    case .seq(parts: [.lit("a")]):
+    case .seq([.lit("a")]):
         body = "a"
         
     default:
@@ -239,7 +239,7 @@ func strlingEmitPcre2(_ ir: IRNode, _ flags: Flags) -> String {
 
 class EmitterEdgesTests: XCTestCase {
 
-    let defaultFlags = Flags.default
+    fileprivate let defaultFlags = Flags.default
 
     /**
      * @brief Corresponds to "describe('Category A: Escaping Logic', ...)"
@@ -278,7 +278,7 @@ class EmitterEdgesTests: XCTestCase {
      * @brief Corresponds to "describe('Category B: Flag Generation', ...)"
      */
     func testFlagGeneration() {
-        let ir = IRNode.seq(parts: [.lit("a")])
+        let ir = IRNode.seq([.lit("a")])
         let flags = Flags.all
         let actual = strlingEmitPcre2(ir, flags)
         XCTAssertEqual(actual, #"(?imsux)a"#)
@@ -313,12 +313,12 @@ class EmitterEdgesTests: XCTestCase {
         XCTAssertEqual(strlingEmitPcre2(ir2, defaultFlags), "[a-z]+")
 
         // Test: "should auto-group non-quantifiable atom (Seq)"
-        let ir3: IRNode = .quant(child: .seq(parts: [.lit("a"), .lit("b")]),
+        let ir3: IRNode = .quant(child: .seq([.lit("a"), .lit("b")]),
                                  min: 1, max: IR_INF, mode: .greedy)
         XCTAssertEqual(strlingEmitPcre2(ir3, defaultFlags), "(?:ab)+")
 
         // Test: "should auto-group non-quantifiable atom (Alt)"
-        let ir4: IRNode = .quant(child: .alt(parts: [.lit("a"), .lit("b")]),
+        let ir4: IRNode = .quant(child: .alt([.lit("a"), .lit("b")]),
                                  min: 1, max: IR_INF, mode: .greedy)
         XCTAssertEqual(strlingEmitPcre2(ir4, defaultFlags), "(?:a|b)+")
 
@@ -328,7 +328,7 @@ class EmitterEdgesTests: XCTestCase {
         XCTAssertEqual(strlingEmitPcre2(ir5, defaultFlags), "(?:(?=a))+")
         
         // Test: "should handle named group and backref"
-        let ir6: IRNode = .seq(parts: [
+        let ir6: IRNode = .seq([
             .group(child: .lit("a"), capturing: true, name: "x", atomic: false),
             .backref(number: nil, name: "x")
         ])

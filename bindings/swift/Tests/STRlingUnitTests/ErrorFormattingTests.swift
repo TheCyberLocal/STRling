@@ -22,7 +22,7 @@ import XCTest
  * It conforms to `Error` for Swift's error handling and
  * `CustomStringConvertible` to provide the `toString()` equivalent.
  */
-struct STRlingParseError: Error, CustomStringConvertible, Equatable {
+fileprivate struct STRlingParseError: Error, CustomStringConvertible, Equatable {
     let message: String
     let pos: Int
     let text: String?
@@ -67,7 +67,7 @@ struct STRlingParseError: Error, CustomStringConvertible, Equatable {
  * @brief [SUT-MOCK] Mock of the hint engine.
  * This stub is hard-coded to return the expected hints.
  */
-func getHint(message: String, src: String, pos: Int) -> String? {
+fileprivate func getHint(message: String, src: String, pos: Int) -> String? {
     // "unterminated group hint"
     if message == "Unterminated group" {
         return "This group was opened with '('. Add a matching ')'"

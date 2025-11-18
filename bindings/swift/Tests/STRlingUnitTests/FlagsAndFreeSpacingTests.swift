@@ -48,7 +48,7 @@ import XCTest
  * @struct Flags
  * Mirrors the `Flags` object returned by the parser.
  */
-struct Flags: Equatable {
+fileprivate struct Flags: Equatable {
     var i: Bool = false
     var m: Bool = false
     var s: Bool = false
@@ -62,7 +62,7 @@ struct Flags: Equatable {
  * @enum ClassItem
  * Represents the items *inside* a `CharClass`.
  */
-enum ClassItem: Equatable {
+fileprivate enum ClassItem: Equatable {
     case literal(String)
     // Other cases (.range, .shorthand, etc.) would go here
 }
@@ -71,7 +71,7 @@ enum ClassItem: Equatable {
  * @enum ASTNode
  * A base enum for all AST nodes.
  */
-enum ASTNode: Equatable {
+fileprivate indirect enum ASTNode: Equatable {
     case lit(String)
     case seq([ASTNode])
     case charClass(negated: Bool, items: [ClassItem])
@@ -82,7 +82,7 @@ enum ASTNode: Equatable {
  * @struct ParseResult
  * Bundles the dual return (Flags, AST) of the `parse` function.
  */
-struct ParseResult: Equatable {
+fileprivate struct ParseResult: Equatable {
     let flags: Flags
     let ast: ASTNode
 }
@@ -91,7 +91,7 @@ struct ParseResult: Equatable {
  * @enum ParseError
  * A mock error for the parser.
  */
-enum ParseError: Error {
+fileprivate enum ParseError: Error {
     case unknownTestInput
 }
 
@@ -102,7 +102,7 @@ enum ParseError: Error {
  * Swift equivalent of the `parse` function under test.
  * Throws an error on failure.
  */
-func strlingParse(src: String) throws -> ParseResult {
+fileprivate func strlingParse(src: String) throws -> ParseResult {
     // --- Mocked Flag Parsing Logic ---
     var flags = Flags.default
     var astString = src
@@ -216,7 +216,7 @@ class FlagsAndFreeSpacingTests: XCTestCase {
         let expectedAST1: ASTNode = .charClass(negated: false, items: [
             .literal("a"), .literal(" "), .literal("b")
         ])
-        XRequestTrue(res1.flags.x)
+        XCTAssertTrue(res1.flags.x)
         XCTAssertEqual(res1.ast, expectedAST1, "Whitespace should be literal inside class")
 
         // Test: "comment_char_is_literal_in_class"

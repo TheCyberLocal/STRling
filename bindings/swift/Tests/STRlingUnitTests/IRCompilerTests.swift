@@ -38,7 +38,7 @@ import XCTest
 // --- Mock AST Node Definitions (Inputs) ---------------------------------------
 // These must be Hashable to be used in switch statements.
 
-enum ASTNode: Hashable {
+fileprivate indirect enum ASTNode: Hashable {
     case lit(String)
     case dot
     case anchor(String)
@@ -51,7 +51,7 @@ enum ASTNode: Hashable {
     case look(String, Bool, ASTNode) // dir, neg, body
 }
 
-enum ClassItem: Hashable {
+fileprivate enum ClassItem: Hashable {
     case range(String, String)
     case escape(String, String)
 }
@@ -59,7 +59,7 @@ enum ClassItem: Hashable {
 // --- Mock IR Node Definitions (Outputs) ---------------------------------------
 // These must be Equatable for XCTAssertEqual.
 
-enum IRNode: Equatable {
+fileprivate indirect enum IRNode: Equatable {
     case lit(String)
     case dot
     case anchor(String)
@@ -72,17 +72,17 @@ enum IRNode: Equatable {
     case look(String, Bool, IRNode) // dir, neg, body
 }
 
-enum IRClassItem: Equatable {
+fileprivate enum IRClassItem: Equatable {
     case range(String, String)
 }
 
 // --- Mock Metadata Definitions ------------------------------------------------
 
-struct Metadata: Equatable {
+fileprivate struct Metadata: Equatable {
     var features_used: [String] = []
 }
 
-struct Artifact: Equatable {
+fileprivate struct Artifact: Equatable {
     let ir: IRNode
     let metadata: Metadata
 }
@@ -94,7 +94,7 @@ struct Artifact: Equatable {
  * The methods simulate the lowering, normalization, and feature detection
  * logic being tested in the JS file.
  */
-class Compiler {
+fileprivate class Compiler {
     
     /// Simulates the private `_lower` method
     func lower(_ astNode: ASTNode) -> IRNode {
@@ -252,10 +252,10 @@ class Compiler {
             return Artifact(ir: .look("Ahead", false, .lit("a")), metadata: .init(features_used: ["lookahead"]))
         // I: "unicode properties"
         case .charClass(false, [.escape("UnicodeProperty", "Letter")]):
-            return Artifact(ir: .charClass(false, []), metadata: .init(features_used: ["unicode_property"])) // Mock IR simplified
+            return Artifact(ir: .charClass(negated: false, items: []), metadata: .init(features_used: ["unicode_property"])) // Mock IR simplified
         // I: "multiple features"
         case .seq([.group(false, .lit("a"), nil, true), .quant(.lit("b"), 1, "Inf", "Possessive"), .look("Behind", false, .lit("c"))]):
-            let ir = .seq([.group(false, .lit("a"), nil, true), .quant(.lit("b"), 1, "Inf", "Possessive"), .look("Behind", false, .lit("c"))])
+            let ir = IRNode.seq([.group(false, .lit("a"), nil, true), .quant(.lit("b"), 1, "Inf", "Possessive"), .look("Behind", false, .lit("c"))])
             return Artifact(ir: ir, metadata: .init(features_used: ["atomic_group", "possessive_quantifier", "lookbehind"]))
             
         default:
@@ -268,7 +268,7 @@ class Compiler {
 
 class IRCompilerTests: XCTestCase {
     
-    let compiler = Compiler()
+    fileprivate let compiler = Compiler()
 
     /**
      * @brief Corresponds to "describe('Category A: AST to IR Lowering', ...)"
@@ -471,7 +471,7 @@ class IRCompilerTests: XCTestCase {
         XCTAssertTrue(artifact.metadata.features_used.contains("lookahead"))
         
         // "unicode properties"
-        let ast4 = ASTNode.charClass(false, [.escape("UnicodeProperty", "Letter")])
+        let ast4 = ASTNode.charClass(negated: false, items: [.escape("UnicodeProperty", "Letter")])
         artifact = compiler.compileWithMetadata(ast4)
         XCTAssertTrue(artifact.metadata.features_used.contains("unicode_property"))
 

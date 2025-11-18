@@ -48,13 +48,13 @@ import XCTest
  * @protocol ASTNode
  * A base protocol for all AST nodes.
  */
-protocol ASTNode: Equatable {}
+fileprivate protocol ASTNode: Equatable {}
 
 /**
  * @enum AnchorType
  * Mirrors the `at` property of the `nodes.Anchor` class.
  */
-enum AnchorType: String, Equatable {
+fileprivate enum AnchorType: String, Equatable {
     case start = "Start"
     case end = "End"
     case wordBoundary = "WordBoundary"
@@ -68,7 +68,7 @@ enum AnchorType: String, Equatable {
  * @struct Anchor
  * Mirrors `nodes.Anchor`.
  */
-struct Anchor: ASTNode {
+fileprivate struct Anchor: ASTNode {
     let at: AnchorType
 }
 
@@ -76,7 +76,7 @@ struct Anchor: ASTNode {
  * @struct Lit
  * Mirrors `nodes.Lit`.
  */
-struct Lit: ASTNode {
+fileprivate struct Lit: ASTNode {
     let value: String
 }
 
@@ -84,7 +84,7 @@ struct Lit: ASTNode {
  * @struct Seq
  * Mirrors `nodes.Seq`.
  */
-struct Seq: ASTNode {
+fileprivate struct Seq: ASTNode {
     let parts: [ASTNode]
 
     // Custom Equatable conformance for nested ASTNodes
@@ -101,7 +101,7 @@ struct Seq: ASTNode {
  * @struct Flags
  * A mock of the `Flags` object returned by the parser.
  */
-struct Flags: Equatable {
+fileprivate struct Flags: Equatable {
     var m: Bool = false
     // Other flags (i, s, u, x) would go here
 }
@@ -110,7 +110,7 @@ struct Flags: Equatable {
  * @enum ParseError
  * A mock error conforming to Swift's `Error` protocol.
  */
-enum ParseError: Error, LocalizedError, Equatable {
+fileprivate enum ParseError: Error, LocalizedError, Equatable {
     case cannotQuantifyAnchor
     
     var errorDescription: String? {
@@ -122,7 +122,7 @@ enum ParseError: Error, LocalizedError, Equatable {
 }
 
 // --- Helper for comparing heterogeneous ASTNode arrays ---
-func anyEquals(_ lhs: ASTNode, _ rhs: ASTNode) -> Bool {
+fileprivate func anyEquals(_ lhs: ASTNode, _ rhs: ASTNode) -> Bool {
     if let l = lhs as? Lit, let r = rhs as? Lit { return l == r }
     if let l = lhs as? Anchor, let r = rhs as? Anchor { return l == r }
     if let l = lhs as? Seq, let r = rhs as? Seq { return l == r }
@@ -137,7 +137,7 @@ func anyEquals(_ lhs: ASTNode, _ rhs: ASTNode) -> Bool {
  * C equivalent of the `parse` function under test.
  * Throws an error on failure.
  */
-func strlingParse(src: String) throws -> (Flags, ASTNode) {
+fileprivate func strlingParse(src: String) throws -> (Flags, ASTNode) {
     // Category A: Core Anchors
     switch src {
     case "^": return (Flags(), Anchor(at: .start))
@@ -274,12 +274,12 @@ class AnchorsTests: XCTestCase {
         let expected2 = Seq(parts: [Lit(value: "a"), Anchor(at: .end)])
         XCTAssertEqual(ast2 as? Seq, expected2)
 
-        // Test: "a\b$"
+        // Test: #"a\b$"#
         let ast3 = try parse(#"a\b$"#)
         let expected3 = Seq(parts: [Lit(value: "a"), Anchor(at: .wordBoundary), Anchor(at: .end)])
         XCTAssertEqual(ast3 as? Seq, expected3)
         
-        // Test: "^\ba\b$"
+        // Test: #"^\ba\b$"#
         let ast4 = try parse(#"^\ba\b$"#)
         let expected4 = Seq(parts: [
             Anchor(at: .start),

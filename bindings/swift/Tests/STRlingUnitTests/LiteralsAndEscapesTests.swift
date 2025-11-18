@@ -34,7 +34,7 @@ import XCTest
 // --- Mock AST Node Definitions (Self-contained) -------------------------------
 
 // Note: These must be Hashable to be used as `case` values in the mock parser.
-enum ASTNode: Equatable, Hashable {
+fileprivate indirect enum ASTNode: Equatable, Hashable {
     case lit(String)
     case seq([ASTNode])
     case backref(Int)
@@ -44,21 +44,35 @@ enum ASTNode: Equatable, Hashable {
 }
 
 // Mock Flags (Required for ParseResult)
-struct Flags: Equatable {
+fileprivate struct Flags: Equatable {
     var extended: Bool = false
     
     static let `default` = Flags()
 }
 
 // Mock Parse Result
-struct ParseResult: Equatable {
+fileprivate struct ParseResult: Equatable {
     let flags: Flags
     let ast: ASTNode
 }
 
 // Mock Parse Error (Matches the `ParseError` imported in the JS test)
-enum ParseError: Error, Equatable {
+fileprivate enum ParseError: Error, Equatable {
     case testError(message: String, pos: Int)
+    
+    var message: String {
+        switch self {
+        case .testError(let message, _):
+            return message
+        }
+    }
+    
+    var pos: Int {
+        switch self {
+        case .testError(_, let pos):
+            return pos
+        }
+    }
 }
 
 // --- Mock `parse` Function (SUT) ----------------------------------------------
@@ -67,7 +81,7 @@ enum ParseError: Error, Equatable {
  * @brief Mock parser that returns a hard-coded result for known inputs.
  * This switch statement contains all the test cases from the JS file.
  */
-func strlingParse(src: String) throws -> ParseResult {
+fileprivate func strlingParse(src: String) throws -> ParseResult {
     var flags = Flags.default
     var astString = src
 
@@ -110,8 +124,8 @@ func strlingParse(src: String) throws -> ParseResult {
     case #"\n"#: ast = .lit("\n")
     case #"\t"#: ast = .lit("\t")
     case #"\r"#: ast = .lit("\r")
-    case #"\f"#: ast = .lit("\f")
-    case #"\v"#: ast = .lit("\v")
+    case #"\f"#: ast = .lit("\u{0C}") // form feed
+    case #"\v"#: ast = .lit("\u{0B}") // vertical tab
     // A.4: Hexadecimal Escapes
     case #"\x41"#: ast = .lit("A")
     case #"\x4a"#: ast = .lit("J")
@@ -136,7 +150,7 @@ func strlingParse(src: String) throws -> ParseResult {
     case ")": throw ParseError.testError(message: "Unmatched ')'", pos: 0)
     case "|": throw ParseError.testError(message: "Alternation lacks left-hand side", pos: 0)
     // "forbidden octal escape"
-    case #"\123"#: throw ParseError.testError(message: "Backreference to undefined group \\123", pos: 0)
+    case #"\123"#: throw ParseError.testError(message: #"Backreference to undefined group \\123"#, pos: 0)
 
     // --- Category C: Edge Cases ---
     case #"\u{10FFFF}"#: ast = .lit("\u{10FFFF}")
@@ -175,7 +189,7 @@ func strlingParse(src: String) throws -> ParseResult {
     case #"\U00010000"#: ast = .lit("\u{10000}")
 
     // --- Category I: Octal And Backref Disambiguation ---
-    case #"\1"#: throw ParseError.testError(message: "Backreference to undefined group \\1", pos: 0)
+    case #"\1"#: throw ParseError.testError(message: #"Backreference to undefined group \\1"#, pos: 0)
     case #"(a)\12"#: ast = .seq([.group(.lit("a")), .backref(1), .lit("2")])
     // `\123` is covered by Category B
         
@@ -255,8 +269,8 @@ class LiteralsAndEscapesTests: XCTestCase {
             #"\n"#: .lit("\n"),
             #"\t"#: .lit("\t"),
             #"\r"#: .lit("\r"),
-            #"\f"#: .lit("\f"),
-            #"\v"#: .lit("\v"),
+            #"\f"#: .lit("\u{0C}"), // form feed
+            #"\v"#: .lit("\u{0B}"), // vertical tab
             // A.4: Hexadecimal Escapes
             #"\x41"#: .lit("A"),
             #"\x4a"#: .lit("J"),

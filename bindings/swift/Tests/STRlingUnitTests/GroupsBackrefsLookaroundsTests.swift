@@ -48,7 +48,7 @@ import XCTest
 // Note: This is a simplified, Equatable-conforming mock AST for testing.
 // The real AST would be more complex and likely use classes/protocols.
 
-enum ASTNode: Equatable {
+fileprivate indirect enum ASTNode: Equatable {
     // Represents an empty body, e.g., () or (?:)
     case empty
     
@@ -64,32 +64,32 @@ enum ASTNode: Equatable {
     case quant(body: ASTNode)
 }
 
-enum GroupType: Equatable {
+fileprivate enum GroupType: Equatable {
     case capturing
     case nonCapturing
     case named(String)
     case atomic
 }
 
-enum LookDir: Equatable {
+fileprivate enum LookDir: Equatable {
     case ahead
     case behind
 }
 
 // Mock Flags (required for ParseResult, though not the focus of this test)
-struct Flags: Equatable {
+fileprivate struct Flags: Equatable {
     // We don't care about flags in this test, so just provide a default.
     static let `default` = Flags()
 }
 
 // Mock Parse Result (Bundles the return)
-struct ParseResult: Equatable {
+fileprivate struct ParseResult: Equatable {
     let flags: Flags
     let ast: ASTNode
 }
 
 // Mock Parse Error
-enum ParseError: Error, Equatable {
+fileprivate enum ParseError: Error, Equatable {
     // We use a simplified error for testing
     case testError(message: String, pos: Int)
 }
@@ -100,7 +100,7 @@ enum ParseError: Error, Equatable {
  * @brief Mock parser that returns a hard-coded result for known inputs.
  * This switch statement contains all the test cases from the JS file.
  */
-func strlingParse(src: String) throws -> ParseResult {
+fileprivate func strlingParse(src: String) throws -> ParseResult {
     // All tests in this suite use default flags.
     let flags = Flags.default
     let ast: ASTNode
@@ -150,9 +150,9 @@ func strlingParse(src: String) throws -> ParseResult {
     case #"\k<A>(?<A>a)"#:
         throw ParseError.testError(message: "Backreference to undefined group <A>", pos: 0)
     case #"\2(a)(b)"#:
-        throw ParseError.testError(message: "Backreference to undefined group \\2", pos: 0)
+        throw ParseError.testError(message: #"Backreference to undefined group \\2"#, pos: 0)
     case #"(a)\2"#:
-        throw ParseError.testError(message: "Backreference to undefined group \\2", pos: 3)
+        throw ParseError.testError(message: #"Backreference to undefined group \\2"#, pos: 3)
     case "(?i)a":
         throw ParseError.testError(message: "Inline modifiers", pos: 1)
     case "(?<a>x)(?<a>y)":
@@ -363,8 +363,8 @@ class GroupsBackrefsLookaroundsTests: XCTestCase {
         
         // B.2: Invalid Backrefs
         assertParseError(#"\k<A>(?<A>a)"#, expected: .testError(message: "Backreference to undefined group <A>", pos: 0))
-        assertParseError(#"\2(a)(b)"#, expected: .testError(message: "Backreference to undefined group \\2", pos: 0))
-        assertParseError(#"(a)\2"#, expected: .testError(message: "Backreference to undefined group \\2", pos: 3))
+        assertParseError(#"\2(a)(b)"#, expected: .testError(message: #"Backreference to undefined group \\2"#, pos: 0))
+        assertParseError(#"(a)\2"#, expected: .testError(message: #"Backreference to undefined group \\2"#, pos: 3))
         
         // B.3: Invalid Syntax
         assertParseError("(?i)a", expected: .testError(message: "Inline modifiers", pos: 1))

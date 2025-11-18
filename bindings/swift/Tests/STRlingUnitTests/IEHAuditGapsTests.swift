@@ -26,25 +26,39 @@ import XCTest
 // Note: These tests don't check the AST, only the error.
 // These mocks are the minimum needed for the `strlingParse` signature.
 
-enum ASTNode: Equatable {
+fileprivate indirect enum ASTNode: Equatable {
     // A dummy node, since the AST is not being tested
     case valid
 }
 
-struct Flags: Equatable {
+fileprivate struct Flags: Equatable {
     // We don't care about flags in this test
     static let `default` = Flags()
 }
 
-struct ParseResult: Equatable {
+fileprivate struct ParseResult: Equatable {
     let flags: Flags
     let ast: ASTNode
 }
 
 // Mock Parse Error
 // This is the key type being tested. It mirrors the JS `STRlingParseError`.
-enum STRlingParseError: Error, Equatable {
+fileprivate enum STRlingParseError: Error, Equatable {
     case testError(message: String, hint: String)
+    
+    var message: String {
+        switch self {
+        case .testError(let message, _):
+            return message
+        }
+    }
+    
+    var hint: String {
+        switch self {
+        case .testError(_, let hint):
+            return hint
+        }
+    }
 }
 
 // --- Mock `parse` Function (SUT) ----------------------------------------------
@@ -53,7 +67,7 @@ enum STRlingParseError: Error, Equatable {
  * @brief Mock parser that returns a hard-coded result for known inputs.
  * This switch statement contains all the test cases from the JS file.
  */
-func strlingParse(src: String) throws -> ParseResult {
+fileprivate func strlingParse(src: String) throws -> ParseResult {
     let flags = Flags.default
     
     // This switch maps 1-to-1 with the test cases in the .ts file.
@@ -103,7 +117,7 @@ func strlingParse(src: String) throws -> ParseResult {
     case #"\q"#:
         throw STRlingParseError.testError(message: "Unknown escape sequence", hint: "The escape '\\q' is not valid. Did you mean to escape 'q' as '\\q'?")
     case #"\z"#:
-        throw STRlingParseError.testError(message: "Unknown escape sequence", hint: "The escape '\\z' is not valid. Did you mean the anchor '\\Z' (end of string)?")
+        throw STRlingParseError.testError(message: "Unknown escape sequence", hint: #"The escape '\\z' is not valid. Did you mean the anchor '\\Z' (end of string)?"#)
 
     // --- Additional Negative Cases (from 'Valid patterns' block) ---
     case "a{foo}":
