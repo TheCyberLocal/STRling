@@ -108,30 +108,159 @@ void Parser::raise_error(const std::string& message, size_t pos) {
 }
 
 std::tuple<Flags, std::string> Parser::parse_directives(const std::string& text) {
-    // Simplified directive parsing - full implementation would be more complex
-    Flags f;
-    std::string pattern = text;
+    Flags flags;
+    std::vector<std::string> pattern_lines;
+    bool in_pattern = false;
     
-    // Check for %flags directive at start
-    if (text.find("%flags") == 0) {
-        size_t end_of_line = text.find('\n');
-        if (end_of_line != std::string::npos) {
-            std::string flags_line = text.substr(0, end_of_line);
-            pattern = text.substr(end_of_line + 1);
+    // Split into lines preserving line endings
+    std::vector<std::string> lines;
+    size_t start = 0;
+    size_t pos = 0;
+    while (pos < text.length()) {
+        if (text[pos] == '\n') {
+            lines.push_back(text.substr(start, pos - start + 1));
+            start = pos + 1;
+        }
+        pos++;
+    }
+    if (start < text.length()) {
+        lines.push_back(text.substr(start));
+    }
+    if (lines.empty()) {
+        lines.push_back(text);
+    }
+    
+    size_t line_num = 0;
+    for (const auto& line : lines) {
+        line_num++;
+        
+        // Trim whitespace for checking
+        std::string stripped = line;
+        size_t first = stripped.find_first_not_of(" \t\r\n");
+        size_t last = stripped.find_last_not_of(" \t\r\n");
+        if (first != std::string::npos) {
+            stripped = stripped.substr(first, last - first + 1);
+        } else {
+            stripped = "";
+        }
+        
+        // Skip leading blank lines or comments
+        if (!in_pattern && (stripped.empty() || stripped[0] == '#')) {
+            continue;
+        }
+        
+        // Process %flags directive
+        if (!in_pattern && stripped.find("%flags") == 0) {
+            size_t idx = line.find("%flags");
+            std::string after;
+            if (idx + 7 < line.length()) {
+                after = line.substr(idx + 7);  // 7 = len("%flags")
+            }
             
-            // Extract flag letters
-            std::string flag_letters;
-            for (char ch : flags_line) {
-                if (ch == 'i' || ch == 'm' || ch == 's' || ch == 'u' || ch == 'x') {
-                    flag_letters += ch;
+            // Scan for valid flag characters
+            std::string allowed_chars = " ,\t[]imsuxIMSUX\r\n";
+            size_t j = 0;
+            while (j < after.length() && allowed_chars.find(after[j]) != std::string::npos) {
+                j++;
+            }
+            
+            std::string flags_token = after.substr(0, j);
+            std::string remainder = j < after.length() ? after.substr(j) : "";
+            
+            // Normalize and extract flag letters
+            std::string letters;
+            for (char ch : flags_token) {
+                if (ch == 'i' || ch == 'm' || ch == 's' || ch == 'u' || ch == 'x' ||
+                    ch == 'I' || ch == 'M' || ch == 'S' || ch == 'U' || ch == 'X') {
+                    letters += std::tolower(ch);
                 }
             }
             
-            f = Flags::fromLetters(flag_letters);
+            // Check if we have remainder that isn't just whitespace (invalid flag)
+            if (j < after.length()) {
+                std::string rem_check = remainder;
+                size_t first_non_ws = rem_check.find_first_not_of(" \t\r\n");
+                if (first_non_ws != std::string::npos) {
+                    char invalid_char = rem_check[first_non_ws];
+                    size_t error_pos = 0;
+                    for (size_t i = 0; i < line_num - 1; i++) {
+                        error_pos += lines[i].length();
+                    }
+                    error_pos += idx + 7 + j + first_non_ws;
+                    raise_error(std::string("Invalid flag '") + invalid_char + "'", error_pos);
+                }
+            }
+            
+            // Check for invalid flags
+            std::string valid_flags = "imsux";
+            for (char ch : letters) {
+                if (valid_flags.find(ch) == std::string::npos && ch != ' ') {
+                    size_t error_pos = 0;
+                    for (size_t i = 0; i < line_num - 1; i++) {
+                        error_pos += lines[i].length();
+                    }
+                    error_pos += idx;
+                    raise_error(std::string("Invalid flag '") + ch + "'", error_pos);
+                }
+            }
+            
+            // Set flags
+            if (!letters.empty()) {
+                flags = Flags::fromLetters(letters);
+            }
+            
+            // Check if there's pattern content on the same line
+            std::string remainder_trimmed = remainder;
+            size_t rem_first = remainder_trimmed.find_first_not_of(" \t\r\n");
+            if (rem_first != std::string::npos) {
+                remainder_trimmed = remainder_trimmed.substr(rem_first);
+                if (!remainder_trimmed.empty()) {
+                    in_pattern = true;
+                    pattern_lines.push_back(remainder);
+                }
+            }
+            continue;
         }
+        
+        // Skip other directives, but check for malformed %flags
+        if (!in_pattern && stripped[0] == '%') {
+            // Check if it looks like a malformed %flags directive
+            if (stripped.length() >= 5 && stripped.substr(0, 5) == "%flag" && 
+                stripped.substr(0, 6) != "%flags") {
+                // Malformed %flags directive
+                size_t error_pos = 0;
+                for (size_t i = 0; i < line_num - 1; i++) {
+                    error_pos += lines[i].length();
+                }
+                error_pos += line.find("%flag");
+                raise_error("Unknown directive (did you mean %flags?)", error_pos);
+            }
+            continue;
+        }
+        
+        // This is pattern content
+        // Check if %flags appears anywhere in this line (would be misplaced)
+        if (line.find("%flags") != std::string::npos) {
+            size_t error_pos = 0;
+            for (size_t i = 0; i < line_num - 1; i++) {
+                error_pos += lines[i].length();
+            }
+            error_pos += line.find("%flags");
+            raise_error("Directive after pattern content", error_pos);
+        }
+        
+        // All other lines are pattern content
+        in_pattern = true;
+        pattern_lines.push_back(line);
     }
     
-    return {f, pattern};
+    // Join all pattern lines
+    std::string pattern;
+    for (const auto& pline : pattern_lines) {
+        pattern += pline;
+    }
+    
+    return {flags, pattern};
 }
 
 NodePtr Parser::parse() {
@@ -188,8 +317,8 @@ NodePtr Parser::parse_seq() {
     }
     
     if (parts.empty()) {
-        // Empty sequence - return empty Lit
-        return std::make_unique<Lit>("");
+        // Empty sequence - return empty Seq
+        return std::make_unique<Seq>(std::vector<NodePtr>());
     }
     
     if (parts.size() == 1) {
