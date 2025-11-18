@@ -6,6 +6,9 @@ libstrling.a
 # Test binaries
 tests/simple_test
 tests/quantifier_alternation_test
+tests/phase3_test
+tests/phase3_edge_cases_test
+tests/phase3_integration_test
 tests/unit/*_test
 tests/e2e/*_test
 !tests/**/*.c
