@@ -102,49 +102,40 @@ func strlingEmitPcre2(ir: IrRoot, flags: Flags) -> String {
     case "%flags i\nhello": return #"(?i)hello"#
     case "%flags x\na b c": return #"(?x)abc"#
     case "%flags i\n[a-z]+": return #"(?i)[a-z]+"#
-    case "%flags u\n\p{L}+": return #"(?u)\p{L}+"#
-    case "%flags m\n^start": return #"(?m)^start"#
+    case #"%flags u\n\p{L}+"#: return #"(?u)\p{L}+"#    case "%flags m\n^start": return #"(?m)^start"#
     case "%flags m\nend$": return #"(?m)end$"#
     case "%flags s\na*": return #"(?s)a*"#
     case "%flags x\na{2,5}": return #"(?x)a{2,5}"#
     case "%flags i\n(hello)": return #"(?i)(hello)"#
-    case "%flags x\n(?<name>\d+)": return #"(?x)(?<name>\d+)"#
-    case "%flags i\n(?=test)": return #"(?i)(?=test)"#
+    case #"%flags x\n(?<name>\d+)"#: return #"(?x)(?<name>\d+)"#    case "%flags i\n(?=test)": return #"(?i)(?=test)"#
     case "%flags m\n(?<=^foo)": return #"(?m)(?<=^foo)"#
     case "%flags i\na|b|c": return #"(?i)a|b|c"#
     case "%flags x\nfoo | bar": return #"(?x)foo|bar"#
-    case "%flags i\n(\w+)\s+\1": return #"(?i)(\w+)\s+\1"#
-
+    case #"%flags i\n(\w+)\s+\1"#: return #"(?i)(\w+)\s+\1"#
     // Tier 1: Literals
     case "abc[xyz]": return #"abc[xyz]"#
-    case "\d\d\d-[0-9]": return #"\d\d\d-[0-9]"#
-    case "^hello": return #"^hello"#
+    case #"\d\d\d-[0-9]"#: return #"\d\d\d-[0-9]"#    case "^hello": return #"^hello"#
     case "world$": return #"world$"#
     case #"\bhello\b"#: return #"\bhello\b"# // Note: \b is a Swift escape, so we use #"..."#
     case "a+bc": return #"a+bc"#
-    case "test\d{3}": return #"test\d{3}"#
-    case "hello(world)": return #"hello(world)"#
+    case #"test\d{3}"#: return #"test\d{3}"#    case "hello(world)": return #"hello(world)"#
     case "test(?:group)": return #"test(?:group)"#
     case "hello(?=world)": return #"hello(?=world)"#
     case "(?<=test)result": return #"(?<=test)result"#
     case "hello|world": return #"hello|world"#
     case "a|b|c": return #"a|b|c"#
-    case "(\w+)=\1": return #"(\w+)=\1"#
-
+    case #"(\w+)=\1"#: return #"(\w+)=\1"#
     // Tier 1: Char Classes
     case "^[a-z]+": return #"^[a-z]+"#
     case "[0-9]+$": return #"[0-9]+$"#
     case "[a-z]*": return #"[a-z]*"#
     case "[0-9]{2,4}": return #"[0-9]{2,4}"#
-    case "\w+?": return #"\w+?"#
-    case "([a-z]+)": return #"([a-z]+)"#
+    case #"\w+?"#: return #"\w+?"#    case "([a-z]+)": return #"([a-z]+)"#
     case "(?:[0-9]+)": return #"(?:[0-9]+)"#
     case "(?=[a-z])": return #"(?=[a-z])"#
-    case "(?<=\d)": return #"(?<=\d)"#
-    case "[a-z]|[0-9]": return #"[a-z]|[0-9]"#
+    case #"(?<=\d)"#: return #"(?<=\d)"#    case "[a-z]|[0-9]": return #"[a-z]|[0-9]"#
     case #"\w|\s"#: return #"\w|\s"#
-    case "([a-z])\1": return #"([a-z])\1"#
-
+    case #"([a-z])\1"#: return #"([a-z])\1"#
     // Tier 1: Anchors
     case "^a+": return #"^a+"#
     case #"\b\w+"#: return #"\b\w+"#
@@ -158,18 +149,13 @@ func strlingEmitPcre2(ir: IrRoot, flags: Flags) -> String {
     // Tier 1: Quantifiers
     case "(abc)+": return #"(abc)+"#
     case "(?:test)*": return #"(?:test)*"#
-    case "(?<name>\d)+": return #"(?<name>\d)+"#
-    case "(?=a)+": return #"(?:(?=a))+"#
-    case "test(?<=\d)*": return #"test(?:(?<=\d))*"#
-    case "(a|b)+": return #"(a|b)+"#
+    case #"(?<name>\d)+"#: return #"(?<name>\d)+"#    case "(?=a)+": return #"(?:(?=a))+"#
+    case #"test(?<=\d)*"#: return #"test(?:(?<=\d))*"#    case "(a|b)+": return #"(a|b)+"#
     case "(?:foo|bar)*": return #"(?:foo|bar)*"#
-    case "(\w)\1+": return #"(\w)\1+"#
-    case "(\d+)-\1{2}": return #"(\d+)-\1{2}"#
-
+    case #"(\w)\1+"#: return #"(\w)\1+"#    case #"(\d+)-\1{2}"#: return #"(\d+)-\1{2}"#
     // Tier 1: Groups
     case "((?=test)abc)": return #"((?=test)abc)"#
-    case "(?:(?<=\d)result)": return #"(?:(?<=\d)result)"#
-    case "(a|b|c)": return #"(a|b|c)"#
+    case #"(?:(?<=\d)result)"#: return #"(?:(?<=\d)result)"#    case "(a|b|c)": return #"(a|b|c)"#
     case "(?:foo|bar)": return #"(?:foo|bar)"#
     case #"(\w+)\s+\1"#: return #"(\w+)\s+\1"#
     case #"(?<tag>\w+)\k<tag>"#: return #"(?<tag>\w+)\k<tag>"#
@@ -177,24 +163,20 @@ func strlingEmitPcre2(ir: IrRoot, flags: Flags) -> String {
     // Tier 1: Lookarounds
     case "(?=a|b)": return #"(?=a|b)"#
     case "(?<=foo|bar)": return #"(?<=foo|bar)"#
-    case "(\w+)(?=\1)": return #"(\w+)(?=\1)"#
-
+    case #"(\w+)(?=\1)"#: return #"(\w+)(?=\1)"#
     // Tier 1: Alternation
     case #"(a)\1|(b)\2"#: return #"(a)\1|(b)\2"#
 
     // Tier 2: Strategic Triplets
     case "%flags i\n(hello)+": return #"(?i)(hello)+"#
     case "%flags x\n(?:a b)+": return #"(?x)(?:ab)+"#
-    case "%flags i\n(?<name>\w)+": return #"(?i)(?<name>\w)+"#
-    case "%flags i\n((?=test)result)": return #"(?i)((?=test)result)"#
+    case #"%flags i\n(?<name>\w)+"#: return #"(?i)(?<name>\w)+"#    case "%flags i\n((?=test)result)": return #"(?i)((?=test)result)"#
     case "%flags m\n(?:(?<=^)start)": return #"(?m)(?:(?<=^)start)"#
     case "%flags i\n(?=test)+": return #"(?i)(?:(?=test))+"#
     case "%flags s\n.*(?<=end)": return #"(?s).*(?<=end)"#
     case "%flags i\n(a|b|c)": return #"(?i)(a|b|c)"#
     case "%flags x\n(?:foo | bar | baz)": return #"(?x)(?:foo|bar|baz)"#
-    case "((?=\d)\w)+": return #"((?=\d)\w)+"#
-    case "(?:(?<=test)\w+)*": return #"(?:(?<=test)\w+)*"#
-    case "(?:foo|bar){2,5}": return #"(?:foo|bar){2,5}"#
+    case #"((?=\d)\w)+"#: return #"((?=\d)\w)+"#    case #"(?:(?<=test)\w+)*"#: return #"(?:(?<=test)\w+)*"#    case "(?:foo|bar){2,5}": return #"(?:foo|bar){2,5}"#
     case "(?=a|b)+": return #"(?:(?=a|b))+"#
     case "(foo|bar)(?<=test)*": return #"(foo|bar)(?:(?<=test))*"#
 
@@ -202,8 +184,7 @@ func strlingEmitPcre2(ir: IrRoot, flags: Flags) -> String {
     case "((a+)+)+": return #"((a+)+)+"#
     case "(?=test)(?!fail)result": return #"(?=test)(?!fail)result"#
     case "(a|(b|c))": return #"(a|(b|c))"#
-    case "(\w)(?=\1)+": return #"(\w)(?:(?=\1))+"#
-    case #"%flags x\n(?<tag> \w+ ) \s* = \s* (?<value> [^>]+ ) \k<tag>"#: return #"(?x)(?<tag>\w+)\s*=\s*(?<value>[^>]+)\k<tag>"#
+    case #"(\w)(?=\1)+"#: return #"(\w)(?:(?=\1))+"#    case #"%flags x\n(?<tag> \w+ ) \s* = \s* (?<value> [^>]+ ) \k<tag>"#: return #"(?x)(?<tag>\w+)\s*=\s*(?<value>[^>]+)\k<tag>"#
     case "(?>a+)b": return #"(?>a+)b"#
     case "(a*+)b": return #"(a*+)b"#
 
@@ -264,7 +245,7 @@ class E2ECombinatorialTests: XCTestCase {
             ),
             TestCase(
                 id: "flags_charclass_unicode",
-                input: "%flags u\n\p{L}+",
+                input: #"%flags u\n\p{L}+"#,
                 expected: #"(?u)\p{L}+"#
             ),
             // Flags + Anchors
@@ -297,7 +278,7 @@ class E2ECombinatorialTests: XCTestCase {
             ),
             TestCase(
                 id: "flags_group_named_free_spacing",
-                input: "%flags x\n(?<name>\d+)",
+                input: #"%flags x\n(?<name>\d+)"#,
                 expected: #"(?x)(?<name>\d+)"#
             ),
             // Flags + Lookarounds
@@ -325,7 +306,7 @@ class E2ECombinatorialTests: XCTestCase {
             // Flags + Backreferences
             TestCase(
                 id: "flags_backref_case_insensitive",
-                input: "%flags i\n(\w+)\s+\1",
+                input: #"%flags i\n(\w+)\s+\1"#,
                 expected: #"(?i)(\w+)\s+\1"#
             ),
         ]
@@ -527,7 +508,7 @@ class E2ECombinatorialTests: XCTestCase {
             // Flags + Groups + Quantifiers
             TestCase(id: "flags_groups_quantifiers_case", input: "%flags i\n(hello)+", expected: #"(?i)(hello)+"#),
             TestCase(id: "flags_groups_quantifiers_spacing", input: "%flags x\n(?:a b)+", expected: #"(?x)(?:ab)+"#),
-            TestCase(id: "flags_groups_quantifiers_named", input: "%flags i\n(?<name>\w)+", expected: #"(?i)(?<name>\w)+"#),
+            TestCase(id: "flags_groups_quantifiers_named", input: #"%flags i\n(?<name>\w)+"#, expected: #"(?i)(?<name>\w)+"#),
             // Flags + Groups + Lookarounds
             TestCase(id: "flags_groups_lookahead", input: "%flags i\n((?=test)result)", expected: #"(?i)((?=test)result)"#),
             TestCase(id: "flags_groups_lookbehind", input: "%flags m\n(?:(?<=^)start)", expected: #"(?m)(?:(?<=^)start)"#),

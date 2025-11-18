@@ -103,7 +103,7 @@ func strlingParse(src: String) throws -> ParseResult {
     case #"\q"#:
         throw STRlingParseError.testError(message: "Unknown escape sequence", hint: "The escape '\\q' is not valid. Did you mean to escape 'q' as '\\q'?")
     case #"\z"#:
-        throw STRlingParseError.testError(message: "Unknown escape sequence", hint: "The escape '\\z' is not valid. Did you mean the anchor '\\Z' (end of string)?")
+        throw STRlingParseError.testError(message: "Unknown escape sequence", hint: #"The escape '\\z' is not valid. Did you mean the anchor '\\Z' (end of string)?"#)
 
     // --- Additional Negative Cases (from 'Valid patterns' block) ---
     case "a{foo}":

@@ -178,7 +178,7 @@ func strlingParse(src: String) throws -> ParseResult {
         )
     case #"\1abc"#:
         throw STRlingParseError(
-            message: "Backreference to undefined group \\1",
+            message: #"Backreference to undefined group \\1"#,
             hint: "Backreferences only match previously captured groups and are not 0-indexed. Forward references are not allowed.",
             pos: 0,
             src: src
@@ -199,8 +199,8 @@ func strlingParse(src: String) throws -> ParseResult {
         )
     case #"[\p{Letter"#:
         throw STRlingParseError(
-            message: "Unterminated \\p{...} property",
-            hint: "The syntax is \\p{Property_Name} or \\P{Property_Name}.",
+            message: #"Unterminated \\p{...} property"#,
+            hint: #"The syntax is \\p{Property_Name} or \\P{Property_Name}."#,
             pos: 9,
             src: src
         )
@@ -406,7 +406,7 @@ extension ParserErrorsTests {
     func testUnterminatedUnicodePropertyHint() {
         assertHint(
             for: #"[\p{Letter"#,
-            messageContains: "Unterminated \\p{...}",
+            messageContains: #"Unterminated \\p{...}"#,
             hintContains: ["syntax \\p{Property}"]
         )
     }

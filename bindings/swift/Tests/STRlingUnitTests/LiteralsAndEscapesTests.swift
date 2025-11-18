@@ -136,7 +136,7 @@ func strlingParse(src: String) throws -> ParseResult {
     case ")": throw ParseError.testError(message: "Unmatched ')'", pos: 0)
     case "|": throw ParseError.testError(message: "Alternation lacks left-hand side", pos: 0)
     // "forbidden octal escape"
-    case #"\123"#: throw ParseError.testError(message: "Backreference to undefined group \\123", pos: 0)
+    case #"\123"#: throw ParseError.testError(message: #"Backreference to undefined group \\123"#, pos: 0)
 
     // --- Category C: Edge Cases ---
     case #"\u{10FFFF}"#: ast = .lit("\u{10FFFF}")
@@ -175,7 +175,7 @@ func strlingParse(src: String) throws -> ParseResult {
     case #"\U00010000"#: ast = .lit("\u{10000}")
 
     // --- Category I: Octal And Backref Disambiguation ---
-    case #"\1"#: throw ParseError.testError(message: "Backreference to undefined group \\1", pos: 0)
+    case #"\1"#: throw ParseError.testError(message: #"Backreference to undefined group \\1"#, pos: 0)
     case #"(a)\12"#: ast = .seq([.group(.lit("a")), .backref(1), .lit("2")])
     // `\123` is covered by Category B
         

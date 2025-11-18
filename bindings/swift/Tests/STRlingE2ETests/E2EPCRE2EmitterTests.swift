@@ -373,7 +373,7 @@ class E2EPCRE2EmitterTests: XCTestCase {
             XCTAssertEqual(error as? ParseError, .unterminatedGroup)
         }
         
-        // Test: "\z escape in extension features should raise"
+        // Test: #"\z escape in extension features should raise"#
         XCTAssertThrowsError(try compileToPcre(#"\Astart\z"#), "Should have thrown a ParseError for \\z escape") { error in
             XCTAssertEqual(error as? ParseError, .unknownEscapeSequence(#"\z"#))
         }

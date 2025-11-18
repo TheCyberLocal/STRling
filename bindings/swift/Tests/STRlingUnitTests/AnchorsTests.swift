@@ -274,12 +274,12 @@ class AnchorsTests: XCTestCase {
         let expected2 = Seq(parts: [Lit(value: "a"), Anchor(at: .end)])
         XCTAssertEqual(ast2 as? Seq, expected2)
 
-        // Test: "a\b$"
+        // Test: #"a\b$"#
         let ast3 = try parse(#"a\b$"#)
         let expected3 = Seq(parts: [Lit(value: "a"), Anchor(at: .wordBoundary), Anchor(at: .end)])
         XCTAssertEqual(ast3 as? Seq, expected3)
         
-        // Test: "^\ba\b$"
+        // Test: #"^\ba\b$"#
         let ast4 = try parse(#"^\ba\b$"#)
         let expected4 = Seq(parts: [
             Anchor(at: .start),

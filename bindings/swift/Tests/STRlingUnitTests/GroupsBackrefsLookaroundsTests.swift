@@ -150,9 +150,9 @@ func strlingParse(src: String) throws -> ParseResult {
     case #"\k<A>(?<A>a)"#:
         throw ParseError.testError(message: "Backreference to undefined group <A>", pos: 0)
     case #"\2(a)(b)"#:
-        throw ParseError.testError(message: "Backreference to undefined group \\2", pos: 0)
+        throw ParseError.testError(message: #"Backreference to undefined group \\2"#, pos: 0)
     case #"(a)\2"#:
-        throw ParseError.testError(message: "Backreference to undefined group \\2", pos: 3)
+        throw ParseError.testError(message: #"Backreference to undefined group \\2"#, pos: 3)
     case "(?i)a":
         throw ParseError.testError(message: "Inline modifiers", pos: 1)
     case "(?<a>x)(?<a>y)":
@@ -363,8 +363,8 @@ class GroupsBackrefsLookaroundsTests: XCTestCase {
         
         // B.2: Invalid Backrefs
         assertParseError(#"\k<A>(?<A>a)"#, expected: .testError(message: "Backreference to undefined group <A>", pos: 0))
-        assertParseError(#"\2(a)(b)"#, expected: .testError(message: "Backreference to undefined group \\2", pos: 0))
-        assertParseError(#"(a)\2"#, expected: .testError(message: "Backreference to undefined group \\2", pos: 3))
+        assertParseError(#"\2(a)(b)"#, expected: .testError(message: #"Backreference to undefined group \\2"#, pos: 0))
+        assertParseError(#"(a)\2"#, expected: .testError(message: #"Backreference to undefined group \\2"#, pos: 3))
         
         // B.3: Invalid Syntax
         assertParseError("(?i)a", expected: .testError(message: "Inline modifiers", pos: 1))

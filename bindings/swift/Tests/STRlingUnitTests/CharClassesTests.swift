@@ -242,7 +242,7 @@ class CharClassesTests: XCTestCase {
         ])
         XCTAssertEqual(ast2, expected2)
 
-        // Test: "[\d]"
+        // Test: #"[\d]"#
         let ast3 = try parse(#"[\d]"#)
         let expected3: ASTNode = .charClass(negated: false, items: [.shorthand(.digit, negated: false)])
         XCTAssertEqual(ast3, expected3)
@@ -252,14 +252,14 @@ class CharClassesTests: XCTestCase {
         let expected4: ASTNode = .charClass(negated: false, items: [.shorthand(.digit, negated: true)])
         XCTAssertEqual(ast4, expected4)
 
-        // Test: "[\w\s]"
+        // Test: #"[\w\s]"#
         let ast5 = try parse(#"[\w\s]"#)
         let expected5: ASTNode = .charClass(negated: false, items: [
             .shorthand(.word, negated: false), .shorthand(.whitespace, negated: false)
         ])
         XCTAssertEqual(ast5, expected5)
 
-        // Test: "[a-f\d]"
+        // Test: #"[a-f\d]"#
         let ast6 = try parse(#"[a-f\d]"#)
         let expected6: ASTNode = .charClass(negated: false, items: [
             .range("a", "f"), .shorthand(.digit, negated: false)
@@ -284,7 +284,7 @@ class CharClassesTests: XCTestCase {
      * @brief Corresponds to "describe('Category C: Unicode Properties', ...)"
      */
     func testUnicodeProperties() throws {
-        // Test: "[\p{L}]"
+        // Test: #"[\p{L}]"#
         let ast1 = try parse(#"[\p{L}]"#)
         let expected1: ASTNode = .charClass(negated: false, items: [.unicodeProperty(property: nil, value: "L", negated: false)])
         XCTAssertEqual(ast1, expected1)
@@ -294,7 +294,7 @@ class CharClassesTests: XCTestCase {
         let expected2: ASTNode = .charClass(negated: false, items: [.unicodeProperty(property: nil, value: "L", negated: true)])
         XCTAssertEqual(ast2, expected2)
 
-        // Test: "[\p{Script=Latin}]"
+        // Test: #"[\p{Script=Latin}]"#
         let ast3 = try parse(#"[\p{Script=Latin}]"#)
         let expected3: ASTNode = .charClass(negated: false, items: [.unicodeProperty(property: "Script", value: "Latin", negated: false)])
         XCTAssertEqual(ast3, expected3)
@@ -304,7 +304,7 @@ class CharClassesTests: XCTestCase {
         let expected4: ASTNode = .charClass(negated: false, items: [.unicodeProperty(property: "Script", value: "Latin", negated: true)])
         XCTAssertEqual(ast4, expected4)
         
-        // Test: "[\p{L}a-z]"
+        // Test: #"[\p{L}a-z]"#
         let ast5 = try parse(#"[\p{L}a-z]"#)
         let expected5: ASTNode = .charClass(negated: false, items: [
             .unicodeProperty(property: nil, value: "L", negated: false),
