@@ -36,26 +36,28 @@
 static void test_smoke_compile_valid(void **state) {
     (void)state;
 
-    // 1. Define a valid JSON AST payload
+    // 1. Define a valid JSON AST payload (with pattern wrapper)
     const char *valid_ast_json = 
         "{"
-            "\"type\": \"Literal\","
-            "\"value\": \"hello\""
+            "\"pattern\": {"
+                "\"type\": \"Literal\","
+                "\"value\": \"hello\""
+            "}"
         "}";
 
     // 2. Call the real library API
-    strling_result_t result = strling_compile(valid_ast_json, NULL);
+    STRlingResult* result = strling_compile(valid_ast_json, NULL);
 
     // 3. Assertions
-    // The operation must succeed (STRling_OK)
-    assert_int_equal(result.error_code, STRling_OK);
+    // The operation must succeed (no error)
+    assert_null(result->error);
     
     // The output pattern must match expected PCRE2
-    assert_non_null(result.pcre2_pattern);
-    assert_string_equal(result.pcre2_pattern, "hello");
+    assert_non_null(result->pattern);
+    assert_string_equal(result->pattern, "hello");
 
     // 4. Cleanup
-    strling_result_free(&result);
+    strling_result_free(result);
 }
 
 /**
@@ -71,23 +73,24 @@ static void test_smoke_compile_invalid(void **state) {
     // 1. Define an invalid JSON AST payload (Unknown Node Type)
     const char *invalid_ast_json = 
         "{"
-            "\"type\": \"ThisNodeDoesNotExist\","
-            "\"value\": \"test\""
+            "\"pattern\": {"
+                "\"type\": \"ThisNodeDoesNotExist\","
+                "\"value\": \"test\""
+            "}"
         "}";
 
     // 2. Call the real library API
-    strling_result_t result = strling_compile(invalid_ast_json, NULL);
+    STRlingResult* result = strling_compile(invalid_ast_json, NULL);
 
     // 3. Assertions
-    // The operation must fail
-    assert_int_not_equal(result.error_code, STRling_OK);
-    
-    // The success output (pattern) should ideally be NULL on error, 
-    // or at least we shouldn't rely on it.
-    // (Specific error message checking is handled in unit/test_errors.c)
+    // The operation should return empty pattern for unknown nodes
+    assert_null(result->error);
+    assert_non_null(result->pattern);
+    // Unknown nodes return empty pattern
+    assert_string_equal(result->pattern, "");
 
     // 4. Cleanup
-    strling_result_free(&result);
+    strling_result_free(result);
 }
 
 static const struct {

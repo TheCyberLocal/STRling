@@ -71,6 +71,125 @@ static const char* get_node_type(json_t* node) {
     return json_string_value(type);
 }
 
+/* Helper to escape a literal string for PCRE2 output */
+static char* escape_literal_for_pcre2(const char* lit) {
+    if (!lit) return strdup("");
+    
+    size_t len = strlen(lit);
+    /* Allocate enough space for worst case: each byte could become \x{HHHHHHHH} (12 chars) */
+    char* result = (char*)malloc(len * 12 + 1);
+    char* p = result;
+    
+    for (size_t i = 0; i < len; ) {
+        unsigned char c = (unsigned char)lit[i];
+        
+        /* Handle control characters with escape sequences */
+        if (c == '\n') {
+            *p++ = '\\';
+            *p++ = 'n';
+            i++;
+        } else if (c == '\r') {
+            *p++ = '\\';
+            *p++ = 'r';
+            i++;
+        } else if (c == '\t') {
+            *p++ = '\\';
+            *p++ = 't';
+            i++;
+        } else if (c == '\f') {
+            *p++ = '\\';
+            *p++ = 'f';
+            i++;
+        } else if (c == 0x0B) {  /* Vertical tab */
+            *p++ = '\\';
+            *p++ = 'v';
+            i++;
+        }
+        /* Handle space - escape it */
+        else if (c == ' ') {
+            *p++ = '\\';
+            *p++ = ' ';
+            i++;
+        }
+        /* Handle hash - escape it for free-spacing mode */
+        else if (c == '#') {
+            *p++ = '\\';
+            *p++ = '#';
+            i++;
+        }
+        /* Handle tilde - escape it */
+        else if (c == '~') {
+            *p++ = '\\';
+            *p++ = '~';
+            i++;
+        }
+        /* Handle ampersand - escape it */
+        else if (c == '&') {
+            *p++ = '\\';
+            *p++ = '&';
+            i++;
+        }
+        /* Handle regex metacharacters - escape them */
+        else if (strchr(".^$*+?{}[]()\\|\"`", c)) {
+            *p++ = '\\';
+            *p++ = c;
+            i++;
+        }
+        /* Handle non-printable ASCII (0x00-0x1F, 0x7F-0x9F) */
+        else if (c < 0x20 || (c >= 0x7F && c <= 0x9F)) {
+            p += sprintf(p, "\\x%02x", c);
+            i++;
+        }
+        /* Handle multi-byte UTF-8 sequences (Unicode characters) */
+        else if (c >= 0x80) {
+            /* Decode UTF-8 to get Unicode code point */
+            unsigned int codepoint = 0;
+            int bytes = 0;
+            
+            if ((c & 0xE0) == 0xC0) {
+                /* 2-byte sequence */
+                codepoint = c & 0x1F;
+                bytes = 1;
+            } else if ((c & 0xF0) == 0xE0) {
+                /* 3-byte sequence */
+                codepoint = c & 0x0F;
+                bytes = 2;
+            } else if ((c & 0xF8) == 0xF0) {
+                /* 4-byte sequence */
+                codepoint = c & 0x07;
+                bytes = 3;
+            } else {
+                /* Invalid UTF-8, just output the byte as hex */
+                p += sprintf(p, "\\x%02x", c);
+                i++;
+                continue;
+            }
+            
+            /* Read continuation bytes */
+            i++;
+            for (int j = 0; j < bytes && i < len; j++, i++) {
+                unsigned char cont = (unsigned char)lit[i];
+                if ((cont & 0xC0) != 0x80) {
+                    /* Invalid continuation byte */
+                    break;
+                }
+                codepoint = (codepoint << 6) | (cont & 0x3F);
+            }
+            
+            /* Emit as \x{...} */
+            p += sprintf(p, "\\x{%x}", codepoint);
+        }
+        /* Regular printable ASCII - output as-is */
+        else {
+            *p++ = c;
+            i++;
+        }
+    }
+    
+    *p = '\0';
+    return result;
+}
+
 /* Simple recursive compiler for basic nodes */
 static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
     if (!node) return NULL;
@@ -84,20 +203,8 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
         if (!value || !json_is_string(value)) return strdup("");
         const char* lit = json_string_value(value);
         
-        /* Escape special regex characters */
-        size_t len = strlen(lit);
-        char* result = (char*)malloc(len * 2 + 1);
-        char* p = result;
-        for (size_t i = 0; i < len; i++) {
-            char c = lit[i];
-            /* Escape special PCRE2 characters */
-            if (strchr(".^$*+?{}[]()\\|", c)) {
-                *p++ = '\\';
-            }
-            *p++ = c;
-        }
-        *p = '\0';
-        return result;
+        /* Use the enhanced escape function */
+        return escape_literal_for_pcre2(lit);
     }
     
     /* Handle Sequence */
