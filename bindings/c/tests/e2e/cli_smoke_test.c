@@ -90,10 +90,19 @@ static void test_smoke_compile_invalid(void **state) {
     strling_result_free(&result);
 }
 
+static const struct {
+    const char *id;
+    const char *json;
+} cli_smoke_entries[] = {
+    {"smoke_compile_valid", "{\"type\": \"Literal\", \"value\": \"hello\"}"},
+    {"smoke_compile_invalid", "{\"type\": \"ThisNodeDoesNotExist\", \"value\": \"test\"}"},
+};
+
+const struct CMUnitTest cli_smoke_tests[] = {
+    cmocka_unit_test(test_smoke_compile_valid),
+    cmocka_unit_test(test_smoke_compile_invalid),
+};
+// NOTE: The main test harness uses this array.
 int main(void) {
-    const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_smoke_compile_valid),
-        cmocka_unit_test(test_smoke_compile_invalid),
-    };
-    return cmocka_run_group_tests(tests, NULL, NULL);
+    return cmocka_run_group_tests(cli_smoke_tests, NULL, NULL);
 }

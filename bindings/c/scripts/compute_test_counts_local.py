@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-Compute test counts for C bindings by running test executables with XML output.
-Maps test files like 'anchors_test.c' to 'anchors.test' in the output.
+Local helper to compute C test counts by scanning .c test sources.
+This mirrors the intended behavior for `compute_test_counts.py` but works from
+source files (counts TestCase entries) so it doesn't require running built
+executables.
 """
 import os
 import glob
