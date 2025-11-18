@@ -30,11 +30,11 @@ public class IR {
      * Base class for all IR operations.
      * 
      * <p>All IR nodes extend this base class and must implement the toDict() method
-     * for serialization to a dictionary representation.</p>
+     * for serialization to a dictionary/object representation.</p>
      */
     public static abstract class IROp {
         /**
-         * Serialize the IR node to a dictionary representation.
+         * Serializes the IR node to a dictionary representation.
          * 
          * @return The dictionary representation of this IR node
          */
@@ -50,6 +50,11 @@ public class IR {
     public static class IRAlt extends IROp {
         public List<IROp> branches;
         
+        /**
+         * Creates an alternation IR node.
+         *
+         * @param branches Array of IR nodes representing the alternative branches
+         */
         public IRAlt(List<IROp> branches) {
             this.branches = branches;
         }
@@ -68,13 +73,19 @@ public class IR {
     }
     
     /**
-     * Represents a sequence operation in the IR.
+     * Represents a sequence (concatenation) operation in the IR.
      * 
-     * <p>Matches all parts in order.</p>
+     * <p>Matches all parts in order. Equivalent to concatenating patterns
+     * in traditional regex syntax.</p>
      */
     public static class IRSeq extends IROp {
         public List<IROp> parts;
         
+        /**
+         * Creates a sequence IR node.
+         *
+         * @param parts Array of IR nodes to be matched sequentially
+         */
         public IRSeq(List<IROp> parts) {
             this.parts = parts;
         }
@@ -94,10 +105,18 @@ public class IR {
     
     /**
      * Represents a literal string in the IR.
+     *
+     * <p>Matches the exact string value with all characters treated as literals
+     * (no special regex meaning).</p>
      */
     public static class IRLit extends IROp {
         public String value;
         
+        /**
+         * Creates a literal IR node.
+         *
+         * @param value The literal string to match
+         */
         public IRLit(String value) {
             this.value = value;
         }
@@ -112,7 +131,10 @@ public class IR {
     }
     
     /**
-     * Represents the wildcard (.) in the IR.
+     * Represents the "any character" wildcard in the IR.
+     *
+     * <p>Matches any single character (behavior may depend on flags like dotall).
+     * Equivalent to the . metacharacter in traditional regex.</p>
      */
     public static class IRDot extends IROp {
         @Override
@@ -124,11 +146,19 @@ public class IR {
     }
     
     /**
-     * Represents an anchor in the IR.
+     * Represents an anchor (position assertion) in the IR.
+     *
+     * <p>Matches a position rather than a character. Common anchors include
+     * start of line (^), end of line ($), word boundaries (\b), etc.</p>
      */
     public static class IRAnchor extends IROp {
         public String at;
         
+        /**
+         * Creates an anchor IR node.
+         *
+         * @param at The anchor type (e.g., "Start", "End", "WordBoundary")
+         */
         public IRAnchor(String at) {
             this.at = at;
         }
@@ -143,11 +173,14 @@ public class IR {
     }
     
     /**
-     * Base class for character class items in the IR.
+     * Base class for character class items.
+     *
+     * <p>Character class items represent the individual components that can appear
+     * inside a character class (ranges, literals, or escape sequences).</p>
      */
     public static abstract class IRClassItem {
         /**
-         * Serialize class item to a dictionary representation.
+         * Serializes the character class item to a dictionary representation.
          * 
          * @return Map containing the item's serialized representation
          */
@@ -155,12 +188,20 @@ public class IR {
     }
     
     /**
-     * Character range within a character class in the IR.
+     * Represents a character range in a character class.
+     *
+     * <p>Matches any character between fromCh and toCh inclusive (e.g., a-z, 0-9).</p>
      */
     public static class IRClassRange extends IRClassItem {
         public String fromCh;
         public String toCh;
         
+        /**
+         * Creates a character range item.
+         *
+         * @param fromCh The starting character of the range
+         * @param toCh The ending character of the range
+         */
         public IRClassRange(String fromCh, String toCh) {
             this.fromCh = fromCh;
             this.toCh = toCh;
@@ -177,11 +218,18 @@ public class IR {
     }
     
     /**
-     * Literal character within a character class in the IR.
+     * Represents a single literal character in a character class.
+     *
+     * <p>Matches exactly the specified character.</p>
      */
     public static class IRClassLiteral extends IRClassItem {
         public String ch;
         
+        /**
+         * Creates a literal character item.
+         *
+         * @param ch The literal character to match
+         */
         public IRClassLiteral(String ch) {
             this.ch = ch;
         }
@@ -196,16 +244,30 @@ public class IR {
     }
     
     /**
-     * Character class escape sequence in the IR.
+     * Represents an escape sequence in a character class.
+     *
+     * <p>Handles special character class escapes like \d, \w, \s, or Unicode
+     * property escapes like \p{Letter}.</p>
      */
     public static class IRClassEscape extends IRClassItem {
         public String type;
         public String property;
         
+        /**
+         * Creates an escape sequence item.
+         *
+         * @param type The escape type (e.g., "Digit", "Word", "Whitespace", "UnicodeProperty")
+         */
         public IRClassEscape(String type) {
             this(type, null);
         }
         
+        /**
+         * Creates an escape sequence item.
+         *
+         * @param type The escape type (e.g., "Digit", "Word", "Whitespace", "UnicodeProperty")
+         * @param property The Unicode property name if type is "UnicodeProperty"
+         */
         public IRClassEscape(String type, String property) {
             this.type = type;
             this.property = property;
@@ -224,12 +286,21 @@ public class IR {
     }
     
     /**
-     * Character class in the IR.
+     * Represents a character class in the IR.
+     *
+     * <p>Matches any single character from the set of allowed characters or ranges.
+     * Can be negated to match any character NOT in the set.</p>
      */
     public static class IRCharClass extends IROp {
         public boolean negated;
         public List<IRClassItem> items;
         
+        /**
+         * Creates a character class IR node.
+         *
+         * @param negated Whether the character class is negated (e.g., [^...])
+         * @param items List of character class items (ranges, literals, escapes)
+         */
         public IRCharClass(boolean negated, List<IRClassItem> items) {
             this.negated = negated;
             this.items = items;
@@ -250,20 +321,31 @@ public class IR {
     }
     
     /**
-     * Quantifier in the IR.
+     * Represents a quantifier (repetition) in the IR.
+     *
+     * <p>Specifies how many times the child pattern should be matched.
+     * Supports greedy, lazy, and possessive matching modes.</p>
      */
     public static class IRQuant extends IROp {
         public IROp child;
         public int min;
         /**
-         * Maximum repetitions, or "Inf" for unbounded.
+         * Maximum repetitions (number), or 0 for unbounded (infinity).
          */
-        public Object max; // int or String "Inf"
+        public Object max; // int or 0 for "Inf"
         /**
-         * Quantifier mode: Greedy|Lazy|Possessive.
+         * Quantifier mode: "Greedy", "Lazy", or "Possessive".
          */
         public String mode;
         
+        /**
+         * Creates a quantifier IR node.
+         *
+         * @param child The IR node to be quantified
+         * @param min Minimum number of repetitions
+         * @param max Maximum number of repetitions (number or 0 for unlimited)
+         * @param mode Matching mode: "Greedy", "Lazy", or "Possessive"
+         */
         public IRQuant(IROp child, int min, Object max, String mode) {
             this.child = child;
             this.min = min;
@@ -284,7 +366,10 @@ public class IR {
     }
     
     /**
-     * Group in the IR.
+     * Represents a group (capturing or non-capturing) in the IR.
+     *
+     * <p>Groups are used for capturing matched text, applying quantifiers to
+     * multiple elements, or creating atomic groups for backtracking control.</p>
      */
     public static class IRGroup extends IROp {
         public boolean capturing;
@@ -292,14 +377,35 @@ public class IR {
         public String name;
         public Boolean atomic;
         
+        /**
+         * Creates a group IR node.
+         *
+         * @param capturing Whether this group captures its match
+         * @param body The IR node contained within the group
+         */
         public IRGroup(boolean capturing, IROp body) {
             this(capturing, body, null, null);
         }
         
+        /**
+         * Creates a group IR node.
+         *
+         * @param capturing Whether this group captures its match
+         * @param body The IR node contained within the group
+         * @param name Optional name for named capture groups
+         */
         public IRGroup(boolean capturing, IROp body, String name) {
             this(capturing, body, name, null);
         }
         
+        /**
+         * Creates a group IR node.
+         *
+         * @param capturing Whether this group captures its match
+         * @param body The IR node contained within the group
+         * @param name Optional name for named capture groups
+         * @param atomic Whether this is an atomic group (prevents backtracking)
+         */
         public IRGroup(boolean capturing, IROp body, String name, Boolean atomic) {
             this.capturing = capturing;
             this.body = body;
@@ -324,16 +430,28 @@ public class IR {
     }
     
     /**
-     * Backreference in the IR.
+     * Represents a backreference in the IR.
+     *
+     * <p>References a previously captured group by index or name, matching
+     * the exact same text that was captured by that group.</p>
      */
     public static class IRBackref extends IROp {
         public Integer byIndex;
         public String byName;
         
+        /**
+         * Creates a backreference IR node.
+         */
         public IRBackref() {
             this(null, null);
         }
         
+        /**
+         * Creates a backreference IR node.
+         *
+         * @param byIndex The numeric group index to reference
+         * @param byName The name of the group to reference
+         */
         public IRBackref(Integer byIndex, String byName) {
             this.byIndex = byIndex;
             this.byName = byName;
@@ -354,13 +472,24 @@ public class IR {
     }
     
     /**
-     * Lookaround in the IR.
+     * Represents a lookaround assertion in the IR.
+     *
+     * <p>Lookarounds are zero-width assertions that check for pattern presence
+     * or absence without consuming characters. They can look ahead or behind,
+     * and can be positive or negative.</p>
      */
     public static class IRLook extends IROp {
         public String dir;
         public boolean neg;
         public IROp body;
         
+        /**
+         * Creates a lookaround IR node.
+         *
+         * @param dir Direction: "Ahead" for lookahead or "Behind" for lookbehind
+         * @param neg Whether this is a negative assertion (pattern must NOT match)
+         * @param body The IR node to look for
+         */
         public IRLook(String dir, boolean neg, IROp body) {
             this.dir = dir;
             this.neg = neg;

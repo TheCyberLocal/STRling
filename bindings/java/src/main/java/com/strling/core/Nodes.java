@@ -33,7 +33,8 @@ public class Nodes {
      * Container for regex flags/modifiers.
      * 
      * <p>Flags control the behavior of pattern matching (case sensitivity, multiline
-     * mode, etc.). This class encapsulates all standard regex flags.</p>
+     * mode, etc.). This class encapsulates all standard regex flags and provides
+     * utilities for creating flags from string representations.</p>
      */
     public static class Flags {
         public boolean ignoreCase = false;
@@ -43,9 +44,9 @@ public class Nodes {
         public boolean extended = false;
         
         /**
-         * Serialize flags to a dictionary representation.
+         * Serializes the flags to a dictionary representation.
          * 
-         * @return Map containing all flag values
+         * @return Object containing all flag values
          */
         public Map<String, Boolean> toDict() {
             Map<String, Boolean> map = new HashMap<>();
@@ -58,10 +59,10 @@ public class Nodes {
         }
         
         /**
-         * Create Flags from a string of flag letters.
+         * Creates Flags from a string of flag letters.
          * 
          * @param letters String containing flag letters (i, m, s, u, x)
-         * @return Flags instance with appropriate flags set
+         * @return A new Flags instance with the specified flags enabled
          */
         public static Flags fromLetters(String letters) {
             Flags f = new Flags();

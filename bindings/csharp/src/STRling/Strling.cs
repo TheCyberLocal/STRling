@@ -1,11 +1,21 @@
 namespace Strling;
 
+using Strling.Core;
+
 /// <summary>
 /// The main entry point for parsing STRling patterns and compiling them to target regex flavors.
 /// </summary>
-public class Parser
+public static class Parser
 {
-    // Parser implementation will be added in Task 2
+    /// <summary>
+    /// Parse a STRling pattern into an AST.
+    /// </summary>
+    /// <param name="src">The STRling pattern text to parse</param>
+    /// <returns>A tuple of (Flags, AST root node)</returns>
+    public static (Flags, Node) Parse(string src)
+    {
+        return Core.Parser.Parse(src);
+    }
 }
 
 /// <summary>

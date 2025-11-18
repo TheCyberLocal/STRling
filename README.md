@@ -12,8 +12,9 @@
 1. **Beginner Friendly:** You need ZERO knowledge of RegEx jargon to create powerful and clear-to-read patterns.
 2. **Reliable Logic:** STRling exclusively utilizes built-in libraries, making it a reliable package.
 3. **Instructional Error Handling:** Errors inevitably occur by drafting invalid patterns, so STRling explains to the developer exactly what was done wrong and how to correct it.
-4. **Consistent and Readable:** Make your projects clear and consistent by using STRling rather than the individual library string validators that each have their own syntax (Sqlite3, Sequelize, Postgres, WTForms... etc.).
-5. **Multilingual Availability:** STRling is not just a package, but a concept brought to you through multiple widely used languages.
+4. **Live Diagnostics**: Real-time syntax validation in compatible editors.
+5. **Consistent and Readable:** Make your projects clear and consistent by using STRling rather than the unique library validators, each having their own syntax.
+6. **Multilingual Availability:** STRling is not just a package, but a concept brought to you through multiple widely used languages.
 
 These key features collectively emphasize and fortify the claim that STRling truly is a next-generation production-grade syntax for pattern handling.
 

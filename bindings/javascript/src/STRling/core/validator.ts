@@ -31,7 +31,8 @@ export class ValidationError extends Error {
 }
 
 // Create a shared AJV instance to avoid duplicate schema registration
-const ajv = new Ajv2020({
+const AjvCtor: any = (Ajv2020 as any).default || (Ajv2020 as any);
+const ajv = new AjvCtor({
     strict: false,
     allErrors: true,
     verbose: true,
