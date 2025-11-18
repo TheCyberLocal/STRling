@@ -84,7 +84,7 @@ static void test_class_contents(void** state) {
     /* [a-z] - Character range */
     test_compile(
         "{\"pattern\": {\"type\": \"CharacterClass\", \"negated\": false, \"members\": ["
-        "{\"type\": \"Range\", \"min\": \"a\", \"max\": \"z\"}"
+        "{\"type\": \"Range\", \"from\": \"a\", \"to\": \"z\"}"
         "]}}",
         "[a-z]"
     );
@@ -92,9 +92,9 @@ static void test_class_contents(void** state) {
     /* [a-zA-Z0-9] - Multiple ranges */
     test_compile(
         "{\"pattern\": {\"type\": \"CharacterClass\", \"negated\": false, \"members\": ["
-        "{\"type\": \"Range\", \"min\": \"a\", \"max\": \"z\"},"
-        "{\"type\": \"Range\", \"min\": \"A\", \"max\": \"Z\"},"
-        "{\"type\": \"Range\", \"min\": \"0\", \"max\": \"9\"}"
+        "{\"type\": \"Range\", \"from\": \"a\", \"to\": \"z\"},"
+        "{\"type\": \"Range\", \"from\": \"A\", \"to\": \"Z\"},"
+        "{\"type\": \"Range\", \"from\": \"0\", \"to\": \"9\"}"
         "]}}",
         "[a-zA-Z0-9]"
     );
@@ -102,7 +102,7 @@ static void test_class_contents(void** state) {
     /* [\d] - Digit shorthand */
     test_compile(
         "{\"pattern\": {\"type\": \"CharacterClass\", \"negated\": false, \"members\": ["
-        "{\"type\": \"Shorthand\", \"kind\": \"d\"}"
+        "{\"type\": \"Meta\", \"value\": \"d\"}"
         "]}}",
         "[\\d]"
     );
@@ -110,7 +110,7 @@ static void test_class_contents(void** state) {
     /* [\D] - Negated digit shorthand */
     test_compile(
         "{\"pattern\": {\"type\": \"CharacterClass\", \"negated\": false, \"members\": ["
-        "{\"type\": \"Shorthand\", \"kind\": \"D\"}"
+        "{\"type\": \"Meta\", \"value\": \"D\"}"
         "]}}",
         "[\\D]"
     );
@@ -118,8 +118,8 @@ static void test_class_contents(void** state) {
     /* [\w\s] - Multiple shorthands */
     test_compile(
         "{\"pattern\": {\"type\": \"CharacterClass\", \"negated\": false, \"members\": ["
-        "{\"type\": \"Shorthand\", \"kind\": \"w\"},"
-        "{\"type\": \"Shorthand\", \"kind\": \"s\"}"
+        "{\"type\": \"Meta\", \"value\": \"w\"},"
+        "{\"type\": \"Meta\", \"value\": \"s\"}"
         "]}}",
         "[\\w\\s]"
     );
@@ -127,8 +127,8 @@ static void test_class_contents(void** state) {
     /* [a-f\d] - Range and shorthand */
     test_compile(
         "{\"pattern\": {\"type\": \"CharacterClass\", \"negated\": false, \"members\": ["
-        "{\"type\": \"Range\", \"min\": \"a\", \"max\": \"f\"},"
-        "{\"type\": \"Shorthand\", \"kind\": \"d\"}"
+        "{\"type\": \"Range\", \"from\": \"a\", \"to\": \"f\"},"
+        "{\"type\": \"Meta\", \"value\": \"d\"}"
         "]}}",
         "[a-f\\d]"
     );
@@ -136,7 +136,7 @@ static void test_class_contents(void** state) {
     /* [^\S] - Negated class with negated shorthand */
     test_compile(
         "{\"pattern\": {\"type\": \"CharacterClass\", \"negated\": true, \"members\": ["
-        "{\"type\": \"Shorthand\", \"kind\": \"S\"}"
+        "{\"type\": \"Meta\", \"value\": \"S\"}"
         "]}}",
         "[^\\S]"
     );
@@ -148,22 +148,22 @@ static void test_class_contents(void** state) {
 static void test_special_characters(void** state) {
     (void)state;
     
-    /* [-a] - Dash at start (literal) */
+    /* [-a] - Dash at start (literal) - doesn't need escaping in PCRE2 */
     test_compile(
         "{\"pattern\": {\"type\": \"CharacterClass\", \"negated\": false, \"members\": ["
         "{\"type\": \"Literal\", \"value\": \"-\"},"
         "{\"type\": \"Literal\", \"value\": \"a\"}"
         "]}}",
-        "[\\-a]"
+        "[-a]"
     );
     
-    /* [a-] - Dash at end (literal) */
+    /* [a-] - Dash at end (literal) - doesn't need escaping in PCRE2 */
     test_compile(
         "{\"pattern\": {\"type\": \"CharacterClass\", \"negated\": false, \"members\": ["
         "{\"type\": \"Literal\", \"value\": \"a\"},"
         "{\"type\": \"Literal\", \"value\": \"-\"}"
         "]}}",
-        "[a\\-]"
+        "[a-]"
     );
 }
 
