@@ -1092,3 +1092,264 @@ mod compiler {
         assert!(result.metadata.features_used.contains(&"possessive_quantifier".to_string()));
     }
 }
+
+// ============================================================================
+// PCRE2 EMITTER TESTS
+// ============================================================================
+
+#[cfg(test)]
+mod emitter {
+    use super::*;
+    use strling_core::core::compiler::Compiler;
+    use strling_core::emitters::pcre2::PCRE2Emitter;
+    use strling_core::core::ir::*;
+
+    fn emit(ir: &IROp, flags: Flags) -> String {
+        let emitter = PCRE2Emitter::new(flags);
+        emitter.emit(ir)
+    }
+
+    #[test]
+    fn test_emit_literal() {
+        let ir = IROp::Lit(IRLit {
+            value: "hello".to_string(),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "hello");
+    }
+
+    #[test]
+    fn test_emit_dot() {
+        let ir = IROp::Dot(IRDot {});
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, ".");
+    }
+
+    #[test]
+    fn test_emit_anchor_start() {
+        let ir = IROp::Anchor(IRAnchor {
+            at: "Start".to_string(),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "^");
+    }
+
+    #[test]
+    fn test_emit_anchor_end() {
+        let ir = IROp::Anchor(IRAnchor {
+            at: "End".to_string(),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "$");
+    }
+
+    #[test]
+    fn test_emit_quantifier_star() {
+        let ir = IROp::Quant(IRQuant {
+            child: Box::new(IROp::Lit(IRLit {
+                value: "a".to_string(),
+            })),
+            min: 0,
+            max: IRMaxBound::Infinite("Inf".to_string()),
+            mode: "Greedy".to_string(),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "a*");
+    }
+
+    #[test]
+    fn test_emit_quantifier_lazy() {
+        let ir = IROp::Quant(IRQuant {
+            child: Box::new(IROp::Lit(IRLit {
+                value: "a".to_string(),
+            })),
+            min: 0,
+            max: IRMaxBound::Infinite("Inf".to_string()),
+            mode: "Lazy".to_string(),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "a*?");
+    }
+
+    #[test]
+    fn test_emit_quantifier_possessive() {
+        let ir = IROp::Quant(IRQuant {
+            child: Box::new(IROp::Lit(IRLit {
+                value: "a".to_string(),
+            })),
+            min: 1,
+            max: IRMaxBound::Infinite("Inf".to_string()),
+            mode: "Possessive".to_string(),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "a++");
+    }
+
+    #[test]
+    fn test_emit_group_capturing() {
+        let ir = IROp::Group(IRGroup {
+            capturing: true,
+            name: None,
+            atomic: Some(false),
+            body: Box::new(IROp::Lit(IRLit {
+                value: "test".to_string(),
+            })),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "(test)");
+    }
+
+    #[test]
+    fn test_emit_group_non_capturing() {
+        let ir = IROp::Group(IRGroup {
+            capturing: false,
+            name: None,
+            atomic: Some(false),
+            body: Box::new(IROp::Lit(IRLit {
+                value: "test".to_string(),
+            })),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "(?:test)");
+    }
+
+    #[test]
+    fn test_emit_group_named() {
+        let ir = IROp::Group(IRGroup {
+            capturing: true,
+            name: Some("mygroup".to_string()),
+            atomic: Some(false),
+            body: Box::new(IROp::Lit(IRLit {
+                value: "test".to_string(),
+            })),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "(?<mygroup>test)");
+    }
+
+    #[test]
+    fn test_emit_group_atomic() {
+        let ir = IROp::Group(IRGroup {
+            capturing: false,
+            name: None,
+            atomic: Some(true),
+            body: Box::new(IROp::Lit(IRLit {
+                value: "test".to_string(),
+            })),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "(?>test)");
+    }
+
+    #[test]
+    fn test_emit_lookahead_positive() {
+        let ir = IROp::Look(IRLook {
+            dir: "Ahead".to_string(),
+            neg: false,
+            body: Box::new(IROp::Lit(IRLit {
+                value: "test".to_string(),
+            })),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "(?=test)");
+    }
+
+    #[test]
+    fn test_emit_lookahead_negative() {
+        let ir = IROp::Look(IRLook {
+            dir: "Ahead".to_string(),
+            neg: true,
+            body: Box::new(IROp::Lit(IRLit {
+                value: "test".to_string(),
+            })),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "(?!test)");
+    }
+
+    #[test]
+    fn test_emit_lookbehind_positive() {
+        let ir = IROp::Look(IRLook {
+            dir: "Behind".to_string(),
+            neg: false,
+            body: Box::new(IROp::Lit(IRLit {
+                value: "test".to_string(),
+            })),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "(?<=test)");
+    }
+
+    #[test]
+    fn test_emit_lookbehind_negative() {
+        let ir = IROp::Look(IRLook {
+            dir: "Behind".to_string(),
+            neg: true,
+            body: Box::new(IROp::Lit(IRLit {
+                value: "test".to_string(),
+            })),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "(?<!test)");
+    }
+
+    #[test]
+    fn test_emit_alternation() {
+        let ir = IROp::Alt(IRAlt {
+            branches: vec![
+                IROp::Lit(IRLit {
+                    value: "cat".to_string(),
+                }),
+                IROp::Lit(IRLit {
+                    value: "dog".to_string(),
+                }),
+            ],
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "cat|dog");
+    }
+
+    #[test]
+    fn test_emit_sequence() {
+        let ir = IROp::Seq(IRSeq {
+            parts: vec![
+                IROp::Lit(IRLit {
+                    value: "a".to_string(),
+                }),
+                IROp::Dot(IRDot {}),
+                IROp::Lit(IRLit {
+                    value: "b".to_string(),
+                }),
+            ],
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "a.b");
+    }
+
+    #[test]
+    fn test_emit_escapes_metacharacters() {
+        let ir = IROp::Lit(IRLit {
+            value: ".".to_string(),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "\\.");
+        
+        let ir = IROp::Lit(IRLit {
+            value: "*".to_string(),
+        });
+        let result = emit(&ir, Flags::default());
+        assert_eq!(result, "\\*");
+    }
+
+    #[test]
+    fn test_end_to_end_parse_compile_emit() {
+        // Test the full pipeline: parse -> compile -> emit
+        let input = "^test.*$";
+        let (flags, ast) = parse(input).unwrap();
+        let mut compiler = Compiler::new();
+        let result = compiler.compile_with_metadata(&ast);
+        let emitter = PCRE2Emitter::new(flags);
+        let output = emitter.emit(&result.ir);
+        assert_eq!(output, "^test.*$");
+    }
+}
