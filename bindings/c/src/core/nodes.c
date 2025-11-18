@@ -20,23 +20,6 @@ static char* _str_clone(const char* s) {
     return r;
 }
 
-/* Flags */
-STRlingFlags* strling_flags_create(void) {
-    STRlingFlags* f = (STRlingFlags*)malloc(sizeof(STRlingFlags));
-    if (!f) return NULL;
-    f->ignoreCase = false;
-    f->multiline = false;
-    f->dotAll = false;
-    f->unicode = false;
-    f->extended = false;
-    return f;
-}
-
-void strling_flags_free(STRlingFlags* f) {
-    if (!f) return;
-    free(f);
-}
-
 /* Class items */
 STRlingClassItem* strling_class_range_create(const char* from_ch, const char* to_ch) {
     STRlingClassItem* it = (STRlingClassItem*)malloc(sizeof(STRlingClassItem));
