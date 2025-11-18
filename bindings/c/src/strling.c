@@ -318,7 +318,9 @@ STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags) 
     /* For now, just return the pattern as-is */
     
     json_decref(root);
-    return create_success_result(final_pattern);
+    STRlingResult* result = create_success_result(final_pattern);
+    free(final_pattern); /* Free since create_success_result makes a copy */
+    return result;
 }
 
 void strling_result_free(STRlingResult* result) {
