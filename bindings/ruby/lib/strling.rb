@@ -13,8 +13,14 @@
 require_relative 'strling/core/errors'
 require_relative 'strling/core/nodes'
 require_relative 'strling/core/ir'
+require_relative 'strling/core/parser'
 
 module Strling
   # Version constant
   VERSION = '3.0.0-alpha'
+
+  # Convenience method for parsing
+  def self.parse(text)
+    Core.parse(text)
+  end
 end

@@ -31,6 +31,12 @@ htmlcov/
 .tox/
 .venv/
 
+# ---- Ruby ----
+*.gem
+.bundle/
+vendor/bundle/
+Gemfile.lock
+
 # ---- Java / Maven ----
 target/
 *.class
