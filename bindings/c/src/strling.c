@@ -133,6 +133,11 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
         
         if (strcmp(anchor_type, "Start") == 0) return strdup("^");
         if (strcmp(anchor_type, "End") == 0) return strdup("$");
+        if (strcmp(anchor_type, "WordBoundary") == 0) return strdup("\\b");
+        if (strcmp(anchor_type, "NonWordBoundary") == 0) return strdup("\\B");
+        if (strcmp(anchor_type, "AbsoluteStart") == 0) return strdup("\\A");
+        if (strcmp(anchor_type, "AbsoluteEnd") == 0) return strdup("\\Z");
+        if (strcmp(anchor_type, "AbsoluteEndOnly") == 0) return strdup("\\z");
         return strdup("");
     }
     
@@ -408,6 +413,178 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
         result[result_len++] = ']';
         result[result_len] = '\0';
         
+        return result;
+    }
+    
+    /* Handle Meta (standalone escape sequences like \b, \d, etc.) */
+    if (strcmp(type, "Meta") == 0) {
+        json_t* value_obj = json_object_get(node, "value");
+        if (value_obj && json_is_string(value_obj)) {
+            const char* value = json_string_value(value_obj);
+            if (value && value[0]) {
+                /* Emit as \value */
+                char* result = (char*)malloc(3); /* \ + char + \0 */
+                result[0] = '\\';
+                result[1] = value[0];
+                result[2] = '\0';
+                return result;
+            }
+        }
+        return strdup("");
+    }
+    
+    /* Handle Group */
+    if (strcmp(type, "Group") == 0) {
+        json_t* body = json_object_get(node, "body");
+        json_t* capturing_obj = json_object_get(node, "capturing");
+        json_t* name_obj = json_object_get(node, "name");
+        json_t* atomic_obj = json_object_get(node, "atomic");
+        
+        if (!body) return strdup("");
+        
+        /* Compile the body */
+        char* body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str) return strdup("");
+        
+        /* Determine group type */
+        bool capturing = true; /* Default is capturing */
+        bool atomic = false;
+        const char* name = NULL;
+        
+        if (capturing_obj && json_is_boolean(capturing_obj)) {
+            capturing = json_boolean_value(capturing_obj);
+        }
+        if (atomic_obj && json_is_boolean(atomic_obj)) {
+            atomic = json_boolean_value(atomic_obj);
+        }
+        if (name_obj && json_is_string(name_obj)) {
+            name = json_string_value(name_obj);
+        }
+        
+        /* Build the group string */
+        size_t body_len = strlen(body_str);
+        size_t result_len;
+        char* result;
+        
+        if (atomic) {
+            /* Atomic group: (?>...) */
+            result_len = 4 + body_len + 1; /* (?> + body + ) + \0 */
+            result = (char*)malloc(result_len);
+            snprintf(result, result_len, "(?>%s)", body_str);
+        } else if (name) {
+            /* Named capturing group: (?<name>...) */
+            size_t name_len = strlen(name);
+            result_len = 4 + name_len + body_len + 2; /* (?< + name + > + body + ) + \0 */
+            result = (char*)malloc(result_len);
+            snprintf(result, result_len, "(?<%s>%s)", name, body_str);
+        } else if (!capturing) {
+            /* Non-capturing group: (?:...) */
+            result_len = 4 + body_len + 1; /* (?: + body + ) + \0 */
+            result = (char*)malloc(result_len);
+            snprintf(result, result_len, "(?:%s)", body_str);
+        } else {
+            /* Capturing group: (...) */
+            result_len = 2 + body_len + 1; /* ( + body + ) + \0 */
+            result = (char*)malloc(result_len);
+            snprintf(result, result_len, "(%s)", body_str);
+        }
+        
+        free(body_str);
+        return result;
+    }
+    
+    /* Handle Backreference */
+    if (strcmp(type, "Backreference") == 0) {
+        json_t* index_obj = json_object_get(node, "index");
+        json_t* name_obj = json_object_get(node, "name");
+        
+        if (name_obj && json_is_string(name_obj)) {
+            /* Named backreference: \k<name> */
+            const char* name = json_string_value(name_obj);
+            size_t name_len = strlen(name);
+            size_t result_len = 4 + name_len + 1; /* \k< + name + > + \0 */
+            char* result = (char*)malloc(result_len);
+            snprintf(result, result_len, "\\k<%s>", name);
+            return result;
+        } else if (index_obj && json_is_integer(index_obj)) {
+            /* Numeric backreference: \1, \2, etc. */
+            int index = json_integer_value(index_obj);
+            char* result = (char*)malloc(16); /* Enough for \<digits> */
+            snprintf(result, 16, "\\%d", index);
+            return result;
+        }
+        return strdup("");
+    }
+    
+    /* Handle Lookahead */
+    if (strcmp(type, "Lookahead") == 0) {
+        json_t* body = json_object_get(node, "body");
+        if (!body) return strdup("");
+        
+        char* body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str) return strdup("");
+        
+        /* Positive lookahead: (?=...) */
+        size_t body_len = strlen(body_str);
+        size_t result_len = 4 + body_len + 1; /* (?= + body + ) + \0 */
+        char* result = (char*)malloc(result_len);
+        snprintf(result, result_len, "(?=%s)", body_str);
+        
+        free(body_str);
+        return result;
+    }
+    
+    /* Handle NegativeLookahead */
+    if (strcmp(type, "NegativeLookahead") == 0) {
+        json_t* body = json_object_get(node, "body");
+        if (!body) return strdup("");
+        
+        char* body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str) return strdup("");
+        
+        /* Negative lookahead: (?!...) */
+        size_t body_len = strlen(body_str);
+        size_t result_len = 4 + body_len + 1; /* (?! + body + ) + \0 */
+        char* result = (char*)malloc(result_len);
+        snprintf(result, result_len, "(?!%s)", body_str);
+        
+        free(body_str);
+        return result;
+    }
+    
+    /* Handle Lookbehind */
+    if (strcmp(type, "Lookbehind") == 0) {
+        json_t* body = json_object_get(node, "body");
+        if (!body) return strdup("");
+        
+        char* body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str) return strdup("");
+        
+        /* Positive lookbehind: (?<=...) */
+        size_t body_len = strlen(body_str);
+        size_t result_len = 5 + body_len + 1; /* (?<= + body + ) + \0 */
+        char* result = (char*)malloc(result_len);
+        snprintf(result, result_len, "(?<=%s)", body_str);
+        
+        free(body_str);
+        return result;
+    }
+    
+    /* Handle NegativeLookbehind */
+    if (strcmp(type, "NegativeLookbehind") == 0) {
+        json_t* body = json_object_get(node, "body");
+        if (!body) return strdup("");
+        
+        char* body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str) return strdup("");
+        
+        /* Negative lookbehind: (?<!...) */
+        size_t body_len = strlen(body_str);
+        size_t result_len = 5 + body_len + 1; /* (?<! + body + ) + \0 */
+        char* result = (char*)malloc(result_len);
+        snprintf(result, result_len, "(?<!%s)", body_str);
+        
+        free(body_str);
         return result;
     }
     
