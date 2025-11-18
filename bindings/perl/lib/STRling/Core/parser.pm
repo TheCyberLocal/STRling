@@ -921,8 +921,8 @@ package STRling::Core::parser::Parser {
                         $self->_raise_error("Unterminated lookbehind", $cur->i);
                     }
                     return STRling::Core::Nodes::Look->new(
-                        direction => 'Behind',
-                        negative  => 0,
+                        dir => 'Behind',
+                        neg       => 0,
                         body      => $body,
                     );
                 } elsif ($lookahead_ch eq '!') {
@@ -933,8 +933,8 @@ package STRling::Core::parser::Parser {
                         $self->_raise_error("Unterminated lookbehind", $cur->i);
                     }
                     return STRling::Core::Nodes::Look->new(
-                        direction => 'Behind',
-                        negative  => 1,
+                        dir => 'Behind',
+                        neg       => 1,
                         body      => $body,
                     );
                 }
@@ -989,8 +989,8 @@ package STRling::Core::parser::Parser {
                     $self->_raise_error("Unterminated lookahead", $cur->i);
                 }
                 return STRling::Core::Nodes::Look->new(
-                    direction => 'Ahead',
-                    negative  => 0,
+                    dir => 'Ahead',
+                    neg       => 0,
                     body      => $body,
                 );
             }
@@ -1003,8 +1003,8 @@ package STRling::Core::parser::Parser {
                     $self->_raise_error("Unterminated lookahead", $cur->i);
                 }
                 return STRling::Core::Nodes::Look->new(
-                    direction => 'Ahead',
-                    negative  => 1,
+                    dir => 'Ahead',
+                    neg       => 1,
                     body      => $body,
                 );
             }
