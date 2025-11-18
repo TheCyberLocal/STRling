@@ -934,3 +934,161 @@ mod dot {
         }
     }
 }
+
+// ============================================================================
+// COMPILER TESTS
+// ============================================================================
+
+#[cfg(test)]
+mod compiler {
+    use super::*;
+    use strling_core::core::compiler::Compiler;
+    use strling_core::core::ir::*;
+
+    #[test]
+    fn test_compile_literal() {
+        let node = Node::Lit(Lit {
+            value: "a".to_string(),
+        });
+        let mut compiler = Compiler::new();
+        let ir = compiler.compile(&node);
+        
+        match ir {
+            IROp::Lit(lit) => {
+                assert_eq!(lit.value, "a");
+            }
+            _ => panic!("Expected IRLit"),
+        }
+    }
+
+    #[test]
+    fn test_compile_sequence_coalescing() {
+        // Sequence of literals should be coalesced
+        let node = Node::Seq(Seq {
+            parts: vec![
+                Node::Lit(Lit { value: "a".to_string() }),
+                Node::Lit(Lit { value: "b".to_string() }),
+            ],
+        });
+        let mut compiler = Compiler::new();
+        let ir = compiler.compile(&node);
+        
+        // Should be coalesced into single literal
+        match ir {
+            IROp::Lit(lit) => {
+                assert_eq!(lit.value, "ab");
+            }
+            _ => panic!("Expected coalesced IRLit, got {:?}", ir),
+        }
+    }
+
+    #[test]
+    fn test_compile_alternation() {
+        let node = Node::Alt(Alt {
+            branches: vec![
+                Node::Lit(Lit { value: "a".to_string() }),
+                Node::Lit(Lit { value: "b".to_string() }),
+            ],
+        });
+        let mut compiler = Compiler::new();
+        let ir = compiler.compile(&node);
+        
+        match ir {
+            IROp::Alt(alt) => {
+                assert_eq!(alt.branches.len(), 2);
+            }
+            _ => panic!("Expected IRAlt"),
+        }
+    }
+
+    #[test]
+    fn test_compile_quantifier() {
+        let node = Node::Quant(Quant {
+            child: Box::new(Node::Lit(Lit { value: "a".to_string() })),
+            min: 1,
+            max: MaxBound::Infinite("Inf".to_string()),
+            mode: "Greedy".to_string(),
+        });
+        let mut compiler = Compiler::new();
+        let ir = compiler.compile(&node);
+        
+        match ir {
+            IROp::Quant(quant) => {
+                assert_eq!(quant.min, 1);
+                match quant.max {
+                    IRMaxBound::Infinite(_) => {},
+                    _ => panic!("Expected infinite max"),
+                }
+            }
+            _ => panic!("Expected IRQuant"),
+        }
+    }
+
+    #[test]
+    fn test_compile_with_metadata_named_group() {
+        let node = Node::Group(Group {
+            capturing: true,
+            name: Some("test".to_string()),
+            atomic: Some(false),
+            body: Box::new(Node::Lit(Lit { value: "a".to_string() })),
+        });
+        let mut compiler = Compiler::new();
+        let result = compiler.compile_with_metadata(&node);
+        
+        assert!(result.metadata.features_used.contains(&"named_group".to_string()));
+    }
+
+    #[test]
+    fn test_compile_with_metadata_lookahead() {
+        let node = Node::Look(Look {
+            dir: "Ahead".to_string(),
+            neg: false,
+            body: Box::new(Node::Lit(Lit { value: "a".to_string() })),
+        });
+        let mut compiler = Compiler::new();
+        let result = compiler.compile_with_metadata(&node);
+        
+        assert!(result.metadata.features_used.contains(&"lookahead".to_string()));
+    }
+
+    #[test]
+    fn test_compile_with_metadata_lookbehind() {
+        let node = Node::Look(Look {
+            dir: "Behind".to_string(),
+            neg: false,
+            body: Box::new(Node::Lit(Lit { value: "a".to_string() })),
+        });
+        let mut compiler = Compiler::new();
+        let result = compiler.compile_with_metadata(&node);
+        
+        assert!(result.metadata.features_used.contains(&"lookbehind".to_string()));
+    }
+
+    #[test]
+    fn test_compile_with_metadata_atomic_group() {
+        let node = Node::Group(Group {
+            capturing: false,
+            name: None,
+            atomic: Some(true),
+            body: Box::new(Node::Lit(Lit { value: "a".to_string() })),
+        });
+        let mut compiler = Compiler::new();
+        let result = compiler.compile_with_metadata(&node);
+        
+        assert!(result.metadata.features_used.contains(&"atomic_group".to_string()));
+    }
+
+    #[test]
+    fn test_compile_with_metadata_possessive_quantifier() {
+        let node = Node::Quant(Quant {
+            child: Box::new(Node::Lit(Lit { value: "a".to_string() })),
+            min: 1,
+            max: MaxBound::Infinite("Inf".to_string()),
+            mode: "Possessive".to_string(),
+        });
+        let mut compiler = Compiler::new();
+        let result = compiler.compile_with_metadata(&node);
+        
+        assert!(result.metadata.features_used.contains(&"possessive_quantifier".to_string()));
+    }
+}
