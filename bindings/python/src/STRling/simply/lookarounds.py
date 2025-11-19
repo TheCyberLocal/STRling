@@ -84,7 +84,7 @@ def ahead(pattern):
         """
         raise STRlingError(message)
 
-    node = nodes.Look(dir="Ahead", neg=False, body=pattern.node)
+    node = nodes.Lookaround(dir="Ahead", neg=False, body=pattern.node)
     return Pattern(node, composite=True)
 
 def not_ahead(pattern):
@@ -158,7 +158,7 @@ def not_ahead(pattern):
         """
         raise STRlingError(message)
 
-    node = nodes.Look(dir="Ahead", neg=True, body=pattern.node)
+    node = nodes.Lookaround(dir="Ahead", neg=True, body=pattern.node)
     return Pattern(node, composite=True)
 
 def behind(pattern):
@@ -231,7 +231,7 @@ def behind(pattern):
         """
         raise STRlingError(message)
 
-    node = nodes.Look(dir="Behind", neg=False, body=pattern.node)
+    node = nodes.Lookaround(dir="Behind", neg=False, body=pattern.node)
     return Pattern(node, composite=True)
 
 def not_behind(pattern):
@@ -301,7 +301,7 @@ def not_behind(pattern):
         """
         raise STRlingError(message)
 
-    node = nodes.Look(dir="Behind", neg=True, body=pattern.node)
+    node = nodes.Lookaround(dir="Behind", neg=True, body=pattern.node)
     return Pattern(node, composite=True)
 
 def has(pattern):
@@ -374,11 +374,11 @@ def has(pattern):
         """
         raise STRlingError(message)
 
-    # Create a Look node with dir="Ahead" and a body that matches .*pattern
-    dot_star_node = nodes.Quant(child=nodes.Dot(), min=0, max="Inf", mode="Greedy")
-    seq_node = nodes.Seq([dot_star_node, pattern.node])
+    # Create a Lookaround node with dir="Ahead" and a body that matches .*pattern
+    dot_star_node = nodes.Quantifier(child=nodes.Dot(), min=0, max="Inf", mode="Greedy")
+    seq_node = nodes.Sequence([dot_star_node, pattern.node])
     
-    node = nodes.Look(dir="Ahead", neg=False, body=seq_node)
+    node = nodes.Lookaround(dir="Ahead", neg=False, body=seq_node)
     return Pattern(node, composite=True)
 
 def has_not(pattern):
@@ -451,9 +451,9 @@ def has_not(pattern):
         """
         raise STRlingError(message)
 
-    # Create a Look node with dir="Ahead", neg=True and a body that matches .*pattern
-    dot_star_node = nodes.Quant(child=nodes.Dot(), min=0, max="Inf", mode="Greedy")
-    seq_node = nodes.Seq([dot_star_node, pattern.node])
+    # Create a Lookaround node with dir="Ahead", neg=True and a body that matches .*pattern
+    dot_star_node = nodes.Quantifier(child=nodes.Dot(), min=0, max="Inf", mode="Greedy")
+    seq_node = nodes.Sequence([dot_star_node, pattern.node])
     
-    node = nodes.Look(dir="Ahead", neg=True, body=seq_node)
+    node = nodes.Lookaround(dir="Ahead", neg=True, body=seq_node)
     return Pattern(node, composite=True)

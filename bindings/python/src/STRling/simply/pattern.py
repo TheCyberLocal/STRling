@@ -18,21 +18,22 @@ from STRling.emitters.pcre2 import emit as emit_pcre2
 class Simply:
     """
     Central manager for pattern compilation and emission.
-    
+
     This internal class handles the compilation pipeline, transforming Pattern
     objects through the AST -> IR -> emitted regex string stages.
     """
+
     def __init__(self):
         self.compiler = Compiler()
-        
+
     def build(self, pattern_obj, flags=None):
         """
         Compile a Pattern object's node to a regex string.
-        
+
         Args:
             pattern_obj: The Pattern object to compile.
             flags: Optional regex flags to apply.
-            
+
         Returns:
             The compiled regex string in PCRE2 format.
         """
@@ -47,52 +48,54 @@ s = Simply()
 class STRlingError(ValueError):
     """
     Custom error class for STRling pattern errors.
-    
+
     This error class provides formatted, user-friendly error messages when invalid
     patterns are constructed or invalid arguments are provided to pattern functions.
     Error messages are automatically formatted with consistent indentation for
     better readability in console output.
     """
+
     def __init__(self, message):
         """
         Create a new STRlingError with formatted message.
-        
+
         Args:
             message: The error message (can be multiline and will be reformatted).
         """
-        self.message = textwrap.dedent(message).strip().replace('\n', '\n\t')
+        self.message = textwrap.dedent(message).strip().replace("\n", "\n\t")
         super().__init__(self.message)
 
     def __str__(self):
         """
         Return the formatted error message with header and indentation.
-        
+
         Returns:
             Formatted error message string.
         """
         return f"\n\nSTRlingError: Invalid Pattern Attempted.\n\n\t{self.message}"
 
+
 def lit(text):
     """
     Create a literal pattern from a string.
-    
+
     This function wraps a plain string in a Pattern object, treating all characters
     as literals (no special regex meaning). It's the foundation for mixing literal
     text with pattern-based matching.
-    
+
     Args:
         text: The text to use as a literal.
-        
+
     Returns:
         A Pattern object representing the literal text.
-        
+
     Examples:
         Simple Use: Match literal text
             >>> import STRling.simply as s
             >>> pattern = s.lit('hello')
             >>> bool(re.search(str(pattern), 'hello world'))
             True
-            
+
         Advanced Use: Combine literal with patterns
             >>> email = s.merge(
             ...     s.letter(1, 0),
@@ -101,18 +104,19 @@ def lit(text):
             ...     s.lit('.'),
             ...     s.letter(2, 4)
             ... )
-            
+
     See Also:
         Pattern : The Pattern class that wraps all patterns
         merge : For combining multiple patterns
     """
     # Create a Literal node instead of escaping text
-    return Pattern(nodes.Lit(text))
+    return Pattern(nodes.Literal(text))
+
 
 def repeat(min_rep: int = None, max_rep: int = None):
     if min_rep is not None and max_rep is not None:
         if max_rep == 0:
-            return f'{{{min_rep},}}'
+            return f"{{{min_rep},}}"
         if min_rep > max_rep:
             message = """
             Method: Pattern.__call__(min_rep, max_rep)
@@ -122,11 +126,12 @@ def repeat(min_rep: int = None, max_rep: int = None):
             Ensure the lesser number is on the left and the greater number is on the right.
             """
             raise STRlingError(message)
-        return f'{{{min_rep},{max_rep}}}'
+        return f"{{{min_rep},{max_rep}}}"
     elif min_rep is not None:
-        return f'{{{min_rep}}}'
+        return f"{{{min_rep}}}"
     else:
-        return ''
+        return ""
+
 
 class Pattern:
     """
@@ -140,7 +145,16 @@ class Pattern:
         - named_groups (list): Indicates the list of named groups within.
         - numbered_group (bool): Indicates if the pattern is a numbered group.
     """
-    def __init__(self, node, custom_set: bool = False, negated: bool = False, composite: bool = False, named_groups: list = [], numbered_group: bool = False):
+
+    def __init__(
+        self,
+        node,
+        custom_set: bool = False,
+        negated: bool = False,
+        composite: bool = False,
+        named_groups: list = [],
+        numbered_group: bool = False,
+    ):
         # Store the AST node instead of a string pattern
         self.node = node
         # Keep compatibility attributes for now
@@ -164,9 +178,14 @@ class Pattern:
         # Prevent errors if invoked with no range
         if min_rep is None and max_rep is None:
             return self
-            
+
         # If min_rep or max_rep are specified as non-integers
-        if min_rep is not None and not isinstance(min_rep, int) or max_rep is not None and not isinstance(max_rep, int):
+        if (
+            min_rep is not None
+            and not isinstance(min_rep, int)
+            or max_rep is not None
+            and not isinstance(max_rep, int)
+        ):
             message = """
             Method: Pattern.__call__(min_rep, max_rep)
 
@@ -195,7 +214,7 @@ class Pattern:
             raise STRlingError(message)
 
         # A group already assigned a specified range cannot be reassigned
-        if isinstance(self.node, nodes.Quant):
+        if isinstance(self.node, nodes.Quantifier):
             message = """
             Method: Pattern.__call__(min_rep, max_rep)
 
@@ -218,7 +237,7 @@ class Pattern:
             """
             raise STRlingError(message)
 
-        # Create Quant node instead of appending a string
+        # Create Quantifier node instead of appending a string
         if self.numbered_group:
             if max_rep is not None:
                 message = """
@@ -232,12 +251,16 @@ class Pattern:
             else:
                 # Handle numbered groups differently by duplicating the node
                 children = [self.node] * min_rep
-                new_node = nodes.Seq(children)
+                new_node = nodes.Sequence(children)
                 return self.create_modified_instance(new_node)
         else:
             # Regular case: create a quantifier node
-            q_max = "Inf" if max_rep == 0 else max_rep if max_rep is not None else min_rep
-            new_node = nodes.Quant(child=self.node, min=min_rep, max=q_max, mode="Greedy")
+            q_max = (
+                "Inf" if max_rep == 0 else max_rep if max_rep is not None else min_rep
+            )
+            new_node = nodes.Quantifier(
+                child=self.node, min=min_rep, max=q_max, mode="Greedy"
+            )
             return self.create_modified_instance(new_node)
 
     def __str__(self):
@@ -245,7 +268,7 @@ class Pattern:
         Returns the compiled regex string.
         """
         return s.build(self)
-    
+
     def exec(self, text_to_search, target="python"):
         # 1. Load the feature matrix
         with open("spec/features.json") as f:
@@ -258,8 +281,7 @@ class Pattern:
 
         # 3. Check for unsupported features
         unsupported = [
-            f for f in features
-            if not feature_matrix.get(f, {}).get(target, False)
+            f for f in features if not feature_matrix.get(f, {}).get(target, False)
         ]
 
         if unsupported:
@@ -277,7 +299,6 @@ class Pattern:
             # For now, we can simulate:
             pcre2_simulated_str = emit_pcre2(artifact["ir"])
             return f"NATIVE_EXEC: '{pcre2_simulated_str}' on '{text_to_search}'"
-
 
     @classmethod
     def create_modified_instance(cls, new_node, **kwargs):

@@ -4,7 +4,7 @@ Test Design — test_char_classes.py
 ## Purpose
 This test suite validates the correct parsing of character classes, ensuring
 all forms—including literals, ranges, shorthands, and Unicode properties—are
-correctly transformed into `CharClass` AST nodes. It also verifies that
+correctly transformed into `CharacterClass` AST nodes. It also verifies that
 negation, edge cases involving special characters, and invalid syntax are
 handled according to the DSL's semantics.
 
@@ -30,7 +30,7 @@ metacharacters (`-`, `]`, `^`) within classes are parsed correctly.
         when they appear inside a class.
     -   Error handling for malformed classes (e.g., unterminated `[` or invalid
         ranges `[z-a]`).
-    -   The structure of the resulting `nodes.CharClass` AST node and its list
+    -   The structure of the resulting `nodes.CharacterClass` AST node and its list
         of `items`.
 -   **Out of scope:**
     -   Quantification of an entire character class (covered in
@@ -46,7 +46,7 @@ from typing import List
 
 from STRling.core.parser import parse, ParseError
 from STRling.core.nodes import (
-    CharClass,
+    CharacterClass,
     ClassItem,
     ClassLiteral,
     ClassRange,
@@ -122,10 +122,10 @@ class TestCategoryAPositiveCases:
     ):
         """
         Tests that various valid character classes are parsed into the correct
-        CharClass AST node with the expected items.
+        CharacterClass AST node with the expected items.
         """
         _flags, ast = parse(input_dsl)
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert ast.negated == expected_negated
         assert ast.items == expected_items
 
@@ -189,7 +189,7 @@ class TestCategoryCEdgeCases:
         Tests unusual but valid character class constructs.
         """
         _flags, ast = parse(input_dsl)
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert ast.items == expected_items
 
 
@@ -222,7 +222,7 @@ class TestCategoryDInteractionCases:
 
         """
         _flags, ast = parse(input_dsl)
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert ast.items == expected_items
 
 
@@ -239,7 +239,7 @@ class TestCategoryEMinimalCharClasses:
         Tests character class with single literal: [a]
         """
         _flags, ast = parse("[a]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert ast.negated is False
         assert len(ast.items) == 1
         assert isinstance(ast.items[0], ClassLiteral)
@@ -250,7 +250,7 @@ class TestCategoryEMinimalCharClasses:
         Tests negated class with single literal: [^x]
         """
         _flags, ast = parse("[^x]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert ast.negated is True
         assert len(ast.items) == 1
         assert isinstance(ast.items[0], ClassLiteral)
@@ -262,7 +262,7 @@ class TestCategoryEMinimalCharClasses:
         Already exists but validating explicit simple case.
         """
         _flags, ast = parse("[a-z]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert ast.negated is False
         assert len(ast.items) == 1
         assert isinstance(ast.items[0], ClassRange)
@@ -281,7 +281,7 @@ class TestCategoryFEscapedMetacharsInClasses:
         The dot should be literal, not a wildcard.
         """
         _flags, ast = parse(r"[\.]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert len(ast.items) == 1
         assert isinstance(ast.items[0], ClassLiteral)
         assert ast.items[0].ch == "."
@@ -291,7 +291,7 @@ class TestCategoryFEscapedMetacharsInClasses:
         Tests escaped star in class: [\\*]
         """
         _flags, ast = parse(r"[\*]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert len(ast.items) == 1
         assert isinstance(ast.items[0], ClassLiteral)
         assert ast.items[0].ch == "*"
@@ -301,7 +301,7 @@ class TestCategoryFEscapedMetacharsInClasses:
         Tests escaped plus in class: [\\+]
         """
         _flags, ast = parse(r"[\+]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert len(ast.items) == 1
         assert isinstance(ast.items[0], ClassLiteral)
         assert ast.items[0].ch == "+"
@@ -311,7 +311,7 @@ class TestCategoryFEscapedMetacharsInClasses:
         Tests multiple escaped metacharacters: [\\.\\*\\+\\?]
         """
         _flags, ast = parse(r"[\.\*\+\?]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert len(ast.items) == 4
         assert all(isinstance(item, ClassLiteral) for item in ast.items)
         chars = [item.ch for item in ast.items]
@@ -322,7 +322,7 @@ class TestCategoryFEscapedMetacharsInClasses:
         Tests escaped backslash in class: [\\\\]
         """
         _flags, ast = parse(r"[\\]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert len(ast.items) == 1
         assert isinstance(ast.items[0], ClassLiteral)
         assert ast.items[0].ch == "\\"
@@ -339,7 +339,7 @@ class TestCategoryGComplexRangeCombinations:
         Already covered but validating as typical case.
         """
         _flags, ast = parse("[a-zA-Z0-9]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert len(ast.items) == 3
         assert isinstance(ast.items[0], ClassRange)
         assert ast.items[0].from_ch == "a" and ast.items[0].to_ch == "z"
@@ -353,7 +353,7 @@ class TestCategoryGComplexRangeCombinations:
         Tests ranges mixed with literals: [a-z_0-9-]
         """
         _flags, ast = parse("[a-z_0-9-]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert len(ast.items) == 4
         assert isinstance(ast.items[0], ClassRange)
         assert ast.items[0].from_ch == "a" and ast.items[0].to_ch == "z"
@@ -370,13 +370,13 @@ class TestCategoryGComplexRangeCombinations:
         Note: This is two separate classes, not one.
         """
         _flags, ast = parse("[a-z][A-Z]")
-        from STRling.core.nodes import Seq
-        assert isinstance(ast, Seq)
+        from STRling.core.nodes import Sequence
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 2
-        assert isinstance(ast.parts[0], CharClass)
+        assert isinstance(ast.parts[0], CharacterClass)
         assert len(ast.parts[0].items) == 1
         assert isinstance(ast.parts[0].items[0], ClassRange)
-        assert isinstance(ast.parts[1], CharClass)
+        assert isinstance(ast.parts[1], CharacterClass)
         assert len(ast.parts[1].items) == 1
         assert isinstance(ast.parts[1].items[0], ClassRange)
 
@@ -391,7 +391,7 @@ class TestCategoryHUnicodePropertyCombinations:
         Tests multiple Unicode properties in one class: [\\p{L}\\p{N}]
         """
         _flags, ast = parse(r"[\p{L}\p{N}]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert len(ast.items) == 2
         assert isinstance(ast.items[0], ClassEscape)
         assert ast.items[0].type == "p"
@@ -405,7 +405,7 @@ class TestCategoryHUnicodePropertyCombinations:
         Tests Unicode property mixed with literals: [\\p{L}abc]
         """
         _flags, ast = parse(r"[\p{L}abc]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert len(ast.items) == 4
         assert isinstance(ast.items[0], ClassEscape)
         assert ast.items[0].type == "p"
@@ -421,7 +421,7 @@ class TestCategoryHUnicodePropertyCombinations:
         Tests Unicode property mixed with range: [\\p{L}0-9]
         """
         _flags, ast = parse(r"[\p{L}0-9]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert len(ast.items) == 2
         assert isinstance(ast.items[0], ClassEscape)
         assert ast.items[0].type == "p"
@@ -436,7 +436,7 @@ class TestCategoryHUnicodePropertyCombinations:
         Already exists but confirming coverage.
         """
         _flags, ast = parse(r"[\P{L}]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert ast.negated is False  # The class itself is not negated
         assert len(ast.items) == 1
         assert isinstance(ast.items[0], ClassEscape)
@@ -454,7 +454,7 @@ class TestCategoryINegatedClassVariations:
         Tests negated class with range: [^a-z]
         """
         _flags, ast = parse("[^a-z]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert ast.negated is True
         assert len(ast.items) == 1
         assert isinstance(ast.items[0], ClassRange)
@@ -466,7 +466,7 @@ class TestCategoryINegatedClassVariations:
         Tests negated class with shorthand: [^\\d\\s]
         """
         _flags, ast = parse(r"[^\d\s]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert ast.negated is True
         assert len(ast.items) == 2
         assert isinstance(ast.items[0], ClassEscape)
@@ -479,7 +479,7 @@ class TestCategoryINegatedClassVariations:
         Tests negated class with Unicode property: [^\\p{L}]
         """
         _flags, ast = parse(r"[^\p{L}]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert ast.negated is True
         assert len(ast.items) == 1
         assert isinstance(ast.items[0], ClassEscape)
@@ -514,7 +514,7 @@ class TestCategoryJCharClassErrorCases:
         This is valid (hyphen is literal), confirm behavior.
         """
         _flags, ast = parse("[a-]")
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert len(ast.items) == 2
         assert isinstance(ast.items[0], ClassLiteral)
         assert ast.items[0].ch == "a"

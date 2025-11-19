@@ -22,10 +22,10 @@ from typing import cast
 class Compiler:
     """
     Compiler for transforming AST nodes into optimized IR.
-    
+
     The Compiler class handles the complete transformation pipeline from parsed
     AST to normalized IR, including feature detection for metadata generation.
-    
+
     AST -> IR lowering with normalization:
       - Flatten nested Seq/Alt
       - Coalesce adjacent Lit nodes
@@ -38,13 +38,13 @@ class Compiler:
     def compile_with_metadata(self, root_node: N.Node) -> dict[str, object]:
         """
         Compile an AST node and return IR with metadata.
-        
+
         This is the main entry point for compilation with full metadata tracking.
         It performs lowering, normalization, and feature analysis.
-        
+
         Args:
             root_node: The root AST node to compile.
-            
+
         Returns:
             Dictionary containing the compiled IR and metadata about features used.
         """
@@ -78,7 +78,10 @@ class Compiler:
         if isinstance(node, IR.IRCharClass):
             # Check for Unicode property escapes in character class items
             for item in node.items:
-                if isinstance(item, IR.IRClassEscape) and item.type == "UnicodeProperty":
+                if (
+                    isinstance(item, IR.IRClassEscape)
+                    and item.type == "UnicodeProperty"
+                ):
                     self.features_used.add("unicode_property")
 
         # --- Recurse into children ---
@@ -98,21 +101,20 @@ class Compiler:
     # ---------- Lowering (AST -> IR) ----------
     def _lower(self, node: N.Node) -> IR.IROp:
         t = type(node).__name__
-        if t == "Seq":
+        if t == "Sequence":
             return IR.IRSeq([self._lower(p) for p in node.parts])  # type: ignore
-        if t == "Alt":
+        if t == "Alternation":
             return IR.IRAlt([self._lower(b) for b in node.branches])  # type: ignore
-        if t == "Lit":
+        if t == "Literal":
             return IR.IRLit(node.value)  # type: ignore
         if t == "Dot":
             return IR.IRDot()
         if t == "Anchor":
             return IR.IRAnchor(node.at)  # type: ignore
-        if t == "CharClass":
+        if t == "CharacterClass":
             items = []
             for it in node.items:  # type: ignore
                 it = cast(N.Node, it)  # Cast to Node type to satisfy the type checker
-                it_t = type(it).__name__
                 it_t = type(it).__name__
                 if it_t == "ClassRange":
                     items.append(IR.IRClassRange(it.from_ch, it.to_ch))  # type: ignore
@@ -123,7 +125,7 @@ class Compiler:
                 else:
                     raise NotImplementedError(f"Unknown class item {it_t}")
             return IR.IRCharClass(node.negated, items)  # type: ignore
-        if t == "Quant":
+        if t == "Quantifier":
             return IR.IRQuant(self._lower(node.child), node.min, node.max, node.mode)  # type: ignore
         if t == "Group":
             group_node = cast(N.Group, node)
@@ -133,12 +135,12 @@ class Compiler:
                 getattr(group_node, "name", None),
                 getattr(group_node, "atomic", None),
             )  # type: ignore
-        if t == "Backref":
+        if t == "BackReference":
             return IR.IRBackref(
                 getattr(node, "byIndex", None), getattr(node, "byName", None)
             )  # type: ignore
-        if t == "Look":
-            look_node = cast(N.Look, node)
+        if t == "Lookaround":
+            look_node = cast(N.Lookaround, node)
             return IR.IRLook(look_node.dir, look_node.neg, self._lower(look_node.body))  # type: ignore
         raise NotImplementedError(f"No lowering for AST node {t}")
 

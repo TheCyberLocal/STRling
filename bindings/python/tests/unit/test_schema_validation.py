@@ -147,7 +147,7 @@ class TestCategoryBNegativeCases:
             ),
             # B.4: A node with a missing required property
             (
-                parse_to_artifact("a") | {"root": {"kind": "Lit"}},
+                parse_to_artifact("a") | {"root": {"kind": "Literal"}},
                 "is not valid under any of the given schemas",
             ),
             # B.5: Additional, unexpected properties at the top level

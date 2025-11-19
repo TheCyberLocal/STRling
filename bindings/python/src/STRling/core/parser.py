@@ -25,19 +25,19 @@ import re
 from .nodes import (
     Flags,
     Node,
-    Alt,
-    Seq,
-    Lit,
+    Alternation,
+    Sequence,
+    Literal,
     Dot,
     Anchor,
-    CharClass,
+    CharacterClass,
     ClassLiteral,
     ClassRange,
     ClassEscape,
-    Quant,
+    Quantifier,
     Group,
-    Backref,
-    Look,
+    BackReference,
+    Lookaround,
     ClassItem,
 )
 from .errors import STRlingParseError
@@ -290,7 +290,7 @@ class Parser:
             self.cur.skip_ws_and_comments()
         if len(branches) == 1:
             return branches[0]
-        return Alt(branches)
+        return Alternation(branches)
 
     # seq := { term }
     # FIX #1: The logic from the old `parse_term` was moved directly into `parse_seq`.
@@ -320,40 +320,40 @@ class Parser:
             # Note: If atom is an Anchor, parse_quant_if_any will raise an error if a quantifier is present
             quantified_atom, had_failed_quant_parse = self.parse_quant_if_any(atom)
 
-            # Coalesce adjacent Lit nodes: if the new atom is a Lit and the last part
-            # is also a Lit, merge them into a single Lit with concatenated values.
+            # Coalesce adjacent Literal nodes: if the new atom is a Literal and the last part
+            # is also a Literal, merge them into a single Literal with concatenated values.
             # However, don't coalesce if:
             # 1. We're in free-spacing mode (whitespace separation is semantic)
             # 2. The previous atom had a failed quantifier parse (semantic boundary)
-            # 3. The current Lit is a digit following a backslash (avoid \digit ambiguity)
-            # 4. The previous part is a Backref (keep digit literals separate)
-            # 5. Either Lit contains a newline (line boundaries are semantic)
+            # 3. The current Literal is a digit following a backslash (avoid \digit ambiguity)
+            # 4. The previous part is a BackReference (keep digit literals separate)
+            # 5. Either Literal contains a newline (line boundaries are semantic)
             avoid_digit_after_backslash = (
-                isinstance(quantified_atom, Lit)
+                isinstance(quantified_atom, Literal)
                 and len(quantified_atom.value) == 1
                 and quantified_atom.value.isdigit()
                 and len(parts) > 0
-                and isinstance(parts[-1], Lit)
+                and isinstance(parts[-1], Literal)
                 and len(parts[-1].value) > 0
                 and parts[-1].value[-1] == "\\"
             )
 
             # Don't coalesce across newlines (line boundaries are semantic)
             contains_newline = (
-                isinstance(quantified_atom, Lit) and "\n" in quantified_atom.value
+                isinstance(quantified_atom, Literal) and "\n" in quantified_atom.value
             ) or (
                 len(parts) > 0
-                and isinstance(parts[-1], Lit)
+                and isinstance(parts[-1], Literal)
                 and "\n" in parts[-1].value
             )
 
-            # Don't coalesce after a Backref to keep the digit literals separate
-            prev_is_backref = len(parts) > 0 and isinstance(parts[-1], Backref)
+            # Don't coalesce after a BackReference to keep the digit literals separate
+            prev_is_backref = len(parts) > 0 and isinstance(parts[-1], BackReference)
 
             should_coalesce = (
-                isinstance(quantified_atom, Lit)
+                isinstance(quantified_atom, Literal)
                 and len(parts) > 0
-                and isinstance(parts[-1], Lit)
+                and isinstance(parts[-1], Literal)
                 and not self.cur.extended_mode  # Don't coalesce in free-spacing mode
                 and not prev_had_failed_quant
                 and not avoid_digit_after_backslash
@@ -362,7 +362,7 @@ class Parser:
             )
 
             if should_coalesce:
-                parts[-1] = Lit(parts[-1].value + quantified_atom.value)
+                parts[-1] = Literal(parts[-1].value + quantified_atom.value)
             else:
                 parts.append(quantified_atom)
 
@@ -372,26 +372,26 @@ class Parser:
         if len(parts) == 1:
             return parts[0]
         # Otherwise, return a Sequence node containing all parts
-        return Seq(parts)
+        return Sequence(parts)
 
     def parse_quant_if_any(self, child: Node) -> Tuple[Node, bool]:
         """
         Parse an optional quantifier following an atom and apply it if present.
 
         Checks if the next character(s) represent a quantifier (*, +, ?, {m,n}) and
-        if so, wraps the child node in a Quant node. Also handles lazy (?) and
+        if so, wraps the child node in a Quantifier node. Also handles lazy (?) and
         possessive (+) modifiers.
 
         Parameters
         ----------
         child : Node
-            The AST node to potentially quantify (e.g., a Lit, CharClass, or Group).
+            The AST node to potentially quantify (e.g., a Literal, CharacterClass, or Group).
 
         Returns
         -------
         tuple[Node, bool]
             A tuple containing:
-            - The possibly quantified node (either the original child or a Quant node)
+            - The possibly quantified node (either the original child or a Quantifier node)
             - A boolean indicating if brace quantifier parsing was attempted but failed
               (used to prevent literal coalescing at semantic boundaries)
 
@@ -455,7 +455,7 @@ class Parser:
             mode = "Possessive"
             cur.take()
 
-        return Quant(
+        return Quantifier(
             child, min_val, max_val if max_val is not None else "Inf", mode
         ), had_failed_quant_parse
 
@@ -467,7 +467,7 @@ class Parser:
         # Parse integers
         m = self._read_int_optional()
         if m is None:
-            # No leading digits. Look ahead (without consuming) to see if a
+            # No leading digits. Lookaround ahead (without consuming) to see if a
             # closing '}' exists and whether the content between '{' and '}'
             # contains non-digit/non-comma characters (e.g. {foo}). If so,
             # treat it as an invalid brace quantifier and raise an error so
@@ -568,8 +568,8 @@ class Parser:
         Returns
         -------
         Node
-            An AST node representing the parsed atom (Dot, Anchor, Group, CharClass,
-            Lit, etc.).
+            An AST node representing the parsed atom (Dot, Anchor, Group, CharacterClass,
+            Literal, etc.).
 
         Raises
         ------
@@ -607,7 +607,7 @@ class Parser:
             )
         if ch == "|":
             self._raise_error("Unexpected token", cur.i)
-        return Lit(self._take_literal_char())
+        return Literal(self._take_literal_char())
 
     # literal character outside special set
     def _take_literal_char(self) -> str:
@@ -619,7 +619,7 @@ class Parser:
         start_pos = cur.i  # Save position at start of escape
         assert cur.take() == "\\"
         nxt = cur.peek()
-        # Backref by index \1.. (but not \0)
+        # BackReference by index \1.. (but not \0)
         # Consume digits greedily up to the highest valid capture group
         if nxt.isdigit() and nxt != "0":
             saved_pos = cur.i
@@ -644,7 +644,7 @@ class Parser:
             if num_str:
                 num = int(num_str)
                 if num <= self._cap_count:
-                    return Backref(byIndex=num)
+                    return BackReference(byIndex=num)
 
             # No valid backref found, reset and raise error
             cur.i = saved_pos
@@ -675,11 +675,11 @@ class Parser:
                 self._raise_error(
                     f"Backreference to undefined group <{name}>", start_pos
                 )
-            return Backref(byName=name)
+            return BackReference(byName=name)
         # Shorthand classes \d \D \w \W \s \S or property \p{..} \P{..}
         if nxt in "dDwWsS":
             cur.take()
-            return CharClass(False, [ClassEscape(nxt)])
+            return CharacterClass(False, [ClassEscape(nxt)])
         if nxt in "pP":
             tp = cur.take()
             if not cur.match("{"):
@@ -687,25 +687,25 @@ class Parser:
             prop = self._read_until("}")
             if not cur.match("}"):
                 self._raise_error("Unterminated \\p{...}", cur.i)
-            return CharClass(False, [ClassEscape(tp, prop)])
+            return CharacterClass(False, [ClassEscape(tp, prop)])
         # Core control escapes \n \t \r \f \v
         if nxt in self.CONTROL_ESCAPES:
             ch = cur.take()
-            return Lit(self.CONTROL_ESCAPES[ch])
+            return Literal(self.CONTROL_ESCAPES[ch])
         # Escaped literal or hex/unicode/null escapes -> literal
         if nxt == "x":
-            return Lit(self._parse_hex_escape(start_pos))
+            return Literal(self._parse_hex_escape(start_pos))
         if nxt == "u" or nxt == "U":
-            return Lit(self._parse_unicode_escape(start_pos))
+            return Literal(self._parse_unicode_escape(start_pos))
         if nxt == "0":
             cur.take()
-            return Lit("\x00")
+            return Literal("\x00")
         # In extended (free-spacing) mode, an escaped space ("\ ") should
         # be treated as a literal space character rather than an unknown
         # escape sequence. Handle that before the identity-escape check.
         if nxt == " " and cur.extended_mode:
             cur.take()
-            return Lit(" ")
+            return Literal(" ")
         # Identity escape: validate allowed identity escapes and treat next
         # char literally. If the escape is not recognized (e.g. \z), raise
         # an instructional STRlingParseError using the corpus hint.
@@ -718,7 +718,7 @@ class Parser:
             self._raise_error(f"Unknown escape sequence \\{ch}", start_pos)
         # consume and return literal
         ch = cur.take()
-        return Lit(ch)
+        return Literal(ch)
 
     def _read_decimal(self) -> int:
         cur = self.cur
@@ -809,7 +809,7 @@ class Parser:
         return chr(int(hexs, 16))
 
     # ---- Character class ----
-    def parse_char_class(self) -> CharClass:
+    def parse_char_class(self) -> CharacterClass:
         cur = self.cur
         assert cur.take() == "["
         start_pos = cur.i
@@ -900,7 +900,7 @@ class Parser:
             if cur.peek() == "]" and cur.i > start_pos:
                 cur.take()
                 self.cur.in_class -= 1
-                return CharClass(neg, items)
+                return CharacterClass(neg, items)
 
             # Range handling: '-' makes a range only if previous is a literal and next isn't ']'
             if (
@@ -955,13 +955,13 @@ class Parser:
             body = self.parse_alt()
             if not cur.match(")"):
                 self._raise_error("Unterminated lookbehind", cur.i)
-            return Look("Behind", False, body)
+            return Lookaround("Behind", False, body)
 
         if cur.match("?<!"):
             body = self.parse_alt()
             if not cur.match(")"):
                 self._raise_error("Unterminated lookbehind", cur.i)
-            return Look("Behind", True, body)
+            return Lookaround("Behind", True, body)
 
         # Named capturing group (?<name>...)
         if cur.match("?<"):
@@ -1001,13 +1001,13 @@ class Parser:
             body = self.parse_alt()
             if not cur.match(")"):
                 self._raise_error("Unterminated lookahead", cur.i)
-            return Look("Ahead", False, body)
+            return Lookaround("Ahead", False, body)
 
         if cur.match("?!"):
             body = self.parse_alt()
             if not cur.match(")"):
                 self._raise_error("Unterminated lookahead", cur.i)
-            return Look("Ahead", True, body)
+            return Lookaround("Ahead", True, body)
 
         # Capturing group (...)
         self._cap_count += 1
@@ -1033,3 +1033,96 @@ def parse_to_artifact(src: str) -> Dict[str, Any]:
         "errors": [],  # type: List[str]
     }
     return artifact
+
+
+# ---------------- JSON Deserialization ----------------
+def from_json_fixture(data: Dict[str, Any]) -> Node:
+    """
+    Deserialize a JSON AST fixture into a Python AST node.
+
+    This function maps the universal JSON AST schema to the Python AST nodes
+    defined in nodes.py. It handles polymorphism via the "type" field.
+    """
+    t = data["type"]
+
+    if t == "Sequence":
+        return Sequence([from_json_fixture(p) for p in data["parts"]])
+
+    if t == "Alternation":
+        branches = data.get("alternatives")
+        if branches is None:
+            raise ValueError(f"Alternation missing alternatives: {data.keys()}")
+        return Alternation([from_json_fixture(b) for b in branches])
+
+    if t == "Literal":
+        return Literal(data["value"])
+
+    if t == "Dot":
+        return Dot()
+
+    if t == "Anchor":
+        return Anchor(data["at"])
+
+    if t == "CharacterClass":
+        items: List[ClassItem] = []
+        members = data.get("members", [])
+        for item in members:
+            it_t = item["type"]
+            if it_t == "Range":
+                items.append(ClassRange(item["from"], item["to"]))
+            elif it_t == "Literal":
+                items.append(ClassLiteral(item["value"]))
+            elif it_t == "Escape":
+                kind = item["kind"]
+                type_map = {
+                    "digit": "d",
+                    "not-digit": "D",
+                    "space": "s",
+                    "not-space": "S",
+                    "word": "w",
+                    "not-word": "W",
+                }
+                if kind in type_map:
+                    items.append(ClassEscape(type_map[kind]))
+                else:
+                    raise ValueError(f"Unknown Escape kind: {kind}")
+            elif it_t == "UnicodeProperty":
+                val = item["value"]
+                neg = item.get("negated", False)
+                items.append(ClassEscape("P" if neg else "p", val))
+            else:
+                raise ValueError(f"Unknown CharacterClass member type: {it_t}")
+        return CharacterClass(data.get("negated", False), items)
+
+    if t == "Quantifier":
+        min_val = data["min"]
+        max_val = data["max"]
+        if max_val is None:
+            max_val = "Inf"
+
+        mode = "Greedy"
+        if data.get("lazy"):
+            mode = "Lazy"
+        elif data.get("possessive"):
+            mode = "Possessive"
+
+        child = from_json_fixture(data["target"])
+        return Quantifier(child, min_val, max_val, mode)
+
+    if t == "Group":
+        body = from_json_fixture(data["body"])
+        return Group(data["capturing"], body, data.get("name"), data.get("atomic"))
+
+    if t == "Lookahead":
+        return Lookaround("Ahead", False, from_json_fixture(data["body"]))
+    if t == "NegativeLookahead":
+        return Lookaround("Ahead", True, from_json_fixture(data["body"]))
+    if t == "Lookbehind":
+        return Lookaround("Behind", False, from_json_fixture(data["body"]))
+    if t == "NegativeLookbehind":
+        return Lookaround("Behind", True, from_json_fixture(data["body"]))
+
+    if t == "Backreference":
+        return BackReference(data.get("index"), data.get("name"))
+
+    raise ValueError(f"Unknown node type: {t}")

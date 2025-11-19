@@ -112,9 +112,9 @@ def any_of(*patterns):
 
     sub_names = named_group_counts.keys()
 
-    # Create an Alt node with children nodes
+    # Create an Alternation node with children nodes
     child_nodes = [p.node for p in clean_patterns]
-    node = nodes.Alt(child_nodes)
+    node = nodes.Alternation(child_nodes)
     
     return Pattern(node, composite=True, named_groups=clean_patterns[0].named_groups)
 
@@ -217,14 +217,14 @@ def may(*patterns):
 
     sub_names = named_group_counts.keys()
 
-    # Create a sequence of nodes then wrap in Quant with min=0, max=1
+    # Create a sequence of nodes then wrap in Quantifier with min=0, max=1
     if len(clean_patterns) == 1:
         inner_node = clean_patterns[0].node
     else:
         child_nodes = [p.node for p in clean_patterns]
-        inner_node = nodes.Seq(child_nodes)
+        inner_node = nodes.Sequence(child_nodes)
     
-    node = nodes.Quant(child=inner_node, min=0, max=1, mode="Greedy")
+    node = nodes.Quantifier(child=inner_node, min=0, max=1, mode="Greedy")
     
     return Pattern(node, composite=True, named_groups=clean_patterns[0].named_groups)
 
@@ -328,9 +328,9 @@ def merge(*patterns):
 
     sub_names = named_group_counts.keys()
 
-    # Create a Seq node with children nodes
+    # Create a Sequence node with children nodes
     child_nodes = [p.node for p in clean_patterns]
-    node = nodes.Seq(child_nodes)
+    node = nodes.Sequence(child_nodes)
     
     sub_names = []
     for pattern in clean_patterns:
@@ -454,7 +454,7 @@ def capture(*patterns):
         body_node = clean_patterns[0].node
     else:
         child_nodes = [p.node for p in clean_patterns]
-        body_node = nodes.Seq(child_nodes)
+        body_node = nodes.Sequence(child_nodes)
     
     node = nodes.Group(capturing=True, body=body_node)
     
@@ -595,7 +595,7 @@ def group(name, *patterns):
         body_node = clean_patterns[0].node
     else:
         child_nodes = [p.node for p in clean_patterns]
-        body_node = nodes.Seq(child_nodes)
+        body_node = nodes.Sequence(child_nodes)
     
     node = nodes.Group(capturing=True, body=body_node, name=name)
     

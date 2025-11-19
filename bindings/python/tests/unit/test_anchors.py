@@ -38,7 +38,7 @@ import pytest
 from typing import Type, cast
 
 from STRling.core.parser import parse, ParseError
-from STRling.core.nodes import Node, Anchor, Seq, Group, Look, Lit, Quant, Alt, Dot, CharClass
+from STRling.core.nodes import Node, Anchor, Sequence, Group, Lookaround, Literal, Quantifier, Alternation, Dot, CharacterClass
 
 # --- Test Suite -----------------------------------------------------------------
 
@@ -115,7 +115,7 @@ class TestCategoryCEdgeCases:
         correct sequence of Anchor nodes.
         """
         _flags, ast = parse(r"^\A\b$")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 4
         # Add type check and cast to inform the type checker
         assert all(isinstance(part, Anchor) for part in ast.parts)
@@ -143,7 +143,7 @@ class TestCategoryCEdgeCases:
         various positions.
         """
         _flags, ast = parse(input_dsl)
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         anchor_node = ast.parts[expected_position]
         assert isinstance(anchor_node, Anchor)
         assert anchor_node.at == expected_at_value
@@ -167,7 +167,7 @@ class TestCategoryDInteractionCases:
         assert ast_no_m == ast_with_m
 
         # Add isinstance checks to help the type checker
-        assert isinstance(ast_no_m, Seq)
+        assert isinstance(ast_no_m, Sequence)
         assert isinstance(ast_no_m.parts[0], Anchor)
         assert isinstance(ast_no_m.parts[2], Anchor)
         assert ast_no_m.parts[0].at == "Start"
@@ -178,8 +178,8 @@ class TestCategoryDInteractionCases:
         [
             (r"(^a)", Group, "Start"),
             (r"(?:a\b)", Group, "WordBoundary"),
-            (r"(?=a$)", Look, "End"),
-            (r"(?<=^a)", Look, "Start"),
+            (r"(?=a$)", Lookaround, "End"),
+            (r"(?<=^a)", Lookaround, "Start"),
         ],
         ids=[
             "in_capturing_group",
@@ -199,10 +199,10 @@ class TestCategoryDInteractionCases:
         assert isinstance(ast, container_type)
 
         # Add isinstance check for the container before accessing `.body`
-        assert isinstance(ast, (Group, Look))
+        assert isinstance(ast, (Group, Lookaround))
 
         # The anchor may be part of a sequence inside the container, find it
-        if isinstance(ast.body, Seq):
+        if isinstance(ast.body, Sequence):
             # Find the anchor in the sequence
             anchor = None
             for part in ast.body.parts:
@@ -231,21 +231,21 @@ class TestCategoryEAnchorsInComplexSequences:
         The ^ anchor appears between two quantified literals.
         """
         _flags, ast = parse("a*^b+")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 3
-        assert isinstance(ast.parts[0], Quant)
+        assert isinstance(ast.parts[0], Quantifier)
         assert isinstance(ast.parts[1], Anchor)
         assert ast.parts[1].at == "Start"
-        assert isinstance(ast.parts[2], Quant)
+        assert isinstance(ast.parts[2], Quantifier)
 
     def test_anchor_after_quantified_group(self):
         """
         Tests anchor after quantified group: (ab)*$
         """
         _flags, ast = parse("(ab)*$")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 2
-        assert isinstance(ast.parts[0], Quant)
+        assert isinstance(ast.parts[0], Quantifier)
         assert isinstance(ast.parts[1], Anchor)
         assert ast.parts[1].at == "End"
 
@@ -255,7 +255,7 @@ class TestCategoryEAnchorsInComplexSequences:
         Edge case: semantically redundant but syntactically valid.
         """
         _flags, ast = parse("^^")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 2
         assert isinstance(ast.parts[0], Anchor)
         assert ast.parts[0].at == "Start"
@@ -267,7 +267,7 @@ class TestCategoryEAnchorsInComplexSequences:
         Tests multiple end anchors: $$
         """
         _flags, ast = parse("$$")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 2
         assert isinstance(ast.parts[0], Anchor)
         assert ast.parts[0].at == "End"
@@ -286,18 +286,18 @@ class TestCategoryFAnchorsInAlternation:
         Parses as (^a)|(b$).
         """
         _flags, ast = parse("^a|b$")
-        assert isinstance(ast, Alt)
+        assert isinstance(ast, Alternation)
         assert len(ast.branches) == 2
         # First branch: ^a
-        assert isinstance(ast.branches[0], Seq)
+        assert isinstance(ast.branches[0], Sequence)
         assert len(ast.branches[0].parts) == 2
         assert isinstance(ast.branches[0].parts[0], Anchor)
         assert ast.branches[0].parts[0].at == "Start"
-        assert isinstance(ast.branches[0].parts[1], Lit)
+        assert isinstance(ast.branches[0].parts[1], Literal)
         # Second branch: b$
-        assert isinstance(ast.branches[1], Seq)
+        assert isinstance(ast.branches[1], Sequence)
         assert len(ast.branches[1].parts) == 2
-        assert isinstance(ast.branches[1].parts[0], Lit)
+        assert isinstance(ast.branches[1].parts[0], Literal)
         assert isinstance(ast.branches[1].parts[1], Anchor)
         assert ast.branches[1].parts[1].at == "End"
 
@@ -308,7 +308,7 @@ class TestCategoryFAnchorsInAlternation:
         _flags, ast = parse("(^|$)")
         assert isinstance(ast, Group)
         assert ast.capturing is True
-        assert isinstance(ast.body, Alt)
+        assert isinstance(ast.body, Alternation)
         assert len(ast.body.branches) == 2
         assert isinstance(ast.body.branches[0], Anchor)
         assert ast.body.branches[0].at == "Start"
@@ -320,15 +320,15 @@ class TestCategoryFAnchorsInAlternation:
         Tests word boundary in alternation: \\ba|\\bb
         """
         _flags, ast = parse(r"\ba|\bb")
-        assert isinstance(ast, Alt)
+        assert isinstance(ast, Alternation)
         assert len(ast.branches) == 2
         # First branch: \ba
-        assert isinstance(ast.branches[0], Seq)
+        assert isinstance(ast.branches[0], Sequence)
         assert len(ast.branches[0].parts) == 2
         assert isinstance(ast.branches[0].parts[0], Anchor)
         assert ast.branches[0].parts[0].at == "WordBoundary"
         # Second branch: \bb
-        assert isinstance(ast.branches[1], Seq)
+        assert isinstance(ast.branches[1], Sequence)
         assert len(ast.branches[1].parts) == 2
         assert isinstance(ast.branches[1].parts[0], Anchor)
         assert ast.branches[1].parts[0].at == "WordBoundary"
@@ -346,11 +346,11 @@ class TestCategoryGAnchorsInAtomicGroups:
         _flags, ast = parse("(?>^a)")
         assert isinstance(ast, Group)
         assert ast.atomic is True
-        assert isinstance(ast.body, Seq)
+        assert isinstance(ast.body, Sequence)
         assert len(ast.body.parts) == 2
         assert isinstance(ast.body.parts[0], Anchor)
         assert ast.body.parts[0].at == "Start"
-        assert isinstance(ast.body.parts[1], Lit)
+        assert isinstance(ast.body.parts[1], Literal)
 
     def test_end_anchor_in_atomic_group(self):
         """
@@ -359,9 +359,9 @@ class TestCategoryGAnchorsInAtomicGroups:
         _flags, ast = parse("(?>a$)")
         assert isinstance(ast, Group)
         assert ast.atomic is True
-        assert isinstance(ast.body, Seq)
+        assert isinstance(ast.body, Sequence)
         assert len(ast.body.parts) == 2
-        assert isinstance(ast.body.parts[0], Lit)
+        assert isinstance(ast.body.parts[0], Literal)
         assert isinstance(ast.body.parts[1], Anchor)
         assert ast.body.parts[1].at == "End"
 
@@ -372,11 +372,11 @@ class TestCategoryGAnchorsInAtomicGroups:
         _flags, ast = parse(r"(?>\ba)")
         assert isinstance(ast, Group)
         assert ast.atomic is True
-        assert isinstance(ast.body, Seq)
+        assert isinstance(ast.body, Sequence)
         assert len(ast.body.parts) == 2
         assert isinstance(ast.body.parts[0], Anchor)
         assert ast.body.parts[0].at == "WordBoundary"
-        assert isinstance(ast.body.parts[1], Lit)
+        assert isinstance(ast.body.parts[1], Literal)
 
 
 class TestCategoryHWordBoundaryEdgeCases:
@@ -390,7 +390,7 @@ class TestCategoryHWordBoundaryEdgeCases:
         The dot matches any character, boundaries on both sides.
         """
         _flags, ast = parse(r"\b.\b")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 3
         assert isinstance(ast.parts[0], Anchor)
         assert ast.parts[0].at == "WordBoundary"
@@ -403,11 +403,11 @@ class TestCategoryHWordBoundaryEdgeCases:
         Tests word boundary with digit: \\b\\d\\b
         """
         _flags, ast = parse(r"\b\d\b")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 3
         assert isinstance(ast.parts[0], Anchor)
         assert ast.parts[0].at == "WordBoundary"
-        assert isinstance(ast.parts[1], CharClass)
+        assert isinstance(ast.parts[1], CharacterClass)
         assert isinstance(ast.parts[2], Anchor)
         assert ast.parts[2].at == "WordBoundary"
 
@@ -416,11 +416,11 @@ class TestCategoryHWordBoundaryEdgeCases:
         Tests not-word-boundary: \\Ba\\B
         """
         _flags, ast = parse(r"\Ba\B")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 3
         assert isinstance(ast.parts[0], Anchor)
         assert ast.parts[0].at == "NotWordBoundary"
-        assert isinstance(ast.parts[1], Lit)
+        assert isinstance(ast.parts[1], Literal)
         assert ast.parts[1].value == "a"
         assert isinstance(ast.parts[2], Anchor)
         assert ast.parts[2].at == "NotWordBoundary"
@@ -437,11 +437,11 @@ class TestCategoryIMultipleAnchorTypes:
         Already covered but confirming as typical case.
         """
         _flags, ast = parse("^abc$")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 3
         assert isinstance(ast.parts[0], Anchor)
         assert ast.parts[0].at == "Start"
-        assert isinstance(ast.parts[1], Lit)
+        assert isinstance(ast.parts[1], Literal)
         assert ast.parts[1].value == "abc"
         assert isinstance(ast.parts[2], Anchor)
         assert ast.parts[2].at == "End"
@@ -459,13 +459,13 @@ class TestCategoryIMultipleAnchorTypes:
         Tests word boundaries with line anchors: ^\\ba\\b$
         """
         _flags, ast = parse(r"^\ba\b$")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 5
         assert isinstance(ast.parts[0], Anchor)
         assert ast.parts[0].at == "Start"
         assert isinstance(ast.parts[1], Anchor)
         assert ast.parts[1].at == "WordBoundary"
-        assert isinstance(ast.parts[2], Lit)
+        assert isinstance(ast.parts[2], Literal)
         assert ast.parts[2].value == "a"
         assert isinstance(ast.parts[3], Anchor)
         assert ast.parts[3].at == "WordBoundary"

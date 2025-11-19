@@ -45,7 +45,14 @@ def _escape_literal(s: str) -> str:
     # Use re.escape, then unescape any escaped dashes.
     escaped = re.escape(s)
     # Remove unnecessary escaping for dashes
-    escaped = escaped.replace(r'\-', '-')
+    escaped = escaped.replace(r"\-", "-")
+    # Unescape whitespace to match expected output format (literal newlines etc)
+    # re.escape escapes these with a backslash (e.g. \ + newline), but we want the literal char
+    escaped = escaped.replace("\\\n", "\n")
+    escaped = escaped.replace("\\\r", "\r")
+    escaped = escaped.replace("\\\t", "\t")
+    escaped = escaped.replace("\\\f", "\f")
+    escaped = escaped.replace("\\\v", "\v")
     return escaped
 
 
@@ -209,6 +216,7 @@ def _emit_node(node: IROp, parent_kind: str = "") -> str:
             "End": "$",
             "WordBoundary": r"\b",
             "NotWordBoundary": r"\B",
+            "NonWordBoundary": r"\B",
             "AbsoluteStart": r"\A",
             "EndBeforeFinalNewline": r"\Z",
             "AbsoluteEnd": r"\z",

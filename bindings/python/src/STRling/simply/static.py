@@ -64,7 +64,7 @@ def alpha_num(min_rep: int = None, max_rep: int = None):
     letter : For matching only letters
     digit : For matching only digits
     """
-    node = nodes.CharClass(False, [
+    node = nodes.CharacterClass(False, [
         nodes.ClassRange('A', 'Z'),
         nodes.ClassRange('a', 'z'),
         nodes.ClassRange('0', '9')
@@ -84,7 +84,7 @@ def not_alpha_num(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(True, [
+    node = nodes.CharacterClass(True, [
         nodes.ClassRange('A', 'Z'),
         nodes.ClassRange('a', 'z'),
         nodes.ClassRange('0', '9')
@@ -106,7 +106,7 @@ def special_char(min_rep: int = None, max_rep: int = None):
     """
     special = r"""!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
     items = [nodes.ClassLiteral(char) for char in special]
-    node = nodes.CharClass(False, items)
+    node = nodes.CharacterClass(False, items)
     p = Pattern(node, custom_set=True)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -124,7 +124,7 @@ def not_special_char(min_rep: int = None, max_rep: int = None):
     """
     special = r"""!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
     items = [nodes.ClassLiteral(char) for char in special]
-    node = nodes.CharClass(True, items)
+    node = nodes.CharacterClass(True, items)
     p = Pattern(node, custom_set=True, negated=True)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -177,7 +177,7 @@ def letter(min_rep: int = None, max_rep: int = None):
     lower : For matching only lowercase letters
     alpha_num : For matching letters or digits
     """
-    node = nodes.CharClass(False, [
+    node = nodes.CharacterClass(False, [
         nodes.ClassRange('A', 'Z'),
         nodes.ClassRange('a', 'z'),
     ])
@@ -196,7 +196,7 @@ def not_letter(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(True, [
+    node = nodes.CharacterClass(True, [
         nodes.ClassRange('A', 'Z'),
         nodes.ClassRange('a', 'z'),
     ])
@@ -215,7 +215,7 @@ def upper(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(False, [
+    node = nodes.CharacterClass(False, [
         nodes.ClassRange('A', 'Z'),
     ])
     p = Pattern(node, custom_set=True)
@@ -233,7 +233,7 @@ def not_upper(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(True, [
+    node = nodes.CharacterClass(True, [
         nodes.ClassRange('A', 'Z'),
     ])
     p = Pattern(node, custom_set=True, negated=True)
@@ -251,7 +251,7 @@ def lower(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(False, [
+    node = nodes.CharacterClass(False, [
         nodes.ClassRange('a', 'z'),
     ])
     p = Pattern(node, custom_set=True)
@@ -269,7 +269,7 @@ def not_lower(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(True, [
+    node = nodes.CharacterClass(True, [
         nodes.ClassRange('a', 'z'),
     ])
     p = Pattern(node, custom_set=True, negated=True)
@@ -288,7 +288,7 @@ def hex_digit(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(False, [
+    node = nodes.CharacterClass(False, [
         nodes.ClassRange('A', 'F'),
         nodes.ClassRange('a', 'f'),
         nodes.ClassRange('0', '9'),
@@ -309,7 +309,7 @@ def not_hex_digit(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(True, [
+    node = nodes.CharacterClass(True, [
         nodes.ClassRange('A', 'F'),
         nodes.ClassRange('a', 'f'),
         nodes.ClassRange('0', '9'),
@@ -371,7 +371,7 @@ def digit(min_rep: int = None, max_rep: int = None):
     hex_digit : For matching hexadecimal digits (0-9, A-F)
     alpha_num : For matching letters or digits
     """
-    node = nodes.CharClass(False, [nodes.ClassEscape('d')])
+    node = nodes.CharacterClass(False, [nodes.ClassEscape('d')])
     p = Pattern(node)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -387,7 +387,7 @@ def not_digit(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(False, [nodes.ClassEscape('D')])
+    node = nodes.CharacterClass(False, [nodes.ClassEscape('D')])
     p = Pattern(node)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -442,7 +442,7 @@ def whitespace(min_rep: int = None, max_rep: int = None):
     newline : For matching only newline characters
     tab : For matching only tab characters
     """
-    node = nodes.CharClass(False, [nodes.ClassEscape('s')])
+    node = nodes.CharacterClass(False, [nodes.ClassEscape('s')])
     p = Pattern(node)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -458,7 +458,7 @@ def not_whitespace(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(False, [nodes.ClassEscape('S')])
+    node = nodes.CharacterClass(False, [nodes.ClassEscape('S')])
     p = Pattern(node)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -474,7 +474,7 @@ def newline(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(False, [nodes.ClassEscape('n')])
+    node = nodes.CharacterClass(False, [nodes.ClassEscape('n')])
     p = Pattern(node)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -490,7 +490,7 @@ def not_newline(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(False, [nodes.ClassEscape('r')])
+    node = nodes.CharacterClass(False, [nodes.ClassEscape('r')])
     p = Pattern(node)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -506,7 +506,7 @@ def tab(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(False, [nodes.ClassEscape('t')])
+    node = nodes.CharacterClass(False, [nodes.ClassEscape('t')])
     p = Pattern(node)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -522,7 +522,7 @@ def carriage(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(False, [nodes.ClassEscape('r')])
+    node = nodes.CharacterClass(False, [nodes.ClassEscape('r')])
     p = Pattern(node)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -538,7 +538,7 @@ def bound(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(False, [nodes.ClassEscape('b')])
+    node = nodes.CharacterClass(False, [nodes.ClassEscape('b')])
     p = Pattern(node)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -554,7 +554,7 @@ def not_bound(min_rep: int = None, max_rep: int = None):
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharClass(False, [nodes.ClassEscape('B')])
+    node = nodes.CharacterClass(False, [nodes.ClassEscape('B')])
     p = Pattern(node)
     return p(min_rep, max_rep) if min_rep is not None else p
 

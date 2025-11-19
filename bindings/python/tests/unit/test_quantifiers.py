@@ -4,7 +4,7 @@ Test Design — test_quantifiers.py
 ## Purpose
 This test suite validates the correct parsing of all quantifier forms (`*`, `+`,
 `?`, `{m,n}`) and modes (Greedy, Lazy, Possessive). It ensures quantifiers
-correctly bind to their preceding atom, generate the proper `Quant` AST node,
+correctly bind to their preceding atom, generate the proper `Quantifier` AST node,
 and that malformed quantifier syntax raises the appropriate `ParseError`.
 
 ## Description
@@ -25,7 +25,7 @@ sequence.
 
     -   Parsing of lazy (`*?`) and possessive (`*+`) mode modifiers
        .
-    -   The structure and values of the resulting `nodes.Quant` AST node
+    -   The structure and values of the resulting `nodes.Quantifier` AST node
         (including `min`, `max`, and `mode` fields).
 
     -   Error handling for malformed brace quantifiers (e.g., `a{1,`).
@@ -45,16 +45,16 @@ from typing import Union, cast
 
 from STRling.core.parser import parse, ParseError
 from STRling.core.nodes import (
-    Quant,
-    Lit,
-    Seq,
+    Quantifier,
+    Literal,
+    Sequence,
     Dot,
-    CharClass,
+    CharacterClass,
     Group,
-    Look,
+    Lookaround,
     Anchor,
-    Alt,
-    Backref,
+    Alternation,
+    BackReference,
 )
 
 # --- Test Suite -----------------------------------------------------------------
@@ -122,15 +122,15 @@ class TestCategoryAPositiveCases:
         expected_mode: str,
     ):
         """
-        Tests that all quantifier forms and modes are parsed into a Quant node
+        Tests that all quantifier forms and modes are parsed into a Quantifier node
         with the correct min, max, and mode attributes.
         """
         _flags, ast = parse(input_dsl)
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == expected_min
         assert ast.max == expected_max
         assert ast.mode == expected_mode
-        assert isinstance(ast.child, Lit)
+        assert isinstance(ast.child, Literal)
 
 
 class TestCategoryBNegativeCases:
@@ -166,7 +166,7 @@ class TestCategoryBNegativeCases:
         is parsed as a literal string.
         """
         _flags, ast = parse("a{,5}")
-        assert ast == Seq(parts=[Lit("a"), Lit("{,5}")])
+        assert ast == Sequence(parts=[Literal("a"), Literal("{,5}")])
 
 
 class TestCategoryCEdgeCases:
@@ -188,17 +188,17 @@ class TestCategoryCEdgeCases:
     ):
         """Tests that quantifiers with zero values are parsed correctly."""
         _flags, ast = parse(input_dsl)
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == expected_min
         assert ast.max == expected_max
 
     def test_quantifier_on_empty_group(self):
         """Tests that a quantifier can be applied to an empty group."""
         _flags, ast = parse("(?:)*")
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         group_node = cast(Group, ast.child)
         assert group_node.capturing is False
-        assert group_node.body == Seq(parts=[])
+        assert group_node.body == Sequence(parts=[])
 
     def test_quantifier_does_not_apply_to_anchor(self):
         """
@@ -206,10 +206,10 @@ class TestCategoryCEdgeCases:
         not the anchor itself.
         """
         _flags, ast = parse("a?^")
-        assert isinstance(ast, Seq)
-        quant_node = cast(Quant, ast.parts[0])
+        assert isinstance(ast, Sequence)
+        quant_node = cast(Quantifier, ast.parts[0])
         anchor_node = cast(Anchor, ast.parts[1])
-        assert quant_node.child == Lit("a")
+        assert quant_node.child == Literal("a")
         assert anchor_node.at == "Start"
 
 
@@ -224,19 +224,19 @@ class TestCategoryDInteractionCases:
         preceding atom, not the whole sequence.
         """
         _flags, ast = parse("ab*")
-        assert ast == Seq(
-            parts=[Lit("a"), Quant(child=Lit("b"), min=0, max="Inf", mode="Greedy")]
+        assert ast == Sequence(
+            parts=[Literal("a"), Quantifier(child=Literal("b"), min=0, max="Inf", mode="Greedy")]
         )
 
     @pytest.mark.parametrize(
         "input_dsl, expected_child_type",
         [
-            (r"\d*", CharClass),
+            (r"\d*", CharacterClass),
             (".*", Dot),
-            ("[a-z]*", CharClass),
+            ("[a-z]*", CharacterClass),
             ("(abc)*", Group),
             ("(?:a|b)+", Group),  # The group is the atom being quantified
-            ("(?=a)+", Look),
+            ("(?=a)+", Lookaround),
         ],
         ids=[
             "quantify_shorthand",
@@ -254,7 +254,7 @@ class TestCategoryDInteractionCases:
         Tests that quantifiers correctly wrap various types of AST nodes.
         """
         _flags, ast = parse(input_dsl)
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert isinstance(ast.child, expected_child_type)
 
 
@@ -274,11 +274,11 @@ class TestCategoryENestedAndRedundantQuantifiers:
         quantified atom: (a*)* is syntactically valid.
         """
         _flags, ast = parse("(a*)*")
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == 0
         assert ast.max == "Inf"
         assert isinstance(ast.child, Group)
-        assert isinstance(ast.child.body, Quant)
+        assert isinstance(ast.child.body, Quantifier)
         assert ast.child.body.min == 0
         assert ast.child.body.max == "Inf"
 
@@ -287,11 +287,11 @@ class TestCategoryENestedAndRedundantQuantifiers:
         Tests nested quantifiers with different operators: (a+)?
         """
         _flags, ast = parse("(a+)?")
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == 0
         assert ast.max == 1
         assert isinstance(ast.child, Group)
-        assert isinstance(ast.child.body, Quant)
+        assert isinstance(ast.child.body, Quantifier)
         assert ast.child.body.min == 1
         assert ast.child.body.max == "Inf"
 
@@ -301,22 +301,22 @@ class TestCategoryENestedAndRedundantQuantifiers:
         This is semantically equivalent to a* but syntactically valid.
         """
         _flags, ast = parse("(a*)+")
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == 1
         assert ast.max == "Inf"
         assert isinstance(ast.child, Group)
-        assert isinstance(ast.child.body, Quant)
+        assert isinstance(ast.child.body, Quantifier)
 
     def test_redundant_quantifier_star_on_optional(self):
         """
         Tests redundant quantification: (a?)*
         """
         _flags, ast = parse("(a?)*")
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == 0
         assert ast.max == "Inf"
         assert isinstance(ast.child, Group)
-        assert isinstance(ast.child.body, Quant)
+        assert isinstance(ast.child.body, Quantifier)
         assert ast.child.body.min == 0
         assert ast.child.body.max == 1
 
@@ -325,11 +325,11 @@ class TestCategoryENestedAndRedundantQuantifiers:
         Tests brace quantifiers on quantified groups: (a{2,3}){1,2}
         """
         _flags, ast = parse("(a{2,3}){1,2}")
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == 1
         assert ast.max == 2
         assert isinstance(ast.child, Group)
-        assert isinstance(ast.child.body, Quant)
+        assert isinstance(ast.child.body, Quantifier)
         assert ast.child.body.min == 2
         assert ast.child.body.max == 3
 
@@ -345,11 +345,11 @@ class TestCategoryFQuantifierOnSpecialAtoms:
         Tests that a quantifier can be applied to a backreference: (a)\\1*
         """
         _flags, ast = parse(r"(a)\1*")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 2
         assert isinstance(ast.parts[0], Group)
-        assert isinstance(ast.parts[1], Quant)
-        assert isinstance(ast.parts[1].child, Backref)
+        assert isinstance(ast.parts[1], Quantifier)
+        assert isinstance(ast.parts[1].child, BackReference)
         assert ast.parts[1].min == 0
         assert ast.parts[1].max == "Inf"
 
@@ -358,13 +358,13 @@ class TestCategoryFQuantifierOnSpecialAtoms:
         Tests quantifiers on multiple backrefs: (a)(b)\\1*\\2+
         """
         _flags, ast = parse(r"(a)(b)\1*\2+")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 4
-        assert isinstance(ast.parts[2], Quant)
-        assert isinstance(ast.parts[2].child, Backref)
+        assert isinstance(ast.parts[2], Quantifier)
+        assert isinstance(ast.parts[2].child, BackReference)
         assert ast.parts[2].child.byIndex == 1
-        assert isinstance(ast.parts[3], Quant)
-        assert isinstance(ast.parts[3].child, Backref)
+        assert isinstance(ast.parts[3], Quantifier)
+        assert isinstance(ast.parts[3].child, BackReference)
         assert ast.parts[3].child.byIndex == 2
 
 
@@ -378,9 +378,9 @@ class TestCategoryGMultipleQuantifiedSequences:
         Tests multiple quantified atoms in sequence: a*b+c?
         """
         _flags, ast = parse("a*b+c?")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 3
-        assert all(isinstance(part, Quant) for part in ast.parts)
+        assert all(isinstance(part, Quantifier) for part in ast.parts)
         assert ast.parts[0].min == 0 and ast.parts[0].max == "Inf"
         assert ast.parts[1].min == 1 and ast.parts[1].max == "Inf"
         assert ast.parts[2].min == 0 and ast.parts[2].max == 1
@@ -390,9 +390,9 @@ class TestCategoryGMultipleQuantifiedSequences:
         Tests multiple quantified groups: (ab)*(cd)+(ef)?
         """
         _flags, ast = parse("(ab)*(cd)+(ef)?")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 3
-        assert all(isinstance(part, Quant) for part in ast.parts)
+        assert all(isinstance(part, Quantifier) for part in ast.parts)
         assert all(isinstance(part.child, Group) for part in ast.parts)
 
     def test_quantified_atoms_with_alternation(self):
@@ -400,11 +400,11 @@ class TestCategoryGMultipleQuantifiedSequences:
         Tests quantified atoms in an alternation: a*|b+
         """
         _flags, ast = parse("a*|b+")
-        assert isinstance(ast, Alt)
+        assert isinstance(ast, Alternation)
         assert len(ast.branches) == 2
-        assert isinstance(ast.branches[0], Quant)
+        assert isinstance(ast.branches[0], Quantifier)
         assert ast.branches[0].min == 0
-        assert isinstance(ast.branches[1], Quant)
+        assert isinstance(ast.branches[1], Quantifier)
         assert ast.branches[1].min == 1
 
 
@@ -419,10 +419,10 @@ class TestCategoryHBraceQuantifierEdgeCases:
         Should parse correctly even though it's equivalent to 'a'.
         """
         _flags, ast = parse("a{1}")
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == 1
         assert ast.max == 1
-        assert isinstance(ast.child, Lit)
+        assert isinstance(ast.child, Literal)
         assert ast.child.value == "a"
 
     def test_brace_quantifier_zero_to_one(self):
@@ -431,31 +431,31 @@ class TestCategoryHBraceQuantifierEdgeCases:
         Should be equivalent to a? but valid syntax.
         """
         _flags, ast = parse("a{0,1}")
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == 0
         assert ast.max == 1
-        assert isinstance(ast.child, Lit)
+        assert isinstance(ast.child, Literal)
 
     def test_brace_quantifier_on_alternation_in_group(self):
         """
         Tests brace quantifier on group with alternation: (a|b){2,3}
         """
         _flags, ast = parse("(a|b){2,3}")
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == 2
         assert ast.max == 3
         assert isinstance(ast.child, Group)
-        assert isinstance(ast.child.body, Alt)
+        assert isinstance(ast.child.body, Alternation)
 
     def test_brace_quantifier_large_values(self):
         """
         Tests brace quantifiers with large repetition counts: a{100}, a{50,150}
         """
         _flags, ast = parse("a{100,200}")
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == 100
         assert ast.max == 200
-        assert isinstance(ast.child, Lit)
+        assert isinstance(ast.child, Literal)
 
 
 class TestCategoryIQuantifierInteractionWithFlags:
@@ -471,11 +471,11 @@ class TestCategoryIQuantifierInteractionWithFlags:
         _flags, ast = parse("%flags x\na *")
         # In free-spacing mode, spaces are ignored, so 'a' and '*' are separate
         # The * becomes a literal, not a quantifier
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 2
-        assert isinstance(ast.parts[0], Lit)
+        assert isinstance(ast.parts[0], Literal)
         assert ast.parts[0].value == "a"
-        assert isinstance(ast.parts[1], Lit)
+        assert isinstance(ast.parts[1], Literal)
         assert ast.parts[1].value == "*"
 
     def test_quantifier_on_escaped_space_in_free_spacing(self):
@@ -485,8 +485,8 @@ class TestCategoryIQuantifierInteractionWithFlags:
         """
         _flags, ast = parse(r"%flags x""\n\\ *")
         # Escaped space followed by *, should quantify the space
-        assert isinstance(ast, Quant)
+        assert isinstance(ast, Quantifier)
         assert ast.min == 0
         assert ast.max == "Inf"
-        assert isinstance(ast.child, Lit)
+        assert isinstance(ast.child, Literal)
         assert ast.child.value == " "

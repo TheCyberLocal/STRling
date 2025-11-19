@@ -34,8 +34,8 @@ validation rules for these powerful features.
         positive/negative lookbehind.
     -   Error handling for unterminated constructs and invalid backreferences.
 
-    -   The structure of the resulting `nodes.Group`, `nodes.Backref`, and
-        `nodes.Look` AST nodes.
+    -   The structure of the resulting `nodes.Group`, `nodes.BackReference`, and
+        `nodes.Lookaround` AST nodes.
 -   **Out of scope:**
     -   Quantification of these constructs (covered in `test_quantifiers.py`).
 
@@ -49,7 +49,7 @@ import pytest
 from typing import Optional, cast
 
 from STRling.core.parser import parse, ParseError
-from STRling.core.nodes import Group, Backref, Look, Seq, Lit, Quant, Alt
+from STRling.core.nodes import Group, BackReference, Lookaround, Sequence, Literal, Quantifier, Alternation
 
 # --- Test Suite -----------------------------------------------------------------
 
@@ -82,22 +82,22 @@ class TestCategoryAPositiveCases:
         assert ast.capturing == expected_capturing
         assert ast.name == expected_name
         assert ast.atomic == expected_atomic
-        assert isinstance(ast.body, Lit)
+        assert isinstance(ast.body, Literal)
 
     @pytest.mark.parametrize(
         "input_dsl, expected_backref",
         [
-            (r"(a)\1", Backref(byIndex=1)),
-            (r"(?<A>a)\k<A>", Backref(byName="A")),
+            (r"(a)\1", BackReference(byIndex=1)),
+            (r"(?<A>a)\k<A>", BackReference(byName="A")),
         ],
         ids=["numeric_backref", "named_backref"],
     )
     def test_backreferences_are_parsed_correctly(
-        self, input_dsl: str, expected_backref: Backref
+        self, input_dsl: str, expected_backref: BackReference
     ):
-        """Tests that valid backreferences are parsed into the correct Backref node."""
+        """Tests that valid backreferences are parsed into the correct BackReference node."""
         _flags, ast = parse(input_dsl)
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert ast.parts[1] == expected_backref
 
     @pytest.mark.parametrize(
@@ -115,9 +115,9 @@ class TestCategoryAPositiveCases:
     ):
         """Tests that all four lookaround types are parsed correctly."""
         _flags, ast = parse(input_dsl)
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         look_node = ast.parts[1] if expected_dir == "Ahead" else ast.parts[0]
-        assert isinstance(look_node, Look)
+        assert isinstance(look_node, Lookaround)
         assert look_node.dir == expected_dir
         assert look_node.neg == expected_neg
 
@@ -194,17 +194,17 @@ class TestCategoryCEdgeCases:
         assert isinstance(ast, Group)
         assert ast.capturing == expected_capturing
         assert ast.name == expected_name
-        assert ast.body == Seq(parts=[])
+        assert ast.body == Sequence(parts=[])
 
     def test_backreference_to_optional_group_is_valid_syntax(self):
         """
         Tests that a backreference to an optional group is syntactically valid.
         """
         _flags, ast = parse(r"(a)?\1")
-        assert isinstance(ast, Seq)
-        quant_node = cast(Quant, ast.parts[0])
+        assert isinstance(ast, Sequence)
+        quant_node = cast(Quantifier, ast.parts[0])
         assert isinstance(quant_node.child, Group)
-        assert ast.parts[1] == Backref(byIndex=1)
+        assert ast.parts[1] == BackReference(byIndex=1)
 
     def test_null_byte_is_not_a_backreference(self):
         """
@@ -212,7 +212,7 @@ class TestCategoryCEdgeCases:
 
         """
         _flags, ast = parse(r"\0")
-        assert ast == Lit("\x00")
+        assert ast == Literal("\x00")
 
 
 class TestCategoryDInteractionCases:
@@ -225,10 +225,10 @@ class TestCategoryDInteractionCases:
         Tests that a backreference can refer to a group defined before a lookaround.
         """
         _flags, ast = parse(r"(?<A>a)(?=\k<A>)")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert isinstance(ast.parts[0], Group)
-        look_node = cast(Look, ast.parts[1])
-        assert isinstance(look_node.body, Backref)
+        look_node = cast(Lookaround, ast.parts[1])
+        assert isinstance(look_node.body, BackReference)
         assert look_node.body.byName == "A"
 
     def test_free_spacing_mode_inside_groups(self):
@@ -238,7 +238,7 @@ class TestCategoryDInteractionCases:
         _flags, ast = parse("%flags x\n(?<name> a #comment\n b)")
         assert isinstance(ast, Group)
         assert ast.name == "name"
-        assert ast.body == Seq(parts=[Lit("a"), Lit("b")])
+        assert ast.body == Sequence(parts=[Literal("a"), Literal("b")])
 
 
 # --- New Test Stubs for 3-Test Standard Compliance -----------------------------
@@ -259,7 +259,7 @@ class TestCategoryENestedGroups:
         assert ast.capturing is True
         assert isinstance(ast.body, Group)
         assert ast.body.capturing is True
-        assert isinstance(ast.body.body, Lit)
+        assert isinstance(ast.body.body, Literal)
         assert ast.body.body.value == "a"
 
     def test_nested_non_capturing_groups(self):
@@ -271,7 +271,7 @@ class TestCategoryENestedGroups:
         assert ast.capturing is False
         assert isinstance(ast.body, Group)
         assert ast.body.capturing is False
-        assert isinstance(ast.body.body, Lit)
+        assert isinstance(ast.body.body, Literal)
         assert ast.body.body.value == "a"
 
     def test_nested_atomic_groups(self):
@@ -285,7 +285,7 @@ class TestCategoryENestedGroups:
         assert ast.body.atomic is True
         assert isinstance(ast.body.body, Group)
         assert ast.body.body.capturing is True
-        assert isinstance(ast.body.body.body, Lit)
+        assert isinstance(ast.body.body.body, Literal)
 
     def test_mixed_nesting_capturing_in_non_capturing(self):
         """
@@ -296,7 +296,7 @@ class TestCategoryENestedGroups:
         assert ast.capturing is False
         assert isinstance(ast.body, Group)
         assert ast.body.capturing is True
-        assert isinstance(ast.body.body, Lit)
+        assert isinstance(ast.body.body, Literal)
         assert ast.body.body.value == "a"
 
     def test_mixed_nesting_named_in_capturing(self):
@@ -310,7 +310,7 @@ class TestCategoryENestedGroups:
         assert isinstance(ast.body, Group)
         assert ast.body.capturing is True
         assert ast.body.name == "name"
-        assert isinstance(ast.body.body, Lit)
+        assert isinstance(ast.body.body, Literal)
 
     def test_mixed_nesting_atomic_in_non_capturing(self):
         """
@@ -321,7 +321,7 @@ class TestCategoryENestedGroups:
         assert ast.capturing is False
         assert isinstance(ast.body, Group)
         assert ast.body.atomic is True
-        assert isinstance(ast.body.body, Lit)
+        assert isinstance(ast.body.body, Literal)
         assert ast.body.body.value == "a"
 
     def test_deeply_nested_groups_three_levels(self):
@@ -341,7 +341,7 @@ class TestCategoryENestedGroups:
         # Level 4
         assert isinstance(ast.body.body.body, Group)
         assert ast.body.body.body.atomic is True
-        assert isinstance(ast.body.body.body.body, Lit)
+        assert isinstance(ast.body.body.body.body, Literal)
 
 
 class TestCategoryFLookaroundWithComplexContent:
@@ -355,10 +355,10 @@ class TestCategoryFLookaroundWithComplexContent:
         Tests positive lookahead with alternation: (?=a|b)
         """
         _flags, ast = parse("(?=a|b)")
-        assert isinstance(ast, Look)
+        assert isinstance(ast, Lookaround)
         assert ast.dir == "Ahead"
         assert ast.neg is False
-        assert isinstance(ast.body, Alt)
+        assert isinstance(ast.body, Alternation)
         assert len(ast.body.branches) == 2
 
     def test_lookbehind_with_alternation(self):
@@ -366,10 +366,10 @@ class TestCategoryFLookaroundWithComplexContent:
         Tests positive lookbehind with alternation: (?<=x|y)
         """
         _flags, ast = parse("(?<=x|y)")
-        assert isinstance(ast, Look)
+        assert isinstance(ast, Lookaround)
         assert ast.dir == "Behind"
         assert ast.neg is False
-        assert isinstance(ast.body, Alt)
+        assert isinstance(ast.body, Alternation)
         assert len(ast.body.branches) == 2
 
     def test_negative_lookahead_with_alternation(self):
@@ -377,10 +377,10 @@ class TestCategoryFLookaroundWithComplexContent:
         Tests negative lookahead with alternation: (?!a|b|c)
         """
         _flags, ast = parse("(?!a|b|c)")
-        assert isinstance(ast, Look)
+        assert isinstance(ast, Lookaround)
         assert ast.dir == "Ahead"
         assert ast.neg is True
-        assert isinstance(ast.body, Alt)
+        assert isinstance(ast.body, Alternation)
         assert len(ast.body.branches) == 3
 
     def test_nested_lookaheads(self):
@@ -388,36 +388,36 @@ class TestCategoryFLookaroundWithComplexContent:
         Tests nested positive lookaheads: (?=(?=a))
         """
         _flags, ast = parse("(?=(?=a))")
-        assert isinstance(ast, Look)
+        assert isinstance(ast, Lookaround)
         assert ast.dir == "Ahead"
-        assert isinstance(ast.body, Look)
+        assert isinstance(ast.body, Lookaround)
         assert ast.body.dir == "Ahead"
-        assert isinstance(ast.body.body, Lit)
+        assert isinstance(ast.body.body, Literal)
 
     def test_nested_lookbehinds(self):
         """
         Tests nested lookbehinds: (?<=(?<!a))
         """
         _flags, ast = parse("(?<=(?<!a))")
-        assert isinstance(ast, Look)
+        assert isinstance(ast, Lookaround)
         assert ast.dir == "Behind"
         assert ast.neg is False
-        assert isinstance(ast.body, Look)
+        assert isinstance(ast.body, Lookaround)
         assert ast.body.dir == "Behind"
         assert ast.body.neg is True
-        assert isinstance(ast.body.body, Lit)
+        assert isinstance(ast.body.body, Literal)
 
     def test_mixed_nested_lookarounds(self):
         """
         Tests lookahead inside lookbehind: (?<=a(?=b))
         """
         _flags, ast = parse("(?<=a(?=b))")
-        assert isinstance(ast, Look)
+        assert isinstance(ast, Lookaround)
         assert ast.dir == "Behind"
-        assert isinstance(ast.body, Seq)
+        assert isinstance(ast.body, Sequence)
         assert len(ast.body.parts) == 2
-        assert isinstance(ast.body.parts[0], Lit)
-        assert isinstance(ast.body.parts[1], Look)
+        assert isinstance(ast.body.parts[0], Literal)
+        assert isinstance(ast.body.parts[1], Lookaround)
         assert ast.body.parts[1].dir == "Ahead"
 
 
@@ -436,7 +436,7 @@ class TestCategoryGAtomicGroupEdgeCases:
         # The atomic group contains a capturing group with alternation
         assert isinstance(ast.body, Group)
         assert ast.body.capturing is True
-        assert isinstance(ast.body.body, Alt)
+        assert isinstance(ast.body.body, Alternation)
         assert len(ast.body.body.branches) == 2
 
     def test_atomic_group_with_quantified_content(self):
@@ -446,10 +446,10 @@ class TestCategoryGAtomicGroupEdgeCases:
         _flags, ast = parse("(?>a+b*)")
         assert isinstance(ast, Group)
         assert ast.atomic is True
-        assert isinstance(ast.body, Seq)
+        assert isinstance(ast.body, Sequence)
         assert len(ast.body.parts) == 2
-        assert isinstance(ast.body.parts[0], Quant)
-        assert isinstance(ast.body.parts[1], Quant)
+        assert isinstance(ast.body.parts[0], Quantifier)
+        assert isinstance(ast.body.parts[1], Quantifier)
 
     def test_atomic_group_empty(self):
         """
@@ -459,7 +459,7 @@ class TestCategoryGAtomicGroupEdgeCases:
         _flags, ast = parse("(?>)")
         assert isinstance(ast, Group)
         assert ast.atomic is True
-        assert isinstance(ast.body, Seq)
+        assert isinstance(ast.body, Sequence)
         assert len(ast.body.parts) == 0
 
 
@@ -474,13 +474,13 @@ class TestCategoryHMultipleBackreferences:
         Tests multiple sequential backreferences: (a)(b)\\1\\2
         """
         _flags, ast = parse(r"(a)(b)\1\2")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 4
         assert isinstance(ast.parts[0], Group)
         assert isinstance(ast.parts[1], Group)
-        assert isinstance(ast.parts[2], Backref)
+        assert isinstance(ast.parts[2], BackReference)
         assert ast.parts[2].byIndex == 1
-        assert isinstance(ast.parts[3], Backref)
+        assert isinstance(ast.parts[3], BackReference)
         assert ast.parts[3].byIndex == 2
 
     def test_multiple_named_backrefs(self):
@@ -488,15 +488,15 @@ class TestCategoryHMultipleBackreferences:
         Tests multiple named backreferences: (?<x>a)(?<y>b)\\k<x>\\k<y>
         """
         _flags, ast = parse(r"(?<x>a)(?<y>b)\k<x>\k<y>")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 4
         assert isinstance(ast.parts[0], Group)
         assert ast.parts[0].name == "x"
         assert isinstance(ast.parts[1], Group)
         assert ast.parts[1].name == "y"
-        assert isinstance(ast.parts[2], Backref)
+        assert isinstance(ast.parts[2], BackReference)
         assert ast.parts[2].byName == "x"
-        assert isinstance(ast.parts[3], Backref)
+        assert isinstance(ast.parts[3], BackReference)
         assert ast.parts[3].byName == "y"
 
     def test_mixed_numeric_and_named_backrefs(self):
@@ -504,14 +504,14 @@ class TestCategoryHMultipleBackreferences:
         Tests mixed backreference types: (a)(?<x>b)\\1\\k<x>
         """
         _flags, ast = parse(r"(a)(?<x>b)\1\k<x>")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 4
         assert isinstance(ast.parts[0], Group)
         assert isinstance(ast.parts[1], Group)
         assert ast.parts[1].name == "x"
-        assert isinstance(ast.parts[2], Backref)
+        assert isinstance(ast.parts[2], BackReference)
         assert ast.parts[2].byIndex == 1
-        assert isinstance(ast.parts[3], Backref)
+        assert isinstance(ast.parts[3], BackReference)
         assert ast.parts[3].byName == "x"
 
     def test_backref_in_alternation(self):
@@ -519,13 +519,13 @@ class TestCategoryHMultipleBackreferences:
         Tests backreference in alternation: (a)(\\1|b)
         """
         _flags, ast = parse(r"(a)(\1|b)")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 2
         assert isinstance(ast.parts[0], Group)
         assert isinstance(ast.parts[1], Group)
-        assert isinstance(ast.parts[1].body, Alt)
+        assert isinstance(ast.parts[1].body, Alternation)
         assert len(ast.parts[1].body.branches) == 2
-        assert isinstance(ast.parts[1].body.branches[0], Backref)
+        assert isinstance(ast.parts[1].body.branches[0], BackReference)
         assert ast.parts[1].body.branches[0].byIndex == 1
 
     def test_backref_to_earlier_alternation_branch(self):
@@ -533,12 +533,12 @@ class TestCategoryHMultipleBackreferences:
         Tests backreference to group in alternation: (a|b)c\\1
         """
         _flags, ast = parse(r"(a|b)c\1")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 3
         assert isinstance(ast.parts[0], Group)
-        assert isinstance(ast.parts[0].body, Alt)
-        assert isinstance(ast.parts[1], Lit)
-        assert isinstance(ast.parts[2], Backref)
+        assert isinstance(ast.parts[0].body, Alternation)
+        assert isinstance(ast.parts[1], Literal)
+        assert isinstance(ast.parts[2], BackReference)
         assert ast.parts[2].byIndex == 1
 
     def test_repeated_backreference(self):
@@ -546,12 +546,12 @@ class TestCategoryHMultipleBackreferences:
         Tests same backreference used multiple times: (a)\\1\\1
         """
         _flags, ast = parse(r"(a)\1\1")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 3
         assert isinstance(ast.parts[0], Group)
-        assert isinstance(ast.parts[1], Backref)
+        assert isinstance(ast.parts[1], BackReference)
         assert ast.parts[1].byIndex == 1
-        assert isinstance(ast.parts[2], Backref)
+        assert isinstance(ast.parts[2], BackReference)
         assert ast.parts[2].byIndex == 1
 
 
@@ -565,7 +565,7 @@ class TestCategoryIGroupsInAlternation:
         Tests capturing groups in alternation: (a)|(b)
         """
         _flags, ast = parse("(a)|(b)")
-        assert isinstance(ast, Alt)
+        assert isinstance(ast, Alternation)
         assert len(ast.branches) == 2
         assert isinstance(ast.branches[0], Group)
         assert ast.branches[0].capturing is True
@@ -577,11 +577,11 @@ class TestCategoryIGroupsInAlternation:
         Tests lookarounds in alternation: (?=a)|(?=b)
         """
         _flags, ast = parse("(?=a)|(?=b)")
-        assert isinstance(ast, Alt)
+        assert isinstance(ast, Alternation)
         assert len(ast.branches) == 2
-        assert isinstance(ast.branches[0], Look)
+        assert isinstance(ast.branches[0], Lookaround)
         assert ast.branches[0].dir == "Ahead"
-        assert isinstance(ast.branches[1], Look)
+        assert isinstance(ast.branches[1], Lookaround)
         assert ast.branches[1].dir == "Ahead"
 
     def test_mixed_group_types_in_alternation(self):
@@ -589,7 +589,7 @@ class TestCategoryIGroupsInAlternation:
         Tests mixed group types in alternation: (a)|(?:b)|(?<x>c)
         """
         _flags, ast = parse("(a)|(?:b)|(?<x>c)")
-        assert isinstance(ast, Alt)
+        assert isinstance(ast, Alternation)
         assert len(ast.branches) == 3
         assert isinstance(ast.branches[0], Group)
         assert ast.branches[0].capturing is True

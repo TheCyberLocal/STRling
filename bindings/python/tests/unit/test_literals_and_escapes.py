@@ -4,7 +4,7 @@ Test Design — test_literals_and_escapes.py
 ## Purpose
 This test suite validates the parser's handling of all literal characters and
 every form of escape sequence defined in the STRling DSL. It ensures that valid
-forms are correctly parsed into `Lit` AST nodes and that malformed or
+forms are correctly parsed into `Literal` AST nodes and that malformed or
 unsupported sequences raise the appropriate `ParseError`.
 
 ## Description
@@ -13,7 +13,7 @@ representing single, concrete characters. This module tests the parser's ability
 to distinguish between literal characters and special metacharacters, and to
 correctly interpret the full range of escape syntaxes (identity, control, hex,
 and Unicode). The expected behavior is for the parser to consume these tokens
-and produce a `nodes.Lit` object containing the corresponding character value.
+and produce a `nodes.Literal` object containing the corresponding character value.
 
 ## Scope
 -   **In scope:**
@@ -23,7 +23,7 @@ and produce a `nodes.Lit` object containing the corresponding character value.
 
     -   Error handling for malformed or unsupported escapes (like octal).
 
-    -   The shape of the resulting `Lit` AST node.
+    -   The shape of the resulting `Literal` AST node.
 
 -   **Out of scope:**
     -   How literals are quantified (covered in `test_quantifiers.py`).
@@ -37,7 +37,7 @@ and produce a `nodes.Lit` object containing the corresponding character value.
 import pytest
 
 from STRling.core.parser import parse, ParseError
-from STRling.core.nodes import Lit, Seq, Backref, Node, Quant, Alt, Group
+from STRling.core.nodes import Literal, Sequence, BackReference, Node, Quantifier, Alternation, Group
 
 # --- Test Suite -----------------------------------------------------------------
 
@@ -51,31 +51,31 @@ class TestCategoryAPositiveCases:
         "input_dsl, expected_ast",
         [
             # A.1: Plain Literals
-            ("a", Lit("a")),
-            ("_", Lit("_")),
+            ("a", Literal("a")),
+            ("_", Literal("_")),
             # A.2: Identity Escapes
-            (r"\.", Lit(".")),
-            (r"\(", Lit("(")),
-            (r"\*", Lit("*")),
-            (r"\\\\", Lit("\\\\")),
+            (r"\.", Literal(".")),
+            (r"\(", Literal("(")),
+            (r"\*", Literal("*")),
+            (r"\\\\", Literal("\\\\")),
             # A.3: Control & Whitespace Escapes
-            (r"\n", Lit("\n")),
-            (r"\t", Lit("\t")),
-            (r"\r", Lit("\r")),
-            (r"\f", Lit("\f")),
-            (r"\v", Lit("\v")),
+            (r"\n", Literal("\n")),
+            (r"\t", Literal("\t")),
+            (r"\r", Literal("\r")),
+            (r"\f", Literal("\f")),
+            (r"\v", Literal("\v")),
             # A.4: Hexadecimal Escapes
-            (r"\x41", Lit("A")),
-            (r"\x4a", Lit("J")),
-            (r"\x{41}", Lit("A")),
-            (r"\x{1F600}", Lit("😀")),
+            (r"\x41", Literal("A")),
+            (r"\x4a", Literal("J")),
+            (r"\x{41}", Literal("A")),
+            (r"\x{1F600}", Literal("😀")),
             # A.5: Unicode Escapes
-            (r"\u0041", Lit("A")),
-            (r"\u{41}", Lit("A")),
-            (r"\u{1f600}", Lit("😀")),
-            (r"\U0001F600", Lit("😀")),
+            (r"\u0041", Literal("A")),
+            (r"\u{41}", Literal("A")),
+            (r"\u{1f600}", Literal("😀")),
+            (r"\U0001F600", Literal("😀")),
             # A.6: Null Byte Escape
-            (r"\0", Lit("\x00")),
+            (r"\0", Literal("\x00")),
         ],
         ids=[
             "plain_literal_letter",
@@ -105,7 +105,7 @@ class TestCategoryAPositiveCases:
     ):
         """
         Tests that a valid literal or escape sequence is parsed into the correct
-        Lit AST node.
+        Literal AST node.
         """
         _flags, ast = parse(input_dsl)
         assert ast == expected_ast
@@ -187,7 +187,7 @@ class TestCategoryCEdgeCases:
     def test_edge_case_escapes(self, input_dsl: str, expected_char: str):
         """Tests unusual but valid escape sequences."""
         _flags, ast = parse(input_dsl)
-        assert ast == Lit(expected_char)
+        assert ast == Literal(expected_char)
 
     def test_escaped_null_byte(self):
         """
@@ -195,7 +195,7 @@ class TestCategoryCEdgeCases:
         a null byte.
         """
         _flags, ast = parse(r"\\\\0")
-        assert ast == Seq(parts=[Lit("\\\\"), Lit("0")])
+        assert ast == Sequence(parts=[Literal("\\\\"), Literal("0")])
 
 
 class TestCategoryDInteractionCases:
@@ -206,11 +206,11 @@ class TestCategoryDInteractionCases:
     def test_free_spacing_ignores_whitespace_between_literals(self):
         """
         Tests that in free-spacing mode, whitespace between literals is
-        ignored, resulting in a sequence of Lit nodes.
+        ignored, resulting in a sequence of Literal nodes.
 
         """
         _flags, ast = parse("%flags x\n a b #comment\n c")
-        assert ast == Seq(parts=[Lit("a"), Lit("b"), Lit("c")])
+        assert ast == Sequence(parts=[Literal("a"), Literal("b"), Literal("c")])
 
     def test_free_spacing_respects_escaped_whitespace(self):
         """
@@ -218,7 +218,7 @@ class TestCategoryDInteractionCases:
         literal space character.
         """
         _flags, ast = parse("%flags x\n a \\ b ")
-        assert ast == Seq(parts=[Lit("a"), Lit(" "), Lit("b")])
+        assert ast == Sequence(parts=[Literal("a"), Literal(" "), Literal("b")])
 
 
 # --- New Test Stubs for 3-Test Standard Compliance -----------------------------
@@ -232,11 +232,11 @@ class TestCategoryELiteralSequencesAndCoalescing:
     def test_multiple_plain_literals_in_sequence(self):
         """
         Tests sequence of plain literals: abc
-        Should parse as single Lit("abc") or Seq([Lit("a"), Lit("b"), Lit("c")]).
+        Should parse as single Literal("abc") or Sequence([Literal("a"), Literal("b"), Literal("c")]).
         Verify actual parser behavior.
         """
         _flags, ast = parse("abc")
-        assert isinstance(ast, Lit)
+        assert isinstance(ast, Literal)
         assert ast.value == "abc"
 
     def test_literals_with_escaped_metachar_sequence(self):
@@ -244,7 +244,7 @@ class TestCategoryELiteralSequencesAndCoalescing:
         Tests literals mixed with escaped metachars: a\\*b\\+c
         """
         _flags, ast = parse(r"a\*b\+c")
-        assert isinstance(ast, Lit)
+        assert isinstance(ast, Literal)
         assert ast.value == "a*b+c"
 
     def test_sequence_of_only_escapes(self):
@@ -252,12 +252,12 @@ class TestCategoryELiteralSequencesAndCoalescing:
         Tests sequence of only escape sequences: \\n\\t\\r
         """
         _flags, ast = parse(r"\n\t\r")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         # The parser coalesces some escapes, check for parts
         assert len(ast.parts) >= 1
-        # Verify all parts are Lit nodes containing the escape characters
+        # Verify all parts are Literal nodes containing the escape characters
         for part in ast.parts:
-            assert isinstance(part, Lit)
+            assert isinstance(part, Literal)
 
     def test_mixed_escape_types_in_sequence(self):
         """
@@ -265,12 +265,12 @@ class TestCategoryELiteralSequencesAndCoalescing:
         Hex, Unicode, and control escapes together.
         """
         _flags, ast = parse(r"\x41\u0042\n")
-        # The parser may coalesce these into Lit nodes
-        assert isinstance(ast, (Lit, Seq))
-        if isinstance(ast, Seq):
-            # Verify all parts are Lit nodes
+        # The parser may coalesce these into Literal nodes
+        assert isinstance(ast, (Literal, Sequence))
+        if isinstance(ast, Sequence):
+            # Verify all parts are Literal nodes
             for part in ast.parts:
-                assert isinstance(part, Lit)
+                assert isinstance(part, Literal)
 
 
 class TestCategoryFEscapeInteractions:
@@ -283,11 +283,11 @@ class TestCategoryFEscapeInteractions:
         Tests literal after control escape: \\na (newline followed by 'a')
         """
         _flags, ast = parse(r"\na")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 2
-        assert isinstance(ast.parts[0], Lit)
+        assert isinstance(ast.parts[0], Literal)
         assert ast.parts[0].value == "\n"
-        assert isinstance(ast.parts[1], Lit)
+        assert isinstance(ast.parts[1], Literal)
         assert ast.parts[1].value == "a"
 
     def test_literal_after_hex_escape(self):
@@ -295,7 +295,7 @@ class TestCategoryFEscapeInteractions:
         Tests literal after hex escape: \\x41b (A followed by 'b')
         """
         _flags, ast = parse(r"\x41b")
-        assert isinstance(ast, Lit)
+        assert isinstance(ast, Literal)
         assert ast.value == "Ab"
 
     def test_escape_after_escape(self):
@@ -304,18 +304,18 @@ class TestCategoryFEscapeInteractions:
         Already covered but confirming.
         """
         _flags, ast = parse(r"\n\t")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) >= 1
-        # Verify all parts are Lit nodes
+        # Verify all parts are Literal nodes
         for part in ast.parts:
-            assert isinstance(part, Lit)
+            assert isinstance(part, Literal)
 
     def test_identity_escape_after_literal(self):
         """
         Tests identity escape after literal: a\\* ('a' followed by '*')
         """
         _flags, ast = parse(r"a\*")
-        assert isinstance(ast, Lit)
+        assert isinstance(ast, Literal)
         assert ast.value == "a*"
 
 
@@ -331,7 +331,7 @@ class TestCategoryGBackslashEscapeCombinations:
         Already covered but confirming.
         """
         _flags, ast = parse(r"\\")
-        assert isinstance(ast, Lit)
+        assert isinstance(ast, Literal)
         assert ast.value == "\\"
 
     def test_quadruple_backslash(self):
@@ -340,7 +340,7 @@ class TestCategoryGBackslashEscapeCombinations:
         Should parse as two backslash characters.
         """
         _flags, ast = parse(r"\\\\")
-        assert isinstance(ast, Lit)
+        assert isinstance(ast, Literal)
         assert ast.value == "\\\\"
 
     def test_backslash_before_literal(self):
@@ -349,7 +349,7 @@ class TestCategoryGBackslashEscapeCombinations:
         Should parse as backslash followed by 'a'.
         """
         _flags, ast = parse(r"\\a")
-        assert isinstance(ast, Lit)
+        assert isinstance(ast, Literal)
         assert ast.value == "\\a"
 
 
@@ -363,7 +363,7 @@ class TestCategoryHEscapeEdgeCasesExpanded:
         Tests minimum hex value: \\x00
         """
         _flags, ast = parse(r"\x00")
-        assert isinstance(ast, Lit)
+        assert isinstance(ast, Literal)
         assert ast.value == "\x00"
 
     def test_hex_escape_max_value(self):
@@ -371,7 +371,7 @@ class TestCategoryHEscapeEdgeCasesExpanded:
         Tests maximum single-byte hex value: \\xFF
         """
         _flags, ast = parse(r"\xFF")
-        assert isinstance(ast, Lit)
+        assert isinstance(ast, Literal)
         assert ast.value == "\xFF"
 
     def test_unicode_escape_bmp_boundary(self):
@@ -379,7 +379,7 @@ class TestCategoryHEscapeEdgeCasesExpanded:
         Tests Unicode at BMP boundary: \\uFFFF
         """
         _flags, ast = parse(r"\uFFFF")
-        assert isinstance(ast, Lit)
+        assert isinstance(ast, Literal)
         assert ast.value == "\uFFFF"
 
     def test_unicode_escape_supplementary_plane(self):
@@ -388,7 +388,7 @@ class TestCategoryHEscapeEdgeCasesExpanded:
         First character outside BMP.
         """
         _flags, ast = parse(r"\U00010000")
-        assert isinstance(ast, Lit)
+        assert isinstance(ast, Literal)
         assert ast.value == "\U00010000"
 
 
@@ -411,12 +411,12 @@ class TestCategoryIOctalAndBackrefDisambiguation:
         Tests (a)\\12: should be backref \\1 followed by literal '2'.
         """
         _flags, ast = parse(r"(a)\12")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 3
         assert isinstance(ast.parts[0], Group)
-        assert isinstance(ast.parts[1], Backref)
+        assert isinstance(ast.parts[1], BackReference)
         assert ast.parts[1].byIndex == 1
-        assert isinstance(ast.parts[2], Lit)
+        assert isinstance(ast.parts[2], Literal)
         assert ast.parts[2].value == "2"
 
     def test_three_digit_sequence_behavior(self):
@@ -438,25 +438,25 @@ class TestCategoryJLiteralsInComplexContexts:
         Tests literal between quantified atoms: a*Xb+
         """
         _flags, ast = parse("a*Xb+")
-        assert isinstance(ast, Seq)
+        assert isinstance(ast, Sequence)
         assert len(ast.parts) == 3
-        assert isinstance(ast.parts[0], Quant)
-        assert isinstance(ast.parts[1], Lit)
+        assert isinstance(ast.parts[0], Quantifier)
+        assert isinstance(ast.parts[1], Literal)
         assert ast.parts[1].value == "X"
-        assert isinstance(ast.parts[2], Quant)
+        assert isinstance(ast.parts[2], Quantifier)
 
     def test_literal_in_alternation(self):
         """
         Tests literal in alternation: a|b|c
         """
         _flags, ast = parse("a|b|c")
-        assert isinstance(ast, Alt)
+        assert isinstance(ast, Alternation)
         assert len(ast.branches) == 3
-        assert isinstance(ast.branches[0], Lit)
+        assert isinstance(ast.branches[0], Literal)
         assert ast.branches[0].value == "a"
-        assert isinstance(ast.branches[1], Lit)
+        assert isinstance(ast.branches[1], Literal)
         assert ast.branches[1].value == "b"
-        assert isinstance(ast.branches[2], Lit)
+        assert isinstance(ast.branches[2], Literal)
         assert ast.branches[2].value == "c"
 
     def test_escaped_literal_in_group(self):
@@ -466,5 +466,5 @@ class TestCategoryJLiteralsInComplexContexts:
         _flags, ast = parse(r"(\*)")
         assert isinstance(ast, Group)
         assert ast.capturing is True
-        assert isinstance(ast.body, Lit)
+        assert isinstance(ast.body, Literal)
         assert ast.body.value == "*"

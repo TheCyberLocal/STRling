@@ -140,7 +140,7 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
         start_char = start
         end_char = end
 
-    node = nodes.CharClass(False, [nodes.ClassRange(start_char, end_char)])
+    node = nodes.CharacterClass(False, [nodes.ClassRange(start_char, end_char)])
     p = Pattern(node, custom_set=True)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -270,7 +270,7 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
         start_char = start
         end_char = end
 
-    node = nodes.CharClass(True, [nodes.ClassRange(start_char, end_char)])
+    node = nodes.CharacterClass(True, [nodes.ClassRange(start_char, end_char)])
     p = Pattern(node, custom_set=True, negated=True)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -367,7 +367,7 @@ def in_chars(*patterns):
         # Extract items from pattern's node
         if hasattr(pattern.node, 'items'):
             items.extend(pattern.node.items)
-        elif isinstance(pattern.node, nodes.Lit):
+        elif isinstance(pattern.node, nodes.Literal):
             for char in pattern.node.value:
                 items.append(nodes.ClassLiteral(char))
         else:
@@ -376,7 +376,7 @@ def in_chars(*patterns):
             for char in pattern_str:
                 items.append(nodes.ClassLiteral(char))
 
-    node = nodes.CharClass(False, items)
+    node = nodes.CharacterClass(False, items)
     return Pattern(node, custom_set=True)
 
 
@@ -468,7 +468,7 @@ def not_in_chars(*patterns):
         # Extract items from pattern's node
         if hasattr(pattern.node, 'items'):
             items.extend(pattern.node.items)
-        elif isinstance(pattern.node, nodes.Lit):
+        elif isinstance(pattern.node, nodes.Literal):
             for char in pattern.node.value:
                 items.append(nodes.ClassLiteral(char))
         else:
@@ -477,5 +477,5 @@ def not_in_chars(*patterns):
             for char in pattern_str:
                 items.append(nodes.ClassLiteral(char))
 
-    node = nodes.CharClass(True, items)
+    node = nodes.CharacterClass(True, items)
     return Pattern(node, custom_set=True, negated=True)

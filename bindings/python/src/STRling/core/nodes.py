@@ -27,10 +27,11 @@ from typing import List, Optional, Union, Dict, Any
 class Flags:
     """
     Container for regex flags/modifiers.
-    
+
     Flags control the behavior of pattern matching (case sensitivity, multiline
     mode, etc.). This class encapsulates all standard regex flags.
     """
+
     ignoreCase: bool = False
     multiline: bool = False
     dotAll: bool = False
@@ -76,7 +77,7 @@ class Node:
 
 # ---- Concrete nodes matching Base Schema ----
 @dataclass
-class Alt(Node):
+class Alternation(Node):
     branches: List[Node]
 
     def to_dict(self) -> Dict[str, Any]:
@@ -84,7 +85,7 @@ class Alt(Node):
 
 
 @dataclass
-class Seq(Node):
+class Sequence(Node):
     parts: List[Node]
 
     def to_dict(self) -> Dict[str, Any]:
@@ -92,7 +93,7 @@ class Seq(Node):
 
 
 @dataclass
-class Lit(Node):
+class Literal(Node):
     value: str
 
     def to_dict(self) -> Dict[str, Any]:
@@ -150,7 +151,7 @@ class ClassEscape(ClassItem):
 
 
 @dataclass
-class CharClass(Node):
+class CharacterClass(Node):
     negated: bool
     items: List[ClassItem]
 
@@ -163,7 +164,7 @@ class CharClass(Node):
 
 
 @dataclass
-class Quant(Node):
+class Quantifier(Node):
     child: Node
     min: int
     max: Union[int, str]  # "Inf" for unbounded
@@ -200,7 +201,7 @@ class Group(Node):
 
 
 @dataclass
-class Backref(Node):
+class BackReference(Node):
     byIndex: Optional[int] = None
     byName: Optional[str] = None
 
@@ -214,7 +215,7 @@ class Backref(Node):
 
 
 @dataclass
-class Look(Node):
+class Lookaround(Node):
     dir: str  # "Ahead" | "Behind"
     neg: bool
     body: Node

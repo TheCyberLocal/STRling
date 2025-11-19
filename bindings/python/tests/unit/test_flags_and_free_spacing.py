@@ -43,9 +43,9 @@ from typing import List
 from STRling.core.parser import parse, ParseError
 from STRling.core.nodes import (
     Flags,
-    Seq,
-    Lit,
-    CharClass,
+    Sequence,
+    Literal,
+    CharacterClass,
     ClassItem,
     ClassLiteral,
 )
@@ -96,9 +96,9 @@ class TestCategoryAPositiveCases:
     @pytest.mark.parametrize(
         "input_dsl, expected_ast",
         [
-            ("%flags x\na b c", Seq([Lit("a"), Lit("b"), Lit("c")])),
-            ("%flags x\na # comment\n b", Seq([Lit("a"), Lit("b")])),
-            ("%flags x\na\\ b", Seq([Lit("a"), Lit(" "), Lit("b")])),
+            ("%flags x\na b c", Sequence([Literal("a"), Literal("b"), Literal("c")])),
+            ("%flags x\na # comment\n b", Sequence([Literal("a"), Literal("b")])),
+            ("%flags x\na\\ b", Sequence([Literal("a"), Literal(" "), Literal("b")])),
         ],
         ids=[
             "whitespace_is_ignored",
@@ -106,7 +106,7 @@ class TestCategoryAPositiveCases:
             "escaped_whitespace_is_literal",
         ],
     )
-    def test_free_spacing_mode_behavior(self, input_dsl: str, expected_ast: Seq):
+    def test_free_spacing_mode_behavior(self, input_dsl: str, expected_ast: Sequence):
         """
         Tests that the parser correctly handles whitespace and comments when the
         'x' flag is active.
@@ -167,7 +167,7 @@ class TestCategoryCEdgeCases:
         in an empty AST.
         """
         _flags, ast = parse("%flags x\n# comment\n  \n# another")
-        assert ast == Seq(parts=[])
+        assert ast == Sequence(parts=[])
 
 
 class TestCategoryDInteractionCases:
@@ -198,5 +198,5 @@ class TestCategoryDInteractionCases:
 
         """
         _flags, ast = parse(input_dsl)
-        assert isinstance(ast, CharClass)
+        assert isinstance(ast, CharacterClass)
         assert ast.items == expected_items
