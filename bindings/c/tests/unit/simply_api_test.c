@@ -31,7 +31,7 @@
 // --- Test Infrastructure ----------------------------------------------------
 
 static void verify_compile(const char *json_input, const char *expected_pcre) {
-    strling_result_t result = strling_compile(json_input, NULL);
+    strling_result_t result = strling_compile_compat(json_input, NULL);
     
     if (result.error_code != STRling_OK) {
         printf("FAIL: Compilation error: %s\nInput: %s\n", result.error_message, json_input);
@@ -45,11 +45,11 @@ static void verify_compile(const char *json_input, const char *expected_pcre) {
     }
     assert_string_equal(result.pcre2_pattern, expected_pcre);
     
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 static void verify_error(const char *json_input, const char *expected_error_part) {
-    strling_result_t result = strling_compile(json_input, NULL);
+    strling_result_t result = strling_compile_compat(json_input, NULL);
     
     assert_int_not_equal(result.error_code, STRling_OK);
     assert_non_null(result.error_message);
@@ -59,7 +59,7 @@ static void verify_error(const char *json_input, const char *expected_error_part
     }
     assert_non_null(strstr(result.error_message, expected_error_part));
     
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 // --- Category A: Sets (12 Tests) --------------------------------------------

@@ -48,7 +48,7 @@ static void run_test_batch(void **state, const TestCase *cases, size_t count) {
     (void)state;
     
     for (size_t i = 0; i < count; i++) {
-        strling_result_t result = strling_compile(cases[i].json_input, NULL);
+        strling_result_t result = strling_compile_compat(cases[i].json_input, NULL);
         
         if (result.error_code != STRling_OK) {
             printf("FAIL [%s]: Compilation error: %s\n", cases[i].id, result.error_message);
@@ -62,7 +62,7 @@ static void run_test_batch(void **state, const TestCase *cases, size_t count) {
         }
         assert_string_equal(result.pcre2_pattern, cases[i].expected_pcre);
         
-        strling_result_free(&result);
+        strling_result_free_compat(&result);
     }
 }
 

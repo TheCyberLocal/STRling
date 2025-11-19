@@ -39,7 +39,7 @@
 static void verify_error_with_hint(const char *json_input, 
                                    const char *expected_msg_part, 
                                    const char *expected_hint_part) {
-    strling_result_t result = strling_compile(json_input, NULL);
+    strling_result_t result = strling_compile_compat(json_input, NULL);
 
     // 1. Assert Failure
     if (result.error_code == STRling_OK) {
@@ -68,21 +68,21 @@ static void verify_error_with_hint(const char *json_input,
     }
     assert_non_null(strstr(result.error_message, expected_hint_part));
 
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 /**
  * @brief Asserts that compilation succeeds.
  */
 static void verify_success(const char *json_input) {
-    strling_result_t result = strling_compile(json_input, NULL);
+    strling_result_t result = strling_compile_compat(json_input, NULL);
     
     if (result.error_code != STRling_OK) {
         printf("FAIL: Unexpected compilation error.\nMessage: %s\n", result.error_message);
     }
     assert_int_equal(result.error_code, STRling_OK);
     
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 // --- Group 1: Group Name Validation (3 Tests) -------------------------------

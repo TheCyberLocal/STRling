@@ -38,7 +38,7 @@ static void run_test_batch(void **state, const TestCase *cases, size_t count) {
     (void)state;
     
     for (size_t i = 0; i < count; i++) {
-        strling_result_t result = strling_compile(cases[i].json_input, NULL);
+        strling_result_t result = strling_compile_compat(cases[i].json_input, NULL);
         
         if (result.error_code != STRling_OK) {
             printf("FAIL [%s]: Compilation error: %s\n", cases[i].id, result.error_message);
@@ -52,7 +52,7 @@ static void run_test_batch(void **state, const TestCase *cases, size_t count) {
         }
         assert_string_equal(result.pcre2_pattern, cases[i].expected_pcre);
         
-        strling_result_free(&result);
+        strling_result_free_compat(&result);
     }
 }
 
@@ -63,7 +63,7 @@ static void test_helper_literals(void **state) {
     const TestCase cases[] = {
         // _escapeLiteral(".") -> \.
         {"helper_lit_dot", "{\"type\": \"Literal\", \"value\": \".\"}", "\\."},
-        // _escapeLiteral("\") -> \\
+        // _escapeLiteral("\\") -> \\\\.
         {"helper_lit_backslash", "{\"type\": \"Literal\", \"value\": \"\\\\\"}", "\\\\"},
         // _escapeLiteral("[") -> \[
         {"helper_lit_lbracket", "{\"type\": \"Literal\", \"value\": \"[\"}", "\\["},
@@ -113,7 +113,7 @@ static void test_helper_class_chars(void **state) {
 
 static void test_category_a_escaping(void **state) {
     const TestCase cases[] = {
-        // Literal metachars: .^$|()?*+{}[]\
+        // Literal metachars: .^$|()?*+{}[] (metachars)
         {"escape_literal_metachars", 
          "{\"type\": \"Literal\", \"value\": \".^$|()?*+{}[]\\\\\"}", 
          "\\.\\^\\$\\|\\(\\)\\?\\*\\+\\{\\}\\[\\]\\\\"},

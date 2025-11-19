@@ -31,7 +31,7 @@
 // --- Test Infrastructure ----------------------------------------------------
 
 static void verify_valid(const char *json_input) {
-    strling_result_t result = strling_compile(json_input, NULL);
+    strling_result_t result = strling_compile_compat(json_input, NULL);
     
     if (result.error_code != STRling_OK) {
         printf("FAIL: Expected valid schema but got error: %s\nInput: %s\n", 
@@ -40,11 +40,11 @@ static void verify_valid(const char *json_input) {
     assert_int_equal(result.error_code, STRling_OK);
     assert_non_null(result.pcre2_pattern);
     
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 static void verify_invalid(const char *json_input, const char *expected_error_part) {
-    strling_result_t result = strling_compile(json_input, NULL);
+    strling_result_t result = strling_compile_compat(json_input, NULL);
     
     if (result.error_code == STRling_OK) {
         printf("FAIL: Expected schema validation error but got success.\nInput: %s\nOutput: %s\n", 
@@ -63,7 +63,7 @@ static void verify_invalid(const char *json_input, const char *expected_error_pa
         assert_non_null(strstr(result.error_message, expected_error_part));
     }
     
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 // --- Category A: Valid Schemas (3 Tests) ------------------------------------

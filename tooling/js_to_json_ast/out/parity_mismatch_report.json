@@ -1,0 +1,60 @@
+{
+  "mismatches": [
+    {
+      "file": "_debug_null.json",
+      "js": null,
+      "c": {
+        "pattern": "\\",
+        "error": null
+      },
+      "reason": "c_success_js_failure"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_60.json",
+      "js": "\u0000\n",
+      "c": {
+        "pattern": "\\\\n",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_145.json",
+      "js": "\n\t\r\n",
+      "c": {
+        "pattern": "\\n\\t\\r\\n",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_149.json",
+      "js": "\n\t\n",
+      "c": {
+        "pattern": "\\n\\t\\n",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_154.json",
+      "js": "\u0000\n",
+      "c": {
+        "pattern": "\\\\n",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_157.json",
+      "js": "𐀀\n",
+      "c": {
+        "pattern": "\\x{10000}\\n",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    }
+  ],
+  "total": 128,
+  "failed": 6
+}

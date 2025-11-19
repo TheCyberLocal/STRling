@@ -1,0 +1,42 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Group",
+          "capturing": true,
+          "body": {
+            "type": "Quantifier",
+            "target": {
+              "type": "Literal",
+              "value": "a"
+            },
+            "min": 0,
+            "max": null,
+            "lazy": false,
+            "possessive": false
+          },
+          "name": null,
+          "atomic": false
+        },
+        "min": 1,
+        "max": null,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  }
+}

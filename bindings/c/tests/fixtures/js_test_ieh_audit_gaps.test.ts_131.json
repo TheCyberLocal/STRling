@@ -1,0 +1,26 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Literal",
+        "value": "b"
+      },
+      {
+        "type": "Literal",
+        "value": "c"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": true,
+    "multiline": true,
+    "dotAll": true,
+    "unicode": true,
+    "extended": true
+  }
+}

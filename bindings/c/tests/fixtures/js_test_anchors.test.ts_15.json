@@ -1,0 +1,36 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "kind": "Esc",
+            "type": "d"
+          }
+        ]
+      },
+      {
+        "type": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  }
+}

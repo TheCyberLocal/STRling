@@ -1,0 +1,37 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": false,
+        "body": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Anchor",
+              "at": "Start"
+            },
+            {
+              "type": "Literal",
+              "value": "a"
+            }
+          ]
+        },
+        "name": null,
+        "atomic": true
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  }
+}

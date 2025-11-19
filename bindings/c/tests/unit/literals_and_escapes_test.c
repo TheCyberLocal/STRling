@@ -10,6 +10,7 @@
 #include <string.h>
 #include <cmocka.h>
 #include "strling.h"
+#include "../test_helpers.h"
 
 /* Helper to run a test case */
 static void test_compile(const char* json, const char* expected_pattern) {
@@ -29,7 +30,7 @@ static void test_compile(const char* json, const char* expected_pattern) {
     assert_string_equal(result->pattern, expected_pattern);
     
     /* Cleanup */
-    strling_result_free(result);
+    strling_result_free_ptr(result);
 }
 
 /**
@@ -55,6 +56,13 @@ static void test_basic_literals(void** state) {
         "{\"pattern\": {\"type\": \"Literal\", \"value\": \"abc123\"}}",
         "abc123"
     );
+}
+
+/* New test using generated JSON fixture and helper to assert equality */
+static void test_basic_literal_with_fixture(void** state) {
+    (void)state;
+    /* This fixture was generated from the JS tests (simple.pattern): */
+    assert_compile_equals_from_json("bindings/c/tests/fixtures/simple.json", "(?u)a\\n");
 }
 
 /**
@@ -486,6 +494,7 @@ int main(void) {
         {"test_special_combinations", test_special_combinations, NULL, NULL, NULL},
         {"test_non_ascii", test_non_ascii, NULL, NULL, NULL},
         {"test_additional_metachars", test_additional_metachars, NULL, NULL, NULL},
+            {"test_basic_literal_with_fixture", test_basic_literal_with_fixture, NULL, NULL, NULL},
     };
     
     return cmocka_run_group_tests(tests, NULL, NULL);

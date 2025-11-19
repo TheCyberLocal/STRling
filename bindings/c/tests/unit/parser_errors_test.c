@@ -34,7 +34,7 @@
 // --- Test Infrastructure ----------------------------------------------------
 
 static void verify_error_content(const char *json_input, const char *expected_substring) {
-    strling_result_t result = strling_compile(json_input, NULL);
+    strling_result_t result = strling_compile_compat(json_input, NULL);
 
     if (result.error_code == STRling_OK) {
         printf("FAIL: Expected error but got success.\nInput: %s\nOutput: %s\n", 
@@ -51,7 +51,7 @@ static void verify_error_content(const char *json_input, const char *expected_su
     }
     assert_non_null(strstr(result.error_message, expected_substring));
 
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 // --- Group 1: Rich Error Formatting (4 Tests) -------------------------------
@@ -220,30 +220,30 @@ static void test_complex_position_accuracy(void **state) {
 static void test_compat_message_attr(void **state) {
     (void)state;
     // JS: Check message existence
-    strling_result_t result = strling_compile("{invalid}", NULL);
+    strling_result_t result = strling_compile_compat("{invalid}", NULL);
     assert_non_null(result.error_message);
     assert_true(strlen(result.error_message) > 0);
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 static void test_compat_pos_attr(void **state) {
     (void)state;
     // JS: Check pos attribute
     // C: Check error_code is not OK (proxy for status)
-    strling_result_t result = strling_compile("{invalid}", NULL);
+    strling_result_t result = strling_compile_compat("{invalid}", NULL);
     assert_int_not_equal(result.error_code, STRling_OK);
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 static void test_compat_string_output(void **state) {
     (void)state;
     // JS: Check toString() formatting
     // C: Check message is printable string
-    strling_result_t result = strling_compile("{invalid}", NULL);
+    strling_result_t result = strling_compile_compat("{invalid}", NULL);
     assert_non_null(result.error_message);
     // Ensure it contains text
     assert_true(strlen(result.error_message) > 5); 
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 int main(void) {

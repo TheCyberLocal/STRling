@@ -33,7 +33,7 @@
  * @brief Asserts that compilation fails and the error message contains a substring.
  */
 static void verify_error_contains(const char *json_input, const char *expected_substring) {
-    strling_result_t result = strling_compile(json_input, NULL);
+    strling_result_t result = strling_compile_compat(json_input, NULL);
 
     // 1. Assert Failure
     if (result.error_code == STRling_OK) {
@@ -56,7 +56,7 @@ static void verify_error_contains(const char *json_input, const char *expected_s
     assert_non_null(strstr(result.error_message, expected_substring));
 
     // 4. Cleanup
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 // --- Group 1: STRlingParseError Structure (Adapted) -------------------------
@@ -69,7 +69,7 @@ static void verify_error_contains(const char *json_input, const char *expected_s
 static void test_simple_error_structure(void **state) {
     (void)state;
     // Passing NULL as input should immediately trigger a generic error.
-    strling_result_t result = strling_compile(NULL, NULL);
+    strling_result_t result = strling_compile_compat(NULL, NULL);
     
     assert_int_not_equal(result.error_code, STRling_OK);
     assert_non_null(result.error_message);
@@ -78,7 +78,7 @@ static void test_simple_error_structure(void **state) {
     // Note: Exact string depends on implementation, checking for non-empty.
     assert_true(strlen(result.error_message) > 0);
 
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 /**
@@ -126,13 +126,13 @@ static void test_error_string_consistency(void **state) {
     (void)state;
     const char *input = "{invalid}";
     
-    strling_result_t res1 = strling_compile(input, NULL);
-    strling_result_t res2 = strling_compile(input, NULL);
+    strling_result_t res1 = strling_compile_compat(input, NULL);
+    strling_result_t res2 = strling_compile_compat(input, NULL);
     
     assert_string_equal(res1.error_message, res2.error_message);
     
-    strling_result_free(&res1);
-    strling_result_free(&res2);
+    strling_result_free_compat(&res1);
+    strling_result_free_compat(&res2);
 }
 
 // --- Group 2: HintEngine (Adapted to Validation Details) --------------------

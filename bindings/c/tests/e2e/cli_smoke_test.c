@@ -45,19 +45,19 @@ static void test_smoke_compile_valid(void **state) {
             "}"
         "}";
 
-    // 2. Call the real library API
-    STRlingResult* result = strling_compile(valid_ast_json, NULL);
+    // 2. Call the real library API (compatibility value API)
+    strling_result_t result = strling_compile_compat(valid_ast_json, NULL);
 
     // 3. Assertions
     // The operation must succeed (no error)
-    assert_null(result->error);
-    
+    assert_int_equal(result.error_code, STRling_OK);
+
     // The output pattern must match expected PCRE2
-    assert_non_null(result->pattern);
-    assert_string_equal(result->pattern, "hello");
+    assert_non_null(result.pcre2_pattern);
+    assert_string_equal(result.pcre2_pattern, "hello");
 
     // 4. Cleanup
-    strling_result_free(result);
+    strling_result_free_compat(&result);
 }
 
 /**
@@ -79,18 +79,18 @@ static void test_smoke_compile_invalid(void **state) {
             "}"
         "}";
 
-    // 2. Call the real library API
-    STRlingResult* result = strling_compile(invalid_ast_json, NULL);
+    // 2. Call the real library API (compatibility value API)
+    strling_result_t result = strling_compile_compat(invalid_ast_json, NULL);
 
     // 3. Assertions
     // The operation should return empty pattern for unknown nodes
-    assert_null(result->error);
-    assert_non_null(result->pattern);
+    assert_int_equal(result.error_code, STRling_OK);
+    assert_non_null(result.pcre2_pattern);
     // Unknown nodes return empty pattern
-    assert_string_equal(result->pattern, "");
+    assert_string_equal(result.pcre2_pattern, "");
 
     // 4. Cleanup
-    strling_result_free(result);
+    strling_result_free_compat(&result);
 }
 
 static const struct {

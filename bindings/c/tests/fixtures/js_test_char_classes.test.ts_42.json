@@ -1,0 +1,29 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "CharacterClass",
+        "negated": true,
+        "members": [
+          {
+            "kind": "Range",
+            "from": "a",
+            "to": "z"
+          }
+        ]
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  }
+}

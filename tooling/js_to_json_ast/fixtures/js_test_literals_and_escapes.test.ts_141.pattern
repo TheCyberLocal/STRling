@@ -1,0 +1,3 @@
+%flags x
+ a b #comment
+ c

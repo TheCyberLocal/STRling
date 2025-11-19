@@ -37,7 +37,7 @@
  * @brief Asserts that compilation fails and the error message contains the expected substring.
  */
 static void verify_error(const char *json_input, const char *expected_substring) {
-    strling_result_t result = strling_compile(json_input, NULL);
+    strling_result_t result = strling_compile_compat(json_input, NULL);
 
     // 1. Assert Failure
     if (result.error_code == STRling_OK) {
@@ -57,7 +57,7 @@ static void verify_error(const char *json_input, const char *expected_substring)
     assert_non_null(strstr(result.error_message, expected_substring));
 
     // 3. Cleanup
-    strling_result_free(&result);
+    strling_result_free_compat(&result);
 }
 
 // --- Group 1: Grouping & Lookaround Errors (5 Tests) ------------------------

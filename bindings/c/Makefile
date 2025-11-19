@@ -4,7 +4,8 @@ LDFLAGS := -ljansson
 SRCDIR := src
 COREDIR := $(SRCDIR)/core
 SRCS := $(SRCDIR)/strling.c \
-        $(COREDIR)/nodes.c \
+	$(SRCDIR)/compat.c \
+	$(COREDIR)/nodes.c \
         $(COREDIR)/ir.c \
         $(COREDIR)/errors.c
 OBJS := $(SRCS:.c=.o)
@@ -30,8 +31,9 @@ $(LIB): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Build individual test binaries
-$(TESTDIR)/%_test: $(TESTDIR)/%_test.c $(LIB)
-	$(CC) $(TEST_CFLAGS) $< -o $@ $(LIB) $(TEST_LDFLAGS)
+TEST_HELPERS := $(TESTDIR)/test_helpers.c
+$(TESTDIR)/%_test: $(TESTDIR)/%_test.c $(LIB) $(TEST_HELPERS)
+	$(CC) $(TEST_CFLAGS) $< $(TEST_HELPERS) -o $@ $(LIB) $(TEST_LDFLAGS)
 
 # Build all tests
 build-tests: $(TEST_BINS)

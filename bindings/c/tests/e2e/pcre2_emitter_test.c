@@ -38,7 +38,7 @@ static void run_test_batch(void **state, const TestCase *cases, size_t count) {
     (void)state;
     
     for (size_t i = 0; i < count; i++) {
-        strling_result_t result = strling_compile(cases[i].json_input, NULL);
+        strling_result_t result = strling_compile_compat(cases[i].json_input, NULL);
         
         // 1. Assert Compilation Success
         if (result.error_code != STRling_OK) {
@@ -55,7 +55,7 @@ static void run_test_batch(void **state, const TestCase *cases, size_t count) {
         assert_string_equal(result.pcre2_pattern, cases[i].expected_pcre);
         
         // 3. Cleanup
-        strling_result_free(&result);
+        strling_result_free_compat(&result);
     }
 }
 

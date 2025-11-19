@@ -1,10 +1,14 @@
-/* Main public API implementation for STRling C binding */
 #include "../include/strling.h"
+#undef strling_compile
+#undef strling_result_free
 #include "core/nodes.h"
 #include "core/errors.h"
 #include <stdlib.h>
 #include <string.h>
 #include <jansson.h>
+
+/* Forward declarations */
+static char* escape_literal_for_pcre2_len(const char* lit, size_t len);
 
 const char* strling_version(void) {
     return "0.1.0";
@@ -53,6 +57,7 @@ static STRlingResult* create_error_result(const char* message, int position, con
     return result;
 }
 
+/* escape_literal_for_pcre2_len - implementation defined later below */
 /* Helper to create success result */
 static STRlingResult* create_success_result(const char* pattern) {
     STRlingResult* result = (STRlingResult*)calloc(1, sizeof(STRlingResult));
@@ -66,9 +71,62 @@ static STRlingResult* create_success_result(const char* pattern) {
 
 /* Parse JSON and extract node type */
 static const char* get_node_type(json_t* node) {
+    /* Support both 'type' and 'kind' field names for AST nodes to accept
+       the JS artifact schema which uses 'kind' and older C JSON AST which
+       may use 'type'. */
     json_t* type = json_object_get(node, "type");
-    if (!type || !json_is_string(type)) return NULL;
-    return json_string_value(type);
+    if (type && json_is_string(type)) return json_string_value(type);
+    json_t* kind = json_object_get(node, "kind");
+    if (kind && json_is_string(kind)) return json_string_value(kind);
+    return NULL;
+}
+
+/* Escape literal string with known length (supports NUL bytes) */
+static char* escape_literal_for_pcre2_len(const char* lit, size_t len) {
+    if (!lit) return strdup("");
+    /* Allocate enough space for worst case: each byte could become \x{...} */
+    char* result = (char*)malloc(len * 12 + 1);
+    if (!result) return strdup("");
+    char* p = result;
+    for (size_t i = 0; i < len; ) {
+        unsigned char c = (unsigned char)lit[i];
+        if (c == '\n') { *p++='\\'; *p++='n'; i++; }
+        else if (c == '\r') { *p++='\\'; *p++='r'; i++; }
+        else if (c == '\t') { *p++='\\'; *p++='t'; i++; }
+        else if (c == '\f') { *p++='\\'; *p++='f'; i++; }
+        else if (c == 0x0B) { *p++='\\'; *p++='v'; i++; }
+        else if (c == ' ') { *p++='\\'; *p++=' '; i++; }
+        else if (c == '#') { *p++='\\'; *p++='#'; i++; }
+        else if (c == '~') { *p++='\\'; *p++='~'; i++; }
+        else if (c == '&') { *p++='\\'; *p++='&'; i++; }
+        else if (strchr(".^$*+?{}[]()\\|\"`", c)) { *p++='\\'; *p++ = c; i++; }
+        else if (c < 0x20 || (c >= 0x7F && c <= 0x9F)) { p += sprintf(p, "\\x{%x}", c); i++; }
+        else if (c >= 0x80) {
+            unsigned int codepoint = 0; int bytes = 0;
+            if ((c & 0xE0) == 0xC0) { codepoint = c & 0x1F; bytes = 2; }
+            else if ((c & 0xF0) == 0xE0) { codepoint = c & 0x0F; bytes = 3; }
+            else if ((c & 0xF8) == 0xF0) { codepoint = c & 0x07; bytes = 4; }
+            else { p += sprintf(p, "\\x%02x", c); i++; continue; }
+            i++;
+            for (int j = 1; j < bytes && i < len; j++, i++) {
+                unsigned char cont = (unsigned char)lit[i];
+                if ((cont & 0xC0) != 0x80) break;
+                codepoint = (codepoint << 6) | (cont & 0x3F);
+            }
+            p += sprintf(p, "\\x{%x}", codepoint);
+        } else { *p++ = c; i++; }
+    }
+    *p = '\0';
+    // DEBUG: print the escaped literal bytes to stderr for inspection
+    {
+        size_t hxLen = strlen(result);
+        fprintf(stderr, "DEBUG_EMIT(result) len=%zu str=\"%s\" HEX:", hxLen, result);
+        for (size_t hi = 0; hi < hxLen; hi++) {
+            fprintf(stderr, " %02x", (unsigned char)result[hi]);
+        }
+        fprintf(stderr, "\n");
+    }
+    return result;
 }
 
 /* Helper to escape a literal string for PCRE2 output */
@@ -202,9 +260,9 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
         json_t* value = json_object_get(node, "value");
         if (!value || !json_is_string(value)) return strdup("");
         const char* lit = json_string_value(value);
-        
-        /* Use the enhanced escape function */
-        return escape_literal_for_pcre2(lit);
+        size_t len = json_string_length(value);
+        /* Use the enhanced escape function with length (supports NUL and multi-byte chars) */
+        return escape_literal_for_pcre2_len(lit, len);
     }
     
     /* Handle Sequence */
@@ -248,9 +306,13 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
         if (strcmp(anchor_type, "Start") == 0) return strdup("^");
         if (strcmp(anchor_type, "End") == 0) return strdup("$");
         if (strcmp(anchor_type, "WordBoundary") == 0) return strdup("\\b");
+        /* Accept both C and JS naming for non-word boundary */
         if (strcmp(anchor_type, "NonWordBoundary") == 0) return strdup("\\B");
+        if (strcmp(anchor_type, "NotWordBoundary") == 0) return strdup("\\B");
         if (strcmp(anchor_type, "AbsoluteStart") == 0) return strdup("\\A");
+        /* Accept both canonical and JS name for end-before-final-newline */
         if (strcmp(anchor_type, "AbsoluteEnd") == 0) return strdup("\\Z");
+        if (strcmp(anchor_type, "EndBeforeFinalNewline") == 0) return strdup("\\Z");
         if (strcmp(anchor_type, "AbsoluteEndOnly") == 0) return strdup("\\z");
         return strdup("");
     }
@@ -445,8 +507,9 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
                 json_t* value_obj = json_object_get(member, "value");
                 if (value_obj && json_is_string(value_obj)) {
                     const char* value = json_string_value(value_obj);
-                    /* Ensure string is not empty before accessing [0] */
-                    if (value && value[0]) {
+                    size_t val_len = json_string_length(value_obj);
+                    /* Ensure string is not empty before accessing */
+                    if (value && val_len > 0) {
                         /* Emit as \value */
                         result[result_len++] = '\\';
                         result[result_len++] = value[0];
@@ -458,14 +521,78 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
                 json_t* value_obj = json_object_get(member, "value");
                 if (value_obj && json_is_string(value_obj)) {
                     const char* value = json_string_value(value_obj);
+                    size_t val_len = json_string_length(value_obj);
                     /* Ensure string is not empty before accessing [0] */
-                    if (value && value[0]) {
+                    if (value && val_len > 0) {
                         /* Special characters in character classes that need escaping */
-                        char c = value[0];
-                        if (c == ']' || c == '\\' || c == '^') {
-                            result[result_len++] = '\\';
+                        // Parse as UTF-8 and emit hex escapes for non-printable or multi-byte
+                        const unsigned char *s = (const unsigned char*)value;
+                        size_t i = 0;
+                        while (i < val_len) {
+                            unsigned char c = s[i];
+                            if (c < 0x20 || c > 0x7e || (s[i+1] != '\0')) {
+                                // Multi-byte or non-printable -> emit as \x{...}
+                                // Determine codepoint
+                                unsigned int codepoint = 0;
+                                size_t bytes = 0;
+                                if ((c & 0x80) == 0) {
+                                    codepoint = c;
+                                    bytes = 1;
+                                } else if ((c & 0xE0) == 0xC0) {
+                                    codepoint = c & 0x1F;
+                                    bytes = 2;
+                                } else if ((c & 0xF0) == 0xE0) {
+                                    codepoint = c & 0x0F;
+                                    bytes = 3;
+                                } else if ((c & 0xF8) == 0xF0) {
+                                    codepoint = c & 0x07;
+                                    bytes = 4;
+                                }
+                                // Read continuation bytes
+                                for (size_t j = 1; j < bytes; j++) {
+                                    unsigned char cont = s[i + j];
+                                    if ((cont & 0xC0) != 0x80) break;
+                                    codepoint = (codepoint << 6) | (cont & 0x3F);
+                                }
+                                // Emit as \x{hex}
+                                result[result_len++] = '\\';
+                                result[result_len++] = 'x';
+                                result[result_len++] = '{';
+                                // hex value
+                                char buf[16];
+                                snprintf(buf, sizeof(buf), "%x", codepoint);
+                                for (size_t k = 0; k < strlen(buf); k++) {
+                                    result[result_len++] = buf[k];
+                                }
+                                result[result_len++] = '}';
+                                i += bytes;
+                            } else {
+                                char ch = (char)c;
+                                if (ch == ']' || ch == '\\' || ch == '^' || ch == '-') {
+                                    result[result_len++] = '\\';
+                                }
+                                result[result_len++] = ch;
+                                i++;
+                            }
                         }
-                        result[result_len++] = c;
+                    }
+                }
+            }
+            /* Handle Escape shorthand inside character classes: \d, \w, \s
+               These are encoded as { "type": "Escape", "kind": "digit" } in the AST
+            */
+            else if (strcmp(member_type, "Escape") == 0) {
+                json_t* kind_obj = json_object_get(member, "kind");
+                if (kind_obj && json_is_string(kind_obj)) {
+                    const char* kind = json_string_value(kind_obj);
+                    if (kind && kind[0]) {
+                        char k = 'd';
+                        if (strcmp(kind, "digit") == 0) k = 'd';
+                        else if (strcmp(kind, "word") == 0) k = 'w';
+                        else if (strcmp(kind, "space") == 0) k = 's';
+                        else k = kind[0];
+                        result[result_len++] = '\\';
+                        result[result_len++] = k;
                     }
                 }
             }
@@ -713,19 +840,35 @@ STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags) 
     
     /* Parse JSON */
     json_error_t error;
-    json_t* root = json_loads(json_str, 0, &error);
+    json_t* root = json_loads(json_str, JSON_ALLOW_NUL, &error);
     if (!root) {
         char msg[256];
         snprintf(msg, sizeof(msg), "JSON parse error: %s", error.text);
         return create_error_result(msg, error.position, NULL);
     }
     
-    /* Check for STRling AST structure */
-    json_t* pattern_node = json_object_get(root, "pattern");
+    /* Check for STRling AST structure.
+       Accept either a bare AST node (root object contains a string "type" or "kind"),
+       the envelope form { "pattern": <AST node>, ... }, or the artifact form
+       { "root": <AST node>, "flags": {...} } used by parseToArtifact().
+    */
+    json_t* pattern_node = NULL;
+    /* If the root itself looks like an AST node (has a string "type" or "kind" field),
+       treat it as the pattern node. */
+    json_t* root_type = json_object_get(root, "type");
+    json_t* root_kind = json_object_get(root, "kind");
+    if (json_is_object(root) && ((root_type && json_is_string(root_type)) || (root_kind && json_is_string(root_kind)))) {
+        pattern_node = root;
+    } else {
+        /* Otherwise look for the envelope key or for the 'root' artifact property */
+        pattern_node = json_object_get(root, "pattern");
+        if (!pattern_node) pattern_node = json_object_get(root, "root");
+    }
+
     if (!pattern_node) {
         json_decref(root);
-        return create_error_result("Missing 'pattern' field in JSON", 0, 
-                                   "Expected JSON object with 'pattern' field containing AST");
+        return create_error_result("Missing 'pattern' field in JSON", 0,
+                                   "Expected JSON object with 'pattern' field containing AST or a bare AST node");
     }
     
     /* Compile the pattern */
@@ -754,13 +897,14 @@ STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags) 
     char flag_prefix[16] = "";
     int flag_count = 0;
     
-    if (local_flags.ignoreCase || local_flags.multiline || local_flags.dotAll || local_flags.extended) {
+    if (local_flags.ignoreCase || local_flags.multiline || local_flags.dotAll || local_flags.unicode || local_flags.extended) {
         flag_prefix[flag_count++] = '(';
         flag_prefix[flag_count++] = '?';
         
         if (local_flags.ignoreCase) flag_prefix[flag_count++] = 'i';
         if (local_flags.multiline) flag_prefix[flag_count++] = 'm';
         if (local_flags.dotAll) flag_prefix[flag_count++] = 's';
+        if (local_flags.unicode) flag_prefix[flag_count++] = 'u';
         if (local_flags.extended) flag_prefix[flag_count++] = 'x';
         
         flag_prefix[flag_count++] = ')';
@@ -786,7 +930,7 @@ STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags) 
     return result;
 }
 
-void strling_result_free(STRlingResult* result) {
+void strling_result_free_ptr(STRlingResult* result) {
     if (!result) return;
     free(result->pattern);
     strling_error_free(result->error);

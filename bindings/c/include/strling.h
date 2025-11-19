@@ -58,8 +58,42 @@ void strling_flags_free(STRlingFlags* flags);
  */
 STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags);
 
-/* Free a compilation result */
-void strling_result_free(STRlingResult* result);
+/* Free a compilation result (pointer-based API) */
+void strling_result_free_ptr(STRlingResult* result);
+
+/* ==================== Compatibility Layer (tests) ==================== */
+/*
+ * The test-suite expects a small, value-oriented API named `strling_compile`
+ * returning `strling_result_t` and helpers like `strling_result_free()` that
+ * operate on that value. The implementation in `src/strling.c` exposes a
+ * pointer-based API (`STRlingResult* strling_compile(...)`). To provide a
+ * seamless compatibility layer without changing tests, we expose a wrapper
+ * function and map the public `strling_compile` symbol to it via a macro.
+ *
+ * The wrapper is implemented in `src/compat.c` as `strling_compile_compat`.
+ */
+
+typedef struct {
+    int error_code;         /* 0 on success */
+    char* error_message;    /* NULL on success */
+    char* pcre2_pattern;    /* Compiled pattern (NULL on error) */
+    int error_position;     /* Position in input, if available */
+} strling_result_t;
+
+#define STRling_OK 0
+
+/* Compatibility wrapper prototype (implemented in src/compat.c) */
+strling_result_t strling_compile_compat(const char* json_str, const STRlingFlags* flags);
+
+/* Compatibility free (value-based). Implemented in src/compat.c. */
+void strling_result_free_compat(strling_result_t* result);
+
+/* Note: We deliberately DO NOT map `strling_compile` or `strling_result_free`
+ * to the compatibility layer via macros. Tests that want the value-based
+ * API should explicitly call `strling_compile_compat` and
+ * `strling_result_free_compat`. This avoids fragile global macro
+ * substitution and keeps the public API explicit and maintainable.
+ */
 
 #ifdef __cplusplus
 }
