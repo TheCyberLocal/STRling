@@ -1,0 +1,70 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "start"
+      },
+      {
+        "type": "Group",
+        "capturing": false,
+        "body": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "c"
+            }
+          ]
+        },
+        "expression": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "c"
+            }
+          ]
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "end"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "start(?:a|b|c)end\n"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Lookbehind",
+        "body": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Literal",
+              "value": "foo"
+            },
+            {
+              "type": "Literal",
+              "value": "bar"
+            }
+          ]
+        }
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?<=foo|bar)\n"
+  }
+}

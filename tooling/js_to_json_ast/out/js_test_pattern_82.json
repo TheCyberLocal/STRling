@@ -1,0 +1,69 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Literal",
+              "value": "foo"
+            },
+            {
+              "type": "Literal",
+              "value": "bar"
+            }
+          ]
+        },
+        "expression": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Literal",
+              "value": "foo"
+            },
+            {
+              "type": "Literal",
+              "value": "bar"
+            }
+          ]
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Lookbehind",
+          "body": {
+            "type": "Literal",
+            "value": "test"
+          }
+        },
+        "min": 0,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(foo|bar)(?:(?<=test))*\n"
+  }
+}

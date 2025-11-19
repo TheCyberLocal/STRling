@@ -1,0 +1,152 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "digit"
+              }
+            ]
+          },
+          "min": 3,
+          "max": 3,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "expression": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "digit"
+              }
+            ]
+          },
+          "min": 3,
+          "max": 3,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "name": "area",
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "-"
+      },
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "digit"
+              }
+            ]
+          },
+          "min": 3,
+          "max": 3,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "expression": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "digit"
+              }
+            ]
+          },
+          "min": 3,
+          "max": 3,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "name": "exchange",
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "-"
+      },
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "digit"
+              }
+            ]
+          },
+          "min": 4,
+          "max": 4,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "expression": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "digit"
+              }
+            ]
+          },
+          "min": 4,
+          "max": 4,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "name": "line",
+        "atomic": false
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?x)(?<area>\\d{3})-(?<exchange>\\d{3})-(?<line>\\d{4})"
+  }
+}

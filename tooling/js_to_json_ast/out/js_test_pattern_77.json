@@ -1,0 +1,131 @@
+{
+  "pattern": {
+    "type": "Group",
+    "capturing": false,
+    "body": {
+      "type": "Alternation",
+      "alternatives": [
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "f"
+            },
+            {
+              "type": "Literal",
+              "value": "o"
+            },
+            {
+              "type": "Literal",
+              "value": "o"
+            }
+          ]
+        },
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "r"
+            }
+          ]
+        },
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "z"
+            }
+          ]
+        }
+      ]
+    },
+    "expression": {
+      "type": "Alternation",
+      "alternatives": [
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "f"
+            },
+            {
+              "type": "Literal",
+              "value": "o"
+            },
+            {
+              "type": "Literal",
+              "value": "o"
+            }
+          ]
+        },
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "r"
+            }
+          ]
+        },
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "z"
+            }
+          ]
+        }
+      ]
+    },
+    "name": null,
+    "atomic": false
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?x)(?:foo|bar|baz)"
+  }
+}

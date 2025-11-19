@@ -1,0 +1,17 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": []
+  },
+  "flags": {
+    "ignoreCase": true,
+    "multiline": true,
+    "dotAll": true,
+    "unicode": true,
+    "extended": true
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?imsux)"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Lookbehind",
+        "body": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Anchor",
+              "at": "Start"
+            },
+            {
+              "type": "Literal",
+              "value": "foo"
+            }
+          ]
+        }
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Escape",
+              "kind": "word"
+            }
+          ]
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?<=^foo)\\w+\n"
+  }
+}

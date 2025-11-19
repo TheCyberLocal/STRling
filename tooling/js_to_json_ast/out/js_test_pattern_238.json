@@ -1,0 +1,36 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "expression": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "name": "name",
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?<name>a)\n"
+  }
+}

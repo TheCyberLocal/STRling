@@ -1,0 +1,43 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Range",
+            "from": "A",
+            "to": "Z"
+          },
+          {
+            "type": "Range",
+            "from": "a",
+            "to": "z"
+          },
+          {
+            "type": "Range",
+            "from": "0",
+            "to": "9"
+          }
+        ]
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "[A-Za-z0-9]\n"
+  }
+}

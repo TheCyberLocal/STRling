@@ -1,0 +1,66 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": false,
+        "body": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Range",
+                "from": "0",
+                "to": "9"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "expression": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Range",
+                "from": "0",
+                "to": "9"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?:[0-9]+)\n"
+  }
+}

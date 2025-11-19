@@ -1,0 +1,70 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "expression": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Backreference",
+              "index": 1,
+              "name": null
+            },
+            {
+              "type": "Literal",
+              "value": "b"
+            }
+          ]
+        },
+        "expression": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Backreference",
+              "index": 1,
+              "name": null
+            },
+            {
+              "type": "Literal",
+              "value": "b"
+            }
+          ]
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(a)(\\1|b)\n"
+  }
+}

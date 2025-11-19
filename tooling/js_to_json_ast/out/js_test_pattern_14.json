@@ -1,0 +1,52 @@
+{
+  "pattern": {
+    "type": "Alternation",
+    "alternatives": [
+      {
+        "type": "Sequence",
+        "parts": [
+          {
+            "type": "Literal",
+            "value": "f"
+          },
+          {
+            "type": "Literal",
+            "value": "o"
+          },
+          {
+            "type": "Literal",
+            "value": "o"
+          }
+        ]
+      },
+      {
+        "type": "Sequence",
+        "parts": [
+          {
+            "type": "Literal",
+            "value": "b"
+          },
+          {
+            "type": "Literal",
+            "value": "a"
+          },
+          {
+            "type": "Literal",
+            "value": "r"
+          }
+        ]
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?x)foo|bar"
+  }
+}

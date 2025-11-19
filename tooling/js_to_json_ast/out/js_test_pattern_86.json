@@ -1,0 +1,64 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Escape",
+              "kind": "word"
+            }
+          ]
+        },
+        "expression": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Escape",
+              "kind": "word"
+            }
+          ]
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Lookahead",
+          "body": {
+            "type": "Backreference",
+            "index": 1,
+            "name": null
+          }
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(\\w)(?:(?=\\1))+\n"
+  }
+}
