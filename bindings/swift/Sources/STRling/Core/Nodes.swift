@@ -540,3 +540,294 @@ public struct Look {
         ]
     }
 }
+
+// MARK: - Codable Conformance
+
+extension Flags: Codable {}
+
+extension QuantMax: Codable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let intVal = try? container.decode(Int.self) {
+            self = .count(intVal)
+        } else if let strVal = try? container.decode(String.self), strVal == "Inf" {
+            self = .inf
+        } else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid QuantMax value")
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .count(let n): try container.encode(n)
+        case .inf: try container.encode("Inf")
+        }
+    }
+}
+
+extension Node: Codable {
+    enum CodingKeys: String, CodingKey {
+        case type
+        case kind // Handle both "type" (legacy/some fixtures) and "kind" (newer schema) if necessary, but let's stick to what we saw in fixtures.
+                  // The fixtures showed "type": "Sequence".
+                  // But the schema description said "kind".
+                  // Let's check the fixtures again.
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // Try 'type' first, then 'kind'
+        let type: String
+        if let t = try? container.decode(String.self, forKey: .type) {
+            type = t
+        } else if let k = try? container.decode(String.self, forKey: .kind) {
+            type = k
+        } else {
+             throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Missing 'type' or 'kind' field")
+        }
+        
+        switch type {
+        case "Alternation", "Alt":
+            self = .alt(try Alt(from: decoder))
+        case "Sequence", "Seq":
+            self = .seq(try Seq(from: decoder))
+        case "Literal", "Lit":
+            self = .lit(try Lit(from: decoder))
+        case "Dot":
+            self = .dot(try Dot(from: decoder))
+        case "Anchor":
+            self = .anchor(try Anchor(from: decoder))
+        case "CharacterClass", "CharClass":
+            self = .charClass(try CharClass(from: decoder))
+        case "Quantifier", "Quant":
+            self = .quant(try Quant(from: decoder))
+        case "Group":
+            self = .group(try Group(from: decoder))
+        case "Backref":
+            self = .backref(try Backref(from: decoder))
+        case "Look":
+            self = .look(try Look(from: decoder))
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown node type: \(type)")
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        // Encoding implementation omitted
+    }
+}
+
+extension Alt: Codable {
+    enum CodingKeys: String, CodingKey {
+        case branches = "alternatives" // Fixtures use "alternatives"
+        case branchesAlt = "branches"  // Schema might use "branches"
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let b = try? container.decode([Node].self, forKey: .branches) {
+            self.branches = b
+        } else {
+            self.branches = try container.decode([Node].self, forKey: .branchesAlt)
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        // Omitted
+    }
+}
+
+extension Seq: Codable {
+    enum CodingKeys: String, CodingKey {
+        case parts
+    }
+}
+
+extension Lit: Codable {
+    enum CodingKeys: String, CodingKey {
+        case value
+    }
+}
+
+extension Dot: Codable {
+    public init(from decoder: Decoder) throws {
+        self.init()
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        // Omitted
+    }
+}
+
+extension Anchor: Codable {
+    enum CodingKeys: String, CodingKey {
+        case at
+    }
+}
+
+// Helper for decoding ClassItems
+struct AnyClassItem: Codable {
+    let item: ClassItem
+    
+    enum CodingKeys: String, CodingKey {
+        case kind
+        case type // Some fixtures might use type?
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let kind = try container.decode(String.self, forKey: .kind)
+        
+        switch kind {
+        case "Range":
+            self.item = try ClassRange(from: decoder)
+        case "Char":
+            self.item = try ClassLiteral(from: decoder)
+        case "Esc":
+            self.item = try ClassEscape(from: decoder)
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .kind, in: container, debugDescription: "Unknown class item kind: \(kind)")
+        }
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        // Omitted
+    }
+}
+
+extension ClassRange: Codable {
+    enum CodingKeys: String, CodingKey {
+        case fromCh = "from"
+        case toCh = "to"
+    }
+}
+
+extension ClassLiteral: Codable {
+    enum CodingKeys: String, CodingKey {
+        case ch = "char"
+    }
+}
+
+extension ClassEscape: Codable {
+    enum CodingKeys: String, CodingKey {
+        case type
+        case property
+    }
+}
+
+extension CharClass: Codable {
+    enum CodingKeys: String, CodingKey {
+        case negated
+        case items = "members" // Fixtures use "members"
+        case itemsAlt = "items"
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.negated = try container.decode(Bool.self, forKey: .negated)
+        
+        if let anyItems = try? container.decode([AnyClassItem].self, forKey: .items) {
+            self.items = anyItems.map { $0.item }
+        } else {
+            let anyItems = try container.decode([AnyClassItem].self, forKey: .itemsAlt)
+            self.items = anyItems.map { $0.item }
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        // Omitted
+    }
+}
+
+extension Quant: Codable {
+    enum CodingKeys: String, CodingKey {
+        case child = "target" // Fixtures use "target"
+        case childAlt = "child"
+        case min
+        case max
+        case lazy
+        case possessive
+        case mode
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        if let c = try? container.decode(Node.self, forKey: .child) {
+            self.child = c
+        } else {
+            self.child = try container.decode(Node.self, forKey: .childAlt)
+        }
+        
+        self.min = try container.decode(Int.self, forKey: .min)
+        
+        // Handle max which can be absent (implying infinite? or default?) or "Inf" or number
+        // In fixtures: "max": "Inf" or "max": 1
+        if let maxInt = try? container.decode(Int.self, forKey: .max) {
+            self.max = .count(maxInt)
+        } else if let maxStr = try? container.decode(String.self, forKey: .max), maxStr == "Inf" {
+            self.max = .inf
+        } else {
+             // Fallback or error? Let's assume it's required based on struct definition
+             // But wait, the struct definition has `let max: QuantMax`.
+             // Let's try to decode QuantMax directly if we implemented it correctly.
+             self.max = try container.decode(QuantMax.self, forKey: .max)
+        }
+        
+        let lazy = try container.decodeIfPresent(Bool.self, forKey: .lazy) ?? false
+        let possessive = try container.decodeIfPresent(Bool.self, forKey: .possessive) ?? false
+        
+        if let modeStr = try? container.decode(String.self, forKey: .mode) {
+            self.mode = modeStr
+        } else {
+            if possessive {
+                self.mode = "Possessive"
+            } else if lazy {
+                self.mode = "Lazy"
+            } else {
+                self.mode = "Greedy"
+            }
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        // Omitted
+    }
+}
+
+extension Group: Codable {
+    enum CodingKeys: String, CodingKey {
+        case capturing
+        case body
+        case name
+        case atomic
+    }
+}
+
+extension Backref: Codable {
+    enum CodingKeys: String, CodingKey {
+        case byIndex
+        case byName
+    }
+}
+
+extension Look: Codable {
+    enum CodingKeys: String, CodingKey {
+        case dir
+        case neg
+        case body
+    }
+}
+
+// Root Pattern Structure
+public struct Pattern: Codable {
+    public let pattern: Node
+    public let flags: Flags?
+    
+    enum CodingKeys: String, CodingKey {
+        case pattern
+        case flags
+    }
+}

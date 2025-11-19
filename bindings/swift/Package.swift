@@ -32,5 +32,12 @@ let package = Package(
             name: "STRlingE2ETests",
             dependencies: ["STRling"],
             path: "Tests/STRlingE2ETests"),
+        .testTarget(
+            name: "STRlingConformanceTests",
+            dependencies: ["STRling"],
+            path: "Tests/STRlingConformanceTests",
+            resources: [
+                .process("Resources")
+            ]),
     ]
 )

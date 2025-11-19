@@ -90,6 +90,8 @@ static char* escape_literal_for_pcre2_len(const char* lit, size_t len) {
     char* p = result;
     for (size_t i = 0; i < len; ) {
         unsigned char c = (unsigned char)lit[i];
+        /* Debug: print the input byte being processed */
+        fprintf(stderr, "DEBUG_ESC_BYTE idx=%zu val=%02x\n", i, c);
         if (c == '\n') { *p++='\\'; *p++='n'; i++; }
         else if (c == '\r') { *p++='\\'; *p++='r'; i++; }
         else if (c == '\t') { *p++='\\'; *p++='t'; i++; }
@@ -99,7 +101,26 @@ static char* escape_literal_for_pcre2_len(const char* lit, size_t len) {
         else if (c == '#') { *p++='\\'; *p++='#'; i++; }
         else if (c == '~') { *p++='\\'; *p++='~'; i++; }
         else if (c == '&') { *p++='\\'; *p++='&'; i++; }
-        else if (strchr(".^$*+?{}[]()\\|\"`", c)) { *p++='\\'; *p++ = c; i++; }
+        else if (c != 0 && strchr(".^$*+?{}[]()\\|\"`", c)) { *p++='\\'; *p++ = c; i++; }
+        /* Explicitly handle NUL (0x00) so we correctly emit `\x{0}` instead of
+         * dropping or producing an incorrect escape. This is particularly
+         * important because the caller may pass in literal strings that
+         * contain embedded NUL bytes and we depend on the caller-supplied
+         * `len` to iterate over them. Placing the NUL case first ensures
+         * it isn't affected by code paths that treat control characters
+         * differently. */
+        else if (c == 0x00) {
+            /* Emit NUL as explicit \x{0} sequence to avoid embedding a raw \0
+             * byte in the C string that might truncate subsequent output when
+             * printed with %s or otherwise used. Write the characters directly
+             * to avoid subtle sprintf issues. */
+            *p++ = '\\';
+            *p++ = 'x';
+            *p++ = '{';
+            *p++ = '0';
+            *p++ = '}';
+            i++;
+        } 
         else if (c < 0x20 || (c >= 0x7F && c <= 0x9F)) { p += sprintf(p, "\\x{%x}", c); i++; }
         else if (c >= 0x80) {
             unsigned int codepoint = 0; int bytes = 0;
@@ -117,15 +138,7 @@ static char* escape_literal_for_pcre2_len(const char* lit, size_t len) {
         } else { *p++ = c; i++; }
     }
     *p = '\0';
-    // DEBUG: print the escaped literal bytes to stderr for inspection
-    {
-        size_t hxLen = strlen(result);
-        fprintf(stderr, "DEBUG_EMIT(result) len=%zu str=\"%s\" HEX:", hxLen, result);
-        for (size_t hi = 0; hi < hxLen; hi++) {
-            fprintf(stderr, " %02x", (unsigned char)result[hi]);
-        }
-        fprintf(stderr, "\n");
-    }
+    
     return result;
 }
 
@@ -188,7 +201,7 @@ static char* escape_literal_for_pcre2(const char* lit) {
             i++;
         }
         /* Handle regex metacharacters - escape them */
-        else if (strchr(".^$*+?{}[]()\\|\"`", c)) {
+        else if (c != 0 && strchr(".^$*+?{}[]()\\|\"`", c)) {
             *p++ = '\\';
             *p++ = c;
             i++;
@@ -234,8 +247,7 @@ static char* escape_literal_for_pcre2(const char* lit) {
                 codepoint = (codepoint << 6) | (cont & 0x3F);
             }
             
-            /* Emit as \x{...} */
-            p += sprintf(p, "\\x{%x}", codepoint);
+                    /* Process single byte value 'c' */
         }
         /* Regular printable ASCII - output as-is */
         else {
@@ -245,7 +257,7 @@ static char* escape_literal_for_pcre2(const char* lit) {
     }
     
     *p = '\0';
-    return result;
+    *p = '\0';
 }
 
 /* Simple recursive compiler for basic nodes */
@@ -261,6 +273,7 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
         if (!value || !json_is_string(value)) return strdup("");
         const char* lit = json_string_value(value);
         size_t len = json_string_length(value);
+        /* Literal bytes may contain NUL; we rely on json_string_length to iterate. */
         /* Use the enhanced escape function with length (supports NUL and multi-byte chars) */
         return escape_literal_for_pcre2_len(lit, len);
     }
@@ -300,6 +313,8 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
     /* Handle Anchor */
     if (strcmp(type, "Anchor") == 0) {
         json_t* at = json_object_get(node, "at");
+                    /* Note: strchr returns a pointer to the terminating null char if 'c' is 0,
+                     * so explicitly ensure we don't match for NUL here. */
         if (!at || !json_is_string(at)) return strdup("");
         const char* anchor_type = json_string_value(at);
         

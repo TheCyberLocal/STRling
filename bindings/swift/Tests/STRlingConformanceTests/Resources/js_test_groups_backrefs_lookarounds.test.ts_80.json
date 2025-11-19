@@ -1,0 +1,48 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "name": "x",
+        "atomic": false
+      },
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Literal",
+          "value": "b"
+        },
+        "name": "y",
+        "atomic": false
+      },
+      {
+        "type": "Backref",
+        "byIndex": null,
+        "byName": "x"
+      },
+      {
+        "type": "Backref",
+        "byIndex": null,
+        "byName": "y"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  }
+}

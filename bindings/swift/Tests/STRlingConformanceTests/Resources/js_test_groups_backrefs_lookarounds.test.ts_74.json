@@ -1,0 +1,32 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Look",
+        "dir": "Behind",
+        "neg": false,
+        "body": {
+          "type": "Look",
+          "dir": "Behind",
+          "neg": true,
+          "body": {
+            "type": "Literal",
+            "value": "a"
+          }
+        }
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  }
+}

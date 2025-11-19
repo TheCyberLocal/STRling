@@ -120,6 +120,10 @@ function runVerification() {
             s = s.replace(/\[\^\\p\{([^}]+)\}\]/g, "\\P{$1}");
             s = s.replace(/\[\^\\P\{([^}]+)\}\]/g, "\\p{$1}");
 
+            // Normalize NUL and zero hex escapes to PCRE2 canonical \x{0}
+            s = s.replace(/\\x00/g, "\\x{0}");
+            s = s.replace(/\\x\{0+\}/g, "\\x{0}");
+
             // Replace {1} quantifier with empty (equivalent) to match JS simplification
             s = s.replace(/\{1\}/g, "");
 

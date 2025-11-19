@@ -1,0 +1,22 @@
+{
+  "pattern": {
+    "type": "Alternation",
+    "alternatives": [
+      {
+        "type": "Literal",
+        "value": "abc"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  }
+}

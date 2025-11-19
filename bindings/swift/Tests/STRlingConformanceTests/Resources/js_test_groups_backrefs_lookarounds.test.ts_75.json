@@ -1,0 +1,41 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Look",
+        "dir": "Behind",
+        "neg": false,
+        "body": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Look",
+              "dir": "Ahead",
+              "neg": false,
+              "body": {
+                "type": "Literal",
+                "value": "b"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  }
+}

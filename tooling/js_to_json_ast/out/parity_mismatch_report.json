@@ -4,16 +4,790 @@
       "file": "_debug_null.json",
       "js": null,
       "c": {
-        "pattern": "\\",
+        "pattern": "\\x{0}\nHEX: 5c 78 7b 30 7d",
         "error": null
       },
       "reason": "c_success_js_failure"
     },
     {
+      "file": "js_test_anchors.test.ts_1.json",
+      "js": "^\\A\\b$\n",
+      "c": {
+        "pattern": "^\\A\\b$\\n\nHEX: 5e 5c 41 5c 62 24 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_10.json",
+      "js": "\\ba|\\bb\n",
+      "c": {
+        "pattern": "(\\ba|\\bb\\n)\nHEX: 28 5c 62 61 7c 5c 62 62 5c 6e 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_11.json",
+      "js": "(?>^a)\n",
+      "c": {
+        "pattern": "(?>^a)\\n\nHEX: 28 3f 3e 5e 61 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_12.json",
+      "js": "(?>a$)\n",
+      "c": {
+        "pattern": "(?>a$)\\n\nHEX: 28 3f 3e 61 24 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_13.json",
+      "js": "(?>\\ba)\n",
+      "c": {
+        "pattern": "(?>\\ba)\\n\nHEX: 28 3f 3e 5c 62 61 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_14.json",
+      "js": "\\b.\\b\n",
+      "c": {
+        "pattern": "\\b.\\b\\n\nHEX: 5c 62 2e 5c 62 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_15.json",
+      "js": "\\b\\d\\b\n",
+      "c": {
+        "pattern": "\\b[\\d]\\b\\n\nHEX: 5c 62 5b 5c 64 5d 5c 62 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_16.json",
+      "js": "\\Ba\\B\n",
+      "c": {
+        "pattern": "\\Ba\\B\\n\nHEX: 5c 42 61 5c 42 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_17.json",
+      "js": "^abc$\n",
+      "c": {
+        "pattern": "^abc$\\n\nHEX: 5e 61 62 63 24 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_2.json",
+      "js": "^a$\n",
+      "c": {
+        "pattern": "^a$\\n\nHEX: 5e 61 24 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_22.json",
+      "js": "^\\ba\\b$\n",
+      "c": {
+        "pattern": "^\\ba\\b$\\n\nHEX: 5e 5c 62 61 5c 62 24 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_3.json",
+      "js": "(?m)^a$\n",
+      "c": {
+        "pattern": "(?m)^a$\\n\nHEX: 28 3f 6d 29 5e 61 24 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_4.json",
+      "js": "a*^b+\n",
+      "c": {
+        "pattern": "a*^b+\\n\nHEX: 61 2a 5e 62 2b 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_5.json",
+      "js": "(ab)*$\n",
+      "c": {
+        "pattern": "(ab)*$\\n\nHEX: 28 61 62 29 2a 24 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_6.json",
+      "js": "^^\n",
+      "c": {
+        "pattern": "^^\\n\nHEX: 5e 5e 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_7.json",
+      "js": "$$\n",
+      "c": {
+        "pattern": "$$\\n\nHEX: 24 24 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_8.json",
+      "js": "^a|b$\n",
+      "c": {
+        "pattern": "(^a|b$\\n)\nHEX: 28 5e 61 7c 62 24 5c 6e 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_anchors.test.ts_9.json",
+      "js": "(^|$)\n",
+      "c": {
+        "pattern": "((^|$))\\n\nHEX: 28 28 5e 7c 24 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_27.json",
+      "js": "[a]\n",
+      "c": {
+        "pattern": "[a]\\n\nHEX: 5b 61 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_28.json",
+      "js": "[^x]\n",
+      "c": {
+        "pattern": "[^x]\\n\nHEX: 5b 5e 78 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_29.json",
+      "js": "[a-z]\n",
+      "c": {
+        "pattern": "[a-z]\\n\nHEX: 5b 61 2d 7a 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_30.json",
+      "js": "[.]\n",
+      "c": {
+        "pattern": "[.]\\n\nHEX: 5b 2e 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_31.json",
+      "js": "[*]\n",
+      "c": {
+        "pattern": "[*]\\n\nHEX: 5b 2a 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_32.json",
+      "js": "[+]\n",
+      "c": {
+        "pattern": "[+]\\n\nHEX: 5b 2b 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_33.json",
+      "js": "[.*+?]\n",
+      "c": {
+        "pattern": "[.*+?]\\n\nHEX: 5b 2e 2a 2b 3f 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_34.json",
+      "js": "[\\\\]\n",
+      "c": {
+        "pattern": "[\\\\]\\n\nHEX: 5b 5c 5c 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_35.json",
+      "js": "[a-zA-Z0-9]\n",
+      "c": {
+        "pattern": "[a-zA-Z0-9]\\n\nHEX: 5b 61 2d 7a 41 2d 5a 30 2d 39 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_36.json",
+      "js": "[a-z_0-9\\-]\n",
+      "c": {
+        "pattern": "[a-z_0-9\\-]\\n\nHEX: 5b 61 2d 7a 5f 30 2d 39 5c 2d 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_37.json",
+      "js": "[a-z][A-Z]\n",
+      "c": {
+        "pattern": "[a-z][A-Z]\\n\nHEX: 5b 61 2d 7a 5d 5b 41 2d 5a 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_38.json",
+      "js": "[\\p{L}\\p{N}]\n",
+      "c": {
+        "pattern": "[\\p{L}\\p{N}]\\n\nHEX: 5b 5c 70 7b 4c 7d 5c 70 7b 4e 7d 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_39.json",
+      "js": "[\\p{L}abc]\n",
+      "c": {
+        "pattern": "[\\p{L}abc]\\n\nHEX: 5b 5c 70 7b 4c 7d 61 62 63 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_40.json",
+      "js": "[\\p{L}0-9]\n",
+      "c": {
+        "pattern": "[\\p{L}0-9]\\n\nHEX: 5b 5c 70 7b 4c 7d 30 2d 39 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_41.json",
+      "js": "\\P{L}\n",
+      "c": {
+        "pattern": "[\\P{L}]\\n\nHEX: 5b 5c 50 7b 4c 7d 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_42.json",
+      "js": "[^a-z]\n",
+      "c": {
+        "pattern": "[^a-z]\\n\nHEX: 5b 5e 61 2d 7a 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_43.json",
+      "js": "[^\\d\\s]\n",
+      "c": {
+        "pattern": "[^\\d\\s]\\n\nHEX: 5b 5e 5c 64 5c 73 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_44.json",
+      "js": "\\P{L}\n",
+      "c": {
+        "pattern": "[^\\p{L}]\\n\nHEX: 5b 5e 5c 70 7b 4c 7d 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_char_classes.test.ts_49.json",
+      "js": "[a\\-]\n",
+      "c": {
+        "pattern": "[a\\-]\\n\nHEX: 5b 61 5c 2d 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_flags_and_free_spacing.test.ts_54.json",
+      "js": null,
+      "c": {
+        "pattern": "HEX:",
+        "error": null
+      },
+      "reason": "c_success_js_failure"
+    },
+    {
+      "file": "js_test_flags_and_free_spacing.test.ts_56.json",
+      "js": "(?x)",
+      "c": {
+        "pattern": "(?x)\nHEX: 28 3f 78 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_59.json",
+      "js": "(a)?\\1\n",
+      "c": {
+        "pattern": "(a)?\\1\\n\nHEX: 28 61 29 3f 5c 31 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
       "file": "js_test_groups_backrefs_lookarounds.test.ts_60.json",
       "js": "\u0000\n",
       "c": {
-        "pattern": "\\\\n",
+        "pattern": "\\x{0}\\n\nHEX: 5c 78 7b 30 7d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_61.json",
+      "js": "(?<A>a)(?=\\k<A>)\n",
+      "c": {
+        "pattern": "(?<A>a)(?=\\k<A>)\\n\nHEX: 28 3f 3c 41 3e 61 29 28 3f 3d 5c 6b 3c 41 3e 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_62.json",
+      "js": "(?x)(?<name>ab)",
+      "c": {
+        "pattern": "(?x)(?<name>ab)\nHEX: 28 3f 78 29 28 3f 3c 6e 61 6d 65 3e 61 62 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_63.json",
+      "js": "((a))\n",
+      "c": {
+        "pattern": "((a))\\n\nHEX: 28 28 61 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_64.json",
+      "js": "(?:(?:a))\n",
+      "c": {
+        "pattern": "(?:(?:a))\\n\nHEX: 28 3f 3a 28 3f 3a 61 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_65.json",
+      "js": "(?>(?>(a)))\n",
+      "c": {
+        "pattern": "(?>(?>(a)))\\n\nHEX: 28 3f 3e 28 3f 3e 28 61 29 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_66.json",
+      "js": "(?:(a))\n",
+      "c": {
+        "pattern": "(?:(a))\\n\nHEX: 28 3f 3a 28 61 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_67.json",
+      "js": "((?<name>a))\n",
+      "c": {
+        "pattern": "((?<name>a))\\n\nHEX: 28 28 3f 3c 6e 61 6d 65 3e 61 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_68.json",
+      "js": "(?:(?>a))\n",
+      "c": {
+        "pattern": "(?:(?>a))\\n\nHEX: 28 3f 3a 28 3f 3e 61 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_69.json",
+      "js": "((?:(?<x>(?>a))))\n",
+      "c": {
+        "pattern": "((?:(?<x>(?>a))))\\n\nHEX: 28 28 3f 3a 28 3f 3c 78 3e 28 3f 3e 61 29 29 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_70.json",
+      "js": "(?=a|b)\n",
+      "c": {
+        "pattern": "(?=(a|b))\\n\nHEX: 28 3f 3d 28 61 7c 62 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_71.json",
+      "js": "(?<=x|y)\n",
+      "c": {
+        "pattern": "(?<=(x|y))\\n\nHEX: 28 3f 3c 3d 28 78 7c 79 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_72.json",
+      "js": "(?!a|b|c)\n",
+      "c": {
+        "pattern": "(?!(a|b|c))\\n\nHEX: 28 3f 21 28 61 7c 62 7c 63 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_73.json",
+      "js": "(?=(?=a))\n",
+      "c": {
+        "pattern": "(?=(?=a))\\n\nHEX: 28 3f 3d 28 3f 3d 61 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_74.json",
+      "js": "(?<=(?<!a))\n",
+      "c": {
+        "pattern": "(?<=(?<!a))\\n\nHEX: 28 3f 3c 3d 28 3f 3c 21 61 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_75.json",
+      "js": "(?<=a(?=b))\n",
+      "c": {
+        "pattern": "(?<=a(?=b))\\n\nHEX: 28 3f 3c 3d 61 28 3f 3d 62 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_76.json",
+      "js": "(?>(a|b))\n",
+      "c": {
+        "pattern": "(?>((a|b)))\\n\nHEX: 28 3f 3e 28 28 61 7c 62 29 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_77.json",
+      "js": "(?>a+b*)\n",
+      "c": {
+        "pattern": "(?>a+b*)\\n\nHEX: 28 3f 3e 61 2b 62 2a 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_78.json",
+      "js": "(?>)\n",
+      "c": {
+        "pattern": "(?>)\\n\nHEX: 28 3f 3e 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_79.json",
+      "js": "(a)(b)\\1\\2\n",
+      "c": {
+        "pattern": "(a)(b)\\1\\2\\n\nHEX: 28 61 29 28 62 29 5c 31 5c 32 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_80.json",
+      "js": "(?<x>a)(?<y>b)\\k<x>\\k<y>\n",
+      "c": {
+        "pattern": "(?<x>a)(?<y>b)\\k<x>\\k<y>\\n\nHEX: 28 3f 3c 78 3e 61 29 28 3f 3c 79 3e 62 29 5c 6b 3c 78 3e 5c 6b 3c 79 3e 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_81.json",
+      "js": "(a)(?<x>b)\\1\\k<x>\n",
+      "c": {
+        "pattern": "(a)(?<x>b)\\1\\k<x>\\n\nHEX: 28 61 29 28 3f 3c 78 3e 62 29 5c 31 5c 6b 3c 78 3e 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_82.json",
+      "js": "(a)(\\1|b)\n",
+      "c": {
+        "pattern": "(a)((\\1|b))\\n\nHEX: 28 61 29 28 28 5c 31 7c 62 29 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_83.json",
+      "js": "(a|b)c\\1\n",
+      "c": {
+        "pattern": "((a|b))c\\1\\n\nHEX: 28 28 61 7c 62 29 29 63 5c 31 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_84.json",
+      "js": "(a)\\1\\1\n",
+      "c": {
+        "pattern": "(a)\\1\\1\\n\nHEX: 28 61 29 5c 31 5c 31 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_85.json",
+      "js": "(a)|(b)\n",
+      "c": {
+        "pattern": "((a)|(b)\\n)\nHEX: 28 28 61 29 7c 28 62 29 5c 6e 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_86.json",
+      "js": "(?=a)|(?=b)\n",
+      "c": {
+        "pattern": "((?=a)|(?=b)\\n)\nHEX: 28 28 3f 3d 61 29 7c 28 3f 3d 62 29 5c 6e 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_groups_backrefs_lookarounds.test.ts_87.json",
+      "js": "(a)|(?:b)|(?<x>c)\n",
+      "c": {
+        "pattern": "((a)|(?:b)|(?<x>c)\\n)\nHEX: 28 28 61 29 7c 28 3f 3a 62 29 7c 28 3f 3c 78 3e 63 29 5c 6e 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_118.json",
+      "js": "(?<name>abc)\n",
+      "c": {
+        "pattern": "(?<name>abc)\\n\nHEX: 28 3f 3c 6e 61 6d 65 3e 61 62 63 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_119.json",
+      "js": "(?<_name>abc)\n",
+      "c": {
+        "pattern": "(?<_name>abc)\\n\nHEX: 28 3f 3c 5f 6e 61 6d 65 3e 61 62 63 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_120.json",
+      "js": "(?<name123>abc)\n",
+      "c": {
+        "pattern": "(?<name123>abc)\\n\nHEX: 28 3f 3c 6e 61 6d 65 31 32 33 3e 61 62 63 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_121.json",
+      "js": "(?<Name_123>abc)\n",
+      "c": {
+        "pattern": "(?<Name_123>abc)\\n\nHEX: 28 3f 3c 4e 61 6d 65 5f 31 32 33 3e 61 62 63 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_122.json",
+      "js": "a{2,5}\n",
+      "c": {
+        "pattern": "a{2,5}\\n\nHEX: 61 7b 32 2c 35 7d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_123.json",
+      "js": "a{2}\n",
+      "c": {
+        "pattern": "a{2}\\n\nHEX: 61 7b 32 7d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_124.json",
+      "js": "a{0,10}\n",
+      "c": {
+        "pattern": "a{0,10}\\n\nHEX: 61 7b 30 2c 31 30 7d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_125.json",
+      "js": "[a-z]\n",
+      "c": {
+        "pattern": "[a-z]\\n\nHEX: 5b 61 2d 7a 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_126.json",
+      "js": "[0-9]\n",
+      "c": {
+        "pattern": "[0-9]\\n\nHEX: 5b 30 2d 39 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_127.json",
+      "js": "[A-Z]\n",
+      "c": {
+        "pattern": "[A-Z]\\n\nHEX: 5b 41 2d 5a 5d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_128.json",
+      "js": "a|b\n",
+      "c": {
+        "pattern": "(a|b\\n)\nHEX: 28 61 7c 62 5c 6e 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_129.json",
+      "js": "a|b|c\n",
+      "c": {
+        "pattern": "(a|b|c\\n)\nHEX: 28 61 7c 62 7c 63 5c 6e 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_130.json",
+      "js": "(?i)abc\n",
+      "c": {
+        "pattern": "(?i)abc\\n\nHEX: 28 3f 69 29 61 62 63 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_ieh_audit_gaps.test.ts_131.json",
+      "js": "(?imsux)abc",
+      "c": {
+        "pattern": "(?imsux)abc\nHEX: 28 3f 69 6d 73 75 78 29 61 62 63",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_140.json",
+      "js": "\\\\\\\\0\n",
+      "c": {
+        "pattern": "\\\\\\\\0\\n\nHEX: 5c 5c 5c 5c 30 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_141.json",
+      "js": "(?x)abc",
+      "c": {
+        "pattern": "(?x)abc\nHEX: 28 3f 78 29 61 62 63",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_142.json",
+      "js": "(?x)\na\\\\b",
+      "c": {
+        "pattern": "(?x)\\na\\\\b\nHEX: 28 3f 78 29 5c 6e 61 5c 5c 62",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_143.json",
+      "js": "abc\n",
+      "c": {
+        "pattern": "abc\\n\nHEX: 61 62 63 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_144.json",
+      "js": "a\\*b\\+c\n",
+      "c": {
+        "pattern": "a\\*b\\+c\\n\nHEX: 61 5c 2a 62 5c 2b 63 5c 6e",
         "error": null
       },
       "reason": "pattern_mismatch"
@@ -22,7 +796,34 @@
       "file": "js_test_literals_and_escapes.test.ts_145.json",
       "js": "\n\t\r\n",
       "c": {
-        "pattern": "\\n\\t\\r\\n",
+        "pattern": "\\n\\t\\r\\n\nHEX: 5c 6e 5c 74 5c 72 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_146.json",
+      "js": "AB\n\n",
+      "c": {
+        "pattern": "AB\\n\\n\nHEX: 41 42 5c 6e 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_147.json",
+      "js": "\na\n",
+      "c": {
+        "pattern": "\\na\\n\nHEX: 5c 6e 61 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_148.json",
+      "js": "Ab\n",
+      "c": {
+        "pattern": "Ab\\n\nHEX: 41 62 5c 6e",
         "error": null
       },
       "reason": "pattern_mismatch"
@@ -31,7 +832,43 @@
       "file": "js_test_literals_and_escapes.test.ts_149.json",
       "js": "\n\t\n",
       "c": {
-        "pattern": "\\n\\t\\n",
+        "pattern": "\\n\\t\\n\nHEX: 5c 6e 5c 74 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_150.json",
+      "js": "a\\*\n",
+      "c": {
+        "pattern": "a\\*\\n\nHEX: 61 5c 2a 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_151.json",
+      "js": "\\\\\n",
+      "c": {
+        "pattern": "\\\\\\n\nHEX: 5c 5c 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_152.json",
+      "js": "\\\\\\\\\n",
+      "c": {
+        "pattern": "\\\\\\\\\\n\nHEX: 5c 5c 5c 5c 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_153.json",
+      "js": "\\\\a\n",
+      "c": {
+        "pattern": "\\\\a\\n\nHEX: 5c 5c 61 5c 6e",
         "error": null
       },
       "reason": "pattern_mismatch"
@@ -40,7 +877,25 @@
       "file": "js_test_literals_and_escapes.test.ts_154.json",
       "js": "\u0000\n",
       "c": {
-        "pattern": "\\\\n",
+        "pattern": "\\x{0}\\n\nHEX: 5c 78 7b 30 7d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_155.json",
+      "js": "ÿ\n",
+      "c": {
+        "pattern": "\\x{ff}\\n\nHEX: 5c 78 7b 66 66 7d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_156.json",
+      "js": "￿\n",
+      "c": {
+        "pattern": "\\x{ffff}\\n\nHEX: 5c 78 7b 66 66 66 66 7d 5c 6e",
         "error": null
       },
       "reason": "pattern_mismatch"
@@ -49,12 +904,246 @@
       "file": "js_test_literals_and_escapes.test.ts_157.json",
       "js": "𐀀\n",
       "c": {
-        "pattern": "\\x{10000}\\n",
+        "pattern": "\\x{10000}\\n\nHEX: 5c 78 7b 31 30 30 30 30 7d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_160.json",
+      "js": "(a)\\12\n",
+      "c": {
+        "pattern": "(a)\\12\\n\nHEX: 28 61 29 5c 31 32 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_163.json",
+      "js": "a*Xb+\n",
+      "c": {
+        "pattern": "a*Xb+\\n\nHEX: 61 2a 58 62 2b 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_164.json",
+      "js": "a|b|c\n",
+      "c": {
+        "pattern": "(a|b|c\\n)\nHEX: 28 61 7c 62 7c 63 5c 6e 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_literals_and_escapes.test.ts_165.json",
+      "js": "(\\*)\n",
+      "c": {
+        "pattern": "(\\*)\\n\nHEX: 28 5c 2a 29 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_parser_errors.test.ts_171.json",
+      "js": "abc|\n",
+      "c": {
+        "pattern": "(abc|\\n)\nHEX: 28 61 62 63 7c 5c 6e 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_185.json",
+      "js": "a\\{,5\\}\n",
+      "c": {
+        "pattern": "a\\{,5\\}\\n\nHEX: 61 5c 7b 2c 35 5c 7d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_186.json",
+      "js": "(?:)*\n",
+      "c": {
+        "pattern": "(?:)*\\n\nHEX: 28 3f 3a 29 2a 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_187.json",
+      "js": "a?^\n",
+      "c": {
+        "pattern": "a?^\\n\nHEX: 61 3f 5e 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_188.json",
+      "js": "ab*\n",
+      "c": {
+        "pattern": "ab*\\n\nHEX: 61 62 2a 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_189.json",
+      "js": "(a*)*\n",
+      "c": {
+        "pattern": "(a*)*\\n\nHEX: 28 61 2a 29 2a 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_190.json",
+      "js": "(a+)?\n",
+      "c": {
+        "pattern": "(a+)?\\n\nHEX: 28 61 2b 29 3f 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_191.json",
+      "js": "(a*)+\n",
+      "c": {
+        "pattern": "(a*)+\\n\nHEX: 28 61 2a 29 2b 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_192.json",
+      "js": "(a?)*\n",
+      "c": {
+        "pattern": "(a?)*\\n\nHEX: 28 61 3f 29 2a 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_193.json",
+      "js": "(a{2,3}){1,2}\n",
+      "c": {
+        "pattern": "(a{2,3}){1,2}\\n\nHEX: 28 61 7b 32 2c 33 7d 29 7b 31 2c 32 7d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_194.json",
+      "js": "(a)\\1*\n",
+      "c": {
+        "pattern": "(a)\\1*\\n\nHEX: 28 61 29 5c 31 2a 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_195.json",
+      "js": "(a)(b)\\1*\\2+\n",
+      "c": {
+        "pattern": "(a)(b)\\1*\\2+\\n\nHEX: 28 61 29 28 62 29 5c 31 2a 5c 32 2b 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_196.json",
+      "js": "a*b+c?\n",
+      "c": {
+        "pattern": "a*b+c?\\n\nHEX: 61 2a 62 2b 63 3f 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_197.json",
+      "js": "(ab)*(cd)+(ef)?\n",
+      "c": {
+        "pattern": "(ab)*(cd)+(ef)?\\n\nHEX: 28 61 62 29 2a 28 63 64 29 2b 28 65 66 29 3f 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_198.json",
+      "js": "a*|b+\n",
+      "c": {
+        "pattern": "(a*|b+\\n)\nHEX: 28 61 2a 7c 62 2b 5c 6e 29",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_199.json",
+      "js": "a{1}\n",
+      "c": {
+        "pattern": "a\\n\nHEX: 61 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_200.json",
+      "js": "a?\n",
+      "c": {
+        "pattern": "a?\\n\nHEX: 61 3f 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_201.json",
+      "js": "(a|b){2,3}\n",
+      "c": {
+        "pattern": "((a|b)){2,3}\\n\nHEX: 28 28 61 7c 62 29 29 7b 32 2c 33 7d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_202.json",
+      "js": "a{100,200}\n",
+      "c": {
+        "pattern": "a{100,200}\\n\nHEX: 61 7b 31 30 30 2c 32 30 30 7d 5c 6e",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_203.json",
+      "js": "(?x)a\\*",
+      "c": {
+        "pattern": "(?x)a\\*\nHEX: 28 3f 78 29 61 5c 2a",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "js_test_quantifiers.test.ts_204.json",
+      "js": "(?x)\n\\\\\\*",
+      "c": {
+        "pattern": "(?x)\\n\\\\\\*\nHEX: 28 3f 78 29 5c 6e 5c 5c 5c 2a",
+        "error": null
+      },
+      "reason": "pattern_mismatch"
+    },
+    {
+      "file": "simple.json",
+      "js": "(?u)a\n",
+      "c": {
+        "pattern": "(?u)a\\n\nHEX: 28 3f 75 29 61 5c 6e",
         "error": null
       },
       "reason": "pattern_mismatch"
     }
   ],
   "total": 128,
-  "failed": 6
+  "failed": 127
 }
