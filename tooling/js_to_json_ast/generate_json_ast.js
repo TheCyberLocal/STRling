@@ -92,8 +92,9 @@ for (const f of files) {
             switch (a) {
                 case "NotWordBoundary":
                     return "NonWordBoundary";
-                case "EndBeforeFinalNewline":
-                    return "AbsoluteEnd";
+                // In PCRE2: \Z = end before final newline, \z = absolute end
+                // JS uses "EndBeforeFinalNewline" for \Z behavior
+                // Keep it as-is, don't change to AbsoluteEnd
                 default:
                     return a;
             }
@@ -180,11 +181,11 @@ for (const f of files) {
                     // Map standard shorthands to more descriptive kinds the C emitter expects
                     const shorthandMap = {
                         d: "digit",
-                        D: "digit",
+                        D: "not-digit",
                         w: "word",
-                        W: "word",
+                        W: "not-word",
                         s: "space",
-                        S: "space",
+                        S: "not-space",
                         b: "wordBoundary",
                         B: "wordBoundary",
                     };

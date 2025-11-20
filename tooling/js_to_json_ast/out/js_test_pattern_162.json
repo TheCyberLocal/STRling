@@ -8,15 +8,15 @@
         "members": [
           {
             "type": "Escape",
-            "kind": "digit"
+            "kind": "not-digit"
           },
           {
             "type": "Escape",
-            "kind": "space"
+            "kind": "not-space"
           },
           {
             "type": "Escape",
-            "kind": "word"
+            "kind": "not-word"
           }
         ]
       },

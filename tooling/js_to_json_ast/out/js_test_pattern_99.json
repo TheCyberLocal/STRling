@@ -270,7 +270,7 @@
                   "members": [
                     {
                       "type": "Escape",
-                      "kind": "space"
+                      "kind": "not-space"
                     }
                   ]
                 },
@@ -297,7 +297,7 @@
                   "members": [
                     {
                       "type": "Escape",
-                      "kind": "space"
+                      "kind": "not-space"
                     }
                   ]
                 },
