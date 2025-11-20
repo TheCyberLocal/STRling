@@ -1,0 +1,39 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "UnicodeProperty",
+            "name": null,
+            "value": "L",
+            "negated": false
+          },
+          {
+            "type": "Range",
+            "from": "0",
+            "to": "9"
+          }
+        ]
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "[\\p{L}0-9]\n"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "abc"
+      },
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Literal",
+            "value": "x"
+          },
+          {
+            "type": "Literal",
+            "value": "y"
+          },
+          {
+            "type": "Literal",
+            "value": "z"
+          }
+        ]
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "abc[xyz]\n"
+  }
+}

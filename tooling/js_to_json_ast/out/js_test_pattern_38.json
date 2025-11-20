@@ -1,0 +1,35 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Lookbehind",
+        "body": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Escape",
+              "kind": "digit"
+            }
+          ]
+        }
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?<=\\d)\n"
+  }
+}

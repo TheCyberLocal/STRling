@@ -1,0 +1,41 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "z"
+            }
+          ]
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": true,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?i)[a-z]+\n"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": false,
+        "body": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Lookbehind",
+              "body": {
+                "type": "Anchor",
+                "at": "Start"
+              }
+            },
+            {
+              "type": "Literal",
+              "value": "start"
+            }
+          ]
+        },
+        "expression": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Lookbehind",
+              "body": {
+                "type": "Anchor",
+                "at": "Start"
+              }
+            },
+            {
+              "type": "Literal",
+              "value": "start"
+            }
+          ]
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": true,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?m)(?:(?<=^)start)\n"
+  }
+}

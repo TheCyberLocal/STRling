@@ -1,0 +1,40 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Escape",
+              "kind": "word"
+            }
+          ]
+        },
+        "min": 1,
+        "max": null,
+        "greedy": false,
+        "lazy": true,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "\\w+?\n"
+  }
+}

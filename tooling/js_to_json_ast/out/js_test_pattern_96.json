@@ -1,0 +1,140 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "z"
+            },
+            {
+              "type": "Range",
+              "from": "A",
+              "to": "Z"
+            },
+            {
+              "type": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "type": "Literal",
+              "value": "."
+            },
+            {
+              "type": "Literal",
+              "value": "_"
+            },
+            {
+              "type": "Literal",
+              "value": "%"
+            },
+            {
+              "type": "Literal",
+              "value": "+"
+            },
+            {
+              "type": "Literal",
+              "value": "-"
+            }
+          ]
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "@"
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "z"
+            },
+            {
+              "type": "Range",
+              "from": "A",
+              "to": "Z"
+            },
+            {
+              "type": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "type": "Literal",
+              "value": "."
+            },
+            {
+              "type": "Literal",
+              "value": "-"
+            }
+          ]
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "."
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "z"
+            },
+            {
+              "type": "Range",
+              "from": "A",
+              "to": "Z"
+            }
+          ]
+        },
+        "min": 2,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}\n"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Escape",
+            "kind": "digit"
+          }
+        ]
+      },
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Escape",
+            "kind": "digit"
+          }
+        ]
+      },
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Escape",
+            "kind": "digit"
+          }
+        ]
+      },
+      {
+        "type": "Literal",
+        "value": "-"
+      },
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Range",
+            "from": "0",
+            "to": "9"
+          }
+        ]
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "\\d\\d\\d-[0-9]\n"
+  }
+}

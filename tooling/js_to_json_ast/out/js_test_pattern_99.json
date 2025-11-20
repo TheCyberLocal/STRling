@@ -1,0 +1,338 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "http"
+            },
+            {
+              "type": "Quantifier",
+              "target": {
+                "type": "Literal",
+                "value": "s"
+              },
+              "min": 0,
+              "max": 1,
+              "greedy": true,
+              "lazy": false,
+              "possessive": false
+            }
+          ]
+        },
+        "expression": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "http"
+            },
+            {
+              "type": "Quantifier",
+              "target": {
+                "type": "Literal",
+                "value": "s"
+              },
+              "min": 0,
+              "max": 1,
+              "greedy": true,
+              "lazy": false,
+              "possessive": false
+            }
+          ]
+        },
+        "name": "scheme",
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "://"
+      },
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Range",
+                "from": "a",
+                "to": "z"
+              },
+              {
+                "type": "Range",
+                "from": "A",
+                "to": "Z"
+              },
+              {
+                "type": "Range",
+                "from": "0",
+                "to": "9"
+              },
+              {
+                "type": "Literal",
+                "value": "."
+              },
+              {
+                "type": "Literal",
+                "value": "-"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "expression": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Range",
+                "from": "a",
+                "to": "z"
+              },
+              {
+                "type": "Range",
+                "from": "A",
+                "to": "Z"
+              },
+              {
+                "type": "Range",
+                "from": "0",
+                "to": "9"
+              },
+              {
+                "type": "Literal",
+                "value": "."
+              },
+              {
+                "type": "Literal",
+                "value": "-"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "name": "host",
+        "atomic": false
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Group",
+          "capturing": false,
+          "body": {
+            "type": "Sequence",
+            "parts": [
+              {
+                "type": "Literal",
+                "value": ":"
+              },
+              {
+                "type": "Group",
+                "capturing": true,
+                "body": {
+                  "type": "Quantifier",
+                  "target": {
+                    "type": "CharacterClass",
+                    "negated": false,
+                    "members": [
+                      {
+                        "type": "Escape",
+                        "kind": "digit"
+                      }
+                    ]
+                  },
+                  "min": 1,
+                  "max": null,
+                  "greedy": true,
+                  "lazy": false,
+                  "possessive": false
+                },
+                "expression": {
+                  "type": "Quantifier",
+                  "target": {
+                    "type": "CharacterClass",
+                    "negated": false,
+                    "members": [
+                      {
+                        "type": "Escape",
+                        "kind": "digit"
+                      }
+                    ]
+                  },
+                  "min": 1,
+                  "max": null,
+                  "greedy": true,
+                  "lazy": false,
+                  "possessive": false
+                },
+                "name": "port",
+                "atomic": false
+              }
+            ]
+          },
+          "expression": {
+            "type": "Sequence",
+            "parts": [
+              {
+                "type": "Literal",
+                "value": ":"
+              },
+              {
+                "type": "Group",
+                "capturing": true,
+                "body": {
+                  "type": "Quantifier",
+                  "target": {
+                    "type": "CharacterClass",
+                    "negated": false,
+                    "members": [
+                      {
+                        "type": "Escape",
+                        "kind": "digit"
+                      }
+                    ]
+                  },
+                  "min": 1,
+                  "max": null,
+                  "greedy": true,
+                  "lazy": false,
+                  "possessive": false
+                },
+                "expression": {
+                  "type": "Quantifier",
+                  "target": {
+                    "type": "CharacterClass",
+                    "negated": false,
+                    "members": [
+                      {
+                        "type": "Escape",
+                        "kind": "digit"
+                      }
+                    ]
+                  },
+                  "min": 1,
+                  "max": null,
+                  "greedy": true,
+                  "lazy": false,
+                  "possessive": false
+                },
+                "name": "port",
+                "atomic": false
+              }
+            ]
+          },
+          "name": null,
+          "atomic": false
+        },
+        "min": 0,
+        "max": 1,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Group",
+          "capturing": true,
+          "body": {
+            "type": "Sequence",
+            "parts": [
+              {
+                "type": "Literal",
+                "value": "/"
+              },
+              {
+                "type": "Quantifier",
+                "target": {
+                  "type": "CharacterClass",
+                  "negated": false,
+                  "members": [
+                    {
+                      "type": "Escape",
+                      "kind": "not-space"
+                    }
+                  ]
+                },
+                "min": 0,
+                "max": null,
+                "greedy": true,
+                "lazy": false,
+                "possessive": false
+              }
+            ]
+          },
+          "expression": {
+            "type": "Sequence",
+            "parts": [
+              {
+                "type": "Literal",
+                "value": "/"
+              },
+              {
+                "type": "Quantifier",
+                "target": {
+                  "type": "CharacterClass",
+                  "negated": false,
+                  "members": [
+                    {
+                      "type": "Escape",
+                      "kind": "not-space"
+                    }
+                  ]
+                },
+                "min": 0,
+                "max": null,
+                "greedy": true,
+                "lazy": false,
+                "possessive": false
+              }
+            ]
+          },
+          "name": "path",
+          "atomic": false
+        },
+        "min": 0,
+        "max": 1,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?<scheme>https?)://(?<host>[a-zA-Z0-9.\\-]+)(?::(?<port>\\d+))?(?<path>/\\S*)?\n"
+  }
+}

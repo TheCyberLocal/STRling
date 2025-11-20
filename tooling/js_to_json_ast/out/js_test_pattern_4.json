@@ -1,0 +1,42 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "UnicodeProperty",
+              "name": null,
+              "value": "L",
+              "negated": false
+            }
+          ]
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": true,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?u)\\p{L}+\n"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "z"
+            }
+          ]
+        },
+        "expression": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "z"
+            }
+          ]
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Backreference",
+        "index": 1,
+        "name": null
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "([a-z])\\1\n"
+  }
+}

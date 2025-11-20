@@ -1,0 +1,40 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Dot"
+        },
+        "min": 0,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Lookbehind",
+        "body": {
+          "type": "Literal",
+          "value": "end"
+        }
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": true,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?s).*(?<=end)\n"
+  }
+}

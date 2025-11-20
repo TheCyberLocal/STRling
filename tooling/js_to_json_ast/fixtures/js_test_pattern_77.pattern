@@ -1,0 +1,2 @@
+%flags x
+(?:foo | bar | baz)

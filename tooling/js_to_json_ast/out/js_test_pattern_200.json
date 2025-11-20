@@ -1,0 +1,17 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": []
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": true,
+    "dotAll": true,
+    "unicode": true,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?msu)"
+  }
+}

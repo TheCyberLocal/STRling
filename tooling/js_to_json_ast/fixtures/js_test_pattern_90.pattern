@@ -1,0 +1,2 @@
+%flags x
+(?<area>\d{3}) - (?<exchange>\d{3}) - (?<line>\d{4})

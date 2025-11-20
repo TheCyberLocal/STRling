@@ -1,0 +1,33 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Anchor",
+        "at": "Start"
+      },
+      {
+        "type": "Lookahead",
+        "body": {
+          "type": "Literal",
+          "value": "test"
+        }
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "^(?=test)\n"
+  }
+}

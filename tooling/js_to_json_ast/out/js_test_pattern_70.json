@@ -1,0 +1,53 @@
+{
+  "pattern": {
+    "type": "Quantifier",
+    "target": {
+      "type": "Group",
+      "capturing": false,
+      "body": {
+        "type": "Sequence",
+        "parts": [
+          {
+            "type": "Literal",
+            "value": "a"
+          },
+          {
+            "type": "Literal",
+            "value": "b"
+          }
+        ]
+      },
+      "expression": {
+        "type": "Sequence",
+        "parts": [
+          {
+            "type": "Literal",
+            "value": "a"
+          },
+          {
+            "type": "Literal",
+            "value": "b"
+          }
+        ]
+      },
+      "name": null,
+      "atomic": false
+    },
+    "min": 1,
+    "max": null,
+    "greedy": true,
+    "lazy": false,
+    "possessive": false
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?x)(?:ab)+"
+  }
+}

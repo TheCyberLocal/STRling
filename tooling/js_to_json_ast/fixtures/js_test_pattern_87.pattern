@@ -1,0 +1,2 @@
+%flags x
+(?<tag> \w+ ) \s* = \s* (?<value> [^>]+ ) \k<tag>

@@ -1,0 +1,147 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "word"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "expression": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "word"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "name": "tag",
+        "atomic": false
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Escape",
+              "kind": "space"
+            }
+          ]
+        },
+        "min": 0,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "="
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Escape",
+              "kind": "space"
+            }
+          ]
+        },
+        "min": 0,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": true,
+            "members": [
+              {
+                "type": "Literal",
+                "value": ">"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "expression": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": true,
+            "members": [
+              {
+                "type": "Literal",
+                "value": ">"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "name": "value",
+        "atomic": false
+      },
+      {
+        "type": "Backreference",
+        "index": null,
+        "name": "tag"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?x)(?<tag>\\w+)\\s*=\\s*(?<value>[^>]+)\\k<tag>"
+  }
+}

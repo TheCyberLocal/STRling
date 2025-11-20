@@ -1,0 +1,92 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Group",
+          "capturing": true,
+          "body": {
+            "type": "Sequence",
+            "parts": [
+              {
+                "type": "Lookahead",
+                "body": {
+                  "type": "CharacterClass",
+                  "negated": false,
+                  "members": [
+                    {
+                      "type": "Escape",
+                      "kind": "digit"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "CharacterClass",
+                "negated": false,
+                "members": [
+                  {
+                    "type": "Escape",
+                    "kind": "word"
+                  }
+                ]
+              }
+            ]
+          },
+          "expression": {
+            "type": "Sequence",
+            "parts": [
+              {
+                "type": "Lookahead",
+                "body": {
+                  "type": "CharacterClass",
+                  "negated": false,
+                  "members": [
+                    {
+                      "type": "Escape",
+                      "kind": "digit"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "CharacterClass",
+                "negated": false,
+                "members": [
+                  {
+                    "type": "Escape",
+                    "kind": "word"
+                  }
+                ]
+              }
+            ]
+          },
+          "name": null,
+          "atomic": false
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "((?=\\d)\\w)+\n"
+  }
+}

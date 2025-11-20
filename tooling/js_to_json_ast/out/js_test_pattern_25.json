@@ -1,0 +1,33 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "hello"
+      },
+      {
+        "type": "Lookahead",
+        "body": {
+          "type": "Literal",
+          "value": "world"
+        }
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "hello(?=world)\n"
+  }
+}

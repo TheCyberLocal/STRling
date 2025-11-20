@@ -1,0 +1,38 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Anchor",
+        "at": "Start"
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "^a+\n"
+  }
+}

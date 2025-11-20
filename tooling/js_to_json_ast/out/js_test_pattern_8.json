@@ -1,0 +1,25 @@
+{
+  "pattern": {
+    "type": "Quantifier",
+    "target": {
+      "type": "Literal",
+      "value": "a"
+    },
+    "min": 2,
+    "max": 5,
+    "greedy": true,
+    "lazy": false,
+    "possessive": false
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(?x)a{2,5}"
+  }
+}

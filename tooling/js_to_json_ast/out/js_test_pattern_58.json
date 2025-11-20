@@ -1,0 +1,81 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "digit"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "expression": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "digit"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "-"
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Backreference",
+          "index": 1,
+          "name": null
+        },
+        "min": 2,
+        "max": 2,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "(\\d+)-\\1{2}\n"
+  }
+}

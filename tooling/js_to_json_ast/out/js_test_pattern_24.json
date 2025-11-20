@@ -1,0 +1,40 @@
+{
+  "pattern": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "test"
+      },
+      {
+        "type": "Group",
+        "capturing": false,
+        "body": {
+          "type": "Literal",
+          "value": "group"
+        },
+        "expression": {
+          "type": "Literal",
+          "value": "group"
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected": {
+    "success": true,
+    "pcre": "test(?:group)\n"
+  }
+}
