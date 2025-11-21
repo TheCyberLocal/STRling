@@ -16,7 +16,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Set, Dict, List
+from typing import Set, List
 
 
 def get_repo_root() -> Path:
@@ -124,12 +124,14 @@ def run_java_conformance_tests(repo_root: Path) -> Set[str]:
                 except ValueError:
                     pass
     
-    # If we couldn't parse individual test names, assume all tests ran
-    # based on the test count (461 fixtures)
+    # If we couldn't parse individual test names, fall back to test count
+    # This is not ideal but ensures the audit doesn't fail on format changes
     if len(executed) == 0:
         # Check if tests passed
         if result.returncode == 0 or 'BUILD SUCCESS' in result.stdout:
-            # Assume all fixtures were tested
+            # WARNING: Assuming all fixtures were tested based on test count
+            # This is a fallback and may mask issues if Maven output format changes
+            print("WARNING: Could not parse individual test names, assuming all fixtures tested")
             fixtures_dir = repo_root / "tooling" / "js_to_json_ast" / "out"
             fixture_files = sorted(fixtures_dir.glob("*.json"))
             executed = {f.stem for f in fixture_files}
