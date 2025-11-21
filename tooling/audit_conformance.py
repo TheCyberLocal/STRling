@@ -52,6 +52,13 @@ def run_python_conformance_tests(repo_root: Path) -> Set[str]:
         text=True
     )
     
+    # Check if pytest is available
+    if result.returncode != 0 and "No module named pytest" in result.stderr:
+        print("ERROR: pytest is not installed. Please install Python dependencies:", file=sys.stderr)
+        print("  pip install -r bindings/python/requirements.txt", file=sys.stderr)
+        print("  pip install -e bindings/python", file=sys.stderr)
+        sys.exit(1)
+    
     # Parse test names from pytest output
     # Test names look like: test_conformance[js_test_pattern_1.json]
     executed = set()
@@ -66,6 +73,11 @@ def run_python_conformance_tests(repo_root: Path) -> Set[str]:
                 fixture_id = fixture_name.replace('.json', '')
                 executed.add(fixture_id)
     
+    # If no tests were found but pytest ran successfully, something is wrong
+    if len(executed) == 0 and result.returncode == 0:
+        print("WARNING: Pytest ran but no conformance tests were found", file=sys.stderr)
+        print("Check that tests/unit/test_conformance.py exists and contains tests", file=sys.stderr)
+    
     print(f"Python executed {len(executed)} fixtures")
     return executed
 
@@ -76,42 +88,17 @@ def run_java_conformance_tests(repo_root: Path) -> Set[str]:
     
     print("\nRunning Java conformance tests...")
     
-    # Run maven test with conformance tests
+    # Run maven test with conformance tests (not quiet so we can parse output)
     result = subprocess.run(
-        ["mvn", "test", "-Dtest=ConformanceTests", "-q"],
+        ["mvn", "test", "-Dtest=ConformanceTests"],
         cwd=java_dir,
         capture_output=True,
         text=True
     )
     
-    # Parse test results from Maven Surefire report
-    surefire_report = java_dir / "target" / "surefire-reports" / "com.strling.tests.ConformanceTests.txt"
-    
-    executed = set()
-    if surefire_report.exists():
-        with open(surefire_report, 'r') as f:
-            content = f.read()
-            # Parse the test report to find all executed test names
-            # Look for patterns like "Run N: PASS" or test names in the report
-            for line in content.split('\n'):
-                if '.json' in line:
-                    # Extract fixture name from error messages or test names
-                    parts = line.split('.json')
-                    if parts:
-                        # Find the fixture name before .json
-                        for part in parts[:-1]:  # All but last (after last .json)
-                            # Get the last word before .json
-                            tokens = part.split()
-                            if tokens:
-                                fixture_id = tokens[-1]
-                                # Clean up any special characters
-                                fixture_id = fixture_id.split('/')[-1]  # Remove path
-                                fixture_id = fixture_id.split('(')[-1]  # Remove parentheses
-                                if fixture_id and fixture_id.startswith('js_test_'):
-                                    executed.add(fixture_id)
-    
-    # Alternatively, count tests from Maven output
+    # Parse test count from Maven output
     # Maven reports "Tests run: N, Failures: F, Errors: E, Skipped: S"
+    test_count = 0
     for line in result.stdout.split('\n'):
         if 'Tests run:' in line and 'ConformanceTests' in line:
             # Extract test count
@@ -123,18 +110,34 @@ def run_java_conformance_tests(repo_root: Path) -> Set[str]:
                     print(f"Java ran {test_count} conformance tests")
                 except ValueError:
                     pass
+                break
     
-    # If we couldn't parse individual test names, fall back to test count
-    # This is not ideal but ensures the audit doesn't fail on format changes
-    if len(executed) == 0:
-        # Check if tests passed
-        if result.returncode == 0 or 'BUILD SUCCESS' in result.stdout:
-            # WARNING: Assuming all fixtures were tested based on test count
-            # This is a fallback and may mask issues if Maven output format changes
-            print("WARNING: Could not parse individual test names, assuming all fixtures tested")
-            fixtures_dir = repo_root / "tooling" / "js_to_json_ast" / "out"
-            fixture_files = sorted(fixtures_dir.glob("*.json"))
+    # If we found a test count, assume that many fixtures were tested
+    # (Since we can't easily parse individual test names from Maven output)
+    executed = set()
+    if test_count > 0:
+        # Get the fixture list and take the first N fixtures
+        # This assumes the test runs all fixtures in order
+        fixtures_dir = repo_root / "tooling" / "js_to_json_ast" / "out"
+        fixture_files = sorted(fixtures_dir.glob("*.json"))
+        
+        # Verify the test count matches the fixture count
+        if test_count == len(fixture_files):
             executed = {f.stem for f in fixture_files}
+            print(f"Java test count ({test_count}) matches fixture count - assuming 100% coverage")
+        else:
+            print(f"WARNING: Test count ({test_count}) doesn't match fixture count ({len(fixture_files)})")
+            print("This may indicate some fixtures were skipped")
+            # Still return the fixtures, but the audit will likely fail
+            executed = {f.stem for f in fixture_files[:test_count]}
+    else:
+        # Failed to parse test count
+        if result.returncode != 0:
+            print("ERROR: Java tests failed to run", file=sys.stderr)
+            print(result.stderr, file=sys.stderr)
+            sys.exit(1)
+        else:
+            print("WARNING: Could not parse test count from Maven output")
     
     print(f"Java executed {len(executed)} fixtures")
     return executed
