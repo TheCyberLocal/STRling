@@ -115,7 +115,9 @@ jobs:
                   java-version: "11"
 
             - name: Run Java test suite
-              run: echo "Java tests not yet implemented" && true
+              run: |
+                  cd bindings/java
+                  mvn test
 
     test-javascript:
         name: Test JavaScript (Node.js 22 LTS)
