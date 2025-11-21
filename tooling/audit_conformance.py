@@ -11,12 +11,10 @@ Exit Codes:
   1 - Missing fixture coverage detected
 """
 
-import json
-import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Set, List
+from typing import Set
 
 
 def get_repo_root() -> Path:
@@ -109,6 +107,7 @@ def run_java_conformance_tests(repo_root: Path) -> Set[str]:
                     test_count = int(count_str)
                     print(f"Java ran {test_count} conformance tests")
                 except ValueError:
+                    # Ignore if test count cannot be parsed as integer
                     pass
                 break
     
