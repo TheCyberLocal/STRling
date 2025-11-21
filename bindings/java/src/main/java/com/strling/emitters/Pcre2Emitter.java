@@ -274,6 +274,11 @@ public class Pcre2Emitter {
         
         if (node instanceof IRAnchor) {
             IRAnchor anchor = (IRAnchor) node;
+            // Handle both NotWordBoundary and NonWordBoundary
+            String at = anchor.at;
+            if ("NonWordBoundary".equals(at)) {
+                return "\\B";
+            }
             Map<String, String> mapping = Map.of(
                 "Start", "^",
                 "End", "$",
@@ -283,7 +288,7 @@ public class Pcre2Emitter {
                 "EndBeforeFinalNewline", "\\Z",
                 "AbsoluteEnd", "\\z"
             );
-            return mapping.getOrDefault(anchor.at, "");
+            return mapping.getOrDefault(at, "");
         }
         
         if (node instanceof IRBackref) {
