@@ -1,22 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Strling.Core;
 
-/// <summary>
-/// STRling Parser - Recursive Descent Parser for STRling DSL
-/// 
-/// This module implements a hand-rolled recursive-descent parser that transforms
-/// STRling pattern syntax into Abstract Syntax Tree (AST) nodes. The parser handles:
-///   - Alternation and sequencing
-///   - Character classes and ranges
-///   - Quantifiers (greedy, lazy, possessive)
-///   - Groups (capturing, non-capturing, named, atomic)
-///   - Lookarounds (lookahead and lookbehind, positive and negative)
-///   - Anchors and special escapes
-///   - Extended/free-spacing mode with comments
-/// 
-/// The parser produces AST nodes (defined in Nodes.cs) that can be compiled
-/// to IR and ultimately emitted as target-specific regex patterns. It includes
-/// comprehensive error handling with position tracking for helpful diagnostics.
-/// </summary>
 public class Parser
 {
     private readonly string _originalText;
@@ -25,7 +12,7 @@ public class Parser
     private readonly string _src;
     private int _capCount;
     private readonly HashSet<string> _capNames;
-    
+
     private static readonly Dictionary<char, string> ControlEscapes = new()
     {
         ['n'] = "\n",
@@ -35,10 +22,6 @@ public class Parser
         ['v'] = "\v"
     };
 
-    /// <summary>
-    /// Initialize a new Parser instance.
-    /// </summary>
-    /// <param name="text">The STRling pattern text to parse</param>
     public Parser(string text)
     {
         _originalText = text;
@@ -50,11 +33,6 @@ public class Parser
         _capNames = new HashSet<string>();
     }
 
-    /// <summary>
-    /// Static entry point for parsing a STRling pattern.
-    /// </summary>
-    /// <param name="src">The STRling pattern text to parse</param>
-    /// <returns>A tuple of (Flags, AST root node)</returns>
     public static (Flags, Node) Parse(string src)
     {
         var parser = new Parser(src);
@@ -68,9 +46,6 @@ public class Parser
         throw new STRlingParseError(message, pos, _src, hint);
     }
 
-    /// <summary>
-    /// Parse directives (like %flags) from the input text.
-    /// </summary>
     private (Flags, string) ParseDirectives(string text)
     {
         var flags = new Flags();
@@ -84,23 +59,20 @@ public class Parser
             lineNum++;
             var line = rawLine.TrimEnd('\r');
             var stripped = line.Trim();
-            
-            // Skip leading blank lines or comments
+
             if (!inPattern && (stripped == "" || stripped.StartsWith("#")))
             {
                 continue;
             }
-            
-            // Process directives only before pattern content
+
             if (!inPattern && stripped.StartsWith("%flags"))
             {
                 var idx = line.IndexOf("%flags");
                 var after = line.Substring(idx + "%flags".Length);
-                
-                // Extract flag letters
+
                 var letters = System.Text.RegularExpressions.Regex.Replace(after, @"[,\[\]\s]+", " ").Trim().ToLower();
                 var validFlags = new HashSet<char> { 'i', 'm', 's', 'u', 'x' };
-                
+
                 foreach (var ch in letters.Replace(" ", ""))
                 {
                     if (ch != '\0' && !validFlags.Contains(ch))
@@ -110,15 +82,13 @@ public class Parser
                         throw new STRlingParseError($"Invalid flag '{ch}'", pos, _originalText, hint);
                     }
                 }
-                
+
                 flags = Flags.FromLetters(letters);
-                
-                // Check if there's pattern content on the same line
+
                 var remainder = after.Trim();
                 if (remainder.Length > 0 && !remainder.All(c => " ,\t[]imsuxIMSUX".Contains(c)))
                 {
                     inPattern = true;
-                    // Find where pattern actually starts
                     var patternStart = after.TakeWhile(c => " ,\t[]imsuxIMSUX".Contains(c)).Count();
                     if (patternStart < after.Length)
                     {
@@ -127,20 +97,19 @@ public class Parser
                 }
                 continue;
             }
-            
+
             if (!inPattern && stripped.StartsWith("%"))
             {
-                continue; // Skip other directives
+                continue;
             }
-            
-            // This is pattern content
+
             if (line.Contains("%flags"))
             {
                 var pos = lines.Take(lineNum - 1).Sum(l => l.Length + 1) + line.IndexOf("%flags");
                 var hint = HintEngine.GetHint("Directive after pattern content", _originalText, pos);
                 throw new STRlingParseError("Directive after pattern content", pos, _originalText, hint);
             }
-            
+
             inPattern = true;
             patternLines.Add(line);
         }
@@ -149,21 +118,17 @@ public class Parser
         return (flags, pattern);
     }
 
-    /// <summary>
-    /// Parse the entire STRling pattern into an AST.
-    /// </summary>
     public Node ParsePattern()
     {
         _cur.SkipWsAndComments();
         if (_cur.Eof())
         {
-            // Empty pattern
-            return new Lit { Value = "" };
+            return new Lit("");
         }
 
         var node = ParseAlt();
         _cur.SkipWsAndComments();
-        
+
         if (!_cur.Eof())
         {
             RaiseError("Unexpected trailing input", _cur.I);
@@ -172,9 +137,6 @@ public class Parser
         return node;
     }
 
-    /// <summary>
-    /// Parse alternation (|).
-    /// </summary>
     private Node ParseAlt()
     {
         var branches = new List<Node>();
@@ -182,34 +144,29 @@ public class Parser
 
         while (_cur.Peek() == '|')
         {
-            _cur.Take(); // consume |
+            _cur.Take();
             _cur.SkipWsAndComments();
             branches.Add(ParseSeq());
         }
 
-        return branches.Count == 1 ? branches[0] : new Alt { Branches = branches };
+        return branches.Count == 1 ? branches[0] : new Alt(branches);
     }
 
-    /// <summary>
-    /// Parse a sequence of atoms.
-    /// </summary>
     private Node ParseSeq()
     {
         var parts = new List<Node>();
         var prevHadFailedQuant = false;
-        
+
         while (!_cur.Eof())
         {
             _cur.SkipWsAndComments();
             var ch = _cur.Peek();
-            
-            // Invalid quantifier at start of sequence/group (no previous atom)
+
             if (ch != '\0' && "*+?{".Contains(ch) && parts.Count == 0)
             {
                 RaiseError($"Invalid quantifier '{ch}'", _cur.I);
             }
-            
-            // Stop at sequence terminators
+
             if (ch == '|' || ch == ')' || ch == '\0')
             {
                 break;
@@ -217,8 +174,7 @@ public class Parser
 
             var atom = ParseAtom();
             var (quantified, hadFailedQuant) = ParseQuantIfAny(atom);
-            
-            // Coalesce adjacent Lit nodes
+
             bool shouldCoalesce = false;
             if (quantified is Lit currentLit
                 && parts.Count > 0
@@ -230,29 +186,26 @@ public class Parser
                 && !(parts[^1] is Backref))
             {
                 shouldCoalesce = true;
-                parts[^1] = new Lit { Value = lastLit.Value + currentLit.Value };
+                parts[^1] = new Lit(lastLit.Value + currentLit.Value);
             }
-            
+
             if (!shouldCoalesce)
             {
                 parts.Add(quantified);
             }
-            
+
             prevHadFailedQuant = hadFailedQuant;
         }
 
         if (parts.Count == 0)
         {
-            return new Lit { Value = "" };
+            return new Lit("");
         }
-        return parts.Count == 1 ? parts[0] : new Seq { Parts = parts };
+        return parts.Count == 1 ? parts[0] : new Seq(parts);
     }
-    
+
     private static bool ContainsNewline(string s) => s.Contains('\n');
 
-    /// <summary>
-    /// Parse a single atom (literal, group, anchor, char class, etc.).
-    /// </summary>
     private Node ParseAtom()
     {
         _cur.SkipWsAndComments();
@@ -262,25 +215,25 @@ public class Parser
         {
             case '^':
                 _cur.Take();
-                return new Anchor { At = "Start" };
-            
+                return new Anchor("Start");
+
             case '$':
                 _cur.Take();
-                return new Anchor { At = "End" };
-            
+                return new Anchor("End");
+
             case '.':
                 _cur.Take();
                 return new Dot();
-            
+
             case '\\':
                 return ParseEscapeAtom();
-            
+
             case '(':
                 return ParseGroupOrLook();
-            
+
             case '[':
                 return ParseCharClass();
-            
+
             case ')':
             case ']':
             case '|':
@@ -289,203 +242,149 @@ public class Parser
             case '?':
             case '{':
                 RaiseError($"Unexpected token '{ch}'", _cur.I);
-                return new Lit { Value = "" }; // unreachable
-            
+                return new Lit("");
+
             default:
                 return TakeLiteralChar();
         }
     }
 
-    /// <summary>
-    /// Parse an escape sequence (\d, \w, \b, etc.).
-    /// </summary>
     private Node ParseEscapeAtom()
     {
         var startPos = _cur.I;
-        _cur.Take(); // consume \
-        
+        _cur.Take();
+
         if (_cur.Eof())
         {
             RaiseError("Unexpected end of pattern after '\\'", startPos);
         }
 
         var ch = _cur.Take();
-        
+
         switch (ch)
         {
-            // Anchors
-            case 'b':
-                return new Anchor { At = "WordBoundary" };
-            case 'B':
-                return new Anchor { At = "NotWordBoundary" };
-            case 'A':
-                return new Anchor { At = "AbsoluteStart" };
-            case 'Z':
-                return new Anchor { At = "EndBeforeFinalNewline" };
-            
-            // Character class escapes
-            case 'd':
-            case 'D':
-            case 'w':
-            case 'W':
-            case 's':
-            case 'S':
-                return new CharClass
-                {
-                    Negated = false,
-                    Items = new List<ClassItem>
-                    {
-                        new ClassEscape { Type = ch.ToString() }
-                    }
-                };
-            
-            // Control escapes
-            case 'n':
-            case 'r':
-            case 't':
-            case 'f':
-            case 'v':
-                return new Lit { Value = ControlEscapes[ch] };
-            
-            // Literal escape
+            case 'b': return new Anchor("WordBoundary");
+            case 'B': return new Anchor("NotWordBoundary");
+            case 'A': return new Anchor("AbsoluteStart");
+            case 'Z': return new Anchor("EndBeforeFinalNewline");
+
+            case 'd': return new CharClass(false, new List<ClassItem> { new ClassEscape("digit") });
+            case 'D': return new CharClass(false, new List<ClassItem> { new ClassEscape("not-digit") });
+            case 'w': return new CharClass(false, new List<ClassItem> { new ClassEscape("word") });
+            case 'W': return new CharClass(false, new List<ClassItem> { new ClassEscape("not-word") });
+            case 's': return new CharClass(false, new List<ClassItem> { new ClassEscape("whitespace") });
+            case 'S': return new CharClass(false, new List<ClassItem> { new ClassEscape("not-whitespace") });
+
+            case 'n': return new Lit(ControlEscapes['n']);
+            case 'r': return new Lit(ControlEscapes['r']);
+            case 't': return new Lit(ControlEscapes['t']);
+            case 'f': return new Lit(ControlEscapes['f']);
+            case 'v': return new Lit(ControlEscapes['v']);
+
             default:
                 if ("^$.*+?()[]{}|\\".Contains(ch))
                 {
-                    return new Lit { Value = ch.ToString() };
+                    return new Lit(ch.ToString());
                 }
                 RaiseError($"Unknown escape sequence \\{ch}", startPos);
-                return new Lit { Value = "" }; // unreachable
+                return new Lit("");
         }
     }
 
-    /// <summary>
-    /// Parse a group or lookaround.
-    /// </summary>
     private Node ParseGroupOrLook()
     {
         var startPos = _cur.I;
-        _cur.Take(); // consume (
+        _cur.Take();
         _cur.SkipWsAndComments();
 
         if (_cur.Peek() == '?')
         {
-            _cur.Take(); // consume ?
+            _cur.Take();
             var next = _cur.Peek();
 
             switch (next)
             {
-                case ':': // Non-capturing group
+                case ':':
                     _cur.Take();
                     var body = ParseAlt();
-                    if (_cur.Peek() != ')')
-                    {
-                        RaiseError("Unterminated group", startPos);
-                    }
+                    if (_cur.Peek() != ')') RaiseError("Unterminated group", startPos);
                     _cur.Take();
-                    return new Group { Capturing = false, Body = body };
-                
-                case '=': // Positive lookahead
+                    return new Group(false, body, null, false);
+
+                case '=':
                     _cur.Take();
                     body = ParseAlt();
-                    if (_cur.Peek() != ')')
-                    {
-                        RaiseError("Unterminated lookahead", startPos);
-                    }
+                    if (_cur.Peek() != ')') RaiseError("Unterminated lookahead", startPos);
                     _cur.Take();
-                    return new Look { Dir = "Ahead", Neg = false, Body = body };
-                
-                case '!': // Negative lookahead
+                    return new Lookahead(body);
+
+                case '!':
                     _cur.Take();
                     body = ParseAlt();
-                    if (_cur.Peek() != ')')
-                    {
-                        RaiseError("Unterminated lookahead", startPos);
-                    }
+                    if (_cur.Peek() != ')') RaiseError("Unterminated lookahead", startPos);
                     _cur.Take();
-                    return new Look { Dir = "Ahead", Neg = true, Body = body };
-                
-                case '<': // Lookbehind or named group
+                    return new NegativeLookahead(body);
+
+                case '<':
                     _cur.Take();
                     var afterAngle = _cur.Peek();
-                    if (afterAngle == '=') // Positive lookbehind
+                    if (afterAngle == '=')
                     {
                         _cur.Take();
                         body = ParseAlt();
-                        if (_cur.Peek() != ')')
-                        {
-                            RaiseError("Unterminated lookbehind", startPos);
-                        }
+                        if (_cur.Peek() != ')') RaiseError("Unterminated lookbehind", startPos);
                         _cur.Take();
-                        return new Look { Dir = "Behind", Neg = false, Body = body };
+                        return new Lookbehind(body);
                     }
-                    else if (afterAngle == '!') // Negative lookbehind
+                    else if (afterAngle == '!')
                     {
                         _cur.Take();
                         body = ParseAlt();
-                        if (_cur.Peek() != ')')
-                        {
-                            RaiseError("Unterminated lookbehind", startPos);
-                        }
+                        if (_cur.Peek() != ')') RaiseError("Unterminated lookbehind", startPos);
                         _cur.Take();
-                        return new Look { Dir = "Behind", Neg = true, Body = body };
+                        return new NegativeLookbehind(body);
                     }
-                    else // Named group (?<name>...)
+                    else
                     {
                         var name = ReadIdentUntil('>');
-                        if (_cur.Peek() != '>')
-                        {
-                            RaiseError("Unterminated group name", startPos);
-                        }
+                        if (_cur.Peek() != '>') RaiseError("Unterminated group name", startPos);
                         _cur.Take();
                         _capCount++;
                         _capNames.Add(name);
                         body = ParseAlt();
-                        if (_cur.Peek() != ')')
-                        {
-                            RaiseError("Unterminated group", startPos);
-                        }
+                        if (_cur.Peek() != ')') RaiseError("Unterminated group", startPos);
                         _cur.Take();
-                        return new Group { Capturing = true, Name = name, Body = body };
+                        return new Group(true, body, name, false);
                     }
-                
-                case '>': // Atomic group
+
+                case '>':
                     _cur.Take();
                     body = ParseAlt();
-                    if (_cur.Peek() != ')')
-                    {
-                        RaiseError("Unterminated atomic group", startPos);
-                    }
+                    if (_cur.Peek() != ')') RaiseError("Unterminated atomic group", startPos);
                     _cur.Take();
-                    return new Group { Capturing = false, Atomic = true, Body = body };
-                
+                    return new Group(false, body, null, true);
+
                 default:
                     RaiseError($"Unknown group type '(?{next}'", startPos);
-                    return new Lit { Value = "" }; // unreachable
+                    return new Lit("");
             }
         }
         else
         {
-            // Capturing group
             _capCount++;
             var body = ParseAlt();
-            if (_cur.Peek() != ')')
-            {
-                RaiseError("Unterminated group", startPos);
-            }
+            if (_cur.Peek() != ')') RaiseError("Unterminated group", startPos);
             _cur.Take();
-            return new Group { Capturing = true, Body = body };
+            return new Group(true, body, null, false);
         }
     }
 
-    /// <summary>
-    /// Parse a character class [a-z].
-    /// </summary>
     private CharClass ParseCharClass()
     {
         var startPos = _cur.I;
-        _cur.Take(); // consume [
+        _cur.Take();
         _cur.InClass++;
-        
+
         var negated = false;
         if (_cur.Peek() == '^')
         {
@@ -494,7 +393,7 @@ public class Parser
         }
 
         var items = new List<ClassItem>();
-        
+
         while (!_cur.Eof() && _cur.Peek() != ']')
         {
             items.Add(ReadClassItem());
@@ -504,70 +403,59 @@ public class Parser
         {
             RaiseError("Unterminated character class", startPos);
         }
-        
-        _cur.InClass--;
-        _cur.Take(); // consume ]
 
-        return new CharClass { Negated = negated, Items = items };
+        _cur.InClass--;
+        _cur.Take();
+
+        return new CharClass(negated, items);
     }
 
-    /// <summary>
-    /// Read a single character class item (literal, range, or escape).
-    /// </summary>
     private ClassItem ReadClassItem()
     {
         var ch = _cur.Peek();
-        
+
         if (ch == '\\')
         {
             _cur.Take();
             var escCh = _cur.Take();
-            
+
             switch (escCh)
             {
-                case 'd':
-                case 'D':
-                case 'w':
-                case 'W':
-                case 's':
-                case 'S':
-                    return new ClassEscape { Type = escCh.ToString() };
-                
-                case 'n':
-                    return new ClassLiteral { Ch = "\n" };
-                case 'r':
-                    return new ClassLiteral { Ch = "\r" };
-                case 't':
-                    return new ClassLiteral { Ch = "\t" };
-                
+                case 'd': return new ClassEscape("digit");
+                case 'D': return new ClassEscape("not-digit");
+                case 'w': return new ClassEscape("word");
+                case 'W': return new ClassEscape("not-word");
+                case 's': return new ClassEscape("whitespace");
+                case 'S': return new ClassEscape("not-whitespace");
+
+                case 'n': return new ClassLiteral("\n");
+                case 'r': return new ClassLiteral("\r");
+                case 't': return new ClassLiteral("\t");
+
                 default:
-                    return new ClassLiteral { Ch = escCh.ToString() };
+                    return new ClassLiteral(escCh.ToString());
             }
         }
         else
         {
             var literal = _cur.Take().ToString();
-            
-            // Check for range
+
             if (_cur.Peek() == '-' && _cur.Peek(1) != ']')
             {
-                _cur.Take(); // consume -
+                _cur.Take();
                 var endCh = _cur.Take().ToString();
-                return new ClassRange { FromCh = literal, ToCh = endCh };
+                return new ClassRange(literal, endCh);
             }
-            
-            return new ClassLiteral { Ch = literal };
+
+            return new ClassLiteral(literal);
         }
     }
 
-    /// <summary>
-    /// Parse quantifiers (* + ? {n,m}).
-    /// </summary>
     private (Node, bool) ParseQuantIfAny(Node child)
     {
         _cur.SkipWsAndComments();
         var ch = _cur.Peek();
-        
+
         if (child is Anchor)
         {
             if ("*+?{".Contains(ch))
@@ -578,64 +466,62 @@ public class Parser
         }
 
         var min = 0;
-        object max = "Inf";
-        var mode = "Greedy";
+        int? max = null;
+        var greedy = true;
+        var lazy = false;
+        var possessive = false;
 
         switch (ch)
         {
             case '*':
                 _cur.Take();
                 min = 0;
-                max = "Inf";
+                max = null;
                 break;
-            
+
             case '+':
                 _cur.Take();
                 min = 1;
-                max = "Inf";
+                max = null;
                 break;
-            
+
             case '?':
                 _cur.Take();
                 min = 0;
                 max = 1;
                 break;
-            
+
             case '{':
-                // Parse {n,m}
-                var (minVal, maxVal, modeVal) = ParseBraceQuant();
+                var (minVal, maxVal) = ParseBraceQuant();
                 if (minVal == null) return (child, false);
                 min = minVal.Value;
-                max = maxVal ?? (object)"Inf";
-                mode = modeVal;
+                max = maxVal;
                 break;
-            
+
             default:
                 return (child, false);
         }
 
-        // Check for mode modifiers (?, +)
         if (_cur.Peek() == '?')
         {
             _cur.Take();
-            mode = "Lazy";
+            greedy = false;
+            lazy = true;
         }
         else if (_cur.Peek() == '+')
         {
             _cur.Take();
-            mode = "Possessive";
+            greedy = false;
+            possessive = true;
         }
 
-        return (new Quant { Child = child, Min = min, Max = max, Mode = mode }, true);
+        return (new Quant(child, min, max, greedy, lazy, possessive), true);
     }
 
-    /// <summary>
-    /// Parse a brace quantifier {n,m}.
-    /// </summary>
-    private (int?, object?, string) ParseBraceQuant()
+    private (int?, int?) ParseBraceQuant()
     {
         var startPos = _cur.I;
-        _cur.Take(); // consume {
+        _cur.Take();
         _cur.SkipWsAndComments();
 
         var minStr = "";
@@ -647,25 +533,25 @@ public class Parser
         if (minStr == "")
         {
             RaiseError("Invalid brace quantifier content", startPos);
-            return (null, null, "Greedy");
+            return (null, null);
         }
 
         var min = int.Parse(minStr);
-        object? max = min;
+        int? max = min;
 
         _cur.SkipWsAndComments();
         if (_cur.Peek() == ',')
         {
             _cur.Take();
             _cur.SkipWsAndComments();
-            
+
             var maxStr = "";
             while (char.IsDigit(_cur.Peek()))
             {
                 maxStr += _cur.Take();
             }
-            
-            max = maxStr == "" ? (object)"Inf" : int.Parse(maxStr);
+
+            max = maxStr == "" ? null : int.Parse(maxStr);
         }
 
         _cur.SkipWsAndComments();
@@ -675,21 +561,15 @@ public class Parser
         }
         _cur.Take();
 
-        return (min, max, "Greedy");
+        return (min, max);
     }
 
-    /// <summary>
-    /// Take a literal character.
-    /// </summary>
     private Lit TakeLiteralChar()
     {
         var ch = _cur.Take();
-        return new Lit { Value = ch.ToString() };
+        return new Lit(ch.ToString());
     }
 
-    /// <summary>
-    /// Read an identifier until the specified end character.
-    /// </summary>
     private string ReadIdentUntil(char end)
     {
         var ident = "";
@@ -700,9 +580,6 @@ public class Parser
         return ident;
     }
 
-    /// <summary>
-    /// Cursor class for tracking position in the input.
-    /// </summary>
     private class Cursor
     {
         public string Text { get; }
@@ -747,7 +624,7 @@ public class Parser
         public void SkipWsAndComments()
         {
             if (!ExtendedMode || InClass > 0) return;
-            
+
             while (!Eof())
             {
                 var ch = Peek();
@@ -758,7 +635,6 @@ public class Parser
                 }
                 if (ch == '#')
                 {
-                    // skip comment to end of line
                     while (!Eof() && !"\r\n".Contains(Peek()))
                     {
                         I++;

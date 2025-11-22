@@ -86,14 +86,46 @@ func (w *NodeWrapper) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		w.Node = &n
-	case "Lookaround":
+	case "Lookahead":
 		var n Lookaround
+		n.Dir = "Ahead"
+		n.Neg = false
 		if err := json.Unmarshal(data, &n); err != nil {
 			return err
 		}
 		w.Node = &n
-	case "Escape": // For CharacterClass escapes
+	case "Lookbehind":
+		var n Lookaround
+		n.Dir = "Behind"
+		n.Neg = false
+		if err := json.Unmarshal(data, &n); err != nil {
+			return err
+		}
+		w.Node = &n
+	case "NegativeLookahead":
+		var n Lookaround
+		n.Dir = "Ahead"
+		n.Neg = true
+		if err := json.Unmarshal(data, &n); err != nil {
+			return err
+		}
+		w.Node = &n
+	case "NegativeLookbehind":
+		var n Lookaround
+		n.Dir = "Behind"
+		n.Neg = true
+		if err := json.Unmarshal(data, &n); err != nil {
+			return err
+		}
+		w.Node = &n
+	case "Escape":
 		var n Escape
+		if err := json.Unmarshal(data, &n); err != nil {
+			return err
+		}
+		w.Node = &n
+	case "UnicodeProperty":
+		var n UnicodeProperty
 		if err := json.Unmarshal(data, &n); err != nil {
 			return err
 		}
@@ -122,12 +154,12 @@ func (n *Literal) ToClassItem() (core.ClassItem, error) {
 
 // Sequence
 type Sequence struct {
-	Elements []NodeWrapper `json:"elements"`
+	Parts []NodeWrapper `json:"parts"`
 }
 
 func (n *Sequence) ToCore() (core.Node, error) {
-	parts := make([]core.Node, len(n.Elements))
-	for i, el := range n.Elements {
+	parts := make([]core.Node, len(n.Parts))
+	for i, el := range n.Parts {
 		c, err := el.Node.ToCore()
 		if err != nil {
 			return nil, err
@@ -139,12 +171,12 @@ func (n *Sequence) ToCore() (core.Node, error) {
 
 // Alternation
 type Alternation struct {
-	Options []NodeWrapper `json:"options"`
+	Alternatives []NodeWrapper `json:"alternatives"`
 }
 
 func (n *Alternation) ToCore() (core.Node, error) {
-	branches := make([]core.Node, len(n.Options))
-	for i, opt := range n.Options {
+	branches := make([]core.Node, len(n.Alternatives))
+	for i, opt := range n.Alternatives {
 		c, err := opt.Node.ToCore()
 		if err != nil {
 			return nil, err
@@ -159,7 +191,7 @@ type Group struct {
 	Capturing bool        `json:"capturing"`
 	Body      NodeWrapper `json:"body"`
 	Name      *string     `json:"name"`
-	Atomic    bool        `json:"atomic"`
+	Atomic    *bool       `json:"atomic"`
 }
 
 func (n *Group) ToCore() (core.Node, error) {
@@ -167,12 +199,17 @@ func (n *Group) ToCore() (core.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	atomic := n.Atomic
+	
+	var atomic *bool
+	if n.Atomic != nil && *n.Atomic {
+		atomic = n.Atomic
+	}
+
 	return core.Group{
 		Capturing: n.Capturing,
 		Body:      body,
 		Name:      n.Name,
-		Atomic:    &atomic,
+		Atomic:    atomic,
 	}, nil
 }
 
@@ -180,7 +217,7 @@ func (n *Group) ToCore() (core.Node, error) {
 type Quantifier struct {
 	Target     NodeWrapper `json:"target"`
 	Min        int         `json:"min"`
-	Max        *int        `json:"max"` // Nullable
+	Max        interface{} `json:"max"` // int or string "Inf"
 	Greedy     bool        `json:"greedy"`
 	Lazy       bool        `json:"lazy"`
 	Possessive bool        `json:"possessive"`
@@ -192,18 +229,18 @@ func (n *Quantifier) ToCore() (core.Node, error) {
 		return nil, err
 	}
 
-	var max interface{}
-	if n.Max == nil {
-		max = "Inf"
-	} else {
-		max = *n.Max
-	}
-
 	mode := "Greedy"
 	if n.Lazy {
 		mode = "Lazy"
 	} else if n.Possessive {
 		mode = "Possessive"
+	}
+
+	var max interface{}
+	if n.Max == nil {
+		max = "Inf"
+	} else {
+		max = n.Max
 	}
 
 	return core.Quant{
@@ -223,7 +260,6 @@ type CharacterClass struct {
 func (n *CharacterClass) ToCore() (core.Node, error) {
 	items := make([]core.ClassItem, len(n.Members))
 	for i, m := range n.Members {
-		// Try to convert to ClassItem
 		if lit, ok := m.Node.(*Literal); ok {
 			item, err := lit.ToClassItem()
 			if err != nil {
@@ -242,6 +278,12 @@ func (n *CharacterClass) ToCore() (core.Node, error) {
 				return nil, err
 			}
 			items[i] = item
+		} else if prop, ok := m.Node.(*UnicodeProperty); ok {
+			item, err := prop.ToClassItem()
+			if err != nil {
+				return nil, err
+			}
+			items[i] = item
 		} else {
 			return nil, fmt.Errorf("unsupported node type in character class: %T", m.Node)
 		}
@@ -254,8 +296,8 @@ func (n *CharacterClass) ToCore() (core.Node, error) {
 
 // Range
 type Range struct {
-	Start string `json:"start"`
-	End   string `json:"end"`
+	From string `json:"from"`
+	To   string `json:"to"`
 }
 
 func (n *Range) ToCore() (core.Node, error) {
@@ -264,8 +306,8 @@ func (n *Range) ToCore() (core.Node, error) {
 
 func (n *Range) ToClassItem() (core.ClassItem, error) {
 	return core.ClassRange{
-		FromCh: n.Start,
-		ToCh:   n.End,
+		FromCh: n.From,
+		ToCh:   n.To,
 	}, nil
 }
 
@@ -275,7 +317,11 @@ type Anchor struct {
 }
 
 func (n *Anchor) ToCore() (core.Node, error) {
-	return core.Anchor{At: n.At}, nil
+	at := n.At
+	if at == "NonWordBoundary" {
+		at = "NotWordBoundary"
+	}
+	return core.Anchor{At: at}, nil
 }
 
 // Dot
@@ -300,9 +346,9 @@ func (n *Backreference) ToCore() (core.Node, error) {
 
 // Lookaround
 type Lookaround struct {
-	Direction string      `json:"direction"` // "ahead" or "behind"
-	Negative  bool        `json:"negative"`
-	Body      NodeWrapper `json:"body"`
+	Dir  string      // "Ahead" or "Behind"
+	Neg  bool        // true or false
+	Body NodeWrapper `json:"body"`
 }
 
 func (n *Lookaround) ToCore() (core.Node, error) {
@@ -310,21 +356,16 @@ func (n *Lookaround) ToCore() (core.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	dir := "Ahead"
-	if n.Direction == "behind" {
-		dir = "Behind"
-	}
 	return core.Look{
-		Dir:  dir,
-		Neg:  n.Negative,
+		Dir:  n.Dir,
+		Neg:  n.Neg,
 		Body: body,
 	}, nil
 }
 
 // Escape (for CharacterClass)
 type Escape struct {
-	Type     string  `json:"escape_type"` // d, D, w, W, s, S, p, P
-	Property *string `json:"property"`
+	Kind string `json:"kind"` // digit, word, space, etc.
 }
 
 func (n *Escape) ToCore() (core.Node, error) {
@@ -332,8 +373,46 @@ func (n *Escape) ToCore() (core.Node, error) {
 }
 
 func (n *Escape) ToClassItem() (core.ClassItem, error) {
+	var t string
+	switch n.Kind {
+	case "digit":
+		t = "d"
+	case "not-digit":
+		t = "D"
+	case "word":
+		t = "w"
+	case "not-word":
+		t = "W"
+	case "space":
+		t = "s"
+	case "not-space":
+		t = "S"
+	default:
+		return nil, fmt.Errorf("unknown escape kind: %s", n.Kind)
+	}
 	return core.ClassEscape{
-		Type:     n.Type,
-		Property: n.Property,
+		Type: t,
+	}, nil
+}
+
+// UnicodeProperty
+type UnicodeProperty struct {
+	Value   string `json:"value"`
+	Negated bool   `json:"negated"`
+}
+
+func (n *UnicodeProperty) ToCore() (core.Node, error) {
+	return nil, fmt.Errorf("UnicodeProperty cannot be used as a standalone core.Node")
+}
+
+func (n *UnicodeProperty) ToClassItem() (core.ClassItem, error) {
+	t := "p"
+	if n.Negated {
+		t = "P"
+	}
+	prop := n.Value
+	return core.ClassEscape{
+		Type:     t,
+		Property: &prop,
 	}, nil
 }

@@ -461,3 +461,294 @@ public struct IRLook {
         ]
     }
 }
+
+// MARK: - Codable Conformance
+
+extension IRQuantMax: Codable {
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let intVal = try? container.decode(Int.self) {
+            self = .count(intVal)
+        } else if let strVal = try? container.decode(String.self), strVal == "Inf" {
+            self = .inf
+        } else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid IRQuantMax value")
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .count(let n): try container.encode(n)
+        case .inf: try container.encode("Inf")
+        }
+    }
+}
+
+extension IROp: Codable {
+    enum CodingKeys: String, CodingKey {
+        case ir
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .ir)
+
+        switch type {
+        case "Alt":
+            self = .alt(try IRAlt(from: decoder))
+        case "Seq":
+            self = .seq(try IRSeq(from: decoder))
+        case "Lit":
+            self = .lit(try IRLit(from: decoder))
+        case "Dot":
+            self = .dot(try IRDot(from: decoder))
+        case "Anchor":
+            self = .anchor(try IRAnchor(from: decoder))
+        case "CharClass":
+            self = .charClass(try IRCharClass(from: decoder))
+        case "Quant":
+            self = .quant(try IRQuant(from: decoder))
+        case "Group":
+            self = .group(try IRGroup(from: decoder))
+        case "Backref":
+            self = .backref(try IRBackref(from: decoder))
+        case "Look":
+            self = .look(try IRLook(from: decoder))
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .ir, in: container, debugDescription: "Unknown IR op type: \(type)")
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        // Encoding implementation omitted
+    }
+}
+
+extension IRAlt: Codable {
+    enum CodingKeys: String, CodingKey {
+        case branches
+    }
+}
+
+extension IRSeq: Codable {
+    enum CodingKeys: String, CodingKey {
+        case parts
+    }
+}
+
+extension IRLit: Codable {
+    enum CodingKeys: String, CodingKey {
+        case value
+    }
+}
+
+extension IRDot: Codable {
+    public init(from decoder: Decoder) throws {
+        self.init()
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        // Omitted
+    }
+}
+
+extension IRAnchor: Codable {
+    enum CodingKeys: String, CodingKey {
+        case at
+    }
+}
+
+// Helper for decoding IRClassItems
+struct AnyIRClassItem: Codable {
+    let item: IRClassItem
+
+    enum CodingKeys: String, CodingKey {
+        case ir
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .ir)
+
+        switch type {
+        case "Range":
+            self.item = try IRClassRange(from: decoder)
+        case "Char":
+            self.item = try IRClassLiteral(from: decoder)
+        case "Esc":
+            self.item = try IRClassEscape(from: decoder)
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .ir, in: container, debugDescription: "Unknown IR class item type: \(type)")
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        // Omitted
+    }
+}
+
+extension IRClassRange: Codable {
+    enum CodingKeys: String, CodingKey {
+        case fromCh = "from"
+        case toCh = "to"
+    }
+}
+
+extension IRClassLiteral: Codable {
+    enum CodingKeys: String, CodingKey {
+        case ch = "char"
+    }
+}
+
+extension IRClassEscape: Codable {
+    enum CodingKeys: String, CodingKey {
+        case type
+        case property
+    }
+}
+
+extension IRCharClass: Codable {
+    enum CodingKeys: String, CodingKey {
+        case negated
+        case items
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.negated = try container.decode(Bool.self, forKey: .negated)
+        let anyItems = try container.decode([AnyIRClassItem].self, forKey: .items)
+        self.items = anyItems.map { -bash.item }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        // Omitted
+    }
+}
+
+extension IRQuant: Codable {
+    enum CodingKeys: String, CodingKey {
+        case child
+        case min
+        case max
+        case mode
+    }
+}
+
+extension IRGroup: Codable {
+    enum CodingKeys: String, CodingKey {
+        case capturing
+        case body
+        case name
+        case atomic
+    }
+}
+
+extension IRBackref: Codable {
+    enum CodingKeys: String, CodingKey {
+        case byIndex
+        case byName
+    }
+}
+
+extension IRLook: Codable {
+    enum CodingKeys: String, CodingKey {
+        case dir
+        case neg
+        case body
+    }
+}
+
+// Equatable conformance for testing
+extension IROp: Equatable {
+    public static func == (lhs: IROp, rhs: IROp) -> Bool {
+        switch (lhs, rhs) {
+        case (.alt(let l), .alt(let r)): return l == r
+        case (.seq(let l), .seq(let r)): return l == r
+        case (.lit(let l), .lit(let r)): return l == r
+        case (.dot, .dot): return true
+        case (.anchor(let l), .anchor(let r)): return l == r
+        case (.charClass(let l), .charClass(let r)): return l == r
+        case (.quant(let l), .quant(let r)): return l == r
+        case (.group(let l), .group(let r)): return l == r
+        case (.backref(let l), .backref(let r)): return l == r
+        case (.look(let l), .look(let r)): return l == r
+        default: return false
+        }
+    }
+}
+
+extension IRAlt: Equatable {
+    public static func == (lhs: IRAlt, rhs: IRAlt) -> Bool {
+        return lhs.branches == rhs.branches
+    }
+}
+
+extension IRSeq: Equatable {
+    public static func == (lhs: IRSeq, rhs: IRSeq) -> Bool {
+        return lhs.parts == rhs.parts
+    }
+}
+
+extension IRLit: Equatable {
+    public static func == (lhs: IRLit, rhs: IRLit) -> Bool {
+        return lhs.value == rhs.value
+    }
+}
+
+extension IRAnchor: Equatable {
+    public static func == (lhs: IRAnchor, rhs: IRAnchor) -> Bool {
+        return lhs.at == rhs.at
+    }
+}
+
+extension IRCharClass: Equatable {
+    public static func == (lhs: IRCharClass, rhs: IRCharClass) -> Bool {
+        guard lhs.negated == rhs.negated else { return false }
+        guard lhs.items.count == rhs.items.count else { return false }
+        // Simple check, assuming order matters or items are comparable
+        // Since IRClassItem is a protocol, we can't easily equate arrays of them without type erasure or casting
+        // For now, let's rely on string representation or assume they are same type and order
+        for (i, item) in lhs.items.enumerated() {
+            if !areEqual(item, rhs.items[i]) { return false }
+        }
+        return true
+    }
+}
+
+func areEqual(_ lhs: IRClassItem, _ rhs: IRClassItem) -> Bool {
+    if let l = lhs as? IRClassRange, let r = rhs as? IRClassRange { return l == r }
+    if let l = lhs as? IRClassLiteral, let r = rhs as? IRClassLiteral { return l == r }
+    if let l = lhs as? IRClassEscape, let r = rhs as? IRClassEscape { return l == r }
+    return false
+}
+
+extension IRClassRange: Equatable {}
+extension IRClassLiteral: Equatable {}
+extension IRClassEscape: Equatable {}
+
+extension IRQuant: Equatable {
+    public static func == (lhs: IRQuant, rhs: IRQuant) -> Bool {
+        return lhs.child == rhs.child && lhs.min == rhs.min && lhs.max == rhs.max && lhs.mode == rhs.mode
+    }
+}
+
+extension IRQuantMax: Equatable {}
+
+extension IRGroup: Equatable {
+    public static func == (lhs: IRGroup, rhs: IRGroup) -> Bool {
+        return lhs.capturing == rhs.capturing && lhs.body == rhs.body && lhs.name == rhs.name && lhs.atomic == rhs.atomic
+    }
+}
+
+extension IRBackref: Equatable {
+    public static func == (lhs: IRBackref, rhs: IRBackref) -> Bool {
+        return lhs.byIndex == rhs.byIndex && lhs.byName == rhs.byName
+    }
+}
+
+extension IRLook: Equatable {
+    public static func == (lhs: IRLook, rhs: IRLook) -> Bool {
+        return lhs.dir == rhs.dir && lhs.neg == rhs.neg && lhs.body == rhs.body
+    }
+}

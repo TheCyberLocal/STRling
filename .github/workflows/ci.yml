@@ -98,7 +98,8 @@ jobs:
                   go-version: "1.22"
 
             - name: Run Go test suite
-              run: echo "Go tests not yet implemented" && true
+              working-directory: bindings/go
+              run: go test ./...
 
     test-java:
         name: Test Java (11 LTS)
@@ -178,7 +179,8 @@ jobs:
                   java-version: "11"
 
             - name: Run Kotlin test suite
-              run: echo "Kotlin tests not yet implemented" && true
+              working-directory: bindings/kotlin
+              run: ./gradlew test
 
     test-perl:
         name: Test Perl (5.32)
@@ -211,8 +213,13 @@ jobs:
               with:
                   php-version: "8.2"
 
+            - name: Install dependencies
+              working-directory: bindings/php
+              run: composer install --prefer-dist --no-progress
+
             - name: Run PHP test suite
-              run: echo "PHP tests not yet implemented" && true
+              working-directory: bindings/php
+              run: vendor/bin/phpunit
 
     test-python:
         name: Test Python (3.10)
@@ -308,7 +315,8 @@ jobs:
                   swift-version: "5.9"
 
             - name: Run Swift test suite
-              run: echo "Swift tests not yet implemented" && true
+              working-directory: bindings/swift
+              run: swift test
 
     # --- CONFORMANCE AUDIT ---
     audit-conformance:

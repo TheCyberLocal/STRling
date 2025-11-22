@@ -2,49 +2,40 @@
 
 namespace STRling\Core;
 
-/**
- * STRling AST Node Definitions
- * 
- * This module defines the complete set of Abstract Syntax Tree (AST) node classes
- * that represent the parsed structure of STRling patterns. The AST is the direct
- * output of the parser and represents the syntactic structure of the pattern before
- * optimization and lowering to IR.
- * 
- * AST nodes are designed to:
- *   - Closely mirror the source pattern syntax
- *   - Be easily serializable to the Base TargetArtifact schema
- *   - Provide a clean separation between parsing and compilation
- *   - Support multiple target regex flavors through the compilation pipeline
- * 
- * Each AST node type corresponds to a syntactic construct in the STRling DSL
- * (alternation, sequencing, character classes, anchors, etc.) and can be
- * serialized to a dictionary representation for debugging or storage.
- * 
- * @package STRling\Core
- */
+use JsonSerializable;
 
-// ---- Flags container ----
+// ---- Flags ----
 
-/**
- * Container for regex flags/modifiers.
- * 
- * Flags control the behavior of pattern matching (case sensitivity, multiline
- * mode, etc.). This class encapsulates all standard regex flags.
- */
-class Flags
+class Flags implements JsonSerializable
 {
-    public bool $ignoreCase = false;
-    public bool $multiline = false;
-    public bool $dotAll = false;
-    public bool $unicode = false;
-    public bool $extended = false;
-    
-    /**
-     * Serialize the flags to an array representation.
-     * 
-     * @return array<string, bool> The flags as an associative array
-     */
-    public function toDict(): array
+    public function __construct(
+        public bool $ignoreCase = false,
+        public bool $multiline = false,
+        public bool $dotAll = false,
+        public bool $unicode = false,
+        public bool $extended = false,
+    ) {}
+
+    public static function fromLetters(string $letters): self
+    {
+        $f = new self();
+        $cleaned = str_replace([',', ' '], '', $letters);
+        
+        foreach (str_split($cleaned) as $ch) {
+            match ($ch) {
+                'i' => $f->ignoreCase = true,
+                'm' => $f->multiline = true,
+                's' => $f->dotAll = true,
+                'u' => $f->unicode = true,
+                'x' => $f->extended = true,
+                default => null,
+            };
+        }
+        
+        return $f;
+    }
+
+    public function jsonSerialize(): mixed
     {
         return [
             'ignoreCase' => $this->ignoreCase,
@@ -54,408 +45,280 @@ class Flags
             'extended' => $this->extended,
         ];
     }
-    
-    /**
-     * Create Flags from a string of flag letters.
-     * 
-     * @param string $letters String containing flag letters (i, m, s, u, x)
-     * @return self A new Flags instance with the specified flags enabled
-     */
-    public static function fromLetters(string $letters): self
-    {
-        $f = new self();
-        $cleaned = str_replace([',', ' '], '', $letters);
-        
-        for ($i = 0; $i < strlen($cleaned); $i++) {
-            $ch = $cleaned[$i];
-            switch ($ch) {
-                case 'i':
-                    $f->ignoreCase = true;
-                    break;
-                case 'm':
-                    $f->multiline = true;
-                    break;
-                case 's':
-                    $f->dotAll = true;
-                    break;
-                case 'u':
-                    $f->unicode = true;
-                    break;
-                case 'x':
-                    $f->extended = true;
-                    break;
-                case '':
-                    break;
-                default:
-                    // Unknown flags are ignored at parser stage; may be warned later
-                    break;
-            }
-        }
-        
-        return $f;
-    }
 }
 
-// ---- Base node interface ----
+// ---- Interfaces ----
 
-/**
- * Base interface for all AST nodes.
- * 
- * All AST node classes must implement this interface and provide
- * a toDict() method for serialization.
- */
-interface ASTNode
+interface Node extends JsonSerializable {}
+interface ClassItem extends JsonSerializable {}
+
+// ---- Concrete Nodes ----
+
+readonly class Alternation implements Node
 {
-    /**
-     * Serialize the node to an array representation.
-     * 
-     * @return array<string, mixed> The node as an associative array
-     */
-    public function toDict(): array;
-}
-
-// ---- Concrete nodes matching Base Schema ----
-
-/**
- * Alternation node - represents OR operations.
- * 
- * Matches any one of the provided branches.
- */
-class Alt implements ASTNode
-{
-    /**
-     * @param array<ASTNode> $branches The alternative branches
-     */
+    /** @param Node[] $alternatives */
     public function __construct(
-        public array $branches
+        public array $alternatives
     ) {}
-    
-    public function toDict(): array
+
+    public function jsonSerialize(): mixed
     {
         return [
-            'kind' => 'Alt',
-            'branches' => array_map(fn($b) => $b->toDict(), $this->branches)
+            'type' => 'Alternation',
+            'alternatives' => $this->alternatives,
         ];
     }
 }
 
-/**
- * Sequence node - represents sequential matching.
- * 
- * Matches all parts in order.
- */
-class Seq implements ASTNode
+readonly class Sequence implements Node
 {
-    /**
-     * @param array<ASTNode> $parts The sequential parts
-     */
+    /** @param Node[] $parts */
     public function __construct(
         public array $parts
     ) {}
-    
-    public function toDict(): array
+
+    public function jsonSerialize(): mixed
     {
         return [
-            'kind' => 'Seq',
-            'parts' => array_map(fn($p) => $p->toDict(), $this->parts)
+            'type' => 'Sequence',
+            'parts' => $this->parts,
         ];
     }
 }
 
-/**
- * Literal node - represents a literal string match.
- */
-class Lit implements ASTNode
+readonly class Literal implements Node, ClassItem
 {
     public function __construct(
         public string $value
     ) {}
-    
-    public function toDict(): array
+
+    public function jsonSerialize(): mixed
     {
         return [
-            'kind' => 'Lit',
-            'value' => $this->value
+            'type' => 'Literal',
+            'value' => $this->value,
         ];
     }
 }
 
-/**
- * Dot node - represents the wildcard (.) metacharacter.
- * 
- * Matches any character (except newline by default).
- */
-class Dot implements ASTNode
+readonly class Dot implements Node
 {
-    public function toDict(): array
+    public function jsonSerialize(): mixed
     {
-        return ['kind' => 'Dot'];
+        return ['type' => 'Dot'];
     }
 }
 
-/**
- * Anchor node - represents position assertions.
- * 
- * Anchors match at specific positions in the text (start, end, word boundaries).
- */
-class Anchor implements ASTNode
+readonly class Anchor implements Node
 {
-    /**
-     * @param string $at Position type: "Start"|"End"|"WordBoundary"|"NotWordBoundary"|Absolute* variants
-     */
     public function __construct(
         public string $at
     ) {}
-    
-    public function toDict(): array
+
+    public function jsonSerialize(): mixed
     {
         return [
-            'kind' => 'Anchor',
-            'at' => $this->at
+            'type' => 'Anchor',
+            'at' => $this->at,
         ];
     }
 }
 
-// ---- CharClass ----
-
-/**
- * Base interface for character class items.
- */
-interface ClassItem
+readonly class CharacterClass implements Node
 {
-    /**
-     * Serialize the class item to an array representation.
-     * 
-     * @return array<string, mixed> The class item as an associative array
-     */
-    public function toDict(): array;
-}
-
-/**
- * Character range in a character class.
- * 
- * Represents a range like [a-z].
- */
-class ClassRange implements ClassItem
-{
-    public function __construct(
-        public string $from_ch,
-        public string $to_ch
-    ) {}
-    
-    public function toDict(): array
-    {
-        return [
-            'kind' => 'Range',
-            'from' => $this->from_ch,
-            'to' => $this->to_ch
-        ];
-    }
-}
-
-/**
- * Literal character in a character class.
- */
-class ClassLiteral implements ClassItem
-{
-    public function __construct(
-        public string $ch
-    ) {}
-    
-    public function toDict(): array
-    {
-        return [
-            'kind' => 'Char',
-            'char' => $this->ch
-        ];
-    }
-}
-
-/**
- * Escape sequence in a character class.
- * 
- * Represents escapes like \d, \w, \s, \p{...}, etc.
- */
-class ClassEscape implements ClassItem
-{
-    /**
-     * @param string $type Escape type: d, D, w, W, s, S, p, P
-     * @param string|null $property Unicode property name (for \p and \P)
-     */
-    public function __construct(
-        public string $type,
-        public ?string $property = null
-    ) {}
-    
-    public function toDict(): array
-    {
-        $data = [
-            'kind' => 'Esc',
-            'type' => $this->type
-        ];
-        
-        if (in_array($this->type, ['p', 'P']) && $this->property !== null) {
-            $data['property'] = $this->property;
-        }
-        
-        return $data;
-    }
-}
-
-/**
- * Character class node - represents [...] constructs.
- * 
- * Matches any character from the specified set.
- */
-class CharClass implements ASTNode
-{
-    /**
-     * @param bool $negated Whether this is a negated class [^...]
-     * @param array<ClassItem> $items The items in the character class
-     */
+    /** @param ClassItem[] $members */
     public function __construct(
         public bool $negated,
-        public array $items
+        public array $members
     ) {}
-    
-    public function toDict(): array
+
+    public function jsonSerialize(): mixed
     {
         return [
-            'kind' => 'CharClass',
+            'type' => 'CharacterClass',
             'negated' => $this->negated,
-            'items' => array_map(fn($it) => $it->toDict(), $this->items)
+            'members' => $this->members,
         ];
     }
 }
 
-/**
- * Quantifier node - represents repetition.
- * 
- * Quantifies how many times the child pattern should match.
- */
-class Quant implements ASTNode
+readonly class Range implements ClassItem
 {
-    /**
-     * @param ASTNode $child The pattern to quantify
-     * @param int $min Minimum repetitions
-     * @param int|string $max Maximum repetitions (int or "Inf" for unbounded)
-     * @param string $mode Quantifier mode: "Greedy"|"Lazy"|"Possessive"
-     */
     public function __construct(
-        public ASTNode $child,
-        public int $min,
-        public int|string $max,
-        public string $mode
+        public string $from,
+        public string $to
     ) {}
-    
-    public function toDict(): array
+
+    public function jsonSerialize(): mixed
     {
         return [
-            'kind' => 'Quant',
-            'child' => $this->child->toDict(),
-            'min' => $this->min,
-            'max' => $this->max,
-            'mode' => $this->mode
+            'type' => 'Range',
+            'from' => $this->from,
+            'to' => $this->to,
         ];
     }
 }
 
-/**
- * Group node - represents capturing and non-capturing groups.
- * 
- * Groups patterns together and optionally captures matched text.
- */
-class Group implements ASTNode
+readonly class Escape implements ClassItem
 {
-    /**
-     * @param bool $capturing Whether this is a capturing group
-     * @param ASTNode $body The grouped pattern
-     * @param string|null $name Named capture group name
-     * @param bool|null $atomic Whether this is an atomic group (extension)
-     */
     public function __construct(
-        public bool $capturing,
-        public ASTNode $body,
-        public ?string $name = null,
-        public ?bool $atomic = null
+        public string $kind
     ) {}
-    
-    public function toDict(): array
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'type' => 'Escape',
+            'kind' => $this->kind,
+        ];
+    }
+}
+
+readonly class UnicodeProperty implements ClassItem
+{
+    public function __construct(
+        public string $value,
+        public ?string $name = null,
+        public bool $negated = false
+    ) {}
+
+    public function jsonSerialize(): mixed
     {
         $data = [
-            'kind' => 'Group',
-            'capturing' => $this->capturing,
-            'body' => $this->body->toDict()
+            'type' => 'UnicodeProperty',
+            'value' => $this->value,
+            'negated' => $this->negated,
         ];
-        
         if ($this->name !== null) {
             $data['name'] = $this->name;
         }
-        
-        if ($this->atomic !== null) {
-            $data['atomic'] = $this->atomic;
-        }
-        
         return $data;
     }
 }
 
-/**
- * Backreference node - references a previously captured group.
- */
-class Backref implements ASTNode
+readonly class Quantifier implements Node
 {
-    /**
-     * @param int|null $byIndex Reference by numeric index
-     * @param string|null $byName Reference by named group
-     */
     public function __construct(
-        public ?int $byIndex = null,
-        public ?string $byName = null
+        public Node $target,
+        public int $min,
+        public string|int|null $max, // "inf" or int or null
+        public bool $greedy,
+        public bool $lazy,
+        public bool $possessive
     ) {}
-    
-    public function toDict(): array
-    {
-        $data = ['kind' => 'Backref'];
-        
-        if ($this->byIndex !== null) {
-            $data['byIndex'] = $this->byIndex;
-        }
-        
-        if ($this->byName !== null) {
-            $data['byName'] = $this->byName;
-        }
-        
-        return $data;
-    }
-}
 
-/**
- * Lookaround node - represents lookahead and lookbehind assertions.
- * 
- * Asserts that a pattern does (or doesn't) match at the current position
- * without consuming characters.
- */
-class Look implements ASTNode
-{
-    /**
-     * @param string $dir Direction: "Ahead"|"Behind"
-     * @param bool $neg Whether this is a negative lookaround
-     * @param ASTNode $body The pattern to assert
-     */
-    public function __construct(
-        public string $dir,
-        public bool $neg,
-        public ASTNode $body
-    ) {}
-    
-    public function toDict(): array
+    public function jsonSerialize(): mixed
     {
         return [
-            'kind' => 'Look',
-            'dir' => $this->dir,
-            'neg' => $this->neg,
-            'body' => $this->body->toDict()
+            'type' => 'Quantifier',
+            'target' => $this->target,
+            'min' => $this->min,
+            'max' => $this->max,
+            'greedy' => $this->greedy,
+            'lazy' => $this->lazy,
+            'possessive' => $this->possessive,
+        ];
+    }
+}
+
+readonly class Group implements Node
+{
+    public function __construct(
+        public bool $capturing,
+        public Node $body,
+        public ?string $name = null,
+        public ?bool $atomic = null,
+        public ?int $number = null,
+        public ?Node $expression = null
+    ) {}
+
+    public function jsonSerialize(): mixed
+    {
+        $data = [
+            'type' => 'Group',
+            'capturing' => $this->capturing,
+            'body' => $this->body,
+        ];
+        if ($this->name !== null) $data['name'] = $this->name;
+        if ($this->atomic !== null) $data['atomic'] = $this->atomic;
+        if ($this->number !== null) $data['number'] = $this->number;
+        if ($this->expression !== null) $data['expression'] = $this->expression;
+        return $data;
+    }
+}
+
+readonly class Backreference implements Node
+{
+    public function __construct(
+        public ?int $index = null,
+        public ?string $name = null
+    ) {}
+
+    public function jsonSerialize(): mixed
+    {
+        $data = ['type' => 'Backreference'];
+        if ($this->index !== null) $data['index'] = $this->index;
+        if ($this->name !== null) $data['name'] = $this->name;
+        return $data;
+    }
+}
+
+readonly class Lookahead implements Node
+{
+    public function __construct(
+        public Node $body
+    ) {}
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'type' => 'Lookahead',
+            'body' => $this->body,
+        ];
+    }
+}
+
+readonly class NegativeLookahead implements Node
+{
+    public function __construct(
+        public Node $body
+    ) {}
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'type' => 'NegativeLookahead',
+            'body' => $this->body,
+        ];
+    }
+}
+
+readonly class Lookbehind implements Node
+{
+    public function __construct(
+        public Node $body
+    ) {}
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'type' => 'Lookbehind',
+            'body' => $this->body,
+        ];
+    }
+}
+
+readonly class NegativeLookbehind implements Node
+{
+    public function __construct(
+        public Node $body
+    ) {}
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'type' => 'NegativeLookbehind',
+            'body' => $this->body,
         ];
     }
 }
