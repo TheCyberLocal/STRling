@@ -26,17 +26,6 @@ export { nodes };
  * patterns are constructed or invalid arguments are provided to pattern functions.
  * Error messages are automatically formatted with consistent indentation for
  * better readability in console output.
- *
- * @extends {Error}
- *
- * @example
- * // Thrown when invalid arguments are provided
- * try {
- *   s.digit('not a number');
- * } catch (e) {
- *   console.log(e instanceof STRlingError);  // true
- *   console.log(e.toString());  // Formatted error message
- * }
  */
 export class STRlingError extends Error {
     /**
@@ -45,14 +34,11 @@ export class STRlingError extends Error {
      * The error message is automatically formatted with consistent indentation
      * for improved readability when displayed in terminals or logs.
      *
-     * @param {string} message - The error message. Can be multiline and will be reformatted.
-     *
-     * @example
-     * throw new STRlingError('Invalid pattern argument');
+     * @param message - The error message. Can be multiline and will be reformatted.
      */
-    constructor(message) {
+    constructor(message: string) {
         const lines = message.split("\n");
-        const match = lines[1].match(/^\s*/);
+        const match = lines[1] ? lines[1].match(/^\s*/) : null;
         const indentedSpaces = match ? match[0].length : 0;
         const formattedMessage = message
             .split("\n")
@@ -74,14 +60,9 @@ export class STRlingError extends Error {
      * Formats the error message with a clear header and indented content
      * for improved visibility in console output.
      *
-     * @returns {string} The formatted error message with header and indentation.
-     *
-     * @example
-     * const err = new STRlingError('Invalid argument');
-     * console.log(err.toString());
-     * // "\n\nSTRlingError: Invalid Pattern Attempted.\n\n\tInvalid argument"
+     * @returns The formatted error message with header and indentation.
      */
-    toString() {
+    toString(): string {
         return `\n\nSTRlingError: Invalid Pattern Attempted.\n\n\t${this.message}`;
     }
 }
@@ -93,43 +74,34 @@ export class STRlingError extends Error {
  * as literals (no special regex meaning). It's the foundation for mixing literal
  * text with pattern-based matching.
  *
- * @param {string} text - The text to use as a literal.
- * @returns {Pattern} A pattern representing the literal text.
- *
- * @example
- * // Simple Use: Match literal text
- * const pattern = lit('hello');
- * /hello/.test('hello world');  // true
- *
- * @example
- * // Advanced Use: Combine literal with patterns
- * const email = s.merge(
- *   s.letter(1, 0),
- *   lit('@'),
- *   s.letter(1, 0),
- *   lit('.'),
- *   s.letter(2, 4)
- * );
- *
- * @see {@link Pattern} The Pattern class that wraps all patterns
- * @see {@link merge} For combining multiple patterns
+ * @param text - The text to use as a literal.
+ * @returns A pattern representing the literal text.
  */
-export const lit = (text) => {
+export const lit = (text: string): Pattern => {
     return Pattern.createModifiedInstance(new nodes.Lit(text), {});
 };
 
+export interface PatternOptions {
+    node: nodes.Node;
+    namedGroups?: string[];
+    numberedGroup?: boolean;
+}
+
 /**
  * Helper function to create a callable Pattern instance.
- * 
+ *
  * This is used internally by all pattern creation functions to ensure
  * patterns are callable (can be invoked as functions to apply repetitions).
  *
- * @param {object} options - The options object.
- * @param {object} options.node - The IR node object.
- * @param {Array<string>} [options.namedGroups=[]] - List of named capture groups.
- * @returns {Pattern} A callable Pattern instance.
+ * @param options - The options object.
+ * @param options.node - The IR node object.
+ * @param options.namedGroups - List of named capture groups.
+ * @returns A callable Pattern instance.
  */
-export const createPattern = ({ node, namedGroups = [] }) => {
+export const createPattern = ({
+    node,
+    namedGroups = [],
+}: PatternOptions): Pattern => {
     return Pattern.createModifiedInstance(node, { namedGroups });
 };
 
@@ -141,26 +113,23 @@ export const createPattern = ({ node, namedGroups = [] }) => {
  * all modifier methods return new Pattern instances rather than mutating the
  * original. Patterns can be combined using functions from the constructors module,
  * and can be compiled to regex strings using the build function.
- *
- * @example
- * // Create and modify patterns
- * const digit = s.digit();        // Single digit
- * const digits = s.digit(3, 5);   // 3 to 5 digits
- * const optional = s.may(s.letter()); // Optional letter
- *
- * @see {@link lit} For creating literal patterns
- * @see {@link merge} For combining patterns sequentially
- * @see {@link anyOf} For alternation between patterns
  */
+export interface Pattern {
+    (minRep?: number, maxRep?: number): Pattern;
+}
+
 export class Pattern {
+    node: nodes.Node;
+    namedGroups: string[];
+
     /**
      * Creates an instance of Pattern.
      *
-     * @param {object} options - The options object.
-     * @param {object} options.node - The IR node object representing the pattern.
-     * @param {Array<string>} [options.namedGroups=[]] - List of named capture groups in this pattern.
+     * @param options - The options object.
+     * @param options.node - The IR node object representing the pattern.
+     * @param options.namedGroups - List of named capture groups in this pattern.
      */
-    constructor({ node, namedGroups = [] }) {
+    constructor({ node, namedGroups = [] }: PatternOptions) {
         this.node = node;
         this.namedGroups = namedGroups;
     }
@@ -172,37 +141,15 @@ export class Pattern {
      * repeated a specified number of times. It's the internal method used
      * by pattern constructors when repetition parameters are provided.
      *
-     * @param {number} [minRep] - The minimum number of repetitions.
-     * @param {number} [maxRep] - The maximum number of repetitions. Use 0 for unlimited.
+     * @param minRep - The minimum number of repetitions.
+     * @param maxRep - The maximum number of repetitions. Use 0 for unlimited.
      *                            If omitted, matches exactly minRep times.
-     * @returns {Pattern} A new Pattern object with the repetition pattern applied.
+     * @returns A new Pattern object with the repetition pattern applied.
      *
      * @throws {STRlingError} If arguments are not integers, are negative, or if
      *                        attempting to repeat a pattern with named groups.
-     *
-     * @example
-     * // Match exactly 3 digits
-     * const pattern = s.digit().rep(3);
-     * /\d{3}/.test('123');  // true
-     *
-     * @example
-     * // Match 2 to 4 letters
-     * const pattern = s.letter().rep(2, 4);
-     * /[a-zA-Z]{2,4}/.test('abc');  // true
-     *
-     * @example
-     * // Match 1 or more digits (unlimited max)
-     * const pattern = s.digit().rep(1, 0);
-     * /\d+/.test('12345');  // true
-     *
-     * @pitfall
-     * Named groups cannot be repeated as they must be unique. Use merge() or
-     * capture() without names instead.
-     *
-     * @see {@link digit} For creating digit patterns with repetition
-     * @see {@link letter} For creating letter patterns with repetition
      */
-    rep(minRep, maxRep) {
+    rep(minRep?: number, maxRep?: number): Pattern {
         if (minRep === undefined && maxRep === undefined) {
             return this;
         }
@@ -272,9 +219,9 @@ export class Pattern {
         }
 
         // Create a Quant node that wraps the current node
-        const qMin = minRep;
+        const qMin = minRep ?? 0;
         const qMax =
-            maxRep === 0 ? "Inf" : maxRep !== undefined ? maxRep : minRep;
+            maxRep === 0 ? "Inf" : maxRep !== undefined ? maxRep : qMin;
 
         const newNode = new nodes.Quant(this.node, qMin, qMax, "Greedy");
 
@@ -290,14 +237,9 @@ export class Pattern {
      * be used with JavaScript's RegExp. This method is called automatically when
      * a Pattern is converted to a string.
      *
-     * @returns {string} The compiled regex pattern string.
-     *
-     * @example
-     * const pattern = s.digit(3);
-     * console.log(pattern.toString());  // '\d{3}'
-     * console.log(String(pattern));      // '\d{3}'
+     * @returns The compiled regex pattern string.
      */
-    toString() {
+    toString(): string {
         const ir = compiler.compile(this.node);
         return emitPCRE2(ir);
     }
@@ -308,15 +250,11 @@ export class Pattern {
      * This special method is called when JavaScript tries to convert a Pattern
      * to a primitive value. It enables patterns to be used in string contexts.
      *
-     * @param {string} hint - The type hint ('string', 'number', or 'default').
-     * @returns {string|Pattern} The pattern's JSON string representation if hint is 'string',
+     * @param hint - The type hint ('string', 'number', or 'default').
+     * @returns The pattern's JSON string representation if hint is 'string',
      *                           otherwise returns the pattern itself.
-     *
-     * @example
-     * const pattern = s.digit();
-     * console.log(`Pattern: ${pattern}`);  // Calls toString() automatically
      */
-    [Symbol.toPrimitive](hint) {
+    [Symbol.toPrimitive](hint: string): string | Pattern {
         if (hint === "string") {
             return this.toString();
         }
@@ -330,28 +268,27 @@ export class Pattern {
      * wrapped in a callable function to support function-like syntax for
      * applying repetitions. Used internally by pattern transformation methods.
      *
-     * @param {object} newNode - The new IR node object.
-     * @param {Object} [kwargs] - Additional properties for the new instance (e.g., namedGroups).
-     * @returns {Pattern} The new Pattern instance wrapped in a callable function.
-     *
-     * @example
-     * // Internal use - creates a pattern that can be called as a function
-     * const newPattern = Pattern.createModifiedInstance(irNode, { namedGroups: [] });
+     * @param newNode - The new IR node object.
+     * @param kwargs - Additional properties for the new instance (e.g., namedGroups).
+     * @returns The new Pattern instance wrapped in a callable function.
      */
-    static createModifiedInstance(newNode, kwargs = {}) {
+    static createModifiedInstance(
+        newNode: nodes.Node,
+        kwargs: Partial<PatternOptions> = {}
+    ): Pattern {
         const instance = new Pattern({ node: newNode, ...kwargs });
-        
+
         // Create a callable function that also has Pattern's properties
-        const callable = function(...args) {
+        const callable = function (this: any, ...args: [number?, number?]) {
             return instance.rep(...args);
-        };
-        
+        } as unknown as Pattern;
+
         // Copy all instance properties to the callable function
         Object.assign(callable, instance);
-        
+
         // Set the prototype so instanceof checks work
         Object.setPrototypeOf(callable, Pattern.prototype);
-        
+
         return callable;
     }
 }

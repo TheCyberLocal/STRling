@@ -70,6 +70,26 @@ jobs:
             - name: Run C# test suite
               run: echo "C# tests not yet implemented" && true
 
+    test-dart:
+        name: Test Dart (Stable)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Dart
+              uses: dart-lang/setup-dart@v1
+
+            - name: Install dependencies
+              working-directory: bindings/dart
+              run: dart pub get
+
+            - name: Run Dart test suite
+              working-directory: bindings/dart
+              run: dart test
+
     test-fsharp:
         name: Test F# (.NET 8)
         runs-on: ubuntu-latest
@@ -126,8 +146,8 @@ jobs:
                   cd bindings/java
                   mvn test
 
-    test-javascript:
-        name: Test JavaScript (Node.js 22 LTS)
+    test-typescript-js:
+        name: Test TypeScript/JavaScript (Node.js 22 LTS)
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -155,17 +175,17 @@ jobs:
               run: pip install -e bindings/python
 
             - name: Install JS dependencies
-              working-directory: bindings/javascript
+              working-directory: bindings/typescript
               run: npm ci
 
             - name: Verify Specs (Drift Detection)
-              working-directory: bindings/javascript
+              working-directory: bindings/typescript
               run: |
                   npm run build:specs
                   git diff --exit-code ../../tests/spec
 
             - name: Run JS test suite
-              working-directory: bindings/javascript
+              working-directory: bindings/typescript
               run: npm test
 
     test-kotlin:
@@ -186,6 +206,34 @@ jobs:
             - name: Run Kotlin test suite
               working-directory: bindings/kotlin
               run: ./gradlew test
+
+    test-lua:
+        name: Test Lua (5.1+)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Lua
+              uses: leafo/gh-actions-lua@v10
+              with:
+                  luaVersion: "5.1"
+
+            - name: Setup LuaRocks
+              uses: leafo/gh-actions-luarocks@v4
+
+            - name: Install dependencies
+              working-directory: bindings/lua
+              run: |
+                  luarocks install busted
+                  luarocks install lua-cjson
+                  luarocks install luafilesystem
+
+            - name: Run Lua test suite
+              working-directory: bindings/lua
+              run: busted
 
     test-perl:
         name: Test Perl (5.32)

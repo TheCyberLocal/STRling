@@ -27,7 +27,12 @@ const myPattern2 = s.between('a', 'z');
 // Matches any uppercase letter from 'A' to 'Z'.
 const myPattern3 = s.between('A', 'Z');
 */
-export function between(start, end, minRep, maxRep) {
+export function between(
+    start: string | number,
+    end: string | number,
+    minRep?: number,
+    maxRep?: number
+): Pattern {
     if (
         (typeof start !== "string" || typeof end !== "string") &&
         (typeof start !== "number" || typeof end !== "number")
@@ -40,10 +45,10 @@ export function between(start, end, minRep, maxRep) {
         throw new STRlingError(message);
     }
 
-    let rangeNode;
+    let rangeNode: nodes.ClassRange | undefined;
 
     if (typeof start === "number") {
-        if (start > end) {
+        if (start > (end as number)) {
             const message = `
       Method: simply.between(start, end)
 
@@ -52,7 +57,12 @@ export function between(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        if (start < 0 || start > 9 || end < 0 || end > 9) {
+        if (
+            start < 0 ||
+            start > 9 ||
+            (end as number) < 0 ||
+            (end as number) > 9
+        ) {
             const message = `
       Method: simply.between(start, end)
 
@@ -61,12 +71,11 @@ export function between(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        rangeNode = new nodes.ClassRange(start.toString(), end.toString(),
-        );
+        rangeNode = new nodes.ClassRange(start.toString(), end.toString());
     }
 
     if (typeof start === "string") {
-        if (!/^[a-zA-Z]$/.test(start) || !/^[a-zA-Z]$/.test(end)) {
+        if (!/^[a-zA-Z]$/.test(start) || !/^[a-zA-Z]$/.test(end as string)) {
             const message = `
       Method: simply.between(start, end)
 
@@ -75,7 +84,7 @@ export function between(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        if (start.length !== 1 || end.length !== 1) {
+        if (start.length !== 1 || (end as string).length !== 1) {
             const message = `
       Method: simply.between(start, end)
 
@@ -85,8 +94,10 @@ export function between(start, end, minRep, maxRep) {
         }
 
         if (
-            (start.toLowerCase() === start && end.toLowerCase() !== end) ||
-            (start.toUpperCase() === start && end.toUpperCase() !== end)
+            (start.toLowerCase() === start &&
+                (end as string).toLowerCase() !== end) ||
+            (start.toUpperCase() === start &&
+                (end as string).toUpperCase() !== end)
         ) {
             const message = `
       Method: simply.between(start, end)
@@ -96,7 +107,7 @@ export function between(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        if (start > end) {
+        if (start > (end as string)) {
             const message = `
       Method: simply.between(start, end)
 
@@ -105,11 +116,10 @@ export function between(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        rangeNode = new nodes.ClassRange(start, end,
-        );
+        rangeNode = new nodes.ClassRange(start, end as string);
     }
 
-    const node = new nodes.CharClass(false, [rangeNode]);
+    const node = new nodes.CharClass(false, [rangeNode!]);
 
     const pattern = createPattern({ node });
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
@@ -132,7 +142,12 @@ const myPattern2 = s.notBetween('a', 'z');
 // Matches any character that is not a uppercase letter from 'A' to 'Z'.
 const myPattern3 = s.notBetween('A', 'Z');
 */
-export function notBetween(start, end, minRep, maxRep) {
+export function notBetween(
+    start: string | number,
+    end: string | number,
+    minRep?: number,
+    maxRep?: number
+): Pattern {
     if (
         (typeof start !== "string" || typeof end !== "string") &&
         (typeof start !== "number" || typeof end !== "number")
@@ -148,7 +163,7 @@ export function notBetween(start, end, minRep, maxRep) {
     let startChar, endChar;
 
     if (typeof start === "number") {
-        if (start > end) {
+        if (start > (end as number)) {
             const message = `
       Method: simply.notBetween(start, end)
 
@@ -157,7 +172,12 @@ export function notBetween(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        if (start < 0 || start > 9 || end < 0 || end > 9) {
+        if (
+            start < 0 ||
+            start > 9 ||
+            (end as number) < 0 ||
+            (end as number) > 9
+        ) {
             const message = `
       Method: simply.notBetween(start, end)
 
@@ -171,7 +191,7 @@ export function notBetween(start, end, minRep, maxRep) {
     }
 
     if (typeof start === "string") {
-        if (!/^[a-zA-Z]$/.test(start) || !/^[a-zA-Z]$/.test(end)) {
+        if (!/^[a-zA-Z]$/.test(start) || !/^[a-zA-Z]$/.test(end as string)) {
             const message = `
       Method: simply.notBetween(start, end)
 
@@ -180,7 +200,7 @@ export function notBetween(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        if (start.length !== 1 || end.length !== 1) {
+        if (start.length !== 1 || (end as string).length !== 1) {
             const message = `
       Method: simply.notBetween(start, end)
 
@@ -190,8 +210,10 @@ export function notBetween(start, end, minRep, maxRep) {
         }
 
         if (
-            (start.toLowerCase() === start && end.toLowerCase() !== end) ||
-            (start.toUpperCase() === start && end.toUpperCase() !== end)
+            (start.toLowerCase() === start &&
+                (end as string).toLowerCase() !== end) ||
+            (start.toUpperCase() === start &&
+                (end as string).toUpperCase() !== end)
         ) {
             const message = `
       Method: simply.notBetween(start, end)
@@ -201,7 +223,7 @@ export function notBetween(start, end, minRep, maxRep) {
             throw new STRlingError(message);
         }
 
-        if (start > end) {
+        if (start > (end as string)) {
             const message = `
       Method: simply.notBetween(start, end)
 
@@ -211,10 +233,12 @@ export function notBetween(start, end, minRep, maxRep) {
         }
 
         startChar = start;
-        endChar = end;
+        endChar = end as string;
     }
 
-    const node = new nodes.CharClass(true, [new nodes.ClassRange(startChar, endChar)]);
+    const node = new nodes.CharClass(true, [
+        new nodes.ClassRange(startChar as string, endChar as string),
+    ]);
     const pattern = createPattern({ node });
     return minRep !== undefined ? pattern.rep(minRep, maxRep) : pattern;
 }
@@ -227,7 +251,7 @@ Matches any provided patterns, but they can't include subpatterns.
 // Matches any letter, digit, comma, and period.
 const myPattern = s.inChars(s.letter(), s.digit(), ',.');
 */
-export function inChars(...patterns) {
+export function inChars(...patterns: (Pattern | string)[]): Pattern {
     const cleanPatterns = patterns.map((pattern) => {
         if (typeof pattern === "string") {
             pattern = lit(pattern);
@@ -262,16 +286,18 @@ export function inChars(...patterns) {
     }
 
     // Build the character class items by extracting them from input patterns
-    let items = [];
+    let items: any[] = [];
     for (const pattern of cleanPatterns) {
         if (pattern.node.constructor.name === "Lit") {
             // For literals, add each character as a ClassLiteral item
             items = items.concat(
-                Array.from(pattern.node.value).map((c) => new nodes.ClassLiteral(c))
+                Array.from((pattern.node as any).value).map(
+                    (c) => new nodes.ClassLiteral(c as string)
+                )
             );
         } else if (pattern.node.constructor.name === "CharClass") {
             // For character classes, add their items directly
-            items = items.concat(pattern.node.items);
+            items = items.concat((pattern.node as any).items);
         }
         // Handle other node types as needed
     }
@@ -289,7 +315,7 @@ Matches anything but the provided patterns, but they can't include subpatterns.
 // Matches any character that is not a letter, digit, comma, and period.
 const myPattern = s.notInChars(s.letter(), s.digit(), ',.');
 */
-export function notInChars(...patterns) {
+export function notInChars(...patterns: (Pattern | string)[]): Pattern {
     const cleanPatterns = patterns.map((pattern) => {
         if (typeof pattern === "string") {
             pattern = lit(pattern);
@@ -309,7 +335,12 @@ export function notInChars(...patterns) {
         return pattern;
     });
 
-    if (cleanPatterns.some((p) => p.composite)) {
+    const compositeNodeTypes = ["Seq", "Alt", "Group", "Quant", "Look"];
+    if (
+        cleanPatterns.some((p) =>
+            compositeNodeTypes.includes(p.node.constructor.name)
+        )
+    ) {
         const message = `
     Method: simply.notInChars(...patterns)
 
@@ -319,16 +350,18 @@ export function notInChars(...patterns) {
     }
 
     // Build the character class items by extracting them from input patterns
-    let items = [];
+    let items: any[] = [];
     for (const pattern of cleanPatterns) {
         if (pattern.node.constructor.name === "Lit") {
             // For literals, add each character as a Char item
             items = items.concat(
-                Array.from(pattern.node.value).map((c) => new nodes.ClassLiteral(c))
+                Array.from((pattern.node as any).value).map(
+                    (c) => new nodes.ClassLiteral(c as string)
+                )
             );
         } else if (pattern.node.constructor.name === "CharClass") {
             // For character classes, add their items directly
-            items = items.concat(pattern.node.items);
+            items = items.concat((pattern.node as any).items);
         }
         // Handle other node types as needed
     }

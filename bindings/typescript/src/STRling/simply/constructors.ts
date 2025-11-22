@@ -41,7 +41,7 @@ import { STRlingError, Pattern, lit, createPattern, nodes } from "./pattern.js";
  * @see {@link merge} For concatenating patterns sequentially
  * @see {@link may} For optional patterns
  */
-export function anyOf(...patterns) {
+export function anyOf(...patterns: (Pattern | string)[]): Pattern {
     const cleanPatterns = patterns.map((pattern) => {
         if (typeof pattern === "string") {
             pattern = lit(pattern);
@@ -61,7 +61,7 @@ export function anyOf(...patterns) {
         return pattern;
     });
 
-    const namedGroupCounts = {};
+    const namedGroupCounts: Record<string, number> = {};
     cleanPatterns.forEach((pattern) => {
         pattern.namedGroups.forEach((groupName) => {
             if (namedGroupCounts[groupName]) {
@@ -133,7 +133,7 @@ export function anyOf(...patterns) {
  * @see {@link anyOf} For alternation between patterns
  * @see {@link merge} For concatenating patterns
  */
-export function may(...patterns) {
+export function may(...patterns: (Pattern | string)[]): Pattern {
     const cleanPatterns = patterns.map((pattern) => {
         if (typeof pattern === "string") {
             pattern = lit(pattern);
@@ -153,7 +153,7 @@ export function may(...patterns) {
         return pattern;
     });
 
-    const namedGroupCounts = {};
+    const namedGroupCounts: Record<string, number> = {};
     cleanPatterns.forEach((pattern) => {
         pattern.namedGroups.forEach((groupName) => {
             if (namedGroupCounts[groupName]) {
@@ -232,7 +232,7 @@ export function may(...patterns) {
  * @see {@link capture} For creating numbered capture groups
  * @see {@link group} For creating named capture groups
  */
-export function merge(...patterns) {
+export function merge(...patterns: (Pattern | string)[]): Pattern {
     const cleanPatterns = patterns.map((pattern) => {
         if (typeof pattern === "string") {
             pattern = lit(pattern);
@@ -252,7 +252,7 @@ export function merge(...patterns) {
         return pattern;
     });
 
-    const namedGroupCounts = {};
+    const namedGroupCounts: Record<string, number> = {};
     cleanPatterns.forEach((pattern) => {
         pattern.namedGroups.forEach((groupName) => {
             if (namedGroupCounts[groupName]) {
@@ -336,7 +336,7 @@ export function merge(...patterns) {
  * @see {@link group} For creating named capture groups
  * @see {@link merge} For non-capturing concatenation
  */
-export function capture(...patterns) {
+export function capture(...patterns: (Pattern | string)[]): Pattern {
     const cleanPatterns = patterns.map((pattern) => {
         if (typeof pattern === "string") {
             pattern = lit(pattern);
@@ -357,7 +357,7 @@ export function capture(...patterns) {
     });
 
     // Count named groups and throw error if not unique
-    const namedGroupCounts = {};
+    const namedGroupCounts: Record<string, number> = {};
     cleanPatterns.forEach((pattern) => {
         pattern.namedGroups.forEach((groupName) => {
             if (namedGroupCounts[groupName]) {
@@ -450,7 +450,10 @@ export function capture(...patterns) {
  * @see {@link capture} For numbered, repeatable capture groups
  * @see {@link merge} For non-capturing concatenation
  */
-export function group(name, ...patterns) {
+export function group(
+    name: string,
+    ...patterns: (Pattern | string)[]
+): Pattern {
     if (typeof name !== "string") {
         const message = `
     Method: simply.group(name, ...patterns)
@@ -481,7 +484,7 @@ export function group(name, ...patterns) {
     });
 
     // Count named groups and throw error if not unique
-    const namedGroupCounts = {};
+    const namedGroupCounts: Record<string, number> = {};
     cleanPatterns.forEach((pattern) => {
         pattern.namedGroups.forEach((groupName) => {
             if (namedGroupCounts[groupName]) {

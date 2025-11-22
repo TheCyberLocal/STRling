@@ -41,7 +41,7 @@ import { STRlingError, Pattern, lit, createPattern, nodes } from "./pattern.js";
  * @see {@link behind} For positive lookbehind (check what comes before)
  * @see {@link has} For checking pattern existence anywhere in the string
  */
-export function ahead(pattern) {
+export function ahead(pattern: Pattern | string): Pattern {
     if (typeof pattern === "string") {
         pattern = lit(pattern);
     }
@@ -57,7 +57,7 @@ export function ahead(pattern) {
         throw new STRlingError(message);
     }
 
-    const node = new nodes.Look("Ahead", false, pattern.node,);
+    const node = new nodes.Look("Ahead", false, pattern.node);
 
     return createPattern({
         node,
@@ -95,7 +95,7 @@ export function ahead(pattern) {
  * @see {@link notBehind} For negative lookbehind (check what's NOT before)
  * @see {@link hasNot} For checking pattern absence anywhere in the string
  */
-export function notAhead(pattern) {
+export function notAhead(pattern: Pattern | string): Pattern {
     if (typeof pattern === "string") {
         pattern = lit(pattern);
     }
@@ -111,7 +111,7 @@ export function notAhead(pattern) {
         throw new STRlingError(message);
     }
 
-    const node = new nodes.Look("Ahead", true, pattern.node,);
+    const node = new nodes.Look("Ahead", true, pattern.node);
 
     return createPattern({
         node,
@@ -149,7 +149,7 @@ export function notAhead(pattern) {
  * @see {@link notBehind} For negative lookbehind (pattern must NOT be before)
  * @see {@link ahead} For positive lookahead (check what comes after)
  */
-export function behind(pattern) {
+export function behind(pattern: Pattern | string): Pattern {
     if (typeof pattern === "string") {
         pattern = lit(pattern);
     }
@@ -165,7 +165,7 @@ export function behind(pattern) {
         throw new STRlingError(message);
     }
 
-    const node = new nodes.Look("Behind", false, pattern.node,);
+    const node = new nodes.Look("Behind", false, pattern.node);
 
     return createPattern({
         node,
@@ -202,7 +202,7 @@ export function behind(pattern) {
  * @see {@link behind} For positive lookbehind (pattern MUST be before)
  * @see {@link notAhead} For negative lookahead (check what's NOT after)
  */
-export function notBehind(pattern) {
+export function notBehind(pattern: Pattern | string): Pattern {
     if (typeof pattern === "string") {
         pattern = lit(pattern);
     }
@@ -218,7 +218,7 @@ export function notBehind(pattern) {
         throw new STRlingError(message);
     }
 
-    const node = new nodes.Look("Behind", true, pattern.node,);
+    const node = new nodes.Look("Behind", true, pattern.node);
 
     return createPattern({
         node,
@@ -262,7 +262,7 @@ export function notBehind(pattern) {
  * @see {@link hasNot} For checking pattern absence anywhere in the string
  * @see {@link ahead} For checking pattern at the immediate next position
  */
-export function has(pattern) {
+export function has(pattern: Pattern | string): Pattern {
     if (typeof pattern === "string") {
         pattern = lit(pattern);
     }
@@ -282,7 +282,7 @@ export function has(pattern) {
 
     const seqNode = new nodes.Seq([dotStarNode, pattern.node]);
 
-    const node = new nodes.Look("Ahead", false, seqNode,);
+    const node = new nodes.Look("Ahead", false, seqNode);
 
     return createPattern({
         node,
@@ -326,7 +326,7 @@ export function has(pattern) {
  * @see {@link has} For checking pattern presence anywhere in the string
  * @see {@link notAhead} For checking pattern absence at the immediate next position
  */
-export function hasNot(pattern) {
+export function hasNot(pattern: Pattern | string): Pattern {
     if (typeof pattern === "string") {
         pattern = lit(pattern);
     }
@@ -346,7 +346,7 @@ export function hasNot(pattern) {
 
     const seqNode = new nodes.Seq([dotStarNode, pattern.node]);
 
-    const node = new nodes.Look("Ahead", true, seqNode,);
+    const node = new nodes.Look("Ahead", true, seqNode);
 
     return createPattern({
         node,
