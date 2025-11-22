@@ -5,19 +5,23 @@
 #include "core/errors.h"
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <jansson.h>
 
 /* Forward declarations */
-static char* escape_literal_for_pcre2_len(const char* lit, size_t len);
+static char *escape_literal_for_pcre2_len(const char *lit, size_t len);
 
-const char* strling_version(void) {
+const char *strling_version(void)
+{
     return "0.1.0";
 }
 
 /* ==================== Error Handling ==================== */
 
-void strling_error_free(STRlingError* error) {
-    if (!error) return;
+void strling_error_free(STRlingError *error)
+{
+    if (!error)
+        return;
     free(error->message);
     free(error->hint);
     free(error);
@@ -25,282 +29,426 @@ void strling_error_free(STRlingError* error) {
 
 /* ==================== Flags ==================== */
 
-STRlingFlags* strling_flags_create(void) {
-    STRlingFlags* flags = (STRlingFlags*)calloc(1, sizeof(STRlingFlags));
-    if (!flags) return NULL;
+STRlingFlags *strling_flags_create(void)
+{
+    STRlingFlags *flags = (STRlingFlags *)calloc(1, sizeof(STRlingFlags));
+    if (!flags)
+        return NULL;
     /* All flags default to false */
     return flags;
 }
 
-void strling_flags_free(STRlingFlags* flags) {
+void strling_flags_free(STRlingFlags *flags)
+{
     free(flags);
 }
 
 /* ==================== Compilation ==================== */
 
 /* Helper to create error result */
-static STRlingResult* create_error_result(const char* message, int position, const char* hint) {
-    STRlingResult* result = (STRlingResult*)calloc(1, sizeof(STRlingResult));
-    if (!result) return NULL;
-    
-    result->error = (STRlingError*)malloc(sizeof(STRlingError));
-    if (!result->error) {
+static STRlingResult *create_error_result(const char *message, int position, const char *hint)
+{
+    STRlingResult *result = (STRlingResult *)calloc(1, sizeof(STRlingResult));
+    if (!result)
+        return NULL;
+
+    result->error = (STRlingError *)malloc(sizeof(STRlingError));
+    if (!result->error)
+    {
         free(result);
         return NULL;
     }
-    
+
     result->error->message = message ? strdup(message) : NULL;
     result->error->position = position;
     result->error->hint = hint ? strdup(hint) : NULL;
     result->pattern = NULL;
-    
+
     return result;
 }
 
 /* escape_literal_for_pcre2_len - implementation defined later below */
 /* Helper to create success result */
-static STRlingResult* create_success_result(const char* pattern) {
-    STRlingResult* result = (STRlingResult*)calloc(1, sizeof(STRlingResult));
-    if (!result) return NULL;
-    
+static STRlingResult *create_success_result(const char *pattern)
+{
+    STRlingResult *result = (STRlingResult *)calloc(1, sizeof(STRlingResult));
+    if (!result)
+        return NULL;
+
     result->pattern = pattern ? strdup(pattern) : NULL;
     result->error = NULL;
-    
+
     return result;
 }
 
 /* Parse JSON and extract node type */
-static const char* get_node_type(json_t* node) {
+static const char *get_node_type(json_t *node)
+{
     /* Support both 'type' and 'kind' field names for AST nodes to accept
        the JS artifact schema which uses 'kind' and older C JSON AST which
        may use 'type'. */
-    json_t* type = json_object_get(node, "type");
-    if (type && json_is_string(type)) return json_string_value(type);
-    json_t* kind = json_object_get(node, "kind");
-    if (kind && json_is_string(kind)) return json_string_value(kind);
+    json_t *type = json_object_get(node, "type");
+    if (type && json_is_string(type))
+        return json_string_value(type);
+    json_t *kind = json_object_get(node, "kind");
+    if (kind && json_is_string(kind))
+        return json_string_value(kind);
     return NULL;
 }
 
 /* Escape literal string with known length (supports NUL bytes) */
-static char* escape_literal_for_pcre2_len(const char* lit, size_t len) {
-    if (!lit) return strdup("");
+static char *escape_literal_for_pcre2_len(const char *lit, size_t len)
+{
+    if (!lit)
+        return strdup("");
     /* Allocate enough space for worst case: each byte could become \x{...} */
-    char* result = (char*)malloc(len * 12 + 1);
-    if (!result) return strdup("");
-    char* p = result;
-    for (size_t i = 0; i < len; ) {
+    char *result = (char *)malloc(len * 12 + 1);
+    if (!result)
+        return strdup("");
+    char *p = result;
+    for (size_t i = 0; i < len;)
+    {
         unsigned char c = (unsigned char)lit[i];
         /* Debug: print the input byte being processed */
         fprintf(stderr, "DEBUG_ESC_BYTE idx=%zu val=%02x\n", i, c);
-        if (c == '\n') { *p++='\\'; *p++='n'; i++; }
-        else if (c == '\r') { *p++='\\'; *p++='r'; i++; }
-        else if (c == '\t') { *p++='\\'; *p++='t'; i++; }
-        else if (c == '\f') { *p++='\\'; *p++='f'; i++; }
-        else if (c == 0x0B) { *p++='\\'; *p++='v'; i++; }
-        else if (c == ' ') { *p++='\\'; *p++=' '; i++; }
-        else if (c == '#') { *p++='\\'; *p++='#'; i++; }
-        else if (c == '~') { *p++='\\'; *p++='~'; i++; }
-        else if (c == '&') { *p++='\\'; *p++='&'; i++; }
-        else if (c != 0 && strchr(".^$*+?{}[]()\\|\"`", c)) { *p++='\\'; *p++ = c; i++; }
-        /* Explicitly handle NUL (0x00) so we correctly emit `\x{0}` instead of
-         * dropping or producing an incorrect escape. This is particularly
-         * important because the caller may pass in literal strings that
-         * contain embedded NUL bytes and we depend on the caller-supplied
-         * `len` to iterate over them. Placing the NUL case first ensures
-         * it isn't affected by code paths that treat control characters
-         * differently. */
-        else if (c == 0x00) {
-            /* Emit NUL as explicit \x{0} sequence to avoid embedding a raw \0
-             * byte in the C string that might truncate subsequent output when
-             * printed with %s or otherwise used. Write the characters directly
-             * to avoid subtle sprintf issues. */
+        if (c == '\n')
+        {
             *p++ = '\\';
-            *p++ = 'x';
-            *p++ = '{';
-            *p++ = '0';
-            *p++ = '}';
+            *p++ = 'n';
             i++;
-        } 
-        else if (c < 0x20 || (c >= 0x7F && c <= 0x9F)) { p += sprintf(p, "\\x{%x}", c); i++; }
-        else if (c >= 0x80) {
-            unsigned int codepoint = 0; int bytes = 0;
-            if ((c & 0xE0) == 0xC0) { codepoint = c & 0x1F; bytes = 2; }
-            else if ((c & 0xF0) == 0xE0) { codepoint = c & 0x0F; bytes = 3; }
-            else if ((c & 0xF8) == 0xF0) { codepoint = c & 0x07; bytes = 4; }
-            else { p += sprintf(p, "\\x%02x", c); i++; continue; }
+        }
+        else if (c == '\r')
+        {
+            *p++ = '\\';
+            *p++ = 'r';
             i++;
-            for (int j = 1; j < bytes && i < len; j++, i++) {
+        }
+        else if (c == '\t')
+        {
+            *p++ = '\\';
+            *p++ = 't';
+            i++;
+        }
+        else if (c == '\f')
+        {
+            *p++ = '\\';
+            *p++ = 'f';
+            i++;
+        }
+        else if (c == 0x0B)
+        {
+            *p++ = '\\';
+            *p++ = 'v';
+            i++;
+        }
+        else if (c == ' ')
+        {
+            *p++ = '\\';
+            *p++ = ' ';
+            i++;
+        }
+        else if (c == '#')
+        {
+            *p++ = '\\';
+            *p++ = '#';
+            i++;
+        }
+        else if (c == '~')
+        {
+            *p++ = '\\';
+            *p++ = '~';
+            i++;
+        }
+        else if (c == '&')
+        {
+            *p++ = '\\';
+            *p++ = '&';
+            i++;
+        }
+        else if (c != 0 && strchr(".^$*+?{}[]()\\|\"`", c))
+        {
+            *p++ = '\\';
+            *p++ = c;
+            i++;
+        }
+        /* Explicitly handle NUL (0x00) so we correctly emit `\x00` instead of
+         * dropping or producing an incorrect escape. We prefer the short
+         * two-digit \xHH form for single-byte values to match other
+         * language emitters' expectations; for larger Unicode codepoints
+         * we will fall back to the \x{...} form below. */
+        else if (c == 0x00)
+        {
+            p += sprintf(p, "\\x%02x", c);
+            i++;
+        }
+        else if (c < 0x20 || (c >= 0x7F && c <= 0x9F))
+        {
+            /* Use short form for single-byte control/high-ASCII values */
+            p += sprintf(p, "\\x%02x", c);
+            i++;
+        }
+        else if (c >= 0x80)
+        {
+            unsigned int codepoint = 0;
+            int bytes = 0;
+            if ((c & 0xE0) == 0xC0)
+            {
+                codepoint = c & 0x1F;
+                bytes = 2;
+            }
+            else if ((c & 0xF0) == 0xE0)
+            {
+                codepoint = c & 0x0F;
+                bytes = 3;
+            }
+            else if ((c & 0xF8) == 0xF0)
+            {
+                codepoint = c & 0x07;
+                bytes = 4;
+            }
+            else
+            {
+                p += sprintf(p, "\\x%02x", c);
+                i++;
+                continue;
+            }
+            i++;
+            for (int j = 1; j < bytes && i < len; j++, i++)
+            {
                 unsigned char cont = (unsigned char)lit[i];
-                if ((cont & 0xC0) != 0x80) break;
+                if ((cont & 0xC0) != 0x80)
+                    break;
                 codepoint = (codepoint << 6) | (cont & 0x3F);
             }
-            p += sprintf(p, "\\x{%x}", codepoint);
-        } else { *p++ = c; i++; }
+            /* For multi-byte decoded codepoints prefer \x{...} only when the
+             * value exceeds a single byte; otherwise emit short \xHH. */
+            if (codepoint <= 0xFF)
+                p += sprintf(p, "\\x%02x", (unsigned int)codepoint);
+            else
+                p += sprintf(p, "\\x{%x}", codepoint);
+        }
+        else
+        {
+            *p++ = c;
+            i++;
+        }
     }
     *p = '\0';
-    
+
     return result;
 }
 
 /* Helper to escape a literal string for PCRE2 output */
-static char* escape_literal_for_pcre2(const char* lit) {
-    if (!lit) return strdup("");
-    
+static char *escape_literal_for_pcre2(const char *lit)
+{
+    if (!lit)
+        return strdup("");
+
     size_t len = strlen(lit);
     /* Allocate enough space for worst case: each byte could become \x{HHHHHHHH} (12 chars) */
-    char* result = (char*)malloc(len * 12 + 1);
-    char* p = result;
-    
-    for (size_t i = 0; i < len; ) {
+    char *result = (char *)malloc(len * 12 + 1);
+    char *p = result;
+
+    for (size_t i = 0; i < len;)
+    {
         unsigned char c = (unsigned char)lit[i];
-        
+
         /* Handle control characters with escape sequences */
-        if (c == '\n') {
+        if (c == '\n')
+        {
             *p++ = '\\';
             *p++ = 'n';
             i++;
-        } else if (c == '\r') {
+        }
+        else if (c == '\r')
+        {
             *p++ = '\\';
             *p++ = 'r';
             i++;
-        } else if (c == '\t') {
+        }
+        else if (c == '\t')
+        {
             *p++ = '\\';
             *p++ = 't';
             i++;
-        } else if (c == '\f') {
+        }
+        else if (c == '\f')
+        {
             *p++ = '\\';
             *p++ = 'f';
             i++;
-        } else if (c == 0x0B) {  /* Vertical tab */
+        }
+        else if (c == 0x0B)
+        { /* Vertical tab */
             *p++ = '\\';
             *p++ = 'v';
             i++;
         }
         /* Handle space - escape it */
-        else if (c == ' ') {
+        else if (c == ' ')
+        {
             *p++ = '\\';
             *p++ = ' ';
             i++;
         }
         /* Handle hash - escape it for free-spacing mode */
-        else if (c == '#') {
+        else if (c == '#')
+        {
             *p++ = '\\';
             *p++ = '#';
             i++;
         }
         /* Handle tilde - escape it */
-        else if (c == '~') {
+        else if (c == '~')
+        {
             *p++ = '\\';
             *p++ = '~';
             i++;
         }
         /* Handle ampersand - escape it */
-        else if (c == '&') {
+        else if (c == '&')
+        {
             *p++ = '\\';
             *p++ = '&';
             i++;
         }
         /* Handle regex metacharacters - escape them */
-        else if (c != 0 && strchr(".^$*+?{}[]()\\|\"`", c)) {
+        else if (c != 0 && strchr(".^$*+?{}[]()\\|\"`", c))
+        {
             *p++ = '\\';
             *p++ = c;
             i++;
         }
         /* Handle non-printable ASCII (0x00-0x1F, 0x7F-0x9F) */
-        else if (c < 0x20 || (c >= 0x7F && c <= 0x9F)) {
+        else if (c < 0x20 || (c >= 0x7F && c <= 0x9F))
+        {
             p += sprintf(p, "\\x%02x", c);
             i++;
         }
         /* Handle multi-byte UTF-8 sequences (Unicode characters) */
-        else if (c >= 0x80) {
+        else if (c >= 0x80)
+        {
             /* Decode UTF-8 to get Unicode code point */
             unsigned int codepoint = 0;
             int bytes = 0;
-            
-            if ((c & 0xE0) == 0xC0) {
+
+            if ((c & 0xE0) == 0xC0)
+            {
                 /* 2-byte sequence */
                 codepoint = c & 0x1F;
                 bytes = 1;
-            } else if ((c & 0xF0) == 0xE0) {
+            }
+            else if ((c & 0xF0) == 0xE0)
+            {
                 /* 3-byte sequence */
                 codepoint = c & 0x0F;
                 bytes = 2;
-            } else if ((c & 0xF8) == 0xF0) {
+            }
+            else if ((c & 0xF8) == 0xF0)
+            {
                 /* 4-byte sequence */
                 codepoint = c & 0x07;
                 bytes = 3;
-            } else {
+            }
+            else
+            {
                 /* Invalid UTF-8, just output the byte as hex */
                 p += sprintf(p, "\\x%02x", c);
                 i++;
                 continue;
             }
-            
+
             /* Read continuation bytes */
             i++;
-            for (int j = 0; j < bytes && i < len; j++, i++) {
+            for (int j = 0; j < bytes && i < len; j++, i++)
+            {
                 unsigned char cont = (unsigned char)lit[i];
-                if ((cont & 0xC0) != 0x80) {
-                    /* Invalid continuation byte */
+                if ((cont & 0xC0) != 0x80)
                     break;
-                }
                 codepoint = (codepoint << 6) | (cont & 0x3F);
             }
-            
-                    /* Process single byte value 'c' */
+
+            /* Process single byte value 'c' */
         }
         /* Regular printable ASCII - output as-is */
-        else {
+        else
+        {
             *p++ = c;
             i++;
         }
     }
-    
+
     *p = '\0';
     *p = '\0';
 }
 
 /* Simple recursive compiler for basic nodes */
-static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
-    if (!node) return NULL;
-    
-    const char* type = get_node_type(node);
-    if (!type) return strdup("");
-    
+static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
+{
+    if (!node)
+        return NULL;
+
+    const char *type = get_node_type(node);
+    if (!type)
+        return strdup("");
+
     /* Handle Literal */
-    if (strcmp(type, "Literal") == 0) {
-        json_t* value = json_object_get(node, "value");
-        if (!value || !json_is_string(value)) return strdup("");
-        const char* lit = json_string_value(value);
+    if (strcmp(type, "Literal") == 0)
+    {
+        json_t *value = json_object_get(node, "value");
+        if (!value || !json_is_string(value))
+            return strdup("");
+        const char *lit = json_string_value(value);
         size_t len = json_string_length(value);
         /* Literal bytes may contain NUL; we rely on json_string_length to iterate. */
         /* Use the enhanced escape function with length (supports NUL and multi-byte chars) */
         return escape_literal_for_pcre2_len(lit, len);
     }
-    
+
     /* Handle Sequence */
-    if (strcmp(type, "Sequence") == 0) {
-        json_t* parts = json_object_get(node, "parts");
-        if (!parts || !json_is_array(parts)) return strdup("");
-        
+    if (strcmp(type, "Sequence") == 0)
+    {
+        json_t *parts = json_object_get(node, "parts");
+        if (!parts || !json_is_array(parts))
+            return strdup("");
+
         size_t n = json_array_size(parts);
-        
+
         /* Handle empty sequence */
-        if (n == 0) {
+        if (n == 0)
+        {
             return strdup("");
         }
-        
+
         size_t result_len = 0;
-        char** part_strs = (char**)malloc(n * sizeof(char*));
-        
-        for (size_t i = 0; i < n; i++) {
-            part_strs[i] = compile_node_to_pcre2(json_array_get(parts, i), flags);
+        char **part_strs = (char **)malloc(n * sizeof(char *));
+
+        for (size_t i = 0; i < n; i++)
+        {
+            json_t *part = json_array_get(parts, i);
+            char *raw_part = compile_node_to_pcre2(part, flags);
+
+            /* Check if we need to wrap this part (e.g. Alternation inside Sequence needs parens) */
+            const char *part_type = get_node_type(part);
+            if (part_type && strcmp(part_type, "Alternation") == 0)
+            {
+                size_t wrapped_len = strlen(raw_part) + 4 + 1; /* (?:...) */
+                part_strs[i] = (char *)malloc(wrapped_len);
+                snprintf(part_strs[i], wrapped_len, "(?:%s)", raw_part);
+                free(raw_part);
+            }
+            else
+            {
+                part_strs[i] = raw_part;
+            }
+
             result_len += strlen(part_strs[i]);
         }
-        
-        char* result = (char*)malloc(result_len + 1);
-        char* p = result;
-        for (size_t i = 0; i < n; i++) {
+
+        char *result = (char *)malloc(result_len + 1);
+        char *p = result;
+        for (size_t i = 0; i < n; i++)
+        {
             strcpy(p, part_strs[i]);
             p += strlen(part_strs[i]);
             free(part_strs[i]);
@@ -309,207 +457,321 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
         free(part_strs);
         return result;
     }
-    
+
     /* Handle Anchor */
-    if (strcmp(type, "Anchor") == 0) {
-        json_t* at = json_object_get(node, "at");
-                    /* Note: strchr returns a pointer to the terminating null char if 'c' is 0,
-                     * so explicitly ensure we don't match for NUL here. */
-        if (!at || !json_is_string(at)) return strdup("");
-        const char* anchor_type = json_string_value(at);
-        
-        if (strcmp(anchor_type, "Start") == 0) return strdup("^");
-        if (strcmp(anchor_type, "End") == 0) return strdup("$");
-        if (strcmp(anchor_type, "WordBoundary") == 0) return strdup("\\b");
+    if (strcmp(type, "Anchor") == 0)
+    {
+        json_t *at = json_object_get(node, "at");
+        /* Note: strchr returns a pointer to the terminating null char if 'c' is 0,
+         * so explicitly ensure we don't match for NUL here. */
+        if (!at || !json_is_string(at))
+            return strdup("");
+        const char *anchor_type = json_string_value(at);
+
+        if (strcmp(anchor_type, "Start") == 0)
+            return strdup("^");
+        if (strcmp(anchor_type, "End") == 0)
+            return strdup("$");
+        if (strcmp(anchor_type, "WordBoundary") == 0)
+            return strdup("\\b");
         /* Accept both C and JS naming for non-word boundary */
-        if (strcmp(anchor_type, "NonWordBoundary") == 0) return strdup("\\B");
-        if (strcmp(anchor_type, "NotWordBoundary") == 0) return strdup("\\B");
-        if (strcmp(anchor_type, "AbsoluteStart") == 0) return strdup("\\A");
+        if (strcmp(anchor_type, "NonWordBoundary") == 0)
+            return strdup("\\B");
+        if (strcmp(anchor_type, "NotWordBoundary") == 0)
+            return strdup("\\B");
+        if (strcmp(anchor_type, "AbsoluteStart") == 0)
+            return strdup("\\A");
         /* Accept both canonical and JS name for end-before-final-newline */
-        if (strcmp(anchor_type, "AbsoluteEnd") == 0) return strdup("\\Z");
-        if (strcmp(anchor_type, "EndBeforeFinalNewline") == 0) return strdup("\\Z");
-        if (strcmp(anchor_type, "AbsoluteEndOnly") == 0) return strdup("\\z");
+        if (strcmp(anchor_type, "AbsoluteEnd") == 0)
+            return strdup("\\Z");
+        if (strcmp(anchor_type, "EndBeforeFinalNewline") == 0)
+            return strdup("\\Z");
+        if (strcmp(anchor_type, "AbsoluteEndOnly") == 0)
+            return strdup("\\z");
         return strdup("");
     }
-    
+
     /* Handle Dot (any character) */
-    if (strcmp(type, "Dot") == 0) {
+    if (strcmp(type, "Dot") == 0)
+    {
         return strdup(".");
     }
-    
+
     /* Handle Quantifier */
-    if (strcmp(type, "Quantifier") == 0) {
-        json_t* target = json_object_get(node, "target");
-        json_t* min_obj = json_object_get(node, "min");
-        json_t* max_obj = json_object_get(node, "max");
-        json_t* lazy_obj = json_object_get(node, "lazy");
-        json_t* possessive_obj = json_object_get(node, "possessive");
-        
-        if (!target || !min_obj) return strdup("");
-        
-        /* Compile the target first */
-        char* target_str = compile_node_to_pcre2(target, flags);
-        if (!target_str) return strdup("");
-        
-        /* Get min and max values */
-        int min = json_integer_value(min_obj);
-        int max = -1; /* -1 represents null/infinity */
-        if (max_obj && json_is_integer(max_obj)) {
-            max = json_integer_value(max_obj);
+    if (strcmp(type, "Quantifier") == 0)
+    {
+        json_t *min_obj = json_object_get(node, "min");
+        json_t *max_obj = json_object_get(node, "max");
+        json_t *greedy_obj = json_object_get(node, "greedy");
+        json_t *possessive_obj = json_object_get(node, "possessive");
+        json_t *target = json_object_get(node, "target");
+
+        if (!target)
+            return strdup("");
+
+        char *target_str = compile_node_to_pcre2(target, flags);
+        if (!target_str)
+            return strdup("");
+
+        /* Handle empty target (e.g. empty sequence) */
+        if (strlen(target_str) == 0)
+        {
+            free(target_str);
+            target_str = strdup("(?:)");
         }
-        
-        /* Check for lazy and possessive modifiers */
-        bool lazy = lazy_obj && json_is_true(lazy_obj);
-        bool possessive = possessive_obj && json_is_true(possessive_obj);
-        
-        /* Build the quantifier string */
+        else
+        {
+            /* Check if target needs wrapping (nested Quantifier, Alternation, Sequence) */
+            const char *target_type = get_node_type(target);
+            bool needs_wrap = false;
+            if (target_type)
+            {
+                if (strcmp(target_type, "Quantifier") == 0 ||
+                    strcmp(target_type, "Alternation") == 0 ||
+                    strcmp(target_type, "Lookahead") == 0 ||
+                    strcmp(target_type, "NegativeLookahead") == 0 ||
+                    strcmp(target_type, "Lookbehind") == 0 ||
+                    strcmp(target_type, "NegativeLookbehind") == 0 ||
+                    strcmp(target_type, "Look") == 0 ||
+                    strcmp(target_type, "Lookaround") == 0)
+                {
+                    needs_wrap = true;
+                }
+                else if (strcmp(target_type, "Sequence") == 0)
+                {
+                    /* Only wrap Sequence if it has multiple parts */
+                    json_t *parts = json_object_get(target, "parts");
+                    if (parts && json_is_array(parts) && json_array_size(parts) > 1)
+                    {
+                        needs_wrap = true;
+                    }
+                }
+            }
+
+            if (needs_wrap)
+            {
+                size_t wrapped_len = strlen(target_str) + 4 + 1;
+                char *wrapped = (char *)malloc(wrapped_len);
+                snprintf(wrapped, wrapped_len, "(?:%s)", target_str);
+                free(target_str);
+                target_str = wrapped;
+            }
+        }
+
+        int min = 0;
+        if (min_obj && json_is_integer(min_obj))
+            min = json_integer_value(min_obj);
+
+        bool greedy = true;
+        if (greedy_obj && json_is_boolean(greedy_obj))
+            greedy = json_boolean_value(greedy_obj);
+        bool possessive = false;
+        if (possessive_obj && json_is_boolean(possessive_obj))
+            possessive = json_boolean_value(possessive_obj);
+
+        /* Build quantifier string */
         char quantifier[32] = "";
-        
-        /* Special case: {1,1} means no quantifier needed */
-        if (min == 1 && max == 1) {
-            /* No quantifier needed, just return target */
-            return target_str;
+
+        if (max_obj && json_is_null(max_obj))
+        {
+            /* Unbounded max */
+            if (min == 0)
+                strcpy(quantifier, "*");
+            else if (min == 1)
+                strcpy(quantifier, "+");
+            else
+                snprintf(quantifier, sizeof(quantifier), "{%d,}", min);
         }
-        /* Standard quantifiers */
-        else if (min == 0 && max == -1) {
+        else if (max_obj && json_is_integer(max_obj))
+        {
+            int max = json_integer_value(max_obj);
+            if (min == 0 && max == 1)
+                strcpy(quantifier, "?");
+            else if (min == max)
+                snprintf(quantifier, sizeof(quantifier), "{%d}", min);
+            else
+                snprintf(quantifier, sizeof(quantifier), "{%d,%d}", min, max);
+        }
+        else
+        {
+            /* Default to * if max is missing/invalid (shouldn't happen in valid AST) */
             strcpy(quantifier, "*");
         }
-        else if (min == 1 && max == -1) {
-            strcpy(quantifier, "+");
-        }
-        else if (min == 0 && max == 1) {
-            strcpy(quantifier, "?");
-        }
-        /* Brace quantifiers */
-        else if (min == max) {
-            snprintf(quantifier, sizeof(quantifier), "{%d}", min);
-        }
-        else if (max == -1) {
-            snprintf(quantifier, sizeof(quantifier), "{%d,}", min);
-        }
-        else {
-            snprintf(quantifier, sizeof(quantifier), "{%d,%d}", min, max);
-        }
-        
-        /* Add lazy or possessive modifier */
-        if (lazy) {
+
+        /* Add lazy modifier if not greedy */
+        if (!greedy)
+        {
             strcat(quantifier, "?");
         }
-        else if (possessive) {
+
+        /* Add possessive modifier if requested (e.g. a*+ ) */
+        if (possessive)
+        {
             strcat(quantifier, "+");
         }
-        
+
         /* Combine target and quantifier */
         size_t result_len = strlen(target_str) + strlen(quantifier) + 1;
-        char* result = (char*)malloc(result_len);
+        char *result = (char *)malloc(result_len);
         strcpy(result, target_str);
         strcat(result, quantifier);
-        
+
         free(target_str);
         return result;
     }
-    
+
     /* Handle Alternation */
-    if (strcmp(type, "Alternation") == 0) {
-        json_t* alternatives = json_object_get(node, "alternatives");
-        if (!alternatives || !json_is_array(alternatives)) return strdup("");
-        
+    if (strcmp(type, "Alternation") == 0)
+    {
+        json_t *alternatives = json_object_get(node, "alternatives");
+        if (!alternatives || !json_is_array(alternatives))
+            return strdup("");
+
         size_t n = json_array_size(alternatives);
-        if (n == 0) return strdup("");
-        
+        if (n == 0)
+            return strdup("");
+
+        /* Optimization: if only 1 alternative, just return it */
+        if (n == 1)
+        {
+            json_t *alt = json_array_get(alternatives, 0);
+            return compile_node_to_pcre2(alt, flags);
+        }
+
         /* Compile all alternatives */
-        char** alt_strs = (char**)malloc(n * sizeof(char*));
+        char **alt_strs = (char **)malloc(n * sizeof(char *));
         size_t total_len = 0;
-        
-        for (size_t i = 0; i < n; i++) {
+
+        for (size_t i = 0; i < n; i++)
+        {
             alt_strs[i] = compile_node_to_pcre2(json_array_get(alternatives, i), flags);
             total_len += strlen(alt_strs[i]);
         }
-        
-        /* Add space for separators and parentheses: ( alt1 | alt2 | ... ) */
-        /* We need (n-1) separators of " | " (but we'll use just "|" for compactness) */
+
+        /* Add space for separators: alt1 | alt2 | ... */
+        /* We need (n-1) separators of "|" */
         total_len += (n - 1); /* for | separators */
-        total_len += 2; /* for parentheses */
-        total_len += 1; /* for null terminator */
-        
-        char* result = (char*)malloc(total_len);
-        char* p = result;
-        
-        /* Add opening parenthesis */
-        *p++ = '(';
-        
+        total_len += 1;       /* for null terminator */
+
+        char *result = (char *)malloc(total_len);
+        char *p = result;
+
         /* Join alternatives with | */
-        for (size_t i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++)
+        {
             strcpy(p, alt_strs[i]);
             p += strlen(alt_strs[i]);
-            if (i < n - 1) {
+            if (i < n - 1)
+            {
                 *p++ = '|';
             }
             free(alt_strs[i]);
         }
-        
-        /* Add closing parenthesis */
-        *p++ = ')';
+
         *p = '\0';
-        
+
         free(alt_strs);
         return result;
     }
-    
+
     /* Handle CharacterClass */
-    if (strcmp(type, "CharacterClass") == 0) {
-        json_t* negated_obj = json_object_get(node, "negated");
-        json_t* members = json_object_get(node, "members");
-        
-        if (!members || !json_is_array(members)) return strdup("");
-        
+    if (strcmp(type, "CharacterClass") == 0)
+    {
+        json_t *negated_obj = json_object_get(node, "negated");
+        json_t *members = json_object_get(node, "members");
+
+        if (!members || !json_is_array(members))
+            return strdup("");
+
         bool negated = negated_obj && json_is_true(negated_obj);
         size_t n = json_array_size(members);
-        
+
+        /* Optimization: if character class is a single shorthand escape like
+         * { "type": "Escape", "kind": "digit" } then emit the
+         * shorthand \d / \D etc rather than a bracketed class. Tests expect
+         * \d, \w, \s for these cases (and the uppercase variant when
+         * negated). */
+        if (n == 1)
+        {
+            json_t *first = json_array_get(members, 0);
+            const char *first_type = get_node_type(first);
+            if (first_type && strcmp(first_type, "Escape") == 0)
+            {
+                json_t *kind_obj = json_object_get(first, "kind");
+                if (kind_obj && json_is_string(kind_obj))
+                {
+                    const char *kind = json_string_value(kind_obj);
+                    char k = 'd';
+                    if (strcmp(kind, "digit") == 0)
+                        k = 'd';
+                    else if (strcmp(kind, "word") == 0)
+                        k = 'w';
+                    else if (strcmp(kind, "space") == 0)
+                        k = 's';
+                    else
+                        k = kind[0];
+
+                    if (negated)
+                        k = (char)toupper((unsigned char)k);
+                    char buf[4] = {'\\', k, '\0'};
+                    return strdup(buf);
+                }
+            }
+        }
+
         /* Build the character class string */
         size_t result_capacity = 256; /* Initial capacity */
-        char* result = (char*)malloc(result_capacity);
+        char *result = (char *)malloc(result_capacity);
         size_t result_len = 0;
-        
+
         /* Start with [ */
         result[result_len++] = '[';
-        
+
         /* Add ^ if negated */
-        if (negated) {
+        if (negated)
+        {
             result[result_len++] = '^';
         }
-        
+
         /* Process each member */
-        for (size_t i = 0; i < n; i++) {
-            json_t* member = json_array_get(members, i);
-            if (!member) continue;
-            
-            const char* member_type = get_node_type(member);
-            if (!member_type) continue;
-            
+        for (size_t i = 0; i < n; i++)
+        {
+            json_t *member = json_array_get(members, i);
+            if (!member)
+                continue;
+
+            const char *member_type = get_node_type(member);
+            if (!member_type)
+                continue;
+
             /* Ensure we have enough space (conservative estimate) */
-            if (result_len + 50 > result_capacity) {
+            if (result_len + 50 > result_capacity)
+            {
                 result_capacity *= 2;
-                char* new_result = (char*)realloc(result, result_capacity);
-                if (!new_result) {
+                char *new_result = (char *)realloc(result, result_capacity);
+                if (!new_result)
+                {
                     free(result);
                     return strdup("");
                 }
                 result = new_result;
             }
-            
+
             /* Handle Range: {"type": "Range", "from": "a", "to": "z"} */
-            if (strcmp(member_type, "Range") == 0) {
-                json_t* from_obj = json_object_get(member, "from");
-                json_t* to_obj = json_object_get(member, "to");
-                
-                if (from_obj && json_is_string(from_obj) && 
-                    to_obj && json_is_string(to_obj)) {
-                    const char* from = json_string_value(from_obj);
-                    const char* to = json_string_value(to_obj);
-                    
+            if (strcmp(member_type, "Range") == 0)
+            {
+                json_t *from_obj = json_object_get(member, "from");
+                json_t *to_obj = json_object_get(member, "to");
+
+                if (from_obj && json_is_string(from_obj) &&
+                    to_obj && json_is_string(to_obj))
+                {
+                    const char *from = json_string_value(from_obj);
+                    const char *to = json_string_value(to_obj);
+
                     /* Ensure strings are not empty before accessing [0] */
-                    if (from && from[0] && to && to[0]) {
+                    if (from && from[0] && to && to[0])
+                    {
                         /* Emit as "from-to" */
                         result[result_len++] = from[0];
                         result[result_len++] = '-';
@@ -518,13 +780,16 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
                 }
             }
             /* Handle Meta: {"type": "Meta", "value": "d"} */
-            else if (strcmp(member_type, "Meta") == 0) {
-                json_t* value_obj = json_object_get(member, "value");
-                if (value_obj && json_is_string(value_obj)) {
-                    const char* value = json_string_value(value_obj);
+            else if (strcmp(member_type, "Meta") == 0)
+            {
+                json_t *value_obj = json_object_get(member, "value");
+                if (value_obj && json_is_string(value_obj))
+                {
+                    const char *value = json_string_value(value_obj);
                     size_t val_len = json_string_length(value_obj);
                     /* Ensure string is not empty before accessing */
-                    if (value && val_len > 0) {
+                    if (value && val_len > 0)
+                    {
                         /* Emit as \value */
                         result[result_len++] = '\\';
                         result[result_len++] = value[0];
@@ -532,41 +797,55 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
                 }
             }
             /* Handle Literal: {"type": "Literal", "value": "x"} */
-            else if (strcmp(member_type, "Literal") == 0) {
-                json_t* value_obj = json_object_get(member, "value");
-                if (value_obj && json_is_string(value_obj)) {
-                    const char* value = json_string_value(value_obj);
+            else if (strcmp(member_type, "Literal") == 0)
+            {
+                json_t *value_obj = json_object_get(member, "value");
+                if (value_obj && json_is_string(value_obj))
+                {
+                    const char *value = json_string_value(value_obj);
                     size_t val_len = json_string_length(value_obj);
                     /* Ensure string is not empty before accessing [0] */
-                    if (value && val_len > 0) {
+                    if (value && val_len > 0)
+                    {
                         /* Special characters in character classes that need escaping */
                         // Parse as UTF-8 and emit hex escapes for non-printable or multi-byte
-                        const unsigned char *s = (const unsigned char*)value;
+                        const unsigned char *s = (const unsigned char *)value;
                         size_t i = 0;
-                        while (i < val_len) {
+                        while (i < val_len)
+                        {
                             unsigned char c = s[i];
-                            if (c < 0x20 || c > 0x7e || (s[i+1] != '\0')) {
+                            if (c < 0x20 || c > 0x7e || (s[i + 1] != '\0'))
+                            {
                                 // Multi-byte or non-printable -> emit as \x{...}
                                 // Determine codepoint
                                 unsigned int codepoint = 0;
                                 size_t bytes = 0;
-                                if ((c & 0x80) == 0) {
+                                if ((c & 0x80) == 0)
+                                {
                                     codepoint = c;
                                     bytes = 1;
-                                } else if ((c & 0xE0) == 0xC0) {
+                                }
+                                else if ((c & 0xE0) == 0xC0)
+                                {
                                     codepoint = c & 0x1F;
                                     bytes = 2;
-                                } else if ((c & 0xF0) == 0xE0) {
+                                }
+                                else if ((c & 0xF0) == 0xE0)
+                                {
                                     codepoint = c & 0x0F;
                                     bytes = 3;
-                                } else if ((c & 0xF8) == 0xF0) {
+                                }
+                                else if ((c & 0xF8) == 0xF0)
+                                {
                                     codepoint = c & 0x07;
                                     bytes = 4;
                                 }
                                 // Read continuation bytes
-                                for (size_t j = 1; j < bytes; j++) {
+                                for (size_t j = 1; j < bytes; j++)
+                                {
                                     unsigned char cont = s[i + j];
-                                    if ((cont & 0xC0) != 0x80) break;
+                                    if ((cont & 0xC0) != 0x80)
+                                        break;
                                     codepoint = (codepoint << 6) | (cont & 0x3F);
                                 }
                                 // Emit as \x{hex}
@@ -576,14 +855,18 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
                                 // hex value
                                 char buf[16];
                                 snprintf(buf, sizeof(buf), "%x", codepoint);
-                                for (size_t k = 0; k < strlen(buf); k++) {
+                                for (size_t k = 0; k < strlen(buf); k++)
+                                {
                                     result[result_len++] = buf[k];
                                 }
                                 result[result_len++] = '}';
                                 i += bytes;
-                            } else {
+                            }
+                            else
+                            {
                                 char ch = (char)c;
-                                if (ch == ']' || ch == '\\' || ch == '^' || ch == '-') {
+                                if (ch == ']' || ch == '\\' || ch == '^' || ch == '-')
+                                {
                                     result[result_len++] = '\\';
                                 }
                                 result[result_len++] = ch;
@@ -596,67 +879,81 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
             /* Handle Escape shorthand inside character classes: \d, \w, \s
                These are encoded as { "type": "Escape", "kind": "digit" } in the AST
             */
-            else if (strcmp(member_type, "Escape") == 0) {
-                json_t* kind_obj = json_object_get(member, "kind");
-                if (kind_obj && json_is_string(kind_obj)) {
-                    const char* kind = json_string_value(kind_obj);
-                    if (kind && kind[0]) {
+            else if (strcmp(member_type, "Escape") == 0)
+            {
+                json_t *kind_obj = json_object_get(member, "kind");
+                if (kind_obj && json_is_string(kind_obj))
+                {
+                    const char *kind = json_string_value(kind_obj);
+                    if (kind && kind[0])
+                    {
                         char k = 'd';
-                        if (strcmp(kind, "digit") == 0) k = 'd';
-                        else if (strcmp(kind, "word") == 0) k = 'w';
-                        else if (strcmp(kind, "space") == 0) k = 's';
-                        else k = kind[0];
+                        if (strcmp(kind, "digit") == 0)
+                            k = 'd';
+                        else if (strcmp(kind, "word") == 0)
+                            k = 'w';
+                        else if (strcmp(kind, "space") == 0)
+                            k = 's';
+                        else
+                            k = kind[0];
                         result[result_len++] = '\\';
                         result[result_len++] = k;
                     }
                 }
             }
             /* Handle UnicodeProperty: {"type": "UnicodeProperty", "name": "Script", "value": "Latin", "negated": false} */
-            else if (strcmp(member_type, "UnicodeProperty") == 0) {
-                json_t* name_obj = json_object_get(member, "name");
-                json_t* value_obj = json_object_get(member, "value");
-                json_t* neg_obj = json_object_get(member, "negated");
-                
+            else if (strcmp(member_type, "UnicodeProperty") == 0)
+            {
+                json_t *name_obj = json_object_get(member, "name");
+                json_t *value_obj = json_object_get(member, "value");
+                json_t *neg_obj = json_object_get(member, "negated");
+
                 bool is_negated = neg_obj && json_is_true(neg_obj);
-                
-                if (value_obj && json_is_string(value_obj)) {
-                    const char* value = json_string_value(value_obj);
-                    const char* name = NULL;
+
+                if (value_obj && json_is_string(value_obj))
+                {
+                    const char *value = json_string_value(value_obj);
+                    const char *name = NULL;
                     size_t value_len = value ? strlen(value) : 0;
                     size_t name_len = 0;
-                    
-                    if (name_obj && json_is_string(name_obj)) {
+
+                    if (name_obj && json_is_string(name_obj))
+                    {
                         name = json_string_value(name_obj);
                         name_len = name ? strlen(name) : 0;
                     }
-                    
+
                     /* Calculate total space needed: \p{name=value} or \p{value} */
                     size_t needed = 4 + value_len + name_len + (name ? 1 : 0); /* \p{} + name= + value */
-                    
+
                     /* Ensure we have enough space */
-                    while (result_len + needed >= result_capacity) {
+                    while (result_len + needed >= result_capacity)
+                    {
                         result_capacity *= 2;
-                        char* new_result = (char*)realloc(result, result_capacity);
-                        if (!new_result) {
+                        char *new_result = (char *)realloc(result, result_capacity);
+                        if (!new_result)
+                        {
                             free(result);
                             return strdup("");
                         }
                         result = new_result;
                     }
-                    
+
                     /* Start with \p or \P */
                     result[result_len++] = '\\';
                     result[result_len++] = is_negated ? 'P' : 'p';
                     result[result_len++] = '{';
-                    
+
                     /* Add name=value if name is present, otherwise just value */
-                    if (name && name_len > 0) {
+                    if (name && name_len > 0)
+                    {
                         memcpy(result + result_len, name, name_len);
                         result_len += name_len;
                         result[result_len++] = '=';
                     }
-                    
-                    if (value && value_len > 0) {
+
+                    if (value && value_len > 0)
+                    {
                         memcpy(result + result_len, value, value_len);
                         result_len += value_len;
                     }
@@ -664,22 +961,25 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
                 }
             }
         }
-        
+
         /* Close with ] */
         result[result_len++] = ']';
         result[result_len] = '\0';
-        
+
         return result;
     }
-    
+
     /* Handle Meta (standalone escape sequences like \b, \d, etc.) */
-    if (strcmp(type, "Meta") == 0) {
-        json_t* value_obj = json_object_get(node, "value");
-        if (value_obj && json_is_string(value_obj)) {
-            const char* value = json_string_value(value_obj);
-            if (value && value[0]) {
+    if (strcmp(type, "Meta") == 0)
+    {
+        json_t *value_obj = json_object_get(node, "value");
+        if (value_obj && json_is_string(value_obj))
+        {
+            const char *value = json_string_value(value_obj);
+            if (value && value[0])
+            {
                 /* Emit as \value */
-                char* result = (char*)malloc(3); /* \ + char + \0 */
+                char *result = (char *)malloc(3); /* \ + char + \0 */
                 result[0] = '\\';
                 result[1] = value[0];
                 result[2] = '\0';
@@ -688,265 +988,468 @@ static char* compile_node_to_pcre2(json_t* node, const STRlingFlags* flags) {
         }
         return strdup("");
     }
-    
+
     /* Handle Group */
-    if (strcmp(type, "Group") == 0) {
-        json_t* body = json_object_get(node, "body");
-        json_t* capturing_obj = json_object_get(node, "capturing");
-        json_t* name_obj = json_object_get(node, "name");
-        json_t* atomic_obj = json_object_get(node, "atomic");
-        
-        if (!body) return strdup("");
-        
+    if (strcmp(type, "Group") == 0)
+    {
+        json_t *body = json_object_get(node, "body");
+        if (!body)
+            body = json_object_get(node, "expression");
+
+        json_t *capturing_obj = json_object_get(node, "capturing");
+        json_t *name_obj = json_object_get(node, "name");
+        json_t *atomic_obj = json_object_get(node, "atomic");
+
+        if (!body)
+            return strdup("");
+
         /* Compile the body */
-        char* body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str) return strdup("");
-        
+        char *body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str)
+            return strdup("");
+
         /* Determine group type */
         bool capturing = true; /* Default is capturing */
         bool atomic = false;
-        const char* name = NULL;
-        
-        if (capturing_obj && json_is_boolean(capturing_obj)) {
+        const char *name = NULL;
+
+        if (capturing_obj && json_is_boolean(capturing_obj))
+        {
             capturing = json_boolean_value(capturing_obj);
         }
-        if (atomic_obj && json_is_boolean(atomic_obj)) {
+        if (atomic_obj && json_is_boolean(atomic_obj))
+        {
             atomic = json_boolean_value(atomic_obj);
         }
-        if (name_obj && json_is_string(name_obj)) {
+        if (name_obj && json_is_string(name_obj))
+        {
             name = json_string_value(name_obj);
         }
-        
+
         /* Build the group string */
         size_t body_len = strlen(body_str);
         size_t result_len;
-        char* result;
-        
-        if (atomic) {
+        char *result;
+
+        if (atomic)
+        {
             /* Atomic group: (?>...) */
             result_len = 4 + body_len + 1; /* (?> + body + ) + \0 */
-            result = (char*)malloc(result_len);
+            result = (char *)malloc(result_len);
             snprintf(result, result_len, "(?>%s)", body_str);
-        } else if (name) {
+        }
+        else if (name)
+        {
             /* Named capturing group: (?<name>...) */
             size_t name_len = strlen(name);
             result_len = 4 + name_len + body_len + 2; /* (?< + name + > + body + ) + \0 */
-            result = (char*)malloc(result_len);
+            result = (char *)malloc(result_len);
             snprintf(result, result_len, "(?<%s>%s)", name, body_str);
-        } else if (!capturing) {
+        }
+        else if (!capturing)
+        {
             /* Non-capturing group: (?:...) */
             result_len = 4 + body_len + 1; /* (?: + body + ) + \0 */
-            result = (char*)malloc(result_len);
+            result = (char *)malloc(result_len);
             snprintf(result, result_len, "(?:%s)", body_str);
-        } else {
+        }
+        else
+        {
             /* Capturing group: (...) */
             result_len = 2 + body_len + 1; /* ( + body + ) + \0 */
-            result = (char*)malloc(result_len);
+            result = (char *)malloc(result_len);
             snprintf(result, result_len, "(%s)", body_str);
         }
-        
+
         free(body_str);
         return result;
     }
-    
+
     /* Handle Backreference */
-    if (strcmp(type, "Backreference") == 0) {
-        json_t* index_obj = json_object_get(node, "index");
-        json_t* name_obj = json_object_get(node, "name");
-        
-        if (name_obj && json_is_string(name_obj)) {
+    if (strcmp(type, "Backreference") == 0 || strcmp(type, "Backref") == 0 || strcmp(type, "BackReference") == 0)
+    {
+        json_t *index_obj = json_object_get(node, "index");
+        json_t *name_obj = json_object_get(node, "name");
+        json_t *ref_obj = json_object_get(node, "ref");
+        json_t *by_index_obj = json_object_get(node, "byIndex");
+        json_t *by_name_obj = json_object_get(node, "byName");
+
+        if (name_obj && json_is_string(name_obj))
+        {
             /* Named backreference: \k<name> */
-            const char* name = json_string_value(name_obj);
+            const char *name = json_string_value(name_obj);
             size_t name_len = strlen(name);
             size_t result_len = 4 + name_len + 1; /* \k< + name + > + \0 */
-            char* result = (char*)malloc(result_len);
+            char *result = (char *)malloc(result_len);
             snprintf(result, result_len, "\\k<%s>", name);
             return result;
-        } else if (index_obj && json_is_integer(index_obj)) {
+        }
+        else if (by_name_obj && json_is_string(by_name_obj))
+        {
+            const char *name = json_string_value(by_name_obj);
+            size_t name_len = strlen(name);
+            size_t result_len = 4 + name_len + 1;
+            char *result = (char *)malloc(result_len);
+            snprintf(result, result_len, "\\k<%s>", name);
+            return result;
+        }
+        else if (index_obj && json_is_integer(index_obj))
+        {
             /* Numeric backreference: \1, \2, etc. */
             int index = json_integer_value(index_obj);
-            char* result = (char*)malloc(16); /* Enough for \<digits> */
+            char *result = (char *)malloc(16); /* Enough for \<digits> */
             snprintf(result, 16, "\\%d", index);
             return result;
         }
+        else if (by_index_obj && json_is_integer(by_index_obj))
+        {
+            int index = json_integer_value(by_index_obj);
+            char *result = (char *)malloc(16);
+            snprintf(result, 16, "\\%d", index);
+            return result;
+        }
+        else if (ref_obj)
+        {
+            /* Handle JS-style 'ref' field which can be int or string */
+            if (json_is_string(ref_obj))
+            {
+                const char *name = json_string_value(ref_obj);
+                size_t name_len = strlen(name);
+                size_t result_len = 4 + name_len + 1;
+                char *result = (char *)malloc(result_len);
+                snprintf(result, result_len, "\\k<%s>", name);
+                return result;
+            }
+            else if (json_is_integer(ref_obj))
+            {
+                int index = json_integer_value(ref_obj);
+                char *result = (char *)malloc(16);
+                snprintf(result, 16, "\\%d", index);
+                return result;
+            }
+        }
         return strdup("");
     }
-    
+
     /* Handle Lookahead */
-    if (strcmp(type, "Lookahead") == 0) {
-        json_t* body = json_object_get(node, "body");
-        if (!body) return strdup("");
-        
-        char* body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str) return strdup("");
-        
+    if (strcmp(type, "Lookahead") == 0)
+    {
+        json_t *body = json_object_get(node, "body");
+        if (!body)
+            body = json_object_get(node, "expression");
+        if (!body)
+            return strdup("");
+
+        char *body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str)
+            return strdup("");
+
         /* Positive lookahead: (?=...) */
         size_t body_len = strlen(body_str);
         size_t result_len = 4 + body_len + 1; /* (?= + body + ) + \0 */
-        char* result = (char*)malloc(result_len);
+        char *result = (char *)malloc(result_len);
         snprintf(result, result_len, "(?=%s)", body_str);
-        
+
         free(body_str);
         return result;
     }
-    
+
     /* Handle NegativeLookahead */
-    if (strcmp(type, "NegativeLookahead") == 0) {
-        json_t* body = json_object_get(node, "body");
-        if (!body) return strdup("");
-        
-        char* body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str) return strdup("");
-        
+    if (strcmp(type, "NegativeLookahead") == 0)
+    {
+        json_t *body = json_object_get(node, "body");
+        if (!body)
+            body = json_object_get(node, "expression");
+        if (!body)
+            return strdup("");
+
+        char *body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str)
+            return strdup("");
+
         /* Negative lookahead: (?!...) */
         size_t body_len = strlen(body_str);
         size_t result_len = 4 + body_len + 1; /* (?! + body + ) + \0 */
-        char* result = (char*)malloc(result_len);
+        char *result = (char *)malloc(result_len);
         snprintf(result, result_len, "(?!%s)", body_str);
-        
+
         free(body_str);
         return result;
     }
-    
+
     /* Handle Lookbehind */
-    if (strcmp(type, "Lookbehind") == 0) {
-        json_t* body = json_object_get(node, "body");
-        if (!body) return strdup("");
-        
-        char* body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str) return strdup("");
-        
+    if (strcmp(type, "Lookbehind") == 0)
+    {
+        json_t *body = json_object_get(node, "body");
+        if (!body)
+            body = json_object_get(node, "expression");
+        if (!body)
+            return strdup("");
+
+        char *body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str)
+            return strdup("");
+
         /* Positive lookbehind: (?<=...) */
         size_t body_len = strlen(body_str);
         size_t result_len = 5 + body_len + 1; /* (?<= + body + ) + \0 */
-        char* result = (char*)malloc(result_len);
+        char *result = (char *)malloc(result_len);
         snprintf(result, result_len, "(?<=%s)", body_str);
-        
+
         free(body_str);
         return result;
     }
-    
+
     /* Handle NegativeLookbehind */
-    if (strcmp(type, "NegativeLookbehind") == 0) {
-        json_t* body = json_object_get(node, "body");
-        if (!body) return strdup("");
-        
-        char* body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str) return strdup("");
-        
+    if (strcmp(type, "NegativeLookbehind") == 0)
+    {
+        json_t *body = json_object_get(node, "body");
+        if (!body)
+            body = json_object_get(node, "expression");
+        if (!body)
+            return strdup("");
+
+        char *body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str)
+            return strdup("");
+
         /* Negative lookbehind: (?<!...) */
         size_t body_len = strlen(body_str);
         size_t result_len = 5 + body_len + 1; /* (?<! + body + ) + \0 */
-        char* result = (char*)malloc(result_len);
+        char *result = (char *)malloc(result_len);
         snprintf(result, result_len, "(?<!%s)", body_str);
-        
+
         free(body_str);
         return result;
     }
-    
+
+    /* Handle Look (JS AST) */
+    if (strcmp(type, "Look") == 0)
+    {
+        json_t *dir_obj = json_object_get(node, "dir");
+        json_t *neg_obj = json_object_get(node, "neg");
+        json_t *body = json_object_get(node, "body");
+        if (!body)
+            body = json_object_get(node, "expression");
+
+        if (!body)
+            return strdup("");
+
+        char *body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str)
+            return strdup("");
+
+        const char *dir = "Ahead";
+        if (dir_obj && json_is_string(dir_obj))
+            dir = json_string_value(dir_obj);
+
+        bool neg = false;
+        if (neg_obj && json_is_boolean(neg_obj))
+            neg = json_boolean_value(neg_obj);
+
+        /* Construct prefix: (?=, (?!, (?<=, (?<! */
+        char prefix[5] = "(?";
+        if (strcmp(dir, "Behind") == 0)
+            strcat(prefix, "<");
+        strcat(prefix, neg ? "!" : "=");
+
+        size_t body_len = strlen(body_str);
+        size_t result_len = strlen(prefix) + body_len + 1 + 1; /* prefix + body + ) + \0 */
+        char *result = (char *)malloc(result_len);
+        snprintf(result, result_len, "%s%s)", prefix, body_str);
+
+        free(body_str);
+        return result;
+    }
+
+    /* Handle Lookaround (Test Suite Variant) */
+    if (strcmp(type, "Lookaround") == 0)
+    {
+        json_t *kind_obj = json_object_get(node, "kind");
+        json_t *neg_obj = json_object_get(node, "negated");
+        json_t *body = json_object_get(node, "expression");
+        if (!body)
+            body = json_object_get(node, "body");
+
+        if (!body)
+            return strdup("");
+
+        char *body_str = compile_node_to_pcre2(body, flags);
+        if (!body_str)
+            return strdup("");
+
+        const char *kind = "lookahead";
+        if (kind_obj && json_is_string(kind_obj))
+            kind = json_string_value(kind_obj);
+
+        bool negated = false;
+        if (neg_obj && json_is_boolean(neg_obj))
+            negated = json_boolean_value(neg_obj);
+
+        /* Construct prefix */
+        char prefix[5] = "(?";
+        if (strcmp(kind, "lookbehind") == 0)
+            strcat(prefix, "<");
+        strcat(prefix, negated ? "!" : "=");
+
+        size_t body_len = strlen(body_str);
+        size_t result_len = strlen(prefix) + body_len + 1 + 1;
+        char *result = (char *)malloc(result_len);
+        snprintf(result, result_len, "%s%s)", prefix, body_str);
+
+        free(body_str);
+        return result;
+    }
+
     /* Unsupported node types return empty for now */
     return strdup("");
 }
 
-STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags) {
-    if (!json_str) {
+STRlingResult *strling_compile(const char *json_str, const STRlingFlags *flags)
+{
+    if (!json_str)
+    {
         return create_error_result("NULL JSON input", 0, "Provide a valid JSON string");
     }
-    
+
     /* Parse JSON */
     json_error_t error;
-    json_t* root = json_loads(json_str, JSON_ALLOW_NUL, &error);
-    if (!root) {
+    json_t *root = json_loads(json_str, JSON_ALLOW_NUL, &error);
+    if (!root)
+    {
         char msg[256];
         snprintf(msg, sizeof(msg), "JSON parse error: %s", error.text);
         return create_error_result(msg, error.position, NULL);
     }
-    
+
     /* Check for STRling AST structure.
-       Accept either a bare AST node (root object contains a string "type" or "kind"),
+       Accept either a bare AST node (root object contains a string "type" or "kind" field),
        the envelope form { "pattern": <AST node>, ... }, or the artifact form
        { "root": <AST node>, "flags": {...} } used by parseToArtifact().
     */
-    json_t* pattern_node = NULL;
+    json_t *pattern_node = NULL;
     /* If the root itself looks like an AST node (has a string "type" or "kind" field),
        treat it as the pattern node. */
-    json_t* root_type = json_object_get(root, "type");
-    json_t* root_kind = json_object_get(root, "kind");
-    if (json_is_object(root) && ((root_type && json_is_string(root_type)) || (root_kind && json_is_string(root_kind)))) {
+    json_t *root_type = json_object_get(root, "type");
+    json_t *root_kind = json_object_get(root, "kind");
+    if (json_is_object(root) && ((root_type && json_is_string(root_type)) || (root_kind && json_is_string(root_kind))))
+    {
         pattern_node = root;
-    } else {
+    }
+    else
+    {
         /* Otherwise look for the envelope key or for the 'root' artifact property */
         pattern_node = json_object_get(root, "pattern");
-        if (!pattern_node) pattern_node = json_object_get(root, "root");
+        if (!pattern_node)
+            pattern_node = json_object_get(root, "root");
+        if (!pattern_node)
+            pattern_node = json_object_get(root, "input_ast");
     }
 
-    if (!pattern_node) {
+    if (!pattern_node)
+    {
         json_decref(root);
         return create_error_result("Missing 'pattern' field in JSON", 0,
                                    "Expected JSON object with 'pattern' field containing AST or a bare AST node");
     }
-    
+
     /* Compile the pattern */
-    char* pcre2_pattern = compile_node_to_pcre2(pattern_node, flags);
-    
+    char *pcre2_pattern = compile_node_to_pcre2(pattern_node, flags);
+
     /* Determine which flags to use */
-    json_t* flags_obj = json_object_get(root, "flags");
+    json_t *flags_obj = json_object_get(root, "flags");
     STRlingFlags local_flags = {0};
-    if (flags) {
+    if (flags)
+    {
         local_flags = *flags;
-    } else if (flags_obj && json_is_object(flags_obj)) {
-        json_t* ic = json_object_get(flags_obj, "ignoreCase");
-        json_t* ml = json_object_get(flags_obj, "multiline");
-        json_t* da = json_object_get(flags_obj, "dotAll");
-        json_t* un = json_object_get(flags_obj, "unicode");
-        json_t* ex = json_object_get(flags_obj, "extended");
-        
-        if (ic && json_is_boolean(ic)) local_flags.ignoreCase = json_boolean_value(ic);
-        if (ml && json_is_boolean(ml)) local_flags.multiline = json_boolean_value(ml);
-        if (da && json_is_boolean(da)) local_flags.dotAll = json_boolean_value(da);
-        if (un && json_is_boolean(un)) local_flags.unicode = json_boolean_value(un);
-        if (ex && json_is_boolean(ex)) local_flags.extended = json_boolean_value(ex);
     }
-    
+    else if (flags_obj)
+    {
+        if (json_is_object(flags_obj))
+        {
+            json_t *ic = json_object_get(flags_obj, "ignoreCase");
+            json_t *ml = json_object_get(flags_obj, "multiline");
+            json_t *da = json_object_get(flags_obj, "dotAll");
+            json_t *un = json_object_get(flags_obj, "unicode");
+            json_t *ex = json_object_get(flags_obj, "extended");
+
+            if (ic && json_is_boolean(ic))
+                local_flags.ignoreCase = json_boolean_value(ic);
+            if (ml && json_is_boolean(ml))
+                local_flags.multiline = json_boolean_value(ml);
+            if (da && json_is_boolean(da))
+                local_flags.dotAll = json_boolean_value(da);
+            if (un && json_is_boolean(un))
+                local_flags.unicode = json_boolean_value(un);
+            if (ex && json_is_boolean(ex))
+                local_flags.extended = json_boolean_value(ex);
+        }
+        else if (json_is_string(flags_obj))
+        {
+            const char *flags_str = json_string_value(flags_obj);
+            if (strchr(flags_str, 'i'))
+                local_flags.ignoreCase = true;
+            if (strchr(flags_str, 'm'))
+                local_flags.multiline = true;
+            if (strchr(flags_str, 's'))
+                local_flags.dotAll = true;
+            if (strchr(flags_str, 'u'))
+                local_flags.unicode = true;
+            if (strchr(flags_str, 'x'))
+                local_flags.extended = true;
+        }
+    }
+
     /* Build flag prefix string if any flags are set */
     char flag_prefix[16] = "";
     int flag_count = 0;
-    
-    if (local_flags.ignoreCase || local_flags.multiline || local_flags.dotAll || local_flags.unicode || local_flags.extended) {
+
+    if (local_flags.ignoreCase || local_flags.multiline || local_flags.dotAll || local_flags.unicode || local_flags.extended)
+    {
         flag_prefix[flag_count++] = '(';
         flag_prefix[flag_count++] = '?';
-        
-        if (local_flags.ignoreCase) flag_prefix[flag_count++] = 'i';
-        if (local_flags.multiline) flag_prefix[flag_count++] = 'm';
-        if (local_flags.dotAll) flag_prefix[flag_count++] = 's';
-        if (local_flags.unicode) flag_prefix[flag_count++] = 'u';
-        if (local_flags.extended) flag_prefix[flag_count++] = 'x';
-        
+
+        if (local_flags.ignoreCase)
+            flag_prefix[flag_count++] = 'i';
+        if (local_flags.multiline)
+            flag_prefix[flag_count++] = 'm';
+        if (local_flags.dotAll)
+            flag_prefix[flag_count++] = 's';
+        if (local_flags.unicode)
+            flag_prefix[flag_count++] = 'u';
+        if (local_flags.extended)
+            flag_prefix[flag_count++] = 'x';
+
         flag_prefix[flag_count++] = ')';
         flag_prefix[flag_count] = '\0';
     }
-    
+
     /* Build final pattern with flags prefix */
     size_t final_len = strlen(pcre2_pattern) + strlen(flag_prefix) + 1;
-    char* final_pattern = (char*)malloc(final_len);
-    
-    if (flag_prefix[0] != '\0') {
+    char *final_pattern = (char *)malloc(final_len);
+
+    if (flag_prefix[0] != '\0')
+    {
         strcpy(final_pattern, flag_prefix);
         strcat(final_pattern, pcre2_pattern);
-    } else {
+    }
+    else
+    {
         strcpy(final_pattern, pcre2_pattern);
     }
-    
+
     free(pcre2_pattern);
-    
+
     json_decref(root);
-    STRlingResult* result = create_success_result(final_pattern);
+    STRlingResult *result = create_success_result(final_pattern);
     free(final_pattern); /* Free since create_success_result makes a copy */
     return result;
 }
 
-void strling_result_free_ptr(STRlingResult* result) {
-    if (!result) return;
+void strling_result_free_ptr(STRlingResult *result)
+{
+    if (!result)
+        return;
     free(result->pattern);
     strling_error_free(result->error);
     free(result);

@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_8",
+  "description": "Generated from js_test_pattern_8.pattern",
+  "input_ast": {
     "type": "Quantifier",
     "target": {
       "type": "Literal",
@@ -18,8 +20,21 @@
     "unicode": false,
     "extended": true
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Quant",
+    "child": {
+      "ir": "Lit",
+      "value": "a"
+    },
+    "min": 2,
+    "max": 5,
+    "mode": "Greedy"
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(?x)a{2,5}"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

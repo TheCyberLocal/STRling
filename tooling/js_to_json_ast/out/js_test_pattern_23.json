@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_23",
+  "description": "Generated from js_test_pattern_23.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -33,8 +35,32 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Lit",
+        "value": "hello"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Lit",
+          "value": "world"
+        }
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "hello(world)\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_87",
+  "description": "Generated from js_test_pattern_87.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -140,8 +142,98 @@
     "unicode": false,
     "extended": true
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "w"
+              }
+            ]
+          },
+          "min": 1,
+          "max": "Inf",
+          "mode": "Greedy"
+        },
+        "name": "tag"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Esc",
+              "type": "s"
+            }
+          ]
+        },
+        "min": 0,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "="
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Esc",
+              "type": "s"
+            }
+          ]
+        },
+        "min": 0,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": true,
+            "items": [
+              {
+                "ir": "Char",
+                "char": ">"
+              }
+            ]
+          },
+          "min": 1,
+          "max": "Inf",
+          "mode": "Greedy"
+        },
+        "name": "value"
+      },
+      {
+        "ir": "Backref",
+        "byName": "tag"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(?x)(?<tag>\\w+)\\s*=\\s*(?<value>[^>]+)\\k<tag>"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

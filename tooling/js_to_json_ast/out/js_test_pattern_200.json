@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_200",
+  "description": "Generated from js_test_pattern_200.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": []
   },
@@ -10,8 +12,15 @@
     "unicode": true,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": []
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(?msu)"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_6",
+  "description": "Generated from js_test_pattern_6.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -23,8 +25,28 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Lit",
+        "value": "end"
+      },
+      {
+        "ir": "Anchor",
+        "at": "End"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(?m)end$\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

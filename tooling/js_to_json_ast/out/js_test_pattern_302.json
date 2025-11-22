@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_302",
+  "description": "Generated from js_test_pattern_302.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -23,8 +25,15 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "\n\t\r\n"
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "\n\t\r\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

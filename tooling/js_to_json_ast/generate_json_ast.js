@@ -256,20 +256,24 @@ for (const f of files) {
         }
 
         // Attempt to compute expected output (PCRE) by compiling via JS compiler
-        let expected = { success: true, pcre: null };
+        let expected_codegen = { success: true, pcre: null };
+        let expected_ir = null;
+
         if (Compiler && emitter && rootNode) {
             try {
                 const Comp = new Compiler();
                 const ir = Comp.compile(rootNode);
+                expected_ir = ir.toDict();
+
                 const pcre = emitter.emit(
                     ir,
                     nodeFlags && nodeFlags.toDict
                         ? nodeFlags.toDict()
                         : artifact.flags || {}
                 );
-                expected = { success: true, pcre };
+                expected_codegen = { success: true, pcre };
             } catch (e) {
-                expected = {
+                expected_codegen = {
                     success: false,
                     error: e && e.message ? e.message : String(e),
                 };
@@ -277,10 +281,15 @@ for (const f of files) {
         }
 
         const cArtifact = {
-            pattern: convertNode(artifact.root),
+            id: f.replace(/\.pattern$/, ""),
+            description: `Generated from ${f}`,
+            input_ast: convertNode(artifact.root),
             flags: artifact.flags || {},
-            // Annotate expected result for tests: success + pcre, or error
-            expected,
+            expected_ir,
+            expected_codegen,
+            metadata_expectations: {
+                features_used: [],
+            },
         };
 
         const outPath = path.join(outDir, f.replace(/\.pattern$/, ".json"));

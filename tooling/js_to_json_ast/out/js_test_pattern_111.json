@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_111",
+  "description": "Generated from js_test_pattern_111.pattern",
+  "input_ast": {
     "type": "Alternation",
     "alternatives": [
       {
@@ -41,8 +43,42 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Alt",
+    "branches": [
+      {
+        "ir": "Seq",
+        "parts": [
+          {
+            "ir": "Anchor",
+            "at": "WordBoundary"
+          },
+          {
+            "ir": "Lit",
+            "value": "a"
+          }
+        ]
+      },
+      {
+        "ir": "Seq",
+        "parts": [
+          {
+            "ir": "Anchor",
+            "at": "WordBoundary"
+          },
+          {
+            "ir": "Lit",
+            "value": "b\n"
+          }
+        ]
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "\\ba|\\bb\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

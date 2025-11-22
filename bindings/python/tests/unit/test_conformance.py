@@ -20,34 +20,36 @@ from STRling.emitters.pcre2 import emit
 # Let's verify.
 FIXTURES_DIR = Path(__file__).parents[4] / "tooling/js_to_json_ast/out"
 
+
 def get_fixtures():
     if not FIXTURES_DIR.exists():
         return []
     return sorted(list(FIXTURES_DIR.glob("*.json")))
 
+
 @pytest.mark.parametrize("fixture_path", get_fixtures(), ids=lambda p: p.name)
 def test_conformance(fixture_path):
     with open(fixture_path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    
+
     # Skip if no expected pcre
-    if "expected" not in data or "pcre" not in data["expected"]:
+    if "expected_codegen" not in data or "pcre" not in data["expected_codegen"]:
         pytest.skip("No expected PCRE output")
-        
-    expected_pcre = data["expected"]["pcre"]
-    
+
+    expected_pcre = data["expected_codegen"]["pcre"]
+
     # Deserialize AST
     try:
-        ast_root = from_json_fixture(data["pattern"])
+        ast_root = from_json_fixture(data["input_ast"])
     except ValueError as e:
         pytest.fail(f"Deserialization failed: {e}")
-    
+
     # Compile to IR
     compiler = Compiler()
     ir_root = compiler.compile(ast_root)
-    
+
     # Emit
     flags = data.get("flags", {})
     emitted_pcre = emit(ir_root, flags)
-    
+
     assert emitted_pcre == expected_pcre

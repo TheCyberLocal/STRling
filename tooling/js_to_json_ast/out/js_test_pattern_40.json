@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_40",
+  "description": "Generated from js_test_pattern_40.pattern",
+  "input_ast": {
     "type": "Alternation",
     "alternatives": [
       {
@@ -40,8 +42,45 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Alt",
+    "branches": [
+      {
+        "ir": "CharClass",
+        "negated": false,
+        "items": [
+          {
+            "ir": "Esc",
+            "type": "w"
+          }
+        ]
+      },
+      {
+        "ir": "Seq",
+        "parts": [
+          {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "s"
+              }
+            ]
+          },
+          {
+            "ir": "Lit",
+            "value": "\n"
+          }
+        ]
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "\\w|\\s\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

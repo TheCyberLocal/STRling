@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_350",
+  "description": "Generated from js_test_pattern_350.pattern",
+  "input_ast": {
     "type": "Alternation",
     "alternatives": [
       {
@@ -19,8 +21,24 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Alt",
+    "branches": [
+      {
+        "ir": "Lit",
+        "value": "abc"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "abc|\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_121",
+  "description": "Generated from js_test_pattern_121.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -35,8 +37,40 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Anchor",
+        "at": "Start"
+      },
+      {
+        "ir": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "ir": "Lit",
+        "value": "a"
+      },
+      {
+        "ir": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "ir": "Anchor",
+        "at": "End"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "^\\ba\\b$\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

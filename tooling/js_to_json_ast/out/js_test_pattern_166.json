@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_166",
+  "description": "Generated from js_test_pattern_166.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -27,8 +29,31 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "CharClass",
+        "negated": false,
+        "items": [
+          {
+            "ir": "Esc",
+            "type": "p",
+            "property": "Script=Greek"
+          }
+        ]
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "\\p{Script=Greek}\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

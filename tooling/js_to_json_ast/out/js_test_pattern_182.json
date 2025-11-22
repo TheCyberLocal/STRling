@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_182",
+  "description": "Generated from js_test_pattern_182.pattern",
+  "input_ast": {
     "type": "CharacterClass",
     "negated": false,
     "members": [
@@ -24,8 +26,29 @@
     "unicode": false,
     "extended": true
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": false,
+    "items": [
+      {
+        "ir": "Char",
+        "char": "a"
+      },
+      {
+        "ir": "Char",
+        "char": "#"
+      },
+      {
+        "ir": "Char",
+        "char": "b"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(?x)[a#b]"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

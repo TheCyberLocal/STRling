@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_98",
+  "description": "Generated from js_test_pattern_98.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -533,8 +535,209 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 1,
+          "max": "Inf",
+          "mode": "Greedy"
+        },
+        "name": "major"
+      },
+      {
+        "ir": "Lit",
+        "value": "."
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 1,
+          "max": "Inf",
+          "mode": "Greedy"
+        },
+        "name": "minor"
+      },
+      {
+        "ir": "Lit",
+        "value": "."
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 1,
+          "max": "Inf",
+          "mode": "Greedy"
+        },
+        "name": "patch"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": false,
+          "body": {
+            "ir": "Seq",
+            "parts": [
+              {
+                "ir": "Lit",
+                "value": "-"
+              },
+              {
+                "ir": "Group",
+                "capturing": true,
+                "body": {
+                  "ir": "Quant",
+                  "child": {
+                    "ir": "CharClass",
+                    "negated": false,
+                    "items": [
+                      {
+                        "ir": "Range",
+                        "from": "0",
+                        "to": "9"
+                      },
+                      {
+                        "ir": "Range",
+                        "from": "A",
+                        "to": "Z"
+                      },
+                      {
+                        "ir": "Range",
+                        "from": "a",
+                        "to": "z"
+                      },
+                      {
+                        "ir": "Char",
+                        "char": "-"
+                      },
+                      {
+                        "ir": "Char",
+                        "char": "."
+                      }
+                    ]
+                  },
+                  "min": 1,
+                  "max": "Inf",
+                  "mode": "Greedy"
+                },
+                "name": "prerelease"
+              }
+            ]
+          }
+        },
+        "min": 0,
+        "max": 1,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": false,
+          "body": {
+            "ir": "Seq",
+            "parts": [
+              {
+                "ir": "Lit",
+                "value": "+"
+              },
+              {
+                "ir": "Group",
+                "capturing": true,
+                "body": {
+                  "ir": "Quant",
+                  "child": {
+                    "ir": "CharClass",
+                    "negated": false,
+                    "items": [
+                      {
+                        "ir": "Range",
+                        "from": "0",
+                        "to": "9"
+                      },
+                      {
+                        "ir": "Range",
+                        "from": "A",
+                        "to": "Z"
+                      },
+                      {
+                        "ir": "Range",
+                        "from": "a",
+                        "to": "z"
+                      },
+                      {
+                        "ir": "Char",
+                        "char": "-"
+                      },
+                      {
+                        "ir": "Char",
+                        "char": "."
+                      }
+                    ]
+                  },
+                  "min": 1,
+                  "max": "Inf",
+                  "mode": "Greedy"
+                },
+                "name": "build"
+              }
+            ]
+          }
+        },
+        "min": 0,
+        "max": 1,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?:-(?<prerelease>[0-9A-Za-z\\-.]+))?(?:\\+(?<build>[0-9A-Za-z\\-.]+))?\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

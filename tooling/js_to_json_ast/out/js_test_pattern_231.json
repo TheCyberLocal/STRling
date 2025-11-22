@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_231",
+  "description": "Generated from js_test_pattern_231.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -56,8 +58,45 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Alt",
+          "branches": [
+            {
+              "ir": "Lit",
+              "value": "a"
+            },
+            {
+              "ir": "Lit",
+              "value": "b"
+            }
+          ]
+        }
+      },
+      {
+        "ir": "Lit",
+        "value": "c"
+      },
+      {
+        "ir": "Backref",
+        "byIndex": 1
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(a|b)c\\1\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

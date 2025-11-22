@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_100",
+  "description": "Generated from js_test_pattern_100.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -553,8 +555,281 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 4,
+          "max": 4,
+          "mode": "Greedy"
+        },
+        "name": "year"
+      },
+      {
+        "ir": "Lit",
+        "value": "-"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 2,
+          "max": 2,
+          "mode": "Greedy"
+        },
+        "name": "month"
+      },
+      {
+        "ir": "Lit",
+        "value": "-"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 2,
+          "max": 2,
+          "mode": "Greedy"
+        },
+        "name": "day"
+      },
+      {
+        "ir": "Lit",
+        "value": "T"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 2,
+          "max": 2,
+          "mode": "Greedy"
+        },
+        "name": "hour"
+      },
+      {
+        "ir": "Lit",
+        "value": ":"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 2,
+          "max": 2,
+          "mode": "Greedy"
+        },
+        "name": "minute"
+      },
+      {
+        "ir": "Lit",
+        "value": ":"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 2,
+          "max": 2,
+          "mode": "Greedy"
+        },
+        "name": "second"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": false,
+          "body": {
+            "ir": "Seq",
+            "parts": [
+              {
+                "ir": "Lit",
+                "value": "."
+              },
+              {
+                "ir": "Group",
+                "capturing": true,
+                "body": {
+                  "ir": "Quant",
+                  "child": {
+                    "ir": "CharClass",
+                    "negated": false,
+                    "items": [
+                      {
+                        "ir": "Esc",
+                        "type": "d"
+                      }
+                    ]
+                  },
+                  "min": 1,
+                  "max": "Inf",
+                  "mode": "Greedy"
+                },
+                "name": "fraction"
+              }
+            ]
+          }
+        },
+        "min": 0,
+        "max": 1,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": true,
+          "body": {
+            "ir": "Alt",
+            "branches": [
+              {
+                "ir": "Lit",
+                "value": "Z"
+              },
+              {
+                "ir": "Seq",
+                "parts": [
+                  {
+                    "ir": "CharClass",
+                    "negated": false,
+                    "items": [
+                      {
+                        "ir": "Char",
+                        "char": "+"
+                      },
+                      {
+                        "ir": "Char",
+                        "char": "-"
+                      }
+                    ]
+                  },
+                  {
+                    "ir": "Quant",
+                    "child": {
+                      "ir": "CharClass",
+                      "negated": false,
+                      "items": [
+                        {
+                          "ir": "Esc",
+                          "type": "d"
+                        }
+                      ]
+                    },
+                    "min": 2,
+                    "max": 2,
+                    "mode": "Greedy"
+                  },
+                  {
+                    "ir": "Lit",
+                    "value": ":"
+                  },
+                  {
+                    "ir": "Quant",
+                    "child": {
+                      "ir": "CharClass",
+                      "negated": false,
+                      "items": [
+                        {
+                          "ir": "Esc",
+                          "type": "d"
+                        }
+                      ]
+                    },
+                    "min": 2,
+                    "max": 2,
+                    "mode": "Greedy"
+                  }
+                ]
+              }
+            ]
+          },
+          "name": "tz"
+        },
+        "min": 0,
+        "max": 1,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})T(?<hour>\\d{2}):(?<minute>\\d{2}):(?<second>\\d{2})(?:\\.(?<fraction>\\d+))?(?<tz>Z|[+\\-]\\d{2}:\\d{2})?\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

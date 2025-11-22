@@ -116,6 +116,71 @@ export class Node {
     toDict(): any {
         throw new Error("toDict() must be implemented by subclass");
     }
+
+    /**
+     * Deserializes a JSON-compatible object (from the canonical schema) back into a Node instance.
+     *
+     * @param data - The JSON object representing the node (e.g. { type: "Literal", value: "foo" }).
+     * @returns A concrete Node subclass instance.
+     */
+    static fromJSON(data: any): Node {
+        switch (data.type) {
+            case "Literal":
+                return new Lit(data.value);
+            case "Sequence":
+                return new Seq(
+                    (data.parts || []).map((p: any) => Node.fromJSON(p))
+                );
+            case "Alternation":
+                return new Alt(
+                    (data.alternatives || []).map((b: any) => Node.fromJSON(b))
+                );
+            case "Dot":
+                return new Dot();
+            case "Anchor":
+                let at = data.at;
+                if (at === "NonWordBoundary") at = "NotWordBoundary";
+                return new Anchor(at);
+            case "CharacterClass":
+                return new CharClass(
+                    !!data.negated,
+                    (data.members || []).map((m: any) => ClassItem.fromJSON(m))
+                );
+            case "Quantifier": {
+                let mode = "Greedy";
+                if (data.lazy) mode = "Lazy";
+                else if (data.possessive) mode = "Possessive";
+                // Handle "Inf" or null for max
+                const max =
+                    data.max === null || data.max === "Inf" ? "Inf" : data.max;
+                return new Quant(
+                    Node.fromJSON(data.target),
+                    data.min,
+                    max,
+                    mode
+                );
+            }
+            case "Group":
+                return new Group(
+                    !!data.capturing,
+                    Node.fromJSON(data.body),
+                    data.name || null,
+                    data.atomic || null
+                );
+            case "Backreference":
+                return new Backref({ byIndex: data.index, byName: data.name });
+            case "Lookahead":
+                return new Look("Ahead", false, Node.fromJSON(data.body));
+            case "NegativeLookahead":
+                return new Look("Ahead", true, Node.fromJSON(data.body));
+            case "Lookbehind":
+                return new Look("Behind", false, Node.fromJSON(data.body));
+            case "NegativeLookbehind":
+                return new Look("Behind", true, Node.fromJSON(data.body));
+            default:
+                throw new Error(`Unknown node type: ${data.type}`);
+        }
+    }
 }
 
 /**
@@ -204,9 +269,32 @@ export class Anchor extends Node {
 // --- CharClass --
 export class ClassItem {
     toDict(): any {
-        throw new Error(
-            "toDict() must be implemented by ClassItem subclass"
-        );
+        throw new Error("toDict() must be implemented by ClassItem subclass");
+    }
+
+    static fromJSON(data: any): ClassItem {
+        switch (data.type) {
+            case "Literal":
+                return new ClassLiteral(data.value);
+            case "Range":
+                return new ClassRange(data.from, data.to);
+            case "Escape": {
+                const map: { [key: string]: string } = {
+                    digit: "d",
+                    "not-digit": "D",
+                    word: "w",
+                    "not-word": "W",
+                    space: "s",
+                    "not-space": "S",
+                };
+                const type = map[data.kind] || data.kind;
+                return new ClassEscape(type);
+            }
+            case "UnicodeProperty":
+                return new ClassEscape(data.negated ? "P" : "p", data.value);
+            default:
+                throw new Error(`Unknown class item type: ${data.type}`);
+        }
     }
 }
 
@@ -317,7 +405,12 @@ export class Group extends Node {
     name: string | null;
     atomic: boolean | null; // extension
 
-    constructor(capturing: boolean, body: Node, name: string | null = null, atomic: boolean | null = null) {
+    constructor(
+        capturing: boolean,
+        body: Node,
+        name: string | null = null,
+        atomic: boolean | null = null
+    ) {
         super();
         this.capturing = capturing;
         this.body = body;
@@ -345,7 +438,13 @@ export class Backref extends Node {
     byIndex: number | null;
     byName: string | null;
 
-    constructor(byIndexOrObj: number | { byIndex?: number; byName?: string } | null = null, byName: string | null = null) {
+    constructor(
+        byIndexOrObj:
+            | number
+            | { byIndex?: number; byName?: string }
+            | null = null,
+        byName: string | null = null
+    ) {
         super();
         // Handle both constructor styles: new Backref({byIndex: 1}) or new Backref(1, null)
         if (typeof byIndexOrObj === "object" && byIndexOrObj !== null) {

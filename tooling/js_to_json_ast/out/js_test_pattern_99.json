@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_99",
+  "description": "Generated from js_test_pattern_99.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -331,8 +333,164 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Seq",
+          "parts": [
+            {
+              "ir": "Lit",
+              "value": "http"
+            },
+            {
+              "ir": "Quant",
+              "child": {
+                "ir": "Lit",
+                "value": "s"
+              },
+              "min": 0,
+              "max": 1,
+              "mode": "Greedy"
+            }
+          ]
+        },
+        "name": "scheme"
+      },
+      {
+        "ir": "Lit",
+        "value": "://"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Range",
+                "from": "a",
+                "to": "z"
+              },
+              {
+                "ir": "Range",
+                "from": "A",
+                "to": "Z"
+              },
+              {
+                "ir": "Range",
+                "from": "0",
+                "to": "9"
+              },
+              {
+                "ir": "Char",
+                "char": "."
+              },
+              {
+                "ir": "Char",
+                "char": "-"
+              }
+            ]
+          },
+          "min": 1,
+          "max": "Inf",
+          "mode": "Greedy"
+        },
+        "name": "host"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": false,
+          "body": {
+            "ir": "Seq",
+            "parts": [
+              {
+                "ir": "Lit",
+                "value": ":"
+              },
+              {
+                "ir": "Group",
+                "capturing": true,
+                "body": {
+                  "ir": "Quant",
+                  "child": {
+                    "ir": "CharClass",
+                    "negated": false,
+                    "items": [
+                      {
+                        "ir": "Esc",
+                        "type": "d"
+                      }
+                    ]
+                  },
+                  "min": 1,
+                  "max": "Inf",
+                  "mode": "Greedy"
+                },
+                "name": "port"
+              }
+            ]
+          }
+        },
+        "min": 0,
+        "max": 1,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": true,
+          "body": {
+            "ir": "Seq",
+            "parts": [
+              {
+                "ir": "Lit",
+                "value": "/"
+              },
+              {
+                "ir": "Quant",
+                "child": {
+                  "ir": "CharClass",
+                  "negated": false,
+                  "items": [
+                    {
+                      "ir": "Esc",
+                      "type": "S"
+                    }
+                  ]
+                },
+                "min": 0,
+                "max": "Inf",
+                "mode": "Greedy"
+              }
+            ]
+          },
+          "name": "path"
+        },
+        "min": 0,
+        "max": 1,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(?<scheme>https?)://(?<host>[a-zA-Z0-9.\\-]+)(?::(?<port>\\d+))?(?<path>/\\S*)?\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

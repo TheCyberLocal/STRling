@@ -52,6 +52,7 @@
     ],
     "scripts": {
         "build": "tsc -p tsconfig.json",
+        "build:specs": "npm run build && node ../../tooling/js_to_json_ast/generate_json_ast.js",
         "clean": "rimraf dist",
         "test": "jest"
     },

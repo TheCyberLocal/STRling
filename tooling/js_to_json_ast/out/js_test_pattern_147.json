@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_147",
+  "description": "Generated from js_test_pattern_147.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -37,8 +39,42 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "CharClass",
+        "negated": false,
+        "items": [
+          {
+            "ir": "Range",
+            "from": "a",
+            "to": "z"
+          }
+        ]
+      },
+      {
+        "ir": "CharClass",
+        "negated": false,
+        "items": [
+          {
+            "ir": "Range",
+            "from": "A",
+            "to": "Z"
+          }
+        ]
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "[a-z][A-Z]\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

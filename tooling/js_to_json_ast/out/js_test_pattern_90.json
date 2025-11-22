@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_90",
+  "description": "Generated from js_test_pattern_90.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -145,8 +147,87 @@
     "unicode": false,
     "extended": true
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 3,
+          "max": 3,
+          "mode": "Greedy"
+        },
+        "name": "area"
+      },
+      {
+        "ir": "Lit",
+        "value": "-"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 3,
+          "max": 3,
+          "mode": "Greedy"
+        },
+        "name": "exchange"
+      },
+      {
+        "ir": "Lit",
+        "value": "-"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "min": 4,
+          "max": 4,
+          "mode": "Greedy"
+        },
+        "name": "line"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(?x)(?<area>\\d{3})-(?<exchange>\\d{3})-(?<line>\\d{4})"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

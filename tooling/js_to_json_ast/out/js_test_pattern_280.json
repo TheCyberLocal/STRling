@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_280",
+  "description": "Generated from js_test_pattern_280.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -23,8 +25,15 @@
     "unicode": true,
     "extended": true
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "abc"
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(?imsux)abc"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

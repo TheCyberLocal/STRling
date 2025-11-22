@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_96",
+  "description": "Generated from js_test_pattern_96.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -133,8 +135,132 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Range",
+              "from": "a",
+              "to": "z"
+            },
+            {
+              "ir": "Range",
+              "from": "A",
+              "to": "Z"
+            },
+            {
+              "ir": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "ir": "Char",
+              "char": "."
+            },
+            {
+              "ir": "Char",
+              "char": "_"
+            },
+            {
+              "ir": "Char",
+              "char": "%"
+            },
+            {
+              "ir": "Char",
+              "char": "+"
+            },
+            {
+              "ir": "Char",
+              "char": "-"
+            }
+          ]
+        },
+        "min": 1,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "@"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Range",
+              "from": "a",
+              "to": "z"
+            },
+            {
+              "ir": "Range",
+              "from": "A",
+              "to": "Z"
+            },
+            {
+              "ir": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "ir": "Char",
+              "char": "."
+            },
+            {
+              "ir": "Char",
+              "char": "-"
+            }
+          ]
+        },
+        "min": 1,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "."
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Range",
+              "from": "a",
+              "to": "z"
+            },
+            {
+              "ir": "Range",
+              "from": "A",
+              "to": "Z"
+            }
+          ]
+        },
+        "min": 2,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }

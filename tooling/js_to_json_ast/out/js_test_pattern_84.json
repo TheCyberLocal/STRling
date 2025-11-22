@@ -1,5 +1,7 @@
 {
-  "pattern": {
+  "id": "js_test_pattern_84",
+  "description": "Generated from js_test_pattern_84.pattern",
+  "input_ast": {
     "type": "Sequence",
     "parts": [
       {
@@ -33,8 +35,38 @@
     "unicode": false,
     "extended": false
   },
-  "expected": {
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Look",
+        "dir": "Ahead",
+        "neg": false,
+        "body": {
+          "ir": "Lit",
+          "value": "test"
+        }
+      },
+      {
+        "ir": "Look",
+        "dir": "Ahead",
+        "neg": true,
+        "body": {
+          "ir": "Lit",
+          "value": "fail"
+        }
+      },
+      {
+        "ir": "Lit",
+        "value": "result\n"
+      }
+    ]
+  },
+  "expected_codegen": {
     "success": true,
     "pcre": "(?=test)(?!fail)result\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
   }
 }
