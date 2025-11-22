@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_105",
   "description": "Generated from js_test_pattern_105.pattern",
+  "input_dsl": "%flags m\n^a$\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

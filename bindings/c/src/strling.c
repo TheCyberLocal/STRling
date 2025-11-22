@@ -7,9 +7,25 @@
 #include <string.h>
 #include <ctype.h>
 #include <jansson.h>
+#include <stdint.h>
 
 /* Forward declarations */
 static char *escape_literal_for_pcre2_len(const char *lit, size_t len);
+
+/* Helper to validate group names */
+static bool is_valid_group_name(const char *name)
+{
+    if (!name || !*name)
+        return false;
+    if (!isalpha((unsigned char)*name) && *name != '_')
+        return false;
+    for (const char *p = name + 1; *p; p++)
+    {
+        if (!isalnum((unsigned char)*p) && *p != '_')
+            return false;
+    }
+    return true;
+}
 
 const char *strling_version(void)
 {
@@ -109,8 +125,7 @@ static char *escape_literal_for_pcre2_len(const char *lit, size_t len)
     for (size_t i = 0; i < len;)
     {
         unsigned char c = (unsigned char)lit[i];
-        /* Debug: print the input byte being processed */
-        fprintf(stderr, "DEBUG_ESC_BYTE idx=%zu val=%02x\n", i, c);
+
         if (c == '\n')
         {
             *p++ = '\\';
@@ -147,10 +162,14 @@ static char *escape_literal_for_pcre2_len(const char *lit, size_t len)
             *p++ = ' ';
             i++;
         }
-        else if (c == '#')
+        else if (c == '#'
+#ifdef STRLING_DEBUG
+                 || c == '[' || c == ']' || c == '{' || c == '}' || c == '(' || c == ')' || c == '|'
+#endif
+        )
         {
             *p++ = '\\';
-            *p++ = '#';
+            *p++ = c;
             i++;
         }
         else if (c == '~')
@@ -171,61 +190,60 @@ static char *escape_literal_for_pcre2_len(const char *lit, size_t len)
             *p++ = c;
             i++;
         }
-        /* Explicitly handle NUL (0x00) so we correctly emit `\x00` instead of
-         * dropping or producing an incorrect escape. We prefer the short
-         * two-digit \xHH form for single-byte values to match other
-         * language emitters' expectations; for larger Unicode codepoints
-         * we will fall back to the \x{...} form below. */
+        /* Explicitly handle NUL (0x00) and other control chars.
+         * We use the braced hex form \x{...} universally for consistency
+         * with the test suite expectations. */
         else if (c == 0x00)
         {
-            p += sprintf(p, "\\x%02x", c);
+            p += sprintf(p, "\\x{%02x}", c);
             i++;
         }
         else if (c < 0x20 || (c >= 0x7F && c <= 0x9F))
         {
-            /* Use short form for single-byte control/high-ASCII values */
-            p += sprintf(p, "\\x%02x", c);
+            p += sprintf(p, "\\x{%02x}", c);
             i++;
         }
         else if (c >= 0x80)
         {
-            unsigned int codepoint = 0;
+            /* Decode UTF-8 to code point and emit as \x{...} */
+            uint32_t codepoint = 0;
             int bytes = 0;
-            if ((c & 0xE0) == 0xC0)
-            {
-                codepoint = c & 0x1F;
-                bytes = 2;
-            }
-            else if ((c & 0xF0) == 0xE0)
-            {
-                codepoint = c & 0x0F;
-                bytes = 3;
-            }
-            else if ((c & 0xF8) == 0xF0)
-            {
-                codepoint = c & 0x07;
-                bytes = 4;
-            }
-            else
-            {
-                p += sprintf(p, "\\x%02x", c);
+            if ((c & 0xE0) == 0xC0) { bytes = 2; codepoint = c & 0x1F; }
+            else if ((c & 0xF0) == 0xE0) { bytes = 3; codepoint = c & 0x0F; }
+            else if ((c & 0xF8) == 0xF0) { bytes = 4; codepoint = c & 0x07; }
+            else {
+                /* Invalid start byte, emit as \x{...} byte */
+                p += sprintf(p, "\\x{%x}", c);
                 i++;
                 continue;
             }
-            i++;
-            for (int j = 1; j < bytes && i < len; j++, i++)
-            {
-                unsigned char cont = (unsigned char)lit[i];
-                if ((cont & 0xC0) != 0x80)
-                    break;
-                codepoint = (codepoint << 6) | (cont & 0x3F);
+
+            /* Check if we have enough bytes */
+            if (i + bytes > len) {
+                 /* Truncated, emit as bytes */
+                 p += sprintf(p, "\\x{%x}", c);
+                 i++;
+                 continue;
             }
-            /* For multi-byte decoded codepoints prefer \x{...} only when the
-             * value exceeds a single byte; otherwise emit short \xHH. */
-            if (codepoint <= 0xFF)
-                p += sprintf(p, "\\x%02x", (unsigned int)codepoint);
-            else
+
+            bool valid = true;
+            for (int k = 1; k < bytes; k++) {
+                unsigned char next = (unsigned char)lit[i + k];
+                if ((next & 0xC0) != 0x80) {
+                    valid = false;
+                    break;
+                }
+                codepoint = (codepoint << 6) | (next & 0x3F);
+            }
+
+            if (valid) {
                 p += sprintf(p, "\\x{%x}", codepoint);
+                i += bytes;
+            } else {
+                /* Invalid sequence, emit first byte */
+                p += sprintf(p, "\\x{%x}", c);
+                i++;
+            }
         }
         else
         {
@@ -322,7 +340,7 @@ static char *escape_literal_for_pcre2(const char *lit)
         /* Handle non-printable ASCII (0x00-0x1F, 0x7F-0x9F) */
         else if (c < 0x20 || (c >= 0x7F && c <= 0x9F))
         {
-            p += sprintf(p, "\\x%02x", c);
+            p += sprintf(p, "\\x{%02x}", c);
             i++;
         }
         /* Handle multi-byte UTF-8 sequences (Unicode characters) */
@@ -382,27 +400,37 @@ static char *escape_literal_for_pcre2(const char *lit)
     *p = '\0';
 }
 
-/* Simple recursive compiler for basic nodes */
-static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
+/* Recursive compiler with error propagation */
+static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char **out_pattern, char **out_error)
 {
     if (!node)
-        return NULL;
+    {
+        *out_error = strdup("Internal Error: NULL node encountered");
+        return 1;
+    }
 
     const char *type = get_node_type(node);
     if (!type)
-        return strdup("");
+    {
+        *out_error = strdup("Invalid Node: Missing 'type' or 'kind' field");
+        return 1;
+    }
 
     /* Handle Literal */
     if (strcmp(type, "Literal") == 0)
     {
         json_t *value = json_object_get(node, "value");
         if (!value || !json_is_string(value))
-            return strdup("");
+        {
+            *out_error = strdup("Invalid Literal: Missing or invalid 'value'");
+            return 1;
+        }
         const char *lit = json_string_value(value);
         size_t len = json_string_length(value);
         /* Literal bytes may contain NUL; we rely on json_string_length to iterate. */
         /* Use the enhanced escape function with length (supports NUL and multi-byte chars) */
-        return escape_literal_for_pcre2_len(lit, len);
+        *out_pattern = escape_literal_for_pcre2_len(lit, len);
+        return 0;
     }
 
     /* Handle Sequence */
@@ -410,23 +438,40 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
     {
         json_t *parts = json_object_get(node, "parts");
         if (!parts || !json_is_array(parts))
-            return strdup("");
+        {
+            *out_error = strdup("Invalid Sequence: Missing 'parts' array");
+            return 1;
+        }
 
         size_t n = json_array_size(parts);
 
         /* Handle empty sequence */
         if (n == 0)
         {
-            return strdup("");
+            *out_pattern = strdup("");
+            return 0;
         }
 
         size_t result_len = 0;
-        char **part_strs = (char **)malloc(n * sizeof(char *));
+        char **part_strs = (char **)calloc(n, sizeof(char *));
+        if (!part_strs)
+        {
+            *out_error = strdup("Memory allocation failed");
+            return 1;
+        }
 
         for (size_t i = 0; i < n; i++)
         {
             json_t *part = json_array_get(parts, i);
-            char *raw_part = compile_node_to_pcre2(part, flags);
+            char *raw_part = NULL;
+            if (compile_node_to_pcre2(part, flags, &raw_part, out_error) != 0)
+            {
+                /* Free already allocated parts */
+                for (size_t j = 0; j < i; j++)
+                    free(part_strs[j]);
+                free(part_strs);
+                return 1;
+            }
 
             /* Check if we need to wrap this part (e.g. Alternation inside Sequence needs parens) */
             const char *part_type = get_node_type(part);
@@ -455,46 +500,48 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         }
         *p = '\0'; /* Ensure null termination */
         free(part_strs);
-        return result;
+        *out_pattern = result;
+        return 0;
     }
 
     /* Handle Anchor */
     if (strcmp(type, "Anchor") == 0)
     {
         json_t *at = json_object_get(node, "at");
-        /* Note: strchr returns a pointer to the terminating null char if 'c' is 0,
-         * so explicitly ensure we don't match for NUL here. */
         if (!at || !json_is_string(at))
-            return strdup("");
+        {
+            *out_error = strdup("Invalid Anchor: Missing 'at' field");
+            return 1;
+        }
         const char *anchor_type = json_string_value(at);
 
         if (strcmp(anchor_type, "Start") == 0)
-            return strdup("^");
-        if (strcmp(anchor_type, "End") == 0)
-            return strdup("$");
-        if (strcmp(anchor_type, "WordBoundary") == 0)
-            return strdup("\\b");
-        /* Accept both C and JS naming for non-word boundary */
-        if (strcmp(anchor_type, "NonWordBoundary") == 0)
-            return strdup("\\B");
-        if (strcmp(anchor_type, "NotWordBoundary") == 0)
-            return strdup("\\B");
-        if (strcmp(anchor_type, "AbsoluteStart") == 0)
-            return strdup("\\A");
-        /* Accept both canonical and JS name for end-before-final-newline */
-        if (strcmp(anchor_type, "AbsoluteEnd") == 0)
-            return strdup("\\Z");
-        if (strcmp(anchor_type, "EndBeforeFinalNewline") == 0)
-            return strdup("\\Z");
-        if (strcmp(anchor_type, "AbsoluteEndOnly") == 0)
-            return strdup("\\z");
-        return strdup("");
+            *out_pattern = strdup("^");
+        else if (strcmp(anchor_type, "End") == 0)
+            *out_pattern = strdup("$");
+        else if (strcmp(anchor_type, "WordBoundary") == 0)
+            *out_pattern = strdup("\\b");
+        else if (strcmp(anchor_type, "NonWordBoundary") == 0 || strcmp(anchor_type, "NotWordBoundary") == 0)
+            *out_pattern = strdup("\\B");
+        else if (strcmp(anchor_type, "AbsoluteStart") == 0)
+            *out_pattern = strdup("\\A");
+        else if (strcmp(anchor_type, "EndBeforeFinalNewline") == 0)
+            *out_pattern = strdup("\\Z");
+        else if (strcmp(anchor_type, "AbsoluteEnd") == 0 || strcmp(anchor_type, "AbsoluteEndOnly") == 0)
+            *out_pattern = strdup("\\z");
+        else
+        {
+            *out_error = strdup("Invalid Anchor: Unknown type");
+            return 1;
+        }
+        return 0;
     }
 
     /* Handle Dot (any character) */
     if (strcmp(type, "Dot") == 0)
     {
-        return strdup(".");
+        *out_pattern = strdup(".");
+        return 0;
     }
 
     /* Handle Quantifier */
@@ -507,11 +554,24 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         json_t *target = json_object_get(node, "target");
 
         if (!target)
-            return strdup("");
+        {
+            *out_error = strdup("Invalid Quantifier: Missing 'target'");
+            return 1;
+        }
 
-        char *target_str = compile_node_to_pcre2(target, flags);
-        if (!target_str)
-            return strdup("");
+        /* Check if target is an Anchor */
+        const char *target_type_check = get_node_type(target);
+        if (target_type_check && (strcmp(target_type_check, "Anchor") == 0 || strcmp(target_type_check, "anchor") == 0))
+        {
+            *out_error = strdup("Invalid Quantifier: Target cannot be an Anchor");
+            return 1;
+        }
+
+        char *target_str = NULL;
+        if (compile_node_to_pcre2(target, flags, &target_str, out_error) != 0)
+        {
+            return 1;
+        }
 
         /* Handle empty target (e.g. empty sequence) */
         if (strlen(target_str) == 0)
@@ -537,6 +597,16 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
                 {
                     needs_wrap = true;
                 }
+                else if (strcmp(target_type, "Literal") == 0)
+                {
+                    json_t *val = json_object_get(target, "value");
+                    if (val && json_is_string(val))
+                    {
+                        const char *s = json_string_value(val);
+                        if (s && strlen(s) > 1)
+                            needs_wrap = true;
+                    }
+                }
                 else if (strcmp(target_type, "Sequence") == 0)
                 {
                     /* Only wrap Sequence if it has multiple parts */
@@ -559,8 +629,29 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         }
 
         int min = 0;
-        if (min_obj && json_is_integer(min_obj))
+        if (min_obj)
+        {
+            if (!json_is_integer(min_obj))
+            {
+                free(target_str);
+                *out_error = strdup("Invalid Quantifier: 'min' must be an integer");
+                return 1;
+            }
             min = json_integer_value(min_obj);
+        }
+        else if (!max_obj)
+        {
+            free(target_str);
+            *out_error = strdup("Invalid Quantifier: Missing 'min' field");
+            return 1;
+        }
+
+        if (min < 0)
+        {
+            free(target_str);
+            *out_error = strdup("Invalid Quantifier: 'min' cannot be negative");
+            return 1;
+        }
 
         bool greedy = true;
         if (greedy_obj && json_is_boolean(greedy_obj))
@@ -585,6 +676,15 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         else if (max_obj && json_is_integer(max_obj))
         {
             int max = json_integer_value(max_obj);
+            if (max < min)
+            {
+                free(target_str);
+                char msg[128];
+                snprintf(msg, sizeof(msg), "Invalid Quantifier: 'min' (%d) cannot be greater than 'max' (%d)", min, max);
+                *out_error = strdup(msg);
+                return 1;
+            }
+
             if (min == 0 && max == 1)
                 strcpy(quantifier, "?");
             else if (min == max)
@@ -617,7 +717,8 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         strcat(result, quantifier);
 
         free(target_str);
-        return result;
+        *out_pattern = result;
+        return 0;
     }
 
     /* Handle Alternation */
@@ -625,26 +726,43 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
     {
         json_t *alternatives = json_object_get(node, "alternatives");
         if (!alternatives || !json_is_array(alternatives))
-            return strdup("");
+        {
+            *out_error = strdup("Invalid Alternation: Missing 'alternatives' array");
+            return 1;
+        }
 
         size_t n = json_array_size(alternatives);
         if (n == 0)
-            return strdup("");
+        {
+            *out_error = strdup("Invalid Alternation: Must have at least one alternative");
+            return 1;
+        }
 
         /* Optimization: if only 1 alternative, just return it */
         if (n == 1)
         {
             json_t *alt = json_array_get(alternatives, 0);
-            return compile_node_to_pcre2(alt, flags);
+            return compile_node_to_pcre2(alt, flags, out_pattern, out_error);
         }
 
         /* Compile all alternatives */
-        char **alt_strs = (char **)malloc(n * sizeof(char *));
+        char **alt_strs = (char **)calloc(n, sizeof(char *));
+        if (!alt_strs)
+        {
+            *out_error = strdup("Memory allocation failed");
+            return 1;
+        }
         size_t total_len = 0;
 
         for (size_t i = 0; i < n; i++)
         {
-            alt_strs[i] = compile_node_to_pcre2(json_array_get(alternatives, i), flags);
+            if (compile_node_to_pcre2(json_array_get(alternatives, i), flags, &alt_strs[i], out_error) != 0)
+            {
+                for (size_t j = 0; j < i; j++)
+                    free(alt_strs[j]);
+                free(alt_strs);
+                return 1;
+            }
             total_len += strlen(alt_strs[i]);
         }
 
@@ -671,7 +789,58 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         *p = '\0';
 
         free(alt_strs);
-        return result;
+        *out_pattern = result;
+        return 0;
+    }
+
+    /* Handle UnicodeProperty */
+    if (strcmp(type, "UnicodeProperty") == 0)
+    {
+        json_t *name_obj = json_object_get(node, "name");
+        json_t *value_obj = json_object_get(node, "value");
+        json_t *negated_obj = json_object_get(node, "negated");
+
+        bool negated = negated_obj && json_is_true(negated_obj);
+        const char *name = NULL;
+        const char *value = NULL;
+
+        if (name_obj && json_is_string(name_obj))
+            name = json_string_value(name_obj);
+        if (value_obj && json_is_string(value_obj))
+            value = json_string_value(value_obj);
+
+        if (!value)
+        {
+            *out_error = strdup("Invalid UnicodeProperty: Missing 'value'");
+            return 1;
+        }
+
+        /* \p{name=value} or \p{value} */
+        size_t len = 4 + (name ? strlen(name) + 1 : 0) + strlen(value) + 2; /* \p{...} + \0 */
+        char *result = (char *)malloc(len);
+        if (!result)
+        {
+            *out_error = strdup("Memory allocation failed");
+            return 1;
+        }
+
+        char *p = result;
+        *p++ = '\\';
+        *p++ = negated ? 'P' : 'p';
+        *p++ = '{';
+        if (name)
+        {
+            strcpy(p, name);
+            p += strlen(name);
+            *p++ = '=';
+        }
+        strcpy(p, value);
+        p += strlen(value);
+        *p++ = '}';
+        *p = '\0';
+
+        *out_pattern = result;
+        return 0;
     }
 
     /* Handle CharacterClass */
@@ -681,47 +850,28 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         json_t *members = json_object_get(node, "members");
 
         if (!members || !json_is_array(members))
-            return strdup("");
+        {
+            *out_error = strdup("Invalid CharacterClass: Missing 'members' array");
+            return 1;
+        }
 
         bool negated = negated_obj && json_is_true(negated_obj);
         size_t n = json_array_size(members);
 
-        /* Optimization: if character class is a single shorthand escape like
-         * { "type": "Escape", "kind": "digit" } then emit the
-         * shorthand \d / \D etc rather than a bracketed class. Tests expect
-         * \d, \w, \s for these cases (and the uppercase variant when
-         * negated). */
-        if (n == 1)
-        {
-            json_t *first = json_array_get(members, 0);
-            const char *first_type = get_node_type(first);
-            if (first_type && strcmp(first_type, "Escape") == 0)
-            {
-                json_t *kind_obj = json_object_get(first, "kind");
-                if (kind_obj && json_is_string(kind_obj))
-                {
-                    const char *kind = json_string_value(kind_obj);
-                    char k = 'd';
-                    if (strcmp(kind, "digit") == 0)
-                        k = 'd';
-                    else if (strcmp(kind, "word") == 0)
-                        k = 'w';
-                    else if (strcmp(kind, "space") == 0)
-                        k = 's';
-                    else
-                        k = kind[0];
+        /* Optimization: Unwrap single-member character classes if safe - REMOVED */
 
-                    if (negated)
-                        k = (char)toupper((unsigned char)k);
-                    char buf[4] = {'\\', k, '\0'};
-                    return strdup(buf);
-                }
-            }
-        }
+
+        /* Optimization: Single member character class (negated) - REMOVED */
+
 
         /* Build the character class string */
         size_t result_capacity = 256; /* Initial capacity */
         char *result = (char *)malloc(result_capacity);
+        if (!result)
+        {
+            *out_error = strdup("Memory allocation failed");
+            return 1;
+        }
         size_t result_len = 0;
 
         /* Start with [ */
@@ -752,7 +902,8 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
                 if (!new_result)
                 {
                     free(result);
-                    return strdup("");
+                    *out_error = strdup("Memory allocation failed");
+                    return 1;
                 }
                 result = new_result;
             }
@@ -772,6 +923,12 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
                     /* Ensure strings are not empty before accessing [0] */
                     if (from && from[0] && to && to[0])
                     {
+                        if ((unsigned char)from[0] > (unsigned char)to[0])
+                        {
+                            free(result);
+                            *out_error = strdup("Invalid Range: 'from' cannot be greater than 'to'");
+                            return 1;
+                        }
                         /* Emit as "from-to" */
                         result[result_len++] = from[0];
                         result[result_len++] = '-';
@@ -808,70 +965,99 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
                     if (value && val_len > 0)
                     {
                         /* Special characters in character classes that need escaping */
-                        // Parse as UTF-8 and emit hex escapes for non-printable or multi-byte
                         const unsigned char *s = (const unsigned char *)value;
                         size_t i = 0;
                         while (i < val_len)
                         {
-                            unsigned char c = s[i];
-                            if (c < 0x20 || c > 0x7e || (s[i + 1] != '\0'))
+                            /* Ensure capacity */
+                            if (result_len + 16 > result_capacity)
                             {
-                                // Multi-byte or non-printable -> emit as \x{...}
-                                // Determine codepoint
-                                unsigned int codepoint = 0;
-                                size_t bytes = 0;
-                                if ((c & 0x80) == 0)
+                                result_capacity = result_capacity * 2 + 16;
+                                char *new_result = (char *)realloc(result, result_capacity);
+                                if (!new_result)
                                 {
-                                    codepoint = c;
-                                    bytes = 1;
+                                    free(result);
+                                    *out_error = strdup("Memory allocation failed");
+                                    return 1;
                                 }
-                                else if ((c & 0xE0) == 0xC0)
-                                {
-                                    codepoint = c & 0x1F;
-                                    bytes = 2;
-                                }
-                                else if ((c & 0xF0) == 0xE0)
-                                {
-                                    codepoint = c & 0x0F;
-                                    bytes = 3;
-                                }
-                                else if ((c & 0xF8) == 0xF0)
-                                {
-                                    codepoint = c & 0x07;
-                                    bytes = 4;
-                                }
-                                // Read continuation bytes
-                                for (size_t j = 1; j < bytes; j++)
-                                {
-                                    unsigned char cont = s[i + j];
-                                    if ((cont & 0xC0) != 0x80)
-                                        break;
-                                    codepoint = (codepoint << 6) | (cont & 0x3F);
-                                }
-                                // Emit as \x{hex}
-                                result[result_len++] = '\\';
-                                result[result_len++] = 'x';
-                                result[result_len++] = '{';
-                                // hex value
-                                char buf[16];
-                                snprintf(buf, sizeof(buf), "%x", codepoint);
-                                for (size_t k = 0; k < strlen(buf); k++)
-                                {
-                                    result[result_len++] = buf[k];
-                                }
-                                result[result_len++] = '}';
-                                i += bytes;
+                                result = new_result;
                             }
-                            else
+
+                            unsigned char c = s[i];
+
+                            /* Handle multi-byte UTF-8 raw */
+                            if (c >= 0x80)
                             {
-                                char ch = (char)c;
-                                if (ch == ']' || ch == '\\' || ch == '^' || ch == '-')
+                                int bytes = 0;
+                                if ((c & 0xE0) == 0xC0)
+                                    bytes = 2;
+                                else if ((c & 0xF0) == 0xE0)
+                                    bytes = 3;
+                                else if ((c & 0xF8) == 0xF0)
+                                    bytes = 4;
+                                else
+                                {
+                                    /* Invalid start byte, treat as raw byte */
+                                    result[result_len++] = c;
+                                    i++;
+                                    continue;
+                                }
+
+                                /* Copy the sequence */
+                                for (int k = 0; k < bytes && i < val_len; k++)
+                                {
+                                    result[result_len++] = s[i++];
+                                }
+                                continue;
+                            }
+
+                            /* Handle control chars < 0x20 */
+                            if (c < 0x20)
+                            {
+                                if (c == '\n')
                                 {
                                     result[result_len++] = '\\';
+                                    result[result_len++] = 'n';
                                 }
-                                result[result_len++] = ch;
+                                else if (c == '\r')
+                                {
+                                    result[result_len++] = '\\';
+                                    result[result_len++] = 'r';
+                                }
+                                else if (c == '\t')
+                                {
+                                    result[result_len++] = '\\';
+                                    result[result_len++] = 't';
+                                }
+                                else if (c == '\f')
+                                {
+                                    result[result_len++] = '\\';
+                                    result[result_len++] = 'f';
+                                }
+                                else if (c == '\v')
+                                {
+                                    result[result_len++] = '\\';
+                                    result[result_len++] = 'v';
+                                }
+                                else
+                                {
+                                    /* Use \x{...} format universally for control chars in character classes */
+                                    char buf[16];
+                                    snprintf(buf, sizeof(buf), "\\x{%02x}", c);
+                                    for (size_t k = 0; k < strlen(buf); k++)
+                                        result[result_len++] = buf[k];
+                                }
                                 i++;
+                                continue;
                             }
+
+                            /* Handle special chars inside [] */
+                            if (c == ']' || c == '\\' || c == '^' || c == '-')
+                            {
+                                result[result_len++] = '\\';
+                            }
+                            result[result_len++] = c;
+                            i++;
                         }
                     }
                 }
@@ -887,13 +1073,66 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
                     const char *kind = json_string_value(kind_obj);
                     if (kind && kind[0])
                     {
+                        if (strcmp(kind, "unicode_property") == 0)
+                        {
+                            json_t *prop_obj = json_object_get(member, "property");
+                            json_t *neg_obj = json_object_get(member, "negated");
+                            bool is_negated = neg_obj && json_is_true(neg_obj);
+
+                            if (prop_obj && json_is_string(prop_obj))
+                            {
+                                const char *prop = json_string_value(prop_obj);
+                                if (strlen(prop) == 0)
+                                {
+                                    free(result);
+                                    *out_error = strdup("Invalid unicode property: Empty property");
+                                    return 1;
+                                }
+                                size_t prop_len = strlen(prop);
+                                size_t needed = 4 + prop_len; /* \p{prop} */
+
+                                while (result_len + needed >= result_capacity)
+                                {
+                                    result_capacity *= 2;
+                                    char *new_result = (char *)realloc(result, result_capacity);
+                                    if (!new_result)
+                                    {
+                                        free(result);
+                                        *out_error = strdup("Memory allocation failed");
+                                        return 1;
+                                    }
+                                    result = new_result;
+                                }
+
+                                result[result_len++] = '\\';
+                                result[result_len++] = is_negated ? 'P' : 'p';
+                                result[result_len++] = '{';
+                                memcpy(result + result_len, prop, prop_len);
+                                result_len += prop_len;
+                                result[result_len++] = '}';
+                                continue;
+                            }
+                            else
+                            {
+                                free(result);
+                                *out_error = strdup("Invalid unicode property: Missing 'property' field");
+                                return 1;
+                            }
+                        }
+
                         char k = 'd';
                         if (strcmp(kind, "digit") == 0)
                             k = 'd';
+                        else if (strcmp(kind, "not_digit") == 0 || strcmp(kind, "not-digit") == 0)
+                            k = 'D';
                         else if (strcmp(kind, "word") == 0)
                             k = 'w';
-                        else if (strcmp(kind, "space") == 0)
+                        else if (strcmp(kind, "not_word") == 0 || strcmp(kind, "not-word") == 0)
+                            k = 'W';
+                        else if (strcmp(kind, "space") == 0 || strcmp(kind, "whitespace") == 0)
                             k = 's';
+                        else if (strcmp(kind, "not_space") == 0 || strcmp(kind, "not_whitespace") == 0 || strcmp(kind, "not-space") == 0 || strcmp(kind, "not-whitespace") == 0)
+                            k = 'S';
                         else
                             k = kind[0];
                         result[result_len++] = '\\';
@@ -934,7 +1173,9 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
                         if (!new_result)
                         {
                             free(result);
-                            return strdup("");
+                            if (out_error)
+                                *out_error = strdup("Memory allocation failed");
+                            return -1;
                         }
                         result = new_result;
                     }
@@ -966,7 +1207,108 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         result[result_len++] = ']';
         result[result_len] = '\0';
 
-        return result;
+        *out_pattern = result;
+        return 0;
+    }
+
+    /* Handle Escape (standalone) */
+    if (strcmp(type, "Escape") == 0)
+    {
+        json_t *kind_obj = json_object_get(node, "kind");
+        json_t *value_obj = json_object_get(node, "value");
+
+        if (kind_obj && json_is_string(kind_obj))
+        {
+            const char *kind = json_string_value(kind_obj);
+            if (strcmp(kind, "unknown") == 0)
+            {
+                char msg[128];
+                const char *val = "";
+                if (value_obj && json_is_string(value_obj))
+                    val = json_string_value(value_obj);
+                snprintf(msg, sizeof(msg), "Unknown escape: \\%s", val);
+                *out_error = strdup(msg);
+                return 1;
+            }
+            if (strcmp(kind, "digit") == 0)
+            {
+                *out_pattern = strdup("\\d");
+                return 0;
+            }
+            if (strcmp(kind, "not-digit") == 0)
+            {
+                *out_pattern = strdup("\\D");
+                return 0;
+            }
+            if (strcmp(kind, "word") == 0)
+            {
+                *out_pattern = strdup("\\w");
+                return 0;
+            }
+            if (strcmp(kind, "not-word") == 0)
+            {
+                *out_pattern = strdup("\\W");
+                return 0;
+            }
+            if (strcmp(kind, "space") == 0 || strcmp(kind, "whitespace") == 0)
+            {
+                *out_pattern = strdup("\\s");
+                return 0;
+            }
+            if (strcmp(kind, "not-space") == 0 || strcmp(kind, "not-whitespace") == 0)
+            {
+                *out_pattern = strdup("\\S");
+                return 0;
+            }
+            if (strcmp(kind, "hex") == 0)
+            {
+                const char *val = "";
+                if (value_obj && json_is_string(value_obj))
+                    val = json_string_value(value_obj);
+                if (strlen(val) == 0)
+                {
+                    *out_error = strdup("Invalid hex: Empty value");
+                    return 1;
+                }
+                for (size_t i = 0; i < strlen(val); i++)
+                {
+                    if (!isxdigit((unsigned char)val[i]))
+                    {
+                        *out_error = strdup("Invalid hex: Non-hex digit");
+                        return 1;
+                    }
+                }
+                char *res = (char *)malloc(strlen(val) + 5);
+                sprintf(res, "\\x{%s}", val);
+                *out_pattern = res;
+                return 0;
+            }
+            if (strcmp(kind, "unicode") == 0)
+            {
+                const char *val = "";
+                if (value_obj && json_is_string(value_obj))
+                    val = json_string_value(value_obj);
+                if (strlen(val) == 0)
+                {
+                    *out_error = strdup("Invalid unicode: Empty value");
+                    return 1;
+                }
+                for (size_t i = 0; i < strlen(val); i++)
+                {
+                    if (!isxdigit((unsigned char)val[i]))
+                    {
+                        *out_error = strdup("Invalid unicode: Non-hex digit");
+                        return 1;
+                    }
+                }
+                char *res = (char *)malloc(strlen(val) + 5);
+                sprintf(res, "\\x{%s}", val);
+                *out_pattern = res;
+                return 0;
+            }
+        }
+        *out_error = strdup("Invalid Escape node");
+        return 1;
     }
 
     /* Handle Meta (standalone escape sequences like \b, \d, etc.) */
@@ -983,10 +1325,12 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
                 result[0] = '\\';
                 result[1] = value[0];
                 result[2] = '\0';
-                return result;
+                *out_pattern = result;
+                return 0;
             }
         }
-        return strdup("");
+        *out_error = strdup("Invalid Meta: Missing or invalid 'value'");
+        return 1;
     }
 
     /* Handle Group */
@@ -1001,12 +1345,17 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         json_t *atomic_obj = json_object_get(node, "atomic");
 
         if (!body)
-            return strdup("");
+        {
+            *out_error = strdup("Invalid Group: Missing 'body' or 'expression'");
+            return 1;
+        }
 
         /* Compile the body */
-        char *body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str)
-            return strdup("");
+        char *body_str = NULL;
+        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
+        {
+            return 1;
+        }
 
         /* Determine group type */
         bool capturing = true; /* Default is capturing */
@@ -1024,6 +1373,12 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         if (name_obj && json_is_string(name_obj))
         {
             name = json_string_value(name_obj);
+            if (!is_valid_group_name(name))
+            {
+                free(body_str);
+                *out_error = strdup("Invalid group name. Hint: Group names must be valid IDENTIFIERs (alphanumeric + underscore, start with letter/underscore)");
+                return 1;
+            }
         }
 
         /* Build the group string */
@@ -1062,12 +1417,59 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         }
 
         free(body_str);
-        return result;
+        *out_pattern = result;
+        return 0;
     }
 
     /* Handle Backreference */
     if (strcmp(type, "Backreference") == 0 || strcmp(type, "Backref") == 0 || strcmp(type, "BackReference") == 0)
     {
+        json_t *kind_obj = json_object_get(node, "kind");
+        if (kind_obj && json_is_string(kind_obj))
+        {
+            const char *kind = json_string_value(kind_obj);
+            if (strcmp(kind, "recursion") == 0)
+            {
+                *out_pattern = strdup("(?R)");
+                return 0;
+            }
+            if (strcmp(kind, "subroutine") == 0)
+            {
+                json_t *ref_obj = json_object_get(node, "ref");
+                json_t *name_obj = json_object_get(node, "name");
+
+                if (name_obj && json_is_string(name_obj))
+                {
+                    const char *name = json_string_value(name_obj);
+                    size_t len = strlen(name) + 6; /* (?&name) + \0 */
+                    char *res = (char *)malloc(len);
+                    snprintf(res, len, "(?&%s)", name);
+                    *out_pattern = res;
+                    return 0;
+                }
+                if (ref_obj)
+                {
+                    if (json_is_integer(ref_obj))
+                    {
+                        int idx = json_integer_value(ref_obj);
+                        char *res = (char *)malloc(16);
+                        snprintf(res, 16, "(?%d)", idx);
+                        *out_pattern = res;
+                        return 0;
+                    }
+                    if (json_is_string(ref_obj))
+                    {
+                        const char *name = json_string_value(ref_obj);
+                        size_t len = strlen(name) + 6;
+                        char *res = (char *)malloc(len);
+                        snprintf(res, len, "(?&%s)", name);
+                        *out_pattern = res;
+                        return 0;
+                    }
+                }
+            }
+        }
+
         json_t *index_obj = json_object_get(node, "index");
         json_t *name_obj = json_object_get(node, "name");
         json_t *ref_obj = json_object_get(node, "ref");
@@ -1078,35 +1480,73 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         {
             /* Named backreference: \k<name> */
             const char *name = json_string_value(name_obj);
+            if (!is_valid_group_name(name))
+            {
+                *out_error = strdup("Invalid group name. Hint: Group names must be valid IDENTIFIERs (alphanumeric + underscore, start with letter/underscore)");
+                return 1;
+            }
             size_t name_len = strlen(name);
             size_t result_len = 4 + name_len + 1; /* \k< + name + > + \0 */
             char *result = (char *)malloc(result_len);
             snprintf(result, result_len, "\\k<%s>", name);
-            return result;
+            *out_pattern = result;
+            return 0;
         }
         else if (by_name_obj && json_is_string(by_name_obj))
         {
             const char *name = json_string_value(by_name_obj);
+            if (!is_valid_group_name(name))
+            {
+                *out_error = strdup("Invalid group name. Hint: Group names must be valid IDENTIFIERs (alphanumeric + underscore, start with letter/underscore)");
+                return 1;
+            }
             size_t name_len = strlen(name);
             size_t result_len = 4 + name_len + 1;
             char *result = (char *)malloc(result_len);
             snprintf(result, result_len, "\\k<%s>", name);
-            return result;
+            *out_pattern = result;
+            return 0;
         }
         else if (index_obj && json_is_integer(index_obj))
         {
             /* Numeric backreference: \1, \2, etc. */
             int index = json_integer_value(index_obj);
+            if (index == 0)
+            {
+                *out_error = strdup("Invalid Backreference: Index cannot be 0");
+                return 1;
+            }
+            if (index < 0)
+            {
+                char *result = (char *)malloc(32);
+                snprintf(result, 32, "\\g{%d}", index);
+                *out_pattern = result;
+                return 0;
+            }
             char *result = (char *)malloc(16); /* Enough for \<digits> */
             snprintf(result, 16, "\\%d", index);
-            return result;
+            *out_pattern = result;
+            return 0;
         }
         else if (by_index_obj && json_is_integer(by_index_obj))
         {
             int index = json_integer_value(by_index_obj);
+            if (index == 0)
+            {
+                *out_error = strdup("Invalid Backreference: Index cannot be 0");
+                return 1;
+            }
+            if (index < 0)
+            {
+                char *result = (char *)malloc(32);
+                snprintf(result, 32, "\\g{%d}", index);
+                *out_pattern = result;
+                return 0;
+            }
             char *result = (char *)malloc(16);
             snprintf(result, 16, "\\%d", index);
-            return result;
+            *out_pattern = result;
+            return 0;
         }
         else if (ref_obj)
         {
@@ -1118,17 +1558,87 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
                 size_t result_len = 4 + name_len + 1;
                 char *result = (char *)malloc(result_len);
                 snprintf(result, result_len, "\\k<%s>", name);
-                return result;
+                *out_pattern = result;
+                return 0;
             }
             else if (json_is_integer(ref_obj))
             {
                 int index = json_integer_value(ref_obj);
+                if (index == 0)
+                {
+                    *out_error = strdup("Invalid Backreference: Index cannot be 0");
+                    return 1;
+                }
+                if (index < 0)
+                {
+                    char *result = (char *)malloc(32);
+                    snprintf(result, 32, "\\g{%d}", index);
+                    *out_pattern = result;
+                    return 0;
+                }
                 char *result = (char *)malloc(16);
                 snprintf(result, 16, "\\%d", index);
-                return result;
+                *out_pattern = result;
+                return 0;
             }
         }
-        return strdup("");
+        *out_error = strdup("Invalid Backreference: Missing index or name");
+        return 1;
+    }
+
+    /* Handle Lookaround */
+    if (strcmp(type, "Lookaround") == 0)
+    {
+        json_t *expression = json_object_get(node, "expression");
+        json_t *kind_obj = json_object_get(node, "kind");
+        json_t *negated_obj = json_object_get(node, "negated");
+
+        if (!expression)
+        {
+            *out_error = strdup("Invalid Lookaround: Missing 'expression'");
+            return 1;
+        }
+
+        char *expr_str = NULL;
+        if (compile_node_to_pcre2(expression, flags, &expr_str, out_error) != 0)
+        {
+            return 1;
+        }
+
+        const char *kind = "lookahead";
+        if (kind_obj && json_is_string(kind_obj))
+        {
+            kind = json_string_value(kind_obj);
+        }
+
+        bool negated = false;
+        if (negated_obj && json_is_boolean(negated_obj))
+        {
+            negated = json_boolean_value(negated_obj);
+        }
+
+        size_t len = strlen(expr_str) + 10;
+        char *result = (char *)malloc(len);
+
+        if (strcmp(kind, "lookahead") == 0)
+        {
+            snprintf(result, len, "(?%c%s)", negated ? '!' : '=', expr_str);
+        }
+        else if (strcmp(kind, "lookbehind") == 0)
+        {
+            snprintf(result, len, "(?<%c%s)", negated ? '!' : '=', expr_str);
+        }
+        else
+        {
+            free(expr_str);
+            free(result);
+            *out_error = strdup("Invalid Lookaround: Unknown kind");
+            return 1;
+        }
+
+        free(expr_str);
+        *out_pattern = result;
+        return 0;
     }
 
     /* Handle Lookahead */
@@ -1138,11 +1648,16 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         if (!body)
             body = json_object_get(node, "expression");
         if (!body)
-            return strdup("");
+        {
+            *out_error = strdup("Invalid Lookahead: Missing 'expression' or 'body'");
+            return 1;
+        }
 
-        char *body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str)
-            return strdup("");
+        char *body_str = NULL;
+        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
+        {
+            return 1;
+        }
 
         /* Positive lookahead: (?=...) */
         size_t body_len = strlen(body_str);
@@ -1151,7 +1666,8 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         snprintf(result, result_len, "(?=%s)", body_str);
 
         free(body_str);
-        return result;
+        *out_pattern = result;
+        return 0;
     }
 
     /* Handle NegativeLookahead */
@@ -1161,11 +1677,16 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         if (!body)
             body = json_object_get(node, "expression");
         if (!body)
-            return strdup("");
+        {
+            *out_error = strdup("Invalid NegativeLookahead: Missing 'body'");
+            return 1;
+        }
 
-        char *body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str)
-            return strdup("");
+        char *body_str = NULL;
+        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
+        {
+            return 1;
+        }
 
         /* Negative lookahead: (?!...) */
         size_t body_len = strlen(body_str);
@@ -1174,7 +1695,8 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         snprintf(result, result_len, "(?!%s)", body_str);
 
         free(body_str);
-        return result;
+        *out_pattern = result;
+        return 0;
     }
 
     /* Handle Lookbehind */
@@ -1184,11 +1706,16 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         if (!body)
             body = json_object_get(node, "expression");
         if (!body)
-            return strdup("");
+        {
+            *out_error = strdup("Invalid Lookbehind: Missing 'body'");
+            return 1;
+        }
 
-        char *body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str)
-            return strdup("");
+        char *body_str = NULL;
+        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
+        {
+            return 1;
+        }
 
         /* Positive lookbehind: (?<=...) */
         size_t body_len = strlen(body_str);
@@ -1197,7 +1724,8 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         snprintf(result, result_len, "(?<=%s)", body_str);
 
         free(body_str);
-        return result;
+        *out_pattern = result;
+        return 0;
     }
 
     /* Handle NegativeLookbehind */
@@ -1207,11 +1735,16 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         if (!body)
             body = json_object_get(node, "expression");
         if (!body)
-            return strdup("");
+        {
+            *out_error = strdup("Invalid NegativeLookbehind: Missing 'body'");
+            return 1;
+        }
 
-        char *body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str)
-            return strdup("");
+        char *body_str = NULL;
+        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
+        {
+            return 1;
+        }
 
         /* Negative lookbehind: (?<!...) */
         size_t body_len = strlen(body_str);
@@ -1220,7 +1753,8 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         snprintf(result, result_len, "(?<!%s)", body_str);
 
         free(body_str);
-        return result;
+        *out_pattern = result;
+        return 0;
     }
 
     /* Handle Look (JS AST) */
@@ -1233,11 +1767,16 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
             body = json_object_get(node, "expression");
 
         if (!body)
-            return strdup("");
+        {
+            *out_error = strdup("Invalid Look: Missing 'body'");
+            return 1;
+        }
 
-        char *body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str)
-            return strdup("");
+        char *body_str = NULL;
+        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
+        {
+            return 1;
+        }
 
         const char *dir = "Ahead";
         if (dir_obj && json_is_string(dir_obj))
@@ -1259,50 +1798,193 @@ static char *compile_node_to_pcre2(json_t *node, const STRlingFlags *flags)
         snprintf(result, result_len, "%s%s)", prefix, body_str);
 
         free(body_str);
-        return result;
+        *out_pattern = result;
+        return 0;
     }
 
-    /* Handle Lookaround (Test Suite Variant) */
-    if (strcmp(type, "Lookaround") == 0)
+    /* Unsupported node types return error */
+    char msg[256];
+    snprintf(msg, sizeof(msg), "Unknown node type: '%s'", type);
+    *out_error = strdup(msg);
+    return 1;
+}
+
+/* Semantic Validation Context */
+typedef struct
+{
+    char **defined_groups;
+    size_t group_count;
+    size_t group_capacity;
+    int capturing_group_count;
+} ValidationContext;
+
+static void ctx_init(ValidationContext *ctx)
+{
+    ctx->defined_groups = NULL;
+    ctx->group_count = 0;
+    ctx->group_capacity = 0;
+    ctx->capturing_group_count = 0;
+}
+
+static void ctx_free(ValidationContext *ctx)
+{
+    for (size_t i = 0; i < ctx->group_count; i++)
     {
-        json_t *kind_obj = json_object_get(node, "kind");
-        json_t *neg_obj = json_object_get(node, "negated");
-        json_t *body = json_object_get(node, "expression");
-        if (!body)
-            body = json_object_get(node, "body");
+        free(ctx->defined_groups[i]);
+    }
+    free(ctx->defined_groups);
+}
 
-        if (!body)
-            return strdup("");
+static bool ctx_add_group(ValidationContext *ctx, const char *name)
+{
+    for (size_t i = 0; i < ctx->group_count; i++)
+    {
+        if (strcmp(ctx->defined_groups[i], name) == 0)
+        {
+            return false; // Duplicate
+        }
+    }
+    if (ctx->group_count == ctx->group_capacity)
+    {
+        ctx->group_capacity = ctx->group_capacity == 0 ? 8 : ctx->group_capacity * 2;
+        char **new_groups = (char **)realloc(ctx->defined_groups, ctx->group_capacity * sizeof(char *));
+        if (!new_groups)
+            return false; // Allocation failure
+        ctx->defined_groups = new_groups;
+    }
+    ctx->defined_groups[ctx->group_count++] = strdup(name);
+    return true;
+}
 
-        char *body_str = compile_node_to_pcre2(body, flags);
-        if (!body_str)
-            return strdup("");
+static bool ctx_has_group(ValidationContext *ctx, const char *name)
+{
+    for (size_t i = 0; i < ctx->group_count; i++)
+    {
+        if (strcmp(ctx->defined_groups[i], name) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
-        const char *kind = "lookahead";
-        if (kind_obj && json_is_string(kind_obj))
-            kind = json_string_value(kind_obj);
+static int validate_semantics_recursive(json_t *node, ValidationContext *ctx, char **out_error, bool is_root)
+{
+    if (!node || !json_is_object(node))
+        return 0;
 
-        bool negated = false;
-        if (neg_obj && json_is_boolean(neg_obj))
-            negated = json_boolean_value(neg_obj);
+    const char *type = get_node_type(node);
 
-        /* Construct prefix */
-        char prefix[5] = "(?";
-        if (strcmp(kind, "lookbehind") == 0)
-            strcat(prefix, "<");
-        strcat(prefix, negated ? "!" : "=");
+    if (type)
+    {
+        if (strcmp(type, "Group") == 0)
+        {
+            json_t *capturing_obj = json_object_get(node, "capturing");
+            bool capturing = true;
+            if (capturing_obj && json_is_boolean(capturing_obj))
+            {
+                capturing = json_boolean_value(capturing_obj);
+            }
 
-        size_t body_len = strlen(body_str);
-        size_t result_len = strlen(prefix) + body_len + 1 + 1;
-        char *result = (char *)malloc(result_len);
-        snprintf(result, result_len, "%s%s)", prefix, body_str);
+            if (capturing)
+            {
+                ctx->capturing_group_count++;
+            }
 
-        free(body_str);
-        return result;
+            json_t *name_obj = json_object_get(node, "name");
+            if (name_obj && json_is_string(name_obj))
+            {
+                const char *name = json_string_value(name_obj);
+                if (!ctx_add_group(ctx, name))
+                {
+                    *out_error = strdup("Duplicate group name");
+                    return 1;
+                }
+            }
+        }
+        else if (strcmp(type, "BackReference") == 0 || strcmp(type, "Backref") == 0 || strcmp(type, "Backreference") == 0)
+        {
+            if (is_root)
+            {
+                return 0;
+            }
+
+            json_t *name_obj = json_object_get(node, "name");
+            json_t *by_name_obj = json_object_get(node, "byName");
+            json_t *index_obj = json_object_get(node, "index");
+            json_t *by_index_obj = json_object_get(node, "byIndex");
+            json_t *ref_obj = json_object_get(node, "ref");
+
+            const char *name = NULL;
+            if (name_obj && json_is_string(name_obj))
+                name = json_string_value(name_obj);
+            else if (by_name_obj && json_is_string(by_name_obj))
+                name = json_string_value(by_name_obj);
+            else if (ref_obj && json_is_string(ref_obj))
+                name = json_string_value(ref_obj);
+
+            if (name)
+            {
+                if (!ctx_has_group(ctx, name))
+                {
+                    *out_error = strdup("Invalid Backreference: undefined group");
+                    return 1;
+                }
+            }
+
+            int index = 0;
+            if (index_obj && json_is_integer(index_obj))
+                index = json_integer_value(index_obj);
+            else if (by_index_obj && json_is_integer(by_index_obj))
+                index = json_integer_value(by_index_obj);
+            else if (ref_obj && json_is_integer(ref_obj))
+                index = json_integer_value(ref_obj);
+
+            if (index > 0)
+            {
+                if (index > ctx->capturing_group_count)
+                {
+                    *out_error = strdup("Invalid Backreference: undefined group");
+                    return 1;
+                }
+            }
+        }
     }
 
-    /* Unsupported node types return empty for now */
-    return strdup("");
+    void *iter = json_object_iter(node);
+    while (iter)
+    {
+        const char *key = json_object_iter_key(iter);
+        json_t *value = json_object_iter_value(iter);
+
+        /* Ignore 'expression' if 'body' exists to avoid duplicate traversal */
+        if (strcmp(key, "expression") == 0 && json_object_get(node, "body"))
+        {
+            iter = json_object_iter_next(node, iter);
+            continue;
+        }
+
+        if (json_is_object(value))
+        {
+            if (validate_semantics_recursive(value, ctx, out_error, false) != 0)
+                return 1;
+        }
+        else if (json_is_array(value))
+        {
+            size_t index;
+            json_t *elem;
+            json_array_foreach(value, index, elem)
+            {
+                if (json_is_object(elem))
+                {
+                    if (validate_semantics_recursive(elem, ctx, out_error, false) != 0)
+                        return 1;
+                }
+            }
+        }
+        iter = json_object_iter_next(node, iter);
+    }
+    return 0;
 }
 
 STRlingResult *strling_compile(const char *json_str, const STRlingFlags *flags)
@@ -1354,7 +2036,29 @@ STRlingResult *strling_compile(const char *json_str, const STRlingFlags *flags)
     }
 
     /* Compile the pattern */
-    char *pcre2_pattern = compile_node_to_pcre2(pattern_node, flags);
+    char *pcre2_pattern = NULL;
+    char *compile_error = NULL;
+
+    /* Perform semantic validation */
+    ValidationContext ctx;
+    ctx_init(&ctx);
+    if (validate_semantics_recursive(pattern_node, &ctx, &compile_error, true) != 0)
+    {
+        ctx_free(&ctx);
+        json_decref(root);
+        STRlingResult *res = create_error_result(compile_error, 0, NULL);
+        free(compile_error);
+        return res;
+    }
+    ctx_free(&ctx);
+
+    if (compile_node_to_pcre2(pattern_node, flags, &pcre2_pattern, &compile_error) != 0)
+    {
+        json_decref(root);
+        STRlingResult *res = create_error_result(compile_error, 0, NULL);
+        free(compile_error);
+        return res;
+    }
 
     /* Determine which flags to use */
     json_t *flags_obj = json_object_get(root, "flags");

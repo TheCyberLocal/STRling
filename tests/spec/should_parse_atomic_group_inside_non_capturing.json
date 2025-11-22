@@ -1,0 +1,66 @@
+{
+  "id": "should_parse_atomic_group_inside_non_capturing",
+  "description": "Generated from should_parse_atomic_group_inside_non_capturing.pattern",
+  "input_dsl": "(?:(?>a))",
+  "input_ast": {
+    "type": "Group",
+    "capturing": false,
+    "body": {
+      "type": "Group",
+      "capturing": false,
+      "body": {
+        "type": "Literal",
+        "value": "a"
+      },
+      "expression": {
+        "type": "Literal",
+        "value": "a"
+      },
+      "name": null,
+      "atomic": true
+    },
+    "expression": {
+      "type": "Group",
+      "capturing": false,
+      "body": {
+        "type": "Literal",
+        "value": "a"
+      },
+      "expression": {
+        "type": "Literal",
+        "value": "a"
+      },
+      "name": null,
+      "atomic": true
+    },
+    "name": null,
+    "atomic": false
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Group",
+    "capturing": false,
+    "body": {
+      "ir": "Group",
+      "capturing": false,
+      "body": {
+        "ir": "Lit",
+        "value": "a"
+      },
+      "atomic": true
+    }
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?:(?>a))"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

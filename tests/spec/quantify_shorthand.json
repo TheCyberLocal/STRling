@@ -1,0 +1,53 @@
+{
+  "id": "quantify_shorthand",
+  "description": "Generated from quantify_shorthand.pattern",
+  "input_dsl": "\\d*",
+  "input_ast": {
+    "type": "Quantifier",
+    "target": {
+      "type": "CharacterClass",
+      "negated": false,
+      "members": [
+        {
+          "type": "Escape",
+          "kind": "digit"
+        }
+      ]
+    },
+    "min": 0,
+    "max": null,
+    "greedy": true,
+    "lazy": false,
+    "possessive": false
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Quant",
+    "child": {
+      "ir": "CharClass",
+      "negated": false,
+      "items": [
+        {
+          "ir": "Esc",
+          "type": "d"
+        }
+      ]
+    },
+    "min": 0,
+    "max": "Inf",
+    "mode": "Greedy"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\\d*"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

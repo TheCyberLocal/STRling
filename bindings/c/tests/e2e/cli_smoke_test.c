@@ -33,16 +33,17 @@
  * Input AST: Literal("hello")
  * Expected PCRE2: "hello"
  */
-static void test_smoke_compile_valid(void **state) {
+static void test_smoke_compile_valid(void **state)
+{
     (void)state;
 
     // 1. Define a valid JSON AST payload (with pattern wrapper)
-    const char *valid_ast_json = 
+    const char *valid_ast_json =
         "{"
-            "\"pattern\": {"
-                "\"type\": \"Literal\","
-                "\"value\": \"hello\""
-            "}"
+        "\"pattern\": {"
+        "\"type\": \"Literal\","
+        "\"value\": \"hello\""
+        "}"
         "}";
 
     // 2. Call the real library API (compatibility value API)
@@ -67,33 +68,34 @@ static void test_smoke_compile_valid(void **state) {
  * Input AST: {"type": "InvalidNode", ...}
  * Expected Result: Error code (not STRling_OK)
  */
-static void test_smoke_compile_invalid(void **state) {
+static void test_smoke_compile_invalid(void **state)
+{
     (void)state;
 
     // 1. Define an invalid JSON AST payload (Unknown Node Type)
-    const char *invalid_ast_json = 
+    const char *invalid_ast_json =
         "{"
-            "\"pattern\": {"
-                "\"type\": \"ThisNodeDoesNotExist\","
-                "\"value\": \"test\""
-            "}"
+        "\"pattern\": {"
+        "\"type\": \"ThisNodeDoesNotExist\","
+        "\"value\": \"test\""
+        "}"
         "}";
 
     // 2. Call the real library API (compatibility value API)
     strling_result_t result = strling_compile_compat(invalid_ast_json, NULL);
 
     // 3. Assertions
-    // The operation should return empty pattern for unknown nodes
-    assert_int_equal(result.error_code, STRling_OK);
-    assert_non_null(result.pcre2_pattern);
-    // Unknown nodes return empty pattern
-    assert_string_equal(result.pcre2_pattern, "");
+    // The operation should return error for unknown nodes
+    assert_int_not_equal(result.error_code, STRling_OK);
+    assert_non_null(result.error_message);
+    assert_non_null(strstr(result.error_message, "Unknown node type"));
 
     // 4. Cleanup
     strling_result_free_compat(&result);
 }
 
-static const struct {
+static const struct
+{
     const char *id;
     const char *json;
 } cli_smoke_entries[] = {
@@ -106,6 +108,7 @@ const struct CMUnitTest cli_smoke_tests[] = {
     cmocka_unit_test(test_smoke_compile_invalid),
 };
 // NOTE: The main test harness uses this array.
-int main(void) {
+int main(void)
+{
     return cmocka_run_group_tests(cli_smoke_tests, NULL, NULL);
 }

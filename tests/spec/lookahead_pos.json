@@ -1,0 +1,53 @@
+{
+  "id": "lookahead_pos",
+  "description": "Generated from lookahead_pos.pattern",
+  "input_dsl": "a(?=b)",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Lookahead",
+        "body": {
+          "type": "Literal",
+          "value": "b"
+        }
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Lit",
+        "value": "a"
+      },
+      {
+        "ir": "Look",
+        "dir": "Ahead",
+        "neg": false,
+        "body": {
+          "ir": "Lit",
+          "value": "b"
+        }
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "a(?=b)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

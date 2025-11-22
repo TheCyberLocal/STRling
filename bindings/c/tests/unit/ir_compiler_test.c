@@ -163,7 +163,7 @@ static void test_category_c_full_compilation(void **state)
         // 15. AST adjacent literals -> fused output
         {"full_adjacent_lits",
          "{\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"hello\"}, {\"type\": \"Literal\", \"value\": \" \"}, {\"type\": \"Literal\", \"value\": \"world\"}]}",
-         "hello world"},
+         "hello\\ world"},
 
         // 16. Nested AST sequence -> flat output
         {"full_nested_seq",

@@ -1,0 +1,55 @@
+{
+  "id": "class_with_only_escapes",
+  "description": "Generated from class_with_only_escapes.pattern",
+  "input_dsl": "[\\n\\t\\d]",
+  "input_ast": {
+    "type": "CharacterClass",
+    "negated": false,
+    "members": [
+      {
+        "type": "Literal",
+        "value": "\n"
+      },
+      {
+        "type": "Literal",
+        "value": "\t"
+      },
+      {
+        "type": "Escape",
+        "kind": "digit"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": false,
+    "items": [
+      {
+        "ir": "Char",
+        "char": "\n"
+      },
+      {
+        "ir": "Char",
+        "char": "\t"
+      },
+      {
+        "ir": "Esc",
+        "type": "d"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[\\n\\t\\d]"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

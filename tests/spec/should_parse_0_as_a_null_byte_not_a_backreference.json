@@ -1,0 +1,27 @@
+{
+  "id": "should_parse_0_as_a_null_byte_not_a_backreference",
+  "description": "Generated from should_parse_0_as_a_null_byte_not_a_backreference.pattern",
+  "input_dsl": "\\0",
+  "input_ast": {
+    "type": "Literal",
+    "value": "\u0000"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "\u0000"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\u0000"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

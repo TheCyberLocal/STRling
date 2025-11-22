@@ -1,0 +1,9 @@
+{
+  "id": "unterminated_named_backref",
+  "description": "Generated from unterminated_named_backref.pattern",
+  "input_dsl": "\\k<A",
+  "expected_error": "Unterminated named backref",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

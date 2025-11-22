@@ -1,0 +1,2 @@
+%expect_error Incomplete quantifier
+a{1

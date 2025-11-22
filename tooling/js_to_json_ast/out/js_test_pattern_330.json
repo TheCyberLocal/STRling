@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_330",
   "description": "Generated from js_test_pattern_330.pattern",
+  "input_dsl": "\\x4a\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_278",
   "description": "Generated from js_test_pattern_278.pattern",
+  "input_dsl": "a|b\n",
   "input_ast": {
     "type": "Alternation",
     "alternatives": [

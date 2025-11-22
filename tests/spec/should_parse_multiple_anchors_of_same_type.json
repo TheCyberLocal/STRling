@@ -1,0 +1,45 @@
+{
+  "id": "should_parse_multiple_anchors_of_same_type",
+  "description": "Generated from should_parse_multiple_anchors_of_same_type.pattern",
+  "input_dsl": "^^",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Anchor",
+        "at": "Start"
+      },
+      {
+        "type": "Anchor",
+        "at": "Start"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Anchor",
+        "at": "Start"
+      },
+      {
+        "ir": "Anchor",
+        "at": "Start"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "^^"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

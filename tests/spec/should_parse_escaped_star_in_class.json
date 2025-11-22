@@ -1,0 +1,39 @@
+{
+  "id": "should_parse_escaped_star_in_class",
+  "description": "Generated from should_parse_escaped_star_in_class.pattern",
+  "input_dsl": "[\\*]",
+  "input_ast": {
+    "type": "CharacterClass",
+    "negated": false,
+    "members": [
+      {
+        "type": "Literal",
+        "value": "*"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": false,
+    "items": [
+      {
+        "ir": "Char",
+        "char": "*"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[*]"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

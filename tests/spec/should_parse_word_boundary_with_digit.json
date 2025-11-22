@@ -1,0 +1,65 @@
+{
+  "id": "should_parse_word_boundary_with_digit",
+  "description": "Generated from should_parse_word_boundary_with_digit.pattern",
+  "input_dsl": "\\b\\d\\b",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Escape",
+            "kind": "digit"
+          }
+        ]
+      },
+      {
+        "type": "Anchor",
+        "at": "WordBoundary"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "ir": "CharClass",
+        "negated": false,
+        "items": [
+          {
+            "ir": "Esc",
+            "type": "d"
+          }
+        ]
+      },
+      {
+        "ir": "Anchor",
+        "at": "WordBoundary"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\\b\\d\\b"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

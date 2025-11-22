@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_70",
   "description": "Generated from js_test_pattern_70.pattern",
+  "input_dsl": "%flags x\n(?:a b)+\n",
   "input_ast": {
     "type": "Quantifier",
     "target": {

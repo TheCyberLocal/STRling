@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_235",
   "description": "Generated from js_test_pattern_235.pattern",
+  "input_dsl": "(a)|(?:b)|(?<x>c)\n",
   "input_ast": {
     "type": "Alternation",
     "alternatives": [

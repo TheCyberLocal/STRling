@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_291",
   "description": "Generated from js_test_pattern_291.pattern",
+  "input_dsl": "Backref\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_99",
   "description": "Generated from js_test_pattern_99.pattern",
+  "input_dsl": "(?<scheme>https?)://(?<host>[a-zA-Z0-9.-]+)(?::(?<port>\\d+))?(?<path>/\\S*)?\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

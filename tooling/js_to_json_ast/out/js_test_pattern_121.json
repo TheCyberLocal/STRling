@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_121",
   "description": "Generated from js_test_pattern_121.pattern",
+  "input_dsl": "^\\ba\\b$\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

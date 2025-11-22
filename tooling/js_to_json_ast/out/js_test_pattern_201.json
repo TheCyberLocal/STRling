@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_201",
   "description": "Generated from js_test_pattern_201.pattern",
+  "input_dsl": "%flags i,m s,u x\n",
   "input_ast": {
     "type": "Sequence",
     "parts": []

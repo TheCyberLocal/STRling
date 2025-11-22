@@ -1,0 +1,9 @@
+{
+  "id": "forward_ref_by_name",
+  "description": "Generated from forward_ref_by_name.pattern",
+  "input_dsl": "\\k<A>(?<A>a)",
+  "expected_error": "Backreference to undefined group <A>",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

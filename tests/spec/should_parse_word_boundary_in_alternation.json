@@ -1,0 +1,81 @@
+{
+  "id": "should_parse_word_boundary_in_alternation",
+  "description": "Generated from should_parse_word_boundary_in_alternation.pattern",
+  "input_dsl": "\\ba|\\bb",
+  "input_ast": {
+    "type": "Alternation",
+    "alternatives": [
+      {
+        "type": "Sequence",
+        "parts": [
+          {
+            "type": "Anchor",
+            "at": "WordBoundary"
+          },
+          {
+            "type": "Literal",
+            "value": "a"
+          }
+        ]
+      },
+      {
+        "type": "Sequence",
+        "parts": [
+          {
+            "type": "Anchor",
+            "at": "WordBoundary"
+          },
+          {
+            "type": "Literal",
+            "value": "b"
+          }
+        ]
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Alt",
+    "branches": [
+      {
+        "ir": "Seq",
+        "parts": [
+          {
+            "ir": "Anchor",
+            "at": "WordBoundary"
+          },
+          {
+            "ir": "Lit",
+            "value": "a"
+          }
+        ]
+      },
+      {
+        "ir": "Seq",
+        "parts": [
+          {
+            "ir": "Anchor",
+            "at": "WordBoundary"
+          },
+          {
+            "ir": "Lit",
+            "value": "b"
+          }
+        ]
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\\ba|\\bb"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

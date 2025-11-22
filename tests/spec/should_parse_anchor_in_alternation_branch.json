@@ -1,0 +1,81 @@
+{
+  "id": "should_parse_anchor_in_alternation_branch",
+  "description": "Generated from should_parse_anchor_in_alternation_branch.pattern",
+  "input_dsl": "^a|b$",
+  "input_ast": {
+    "type": "Alternation",
+    "alternatives": [
+      {
+        "type": "Sequence",
+        "parts": [
+          {
+            "type": "Anchor",
+            "at": "Start"
+          },
+          {
+            "type": "Literal",
+            "value": "a"
+          }
+        ]
+      },
+      {
+        "type": "Sequence",
+        "parts": [
+          {
+            "type": "Literal",
+            "value": "b"
+          },
+          {
+            "type": "Anchor",
+            "at": "End"
+          }
+        ]
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Alt",
+    "branches": [
+      {
+        "ir": "Seq",
+        "parts": [
+          {
+            "ir": "Anchor",
+            "at": "Start"
+          },
+          {
+            "ir": "Lit",
+            "value": "a"
+          }
+        ]
+      },
+      {
+        "ir": "Seq",
+        "parts": [
+          {
+            "ir": "Lit",
+            "value": "b"
+          },
+          {
+            "ir": "Anchor",
+            "at": "End"
+          }
+        ]
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "^a|b$"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

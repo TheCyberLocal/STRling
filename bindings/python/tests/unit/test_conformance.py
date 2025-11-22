@@ -1,7 +1,7 @@
 import json
 import pytest
 from pathlib import Path
-from STRling.core.parser import from_json_fixture
+from STRling.core.parser import from_json_fixture, parse, STRlingParseError
 from STRling.core.compiler import Compiler
 from STRling.emitters.pcre2 import emit
 
@@ -18,7 +18,7 @@ from STRling.emitters.pcre2 import emit
 # . parents[4] = STRling (root)
 # So parents[4] is correct if we are in root/bindings/python/tests/unit
 # Let's verify.
-FIXTURES_DIR = Path(__file__).parents[4] / "tooling/js_to_json_ast/out"
+FIXTURES_DIR = Path(__file__).parents[4] / "tests/spec"
 
 
 def get_fixtures():
@@ -31,6 +31,20 @@ def get_fixtures():
 def test_conformance(fixture_path):
     with open(fixture_path, "r", encoding="utf-8") as f:
         data = json.load(f)
+
+    # Handle expected error cases
+    if "expected_error" in data:
+        expected_error_msg = data["expected_error"]
+        input_dsl = data.get("input_dsl")
+        if not input_dsl:
+            pytest.fail("Error test case missing 'input_dsl'")
+
+        with pytest.raises(STRlingParseError) as excinfo:
+            parse(input_dsl)
+
+        # Verify error message contains expected substring
+        assert expected_error_msg in str(excinfo.value)
+        return
 
     # Skip if no expected pcre
     if "expected_codegen" not in data or "pcre" not in data["expected_codegen"]:

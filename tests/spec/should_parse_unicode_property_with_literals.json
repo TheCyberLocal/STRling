@@ -1,0 +1,66 @@
+{
+  "id": "should_parse_unicode_property_with_literals",
+  "description": "Generated from should_parse_unicode_property_with_literals.pattern",
+  "input_dsl": "[\\p{L}abc]",
+  "input_ast": {
+    "type": "CharacterClass",
+    "negated": false,
+    "members": [
+      {
+        "type": "UnicodeProperty",
+        "name": null,
+        "value": "L",
+        "negated": false
+      },
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Literal",
+        "value": "b"
+      },
+      {
+        "type": "Literal",
+        "value": "c"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": false,
+    "items": [
+      {
+        "ir": "Esc",
+        "type": "p",
+        "property": "L"
+      },
+      {
+        "ir": "Char",
+        "char": "a"
+      },
+      {
+        "ir": "Char",
+        "char": "b"
+      },
+      {
+        "ir": "Char",
+        "char": "c"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[\\p{L}abc]"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

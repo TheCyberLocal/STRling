@@ -1,0 +1,53 @@
+{
+  "id": "should_not_change_the_parsed_ast_when_multiline_flag_is_present",
+  "description": "Generated from should_not_change_the_parsed_ast_when_multiline_flag_is_present.pattern",
+  "input_dsl": "^a$",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Anchor",
+        "at": "Start"
+      },
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Anchor",
+        "at": "End"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Anchor",
+        "at": "Start"
+      },
+      {
+        "ir": "Lit",
+        "value": "a"
+      },
+      {
+        "ir": "Anchor",
+        "at": "End"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "^a$"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

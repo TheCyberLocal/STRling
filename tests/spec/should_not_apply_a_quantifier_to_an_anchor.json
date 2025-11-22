@@ -1,0 +1,59 @@
+{
+  "id": "should_not_apply_a_quantifier_to_an_anchor",
+  "description": "Generated from should_not_apply_a_quantifier_to_an_anchor.pattern",
+  "input_dsl": "a?^",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "min": 0,
+        "max": 1,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Anchor",
+        "at": "Start"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Lit",
+          "value": "a"
+        },
+        "min": 0,
+        "max": 1,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Anchor",
+        "at": "Start"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "a?^"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

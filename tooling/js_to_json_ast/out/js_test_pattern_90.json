@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_90",
   "description": "Generated from js_test_pattern_90.pattern",
+  "input_dsl": "%flags x\n(?<area>\\d{3}) - (?<exchange>\\d{3}) - (?<line>\\d{4})\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

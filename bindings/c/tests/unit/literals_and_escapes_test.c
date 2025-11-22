@@ -217,7 +217,7 @@ static void test_hex_escapes(void **state)
     /* Hex escape - SOH (0x01) */
     test_compile(
         "{\"pattern\": {\"type\": \"Literal\", \"value\": \"\\u0001\"}}",
-        "\\x{1}");
+        "\\x{01}");
 
     /* Hex escape - space (0x20) */
     test_compile(
@@ -227,17 +227,17 @@ static void test_hex_escapes(void **state)
     /* Hex escape - DEL (0x7F) */
     test_compile(
         "{\"pattern\": {\"type\": \"Literal\", \"value\": \"\\u007f\"}}",
-        "\\x7f");
+        "\\x{7f}");
 
     /* Hex escape - non-printable (0x02) */
     test_compile(
         "{\"pattern\": {\"type\": \"Literal\", \"value\": \"\\u0002\"}}",
-        "\\x02");
+        "\\x{02}");
 
     /* Hex escape - non-printable (0x1F) */
     test_compile(
         "{\"pattern\": {\"type\": \"Literal\", \"value\": \"\\u001f\"}}",
-        "\\x1f");
+        "\\x{1f}");
 }
 
 /**

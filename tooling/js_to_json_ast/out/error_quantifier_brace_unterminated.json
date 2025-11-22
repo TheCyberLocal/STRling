@@ -1,0 +1,9 @@
+{
+  "id": "error_quantifier_brace_unterminated",
+  "description": "Generated from error_quantifier_brace_unterminated.pattern",
+  "input_dsl": "a{5",
+  "expected_error": "Incomplete quantifier",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

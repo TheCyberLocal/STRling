@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_39",
   "description": "Generated from js_test_pattern_39.pattern",
+  "input_dsl": "[a-z]|[0-9]\n",
   "input_ast": {
     "type": "Alternation",
     "alternatives": [

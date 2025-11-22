@@ -1,0 +1,68 @@
+{
+  "id": "should_parse_anchors_in_group_alternation",
+  "description": "Generated from should_parse_anchors_in_group_alternation.pattern",
+  "input_dsl": "(^|$)",
+  "input_ast": {
+    "type": "Group",
+    "capturing": true,
+    "body": {
+      "type": "Alternation",
+      "alternatives": [
+        {
+          "type": "Anchor",
+          "at": "Start"
+        },
+        {
+          "type": "Anchor",
+          "at": "End"
+        }
+      ]
+    },
+    "expression": {
+      "type": "Alternation",
+      "alternatives": [
+        {
+          "type": "Anchor",
+          "at": "Start"
+        },
+        {
+          "type": "Anchor",
+          "at": "End"
+        }
+      ]
+    },
+    "name": null,
+    "atomic": false
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Group",
+    "capturing": true,
+    "body": {
+      "ir": "Alt",
+      "branches": [
+        {
+          "ir": "Anchor",
+          "at": "Start"
+        },
+        {
+          "ir": "Anchor",
+          "at": "End"
+        }
+      ]
+    }
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(^|$)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

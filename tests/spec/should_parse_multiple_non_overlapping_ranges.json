@@ -1,0 +1,61 @@
+{
+  "id": "should_parse_multiple_non_overlapping_ranges",
+  "description": "Generated from should_parse_multiple_non_overlapping_ranges.pattern",
+  "input_dsl": "[a-zA-Z0-9]",
+  "input_ast": {
+    "type": "CharacterClass",
+    "negated": false,
+    "members": [
+      {
+        "type": "Range",
+        "from": "a",
+        "to": "z"
+      },
+      {
+        "type": "Range",
+        "from": "A",
+        "to": "Z"
+      },
+      {
+        "type": "Range",
+        "from": "0",
+        "to": "9"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": false,
+    "items": [
+      {
+        "ir": "Range",
+        "from": "a",
+        "to": "z"
+      },
+      {
+        "ir": "Range",
+        "from": "A",
+        "to": "Z"
+      },
+      {
+        "ir": "Range",
+        "from": "0",
+        "to": "9"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[a-zA-Z0-9]"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

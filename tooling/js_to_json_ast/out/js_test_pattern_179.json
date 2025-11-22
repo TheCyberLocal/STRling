@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_179",
   "description": "Generated from js_test_pattern_179.pattern",
+  "input_dsl": "[\\x41-\\x5A]\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

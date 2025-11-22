@@ -1,0 +1,2 @@
+%expect_error Inline modifiers
+(?i)a

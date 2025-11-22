@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_166",
   "description": "Generated from js_test_pattern_166.pattern",
+  "input_dsl": "[\\p{Script=Greek}]\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

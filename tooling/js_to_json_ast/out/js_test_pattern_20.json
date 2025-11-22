@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_20",
   "description": "Generated from js_test_pattern_20.pattern",
+  "input_dsl": "\\bhello\\b\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

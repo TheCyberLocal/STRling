@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_294",
   "description": "Generated from js_test_pattern_294.pattern",
+  "input_dsl": "possessive_quantifier\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

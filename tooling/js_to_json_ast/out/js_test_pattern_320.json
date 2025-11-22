@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_320",
   "description": "Generated from js_test_pattern_320.pattern",
+  "input_dsl": "_\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

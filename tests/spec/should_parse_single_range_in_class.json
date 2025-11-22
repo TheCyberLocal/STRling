@@ -1,0 +1,41 @@
+{
+  "id": "should_parse_single_range_in_class",
+  "description": "Generated from should_parse_single_range_in_class.pattern",
+  "input_dsl": "[a-z]",
+  "input_ast": {
+    "type": "CharacterClass",
+    "negated": false,
+    "members": [
+      {
+        "type": "Range",
+        "from": "a",
+        "to": "z"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": false,
+    "items": [
+      {
+        "ir": "Range",
+        "from": "a",
+        "to": "z"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[a-z]"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

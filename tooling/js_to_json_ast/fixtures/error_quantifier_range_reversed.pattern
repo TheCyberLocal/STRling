@@ -1,0 +1,2 @@
+%expect_error "Invalid quantifier range"
+a{5,2}

@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_197",
   "description": "Generated from js_test_pattern_197.pattern",
+  "input_dsl": "%flags x\n# comment\n  \n# another\n",
   "input_ast": {
     "type": "Sequence",
     "parts": []

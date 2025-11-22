@@ -56,8 +56,11 @@ if (typeof parser.parseToArtifact !== "function") {
     process.exit(3);
 }
 
-const fixturesDir = path.join(__dirname, "fixtures");
-const outDir = path.join(__dirname, "out");
+const args = process.argv.slice(2);
+const fixturesDir = args[0]
+    ? path.resolve(args[0])
+    : path.join(__dirname, "fixtures");
+const outDir = args[1] ? path.resolve(args[1]) : path.join(__dirname, "out");
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
 const files = fs.readdirSync(fixturesDir).filter((f) => f.endsWith(".pattern"));
@@ -68,8 +71,55 @@ if (files.length === 0) {
 
 for (const f of files) {
     const fp = path.join(fixturesDir, f);
-    const src = fs.readFileSync(fp, "utf8");
+    let src = fs.readFileSync(fp, "utf8");
+
+    // Check for %expect_error directive
+    let expectedError = null;
+    const errorMatch = src.match(/^%expect_error\s+(.*)$/m);
+    if (errorMatch) {
+        expectedError = errorMatch[1].trim().replace(/^"|"$/g, "");
+        // Remove the directive line to avoid parser confusion
+        src = src.replace(errorMatch[0], "");
+    }
+
     try {
+        if (expectedError) {
+            try {
+                parser.parseToArtifact(src);
+                console.error(
+                    `[FAIL] ${f}: Expected error "${expectedError}" but parsed successfully.`
+                );
+                continue;
+            } catch (e) {
+                const msg = e.message || String(e);
+                if (!msg.includes(expectedError)) {
+                    console.error(
+                        `[FAIL] ${f}: Expected error "${expectedError}" but got "${msg}"`
+                    );
+                    continue;
+                }
+                // Write error artifact
+                const cArtifact = {
+                    id: f.replace(/\.pattern$/, ""),
+                    description: `Generated from ${f}`,
+                    input_dsl: src.trim(),
+                    expected_error: expectedError,
+                    metadata_expectations: { features_used: [] },
+                };
+                const outPath = path.join(
+                    outDir,
+                    f.replace(/\.pattern$/, ".json")
+                );
+                fs.writeFileSync(
+                    outPath,
+                    JSON.stringify(cArtifact, null, 2),
+                    "utf8"
+                );
+                console.log("Wrote (Error)", outPath);
+                continue;
+            }
+        }
+
         const artifact = parser.parseToArtifact(src);
         // Parse the original DSL into Node instances (not the dict artifact)
         // so we can compile with the Compiler which expects Node objects.
@@ -283,6 +333,7 @@ for (const f of files) {
         const cArtifact = {
             id: f.replace(/\.pattern$/, ""),
             description: `Generated from ${f}`,
+            input_dsl: src,
             input_ast: convertNode(artifact.root),
             flags: artifact.flags || {},
             expected_ir,

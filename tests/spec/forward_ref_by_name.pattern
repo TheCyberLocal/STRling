@@ -1,0 +1,2 @@
+%expect_error Backreference to undefined group <A>
+\k<A>(?<A>a)

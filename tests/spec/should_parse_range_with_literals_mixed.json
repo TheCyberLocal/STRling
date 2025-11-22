@@ -1,0 +1,67 @@
+{
+  "id": "should_parse_range_with_literals_mixed",
+  "description": "Generated from should_parse_range_with_literals_mixed.pattern",
+  "input_dsl": "[a-z_0-9-]",
+  "input_ast": {
+    "type": "CharacterClass",
+    "negated": false,
+    "members": [
+      {
+        "type": "Range",
+        "from": "a",
+        "to": "z"
+      },
+      {
+        "type": "Literal",
+        "value": "_"
+      },
+      {
+        "type": "Range",
+        "from": "0",
+        "to": "9"
+      },
+      {
+        "type": "Literal",
+        "value": "-"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": false,
+    "items": [
+      {
+        "ir": "Range",
+        "from": "a",
+        "to": "z"
+      },
+      {
+        "ir": "Char",
+        "char": "_"
+      },
+      {
+        "ir": "Range",
+        "from": "0",
+        "to": "9"
+      },
+      {
+        "ir": "Char",
+        "char": "-"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[a-z_0-9\\-]"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

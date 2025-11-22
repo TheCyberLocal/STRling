@@ -1,6 +1,7 @@
 {
   "id": "js_test_pattern_219",
   "description": "Generated from js_test_pattern_219.pattern",
+  "input_dsl": "(?<=x|y)\n",
   "input_ast": {
     "type": "Sequence",
     "parts": [

@@ -1,0 +1,9 @@
+{
+  "id": "unterminated_named_group",
+  "description": "Generated from unterminated_named_group.pattern",
+  "input_dsl": "(?<name",
+  "expected_error": "Unterminated group name",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

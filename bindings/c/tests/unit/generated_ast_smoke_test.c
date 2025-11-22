@@ -12,76 +12,109 @@
 #include <unistd.h>
 
 /* Helper: build path to repository root from this source file location */
-static void path_up(const char* src, int levels, char* out, size_t out_sz) {
+static void path_up(const char *src, int levels, char *out, size_t out_sz)
+{
     strncpy(out, src, out_sz - 1);
     out[out_sz - 1] = '\0';
-    for (int i = 0; i < levels; ++i) {
-        char* dir = dirname(out);
+    for (int i = 0; i < levels; ++i)
+    {
+        char *dir = dirname(out);
         /* dirname may return pointer into the same buffer; copy back */
         memmove(out, dir, strlen(dir) + 1);
     }
 }
 
-static char* read_file_to_string(const char* path) {
-    FILE* f = fopen(path, "rb");
-    if (!f) return NULL;
-    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return NULL; }
+static char *read_file_to_string(const char *path)
+{
+    FILE *f = fopen(path, "rb");
+    if (!f)
+        return NULL;
+    if (fseek(f, 0, SEEK_END) != 0)
+    {
+        fclose(f);
+        return NULL;
+    }
     long sz = ftell(f);
-    if (sz < 0) { fclose(f); return NULL; }
+    if (sz < 0)
+    {
+        fclose(f);
+        return NULL;
+    }
     rewind(f);
-    char* buf = (char*)malloc((size_t)sz + 1);
-    if (!buf) { fclose(f); return NULL; }
-    if (fread(buf, 1, (size_t)sz, f) != (size_t)sz) { free(buf); fclose(f); return NULL; }
+    char *buf = (char *)malloc((size_t)sz + 1);
+    if (!buf)
+    {
+        fclose(f);
+        return NULL;
+    }
+    if (fread(buf, 1, (size_t)sz, f) != (size_t)sz)
+    {
+        free(buf);
+        fclose(f);
+        return NULL;
+    }
     buf[sz] = '\0';
     fclose(f);
     return buf;
 }
 
-static void test_generated_ast_compile(void **state) {
+static void test_generated_ast_compile(void **state)
+{
     (void)state;
 
     /* Attempt to locate generated JSON in repo tooling output relative to this source file */
-    const char* this_file = __FILE__;
+    const char *this_file = __FILE__;
     char repo_root[4096];
     path_up(this_file, 5, repo_root, sizeof(repo_root));
 
     char candidate[8192];
     /* Prefer absolute path when available (common CI/dev location) */
-    snprintf(candidate, sizeof(candidate), "/root/personal/STRling/tooling/js_to_json_ast/out/simple.json");
+    snprintf(candidate, sizeof(candidate), "/root/personal/STRling/tooling/js_to_json_ast/out/js_test_pattern_1.json");
     char tried1[8192];
-    strncpy(tried1, candidate, sizeof(tried1)-1); tried1[sizeof(tried1)-1]='\0';
-    char* json = read_file_to_string(candidate);
-    if (!json) {
+    strncpy(tried1, candidate, sizeof(tried1) - 1);
+    tried1[sizeof(tried1) - 1] = '\0';
+    char *json = read_file_to_string(candidate);
+    if (!json)
+    {
         /* Try repo-relative computed path */
-        snprintf(candidate, sizeof(candidate), "%s/tooling/js_to_json_ast/out/simple.json", repo_root);
-        if (access(candidate, R_OK) == 0) {
+        snprintf(candidate, sizeof(candidate), "%s/tooling/js_to_json_ast/out/js_test_pattern_1.json", repo_root);
+        if (access(candidate, R_OK) == 0)
+        {
             printf("Found file at computed repo path: %s\n", candidate);
-        } else {
+        }
+        else
+        {
             printf("Not found at computed repo path: %s\n", candidate);
         }
         json = read_file_to_string(candidate);
     }
-    if (!json) {
+    if (!json)
+    {
         /* Try a couple of alternate relative locations (when running from bindings/c) */
-        snprintf(candidate, sizeof(candidate), "../tooling/js_to_json_ast/out/simple.json");
-        if (access(candidate, R_OK) == 0) {
+        snprintf(candidate, sizeof(candidate), "../tooling/js_to_json_ast/out/js_test_pattern_1.json");
+        if (access(candidate, R_OK) == 0)
+        {
             printf("Found file at relative path: %s\n", candidate);
-        } else {
+        }
+        else
+        {
             printf("Not found at relative path: %s\n", candidate);
         }
         json = read_file_to_string(candidate);
     }
-    if (!json) {
+    if (!json)
+    {
         /* Last-resort: report the first tried absolute path for debugging */
         printf("Tried initial absolute path: %s\n", tried1);
     }
 
     assert_non_null(json);
 
-    STRlingResult* res = strling_compile(json, NULL);
+    STRlingResult *res = strling_compile(json, NULL);
     free(json);
 
-    if (res->error) {
+    if (res->error)
+    {
         printf("Compilation error: %s (pos %d)\n", res->error->message, res->error->position);
     }
     assert_null(res->error);
@@ -93,7 +126,8 @@ static void test_generated_ast_compile(void **state) {
     strling_result_free_ptr(res);
 }
 
-int main(void) {
+int main(void)
+{
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_generated_ast_compile),
     };
