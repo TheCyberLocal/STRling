@@ -1,3 +1,3 @@
 module github.com/thecyberlocal/strling/bindings/go
 
-go 1.24.10
+go 1.22

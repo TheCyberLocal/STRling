@@ -26,6 +26,9 @@ clap = { version = "4.0", features = ["derive"] }
 # Regular expressions for pattern matching in parser
 regex = "1.10"
 
+# File system globbing for test discovery
+glob = "0.3"
+
 [dev-dependencies]
 # Benchmarking
 criterion = "0.5"

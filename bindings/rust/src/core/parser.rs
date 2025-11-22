@@ -282,7 +282,7 @@ impl Parser {
         if branches.len() == 1 {
             Ok(branches.into_iter().next().unwrap())
         } else {
-            Ok(Node::Alt(Alt { branches }))
+            Ok(Node::Alternation(Alternation { branches }))
         }
     }
 
@@ -311,11 +311,15 @@ impl Parser {
             self.cur.skip_ws_and_comments();
             if let Some(quant) = self.try_parse_quantifier()? {
                 // Wrap the atom in a quantifier
-                parts.push(Node::Quant(Quant {
-                    child: Box::new(atom),
+                let mode = quant.2;
+                parts.push(Node::Quantifier(Quantifier {
+                    target: QuantifierTarget { child: Box::new(atom) },
                     min: quant.0,
                     max: quant.1,
-                    mode: quant.2,
+                    mode: mode.clone(),
+                    greedy: mode == "Greedy",
+                    lazy: mode == "Lazy",
+                    possessive: mode == "Possessive",
                 }));
             } else {
                 parts.push(atom);
@@ -324,13 +328,13 @@ impl Parser {
         
         if parts.is_empty() {
             // Empty sequence - return empty literal
-            Ok(Node::Lit(Lit {
+            Ok(Node::Literal(Literal {
                 value: String::new(),
             }))
         } else if parts.len() == 1 {
             Ok(parts.into_iter().next().unwrap())
         } else {
-            Ok(Node::Seq(Seq { parts }))
+            Ok(Node::Sequence(Sequence { parts }))
         }
     }
 
@@ -463,7 +467,7 @@ impl Parser {
             
             // Character class escapes
             'd' | 'D' | 'w' | 'W' | 's' | 'S' => {
-                Ok(Node::CharClass(CharClass {
+                Ok(Node::CharacterClass(CharacterClass {
                     negated: ch.is_uppercase(),
                     items: vec![ClassItem::Esc(ClassEscape {
                         escape_type: ch.to_ascii_lowercase().to_string(),
@@ -517,11 +521,15 @@ impl Parser {
                         self.cur.take();
                         let body = self.parse_alt()?;
                         self.expect_char(')', "Unterminated lookahead")?;
-                        return Ok(Node::Look(Look {
-                            dir: "Ahead".to_string(),
-                            neg: !positive,
-                            body: Box::new(body),
-                        }));
+                        if positive {
+                            return Ok(Node::Lookahead(LookaroundBody {
+                                body: Box::new(body),
+                            }));
+                        } else {
+                            return Ok(Node::NegativeLookahead(LookaroundBody {
+                                body: Box::new(body),
+                            }));
+                        }
                     }
                     '<' => {
                         // Could be lookbehind or named group
@@ -533,11 +541,15 @@ impl Parser {
                                 self.cur.take();
                                 let body = self.parse_alt()?;
                                 self.expect_char(')', "Unterminated lookbehind")?;
-                                return Ok(Node::Look(Look {
-                                    dir: "Behind".to_string(),
-                                    neg: !positive,
-                                    body: Box::new(body),
-                                }));
+                                if positive {
+                                    return Ok(Node::Lookbehind(LookaroundBody {
+                                        body: Box::new(body),
+                                    }));
+                                } else {
+                                    return Ok(Node::NegativeLookbehind(LookaroundBody {
+                                        body: Box::new(body),
+                                    }));
+                                }
                             } else {
                                 // Named group: (?<name>...)
                                 let name = self.parse_group_name()?;
@@ -636,7 +648,7 @@ impl Parser {
             ));
         }
         
-        Ok(Node::CharClass(CharClass { negated, items }))
+        Ok(Node::CharacterClass(CharacterClass { negated, items }))
     }
 
     /// Parse a group name for named groups

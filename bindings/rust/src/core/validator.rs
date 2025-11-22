@@ -41,7 +41,7 @@ mod tests {
 
     #[test]
     fn test_validate_literal() {
-        let node = Node::Lit(Lit {
+        let node = Node::Literal(Literal {
             value: "test".to_string(),
         });
         assert!(validate(&node).is_ok());

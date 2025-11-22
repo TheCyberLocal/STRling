@@ -67,13 +67,7 @@ impl Flags {
 
 // ---- Base node trait ----
 
-/// Base trait for all AST nodes.
-///
-/// All AST nodes must implement this trait to provide serialization
-/// to a dictionary/JSON representation.
-pub trait NodeTrait {
-    fn to_dict(&self) -> Value;
-}
+// NodeTrait removed in favor of Serde serialization
 
 // ---- Concrete nodes matching Base Schema ----
 
@@ -82,86 +76,45 @@ pub trait NodeTrait {
 /// This enum encompasses all AST node variants, allowing for type-safe
 /// pattern matching and easy traversal of the AST.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "kind")]
+#[serde(tag = "type")]
 pub enum Node {
-    Alt(Alt),
-    Seq(Seq),
-    Lit(Lit),
+    Alternation(Alternation),
+    Sequence(Sequence),
+    Literal(Literal),
     Dot(Dot),
     Anchor(Anchor),
-    CharClass(CharClass),
-    Quant(Quant),
+    CharacterClass(CharacterClass),
+    Quantifier(Quantifier),
     Group(Group),
-    Backref(Backref),
-    Look(Look),
-}
-
-impl NodeTrait for Node {
-    fn to_dict(&self) -> Value {
-        match self {
-            Node::Alt(n) => n.to_dict(),
-            Node::Seq(n) => n.to_dict(),
-            Node::Lit(n) => n.to_dict(),
-            Node::Dot(n) => n.to_dict(),
-            Node::Anchor(n) => n.to_dict(),
-            Node::CharClass(n) => n.to_dict(),
-            Node::Quant(n) => n.to_dict(),
-            Node::Group(n) => n.to_dict(),
-            Node::Backref(n) => n.to_dict(),
-            Node::Look(n) => n.to_dict(),
-        }
-    }
+    Backreference(Backreference),
+    Lookahead(LookaroundBody),
+    NegativeLookahead(LookaroundBody),
+    Lookbehind(LookaroundBody),
+    NegativeLookbehind(LookaroundBody),
 }
 
 /// Alternation node (OR operation).
 ///
 /// Represents a choice between multiple branches.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Alt {
+pub struct Alternation {
     pub branches: Vec<Node>,
-}
-
-impl NodeTrait for Alt {
-    fn to_dict(&self) -> Value {
-        serde_json::json!({
-            "kind": "Alt",
-            "branches": self.branches.iter().map(|b| b.to_dict()).collect::<Vec<_>>()
-        })
-    }
 }
 
 /// Sequence node.
 ///
 /// Represents a sequence of patterns to be matched in order.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Seq {
+pub struct Sequence {
     pub parts: Vec<Node>,
-}
-
-impl NodeTrait for Seq {
-    fn to_dict(&self) -> Value {
-        serde_json::json!({
-            "kind": "Seq",
-            "parts": self.parts.iter().map(|p| p.to_dict()).collect::<Vec<_>>()
-        })
-    }
 }
 
 /// Literal string node.
 ///
 /// Represents a literal string to match.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Lit {
+pub struct Literal {
     pub value: String,
-}
-
-impl NodeTrait for Lit {
-    fn to_dict(&self) -> Value {
-        serde_json::json!({
-            "kind": "Lit",
-            "value": self.value
-        })
-    }
 }
 
 /// Dot (any character) node.
@@ -169,14 +122,6 @@ impl NodeTrait for Lit {
 /// Represents the `.` metacharacter that matches any character.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Dot;
-
-impl NodeTrait for Dot {
-    fn to_dict(&self) -> Value {
-        serde_json::json!({
-            "kind": "Dot"
-        })
-    }
-}
 
 /// Anchor node.
 ///
@@ -187,34 +132,15 @@ pub struct Anchor {
     pub at: String,
 }
 
-impl NodeTrait for Anchor {
-    fn to_dict(&self) -> Value {
-        serde_json::json!({
-            "kind": "Anchor",
-            "at": self.at
-        })
-    }
-}
-
 // --- CharClass ---
 
 /// Enum representing all possible character class item types.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "kind")]
+#[serde(tag = "type")]
 pub enum ClassItem {
     Range(ClassRange),
     Char(ClassLiteral),
     Esc(ClassEscape),
-}
-
-impl ClassItem {
-    pub fn to_dict(&self) -> Value {
-        match self {
-            ClassItem::Range(r) => r.to_dict(),
-            ClassItem::Char(c) => c.to_dict(),
-            ClassItem::Esc(e) => e.to_dict(),
-        }
-    }
 }
 
 /// Character range in a character class.
@@ -222,18 +148,10 @@ impl ClassItem {
 /// Represents a range like `a-z` or `0-9`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ClassRange {
+    #[serde(rename = "from")]
     pub from_ch: String,
+    #[serde(rename = "to")]
     pub to_ch: String,
-}
-
-impl ClassRange {
-    pub fn to_dict(&self) -> Value {
-        serde_json::json!({
-            "kind": "Range",
-            "from": self.from_ch,
-            "to": self.to_ch
-        })
-    }
 }
 
 /// Literal character in a character class.
@@ -241,16 +159,8 @@ impl ClassRange {
 /// Represents a single character literal.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ClassLiteral {
+    #[serde(rename = "char")]
     pub ch: String,
-}
-
-impl ClassLiteral {
-    pub fn to_dict(&self) -> Value {
-        serde_json::json!({
-            "kind": "Char",
-            "char": self.ch
-        })
-    }
 }
 
 /// Character class escape sequence.
@@ -265,51 +175,53 @@ pub struct ClassEscape {
     pub property: Option<String>,
 }
 
-impl ClassEscape {
-    pub fn to_dict(&self) -> Value {
-        let mut obj = serde_json::json!({
-            "kind": "Esc",
-            "type": self.escape_type
-        });
-        if let Some(ref prop) = self.property {
-            if self.escape_type == "p" || self.escape_type == "P" {
-                obj["property"] = Value::String(prop.clone());
-            }
-        }
-        obj
-    }
-}
-
 /// Character class node.
 ///
 /// Represents a character class like `[abc]` or `[^0-9]`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CharClass {
+pub struct CharacterClass {
     pub negated: bool,
     pub items: Vec<ClassItem>,
-}
-
-impl NodeTrait for CharClass {
-    fn to_dict(&self) -> Value {
-        serde_json::json!({
-            "kind": "CharClass",
-            "negated": self.negated,
-            "items": self.items.iter().map(|i| i.to_dict()).collect::<Vec<_>>()
-        })
-    }
 }
 
 /// Quantifier node.
 ///
 /// Represents repetition of a pattern with specified min/max bounds.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Quant {
-    pub child: Box<Node>,
+pub struct Quantifier {
+    #[serde(flatten)]
+    pub target: QuantifierTarget,
     pub min: i32,
     /// Maximum repetitions: either a number or "Inf" for unbounded
     pub max: MaxBound,
     /// Quantifier mode: "Greedy" | "Lazy" | "Possessive"
+    #[serde(default = "default_greedy_mode")]
     pub mode: String,
+    // Helper fields to match JSON spec which might use boolean flags
+    #[serde(default)]
+    pub greedy: bool,
+    #[serde(default)]
+    pub lazy: bool,
+    #[serde(default)]
+    pub possessive: bool,
+}
+
+fn default_greedy_mode() -> String {
+    "Greedy".to_string()
+}
+
+// Helper struct to handle "child" vs "target" naming if needed, 
+// but JSON spec uses "target" for Quantifier?
+// Let's check the JSON spec for Quantifier.
+// "type": "Quantifier", "target": { ... }, "min": 1, "max": null, "greedy": true ...
+// The existing code had `child`. I should rename it to `target` or use alias.
+// But wait, `target` in JSON is the node being quantified.
+// I'll use a wrapper or just rename `child` to `target`.
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct QuantifierTarget {
+    #[serde(rename = "target")]
+    pub child: Box<Node>,
 }
 
 /// Maximum bound for quantifiers.
@@ -320,23 +232,7 @@ pub struct Quant {
 pub enum MaxBound {
     Finite(i32),
     Infinite(String), // "Inf"
-}
-
-impl NodeTrait for Quant {
-    fn to_dict(&self) -> Value {
-        let max_value = match &self.max {
-            MaxBound::Finite(n) => Value::Number((*n).into()),
-            MaxBound::Infinite(s) => Value::String(s.clone()),
-        };
-
-        serde_json::json!({
-            "kind": "Quant",
-            "child": self.child.to_dict(),
-            "min": self.min,
-            "max": max_value,
-            "mode": self.mode
-        })
-    }
+    Null(Option<()>), // Handle null in JSON
 }
 
 /// Group node.
@@ -351,72 +247,19 @@ pub struct Group {
     pub atomic: Option<bool>,
 }
 
-impl NodeTrait for Group {
-    fn to_dict(&self) -> Value {
-        let mut obj = serde_json::json!({
-            "kind": "Group",
-            "capturing": self.capturing,
-            "body": self.body.to_dict()
-        });
-
-        if let Some(ref name) = self.name {
-            obj["name"] = Value::String(name.clone());
-        }
-        if let Some(atomic) = self.atomic {
-            obj["atomic"] = Value::Bool(atomic);
-        }
-
-        obj
-    }
-}
-
 /// Backreference node.
 ///
 /// Represents a reference to a previously captured group.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Backref {
+pub struct Backreference {
     #[serde(rename = "byIndex")]
     pub by_index: Option<i32>,
     #[serde(rename = "byName")]
     pub by_name: Option<String>,
 }
 
-impl NodeTrait for Backref {
-    fn to_dict(&self) -> Value {
-        let mut obj = serde_json::json!({
-            "kind": "Backref"
-        });
-
-        if let Some(idx) = self.by_index {
-            obj["byIndex"] = Value::Number(idx.into());
-        }
-        if let Some(ref name) = self.by_name {
-            obj["byName"] = Value::String(name.clone());
-        }
-
-        obj
-    }
-}
-
-/// Lookahead/Lookbehind assertion node.
-///
-/// Represents zero-width assertions.
+/// Lookaround body.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Look {
-    /// Direction: "Ahead" | "Behind"
-    pub dir: String,
-    /// Negation flag
-    pub neg: bool,
+pub struct LookaroundBody {
     pub body: Box<Node>,
-}
-
-impl NodeTrait for Look {
-    fn to_dict(&self) -> Value {
-        serde_json::json!({
-            "kind": "Look",
-            "dir": self.dir,
-            "neg": self.neg,
-            "body": self.body.to_dict()
-        })
-    }
 }

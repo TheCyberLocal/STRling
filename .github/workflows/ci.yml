@@ -290,7 +290,8 @@ jobs:
                   toolchain: "1.65"
 
             - name: Run Rust test suite
-              run: echo "Rust tests not yet implemented" && true
+              working-directory: bindings/rust
+              run: cargo test
 
     test-swift:
         name: Test Swift (5.9)

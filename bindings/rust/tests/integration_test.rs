@@ -1,6 +1,6 @@
 //! Integration tests for STRling core data structures
 
-use strling_core::core::nodes::{Flags, Lit, Node, NodeTrait};
+use strling_core::core::nodes::{Flags, Literal, Node};
 use strling_core::core::ir::{IRLit, IROp, IROpTrait};
 use strling_core::core::errors::STRlingParseError;
 
@@ -27,12 +27,12 @@ fn test_flags_to_dict() {
 
 #[test]
 fn test_ast_node_serialization() {
-    let lit_node = Node::Lit(Lit {
+    let lit_node = Node::Literal(Literal {
         value: "test".to_string(),
     });
-    let json = lit_node.to_dict();
+    let json = serde_json::to_value(&lit_node).unwrap();
 
-    assert_eq!(json["kind"], "Lit");
+    assert_eq!(json["type"], "Literal");
     assert_eq!(json["value"], "test");
 }
 

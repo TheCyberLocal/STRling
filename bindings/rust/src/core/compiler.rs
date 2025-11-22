@@ -59,28 +59,29 @@ impl Compiler {
     /// Lower AST node to IR
     fn lower(&self, node: &Node) -> IROp {
         match node {
-            Node::Lit(lit) => IROp::Lit(IRLit {
+            Node::Literal(lit) => IROp::Lit(IRLit {
                 value: lit.value.clone(),
             }),
             Node::Dot(_) => IROp::Dot(IRDot {}),
             Node::Anchor(anchor) => IROp::Anchor(IRAnchor {
                 at: anchor.at.clone(),
             }),
-            Node::Seq(seq) => {
+            Node::Sequence(seq) => {
                 let parts: Vec<IROp> = seq.parts.iter().map(|p| self.lower(p)).collect();
                 IROp::Seq(IRSeq { parts })
             }
-            Node::Alt(alt) => {
+            Node::Alternation(alt) => {
                 let branches: Vec<IROp> = alt.branches.iter().map(|b| self.lower(b)).collect();
                 IROp::Alt(IRAlt { branches })
             }
-            Node::Quant(quant) => {
+            Node::Quantifier(quant) => {
                 let max = match &quant.max {
                     MaxBound::Finite(n) => IRMaxBound::Finite(*n),
                     MaxBound::Infinite(s) => IRMaxBound::Infinite(s.clone()),
+                    MaxBound::Null(_) => IRMaxBound::Infinite("Inf".to_string()),
                 };
                 IROp::Quant(IRQuant {
-                    child: Box::new(self.lower(&quant.child)),
+                    child: Box::new(self.lower(&quant.target.child)),
                     min: quant.min,
                     max,
                     mode: quant.mode.clone(),
@@ -92,16 +93,31 @@ impl Compiler {
                 atomic: group.atomic,
                 body: Box::new(self.lower(&group.body)),
             }),
-            Node::Look(look) => IROp::Look(IRLook {
-                dir: look.dir.clone(),
-                neg: look.neg,
+            Node::Lookahead(look) => IROp::Look(IRLook {
+                dir: "Ahead".to_string(),
+                neg: false,
                 body: Box::new(self.lower(&look.body)),
             }),
-            Node::Backref(backref) => IROp::Backref(IRBackref {
+            Node::NegativeLookahead(look) => IROp::Look(IRLook {
+                dir: "Ahead".to_string(),
+                neg: true,
+                body: Box::new(self.lower(&look.body)),
+            }),
+            Node::Lookbehind(look) => IROp::Look(IRLook {
+                dir: "Behind".to_string(),
+                neg: false,
+                body: Box::new(self.lower(&look.body)),
+            }),
+            Node::NegativeLookbehind(look) => IROp::Look(IRLook {
+                dir: "Behind".to_string(),
+                neg: true,
+                body: Box::new(self.lower(&look.body)),
+            }),
+            Node::Backreference(backref) => IROp::Backref(IRBackref {
                 by_index: backref.by_index,
                 by_name: backref.by_name.clone(),
             }),
-            Node::CharClass(cc) => IROp::CharClass(IRCharClass {
+            Node::CharacterClass(cc) => IROp::CharClass(IRCharClass {
                 negated: cc.negated,
                 items: cc.items.iter().map(|item| self.lower_class_item(item)).collect(),
             }),
@@ -271,7 +287,7 @@ mod tests {
     #[test]
     fn test_compile_literal() {
         let mut compiler = Compiler::new();
-        let node = Node::Lit(Lit {
+        let node = Node::Literal(Literal {
             value: "test".to_string(),
         });
         let ir = compiler.compile(&node);
@@ -284,12 +300,12 @@ mod tests {
     #[test]
     fn test_compile_sequence() {
         let mut compiler = Compiler::new();
-        let node = Node::Seq(Seq {
+        let node = Node::Sequence(Sequence {
             parts: vec![
-                Node::Lit(Lit {
+                Node::Literal(Literal {
                     value: "a".to_string(),
                 }),
-                Node::Lit(Lit {
+                Node::Literal(Literal {
                     value: "b".to_string(),
                 }),
             ],
