@@ -1,6 +1,6 @@
 {
   "id": "js_test_pattern_234",
-  "description": "Generated from js_test_pattern_234.pattern",
+  "description": "Generated from js_test_pattern_234.json",
   "input_dsl": "(?=a)|(?=b)\n",
   "input_ast": {
     "type": "Alternation",

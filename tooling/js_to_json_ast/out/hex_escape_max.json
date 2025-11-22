@@ -1,6 +1,6 @@
 {
   "id": "hex_escape_max",
-  "description": "Generated from hex_escape_max.pattern",
+  "description": "Generated from hex_escape_max.json",
   "input_dsl": "\\xFF",
   "input_ast": {
     "type": "Literal",

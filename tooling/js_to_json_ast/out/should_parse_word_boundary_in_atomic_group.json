@@ -1,0 +1,69 @@
+{
+  "id": "should_parse_word_boundary_in_atomic_group",
+  "description": "Generated from should_parse_word_boundary_in_atomic_group.pattern",
+  "input_dsl": "(?>\\ba)",
+  "input_ast": {
+    "type": "Group",
+    "capturing": false,
+    "body": {
+      "type": "Sequence",
+      "parts": [
+        {
+          "type": "Anchor",
+          "at": "WordBoundary"
+        },
+        {
+          "type": "Literal",
+          "value": "a"
+        }
+      ]
+    },
+    "expression": {
+      "type": "Sequence",
+      "parts": [
+        {
+          "type": "Anchor",
+          "at": "WordBoundary"
+        },
+        {
+          "type": "Literal",
+          "value": "a"
+        }
+      ]
+    },
+    "name": null,
+    "atomic": true
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Group",
+    "capturing": false,
+    "body": {
+      "ir": "Seq",
+      "parts": [
+        {
+          "ir": "Anchor",
+          "at": "WordBoundary"
+        },
+        {
+          "ir": "Lit",
+          "value": "a"
+        }
+      ]
+    },
+    "atomic": true
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?>\\ba)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

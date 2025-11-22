@@ -1,0 +1,55 @@
+{
+  "id": "shorthand_negated",
+  "description": "Generated from shorthand_negated.pattern",
+  "input_dsl": "[\\D\\S\\W]",
+  "input_ast": {
+    "type": "CharacterClass",
+    "negated": false,
+    "members": [
+      {
+        "type": "Escape",
+        "kind": "not-digit"
+      },
+      {
+        "type": "Escape",
+        "kind": "not-space"
+      },
+      {
+        "type": "Escape",
+        "kind": "not-word"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": false,
+    "items": [
+      {
+        "ir": "Esc",
+        "type": "D"
+      },
+      {
+        "ir": "Esc",
+        "type": "S"
+      },
+      {
+        "ir": "Esc",
+        "type": "W"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[\\D\\S\\W]"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

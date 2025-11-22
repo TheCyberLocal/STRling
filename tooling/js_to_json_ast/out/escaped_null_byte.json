@@ -1,6 +1,6 @@
 {
   "id": "escaped_null_byte",
-  "description": "Generated from escaped_null_byte.pattern",
+  "description": "Generated from escaped_null_byte.json",
   "input_dsl": "\\\\0",
   "input_ast": {
     "type": "Sequence",

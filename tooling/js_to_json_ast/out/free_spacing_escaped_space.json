@@ -1,6 +1,6 @@
 {
   "id": "free_spacing_escaped_space",
-  "description": "Generated from free_spacing_escaped_space.pattern",
+  "description": "Generated from free_spacing_escaped_space.json",
   "input_dsl": "%flags x\n a \\\\ b ",
   "input_ast": {
     "type": "Sequence",

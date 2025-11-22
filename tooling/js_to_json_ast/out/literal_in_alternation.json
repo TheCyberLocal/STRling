@@ -1,6 +1,6 @@
 {
   "id": "literal_in_alternation",
-  "description": "Generated from literal_in_alternation.pattern",
+  "description": "Generated from literal_in_alternation.json",
   "input_dsl": "a|b|c",
   "input_ast": {
     "type": "Alternation",

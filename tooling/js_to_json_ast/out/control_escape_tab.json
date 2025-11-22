@@ -1,6 +1,6 @@
 {
   "id": "control_escape_tab",
-  "description": "Generated from control_escape_tab.pattern",
+  "description": "Generated from control_escape_tab.json",
   "input_dsl": "\\t",
   "input_ast": {
     "type": "Literal",

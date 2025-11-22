@@ -1,0 +1,9 @@
+{
+  "id": "missing_braces_on_unicode_property",
+  "description": "Generated from missing_braces_on_unicode_property.pattern",
+  "input_dsl": "[\\pL]",
+  "expected_error": "Expected { after \\p/\\P",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

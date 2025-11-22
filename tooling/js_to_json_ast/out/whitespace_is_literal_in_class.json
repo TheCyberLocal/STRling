@@ -1,6 +1,6 @@
 {
   "id": "whitespace_is_literal_in_class",
-  "description": "Generated from whitespace_is_literal_in_class.pattern",
+  "description": "Generated from whitespace_is_literal_in_class.json",
   "input_dsl": "%flags x\n[a b]",
   "input_ast": {
     "type": "CharacterClass",

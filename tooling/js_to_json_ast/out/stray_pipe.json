@@ -1,6 +1,6 @@
 {
   "id": "stray_pipe",
-  "description": "Generated from stray_pipe.pattern",
+  "description": "Generated from stray_pipe.json",
   "input_dsl": "|",
   "expected_error": "Alternation lacks left-hand side",
   "metadata_expectations": {

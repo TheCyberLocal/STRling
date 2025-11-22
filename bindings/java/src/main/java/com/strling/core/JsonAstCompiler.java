@@ -26,9 +26,36 @@ public class JsonAstCompiler {
         }
         
         if (node instanceof SequenceNode) {
-            List<IROp> parts = ((SequenceNode) node).getParts().stream()
-                .map(this::compile)
-                .collect(Collectors.toList());
+            List<IROp> parts = new ArrayList<>();
+            List<IRNode> nodeParts = ((SequenceNode) node).getParts();
+            
+            StringBuilder pendingLiteral = null;
+            
+            for (IRNode part : nodeParts) {
+                IROp compiledPart = compile(part);
+                
+                if (compiledPart instanceof IRLit) {
+                    if (pendingLiteral == null) {
+                        pendingLiteral = new StringBuilder();
+                    }
+                    pendingLiteral.append(((IRLit) compiledPart).value);
+                } else {
+                    if (pendingLiteral != null) {
+                        parts.add(new IRLit(pendingLiteral.toString()));
+                        pendingLiteral = null;
+                    }
+                    parts.add(compiledPart);
+                }
+            }
+            
+            if (pendingLiteral != null) {
+                parts.add(new IRLit(pendingLiteral.toString()));
+            }
+            
+            if (parts.size() == 1) {
+                return parts.get(0);
+            }
+            
             return new IRSeq(parts);
         }
         
@@ -90,7 +117,11 @@ public class JsonAstCompiler {
         }
         
         if (node instanceof AnchorNode) {
-            return new IRAnchor(((AnchorNode) node).getAt());
+            String at = ((AnchorNode) node).getAt();
+            if ("NonWordBoundary".equals(at)) {
+                at = "NotWordBoundary";
+            }
+            return new IRAnchor(at);
         }
         
         if (node instanceof BackReferenceNode) {

@@ -1,6 +1,6 @@
 {
   "id": "error_group_name_empty",
-  "description": "Generated from error_group_name_empty.pattern",
+  "description": "Generated from error_group_name_empty.json",
   "input_dsl": "(?<>)",
   "expected_error": "Invalid group name",
   "metadata_expectations": {

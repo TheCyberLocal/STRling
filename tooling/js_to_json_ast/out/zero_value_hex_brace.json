@@ -1,6 +1,6 @@
 {
   "id": "zero_value_hex_brace",
-  "description": "Generated from zero_value_hex_brace.pattern",
+  "description": "Generated from zero_value_hex_brace.json",
   "input_dsl": "\\x{0}",
   "input_ast": {
     "type": "Literal",

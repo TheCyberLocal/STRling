@@ -1,6 +1,6 @@
 {
   "id": "unicode_escape_bmp_boundary",
-  "description": "Generated from unicode_escape_bmp_boundary.pattern",
+  "description": "Generated from unicode_escape_bmp_boundary.json",
   "input_dsl": "\\uFFFF",
   "input_ast": {
     "type": "Literal",

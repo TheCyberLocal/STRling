@@ -1,6 +1,6 @@
 {
   "id": "js_test_pattern_182",
-  "description": "Generated from js_test_pattern_182.pattern",
+  "description": "Generated from js_test_pattern_182.json",
   "input_dsl": "%flags x\n[a#b]\n",
   "input_ast": {
     "type": "CharacterClass",

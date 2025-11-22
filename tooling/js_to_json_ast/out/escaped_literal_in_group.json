@@ -1,6 +1,6 @@
 {
   "id": "escaped_literal_in_group",
-  "description": "Generated from escaped_literal_in_group.pattern",
+  "description": "Generated from escaped_literal_in_group.json",
   "input_dsl": "(\\*)",
   "input_ast": {
     "type": "Group",

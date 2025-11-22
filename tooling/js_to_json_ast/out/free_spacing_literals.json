@@ -1,6 +1,6 @@
 {
   "id": "free_spacing_literals",
-  "description": "Generated from free_spacing_literals.pattern",
+  "description": "Generated from free_spacing_literals.json",
   "input_dsl": "%flags x\n a b #comment\n c",
   "input_ast": {
     "type": "Sequence",

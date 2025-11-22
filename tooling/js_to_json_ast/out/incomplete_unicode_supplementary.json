@@ -1,6 +1,6 @@
 {
   "id": "incomplete_unicode_supplementary",
-  "description": "Generated from incomplete_unicode_supplementary.pattern",
+  "description": "Generated from incomplete_unicode_supplementary.json",
   "input_dsl": "\\U1234567",
   "expected_error": "Invalid \\UHHHHHHHH escape",
   "metadata_expectations": {

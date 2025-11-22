@@ -207,7 +207,12 @@ class Parser:
                         pattern_lines.append(remainder)
                 continue
             if not in_pattern and striped.startswith("%"):
-                continue
+                # If it's not %flags (handled above), it's an unknown directive
+                pos = sum(len(l) for l in lines[: line_num - 1]) + line.index("%")
+                hint = get_hint("Malformed directive", self._original_text, pos)
+                raise STRlingParseError(
+                    "Malformed directive", pos, self._original_text, hint
+                )
             # This is pattern content
             # Check if %flags appears anywhere in this line (would be misplaced)
             if "%flags" in line:
@@ -796,7 +801,7 @@ class Parser:
             for _ in range(8):
                 ch = cur.take()
                 if not re.match(r"[0-9A-Fa-f]", ch or ""):
-                    self._raise_error("Invalid \\UHHHHHHHH", start_pos)
+                    self._raise_error("Invalid \\UHHHHHHHH escape", start_pos)
                 hexs += ch
             return chr(int(hexs, 16))
         # \uHHHH
@@ -804,7 +809,7 @@ class Parser:
         for _ in range(4):
             ch = cur.take()
             if not re.match(r"[0-9A-Fa-f]", ch or ""):
-                self._raise_error("Invalid \\uHHHH", start_pos)
+                self._raise_error("Invalid \\uHHHH escape", start_pos)
             hexs += ch
         return chr(int(hexs, 16))
 

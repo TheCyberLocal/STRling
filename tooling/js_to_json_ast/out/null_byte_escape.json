@@ -1,6 +1,6 @@
 {
   "id": "null_byte_escape",
-  "description": "Generated from null_byte_escape.pattern",
+  "description": "Generated from null_byte_escape.json",
   "input_dsl": "\\0",
   "input_ast": {
     "type": "Literal",

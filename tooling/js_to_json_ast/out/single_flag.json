@@ -1,6 +1,6 @@
 {
   "id": "single_flag",
-  "description": "Generated from single_flag.pattern",
+  "description": "Generated from single_flag.json",
   "input_dsl": "%flags i",
   "input_ast": {
     "type": "Sequence",

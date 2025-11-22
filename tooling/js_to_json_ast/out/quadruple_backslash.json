@@ -1,6 +1,6 @@
 {
   "id": "quadruple_backslash",
-  "description": "Generated from quadruple_backslash.pattern",
+  "description": "Generated from quadruple_backslash.json",
   "input_dsl": "\\\\\\\\",
   "input_ast": {
     "type": "Literal",

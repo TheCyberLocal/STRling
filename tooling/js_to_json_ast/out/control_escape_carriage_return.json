@@ -1,6 +1,6 @@
 {
   "id": "control_escape_carriage_return",
-  "description": "Generated from control_escape_carriage_return.pattern",
+  "description": "Generated from control_escape_carriage_return.json",
   "input_dsl": "\\r",
   "input_ast": {
     "type": "Literal",

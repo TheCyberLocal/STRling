@@ -1,6 +1,6 @@
 {
   "id": "error_quantifier_brace_invalid_content",
-  "description": "Generated from error_quantifier_brace_invalid_content.pattern",
+  "description": "Generated from error_quantifier_brace_invalid_content.json",
   "input_dsl": "a{foo}",
   "expected_error": "Brace quantifier: Invalid brace quantifier content",
   "metadata_expectations": {

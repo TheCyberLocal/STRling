@@ -1,6 +1,6 @@
 {
   "id": "identity_escape_paren",
-  "description": "Generated from identity_escape_paren.pattern",
+  "description": "Generated from identity_escape_paren.json",
   "input_dsl": "\\(",
   "input_ast": {
     "type": "Literal",

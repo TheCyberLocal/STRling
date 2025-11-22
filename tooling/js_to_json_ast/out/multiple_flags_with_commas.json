@@ -1,6 +1,6 @@
 {
   "id": "multiple_flags_with_commas",
-  "description": "Generated from multiple_flags_with_commas.pattern",
+  "description": "Generated from multiple_flags_with_commas.json",
   "input_dsl": "%flags i, m, x",
   "input_ast": {
     "type": "Sequence",

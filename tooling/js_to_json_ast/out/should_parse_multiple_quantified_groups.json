@@ -1,0 +1,137 @@
+{
+  "id": "should_parse_multiple_quantified_groups",
+  "description": "Generated from should_parse_multiple_quantified_groups.pattern",
+  "input_dsl": "(ab)*(cd)+(ef)?",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Group",
+          "capturing": true,
+          "body": {
+            "type": "Literal",
+            "value": "ab"
+          },
+          "expression": {
+            "type": "Literal",
+            "value": "ab"
+          },
+          "name": null,
+          "atomic": false
+        },
+        "min": 0,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Group",
+          "capturing": true,
+          "body": {
+            "type": "Literal",
+            "value": "cd"
+          },
+          "expression": {
+            "type": "Literal",
+            "value": "cd"
+          },
+          "name": null,
+          "atomic": false
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Group",
+          "capturing": true,
+          "body": {
+            "type": "Literal",
+            "value": "ef"
+          },
+          "expression": {
+            "type": "Literal",
+            "value": "ef"
+          },
+          "name": null,
+          "atomic": false
+        },
+        "min": 0,
+        "max": 1,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": true,
+          "body": {
+            "ir": "Lit",
+            "value": "ab"
+          }
+        },
+        "min": 0,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": true,
+          "body": {
+            "ir": "Lit",
+            "value": "cd"
+          }
+        },
+        "min": 1,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": true,
+          "body": {
+            "ir": "Lit",
+            "value": "ef"
+          }
+        },
+        "min": 0,
+        "max": 1,
+        "mode": "Greedy"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(ab)*(cd)+(ef)?"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

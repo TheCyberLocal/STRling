@@ -1,6 +1,6 @@
 {
   "id": "js_test_pattern_164",
-  "description": "Generated from js_test_pattern_164.pattern",
+  "description": "Generated from js_test_pattern_164.json",
   "input_dsl": "[\\p{Letter}]\n",
   "input_ast": {
     "type": "Sequence",

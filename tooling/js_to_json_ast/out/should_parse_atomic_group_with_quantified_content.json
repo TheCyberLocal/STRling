@@ -1,0 +1,113 @@
+{
+  "id": "should_parse_atomic_group_with_quantified_content",
+  "description": "Generated from should_parse_atomic_group_with_quantified_content.pattern",
+  "input_dsl": "(?>a+b*)",
+  "input_ast": {
+    "type": "Group",
+    "capturing": false,
+    "body": {
+      "type": "Sequence",
+      "parts": [
+        {
+          "type": "Quantifier",
+          "target": {
+            "type": "Literal",
+            "value": "a"
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        {
+          "type": "Quantifier",
+          "target": {
+            "type": "Literal",
+            "value": "b"
+          },
+          "min": 0,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        }
+      ]
+    },
+    "expression": {
+      "type": "Sequence",
+      "parts": [
+        {
+          "type": "Quantifier",
+          "target": {
+            "type": "Literal",
+            "value": "a"
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        {
+          "type": "Quantifier",
+          "target": {
+            "type": "Literal",
+            "value": "b"
+          },
+          "min": 0,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        }
+      ]
+    },
+    "name": null,
+    "atomic": true
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Group",
+    "capturing": false,
+    "body": {
+      "ir": "Seq",
+      "parts": [
+        {
+          "ir": "Quant",
+          "child": {
+            "ir": "Lit",
+            "value": "a"
+          },
+          "min": 1,
+          "max": "Inf",
+          "mode": "Greedy"
+        },
+        {
+          "ir": "Quant",
+          "child": {
+            "ir": "Lit",
+            "value": "b"
+          },
+          "min": 0,
+          "max": "Inf",
+          "mode": "Greedy"
+        }
+      ]
+    },
+    "atomic": true
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?>a+b*)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

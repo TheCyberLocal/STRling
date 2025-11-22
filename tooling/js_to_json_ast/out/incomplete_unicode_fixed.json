@@ -1,6 +1,6 @@
 {
   "id": "incomplete_unicode_fixed",
-  "description": "Generated from incomplete_unicode_fixed.pattern",
+  "description": "Generated from incomplete_unicode_fixed.json",
   "input_dsl": "\\u123",
   "expected_error": "Invalid \\uHHHH escape",
   "metadata_expectations": {

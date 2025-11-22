@@ -1,6 +1,6 @@
 {
   "id": "double_backslash",
-  "description": "Generated from double_backslash.pattern",
+  "description": "Generated from double_backslash.json",
   "input_dsl": "\\\\",
   "input_ast": {
     "type": "Literal",

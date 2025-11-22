@@ -1,0 +1,73 @@
+{
+  "id": "should_parse_anchor_after_quantified_group",
+  "description": "Generated from should_parse_anchor_after_quantified_group.pattern",
+  "input_dsl": "(ab)*$",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Group",
+          "capturing": true,
+          "body": {
+            "type": "Literal",
+            "value": "ab"
+          },
+          "expression": {
+            "type": "Literal",
+            "value": "ab"
+          },
+          "name": null,
+          "atomic": false
+        },
+        "min": 0,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Anchor",
+        "at": "End"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": true,
+          "body": {
+            "ir": "Lit",
+            "value": "ab"
+          }
+        },
+        "min": 0,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Anchor",
+        "at": "End"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(ab)*$"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

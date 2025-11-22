@@ -1,6 +1,6 @@
 {
   "id": "sequence_escaped_metachars",
-  "description": "Generated from sequence_escaped_metachars.pattern",
+  "description": "Generated from sequence_escaped_metachars.json",
   "input_dsl": "a\\*b\\+c",
   "input_ast": {
     "type": "Literal",

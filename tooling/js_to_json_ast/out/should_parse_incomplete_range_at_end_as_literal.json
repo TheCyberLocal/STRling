@@ -1,0 +1,47 @@
+{
+  "id": "should_parse_incomplete_range_at_end_as_literal",
+  "description": "Generated from should_parse_incomplete_range_at_end_as_literal.pattern",
+  "input_dsl": "[a-]",
+  "input_ast": {
+    "type": "CharacterClass",
+    "negated": false,
+    "members": [
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Literal",
+        "value": "-"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": false,
+    "items": [
+      {
+        "ir": "Char",
+        "char": "a"
+      },
+      {
+        "ir": "Char",
+        "char": "-"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[a\\-]"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

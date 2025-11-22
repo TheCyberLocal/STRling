@@ -1,0 +1,47 @@
+{
+  "id": "should_parse_negated_class_with_shorthand",
+  "description": "Generated from should_parse_negated_class_with_shorthand.pattern",
+  "input_dsl": "[^\\d\\s]",
+  "input_ast": {
+    "type": "CharacterClass",
+    "negated": true,
+    "members": [
+      {
+        "type": "Escape",
+        "kind": "digit"
+      },
+      {
+        "type": "Escape",
+        "kind": "space"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": true,
+    "items": [
+      {
+        "ir": "Esc",
+        "type": "d"
+      },
+      {
+        "ir": "Esc",
+        "type": "s"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[^\\d\\s]"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

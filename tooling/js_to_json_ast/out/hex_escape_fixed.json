@@ -1,6 +1,6 @@
 {
   "id": "hex_escape_fixed",
-  "description": "Generated from hex_escape_fixed.pattern",
+  "description": "Generated from hex_escape_fixed.json",
   "input_dsl": "\\x41",
   "input_ast": {
     "type": "Literal",

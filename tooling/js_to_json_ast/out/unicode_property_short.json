@@ -1,0 +1,42 @@
+{
+  "id": "unicode_property_short",
+  "description": "Generated from unicode_property_short.pattern",
+  "input_dsl": "[\\p{L}]",
+  "input_ast": {
+    "type": "CharacterClass",
+    "negated": false,
+    "members": [
+      {
+        "type": "UnicodeProperty",
+        "name": null,
+        "value": "L",
+        "negated": false
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": false,
+    "items": [
+      {
+        "ir": "Esc",
+        "type": "p",
+        "property": "L"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\\p{L}"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

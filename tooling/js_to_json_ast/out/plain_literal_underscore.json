@@ -1,6 +1,6 @@
 {
   "id": "plain_literal_underscore",
-  "description": "Generated from plain_literal_underscore.pattern",
+  "description": "Generated from plain_literal_underscore.json",
   "input_dsl": "_",
   "input_ast": {
     "type": "Literal",

@@ -1,6 +1,6 @@
 {
   "id": "forbidden_octal_escape",
-  "description": "Generated from forbidden_octal_escape.pattern",
+  "description": "Generated from forbidden_octal_escape.json",
   "input_dsl": "\\123",
   "expected_error": "Backreference to undefined group",
   "metadata_expectations": {

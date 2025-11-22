@@ -1,0 +1,55 @@
+{
+  "id": "negated_simple_class",
+  "description": "Generated from negated_simple_class.pattern",
+  "input_dsl": "[^abc]",
+  "input_ast": {
+    "type": "CharacterClass",
+    "negated": true,
+    "members": [
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Literal",
+        "value": "b"
+      },
+      {
+        "type": "Literal",
+        "value": "c"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "CharClass",
+    "negated": true,
+    "items": [
+      {
+        "ir": "Char",
+        "char": "a"
+      },
+      {
+        "ir": "Char",
+        "char": "b"
+      },
+      {
+        "ir": "Char",
+        "char": "c"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[^abc]"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

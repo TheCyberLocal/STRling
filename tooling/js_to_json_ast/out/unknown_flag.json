@@ -1,6 +1,6 @@
 {
   "id": "unknown_flag",
-  "description": "Generated from unknown_flag.pattern",
+  "description": "Generated from unknown_flag.json",
   "input_dsl": "%flags z",
   "expected_error": "Invalid flag 'z'",
   "metadata_expectations": {

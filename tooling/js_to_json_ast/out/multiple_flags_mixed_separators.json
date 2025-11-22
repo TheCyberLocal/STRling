@@ -1,6 +1,6 @@
 {
   "id": "multiple_flags_mixed_separators",
-  "description": "Generated from multiple_flags_mixed_separators.pattern",
+  "description": "Generated from multiple_flags_mixed_separators.json",
   "input_dsl": "%flags i,m s,u x",
   "input_ast": {
     "type": "Sequence",

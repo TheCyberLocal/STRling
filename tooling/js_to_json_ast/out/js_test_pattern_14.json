@@ -1,6 +1,6 @@
 {
   "id": "js_test_pattern_14",
-  "description": "Generated from js_test_pattern_14.pattern",
+  "description": "Generated from js_test_pattern_14.json",
   "input_dsl": "%flags x\nfoo | bar\n",
   "input_ast": {
     "type": "Alternation",

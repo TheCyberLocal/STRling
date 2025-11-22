@@ -1,6 +1,6 @@
 {
   "id": "js_test_pattern_10",
-  "description": "Generated from js_test_pattern_10.pattern",
+  "description": "Generated from js_test_pattern_10.json",
   "input_dsl": "%flags x\n(?<name>\\d+)\n",
   "input_ast": {
     "type": "Group",

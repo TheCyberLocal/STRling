@@ -2,6 +2,7 @@ package com.strling.tests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.strling.core.nodes.IRNode;
 import com.strling.core.JsonAstCompiler;
 import com.strling.core.IR.IROp;
@@ -9,37 +10,35 @@ import com.strling.emitters.Pcre2Emitter;
 import com.strling.core.Nodes.Flags;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Java Conformance Tests - JSON AST to PCRE2
+ * Java Conformance Tests - Shared JSON AST Suite
  *
- * This test suite loads all JSON AST fixtures from tooling/js_to_json_ast/out/
+ * This test suite loads all JSON AST fixtures from tests/spec/
  * and verifies that the Java binding can:
- * 1. Deserialize the JSON AST into Java IR nodes
- * 2. Emit correct PCRE2 patterns matching the expected output
- *
- * This ensures 100% test parity with the JavaScript Gold Standard.
+ * 1. Deserialize the JSON AST into Java AST nodes
+ * 2. Compile AST to IR and match expected_ir
+ * 3. Emit correct PCRE2 patterns matching expected_codegen
  */
 public class ConformanceTests {
     
     private static final ObjectMapper MAPPER = new ObjectMapper();
     
     // Path to fixtures directory - go up from bindings/java/src/test/java/com/strling/tests
-    // to the repo root, then to tooling/js_to_json_ast/out/
+    // to the repo root, then to tests/spec/
     private static final Path FIXTURES_DIR = Paths.get(
-        System.getProperty("user.dir"), "..", "..", "tooling", "js_to_json_ast", "out"
+        System.getProperty("user.dir"), "..", "..", "tests", "spec"
     ).normalize();
     
     /**
@@ -82,66 +81,46 @@ public class ConformanceTests {
         // Load and parse the JSON fixture
         JsonNode root = MAPPER.readTree(fixturePath.toFile());
         
-        // Skip if no expected PCRE output
-        if (!root.has("expected") || !root.get("expected").has("pcre")) {
-            // This is acceptable - some fixtures may not have expected PCRE
-            return;
+        // 1. Deserialize Flags
+        Flags flags = new Flags();
+        if (root.has("flags")) {
+            JsonNode flagsNode = root.get("flags");
+            if (flagsNode.has("ignoreCase") && flagsNode.get("ignoreCase").asBoolean()) flags.ignoreCase = true;
+            if (flagsNode.has("multiline") && flagsNode.get("multiline").asBoolean()) flags.multiline = true;
+            if (flagsNode.has("dotAll") && flagsNode.get("dotAll").asBoolean()) flags.dotAll = true;
+            if (flagsNode.has("unicode") && flagsNode.get("unicode").asBoolean()) flags.unicode = true;
+            if (flagsNode.has("extended") && flagsNode.get("extended").asBoolean()) flags.extended = true;
+        }
+
+        // 2. Deserialize AST
+        if (!root.has("input_ast")) {
+            return; // Skip if no input_ast
         }
         
-        String expectedPcre = root.get("expected").get("pcre").asText();
-        
-        // Deserialize the AST pattern
         IRNode astRoot;
         try {
-            astRoot = MAPPER.treeToValue(root.get("pattern"), IRNode.class);
+            astRoot = MAPPER.treeToValue(root.get("input_ast"), IRNode.class);
         } catch (Exception e) {
             fail("Failed to deserialize AST from " + fixturePath.getFileName() + ": " + e.getMessage(), e);
             return;
         }
         
-        // Compile AST to IR
+        // 3. Compile to IR
         JsonAstCompiler compiler = new JsonAstCompiler();
-        IROp irRoot;
-        try {
-            irRoot = compiler.compile(astRoot);
-        } catch (Exception e) {
-            fail("Failed to compile AST to IR for " + fixturePath.getFileName() + ": " + e.getMessage(), e);
-            return;
-        }
+        IROp irOp = compiler.compile(astRoot);
         
-        // Extract flags
-        Flags flags = null;
-        if (root.has("flags")) {
-            JsonNode flagsNode = root.get("flags");
-            flags = new Flags();
-            if (flagsNode.has("ignoreCase")) {
-                flags.ignoreCase = flagsNode.get("ignoreCase").asBoolean();
-            }
-            if (flagsNode.has("multiline")) {
-                flags.multiline = flagsNode.get("multiline").asBoolean();
-            }
-            if (flagsNode.has("dotAll")) {
-                flags.dotAll = flagsNode.get("dotAll").asBoolean();
-            }
-            if (flagsNode.has("unicode")) {
-                flags.unicode = flagsNode.get("unicode").asBoolean();
-            }
-            if (flagsNode.has("extended")) {
-                flags.extended = flagsNode.get("extended").asBoolean();
-            }
+        // 4. Verify IR (if expected_ir exists)
+        if (root.has("expected_ir")) {
+            Map<String, Object> expectedIr = MAPPER.convertValue(root.get("expected_ir"), new TypeReference<Map<String, Object>>(){});
+            Map<String, Object> actualIr = irOp.toDict();
+            assertEquals(expectedIr, actualIr, "IR mismatch for " + fixturePath.getFileName());
         }
-        
-        // Emit PCRE2
-        String emittedPcre;
-        try {
-            emittedPcre = Pcre2Emitter.emit(irRoot, flags);
-        } catch (Exception e) {
-            fail("Failed to emit PCRE2 for " + fixturePath.getFileName() + ": " + e.getMessage(), e);
-            return;
+
+        // 5. Verify Codegen (if expected_codegen exists)
+        if (root.has("expected_codegen") && root.get("expected_codegen").has("pcre")) {
+            String expectedPcre = root.get("expected_codegen").get("pcre").asText();
+            String actualPcre = Pcre2Emitter.emit(irOp, flags);
+            assertEquals(expectedPcre, actualPcre, "PCRE mismatch for " + fixturePath.getFileName());
         }
-        
-        // Assert the output matches expected
-        assertEquals(expectedPcre, emittedPcre, 
-            "PCRE2 output mismatch for " + fixturePath.getFileName());
     }
 }

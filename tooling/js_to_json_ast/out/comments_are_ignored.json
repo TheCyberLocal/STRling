@@ -1,6 +1,6 @@
 {
   "id": "comments_are_ignored",
-  "description": "Generated from comments_are_ignored.pattern",
+  "description": "Generated from comments_are_ignored.json",
   "input_dsl": "%flags x\na # comment\n b",
   "input_ast": {
     "type": "Sequence",

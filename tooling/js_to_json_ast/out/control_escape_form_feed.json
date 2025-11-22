@@ -1,6 +1,6 @@
 {
   "id": "control_escape_form_feed",
-  "description": "Generated from control_escape_form_feed.pattern",
+  "description": "Generated from control_escape_form_feed.json",
   "input_dsl": "\\f",
   "input_ast": {
     "type": "Literal",

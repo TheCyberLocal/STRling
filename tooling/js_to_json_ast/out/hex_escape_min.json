@@ -1,6 +1,6 @@
 {
   "id": "hex_escape_min",
-  "description": "Generated from hex_escape_min.pattern",
+  "description": "Generated from hex_escape_min.json",
   "input_dsl": "\\x00",
   "input_ast": {
     "type": "Literal",

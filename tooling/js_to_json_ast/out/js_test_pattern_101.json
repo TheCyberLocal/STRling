@@ -1,6 +1,6 @@
 {
   "id": "js_test_pattern_101",
-  "description": "Generated from js_test_pattern_101.pattern",
+  "description": "Generated from js_test_pattern_101.json",
   "input_dsl": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}\n",
   "input_ast": {
     "type": "Sequence",

@@ -1,6 +1,6 @@
 {
   "id": "unterminated_hex_brace",
-  "description": "Generated from unterminated_hex_brace.pattern",
+  "description": "Generated from unterminated_hex_brace.json",
   "input_dsl": "\\x{12",
   "expected_error": "Unterminated \\x{...}",
   "metadata_expectations": {

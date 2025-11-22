@@ -1,0 +1,9 @@
+{
+  "id": "unclosed_brace_after_comma",
+  "description": "Generated from unclosed_brace_after_comma.pattern",
+  "input_dsl": "a{1,",
+  "expected_error": "Incomplete quantifier",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

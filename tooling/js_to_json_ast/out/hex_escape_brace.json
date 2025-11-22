@@ -1,6 +1,6 @@
 {
   "id": "hex_escape_brace",
-  "description": "Generated from hex_escape_brace.pattern",
+  "description": "Generated from hex_escape_brace.json",
   "input_dsl": "\\x{41}",
   "input_ast": {
     "type": "Literal",

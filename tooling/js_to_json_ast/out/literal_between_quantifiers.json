@@ -1,6 +1,6 @@
 {
   "id": "literal_between_quantifiers",
-  "description": "Generated from literal_between_quantifiers.pattern",
+  "description": "Generated from literal_between_quantifiers.json",
   "input_dsl": "a*Xb+",
   "input_ast": {
     "type": "Sequence",

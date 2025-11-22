@@ -1,6 +1,6 @@
 {
   "id": "js_test_pattern_293",
-  "description": "Generated from js_test_pattern_293.pattern",
+  "description": "Generated from js_test_pattern_293.json",
   "input_dsl": "atomic_group\n",
   "input_ast": {
     "type": "Sequence",

@@ -1,6 +1,6 @@
 {
   "id": "sequence_only_escapes",
-  "description": "Generated from sequence_only_escapes.pattern",
+  "description": "Generated from sequence_only_escapes.json",
   "input_dsl": "\\n\\t\\r",
   "input_ast": {
     "type": "Sequence",

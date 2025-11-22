@@ -1,6 +1,6 @@
 {
   "id": "plain_literal_letter",
-  "description": "Generated from plain_literal_letter.pattern",
+  "description": "Generated from plain_literal_letter.json",
   "input_dsl": "a",
   "input_ast": {
     "type": "Literal",

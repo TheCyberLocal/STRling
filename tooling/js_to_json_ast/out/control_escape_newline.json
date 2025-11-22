@@ -1,6 +1,6 @@
 {
   "id": "control_escape_newline",
-  "description": "Generated from control_escape_newline.pattern",
+  "description": "Generated from control_escape_newline.json",
   "input_dsl": "\\n",
   "input_ast": {
     "type": "Literal",

@@ -1,6 +1,6 @@
 {
   "id": "escaped_whitespace_is_literal",
-  "description": "Generated from escaped_whitespace_is_literal.pattern",
+  "description": "Generated from escaped_whitespace_is_literal.json",
   "input_dsl": "%flags x\na\\\\ b",
   "input_ast": {
     "type": "Sequence",

@@ -1,6 +1,6 @@
 {
   "id": "backref_single_digit_error",
-  "description": "Generated from backref_single_digit_error.pattern",
+  "description": "Generated from backref_single_digit_error.json",
   "input_dsl": "\\1",
   "expected_error": "Backreference to undefined group",
   "metadata_expectations": {

@@ -1,6 +1,6 @@
 {
   "id": "stray_closing_paren",
-  "description": "Generated from stray_closing_paren.pattern",
+  "description": "Generated from stray_closing_paren.json",
   "input_dsl": ")",
   "expected_error": "Unmatched ')'",
   "metadata_expectations": {

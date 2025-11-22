@@ -1,6 +1,6 @@
 {
   "id": "sequence_plain_literals",
-  "description": "Generated from sequence_plain_literals.pattern",
+  "description": "Generated from sequence_plain_literals.json",
   "input_dsl": "abc",
   "input_ast": {
     "type": "Literal",

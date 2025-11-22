@@ -1,6 +1,6 @@
 {
   "id": "backslash_before_literal",
-  "description": "Generated from backslash_before_literal.pattern",
+  "description": "Generated from backslash_before_literal.json",
   "input_dsl": "\\\\a",
   "input_ast": {
     "type": "Literal",

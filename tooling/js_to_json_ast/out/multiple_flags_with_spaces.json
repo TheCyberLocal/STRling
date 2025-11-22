@@ -1,6 +1,6 @@
 {
   "id": "multiple_flags_with_spaces",
-  "description": "Generated from multiple_flags_with_spaces.pattern",
+  "description": "Generated from multiple_flags_with_spaces.json",
   "input_dsl": "%flags u m s",
   "input_ast": {
     "type": "Sequence",

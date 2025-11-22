@@ -1,0 +1,69 @@
+{
+  "id": "should_handle_a_backreference_inside_a_lookaround",
+  "description": "Generated from should_handle_a_backreference_inside_a_lookaround.pattern",
+  "input_dsl": "(?<A>a)(?=\\k<A>)",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "expression": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "name": "A",
+        "atomic": false
+      },
+      {
+        "type": "Lookahead",
+        "body": {
+          "type": "Backreference",
+          "index": null,
+          "name": "A"
+        }
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Lit",
+          "value": "a"
+        },
+        "name": "A"
+      },
+      {
+        "ir": "Look",
+        "dir": "Ahead",
+        "neg": false,
+        "body": {
+          "ir": "Backref",
+          "byName": "A"
+        }
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?<A>a)(?=\\k<A>)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

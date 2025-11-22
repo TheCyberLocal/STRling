@@ -1,0 +1,41 @@
+{
+  "id": "non_capturing",
+  "description": "Generated from non_capturing.pattern",
+  "input_dsl": "(?:a)",
+  "input_ast": {
+    "type": "Group",
+    "capturing": false,
+    "body": {
+      "type": "Literal",
+      "value": "a"
+    },
+    "expression": {
+      "type": "Literal",
+      "value": "a"
+    },
+    "name": null,
+    "atomic": false
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Group",
+    "capturing": false,
+    "body": {
+      "ir": "Lit",
+      "value": "a"
+    }
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?:a)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

@@ -1,6 +1,6 @@
 {
   "id": "hex_escape_brace_non_bmp",
-  "description": "Generated from hex_escape_brace_non_bmp.pattern",
+  "description": "Generated from hex_escape_brace_non_bmp.json",
   "input_dsl": "\\x{1F600}",
   "input_ast": {
     "type": "Literal",

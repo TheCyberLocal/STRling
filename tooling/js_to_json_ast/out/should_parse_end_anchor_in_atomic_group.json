@@ -1,0 +1,69 @@
+{
+  "id": "should_parse_end_anchor_in_atomic_group",
+  "description": "Generated from should_parse_end_anchor_in_atomic_group.pattern",
+  "input_dsl": "(?>a$)",
+  "input_ast": {
+    "type": "Group",
+    "capturing": false,
+    "body": {
+      "type": "Sequence",
+      "parts": [
+        {
+          "type": "Literal",
+          "value": "a"
+        },
+        {
+          "type": "Anchor",
+          "at": "End"
+        }
+      ]
+    },
+    "expression": {
+      "type": "Sequence",
+      "parts": [
+        {
+          "type": "Literal",
+          "value": "a"
+        },
+        {
+          "type": "Anchor",
+          "at": "End"
+        }
+      ]
+    },
+    "name": null,
+    "atomic": true
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Group",
+    "capturing": false,
+    "body": {
+      "ir": "Seq",
+      "parts": [
+        {
+          "ir": "Lit",
+          "value": "a"
+        },
+        {
+          "ir": "Anchor",
+          "at": "End"
+        }
+      ]
+    },
+    "atomic": true
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?>a$)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

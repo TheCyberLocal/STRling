@@ -1,6 +1,6 @@
 {
   "id": "unicode_escape_brace_non_bmp",
-  "description": "Generated from unicode_escape_brace_non_bmp.pattern",
+  "description": "Generated from unicode_escape_brace_non_bmp.json",
   "input_dsl": "\\u{1f600}",
   "input_ast": {
     "type": "Literal",

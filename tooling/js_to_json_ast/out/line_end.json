@@ -1,0 +1,27 @@
+{
+  "id": "line_end",
+  "description": "Generated from line_end.pattern",
+  "input_dsl": "$",
+  "input_ast": {
+    "type": "Anchor",
+    "at": "End"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Anchor",
+    "at": "End"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "$"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

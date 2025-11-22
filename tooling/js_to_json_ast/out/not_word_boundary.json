@@ -1,0 +1,27 @@
+{
+  "id": "not_word_boundary",
+  "description": "Generated from not_word_boundary.pattern",
+  "input_dsl": "\\B",
+  "input_ast": {
+    "type": "Anchor",
+    "at": "NonWordBoundary"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Anchor",
+    "at": "NotWordBoundary"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\\B"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

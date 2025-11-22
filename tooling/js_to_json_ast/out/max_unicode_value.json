@@ -1,6 +1,6 @@
 {
   "id": "max_unicode_value",
-  "description": "Generated from max_unicode_value.pattern",
+  "description": "Generated from max_unicode_value.json",
   "input_dsl": "\\u{10FFFF}",
   "input_ast": {
     "type": "Literal",

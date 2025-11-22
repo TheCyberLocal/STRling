@@ -1,6 +1,6 @@
 {
   "id": "literal_after_hex",
-  "description": "Generated from literal_after_hex.pattern",
+  "description": "Generated from literal_after_hex.json",
   "input_dsl": "\\x41b",
   "input_ast": {
     "type": "Literal",

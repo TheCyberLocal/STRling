@@ -1,6 +1,6 @@
 {
   "id": "sequence_mixed_escapes",
-  "description": "Generated from sequence_mixed_escapes.pattern",
+  "description": "Generated from sequence_mixed_escapes.json",
   "input_dsl": "\\x41\\u0042\\n",
   "input_ast": {
     "type": "Sequence",

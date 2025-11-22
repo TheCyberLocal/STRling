@@ -1,0 +1,9 @@
+{
+  "id": "unterminated_unicode_property",
+  "description": "Generated from unterminated_unicode_property.pattern",
+  "input_dsl": "[\\p{L",
+  "expected_error": "Unterminated \\p{...}",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

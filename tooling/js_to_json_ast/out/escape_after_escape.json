@@ -1,6 +1,6 @@
 {
   "id": "escape_after_escape",
-  "description": "Generated from escape_after_escape.pattern",
+  "description": "Generated from escape_after_escape.json",
   "input_dsl": "\\n\\t",
   "input_ast": {
     "type": "Sequence",

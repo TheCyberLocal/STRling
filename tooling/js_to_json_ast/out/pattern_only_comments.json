@@ -1,6 +1,6 @@
 {
   "id": "pattern_only_comments",
-  "description": "Generated from pattern_only_comments.pattern",
+  "description": "Generated from pattern_only_comments.json",
   "input_dsl": "%flags x\n# comment\n  \n# another",
   "input_ast": {
     "type": "Sequence",

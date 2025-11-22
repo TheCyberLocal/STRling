@@ -1,6 +1,6 @@
 {
   "id": "literal_after_control",
-  "description": "Generated from literal_after_control.pattern",
+  "description": "Generated from literal_after_control.json",
   "input_dsl": "\\na",
   "input_ast": {
     "type": "Sequence",

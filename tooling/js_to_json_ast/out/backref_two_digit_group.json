@@ -1,6 +1,6 @@
 {
   "id": "backref_two_digit_group",
-  "description": "Generated from backref_two_digit_group.pattern",
+  "description": "Generated from backref_two_digit_group.json",
   "input_dsl": "(a)\\12",
   "input_ast": {
     "type": "Sequence",

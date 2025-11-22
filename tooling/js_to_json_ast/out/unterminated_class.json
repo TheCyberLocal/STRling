@@ -1,0 +1,9 @@
+{
+  "id": "unterminated_class",
+  "description": "Generated from unterminated_class.pattern",
+  "input_dsl": "[abc",
+  "expected_error": "Unterminated character class",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

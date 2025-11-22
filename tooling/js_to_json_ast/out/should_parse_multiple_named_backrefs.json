@@ -1,0 +1,93 @@
+{
+  "id": "should_parse_multiple_named_backrefs",
+  "description": "Generated from should_parse_multiple_named_backrefs.pattern",
+  "input_dsl": "(?<x>a)(?<y>b)\\k<x>\\k<y>",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "expression": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "name": "x",
+        "atomic": false
+      },
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Literal",
+          "value": "b"
+        },
+        "expression": {
+          "type": "Literal",
+          "value": "b"
+        },
+        "name": "y",
+        "atomic": false
+      },
+      {
+        "type": "Backreference",
+        "index": null,
+        "name": "x"
+      },
+      {
+        "type": "Backreference",
+        "index": null,
+        "name": "y"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Lit",
+          "value": "a"
+        },
+        "name": "x"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Lit",
+          "value": "b"
+        },
+        "name": "y"
+      },
+      {
+        "ir": "Backref",
+        "byName": "x"
+      },
+      {
+        "ir": "Backref",
+        "byName": "y"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?<x>a)(?<y>b)\\k<x>\\k<y>"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

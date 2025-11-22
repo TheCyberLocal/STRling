@@ -1,6 +1,6 @@
 {
   "id": "hex_escape_fixed_case",
-  "description": "Generated from hex_escape_fixed_case.pattern",
+  "description": "Generated from hex_escape_fixed_case.json",
   "input_dsl": "\\x4a",
   "input_ast": {
     "type": "Literal",

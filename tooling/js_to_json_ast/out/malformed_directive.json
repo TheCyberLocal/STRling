@@ -1,6 +1,6 @@
 {
   "id": "malformed_directive",
-  "description": "Generated from malformed_directive.pattern",
+  "description": "Generated from malformed_directive.json",
   "input_dsl": "%flagg i",
   "expected_error": "Malformed directive",
   "metadata_expectations": {

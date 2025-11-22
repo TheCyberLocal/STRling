@@ -63,7 +63,9 @@ const fixturesDir = args[0]
 const outDir = args[1] ? path.resolve(args[1]) : path.join(__dirname, "out");
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
-const files = fs.readdirSync(fixturesDir).filter((f) => f.endsWith(".pattern"));
+const files = fs
+    .readdirSync(fixturesDir)
+    .filter((f) => f.endsWith(".pattern") || f.endsWith(".json"));
 if (files.length === 0) {
     console.error("No fixture files found in", fixturesDir);
     process.exit(1);
@@ -71,10 +73,27 @@ if (files.length === 0) {
 
 for (const f of files) {
     const fp = path.join(fixturesDir, f);
-    let src = fs.readFileSync(fp, "utf8");
+    let src = "";
+    let existingData = {};
+
+    if (f.endsWith(".json")) {
+        try {
+            const content = fs.readFileSync(fp, "utf8");
+            existingData = JSON.parse(content);
+            src = existingData.input_dsl;
+            if (typeof src !== "string") {
+                continue;
+            }
+        } catch (e) {
+            console.error("Failed to read JSON:", f, e);
+            continue;
+        }
+    } else {
+        src = fs.readFileSync(fp, "utf8");
+    }
 
     // Check for %expect_error directive
-    let expectedError = null;
+    let expectedError = existingData.expected_error || null;
     const errorMatch = src.match(/^%expect_error\s+(.*)$/m);
     if (errorMatch) {
         expectedError = errorMatch[1].trim().replace(/^"|"$/g, "");
@@ -100,7 +119,7 @@ for (const f of files) {
                 }
                 // Write error artifact
                 const cArtifact = {
-                    id: f.replace(/\.pattern$/, ""),
+                    id: f.replace(/\.(pattern|json)$/, ""),
                     description: `Generated from ${f}`,
                     input_dsl: src.trim(),
                     expected_error: expectedError,
@@ -108,7 +127,7 @@ for (const f of files) {
                 };
                 const outPath = path.join(
                     outDir,
-                    f.replace(/\.pattern$/, ".json")
+                    f.replace(/\.(pattern|json)$/, ".json")
                 );
                 fs.writeFileSync(
                     outPath,
@@ -331,7 +350,7 @@ for (const f of files) {
         }
 
         const cArtifact = {
-            id: f.replace(/\.pattern$/, ""),
+            id: f.replace(/\.(pattern|json)$/, ""),
             description: `Generated from ${f}`,
             input_dsl: src,
             input_ast: convertNode(artifact.root),
@@ -343,7 +362,10 @@ for (const f of files) {
             },
         };
 
-        const outPath = path.join(outDir, f.replace(/\.pattern$/, ".json"));
+        const outPath = path.join(
+            outDir,
+            f.replace(/\.(pattern|json)$/, ".json")
+        );
         fs.writeFileSync(outPath, JSON.stringify(cArtifact, null, 2), "utf8");
         console.log("Wrote", outPath);
     } catch (err) {

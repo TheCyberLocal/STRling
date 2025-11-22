@@ -422,7 +422,7 @@ public class IR {
             if (name != null) {
                 map.put("name", name);
             }
-            if (atomic != null) {
+            if (atomic != null && atomic) {
                 map.put("atomic", atomic);
             }
             return map;

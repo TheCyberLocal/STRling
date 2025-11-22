@@ -1,0 +1,9 @@
+{
+  "id": "unterminated_lookahead",
+  "description": "Generated from unterminated_lookahead.pattern",
+  "input_dsl": "(?=a",
+  "expected_error": "Unterminated lookahead",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

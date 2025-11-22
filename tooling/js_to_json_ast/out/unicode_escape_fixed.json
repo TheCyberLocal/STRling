@@ -1,6 +1,6 @@
 {
   "id": "unicode_escape_fixed",
-  "description": "Generated from unicode_escape_fixed.pattern",
+  "description": "Generated from unicode_escape_fixed.json",
   "input_dsl": "\\u0041",
   "input_ast": {
     "type": "Literal",

@@ -1,6 +1,6 @@
 {
   "id": "empty_flags_directive",
-  "description": "Generated from empty_flags_directive.pattern",
+  "description": "Generated from empty_flags_directive.json",
   "input_dsl": "%flags",
   "input_ast": {
     "type": "Sequence",

@@ -1,6 +1,6 @@
 {
   "id": "control_escape_vertical_tab",
-  "description": "Generated from control_escape_vertical_tab.pattern",
+  "description": "Generated from control_escape_vertical_tab.json",
   "input_dsl": "\\v",
   "input_ast": {
     "type": "Literal",

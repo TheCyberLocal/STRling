@@ -1,6 +1,6 @@
 {
   "id": "error_quantifier_brace_unterminated",
-  "description": "Generated from error_quantifier_brace_unterminated.pattern",
+  "description": "Generated from error_quantifier_brace_unterminated.json",
   "input_dsl": "a{5",
   "expected_error": "Incomplete quantifier",
   "metadata_expectations": {

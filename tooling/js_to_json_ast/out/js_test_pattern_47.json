@@ -1,6 +1,6 @@
 {
   "id": "js_test_pattern_47",
-  "description": "Generated from js_test_pattern_47.pattern",
+  "description": "Generated from js_test_pattern_47.json",
   "input_dsl": "(?<=^foo)\n",
   "input_ast": {
     "type": "Sequence",

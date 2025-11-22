@@ -1,6 +1,6 @@
 {
   "id": "error_char_class_range_reversed_digit",
-  "description": "Generated from error_char_class_range_reversed_digit.pattern",
+  "description": "Generated from error_char_class_range_reversed_digit.json",
   "input_dsl": "[9-0]",
   "expected_error": "Invalid character range",
   "metadata_expectations": {

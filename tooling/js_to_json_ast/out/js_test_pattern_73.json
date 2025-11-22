@@ -1,6 +1,6 @@
 {
   "id": "js_test_pattern_73",
-  "description": "Generated from js_test_pattern_73.pattern",
+  "description": "Generated from js_test_pattern_73.json",
   "input_dsl": "%flags m\n(?:(?<=^)start)\n",
   "input_ast": {
     "type": "Sequence",

@@ -1,6 +1,6 @@
 {
   "id": "js_test_pattern_111",
-  "description": "Generated from js_test_pattern_111.pattern",
+  "description": "Generated from js_test_pattern_111.json",
   "input_dsl": "\\ba|\\bb\n",
   "input_ast": {
     "type": "Alternation",

@@ -1,6 +1,6 @@
 {
   "id": "whitespace_is_ignored",
-  "description": "Generated from whitespace_is_ignored.pattern",
+  "description": "Generated from whitespace_is_ignored.json",
   "input_dsl": "%flags x\na b c",
   "input_ast": {
     "type": "Sequence",

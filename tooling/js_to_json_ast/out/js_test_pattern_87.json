@@ -1,6 +1,6 @@
 {
   "id": "js_test_pattern_87",
-  "description": "Generated from js_test_pattern_87.pattern",
+  "description": "Generated from js_test_pattern_87.json",
   "input_dsl": "%flags x\n(?<tag> \\w+ ) \\s* = \\s* (?<value> [^>]+ ) \\k<tag>\n",
   "input_ast": {
     "type": "Sequence",

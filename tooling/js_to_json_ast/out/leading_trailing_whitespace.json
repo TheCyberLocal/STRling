@@ -1,6 +1,6 @@
 {
   "id": "leading_trailing_whitespace",
-  "description": "Generated from leading_trailing_whitespace.pattern",
+  "description": "Generated from leading_trailing_whitespace.json",
   "input_dsl": "  %flags i  ",
   "input_ast": {
     "type": "Sequence",
