@@ -1,0 +1,73 @@
+{
+  "id": "js_test_pattern_50",
+  "description": "Generated from js_test_pattern_50.pattern",
+  "input_dsl": "(abc)+\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Group",
+          "capturing": true,
+          "body": {
+            "type": "Literal",
+            "value": "abc"
+          },
+          "expression": {
+            "type": "Literal",
+            "value": "abc"
+          },
+          "name": null,
+          "atomic": false
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": true,
+          "body": {
+            "ir": "Lit",
+            "value": "abc"
+          }
+        },
+        "min": 1,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(abc)+\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

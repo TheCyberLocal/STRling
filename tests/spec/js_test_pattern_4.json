@@ -1,0 +1,74 @@
+{
+  "id": "js_test_pattern_4",
+  "description": "Generated from js_test_pattern_4.pattern",
+  "input_dsl": "%flags u\n\\p{L}+\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "UnicodeProperty",
+              "name": null,
+              "value": "L",
+              "negated": false
+            }
+          ]
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": true,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Esc",
+              "type": "p",
+              "property": "L"
+            }
+          ]
+        },
+        "min": 1,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?u)\\p{L}+\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

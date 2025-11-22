@@ -1,0 +1,27 @@
+{
+  "id": "zero_value_hex_brace",
+  "description": "Generated from zero_value_hex_brace.pattern",
+  "input_dsl": "\\x{0}",
+  "input_ast": {
+    "type": "Literal",
+    "value": "\u0000"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "\u0000"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\u0000"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

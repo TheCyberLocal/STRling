@@ -1,0 +1,343 @@
+{
+  "id": "js_test_pattern_97",
+  "description": "Generated from js_test_pattern_97.pattern",
+  "input_dsl": "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "f"
+            }
+          ]
+        },
+        "min": 8,
+        "max": 8,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "-"
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "f"
+            }
+          ]
+        },
+        "min": 4,
+        "max": 4,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "-4"
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "f"
+            }
+          ]
+        },
+        "min": 3,
+        "max": 3,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "-"
+      },
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Literal",
+            "value": "8"
+          },
+          {
+            "type": "Literal",
+            "value": "9"
+          },
+          {
+            "type": "Literal",
+            "value": "a"
+          },
+          {
+            "type": "Literal",
+            "value": "b"
+          }
+        ]
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "f"
+            }
+          ]
+        },
+        "min": 3,
+        "max": 3,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "-"
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "f"
+            }
+          ]
+        },
+        "min": 12,
+        "max": 12,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "ir": "Range",
+              "from": "a",
+              "to": "f"
+            }
+          ]
+        },
+        "min": 8,
+        "max": 8,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "-"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "ir": "Range",
+              "from": "a",
+              "to": "f"
+            }
+          ]
+        },
+        "min": 4,
+        "max": 4,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "-4"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "ir": "Range",
+              "from": "a",
+              "to": "f"
+            }
+          ]
+        },
+        "min": 3,
+        "max": 3,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "-"
+      },
+      {
+        "ir": "CharClass",
+        "negated": false,
+        "items": [
+          {
+            "ir": "Char",
+            "char": "8"
+          },
+          {
+            "ir": "Char",
+            "char": "9"
+          },
+          {
+            "ir": "Char",
+            "char": "a"
+          },
+          {
+            "ir": "Char",
+            "char": "b"
+          }
+        ]
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "ir": "Range",
+              "from": "a",
+              "to": "f"
+            }
+          ]
+        },
+        "min": 3,
+        "max": 3,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "-"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Range",
+              "from": "0",
+              "to": "9"
+            },
+            {
+              "ir": "Range",
+              "from": "a",
+              "to": "f"
+            }
+          ]
+        },
+        "min": 12,
+        "max": 12,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "id": "js_test_pattern_368",
+  "description": "Generated from js_test_pattern_368.pattern",
+  "input_dsl": "(a)(b)\\1*\\2+\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "expression": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Literal",
+          "value": "b"
+        },
+        "expression": {
+          "type": "Literal",
+          "value": "b"
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Backreference",
+          "index": 1,
+          "name": null
+        },
+        "min": 0,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Backreference",
+          "index": 2,
+          "name": null
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Lit",
+          "value": "a"
+        }
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Lit",
+          "value": "b"
+        }
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Backref",
+          "byIndex": 1
+        },
+        "min": 0,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Backref",
+          "byIndex": 2
+        },
+        "min": 1,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(a)(b)\\1*\\2+\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

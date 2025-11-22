@@ -1,0 +1,92 @@
+{
+  "id": "js_test_pattern_52",
+  "description": "Generated from js_test_pattern_52.pattern",
+  "input_dsl": "(?<name>\\d)+\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Group",
+          "capturing": true,
+          "body": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "digit"
+              }
+            ]
+          },
+          "expression": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "digit"
+              }
+            ]
+          },
+          "name": "name",
+          "atomic": false
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": true,
+          "body": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "d"
+              }
+            ]
+          },
+          "name": "name"
+        },
+        "min": 1,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?<name>\\d)+\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

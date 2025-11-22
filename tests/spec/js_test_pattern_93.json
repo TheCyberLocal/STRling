@@ -1,0 +1,157 @@
+{
+  "id": "js_test_pattern_93",
+  "description": "Generated from js_test_pattern_93.pattern",
+  "input_dsl": "<(?<tag>\\w+)>.*?</\\k<tag>>\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "<"
+      },
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "word"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "expression": {
+          "type": "Quantifier",
+          "target": {
+            "type": "CharacterClass",
+            "negated": false,
+            "members": [
+              {
+                "type": "Escape",
+                "kind": "word"
+              }
+            ]
+          },
+          "min": 1,
+          "max": null,
+          "greedy": true,
+          "lazy": false,
+          "possessive": false
+        },
+        "name": "tag",
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": ">"
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Dot"
+        },
+        "min": 0,
+        "max": null,
+        "greedy": false,
+        "lazy": true,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "</"
+      },
+      {
+        "type": "Backreference",
+        "index": null,
+        "name": "tag"
+      },
+      {
+        "type": "Literal",
+        "value": ">"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Lit",
+        "value": "<"
+      },
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Quant",
+          "child": {
+            "ir": "CharClass",
+            "negated": false,
+            "items": [
+              {
+                "ir": "Esc",
+                "type": "w"
+              }
+            ]
+          },
+          "min": 1,
+          "max": "Inf",
+          "mode": "Greedy"
+        },
+        "name": "tag"
+      },
+      {
+        "ir": "Lit",
+        "value": ">"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Dot"
+        },
+        "min": 0,
+        "max": "Inf",
+        "mode": "Lazy"
+      },
+      {
+        "ir": "Lit",
+        "value": "</"
+      },
+      {
+        "ir": "Backref",
+        "byName": "tag"
+      },
+      {
+        "ir": "Lit",
+        "value": ">\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "<(?<tag>\\w+)>.*?</\\k<tag>>\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

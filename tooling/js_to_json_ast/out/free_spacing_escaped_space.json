@@ -1,0 +1,40 @@
+{
+  "id": "free_spacing_escaped_space",
+  "description": "Generated from free_spacing_escaped_space.pattern",
+  "input_dsl": "%flags x\n a \\\\ b ",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Literal",
+        "value": "\\"
+      },
+      {
+        "type": "Literal",
+        "value": "b"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "a\\b"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?x)a\\\\b"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

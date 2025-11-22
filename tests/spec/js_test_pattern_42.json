@@ -1,0 +1,67 @@
+{
+  "id": "js_test_pattern_42",
+  "description": "Generated from js_test_pattern_42.pattern",
+  "input_dsl": "^a+\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Anchor",
+        "at": "Start"
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Anchor",
+        "at": "Start"
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Lit",
+          "value": "a"
+        },
+        "min": 1,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "^a+\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

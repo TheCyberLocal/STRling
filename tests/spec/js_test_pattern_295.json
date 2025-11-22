@@ -1,0 +1,36 @@
+{
+  "id": "js_test_pattern_295",
+  "description": "Generated from js_test_pattern_295.pattern",
+  "input_dsl": "lookbehind\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "lookbehind"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "lookbehind\n"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "lookbehind\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

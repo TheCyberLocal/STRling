@@ -1,0 +1,9 @@
+{
+  "id": "error_backref_named_incomplete",
+  "description": "Generated from error_backref_named_incomplete.pattern",
+  "input_dsl": "\\k",
+  "expected_error": "Expected '<' after \\k",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

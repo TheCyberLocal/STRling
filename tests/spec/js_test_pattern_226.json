@@ -1,0 +1,60 @@
+{
+  "id": "js_test_pattern_226",
+  "description": "Generated from js_test_pattern_226.pattern",
+  "input_dsl": "(?>)\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": false,
+        "body": {
+          "type": "Sequence",
+          "parts": []
+        },
+        "expression": {
+          "type": "Sequence",
+          "parts": []
+        },
+        "name": null,
+        "atomic": true
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": false,
+        "body": {
+          "ir": "Seq",
+          "parts": []
+        },
+        "atomic": true
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?>)\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

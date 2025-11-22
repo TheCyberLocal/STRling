@@ -1,0 +1,27 @@
+{
+  "id": "hex_escape_fixed_case",
+  "description": "Generated from hex_escape_fixed_case.pattern",
+  "input_dsl": "\\x4a",
+  "input_ast": {
+    "type": "Literal",
+    "value": "J"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "J"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "J"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

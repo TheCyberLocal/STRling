@@ -1,0 +1,27 @@
+{
+  "id": "multiple_flags_mixed_separators",
+  "description": "Generated from multiple_flags_mixed_separators.pattern",
+  "input_dsl": "%flags i,m s,u x",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": []
+  },
+  "flags": {
+    "ignoreCase": true,
+    "multiline": true,
+    "dotAll": true,
+    "unicode": true,
+    "extended": true
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": []
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?imsux)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

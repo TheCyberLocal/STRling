@@ -1,0 +1,36 @@
+{
+  "id": "literal_after_control",
+  "description": "Generated from literal_after_control.pattern",
+  "input_dsl": "\\na",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "\n"
+      },
+      {
+        "type": "Literal",
+        "value": "a"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "\na"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\na"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

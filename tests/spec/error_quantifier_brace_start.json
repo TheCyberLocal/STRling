@@ -1,0 +1,9 @@
+{
+  "id": "error_quantifier_brace_start",
+  "description": "Generated from error_quantifier_brace_start.pattern",
+  "input_dsl": "{5}",
+  "expected_error": "Invalid quantifier '{'",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

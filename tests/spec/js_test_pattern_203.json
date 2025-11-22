@@ -1,0 +1,36 @@
+{
+  "id": "js_test_pattern_203",
+  "description": "Generated from js_test_pattern_203.pattern",
+  "input_dsl": "%flags x\na # comment\n b\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Literal",
+        "value": "b"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "ab"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?x)ab"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "id": "js_test_pattern_118",
+  "description": "Generated from js_test_pattern_118.pattern",
+  "input_dsl": "^abc$\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Anchor",
+        "at": "Start"
+      },
+      {
+        "type": "Literal",
+        "value": "abc"
+      },
+      {
+        "type": "Anchor",
+        "at": "End"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Anchor",
+        "at": "Start"
+      },
+      {
+        "ir": "Lit",
+        "value": "abc"
+      },
+      {
+        "ir": "Anchor",
+        "at": "End"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "^abc$\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

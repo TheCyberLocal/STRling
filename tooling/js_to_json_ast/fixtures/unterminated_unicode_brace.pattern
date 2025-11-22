@@ -1,0 +1,2 @@
+%expect_error "Unterminated \u{...}"
+\u{1F60

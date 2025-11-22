@@ -1,0 +1,431 @@
+{
+  "id": "js_test_pattern_101",
+  "description": "Generated from js_test_pattern_101.pattern",
+  "input_dsl": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Lookahead",
+        "body": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Quantifier",
+              "target": {
+                "type": "Dot"
+              },
+              "min": 0,
+              "max": null,
+              "greedy": true,
+              "lazy": false,
+              "possessive": false
+            },
+            {
+              "type": "CharacterClass",
+              "negated": false,
+              "members": [
+                {
+                  "type": "Escape",
+                  "kind": "digit"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "Lookahead",
+        "body": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Quantifier",
+              "target": {
+                "type": "Dot"
+              },
+              "min": 0,
+              "max": null,
+              "greedy": true,
+              "lazy": false,
+              "possessive": false
+            },
+            {
+              "type": "CharacterClass",
+              "negated": false,
+              "members": [
+                {
+                  "type": "Range",
+                  "from": "a",
+                  "to": "z"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "Lookahead",
+        "body": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Quantifier",
+              "target": {
+                "type": "Dot"
+              },
+              "min": 0,
+              "max": null,
+              "greedy": true,
+              "lazy": false,
+              "possessive": false
+            },
+            {
+              "type": "CharacterClass",
+              "negated": false,
+              "members": [
+                {
+                  "type": "Range",
+                  "from": "A",
+                  "to": "Z"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "Lookahead",
+        "body": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Quantifier",
+              "target": {
+                "type": "Dot"
+              },
+              "min": 0,
+              "max": null,
+              "greedy": true,
+              "lazy": false,
+              "possessive": false
+            },
+            {
+              "type": "CharacterClass",
+              "negated": false,
+              "members": [
+                {
+                  "type": "Literal",
+                  "value": "@"
+                },
+                {
+                  "type": "Literal",
+                  "value": "$"
+                },
+                {
+                  "type": "Literal",
+                  "value": "!"
+                },
+                {
+                  "type": "Literal",
+                  "value": "%"
+                },
+                {
+                  "type": "Literal",
+                  "value": "*"
+                },
+                {
+                  "type": "Literal",
+                  "value": "?"
+                },
+                {
+                  "type": "Literal",
+                  "value": "&"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "A",
+              "to": "Z"
+            },
+            {
+              "type": "Range",
+              "from": "a",
+              "to": "z"
+            },
+            {
+              "type": "Escape",
+              "kind": "digit"
+            },
+            {
+              "type": "Literal",
+              "value": "@"
+            },
+            {
+              "type": "Literal",
+              "value": "$"
+            },
+            {
+              "type": "Literal",
+              "value": "!"
+            },
+            {
+              "type": "Literal",
+              "value": "%"
+            },
+            {
+              "type": "Literal",
+              "value": "*"
+            },
+            {
+              "type": "Literal",
+              "value": "?"
+            },
+            {
+              "type": "Literal",
+              "value": "&"
+            }
+          ]
+        },
+        "min": 8,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Look",
+        "dir": "Ahead",
+        "neg": false,
+        "body": {
+          "ir": "Seq",
+          "parts": [
+            {
+              "ir": "Quant",
+              "child": {
+                "ir": "Dot"
+              },
+              "min": 0,
+              "max": "Inf",
+              "mode": "Greedy"
+            },
+            {
+              "ir": "CharClass",
+              "negated": false,
+              "items": [
+                {
+                  "ir": "Esc",
+                  "type": "d"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "ir": "Look",
+        "dir": "Ahead",
+        "neg": false,
+        "body": {
+          "ir": "Seq",
+          "parts": [
+            {
+              "ir": "Quant",
+              "child": {
+                "ir": "Dot"
+              },
+              "min": 0,
+              "max": "Inf",
+              "mode": "Greedy"
+            },
+            {
+              "ir": "CharClass",
+              "negated": false,
+              "items": [
+                {
+                  "ir": "Range",
+                  "from": "a",
+                  "to": "z"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "ir": "Look",
+        "dir": "Ahead",
+        "neg": false,
+        "body": {
+          "ir": "Seq",
+          "parts": [
+            {
+              "ir": "Quant",
+              "child": {
+                "ir": "Dot"
+              },
+              "min": 0,
+              "max": "Inf",
+              "mode": "Greedy"
+            },
+            {
+              "ir": "CharClass",
+              "negated": false,
+              "items": [
+                {
+                  "ir": "Range",
+                  "from": "A",
+                  "to": "Z"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "ir": "Look",
+        "dir": "Ahead",
+        "neg": false,
+        "body": {
+          "ir": "Seq",
+          "parts": [
+            {
+              "ir": "Quant",
+              "child": {
+                "ir": "Dot"
+              },
+              "min": 0,
+              "max": "Inf",
+              "mode": "Greedy"
+            },
+            {
+              "ir": "CharClass",
+              "negated": false,
+              "items": [
+                {
+                  "ir": "Char",
+                  "char": "@"
+                },
+                {
+                  "ir": "Char",
+                  "char": "$"
+                },
+                {
+                  "ir": "Char",
+                  "char": "!"
+                },
+                {
+                  "ir": "Char",
+                  "char": "%"
+                },
+                {
+                  "ir": "Char",
+                  "char": "*"
+                },
+                {
+                  "ir": "Char",
+                  "char": "?"
+                },
+                {
+                  "ir": "Char",
+                  "char": "&"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Range",
+              "from": "A",
+              "to": "Z"
+            },
+            {
+              "ir": "Range",
+              "from": "a",
+              "to": "z"
+            },
+            {
+              "ir": "Esc",
+              "type": "d"
+            },
+            {
+              "ir": "Char",
+              "char": "@"
+            },
+            {
+              "ir": "Char",
+              "char": "$"
+            },
+            {
+              "ir": "Char",
+              "char": "!"
+            },
+            {
+              "ir": "Char",
+              "char": "%"
+            },
+            {
+              "ir": "Char",
+              "char": "*"
+            },
+            {
+              "ir": "Char",
+              "char": "?"
+            },
+            {
+              "ir": "Char",
+              "char": "&"
+            }
+          ]
+        },
+        "min": 8,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

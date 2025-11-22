@@ -1,0 +1,40 @@
+{
+  "id": "js_test_pattern_280",
+  "description": "Generated from js_test_pattern_280.pattern",
+  "input_dsl": "%flags imsux\nabc\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Literal",
+        "value": "b"
+      },
+      {
+        "type": "Literal",
+        "value": "c"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": true,
+    "multiline": true,
+    "dotAll": true,
+    "unicode": true,
+    "extended": true
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "abc"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?imsux)abc"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

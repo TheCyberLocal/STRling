@@ -1,0 +1,57 @@
+{
+  "id": "js_test_pattern_131",
+  "description": "Generated from js_test_pattern_131.pattern",
+  "input_dsl": "a\\bb\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "type": "Literal",
+        "value": "b"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Lit",
+        "value": "a"
+      },
+      {
+        "ir": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "ir": "Lit",
+        "value": "b\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "a\\bb\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

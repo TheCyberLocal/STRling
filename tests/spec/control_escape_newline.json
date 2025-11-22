@@ -1,0 +1,27 @@
+{
+  "id": "control_escape_newline",
+  "description": "Generated from control_escape_newline.pattern",
+  "input_dsl": "\\n",
+  "input_ast": {
+    "type": "Literal",
+    "value": "\n"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "\n"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "id": "js_test_pattern_91",
+  "description": "Generated from js_test_pattern_91.pattern",
+  "input_dsl": "start(?:a|b|c)end\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "start"
+      },
+      {
+        "type": "Group",
+        "capturing": false,
+        "body": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "c"
+            }
+          ]
+        },
+        "expression": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "c"
+            }
+          ]
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "end"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Lit",
+        "value": "start"
+      },
+      {
+        "ir": "Group",
+        "capturing": false,
+        "body": {
+          "ir": "Alt",
+          "branches": [
+            {
+              "ir": "Lit",
+              "value": "a"
+            },
+            {
+              "ir": "Lit",
+              "value": "b"
+            },
+            {
+              "ir": "Lit",
+              "value": "c"
+            }
+          ]
+        }
+      },
+      {
+        "ir": "Lit",
+        "value": "end\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "start(?:a|b|c)end\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

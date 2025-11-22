@@ -1,0 +1,27 @@
+{
+  "id": "unicode_escape_supplementary",
+  "description": "Generated from unicode_escape_supplementary.pattern",
+  "input_dsl": "\\U00010000",
+  "input_ast": {
+    "type": "Literal",
+    "value": "𐀀"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "𐀀"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "𐀀"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

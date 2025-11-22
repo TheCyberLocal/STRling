@@ -1,0 +1,73 @@
+{
+  "id": "js_test_pattern_84",
+  "description": "Generated from js_test_pattern_84.pattern",
+  "input_dsl": "(?=test)(?!fail)result\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Lookahead",
+        "body": {
+          "type": "Literal",
+          "value": "test"
+        }
+      },
+      {
+        "type": "NegativeLookahead",
+        "body": {
+          "type": "Literal",
+          "value": "fail"
+        }
+      },
+      {
+        "type": "Literal",
+        "value": "result"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Look",
+        "dir": "Ahead",
+        "neg": false,
+        "body": {
+          "ir": "Lit",
+          "value": "test"
+        }
+      },
+      {
+        "ir": "Look",
+        "dir": "Ahead",
+        "neg": true,
+        "body": {
+          "ir": "Lit",
+          "value": "fail"
+        }
+      },
+      {
+        "ir": "Lit",
+        "value": "result\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?=test)(?!fail)result\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

@@ -1,0 +1,2 @@
+%expect_error "Invalid \uHHHH escape"
+\u123

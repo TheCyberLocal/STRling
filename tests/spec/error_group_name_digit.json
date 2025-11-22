@@ -1,0 +1,9 @@
+{
+  "id": "error_group_name_digit",
+  "description": "Generated from error_group_name_digit.pattern",
+  "input_dsl": "(?<1a>)",
+  "expected_error": "Invalid group name",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

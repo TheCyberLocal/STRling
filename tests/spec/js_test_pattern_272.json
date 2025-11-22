@@ -1,0 +1,60 @@
+{
+  "id": "js_test_pattern_272",
+  "description": "Generated from js_test_pattern_272.pattern",
+  "input_dsl": "(?<Name_123>abc)\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Literal",
+          "value": "abc"
+        },
+        "expression": {
+          "type": "Literal",
+          "value": "abc"
+        },
+        "name": "Name_123",
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Lit",
+          "value": "abc"
+        },
+        "name": "Name_123"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?<Name_123>abc)\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

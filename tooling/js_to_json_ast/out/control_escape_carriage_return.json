@@ -1,0 +1,27 @@
+{
+  "id": "control_escape_carriage_return",
+  "description": "Generated from control_escape_carriage_return.pattern",
+  "input_dsl": "\\r",
+  "input_ast": {
+    "type": "Literal",
+    "value": "\r"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "\r"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\r"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

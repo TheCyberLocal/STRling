@@ -1,0 +1,9 @@
+{
+  "id": "error_alternation_empty",
+  "description": "Generated from error_alternation_empty.pattern",
+  "input_dsl": "a||b",
+  "expected_error": "Empty alternation",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

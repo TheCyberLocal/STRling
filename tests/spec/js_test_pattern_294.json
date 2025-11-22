@@ -1,0 +1,36 @@
+{
+  "id": "js_test_pattern_294",
+  "description": "Generated from js_test_pattern_294.pattern",
+  "input_dsl": "possessive_quantifier\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "possessive_quantifier"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "possessive_quantifier\n"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "possessive_quantifier\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

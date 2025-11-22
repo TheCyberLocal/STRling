@@ -1,0 +1,36 @@
+{
+  "id": "js_test_pattern_327",
+  "description": "Generated from js_test_pattern_327.pattern",
+  "input_dsl": "\\f\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "\f"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "\f\n"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\f\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

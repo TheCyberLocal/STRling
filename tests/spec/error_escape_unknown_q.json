@@ -1,0 +1,9 @@
+{
+  "id": "error_escape_unknown_q",
+  "description": "Generated from error_escape_unknown_q.pattern",
+  "input_dsl": "\\q",
+  "expected_error": "Unknown escape sequence \\q",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

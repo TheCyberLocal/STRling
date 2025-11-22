@@ -1,0 +1,81 @@
+{
+  "id": "js_test_pattern_16",
+  "description": "Generated from js_test_pattern_16.pattern",
+  "input_dsl": "abc[xyz]\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "abc"
+      },
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Literal",
+            "value": "x"
+          },
+          {
+            "type": "Literal",
+            "value": "y"
+          },
+          {
+            "type": "Literal",
+            "value": "z"
+          }
+        ]
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Lit",
+        "value": "abc"
+      },
+      {
+        "ir": "CharClass",
+        "negated": false,
+        "items": [
+          {
+            "ir": "Char",
+            "char": "x"
+          },
+          {
+            "ir": "Char",
+            "char": "y"
+          },
+          {
+            "ir": "Char",
+            "char": "z"
+          }
+        ]
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "abc[xyz]\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

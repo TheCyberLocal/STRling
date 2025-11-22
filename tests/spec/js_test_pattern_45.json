@@ -1,0 +1,67 @@
+{
+  "id": "js_test_pattern_45",
+  "description": "Generated from js_test_pattern_45.pattern",
+  "input_dsl": "(start)$\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Literal",
+          "value": "start"
+        },
+        "expression": {
+          "type": "Literal",
+          "value": "start"
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Anchor",
+        "at": "End"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Lit",
+          "value": "start"
+        }
+      },
+      {
+        "ir": "Anchor",
+        "at": "End"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(start)$\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

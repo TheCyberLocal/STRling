@@ -1,0 +1,59 @@
+{
+  "id": "js_test_pattern_273",
+  "description": "Generated from js_test_pattern_273.pattern",
+  "input_dsl": "a{2,5}\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Literal",
+          "value": "a"
+        },
+        "min": 2,
+        "max": 5,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Lit",
+          "value": "a"
+        },
+        "min": 2,
+        "max": 5,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "a{2,5}\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

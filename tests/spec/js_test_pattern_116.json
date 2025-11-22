@@ -1,0 +1,73 @@
+{
+  "id": "js_test_pattern_116",
+  "description": "Generated from js_test_pattern_116.pattern",
+  "input_dsl": "\\b\\d\\b\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Escape",
+            "kind": "digit"
+          }
+        ]
+      },
+      {
+        "type": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "ir": "CharClass",
+        "negated": false,
+        "items": [
+          {
+            "ir": "Esc",
+            "type": "d"
+          }
+        ]
+      },
+      {
+        "ir": "Anchor",
+        "at": "WordBoundary"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\\b\\d\\b\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

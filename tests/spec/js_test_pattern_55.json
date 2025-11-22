@@ -1,0 +1,100 @@
+{
+  "id": "js_test_pattern_55",
+  "description": "Generated from js_test_pattern_55.pattern",
+  "input_dsl": "(a|b)+\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "Group",
+          "capturing": true,
+          "body": {
+            "type": "Alternation",
+            "alternatives": [
+              {
+                "type": "Literal",
+                "value": "a"
+              },
+              {
+                "type": "Literal",
+                "value": "b"
+              }
+            ]
+          },
+          "expression": {
+            "type": "Alternation",
+            "alternatives": [
+              {
+                "type": "Literal",
+                "value": "a"
+              },
+              {
+                "type": "Literal",
+                "value": "b"
+              }
+            ]
+          },
+          "name": null,
+          "atomic": false
+        },
+        "min": 1,
+        "max": null,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "Group",
+          "capturing": true,
+          "body": {
+            "ir": "Alt",
+            "branches": [
+              {
+                "ir": "Lit",
+                "value": "a"
+              },
+              {
+                "ir": "Lit",
+                "value": "b"
+              }
+            ]
+          }
+        },
+        "min": 1,
+        "max": "Inf",
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(a|b)+\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

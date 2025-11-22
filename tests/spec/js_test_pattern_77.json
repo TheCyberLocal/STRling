@@ -1,0 +1,158 @@
+{
+  "id": "js_test_pattern_77",
+  "description": "Generated from js_test_pattern_77.pattern",
+  "input_dsl": "%flags x\n(?:foo | bar | baz)\n",
+  "input_ast": {
+    "type": "Group",
+    "capturing": false,
+    "body": {
+      "type": "Alternation",
+      "alternatives": [
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "f"
+            },
+            {
+              "type": "Literal",
+              "value": "o"
+            },
+            {
+              "type": "Literal",
+              "value": "o"
+            }
+          ]
+        },
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "r"
+            }
+          ]
+        },
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "z"
+            }
+          ]
+        }
+      ]
+    },
+    "expression": {
+      "type": "Alternation",
+      "alternatives": [
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "f"
+            },
+            {
+              "type": "Literal",
+              "value": "o"
+            },
+            {
+              "type": "Literal",
+              "value": "o"
+            }
+          ]
+        },
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "r"
+            }
+          ]
+        },
+        {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "b"
+            },
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Literal",
+              "value": "z"
+            }
+          ]
+        }
+      ]
+    },
+    "name": null,
+    "atomic": false
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected_ir": {
+    "ir": "Group",
+    "capturing": false,
+    "body": {
+      "ir": "Alt",
+      "branches": [
+        {
+          "ir": "Lit",
+          "value": "foo"
+        },
+        {
+          "ir": "Lit",
+          "value": "bar"
+        },
+        {
+          "ir": "Lit",
+          "value": "baz"
+        }
+      ]
+    }
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?x)(?:foo|bar|baz)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

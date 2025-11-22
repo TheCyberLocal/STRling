@@ -1,0 +1,86 @@
+{
+  "id": "js_test_pattern_134",
+  "description": "Generated from js_test_pattern_134.pattern",
+  "input_dsl": "(?:a\\b)\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": false,
+        "body": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Anchor",
+              "at": "WordBoundary"
+            }
+          ]
+        },
+        "expression": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Literal",
+              "value": "a"
+            },
+            {
+              "type": "Anchor",
+              "at": "WordBoundary"
+            }
+          ]
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": false,
+        "body": {
+          "ir": "Seq",
+          "parts": [
+            {
+              "ir": "Lit",
+              "value": "a"
+            },
+            {
+              "ir": "Anchor",
+              "at": "WordBoundary"
+            }
+          ]
+        }
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?:a\\b)\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

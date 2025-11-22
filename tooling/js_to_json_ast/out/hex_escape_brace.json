@@ -1,0 +1,27 @@
+{
+  "id": "hex_escape_brace",
+  "description": "Generated from hex_escape_brace.pattern",
+  "input_dsl": "\\x{41}",
+  "input_ast": {
+    "type": "Literal",
+    "value": "A"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "A"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "A"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

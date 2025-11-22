@@ -1,0 +1,36 @@
+{
+  "id": "js_test_pattern_291",
+  "description": "Generated from js_test_pattern_291.pattern",
+  "input_dsl": "Backref\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "Backref"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "Backref\n"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "Backref\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

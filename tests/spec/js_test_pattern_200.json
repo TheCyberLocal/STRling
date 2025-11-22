@@ -1,0 +1,27 @@
+{
+  "id": "js_test_pattern_200",
+  "description": "Generated from js_test_pattern_200.pattern",
+  "input_dsl": "%flags u m s\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": []
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": true,
+    "dotAll": true,
+    "unicode": true,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": []
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?msu)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "id": "whitespace_is_ignored",
+  "description": "Generated from whitespace_is_ignored.pattern",
+  "input_dsl": "%flags x\na b c",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Literal",
+        "value": "b"
+      },
+      {
+        "type": "Literal",
+        "value": "c"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "abc"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?x)abc"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

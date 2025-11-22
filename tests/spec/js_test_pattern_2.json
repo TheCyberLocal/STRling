@@ -1,0 +1,40 @@
+{
+  "id": "js_test_pattern_2",
+  "description": "Generated from js_test_pattern_2.pattern",
+  "input_dsl": "%flags x\na b c\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Literal",
+        "value": "a"
+      },
+      {
+        "type": "Literal",
+        "value": "b"
+      },
+      {
+        "type": "Literal",
+        "value": "c"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "abc"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?x)abc"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

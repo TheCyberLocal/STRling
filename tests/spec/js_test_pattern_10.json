@@ -1,0 +1,82 @@
+{
+  "id": "js_test_pattern_10",
+  "description": "Generated from js_test_pattern_10.pattern",
+  "input_dsl": "%flags x\n(?<name>\\d+)\n",
+  "input_ast": {
+    "type": "Group",
+    "capturing": true,
+    "body": {
+      "type": "Quantifier",
+      "target": {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Escape",
+            "kind": "digit"
+          }
+        ]
+      },
+      "min": 1,
+      "max": null,
+      "greedy": true,
+      "lazy": false,
+      "possessive": false
+    },
+    "expression": {
+      "type": "Quantifier",
+      "target": {
+        "type": "CharacterClass",
+        "negated": false,
+        "members": [
+          {
+            "type": "Escape",
+            "kind": "digit"
+          }
+        ]
+      },
+      "min": 1,
+      "max": null,
+      "greedy": true,
+      "lazy": false,
+      "possessive": false
+    },
+    "name": "name",
+    "atomic": false
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected_ir": {
+    "ir": "Group",
+    "capturing": true,
+    "body": {
+      "ir": "Quant",
+      "child": {
+        "ir": "CharClass",
+        "negated": false,
+        "items": [
+          {
+            "ir": "Esc",
+            "type": "d"
+          }
+        ]
+      },
+      "min": 1,
+      "max": "Inf",
+      "mode": "Greedy"
+    },
+    "name": "name"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?x)(?<name>\\d+)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

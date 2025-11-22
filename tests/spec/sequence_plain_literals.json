@@ -1,0 +1,27 @@
+{
+  "id": "sequence_plain_literals",
+  "description": "Generated from sequence_plain_literals.pattern",
+  "input_dsl": "abc",
+  "input_ast": {
+    "type": "Literal",
+    "value": "abc"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "abc"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "abc"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

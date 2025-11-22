@@ -1,0 +1,9 @@
+{
+  "id": "stray_closing_paren",
+  "description": "Generated from stray_closing_paren.pattern",
+  "input_dsl": ")",
+  "expected_error": "Unmatched ')'",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

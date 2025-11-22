@@ -1,0 +1,27 @@
+{
+  "id": "identity_escape_backslash",
+  "description": "Generated from identity_escape_backslash.pattern",
+  "input_dsl": "\\\\",
+  "input_ast": {
+    "type": "Literal",
+    "value": "\\"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "\\"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\\\\"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

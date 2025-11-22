@@ -1,0 +1,45 @@
+{
+  "id": "js_test_pattern_128",
+  "description": "Generated from js_test_pattern_128.pattern",
+  "input_dsl": "\\A\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Anchor",
+        "at": "AbsoluteStart"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Anchor",
+        "at": "AbsoluteStart"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\\A\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

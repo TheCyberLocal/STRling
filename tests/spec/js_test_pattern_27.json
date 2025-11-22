@@ -1,0 +1,54 @@
+{
+  "id": "js_test_pattern_27",
+  "description": "Generated from js_test_pattern_27.pattern",
+  "input_dsl": "hello|world\n",
+  "input_ast": {
+    "type": "Alternation",
+    "alternatives": [
+      {
+        "type": "Literal",
+        "value": "hello"
+      },
+      {
+        "type": "Sequence",
+        "parts": [
+          {
+            "type": "Literal",
+            "value": "world"
+          },
+          {
+            "type": "Literal",
+            "value": "\n"
+          }
+        ]
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Alt",
+    "branches": [
+      {
+        "ir": "Lit",
+        "value": "hello"
+      },
+      {
+        "ir": "Lit",
+        "value": "world\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "hello|world\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "id": "js_test_pattern_66",
+  "description": "Generated from js_test_pattern_66.pattern",
+  "input_dsl": "(?<=foo|bar)\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Lookbehind",
+        "body": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Literal",
+              "value": "foo"
+            },
+            {
+              "type": "Literal",
+              "value": "bar"
+            }
+          ]
+        }
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Look",
+        "dir": "Behind",
+        "neg": false,
+        "body": {
+          "ir": "Alt",
+          "branches": [
+            {
+              "ir": "Lit",
+              "value": "foo"
+            },
+            {
+              "ir": "Lit",
+              "value": "bar"
+            }
+          ]
+        }
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?<=foo|bar)\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

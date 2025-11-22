@@ -1,0 +1,49 @@
+{
+  "id": "js_test_pattern_18",
+  "description": "Generated from js_test_pattern_18.pattern",
+  "input_dsl": "^hello\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Anchor",
+        "at": "Start"
+      },
+      {
+        "type": "Literal",
+        "value": "hello"
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Anchor",
+        "at": "Start"
+      },
+      {
+        "ir": "Lit",
+        "value": "hello\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "^hello\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

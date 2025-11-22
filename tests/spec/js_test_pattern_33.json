@@ -1,0 +1,73 @@
+{
+  "id": "js_test_pattern_33",
+  "description": "Generated from js_test_pattern_33.pattern",
+  "input_dsl": "[0-9]{2,4}\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Quantifier",
+        "target": {
+          "type": "CharacterClass",
+          "negated": false,
+          "members": [
+            {
+              "type": "Range",
+              "from": "0",
+              "to": "9"
+            }
+          ]
+        },
+        "min": 2,
+        "max": 4,
+        "greedy": true,
+        "lazy": false,
+        "possessive": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Quant",
+        "child": {
+          "ir": "CharClass",
+          "negated": false,
+          "items": [
+            {
+              "ir": "Range",
+              "from": "0",
+              "to": "9"
+            }
+          ]
+        },
+        "min": 2,
+        "max": 4,
+        "mode": "Greedy"
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "[0-9]{2,4}\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

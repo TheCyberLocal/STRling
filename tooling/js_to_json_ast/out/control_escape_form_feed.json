@@ -1,0 +1,27 @@
+{
+  "id": "control_escape_form_feed",
+  "description": "Generated from control_escape_form_feed.pattern",
+  "input_dsl": "\\f",
+  "input_ast": {
+    "type": "Literal",
+    "value": "\f"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "\f"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\f"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "pattern_only_comments",
+  "description": "Generated from pattern_only_comments.pattern",
+  "input_dsl": "%flags x\n# comment\n  \n# another",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": []
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": true
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": []
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(?x)"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

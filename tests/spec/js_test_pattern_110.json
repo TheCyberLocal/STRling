@@ -1,0 +1,86 @@
+{
+  "id": "js_test_pattern_110",
+  "description": "Generated from js_test_pattern_110.pattern",
+  "input_dsl": "(^|$)\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Anchor",
+              "at": "Start"
+            },
+            {
+              "type": "Anchor",
+              "at": "End"
+            }
+          ]
+        },
+        "expression": {
+          "type": "Alternation",
+          "alternatives": [
+            {
+              "type": "Anchor",
+              "at": "Start"
+            },
+            {
+              "type": "Anchor",
+              "at": "End"
+            }
+          ]
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Alt",
+          "branches": [
+            {
+              "ir": "Anchor",
+              "at": "Start"
+            },
+            {
+              "ir": "Anchor",
+              "at": "End"
+            }
+          ]
+        }
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "(^|$)\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

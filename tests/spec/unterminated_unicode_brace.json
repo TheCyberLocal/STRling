@@ -1,0 +1,9 @@
+{
+  "id": "unterminated_unicode_brace",
+  "description": "Generated from unterminated_unicode_brace.pattern",
+  "input_dsl": "\\u{1F60",
+  "expected_error": "Unterminated \\u{...}",
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

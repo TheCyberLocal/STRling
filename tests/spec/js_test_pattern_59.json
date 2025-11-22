@@ -1,0 +1,97 @@
+{
+  "id": "js_test_pattern_59",
+  "description": "Generated from js_test_pattern_59.pattern",
+  "input_dsl": "((?=test)abc)\n",
+  "input_ast": {
+    "type": "Sequence",
+    "parts": [
+      {
+        "type": "Group",
+        "capturing": true,
+        "body": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Lookahead",
+              "body": {
+                "type": "Literal",
+                "value": "test"
+              }
+            },
+            {
+              "type": "Literal",
+              "value": "abc"
+            }
+          ]
+        },
+        "expression": {
+          "type": "Sequence",
+          "parts": [
+            {
+              "type": "Lookahead",
+              "body": {
+                "type": "Literal",
+                "value": "test"
+              }
+            },
+            {
+              "type": "Literal",
+              "value": "abc"
+            }
+          ]
+        },
+        "name": null,
+        "atomic": false
+      },
+      {
+        "type": "Literal",
+        "value": "\n"
+      }
+    ]
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Seq",
+    "parts": [
+      {
+        "ir": "Group",
+        "capturing": true,
+        "body": {
+          "ir": "Seq",
+          "parts": [
+            {
+              "ir": "Look",
+              "dir": "Ahead",
+              "neg": false,
+              "body": {
+                "ir": "Lit",
+                "value": "test"
+              }
+            },
+            {
+              "ir": "Lit",
+              "value": "abc"
+            }
+          ]
+        }
+      },
+      {
+        "ir": "Lit",
+        "value": "\n"
+      }
+    ]
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "((?=test)abc)\n"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}

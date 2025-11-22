@@ -1,0 +1,27 @@
+{
+  "id": "backslash_before_literal",
+  "description": "Generated from backslash_before_literal.pattern",
+  "input_dsl": "\\\\a",
+  "input_ast": {
+    "type": "Literal",
+    "value": "\\a"
+  },
+  "flags": {
+    "ignoreCase": false,
+    "multiline": false,
+    "dotAll": false,
+    "unicode": false,
+    "extended": false
+  },
+  "expected_ir": {
+    "ir": "Lit",
+    "value": "\\a"
+  },
+  "expected_codegen": {
+    "success": true,
+    "pcre": "\\\\a"
+  },
+  "metadata_expectations": {
+    "features_used": []
+  }
+}
