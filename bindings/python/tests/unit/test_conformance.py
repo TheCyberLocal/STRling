@@ -24,7 +24,7 @@ FIXTURES_DIR = Path(__file__).parents[4] / "tooling/js_to_json_ast/out"
 def get_fixtures():
     if not FIXTURES_DIR.exists():
         return []
-    return sorted(list(FIXTURES_DIR.glob("*.json")))
+    return sorted(list(FIXTURES_DIR.rglob("*.json")))
 
 
 @pytest.mark.parametrize("fixture_path", get_fixtures(), ids=lambda p: p.name)

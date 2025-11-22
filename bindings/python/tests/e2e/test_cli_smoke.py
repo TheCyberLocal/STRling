@@ -37,6 +37,7 @@ import subprocess
 import sys
 import json
 from pathlib import Path
+import os
 
 # --- Test Suite Setup -----------------------------------------------------------
 
@@ -46,6 +47,11 @@ PROJECT_ROOT = TEST_DIR.parent.parent.parent.parent
 CLI_PATH = str(PROJECT_ROOT / "tooling" / "parse_strl.py")
 SPEC_DIR = PROJECT_ROOT / "spec" / "schema"
 BASE_SCHEMA_PATH = str(SPEC_DIR / "base.schema.json")
+
+# Setup environment with PYTHONPATH
+PYTHON_BINDING_SRC = PROJECT_ROOT / "bindings" / "python" / "src"
+ENV = os.environ.copy()
+ENV["PYTHONPATH"] = str(PYTHON_BINDING_SRC) + os.pathsep + ENV.get("PYTHONPATH", "")
 
 
 # Pytest fixture to create a temporary, valid .strl file
@@ -81,6 +87,7 @@ class TestCategoryAHappyPath:
             [sys.executable, CLI_PATH, "--emit", "pcre2", str(valid_strl_file)],
             capture_output=True,
             text=True,
+            env=ENV,
         )
         assert result.returncode == 0
         assert result.stderr == ""
@@ -99,6 +106,7 @@ class TestCategoryAHappyPath:
             input=input_content,
             capture_output=True,
             text=True,
+            env=ENV,
         )
         assert result.returncode == 0
         assert result.stderr == ""
@@ -127,6 +135,7 @@ class TestCategoryBFeatureFlags:
             ],
             capture_output=True,
             text=True,
+            env=ENV,
         )
         assert result.returncode == 0
         assert result.stdout == ""
@@ -147,6 +156,7 @@ class TestCategoryCErrorHandling:
             [sys.executable, CLI_PATH, str(invalid_strl_file)],
             capture_output=True,
             text=True,
+            env=ENV,
         )
         assert result.returncode == 2
         output = json.loads(result.stdout)
@@ -182,6 +192,7 @@ class TestCategoryCErrorHandling:
             ],
             capture_output=True,
             text=True,
+            env=ENV,
         )
         assert result.returncode == 3
         output = json.loads(result.stdout)
@@ -196,6 +207,7 @@ class TestCategoryCErrorHandling:
             [sys.executable, CLI_PATH, "non_existent_file.strl"],
             capture_output=True,
             text=True,
+            env=ENV,
         )
         assert result.returncode != 0  # Typically 1 for FileNotFoundError
         assert result.stdout == ""

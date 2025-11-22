@@ -80,7 +80,10 @@ def _escape_class_char(ch: str) -> str:
     if ch == "\v":
         return r"\v"
     if not ch.isprintable() or ord(ch) < 32:
-        return f"\\x{ord(ch):02x}"
+        code = ord(ch)
+        if code > 255:
+            return f"\\x{{{code:x}}}"
+        return f"\\x{code:02x}"
 
     # All other characters are literal within [] including ., *, ?, [, etc.
     return ch
