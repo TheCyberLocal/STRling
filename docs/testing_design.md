@@ -15,10 +15,11 @@ Every feature must pass **three types of tests** before being considered complet
 **Purpose**: Validate individual components in isolation
 
 **Characteristics:**
-- Test single functions, classes, or modules
-- Mock dependencies to isolate the unit under test
-- Fast execution (milliseconds)
-- Located in `bindings/{language}/tests/unit/` (Python) or `bindings/{language}/__tests__/unit/` (JavaScript)
+
+-   Test single functions, classes, or modules
+-   Mock dependencies to isolate the unit under test
+-   Fast execution (milliseconds)
+-   Located in `bindings/{language}/tests/unit/` (Python) or `bindings/{language}/__tests__/unit/` (JavaScript)
 
 **Required Test Cases (Minimum):**
 
@@ -33,6 +34,7 @@ Each unit must have at least **three test cases** covering:
 **Example: Testing a `digit(n)` parser**
 
 **Python:**
+
 ```python
 def test_digit_parser_simple():
     """Test digit parser with minimal input"""
@@ -60,27 +62,28 @@ def test_digit_parser_edge_case_zero():
 ```
 
 **JavaScript:**
+
 ```javascript
-test('digit parser simple case', () => {
+test("digit parser simple case", () => {
     const result = parse("digit(1)");
     expect(result.type).toBe("digit");
     expect(result.count).toBe(1);
 });
 
-test('digit parser typical case', () => {
+test("digit parser typical case", () => {
     const result = parse("digit(3)");
     expect(result.type).toBe("digit");
     expect(result.count).toBe(3);
 });
 
-test('digit parser interaction case', () => {
+test("digit parser interaction case", () => {
     const result = parse("digit(3) '-' digit(4)");
     expect(result.children).toHaveLength(3);
     expect(result.children[0].type).toBe("digit");
     expect(result.children[2].type).toBe("digit");
 });
 
-test('digit parser edge case - zero count', () => {
+test("digit parser edge case - zero count", () => {
     expect(() => parse("digit(0)")).toThrow("count must be positive");
 });
 ```
@@ -90,10 +93,11 @@ test('digit parser edge case - zero count', () => {
 **Purpose**: Validate complete workflows from user input to final output
 
 **Characteristics:**
-- Test the entire compilation pipeline (parse → compile → emit)
-- Use real dependencies (no mocking)
-- Verify actual regex engine behavior
-- Located in `bindings/{language}/tests/e2e/` (Python) or `bindings/{language}/__tests__/e2e/` (JavaScript)
+
+-   Test the entire compilation pipeline (parse → compile → emit)
+-   Use real dependencies (no mocking)
+-   Verify actual regex engine behavior
+-   Located in `bindings/{language}/tests/e2e/` (Python) or `bindings/{language}/__tests__/e2e/` (JavaScript)
 
 **Required Test Cases:**
 
@@ -107,48 +111,69 @@ For each feature, create E2E tests that exercise:
 **Example: Phone number pattern E2E test**
 
 **Python:**
+
 ```python
 def test_phone_number_pattern_e2e():
     """Test complete phone number pattern workflow"""
     # Compilation
     pattern = compile_pattern("digit(3) '-' digit(4)")
-    
+
     # Matching positive case
     match = pattern.match("555-1234")
     assert match is not None
     assert match.group(0) == "555-1234"
-    
+
     # Matching negative case
     assert pattern.match("12-34") is None
     assert pattern.match("555-12345") is None
 ```
 
 **JavaScript:**
+
 ```javascript
-test('phone number pattern end-to-end', () => {
+test("phone number pattern end-to-end", () => {
     // Compilation
     const pattern = compilePattern("digit(3) '-' digit(4)");
-    
+
     // Matching positive case
     const match = pattern.exec("555-1234");
     expect(match).not.toBeNull();
     expect(match[0]).toBe("555-1234");
-    
+
     // Matching negative case
     expect(pattern.exec("12-34")).toBeNull();
     expect(pattern.exec("555-12345")).toBeNull();
 });
 ```
 
-### 3. Conformance Tests
+### 3. Shared Spec Suite (SSOT)
+
+**Purpose**: Ensure all bindings implement the exact same parsing and compilation logic as the reference implementation (JavaScript).
+
+**Characteristics:**
+
+-   **Golden Master**: JSON files in `tests/spec/` represent the expected AST for a given STRling pattern.
+-   **Generated**: Produced by the JavaScript binding (`npm run build:specs`).
+-   **Language Agnostic**: All bindings (Python, Java, C, etc.) read these JSON files and assert that their parser produces the identical AST.
+-   **Drift Protection**: CI ensures that the committed specs match the generator's output.
+
+**Workflow:**
+
+1. Modify logic in JavaScript (Reference Implementation).
+2. Run `npm run build:specs` to update `tests/spec/*.json`.
+3. Commit changes.
+4. Other bindings run their tests, consuming the new specs.
+
+### 4. Conformance Tests
 
 **Purpose**: Ensure consistent behavior across multiple regex engines
 
 **Characteristics:**
-- Run identical STRling patterns against multiple backends (PCRE2, ECMAScript, etc.)
-- Assert matching behavior is identical across all engines
-- Detect engine-specific quirks or incompatibilities
-- Located in `tests/conformance/`
+
+-   Run identical STRling patterns against multiple backends (PCRE2, ECMAScript, etc.)
+-   Assert matching behavior is identical across all engines
+-   Detect engine-specific quirks or incompatibilities
+-   Located in `tests/conformance/`
 
 **Required Test Cases:**
 
@@ -164,16 +189,16 @@ For portable features, verify:
 def test_character_class_conformance():
     """Verify character class behavior across engines"""
     pattern_str = "in_range('a', 'z')"
-    
+
     # Compile for PCRE2
     pcre2_pattern = compile_pattern(pattern_str, target="pcre2")
-    
+
     # Compile for ECMAScript
     ecmascript_pattern = compile_pattern(pattern_str, target="ecmascript")
-    
+
     # Test identical inputs
     test_inputs = ["a", "z", "m", "A", "1", "!"]
-    
+
     for test_input in test_inputs:
         pcre2_result = bool(pcre2_pattern.match(test_input))
         ecma_result = bool(ecmascript_pattern.match(test_input))
@@ -195,9 +220,10 @@ For features with multiple configuration options or parameters, STRling uses **c
 **Example: Quantifier testing with 3 parameters**
 
 Parameters:
-- `min`: Minimum repetitions (values: 0, 1, 5)
-- `max`: Maximum repetitions (values: 1, 5, unlimited)
-- `greedy`: Greedy vs. lazy matching (values: true, false)
+
+-   `min`: Minimum repetitions (values: 0, 1, 5)
+-   `max`: Maximum repetitions (values: 1, 5, unlimited)
+-   `greedy`: Greedy vs. lazy matching (values: true, false)
 
 Rather than testing all 3 × 3 × 2 = 18 combinations, pairwise testing ensures every pair of values appears together at least once, typically requiring ~8-10 test cases.
 
@@ -250,9 +276,9 @@ def test_quantifier_strategic_triplets(min, max, greedy, expected_behavior):
 
 ### Benefits
 
-- **Efficiency**: Catches most bugs with fewer test cases than exhaustive testing
-- **Coverage**: Ensures all parameter interactions are tested
-- **Maintainability**: Easier to understand and extend than exhaustive tests
+-   **Efficiency**: Catches most bugs with fewer test cases than exhaustive testing
+-   **Coverage**: Ensures all parameter interactions are tested
+-   **Maintainability**: Easier to understand and extend than exhaustive tests
 
 ---
 
@@ -298,6 +324,7 @@ tests/golden/
 **Golden Test Implementation:**
 
 **Python:**
+
 ```python
 from pathlib import Path
 
@@ -305,10 +332,10 @@ def test_against_golden_output():
     """Verify emitter output matches golden reference"""
     pattern = compile_pattern("digit(3) '-' digit(4)")
     actual_output = pattern.emit_pcre2()
-    
+
     golden_path = Path("tests/golden/pcre2/phone_pattern.golden")
     expected_output = golden_path.read_text()
-    
+
     assert actual_output == expected_output, (
         "Output differs from golden reference. "
         "Review changes and update golden file if intentional."
@@ -326,9 +353,9 @@ When intentional behavior changes occur:
 
 ### Benefits
 
-- **Regression Detection**: Catches unintended behavioral changes
-- **Documentation**: Golden files serve as executable documentation
-- **Confidence**: Enables refactoring with confidence that behavior is preserved
+-   **Regression Detection**: Catches unintended behavioral changes
+-   **Documentation**: Golden files serve as executable documentation
+-   **Confidence**: Enables refactoring with confidence that behavior is preserved
 
 ---
 
@@ -336,7 +363,7 @@ When intentional behavior changes occur:
 
 ### Python
 
-Use descriptive, snake_case names with the `test_` prefix:
+Use descriptive, snake*case names with the `test*` prefix:
 
 ```python
 def test_feature_simple_case():
@@ -353,12 +380,12 @@ def test_feature_edge_case_negative_input():
 Use descriptive strings with Jest's `test()` or `describe()` blocks:
 
 ```javascript
-test('feature simple case', () => {
+test("feature simple case", () => {
     // Test implementation
 });
 
-describe('feature edge cases', () => {
-    test('handles negative input', () => {
+describe("feature edge cases", () => {
+    test("handles negative input", () => {
         // Test implementation
     });
 });
@@ -371,19 +398,22 @@ describe('feature edge cases', () => {
 Before a feature is considered complete:
 
 ### Unit Tests
-- **100% coverage** of new code
-- All branches and edge cases must be exercised
+
+-   **100% coverage** of new code
+-   All branches and edge cases must be exercised
 
 ### E2E Tests
-- All **user-facing workflows** must be covered
-- Happy path and common error cases
+
+-   All **user-facing workflows** must be covered
+-   Happy path and common error cases
 
 ### Conformance Tests
-- All **portable features** tested across supported engines
-- Engine-specific features clearly documented as such
+
+-   All **portable features** tested across supported engines
+-   Engine-specific features clearly documented as such
 
 ---
 
 ## Related Documentation
 
-- **[Developer Hub](index.md)**: Return to the central documentation hub for all testing guides and standards
+-   **[Developer Hub](index.md)**: Return to the central documentation hub for all testing guides and standards

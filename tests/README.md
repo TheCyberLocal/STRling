@@ -10,23 +10,38 @@ For comprehensive testing philosophy, standards, and the complete development wo
 
 ```
 tests/
+├── spec/              # SHARED SPEC SUITE (Single Source of Truth)
+│   ├── *.json         # Generated JSON ASTs for all bindings to verify
+│   └── README.md      # Details on the spec format
 ├── _design/           # Test Charter documents (human-readable test plans)
-│   ├── unit/         # Unit test charters
-│   ├── e2e/          # E2E test charters
-│   └── __template.md # Template for new Test Charters
-└── conformance/       # Cross-engine conformance tests
+│   ├── unit/          # Unit test charters
+│   ├── e2e/           # E2E test charters
+│   └── __template.md  # Template for new Test Charters
+└── conformance/       # [LEGACY] Cross-engine conformance tests
 ```
 
 ### Binding-Specific Tests
 
 Each language binding maintains its own test directory:
 
-- **Python**: `bindings/python/tests/` (unit/ and e2e/ subdirectories)
-- **JavaScript**: `bindings/javascript/__tests__/` (unit/ and e2e/ subdirectories)
+-   **Python**: `bindings/python/tests/` (unit/ and e2e/ subdirectories)
+-   **JavaScript**: `bindings/javascript/__tests__/` (unit/ and e2e/ subdirectories)
+-   **Java**: `bindings/java/src/test/`
+-   **C**: `bindings/c/tests/`
 
 ## Test Execution Philosophy
 
 STRling follows a **spec-driven, test-driven development workflow**: **specifications → tests → features**.
+
+### The Shared Spec Suite (SSOT)
+
+The core logic of STRling is defined in the **Shared Spec Suite** located in `tests/spec/`. This directory contains JSON files that represent the "Golden Master" for parsing and compilation.
+
+**The Golden Master Workflow:**
+
+1.  **Generate**: The JavaScript binding is the reference implementation. When logic changes in JS, run `npm run build:specs` to regenerate the JSON specs in `tests/spec/`.
+2.  **Commit**: Commit the updated `tests/spec/*.json` files.
+3.  **Verify**: All other bindings (Python, Java, C, etc.) run their test suites against these JSON files to ensure they match the reference implementation.
 
 ### The 3-Test Standard
 
@@ -34,7 +49,7 @@ Every feature must pass three types of tests:
 
 1. **Unit Tests**: Validate individual components in isolation
 2. **E2E Tests**: Validate complete workflows from input to output
-3. **Conformance Tests**: Ensure consistent behavior across regex engines
+3. **Conformance Tests**: Ensure consistent behavior across regex engines (now largely covered by the Shared Spec Suite)
 
 **See the [Test Design Standard](../docs/testing_design.md#the-3-test-standard) for detailed explanations of each test type.**
 
@@ -44,10 +59,10 @@ Every feature must pass three types of tests:
 
 Before writing any test code, create a **Test Charter** in `tests/_design/`. This document:
 
-- Defines the scope and purpose of the test suite
-- Enumerates all test cases
-- Specifies the "definition of done" for the feature
-- Serves as living documentation
+-   Defines the scope and purpose of the test suite
+-   Enumerates all test cases
+-   Specifies the "definition of done" for the feature
+-   Serves as living documentation
 
 ### Creating a Test Charter
 
@@ -56,38 +71,13 @@ Before writing any test code, create a **Test Charter** in `tests/_design/`. Thi
 3. Review with the team before implementing tests
 4. Use the charter as a guide when writing actual test code
 
-## Conformance Testing
-
-### Purpose
-
-Conformance tests verify that STRling patterns produce **identical behavior** across multiple regex engines (PCRE2, ECMAScript, etc.).
-
-### Location
-
-- **Directory**: `tests/conformance/`
-- **Scope**: Project-wide (not binding-specific)
-
-### How It Works
-
-1. Define a STRling pattern
-2. Compile it to multiple target engines
-3. Run identical test inputs against each compiled pattern
-4. Assert that matching behavior is identical across all engines
-
-### When to Add Conformance Tests
-
-- When implementing core features that should work across all engines
-- When discovering engine-specific quirks or incompatibilities
-- When adding support for a new regex engine
-
 ## Running Tests
 
-### Global Conformance Tests
+### Shared Spec Generation (JavaScript)
 
 ```bash
-# Run conformance tests
-cd tests/conformance
-# Follow binding-specific instructions for test execution
+cd bindings/javascript
+npm run build:specs        # Regenerate tests/spec/*.json
 ```
 
 ### Python Tests
@@ -108,6 +98,20 @@ npm test -- unit          # Run unit tests
 npm test -- e2e           # Run E2E tests
 ```
 
+### Java Tests
+
+```bash
+cd bindings/java
+mvn test
+```
+
+### C Tests
+
+```bash
+cd bindings/c
+make tests
+```
+
 ## Test Development Workflow
 
 The complete test-driven development workflow:
@@ -123,9 +127,9 @@ The complete test-driven development workflow:
 
 ## Additional Resources
 
-- **[Test Setup Guide](../docs/testing_setup.md)**: How to run tests locally
-- **[Test Design Standard](../docs/testing_design.md)**: How to write effective tests
-- **[Testing Philosophy & Workflow](../docs/testing_workflow.md)**: Testing philosophy and contribution process
-- **[Developer Hub](../docs/index.md)**: Central documentation landing page
-- **[Specification Hub](../spec/README.md)**: Formal grammar and semantics
-- **[Contribution Guidelines](../docs/guidelines.md)**: Development workflow and documentation standards
+-   **[Test Setup Guide](../docs/testing_setup.md)**: How to run tests locally
+-   **[Test Design Standard](../docs/testing_design.md)**: How to write effective tests
+-   **[Testing Philosophy & Workflow](../docs/testing_workflow.md)**: Testing philosophy and contribution process
+-   **[Developer Hub](../docs/index.md)**: Central documentation landing page
+-   **[Specification Hub](../spec/README.md)**: Formal grammar and semantics
+-   **[Contribution Guidelines](../docs/guidelines.md)**: Development workflow and documentation standards

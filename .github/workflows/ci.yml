@@ -34,7 +34,8 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Run C test suite
-              run: echo "C tests not yet implemented" && true
+              working-directory: bindings/c
+              run: make tests
 
     test-cpp:
         name: Test C++ (C++17)
@@ -150,6 +151,12 @@ jobs:
             - name: Install JS dependencies
               working-directory: bindings/javascript
               run: npm ci
+
+            - name: Verify Specs (Drift Detection)
+              working-directory: bindings/javascript
+              run: |
+                  npm run build:specs
+                  git diff --exit-code ../../tests/spec
 
             - name: Run JS test suite
               working-directory: bindings/javascript
