@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.description = 'STRling is a next-generation string pattern DSL and compiler that provides a readable, maintainable alternative to traditional regular expressions.'
   spec.homepage    = 'https://github.com/TheCyberLocal/STRling'
   spec.license     = 'MIT'
-  spec.required_ruby_version = '>= 3.0.0'
+  spec.required_ruby_version = '>= 3.2.0'
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = 'https://github.com/TheCyberLocal/STRling'
@@ -25,8 +25,10 @@ Gem::Specification.new do |spec|
 
   spec.require_paths = ['lib']
 
-  # Runtime dependencies
-  # (none currently)
+  spec.add_development_dependency 'rake', '~> 13.0'
+  spec.add_development_dependency 'minitest', '~> 5.0'
+  spec.add_development_dependency 'rspec', '~> 3.13'
+end
 
   # Development dependencies
   spec.add_development_dependency 'rake', '~> 13.0'

@@ -10,10 +10,8 @@
 # including core data structures (nodes, IR, errors) and the parser/compiler
 # pipeline.
 
-require_relative 'strling/core/errors'
-require_relative 'strling/core/nodes'
-require_relative 'strling/core/ir'
-require_relative 'strling/core/parser'
+require_relative 'strling/nodes'
+require_relative 'strling/ir'
 
 module Strling
   # Version constant

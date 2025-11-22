@@ -8,10 +8,10 @@ License: MIT
 Encoding: UTF-8
 LazyData: true
 Imports:
-R6
+    jsonlite
 
 Suggests:
-testthat
+    testthat
 
 URL: https://github.com/TheCyberLocal/STRling
 BugReports: https://github.com/TheCyberLocal/STRling/issues

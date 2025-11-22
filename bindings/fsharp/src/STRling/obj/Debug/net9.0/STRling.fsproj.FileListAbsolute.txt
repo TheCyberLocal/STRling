@@ -1,0 +1,14 @@
+/root/personal/STRling/bindings/fsharp/src/STRling/bin/Debug/net9.0/STRling.deps.json
+/root/personal/STRling/bindings/fsharp/src/STRling/bin/Debug/net9.0/STRling.dll
+/root/personal/STRling/bindings/fsharp/src/STRling/bin/Debug/net9.0/STRling.pdb
+/root/personal/STRling/bindings/fsharp/src/STRling/bin/Debug/net9.0/STRling.xml
+/root/personal/STRling/bindings/fsharp/src/STRling/obj/Debug/net9.0/STRling.fsproj.AssemblyReference.cache
+/root/personal/STRling/bindings/fsharp/src/STRling/obj/Debug/net9.0/STRling.AssemblyInfoInputs.cache
+/root/personal/STRling/bindings/fsharp/src/STRling/obj/Debug/net9.0/STRling.AssemblyInfo.fs
+/root/personal/STRling/bindings/fsharp/src/STRling/obj/Debug/net9.0/STRling.fsproj.CoreCompileInputs.cache
+/root/personal/STRling/bindings/fsharp/src/STRling/obj/Debug/net9.0/STRling.sourcelink.json
+/root/personal/STRling/bindings/fsharp/src/STRling/obj/Debug/net9.0/STRling.dll
+/root/personal/STRling/bindings/fsharp/src/STRling/obj/Debug/net9.0/refint/STRling.dll
+/root/personal/STRling/bindings/fsharp/src/STRling/obj/Debug/net9.0/STRling.xml
+/root/personal/STRling/bindings/fsharp/src/STRling/obj/Debug/net9.0/STRling.pdb
+/root/personal/STRling/bindings/fsharp/src/STRling/obj/Debug/net9.0/ref/STRling.dll
