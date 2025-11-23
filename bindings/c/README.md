@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - C Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,50 +14,105 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+Build the C binding from source (requires a C compiler and make):
+
+```bash
+cd bindings/c
+make
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **C**:
 
-{Usage_Snippet}
+```c
+/* Build the STRling AST using the thin C helpers and then compile the
+ * equivalent JSON AST. The C binding supplies convenient constructors
+ * and matching free() helpers for every node type.
+ */
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+#include <stdio.h>
+#include "strling.h"
+#include "core/nodes.h"
 
-## 🚀 Why STRling?
+int main(void) {
+    /* area: (\d{3}) */
+    STRlingASTNode* area = strling_ast_quant_create(
+        strling_ast_lit_create("\d"), 3, 3, "Greedy");
 
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
+    /* first optional separator: [-. ] */
+    STRlingClassItem* sep_items_a[3] = {
+        strling_class_literal_create("-"),
+        strling_class_literal_create("."),
+        strling_class_literal_create(" ")
+    };
+    STRlingASTNode* sep_a = strling_ast_charclass_create(false, sep_items_a, 3);
+    STRlingASTNode* opt_sep_a = strling_ast_quant_create(sep_a, 0, 1, "Greedy");
 
--   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
--   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
--   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
+    /* central: (\d{3}) */
+    STRlingASTNode* central = strling_ast_quant_create(strling_ast_lit_create("\d"), 3, 3, "Greedy");
 
-## 🏗️ Architecture
+    /* second optional separator: [-. ] (separate node to avoid shared frees) */
+    STRlingClassItem* sep_items_b[3] = {
+        strling_class_literal_create("-"),
+        strling_class_literal_create("."),
+        strling_class_literal_create(" ")
+    };
+    STRlingASTNode* sep_b = strling_ast_charclass_create(false, sep_items_b, 3);
+    STRlingASTNode* opt_sep_b = strling_ast_quant_create(sep_b, 0, 1, "Greedy");
 
-STRling follows a strict compiler pipeline architecture to ensure consistency across all ecosystems:
+    /* station: (\d{4}) */
+    STRlingASTNode* station = strling_ast_quant_create(strling_ast_lit_create("\d"), 4, 4, "Greedy");
 
-1.  **Parse**: `DSL -> AST` (Abstract Syntax Tree)
-    -   Converts the human-readable STRling syntax into a structured tree.
-2.  **Compile**: `AST -> IR` (Intermediate Representation)
-    -   Transforms the AST into a target-agnostic intermediate representation, optimizing structures like literal sequences.
-3.  **Emit**: `IR -> Target Regex`
-    -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
+    /* compose sequence */
+    STRlingASTNode* parts[7] = {
+        strling_ast_anchor_create("Start"),
+        area,
+        opt_sep_a,
+        central,
+        opt_sep_b,
+        station,
+        strling_ast_anchor_create("End"),
+    };
 
-## 📚 Documentation
+    STRlingASTNode* ast = strling_ast_seq_create(parts, 7);
 
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
--   [**Project Hub**](https://github.com/TheCyberLocal/STRling/blob/main/README.md): The main STRling repository.
--   [**Specification**](https://github.com/TheCyberLocal/STRling/tree/main/spec): The core grammar and semantic specifications.
+    /* The public compiler expects a JSON AST. For clarity we provide the
+     * JSON string equivalent (in real code you can serialize the AST into
+     * JSON before calling the compiler).
+     */
+    const char* phone_json =
+        "{\"type\":\"Seq\",\"parts\":["
+        "{\"type\":\"Anchor\",\"at\":\"Start\"},"
+        "{\"type\":\"Quant\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
+        "{\"type\":\"Quant\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharClass\",\"items\":[{\"type\":\"Char\",\"value\":\"-\"},{\"type\":\"Char\",\"value\":\".\"},{\"type\":\"Char\",\"value\":\" \"\"}] } },"
+        "{\"type\":\"Quant\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
+        "{\"type\":\"Quant\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharClass\",\"items\":[{\"type\":\"Char\",\"value\":\"-\"},{\"type\":\"Char\",\"value\":\".\"},{\"type\":\"Char\",\"value\":\" \"\"}] } },"
+        "{\"type\":\"Quant\",\"min\":4,\"max\":4,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
+        "{\"type\":\"Anchor\",\"at\":\"End\"}]}";
 
-## 🌐 Connect
+    STRlingFlags* flags = strling_flags_create();
+    strling_result_t result = strling_compile_compat(phone_json, flags);
+    if (result.error_code == STRling_OK) {
+        printf("compiled: %s
+", result.pcre2_pattern);
+    } else {
+        fprintf(stderr, "compile error: %s
+", result.error_message);
+    }
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://linkedin.com/in/tzm01)
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/TheCyberLocal)
+    /* cleanup */
+    strling_result_free_compat(&result);
+    strling_flags_free(flags);
+    strling_ast_node_free(ast);
 
-## 💖 Support
+    return (result.error_code == STRling_OK) ? 0 : 1;
+}
+```
 
-If you find STRling useful, consider supporting the development:
+This example shows how to build AST nodes using the `strling_ast_*_create` helpers
+and how to compile a JSON AST (here provided inline) with `strling_compile_compat`.
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-%23FFDD00.svg?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/thecyberlocal)
+Memory ownership: all constructors return heap-allocated objects — call the
+corresponding free helpers like `strling_ast_node_free()` and
+`strling_result_free_compat()` when finished.

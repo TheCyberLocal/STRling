@@ -1,8 +1,8 @@
-# API Reference - {Language}
+# API Reference - C
 
 [← Back to README](../README.md)
 
-This document provides a comprehensive reference for the STRling API in **{Language}**.
+This document provides a comprehensive reference for the STRling API in **C**.
 
 ## Table of Contents
 
@@ -26,25 +26,44 @@ Anchors match a position within the string, not a character itself.
 
 Matches the beginning (`^`) or end (`$`) of a line.
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Anchors_Line}
+```c
+/* Start/End of line anchors */
+STRlingASTNode* start = strling_ast_anchor_create("Start");
+STRlingASTNode* end = strling_ast_anchor_create("End");
+// attach into a sequence as needed, then free:
+strling_ast_node_free(start);
+strling_ast_node_free(end);
+```
 
 ### Start/End of String
 
 Matches the absolute beginning (`\A`) or end (`\z`) of the string, ignoring multiline mode.
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Anchors_String}
+```c
+/* Absolute string anchors */
+STRlingASTNode* abs_start = strling_ast_anchor_create("AbsoluteStart");
+STRlingASTNode* abs_end = strling_ast_anchor_create("AbsoluteEnd");
+strling_ast_node_free(abs_start);
+strling_ast_node_free(abs_end);
+```
 
 ### Word Boundaries
 
 Matches the position between a word character and a non-word character (`\b`), or the inverse (`\B`).
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Anchors_Boundary}
+```c
+/* Word boundaries */
+STRlingASTNode* wb = strling_ast_anchor_create("WordBoundary");
+STRlingASTNode* nwb = strling_ast_anchor_create("NonWordBoundary");
+strling_ast_node_free(wb);
+strling_ast_node_free(nwb);
+```
 
 ---
 
@@ -59,33 +78,54 @@ Standard shorthands for common character sets.
 -   `\s`: Whitespace
 -   `.`: Any character (except newline)
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_CharClass_Builtin}
+```c
+/* Built-in shorthand (as class escapes) */
+STRlingClassItem* dig = strling_class_escape_create("digit", NULL); // corresponds to \d inside a class
+STRlingASTNode* cc = strling_ast_charclass_create(false, (STRlingClassItem*[]){dig}, 1);
+strling_ast_node_free(cc);
+```
 
 ### Custom Classes & Ranges
 
 Define a set of allowed characters (`[...]`) or a range (`a-z`).
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_CharClass_Custom}
+```c
+/* Custom char class and range */
+STRlingClassItem* rng = strling_class_range_create("a", "z");
+STRlingClassItem* lit = strling_class_literal_create("_");
+STRlingASTNode* cc = strling_ast_charclass_create(false, (STRlingClassItem*[]){rng, lit}, 2);
+strling_ast_node_free(cc);
+```
 
 ### Negated Classes
 
 Match any character _not_ in the set (`[^...]`).
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_CharClass_Negated}
+```c
+/* Negated class */
+STRlingClassItem* a = strling_class_literal_create("x");
+STRlingASTNode* cc = strling_ast_charclass_create(true, (STRlingClassItem*[]){a}, 1); // [^x]
+strling_ast_node_free(cc);
+```
 
 ### Unicode Properties
 
 Match characters based on Unicode properties (`\p{...}`), such as scripts, categories, or blocks. Unicode property escapes allow matching by Script (e.g. `\p{Latin}`), General Category (e.g. `\p{Lu}` for uppercase letters) or named blocks.
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_CharClass_Unicode}
+```c
+/* Unicode property inside a class */
+STRlingClassItem* prop = strling_class_escape_create("unicode_property", "Latin");
+STRlingASTNode* cc = strling_ast_charclass_create(false, (STRlingClassItem*[]){prop}, 1);
+strling_ast_node_free(cc);
+```
 
 ## Escape Sequences
 
@@ -102,9 +142,14 @@ Standard control escapes supported across most engines and in STRling's grammar:
 -   `\\v`: Vertical Tab
 -   `\\0`: Null Byte
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Escapes_Control}
+```c
+/* Control escapes inside character classes (as class-escapes) */
+STRlingClassItem* nl = strling_class_escape_create("control", "n"); // newline in class
+STRlingASTNode* cc = strling_ast_charclass_create(false, (STRlingClassItem*[]){nl}, 1);
+strling_ast_node_free(cc);
+```
 
 ### Hexadecimal & Unicode
 
@@ -115,9 +160,16 @@ Define characters by their code point.
 -   `\\uHHHH`: 4-digit Unicode (e.g. `\\u00A9`)
 -   `\\u{...}`: braced Unicode code point (variable length, e.g. `\\u{1F600}`)
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Escapes_Hex}
+```c
+/* Hex & Unicode escapes (in class items) */
+STRlingClassItem* hx = strling_class_escape_create("hex", "0A"); //
+
+STRlingClassItem* uni = strling_class_escape_create("unicode", "00A9"); // ©
+STRlingASTNode* cc = strling_ast_charclass_create(false, (STRlingClassItem*[]){hx, uni}, 2);
+strling_ast_node_free(cc);
+```
 
 ---
 
@@ -132,17 +184,27 @@ Match as much as possible (standard behavior).
 -   `?`: 0 or 1
 -   `{n,m}`: Specific range
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Quantifiers_Greedy}
+```c
+/* Greedy quantifier examples */
+STRlingASTNode* lit = strling_ast_lit_create("a");
+STRlingASTNode* q = strling_ast_quant_create(lit, 1, -1, "Greedy"); // a+
+strling_ast_node_free(q);
+```
 
 ### Lazy Quantifiers
 
 Match as little as possible. Appending `?` to a quantifier (e.g., `*?`).
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Quantifiers_Lazy}
+```c
+/* Lazy quantifier */
+STRlingASTNode* lit = strling_ast_lit_create("a");
+STRlingASTNode* q = strling_ast_quant_create(lit, 0, -1, "Lazy"); // a*?
+strling_ast_node_free(q);
+```
 
 ### Possessive Quantifiers
 
@@ -150,9 +212,14 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 
 > **Note:** This is a key performance feature in STRling.
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Quantifiers_Possessive}
+```c
+/* Possessive quantifier */
+STRlingASTNode* lit = strling_ast_lit_create("a");
+STRlingASTNode* q = strling_ast_quant_create(lit, 0, -1, "Possessive"); // a*+
+strling_ast_node_free(q);
+```
 
 ---
 
@@ -162,25 +229,40 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 
 Standard groups `(...)` that capture the matched text.
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Groups_Capturing}
+```c
+/* Capturing group */
+STRlingASTNode* body = strling_ast_lit_create("abc");
+STRlingASTNode* g = strling_ast_group_create(true, body, NULL, false);
+strling_ast_node_free(g);
+```
 
 ### Named Groups
 
 Capturing groups with a specific name `(?<name>...)` for easier extraction.
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Groups_Named}
+```c
+/* Named capturing group */
+STRlingASTNode* body = strling_ast_lit_create("id");
+STRlingASTNode* g = strling_ast_group_create(true, body, "myname", false);
+strling_ast_node_free(g);
+```
 
 ### Non-Capturing Groups
 
 Groups `(?:...)` that group logic without capturing text.
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Groups_NonCapturing}
+```c
+/* Non-capturing group */
+STRlingASTNode* body = strling_ast_lit_create("x+");
+STRlingASTNode* g = strling_ast_group_create(false, body, NULL, false);
+strling_ast_node_free(g);
+```
 
 ### Atomic Groups
 
@@ -188,9 +270,14 @@ Groups `(?>...)` that discard backtracking information once the group matches.
 
 > **Note:** Useful for optimizing performance and preventing catastrophic backtracking.
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Groups_Atomic}
+```c
+/* Atomic group */
+STRlingASTNode* body = strling_ast_lit_create("a+");
+STRlingASTNode* g = strling_ast_group_create(true, body, NULL, true);
+strling_ast_node_free(g);
+```
 
 ---
 
@@ -203,18 +290,28 @@ Zero-width assertions that match a group without consuming characters.
 -   Positive `(?=...)`: Asserts that what follows matches the pattern.
 -   Negative `(?!...)`: Asserts that what follows does _not_ match.
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Lookarounds_Ahead}
+```c
+/* Positive lookahead */
+STRlingASTNode* body = strling_ast_lit_create("foo");
+STRlingASTNode* look = strling_ast_look_create("Ahead", false, body); // (?=foo)
+strling_ast_node_free(look);
+```
 
 ### Lookbehind
 
 -   Positive `(?<=...)`: Asserts that what precedes matches the pattern.
 -   Negative `(?<!...)`: Asserts that what precedes does _not_ match.
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Lookarounds_Behind}
+```c
+/* Positive lookbehind */
+STRlingASTNode* body = strling_ast_lit_create("bar");
+STRlingASTNode* look = strling_ast_look_create("Behind", false, body); // (?<=bar)
+strling_ast_node_free(look);
+```
 
 ---
 
@@ -224,9 +321,15 @@ Zero-width assertions that match a group without consuming characters.
 
 Matches one pattern OR another (`|`).
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Logic_Alternation}
+```c
+/* Alternation */
+STRlingASTNode* left = strling_ast_lit_create("a");
+STRlingASTNode* right = strling_ast_lit_create("b");
+STRlingASTNode* alt = strling_ast_alt_create((STRlingASTNode*[]){left,right}, 2);
+strling_ast_node_free(alt);
+```
 
 ---
 
@@ -236,9 +339,17 @@ Matches one pattern OR another (`|`).
 
 Reference a previously captured group by index (`\1`) or name (`\k<name>`).
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_References}
+```c
+/* Backreferences */
+// by index:
+STRlingASTNode* br_idx = strling_ast_backref_create(1, NULL); // 
+strling_ast_node_free(br_idx);
+// by name:
+STRlingASTNode* br_name = strling_ast_backref_create(-1, "groupName");
+strling_ast_node_free(br_name);
+```
 
 ---
 
@@ -251,9 +362,16 @@ Global flags that alter the behavior of the regex engine.
 -   `s`: Dotall (single line) mode
 -   `x`: Extended mode (ignore whitespace)
 
-#### Usage ({Language})
+#### Usage (C)
 
-{Snippet_Flags}
+```c
+/* Flags object */
+STRlingFlags* flags = strling_flags_create();
+flags->ignoreCase = true; /* sets /i */
+flags->multiline = true; /* sets /m */
+// use when compiling, then free:
+strling_flags_free(flags);
+```
 
 ---
 
@@ -269,8 +387,12 @@ Example directives block:
 
 ```text
 %flags imsux
-%lang {Language}
+%lang C
 %engine pcre2
 ```
 
-{Snippet_Directives}
+```text
+%flags imsx
+%lang C
+%engine pcre2
+```
