@@ -80,11 +80,28 @@ Match any character _not_ in the set (`[^...]`).
 
 ### Unicode Properties
 
-Match characters based on Unicode properties (`\p{...}`), such as scripts, categories, or blocks.
+Match characters based on Unicode properties (`\p{...}`), such as scripts, categories, or blocks. Unicode property escapes allow matching by Script (e.g. `\p{Latin}`), General Category (e.g. `\p{Lu}` for uppercase letters) or named blocks.
 
 #### Usage ({Language})
 
 {Snippet_CharClass_Unicode}
+
+### Escape Sequences
+
+Escape sequences let you represent special characters, control characters, numeric code escapes, and shorthand character classes. STRling supports a range of commonly used escapes (identity, control, hex, unicode, shorthand, and null) and documents engine behavior for invalid or forbidden sequences.
+
+#### Common escapes
+
+-   Identity and literal escapes: `\`, `\.`
+-   Control characters: `\n`, `\r`, `\t`, `\f`, `\v`
+-   Null byte: `\0`
+-   Hex escapes: `\xHH` and `\x{HH}`
+-   Unicode escapes: `\uHHHH`, `\UHHHHHHHH`, and `\u{H...}`
+-   Shorthand classes inside and outside classes: `\d`, `\w`, `\s`, `\b`, `\B`
+
+#### Usage ({Language})
+
+{Snippet_Escape_Sequences}
 
 ---
 
@@ -221,3 +238,23 @@ Global flags that alter the behavior of the regex engine.
 #### Usage ({Language})
 
 {Snippet_Flags}
+
+---
+
+## Directives
+
+STRling supports a small set of file-level directives which must appear at the top of a pattern file (before any pattern content). Directives are used to configure parsing and emission behavior and are applied per-file.
+
+-   `%flags <letters>` — Sets global flags for the pattern. Letters mirror common regex engines (for example `i` for case-insensitive, `m` for multiline, `s` for dotall, `x` for free-spacing). Flags are parsed into the `Flags` object and may alter parsing semantics (e.g., free-spacing) or are handed off to emitters.
+-   `%lang <language>` — (Optional) Hint to emitters about the target language for code generation or examples.
+-   `%engine <engine>` — (Optional) Request a specific engine/emitter (for example `pcre2` or `js`). If omitted, the default emitter for the binding is used.
+
+Example directives block:
+
+```text
+%flags imsux
+%lang {Language}
+%engine pcre2
+```
+
+{Snippet_Directives}
