@@ -36,7 +36,6 @@ STRling follows a strict compiler pipeline architecture to ensure consistency ac
 -   [**Developer Documentation Hub**](docs/index.md): Architecture, testing standards, and contribution guidelines.
 -   [**Specification**](spec/README.md): The core grammar and semantic specifications.
 -   [**Release Process**](docs/releasing.md): How we ship versions.
--   [**Contributing**](CONTRIBUTING.md): Join the project.
 
 ## 🌐 Connect
 
