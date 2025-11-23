@@ -36,6 +36,14 @@ To prevent logic drift, we enforce a **Golden Master** workflow:
 
 ## 💻 Development Workflow
 
+## 🐛 Reporting Issues
+
+-   **Bug Reports:** If code is crashing, producing incorrect results, or behaving unexpectedly, use the **Bug Report** template (`.github/ISSUE_TEMPLATE/bug_report.md`). Please include reproduction steps and the affected binding/version in the template.
+
+-   **Architecture Tasks:** If you are proposing a new feature, refactor, or any change that modifies source or tests, use the **Architecture Task** template (`.github/ISSUE_TEMPLATE/task.md`). This template requires a clear _Implementation Plan_, a list of _Target Vectors_ (files to edit), and _Acceptance Criteria_ that are machine-checkable where possible.
+
+Hint: If your task should include machine-verifiable or AI-agent friendly instructions, prefer the task template and include specific test commands and CI targets so automated agents can reproduce and verify work.
+
 ### 1. Modifying Core Logic (The Grammar)
 
 If you want to add a new feature (e.g., a new Quantifier syntax), you must implement it in **TypeScript** first.

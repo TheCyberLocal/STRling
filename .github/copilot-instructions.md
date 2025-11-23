@@ -74,3 +74,17 @@ All bindings must validate against `tests/spec/*.json`.
 **Idempotency:**
 
 -   Deployment jobs must check for existing versions before publishing to prevent CI failures on re-runs.
+
+## 📋 Task Generation Standard
+
+When the user asks you to plan a feature, fix a complex bug, or refactor code, do **NOT** just write a casual bulleted list. You MUST produce a Formal Task Definition that follows the strict schema below. This helps human reviewers and automated agents (CI / bots) reason about the change, triage it, and verify acceptance criteria automatically.
+
+1.  **Title:** `Task: [Verb] [Object]` — short, imperative, machine-friendly.
+2.  **Goal:** One-line, high-level summary of the intent and why it matters.
+3.  **Target Vectors:** Precise list of files, directories, or systems to be created or modified (e.g., `bindings/python/src/parser.py`, `.github/ISSUE_TEMPLATE/task.md`).
+4.  **Implementation Plan:** Ordered, explicit, reproducible step-by-step guide. Each step should be actionable and refer to files, tests, or commands when applicable.
+5.  **Acceptance Criteria:** Binary pass/fail conditions that are machine-checkable where possible (example: `pytest tests/test_example.py::test_new_behavior` passes; new JSON spec added at `tests/spec/…`).
+
+Ref: `.github/ISSUE_TEMPLATE/task.md`
+
+Why: Always prefer this structured output when asked for plans — it reduces back-and-forth, ensures traceability across human and automated workflows, and makes CI-based verification feasible.
