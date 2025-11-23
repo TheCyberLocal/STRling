@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - Swift Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,13 +14,53 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+Add STRling to your Swift Package Manager dependencies (Package.swift):
+
+```swift
+// In Package.swift
+dependencies: [
+    .package(url: "https://github.com/TheCyberLocal/STRling.git", branch: "dev"),
+],
+
+targets: [
+    .target(name: "MyApp", dependencies: ["STRling"]),
+]
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Swift**:
 
-{Usage_Snippet}
+```swift
+import STRling
+
+// Build a compact AST using Swift's enum dot-syntax and type-inference.
+let phone: Node = .seq([
+    // Start of line.
+    .anchor("Start"),
+
+    // Match the area code (3 digits)
+    .group(body: .quant(body: .charClass(#"\\d"#), min: 3, max: "3", mode: "Greedy"), capturing: true),
+
+    // Optional separator: [-. ]
+    .quant(body: .charClass(negated: false, items: [.literal("-"), .literal("."), .literal(" ")]), min: 0, max: "1", mode: "Greedy"),
+
+    // Match the central office code (3 digits)
+    .group(body: .quant(body: .charClass(#"\\d"#), min: 3, max: "3", mode: "Greedy"), capturing: true),
+
+    // Optional separator: [-. ]
+    .quant(body: .charClass(negated: false, items: [.literal("-"), .literal("."), .literal(" ")]), min: 0, max: "1", mode: "Greedy"),
+
+    // Match the station number (4 digits)
+    .group(body: .quant(body: .charClass(#"\\d"#), min: 4, max: "4", mode: "Greedy"), capturing: true),
+
+    // End of line.
+    .anchor("End"),
+])
+
+let regex = try PCRE2Emitter().emit(node: phone)
+print(regex) // => ^(\\d{3})[-. ]?(\\d{3})[-. ]?(\\d{4})$
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
