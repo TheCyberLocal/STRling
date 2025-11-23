@@ -32,10 +32,6 @@ The technical, normative standard for writing new tests: the 3-Test Standard, Co
 
 High-level testing principles, the Iron Law of test parity, and contribution workflow requirements.
 
-### [Contribution & Documentation Guidelines](guidelines.md)
-
-The definitive rulebook for contributing to STRling. Covers the DRY principle, docstring standards, tone of voice, and contribution workflows.
-
 ### Real-Time Syntax Validation & Instructional Error Handling
 
 STRling now provides real-time syntax validation and instructional error feedback in compatible editors via the Language Server (LSP) integration. This feature delivers:
