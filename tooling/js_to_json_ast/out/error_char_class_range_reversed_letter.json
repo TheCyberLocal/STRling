@@ -1,9 +1,0 @@
-{
-  "id": "error_char_class_range_reversed_letter",
-  "description": "Generated from error_char_class_range_reversed_letter.json",
-  "input_dsl": "[z-a]",
-  "expected_error": "Invalid character range",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

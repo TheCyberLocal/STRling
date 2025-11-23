@@ -1,9 +1,0 @@
-{
-  "id": "error_char_class_empty",
-  "description": "Generated from error_char_class_empty.json",
-  "input_dsl": "[]",
-  "expected_error": "Unterminated character class",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "id": "invalid_hex_char_short",
-  "description": "Generated from invalid_hex_char_short.json",
-  "input_dsl": "\\xG",
-  "expected_error": "Invalid \\xHH escape",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

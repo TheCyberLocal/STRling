@@ -1,9 +1,0 @@
-{
-  "id": "disallowed_inline_modifier",
-  "description": "Generated from disallowed_inline_modifier.pattern",
-  "input_dsl": "(?i)a",
-  "expected_error": "Inline modifiers",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

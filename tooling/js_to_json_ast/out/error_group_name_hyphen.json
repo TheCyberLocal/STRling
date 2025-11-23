@@ -1,9 +1,0 @@
-{
-  "id": "error_group_name_hyphen",
-  "description": "Generated from error_group_name_hyphen.json",
-  "input_dsl": "(?<name-bad>)",
-  "expected_error": "Invalid group name",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

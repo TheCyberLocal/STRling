@@ -1,9 +1,0 @@
-{
-  "id": "forward_ref_by_index",
-  "description": "Generated from forward_ref_by_index.pattern",
-  "input_dsl": "\\2(a)(b)",
-  "expected_error": "Backreference to undefined group \\2",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

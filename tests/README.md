@@ -25,7 +25,7 @@ tests/
 Each language binding maintains its own test directory:
 
 -   **Python**: `bindings/python/tests/` (unit/ and e2e/ subdirectories)
--   **JavaScript**: `bindings/javascript/__tests__/` (unit/ and e2e/ subdirectories)
+-   **TypeScript**: `bindings/typescript/__tests__/`
 -   **Java**: `bindings/java/src/test/`
 -   **C**: `bindings/c/tests/`
 
@@ -39,7 +39,7 @@ The core logic of STRling is defined in the **Shared Spec Suite** located in `te
 
 **The Golden Master Workflow:**
 
-1.  **Generate**: The JavaScript binding is the reference implementation. When logic changes in JS, run `npm run build:specs` to regenerate the JSON specs in `tests/spec/`.
+1.  **Generate**: The TypeScript binding is the reference implementation. When logic changes in TS, run `npm run build:specs` to regenerate the JSON specs in `tests/spec/`.
 2.  **Commit**: Commit the updated `tests/spec/*.json` files.
 3.  **Verify**: All other bindings (Python, Java, C, etc.) run their test suites against these JSON files to ensure they match the reference implementation.
 
@@ -73,10 +73,10 @@ Before writing any test code, create a **Test Charter** in `tests/_design/`. Thi
 
 ## Running Tests
 
-### Shared Spec Generation (JavaScript)
+### Shared Spec Generation (TypeScript)
 
 ```bash
-cd bindings/javascript
+cd bindings/typescript
 npm run build:specs        # Regenerate tests/spec/*.json
 ```
 
@@ -89,13 +89,11 @@ pytest tests/e2e           # Run E2E tests
 pytest tests               # Run all Python tests
 ```
 
-### JavaScript Tests
+### TypeScript Tests
 
 ```bash
-cd bindings/javascript
-npm test                   # Run all JavaScript tests
-npm test -- unit          # Run unit tests
-npm test -- e2e           # Run E2E tests
+cd bindings/typescript
+npm test                   # Run all TypeScript tests
 ```
 
 ### Java Tests

@@ -1,9 +1,0 @@
-{
-  "id": "error_quantifier_question_start",
-  "description": "Generated from error_quantifier_question_start.json",
-  "input_dsl": "?",
-  "expected_error": "Invalid quantifier '?'",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

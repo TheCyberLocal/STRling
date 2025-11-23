@@ -1,9 +1,0 @@
-{
-  "id": "unterminated_empty_class",
-  "description": "Generated from unterminated_empty_class.pattern",
-  "input_dsl": "[",
-  "expected_error": "Unterminated character class",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

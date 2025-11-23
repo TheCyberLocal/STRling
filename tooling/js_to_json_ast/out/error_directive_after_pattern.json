@@ -1,9 +1,0 @@
-{
-  "id": "error_directive_after_pattern",
-  "description": "Generated from error_directive_after_pattern.json",
-  "input_dsl": "abc%flags i",
-  "expected_error": "Directive after pattern",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

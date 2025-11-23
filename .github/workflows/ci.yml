@@ -146,8 +146,8 @@ jobs:
                   cd bindings/java
                   mvn test
 
-    test-typescript-js:
-        name: Test TypeScript/JavaScript (Node.js 22 LTS)
+    test-typescript:
+        name: Test TypeScript (Node.js 22 LTS)
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -435,11 +435,11 @@ jobs:
               # Placeholder for future Maven deployment
               # run: mvn deploy
 
-    deploy-javascript:
-        name: Deploy JavaScript to NPM
+    deploy-typescript:
+        name: Deploy TypeScript to NPM
         runs-on: ubuntu-latest
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        needs: [test-javascript]
+        needs: [test-typescript]
         permissions:
             contents: read
         steps:
@@ -457,7 +457,7 @@ jobs:
                   node-version: "22"
                   registry-url: "https://registry.npmjs.org"
 
-            - name: Sync Python SSOT to JavaScript Version
+            - name: Sync Python SSOT to TypeScript Version
               run: |
                   python -c "
                   import json, tomllib
@@ -468,8 +468,8 @@ jobs:
                   ssot_version = toml_data['project']['version']
                   print(f'Single Source of Truth (Python) version is: {ssot_version}')
 
-                  # 2. Load the JavaScript package.json
-                  js_pkg_path = 'bindings/javascript/package.json'
+                  # 2. Load the TypeScript package.json
+                  js_pkg_path = 'bindings/typescript/package.json'
                   with open(js_pkg_path, 'r') as f:
                       js_data = json.load(f)
 
@@ -480,13 +480,13 @@ jobs:
                       js_data['version'] = ssot_version
                       with open(js_pkg_path, 'w') as f:
                           json.dump(js_data, f, indent=2)
-                      print(f'Updated JavaScript version from {original_js_version} to {ssot_version}')
+                      print(f'Updated TypeScript version from {original_js_version} to {ssot_version}')
                   else:
-                      print(f'JavaScript version ({original_js_version}) is already in sync.')
+                      print(f'TypeScript version ({original_js_version}) is already in sync.')
                   "
 
             - name: Check NPM package version bump
-              working-directory: bindings/javascript
+              working-directory: bindings/typescript
               run: |
                   PACKAGE_NAME="@thecyberlocal/strling"
                   CURRENT_VERSION=$(node -pe "require('./package.json').version")
@@ -501,11 +501,11 @@ jobs:
                   fi
 
             - name: Install JS dependencies
-              working-directory: bindings/javascript
+              working-directory: bindings/typescript
               run: npm ci
 
             - name: Publish to NPM
-              working-directory: bindings/javascript
+              working-directory: bindings/typescript
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: npm publish

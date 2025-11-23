@@ -1,9 +1,0 @@
-{
-  "id": "error_flag_invalid",
-  "description": "Generated from error_flag_invalid.json",
-  "input_dsl": "%flags foo",
-  "expected_error": "Invalid flag",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

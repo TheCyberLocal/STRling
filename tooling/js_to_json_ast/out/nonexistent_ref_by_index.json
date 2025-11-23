@@ -1,9 +1,0 @@
-{
-  "id": "nonexistent_ref_by_index",
-  "description": "Generated from nonexistent_ref_by_index.pattern",
-  "input_dsl": "(a)\\2",
-  "expected_error": "Backreference to undefined group \\2",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

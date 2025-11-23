@@ -5,11 +5,11 @@ const path = require("path");
 const repoRoot = path.resolve(__dirname, "../..");
 const distParser = path.join(
     repoRoot,
-    "bindings/javascript/dist/STRling/core/parser.js"
+    "bindings/typescript/dist/STRling/core/parser.js"
 );
 const srcParser = path.join(
     repoRoot,
-    "bindings/javascript/src/STRling/core/parser.ts"
+    "bindings/typescript/src/STRling/core/parser.ts"
 );
 
 function findParser() {
@@ -17,10 +17,10 @@ function findParser() {
     // We cannot require TS source directly. Ask user to build if dist missing.
     if (fs.existsSync(srcParser)) {
         console.error(
-            "Compiled JS not found. Please build the JavaScript binding first:"
+            "Compiled JS not found. Please build the TypeScript binding first:"
         );
         console.error(
-            "  cd bindings/javascript && npm install && npm run build"
+            "  cd bindings/typescript && npm install && npm run build"
         );
     } else {
         console.error("Parser source not found. Expected at:", distParser);
@@ -36,11 +36,11 @@ let emitter = null;
 try {
     Compiler = require(path.join(
         repoRoot,
-        "bindings/javascript/dist/STRling/core/compiler.js"
+        "bindings/typescript/dist/STRling/core/compiler.js"
     )).Compiler;
     emitter = require(path.join(
         repoRoot,
-        "bindings/javascript/dist/STRling/emitters/pcre2.js"
+        "bindings/typescript/dist/STRling/emitters/pcre2.js"
     ));
 } catch (e) {
     // It's ok if emitter/compilation isn't available; we'll just skip expected annotation
@@ -60,7 +60,9 @@ const args = process.argv.slice(2);
 const fixturesDir = args[0]
     ? path.resolve(args[0])
     : path.join(__dirname, "fixtures");
-const outDir = args[1] ? path.resolve(args[1]) : path.join(__dirname, "out");
+const outDir = args[1]
+    ? path.resolve(args[1])
+    : path.join(repoRoot, "tests/spec");
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
 const files = fs

@@ -1,9 +1,0 @@
-{
-  "id": "backref_three_digit_error",
-  "description": "Generated from backref_three_digit_error.json",
-  "input_dsl": "\\123",
-  "expected_error": "Backreference to undefined group",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}

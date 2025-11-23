@@ -1,9 +1,0 @@
-{
-  "id": "error_escape_unknown_z",
-  "description": "Generated from error_escape_unknown_z.json",
-  "input_dsl": "\\z",
-  "expected_error": "Unknown escape sequence \\z",
-  "metadata_expectations": {
-    "features_used": []
-  }
-}
