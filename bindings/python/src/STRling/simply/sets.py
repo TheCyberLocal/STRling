@@ -379,7 +379,7 @@ def in_chars(*patterns: Pattern | str) -> Pattern:
     for pattern in clean_patterns:
         # Extract items from pattern's node
         if isinstance(pattern.node, nodes.CharacterClass):
-            items.extend(pattern.node.items)
+            items.extend(list(pattern.node.items))
         elif isinstance(pattern.node, nodes.Literal):
             for char in pattern.node.value:
                 items.append(nodes.ClassLiteral(char))
@@ -471,7 +471,7 @@ def not_in_chars(*patterns: Pattern | str) -> Pattern:
     for pattern in clean_patterns:
         # Extract items from pattern's node
         if isinstance(pattern.node, nodes.CharacterClass):
-            items.extend(pattern.node.items)
+            items.extend(list(pattern.node.items))
         elif isinstance(pattern.node, nodes.Literal):
             for char in pattern.node.value:
                 items.append(nodes.ClassLiteral(char))

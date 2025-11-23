@@ -187,10 +187,7 @@ def letter(min_rep: int | None = None, max_rep: int | None = None) -> Pattern:
     """
     node = nodes.CharacterClass(
         False,
-        [
-            nodes.ClassRange("A", "Z"),
-            nodes.ClassRange("a", "z"),
-        ],
+        [nodes.ClassRange("A", "Z"), nodes.ClassRange("a", "z")],
     )
     p = Pattern(node, custom_set=True)
     return p(min_rep, max_rep) if min_rep is not None else p
@@ -208,11 +205,7 @@ def not_letter(min_rep: int | None = None, max_rep: int | None = None) -> Patter
     - An instance of the Pattern class.
     """
     node = nodes.CharacterClass(
-        True,
-        [
-            nodes.ClassRange("A", "Z"),
-            nodes.ClassRange("a", "z"),
-        ],
+        True, [nodes.ClassRange("A", "Z"), nodes.ClassRange("a", "z")]
     )
     p = Pattern(node, custom_set=True, negated=True)
     return p(min_rep, max_rep) if min_rep is not None else p
@@ -229,12 +222,7 @@ def upper(min_rep: int | None = None, max_rep: int | None = None) -> Pattern:
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharacterClass(
-        False,
-        [
-            nodes.ClassRange("A", "Z"),
-        ],
-    )
+    node = nodes.CharacterClass(False, [nodes.ClassRange("A", "Z")])
     p = Pattern(node, custom_set=True)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -250,12 +238,7 @@ def not_upper(min_rep: int | None = None, max_rep: int | None = None) -> Pattern
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharacterClass(
-        True,
-        [
-            nodes.ClassRange("A", "Z"),
-        ],
-    )
+    node = nodes.CharacterClass(True, [nodes.ClassRange("A", "Z")])
     p = Pattern(node, custom_set=True, negated=True)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -271,12 +254,7 @@ def lower(min_rep: int | None = None, max_rep: int | None = None) -> Pattern:
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharacterClass(
-        False,
-        [
-            nodes.ClassRange("a", "z"),
-        ],
-    )
+    node = nodes.CharacterClass(False, [nodes.ClassRange("a", "z")])
     p = Pattern(node, custom_set=True)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -292,12 +270,7 @@ def not_lower(min_rep: int | None = None, max_rep: int | None = None) -> Pattern
     Returns:
     - An instance of the Pattern class.
     """
-    node = nodes.CharacterClass(
-        True,
-        [
-            nodes.ClassRange("a", "z"),
-        ],
-    )
+    node = nodes.CharacterClass(True, [nodes.ClassRange("a", "z")])
     p = Pattern(node, custom_set=True, negated=True)
     return p(min_rep, max_rep) if min_rep is not None else p
 

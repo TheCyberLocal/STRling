@@ -19,7 +19,7 @@ serialized to a dictionary representation for debugging or storage.
 
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import List, Sequence, Optional, Union, Dict, Any
+from typing import List, Optional, Union, Dict, Any
 
 
 # ---- Flags container ----
@@ -153,7 +153,7 @@ class ClassEscape(ClassItem):
 @dataclass
 class CharacterClass(Node):
     negated: bool
-    items: Sequence[ClassItem]
+    items: Any
 
     def to_dict(self) -> Dict[str, Any]:
         return {
