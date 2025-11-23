@@ -8,6 +8,7 @@ This document provides a comprehensive reference for the STRling API in **{Langu
 
 -   [Anchors](#anchors)
 -   [Character Classes](#character-classes)
+-   [Escape Sequences](#escape-sequences)
 -   [Quantifiers](#quantifiers)
 -   [Groups](#groups)
 -   [Lookarounds](#lookarounds)
@@ -86,22 +87,37 @@ Match characters based on Unicode properties (`\p{...}`), such as scripts, categ
 
 {Snippet_CharClass_Unicode}
 
-### Escape Sequences
+## Escape Sequences
 
-Escape sequences let you represent special characters, control characters, numeric code escapes, and shorthand character classes. STRling supports a range of commonly used escapes (identity, control, hex, unicode, shorthand, and null) and documents engine behavior for invalid or forbidden sequences.
+Represent special characters, control codes, and numeric character code escapes. The template separates Control Character escapes from Hexadecimal/Unicode escapes so bindings can provide focused examples.
 
-#### Common escapes
+### Control Characters
 
--   Identity and literal escapes: `\`, `\.`
--   Control characters: `\n`, `\r`, `\t`, `\f`, `\v`
--   Null byte: `\0`
--   Hex escapes: `\xHH` and `\x{HH}`
--   Unicode escapes: `\uHHHH`, `\UHHHHHHHH`, and `\u{H...}`
--   Shorthand classes inside and outside classes: `\d`, `\w`, `\s`, `\b`, `\B`
+Standard control escapes supported across most engines and in STRling's grammar:
+
+-   `\\n`: Newline
+-   `\\r`: Carriage Return
+-   `\\t`: Tab
+-   `\\f`: Form Feed
+-   `\\v`: Vertical Tab
+-   `\\0`: Null Byte
 
 #### Usage ({Language})
 
-{Snippet_Escape_Sequences}
+{Snippet_Escapes_Control}
+
+### Hexadecimal & Unicode
+
+Define characters by their code point.
+
+-   `\\xHH`: 2-digit hexadecimal (e.g. `\\x0A`)
+-   `\\x{...}`: braced hexadecimal code point (variable length, e.g. `\\x{1F}`)
+-   `\\uHHHH`: 4-digit Unicode (e.g. `\\u00A9`)
+-   `\\u{...}`: braced Unicode code point (variable length, e.g. `\\u{1F600}`)
+
+#### Usage ({Language})
+
+{Snippet_Escapes_Hex}
 
 ---
 
