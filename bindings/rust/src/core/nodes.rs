@@ -291,14 +291,42 @@ pub enum MaxBound {
 /// Group node.
 ///
 /// Represents a capturing or non-capturing group.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Group {
     pub capturing: bool,
-    #[serde(alias = "expression")]
     pub body: Box<Node>,
     pub name: Option<String>,
     /// Extension: atomic group flag
     pub atomic: Option<bool>,
+}
+
+impl<'de> Deserialize<'de> for Group {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct Raw {
+            capturing: bool,
+            body: Option<Box<Node>>,
+            expression: Option<Box<Node>>,
+            name: Option<String>,
+            atomic: Option<bool>,
+        }
+
+        let raw = Raw::deserialize(deserializer)?;
+
+        // Prioritize explicit `body` if present; otherwise fall back to `expression`.
+        let body = match (raw.body, raw.expression) {
+            (Some(b), _) => b,
+            (None, Some(e)) => e,
+            (None, None) => {
+                return Err(serde::de::Error::custom("Group missing both 'body' and 'expression' fields"));
+            }
+        };
+
+        Ok(Group { capturing: raw.capturing, body, name: raw.name, atomic: raw.atomic })
+    }
 }
 
 /// Backreference node.
