@@ -17,6 +17,20 @@ from pathlib import Path
 import json
 
 from jsonschema import Draft202012Validator
+from typing import cast, Protocol
+
+
+class _ValidatorLike(Protocol):
+    """Narrow typing for a jsonschema validator so static checkers can
+    understand the validate() signature used below.
+
+    We use a very small Protocol because different jsonschema versions expose
+    different method signatures; we only need to express the validate(instance)
+    call used in this module.
+    """
+
+    def validate(self, instance: Any, /, *args: Any, **kwargs: Any) -> None:
+        ...
 
 # Make a best-effort attempt to import `referencing.Registry` at runtime.
 # Some environments (CI, static type checking) may not have `referencing`
@@ -73,4 +87,5 @@ def validate_artifact(
     else:
         validator: Draft202012Validator = Draft202012Validator(schema)
 
-    validator.validate(instance=artifact)
+    # Cast to our Protocol so linters / Pylance know the validate signature
+    cast(_ValidatorLike, validator).validate(instance=artifact)
