@@ -1,6 +1,6 @@
-use strling_core::parse;
-use strling_core::core::compiler::Compiler;
-use strling_core::emitters::pcre2::PCRE2Emitter;
+use strling::parse;
+use strling::core::compiler::Compiler;
+use strling::emitters::pcre2::PCRE2Emitter;
 
 fn main() {
     println!("=== STRling Rust Binding Demo ===\n");

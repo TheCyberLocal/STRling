@@ -144,6 +144,25 @@ pub fn escape(kind: &str) -> Node {
     Node::Literal(Literal { value })
 }
 
+/// Control character helper -> `\cX` style. Attempts to return the actual
+/// control character as a Literal when `ch` is ASCII; otherwise emits the
+/// textual escape form (e.g. "\\cX"). This mirrors the helpful builder
+/// surface in other bindings.
+pub fn control(ch: char) -> Node {
+    // Only ASCII characters map to control codes in a sensible way.
+    if ch.is_ascii() {
+        let up = ch.to_ascii_uppercase() as u32;
+        // control code is char & 0x1F
+        let code = up & 0x1F;
+        if let Some(c) = std::char::from_u32(code) {
+            return Node::Literal(Literal { value: c.to_string() });
+        }
+    }
+
+    // Fallback — leave it as an explicit textual escape.
+    Node::Literal(Literal { value: format!("\\c{}", ch) })
+}
+
 /// Hex escape `\xHH` or `\x{H...}` — returns a Literal containing the corresponding character if valid
 pub fn hex(code: &str) -> Node {
     // try to parse hex; fall back to literal escape string
@@ -255,6 +274,12 @@ pub fn repeat_lazy(node: Node, min: i32, max: Option<i32>) -> Node {
     n
 }
 
+/// Single-word helper for a zero-or-more lazy quantifier for a node.
+/// Equivalent to repeat_lazy(node, 0, None)
+pub fn lazy(node: Node) -> Node {
+    repeat_lazy(node, 0, None)
+}
+
 /// Possessive repeat helper
 pub fn repeat_possessive(node: Node, min: i32, max: Option<i32>) -> Node {
     let mut n = repeat(node, min, max);
@@ -268,6 +293,12 @@ pub fn repeat_possessive(node: Node, min: i32, max: Option<i32>) -> Node {
         _ => {}
     }
     n
+}
+
+/// Single-word helper for a zero-or-more possessive quantifier for a node.
+/// Equivalent to repeat_possessive(node, 0, None)
+pub fn possessive(node: Node) -> Node {
+    repeat_possessive(node, 0, None)
 }
 
 // ---------------------------------------------------------------------------
@@ -495,6 +526,27 @@ mod tests {
         match repeat_possessive(literal("x"), 1, None) {
             Node::Quantifier(q) => assert_eq!(q.mode, "Possessive"),
             _ => panic!("expected Quantifier"),
+        }
+
+        // control helper
+        match control('A') {
+            Node::Literal(l) => {
+                // Control-A -> codepoint 1
+                let expected = std::char::from_u32(('A' as u32 & 0x1F)).unwrap().to_string();
+                assert_eq!(l.value, expected);
+            }
+            _ => panic!("expected Literal for control A"),
+        }
+
+        // lazy / possessive single-word helpers
+        match lazy(literal("z")) {
+            Node::Quantifier(q) => assert_eq!(q.mode, "Lazy"),
+            _ => panic!("expected Lazy Quantifier from lazy()"),
+        }
+
+        match possessive(literal("z")) {
+            Node::Quantifier(q) => assert_eq!(q.mode, "Possessive"),
+            _ => panic!("expected Possessive Quantifier from possessive()"),
         }
     }
 }

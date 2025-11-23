@@ -22,11 +22,10 @@ cargo add strling
 
 Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Rust**:
 
-
 ```rust
-use strling_core::core::compiler::Compiler;
-use strling_core::emitters::pcre2::PCRE2Emitter;
-use strling_core::simply;
+use strling::core::compiler::Compiler;
+use strling::emitters::pcre2::PCRE2Emitter;
+use strling::simply;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
   let ast = simply::merge(vec![
