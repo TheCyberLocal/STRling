@@ -330,6 +330,72 @@ STRlingASTNode* right = strling_ast_lit_create("b");
 STRlingASTNode* alt = strling_ast_alt_create((STRlingASTNode*[]){left,right}, 2);
 strling_ast_node_free(alt);
 ```
+```
+
+### Phone number (Usage example - mirrors Python)
+
+This short snippet demonstrates constructing a phone-number pattern with the same
+logical steps and identical inline comments used in the Python README.
+
+```c
+/* Build a small phone-number AST (C) — comments match Python example exactly */
+// Start of line.
+// Match the area code (3 digits)
+STRlingASTNode* area = strling_ast_group_create(true,
+    strling_ast_quant_create(strling_ast_lit_create("\\d"), 3, 3, "Greedy"),
+    NULL, false);
+
+// Optional separator: [-. ]
+STRlingClassItem* sep_items_a[3] = {
+    strling_class_literal_create("-"),
+    strling_class_literal_create("."),
+    strling_class_literal_create(" ")
+};
+STRlingASTNode* opt_sep_a = strling_ast_quant_create(
+    strling_ast_charclass_create(false, sep_items_a, 3), 0, 1, "Greedy");
+
+// Match the central office code (3 digits)
+STRlingASTNode* central = strling_ast_group_create(true,
+    strling_ast_quant_create(strling_ast_lit_create("\\d"), 3, 3, "Greedy"),
+    NULL, false);
+
+// Optional separator: [-. ]
+STRlingClassItem* sep_items_b[3] = {
+    strling_class_literal_create("-"),
+    strling_class_literal_create("."),
+    strling_class_literal_create(" ")
+};
+STRlingASTNode* opt_sep_b = strling_ast_quant_create(
+    strling_ast_charclass_create(false, sep_items_b, 3), 0, 1, "Greedy");
+
+// Match the station number (4 digits)
+STRlingASTNode* station = strling_ast_group_create(true,
+    strling_ast_quant_create(strling_ast_lit_create("\\d"), 4, 4, "Greedy"),
+    NULL, false);
+
+// End of line.
+STRlingASTNode* parts[7] = {
+    strling_ast_anchor_create("Start"),
+    area, opt_sep_a, central, opt_sep_b, station, strling_ast_anchor_create("End")
+};
+STRlingASTNode* ast = strling_ast_seq_create(parts, 7);
+
+/* Compiler expects a JSON AST string — serialize ast into JSON before
+ * calling strling_compile_compat(json_ast, flags). For brevity this example
+ * assumes an equivalent `phone_json` string is available and shows how to
+ * call the compatibility compile API.
+ */
+STRlingFlags* flags = strling_flags_create();
+const char* phone_json = "{...}/* serialize AST here */";
+strling_result_t res = strling_compile_compat(phone_json, flags);
+if (res.error_code == STRling_OK) {
+    printf("compiled: %s\n", res.pcre2_pattern);
+}
+strling_result_free_compat(&res);
+strling_flags_free(flags);
+strling_ast_node_free(ast);
+```
+
 
 ---
 
