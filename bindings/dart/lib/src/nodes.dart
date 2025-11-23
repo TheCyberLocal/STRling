@@ -1,4 +1,6 @@
 sealed class Node {
+  const Node();
+
   factory Node.fromJson(Map<String, dynamic> json) {
     final type = json['type'] as String;
     switch (type) {
@@ -80,9 +82,23 @@ class Sequence extends Node {
 
   @override
   Map<String, dynamic> toIR() {
+    final newParts = <Map<String, dynamic>>[];
+    for (final part in parts) {
+      final ir = part.toIR();
+      if (ir['ir'] == 'Lit' && newParts.isNotEmpty && newParts.last['ir'] == 'Lit') {
+        newParts.last['value'] = newParts.last['value'] + ir['value'];
+      } else {
+        newParts.add(ir);
+      }
+    }
+
+    if (newParts.length == 1) {
+      return newParts.first;
+    }
+
     return {
       'ir': 'Seq',
-      'parts': parts.map((e) => e.toIR()).toList(),
+      'parts': newParts,
     };
   }
 }
@@ -159,9 +175,9 @@ class Quantifier extends Node {
       target: Node.fromJson(json['target'] as Map<String, dynamic>),
       min: json['min'] as int,
       max: json['max'],
-      greedy: json['greedy'] as bool,
-      lazy: json['lazy'] as bool,
-      possessive: json['possessive'] as bool,
+      greedy: json['greedy'] as bool? ?? false,
+      lazy: json['lazy'] as bool? ?? false,
+      possessive: json['possessive'] as bool? ?? false,
     );
   }
 
@@ -189,7 +205,7 @@ class CharacterClass extends Node {
 
   factory CharacterClass.fromJson(Map<String, dynamic> json) {
     return CharacterClass(
-      negated: json['negated'] as bool,
+      negated: json['negated'] as bool? ?? false,
       members: (json['members'] as List).map((e) => Node.fromJson(e as Map<String, dynamic>)).toList(),
     );
   }
@@ -285,11 +301,10 @@ class Backreference extends Node {
 
   @override
   Map<String, dynamic> toIR() {
-    return {
-      'ir': 'Backref',
-      'by_index': index,
-      'by_name': name,
-    };
+    final map = <String, dynamic>{'ir': 'Backref'};
+    if (index != null) map['byIndex'] = index;
+    if (name != null) map['byName'] = name;
+    return map;
   }
 }
 
@@ -355,7 +370,7 @@ class Escape extends Node {
           default: throw FormatException('Unknown escape kind: $kind');
       }
       return {
-          'ir': 'Escape',
+          'ir': 'Esc',
           'type': type,
       };
   }
@@ -370,7 +385,7 @@ class UnicodeProperty extends Node {
   factory UnicodeProperty.fromJson(Map<String, dynamic> json) {
     return UnicodeProperty(
       value: json['value'] as String,
-      negated: json['negated'] as bool,
+      negated: json['negated'] as bool? ?? false,
     );
   }
 
@@ -381,7 +396,7 @@ class UnicodeProperty extends Node {
   
   Map<String, dynamic> toClassItem() {
       return {
-          'ir': 'Escape',
+          'ir': 'Esc',
           'type': negated ? 'P' : 'p',
           'property': value,
       };

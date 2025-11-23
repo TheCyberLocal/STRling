@@ -7,6 +7,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.6.2)
+    minitest (5.26.2)
     rake (13.3.1)
     rspec (3.13.2)
       rspec-core (~> 3.13.0)
@@ -26,6 +27,7 @@ PLATFORMS
   x86_64-linux-gnu
 
 DEPENDENCIES
+  minitest (~> 5.0)
   rake (~> 13.0)
   rspec (~> 3.13)
   strling!

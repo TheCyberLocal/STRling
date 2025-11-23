@@ -2,8 +2,8 @@
 
 namespace STRling;
 
-use STRling\Core\Node;
-use STRling\Core\IRNode;
+use STRling\Core\Nodes\Node;
+use STRling\Core\IR\IRNode;
 use STRling\Core\Nodes;
 use STRling\Core\IR;
 
@@ -24,7 +24,7 @@ class Compiler
             $node instanceof Nodes\Group => $this->visitGroup($node),
             $node instanceof Nodes\CharacterClass => $this->visitCharacterClass($node),
             $node instanceof Nodes\Anchor => $this->visitAnchor($node),
-            $node instanceof Nodes\Dot => new IR\Esc('Dot'),
+            $node instanceof Nodes\Dot => new IR\Dot(),
             $node instanceof Nodes\Backreference => $this->visitBackreference($node),
             $node instanceof Nodes\Lookahead => new IR\LookAround('Lookahead', false, $this->visit($node->body)),
             $node instanceof Nodes\NegativeLookahead => new IR\LookAround('Lookahead', true, $this->visit($node->body)),
@@ -32,7 +32,15 @@ class Compiler
             $node instanceof Nodes\NegativeLookbehind => new IR\LookAround('Lookbehind', true, $this->visit($node->body)),
             // Class Items
             $node instanceof Nodes\Range => new IR\Range($node->from, $node->to),
-            $node instanceof Nodes\Escape => new IR\Esc($node->kind),
+            $node instanceof Nodes\Escape => new IR\Esc(match($node->kind) {
+                'digit' => 'd',
+                'space' => 's',
+                'word' => 'w',
+                'not-digit' => 'D',
+                'not-space' => 'S',
+                'not-word' => 'W',
+                default => $node->kind
+            }),
             $node instanceof Nodes\UnicodeProperty => new IR\Esc(
                 $node->negated ? 'P' : 'p',
                 $node->value
@@ -101,7 +109,8 @@ class Compiler
             $this->visit($node->body),
             $node->capturing,
             $node->name,
-            $node->number
+            $node->number,
+            $node->atomic ?? false
         );
     }
 
@@ -122,16 +131,11 @@ class Compiler
 
     private function visitAnchor(Nodes\Anchor $node): IR\Anchor
     {
-        $type = match ($node->at) {
-            '^' => 'StartLine',
-            '$' => 'EndLine',
-            '\\A' => 'StartText',
-            '\\z' => 'EndText',
-            '\\b' => 'WordBoundary',
-            '\\B' => 'NonWordBoundary',
-            default => 'Unknown',
+        $at = match($node->at) {
+            'NonWordBoundary' => 'NotWordBoundary',
+            default => $node->at
         };
-        return new IR\Anchor($type);
+        return new IR\Anchor($at);
     }
 
     private function visitBackreference(Nodes\Backreference $node): IR\BackRef

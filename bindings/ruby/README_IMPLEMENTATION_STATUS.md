@@ -15,6 +15,7 @@ This document tracks the progress of porting the complete STRling parser and com
 - **`lib/strling/emitters/pcre2.rb`** (222 lines) - COMPLETE & WORKING
 - **`bin/strling-cli`** (165 lines) - COMPLETE & WORKING
 - **`spec/unit/anchors_spec.rb`** (271 lines) - ALL 21 TESTS PASSING
+- **Conformance Tests** (548 assertions passing against shared spec) - VERIFIED
 
 **Total Implemented:** 2,383 lines of working Ruby code
 

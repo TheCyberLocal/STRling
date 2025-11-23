@@ -47,8 +47,18 @@ class ConformanceTest extends TestCase
 
     public static function provideSpecFiles(): \Generator
     {
-        $specDir = __DIR__ . '/../../tests/spec';
+        $specDir = __DIR__ . '/../../../tests/spec';
         $files = glob($specDir . '/*.json');
+
+        if (empty($files)) {
+            fwrite(STDERR, "DEBUG: No files found in $specDir. __DIR__ is " . __DIR__ . "\n");
+            // Try to list the directory to see what's there
+            if (is_dir($specDir)) {
+                fwrite(STDERR, "DEBUG: Directory exists.\n");
+            } else {
+                fwrite(STDERR, "DEBUG: Directory does not exist.\n");
+            }
+        }
 
         foreach ($files as $file) {
             $content = file_get_contents($file);

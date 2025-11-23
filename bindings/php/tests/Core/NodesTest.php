@@ -3,20 +3,20 @@
 namespace STRling\Tests\Core;
 
 use PHPUnit\Framework\TestCase;
-use STRling\Core\Flags;
-use STRling\Core\Lit;
-use STRling\Core\Dot;
-use STRling\Core\Anchor;
-use STRling\Core\Alt;
-use STRling\Core\Seq;
-use STRling\Core\CharClass;
-use STRling\Core\ClassLiteral;
-use STRling\Core\ClassRange;
-use STRling\Core\ClassEscape;
-use STRling\Core\Quant;
-use STRling\Core\Group;
-use STRling\Core\Backref;
-use STRling\Core\Look;
+use STRling\Core\Nodes\Flags;
+use STRling\Core\Nodes\Literal;
+use STRling\Core\Nodes\Dot;
+use STRling\Core\Nodes\Anchor;
+use STRling\Core\Nodes\Alternation;
+use STRling\Core\Nodes\Sequence;
+use STRling\Core\Nodes\CharacterClass;
+use STRling\Core\Nodes\Range;
+use STRling\Core\Nodes\Escape;
+use STRling\Core\Nodes\Quantifier;
+use STRling\Core\Nodes\Group;
+use STRling\Core\Nodes\Backreference;
+use STRling\Core\Nodes\Lookahead;
+use STRling\Core\Nodes\NegativeLookbehind;
 
 /**
  * Test suite for AST Node data structures.
@@ -43,174 +43,179 @@ class NodesTest extends TestCase
         $this->assertFalse($flags->extended);
     }
     
-    public function testFlagsToDict(): void
+    public function testFlagsJsonSerialize(): void
     {
         $flags = Flags::fromLetters('i');
-        $dict = $flags->toDict();
+        $dict = $flags->jsonSerialize();
         
         $this->assertArrayHasKey('ignoreCase', $dict);
         $this->assertTrue($dict['ignoreCase']);
         $this->assertFalse($dict['multiline']);
     }
     
-    public function testLitNode(): void
+    public function testLiteralNode(): void
     {
-        $lit = new Lit('hello');
-        $dict = $lit->toDict();
+        $lit = new Literal('hello');
+        $dict = $lit->jsonSerialize();
         
-        $this->assertEquals('Lit', $dict['kind']);
+        $this->assertEquals('Literal', $dict['type']);
         $this->assertEquals('hello', $dict['value']);
     }
     
     public function testDotNode(): void
     {
         $dot = new Dot();
-        $dict = $dot->toDict();
+        $dict = $dot->jsonSerialize();
         
-        $this->assertEquals('Dot', $dict['kind']);
+        $this->assertEquals('Dot', $dict['type']);
     }
     
     public function testAnchorNode(): void
     {
         $anchor = new Anchor('Start');
-        $dict = $anchor->toDict();
+        $dict = $anchor->jsonSerialize();
         
-        $this->assertEquals('Anchor', $dict['kind']);
+        $this->assertEquals('Anchor', $dict['type']);
         $this->assertEquals('Start', $dict['at']);
     }
     
-    public function testAltNode(): void
+    public function testAlternationNode(): void
     {
-        $alt = new Alt([
-            new Lit('a'),
-            new Lit('b'),
-            new Lit('c')
+        $alt = new Alternation([
+            new Literal('a'),
+            new Literal('b'),
+            new Literal('c')
         ]);
         
-        $dict = $alt->toDict();
-        $this->assertEquals('Alt', $dict['kind']);
-        $this->assertCount(3, $dict['branches']);
-        $this->assertEquals('Lit', $dict['branches'][0]['kind']);
-        $this->assertEquals('a', $dict['branches'][0]['value']);
+        $dict = $alt->jsonSerialize();
+        $this->assertEquals('Alternation', $dict['type']);
+        $this->assertCount(3, $dict['alternatives']);
+        $this->assertEquals('Literal', $dict['alternatives'][0]->jsonSerialize()['type']);
+        $this->assertEquals('a', $dict['alternatives'][0]->jsonSerialize()['value']);
     }
     
-    public function testSeqNode(): void
+    public function testSequenceNode(): void
     {
-        $seq = new Seq([
-            new Lit('hello'),
-            new Lit(' '),
-            new Lit('world')
+        $seq = new Sequence([
+            new Literal('hello'),
+            new Literal(' '),
+            new Literal('world')
         ]);
         
-        $dict = $seq->toDict();
-        $this->assertEquals('Seq', $dict['kind']);
+        $dict = $seq->jsonSerialize();
+        $this->assertEquals('Sequence', $dict['type']);
         $this->assertCount(3, $dict['parts']);
     }
     
-    public function testCharClassWithLiterals(): void
+    public function testCharacterClassWithLiterals(): void
     {
-        $charClass = new CharClass(false, [
-            new ClassLiteral('a'),
-            new ClassLiteral('b'),
-            new ClassLiteral('c')
+        $charClass = new CharacterClass(false, [
+            new Literal('a'),
+            new Literal('b'),
+            new Literal('c')
         ]);
         
-        $dict = $charClass->toDict();
-        $this->assertEquals('CharClass', $dict['kind']);
+        $dict = $charClass->jsonSerialize();
+        $this->assertEquals('CharacterClass', $dict['type']);
         $this->assertFalse($dict['negated']);
-        $this->assertCount(3, $dict['items']);
-        $this->assertEquals('Char', $dict['items'][0]['kind']);
-        $this->assertEquals('a', $dict['items'][0]['char']);
+        $this->assertCount(3, $dict['members']);
+        $this->assertEquals('Literal', $dict['members'][0]->jsonSerialize()['type']);
+        $this->assertEquals('a', $dict['members'][0]->jsonSerialize()['value']);
     }
     
-    public function testCharClassWithRange(): void
+    public function testCharacterClassWithRange(): void
     {
-        $charClass = new CharClass(false, [
-            new ClassRange('a', 'z'),
-            new ClassRange('0', '9')
+        $charClass = new CharacterClass(false, [
+            new Range('a', 'z'),
+            new Range('0', '9')
         ]);
         
-        $dict = $charClass->toDict();
-        $this->assertCount(2, $dict['items']);
-        $this->assertEquals('Range', $dict['items'][0]['kind']);
-        $this->assertEquals('a', $dict['items'][0]['from']);
-        $this->assertEquals('z', $dict['items'][0]['to']);
+        $dict = $charClass->jsonSerialize();
+        $this->assertCount(2, $dict['members']);
+        $this->assertEquals('Range', $dict['members'][0]->jsonSerialize()['type']);
+        $this->assertEquals('a', $dict['members'][0]->jsonSerialize()['from']);
+        $this->assertEquals('z', $dict['members'][0]->jsonSerialize()['to']);
     }
     
-    public function testCharClassWithEscape(): void
+    public function testCharacterClassWithEscape(): void
     {
-        $charClass = new CharClass(false, [
-            new ClassEscape('d'),
-            new ClassEscape('w')
+        $charClass = new CharacterClass(false, [
+            new Escape('d'),
+            new Escape('w')
         ]);
         
-        $dict = $charClass->toDict();
-        $this->assertEquals('Esc', $dict['items'][0]['kind']);
-        $this->assertEquals('d', $dict['items'][0]['type']);
+        $dict = $charClass->jsonSerialize();
+        $this->assertEquals('Escape', $dict['members'][0]->jsonSerialize()['type']);
+        $this->assertEquals('d', $dict['members'][0]->jsonSerialize()['kind']);
     }
     
-    public function testCharClassNegated(): void
+    public function testCharacterClassNegated(): void
     {
-        $charClass = new CharClass(true, [
-            new ClassLiteral('a')
+        $charClass = new CharacterClass(true, [
+            new Literal('a')
         ]);
         
-        $dict = $charClass->toDict();
+        $dict = $charClass->jsonSerialize();
         $this->assertTrue($dict['negated']);
     }
     
-    public function testQuantNode(): void
+    public function testQuantifierNode(): void
     {
-        $quant = new Quant(
-            new Lit('a'),
+        $quant = new Quantifier(
+            new Literal('a'),
             1,
             3,
-            'Greedy'
+            true,  // greedy
+            false, // lazy
+            false  // possessive
         );
         
-        $dict = $quant->toDict();
-        $this->assertEquals('Quant', $dict['kind']);
+        $dict = $quant->jsonSerialize();
+        $this->assertEquals('Quantifier', $dict['type']);
         $this->assertEquals(1, $dict['min']);
         $this->assertEquals(3, $dict['max']);
-        $this->assertEquals('Greedy', $dict['mode']);
-        $this->assertEquals('Lit', $dict['child']['kind']);
+        $this->assertTrue($dict['greedy']);
+        $this->assertFalse($dict['lazy']);
+        $this->assertEquals('Literal', $dict['target']->jsonSerialize()['type']);
     }
     
-    public function testQuantUnbounded(): void
+    public function testQuantifierUnbounded(): void
     {
-        $quant = new Quant(
-            new Lit('a'),
+        $quant = new Quantifier(
+            new Literal('a'),
             0,
-            'Inf',
-            'Lazy'
+            'inf',
+            false, // greedy
+            true,  // lazy
+            false  // possessive
         );
         
-        $dict = $quant->toDict();
-        $this->assertEquals('Inf', $dict['max']);
-        $this->assertEquals('Lazy', $dict['mode']);
+        $dict = $quant->jsonSerialize();
+        $this->assertEquals('inf', $dict['max']);
+        $this->assertTrue($dict['lazy']);
     }
     
     public function testGroupCapturing(): void
     {
         $group = new Group(
             true,
-            new Lit('test')
+            new Literal('test')
         );
         
-        $dict = $group->toDict();
-        $this->assertEquals('Group', $dict['kind']);
+        $dict = $group->jsonSerialize();
+        $this->assertEquals('Group', $dict['type']);
         $this->assertTrue($dict['capturing']);
-        $this->assertEquals('Lit', $dict['body']['kind']);
+        $this->assertEquals('Literal', $dict['body']->jsonSerialize()['type']);
     }
     
     public function testGroupNonCapturing(): void
     {
         $group = new Group(
             false,
-            new Lit('test')
+            new Literal('test')
         );
         
-        $dict = $group->toDict();
+        $dict = $group->jsonSerialize();
         $this->assertFalse($dict['capturing']);
     }
     
@@ -218,57 +223,52 @@ class NodesTest extends TestCase
     {
         $group = new Group(
             true,
-            new Lit('test'),
+            new Literal('test'),
             'mygroup'
         );
         
-        $dict = $group->toDict();
+        $dict = $group->jsonSerialize();
         $this->assertEquals('mygroup', $dict['name']);
     }
     
-    public function testBackrefByIndex(): void
+    public function testBackreferenceByIndex(): void
     {
-        $backref = new Backref(byIndex: 1);
-        $dict = $backref->toDict();
+        $backref = new Backreference(index: 1);
+        $dict = $backref->jsonSerialize();
         
-        $this->assertEquals('Backref', $dict['kind']);
-        $this->assertEquals(1, $dict['byIndex']);
-        $this->assertArrayNotHasKey('byName', $dict);
+        $this->assertEquals('Backreference', $dict['type']);
+        $this->assertEquals(1, $dict['index']);
+        $this->assertArrayNotHasKey('name', $dict);
     }
     
-    public function testBackrefByName(): void
+    public function testBackreferenceByName(): void
     {
-        $backref = new Backref(byName: 'mygroup');
-        $dict = $backref->toDict();
+        $backref = new Backreference(name: 'mygroup');
+        $dict = $backref->jsonSerialize();
         
-        $this->assertEquals('mygroup', $dict['byName']);
-        $this->assertArrayNotHasKey('byIndex', $dict);
+        $this->assertEquals('mygroup', $dict['name']);
+        $this->assertArrayNotHasKey('index', $dict);
     }
     
     public function testLookAhead(): void
     {
-        $look = new Look(
-            'Ahead',
-            false,
-            new Lit('test')
+        $look = new Lookahead(
+            new Literal('test')
         );
         
-        $dict = $look->toDict();
-        $this->assertEquals('Look', $dict['kind']);
-        $this->assertEquals('Ahead', $dict['dir']);
-        $this->assertFalse($dict['neg']);
+        $dict = $look->jsonSerialize();
+        $this->assertEquals('Lookahead', $dict['type']);
+        $this->assertEquals('Literal', $dict['body']->jsonSerialize()['type']);
     }
     
     public function testLookBehindNegative(): void
     {
-        $look = new Look(
-            'Behind',
-            true,
-            new Lit('test')
+        $look = new NegativeLookbehind(
+            new Literal('test')
         );
         
-        $dict = $look->toDict();
-        $this->assertEquals('Behind', $dict['dir']);
-        $this->assertTrue($dict['neg']);
+        $dict = $look->jsonSerialize();
+        $this->assertEquals('NegativeLookbehind', $dict['type']);
+        $this->assertEquals('Literal', $dict['body']->jsonSerialize()['type']);
     }
 }

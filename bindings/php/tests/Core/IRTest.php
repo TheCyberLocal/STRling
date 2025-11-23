@@ -1,224 +1,141 @@
 <?php
 
-namespace STRling\Tests\Core;
+namespace Tests\Core;
 
 use PHPUnit\Framework\TestCase;
-use STRling\Core\IRAlt;
-use STRling\Core\IRSeq;
-use STRling\Core\IRLit;
-use STRling\Core\IRDot;
-use STRling\Core\IRAnchor;
-use STRling\Core\IRCharClass;
-use STRling\Core\IRClassLiteral;
-use STRling\Core\IRClassRange;
-use STRling\Core\IRClassEscape;
-use STRling\Core\IRQuant;
-use STRling\Core\IRGroup;
-use STRling\Core\IRBackref;
-use STRling\Core\IRLook;
+use STRling\Core\IR\Alt;
+use STRling\Core\IR\Anchor;
+use STRling\Core\IR\BackRef;
+use STRling\Core\IR\Char;
+use STRling\Core\IR\Dot;
+use STRling\Core\IR\Esc;
+use STRling\Core\IR\Group;
+use STRling\Core\IR\LookAround;
+use STRling\Core\IR\Range;
+use STRling\Core\IR\Lit;
 
-/**
- * Test suite for IR Node data structures.
- * 
- * @package STRling\Tests\Core
- */
 class IRTest extends TestCase
 {
-    public function testIRLitNode(): void
+    public function testCharSerialization(): void
     {
-        $lit = new IRLit('hello');
-        $dict = $lit->toDict();
-        
-        $this->assertEquals('Lit', $dict['ir']);
-        $this->assertEquals('hello', $dict['value']);
+        $node = new Char('a');
+        $json = json_encode($node);
+        $dict = json_decode($json, true);
+
+        $this->assertEquals('Char', $dict['ir']);
+        $this->assertEquals('a', $dict['char']);
     }
-    
-    public function testIRDotNode(): void
+
+    public function testLitSerialization(): void
     {
-        $dot = new IRDot();
-        $dict = $dot->toDict();
-        
+        $node = new Lit('abc');
+        $json = json_encode($node);
+        $dict = json_decode($json, true);
+
+        $this->assertEquals('Lit', $dict['ir']);
+        $this->assertEquals('abc', $dict['value']);
+    }
+
+    public function testEscSerialization(): void
+    {
+        $node = new Esc('d');
+        $json = json_encode($node);
+        $dict = json_decode($json, true);
+
+        $this->assertEquals('Esc', $dict['ir']);
+        $this->assertEquals('d', $dict['type']);
+    }
+
+    public function testDotSerialization(): void
+    {
+        $node = new Dot();
+        $json = json_encode($node);
+        $dict = json_decode($json, true);
+
         $this->assertEquals('Dot', $dict['ir']);
     }
-    
-    public function testIRAnchorNode(): void
+
+    public function testRangeSerialization(): void
     {
-        $anchor = new IRAnchor('Start');
-        $dict = $anchor->toDict();
-        
+        $node = new Range('a', 'z');
+        $json = json_encode($node);
+        $dict = json_decode($json, true);
+
+        $this->assertEquals('Range', $dict['ir']);
+        $this->assertEquals('a', $dict['from']);
+        $this->assertEquals('z', $dict['to']);
+    }
+
+    public function testAnchorSerialization(): void
+    {
+        $node = new Anchor('StartLine');
+        $json = json_encode($node);
+        $dict = json_decode($json, true);
+
         $this->assertEquals('Anchor', $dict['ir']);
-        $this->assertEquals('Start', $dict['at']);
+        $this->assertEquals('StartLine', $dict['at']);
     }
-    
-    public function testIRAltNode(): void
+
+    public function testGroupSerialization(): void
     {
-        $alt = new IRAlt([
-            new IRLit('a'),
-            new IRLit('b')
-        ]);
-        
-        $dict = $alt->toDict();
-        $this->assertEquals('Alt', $dict['ir']);
-        $this->assertCount(2, $dict['branches']);
-        $this->assertEquals('Lit', $dict['branches'][0]['ir']);
-    }
-    
-    public function testIRSeqNode(): void
-    {
-        $seq = new IRSeq([
-            new IRLit('hello'),
-            new IRLit(' '),
-            new IRLit('world')
-        ]);
-        
-        $dict = $seq->toDict();
-        $this->assertEquals('Seq', $dict['ir']);
-        $this->assertCount(3, $dict['parts']);
-    }
-    
-    public function testIRCharClassWithLiterals(): void
-    {
-        $charClass = new IRCharClass(false, [
-            new IRClassLiteral('a'),
-            new IRClassLiteral('b')
-        ]);
-        
-        $dict = $charClass->toDict();
-        $this->assertEquals('CharClass', $dict['ir']);
-        $this->assertFalse($dict['negated']);
-        $this->assertCount(2, $dict['items']);
-        $this->assertEquals('Char', $dict['items'][0]['ir']);
-        $this->assertEquals('a', $dict['items'][0]['char']);
-    }
-    
-    public function testIRCharClassWithRange(): void
-    {
-        $charClass = new IRCharClass(false, [
-            new IRClassRange('a', 'z')
-        ]);
-        
-        $dict = $charClass->toDict();
-        $this->assertEquals('Range', $dict['items'][0]['ir']);
-        $this->assertEquals('a', $dict['items'][0]['from']);
-        $this->assertEquals('z', $dict['items'][0]['to']);
-    }
-    
-    public function testIRCharClassWithEscape(): void
-    {
-        $charClass = new IRCharClass(false, [
-            new IRClassEscape('d')
-        ]);
-        
-        $dict = $charClass->toDict();
-        $this->assertEquals('Esc', $dict['items'][0]['ir']);
-        $this->assertEquals('d', $dict['items'][0]['type']);
-    }
-    
-    public function testIRCharClassNegated(): void
-    {
-        $charClass = new IRCharClass(true, [
-            new IRClassLiteral('a')
-        ]);
-        
-        $dict = $charClass->toDict();
-        $this->assertTrue($dict['negated']);
-    }
-    
-    public function testIRQuantNode(): void
-    {
-        $quant = new IRQuant(
-            new IRLit('a'),
-            1,
-            5,
-            'Greedy'
-        );
-        
-        $dict = $quant->toDict();
-        $this->assertEquals('Quant', $dict['ir']);
-        $this->assertEquals(1, $dict['min']);
-        $this->assertEquals(5, $dict['max']);
-        $this->assertEquals('Greedy', $dict['mode']);
-    }
-    
-    public function testIRQuantUnbounded(): void
-    {
-        $quant = new IRQuant(
-            new IRLit('a'),
-            0,
-            'Inf',
-            'Lazy'
-        );
-        
-        $dict = $quant->toDict();
-        $this->assertEquals('Inf', $dict['max']);
-        $this->assertEquals('Lazy', $dict['mode']);
-    }
-    
-    public function testIRGroupCapturing(): void
-    {
-        $group = new IRGroup(
-            true,
-            new IRLit('test')
-        );
-        
-        $dict = $group->toDict();
+        $child = new Lit('abc');
+        $node = new Group($child, true, 'name1');
+        $json = json_encode($node);
+        $dict = json_decode($json, true);
+
         $this->assertEquals('Group', $dict['ir']);
         $this->assertTrue($dict['capturing']);
+        $this->assertEquals('name1', $dict['name']);
+        $this->assertEquals('Lit', $dict['body']['ir']);
     }
-    
-    public function testIRGroupNamed(): void
+
+    public function testAtomicGroupSerialization(): void
     {
-        $group = new IRGroup(
-            true,
-            new IRLit('test'),
-            'mygroup'
-        );
-        
-        $dict = $group->toDict();
-        $this->assertEquals('mygroup', $dict['name']);
+        $child = new Lit('abc');
+        $node = new Group($child, false, null, null, true);
+        $json = json_encode($node);
+        $dict = json_decode($json, true);
+
+        $this->assertEquals('Group', $dict['ir']);
+        $this->assertFalse($dict['capturing']);
+        $this->assertTrue($dict['atomic']);
+        $this->assertEquals('Lit', $dict['body']['ir']);
     }
-    
-    public function testIRBackrefByIndex(): void
+
+    public function testAltSerialization(): void
     {
-        $backref = new IRBackref(byIndex: 1);
-        $dict = $backref->toDict();
-        
+        $left = new Char('a');
+        $right = new Char('b');
+        $node = new Alt([$left, $right]);
+        $json = json_encode($node);
+        $dict = json_decode($json, true);
+
+        $this->assertEquals('Alt', $dict['ir']);
+        $this->assertCount(2, $dict['branches']);
+        $this->assertEquals('Char', $dict['branches'][0]['ir']);
+    }
+
+    public function testBackRefSerialization(): void
+    {
+        $node = new BackRef(1, 'name1');
+        $json = json_encode($node);
+        $dict = json_decode($json, true);
+
         $this->assertEquals('Backref', $dict['ir']);
         $this->assertEquals(1, $dict['byIndex']);
+        $this->assertEquals('name1', $dict['byName']);
     }
-    
-    public function testIRBackrefByName(): void
+
+    public function testLookAroundSerialization(): void
     {
-        $backref = new IRBackref(byName: 'mygroup');
-        $dict = $backref->toDict();
-        
-        $this->assertEquals('mygroup', $dict['byName']);
-    }
-    
-    public function testIRLookAhead(): void
-    {
-        $look = new IRLook(
-            'Ahead',
-            false,
-            new IRLit('test')
-        );
-        
-        $dict = $look->toDict();
+        $child = new Lit('abc');
+        $node = new LookAround('Lookahead', true, $child);
+        $json = json_encode($node);
+        $dict = json_decode($json, true);
+
         $this->assertEquals('Look', $dict['ir']);
         $this->assertEquals('Ahead', $dict['dir']);
-        $this->assertFalse($dict['neg']);
-    }
-    
-    public function testIRLookBehindNegative(): void
-    {
-        $look = new IRLook(
-            'Behind',
-            true,
-            new IRLit('test')
-        );
-        
-        $dict = $look->toDict();
-        $this->assertEquals('Behind', $dict['dir']);
         $this->assertTrue($dict['neg']);
+        $this->assertEquals('Lit', $dict['body']['ir']);
     }
 }

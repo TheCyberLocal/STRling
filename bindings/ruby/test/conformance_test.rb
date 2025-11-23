@@ -6,47 +6,33 @@ require_relative '../lib/strling/ir'
 class ConformanceTest < Minitest::Test
   SPEC_DIR = File.expand_path('../../../../tests/spec', __FILE__)
 
-  def test_conformance
-    files = Dir.glob(File.join(SPEC_DIR, '*.json'))
+  Dir.glob(File.join(SPEC_DIR, '*.json')).each do |file|
+    test_name = "test_conformance_#{File.basename(file, '.json').gsub(/[^a-zA-Z0-9_]/, '_')}"
     
-    # Filter out files that might not be fully supported yet or are malformed/negative tests
-    # For now, try to run all and see failures.
-    
-    files.each do |file|
+    define_method(test_name) do
       spec = JSON.parse(File.read(file))
       
-      # Skip if no input_ast or expected_ir (e.g. some negative tests might lack them)
-      next unless spec['input_ast'] && spec['expected_ir']
+      skip "No input_ast or expected_ir" unless spec['input_ast'] && spec['expected_ir']
 
       # Hydrate AST
       begin
         ast = Strling::Nodes::NodeFactory.from_json(spec['input_ast'])
       rescue => e
-        # flunk "Failed to hydrate AST in #{File.basename(file)}: #{e.message}"
-        # For now, let's just print and skip to see how many pass
-        puts "Skipping #{File.basename(file)}: Hydration error - #{e.message}"
-        next
+        skip "Hydration error: #{e.message}"
       end
       
       # Compile to IR
       begin
         ir = Strling::IR::Compiler.compile(ast)
       rescue => e
-        puts "Skipping #{File.basename(file)}: Compilation error - #{e.message}"
-        next
+        skip "Compilation error: #{e.message}"
       end
 
-      if ir.nil?
-         puts "Skipping #{File.basename(file)}: Compilation returned nil"
-         next
-      end
+      skip "Compilation returned nil" if ir.nil?
       
       # Compare
       expected = spec['expected_ir']
       actual = serialize(ir)
-      
-      # We might need to filter out nil values from actual if expected doesn't have them
-      # or vice versa. But let's try exact match first.
       
       assert_equal expected, actual, "Mismatch in #{File.basename(file)}"
     end

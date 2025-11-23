@@ -2,6 +2,25 @@
 
 namespace STRling\Core;
 
+use STRling\Core\Nodes\Node;
+use STRling\Core\Nodes\ClassItem;
+use STRling\Core\Nodes\Alternation;
+use STRling\Core\Nodes\Sequence;
+use STRling\Core\Nodes\Literal;
+use STRling\Core\Nodes\Dot;
+use STRling\Core\Nodes\Anchor;
+use STRling\Core\Nodes\CharacterClass;
+use STRling\Core\Nodes\Range;
+use STRling\Core\Nodes\Escape;
+use STRling\Core\Nodes\UnicodeProperty;
+use STRling\Core\Nodes\Quantifier;
+use STRling\Core\Nodes\Group;
+use STRling\Core\Nodes\Backreference;
+use STRling\Core\Nodes\Lookahead;
+use STRling\Core\Nodes\NegativeLookahead;
+use STRling\Core\Nodes\Lookbehind;
+use STRling\Core\Nodes\NegativeLookbehind;
+
 class NodeFactory
 {
     public static function fromArray(array $data): Node|ClassItem
