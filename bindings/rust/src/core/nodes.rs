@@ -273,7 +273,11 @@ fn default_greedy_mode() -> String {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct QuantifierTarget {
-    #[serde(rename = "target")]
+    // Accept both `target` (preferred in the current JSON schema) and
+    // the historical `child` key. Some older specs use `child` while
+    // newer specs use `target` — accepting both prevents deserialization
+    // errors in conformance tests.
+    #[serde(rename = "target", alias = "child")]
     pub child: Box<Node>,
 }
 
@@ -285,7 +289,9 @@ pub struct QuantifierTarget {
 pub enum MaxBound {
     Finite(i32),
     Infinite(String), // "Inf"
-    Null(Option<()>), // Handle null in JSON
+    // JSON `null` will deserialize into this unit variant. Using a unit
+    // variant makes the shape clearer and avoids nested Option types.
+    Null,
 }
 
 /// Group node.

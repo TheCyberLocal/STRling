@@ -83,7 +83,7 @@ impl Compiler {
                 let max = match &quant.max {
                     MaxBound::Finite(n) => IRMaxBound::Finite(*n),
                     MaxBound::Infinite(s) => IRMaxBound::Infinite(s.clone()),
-                    MaxBound::Null(_) => IRMaxBound::Infinite("Inf".to_string()),
+                    MaxBound::Null => IRMaxBound::Infinite("Inf".to_string()),
                 };
                 
                 let mode = if quant.possessive {
