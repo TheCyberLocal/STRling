@@ -29,7 +29,7 @@ static bool is_valid_group_name(const char *name)
 
 const char *strling_version(void)
 {
-    return "0.1.0";
+    return "3.0.0-alpha";
 }
 
 /* ==================== Error Handling ==================== */

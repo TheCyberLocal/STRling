@@ -1,6 +1,6 @@
 name: strling
 description: A Dart binding for STRling.
-version: 0.0.1
+version: 3.0.0-alpha
 environment:
     sdk: ">=3.0.0 <4.0.0"
 
