@@ -42,7 +42,6 @@ let result = compiler.compile_with_metadata(&ast);
 let emitter = PCRE2Emitter::new(flags);
 println!("{}", emitter.emit(&result.ir));
 ```
-```
 
 ### Start/End of String
 
@@ -51,14 +50,14 @@ Matches the absolute beginning (`\A`) or end (`\z`) of the string, ignoring mult
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, Anchor, Group, Literal, Flags};
-// Explicit AST for `^(hello)$` — anchored sequence with a capturing group around a literal
+use strling_core::simply;
+// `^(hello)$` using the simply builder helpers
 let flags = Flags::default();
-let ast = Node::Sequence(Sequence { parts: vec![
-	Node::Anchor(Anchor { at: "Start".to_string() }),
-	Node::Group(Group { capturing: true, body: Box::new(Node::Literal(Literal { value: "hello".to_string() })), name: None, atomic: None }),
-	Node::Anchor(Anchor { at: "End".to_string() }),
-] });
+let ast = simply::merge(vec![
+	simply::start(),
+	simply::capture(simply::literal("hello")),
+	simply::end(),
+]);
 
 let mut compiler = Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -73,14 +72,14 @@ Matches the position between a word character and a non-word character (`\\b`), 
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, Literal, Anchor, Flags};
-// Word boundary (`\bword\b`) represented using boundary anchors + literal
+use strling_core::simply;
+// Word boundary (`\bword\b`) using simply helpers
 let flags = Flags::default();
-let ast = Node::Sequence(Sequence { parts: vec![
-	Node::Anchor(Anchor { at: "WordBoundary".to_string() }),
-	Node::Literal(Literal { value: "word".to_string() }),
-	Node::Anchor(Anchor { at: "WordBoundary".to_string() }),
-] });
+let ast = simply::merge(vec![
+	simply::word_boundary(),
+	simply::literal("word"),
+	simply::word_boundary(),
+]);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -117,7 +116,6 @@ let result = compiler.compile_with_metadata(&ast);
 let emitter = strling_core::emitters::pcre2::PCRE2Emitter::new(flags);
 println!("{}", emitter.emit(&result.ir));
 ```
-```
 
 ### Custom Classes & Ranges
 
@@ -139,7 +137,6 @@ let result = compiler.compile_with_metadata(&ast);
 let emitter = strling_core::emitters::pcre2::PCRE2Emitter::new(flags);
 println!("{}", emitter.emit(&result.ir));
 ```
-```
 
 ### Negated Classes
 
@@ -148,16 +145,10 @@ Match any character _not_ in the set (`[^...]`).
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, CharacterClass, ClassItem, ClassLiteral, Flags};
+use strling_core::simply;
 // Negated character class [^aeiou]
 let flags = Flags::default();
-let ast = Node::CharacterClass(CharacterClass { negated: true, items: vec![
-	ClassItem::Char(ClassLiteral { ch: "a".to_string() }),
-	ClassItem::Char(ClassLiteral { ch: "e".to_string() }),
-	ClassItem::Char(ClassLiteral { ch: "i".to_string() }),
-	ClassItem::Char(ClassLiteral { ch: "o".to_string() }),
-	ClassItem::Char(ClassLiteral { ch: "u".to_string() }),
-] });
+let ast = simply::not_any_of(&["a","e","i","o","u"]);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -172,12 +163,10 @@ Match characters based on Unicode properties (`\\p{...}`), such as scripts, cate
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, CharacterClass, ClassItem, ClassEscape, Flags};
+use strling_core::simply;
 // Unicode property escape \p{Lu}
 let flags = Flags::default();
-let ast = Node::CharacterClass(CharacterClass { negated: false, items: vec![
-	ClassItem::Esc(ClassEscape { escape_type: "p".to_string(), property: Some("Lu".to_string()) }),
-] });
+let ast = simply::prop("Lu");
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -201,13 +190,10 @@ Escape sequences let you represent special characters, control characters, numer
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, Literal, Flags};
-// Construct an explicit AST representing a newline followed by 'end'
+use strling_core::simply;
+// Construct `\n` followed by `end` using helpers
 let flags = Flags::default();
-let ast = Node::Sequence(Sequence { parts: vec![
-	Node::Literal(Literal { value: "\n".to_string() }),
-	Node::Literal(Literal { value: "end".to_string() }),
-] });
+let ast = simply::merge(vec![simply::escape("n"), simply::literal("end")]);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -231,15 +217,11 @@ Match as much as possible (standard behavior).
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Quantifier, QuantifierTarget, CharacterClass, ClassItem, ClassRange, MaxBound, Flags};
+use strling_core::simply;
 // [A-Za-z]+ -> a quantifier over a character class with two ranges
 let flags = Flags::default();
-let class_node = Node::CharacterClass(CharacterClass { negated: false, items: vec![
-	ClassItem::Range(ClassRange { from_ch: "A".to_string(), to_ch: "Z".to_string() }),
-	ClassItem::Range(ClassRange { from_ch: "a".to_string(), to_ch: "z".to_string() }),
-] });
-
-let ast = Node::Quantifier(Quantifier { target: QuantifierTarget { child: Box::new(class_node) }, min: 1, max: MaxBound::Infinite("Inf".to_string()), mode: "Greedy".to_string(), greedy: true, lazy: false, possessive: false });
+let class_node = simply::ranges(&[("A","Z"),("a","z")]);
+let ast = simply::repeat_greedy(class_node, 1, None);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -254,15 +236,11 @@ Match as little as possible. Appending `?` to a quantifier (e.g., `*?`).
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Quantifier, QuantifierTarget, CharacterClass, ClassItem, ClassRange, MaxBound, Flags};
+use strling_core::simply;
 // [A-Za-z]{1,5}? -> lazy quantifier over letter ranges
 let flags = Flags::default();
-let class_node = Node::CharacterClass(CharacterClass { negated: false, items: vec![
-	ClassItem::Range(ClassRange { from_ch: "A".to_string(), to_ch: "Z".to_string() }),
-	ClassItem::Range(ClassRange { from_ch: "a".to_string(), to_ch: "z".to_string() }),
-] });
-
-let mut_ast = Node::Quantifier(Quantifier { target: QuantifierTarget { child: Box::new(class_node) }, min: 1, max: MaxBound::Finite(5), mode: "Lazy".to_string(), greedy: false, lazy: true, possessive: false });
+let class_node = simply::ranges(&[("A","Z"),("a","z")]);
+let mut_ast = simply::repeat_lazy(class_node, 1, Some(5));
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&mut_ast);
@@ -279,14 +257,10 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Quantifier, QuantifierTarget, CharacterClass, ClassItem, ClassEscape, MaxBound, Flags};
+use strling_core::simply;
 // \d++ -> possessive quantifier of \d shorthand
 let flags = Flags::default();
-let class_node = Node::CharacterClass(CharacterClass { negated: false, items: vec![
-	ClassItem::Esc(ClassEscape { escape_type: "d".to_string(), property: None })
-] });
-
-let ast = Node::Quantifier(Quantifier { target: QuantifierTarget { child: Box::new(class_node) }, min: 1, max: MaxBound::Infinite("Inf".to_string()), mode: "Possessive".to_string(), greedy: false, lazy: false, possessive: true });
+let ast = simply::repeat_possessive(class_escape("d"), 1, None);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -318,7 +292,6 @@ let result = compiler.compile_with_metadata(&ast);
 let emitter = strling_core::emitters::pcre2::PCRE2Emitter::new(flags);
 println!("{}", emitter.emit(&result.ir));
 ```
-```
 
 ### Named Groups
 
@@ -330,11 +303,9 @@ Capturing groups with a specific name `(?<name>...)` for easier extraction.
 use strling_core::core::nodes::{Node, Group, Quantifier, QuantifierTarget, CharacterClass, ClassItem, ClassEscape, MaxBound, Flags};
 // (?<area>\d{3}) -> named capturing group
 let flags = Flags::default();
-let inner = Node::Quantifier(Quantifier { target: QuantifierTarget { child: Box::new(Node::CharacterClass(CharacterClass { negated: false, items: vec![
-	ClassItem::Esc(ClassEscape { escape_type: "d".to_string(), property: None })
-] })) }, min: 3, max: MaxBound::Finite(3), mode: "Greedy".to_string(), greedy: true, lazy: false, possessive: false });
+let inner = simply::digit(3);
 
-let ast = Node::Group(Group { capturing: true, body: Box::new(inner), name: Some("area".to_string()), atomic: None });
+let ast = simply::named_capture("area", inner);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -349,14 +320,11 @@ Groups `(?:...)` that group logic without capturing text.
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Group, Quantifier, QuantifierTarget, CharacterClass, ClassItem, ClassEscape, MaxBound, Flags};
+use strling_core::simply;
 // (?:\d{3}) -> non-capturing group containing a quantifier over \d
 let flags = Flags::default();
-let inner = Node::Quantifier(Quantifier { target: QuantifierTarget { child: Box::new(Node::CharacterClass(CharacterClass { negated: false, items: vec![
-	ClassItem::Esc(ClassEscape { escape_type: "d".to_string(), property: None })
-] })) }, min: 3, max: MaxBound::Finite(3), mode: "Greedy".to_string(), greedy: true, lazy: false, possessive: false });
-
-let ast = Node::Group(Group { capturing: false, body: Box::new(inner), name: None, atomic: None });
+let inner = simply::digit(3);
+let ast = simply::non_capturing(inner);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -373,14 +341,11 @@ Groups `(?>...)` that discard backtracking information once the group matches.
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Group, Quantifier, QuantifierTarget, CharacterClass, ClassItem, ClassEscape, MaxBound, Flags};
+use strling_core::simply;
 // (?>\d+) -> atomic group around a quantifier
 let flags = Flags::default();
-let inner = Node::Quantifier(Quantifier { target: QuantifierTarget { child: Box::new(Node::CharacterClass(CharacterClass { negated: false, items: vec![
-	ClassItem::Esc(ClassEscape { escape_type: "d".to_string(), property: None })
-] })) }, min: 1, max: MaxBound::Infinite("Inf".to_string()), mode: "Greedy".to_string(), greedy: true, lazy: false, possessive: false });
-
-let ast = Node::Group(Group { capturing: true, body: Box::new(inner), name: None, atomic: Some(true) });
+let inner = simply::repeat_greedy(class_escape("d"), 1, None);
+let ast = simply::atomic(inner);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -402,17 +367,10 @@ Zero-width assertions that match a group without consuming characters.
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, Literal, Lookahead, LookaroundBody, CharacterClass, ClassItem, ClassEscape, Flags};
+use strling_core::simply;
 // a(?=\d) -> sequence of literal 'a' followed by a lookahead asserting a digit
 let flags = Flags::default();
-let lookahead_body = LookaroundBody { body: Box::new(Node::CharacterClass(CharacterClass { negated: false, items: vec![
-	ClassItem::Esc(ClassEscape { escape_type: "d".to_string(), property: None })
-] })) };
-
-let ast = Node::Sequence(Sequence { parts: vec![
-	Node::Literal(Literal { value: "a".to_string() }),
-	Node::Lookahead(lookahead_body),
-] });
+let ast = simply::merge(vec![ simply::literal("a"), simply::look_ahead(class_escape("d")) ]);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -428,13 +386,10 @@ println!("{}", emitter.emit(&result.ir));
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, Literal, LookaroundBody, Flags};
+use strling_core::simply;
 // (?<=a)1 -> lookbehind asserting 'a' followed by literal '1'
 let flags = Flags::default();
-let ast = Node::Sequence(Sequence { parts: vec![
-	Node::Lookbehind(LookaroundBody { body: Box::new(Node::Literal(Literal { value: "a".to_string() })) }),
-	Node::Literal(Literal { value: "1".to_string() }),
-] });
+let ast = simply::merge(vec![ simply::look_behind(simply::literal("a")), simply::literal("1") ]);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -453,13 +408,10 @@ Matches one pattern OR another (`|`).
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Alternation, Sequence, Literal, Flags};
+use strling_core::simply;
 // cat|dog -> alternation with two literal branches
 let flags = Flags::default();
-let left = Node::Sequence(Sequence { parts: vec![ Node::Literal(Literal { value: "cat".to_string() }) ] });
-let right = Node::Sequence(Sequence { parts: vec![ Node::Literal(Literal { value: "dog".to_string() }) ] });
-
-let ast = Node::Alternation(Alternation { branches: vec![ left, right ] });
+let ast = simply::either(simply::literal("cat"), simply::literal("dog"));
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -478,12 +430,10 @@ Reference a previously captured group by index (`\\1`) or name (`\k<name>`).
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, Group, Literal, Backreference, Flags};
+use strling_core::simply;
 // (abc)\1 -> capturing group followed by a backreference to it
 let flags = Flags::default();
-let group = Node::Group(Group { capturing: true, body: Box::new(Node::Sequence(strling_core::core::nodes::Sequence { parts: vec![ Node::Literal(Literal { value: "abc".to_string() }) ] })), name: None, atomic: None });
-
-let ast = Node::Sequence(Sequence { parts: vec![ group, Node::Backreference(Backreference { by_index: Some(1), by_name: None }) ] });
+let ast = simply::merge(vec![ simply::capture(simply::literal("abc")), simply::backref_index(1) ]);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
@@ -505,10 +455,10 @@ Global flags that alter the behavior of the regex engine.
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, Literal, Flags};
+use strling_core::simply;
 // (?i)abc -> flags set to case-insensitive, AST contains the literal sequence
-let flags = Flags::from_letters("i");
-let ast = Node::Sequence(Sequence { parts: vec![ Node::Literal(Literal { value: "abc".to_string() }) ] });
+let flags = simply::flag("i");
+let ast = simply::literal("abc");
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
