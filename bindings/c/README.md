@@ -92,13 +92,13 @@ int main(void) {
      * JSON before calling the compiler).
      */
     const char* phone_json =
-        "{\"type\":\"Seq\",\"parts\":["
+        "{\"type\":\"Sequence\",\"parts\":["
         "{\"type\":\"Anchor\",\"at\":\"Start\"},"
-        "{\"type\":\"Quant\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
-        "{\"type\":\"Quant\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharClass\",\"items\":[{\"type\":\"Char\",\"value\":\"-\"},{\"type\":\"Char\",\"value\":\".\"},{\"type\":\"Char\",\"value\":\" \"}] } },"
-        "{\"type\":\"Quant\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
-        "{\"type\":\"Quant\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharClass\",\"items\":[{\"type\":\"Char\",\"value\":\"-\"},{\"type\":\"Char\",\"value\":\".\"},{\"type\":\"Char\",\"value\":\" \"}] } },"
-        "{\"type\":\"Quant\",\"min\":4,\"max\":4,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
+        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}}},"
+        "{\"type\":\"Quantifier\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharacterClass\",\"members\":[{\"type\":\"Literal\",\"value\":\"-\"},{\"type\":\"Literal\",\"value\":\".\"},{\"type\":\"Literal\",\"value\":\" \"}] } },"
+        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}}},"
+        "{\"type\":\"Quantifier\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharacterClass\",\"members\":[{\"type\":\"Literal\",\"value\":\"-\"},{\"type\":\"Literal\",\"value\":\".\"},{\"type\":\"Literal\",\"value\":\" \"}] } },"
+        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":4,\"max\":4,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}}},"
         "{\"type\":\"Anchor\",\"at\":\"End\"}]}";
 
     STRlingFlags* flags = strling_flags_create();
@@ -118,7 +118,6 @@ int main(void) {
     return (result.error_code == STRling_OK) ? 0 : 1;
 }
 ```
-
 
 This example shows how to build AST nodes using the `strling_ast_*_create` helpers
 and how to compile a JSON AST (here provided inline) with `strling_compile_compat`.

@@ -330,7 +330,6 @@ STRlingASTNode* right = strling_ast_lit_create("b");
 STRlingASTNode* alt = strling_ast_alt_create((STRlingASTNode*[]){left,right}, 2);
 strling_ast_node_free(alt);
 ```
-```
 
 ### Phone number (Usage example - mirrors Python)
 
@@ -382,11 +381,18 @@ STRlingASTNode* ast = strling_ast_seq_create(parts, 7);
 
 /* Compiler expects a JSON AST string — serialize ast into JSON before
  * calling strling_compile_compat(json_ast, flags). For brevity this example
- * assumes an equivalent `phone_json` string is available and shows how to
- * call the compatibility compile API.
+ * shows the same inline JSON string used in the README (no outer "input_ast" wrapper).
  */
 STRlingFlags* flags = strling_flags_create();
-const char* phone_json = "{...}/* serialize AST here */";
+const char* phone_json =
+    "{\"type\":\"Sequence\",\"parts\":["
+    "{\"type\":\"Anchor\",\"at\":\"Start\"},"
+    "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}}},"
+    "{\"type\":\"Quantifier\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharacterClass\",\"members\":[{\"type\":\"Literal\",\"value\":\"-\"},{\"type\":\"Literal\",\"value\":\".\"},{\"type\":\"Literal\",\"value\":\" \"}] } },"
+    "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}}},"
+    "{\"type\":\"Quantifier\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharacterClass\",\"members\":[{\"type\":\"Literal\",\"value\":\"-\"},{\"type\":\"Literal\",\"value\":\".\"},{\"type\":\"Literal\",\"value\":\" \"}] } },"
+    "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":4,\"max\":4,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}}},"
+    "{\"type\":\"Anchor\",\"at\":\"End\"}] }"; /* serialized AST: use Sequence, Group (capturing), Quantifier, CharacterClass (members: Literal) */
 strling_result_t res = strling_compile_compat(phone_json, flags);
 if (res.error_code == STRling_OK) {
     printf("compiled: %s\n", res.pcre2_pattern);
@@ -395,7 +401,6 @@ strling_result_free_compat(&res);
 strling_flags_free(flags);
 strling_ast_node_free(ast);
 ```
-
 
 ---
 
