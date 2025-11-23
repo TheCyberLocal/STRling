@@ -1,8 +1,8 @@
-# API Reference - {Language}
+# API Reference - C++ (C++17)
 
 [← Back to README](../README.md)
 
-This document provides a comprehensive reference for the STRling API in **{Language}**.
+This document provides a comprehensive reference for the STRling API in **C++ (C++17)**.
 
 ## Table of Contents
 
@@ -26,25 +26,88 @@ Anchors match a position within the string, not a character itself.
 
 Matches the beginning (`^`) or end (`$`) of a line.
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Anchors_Line}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+#include <iostream>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Start/End of line anchors
+auto start = std::make_unique<Anchor>();
+start->kind = "Start";
+
+auto end = std::make_unique<Anchor>();
+end->kind = "End";
+
+// Put them in a sequence
+auto seq = std::make_unique<Sequence>();
+seq->items.push_back(std::move(start));
+seq->items.push_back(std::move(end));
+
+auto ir = strling::compile(seq);
+std::cout << "IR: " << ir->to_json().dump() << "\n";
+```
 
 ### Start/End of String
 
 Matches the absolute beginning (`\A`) or end (`\z`) of the string, ignoring multiline mode.
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Anchors_String}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Absolute string anchors
+auto abs_start = std::make_unique<Anchor>();
+abs_start->kind = "AbsoluteStart";
+
+auto abs_end = std::make_unique<Anchor>();
+abs_end->kind = "AbsoluteEnd";
+
+auto seq = std::make_unique<Sequence>();
+seq->items.push_back(std::move(abs_start));
+seq->items.push_back(std::move(abs_end));
+
+auto ir = strling::compile(seq);
+```
 
 ### Word Boundaries
 
 Matches the position between a word character and a non-word character (`\b`), or the inverse (`\B`).
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Anchors_Boundary}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Word boundaries
+auto wb = std::make_unique<Anchor>();
+wb->kind = "WordBoundary";
+
+auto nwb = std::make_unique<Anchor>();
+nwb->kind = "NonWordBoundary";
+
+auto seq = std::make_unique<Sequence>();
+seq->items.push_back(std::move(wb));
+seq->items.push_back(std::move(nwb));
+
+auto ir = strling::compile(seq);
+```
 
 ---
 
@@ -59,33 +122,103 @@ Standard shorthands for common character sets.
 -   `\s`: Whitespace
 -   `.`: Any character (except newline)
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_CharClass_Builtin}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Built-in shorthand (as class members / escapes)
+auto digitEscape = std::make_unique<Escape>();
+digitEscape->kind = "digit"; // corresponds to \d inside a class
+
+auto cc = std::make_unique<CharacterClass>();
+cc->members.push_back(std::move(digitEscape));
+
+auto ir = strling::compile(cc);
+```
 
 ### Custom Classes & Ranges
 
 Define a set of allowed characters (`[...]`) or a range (`a-z`).
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_CharClass_Custom}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Custom char class and range
+auto rng = std::make_unique<Range>();
+rng->from = "a"; rng->to = "z";
+
+auto lit = std::make_unique<Literal>();
+lit->value = "_";
+
+auto cc = std::make_unique<CharacterClass>();
+cc->members.push_back(std::move(rng));
+cc->members.push_back(std::move(lit));
+
+auto ir = strling::compile(cc);
+```
 
 ### Negated Classes
 
 Match any character _not_ in the set (`[^...]`).
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_CharClass_Negated}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Negated class
+auto lit = std::make_unique<Literal>();
+lit->value = "x";
+
+auto cc = std::make_unique<CharacterClass>();
+cc->negated = true; // [^x]
+cc->members.push_back(std::move(lit));
+
+auto ir = strling::compile(cc);
+```
 
 ### Unicode Properties
 
 Match characters based on Unicode properties (`\p{...}`), such as scripts, categories, or blocks. Unicode property escapes allow matching by Script (e.g. `\p{Latin}`), General Category (e.g. `\p{Lu}` for uppercase letters) or named blocks.
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_CharClass_Unicode}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Unicode property inside a class
+auto prop = std::make_unique<UnicodeProperty>();
+prop->value = "Latin";
+prop->negated = false;
+
+auto cc = std::make_unique<CharacterClass>();
+cc->members.push_back(std::move(prop));
+
+auto ir = strling::compile(cc);
+```
 
 ## Escape Sequences
 
@@ -102,9 +235,25 @@ Standard control escapes supported across most engines and in STRling's grammar:
 -   `\\v`: Vertical Tab
 -   `\\0`: Null Byte
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Escapes_Control}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Control escape inside a character class
+auto nl = std::make_unique<Escape>();
+nl->kind = "control:n"; // newline control escape
+
+auto cc = std::make_unique<CharacterClass>();
+cc->members.push_back(std::move(nl));
+
+auto ir = strling::compile(cc);
+```
 
 ### Hexadecimal & Unicode
 
@@ -115,9 +264,29 @@ Define characters by their code point.
 -   `\\uHHHH`: 4-digit Unicode (e.g. `\\u00A9`)
 -   `\\u{...}`: braced Unicode code point (variable length, e.g. `\\u{1F600}`)
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Escapes_Hex}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Hex & Unicode escapes (in class items)
+auto hx = std::make_unique<Escape>();
+hx->kind = "hex:0A"; // \x0A
+
+auto uni = std::make_unique<Escape>();
+uni->kind = "unicode:00A9"; // ©
+
+auto cc = std::make_unique<CharacterClass>();
+cc->members.push_back(std::move(hx));
+cc->members.push_back(std::move(uni));
+
+auto ir = strling::compile(cc);
+```
 
 ---
 
@@ -132,17 +301,51 @@ Match as much as possible (standard behavior).
 -   `?`: 0 or 1
 -   `{n,m}`: Specific range
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Quantifiers_Greedy}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Greedy quantifier example: a+
+auto lit = std::make_unique<Literal>();
+lit->value = "a";
+
+auto q = std::make_unique<Quantifier>();
+q->child = std::move(lit);
+q->min = 1; q->max = -1; q->greedy = true; // a+
+
+auto ir = strling::compile(q);
+```
 
 ### Lazy Quantifiers
 
 Match as little as possible. Appending `?` to a quantifier (e.g., `*?`).
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Quantifiers_Lazy}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Lazy quantifier: a*?
+auto lit = std::make_unique<Literal>();
+lit->value = "a";
+
+auto q = std::make_unique<Quantifier>();
+q->child = std::move(lit);
+q->min = 0; q->max = -1; q->greedy = false; // lazy
+
+auto ir = strling::compile(q);
+```
 
 ### Possessive Quantifiers
 
@@ -150,9 +353,26 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 
 > **Note:** This is a key performance feature in STRling.
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Quantifiers_Possessive}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Possessive quantifier: a*+
+auto lit = std::make_unique<Literal>();
+lit->value = "a";
+
+auto q = std::make_unique<Quantifier>();
+q->child = std::move(lit);
+q->min = 0; q->max = -1; q->greedy = true; q->possessive = true; // possessive
+
+auto ir = strling::compile(q);
+```
 
 ---
 
@@ -162,25 +382,78 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 
 Standard groups `(...)` that capture the matched text.
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Groups_Capturing}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Capturing group
+auto body = std::make_unique<Literal>();
+body->value = "abc";
+
+auto g = std::make_unique<Group>();
+g->capturing = true;
+g->child = std::move(body);
+
+auto ir = strling::compile(g);
+```
 
 ### Named Groups
 
 Capturing groups with a specific name `(?<name>...)` for easier extraction.
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Groups_Named}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+#include <string>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Named capturing group
+auto body = std::make_unique<Literal>();
+body->value = "id";
+
+auto g = std::make_unique<Group>();
+g->capturing = true;
+g->name = std::optional<std::string>("myname");
+g->child = std::move(body);
+
+auto ir = strling::compile(g);
+```
 
 ### Non-Capturing Groups
 
 Groups `(?:...)` that group logic without capturing text.
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Groups_NonCapturing}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Non-capturing group
+auto body = std::make_unique<Literal>();
+body->value = "x+";
+
+auto g = std::make_unique<Group>();
+g->capturing = false;
+g->child = std::move(body);
+
+auto ir = strling::compile(g);
+```
 
 ### Atomic Groups
 
@@ -188,9 +461,27 @@ Groups `(?>...)` that discard backtracking information once the group matches.
 
 > **Note:** Useful for optimizing performance and preventing catastrophic backtracking.
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Groups_Atomic}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Atomic group
+auto body = std::make_unique<Literal>();
+body->value = "a+";
+
+auto g = std::make_unique<Group>();
+g->capturing = true;
+g->atomic = true;
+g->child = std::move(body);
+
+auto ir = strling::compile(g);
+```
 
 ---
 
@@ -203,18 +494,52 @@ Zero-width assertions that match a group without consuming characters.
 -   Positive `(?=...)`: Asserts that what follows matches the pattern.
 -   Negative `(?!...)`: Asserts that what follows does _not_ match.
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Lookarounds_Ahead}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Positive lookahead (?=foo)
+auto body = std::make_unique<Literal>();
+body->value = "foo";
+
+auto look = std::make_unique<Lookahead>();
+look->child = std::move(body);
+look->positive = true;
+
+auto ir = strling::compile(look);
+```
 
 ### Lookbehind
 
 -   Positive `(?<=...)`: Asserts that what precedes matches the pattern.
 -   Negative `(?<!...)`: Asserts that what precedes does _not_ match.
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Lookarounds_Behind}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Positive lookbehind (?<=bar)
+auto body = std::make_unique<Literal>();
+body->value = "bar";
+
+auto look = std::make_unique<Lookbehind>();
+look->child = std::move(body);
+look->positive = true;
+
+auto ir = strling::compile(look);
+```
 
 ---
 
@@ -224,9 +549,29 @@ Zero-width assertions that match a group without consuming characters.
 
 Matches one pattern OR another (`|`).
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Logic_Alternation}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Alternation (a|b)
+auto left = std::make_unique<Literal>();
+left->value = "a";
+
+auto right = std::make_unique<Literal>();
+right->value = "b";
+
+auto alt = std::make_unique<Alternation>();
+alt->items.push_back(std::move(left));
+alt->items.push_back(std::move(right));
+
+auto ir = strling::compile(alt);
+```
 
 ---
 
@@ -236,9 +581,31 @@ Matches one pattern OR another (`|`).
 
 Reference a previously captured group by index (`\1`) or name (`\k<name>`).
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_References}
+```cpp
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+#include <memory>
+#include <string>
+
+using namespace strling;
+using namespace strling::ast;
+
+// Backreference by index
+auto br_idx = std::make_unique<Backreference>();
+br_idx->index = 1; // \1
+
+// Backreference by name
+auto br_name = std::make_unique<Backreference>();
+br_name->name = std::optional<std::string>("groupName"); // \k<groupName>
+
+auto seq = std::make_unique<Sequence>();
+seq->items.push_back(std::move(br_idx));
+seq->items.push_back(std::move(br_name));
+
+auto ir = strling::compile(seq);
+```
 
 ---
 
@@ -251,9 +618,24 @@ Global flags that alter the behavior of the regex engine.
 -   `s`: Dotall (single line) mode
 -   `x`: Extended mode (ignore whitespace)
 
-#### Usage ({Language})
+#### Usage (C++)
 
-{Snippet_Flags}
+```cpp
+#include "strling/core/nodes.hpp"
+#include <string>
+#include <iostream>
+
+using namespace strling::core;
+
+// Flags object
+Flags flags;
+flags.ignoreCase = true; // /i
+flags.multiline = true;  // /m
+
+// Flags are commonly produced by parsing a directives block and passed into
+// downstream compilation/parsing stages where applicable.
+std::cout << "ignoreCase=" << flags.ignoreCase << " multiline=" << flags.multiline << "\n";
+```
 
 ---
 
@@ -269,8 +651,12 @@ Example directives block:
 
 ```text
 %flags imsux
-%lang {Language}
+%lang C++
 %engine pcre2
 ```
 
-{Snippet_Directives}
+```text
+%flags imsux
+%lang C++
+%engine pcre2
+```

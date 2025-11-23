@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - C++ Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -18,9 +18,113 @@
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **C++ (C++17)**:
 
-{Usage_Snippet}
+```cpp
+#include <iostream>
+#include <memory>
+#include <vector>
+#include "strling/ast.hpp"
+#include "strling/compiler.hpp"
+
+using namespace strling;
+using namespace strling::ast;
+
+// Build a small phone-number AST — comments match the Python example exactly
+// Start of line.
+// Match the area code (3 digits)
+// Optional separator: [-. ]
+// Match the central office code (3 digits)
+// Optional separator: [-. ]
+// Match the station number (4 digits)
+// End of line.
+
+auto ast = std::make_unique<Sequence>();
+{
+  auto* seq = static_cast<Sequence*>(ast.get());
+
+  // Start anchor
+  auto start = std::make_unique<Anchor>();
+  start->kind = "Start";
+  seq->items.push_back(std::move(start));
+
+  // Match the area code (3 digits)
+  auto area_group = std::make_unique<Group>();
+  area_group->capturing = true;
+  auto area_q = std::make_unique<Quantifier>();
+  area_q->child = std::make_unique<Literal>();
+  static_cast<Literal*>(area_q->child.get())->value = "\\d";
+  area_q->min = 3;
+  area_q->max = 3;
+  area_q->greedy = true;
+  area_group->child = std::move(area_q);
+  seq->items.push_back(std::move(area_group));
+
+  // Optional separator: [-. ]
+  auto sep_class = std::make_unique<CharacterClass>();
+  sep_class->negated = false;
+  sep_class->members.push_back(std::make_unique<Literal>());
+  static_cast<Literal*>(sep_class->members.back().get())->value = "-";
+  sep_class->members.push_back(std::make_unique<Literal>());
+  static_cast<Literal*>(sep_class->members.back().get())->value = ".";
+  sep_class->members.push_back(std::make_unique<Literal>());
+  static_cast<Literal*>(sep_class->members.back().get())->value = " ";
+
+  auto opt_sep = std::make_unique<Quantifier>();
+  opt_sep->child = std::move(sep_class);
+  opt_sep->min = 0;
+  opt_sep->max = 1;
+  seq->items.push_back(std::move(opt_sep));
+
+  // Match the central office code (3 digits)
+  auto central_group = std::make_unique<Group>();
+  central_group->capturing = true;
+  auto central_q = std::make_unique<Quantifier>();
+  central_q->child = std::make_unique<Literal>();
+  static_cast<Literal*>(central_q->child.get())->value = "\\d";
+  central_q->min = 3;
+  central_q->max = 3;
+  central_q->greedy = true;
+  central_group->child = std::move(central_q);
+  seq->items.push_back(std::move(central_group));
+
+  // Optional separator: [-. ]
+  auto sep_class_b = std::make_unique<CharacterClass>();
+  sep_class_b->members.push_back(std::make_unique<Literal>());
+  static_cast<Literal*>(sep_class_b->members.back().get())->value = "-";
+  sep_class_b->members.push_back(std::make_unique<Literal>());
+  static_cast<Literal*>(sep_class_b->members.back().get())->value = ".";
+  sep_class_b->members.push_back(std::make_unique<Literal>());
+  static_cast<Literal*>(sep_class_b->members.back().get())->value = " ";
+
+  auto opt_sep_b = std::make_unique<Quantifier>();
+  opt_sep_b->child = std::move(sep_class_b);
+  opt_sep_b->min = 0;
+  opt_sep_b->max = 1;
+  seq->items.push_back(std::move(opt_sep_b));
+
+  // Match the station number (4 digits)
+  auto station_group = std::make_unique<Group>();
+  station_group->capturing = true;
+  auto station_q = std::make_unique<Quantifier>();
+  station_q->child = std::make_unique<Literal>();
+  static_cast<Literal*>(station_q->child.get())->value = "\\d";
+  station_q->min = 4;
+  station_q->max = 4;
+  station_q->greedy = true;
+  station_group->child = std::move(station_q);
+  seq->items.push_back(std::move(station_group));
+
+  // End anchor
+  auto end = std::make_unique<Anchor>();
+  end->kind = "End";
+  seq->items.push_back(std::move(end));
+}
+
+// Compile the AST into the IR
+auto ir = strling::compile(ast);
+std::cout << "Compiled IR type: " << ir->to_json().dump() << "\n";
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
