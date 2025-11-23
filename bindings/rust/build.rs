@@ -50,7 +50,10 @@ fn main() {
             content.push_str(&format!("    let path = \"{}\";\n", path_str));
             content.push_str("    let content = fs::read_to_string(path).expect(\"Failed to read file\");\n");
             content.push_str("    if content.contains(\"\\\"expected_error\\\"\") { return; }\n");
-            content.push_str("    let test_case: TestCase = serde_json::from_str(&content).expect(\"Failed to deserialize\");\n");
+            content.push_str("    let test_case: TestCase = match serde_json::from_str(&content) {\n");
+            content.push_str("        Ok(tc) => tc,\n");
+            content.push_str("        Err(e) => panic!(\"Failed to deserialize {}: {}\", path, e),\n");
+            content.push_str("    };\n");
             content.push_str("    if let (Some(ast), Some(expected)) = (test_case.input_ast, test_case.expected_ir) {\n");
             content.push_str("        let mut compiler = Compiler::new();\n");
             content.push_str("        let ir = compiler.compile(&ast);\n");

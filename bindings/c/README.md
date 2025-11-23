@@ -29,6 +29,10 @@ Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **C**
 /* Build the STRling AST using the thin C helpers and then compile the
  * equivalent JSON AST. The C binding supplies convenient constructors
  * and matching free() helpers for every node type.
+ *
+ * Note: comments and logic below are intentionally identical to the
+ * Python reference example to provide a one-to-one mental model for
+ * readers switching languages.
  */
 
 #include <stdio.h>
@@ -36,11 +40,13 @@ Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **C**
 #include "core/nodes.h"
 
 int main(void) {
-    /* area: (\d{3}) */
-    STRlingASTNode* area = strling_ast_quant_create(
-        strling_ast_lit_create("\d"), 3, 3, "Greedy");
+    // Start of line.
+    // Match the area code (3 digits)
+    STRlingASTNode* area = strling_ast_group_create(true,
+        strling_ast_quant_create(strling_ast_lit_create("\d"), 3, 3, "Greedy"),
+        NULL, false);
 
-    /* first optional separator: [-. ] */
+    // Optional separator: [-. ]
     STRlingClassItem* sep_items_a[3] = {
         strling_class_literal_create("-"),
         strling_class_literal_create("."),
@@ -49,10 +55,12 @@ int main(void) {
     STRlingASTNode* sep_a = strling_ast_charclass_create(false, sep_items_a, 3);
     STRlingASTNode* opt_sep_a = strling_ast_quant_create(sep_a, 0, 1, "Greedy");
 
-    /* central: (\d{3}) */
-    STRlingASTNode* central = strling_ast_quant_create(strling_ast_lit_create("\d"), 3, 3, "Greedy");
+    // Match the central office code (3 digits)
+    STRlingASTNode* central = strling_ast_group_create(true,
+        strling_ast_quant_create(strling_ast_lit_create("\d"), 3, 3, "Greedy"),
+        NULL, false);
 
-    /* second optional separator: [-. ] (separate node to avoid shared frees) */
+    // Optional separator: [-. ]
     STRlingClassItem* sep_items_b[3] = {
         strling_class_literal_create("-"),
         strling_class_literal_create("."),
@@ -61,10 +69,12 @@ int main(void) {
     STRlingASTNode* sep_b = strling_ast_charclass_create(false, sep_items_b, 3);
     STRlingASTNode* opt_sep_b = strling_ast_quant_create(sep_b, 0, 1, "Greedy");
 
-    /* station: (\d{4}) */
-    STRlingASTNode* station = strling_ast_quant_create(strling_ast_lit_create("\d"), 4, 4, "Greedy");
+    // Match the station number (4 digits)
+    STRlingASTNode* station = strling_ast_group_create(true,
+        strling_ast_quant_create(strling_ast_lit_create("\d"), 4, 4, "Greedy"),
+        NULL, false);
 
-    /* compose sequence */
+    // End of line.
     STRlingASTNode* parts[7] = {
         strling_ast_anchor_create("Start"),
         area,
@@ -82,23 +92,21 @@ int main(void) {
      * JSON before calling the compiler).
      */
     const char* phone_json =
-        "{\"type\":\"Seq\",\"parts\":["
-        "{\"type\":\"Anchor\",\"at\":\"Start\"},"
-        "{\"type\":\"Quant\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
-        "{\"type\":\"Quant\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharClass\",\"items\":[{\"type\":\"Char\",\"value\":\"-\"},{\"type\":\"Char\",\"value\":\".\"},{\"type\":\"Char\",\"value\":\" \"\"}] } },"
-        "{\"type\":\"Quant\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
-        "{\"type\":\"Quant\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharClass\",\"items\":[{\"type\":\"Char\",\"value\":\"-\"},{\"type\":\"Char\",\"value\":\".\"},{\"type\":\"Char\",\"value\":\" \"\"}] } },"
-        "{\"type\":\"Quant\",\"min\":4,\"max\":4,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
-        "{\"type\":\"Anchor\",\"at\":\"End\"}]}";
+        "{"type":"Seq","parts":["
+        "{"type":"Anchor","at":"Start"},"
+        "{"type":"Quant","min":3,"max":3,"target":{"type":"Escape","kind":"digit"}},"
+        "{"type":"Quant","min":0,"max":1,"target":{"type":"CharClass","items":[{"type":"Char","value":"-"},{"type":"Char","value":"."},{"type":"Char","value":" "}] } },"
+        "{"type":"Quant","min":3,"max":3,"target":{"type":"Escape","kind":"digit"}},"
+        "{"type":"Quant","min":0,"max":1,"target":{"type":"CharClass","items":[{"type":"Char","value":"-"},{"type":"Char","value":"."},{"type":"Char","value":" "}] } },"
+        "{"type":"Quant","min":4,"max":4,"target":{"type":"Escape","kind":"digit"}},"
+        "{"type":"Anchor","at":"End"}] }";
 
     STRlingFlags* flags = strling_flags_create();
     strling_result_t result = strling_compile_compat(phone_json, flags);
     if (result.error_code == STRling_OK) {
-        printf("compiled: %s
-", result.pcre2_pattern);
+        printf("compiled: %s\n", result.pcre2_pattern);
     } else {
-        fprintf(stderr, "compile error: %s
-", result.error_message);
+        fprintf(stderr, "compile error: %s\n", result.error_message);
     }
 
     /* cleanup */
@@ -106,9 +114,11 @@ int main(void) {
     strling_flags_free(flags);
     strling_ast_node_free(ast);
 
+    /* This example compiles to the optimized regex: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$ */
     return (result.error_code == STRling_OK) ? 0 : 1;
 }
 ```
+
 
 This example shows how to build AST nodes using the `strling_ast_*_create` helpers
 and how to compile a JSON AST (here provided inline) with `strling_compile_compat`.

@@ -152,6 +152,14 @@ impl Compiler {
                 escape_type: esc.escape_type.clone(),
                 property: esc.property.clone(),
             }),
+            ClassItem::UnicodeProperty(up) => {
+                // Map UnicodeProperty entries into an IR class escape of type 'p'/'P'
+                let etype = if up.negated { "P".to_string() } else { "p".to_string() };
+                IRClassItem::Esc(IRClassEscape {
+                    escape_type: etype,
+                    property: Some(up.value.clone()),
+                })
+            }
         }
     }
 

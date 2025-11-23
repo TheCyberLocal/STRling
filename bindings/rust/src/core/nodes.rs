@@ -144,6 +144,8 @@ pub enum ClassItem {
     Char(ClassLiteral),
     #[serde(alias = "Escape")]
     Esc(ClassEscape),
+    /// Unicode property reference inside a class, e.g. \p{L}
+    UnicodeProperty(ClassUnicodeProperty),
 }
 
 /// Character range in a character class.
@@ -169,13 +171,51 @@ pub struct ClassLiteral {
 /// Character class escape sequence.
 ///
 /// Represents shorthand character classes like `\d`, `\w`, `\s`, etc.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct ClassEscape {
     /// Escape type: d, D, w, W, s, S, p, P
-    #[serde(rename = "type")]
+    /// Accept both the historical `type` field and the newer `kind` field
+    /// coming from the JSON specs.
+    #[serde(rename = "kind", alias = "type")]
     pub escape_type: String,
     /// Unicode property name (for \p and \P)
     pub property: Option<String>,
+}
+
+// Custom deserializer: accepts `kind` or `type` and normalizes long names
+// like "digit" -> "d", "not-digit" -> "D" etc., while accepting
+// already-short values like "d", "D", "p".
+impl<'de> Deserialize<'de> for ClassEscape {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct Raw {
+            #[serde(rename = "kind", alias = "type")]
+            kind: String,
+            property: Option<String>,
+        }
+
+        let raw = Raw::deserialize(deserializer)?;
+
+        fn normalize_kind(k: &str) -> String {
+            match k {
+                "digit" => "d".to_string(),
+                "not-digit" => "D".to_string(),
+                "word" => "w".to_string(),
+                "not-word" => "W".to_string(),
+                "space" => "s".to_string(),
+                "not-space" => "S".to_string(),
+                other => other.to_string(),
+            }
+        }
+
+        Ok(ClassEscape {
+            escape_type: normalize_kind(&raw.kind),
+            property: raw.property,
+        })
+    }
 }
 
 /// Character class node.
@@ -186,6 +226,15 @@ pub struct CharacterClass {
     pub negated: bool,
     #[serde(alias = "members")]
     pub items: Vec<ClassItem>,
+}
+
+/// Unicode property entry inside a character class. Matches the JSON shape
+/// used by the test specs (name, value, negated).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ClassUnicodeProperty {
+    pub name: Option<String>,
+    pub value: String,
+    pub negated: bool,
 }
 
 /// Quantifier node.
@@ -245,6 +294,7 @@ pub enum MaxBound {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Group {
     pub capturing: bool,
+    #[serde(alias = "expression")]
     pub body: Box<Node>,
     pub name: Option<String>,
     /// Extension: atomic group flag
