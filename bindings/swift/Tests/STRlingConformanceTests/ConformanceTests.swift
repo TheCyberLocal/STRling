@@ -31,6 +31,7 @@ final class ConformanceTests: XCTestCase {
         for file in files where file.hasSuffix(".json") {
             if file.hasPrefix("error_") { continue }
             
+            print("Processing \(file)...")
             totalCount += 1
             let url = specDir.appendingPathComponent(file)
             let data = try Data(contentsOf: url)

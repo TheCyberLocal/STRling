@@ -169,3 +169,10 @@ public struct STRlingParseError: Error {
         ]
     }
 }
+
+/// Errors that can occur during compilation/lowering
+public enum CompilerError: Error {
+    case unknownClassItemType(String)
+    case invalidQuantifier(String)
+    case generic(String)
+}

@@ -1,0 +1,57 @@
+# STRling AI Coding Instructions
+
+You are an expert AI assistant working on the STRling project, a next-generation regex DSL compiler.
+
+## 🏗️ Architecture & Core Concepts
+
+STRling follows a strict compiler pipeline architecture:
+
+1.  **Parse**: `DSL -> AST` (Abstract Syntax Tree).
+2.  **Compile**: `AST -> IR` (Intermediate Representation). The IR is target-agnostic.
+3.  **Emit**: `IR -> Target Regex` (e.g., PCRE2, JS, Python).
+
+**Key Principles:**
+
+-   **Iron Law of Emitters**: Emitters must be deterministic, have no side effects, and implement a single `emit(model)` interface.
+-   **Reference Implementation**: The TypeScript binding (`bindings/typescript`) is the source of truth.
+-   **Shared Spec Suite**: `tests/spec/*.json` contains the "Golden Master" test cases generated from the TS implementation.
+
+## 📂 Directory Structure
+
+-   `bindings/<lang>/`: Language-specific implementations.
+    -   `src/` or `lib/`: Source code (Parser, Compiler, Emitters).
+    -   `tests/` or `spec/`: Test suite, MUST include a conformance runner.
+-   `tests/spec/`: JSON specifications for conformance testing.
+-   `spec/grammar/`: EBNF grammar (`dsl.ebnf`) and semantics (`semantics.md`).
+-   `tooling/`: Python scripts for auditing and maintenance.
+
+## 🧪 Testing & Workflows
+
+**Conformance Testing (Critical):**
+All bindings must validate against `tests/spec/*.json`.
+
+-   **Workflow**: Read JSON -> Parse `input_ast` -> Compile to IR -> Assert IR matches `expected_ir`.
+-   **Runner**: Each binding has a specific runner (e.g., `conformance_test.go`, `conformance.rs`).
+
+**Common Commands:**
+
+-   **Audit Compliance**: `python3 tooling/audit_conformance.py` (Checks pass rates across all bindings).
+-   **Regenerate Specs**: `cd bindings/typescript && npm run build:specs` (Updates `tests/spec/*.json`).
+-   **Run Binding Tests**:
+    -   Rust: `cargo test`
+    -   Swift: `swift test`
+    -   Go: `go test ./...`
+    -   Python: `pytest`
+    -   Lua: `busted`
+
+## 📝 Coding Conventions
+
+-   **Polyglot Consistency**: When implementing a feature in one binding, ensure the logic mirrors the Reference (TS) implementation.
+-   **Error Handling**: Use "Instructional Error Handling". Errors should explain _what_ went wrong and _how_ to fix it (e.g., `STRlingParseError` with hints).
+-   **No External Regex Parsers**: The core parser should be implemented manually or using a parser combinator, not by delegating to the host language's regex engine (except for the final emission).
+-   **Granular Testing**: Conformance runners should report individual test results (one per JSON file) rather than a single aggregate pass/fail.
+
+## 🔍 Integration Points
+
+-   **Tooling**: Use `tooling/audit_*.py` scripts to verify your changes.
+-   **Grammar**: If modifying syntax, update `spec/grammar/dsl.ebnf` and `spec/grammar/semantics.md` first.

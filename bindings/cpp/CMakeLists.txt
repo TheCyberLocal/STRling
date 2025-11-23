@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(STRling
-    VERSION 3.0.0-alpha
+    VERSION 3.0.0
     DESCRIPTION "STRling C++ Binding - Next-generation production-grade syntax for regular expressions"
     LANGUAGES CXX
 )

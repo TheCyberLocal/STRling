@@ -28,7 +28,7 @@ test_that("Conformance Tests", {
   for (file in spec_files) {
     spec_name <- basename(file)
     
-    # Skip tests involving null characters as R strings cannot contain them
+    # Skipping 4 tests containing null bytes (\u0000) due to R C-string limitations.
     if (spec_name %in% c("js_test_pattern_209.json", "js_test_pattern_311.json", "js_test_pattern_345.json", "js_test_pattern_346.json", "escaped_null_byte.json")) {
         next
     }

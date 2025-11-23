@@ -36,6 +36,9 @@ criterion = "0.5"
 # Testing utilities
 pretty_assertions = "1.4"
 
+[build-dependencies]
+glob = "0.3"
+
 [lib]
 name = "strling_core"
 path = "src/lib.rs"

@@ -69,7 +69,7 @@ public class Compiler {
     }
 
     private func compileCharClass(_ node: CharClass) throws -> IRCharClass {
-        let items = node.items.map { item -> IRClassItem in
+        let items = try node.items.map { item -> IRClassItem in
             if let range = item as? ClassRange {
                 return IRClassRange(fromCh: range.fromCh, toCh: range.toCh)
             } else if let literal = item as? ClassLiteral {
@@ -78,7 +78,7 @@ public class Compiler {
                 return IRClassEscape(type: escape.type, property: escape.property)
             } else {
                 // Should not happen if AST is well-formed
-                fatalError("Unknown ClassItem type")
+                throw CompilerError.unknownClassItemType("Unknown ClassItem type: \(type(of: item))")
             }
         }
         return IRCharClass(negated: node.negated, items: items)
