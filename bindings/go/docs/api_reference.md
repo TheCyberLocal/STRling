@@ -1,4 +1,4 @@
-# API Reference - {Language}
+# API Reference - Go
 
 [← Back to README](../README.md)
 
@@ -26,25 +26,52 @@ Anchors match a position within the string, not a character itself.
 
 Matches the beginning (`^`) or end (`$`) of a line.
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Anchors_Line}
+```go
+// Start/End of line anchors (^ and $)
+strling.Sequence{
+	Parts: []strling.NodeWrapper{
+		{Node: &strling.Anchor{At: "Start"}}, // ^
+		{Node: &strling.Literal{Value: "hello"}},
+		{Node: &strling.Anchor{At: "End"}}, // $
+	},
+}
+```
 
 ### Start/End of String
 
 Matches the absolute beginning (`\A`) or end (`\z`) of the string, ignoring multiline mode.
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Anchors_String}
+```go
+// Absolute start/end (\A and \z)
+strling.Sequence{
+	Parts: []strling.NodeWrapper{
+		{Node: &strling.Anchor{At: "AbsoluteStart"}}, // \A
+		{Node: &strling.Literal{Value: "whole"}},
+		{Node: &strling.Anchor{At: "AbsoluteEnd"}}, // \z
+	},
+}
+```
 
 ### Word Boundaries
 
 Matches the position between a word character and a non-word character (`\b`), or the inverse (`\B`).
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Anchors_Boundary}
+```go
+// Word boundary (\b) and not-word-boundary (\B)
+strling.Sequence{
+	Parts: []strling.NodeWrapper{
+		{Node: &strling.Anchor{At: "WordBoundary"}}, // \b
+		{Node: &strling.Literal{Value: "word"}},
+		{Node: &strling.Anchor{At: "NotWordBoundary"}}, // \B
+	},
+}
+```
 
 ---
 
@@ -59,33 +86,60 @@ Standard shorthands for common character sets.
 -   `\s`: Whitespace
 -   `.`: Any character (except newline)
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_CharClass_Builtin}
+```go
+// Shorthands: \d, \w, \s and dot
+strling.CharacterClass{Negated: false, Members: []strling.NodeWrapper{{Node: &strling.Escape{Kind: "digit"}}}} // \d
+strling.CharacterClass{Negated: false, Members: []strling.NodeWrapper{{Node: &strling.Escape{Kind: "word"}}}}  // \w
+strling.CharacterClass{Negated: false, Members: []strling.NodeWrapper{{Node: &strling.Escape{Kind: "space"}}}} // \s
+strling.Dot{} // .
+```
 
 ### Custom Classes & Ranges
 
 Define a set of allowed characters (`[...]`) or a range (`a-z`).
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_CharClass_Custom}
+```go
+// Custom class and range: [a-z_]
+strling.CharacterClass{
+	Negated: false,
+	Members: []strling.NodeWrapper{
+		{Node: &strling.Range{From: "a", To: "z"}},
+		{Node: &strling.Literal{Value: "_"}},
+	},
+}
+```
 
 ### Negated Classes
 
 Match any character _not_ in the set (`[^...]`).
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_CharClass_Negated}
+```go
+// Negated class: [^0-9]
+strling.CharacterClass{
+	Negated: true,
+	Members: []strling.NodeWrapper{{Node: &strling.Range{From: "0", To: "9"}}},
+}
+```
 
 ### Unicode Properties
 
 Match characters based on Unicode properties (`\p{...}`), such as scripts, categories, or blocks. Unicode property escapes allow matching by Script (e.g. `\p{Latin}`), General Category (e.g. `\p{Lu}` for uppercase letters) or named blocks.
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_CharClass_Unicode}
+```go
+// Unicode property in a class, e.g. \p{Latin}
+strling.CharacterClass{
+	Negated: false,
+	Members: []strling.NodeWrapper{{Node: &strling.UnicodeProperty{Value: "Latin", Negated: false}}},
+}
+```
 
 ## Escape Sequences
 
@@ -102,9 +156,13 @@ Standard control escapes supported across most engines and in STRling's grammar:
 -   `\\v`: Vertical Tab
 -   `\\0`: Null Byte
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Escapes_Control}
+```go
+// Control character literals
+strling.Literal{Value: "\n"} // newline
+strling.Literal{Value: "\t"} // tab
+```
 
 ### Hexadecimal & Unicode
 
@@ -115,9 +173,13 @@ Define characters by their code point.
 -   `\\uHHHH`: 4-digit Unicode (e.g. `\\u00A9`)
 -   `\\u{...}`: braced Unicode code point (variable length, e.g. `\\u{1F600}`)
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Escapes_Hex}
+```go
+// Hex and Unicode escapes represented as literal values
+strling.Literal{Value: "\x41"}   // 'A' using hex
+strling.Literal{Value: "\u263A"} // Unicode code point (☺)
+```
 
 ---
 
@@ -132,17 +194,30 @@ Match as much as possible (standard behavior).
 -   `?`: 0 or 1
 -   `{n,m}`: Specific range
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Quantifiers_Greedy}
+```go
+// Greedy quantifiers
+// *      => min:0, max: nil (interpreted as Inf)
+strling.Quantifier{Target: strling.NodeWrapper{Node: &strling.Literal{Value: "a"}}, Min: 0, Max: nil, Greedy: true}
+// +      => min:1, max:1
+strling.Quantifier{Target: strling.NodeWrapper{Node: &strling.Literal{Value: "a"}}, Min: 1, Max: 1, Greedy: true}
+// ?      => min:0, max:1
+strling.Quantifier{Target: strling.NodeWrapper{Node: &strling.Literal{Value: "x"}}, Min: 0, Max: 1, Greedy: true}
+// {n,m}  => explicit range
+strling.Quantifier{Target: strling.NodeWrapper{Node: &strling.Literal{Value: "d"}}, Min: 2, Max: 5, Greedy: true}
+```
 
 ### Lazy Quantifiers
 
 Match as little as possible. Appending `?` to a quantifier (e.g., `*?`).
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Quantifiers_Lazy}
+```go
+// Lazy quantifier example (e.g., *?)
+strling.Quantifier{Target: strling.NodeWrapper{Node: &strling.Literal{Value: "a"}}, Min: 0, Max: nil, Lazy: true}
+```
 
 ### Possessive Quantifiers
 
@@ -150,9 +225,12 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 
 > **Note:** This is a key performance feature in STRling.
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Quantifiers_Possessive}
+```go
+// Possessive quantifier example (e.g., *+)
+strling.Quantifier{Target: strling.NodeWrapper{Node: &strling.Literal{Value: "b"}}, Min: 0, Max: nil, Possessive: true}
+```
 
 ---
 
@@ -162,25 +240,35 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 
 Standard groups `(...)` that capture the matched text.
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Groups_Capturing}
+```go
+// Capturing group
+strling.Group{Capturing: true, Body: strling.NodeWrapper{Node: &strling.Literal{Value: "abc"}}}
+```
 
 ### Named Groups
 
 Capturing groups with a specific name `(?<name>...)` for easier extraction.
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Groups_Named}
+```go
+// Named capturing group
+name := "area"
+strling.Group{Capturing: true, Name: &name, Body: strling.NodeWrapper{Node: &strling.Literal{Value: "xxx"}}}
+```
 
 ### Non-Capturing Groups
 
 Groups `(?:...)` that group logic without capturing text.
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Groups_NonCapturing}
+```go
+// Non-capturing group
+strling.Group{Capturing: false, Body: strling.NodeWrapper{Node: &strling.Literal{Value: "no-capture"}}}
+```
 
 ### Atomic Groups
 
@@ -188,9 +276,13 @@ Groups `(?>...)` that discard backtracking information once the group matches.
 
 > **Note:** Useful for optimizing performance and preventing catastrophic backtracking.
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Groups_Atomic}
+```go
+// Atomic group (no backtracking inside)
+atomic := true
+strling.Group{Atomic: &atomic, Body: strling.NodeWrapper{Node: &strling.Literal{Value: "fast"}}}
+```
 
 ---
 
@@ -203,18 +295,28 @@ Zero-width assertions that match a group without consuming characters.
 -   Positive `(?=...)`: Asserts that what follows matches the pattern.
 -   Negative `(?!...)`: Asserts that what follows does _not_ match.
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Lookarounds_Ahead}
+```go
+// Positive lookahead: (?=...)
+strling.Lookaround{Dir: "Ahead", Neg: false, Body: strling.NodeWrapper{Node: &strling.Literal{Value: "end"}}}
+// Negative lookahead: (?!...)
+strling.Lookaround{Dir: "Ahead", Neg: true, Body: strling.NodeWrapper{Node: &strling.Literal{Value: "no"}}}
+```
 
 ### Lookbehind
 
 -   Positive `(?<=...)`: Asserts that what precedes matches the pattern.
 -   Negative `(?<!...)`: Asserts that what precedes does _not_ match.
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Lookarounds_Behind}
+```go
+// Positive lookbehind: (?<=...)
+strling.Lookaround{Dir: "Behind", Neg: false, Body: strling.NodeWrapper{Node: &strling.Literal{Value: "pre"}}}
+// Negative lookbehind: (?<!...)
+strling.Lookaround{Dir: "Behind", Neg: true, Body: strling.NodeWrapper{Node: &strling.Literal{Value: "not"}}}
+```
 
 ---
 
@@ -224,9 +326,17 @@ Zero-width assertions that match a group without consuming characters.
 
 Matches one pattern OR another (`|`).
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Logic_Alternation}
+```go
+// Alternation (a|b)
+strling.Alternation{
+	Alternatives: []strling.NodeWrapper{
+		{Node: &strling.Literal{Value: "a"}},
+		{Node: &strling.Literal{Value: "b"}},
+	},
+}
+```
 
 ---
 
@@ -236,9 +346,17 @@ Matches one pattern OR another (`|`).
 
 Reference a previously captured group by index (`\1`) or name (`\k<name>`).
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_References}
+```go
+// Backreference by index
+idx := 1
+strling.Backreference{Index: &idx}
+
+// Backreference by name
+name := "area"
+strling.Backreference{Name: &name}
+```
 
 ---
 
@@ -251,9 +369,13 @@ Global flags that alter the behavior of the regex engine.
 -   `s`: Dotall (single line) mode
 -   `x`: Extended mode (ignore whitespace)
 
-#### Usage ({Language})
+#### Usage (Go)
 
-{Snippet_Flags}
+```go
+// Flags (core.Flags from the `core` package)
+fw := core.Flags{IgnoreCase: true, Multiline: false, DotAll: false, Unicode: true, Extended: false}
+_ = fw
+```
 
 ---
 
@@ -269,8 +391,13 @@ Example directives block:
 
 ```text
 %flags imsux
-%lang {Language}
+%lang go
 %engine pcre2
 ```
 
-{Snippet_Directives}
+```go
+// Example: directives are file-level, shown here as the pattern text input
+// (directives are parsed by the binding's top-level parser)
+pattern := "%flags imsux\n%lang go\n%engine pcre2\n\n^pattern$"
+_ = pattern
+```

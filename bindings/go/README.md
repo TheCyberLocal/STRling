@@ -14,13 +14,107 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+Install the Go binding with:
+
+```bash
+go get github.com/thecyberlocal/strling/bindings/go
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Go**:
 
-{Usage_Snippet}
+```go
+package main
+
+import (
+  "fmt"
+  strling "github.com/thecyberlocal/strling/bindings/go"
+)
+
+func main() {
+  // Build the AST programmatically using idiomatic Go struct literals.
+  // The types below come from the `strling` package (bindings/go).
+
+  phone := strling.Sequence{
+  Parts: []strling.NodeWrapper{
+    {Node: &strling.Anchor{At: "Start"}},
+    // Match area code (3 digits)
+    {Node: &strling.Group{
+      Capturing: true,
+      Body: strling.NodeWrapper{Node: &strling.Quantifier{
+        Target: strling.NodeWrapper{Node: &strling.CharacterClass{
+          Negated: false,
+          Members: []strling.NodeWrapper{{Node: &strling.Escape{Kind: "digit"}}},
+        }},
+        Min: 3,
+        Max: 3,
+        Greedy: true,
+      }},
+    }},
+    // Optional separator: [-. ]
+    {Node: &strling.Quantifier{
+      Target: strling.NodeWrapper{Node: &strling.CharacterClass{
+        Negated: false,
+        Members: []strling.NodeWrapper{
+          {Node: &strling.Literal{Value: "-"}},
+          {Node: &strling.Literal{Value: "."}},
+          {Node: &strling.Literal{Value: " "}},
+        },
+      }},
+      Min: 0,
+      Max: 1,
+      Greedy: true,
+    }},
+    // Match prefix (3 digits)
+    {Node: &strling.Group{
+      Capturing: true,
+      Body: strling.NodeWrapper{Node: &strling.Quantifier{
+        Target: strling.NodeWrapper{Node: &strling.CharacterClass{
+          Negated: false,
+          Members: []strling.NodeWrapper{{Node: &strling.Escape{Kind: "digit"}}},
+        }},
+        Min: 3,
+        Max: 3,
+        Greedy: true,
+      }},
+    }},
+    // Optional separator: [-. ]
+    {Node: &strling.Quantifier{
+      Target: strling.NodeWrapper{Node: &strling.CharacterClass{
+        Negated: false,
+        Members: []strling.NodeWrapper{
+          {Node: &strling.Literal{Value: "-"}},
+          {Node: &strling.Literal{Value: "."}},
+          {Node: &strling.Literal{Value: " "}},
+        },
+      }},
+      Min: 0,
+      Max: 1,
+      Greedy: true,
+    }},
+    // Match line number (4 digits)
+    {Node: &strling.Group{
+      Capturing: true,
+      Body: strling.NodeWrapper{Node: &strling.Quantifier{
+        Target: strling.NodeWrapper{Node: &strling.CharacterClass{
+          Negated: false,
+          Members: []strling.NodeWrapper{{Node: &strling.Escape{Kind: "digit"}}},
+        }},
+        Min: 4,
+        Max: 4,
+        Greedy: true,
+      }},
+    }},
+    {Node: &strling.Anchor{At: "End"}},
+  },
+}
+
+  // The AST above compiles to: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+  _ = phone
+  fmt.Println("Constructed phone AST with parts:", len(phone.Parts))
+}
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
