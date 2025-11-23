@@ -98,6 +98,7 @@ pub enum Node {
 /// Represents a choice between multiple branches.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Alternation {
+    #[serde(alias = "alternatives")]
     pub branches: Vec<Node>,
 }
 
@@ -139,7 +140,9 @@ pub struct Anchor {
 #[serde(tag = "type")]
 pub enum ClassItem {
     Range(ClassRange),
+    #[serde(alias = "Literal")]
     Char(ClassLiteral),
+    #[serde(alias = "Escape")]
     Esc(ClassEscape),
 }
 
@@ -159,7 +162,7 @@ pub struct ClassRange {
 /// Represents a single character literal.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ClassLiteral {
-    #[serde(rename = "char")]
+    #[serde(rename = "char", alias = "value")]
     pub ch: String,
 }
 
@@ -181,6 +184,7 @@ pub struct ClassEscape {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CharacterClass {
     pub negated: bool,
+    #[serde(alias = "members")]
     pub items: Vec<ClassItem>,
 }
 
@@ -252,9 +256,9 @@ pub struct Group {
 /// Represents a reference to a previously captured group.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Backreference {
-    #[serde(rename = "byIndex")]
+    #[serde(rename = "byIndex", alias = "index")]
     pub by_index: Option<i32>,
-    #[serde(rename = "byName")]
+    #[serde(rename = "byName", alias = "name")]
     pub by_name: Option<String>,
 }
 

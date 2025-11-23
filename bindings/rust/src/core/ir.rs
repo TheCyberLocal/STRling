@@ -173,7 +173,9 @@ impl IRClassItem {
 /// Matches characters within the specified range.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct IRClassRange {
+    #[serde(rename = "from")]
     pub from_ch: String,
+    #[serde(rename = "to")]
     pub to_ch: String,
 }
 
@@ -192,6 +194,7 @@ impl IRClassRange {
 /// Matches the exact character.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct IRClassLiteral {
+    #[serde(rename = "char")]
     pub ch: String,
 }
 
@@ -294,7 +297,8 @@ pub struct IRGroup {
     pub capturing: bool,
     pub body: Box<IROp>,
     pub name: Option<String>,
-    pub atomic: Option<bool>,
+    #[serde(default)]
+    pub atomic: bool,
 }
 
 impl IROpTrait for IRGroup {
@@ -308,8 +312,8 @@ impl IROpTrait for IRGroup {
         if let Some(ref name) = self.name {
             obj["name"] = Value::String(name.clone());
         }
-        if let Some(atomic) = self.atomic {
-            obj["atomic"] = Value::Bool(atomic);
+        if self.atomic {
+            obj["atomic"] = Value::Bool(true);
         }
 
         obj

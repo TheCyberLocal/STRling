@@ -521,7 +521,40 @@ extension IROp: Codable {
     }
 
     public func encode(to encoder: Encoder) throws {
-        // Encoding implementation omitted
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        switch self {
+        case .alt(let node):
+            try container.encode("Alt", forKey: .ir)
+            try node.encode(to: encoder)
+        case .seq(let node):
+            try container.encode("Seq", forKey: .ir)
+            try node.encode(to: encoder)
+        case .lit(let node):
+            try container.encode("Lit", forKey: .ir)
+            try node.encode(to: encoder)
+        case .dot(let node):
+            try container.encode("Dot", forKey: .ir)
+            try node.encode(to: encoder)
+        case .anchor(let node):
+            try container.encode("Anchor", forKey: .ir)
+            try node.encode(to: encoder)
+        case .charClass(let node):
+            try container.encode("CharClass", forKey: .ir)
+            try node.encode(to: encoder)
+        case .quant(let node):
+            try container.encode("Quant", forKey: .ir)
+            try node.encode(to: encoder)
+        case .group(let node):
+            try container.encode("Group", forKey: .ir)
+            try node.encode(to: encoder)
+        case .backref(let node):
+            try container.encode("Backref", forKey: .ir)
+            try node.encode(to: encoder)
+        case .look(let node):
+            try container.encode("Look", forKey: .ir)
+            try node.encode(to: encoder)
+        }
     }
 }
 
@@ -584,7 +617,20 @@ struct AnyIRClassItem: Codable {
     }
 
     func encode(to encoder: Encoder) throws {
-        // Omitted
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if let range = item as? IRClassRange {
+            try container.encode("Range", forKey: .ir)
+            try range.encode(to: encoder)
+        } else if let literal = item as? IRClassLiteral {
+            try container.encode("Char", forKey: .ir)
+            try literal.encode(to: encoder)
+        } else if let escape = item as? IRClassEscape {
+            try container.encode("Esc", forKey: .ir)
+            try escape.encode(to: encoder)
+        } else {
+            let context = EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "Unknown IRClassItem type")
+            throw EncodingError.invalidValue(item, context)
+        }
     }
 }
 
@@ -618,7 +664,7 @@ extension IRCharClass: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.negated = try container.decode(Bool.self, forKey: .negated)
         let anyItems = try container.decode([AnyIRClassItem].self, forKey: .items)
-        self.items = anyItems.map { -bash.item }
+        self.items = anyItems.map { $0.item }
     }
 
     public func encode(to encoder: Encoder) throws {

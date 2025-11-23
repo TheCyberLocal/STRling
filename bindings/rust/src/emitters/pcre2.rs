@@ -72,7 +72,7 @@ impl PCRE2Emitter {
             }
             IROp::Group(group) => {
                 let body = self.emit_node(&group.body);
-                if group.atomic.unwrap_or(false) {
+                if group.atomic {
                     format!("(?>{})", body)
                 } else if let Some(name) = &group.name {
                     format!("(?<{}>{})", name, body)
@@ -250,7 +250,7 @@ mod tests {
         let ir = IROp::Group(IRGroup {
             capturing: true,
             name: None,
-            atomic: Some(false),
+            atomic: false,
             body: Box::new(IROp::Lit(IRLit {
                 value: "test".to_string(),
             })),

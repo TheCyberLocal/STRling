@@ -422,7 +422,7 @@ impl Parser {
     /// Parse a literal character
     fn parse_literal(&mut self) -> Result<Node, STRlingParseError> {
         if let Some(ch) = self.cur.take() {
-            Ok(Node::Lit(Lit {
+            Ok(Node::Literal(Literal {
                 value: ch.to_string(),
             }))
         } else {
@@ -479,13 +479,13 @@ impl Parser {
             // Control escapes
             'n' | 'r' | 't' | 'f' | 'v' => {
                 let value = self.control_escapes.get(&ch).unwrap();
-                Ok(Node::Lit(Lit {
+                Ok(Node::Literal(Literal {
                     value: value.to_string(),
                 }))
             }
             
             // Identity escapes (escape the next character literally)
-            _ => Ok(Node::Lit(Lit {
+            _ => Ok(Node::Literal(Literal {
                 value: ch.to_string(),
             })),
         }
@@ -730,7 +730,7 @@ mod tests {
         let (flags, node) = result.unwrap();
         // Should be a sequence of literals
         match node {
-            Node::Seq(seq) => {
+            Node::Sequence(seq) => {
                 assert_eq!(seq.parts.len(), 5);
             }
             _ => panic!("Expected Seq node"),
@@ -760,7 +760,7 @@ mod tests {
         assert!(result.is_ok());
         let (_, node) = result.unwrap();
         match node {
-            Node::Alt(alt) => {
+            Node::Alternation(alt) => {
                 assert_eq!(alt.branches.len(), 2);
             }
             _ => panic!("Expected Alt node"),
@@ -773,7 +773,7 @@ mod tests {
         assert!(result.is_ok());
         let (_, node) = result.unwrap();
         match node {
-            Node::Quant(quant) => {
+            Node::Quantifier(quant) => {
                 assert_eq!(quant.min, 0);
                 match quant.max {
                     MaxBound::Infinite(_) => {},

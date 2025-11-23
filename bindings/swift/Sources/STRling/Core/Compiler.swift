@@ -15,7 +15,7 @@ public class Compiler {
     public func compile(node: Node) throws -> IROp {
         switch node {
         case .alt(let n): return .alt(try compileAlt(n))
-        case .seq(let n): return .seq(try compileSeq(n))
+        case .seq(let n): return try compileSeq(n)
         case .lit(let n): return .lit(compileLit(n))
         case .dot(let n): return .dot(compileDot(n))
         case .anchor(let n): return .anchor(try compileAnchor(n))
@@ -32,9 +32,27 @@ public class Compiler {
         return IRAlt(branches: branches)
     }
 
-    private func compileSeq(_ node: Seq) throws -> IRSeq {
+    private func compileSeq(_ node: Seq) throws -> IROp {
         let parts = try node.parts.map { try compile(node: $0) }
-        return IRSeq(parts: parts)
+        var mergedParts: [IROp] = []
+        
+        for part in parts {
+            if let last = mergedParts.last,
+               case .lit(let lastLit) = last,
+               case .lit(let currentLit) = part {
+                // Merge literals
+                mergedParts.removeLast()
+                mergedParts.append(.lit(IRLit(value: lastLit.value + currentLit.value)))
+            } else {
+                mergedParts.append(part)
+            }
+        }
+        
+        if mergedParts.count == 1 {
+            return mergedParts[0]
+        }
+        
+        return .seq(IRSeq(parts: mergedParts))
     }
 
     private func compileLit(_ node: Lit) -> IRLit {
@@ -46,7 +64,8 @@ public class Compiler {
     }
 
     private func compileAnchor(_ node: Anchor) throws -> IRAnchor {
-        return IRAnchor(at: node.at)
+        let at = (node.at == "NonWordBoundary") ? "NotWordBoundary" : node.at
+        return IRAnchor(at: at)
     }
 
     private func compileCharClass(_ node: CharClass) throws -> IRCharClass {
@@ -77,7 +96,9 @@ public class Compiler {
 
     private func compileGroup(_ node: Group) throws -> IRGroup {
         let body = try compile(node: node.body)
-        return IRGroup(capturing: node.capturing, body: body, name: node.name, atomic: node.atomic)
+        // Normalize atomic: false -> nil
+        let atomic = (node.atomic == true) ? true : nil
+        return IRGroup(capturing: node.capturing, body: body, name: node.name, atomic: atomic)
     }
 
     private func compileBackref(_ node: Backref) throws -> IRBackref {

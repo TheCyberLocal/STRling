@@ -63,9 +63,14 @@ impl Compiler {
                 value: lit.value.clone(),
             }),
             Node::Dot(_) => IROp::Dot(IRDot {}),
-            Node::Anchor(anchor) => IROp::Anchor(IRAnchor {
-                at: anchor.at.clone(),
-            }),
+            Node::Anchor(anchor) => {
+                let at = if anchor.at == "NonWordBoundary" {
+                    "NotWordBoundary".to_string()
+                } else {
+                    anchor.at.clone()
+                };
+                IROp::Anchor(IRAnchor { at })
+            },
             Node::Sequence(seq) => {
                 let parts: Vec<IROp> = seq.parts.iter().map(|p| self.lower(p)).collect();
                 IROp::Seq(IRSeq { parts })
@@ -80,17 +85,26 @@ impl Compiler {
                     MaxBound::Infinite(s) => IRMaxBound::Infinite(s.clone()),
                     MaxBound::Null(_) => IRMaxBound::Infinite("Inf".to_string()),
                 };
+                
+                let mode = if quant.possessive {
+                    "Possessive".to_string()
+                } else if quant.lazy {
+                    "Lazy".to_string()
+                } else {
+                    "Greedy".to_string()
+                };
+
                 IROp::Quant(IRQuant {
                     child: Box::new(self.lower(&quant.target.child)),
                     min: quant.min,
                     max,
-                    mode: quant.mode.clone(),
+                    mode,
                 })
             }
             Node::Group(group) => IROp::Group(IRGroup {
                 capturing: group.capturing,
                 name: group.name.clone(),
-                atomic: group.atomic,
+                atomic: group.atomic.unwrap_or(false),
                 body: Box::new(self.lower(&group.body)),
             }),
             Node::Lookahead(look) => IROp::Look(IRLook {
@@ -212,7 +226,7 @@ impl Compiler {
     fn analyze_features(&mut self, node: &IROp) {
         match node {
             IROp::Group(group) => {
-                if group.atomic.unwrap_or(false) {
+                if group.atomic {
                     self.features_used.insert("atomic_group".to_string());
                 }
                 if group.name.is_some() {

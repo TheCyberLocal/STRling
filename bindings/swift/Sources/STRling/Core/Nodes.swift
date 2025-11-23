@@ -569,10 +569,8 @@ extension QuantMax: Codable {
 extension Node: Codable {
     enum CodingKeys: String, CodingKey {
         case type
-        case kind // Handle both "type" (legacy/some fixtures) and "kind" (newer schema) if necessary, but let's stick to what we saw in fixtures.
-                  // The fixtures showed "type": "Sequence".
-                  // But the schema description said "kind".
-                  // Let's check the fixtures again.
+        case kind
+        case body
     }
     
     public init(from decoder: Decoder) throws {
@@ -609,6 +607,20 @@ extension Node: Codable {
             self = .backref(try Backref(from: decoder))
         case "Look":
             self = .look(try Look(from: decoder))
+        case "Lookahead":
+            let body = try container.decode(Node.self, forKey: .body)
+            self = .look(Look(dir: "Ahead", neg: false, body: body))
+        case "NegativeLookahead":
+            let body = try container.decode(Node.self, forKey: .body)
+            self = .look(Look(dir: "Ahead", neg: true, body: body))
+        case "Lookbehind":
+            let body = try container.decode(Node.self, forKey: .body)
+            self = .look(Look(dir: "Behind", neg: false, body: body))
+        case "NegativeLookbehind":
+            let body = try container.decode(Node.self, forKey: .body)
+            self = .look(Look(dir: "Behind", neg: true, body: body))
+        case "Backreference":
+            self = .backref(try Backref(from: decoder))
         default:
             throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Unknown node type: \(type)")
         }
@@ -673,22 +685,31 @@ struct AnyClassItem: Codable {
     
     enum CodingKeys: String, CodingKey {
         case kind
-        case type // Some fixtures might use type?
+        case type
     }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let kind = try container.decode(String.self, forKey: .kind)
         
-        switch kind {
+        // Try 'type' first, then 'kind'
+        let type: String
+        if let t = try? container.decode(String.self, forKey: .type) {
+            type = t
+        } else if let k = try? container.decode(String.self, forKey: .kind) {
+            type = k
+        } else {
+            throw DecodingError.dataCorruptedError(forKey: .kind, in: container, debugDescription: "Missing 'kind' or 'type' field")
+        }
+        
+        switch type {
         case "Range":
             self.item = try ClassRange(from: decoder)
-        case "Char":
+        case "Char", "Literal":
             self.item = try ClassLiteral(from: decoder)
-        case "Esc":
+        case "Esc", "Escape", "UnicodeProperty":
             self.item = try ClassEscape(from: decoder)
         default:
-            throw DecodingError.dataCorruptedError(forKey: .kind, in: container, debugDescription: "Unknown class item kind: \(kind)")
+            throw DecodingError.dataCorruptedError(forKey: .kind, in: container, debugDescription: "Unknown class item kind: \(type)")
         }
     }
     
@@ -707,13 +728,73 @@ extension ClassRange: Codable {
 extension ClassLiteral: Codable {
     enum CodingKeys: String, CodingKey {
         case ch = "char"
+        case value
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let c = try? container.decode(String.self, forKey: .ch) {
+            self.ch = c
+        } else {
+            self.ch = try container.decode(String.self, forKey: .value)
+        }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(ch, forKey: .ch)
     }
 }
 
 extension ClassEscape: Codable {
     enum CodingKeys: String, CodingKey {
         case type
+        case kind
         case property
+        case value
+        case negated
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        var rawType: String?
+        if let t = try? container.decode(String.self, forKey: .type), t != "Escape", t != "Esc" {
+            rawType = t
+        } else if let k = try? container.decode(String.self, forKey: .kind) {
+            rawType = k
+        }
+        
+        guard let rType = rawType else {
+             throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Missing escape type")
+        }
+        
+        if rType == "UnicodeProperty" {
+             let value = try container.decode(String.self, forKey: .value)
+             let negated = try container.decodeIfPresent(Bool.self, forKey: .negated) ?? false
+             self.type = negated ? "P" : "p"
+             self.property = value
+             return
+        }
+        
+        // Map verbose types to short codes
+        switch rType {
+        case "digit": self.type = "d"
+        case "word": self.type = "w"
+        case "space": self.type = "s"
+        case "not-digit": self.type = "D"
+        case "not-word": self.type = "W"
+        case "not-space": self.type = "S"
+        default: self.type = rType
+        }
+        
+        self.property = try container.decodeIfPresent(String.self, forKey: .property)
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(type, forKey: .type)
+        try container.encodeIfPresent(property, forKey: .property)
     }
 }
 
@@ -728,11 +809,14 @@ extension CharClass: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.negated = try container.decode(Bool.self, forKey: .negated)
         
-        if let anyItems = try? container.decode([AnyClassItem].self, forKey: .items) {
+        if container.contains(.items) {
+            let anyItems = try container.decode([AnyClassItem].self, forKey: .items)
             self.items = anyItems.map { $0.item }
-        } else {
+        } else if container.contains(.itemsAlt) {
             let anyItems = try container.decode([AnyClassItem].self, forKey: .itemsAlt)
             self.items = anyItems.map { $0.item }
+        } else {
+             throw DecodingError.keyNotFound(CodingKeys.items, DecodingError.Context(codingPath: container.codingPath, debugDescription: "Missing items/members"))
         }
     }
     
@@ -755,10 +839,12 @@ extension Quant: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        if let c = try? container.decode(Node.self, forKey: .child) {
-            self.child = c
-        } else {
+        if container.contains(.child) {
+            self.child = try container.decode(Node.self, forKey: .child)
+        } else if container.contains(.childAlt) {
             self.child = try container.decode(Node.self, forKey: .childAlt)
+        } else {
+            throw DecodingError.keyNotFound(CodingKeys.child, DecodingError.Context(codingPath: container.codingPath, debugDescription: "Missing child/target"))
         }
         
         self.min = try container.decode(Int.self, forKey: .min)
@@ -768,6 +854,8 @@ extension Quant: Codable {
         if let maxInt = try? container.decode(Int.self, forKey: .max) {
             self.max = .count(maxInt)
         } else if let maxStr = try? container.decode(String.self, forKey: .max), maxStr == "Inf" {
+            self.max = .inf
+        } else if (try? container.decodeNil(forKey: .max)) == true {
             self.max = .inf
         } else {
              // Fallback or error? Let's assume it's required based on struct definition
@@ -808,8 +896,8 @@ extension Group: Codable {
 
 extension Backref: Codable {
     enum CodingKeys: String, CodingKey {
-        case byIndex
-        case byName
+        case byIndex = "index"
+        case byName = "name"
     }
 }
 
