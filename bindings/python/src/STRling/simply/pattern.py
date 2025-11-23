@@ -9,8 +9,12 @@ construction in the Simply API, wrapping internal AST nodes and providing a
 user-friendly interface for pattern manipulation and compilation.
 """
 
-import textwrap, json, re
+from __future__ import annotations
+
+import textwrap
+import json
 from STRling.core import nodes
+from typing import Any, Dict, Optional, Union
 from STRling.core.compiler import Compiler
 from STRling.emitters.pcre2 import emit as emit_pcre2
 
@@ -23,10 +27,14 @@ class Simply:
     objects through the AST -> IR -> emitted regex string stages.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.compiler = Compiler()
 
-    def build(self, pattern_obj, flags=None):
+    def build(
+        self,
+        pattern_obj: Pattern,
+        flags: Optional[Union[Dict[str, bool], Any]] = None,
+    ) -> str:
         """
         Compile a Pattern object's node to a regex string.
 
@@ -55,7 +63,7 @@ class STRlingError(ValueError):
     better readability in console output.
     """
 
-    def __init__(self, message):
+    def __init__(self, message: str) -> None:
         """
         Create a new STRlingError with formatted message.
 
@@ -65,7 +73,7 @@ class STRlingError(ValueError):
         self.message = textwrap.dedent(message).strip().replace("\n", "\n\t")
         super().__init__(self.message)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Return the formatted error message with header and indentation.
 
@@ -75,7 +83,7 @@ class STRlingError(ValueError):
         return f"\n\nSTRlingError: Invalid Pattern Attempted.\n\n\t{self.message}"
 
 
-def lit(text):
+def lit(text: str) -> Pattern:
     """
     Create a literal pattern from a string.
 
@@ -113,7 +121,7 @@ def lit(text):
     return Pattern(nodes.Literal(text))
 
 
-def repeat(min_rep: int = None, max_rep: int = None):
+def repeat(min_rep: int | None = None, max_rep: int | None = None) -> str:
     if min_rep is not None and max_rep is not None:
         if max_rep == 0:
             return f"{{{min_rep},}}"
@@ -148,23 +156,25 @@ class Pattern:
 
     def __init__(
         self,
-        node,
+        node: nodes.Node,
         custom_set: bool = False,
         negated: bool = False,
         composite: bool = False,
-        named_groups: list = [],
+        named_groups: list[str] | None = None,
         numbered_group: bool = False,
-    ):
+    ) -> None:
         # Store the AST node instead of a string pattern
         self.node = node
         # Keep compatibility attributes for now
         self.custom_set = custom_set
         self.negated = negated
         self.composite = composite
-        self.named_groups = named_groups
+        self.named_groups = named_groups or []
         self.numbered_group = numbered_group
 
-    def __call__(self, min_rep: int = None, max_rep: int = None):
+    def __call__(
+        self, min_rep: int | None = None, max_rep: int | None = None
+    ) -> "Pattern":
         """
         Applies a repetition pattern to the current pattern.
 
@@ -175,23 +185,20 @@ class Pattern:
         Returns:
         - A new Pattern object with the repetition pattern applied.
         """
-        # Prevent errors if invoked with no range
+        # Prevent errors if invoked with no range. For numbered (captured)
+        # groups we require an explicit count -- calling without args is invalid.
         if min_rep is None and max_rep is None:
+            if self.numbered_group:
+                message = '''
+                Method: Pattern.__call__(min_rep, max_rep)
+
+                Numbered (captured) groups require an explicit exact count.
+
+                Provide an integer value like my_capture(3) not my_capture().
+                '''
+                raise STRlingError(message)
             return self
 
-        # If min_rep or max_rep are specified as non-integers
-        if (
-            min_rep is not None
-            and not isinstance(min_rep, int)
-            or max_rep is not None
-            and not isinstance(max_rep, int)
-        ):
-            message = """
-            Method: Pattern.__call__(min_rep, max_rep)
-
-            The `min_rep` and `max_rep` arguments must be integers (0-9).
-            """
-            raise STRlingError(message)
 
         # If min_rep or max_rep are specified out of valid range
         if min_rep is not None and min_rep < 0 or max_rep is not None and max_rep < 0:
@@ -249,35 +256,47 @@ class Pattern:
                 """
                 raise STRlingError(message)
             else:
-                # Handle numbered groups differently by duplicating the node
-                children = [self.node] * min_rep
+                # Must have an exact integer count for numbered groups
+                if min_rep is None:
+                    message = """
+                    Method: Pattern.__call__(min_rep, max_rep)
+
+                    Numbered (captured) groups require an explicit exact count.
+
+                    Provide an integer value like my_capture(3) not my_capture().
+                    """
+                    raise STRlingError(message)
+
+                # Handle numbered groups by duplicating the node the exact count
+                # (safe because min_rep is validated to be int above)
+                children: list[nodes.Node] = [self.node] * min_rep
                 new_node = nodes.Sequence(children)
                 return self.create_modified_instance(new_node)
         else:
             # Regular case: create a quantifier node
-            q_max = (
-                "Inf" if max_rep == 0 else max_rep if max_rep is not None else min_rep
+            # If caller only provided max_rep but not min_rep, treat min as 0
+            q_min: int = min_rep if min_rep is not None else 0
+            q_max: Union[int, str] = (
+                "Inf" if max_rep == 0 else max_rep if max_rep is not None else q_min
             )
-            new_node = nodes.Quantifier(
-                child=self.node, min=min_rep, max=q_max, mode="Greedy"
-            )
+            new_node = nodes.Quantifier(child=self.node, min=q_min, max=q_max, mode="Greedy")
             return self.create_modified_instance(new_node)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns the compiled regex string.
         """
         return s.build(self)
 
-    def exec(self, text_to_search, target="python"):
+    def exec(self, text_to_search: str, target: str = "python") -> str:
         # 1. Load the feature matrix
         with open("spec/features.json") as f:
-            feature_matrix = json.load(f)
+            feature_matrix: Dict[str, Dict[str, bool]] = json.load(f)
 
         # 2. Get the full artifact from the compiler
         compiler = Compiler()
-        artifact = compiler.compile_with_metadata(self.node)
-        features = artifact["metadata"]["features_used"]
+        artifact: Dict[str, Any] = compiler.compile_with_metadata(self.node)
+        features: list[str] = artifact.get("metadata", {}).get("features_used", [])
 
         # 3. Check for unsupported features
         unsupported = [
@@ -287,7 +306,8 @@ class Pattern:
         if unsupported:
             # 4. FALLBACK PATH: Use a WASM engine
             print(f"INFO: Using WASM fallback for features: {unsupported}")
-            pcre2_regex_str = emit_pcre2(artifact["ir"])
+            ir_root = artifact.get("ir")
+            pcre2_regex_str = emit_pcre2(ir_root)  # type: ignore[arg-type]
             # return pcre2_wasm_engine.search(pcre2_regex_str, text_to_search)
             # For now, we can just show it would happen:
             return f"WASM_EXEC: '{pcre2_regex_str}' on '{text_to_search}'"
@@ -297,11 +317,12 @@ class Pattern:
             # python_regex_str = emit_python_re(artifact["ir"])
             # return re.search(python_regex_str, text_to_search)
             # For now, we can simulate:
-            pcre2_simulated_str = emit_pcre2(artifact["ir"])
+            ir_root = artifact.get("ir")
+            pcre2_simulated_str = emit_pcre2(ir_root)  # type: ignore[arg-type]
             return f"NATIVE_EXEC: '{pcre2_simulated_str}' on '{text_to_search}'"
 
     @classmethod
-    def create_modified_instance(cls, new_node, **kwargs):
+    def create_modified_instance(cls, new_node: nodes.Node, **kwargs: Any) -> "Pattern":
         """
         Returns a copy of the pattern instance with a new node.
         """

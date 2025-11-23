@@ -8,20 +8,20 @@ hints for resolution.
 """
 
 from __future__ import annotations
-from typing import Optional
+from typing import Optional, Any, Dict
 
 
 class STRlingParseError(Exception):
     """
     Rich parse error with position tracking and instructional hints.
-    
+
     This error class transforms parse failures into learning opportunities by
     providing:
     - The specific error message
     - The exact position where the error occurred
     - The full line of text containing the error
     - A beginner-friendly hint explaining how to fix the issue
-    
+
     Attributes
     ----------
     message : str
@@ -33,17 +33,13 @@ class STRlingParseError(Exception):
     hint : str, optional
         An instructional hint explaining how to fix the error
     """
-    
+
     def __init__(
-        self,
-        message: str,
-        pos: int,
-        text: str = "",
-        hint: Optional[str] = None
-    ):
+        self, message: str, pos: int, text: str = "", hint: Optional[str] = None
+    ) -> None:
         """
         Initialize a STRlingParseError.
-        
+
         Parameters
         ----------
         message : str
@@ -59,14 +55,14 @@ class STRlingParseError(Exception):
         self.pos = pos
         self.text = text
         self.hint = hint
-        
+
         # Call parent constructor with formatted message
         super().__init__(self._format_error())
-    
+
     def _format_error(self) -> str:
         """
         Format the error in the visionary state format.
-        
+
         Returns
         -------
         str
@@ -75,14 +71,14 @@ class STRlingParseError(Exception):
         if not self.text:
             # Fallback to simple format if no text provided
             return f"{self.message} at position {self.pos}"
-        
+
         # Find the line containing the error
         lines = self.text.splitlines(keepends=False)
         current_pos = 0
         line_num = 1
         line_text = ""
         col = self.pos
-        
+
         for i, line in enumerate(lines):
             line_len = len(line) + 1  # +1 for newline
             if current_pos + line_len > self.pos:
@@ -100,18 +96,18 @@ class STRlingParseError(Exception):
             else:
                 line_text = self.text
                 col = self.pos
-        
+
         # Build the formatted error message
         parts = [f"STRling Parse Error: {self.message}", ""]
         parts.append(f"> {line_num} | {line_text}")
         parts.append(f">   | {' ' * col}^")
-        
+
         if self.hint:
             parts.append("")
             parts.append(f"Hint: {self.hint}")
-        
+
         return "\n".join(parts)
-    
+
     def __str__(self) -> str:
         """Return the formatted error message."""
         return self._format_error()
@@ -126,15 +122,15 @@ class STRlingParseError(Exception):
             The formatted error message (same as `str(error)`).
         """
         return self._format_error()
-    
-    def to_lsp_diagnostic(self) -> dict:
+
+    def to_lsp_diagnostic(self) -> Dict[str, Any]:
         """
         Convert the error to LSP Diagnostic format.
-        
+
         Returns a dictionary compatible with the Language Server Protocol
         Diagnostic specification, which can be serialized to JSON for
         communication with LSP clients.
-        
+
         Returns
         -------
         dict
@@ -150,7 +146,7 @@ class STRlingParseError(Exception):
         current_pos = 0
         line_num = 0  # 0-indexed for LSP
         col = self.pos
-        
+
         for i, line in enumerate(lines):
             line_len = len(line) + 1  # +1 for newline
             if current_pos + line_len > self.pos:
@@ -166,25 +162,25 @@ class STRlingParseError(Exception):
             else:
                 line_num = 0
                 col = self.pos
-        
+
         # Build the diagnostic message
         diagnostic_message = self.message
         if self.hint:
             diagnostic_message += f"\n\nHint: {self.hint}"
-        
+
         # Create error code from message (normalize to snake_case)
         error_code = self.message.lower()
         for char in [" ", "'", '"', "(", ")", "[", "]", "{", "}", "\\", "/"]:
             error_code = error_code.replace(char, "_")
         error_code = "_".join(filter(None, error_code.split("_")))
-        
+
         return {
             "range": {
                 "start": {"line": line_num, "character": col},
-                "end": {"line": line_num, "character": col + 1}
+                "end": {"line": line_num, "character": col + 1},
             },
             "severity": 1,  # 1 = Error, 2 = Warning, 3 = Information, 4 = Hint
             "message": diagnostic_message,
             "source": "STRling",
-            "code": error_code
+            "code": error_code,
         }

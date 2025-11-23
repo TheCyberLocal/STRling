@@ -24,7 +24,7 @@ from typing import List, Optional, Union, Any, Dict
 class IROp:
     """
     Base class for all IR operations.
-    
+
     All IR nodes extend this base class and must implement the to_dict() method
     for serialization to a dictionary representation.
     """
@@ -32,10 +32,10 @@ class IROp:
     def to_dict(self) -> Dict[str, Any]:
         """
         Serialize the IR node to a dictionary representation.
-        
+
         Returns:
             The dictionary representation of this IR node.
-            
+
         Raises:
             NotImplementedError: If not implemented by subclass.
         """
@@ -46,10 +46,11 @@ class IROp:
 class IRAlt(IROp):
     """
     Represents an alternation (OR) operation in the IR.
-    
+
     Matches any one of the provided branches. Equivalent to the | operator
     in traditional regex syntax.
     """
+
     branches: List["IROp"]
 
     def to_dict(self) -> Dict[str, Any]:

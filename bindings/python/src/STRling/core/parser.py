@@ -96,7 +96,7 @@ class Cursor:
 
 # ---------------- Parser ----------------
 class Parser:
-    def __init__(self, text: str):
+    def __init__(self, text: str) -> None:
         # Store original text for error reporting
         self._original_text = text
         # Extract directives first
@@ -177,7 +177,7 @@ class Parser:
                         ch = remainder.lstrip()[0]
                         leading_ws = len(remainder) - len(remainder.lstrip())
                         pos = (
-                            sum(len(l) for l in lines[: line_num - 1])
+                            sum(len(line) for line in lines[: line_num - 1])
                             + idx
                             + j
                             + leading_ws
@@ -192,7 +192,7 @@ class Parser:
                     # Validate and accept the flags we found
                     for ch in letters.replace(" ", ""):
                         if ch and ch not in valid_flags:
-                            pos = sum(len(l) for l in lines[: line_num - 1]) + idx
+                            pos = sum(len(line) for line in lines[: line_num - 1]) + idx
                             hint = get_hint(
                                 f"Invalid flag '{ch}'", self._original_text, pos
                             )
@@ -208,7 +208,7 @@ class Parser:
                 continue
             if not in_pattern and striped.startswith("%"):
                 # If it's not %flags (handled above), it's an unknown directive
-                pos = sum(len(l) for l in lines[: line_num - 1]) + line.index("%")
+                pos = sum(len(line) for line in lines[: line_num - 1]) + line.index("%")
                 hint = get_hint("Malformed directive", self._original_text, pos)
                 raise STRlingParseError(
                     "Malformed directive", pos, self._original_text, hint
@@ -216,7 +216,9 @@ class Parser:
             # This is pattern content
             # Check if %flags appears anywhere in this line (would be misplaced)
             if "%flags" in line:
-                pos = sum(len(l) for l in lines[: line_num - 1]) + line.index("%flags")
+                pos = sum(len(line) for line in lines[: line_num - 1]) + line.index(
+                    "%flags"
+                )
                 hint = get_hint(
                     "Directive after pattern content", self._original_text, pos
                 )
@@ -367,7 +369,9 @@ class Parser:
             )
 
             if should_coalesce:
-                parts[-1] = Literal(parts[-1].value + quantified_atom.value)
+                prev_lit = cast(Literal, parts[-1])
+                curr_lit = cast(Literal, quantified_atom)
+                parts[-1] = Literal(prev_lit.value + curr_lit.value)
             else:
                 parts.append(quantified_atom)
 

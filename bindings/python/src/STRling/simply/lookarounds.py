@@ -1,4 +1,7 @@
 """
+
+from __future__ import annotations
+
 Lookaround assertions for advanced pattern matching in STRling.
 
 This module provides lookahead and lookbehind assertion functions that enable
@@ -12,7 +15,7 @@ from .pattern import STRlingError, Pattern, lit
 from STRling.core import nodes
 
 
-def ahead(pattern):
+def ahead(pattern: object) -> Pattern:
     """
     Creates a positive lookahead assertion that checks for a pattern ahead without consuming it.
 
@@ -61,7 +64,7 @@ def ahead(pattern):
     -----
     Lookaheads are zero-width assertions: they don't consume any characters.
     The regex engine position remains at the same spot after a lookahead check.
-    
+
     Lookaheads can contain capturing groups, but those groups will still be
     captured even though the lookahead doesn't consume characters.
 
@@ -74,6 +77,7 @@ def ahead(pattern):
     if isinstance(pattern, str):
         pattern = lit(pattern)
 
+    # runtime validation: parameter may be any object so we must ensure it's a Pattern
     if not isinstance(pattern, Pattern):
         message = """
         Method: simply.ahead(pattern)
@@ -87,7 +91,8 @@ def ahead(pattern):
     node = nodes.Lookaround(dir="Ahead", neg=False, body=pattern.node)
     return Pattern(node, composite=True)
 
-def not_ahead(pattern):
+
+def not_ahead(pattern: object) -> Pattern:
     """
     Creates a negative lookahead assertion that checks a pattern is NOT ahead.
 
@@ -135,7 +140,7 @@ def not_ahead(pattern):
     - Excluding certain patterns from matches
     - Implementing "not followed by" logic
     - Password validation (e.g., "must not contain spaces")
-    
+
     Remember that lookaheads are zero-width: they verify conditions without
     consuming characters from the input.
 
@@ -148,6 +153,7 @@ def not_ahead(pattern):
     if isinstance(pattern, str):
         pattern = lit(pattern)
 
+    # runtime validation: parameter may be any object so we must ensure it's a Pattern
     if not isinstance(pattern, Pattern):
         message = """
         Method: simply.not_ahead(pattern)
@@ -161,7 +167,8 @@ def not_ahead(pattern):
     node = nodes.Lookaround(dir="Ahead", neg=True, body=pattern.node)
     return Pattern(node, composite=True)
 
-def behind(pattern):
+
+def behind(pattern: object) -> Pattern:
     """
     Creates a positive lookbehind assertion that checks for a pattern behind without consuming it.
 
@@ -209,7 +216,7 @@ def behind(pattern):
     -----
     Lookbehinds are zero-width assertions: they don't consume any characters.
     The regex engine position remains unchanged after a lookbehind check.
-    
+
     Some regex engines (including Python's) require lookbehinds to have a
     fixed width. Variable-length lookbehinds may not be supported in all contexts.
 
@@ -221,6 +228,7 @@ def behind(pattern):
     if isinstance(pattern, str):
         pattern = lit(pattern)
 
+    # runtime validation: parameter may be any object so we must ensure it's a Pattern
     if not isinstance(pattern, Pattern):
         message = """
         Method: simply.behind(pattern)
@@ -234,7 +242,8 @@ def behind(pattern):
     node = nodes.Lookaround(dir="Behind", neg=False, body=pattern.node)
     return Pattern(node, composite=True)
 
-def not_behind(pattern):
+
+def not_behind(pattern: object) -> Pattern:
     """
     Creates a negative lookbehind assertion that checks a pattern is NOT behind.
 
@@ -291,6 +300,7 @@ def not_behind(pattern):
     if isinstance(pattern, str):
         pattern = lit(pattern)
 
+    # runtime validation: parameter may be any object so we must ensure it's a Pattern
     if not isinstance(pattern, Pattern):
         message = """
         Method: simply.not_behind(pattern)
@@ -304,7 +314,8 @@ def not_behind(pattern):
     node = nodes.Lookaround(dir="Behind", neg=True, body=pattern.node)
     return Pattern(node, composite=True)
 
-def has(pattern):
+
+def has(pattern: object) -> Pattern:
     """
     Creates a lookahead that checks for pattern presence anywhere in the remaining string.
 
@@ -352,7 +363,7 @@ def has(pattern):
     -----
     This is implemented as a positive lookahead containing `.*pattern`, which
     means it checks from the current position to the end of the string.
-    
+
     Since this is a lookahead, it doesn't consume any characters. You can use
     multiple `has()` assertions to check for multiple required patterns.
 
@@ -364,6 +375,7 @@ def has(pattern):
     if isinstance(pattern, str):
         pattern = lit(pattern)
 
+    # runtime validation: parameter may be any object so we must ensure it's a Pattern
     if not isinstance(pattern, Pattern):
         message = """
         Method: simply.has(pattern)
@@ -377,11 +389,12 @@ def has(pattern):
     # Create a Lookaround node with dir="Ahead" and a body that matches .*pattern
     dot_star_node = nodes.Quantifier(child=nodes.Dot(), min=0, max="Inf", mode="Greedy")
     seq_node = nodes.Sequence([dot_star_node, pattern.node])
-    
+
     node = nodes.Lookaround(dir="Ahead", neg=False, body=seq_node)
     return Pattern(node, composite=True)
 
-def has_not(pattern):
+
+def has_not(pattern: object) -> Pattern:
     """
     Creates a lookahead that checks for pattern absence anywhere in the remaining string.
 
@@ -429,7 +442,7 @@ def has_not(pattern):
     -----
     This is implemented as a negative lookahead containing `.*pattern`, which
     means it checks from the current position to the end of the string.
-    
+
     Since this is a lookahead, it doesn't consume any characters. You can use
     multiple `has_not()` assertions to check for multiple forbidden patterns.
 
@@ -441,6 +454,7 @@ def has_not(pattern):
     if isinstance(pattern, str):
         pattern = lit(pattern)
 
+    # runtime validation: parameter may be any object so we must ensure it's a Pattern
     if not isinstance(pattern, Pattern):
         message = """
         Method: simply.has(pattern)
@@ -454,6 +468,6 @@ def has_not(pattern):
     # Create a Lookaround node with dir="Ahead", neg=True and a body that matches .*pattern
     dot_star_node = nodes.Quantifier(child=nodes.Dot(), min=0, max="Inf", mode="Greedy")
     seq_node = nodes.Sequence([dot_star_node, pattern.node])
-    
+
     node = nodes.Lookaround(dir="Ahead", neg=True, body=seq_node)
     return Pattern(node, composite=True)

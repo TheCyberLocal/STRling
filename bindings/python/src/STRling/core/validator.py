@@ -29,8 +29,8 @@ class _ValidatorLike(Protocol):
     call used in this module.
     """
 
-    def validate(self, instance: Any, *args: Any, **kwargs: Any) -> None:
-        ...
+    def validate(self, instance: Any, *args: Any, **kwargs: Any) -> None: ...
+
 
 # Make a best-effort attempt to import `referencing.Registry` at runtime.
 # Some environments (CI, static type checking) may not have `referencing`

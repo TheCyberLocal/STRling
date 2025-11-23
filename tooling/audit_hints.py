@@ -13,7 +13,9 @@ import sys
 import os
 
 # Add parent directory to path to import STRling module
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'bindings', 'python', 'src'))
+sys.path.insert(
+    0, os.path.join(os.path.dirname(__file__), "..", "bindings", "python", "src")
+)
 
 from STRling.core.parser import parse
 from STRling.core.errors import STRlingParseError
@@ -22,7 +24,7 @@ from STRling.core.errors import STRlingParseError
 def test_pattern(pattern: str) -> None:
     """
     Test a pattern and print the formatted error if it fails.
-    
+
     Parameters
     ----------
     pattern : str
@@ -30,7 +32,7 @@ def test_pattern(pattern: str) -> None:
     """
     print(f"Testing pattern: {repr(pattern)}")
     print("-" * 60)
-    
+
     try:
         flags, ast = parse(pattern)
         print("✓ Pattern parsed successfully (no error)")
@@ -40,7 +42,7 @@ def test_pattern(pattern: str) -> None:
         print(str(e))
     except Exception as e:
         print(f"Unexpected error: {type(e).__name__}: {e}")
-    
+
     print()
 
 
@@ -49,6 +51,6 @@ if __name__ == "__main__":
         print("Usage: python audit_hints.py <pattern>")
         print("Example: python audit_hints.py '(abc'")
         sys.exit(1)
-    
+
     pattern = sys.argv[1]
     test_pattern(pattern)

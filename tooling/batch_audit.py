@@ -9,7 +9,9 @@ import sys
 import os
 
 # Add parent directory to path to import STRling module
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'bindings', 'python', 'src'))
+sys.path.insert(
+    0, os.path.join(os.path.dirname(__file__), "..", "bindings", "python", "src")
+)
 
 from STRling.core.parser import parse
 from STRling.core.errors import STRlingParseError
@@ -18,7 +20,7 @@ from STRling.core.errors import STRlingParseError
 def test_pattern(pattern: str) -> dict:
     """
     Test a pattern and return error details.
-    
+
     Returns
     -------
     dict
@@ -27,24 +29,24 @@ def test_pattern(pattern: str) -> dict:
     try:
         flags, ast = parse(pattern)
         return {
-            'pattern': pattern,
-            'error_msg': None,
-            'hint': None,
-            'formatted': 'Pattern parsed successfully (no error)'
+            "pattern": pattern,
+            "error_msg": None,
+            "hint": None,
+            "formatted": "Pattern parsed successfully (no error)",
         }
     except STRlingParseError as e:
         return {
-            'pattern': pattern,
-            'error_msg': e.message,
-            'hint': e.hint,
-            'formatted': str(e)
+            "pattern": pattern,
+            "error_msg": e.message,
+            "hint": e.hint,
+            "formatted": str(e),
         }
     except Exception as e:
         return {
-            'pattern': pattern,
-            'error_msg': f'{type(e).__name__}: {e}',
-            'hint': None,
-            'formatted': f'Unexpected error: {type(e).__name__}: {e}'
+            "pattern": pattern,
+            "error_msg": f"{type(e).__name__}: {e}",
+            "hint": None,
+            "formatted": f"Unexpected error: {type(e).__name__}: {e}",
         }
 
 
@@ -66,7 +68,6 @@ ERROR_CASES = {
         ("abc)", "Unmatched Closing Paren"),
         ("(?i)", "Inline Modifier (not supported)"),
     ],
-    
     "Quantifiers": [
         ("*", "Quantifier at Start"),
         ("+", "Plus at Start"),
@@ -81,7 +82,6 @@ ERROR_CASES = {
         ("$+", "Quantified Anchor (end)"),
         ("\\b?", "Quantified Word Boundary"),
     ],
-    
     "Character Classes": [
         ("[abc", "Unclosed Char Class"),
         ("[", "Empty Unclosed Char Class"),
@@ -92,7 +92,6 @@ ERROR_CASES = {
         ("[-a]", "Leading Dash"),
         ("[^]", "Empty Negated Class (if errors)"),
     ],
-    
     "Anchors and Escapes": [
         ("a^b", "Misplaced Anchor (caret in middle)"),
         ("a$b", "Misplaced Anchor (dollar in middle)"),
@@ -111,7 +110,6 @@ ERROR_CASES = {
         ("\\p{Foo", "Unterminated Unicode Property"),
         ("\\P{Bar", "Unterminated Unicode Property (P)"),
     ],
-    
     "Backreferences": [
         ("\\1", "Backref to Undefined Group (no groups)"),
         ("(a)\\2", "Backref to Undefined Group (only 1 group)"),
@@ -120,13 +118,11 @@ ERROR_CASES = {
         ("\\k<", "Incomplete Named Backref (no >)"),
         ("\\k<foo", "Unterminated Named Backref"),
     ],
-    
     "Alternation": [
         ("|abc", "Alternation Lacks Left-Hand Side"),
         ("abc|", "Alternation Lacks Right-Hand Side"),
         ("a||b", "Empty Alternation Branch"),
     ],
-    
     "Directives and Flags": [
         ("%flags foo", "Invalid Flag Letter"),
         ("abc%flags i", "Flag After Pattern"),
@@ -140,33 +136,33 @@ def main():
     print("IEH AUDIT - COMPREHENSIVE ERROR TESTING")
     print("=" * 80)
     print()
-    
+
     total_tests = 0
-    
+
     for category, cases in ERROR_CASES.items():
         print(f"\n{'=' * 80}")
         print(f"CATEGORY: {category}")
         print(f"{'=' * 80}\n")
-        
+
         for pattern, description in cases:
             total_tests += 1
             print(f"[{total_tests}] {description}")
             print(f"    Pattern: {repr(pattern)}")
             print(f"    {'-' * 70}")
-            
+
             result = test_pattern(pattern)
-            
-            if result['error_msg']:
+
+            if result["error_msg"]:
                 print(f"    Error: {result['error_msg']}")
-                if result['hint']:
+                if result["hint"]:
                     print(f"    Hint: {result['hint'][:80]}...")
                 else:
                     print(f"    Hint: None")
             else:
                 print(f"    ✓ No error (unexpected!)")
-            
+
             print()
-    
+
     print(f"\n{'=' * 80}")
     print(f"TOTAL TESTS RUN: {total_tests}")
     print(f"{'=' * 80}\n")

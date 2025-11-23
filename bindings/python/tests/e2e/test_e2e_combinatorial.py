@@ -54,7 +54,7 @@ class TestTier1PairwiseCombinations:
     """
 
     # Flags + Other Features
-    
+
     @pytest.mark.parametrize(
         "input_dsl, expected_regex",
         [
@@ -107,7 +107,7 @@ class TestTier1PairwiseCombinations:
         assert compile_to_pcre(input_dsl) == expected_regex
 
     # Literals + Other Features
-    
+
     @pytest.mark.parametrize(
         "input_dsl, expected_regex",
         [
@@ -157,7 +157,7 @@ class TestTier1PairwiseCombinations:
         assert compile_to_pcre(input_dsl) == expected_regex
 
     # Character Classes + Other Features
-    
+
     @pytest.mark.parametrize(
         "input_dsl, expected_regex",
         [
@@ -202,7 +202,7 @@ class TestTier1PairwiseCombinations:
         assert compile_to_pcre(input_dsl) == expected_regex
 
     # Anchors + Other Features
-    
+
     @pytest.mark.parametrize(
         "input_dsl, expected_regex",
         [
@@ -238,7 +238,7 @@ class TestTier1PairwiseCombinations:
         assert compile_to_pcre(input_dsl) == expected_regex
 
     # Quantifiers + Other Features
-    
+
     @pytest.mark.parametrize(
         "input_dsl, expected_regex",
         [
@@ -275,7 +275,7 @@ class TestTier1PairwiseCombinations:
         assert compile_to_pcre(input_dsl) == expected_regex
 
     # Groups + Other Features
-    
+
     @pytest.mark.parametrize(
         "input_dsl, expected_regex",
         [
@@ -305,7 +305,7 @@ class TestTier1PairwiseCombinations:
         assert compile_to_pcre(input_dsl) == expected_regex
 
     # Lookarounds + Other Features
-    
+
     @pytest.mark.parametrize(
         "input_dsl, expected_regex",
         [
@@ -328,7 +328,7 @@ class TestTier1PairwiseCombinations:
         assert compile_to_pcre(input_dsl) == expected_regex
 
     # Alternation + Backreferences
-    
+
     @pytest.mark.parametrize(
         "input_dsl, expected_regex",
         [
@@ -399,9 +399,7 @@ class TestTier2StrategicTriplets:
             "quantifiers_lookbehind_alternation",
         ],
     )
-    def test_strategic_triplet_combinations(
-        self, input_dsl: str, expected_regex: str
-    ):
+    def test_strategic_triplet_combinations(self, input_dsl: str, expected_regex: str):
         """Tests strategic triplets of high-risk feature interactions."""
         assert compile_to_pcre(input_dsl) == expected_regex
 
@@ -445,8 +443,6 @@ class TestComplexNestedFeatures:
             "possessive_in_group",
         ],
     )
-    def test_complex_nested_combinations(
-        self, input_dsl: str, expected_regex: str
-    ):
+    def test_complex_nested_combinations(self, input_dsl: str, expected_regex: str):
         """Tests complex nested feature combinations."""
         assert compile_to_pcre(input_dsl) == expected_regex

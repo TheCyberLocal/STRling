@@ -32,7 +32,7 @@ class Compiler:
       - Ensure quantifier children are grouped appropriately
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.features_used: set[str] = set()
 
     def compile_with_metadata(self, root_node: N.Node) -> dict[str, object]:
@@ -59,7 +59,7 @@ class Compiler:
             "metadata": {"features_used": sorted(list(self.features_used))},
         }
 
-    def _analyze_features(self, node: IR.IROp):
+    def _analyze_features(self, node: IR.IROp) -> None:
         """Recursively walk the IR tree and log features used."""
         if isinstance(node, IR.IRGroup):
             if node.atomic:

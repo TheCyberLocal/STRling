@@ -114,23 +114,23 @@ def update_json(content: str, version: str, path: Path) -> str:
 
 
 def update_composer_json(content: str, version: str, path: Path) -> str:
+    # Use JSON parsing to handle both replacement and insertion robustly.
+    # Composer files are valid JSON; json.loads/json.dumps will correctly
+    # handle both updating an existing "version" key and inserting one when
+    # missing. We try to detect indentation to preserve formatting.
     data = json.loads(content)
     if data.get("version") == version:
         return content
 
-    if '"version":' in content:
-        # use explicit group syntax so the replacement is always interpreted correctly
-        return re.sub(
-            r'("version"\s*:\s*")([^\"]+)(")', r"\g<1>" + version + r"\g<3>", content
-        )
+    data["version"] = version
 
-    # Insert version after the first "name" field if no version present
-    return re.sub(
-        r'("name"\s*:\s*"[^\"]+",)',
-        r"\g<1>\n    \"version\": \"" + version + '",',
-        content,
-        count=1,
-    )
+    # Detect indentation similar to update_json
+    indent = 2
+    m = re.search(r"\n(\s+)\"[^\"]+\":", content)
+    if m:
+        indent = len(m.group(1))
+
+    return json.dumps(data, indent=indent, ensure_ascii=False) + "\n"
 
 
 def update_yaml_pubspec(content: str, version: str, path: Path) -> str:

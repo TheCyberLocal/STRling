@@ -1,4 +1,9 @@
 """
+
+from __future__ import annotations
+
+from typing import Iterable, Sequence
+
 Pattern constructors for building composite patterns in STRling.
 
 This module provides high-level functions for creating complex pattern structures
@@ -12,7 +17,7 @@ from .pattern import STRlingError, Pattern, lit
 from STRling.core import nodes
 
 
-def any_of(*patterns):
+def any_of(*patterns: Pattern | str) -> Pattern:
     """
     Matches any one of the provided patterns (alternation/OR operation).
 
@@ -70,25 +75,17 @@ def any_of(*patterns):
     may : For optional patterns
     """
 
-    clean_patterns = []
-    for pattern in patterns:
-        if isinstance(pattern, str):
-            pattern = lit(pattern)
+    clean_patterns: list[Pattern] = []
+    for p in patterns:
+        if isinstance(p, str):
+            p = lit(p)
+        # runtime: ensure this is a Pattern now
+        assert isinstance(p, Pattern), (
+            "Method: simply.any_of(*patterns) - parameters must be Pattern or str"
+        )
+        clean_patterns.append(p)
 
-        if not isinstance(pattern, Pattern):
-            message = """
-            Method: simply.any_of(*patterns)
-
-            The parameters must be instances of `Pattern` or `str`.
-
-            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
-            """
-            raise STRlingError(message)
-
-        clean_patterns.append(pattern)
-
-
-    named_group_counts = {}
+    named_group_counts: dict[str, int] = {}
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
             if group_name in named_group_counts:
@@ -96,9 +93,13 @@ def any_of(*patterns):
             else:
                 named_group_counts[group_name] = 1
 
-    duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
+    duplicates = {
+        name: count for name, count in named_group_counts.items() if count > 1
+    }
     if duplicates:
-        duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
+        duplicate_info = ", ".join(
+            [f"{name}: {count}" for name, count in duplicates.items()]
+        )
         message = f"""
         Method: simply.any_of(*patterns)
 
@@ -110,15 +111,18 @@ def any_of(*patterns):
         """
         raise STRlingError(message)
 
-    sub_names = named_group_counts.keys()
-
     # Create an Alternation node with children nodes
-    child_nodes = [p.node for p in clean_patterns]
+    child_nodes: list[nodes.Node] = [p.node for p in clean_patterns]
     node = nodes.Alternation(child_nodes)
-    
-    return Pattern(node, composite=True, named_groups=clean_patterns[0].named_groups)
+    # collect named groups in a stable order
+    sub_names: list[str] = []
+    for p in clean_patterns:
+        sub_names.extend(p.named_groups)
 
-def may(*patterns):
+    return Pattern(node, composite=True, named_groups=sub_names)
+
+
+def may(*patterns: Pattern | str) -> Pattern:
     """
     Makes the provided patterns optional (matches 0 or 1 times).
 
@@ -175,25 +179,16 @@ def may(*patterns):
     merge : For concatenating patterns
     """
 
-    clean_patterns = []
-    for pattern in patterns:
-        if isinstance(pattern, str):
-            pattern = lit(pattern)
+    clean_patterns: list[Pattern] = []
+    for p in patterns:
+        if isinstance(p, str):
+            p = lit(p)
+        assert isinstance(p, Pattern), (
+            "Method: simply.may(*patterns) - parameters must be Pattern or str"
+        )
+        clean_patterns.append(p)
 
-        if not isinstance(pattern, Pattern):
-            message = """
-            Method: simply.may(*patterns)
-
-            The parameters must be instances of `Pattern` or `str`.
-
-            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
-            """
-            raise STRlingError(message)
-
-        clean_patterns.append(pattern)
-
-
-    named_group_counts = {}
+    named_group_counts: dict[str, int] = {}
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
             if group_name in named_group_counts:
@@ -201,9 +196,13 @@ def may(*patterns):
             else:
                 named_group_counts[group_name] = 1
 
-    duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
+    duplicates = {
+        name: count for name, count in named_group_counts.items() if count > 1
+    }
     if duplicates:
-        duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
+        duplicate_info = ", ".join(
+            [f"{name}: {count}" for name, count in duplicates.items()]
+        )
         message = f"""
         Method: simply.may(*patterns)
 
@@ -215,22 +214,24 @@ def may(*patterns):
         """
         raise STRlingError(message)
 
-    sub_names = named_group_counts.keys()
-
     # Create a sequence of nodes then wrap in Quantifier with min=0, max=1
     if len(clean_patterns) == 1:
         inner_node = clean_patterns[0].node
     else:
         child_nodes = [p.node for p in clean_patterns]
         inner_node = nodes.Sequence(child_nodes)
-    
+
     node = nodes.Quantifier(child=inner_node, min=0, max=1, mode="Greedy")
-    
-    return Pattern(node, composite=True, named_groups=clean_patterns[0].named_groups)
+
+    # gather named groups from any sub-patterns
+    sub_names: list[str] = []
+    for p in clean_patterns:
+        sub_names.extend(p.named_groups)
+
+    return Pattern(node, composite=True, named_groups=sub_names)
 
 
-
-def merge(*patterns):
+def merge(*patterns: Pattern | str) -> Pattern:
     """
     Concatenates the provided patterns into a single sequential pattern.
 
@@ -286,25 +287,16 @@ def merge(*patterns):
     group : For creating named capture groups
     """
 
-    clean_patterns = []
-    for pattern in patterns:
-        if isinstance(pattern, str):
-            pattern = lit(pattern)
+    clean_patterns: list[Pattern] = []
+    for p in patterns:
+        if isinstance(p, str):
+            p = lit(p)
+        assert isinstance(p, Pattern), (
+            "Method: simply.merge(*patterns) - parameters must be Pattern or str"
+        )
+        clean_patterns.append(p)
 
-        if not isinstance(pattern, Pattern):
-            message = """
-            Method: simply.merge(*patterns)
-
-            The parameters must be instances of `Pattern` or `str`.
-
-            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
-            """
-            raise STRlingError(message)
-
-        clean_patterns.append(pattern)
-
-
-    named_group_counts = {}
+    named_group_counts: dict[str, int] = {}
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
             if group_name in named_group_counts:
@@ -312,9 +304,13 @@ def merge(*patterns):
             else:
                 named_group_counts[group_name] = 1
 
-    duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
+    duplicates = {
+        name: count for name, count in named_group_counts.items() if count > 1
+    }
     if duplicates:
-        duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
+        duplicate_info = ", ".join(
+            [f"{name}: {count}" for name, count in duplicates.items()]
+        )
         message = f"""
         Method: simply.merge(*patterns)
 
@@ -326,19 +322,17 @@ def merge(*patterns):
         """
         raise STRlingError(message)
 
-    sub_names = named_group_counts.keys()
-
     # Create a Sequence node with children nodes
     child_nodes = [p.node for p in clean_patterns]
     node = nodes.Sequence(child_nodes)
-    
-    sub_names = []
-    for pattern in clean_patterns:
-        sub_names.extend(pattern.named_groups)
-    
+    sub_names: list[str] = []
+    for p in clean_patterns:
+        sub_names.extend(p.named_groups)
+
     return Pattern(node, composite=True, named_groups=sub_names)
 
-def capture(*patterns):
+
+def capture(*patterns: Pattern | str) -> Pattern:
     """
     Creates a numbered capture group for extracting matched content by index.
 
@@ -396,7 +390,7 @@ def capture(*patterns):
     Captures can be repeated with `.rep(n)` or `.rep(min, max)`, and each
     repetition creates a new numbered group. However, captures CANNOT be
     invoked with a range using the call syntax:
-    
+
     - VALID: `s.capture(s.digit(), s.letter()).rep(3)`
     - INVALID: `s.capture(s.digit(), s.letter())(1, 2)`
 
@@ -406,26 +400,16 @@ def capture(*patterns):
     merge : For non-capturing concatenation
     """
 
+    clean_patterns: list[Pattern] = []
+    for p in patterns:
+        if isinstance(p, str):
+            p = lit(p)
+        assert isinstance(p, Pattern), (
+            "Method: simply.capture(*patterns) - parameters must be Pattern or str"
+        )
+        clean_patterns.append(p)
 
-    clean_patterns = []
-    for pattern in patterns:
-        if isinstance(pattern, str):
-            pattern = lit(pattern)
-
-        if not isinstance(pattern, Pattern):
-            message = """
-            Method: simply.capture(*patterns)
-
-            The parameters must be instances of `Pattern` or `str`.
-
-            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
-            """
-            raise STRlingError(message)
-
-        clean_patterns.append(pattern)
-
-
-    named_group_counts = {}
+    named_group_counts: dict[str, int] = {}
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
             if group_name in named_group_counts:
@@ -433,9 +417,13 @@ def capture(*patterns):
             else:
                 named_group_counts[group_name] = 1
 
-    duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
+    duplicates = {
+        name: count for name, count in named_group_counts.items() if count > 1
+    }
     if duplicates:
-        duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
+        duplicate_info = ", ".join(
+            [f"{name}: {count}" for name, count in duplicates.items()]
+        )
         message = f"""
         Method: simply.capture(*patterns)
 
@@ -447,24 +435,24 @@ def capture(*patterns):
         """
         raise STRlingError(message)
 
-    sub_names = named_group_counts.keys()
-
+    # build the body node
     # Create a Group node with capturing=True
     if len(clean_patterns) == 1:
         body_node = clean_patterns[0].node
     else:
         child_nodes = [p.node for p in clean_patterns]
         body_node = nodes.Sequence(child_nodes)
-    
+
     node = nodes.Group(capturing=True, body=body_node)
-    
-    sub_names = []
-    for pattern in clean_patterns:
-        sub_names.extend(pattern.named_groups)
-    
+
+    sub_names: list[str] = []
+    for p in clean_patterns:
+        sub_names.extend(p.named_groups)
+
     return Pattern(node, composite=True, numbered_group=True, named_groups=sub_names)
 
-def group(name, *patterns):
+
+def group(name: str, *patterns: Pattern | str) -> Pattern:
     """
     Creates a named capture group that can be referenced by name for extracting matched content.
 
@@ -524,10 +512,10 @@ def group(name, *patterns):
     each repetition would create multiple groups with the same name, which is not
     allowed. For repeatable patterns, use `s.capture()` for numbered groups or
     `s.merge()` for non-capturing concatenation.
-    
+
     Groups cannot be invoked with ranges using the call syntax:
     - INVALID: `s.group('name', s.digit())(1, 2)`
-    
+
     All named groups must have unique names throughout the entire pattern. If you
     need to use the same pattern multiple times, create it once and reference it,
     or use numbered captures instead.
@@ -538,35 +526,26 @@ def group(name, *patterns):
     merge : For non-capturing concatenation
     """
 
-    if not isinstance(name, str):
+    # require a non-empty group name (type is enforced by function signature)
+    if not name:
         message = """
         Method: simply.group(name, *patterns)
 
         The group is missing a specified name.
-        The `name` parameter must be a string like 'group_name'.
+        The `name` parameter must be a non-empty string like 'group_name'.
         """
         raise STRlingError(message)
 
+    clean_patterns: list[Pattern] = []
+    for p in patterns:
+        if isinstance(p, str):
+            p = lit(p)
+        assert isinstance(p, Pattern), (
+            "Method: simply.group(name, *patterns) - parameters must be Pattern or str"
+        )
+        clean_patterns.append(p)
 
-    clean_patterns = []
-    for pattern in patterns:
-        if isinstance(pattern, str):
-            pattern = lit(pattern)
-
-        if not isinstance(pattern, Pattern):
-            message = """
-            Method: simply.group(name, *patterns)
-
-            The parameters must be instances of `Pattern` or `str`.
-
-            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
-            """
-            raise STRlingError(message)
-
-        clean_patterns.append(pattern)
-
-
-    named_group_counts = {}
+    named_group_counts: dict[str, int] = {}
     for pattern in clean_patterns:
         for group_name in pattern.named_groups:
             if group_name in named_group_counts:
@@ -574,9 +553,13 @@ def group(name, *patterns):
             else:
                 named_group_counts[group_name] = 1
 
-    duplicates = {name: count for name, count in named_group_counts.items() if count > 1}
+    duplicates = {
+        name: count for name, count in named_group_counts.items() if count > 1
+    }
     if duplicates:
-        duplicate_info = ", ".join([f"{name}: {count}" for name, count in duplicates.items()])
+        duplicate_info = ", ".join(
+            [f"{name}: {count}" for name, count in duplicates.items()]
+        )
         message = f"""
         Method: simply.group(name, *patterns)
 
@@ -588,19 +571,18 @@ def group(name, *patterns):
         """
         raise STRlingError(message)
 
-    sub_names = named_group_counts.keys()
-
+    # compose body node
     # Create a Group node with capturing=True and name=name
     if len(clean_patterns) == 1:
         body_node = clean_patterns[0].node
     else:
         child_nodes = [p.node for p in clean_patterns]
         body_node = nodes.Sequence(child_nodes)
-    
+
     node = nodes.Group(capturing=True, body=body_node, name=name)
-    
-    sub_names = []
-    for pattern in clean_patterns:
-        sub_names.extend(pattern.named_groups)
-    
+
+    sub_names: list[str] = []
+    for p in clean_patterns:
+        sub_names.extend(p.named_groups)
+
     return Pattern(node, composite=True, named_groups=[name, *sub_names])

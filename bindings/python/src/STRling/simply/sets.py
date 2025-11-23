@@ -8,11 +8,18 @@ characters, and these functions make it easy to define complex character matchin
 rules without dealing with raw regex character class syntax.
 """
 
+from __future__ import annotations
+
 from .pattern import STRlingError, Pattern, lit
 from STRling.core import nodes
 
 
-def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
+def between(
+    start: str | int,
+    end: str | int,
+    min_rep: int | None = None,
+    max_rep: int | None = None,
+) -> Pattern:
     """
     Matches characters within a specified range (e.g., 'a' to 'z' or 0 to 9).
 
@@ -67,7 +74,7 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     Both start and end must be:
     - Either both integers in range 0-9
     - Or both single letters of the same case (both uppercase or both lowercase)
-    
+
     The range is inclusive on both ends. For example, `between('a', 'c')` matches
     'a', 'b', and 'c'.
 
@@ -77,7 +84,9 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     in_chars : For matching specific characters (not a range)
     """
 
-    if not (isinstance(start, str) and isinstance(end, str)) and not (isinstance(start, int) and isinstance(end, int)):
+    if not (isinstance(start, str) and isinstance(end, str)) and not (
+        isinstance(start, int) and isinstance(end, int)
+    ):
         message = """
         Method: simply.between(start, end)
 
@@ -145,7 +154,12 @@ def between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     return p(min_rep, max_rep) if min_rep is not None else p
 
 
-def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
+def not_between(
+    start: str | int,
+    end: str | int,
+    min_rep: int | None = None,
+    max_rep: int | None = None,
+) -> Pattern:
     """
     Matches characters outside a specified range (inverse of between).
 
@@ -207,7 +221,9 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     not_in_chars : For excluding specific characters (not a range)
     """
 
-    if not (isinstance(start, str) and isinstance(end, str)) and not (isinstance(start, int) and isinstance(end, int)):
+    if not (isinstance(start, str) and isinstance(end, str)) and not (
+        isinstance(start, int) and isinstance(end, int)
+    ):
         message = """
         Method: simply.not_between(start, end)
 
@@ -275,7 +291,7 @@ def not_between(start: str, end: str, min_rep: int = None, max_rep: int = None):
     return p(min_rep, max_rep) if min_rep is not None else p
 
 
-def in_chars(*patterns):
+def in_chars(*patterns: Pattern | str) -> Pattern:
     """
     Matches any one of the specified characters or character classes.
 
@@ -325,7 +341,7 @@ def in_chars(*patterns):
     All patterns must be non-composite. This means you cannot use `in_chars()`
     with patterns like `s.merge()`, `s.capture()`, or `s.any_of()`. Use only
     simple character sets like `s.letter()`, `s.digit()`, or literal strings.
-    
+
     This is similar to a character class `[abc]` in traditional regex, where
     you specify individual characters to match.
 
@@ -365,7 +381,7 @@ def in_chars(*patterns):
     items = []
     for pattern in clean_patterns:
         # Extract items from pattern's node
-        if hasattr(pattern.node, 'items'):
+        if hasattr(pattern.node, "items"):
             items.extend(pattern.node.items)
         elif isinstance(pattern.node, nodes.Literal):
             for char in pattern.node.value:
@@ -380,7 +396,7 @@ def in_chars(*patterns):
     return Pattern(node, custom_set=True)
 
 
-def not_in_chars(*patterns):
+def not_in_chars(*patterns: Pattern | str) -> Pattern:
     """
     Matches any character NOT in the specified set (negated character class).
 
@@ -427,7 +443,7 @@ def not_in_chars(*patterns):
     All patterns must be non-composite. This means you cannot use `not_in_chars()`
     with patterns like `s.merge()`, `s.capture()`, or `s.any_of()`. Use only
     simple character sets like `s.letter()`, `s.digit()`, or literal strings.
-    
+
     This is similar to a negated character class `[^abc]` in traditional regex,
     which matches any character except those listed.
 
@@ -466,7 +482,7 @@ def not_in_chars(*patterns):
     items = []
     for pattern in clean_patterns:
         # Extract items from pattern's node
-        if hasattr(pattern.node, 'items'):
+        if hasattr(pattern.node, "items"):
             items.extend(pattern.node.items)
         elif isinstance(pattern.node, nodes.Literal):
             for char in pattern.node.value:

@@ -142,7 +142,6 @@ class TestCategoryCExtensionFeatures:
         """
         assert compile_to_pcre(input_dsl) == expected_regex
 
-
     def test_z_escape_in_extensions_raises(self):
         r"""
         Ensure that a pattern containing the lowercase `\z` escape raises a
@@ -163,7 +162,6 @@ class TestCategoryDGoldenPatterns:
         [
             # Category 1: Common Validation Patterns
             # US Phone Number (already exists in TestCategoryACoreLanguageFeatures)
-            
             # Email Address (RFC 5322 subset - simplified)
             (
                 r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",
@@ -188,10 +186,8 @@ class TestCategoryDGoldenPatterns:
                 r"(?<scheme>https?)://(?<host>[a-zA-Z0-9.\-]+)(?::(?<port>\d+))?(?<path>/\S*)?",
                 "HTTP/HTTPS URL validation",
             ),
-            
             # Category 2: Common Parsing/Extraction Patterns
             # Simple HTML/XML Tag (already exists in TestCategoryACoreLanguageFeatures)
-            
             # Log File Line (Nginx access log format)
             # Nginx access log parsing is flaky in some parser modes because the
             # test pattern contains escaped spaces (e.g. "\ "). The parser
@@ -203,10 +199,8 @@ class TestCategoryDGoldenPatterns:
                 r"(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})T(?<hour>\d{2}):(?<minute>\d{2}):(?<second>\d{2})(?:\.(?<fraction>\d+))?(?<tz>Z|[+\-]\d{2}:\d{2})?",
                 "ISO 8601 timestamp parsing",
             ),
-            
             # Category 3: Advanced Feature Stress Tests
             # Unicode Property (already exists in TestCategoryACoreLanguageFeatures)
-            
             # Password Policy (multiple lookaheads)
             (
                 r"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}",

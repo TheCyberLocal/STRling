@@ -11,6 +11,7 @@ PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 SPEC_DIR = PROJECT_ROOT / "tests" / "spec"
 BINDINGS_DIR = PROJECT_ROOT / "bindings"
 
+
 # Baseline Metrics
 def get_baseline_metrics():
     spec_files = list(SPEC_DIR.glob("*.json"))
@@ -26,29 +27,80 @@ def get_baseline_metrics():
             pass
     return total_specs, compiler_only
 
+
 # Binding Configurations
 BINDINGS = [
-    {"name": "python", "command": ["pytest", "tests/unit/test_conformance.py"], "pattern": r"(\d+) passed"},
-    {"name": "rust", "command": ["cargo", "test", "--test", "conformance"], "pattern": r"test result: ok\. (\d+) passed"},
-    {"name": "go", "command": ["go", "test", "-v", "conformance_test.go"], "pattern": r"RUN\s+TestConformance/\S+", "count_occurrences": True},
+    {
+        "name": "python",
+        "command": ["pytest", "tests/unit/test_conformance.py"],
+        "pattern": r"(\d+) passed",
+    },
+    {
+        "name": "rust",
+        "command": ["cargo", "test", "--test", "conformance"],
+        "pattern": r"test result: ok\. (\d+) passed",
+    },
+    {
+        "name": "go",
+        "command": ["go", "test", "-v", "conformance_test.go"],
+        "pattern": r"RUN\s+TestConformance/\S+",
+        "count_occurrences": True,
+    },
     {"name": "csharp", "command": ["dotnet", "test"], "pattern": r"Passed:\s+(\d+)"},
-    {"name": "typescript", "command": ["npm", "test", "--", "conformance"], "pattern": r"Tests:\s+(\d+) passed"},
-    {"name": "java", "command": ["mvn", "test", "-Dtest=ConformanceTests"], "pattern": r"Tests run: (\d+), Failures: 0"},
-    {"name": "kotlin", "command": ["./gradlew", "test", "--tests", "strling.ConformanceTest"], "pattern": r"(\d+) tests completed"},
+    {
+        "name": "typescript",
+        "command": ["npm", "test", "--", "conformance"],
+        "pattern": r"Tests:\s+(\d+) passed",
+    },
+    {
+        "name": "java",
+        "command": ["mvn", "test", "-Dtest=ConformanceTests"],
+        "pattern": r"Tests run: (\d+), Failures: 0",
+    },
+    {
+        "name": "kotlin",
+        "command": ["./gradlew", "test", "--tests", "strling.ConformanceTest"],
+        "pattern": r"(\d+) tests completed",
+    },
     {"name": "c", "command": ["make", "tests"], "pattern": r"Tests passed: (\d+)"},
-    {"name": "cpp", "command": ["ctest"], "pattern": r"(\d+)% tests passed"}, 
-    {"name": "ruby", "command": ["rake", "test"], "pattern": r"(\d+) runs, (\d+) assertions"}, 
-    {"name": "php", "command": ["vendor/bin/phpunit", "tests/ConformanceTest.php"], "pattern": r"OK \((\d+) tests"},
-    {"name": "perl", "command": ["prove", "t/conformance.t"], "pattern": r"Files=\d+, Tests=(\d+)"},
-    {"name": "lua", "command": ["busted", "spec/strling_spec.lua"], "pattern": r"(\d+) successes"},
+    {"name": "cpp", "command": ["ctest"], "pattern": r"(\d+)% tests passed"},
+    {
+        "name": "ruby",
+        "command": ["rake", "test"],
+        "pattern": r"(\d+) runs, (\d+) assertions",
+    },
+    {
+        "name": "php",
+        "command": ["vendor/bin/phpunit", "tests/ConformanceTest.php"],
+        "pattern": r"OK \((\d+) tests",
+    },
+    {
+        "name": "perl",
+        "command": ["prove", "t/conformance.t"],
+        "pattern": r"Files=\d+, Tests=(\d+)",
+    },
+    {
+        "name": "lua",
+        "command": ["busted", "spec/strling_spec.lua"],
+        "pattern": r"(\d+) successes",
+    },
     {"name": "swift", "command": ["swift", "test"], "pattern": r"Executed (\d+) tests"},
-    {"name": "dart", "command": ["dart", "test", "test/conformance_test.dart"], "pattern": r"All (\d+) tests passed"},
-    {"name": "r", "command": ["Rscript", "-e", "devtools::test()"], "pattern": r"\[ FAIL \d+ \| WARN \d+ \| SKIP \d+ \| PASS (\d+) \]"},
+    {
+        "name": "dart",
+        "command": ["dart", "test", "test/conformance_test.dart"],
+        "pattern": r"All (\d+) tests passed",
+    },
+    {
+        "name": "r",
+        "command": ["Rscript", "-e", "devtools::test()"],
+        "pattern": r"\[ FAIL \d+ \| WARN \d+ \| SKIP \d+ \| PASS (\d+) \]",
+    },
 ]
+
 
 def run_audit():
     print("Starting Precision Audit...")
-    
+
     # 1. Establish Baseline
     total_specs, compiler_only = get_baseline_metrics()
     print(f"Baseline Metrics:")
@@ -67,7 +119,7 @@ def run_audit():
 
     for b_dir in sorted(binding_dirs):
         name = b_dir.name
-        
+
         if name not in config_map:
             print(f"{name:<15} | {'?':<10} | {'?':<10} | {'No Config':<20}")
             continue
@@ -76,20 +128,20 @@ def run_audit():
         cmd = config["command"]
         pattern = config["pattern"]
         cwd = b_dir
-        
+
         try:
             # Run the test command
             result = subprocess.run(
-                cmd, 
-                cwd=cwd, 
-                stdout=subprocess.PIPE, 
-                stderr=subprocess.PIPE, 
-                text=True, 
-                timeout=60 
+                cmd,
+                cwd=cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=60,
             )
-            
+
             output = result.stdout + "\n" + result.stderr
-            
+
             count = 0
             if config.get("count_occurrences"):
                 matches = re.findall(pattern, output)
@@ -99,10 +151,10 @@ def run_audit():
                 if match:
                     count = int(match.group(1))
                 else:
-                    count = -1 
-            
+                    count = -1
+
             delta = count - total_specs
-            
+
             status = ""
             if count == total_specs:
                 status = "✅ Perfect"
@@ -110,33 +162,44 @@ def run_audit():
                 status = "⚠️ Parse Error"
             elif count < total_specs:
                 if count >= compiler_only:
-                     status = "⚠️ Minor Deficit"
+                    status = "⚠️ Minor Deficit"
                 else:
-                     status = "🔴 Defect"
+                    status = "🔴 Defect"
             else:
                 status = "🔵 Inflated"
 
             print(f"{name:<15} | {count:<10} | {delta:<10} | {status:<20}")
-            
-            results.append({
-                "binding": name,
-                "count": count,
-                "delta": delta,
-                "status": status,
-                "raw_output_snippet": output[:200] if count == -1 else ""
-            })
+
+            results.append(
+                {
+                    "binding": name,
+                    "count": count,
+                    "delta": delta,
+                    "status": status,
+                    "raw_output_snippet": output[:200] if count == -1 else "",
+                }
+            )
 
         except subprocess.TimeoutExpired:
-             print(f"{name:<15} | {'Timeout':<10} | {'?':<10} | {'🔴 Timeout':<20}")
-             results.append({"binding": name, "count": "Timeout", "delta": "?", "status": "🔴 Timeout"})
+            print(f"{name:<15} | {'Timeout':<10} | {'?':<10} | {'🔴 Timeout':<20}")
+            results.append(
+                {
+                    "binding": name,
+                    "count": "Timeout",
+                    "delta": "?",
+                    "status": "🔴 Timeout",
+                }
+            )
         except Exception as e:
-             print(f"{name:<15} | {'Error':<10} | {'?':<10} | {f'🔴 {str(e)[:15]}':<20}")
-             results.append({"binding": name, "count": "Error", "delta": "?", "status": "🔴 Error"})
+            print(f"{name:<15} | {'Error':<10} | {'?':<10} | {f'🔴 {str(e)[:15]}':<20}")
+            results.append(
+                {"binding": name, "count": "Error", "delta": "?", "status": "🔴 Error"}
+            )
 
     # Generate Report
     report_path = PROJECT_ROOT / "docs" / "reports" / "coverage_precision.md"
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     with open(report_path, "w") as f:
         f.write("# Precision Audit & Coverage Justification\n\n")
         f.write(f"**Date:** 2025-11-23\n")
@@ -144,17 +207,20 @@ def run_audit():
         f.write(f"**Compiler-Only Target:** {compiler_only}\n\n")
         f.write("| Binding | Count | Delta | Status | Justification/Remediation |\n")
         f.write("|---|---|---|---|---|\n")
-        
+
         for r in results:
             justification = "TODO"
             if r["status"] == "✅ Perfect":
                 justification = "Full compliance."
             elif r["count"] == -1:
                 justification = "Could not parse test output. Check runner."
-            
-            f.write(f"| {r['binding']} | {r['count']} | {r['delta']} | {r['status']} | {justification} |\n")
+
+            f.write(
+                f"| {r['binding']} | {r['count']} | {r['delta']} | {r['status']} | {justification} |\n"
+            )
 
     print(f"\nReport generated at {report_path}")
+
 
 if __name__ == "__main__":
     run_audit()
