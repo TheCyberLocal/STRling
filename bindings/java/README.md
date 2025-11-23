@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - Java Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,13 +14,64 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+```bash
+cd bindings/java
+mvn clean install
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Java**:
 
-{Usage_Snippet}
+```java
+import com.strling.core.Nodes;
+import java.util.List;
+
+// Build an AST that represents: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+Nodes.Node phoneAst = new Nodes.Seq(List.of(
+  new Nodes.Anchor("Start"),
+
+  // (\d{3})
+  new Nodes.Group(true, new Nodes.Quant(
+    new Nodes.CharClass(false, List.of(new Nodes.ClassEscape("d"))),
+    3, 3, "Greedy"
+  )),
+
+  // optional separator [-. ]?
+  new Nodes.Quant(
+    new Nodes.CharClass(false, List.of(
+      new Nodes.ClassLiteral("-"),
+      new Nodes.ClassLiteral("."),
+      new Nodes.ClassLiteral(" ")
+    )),
+    0, 1, "Greedy"
+  ),
+
+  // (\d{3})
+  new Nodes.Group(true, new Nodes.Quant(
+    new Nodes.CharClass(false, List.of(new Nodes.ClassEscape("d"))),
+    3, 3, "Greedy"
+  )),
+
+  // optional separator [-. ]?
+  new Nodes.Quant(
+    new Nodes.CharClass(false, List.of(
+      new Nodes.ClassLiteral("-"),
+      new Nodes.ClassLiteral("."),
+      new Nodes.ClassLiteral(" ")
+    )),
+    0, 1, "Greedy"
+  ),
+
+  // (\d{4})
+  new Nodes.Group(true, new Nodes.Quant(
+    new Nodes.CharClass(false, List.of(new Nodes.ClassEscape("d"))),
+    4, 4, "Greedy"
+  )),
+
+  new Nodes.Anchor("End")
+));
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
