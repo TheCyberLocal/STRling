@@ -43,7 +43,7 @@ int main(void) {
     // Start of line.
     // Match the area code (3 digits)
     STRlingASTNode* area = strling_ast_group_create(true,
-        strling_ast_quant_create(strling_ast_lit_create("\d"), 3, 3, "Greedy"),
+        strling_ast_quant_create(strling_ast_lit_create("\\d"), 3, 3, "Greedy"),
         NULL, false);
 
     // Optional separator: [-. ]
@@ -57,7 +57,7 @@ int main(void) {
 
     // Match the central office code (3 digits)
     STRlingASTNode* central = strling_ast_group_create(true,
-        strling_ast_quant_create(strling_ast_lit_create("\d"), 3, 3, "Greedy"),
+        strling_ast_quant_create(strling_ast_lit_create("\\d"), 3, 3, "Greedy"),
         NULL, false);
 
     // Optional separator: [-. ]
@@ -71,7 +71,7 @@ int main(void) {
 
     // Match the station number (4 digits)
     STRlingASTNode* station = strling_ast_group_create(true,
-        strling_ast_quant_create(strling_ast_lit_create("\d"), 4, 4, "Greedy"),
+        strling_ast_quant_create(strling_ast_lit_create("\\d"), 4, 4, "Greedy"),
         NULL, false);
 
     // End of line.
@@ -92,14 +92,14 @@ int main(void) {
      * JSON before calling the compiler).
      */
     const char* phone_json =
-        "{"type":"Seq","parts":["
-        "{"type":"Anchor","at":"Start"},"
-        "{"type":"Quant","min":3,"max":3,"target":{"type":"Escape","kind":"digit"}},"
-        "{"type":"Quant","min":0,"max":1,"target":{"type":"CharClass","items":[{"type":"Char","value":"-"},{"type":"Char","value":"."},{"type":"Char","value":" "}] } },"
-        "{"type":"Quant","min":3,"max":3,"target":{"type":"Escape","kind":"digit"}},"
-        "{"type":"Quant","min":0,"max":1,"target":{"type":"CharClass","items":[{"type":"Char","value":"-"},{"type":"Char","value":"."},{"type":"Char","value":" "}] } },"
-        "{"type":"Quant","min":4,"max":4,"target":{"type":"Escape","kind":"digit"}},"
-        "{"type":"Anchor","at":"End"}] }";
+        "{\"type\":\"Seq\",\"parts\":["
+        "{\"type\":\"Anchor\",\"at\":\"Start\"},"
+        "{\"type\":\"Quant\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
+        "{\"type\":\"Quant\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharClass\",\"items\":[{\"type\":\"Char\",\"value\":\"-\"},{\"type\":\"Char\",\"value\":\".\"},{\"type\":\"Char\",\"value\":\" \"}] } },"
+        "{\"type\":\"Quant\",\"min\":3,\"max\":3,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
+        "{\"type\":\"Quant\",\"min\":0,\"max\":1,\"target\":{\"type\":\"CharClass\",\"items\":[{\"type\":\"Char\",\"value\":\"-\"},{\"type\":\"Char\",\"value\":\".\"},{\"type\":\"Char\",\"value\":\" \"}] } },"
+        "{\"type\":\"Quant\",\"min\":4,\"max\":4,\"target\":{\"type\":\"Escape\",\"kind\":\"digit\"}},"
+        "{\"type\":\"Anchor\",\"at\":\"End\"}]}";
 
     STRlingFlags* flags = strling_flags_create();
     strling_result_t result = strling_compile_compat(phone_json, flags);
