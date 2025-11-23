@@ -23,7 +23,7 @@ npm install @thecyberlocal/strling
 Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **TypeScript**:
 
 ```typescript
-import { simply } from '@thecyberlocal/strling';
+import { simply } from "@thecyberlocal/strling";
 
 // Start of line.
 // Match the area code (3 digits)
@@ -35,17 +35,17 @@ import { simply } from '@thecyberlocal/strling';
 const s = simply;
 
 const phonePattern = s.merge(
-  s.start(),
-  s.capture(s.digit(3)),
-  s.may(s.anyOf('-', '.', ' ')),
-  s.capture(s.digit(3)),
-  s.may(s.anyOf('-', '.', ' ')),
-  s.capture(s.digit(4)),
-  s.end(),
+    s.start(),
+    s.capture(s.digit(3)),
+    s.may(s.anyOf("-", ".", " ")),
+    s.capture(s.digit(3)),
+    s.may(s.anyOf("-", ".", " ")),
+    s.capture(s.digit(4)),
+    s.end()
 );
 
 const regex = new RegExp(String(phonePattern));
-console.assert(regex.test('555-123-4567'));
+console.assert(regex.test("555-123-4567"));
 ```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
