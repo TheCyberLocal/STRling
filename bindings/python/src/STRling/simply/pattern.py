@@ -189,16 +189,15 @@ class Pattern:
         # groups we require an explicit count -- calling without args is invalid.
         if min_rep is None and max_rep is None:
             if self.numbered_group:
-                message = '''
+                message = """
                 Method: Pattern.__call__(min_rep, max_rep)
 
                 Numbered (captured) groups require an explicit exact count.
 
                 Provide an integer value like my_capture(3) not my_capture().
-                '''
+                """
                 raise STRlingError(message)
             return self
-
 
         # If min_rep or max_rep are specified out of valid range
         if min_rep is not None and min_rep < 0 or max_rep is not None and max_rep < 0:
@@ -279,7 +278,9 @@ class Pattern:
             q_max: Union[int, str] = (
                 "Inf" if max_rep == 0 else max_rep if max_rep is not None else q_min
             )
-            new_node = nodes.Quantifier(child=self.node, min=q_min, max=q_max, mode="Greedy")
+            new_node = nodes.Quantifier(
+                child=self.node, min=q_min, max=q_max, mode="Greedy"
+            )
             return self.create_modified_instance(new_node)
 
     def __str__(self) -> str:

@@ -11,6 +11,7 @@ rules without dealing with raw regex character class syntax.
 from __future__ import annotations
 
 from .pattern import STRlingError, Pattern, lit
+from typing import List
 from STRling.core import nodes
 
 
@@ -84,17 +85,9 @@ def between(
     in_chars : For matching specific characters (not a range)
     """
 
-    if not (isinstance(start, str) and isinstance(end, str)) and not (
-        isinstance(start, int) and isinstance(end, int)
-    ):
-        message = """
-        Method: simply.between(start, end)
+    # Accept either both ints (0-9) or both single-character strings
 
-        The 'start' and 'end' arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
-        """
-        raise STRlingError(message)
-
-    if isinstance(start, int):
+    if isinstance(start, int) and isinstance(end, int):
         if start > end:
             message = """
             Method: simply.between(start, end)
@@ -113,7 +106,7 @@ def between(
 
         start_char = str(start)
         end_char = str(end)
-    else:
+    elif isinstance(start, str) and isinstance(end, str):
         if not start.isalpha() or not end.isalpha():
             message = """
             Method: simply.between(start, end)
@@ -149,7 +142,18 @@ def between(
         start_char = start
         end_char = end
 
-    node = nodes.CharacterClass(False, [nodes.ClassRange(start_char, end_char)])
+    else:
+        message = """
+        Method: simply.between(start, end)
+
+        The 'start' and 'end' arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
+        """
+        raise STRlingError(message)
+
+    # Ensure types seen by nodes.ClassRange are str (nodes.ClassRange expects str)
+    node = nodes.CharacterClass(
+        False, [nodes.ClassRange(str(start_char), str(end_char))]
+    )
     p = Pattern(node, custom_set=True)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -221,17 +225,9 @@ def not_between(
     not_in_chars : For excluding specific characters (not a range)
     """
 
-    if not (isinstance(start, str) and isinstance(end, str)) and not (
-        isinstance(start, int) and isinstance(end, int)
-    ):
-        message = """
-        Method: simply.not_between(start, end)
+    # Accept either both ints (0-9) or both single-character strings
 
-        The 'start' and 'end' arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
-        """
-        raise STRlingError(message)
-
-    if isinstance(start, int):
+    if isinstance(start, int) and isinstance(end, int):
         if start > end:
             message = """
             Method: simply.not_between(start, end)
@@ -250,7 +246,7 @@ def not_between(
 
         start_char = str(start)
         end_char = str(end)
-    else:
+    elif isinstance(start, str) and isinstance(end, str):
         if not start.isalpha() or not end.isalpha():
             message = """
             Method: simply.not_between(start, end)
@@ -286,7 +282,17 @@ def not_between(
         start_char = start
         end_char = end
 
-    node = nodes.CharacterClass(True, [nodes.ClassRange(start_char, end_char)])
+    else:
+        message = """
+        Method: simply.not_between(start, end)
+
+        The 'start' and 'end' arguments must both be integers (0-9) or letters of the same case (A-Z or a-z).
+        """
+        raise STRlingError(message)
+
+    node = nodes.CharacterClass(
+        True, [nodes.ClassRange(str(start_char), str(end_char))]
+    )
     p = Pattern(node, custom_set=True, negated=True)
     return p(min_rep, max_rep) if min_rep is not None else p
 
@@ -353,21 +359,12 @@ def in_chars(*patterns: Pattern | str) -> Pattern:
     """
 
     # Check all patterns are instance of Pattern or str
-    clean_patterns = []
+    clean_patterns: List[Pattern] = []
     for pattern in patterns:
         if isinstance(pattern, str):
             pattern = lit(pattern)
-
-        if not isinstance(pattern, Pattern):
-            message = """
-            Method: simply.in_chars(*patterns)
-
-            The parameters must be instances of `Pattern` or `str`.
-
-            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
-            """
-            raise STRlingError(message)
-
+        # At this point the variable `pattern` must be a Pattern due to the
+        # function's typing (Pattern | str) and conversion above.
         clean_patterns.append(pattern)
 
     if any(p.composite for p in clean_patterns):
@@ -378,10 +375,10 @@ def in_chars(*patterns: Pattern | str) -> Pattern:
         """
         raise STRlingError(message)
 
-    items = []
+    items: List[nodes.ClassItem] = []
     for pattern in clean_patterns:
         # Extract items from pattern's node
-        if hasattr(pattern.node, "items"):
+        if isinstance(pattern.node, nodes.CharacterClass):
             items.extend(pattern.node.items)
         elif isinstance(pattern.node, nodes.Literal):
             for char in pattern.node.value:
@@ -454,21 +451,12 @@ def not_in_chars(*patterns: Pattern | str) -> Pattern:
     """
 
     # Check all patterns are instance of Pattern or str
-    clean_patterns = []
+    clean_patterns: List[Pattern] = []
     for pattern in patterns:
         if isinstance(pattern, str):
             pattern = lit(pattern)
-
-        if not isinstance(pattern, Pattern):
-            message = """
-            Method: simply.not_in_chars(*patterns)
-
-            The parameters must be instances of `Pattern` or `str`.
-
-            Use a string such as "123abc$" to match literal characters, or use a predefined set like `simply.letter()`.
-            """
-            raise STRlingError(message)
-
+        # At this point the variable `pattern` must be a Pattern due to the
+        # function's typing (Pattern | str) and conversion above.
         clean_patterns.append(pattern)
 
     if any(p.composite for p in clean_patterns):
@@ -479,10 +467,10 @@ def not_in_chars(*patterns: Pattern | str) -> Pattern:
         """
         raise STRlingError(message)
 
-    items = []
+    items: List[nodes.ClassItem] = []
     for pattern in clean_patterns:
         # Extract items from pattern's node
-        if hasattr(pattern.node, "items"):
+        if isinstance(pattern.node, nodes.CharacterClass):
             items.extend(pattern.node.items)
         elif isinstance(pattern.node, nodes.Literal):
             for char in pattern.node.value:
