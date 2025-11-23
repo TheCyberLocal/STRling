@@ -68,7 +68,8 @@ jobs:
                   dotnet-version: "8.0"
 
             - name: Run C# test suite
-              run: echo "C# tests not yet implemented" && true
+              working-directory: bindings/csharp
+              run: dotnet test
 
     test-dart:
         name: Test Dart (Stable)
