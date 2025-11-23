@@ -10,7 +10,7 @@ open System.Reflection
 [<assembly: System.Reflection.AssemblyCompanyAttribute("STRling.Tests")>]
 [<assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")>]
 [<assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")>]
-[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cc8bd682524096a7c551520317687a45de6963a4")>]
+[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3515a6facfe341c5ea24a11578348181b74adf86")>]
 [<assembly: System.Reflection.AssemblyProductAttribute("STRling.Tests")>]
 [<assembly: System.Reflection.AssemblyTitleAttribute("STRling.Tests")>]
 [<assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")>]

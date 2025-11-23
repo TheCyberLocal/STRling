@@ -40,14 +40,14 @@ run_audit "rust" "bindings/rust" "cargo test"
 run_audit "swift" "bindings/swift" "swift test"
 
 # --- Enterprise ---
-run_audit "csharp" "bindings/csharp" "echo 'C# tests not yet implemented'"
+run_audit "csharp" "bindings/csharp" "dotnet test"
 run_audit "fsharp" "bindings/fsharp" "dotnet test"
 run_audit "java" "bindings/java" "mvn test"
 run_audit "kotlin" "bindings/kotlin" "./gradlew test"
 
 # --- Web/Scripting ---
 run_audit "dart" "bindings/dart" "dart pub get && dart test"
-run_audit "lua" "bindings/lua" "busted"
+run_audit "lua" "bindings/lua" "lua test.lua"
 run_audit "perl" "bindings/perl" "prove -l t"
 run_audit "php" "bindings/php" "composer install --prefer-dist --no-progress && vendor/bin/phpunit"
 run_audit "python" "bindings/python" "pip install -e . && pytest tests/"
