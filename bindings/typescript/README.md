@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - TypeScript Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,13 +14,39 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+```bash
+npm install @thecyberlocal/strling
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **TypeScript**:
 
-{Usage_Snippet}
+```typescript
+import { simply } from '@thecyberlocal/strling';
+
+// Start of line.
+// Match the area code (3 digits)
+// Optional separator: [-. ]
+// Match the central office code (3 digits)
+// Optional separator: [-. ]
+// Match the station number (4 digits)
+// End of line.
+const s = simply;
+
+const phonePattern = s.merge(
+  s.start(),
+  s.capture(s.digit(3)),
+  s.may(s.anyOf('-', '.', ' ')),
+  s.capture(s.digit(3)),
+  s.may(s.anyOf('-', '.', ' ')),
+  s.capture(s.digit(4)),
+  s.end(),
+);
+
+const regex = new RegExp(String(phonePattern));
+console.assert(regex.test('555-123-4567'));
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 

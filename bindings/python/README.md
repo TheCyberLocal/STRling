@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - Python Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,13 +14,39 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+```bash
+pip install strling
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Python**:
 
-{Usage_Snippet}
+```python
+from STRling import simply as s
+import re
+
+# Start of line.
+# Match the area code (3 digits)
+# Optional separator: [-. ]
+# Match the central office code (3 digits)
+# Optional separator: [-. ]
+# Match the station number (4 digits)
+# End of line.
+phone_pattern = s.merge(
+    s.start(),
+    s.capture(s.digit(3)),
+    s.may(s.any_of('-', '.', ' ')),
+    s.capture(s.digit(3)),
+    s.may(s.any_of('-', '.', ' ')),
+    s.capture(s.digit(4)),
+    s.end(),
+)
+
+# Convert to a standard regex string and test
+regex = re.compile(str(phone_pattern))
+assert regex.match('555-123-4567')
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
