@@ -1,61 +1,87 @@
-# ---- General ----
-*.log
-*.tmp
-*.swp
+# ==============================================================================
+# GLOBAL DEFAULTS (OS, IDEs, Logs)
+# ==============================================================================
 .DS_Store
-
-# ---- Node / JavaScript ----
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-*.tgz
-bindings/javascript/test-folder/node_modules/
-
-# ---- Python ----
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.so
-*.egg-info/
-.eggs/
-dist/
-build/
-pip-wheel-metadata/
-.pytest_cache/
-.mypy_cache/
-coverage.xml
-htmlcov/
-.tox/
-.venv/
-
-# ---- Ruby ----
-*.gem
-.bundle/
-vendor/bundle/
-Gemfile.lock
-
-# ---- Java / Maven ----
-target/
-*.class
-*.jar
-*.war
-*.ear
-*.nar
-.classpath
-.project
-.settings/
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-.mvn/wrapper/maven-wrapper.jar
-
-# ---- IDEs ----
+Thumbs.db
 .vscode/
 .idea/
 *.iml
+*.log
+*.tmp
+*.swp
+*.bak
 
-# ---- OS ----
-Thumbs.db
+# ==============================================================================
+# SHARED BUILD ARTIFACTS
+# ==============================================================================
+bin/
+obj/
+dist/
+build/
+target/
+node_modules/
+vendor/
+
+# ==============================================================================
+# LANGUAGE SPECIFIC
+# ==============================================================================
+
+# ---- C / C++ ----
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+deps/
+test_output.txt
+
+# ---- C# / .NET / F# ----
+*.user
+*.suo
+
+# ---- Go ----
+*.exe
+*.test
+
+# ---- Java / Kotlin ----
+*.class
+.gradle/
+
+# ---- Node / TypeScript ----
+npm-debug.log
+yarn-error.log
+
+# ---- PHP ----
+.phpunit.result.cache
+
+# ---- Python ----
+__pycache__/
+*.pyc
+.pytest_cache/
+venv/
+.venv/
+*.egg-info/
+
+# ---- Ruby ----
+.bundle/
+# vendor/bundle/ is covered by vendor/
+
+# ---- Swift ----
+.build/
+.swiftpm/
+
+# ---- Lua ----
+lua_modules/
+
+# ---- Dart ----
+.dart_tool/
+doc/api/
+
+# ---- R ----
+.Rproj.user
+.Rhistory
+.RData
+
+# ---- Perl ----
+blib/
+_build/
