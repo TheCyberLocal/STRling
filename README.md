@@ -12,11 +12,12 @@
 
 ## 🚀 Why STRling?
 
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as a **Class**, not a string.
+Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
 
--   **📖 Readability First:** Write patterns using fluent, self-documenting methods (`simply.literal("foo").digit()`) instead of cryptic symbols.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime.
--   **🎓 Instructional Errors:** When you make a mistake, STRling doesn't just throw an error; it tells you _why_ it failed and _how_ to fix it.
+-   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
+-   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
+-   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
+-   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
 -   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
 
 ## 🏗️ Architecture
@@ -29,6 +30,14 @@ STRling follows a strict compiler pipeline architecture to ensure consistency ac
     -   Transforms the AST into a target-agnostic intermediate representation, optimizing structures like literal sequences.
 3.  **Emit**: `IR -> Target Regex`
     -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
+
+## 🌍 Supported Languages
+
+STRling provides native bindings for **17 languages**. Visit the [bindings directory](bindings/) to find installation instructions for your specific ecosystem:
+
+**Systems:** C • C++ • Go • Rust • Swift
+**Enterprise:** C# • F# • Java • Kotlin
+**Web & Scripting:** Dart • Lua • Perl • PHP • Python • R • Ruby • TypeScript
 
 ## 📚 Documentation
 
@@ -44,4 +53,6 @@ STRling follows a strict compiler pipeline architecture to ensure consistency ac
 
 ## 💖 Support
 
-If you find STRling useful, consider [buying me a coffee](https://buymeacoffee.com/thecyberlocal).
+If you find STRling useful, consider supporting the development:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-%23FFDD00.svg?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/thecyberlocal)
