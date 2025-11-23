@@ -2,17 +2,13 @@
 # GLOBAL DEFAULTS (OS, IDEs, Logs)
 # ==============================================================================
 .DS_Store
-Thumbs.db
 .vscode/
 .idea/
-*.iml
 *.log
-*.tmp
-*.swp
 *.bak
 
 # ==============================================================================
-# SHARED BUILD ARTIFACTS
+# SHARED ARTIFACTS
 # ==============================================================================
 bin/
 obj/
@@ -30,64 +26,54 @@ vendor/
 *.o
 *.a
 *.so
-*.dylib
-*.dll
 deps/
 test_output.txt
 
-# ---- C# / .NET / F# ----
+# ---- DotNet (C# / F#) ----
 *.user
 *.suo
 
-# ---- Go ----
-*.exe
-*.test
-
 # ---- Java / Kotlin ----
-*.class
 .gradle/
-
-# ---- Node / TypeScript ----
-npm-debug.log
-yarn-error.log
-
-# ---- PHP ----
-.phpunit.result.cache
 
 # ---- Python ----
 __pycache__/
-*.pyc
-.pytest_cache/
 venv/
-.venv/
-*.egg-info/
-
-# ---- Ruby ----
-.bundle/
-# vendor/bundle/ is covered by vendor/
+.pytest_cache/
 
 # ---- Rust ----
-Cargo.lock
+# target/ is covered by SHARED ARTIFACTS
 test_demo
 !src/bin/
 !**/src/bin/
 
 # ---- Swift ----
 .build/
-.swiftpm/
 
 # ---- Lua ----
 lua_modules/
 
 # ---- Dart ----
 .dart_tool/
-doc/api/
 
 # ---- R ----
 .Rproj.user
-.Rhistory
 .RData
 
 # ---- Perl ----
 blib/
 _build/
+
+# ---- Go ----
+*.exe
+*.test
+
+# ---- Ruby ----
+.bundle/
+*.gem
+
+# ---- PHP ----
+.phpunit.result.cache
+
+# ---- TypeScript / JavaScript ----
+# node_modules/ and dist/ are covered by SHARED ARTIFACTS

@@ -18,7 +18,30 @@ compile_ast.strling_literal <- function(node) {
 #' @export
 compile_ast.strling_sequence <- function(node) {
   parts <- lapply(node$parts, compile_ast)
-  list(ir = "Seq", parts = parts)
+  
+  # Merge adjacent literals
+  merged_parts <- list()
+  if (length(parts) > 0) {
+    current <- parts[[1]]
+    if (length(parts) > 1) {
+      for (i in 2:length(parts)) {
+        next_part <- parts[[i]]
+        if (current$ir == "Lit" && next_part$ir == "Lit") {
+          current$value <- paste0(current$value, next_part$value)
+        } else {
+          merged_parts <- c(merged_parts, list(current))
+          current <- next_part
+        }
+      }
+    }
+    merged_parts <- c(merged_parts, list(current))
+  }
+  
+  if (length(merged_parts) == 1) {
+    return(merged_parts[[1]])
+  } else {
+    list(ir = "Seq", parts = merged_parts)
+  }
 }
 
 #' @export
@@ -29,33 +52,67 @@ compile_ast.strling_alternation <- function(node) {
 
 #' @export
 compile_ast.strling_character_class <- function(node) {
-  list(ir = "CharClass", ranges = node$ranges, negated = node$negated)
+  items <- lapply(node$items, compile_ast)
+  list(ir = "CharClass", negated = node$negated, items = items)
+}
+
+#' @export
+compile_ast.strling_class_literal <- function(node) {
+  list(ir = "Char", char = node$char)
+}
+
+#' @export
+compile_ast.strling_class_range <- function(node) {
+  list(ir = "Range", from = node$from, to = node$to)
+}
+
+#' @export
+compile_ast.strling_class_escape <- function(node) {
+  res <- list(ir = "Esc", type = node$type_)
+  if (!is.null(node$property)) {
+    res$property <- node$property
+  }
+  res
 }
 
 #' @export
 compile_ast.strling_quantifier <- function(node) {
   child <- compile_ast(node$child)
-  list(ir = "Quant", child = child, min = node$min, max = node$max, greedy = node$greedy)
+  max_val <- if (is.null(node$max)) "Inf" else node$max
+  list(ir = "Quant", child = child, min = node$min, max = max_val, mode = node$mode)
 }
 
 #' @export
 compile_ast.strling_group <- function(node) {
-  # Groups might be flattened or represented differently in IR depending on the spec.
-  # For now, we'll assume a direct mapping or that the IR handles groups explicitly if needed.
-  # If the IR doesn't have "Group", it might be just the child.
-  # However, looking at typical regex IRs, capturing groups are often explicit.
-  # Let's assume "Group" exists in IR for now, or check if we should just return the child.
-  # Given the "Thin Wrapper" instruction, let's map it to "Group" if it's capturing, 
-  # or just the child if it's non-capturing and the IR doesn't distinguish.
-  # But wait, the prompt says "derive correctness solely from the Shared JSON AST Suite".
-  # I'll assume a direct mapping for now:
   child <- compile_ast(node$child)
-  list(ir = "Group", child = child, capturing = node$capturing, name = node$name)
+  res <- list(ir = "Group", capturing = node$capturing, body = child)
+  if (!is.null(node$name)) {
+    res$name <- node$name
+  }
+  if (isTRUE(node$atomic)) {
+    res$atomic <- TRUE
+  }
+  res
 }
 
 #' @export
 compile_ast.strling_anchor <- function(node) {
-  list(ir = "Anchor", kind = node$kind)
+  list(ir = "Anchor", at = node$at)
+}
+
+#' @export
+compile_ast.strling_backreference <- function(node) {
+  res <- list(ir = "Backref")
+  if (!is.null(node$index)) res$byIndex <- node$index
+  if (!is.null(node$name)) res$byName <- node$name
+  res
+}
+
+#' @export
+compile_ast.strling_lookaround <- function(node) {
+  child <- compile_ast(node$child)
+  dir <- if (node$kind == "Lookahead") "Ahead" else "Behind"
+  list(ir = "Look", dir = dir, neg = node$negated, body = child)
 }
 
 #' @export
