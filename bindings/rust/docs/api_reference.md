@@ -29,22 +29,19 @@ Matches the beginning (`^`) or end (`$`) of a line.
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, Literal, Anchor, Flags};
+use strling_core::simply;
 use strling_core::core::compiler::Compiler;
 use strling_core::emitters::pcre2::PCRE2Emitter;
 
 // Start of line and end of line: `^start$`
 let flags = Flags::default();
-let ast = Node::Sequence(Sequence { parts: vec![
-	Node::Anchor(Anchor { at: "Start".to_string() }),
-	Node::Literal(Literal { value: "start".to_string() }),
-	Node::Anchor(Anchor { at: "End".to_string() }),
-] });
+let ast = simply::merge(vec![simply::start(), simply::literal("start"), simply::end()]);
 
 let mut compiler = Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
 let emitter = PCRE2Emitter::new(flags);
 println!("{}", emitter.emit(&result.ir));
+```
 ```
 
 ### Start/End of String
@@ -107,19 +104,19 @@ Standard shorthands for common character sets.
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, Quantifier, QuantifierTarget, CharacterClass, ClassItem, ClassEscape, MaxBound, Flags};
-// Represent `\\d{3}` as a quantifier over a character-class escape for \\d
-let flags = Flags::default();
-let class = Node::CharacterClass(CharacterClass { negated: false, items: vec![
-	ClassItem::Esc(ClassEscape { escape_type: "d".to_string(), property: None })
-] });
+use strling_core::simply;
+use strling_core::core::compiler::Compiler;
+use strling_core::emitters::pcre2::PCRE2Emitter;
 
-let ast = Node::Quantifier(Quantifier { target: QuantifierTarget { child: Box::new(class) }, min: 3, max: MaxBound::Finite(3), mode: "Greedy".to_string(), greedy: true, lazy: false, possessive: false });
+// \d{3}
+let flags = Flags::default();
+let ast = simply::digit(3);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
 let emitter = strling_core::emitters::pcre2::PCRE2Emitter::new(flags);
 println!("{}", emitter.emit(&result.ir));
+```
 ```
 
 ### Custom Classes & Ranges
@@ -129,19 +126,19 @@ Define a set of allowed characters (`[...]`) or a range (`a-z`).
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Sequence, CharacterClass, ClassItem, ClassLiteral, Flags};
+use strling_core::simply;
+use strling_core::core::compiler::Compiler;
+use strling_core::emitters::pcre2::PCRE2Emitter;
+
 // Character class [abc]
 let flags = Flags::default();
-let ast = Node::CharacterClass(CharacterClass { negated: false, items: vec![
-	ClassItem::Char(ClassLiteral { ch: "a".to_string() }),
-	ClassItem::Char(ClassLiteral { ch: "b".to_string() }),
-	ClassItem::Char(ClassLiteral { ch: "c".to_string() }),
-] });
+let ast = simply::any_of(&["a","b","c"]);
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
 let emitter = strling_core::emitters::pcre2::PCRE2Emitter::new(flags);
 println!("{}", emitter.emit(&result.ir));
+```
 ```
 
 ### Negated Classes
@@ -308,20 +305,19 @@ Standard groups `(...)` that capture the matched text.
 #### Usage (Rust)
 
 ```rust
-use strling_core::core::nodes::{Node, Group, Quantifier, QuantifierTarget, CharacterClass, ClassItem, ClassRange, MaxBound, Flags};
-// ([A-Za-z]{3}) -> capturing group with a fixed quantifier inside
-let flags = Flags::default();
-let inner = Node::Quantifier(Quantifier { target: QuantifierTarget { child: Box::new(Node::CharacterClass(CharacterClass { negated: false, items: vec![
-	ClassItem::Range(ClassRange { from_ch: "A".to_string(), to_ch: "Z".to_string() }),
-	ClassItem::Range(ClassRange { from_ch: "a".to_string(), to_ch: "z".to_string() }),
-] })) }, min: 3, max: MaxBound::Finite(3), mode: "Greedy".to_string(), greedy: true, lazy: false, possessive: false });
+use strling_core::simply;
+use strling_core::core::compiler::Compiler;
+use strling_core::emitters::pcre2::PCRE2Emitter;
 
-let ast = Node::Group(Group { capturing: true, body: Box::new(inner), name: None, atomic: None });
+// (\d{3}) -> capturing group
+let flags = Flags::default();
+let ast = simply::capture(simply::digit(3));
 
 let mut compiler = strling_core::core::compiler::Compiler::new();
 let result = compiler.compile_with_metadata(&ast);
 let emitter = strling_core::emitters::pcre2::PCRE2Emitter::new(flags);
 println!("{}", emitter.emit(&result.ir));
+```
 ```
 
 ### Named Groups

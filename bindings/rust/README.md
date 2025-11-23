@@ -22,152 +22,26 @@ cargo add strling
 
 Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Rust**:
 
+
 ```rust
 use strling_core::core::compiler::Compiler;
-use strling_core::core::nodes::{
-  Anchor, CharacterClass, ClassEscape, ClassItem, ClassLiteral, Flags, Group, MaxBound,
-  Node, Quantifier, QuantifierTarget, Sequence,
-};
 use strling_core::emitters::pcre2::PCRE2Emitter;
+use strling_core::simply;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-  // Start of line.
-  // Match the area code (3 digits)
-  // Optional separator: [-. ]
-  // Match the central office code (3 digits)
-  // Optional separator: [-. ]
-  // Match the station number (4 digits)
-  // End of line.
-
-  let flags = Flags::default();
-
-  // Build the AST directly without parsing a raw string. This shows the
-  // typed, composable AST construction (captures + optional separator).
-  let ast = Node::Sequence(Sequence {
-    parts: vec![
-      // ^
-      Node::Anchor(Anchor { at: "Start".to_string() }),
-
-      // (\d{3})
-      Node::Group(Group {
-        capturing: true,
-        body: Box::new(Node::Quantifier(Quantifier {
-          target: QuantifierTarget {
-            child: Box::new(Node::CharacterClass(CharacterClass {
-              negated: false,
-              items: vec![ClassItem::Esc(ClassEscape {
-                escape_type: "d".to_string(),
-                property: None,
-              })],
-            })),
-          },
-          min: 3,
-          max: MaxBound::Finite(3),
-          mode: String::from("Greedy"),
-          greedy: true,
-          lazy: false,
-          possessive: false,
-        })),
-        name: None,
-        atomic: None,
-      }),
-
-      // [-. ]?
-      Node::Quantifier(Quantifier {
-        target: QuantifierTarget {
-          child: Box::new(Node::CharacterClass(CharacterClass {
-            negated: false,
-            items: vec![
-              ClassItem::Char(ClassLiteral { ch: "-".to_string() }),
-              ClassItem::Char(ClassLiteral { ch: ".".to_string() }),
-              ClassItem::Char(ClassLiteral { ch: " ".to_string() }),
-            ],
-          })),
-        },
-        min: 0,
-        max: MaxBound::Finite(1),
-        mode: String::from("Greedy"),
-        greedy: true,
-        lazy: false,
-        possessive: false,
-      }),
-
-      // (\d{3})
-      Node::Group(Group {
-        capturing: true,
-        body: Box::new(Node::Quantifier(Quantifier {
-          target: QuantifierTarget {
-            child: Box::new(Node::CharacterClass(CharacterClass {
-              negated: false,
-              items: vec![ClassItem::Esc(ClassEscape {
-                escape_type: "d".to_string(),
-                property: None,
-              })],
-            })),
-          },
-          min: 3,
-          max: MaxBound::Finite(3),
-          mode: String::from("Greedy"),
-          greedy: true,
-          lazy: false,
-          possessive: false,
-        })),
-        name: None,
-        atomic: None,
-      }),
-
-      // [-. ]?
-      Node::Quantifier(Quantifier {
-        target: QuantifierTarget {
-          child: Box::new(Node::CharacterClass(CharacterClass {
-            negated: false,
-            items: vec![
-              ClassItem::Char(ClassLiteral { ch: "-".to_string() }),
-              ClassItem::Char(ClassLiteral { ch: ".".to_string() }),
-              ClassItem::Char(ClassLiteral { ch: " ".to_string() }),
-            ],
-          })),
-        },
-        min: 0,
-        max: MaxBound::Finite(1),
-        mode: String::from("Greedy"),
-        greedy: true,
-        lazy: false,
-        possessive: false,
-      }),
-
-      // (\d{4})
-      Node::Group(Group {
-        capturing: true,
-        body: Box::new(Node::Quantifier(Quantifier {
-          target: QuantifierTarget {
-            child: Box::new(Node::CharacterClass(CharacterClass {
-              negated: false,
-              items: vec![ClassItem::Esc(ClassEscape {
-                escape_type: "d".to_string(),
-                property: None,
-              })],
-            })),
-          },
-          min: 4,
-          max: MaxBound::Finite(4),
-          mode: String::from("Greedy"),
-          greedy: true,
-          lazy: false,
-          possessive: false,
-        })),
-        name: None,
-        atomic: None,
-      }),
-
-      // $
-      Node::Anchor(Anchor { at: "End".to_string() }),
-    ],
-  });
+  let ast = simply::merge(vec![
+    simply::start(),
+    simply::capture(simply::digit(3)),
+    simply::may(simply::any_of(&["-", ".", " "])),
+    simply::capture(simply::digit(3)),
+    simply::may(simply::any_of(&["-", ".", " "])),
+    simply::capture(simply::digit(4)),
+    simply::end(),
+  ]);
 
   let mut compiler = Compiler::new();
   let result = compiler.compile_with_metadata(&ast);
-  let emitter = PCRE2Emitter::new(flags);
+  let emitter = PCRE2Emitter::new(Default::default());
   println!("regex: {}", emitter.emit(&result.ir));
 
   Ok(())

@@ -12,9 +12,13 @@
 
 pub mod core;
 pub mod emitters;
+pub mod simply;
 
 // Re-export commonly used types for convenience
 pub use core::errors::STRlingParseError;
 pub use core::ir::IROp;
 pub use core::nodes::{Flags, Node};
 pub use core::parser::{parse, Parser};
+
+// Re-export simply API for convenient top-level use: `use strling::simply`.
+pub use crate::simply::*;
