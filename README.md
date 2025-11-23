@@ -31,14 +31,6 @@ STRling follows a strict compiler pipeline architecture to ensure consistency ac
 3.  **Emit**: `IR -> Target Regex`
     -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
 
-## 🌍 Supported Languages
-
-STRling provides native bindings for **17 languages**. Visit the [bindings directory](bindings/) to find installation instructions for your specific ecosystem:
-
-**Systems:** C • C++ • Go • Rust • Swift
-**Enterprise:** C# • F# • Java • Kotlin
-**Web & Scripting:** Dart • Lua • Perl • PHP • Python • R • Ruby • TypeScript
-
 ## 📚 Documentation
 
 -   [**Developer Documentation Hub**](docs/index.md): Architecture, testing standards, and contribution guidelines.
