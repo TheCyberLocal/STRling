@@ -66,6 +66,12 @@ venv/
 .bundle/
 # vendor/bundle/ is covered by vendor/
 
+# ---- Rust ----
+Cargo.lock
+test_demo
+!src/bin/
+!**/src/bin/
+
 # ---- Swift ----
 .build/
 .swiftpm/
