@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - Kotlin Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,15 +14,110 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+Add STRling as a Gradle dependency (Kotlin DSL):
+
+```kotlin
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // artifact coordinates (group:artifact:version)
+    implementation("com.strling:strling-kotlin:3.0.0-alpha")
+}
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Kotlin**:
 
-{Usage_Snippet}
+```kotlin
+import kotlinx.serialization.json.JsonPrimitive
+import strling.core.*
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+// Start of line.
+// Match the area code (3 digits)
+// Optional separator: [-. ]
+// Match the central office code (3 digits)
+// Optional separator: [-. ]
+// Match the station number (4 digits)
+// End of line.
+val phonePattern = Sequence(
+    parts = listOf(
+        Anchor(at = "Start"),
+        Group(
+            capturing = true,
+            body = Quantifier(
+                target = CharacterClass(
+                    negated = false,
+                    members = listOf(Range(from = "0", to = "9"))
+                ),
+                min = 3,
+                max = JsonPrimitive(3),
+                greedy = true,
+                lazy = false,
+                possessive = false
+            )
+        ),
+        Quantifier(
+            target = CharacterClass(
+                negated = false,
+                members = listOf(Literal("-"), Literal("."), Literal(" "))
+            ),
+            min = 0,
+            max = JsonPrimitive(1),
+            greedy = true,
+            lazy = false,
+            possessive = false
+        ),
+        Group(
+            capturing = true,
+            body = Quantifier(
+                target = CharacterClass(
+                    negated = false,
+                    members = listOf(Range(from = "0", to = "9"))
+                ),
+                min = 3,
+                max = JsonPrimitive(3),
+                greedy = true,
+                lazy = false,
+                possessive = false
+            )
+        ),
+        Quantifier(
+            target = CharacterClass(
+                negated = false,
+                members = listOf(Literal("-"), Literal("."), Literal(" "))
+            ),
+            min = 0,
+            max = JsonPrimitive(1),
+            greedy = true,
+            lazy = false,
+            possessive = false
+        ),
+        Group(
+            capturing = true,
+            body = Quantifier(
+                target = CharacterClass(
+                    negated = false,
+                    members = listOf(Range(from = "0", to = "9"))
+                ),
+                min = 4,
+                max = JsonPrimitive(4),
+                greedy = true,
+                lazy = false,
+                possessive = false
+            )
+        ),
+        Anchor(at = "End")
+    )
+)
+
+// `phonePattern` is a STRling AST node. Use the binding's compiler/emitter
+// to convert this AST into a target regex string (PCRE2 / Kotlin/JVM
+// compatible emitter) before handing it to `Regex` if you plan to test it
+// at runtime.
+```
 
 ## 🚀 Why STRling?
 
