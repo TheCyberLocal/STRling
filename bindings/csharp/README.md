@@ -1,32 +1,26 @@
-# STRling - Rust Binding
+# STRling - C# Binding
 
 Part of the [STRling Project](../..).
 
 ## 📦 Installation
 
 ```bash
-cargo add strling_core
+dotnet add package STRling
 ```
 
 ## 🚀 Usage
 
-```rust
-use strling_core::parse;
-use strling_core::core::compiler::Compiler;
-use strling_core::emitters::pcre2::PCRE2Emitter;
+```csharp
+using Strling.Core;
 
-fn main() {
-    // 1. Parse
-    let (flags, ast) = parse("hello").unwrap();
+// 1. Parse
+var (flags, ast) = Parser.Parse("hello");
 
-    // 2. Compile
-    let mut compiler = Compiler::new();
-    let result = compiler.compile_with_metadata(&ast);
+// 2. Compile
+var compiler = new Compiler();
+var ir = compiler.Compile(ast);
 
-    // 3. Emit
-    let emitter = PCRE2Emitter::new(flags);
-    println!("{}", emitter.emit(&result.ir));
-}
+Console.WriteLine(ir);
 ```
 
 ## 📚 Documentation

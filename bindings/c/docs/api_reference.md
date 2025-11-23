@@ -4,46 +4,52 @@
 
 Create a new pattern using the entry point.
 
-```
-{Example Pattern Creation}
+```c
+// Example Pattern Creation
+// (Coming soon)
 ```
 
 ## Quantifiers
 
 Control how many times an element should match.
 
-```
-{Example Quantifiers}
+```c
+// Example Quantifiers
+// (Coming soon)
 ```
 
 ## Groups
 
 Group elements together for capturing or applying quantifiers.
 
-```
-{Example Groups}
+```c
+// Example Groups
+// (Coming soon)
 ```
 
 ## Character Classes
 
 Match specific sets of characters.
 
-```
-{Example Character Classes}
+```c
+// Example Character Classes
+// (Coming soon)
 ```
 
 ## Anchors
 
 Bind matches to specific positions in the string.
 
-```
-{Example Anchors}
+```c
+// Example Anchors
+// (Coming soon)
 ```
 
 ## Lookarounds
 
 Assert what follows or precedes the current position without including it in the match.
 
-```
-{Example Lookarounds}
+```c
+// Example Lookarounds
+// (Coming soon)
 ```

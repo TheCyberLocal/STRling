@@ -4,75 +4,75 @@
 
 Create a new pattern using the entry point.
 
-```typescript
-import { simply } from "@thecyberlocal/strling";
+```go
+import "github.com/thecyberlocal/strling/bindings/go/simply"
 
 // Create a literal pattern
-const pattern = simply.lit("hello");
+pattern := simply.Lit("hello")
 ```
 
 ## Quantifiers
 
 Control how many times an element should match.
 
-```typescript
+```go
 // Match "a" one or more times
-simply.lit("a").plus();
+simply.Lit("a").Plus()
 
 // Match "b" zero or more times
-simply.lit("b").star();
+simply.Lit("b").Star()
 
 // Match "c" optionally
-simply.lit("c").opt();
+simply.Lit("c").Opt()
 ```
 
 ## Groups
 
 Group elements together for capturing or applying quantifiers.
 
-```typescript
+```go
 // Capturing group
-simply.group(simply.lit("abc"));
+simply.Group(simply.Lit("abc"))
 
 // Named group
-simply.capture("my_group", simply.lit("123"));
+simply.Capture("my_group", simply.Lit("123"))
 ```
 
 ## Character Classes
 
 Match specific sets of characters.
 
-```typescript
+```go
 // Digit
-simply.digit();
+simply.Digit()
 
 // Word character
-simply.word();
+simply.Word()
 
 // Custom class [a-z]
-simply.set("a-z");
+simply.Set("a-z")
 ```
 
 ## Anchors
 
 Bind matches to specific positions in the string.
 
-```typescript
+```go
 // Start of string
-simply.start();
+simply.Start()
 
 // End of string
-simply.end();
+simply.End()
 ```
 
 ## Lookarounds
 
 Assert what follows or precedes the current position without including it in the match.
 
-```typescript
+```go
 // Positive lookahead
-simply.lookahead(simply.lit("foo"));
+simply.Lookahead(simply.Lit("foo"))
 
 // Negative lookbehind
-simply.lookbehind_not(simply.lit("bar"));
+simply.LookbehindNot(simply.Lit("bar"))
 ```

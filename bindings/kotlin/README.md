@@ -1,26 +1,21 @@
-# STRling - TypeScript Binding
+# STRling - Kotlin Binding
 
 Part of the [STRling Project](../..).
 
 ## 📦 Installation
 
-```bash
-npm install @thecyberlocal/strling
+```kotlin
+implementation("com.strling:strling:0.1.0")
 ```
 
 ## 🚀 Usage
 
-```typescript
-import { parse, Compiler } from "@thecyberlocal/strling";
+```kotlin
+import strling.core.Compiler
+import strling.core.Node
 
-// 1. Parse
-const [flags, node] = parse("hello");
-
-// 2. Compile
-const compiler = new Compiler();
-const ir = compiler.compile(node);
-
-console.log(ir);
+// Assuming inputAst is a Node
+val ir = Compiler.compile(inputAst)
 ```
 
 ## 📚 Documentation

@@ -4,75 +4,75 @@
 
 Create a new pattern using the entry point.
 
-```typescript
-import { simply } from "@thecyberlocal/strling";
+```java
+import com.strling.simply.Simply;
 
 // Create a literal pattern
-const pattern = simply.lit("hello");
+var pattern = Simply.lit("hello");
 ```
 
 ## Quantifiers
 
 Control how many times an element should match.
 
-```typescript
+```java
 // Match "a" one or more times
-simply.lit("a").plus();
+Simply.lit("a").plus();
 
 // Match "b" zero or more times
-simply.lit("b").star();
+Simply.lit("b").star();
 
 // Match "c" optionally
-simply.lit("c").opt();
+Simply.lit("c").opt();
 ```
 
 ## Groups
 
 Group elements together for capturing or applying quantifiers.
 
-```typescript
+```java
 // Capturing group
-simply.group(simply.lit("abc"));
+Simply.group(Simply.lit("abc"));
 
 // Named group
-simply.capture("my_group", simply.lit("123"));
+Simply.capture("my_group", Simply.lit("123"));
 ```
 
 ## Character Classes
 
 Match specific sets of characters.
 
-```typescript
+```java
 // Digit
-simply.digit();
+Simply.digit();
 
 // Word character
-simply.word();
+Simply.word();
 
 // Custom class [a-z]
-simply.set("a-z");
+Simply.set("a-z");
 ```
 
 ## Anchors
 
 Bind matches to specific positions in the string.
 
-```typescript
+```java
 // Start of string
-simply.start();
+Simply.start();
 
 // End of string
-simply.end();
+Simply.end();
 ```
 
 ## Lookarounds
 
 Assert what follows or precedes the current position without including it in the match.
 
-```typescript
+```java
 // Positive lookahead
-simply.lookahead(simply.lit("foo"));
+Simply.lookahead(Simply.lit("foo"));
 
 // Negative lookbehind
-simply.lookbehind_not(simply.lit("bar"));
+Simply.lookbehindNot(Simply.lit("bar"));
 ```

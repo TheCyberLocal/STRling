@@ -1,67 +1,35 @@
-# STRling Ruby Binding
+# STRling - Ruby Binding
 
-Next-generation string pattern DSL & compiler for Ruby.
+Part of the [STRling Project](../..).
 
-## Status
-
-**Version:** 3.0.0-alpha
-
-This is the Ruby binding for STRling. Currently in development.
-
-### What's Implemented
-
-- ✅ Core AST Node definitions (`Strling::Core::*`)
-  - Alt, Seq, Lit, Dot, Anchor
-  - CharClass with ClassLiteral, ClassRange, ClassEscape
-  - Quant, Group, Backref, Look
-  - Flags container
-
-- ✅ Intermediate Representation (IR) nodes (`Strling::Core::IR*`)
-  - IRAlt, IRSeq, IRLit, IRDot, IRAnchor
-  - IRCharClass with IRClassLiteral, IRClassRange, IRClassEscape
-  - IRQuant, IRGroup, IRBackref, IRLook
-
-- ✅ Error handling (`Strling::Core::STRlingParseError`)
-  - Position tracking
-  - Formatted error messages with hints
-  - LSP Diagnostic support
-
-### Coming Soon
-
-- Parser implementation
-- Compiler implementation
-- Validator implementation
-- RSpec test suite
-- Simply API (fluent pattern building interface)
-- CLI tools
-- Complete documentation
-
-## Installation
-
-This gem is not yet published. To use it in development:
+## 📦 Installation
 
 ```bash
-cd bindings/ruby
-bundle install
+gem install strling
 ```
 
-## Usage
+## 🚀 Usage
 
 ```ruby
-require 'strling'
+require 'strling/nodes'
+require 'strling/ir'
 
-# Currently only core data structures are available
-# Full parser and compiler API coming in future releases
+ast = Strling::Nodes::NodeFactory.from_json(input_ast)
+ir = Strling::IR::Compiler.compile(ast)
 ```
 
-## Development
+## 📚 Documentation
 
-Run tests (when implemented):
+See the [API Reference](docs/api_reference.md) for detailed documentation.
 
-```bash
-bundle exec rake spec
-```
+## ✨ Features
 
-## License
-
-MIT License - see LICENSE file in the repository root.
+-   **Clean Syntax**: Write regex in a readable, object-oriented way.
+-   **Type Safety**: Catch errors at compile time (where applicable).
+-   **Polyglot**: Consistent API across all supported languages.
+-   **Standard Features**:
+    -   Quantifiers (Greedy, Lazy)
+    -   Groups (Capturing, Non-capturing, Named)
+    -   Character Classes
+    -   Anchors
+    -   Lookarounds (Positive/Negative Lookahead/Lookbehind)

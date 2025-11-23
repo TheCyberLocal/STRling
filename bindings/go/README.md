@@ -1,26 +1,36 @@
-# STRling - TypeScript Binding
+# STRling - Go Binding
 
 Part of the [STRling Project](../..).
 
 ## 📦 Installation
 
 ```bash
-npm install @thecyberlocal/strling
+go get github.com/thecyberlocal/strling/bindings/go
 ```
 
 ## 🚀 Usage
 
-```typescript
-import { parse, Compiler } from "@thecyberlocal/strling";
+```go
+package main
 
-// 1. Parse
-const [flags, node] = parse("hello");
+import (
+    "fmt"
+    "github.com/thecyberlocal/strling/bindings/go/core"
+    "github.com/thecyberlocal/strling/bindings/go/emitters"
+)
 
-// 2. Compile
-const compiler = new Compiler();
-const ir = compiler.compile(node);
+func main() {
+    // 1. Parse
+    flags, ast, _ := core.Parse("hello")
 
-console.log(ir);
+    // 2. Compile
+    compiler := core.NewCompiler()
+    ir := compiler.Compile(ast)
+
+    // 3. Emit
+    regex := emitters.Emit(ir, flags)
+    fmt.Println(regex)
+}
 ```
 
 ## 📚 Documentation

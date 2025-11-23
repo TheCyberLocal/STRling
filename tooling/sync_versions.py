@@ -198,6 +198,25 @@ def update_c_source(content, version, path):
     return re.sub(pattern, r"\g<1>" + version + r"\g<3>", content)
 
 
+def update_lua_rockspec(content, version, path):
+    # version = "..."
+
+    # Rockspec versions usually have a revision, e.g. "1.0.0-1"
+    # We will just update the main version part if possible, or the whole string.
+    # Usually: version = "1.0.0-1"
+    # We will assume we are updating to "X.Y.Z-1"
+
+    # If the input version is "3.0.0", we make it "3.0.0-1"
+    rockspec_version = version + "-1"
+
+    return re.sub(
+        r'(^version\s*=\s*")([^"]+)(")',
+        r"\g<1>" + rockspec_version + r"\g<3>",
+        content,
+        flags=re.MULTILINE,
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(description="Sync project version across bindings")
     parser.add_argument(
@@ -229,6 +248,7 @@ def main():
         ("bindings/perl/lib/STRling.pm", update_perl_pm),
         ("bindings/cpp/CMakeLists.txt", update_cmake),
         ("bindings/c/src/strling.c", update_c_source),
+        ("bindings/lua/strling-scm-1.rockspec", update_lua_rockspec),
     ]
 
     success = True

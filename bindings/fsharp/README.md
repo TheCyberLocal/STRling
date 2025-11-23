@@ -1,26 +1,20 @@
-# STRling - TypeScript Binding
+# STRling - F# Binding
 
 Part of the [STRling Project](../..).
 
 ## 📦 Installation
 
 ```bash
-npm install @thecyberlocal/strling
+dotnet add package STRling
 ```
 
 ## 🚀 Usage
 
-```typescript
-import { parse, Compiler } from "@thecyberlocal/strling";
+```fsharp
+open STRling
 
-// 1. Parse
-const [flags, node] = parse("hello");
-
-// 2. Compile
-const compiler = new Compiler();
-const ir = compiler.compile(node);
-
-console.log(ir);
+// Assuming inputAst is a Node
+let ir = Compiler.compile inputAst
 ```
 
 ## 📚 Documentation

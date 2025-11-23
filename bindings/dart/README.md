@@ -1,26 +1,21 @@
-# STRling - TypeScript Binding
+# STRling - Dart Binding
 
 Part of the [STRling Project](../..).
 
 ## 📦 Installation
 
 ```bash
-npm install @thecyberlocal/strling
+dart pub add strling
 ```
 
 ## 🚀 Usage
 
-```typescript
-import { parse, Compiler } from "@thecyberlocal/strling";
+```dart
+import 'package:strling/strling.dart';
 
-// 1. Parse
-const [flags, node] = parse("hello");
-
-// 2. Compile
-const compiler = new Compiler();
-const ir = compiler.compile(node);
-
-console.log(ir);
+// Assuming inputAst is a Map<String, dynamic>
+final node = Node.fromJson(inputAst);
+final ir = node.toIR();
 ```
 
 ## 📚 Documentation

@@ -1,26 +1,21 @@
-# STRling - TypeScript Binding
+# STRling - R Binding
 
 Part of the [STRling Project](../..).
 
 ## 📦 Installation
 
-```bash
-npm install @thecyberlocal/strling
+```r
+install.packages("strling")
 ```
 
 ## 🚀 Usage
 
-```typescript
-import { parse, Compiler } from "@thecyberlocal/strling";
+```r
+library(strling)
 
-// 1. Parse
-const [flags, node] = parse("hello");
-
-// 2. Compile
-const compiler = new Compiler();
-const ir = compiler.compile(node);
-
-console.log(ir);
+# Assuming input_ast is a list structure
+ast <- hydrate_ast(input_ast)
+ir <- compile_ast(ast)
 ```
 
 ## 📚 Documentation

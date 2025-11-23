@@ -1,26 +1,17 @@
-# STRling - TypeScript Binding
+# STRling - {Language} Binding
 
 Part of the [STRling Project](../..).
 
 ## 📦 Installation
 
 ```bash
-npm install @thecyberlocal/strling
+{Installation Command}
 ```
 
 ## 🚀 Usage
 
-```typescript
-import { parse, Compiler } from "@thecyberlocal/strling";
-
-// 1. Parse
-const [flags, node] = parse("hello");
-
-// 2. Compile
-const compiler = new Compiler();
-const ir = compiler.compile(node);
-
-console.log(ir);
+```
+{Usage Snippet}
 ```
 
 ## 📚 Documentation
