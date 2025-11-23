@@ -120,48 +120,96 @@ def update_composer_json(content: str, version: str, path: Path) -> str:
 
     if '"version":' in content:
         # use explicit group syntax so the replacement is always interpreted correctly
-        return re.sub(r'("version"\s*:\s*")([^\"]+)(")', r"\g<1>" + version + r"\g<3>", content)
+        return re.sub(
+            r'("version"\s*:\s*")([^\"]+)(")', r"\g<1>" + version + r"\g<3>", content
+        )
 
     # Insert version after the first "name" field if no version present
-    return re.sub(r'("name"\s*:\s*"[^\"]+",)', r"\g<1>\n    \"version\": \"" + version + '\",', content, count=1)
+    return re.sub(
+        r'("name"\s*:\s*"[^\"]+",)',
+        r"\g<1>\n    \"version\": \"" + version + '",',
+        content,
+        count=1,
+    )
 
 
 def update_yaml_pubspec(content: str, version: str, path: Path) -> str:
-    return re.sub(r"(^version:\s*)(.+)", lambda m: m.group(1) + version, content, flags=re.MULTILINE)
+    return re.sub(
+        r"(^version:\s*)(.+)",
+        lambda m: m.group(1) + version,
+        content,
+        flags=re.MULTILINE,
+    )
 
 
 def update_ruby_gemspec(content: str, version: str, path: Path) -> str:
     # Use callable replacement to avoid ambiguous group concatenation
-    return re.sub(r'(spec\.version\s*=\s*")([^\"]+)(")', lambda m: m.group(1) + version + m.group(3), content)
+    return re.sub(
+        r'(spec\.version\s*=\s*")([^\"]+)(")',
+        lambda m: m.group(1) + version + m.group(3),
+        content,
+    )
 
 
 def update_xml_csproj(content: str, version: str, path: Path) -> str:
     if "<Version>" in content:
-        return re.sub(r"(<Version>)([^<]+)(</Version>)", lambda m: m.group(1) + version + m.group(3), content)
+        return re.sub(
+            r"(<Version>)([^<]+)(</Version>)",
+            lambda m: m.group(1) + version + m.group(3),
+            content,
+        )
 
     # Insert a Version element into the first PropertyGroup if missing
-    return re.sub(r"(<PropertyGroup>)", lambda m: m.group(1) + "\n    <Version>" + version + "</Version>", content, count=1)
+    return re.sub(
+        r"(<PropertyGroup>)",
+        lambda m: m.group(1) + "\n    <Version>" + version + "</Version>",
+        content,
+        count=1,
+    )
 
 
 def update_xml_pom(content: str, version: str, path: Path) -> str:
     # Replace the first project-level <version>...</version> occurrence.
-    return re.sub(r"(<version>)([^<]+)(</version>)", lambda m: m.group(1) + version + m.group(3), content, count=1)
+    return re.sub(
+        r"(<version>)([^<]+)(</version>)",
+        lambda m: m.group(1) + version + m.group(3),
+        content,
+        count=1,
+    )
 
 
 def update_kotlin_gradle(content: str, version: str, path: Path) -> str:
-    return re.sub(r'(^version\s*=\s*")([^\"]+)(")', lambda m: m.group(1) + version + m.group(3), content, flags=re.MULTILINE)
+    return re.sub(
+        r'(^version\s*=\s*")([^\"]+)(")',
+        lambda m: m.group(1) + version + m.group(3),
+        content,
+        flags=re.MULTILINE,
+    )
 
 
 def update_r_description(content: str, version: str, path: Path) -> str:
-    return re.sub(r"(^Version:\s*)(.+)", lambda m: m.group(1) + version, content, flags=re.MULTILINE)
+    return re.sub(
+        r"(^Version:\s*)(.+)",
+        lambda m: m.group(1) + version,
+        content,
+        flags=re.MULTILINE,
+    )
 
 
 def update_perl_pm(content: str, version: str, path: Path) -> str:
-    return re.sub(r"(our\s+\$VERSION\s*=\s*')([^']+)(';)", lambda m: m.group(1) + version + m.group(3), content)
+    return re.sub(
+        r"(our\s+\$VERSION\s*=\s*')([^']+)(';)",
+        lambda m: m.group(1) + version + m.group(3),
+        content,
+    )
 
 
 def update_cmake(content: str, version: str, path: Path) -> str:
-    return re.sub(r"(project\s*\([\s\S]*?VERSION\s+)([\d\.\w-]+)([\s\S]*?\))", lambda m: m.group(1) + version + m.group(3), content)
+    return re.sub(
+        r"(project\s*\([\s\S]*?VERSION\s+)([\d\.\w-]+)([\s\S]*?\))",
+        lambda m: m.group(1) + version + m.group(3),
+        content,
+    )
 
 
 def update_c_source(content: str, version: str, path: Path) -> str:
@@ -175,7 +223,12 @@ def update_c_source(content: str, version: str, path: Path) -> str:
 
 def update_lua_rockspec(content: str, version: str, path: Path) -> str:
     rockspec_version = version if "-" in version else (version + "-1")
-    return re.sub(r'(^version\s*=\s*")([^\"]+)(")', lambda m: m.group(1) + rockspec_version + m.group(3), content, flags=re.MULTILINE)
+    return re.sub(
+        r'(^version\s*=\s*")([^\"]+)(")',
+        lambda m: m.group(1) + rockspec_version + m.group(3),
+        content,
+        flags=re.MULTILINE,
+    )
 
 
 def main(argv: Optional[List[str]] = None) -> int:
