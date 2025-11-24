@@ -17,6 +17,7 @@ tests/phase4_edge_cases_test
 tests/demo
 tests/unit/*_test
 tests/e2e/*_test
+tests/us_phone_test
 !tests/**/*.c
 
 # IDE and editor files
