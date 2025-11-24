@@ -29,8 +29,38 @@ Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Per
 ```perl
 use strict;
 use warnings;
+use STRling::Simply qw(:all);
 
-# If you want to parse a DSL string into an AST and compile it:
+# Build a US phone number pattern using the fluent Simply API
+my $phone = merge(
+    start(),                  # Start of line
+    capture(digit(3)),        # Area code (3 digits)
+    may(any_of("-. ")),       # Optional separator: -, ., or space
+    capture(digit(3)),        # Central office code (3 digits)
+    may(any_of("-. ")),       # Optional separator
+    capture(digit(4)),        # Station number (4 digits)
+    end()                     # End of line
+);
+
+# Compile to a PCRE2-compatible regex string
+my $regex = $phone->compile();
+# Returns: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+
+# Use it with Perl's regex engine
+if ('555-123-4567' =~ /$regex/) {
+    print "Area code: $1\n";       # 555
+    print "Exchange: $2\n";        # 123
+    print "Subscriber: $3\n";      # 4567
+}
+```
+
+> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+
+### Advanced Usage: DSL Parsing
+
+If you prefer to use the DSL string syntax, you can parse it directly:
+
+```perl
 use STRling::Core::Parser qw(parse);
 use STRling::Core::Compiler;
 
@@ -38,93 +68,36 @@ my ($flags, $ast) = parse(
     "start capture(digit(3)) may(any_of('-', '.', ' ')) capture(digit(3)) may(any_of('-', '.', ' ')) capture(digit(4)) end"
 );
 
-# Or construct the same AST explicitly using Moo-based node constructors:
-use STRling::Core::Nodes;
-
-# Start of line.
-# Match the area code (3 digits)
-# Optional separator: [-. ]
-# Match the central office code (3 digits)
-# Optional separator: [-. ]
-# Match the station number (4 digits)
-# End of line.
-
-my $phone_ast = STRling::Core::Nodes::Seq->new(parts => [
-    STRling::Core::Nodes::Anchor->new(at => 'Start'),
-
-    # Group 1: 3 digits
-    STRling::Core::Nodes::Group->new(
-        capturing => 1,
-        body      => STRling::Core::Nodes::Quant->new(
-            child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'd') ]),
-            min   => 3,
-            max   => 3,
-            mode  => 'Greedy',
-        ),
-    ),
-
-    # Optional separator: [-. ]
-    STRling::Core::Nodes::Quant->new(
-        child => STRling::Core::Nodes::CharClass->new(
-            negated => 0,
-            items   => [
-                STRling::Core::Nodes::ClassLiteral->new(ch => '-'),
-                STRling::Core::Nodes::ClassLiteral->new(ch => '.'),
-                STRling::Core::Nodes::ClassLiteral->new(ch => ' '),
-            ]
-        ),
-        min  => 0,
-        max  => 1,
-        mode => 'Greedy',
-    ),
-
-    # Group 2: 3 digits
-    STRling::Core::Nodes::Group->new(
-        capturing => 1,
-        body      => STRling::Core::Nodes::Quant->new(
-            child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'd') ]),
-            min   => 3,
-            max   => 3,
-            mode  => 'Greedy',
-        ),
-    ),
-
-    # Optional separator: [-. ]
-    STRling::Core::Nodes::Quant->new(
-        child => STRling::Core::Nodes::CharClass->new(
-            negated => 0,
-            items   => [
-                STRling::Core::Nodes::ClassLiteral->new(ch => '-'),
-                STRling::Core::Nodes::ClassLiteral->new(ch => '.'),
-                STRling::Core::Nodes::ClassLiteral->new(ch => ' '),
-            ]
-        ),
-        min  => 0,
-        max  => 1,
-        mode => 'Greedy',
-    ),
-
-    # Group 3: 4 digits
-    STRling::Core::Nodes::Group->new(
-        capturing => 1,
-        body      => STRling::Core::Nodes::Quant->new(
-            child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'd') ]),
-            min   => 4,
-            max   => 4,
-            mode  => 'Greedy',
-        ),
-    ),
-
-    STRling::Core::Nodes::Anchor->new(at => 'End'),
-]);
-
-# Compile to the IR representation (emitters live in other bindings).
-my $ir = STRling::Core::Compiler->compile($phone_ast);
-
-# Note: the final regex emission is typically performed by a language emitter (e.g. TypeScript/Rust emitters).
+# Compile to IR
+my $ir = STRling::Core::Compiler->compile($ast);
 ```
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+### Pattern Composition
+
+The Simply API makes it easy to compose reusable pattern components:
+
+```perl
+use STRling::Simply qw(:all);
+
+# Define reusable components
+my $area_code = capture(digit(3));
+my $separator = may(any_of("-. "));
+my $exchange = capture(digit(3));
+my $subscriber = capture(digit(4));
+
+# Compose them into a complete pattern
+my $phone = merge(
+    start(),
+    $area_code,
+    $separator,
+    $exchange,
+    $separator,
+    $subscriber,
+    end()
+);
+
+my $regex = $phone->compile();
+```
 
 ## 🚀 Why STRling?
 
