@@ -36,7 +36,10 @@ final Node usPhoneAst = Sequence([
     capturing: true,
     body: Sequence([
       Quantifier(
-        target: Escape('digit'),
+        target: CharacterClass(
+      negated: false,
+      members: [Escape('digit')],
+    ),
         min: 3,
         max: 3,
         greedy: true,
@@ -68,7 +71,10 @@ final Node usPhoneAst = Sequence([
     capturing: true,
     body: Sequence([
       Quantifier(
-        target: Escape('digit'),
+        target: CharacterClass(
+      negated: false,
+      members: [Escape('digit')],
+    ),
         min: 3,
         max: 3,
         greedy: true,
@@ -100,7 +106,10 @@ final Node usPhoneAst = Sequence([
     capturing: true,
     body: Sequence([
       Quantifier(
-        target: Escape('digit'),
+        target: CharacterClass(
+      negated: false,
+      members: [Escape('digit')],
+    ),
         min: 4,
         max: 4,
         greedy: true,

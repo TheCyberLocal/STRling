@@ -190,7 +190,10 @@ Match as much as possible (standard behavior).
 
 ```dart
 final Quantifier oneOrMoreDigits = Quantifier(
-  target: Escape('digit'),
+  target: CharacterClass(
+      negated: false,
+      members: [Escape('digit')],
+    ),
   min: 1,
   max: null,
   greedy: true,
@@ -229,7 +232,10 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 
 ```dart
 final Quantifier possessiveDigits = Quantifier(
-  target: Escape('digit'),
+  target: CharacterClass(
+      negated: false,
+      members: [Escape('digit')],
+    ),
   min: 1,
   max: null,
   greedy: false,
@@ -253,7 +259,10 @@ final Group captureArea = Group(
   capturing: true,
   body: Sequence([
     Quantifier(
-      target: Escape('digit'),
+      target: CharacterClass(
+      negated: false,
+      members: [Escape('digit')],
+    ),
       min: 3,
       max: 3,
       greedy: true,
