@@ -29,90 +29,25 @@ package main
 
 import (
   "fmt"
-  strling "github.com/thecyberlocal/strling/bindings/go"
+  simply "github.com/thecyberlocal/strling/bindings/go/simply"
 )
 
 func main() {
-  // Build the AST programmatically using idiomatic Go struct literals.
-  // The types below come from the `strling` package (bindings/go).
+  // Build a US phone number pattern using the fluent `simply` builder.
+  phone := simply.Seq(
+    simply.Start(),
+    simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
+    simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
+    simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
+    simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
+    simply.GroupCapture(simply.Quant(simply.Digit(), 4, 4)),
+    simply.End(),
+  )
 
-  phone := strling.Sequence{
-  Parts: []strling.NodeWrapper{
-    {Node: &strling.Anchor{At: "Start"}},
-    // Match area code (3 digits)
-    {Node: &strling.Group{
-      Capturing: true,
-      Body: strling.NodeWrapper{Node: &strling.Quantifier{
-        Target: strling.NodeWrapper{Node: &strling.CharacterClass{
-          Negated: false,
-          Members: []strling.NodeWrapper{{Node: &strling.Escape{Kind: "digit"}}},
-        }},
-        Min: 3,
-        Max: 3,
-        Greedy: true,
-      }},
-    }},
-    // Optional separator: [-. ]
-    {Node: &strling.Quantifier{
-      Target: strling.NodeWrapper{Node: &strling.CharacterClass{
-        Negated: false,
-        Members: []strling.NodeWrapper{
-          {Node: &strling.Literal{Value: "-"}},
-          {Node: &strling.Literal{Value: "."}},
-          {Node: &strling.Literal{Value: " "}},
-        },
-      }},
-      Min: 0,
-      Max: 1,
-      Greedy: true,
-    }},
-    // Match prefix (3 digits)
-    {Node: &strling.Group{
-      Capturing: true,
-      Body: strling.NodeWrapper{Node: &strling.Quantifier{
-        Target: strling.NodeWrapper{Node: &strling.CharacterClass{
-          Negated: false,
-          Members: []strling.NodeWrapper{{Node: &strling.Escape{Kind: "digit"}}},
-        }},
-        Min: 3,
-        Max: 3,
-        Greedy: true,
-      }},
-    }},
-    // Optional separator: [-. ]
-    {Node: &strling.Quantifier{
-      Target: strling.NodeWrapper{Node: &strling.CharacterClass{
-        Negated: false,
-        Members: []strling.NodeWrapper{
-          {Node: &strling.Literal{Value: "-"}},
-          {Node: &strling.Literal{Value: "."}},
-          {Node: &strling.Literal{Value: " "}},
-        },
-      }},
-      Min: 0,
-      Max: 1,
-      Greedy: true,
-    }},
-    // Match line number (4 digits)
-    {Node: &strling.Group{
-      Capturing: true,
-      Body: strling.NodeWrapper{Node: &strling.Quantifier{
-        Target: strling.NodeWrapper{Node: &strling.CharacterClass{
-          Negated: false,
-          Members: []strling.NodeWrapper{{Node: &strling.Escape{Kind: "digit"}}},
-        }},
-        Min: 4,
-        Max: 4,
-        Greedy: true,
-      }},
-    }},
-    {Node: &strling.Anchor{At: "End"}},
-  },
-}
-
-  // The AST above compiles to: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+  // This compiles to: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+  // The user does not need to touch the internal AST types or NodeWrapper.
   _ = phone
-  fmt.Println("Constructed phone AST with parts:", len(phone.Parts))
+  fmt.Println("Constructed phone AST (via simply) — use compiler.Emit to produce regex.")
 }
 ```
 
