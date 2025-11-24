@@ -29,7 +29,33 @@ targets: [
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Swift**:
+### Using the Simply API (Recommended)
+
+Here is how to match a US Phone number (e.g., `555-555-0199`) using the **Simply API** in Swift:
+
+```swift
+import STRling
+
+// Build a readable pattern using the Simply API
+let phone = Simply.merge([
+    Simply.start(),
+    Simply.capture(Simply.digit(3)),     // Area code
+    Simply.may(Simply.anyOf("-. ")),     // Optional separator
+    Simply.capture(Simply.digit(3)),     // Central office code
+    Simply.may(Simply.anyOf("-. ")),     // Optional separator
+    Simply.capture(Simply.digit(4)),     // Station number
+    Simply.end()
+])
+
+let regex = try phone.compile()
+print(regex) // => ^([\d]{3})[\-. ]?([\d]{3})[\-. ]?([\d]{4})$
+```
+
+> **Note:** The Simply API provides a clean, readable interface with static methods that align with the core specification format: `Simply.capture(...)`, `Simply.digit(...)`, etc.
+
+### Using the AST Directly
+
+For advanced use cases, you can build patterns using Swift's enum dot-syntax and type-inference:
 
 ```swift
 import STRling
@@ -61,8 +87,6 @@ let phone: Node = .seq([
 let regex = try PCRE2Emitter().emit(node: phone)
 print(regex) // => ^(\\d{3})[-. ]?(\\d{3})[-. ]?(\\d{4})$
 ```
-
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
 ## 🚀 Why STRling?
 
