@@ -3,7 +3,7 @@ This script copies TEST_REPORT.md into reports/final_aggregated_report.md and ad
 Run: python3 tooling/generate_final_report.py
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 root = Path("/root/personal/STRling")
@@ -17,7 +17,7 @@ if not src.exists():
     raise SystemExit(1)
 
 content = src.read_text()
-header = f"# Final aggregated STRling report\nGenerated: {datetime.utcnow().isoformat()}Z\n\n"
+header = f"# Final aggregated STRling report\nGenerated: {datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')}\n\n"
 
 # Write the aggregated report
 with dst.open("w") as fh:
