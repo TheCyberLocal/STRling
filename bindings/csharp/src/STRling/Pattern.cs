@@ -50,15 +50,19 @@ namespace Strling.Simply
         /// <summary>
         /// Compile this Pattern to a PCRE2 regex string using the built-in emitter.
         /// </summary>
+        // Public API should not expose internal core types (e.g., Strling.Core.Flags)
+        // Provide a no-argument public entrypoint and keep an internal helper
+        // that may accept internal Flags for library-internal use.
         public string Compile()
-		{
-			return CompileWithFlags(null);
-		}
+        {
+            return CompileWithFlags(null);
+        }
 
-		internal string CompileWithFlags(Flags? flags = null)
-		{
-			var ir = Core.Compiler.Compile(Node);
-			return Emit.Pcre2Emitter.Emit(ir, flags);
-		}
+        // Internal helper — stays internal so it can safely accept Strling.Core.Flags
+        internal string CompileWithFlags(Flags? flags = null)
+        {
+            var ir = Core.Compiler.Compile(Node);
+            return Emit.Pcre2Emitter.Emit(ir, flags);
+        }
     }
 }
