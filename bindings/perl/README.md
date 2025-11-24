@@ -124,7 +124,6 @@ my $ir = STRling::Core::Compiler->compile($phone_ast);
 # Note: the final regex emission is typically performed by a language emitter (e.g. TypeScript/Rust emitters).
 ```
 
-
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
 ## 🚀 Why STRling?

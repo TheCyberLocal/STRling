@@ -320,7 +320,6 @@ my $pattern = STRling::Core::Nodes::Seq->new(parts => [
 # Non-capturing grouping used for grouping logic without occupying capture slots
 ```
 
-
 ### Atomic Groups
 
 Groups `(?>...)` that discard backtracking information once the group matches.
