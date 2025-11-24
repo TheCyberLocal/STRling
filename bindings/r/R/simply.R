@@ -27,14 +27,19 @@ sl_end <- function() {
 
 #' Match exactly n digits
 #'
-#' @param n Number of digits to match. Defaults to 1 if not provided or <= 0.
+#' @param n Number of digits to match. Must be a positive integer.
 #' @return A STRling AST node matching n digits
 #' @export
 #' @examples
 #' sl_digit(3)  # Matches exactly 3 digits
 #' sl_digit()   # Matches exactly 1 digit
 sl_digit <- function(n = 1L) {
+  if (!is.numeric(n) || length(n) != 1) {
+    stop("sl_digit expects a single numeric value for n")
+  }
+  
   if (n <= 0) {
+    warning("sl_digit: n must be positive, defaulting to 1")
     n <- 1L
   }
   
@@ -60,7 +65,10 @@ sl_digit <- function(n = 1L) {
 #' sl_any_of("abc")  # Matches a, b, or c
 sl_any_of <- function(chars) {
   if (!is.character(chars) || length(chars) != 1) {
-    stop("sl_any_of expects a single character string")
+    stop(sprintf(
+      "sl_any_of expects a single character string, but received: %s. Example: sl_any_of('abc')",
+      paste(class(chars), collapse = ", ")
+    ))
   }
   
   char_vec <- strsplit(chars, "")[[1]]
