@@ -381,7 +381,7 @@ public class Constructors {
      * merge() for non-capturing concatenation.</p>
      */
     public static Pattern group(String name, Object... patterns) {
-        if (name == null || !(name instanceof String)) {
+        if (name == null) {
             String message = "\n" +
                 "Method: simply.group(name, ...patterns)\n\n" +
                 "The group is missing a specified name.\n" +

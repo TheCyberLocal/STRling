@@ -141,9 +141,9 @@ public class UsPhoneTest {
         com.strling.simply.Pattern pattern = merge(
             start(),
             capture(digit(3, null)),
-            may(anyOf("-", ".", " ")),
+            may(inChars("-", ".", " ")),
             capture(digit(3, null)),
-            may(anyOf("-", ".", " ")),
+            may(inChars("-", ".", " ")),
             capture(digit(4, null)),
             end()
         );
