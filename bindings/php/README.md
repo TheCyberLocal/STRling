@@ -50,7 +50,7 @@ echo $ir . PHP_EOL;
 // Final regex: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
 ```
 
-> **Note:** The Simply API provides a clean, composable interface for building patterns with **structural identity**—using `Simply::capture($inner)` instead of `$inner->capture()`. Method names are inspired by Python/TypeScript but may differ (e.g., `inChars` for character classes in PHP vs. `in_chars` in Python/TypeScript).
+> **Note:** The Simply API provides a clean, composable interface for building patterns with **structural identity**—using `Simply::capture($inner)` instead of `$inner->capture()`. PHP naming matches TypeScript exactly (e.g., `inChars`). Python uses snake_case equivalents (e.g., `in_chars`).
 
 ### Low-Level AST API
 

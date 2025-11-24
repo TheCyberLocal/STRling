@@ -22,7 +22,7 @@ class UsPhoneTest extends TestCase
      * Demonstrates the target UX with structural identity:
      * - Uses Simply::capture($inner), NOT $inner->capture()
      * - Uses `may`, `inChars`, `merge` naming
-     *   Note: `inChars` creates character classes ([abc]), matching `in_chars` in Python/TypeScript
+     *   Note: `inChars` matches TypeScript exactly (camelCase). Python uses `in_chars` (snake_case)
      */
     public function testUsPhonePattern(): void
     {
