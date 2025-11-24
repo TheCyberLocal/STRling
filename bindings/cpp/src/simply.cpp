@@ -79,6 +79,7 @@ Pattern any_of(std::string_view s) { return Pattern(make_anyof(s)); }
 Pattern start() { return Pattern(make_anchor("Start")); }
 Pattern end()   { return Pattern(make_anchor("End")); }
 Pattern sequence(const std::vector<Pattern>& parts) { return Pattern(make_seq(parts)); }
+Pattern sequence(std::initializer_list<Pattern> parts) { return sequence(std::vector<Pattern>(parts)); }
 
 // returns a NEW Pattern (immutability)
 Pattern Pattern::optional() const {

@@ -21,6 +21,8 @@ Pattern any_of(std::string_view chars);
 Pattern start();
 Pattern end();
 Pattern sequence(const std::vector<Pattern>& parts);
+// Convenience overload to allow braced-init lists such as sequence({a, b, c})
+Pattern sequence(std::initializer_list<Pattern> parts);
 
 // Pattern class — immutable (returns new Pattern from combinators)
 class Pattern {
@@ -33,8 +35,11 @@ public:
     Pattern optional() const;      // like ?
     Pattern as_capture() const;    // make this a capturing group
 
-    // Internal access for implementation code and tests
+#ifdef STRLING_INTERNAL
+    // Internal access for implementation code and tests (only available when
+    // building STRling itself or tests; hidden from public API consumers)
     std::shared_ptr<Impl> impl_ptr() const { return impl; }
+#endif
 
     // Compile / stringify the pattern into a regex
     // Uses the binding-local emitter to produce a standard regex string

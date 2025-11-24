@@ -41,6 +41,10 @@ add_library(strling STATIC
 
 target_link_libraries(strling PRIVATE nlohmann_json::nlohmann_json)
 
+# Expose internal-only helpers when building the library/tests so the
+# public header can hide them from external consumers via STRLING_INTERNAL.
+target_compile_definitions(strling PRIVATE STRLING_INTERNAL)
+
 # Set include directories for the library
 target_include_directories(strling
     PUBLIC
@@ -101,4 +105,10 @@ if(BUILD_TESTS)
     target_compile_definitions(conformance_test PRIVATE SPEC_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../tests/spec")
     
     add_test(NAME conformance_test COMMAND conformance_test)
+
+    # Lint public API / examples for forbidden pointer tokens
+    find_program(PYTHON3_EXECUTABLE python3)
+    if(PYTHON3_EXECUTABLE)
+        add_test(NAME no_public_pointers COMMAND ${PYTHON3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tooling/no_public_pointers.py)
+    endif()
 endif()
