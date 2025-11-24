@@ -57,7 +57,7 @@ public class EmitterDebugTest
         Assert.True(regex.Length >= 5, "regex too short");
         Assert.Equal('(', regex[0]);
         Assert.Equal('\\', regex[1]);
-        // Check for a single backslash at position 1 and 'd' at 2
+        // Check for a single backslash at position 1 and 'd' at position 2
         Assert.Equal('d', regex[2]);
         Assert.Equal('{', regex[3]);
     }
