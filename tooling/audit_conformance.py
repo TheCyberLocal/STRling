@@ -77,7 +77,7 @@ def run_python_conformance_tests(repo_root: Path) -> Set[str]:
 
     # Parse test names from pytest output
     # Test names look like: test_conformance[js_test_pattern_1.json]
-    executed = set()
+    executed: Set[str] = set()
     for line in result.stdout.split("\n"):
         if "test_conformance[" in line:
             # Extract fixture name from test name
@@ -161,7 +161,7 @@ def run_java_conformance_tests(repo_root: Path) -> Set[str]:
 
     # If we found a test count, assume that many fixtures were tested
     # (Since we can't easily parse individual test names from Maven output)
-    executed = set()
+    executed: Set[str] = set()
     if test_count > 0:
         # Get the fixture list and take the first N fixtures
         # This assumes the test runs all fixtures in order

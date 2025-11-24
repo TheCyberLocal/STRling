@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-import os
 import subprocess
 import re
-import json
-import sys
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, TypedDict, Union
+from typing import List, Tuple, TypedDict, Union, NotRequired
 
 # Configuration
 PROJECT_ROOT = Path(__file__).parent.parent.resolve()
@@ -30,19 +27,29 @@ def get_baseline_metrics() -> Tuple[int, int]:
 
 
 # Binding Configurations
-class BindingConfig(TypedDict, total=False):
+class BindingConfig(TypedDict):
+    """Configuration for a language binding test runner.
+
+    name, command and pattern are required; `count_occurrences` is optional.
+    """
+
     name: str
     command: List[str]
     pattern: str
-    count_occurrences: bool
+    count_occurrences: NotRequired[bool]
 
 
-class ResultEntry(TypedDict, total=False):
+class ResultEntry(TypedDict):
+    """Result entry written to the markdown report.
+
+    `raw_output_snippet` is optional and only present on parse errors/timeouts.
+    """
+
     binding: str
     count: Union[int, str]
     delta: Union[int, str]
     status: str
-    raw_output_snippet: str
+    raw_output_snippet: NotRequired[str]
 
 
 BINDINGS: List[BindingConfig] = [
@@ -119,7 +126,7 @@ def run_audit():
 
     # 1. Establish Baseline
     total_specs, compiler_only = get_baseline_metrics()
-    print(f"Baseline Metrics:")
+    print("Baseline Metrics:")
     print(f"  Total Specs: {total_specs}")
     print(f"  Compiler-Only (AST): {compiler_only}")
     print("-" * 40)
@@ -218,7 +225,7 @@ def run_audit():
 
     with open(report_path, "w") as f:
         f.write("# Precision Audit & Coverage Justification\n\n")
-        f.write(f"**Date:** 2025-11-23\n")
+        f.write("**Date:** 2025-11-23\n")
         f.write(f"**Baseline Target:** {total_specs}\n")
         f.write(f"**Compiler-Only Target:** {compiler_only}\n\n")
         f.write("| Binding | Count | Delta | Status | Justification/Remediation |\n")
