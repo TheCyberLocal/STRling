@@ -422,8 +422,16 @@ data class Pattern(
         }
         
         // Validate named groups cannot be repeated more than once
-        val actualMax = max ?: min
-        if (namedGroups.isNotEmpty() && actualMax > 1) {
+        // max == null means exactly min times
+        // max == 0 means unbounded (min or more)
+        // max > 1 means can repeat more than once
+        val canRepeatMultiple = when (max) {
+            null -> min > 1
+            0 -> true  // unbounded
+            else -> max > 1
+        }
+        
+        if (namedGroups.isNotEmpty() && canRepeatMultiple) {
             throw IllegalArgumentException(
                 "repeat(min, max): Named groups cannot be repeated more than once as they must be unique. " +
                 "Consider using asCapture() or Simply.merge() instead."
