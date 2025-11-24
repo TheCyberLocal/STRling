@@ -39,11 +39,11 @@ var phone = S.Sequence(
 );
 
 string regex = phone.Compile();
-// regex -> "^(\\d{3})[-. ]?(\\d{3})[-. ]?(\\d{4})$"
+// regex -> "^(\\d{3})[\\-. ]?(\\d{3})[\\-. ]?(\\d{4})$"
 ```
 
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+> **Note:** This compiles to the optimized regex: `^(\d{3})[\-. ]?(\d{3})[\-. ]?(\d{4})$`
 
 ## 🚀 Why STRling?
 

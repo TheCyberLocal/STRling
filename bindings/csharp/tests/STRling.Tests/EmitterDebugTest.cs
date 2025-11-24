@@ -53,13 +53,13 @@ public class EmitterDebugTest
         var regex = p.Compile();
 
         // Check the char sequence so we can see whether there are one or two backslashes
-        // Expect: '^' '(' '\\' 'd' '{' '3' '}' ')' ...
+        // Expect: '(' '\\' 'd' '{' '3' '}' ')' ...
         Assert.True(regex.Length >= 5, "regex too short");
-        Assert.Equal('^', regex[0]);
-        Assert.Equal('(', regex[1]);
-        // Check for a single backslash at position 2 and 'd' at 3
-        Assert.Equal('\\', regex[2]);
-        Assert.Equal('d', regex[3]);
+        Assert.Equal('(', regex[0]);
+        Assert.Equal('\\', regex[1]);
+        // Check for a single backslash at position 1 and 'd' at 2
+        Assert.Equal('d', regex[2]);
+        Assert.Equal('{', regex[3]);
     }
 
     [Fact]
