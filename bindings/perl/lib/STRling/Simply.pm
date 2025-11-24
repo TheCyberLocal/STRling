@@ -492,7 +492,7 @@ Returns:
 Note:
   - Named groups cannot be repeated as they must be unique.
   - Numbered (captured) groups created with C<capture()> only accept exact counts.
-    For example, C<capture(digit(3))-E<gt>rep(4)> creates 4 separate capture groups,
+    For example, C<capture(digit(3))->rep(4)> creates 4 separate capture groups,
     not a quantified single group. Using C<rep($min, $max)> with different values
     on a captured group will result in an error.
 
@@ -563,7 +563,7 @@ sub _emit_pcre2 {
             if ($item_type eq 'STRling::Core::IR::IRClassLiteral') {
                 my $ch = $item->ch;
                 # Escape special chars within character class
-                $ch =~ s/([\[\]\\^}\-])/\\$1/g;
+                $ch =~ s/([\[\]\\^}-])/\\$1/g;
                 $result .= $ch;
             }
             elsif ($item_type eq 'STRling::Core::IR::IRClassRange') {
