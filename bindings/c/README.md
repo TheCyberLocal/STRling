@@ -23,7 +23,70 @@ make
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **C**:
+### Simply API (Recommended)
+
+The Simply API provides a fluent, ergonomic interface for building patterns with minimal boilerplate.
+
+Here is how to match a US Phone number (e.g., `555-0199`) using the **Simply API**:
+
+```c
+#include <stdio.h>
+#include "strling.h"
+#include "strling_simply.h"
+
+int main(void) {
+    /* Build a US Phone Number pattern using the Simply API.
+     * Pattern: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+     * Matches: 555-0199, 555.0199, 555 0199, 5550199
+     */
+    sl_pattern_t phone = sl_seq(7,
+        sl_start(),
+        sl_capture(sl_digit(3)),
+        sl_optional(sl_any_of("-. ")),
+        sl_capture(sl_digit(3)),
+        sl_optional(sl_any_of("-. ")),
+        sl_capture(sl_digit(4)),
+        sl_end()
+    );
+
+    /* Compile to PCRE2 via JSON AST */
+    const char* phone_json =
+        "{\"type\":\"Sequence\",\"parts\":["
+        "{\"type\":\"Anchor\",\"at\":\"Start\"},"
+        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":3,\"max\":3,\"mode\":\"Greedy\",\"target\":{\"type\":\"CharacterClass\",\"negated\":false,\"members\":[{\"type\":\"Escape\",\"kind\":\"digit\"}]}}},"
+        "{\"type\":\"Quantifier\",\"min\":0,\"max\":1,\"mode\":\"Greedy\",\"target\":{\"type\":\"CharacterClass\",\"negated\":false,\"members\":[{\"type\":\"Literal\",\"value\":\"-\"},{\"type\":\"Literal\",\"value\":\".\"},{\"type\":\"Literal\",\"value\":\" \"}]}},"
+        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":3,\"max\":3,\"mode\":\"Greedy\",\"target\":{\"type\":\"CharacterClass\",\"negated\":false,\"members\":[{\"type\":\"Escape\",\"kind\":\"digit\"}]}}},"
+        "{\"type\":\"Quantifier\",\"min\":0,\"max\":1,\"mode\":\"Greedy\",\"target\":{\"type\":\"CharacterClass\",\"negated\":false,\"members\":[{\"type\":\"Literal\",\"value\":\"-\"},{\"type\":\"Literal\",\"value\":\".\"},{\"type\":\"Literal\",\"value\":\" \"}]}},"
+        "{\"type\":\"Group\",\"capturing\":true,\"body\":{\"type\":\"Quantifier\",\"min\":4,\"max\":4,\"mode\":\"Greedy\",\"target\":{\"type\":\"CharacterClass\",\"negated\":false,\"members\":[{\"type\":\"Escape\",\"kind\":\"digit\"}]}}},"
+        "{\"type\":\"Anchor\",\"at\":\"End\"}]}";
+
+    strling_result_t result = strling_compile_compat(phone_json, NULL);
+    if (result.error_code == STRling_OK) {
+        printf("compiled: %s\n", result.pcre2_pattern);
+    } else {
+        fprintf(stderr, "compile error: %s\n", result.error_message);
+    }
+
+    /* Cleanup - single root free handles all child nodes */
+    strling_result_free_compat(&result);
+    strling_ast_node_free(phone);
+
+    /* This example compiles to: ^([\d]{3})[\-. ]?([\d]{3})[\-. ]?([\d]{4})$ */
+    return (result.error_code == STRling_OK) ? 0 : 1;
+}
+```
+
+**Key Features:**
+- **Zero Boilerplate:** Simple, readable pattern construction with `sl_*` functions
+- **Memory Safety:** Single `strling_ast_node_free(phone)` call cleans up entire pattern
+- **Fluent API:** Chain operations naturally with `sl_seq`, `sl_capture`, `sl_optional`, etc.
+
+### Low-Level API
+
+For advanced use cases requiring direct AST manipulation, the low-level API is also available:
+
+<details>
+<summary>Click to expand low-level API example</summary>
 
 ```c
 /* Build the STRling AST using the thin C helpers and then compile the
@@ -125,3 +188,5 @@ and how to compile a JSON AST (here provided inline) with `strling_compile_compa
 Memory ownership: all constructors return heap-allocated objects — call the
 corresponding free helpers like `strling_ast_node_free()` and
 `strling_result_free_compat()` when finished.
+
+</details>

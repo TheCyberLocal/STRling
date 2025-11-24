@@ -5,6 +5,7 @@ SRCDIR := src
 COREDIR := $(SRCDIR)/core
 SRCS := $(SRCDIR)/strling.c \
 	$(SRCDIR)/compat.c \
+	$(SRCDIR)/strling_simply.c \
 	$(COREDIR)/nodes.c \
         $(COREDIR)/ir.c \
         $(COREDIR)/errors.c
