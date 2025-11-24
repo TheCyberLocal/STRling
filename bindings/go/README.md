@@ -29,25 +29,25 @@ package main
 
 import (
   "fmt"
-  simply "github.com/thecyberlocal/strling/bindings/go/simply"
+  s "github.com/thecyberlocal/strling/bindings/go/simply"
 )
 
 func main() {
   // Build a US phone number pattern using the fluent `simply` builder.
-  phone := simply.Seq(
-    simply.Start(),
-    simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
-    simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
-    simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
-    simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
-    simply.GroupCapture(simply.Quant(simply.Digit(), 4, 4)),
-    simply.End(),
+  // Start -> Capture(Digit(3)) -> Optional("-. ") ...
+  phone := s.Merge(
+    s.Start(),
+    s.Capture(s.Digit(3)),
+    s.May(s.AnyOf("-. ")),
+    s.Capture(s.Digit(3)),
+    s.May(s.AnyOf("-. ")),
+    s.Capture(s.Digit(4)),
+    s.End(),
   )
 
-  // This compiles to: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
-  // The user does not need to touch the internal AST types or NodeWrapper.
-  _ = phone
-  fmt.Println("Constructed phone AST (via simply) — use compiler.Emit to produce regex.")
+  // Compile to string
+  regex, _ := phone.ToRegex()
+  fmt.Println(regex)
 }
 ```
 

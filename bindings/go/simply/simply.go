@@ -1,57 +1,93 @@
 package simply
 
-import "github.com/thecyberlocal/strling/bindings/go/core"
+import (
+	"github.com/thecyberlocal/strling/bindings/go/core"
+	"github.com/thecyberlocal/strling/bindings/go/emitters"
+)
 
-// A small, focused fluent builder for common STRling constructs.
-// The goal is to let users construct patterns without touching internal AST wrappers.
-
-// Start anchor
-func Start() core.Node {
-    return core.Anchor{At: "Start"}
+// Pattern is a high-level wrapper around core.Node that provides a fluent API
+// matching the TypeScript/Python "Gold Standard" implementation.
+type Pattern struct {
+	node core.Node
 }
 
-// End anchor
-func End() core.Node {
-    return core.Anchor{At: "End"}
+// ToRegex compiles the pattern to a PCRE2 regex string.
+func (p Pattern) ToRegex() (string, error) {
+	compiler := core.NewCompiler()
+	ir := compiler.Compile(p.node)
+	regex := emitters.Emit(ir, nil)
+	return regex, nil
 }
 
-// Lit creates a literal node.
-func Lit(s string) core.Node {
-    return core.Lit{Value: s}
+// Start matches the beginning of a line (^).
+func Start() Pattern {
+	return Pattern{node: core.Anchor{At: "Start"}}
 }
 
-// Digit returns a character class matching a single digit (\d).
-func Digit() core.Node {
-    return core.CharClass{Negated: false, Items: []core.ClassItem{core.ClassEscape{Type: "d"}}}
+// End matches the end of a line ($).
+func End() Pattern {
+	return Pattern{node: core.Anchor{At: "End"}}
 }
 
-// CharClassFromLiterals creates a small character class out of literal characters.
-func CharClassFromLiterals(chars ...string) core.Node {
-    items := make([]core.ClassItem, 0, len(chars))
-    for _, c := range chars {
-        if len(c) == 1 {
-            items = append(items, core.ClassLiteral{Ch: c})
-        } else {
-            // For strings longer than 1, treat as sequence of literals (not ideal for class)
-            // but we'll fallback to adding the first char.
-            items = append(items, core.ClassLiteral{Ch: string(c[0])})
-        }
-    }
-    return core.CharClass{Negated: false, Items: items}
+// Lit creates a literal pattern that matches the exact string.
+func Lit(s string) Pattern {
+	return Pattern{node: core.Lit{Value: s}}
 }
 
-// Seq builds a sequence node from provided children.
-func Seq(parts ...core.Node) core.Node {
-    return core.Seq{Parts: parts}
+// Digit matches exactly n digits (\d{n}).
+// If n is not provided or is 0, matches a single digit.
+func Digit(n int) Pattern {
+	digitClass := core.CharClass{
+		Negated: false,
+		Items:   []core.ClassItem{core.ClassEscape{Type: "d"}},
+	}
+	
+	if n <= 0 {
+		n = 1
+	}
+	
+	if n == 1 {
+		return Pattern{node: digitClass}
+	}
+	
+	return Pattern{node: core.Quant{Child: digitClass, Min: n, Max: n, Mode: "Greedy"}}
 }
 
-// GroupCapture wraps a node into a capturing group.
-func GroupCapture(body core.Node) core.Node {
-    return core.Group{Capturing: true, Body: body}
+// AnyOf creates a character class matching any of the provided characters.
+// Similar to TypeScript's inChars function.
+func AnyOf(chars string) Pattern {
+	items := make([]core.ClassItem, 0, len(chars))
+	for _, c := range chars {
+		items = append(items, core.ClassLiteral{Ch: string(c)})
+	}
+	return Pattern{node: core.CharClass{Negated: false, Items: items}}
 }
 
-// Quant creates a quantifier node with greedy mode.
-func Quant(target core.Node, min, max int) core.Node {
-    var maxVal interface{} = max
-    return core.Quant{Child: target, Min: min, Max: maxVal, Mode: "Greedy"}
+// Merge concatenates multiple patterns into a single sequence.
+// Equivalent to TypeScript's s.merge(...patterns).
+func Merge(patterns ...Pattern) Pattern {
+	if len(patterns) == 0 {
+		return Pattern{node: core.Seq{Parts: []core.Node{}}}
+	}
+	if len(patterns) == 1 {
+		return patterns[0]
+	}
+	
+	nodes := make([]core.Node, len(patterns))
+	for i, p := range patterns {
+		nodes[i] = p.node
+	}
+	return Pattern{node: core.Seq{Parts: nodes}}
+}
+
+// Capture creates a numbered capture group around the pattern.
+// Equivalent to TypeScript's s.capture(...patterns).
+func Capture(pattern Pattern) Pattern {
+	return Pattern{node: core.Group{Capturing: true, Body: pattern.node}}
+}
+
+// May makes the pattern optional (matches 0 or 1 times, equivalent to ?).
+// Equivalent to TypeScript's s.may(...patterns).
+func May(pattern Pattern) Pattern {
+	return Pattern{node: core.Quant{Child: pattern.node, Min: 0, Max: 1, Mode: "Greedy"}}
 }

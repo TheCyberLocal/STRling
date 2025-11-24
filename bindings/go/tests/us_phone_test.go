@@ -4,22 +4,20 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/thecyberlocal/strling/bindings/go/core"
-	"github.com/thecyberlocal/strling/bindings/go/emitters"
-	"github.com/thecyberlocal/strling/bindings/go/simply"
+	s "github.com/thecyberlocal/strling/bindings/go/simply"
 )
 
 // createUSPhonePattern builds a US phone number pattern using the simply fluent API.
 // Pattern: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
-func createUSPhonePattern() core.Node {
-	return simply.Seq(
-		simply.Start(),
-		simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
-		simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
-		simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
-		simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
-		simply.GroupCapture(simply.Quant(simply.Digit(), 4, 4)),
-		simply.End(),
+func createUSPhonePattern() s.Pattern {
+	return s.Merge(
+		s.Start(),
+		s.Capture(s.Digit(3)),
+		s.May(s.AnyOf("-. ")),
+		s.Capture(s.Digit(3)),
+		s.May(s.AnyOf("-. ")),
+		s.Capture(s.Digit(4)),
+		s.End(),
 	)
 }
 
@@ -38,12 +36,11 @@ func TestUSPhoneNumberPattern(t *testing.T) {
 	// Using the fluent simply API - no raw AST types, no pointers, no NodeWrapper
 	phone := createUSPhonePattern()
 
-	// Compile to IR
-	compiler := core.NewCompiler()
-	ir := compiler.Compile(phone)
-
-	// Emit to PCRE2 regex
-	pattern := emitters.Emit(ir, nil)
+	// Compile to regex string
+	pattern, err := phone.ToRegex()
+	if err != nil {
+		t.Fatalf("Failed to compile pattern: %v", err)
+	}
 
 	// The emitter escapes '-' inside character classes, resulting in "[\-. ]"
 	// This matches the TypeScript reference output
@@ -59,9 +56,10 @@ func TestUSPhoneNumberPattern(t *testing.T) {
 func TestUSPhoneNumberMatching(t *testing.T) {
 	phone := createUSPhonePattern()
 
-	compiler := core.NewCompiler()
-	ir := compiler.Compile(phone)
-	pattern := emitters.Emit(ir, nil)
+	pattern, err := phone.ToRegex()
+	if err != nil {
+		t.Fatalf("Failed to compile pattern: %v", err)
+	}
 
 	// Compile to Go regexp for validation
 	re := regexp.MustCompile(pattern)
