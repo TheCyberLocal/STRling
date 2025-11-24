@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - C# Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,13 +14,46 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+Install via NuGet:
+
+```bash
+dotnet add package STRling
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **C#**:
 
-{Usage_Snippet}
+```csharp
+using Strling.Core;
+using System.Collections.Generic;
+
+// Build the AST for: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+var phoneAst = new Seq(new List<Node> {
+  // Start of line.
+  new Anchor("Start"),
+
+  // Match the area code (3 digits)
+  new Group(true, new Quant(new Lit("\\d"), 3, 3, true, false, false), null, false),
+
+  // Optional separator: [-. ]
+  new Quant(new CharClass(false, new List<ClassItem> { new ClassLiteral("-"), new ClassLiteral("."), new ClassLiteral(" ") }), 0, 1, true, false, false),
+
+  // Match the central office code (3 digits)
+  new Group(true, new Quant(new Lit("\\d"), 3, 3, true, false, false), null, false),
+
+  // Optional separator: [-. ]
+  new Quant(new CharClass(false, new List<ClassItem> { new ClassLiteral("-"), new ClassLiteral("."), new ClassLiteral(" ") }), 0, 1, true, false, false),
+
+  // Match the station number (4 digits)
+  new Group(true, new Quant(new Lit("\\d"), 4, 4, true, false, false), null, false),
+
+  // End of line.
+  new Anchor("End")
+});
+
+// The AST above models the exact pattern and is easy to inspect / transform
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 

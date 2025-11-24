@@ -1,8 +1,8 @@
-# API Reference - {Language}
+# API Reference - C#
 
 [← Back to README](../README.md)
 
-This document provides a comprehensive reference for the STRling API in **{Language}**.
+This document provides a comprehensive reference for the STRling API in **C#**.
 
 ## Table of Contents
 
@@ -26,25 +26,43 @@ Anchors match a position within the string, not a character itself.
 
 Matches the beginning (`^`) or end (`$`) of a line.
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Anchors_Line}
+```csharp
+using Strling.Core;
+
+// Start/End of line anchors
+var start = new Anchor("Start");
+var end   = new Anchor("End");
+```
 
 ### Start/End of String
 
 Matches the absolute beginning (`\A`) or end (`\z`) of the string, ignoring multiline mode.
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Anchors_String}
+```csharp
+using Strling.Core;
+
+// Absolute start/end of string
+var absoluteStart = new Anchor("AbsoluteStart");
+var absoluteEnd   = new Anchor("AbsoluteEnd");
+```
 
 ### Word Boundaries
 
 Matches the position between a word character and a non-word character (`\b`), or the inverse (`\B`).
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Anchors_Boundary}
+```csharp
+using Strling.Core;
+
+// Word boundary and inverse
+var wordBoundary    = new Anchor("WordBoundary");
+var notWordBoundary = new Anchor("NotWordBoundary");
+```
 
 ---
 
@@ -59,33 +77,55 @@ Standard shorthands for common character sets.
 -   `\s`: Whitespace
 -   `.`: Any character (except newline)
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_CharClass_Builtin}
+```csharp
+using Strling.Core;
+
+// Built-in class shorthands using class escape items
+var digitClass = new CharClass(false, new List<ClassItem> { new ClassEscape("digit") });   // \d
+var wordClass  = new CharClass(false, new List<ClassItem> { new ClassEscape("word") });    // \w
+var spaceClass = new CharClass(false, new List<ClassItem> { new ClassEscape("space") });   // \s
+```
 
 ### Custom Classes & Ranges
 
 Define a set of allowed characters (`[...]`) or a range (`a-z`).
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_CharClass_Custom}
+```csharp
+using Strling.Core;
+
+// Custom class and range
+var customClass = new CharClass(false, new List<ClassItem> { new ClassRange("a", "z"), new ClassLiteral("@") });
+```
 
 ### Negated Classes
 
 Match any character _not_ in the set (`[^...]`).
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_CharClass_Negated}
+```csharp
+using Strling.Core;
+
+// Negated class: [^abc]
+var negated = new CharClass(true, new List<ClassItem> { new ClassLiteral("a"), new ClassLiteral("b"), new ClassLiteral("c") });
+```
 
 ### Unicode Properties
 
 Match characters based on Unicode properties (`\p{...}`), such as scripts, categories, or blocks. Unicode property escapes allow matching by Script (e.g. `\p{Latin}`), General Category (e.g. `\p{Lu}` for uppercase letters) or named blocks.
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_CharClass_Unicode}
+```csharp
+using Strling.Core;
+
+// Unicode property match (script or category)
+var latinScript = new CharClass(false, new List<ClassItem> { new ClassUnicodeProperty("Script", "Latin", false) });
+```
 
 ## Escape Sequences
 
@@ -102,9 +142,15 @@ Standard control escapes supported across most engines and in STRling's grammar:
 -   `\\v`: Vertical Tab
 -   `\\0`: Null Byte
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Escapes_Control}
+```csharp
+using Strling.Core;
+
+// Control character escapes
+var newline = new Lit("\\n");
+var tab     = new Lit("\\t");
+```
 
 ### Hexadecimal & Unicode
 
@@ -115,9 +161,15 @@ Define characters by their code point.
 -   `\\uHHHH`: 4-digit Unicode (e.g. `\\u00A9`)
 -   `\\u{...}`: braced Unicode code point (variable length, e.g. `\\u{1F600}`)
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Escapes_Hex}
+```csharp
+using Strling.Core;
+
+// Hex / Unicode escapes
+var hex    = new Lit("\\x0A");
+var unicode = new Lit("\\u{1F600}");
+```
 
 ---
 
@@ -132,17 +184,30 @@ Match as much as possible (standard behavior).
 -   `?`: 0 or 1
 -   `{n,m}`: Specific range
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Quantifiers_Greedy}
+```csharp
+using Strling.Core;
+
+// Greedy quantifiers
+var zeroOrMore = new Quant(new Lit("a"), 0, null, true, false, false);
+var oneOrMore  = new Quant(new Lit("a"), 1, null, true, false, false);
+var optional   = new Quant(new Lit("a"), 0, 1, true, false, false);
+var rangeQ     = new Quant(new Lit("a"), 2, 4, true, false, false);
+```
 
 ### Lazy Quantifiers
 
 Match as little as possible. Appending `?` to a quantifier (e.g., `*?`).
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Quantifiers_Lazy}
+```csharp
+using Strling.Core;
+
+// Lazy quantifier (minimizing)
+var lazy = new Quant(new Lit("a"), 0, null, false, true, false);
+```
 
 ### Possessive Quantifiers
 
@@ -150,9 +215,14 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 
 > **Note:** This is a key performance feature in STRling.
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Quantifiers_Possessive}
+```csharp
+using Strling.Core;
+
+// Possessive quantifier (no backtracking)
+var possessive = new Quant(new Lit("a"), 0, null, false, false, true);
+```
 
 ---
 
@@ -162,25 +232,40 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 
 Standard groups `(...)` that capture the matched text.
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Groups_Capturing}
+```csharp
+using Strling.Core;
+
+// Capturing group
+var cap = new Group(true, new Lit("abc"), null, false);
+```
 
 ### Named Groups
 
 Capturing groups with a specific name `(?<name>...)` for easier extraction.
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Groups_Named}
+```csharp
+using Strling.Core;
+
+// Named capturing group
+var named = new Group(true, new Quant(new Lit("\\d"), 3, 3, true, false, false), "area", false);
+```
 
 ### Non-Capturing Groups
 
 Groups `(?:...)` that group logic without capturing text.
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Groups_NonCapturing}
+```csharp
+using Strling.Core;
+
+// Non-capturing group
+var noncap = new Group(false, new Alt(new List<Node> { new Lit("yes"), new Lit("no") }), null, false);
+```
 
 ### Atomic Groups
 
@@ -188,9 +273,14 @@ Groups `(?>...)` that discard backtracking information once the group matches.
 
 > **Note:** Useful for optimizing performance and preventing catastrophic backtracking.
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Groups_Atomic}
+```csharp
+using Strling.Core;
+
+// Atomic group (prevents backtracking within)
+var atomic = new Group(true, new Quant(new Lit("a"), 1, null, true, false, false), null, true);
+```
 
 ---
 
@@ -203,18 +293,30 @@ Zero-width assertions that match a group without consuming characters.
 -   Positive `(?=...)`: Asserts that what follows matches the pattern.
 -   Negative `(?!...)`: Asserts that what follows does _not_ match.
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Lookarounds_Ahead}
+```csharp
+using Strling.Core;
+
+// Lookahead / negative lookahead
+var posAhead = new Lookahead(new Lit("foo"));
+var negAhead = new NegativeLookahead(new Lit("bar"));
+```
 
 ### Lookbehind
 
 -   Positive `(?<=...)`: Asserts that what precedes matches the pattern.
 -   Negative `(?<!...)`: Asserts that what precedes does _not_ match.
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Lookarounds_Behind}
+```csharp
+using Strling.Core;
+
+// Lookbehind / negative lookbehind
+var posBehind = new Lookbehind(new Lit("foo"));
+var negBehind = new NegativeLookbehind(new Lit("bar"));
+```
 
 ---
 
@@ -224,9 +326,14 @@ Zero-width assertions that match a group without consuming characters.
 
 Matches one pattern OR another (`|`).
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Logic_Alternation}
+```csharp
+using Strling.Core;
+
+// Alternation (OR)
+var alt = new Alt(new List<Node> { new Lit("cat"), new Lit("dog") });
+```
 
 ---
 
@@ -236,9 +343,15 @@ Matches one pattern OR another (`|`).
 
 Reference a previously captured group by index (`\1`) or name (`\k<name>`).
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_References}
+```csharp
+using Strling.Core;
+
+// Backreferences by index and name
+var byIndex = new Backref(1, null);
+var byName  = new Backref(null, "area");
+```
 
 ---
 
@@ -251,9 +364,15 @@ Global flags that alter the behavior of the regex engine.
 -   `s`: Dotall (single line) mode
 -   `x`: Extended mode (ignore whitespace)
 
-#### Usage ({Language})
+#### Usage (C#)
 
-{Snippet_Flags}
+```csharp
+using Strling.Core;
+
+// Flags object and helper
+var flags = new Flags { IgnoreCase = true, Multiline = true };
+var viaLetters = Flags.FromLetters("im");
+```
 
 ---
 
@@ -269,8 +388,16 @@ Example directives block:
 
 ```text
 %flags imsux
-%lang {Language}
+%lang C#
 %engine pcre2
 ```
 
-{Snippet_Directives}
+```csharp
+using Strling.Core;
+
+// Example directives -> translated to programmatic objects
+// %flags imsux
+var directivesFlags = Flags.FromLetters("imsux");
+
+// %lang C# and %engine pcre2 are hints for emitters; in code you generally pass a target engine when emitting
+```
