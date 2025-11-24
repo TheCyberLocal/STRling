@@ -563,7 +563,9 @@ sub _emit_pcre2 {
             if ($item_type eq 'STRling::Core::IR::IRClassLiteral') {
                 my $ch = $item->ch;
                 # Escape special chars within character class
-                $ch =~ s/([\[\]\\^}-])/\\$1/g;
+                # Place - at end to avoid creating a range
+                $ch =~ s/([\[\]\\^}])/\\$1/g;
+                $ch =~ s/-/\\-/g;
                 $result .= $ch;
             }
             elsif ($item_type eq 'STRling::Core::IR::IRClassRange') {
