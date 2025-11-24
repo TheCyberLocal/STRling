@@ -40,9 +40,16 @@ class Simply
      */
     public static function digit(int $n): Pattern
     {
+        // Create a character class containing the digit escape (\d)
         $escapeNode = new Nodes\Escape('digit');
+        $charClassNode = new Nodes\CharacterClass(
+            negated: false,
+            members: [$escapeNode]
+        );
+        
+        // Wrap in a quantifier to match exactly n times
         $quantifierNode = new Nodes\Quantifier(
-            target: $escapeNode,
+            target: $charClassNode,
             min: $n,
             max: $n,
             greedy: true,
