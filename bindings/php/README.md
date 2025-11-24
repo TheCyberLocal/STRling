@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - PHP Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,13 +14,93 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+Install via Composer (PHP 8.2+):
+
+```bash
+composer require thecyberlocal/strling
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **PHP (8.2+)**:
 
-{Usage_Snippet}
+```php
+<?php
+
+use STRling\Compiler;
+use STRling\Core\Nodes\{Sequence, Anchor, Literal, Quantifier, Group, CharacterClass, Escape};
+
+// Build the AST using PHP 8.2 readonly node classes and named arguments
+$area = new Group(
+  capturing: true,
+  body: new Quantifier(
+    target: new Escape(kind: 'digit'),
+    min: 3,
+    max: 3,
+    greedy: true,
+    lazy: false,
+    possessive: false
+  )
+);
+
+// Match optional separator [-. ]?
+$sep = new Quantifier(
+  target: new CharacterClass(false, [new Literal('-'), new Literal('.'), new Literal(' ')]),
+  min: 0,
+  max: 1,
+  greedy: true,
+  lazy: false,
+  possessive: false
+);
+
+// Match the next 3 digits
+// Match the area code...
+$prefix = new Group(
+  capturing: true,
+  body: new Quantifier(
+    target: new Escape(kind: 'digit'),
+    min: 3,
+    max: 3,
+    greedy: true,
+    lazy: false,
+    possessive: false
+  )
+);
+
+// Match the final 4 digits
+$line = new Group(
+  capturing: true,
+  body: new Quantifier(
+    target: new Escape(kind: 'digit'),
+    min: 4,
+    max: 4,
+    greedy: true,
+    lazy: false,
+    possessive: false
+  )
+);
+
+$ast = new Sequence(parts: [
+  new Anchor(at: '^'),
+  $area,
+  $sep,
+  $prefix,
+  $sep,
+  $line,
+  new Anchor(at: '$'),
+]);
+
+// Compiler compiles the Node AST into an intermediate representation (IR).
+$compiler = new Compiler();
+$ir = $compiler->compile($ast);
+
+// For demonstration we JSON-encode the IR so it's human readable.
+echo json_encode($ir, JSON_PRETTY_PRINT) . PHP_EOL;
+
+// Expected (semantic) shape: the Compiler will transform our node graph into an
+// IR tree. A downstream emitter (e.g., PCRE2 emitter) will generate the
+// final regex string from that IR. Example final regex: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
