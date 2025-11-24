@@ -9,6 +9,20 @@ import (
 	"github.com/thecyberlocal/strling/bindings/go/simply"
 )
 
+// createUSPhonePattern builds a US phone number pattern using the simply fluent API.
+// Pattern: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+func createUSPhonePattern() core.Node {
+	return simply.Seq(
+		simply.Start(),
+		simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
+		simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
+		simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
+		simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
+		simply.GroupCapture(simply.Quant(simply.Digit(), 4, 4)),
+		simply.End(),
+	)
+}
+
 // TestUSPhoneNumberPattern verifies that building the US phone pattern using the simply
 // fluent API produces the same PCRE2 regex as the TypeScript reference implementation.
 //
@@ -22,15 +36,7 @@ import (
 func TestUSPhoneNumberPattern(t *testing.T) {
 	// Build: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
 	// Using the fluent simply API - no raw AST types, no pointers, no NodeWrapper
-	phone := simply.Seq(
-		simply.Start(),
-		simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
-		simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
-		simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
-		simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
-		simply.GroupCapture(simply.Quant(simply.Digit(), 4, 4)),
-		simply.End(),
-	)
+	phone := createUSPhonePattern()
 
 	// Compile to IR
 	compiler := core.NewCompiler()
@@ -51,15 +57,7 @@ func TestUSPhoneNumberPattern(t *testing.T) {
 // TestUSPhoneNumberMatching verifies that the generated regex correctly matches
 // valid US phone numbers in various formats and rejects invalid ones.
 func TestUSPhoneNumberMatching(t *testing.T) {
-	phone := simply.Seq(
-		simply.Start(),
-		simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
-		simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
-		simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
-		simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
-		simply.GroupCapture(simply.Quant(simply.Digit(), 4, 4)),
-		simply.End(),
-	)
+	phone := createUSPhonePattern()
 
 	compiler := core.NewCompiler()
 	ir := compiler.Compile(phone)
