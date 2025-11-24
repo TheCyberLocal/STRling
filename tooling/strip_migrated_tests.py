@@ -1,17 +1,16 @@
-import re
 import sys
-import os
+from typing import List
 
 
-def strip_file(file_path):
+def strip_file(file_path: str) -> None:
     print(f"Stripping {file_path}...")
     with open(file_path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
+        lines: List[str] = f.readlines()
 
-    new_lines = []
+    new_lines: List[str] = []
     in_test_each = False
     in_manual_test = False
-    start_indent = 0
+    start_indent: int = 0
 
     for line in lines:
         stripped = line.strip()
@@ -57,4 +56,5 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python strip_migrated_tests.py <file>")
         sys.exit(1)
-    strip_file(sys.argv[1])
+    file_arg: str = sys.argv[1]
+    strip_file(file_arg)

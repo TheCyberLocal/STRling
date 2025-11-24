@@ -43,12 +43,27 @@ def run_python_conformance_tests(repo_root: Path) -> Set[str]:
     print("\nRunning Python conformance tests...")
 
     # Run pytest with verbose output to capture test names
-    result = subprocess.run(
-        ["python", "-m", "pytest", "tests/unit/test_conformance.py", "-v", "--tb=no"],
-        cwd=python_dir,
-        capture_output=True,
-        text=True,
-    )
+    python_exe = sys.executable or "python"
+    try:
+        result = subprocess.run(
+            [
+                python_exe,
+                "-m",
+                "pytest",
+                "tests/unit/test_conformance.py",
+                "-v",
+                "--tb=no",
+            ],
+            cwd=python_dir,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        print(
+            f"ERROR: Python executable not found ({python_exe}). Cannot run pytest.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     # Check if pytest is available
     if result.returncode != 0 and "No module named pytest" in result.stderr:
@@ -74,6 +89,14 @@ def run_python_conformance_tests(repo_root: Path) -> Set[str]:
                 fixture_id = fixture_name.replace(".json", "")
                 executed.add(fixture_id)
 
+    # Print pytest output so users can see the full test run
+    if result.stdout:
+        print("\n--- Python (pytest stdout) ---")
+        print(result.stdout)
+    if result.stderr:
+        print("\n--- Python (pytest stderr) ---", file=sys.stderr)
+        print(result.stderr, file=sys.stderr)
+
     # If no tests were found but pytest ran successfully, something is wrong
     if len(executed) == 0 and result.returncode == 0:
         print(
@@ -94,19 +117,28 @@ def run_java_conformance_tests(repo_root: Path) -> Set[str]:
 
     print("\nRunning Java conformance tests...")
 
-    # Run maven test with conformance tests (not quiet so we can parse output)
-    result = subprocess.run(
-        ["mvn", "test", "-Dtest=ConformanceTests"],
-        cwd=java_dir,
-        capture_output=True,
-        text=True,
-    )
+    # Run maven test with conformance tests (capture output so we can parse and show it)
+    try:
+        result = subprocess.run(
+            ["mvn", "test", "-Dtest=ConformanceTests"],
+            cwd=java_dir,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        print(
+            "ERROR: 'mvn' not found. Ensure Maven is installed and on PATH.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     # Parse test count from Maven output
     # Maven reports "Tests run: N, Failures: F, Errors: E, Skipped: S"
     test_count = 0
     for line in result.stdout.split("\n"):
-        if "Tests run:" in line and "ConformanceTests" in line:
+        # Maven may output the "Tests run:" line in different formats.
+        # Match any line with "Tests run:" (no longer require the test class name).
+        if "Tests run:" in line:
             # Extract test count
             parts = line.split("Tests run:")
             if len(parts) > 1:
@@ -118,6 +150,14 @@ def run_java_conformance_tests(repo_root: Path) -> Set[str]:
                     # Ignore if test count cannot be parsed as integer
                     pass
                 break
+
+    # Print Maven output so users can see the full test run
+    if result.stdout:
+        print("\n--- Java (maven stdout) ---")
+        print(result.stdout)
+    if result.stderr:
+        print("\n--- Java (maven stderr) ---", file=sys.stderr)
+        print(result.stderr, file=sys.stderr)
 
     # If we found a test count, assume that many fixtures were tested
     # (Since we can't easily parse individual test names from Maven output)

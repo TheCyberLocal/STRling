@@ -17,8 +17,8 @@
 | perl | 548 | -46 | ⚠️ Minor Deficit | TODO |
 | php | -1 | -595 | ⚠️ Parse Error | Could not parse test output. Check runner. |
 | python | 594 | 0 | ✅ Perfect | Full compliance. |
-| r | 544 | -50 | 🔴 Defect | TODO |
+| r | 547 | -47 | 🔴 Defect | TODO |
 | ruby | 594 | 0 | ✅ Perfect | Full compliance. |
-| rust | 1 | -593 | 🔴 Defect | TODO |
+| rust | 576 | -18 | ⚠️ Minor Deficit | TODO |
 | swift | 5 | -589 | 🔴 Defect | TODO |
 | typescript | 594 | 0 | ✅ Perfect | Full compliance. |

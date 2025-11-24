@@ -9,7 +9,11 @@ from STRling.core.validator import validate_artifact
 
 def test_validate_artifact_pass():
     artifact = {"foo": "bar"}
-    schema = {"type": "object", "properties": {"foo": {"type": "string"}}, "required": ["foo"]}
+    schema = {
+        "type": "object",
+        "properties": {"foo": {"type": "string"}},
+        "required": ["foo"],
+    }
 
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
         f.write(json.dumps(schema))
@@ -21,7 +25,11 @@ def test_validate_artifact_pass():
 
 def test_validate_artifact_fails():
     artifact = {}
-    schema = {"type": "object", "properties": {"foo": {"type": "string"}}, "required": ["foo"]}
+    schema = {
+        "type": "object",
+        "properties": {"foo": {"type": "string"}},
+        "required": ["foo"],
+    }
 
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as f:
         f.write(json.dumps(schema))

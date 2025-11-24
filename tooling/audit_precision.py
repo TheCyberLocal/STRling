@@ -5,7 +5,7 @@ import re
 import json
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, TypedDict, Union
 
 # Configuration
 PROJECT_ROOT = Path(__file__).parent.parent.resolve()
@@ -30,7 +30,22 @@ def get_baseline_metrics() -> Tuple[int, int]:
 
 
 # Binding Configurations
-BINDINGS: List[Dict[str, Any]] = [
+class BindingConfig(TypedDict, total=False):
+    name: str
+    command: List[str]
+    pattern: str
+    count_occurrences: bool
+
+
+class ResultEntry(TypedDict, total=False):
+    binding: str
+    count: Union[int, str]
+    delta: Union[int, str]
+    status: str
+    raw_output_snippet: str
+
+
+BINDINGS: List[BindingConfig] = [
     {
         "name": "python",
         "command": ["pytest", "tests/unit/test_conformance.py"],
@@ -109,7 +124,7 @@ def run_audit():
     print(f"  Compiler-Only (AST): {compiler_only}")
     print("-" * 40)
 
-    results: List[Dict[str, Any]] = []
+    results: List[ResultEntry] = []
 
     # 2. Check Bindings
     binding_dirs = [d for d in BINDINGS_DIR.iterdir() if d.is_dir()]
@@ -132,7 +147,7 @@ def run_audit():
 
         try:
             # Run the test command
-            result = subprocess.run(
+            result: subprocess.CompletedProcess[str] = subprocess.run(
                 cmd,
                 cwd=cwd,
                 stdout=subprocess.PIPE,
