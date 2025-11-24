@@ -134,3 +134,4 @@ dist
 
 # Test files
 test-import.mjs
+bindings/typescript/test_phone.mjs
