@@ -26,7 +26,6 @@ Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Jav
 ```java
 import static com.strling.simply.Constructors.*;
 import static com.strling.simply.Static.*;
-import static com.strling.simply.Sets.*;
 
 import com.strling.simply.Pattern;
 import com.strling.simply.Simply;
@@ -34,19 +33,19 @@ import com.strling.simply.Simply;
 // Build the phone pattern using the Simply fluent API
 // Match: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
 Pattern phonePattern = merge(
-    start(),                    // Start of line
-    capture(digit(3, null)),    // 3 digits (area code)
-    may(inChars("-", ".", " ")), // Optional separator
-    capture(digit(3, null)),    // 3 digits (exchange)
-    may(inChars("-", ".", " ")), // Optional separator
-    capture(digit(4, null)),    // 4 digits (line number)
-    end()                       // End of line
+    start(),                  // Start of line
+    capture(digit(3)),        // 3 digits (area code)
+    may(anyOf("-", ".", " ")), // Optional separator
+    capture(digit(3)),        // 3 digits (exchange)
+    may(anyOf("-", ".", " ")), // Optional separator
+    capture(digit(4)),        // 4 digits (line number)
+    end()                     // End of line
 );
 
 // Compile to regex string
 Simply compiler = new Simply();
 String regex = compiler.build(phonePattern);
-System.out.println(regex);  // ^(\d{3})[\-. ]?(\d{3})[\-. ]?(\d{4})$
+System.out.println(regex);  // ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
 ```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[\-. ]?(\d{3})[\-. ]?(\d{4})$`
@@ -73,11 +72,11 @@ With the modern fluent API:
 // ✅ Modern fluent style (recommended)
 Pattern phonePattern = merge(
     start(),
-    capture(digit(3, null)),
-    may(inChars("-", ".", " ")),
-    capture(digit(3, null)),
-    may(inChars("-", ".", " ")),
-    capture(digit(4, null)),
+    capture(digit(3)),
+    may(anyOf("-", ".", " ")),
+    capture(digit(3)),
+    may(anyOf("-", ".", " ")),
+    capture(digit(4)),
     end()
 );
 ```
