@@ -22,7 +22,39 @@ composer require thecyberlocal/strling
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **PHP (8.2+)**:
+### Simply API (Recommended)
+
+Here is how to match a US Phone number (e.g., `555-0199`) using the **Simply API** in **PHP (8.2+)**:
+
+```php
+<?php
+
+use STRling\Simply;
+
+// Build the pattern using the Simply API with static methods
+$phone = Simply::merge(
+    Simply::start(),
+    Simply::capture(Simply::digit(3)),
+    Simply::may(Simply::anyOf("-. ")),
+    Simply::capture(Simply::digit(3)),
+    Simply::may(Simply::anyOf("-. ")),
+    Simply::capture(Simply::digit(4)),
+    Simply::end()
+);
+
+// Compile to IR (intermediate representation)
+$ir = $phone->compile();
+echo $ir . PHP_EOL;
+
+// Expected output: JSON IR representing the pattern
+// Final regex: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+```
+
+> **Note:** The Simply API provides a clean, fluent interface for building patterns with **structural identity** - using `Simply::capture($inner)` instead of `$inner->capture()`, matching Python/TypeScript naming conventions.
+
+### Low-Level AST API
+
+For advanced use cases, you can build patterns directly using the AST Node classes:
 
 ```php
 <?php
@@ -54,7 +86,6 @@ $sep = new Quantifier(
 );
 
 // Match the next 3 digits
-// Match the area code...
 $prefix = new Group(
   capturing: true,
   body: new Quantifier(
@@ -81,13 +112,13 @@ $line = new Group(
 );
 
 $ast = new Sequence(parts: [
-  new Anchor(at: '^'),
+  new Anchor(at: 'Start'),
   $area,
   $sep,
   $prefix,
   $sep,
   $line,
-  new Anchor(at: '$'),
+  new Anchor(at: 'End'),
 ]);
 
 // Compiler compiles the Node AST into an intermediate representation (IR).
@@ -102,7 +133,7 @@ echo json_encode($ir, JSON_PRETTY_PRINT) . PHP_EOL;
 // final regex string from that IR. Example final regex: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
 ```
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+> **Note:** Both approaches compile to the same optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
 ## 🚀 Why STRling?
 
