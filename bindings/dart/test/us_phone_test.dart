@@ -1,6 +1,5 @@
 import 'package:strling/simply.dart';
 import 'package:test/test.dart';
-import 'dart:convert';
 
 void main() {
   group('US Phone Number Pattern', () {
@@ -22,9 +21,6 @@ void main() {
       // Verify it's a sequence
       expect(ir['ir'], equals('Seq'));
       expect(ir['parts'], isA<List>());
-
-      // Print for debugging
-      print('Generated IR: ${jsonEncode(ir)}');
     });
 
     test('Should match the TypeScript reference output structure', () {

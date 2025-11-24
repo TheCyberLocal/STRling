@@ -93,7 +93,7 @@ class Pattern {
           'Pattern.repeat(min, max): min and max must be 0 or greater.');
     }
 
-    if (_namedGroups.isNotEmpty && max != null) {
+    if (_namedGroups.isNotEmpty && (max != null || min > 1)) {
       throw STRlingError(
           'Pattern.repeat(min, max): Named groups cannot be repeated as they must be unique. '
           'Consider using asCapture() or Simply.merge() instead.');
@@ -115,6 +115,13 @@ class Pattern {
   }
 
   /// Makes this pattern lazy (non-greedy)
+  ///
+  /// Lazy quantifiers match as few characters as possible, unlike greedy
+  /// quantifiers which match as many as possible. For example, `a.*?b`
+  /// (lazy) matches the shortest string starting with 'a' and ending with 'b',
+  /// while `a.*b` (greedy) matches the longest such string.
+  ///
+  /// Can only be applied to quantified patterns (created with optional() or repeat()).
   Pattern lazy() {
     if (_node is! nodes.Quantifier) {
       throw STRlingError(
@@ -137,6 +144,13 @@ class Pattern {
   }
 
   /// Makes this pattern possessive
+  ///
+  /// Possessive quantifiers are like greedy quantifiers, but they never
+  /// backtrack. Once they match, they keep what they matched even if this
+  /// causes the overall pattern to fail. This can improve performance but
+  /// may prevent some matches that would succeed with greedy or lazy quantifiers.
+  ///
+  /// Can only be applied to quantified patterns (created with optional() or repeat()).
   Pattern possessive() {
     if (_node is! nodes.Quantifier) {
       throw STRlingError(
@@ -379,6 +393,50 @@ class Simply {
   // Character Sets
   // =========================================================================
 
+  /// Validates range arguments for between() and notBetween()
+  static (String, String) _validateRange(dynamic start, dynamic end, String methodName) {
+    String startStr, endStr;
+
+    if (start is int && end is int) {
+      if (start < 0 || start > 9 || end < 0 || end > 9) {
+        throw STRlingError(
+            '$methodName: Integer arguments must be single digits (0-9)');
+      }
+      if (start > end) {
+        throw STRlingError(
+            '$methodName: start must not be greater than end');
+      }
+      startStr = start.toString();
+      endStr = end.toString();
+    } else if (start is String && end is String) {
+      if (start.length != 1 || end.length != 1) {
+        throw STRlingError('$methodName: String arguments must be single characters');
+      }
+      if (!RegExp(r'^[a-zA-Z]$').hasMatch(start) ||
+          !RegExp(r'^[a-zA-Z]$').hasMatch(end)) {
+        throw STRlingError(
+            '$methodName: String arguments must be alphabetical characters');
+      }
+      // Check same case
+      if ((start.toLowerCase() == start && end.toLowerCase() != end) ||
+          (start.toUpperCase() == start && end.toUpperCase() != end)) {
+        throw STRlingError(
+            '$methodName: Letter arguments must be the same case');
+      }
+      if (start.codeUnitAt(0) > end.codeUnitAt(0)) {
+        throw STRlingError(
+            '$methodName: start must not be greater than end');
+      }
+      startStr = start;
+      endStr = end;
+    } else {
+      throw STRlingError(
+          '$methodName: Arguments must both be integers (0-9) or letters of the same case');
+    }
+
+    return (startStr, endStr);
+  }
+
   /// Creates a literal pattern from a string
   static Pattern literal(String text) => Pattern._(nodes.Literal(text));
 
@@ -442,44 +500,7 @@ class Simply {
 
   /// Matches characters in a range (e.g., 'a' to 'z', or 0 to 9)
   static Pattern between(dynamic start, dynamic end, [int? min, int? max]) {
-    String startStr, endStr;
-
-    if (start is int && end is int) {
-      if (start < 0 || start > 9 || end < 0 || end > 9) {
-        throw STRlingError(
-            'between: Integer arguments must be single digits (0-9)');
-      }
-      if (start > end) {
-        throw STRlingError(
-            'between: start must not be greater than end');
-      }
-      startStr = start.toString();
-      endStr = end.toString();
-    } else if (start is String && end is String) {
-      if (start.length != 1 || end.length != 1) {
-        throw STRlingError('between: String arguments must be single characters');
-      }
-      if (!RegExp(r'^[a-zA-Z]$').hasMatch(start) ||
-          !RegExp(r'^[a-zA-Z]$').hasMatch(end)) {
-        throw STRlingError(
-            'between: String arguments must be alphabetical characters');
-      }
-      // Check same case
-      if ((start.toLowerCase() == start && end.toLowerCase() != end) ||
-          (start.toUpperCase() == start && end.toUpperCase() != end)) {
-        throw STRlingError(
-            'between: Letter arguments must be the same case');
-      }
-      if (start.codeUnitAt(0) > end.codeUnitAt(0)) {
-        throw STRlingError(
-            'between: start must not be greater than end');
-      }
-      startStr = start;
-      endStr = end;
-    } else {
-      throw STRlingError(
-          'between: Arguments must both be integers (0-9) or letters of the same case');
-    }
+    final (startStr, endStr) = _validateRange(start, end, 'between');
 
     final node = nodes.CharacterClass(
       negated: false,
@@ -491,44 +512,7 @@ class Simply {
 
   /// Matches characters NOT in a range
   static Pattern notBetween(dynamic start, dynamic end, [int? min, int? max]) {
-    String startStr, endStr;
-
-    if (start is int && end is int) {
-      if (start < 0 || start > 9 || end < 0 || end > 9) {
-        throw STRlingError(
-            'notBetween: Integer arguments must be single digits (0-9)');
-      }
-      if (start > end) {
-        throw STRlingError(
-            'notBetween: start must not be greater than end');
-      }
-      startStr = start.toString();
-      endStr = end.toString();
-    } else if (start is String && end is String) {
-      if (start.length != 1 || end.length != 1) {
-        throw STRlingError(
-            'notBetween: String arguments must be single characters');
-      }
-      if (!RegExp(r'^[a-zA-Z]$').hasMatch(start) ||
-          !RegExp(r'^[a-zA-Z]$').hasMatch(end)) {
-        throw STRlingError(
-            'notBetween: String arguments must be alphabetical characters');
-      }
-      if ((start.toLowerCase() == start && end.toLowerCase() != end) ||
-          (start.toUpperCase() == start && end.toUpperCase() != end)) {
-        throw STRlingError(
-            'notBetween: Letter arguments must be the same case');
-      }
-      if (start.codeUnitAt(0) > end.codeUnitAt(0)) {
-        throw STRlingError(
-            'notBetween: start must not be greater than end');
-      }
-      startStr = start;
-      endStr = end;
-    } else {
-      throw STRlingError(
-          'notBetween: Arguments must both be integers (0-9) or letters of the same case');
-    }
+    final (startStr, endStr) = _validateRange(start, end, 'notBetween');
 
     final node = nodes.CharacterClass(
       negated: true,
