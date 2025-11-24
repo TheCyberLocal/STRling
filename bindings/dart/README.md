@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - Dart Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,13 +14,109 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+Add the official STRling Dart package to your project using pub:
+
+```bash
+dart pub add strling
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Dart**:
 
-{Usage_Snippet}
+```dart
+import 'package:strling/strling.dart';
+
+// Build an AST for ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+final Node usPhoneAst = Sequence([
+  Anchor('Start'),
+
+  // Area code - three digits captured
+  Group(
+    capturing: true,
+    body: Sequence([
+      Quantifier(
+        target: Escape('digit'),
+        min: 3,
+        max: 3,
+        greedy: true,
+        lazy: false,
+        possessive: false,
+      ),
+    ]),
+  ),
+
+  // optional separator: -, . or space
+  Quantifier(
+    target: CharacterClass(
+      negated: false,
+      members: [
+        Literal('-'),
+        Literal('.'),
+        Literal(' '),
+      ],
+    ),
+    min: 0,
+    max: 1,
+    greedy: true,
+    lazy: false,
+    possessive: false,
+  ),
+
+  // Prefix - three digits captured
+  Group(
+    capturing: true,
+    body: Sequence([
+      Quantifier(
+        target: Escape('digit'),
+        min: 3,
+        max: 3,
+        greedy: true,
+        lazy: false,
+        possessive: false,
+      ),
+    ]),
+  ),
+
+  // optional separator
+  Quantifier(
+    target: CharacterClass(
+      negated: false,
+      members: [
+        Literal('-'),
+        Literal('.'),
+        Literal(' '),
+      ],
+    ),
+    min: 0,
+    max: 1,
+    greedy: true,
+    lazy: false,
+    possessive: false,
+  ),
+
+  // Line number - four digits captured
+  Group(
+    capturing: true,
+    body: Sequence([
+      Quantifier(
+        target: Escape('digit'),
+        min: 4,
+        max: 4,
+        greedy: true,
+        lazy: false,
+        possessive: false,
+      ),
+    ]),
+  ),
+
+  Anchor('End'),
+]);
+
+// Note: the Dart binding currently exposes the AST model — emitters in
+// downstream tooling (or other helper libraries) can turn the AST into
+// concrete regular expression strings or engine-specific objects.
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
