@@ -29,94 +29,73 @@ dependencies {
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Kotlin**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling's **Simply API** in Kotlin:
 
 ```kotlin
-import kotlinx.serialization.json.JsonPrimitive
-import strling.core.*
+import strling.Simply
 
-// Start of line.
-// Match the area code (3 digits)
+// Build a US phone number pattern: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+// Start of line
+// Match the area code (3 digits, captured)
 // Optional separator: [-. ]
-// Match the central office code (3 digits)
+// Match the central office code (3 digits, captured)
 // Optional separator: [-. ]
-// Match the station number (4 digits)
-// End of line.
-val phonePattern = Sequence(
-    parts = listOf(
-        Anchor(at = "Start"),
-        Group(
-            capturing = true,
-            body = Quantifier(
-                target = CharacterClass(
-                    negated = false,
-                    members = listOf(Range(from = "0", to = "9"))
-                ),
-                min = 3,
-                max = JsonPrimitive(3),
-                greedy = true,
-                lazy = false,
-                possessive = false
-            )
-        ),
-        Quantifier(
-            target = CharacterClass(
-                negated = false,
-                members = listOf(Literal("-"), Literal("."), Literal(" "))
-            ),
-            min = 0,
-            max = JsonPrimitive(1),
-            greedy = true,
-            lazy = false,
-            possessive = false
-        ),
-        Group(
-            capturing = true,
-            body = Quantifier(
-                target = CharacterClass(
-                    negated = false,
-                    members = listOf(Range(from = "0", to = "9"))
-                ),
-                min = 3,
-                max = JsonPrimitive(3),
-                greedy = true,
-                lazy = false,
-                possessive = false
-            )
-        ),
-        Quantifier(
-            target = CharacterClass(
-                negated = false,
-                members = listOf(Literal("-"), Literal("."), Literal(" "))
-            ),
-            min = 0,
-            max = JsonPrimitive(1),
-            greedy = true,
-            lazy = false,
-            possessive = false
-        ),
-        Group(
-            capturing = true,
-            body = Quantifier(
-                target = CharacterClass(
-                    negated = false,
-                    members = listOf(Range(from = "0", to = "9"))
-                ),
-                min = 4,
-                max = JsonPrimitive(4),
-                greedy = true,
-                lazy = false,
-                possessive = false
-            )
-        ),
-        Anchor(at = "End")
-    )
+// Match the station number (4 digits, captured)
+// End of line
+val phonePattern = Simply.merge(
+    Simply.start(),
+    Simply.capture(Simply.digit(3)),
+    Simply.may(Simply.anyOf("-. ")),
+    Simply.capture(Simply.digit(3)),
+    Simply.may(Simply.anyOf("-. ")),
+    Simply.capture(Simply.digit(4)),
+    Simply.end()
 )
 
-// `phonePattern` is a STRling AST node. Use the binding's compiler/emitter
-// to convert this AST into a target regex string (PCRE2 / Kotlin/JVM
-// compatible emitter) before handing it to `Regex` if you plan to test it
-// at runtime.
+// `phonePattern` is a Pattern object wrapping a STRling AST node.
+// Use the binding's compiler/emitter to convert the AST into a target
+// regex string (PCRE2 / Kotlin/JVM compatible) before using it with
+// Kotlin's Regex class at runtime.
+```
+
+### Simply API Features
+
+The Simply API provides a fluent, chainable interface for building regex patterns:
+
+**Static Patterns:**
+```kotlin
+Simply.start()        // Start anchor (^)
+Simply.end()          // End anchor ($)
+Simply.digit(3)       // Exactly 3 digits
+Simply.letter(2, 5)   // 2 to 5 letters
+Simply.alphaNum()     // Single alphanumeric character
+Simply.whitespace()   // Single whitespace character
+Simply.literal("abc") // Literal text
+```
+
+**Character Sets:**
+```kotlin
+Simply.between('a', 'z')  // Lowercase letters
+Simply.between(0, 9)      // Digits
+Simply.anyOf("-. ")       // Any of: -, ., or space
+```
+
+**Constructors:**
+```kotlin
+Simply.merge(p1, p2, p3)  // Concatenate patterns
+Simply.may(p1)            // Optional pattern (0 or 1)
+Simply.capture(p1)        // Numbered capture group
+Simply.group("name", p1)  // Named capture group
+Simply.anyOf(p1, p2)      // Alternation (p1 OR p2)
+```
+
+**Fluent Methods:**
+```kotlin
+pattern.optional()        // Make pattern optional
+pattern.repeat(2, 5)      // Repeat 2-5 times
+pattern.asCapture()       // Wrap in capture group
+pattern.asGroup("name")   // Wrap in named group
+pattern.lazy()            // Make quantifier lazy (non-greedy)
 ```
 
 ## 🚀 Why STRling?
