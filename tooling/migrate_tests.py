@@ -3,13 +3,14 @@ import os
 import sys
 
 
-def migrate_file(ts_file_path, output_dir):
+def migrate_file(ts_file_path: str, output_dir: str) -> None:
     print(f"Migrating {ts_file_path}...")
     with open(ts_file_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
     print(f"Read {len(lines)} lines.")
 
-    in_test_each = False
+    # `test.each` handling is not currently used by the migrator; remove
+    # unused flag to satisfy linters.
     in_negative_describe = False
     in_manual_test = False
     buffer = ""
@@ -28,7 +29,7 @@ def migrate_file(ts_file_path, output_dir):
                 in_negative_describe = False
 
         if "test.each" in stripped:
-            in_test_each = True
+            # Skip table-driven tests; they are handled by other migration paths
             continue
 
         if stripped.startswith("test("):
@@ -45,6 +46,7 @@ def migrate_file(ts_file_path, output_dir):
 
         if in_manual_test:
             # Look for parse("...")
+
             parse_match = re.search(
                 r'parse\s*\(\s*(?:String\.raw)?(`|"|\')(.*?)\1', stripped
             )
@@ -60,7 +62,8 @@ def migrate_file(ts_file_path, output_dir):
                         final_pattern = final_pattern.encode("utf-8").decode(
                             "unicode_escape"
                         )
-                    except:
+                    except Exception:
+                        # If decoding fails, leave the pattern as-is.
                         pass
 
                 # Check for expected error
@@ -92,8 +95,6 @@ def migrate_file(ts_file_path, output_dir):
                         with open(filepath, "w", encoding="utf-8") as out:
                             out.write(file_content)
                         count += 1
-
-                in_manual_test = False
 
                 in_manual_test = False
 
@@ -134,14 +135,15 @@ def migrate_file(ts_file_path, output_dir):
                             final_pattern = final_pattern.encode("utf-8").decode(
                                 "unicode_escape"
                             )
-                        except:
+                        except Exception:
+                            # Leave the original if unescape fails.
                             pass
 
                     # Check for expected error
                     file_content = ""
                     if in_negative_describe:
                         second_str_match = re.match(
-                            r'\[\s*(?:String\.raw)?(?:`|"|\').*?(?:`|"|\')\s*,\s*(?:String\.raw)?(`|"|\')(.*?)\1',
+                            r"\[\s*(?:String\.raw)?(?:`|'|\").*?(?:`|'|\")\s*,\s*(?:String\.raw)?(`|'|\")(.*?)\1",
                             content,
                             re.DOTALL,
                         )
@@ -153,7 +155,7 @@ def migrate_file(ts_file_path, output_dir):
                                 error_msg = error_msg.encode("utf-8").decode(
                                     "unicode_escape"
                                 )
-                            except:
+                            except Exception:
                                 pass
                             file_content += f"%expect_error {error_msg}\n"
 
@@ -203,7 +205,8 @@ def migrate_file(ts_file_path, output_dir):
                             final_pattern = final_pattern.encode("utf-8").decode(
                                 "unicode_escape"
                             )
-                        except:
+                        except Exception:
+                            # Leave the original if unescape fails.
                             pass
 
                     # Check for expected error
@@ -222,7 +225,7 @@ def migrate_file(ts_file_path, output_dir):
                                 error_msg = error_msg.encode("utf-8").decode(
                                     "unicode_escape"
                                 )
-                            except:
+                            except Exception:
                                 pass
                             file_content += f"%expect_error {error_msg}\n"
 
