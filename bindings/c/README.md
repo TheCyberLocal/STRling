@@ -49,7 +49,13 @@ int main(void) {
         sl_end()
     );
 
-    /* Compile to PCRE2 via JSON AST */
+    /* NOTE: The C binding currently compiles from JSON AST to PCRE2.
+     * In the future, we'll add AST->JSON serialization to enable direct
+     * compilation. For now, the Simply API constructs the correct AST
+     * structure that can be used with future serialization capabilities.
+     * 
+     * The JSON below represents the same pattern for demonstration.
+     */
     const char* phone_json =
         "{\"type\":\"Sequence\",\"parts\":["
         "{\"type\":\"Anchor\",\"at\":\"Start\"},"
@@ -69,7 +75,7 @@ int main(void) {
 
     /* Cleanup - single root free handles all child nodes */
     strling_result_free_compat(&result);
-    strling_ast_node_free(phone);
+    sl_free(phone);  /* Equivalent to strling_ast_node_free(phone) */
 
     /* This example compiles to: ^([\d]{3})[\-. ]?([\d]{3})[\-. ]?([\d]{4})$ */
     return (result.error_code == STRling_OK) ? 0 : 1;

@@ -20,8 +20,11 @@
 extern "C" {
 #endif
 
-#include "strling.h"
-#include "../src/core/nodes.h"
+#include <stddef.h>
+#include <stdbool.h>
+
+/* Forward declaration - actual definition in core/nodes.h */
+typedef struct STRlingASTNode STRlingASTNode;
 
 /* Convenience type alias for pattern building */
 typedef STRlingASTNode* sl_pattern_t;
@@ -116,6 +119,18 @@ sl_pattern_t sl_optional(sl_pattern_t inner);
  * );
  */
 sl_pattern_t sl_seq(int count, ...);
+
+/* ==================== Memory Management ==================== */
+
+/**
+ * Free a pattern and all its child nodes.
+ * 
+ * This is the same as strling_ast_node_free but provided here for convenience.
+ * Call this on the root pattern to free the entire tree.
+ * 
+ * @param pattern The root pattern to free
+ */
+void sl_free(sl_pattern_t pattern);
 
 #ifdef __cplusplus
 }

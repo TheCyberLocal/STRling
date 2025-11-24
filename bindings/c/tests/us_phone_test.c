@@ -21,6 +21,7 @@
 
 #include "strling.h"
 #include "strling_simply.h"
+#include "../src/core/nodes.h"  /* For testing internal AST structure */
 
 /**
  * Test: US Phone Number Pattern with Simply API - AST Construction
@@ -76,6 +77,12 @@ static void test_us_phone_simply_api_construction(void **state)
  * This test verifies that the equivalent JSON AST compiles to the expected
  * PCRE2 pattern. This serves as the reference implementation that the
  * Simply API should match.
+ * 
+ * NOTE: The JSON is intentionally hardcoded rather than generated from the
+ * Simply API AST because:
+ * 1. It serves as a known-good reference pattern
+ * 2. The C binding doesn't yet have AST->JSON serialization
+ * 3. This validates that when AST->JSON is added, it produces the expected output
  */
 static void test_us_phone_json_reference(void **state)
 {

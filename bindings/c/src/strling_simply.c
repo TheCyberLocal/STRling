@@ -7,6 +7,7 @@
  */
 
 #include "../include/strling_simply.h"
+#include "core/nodes.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -126,4 +127,10 @@ sl_pattern_t sl_seq(int count, ...) {
     free(parts); /* The sequence now owns the parts array */
     
     return seq;
+}
+
+/* ==================== Memory Management ==================== */
+
+void sl_free(sl_pattern_t pattern) {
+    strling_ast_node_free(pattern);
 }
