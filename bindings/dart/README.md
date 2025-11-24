@@ -25,109 +25,51 @@ dart pub add strling
 Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Dart**:
 
 ```dart
-import 'package:strling/strling.dart';
+import 'package:strling/simply.dart';
 
-// Build an AST for ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
-final Node usPhoneAst = Sequence([
-  Anchor('Start'),
-
-  // Area code - three digits captured
-  Group(
-    capturing: true,
-    body: Sequence([
-      Quantifier(
-        target: CharacterClass(
-      negated: false,
-      members: [Escape('digit')],
-    ),
-        min: 3,
-        max: 3,
-        greedy: true,
-        lazy: false,
-        possessive: false,
-      ),
-    ]),
-  ),
-
-  // optional separator: -, . or space
-  Quantifier(
-    target: CharacterClass(
-      negated: false,
-      members: [
-        Literal('-'),
-        Literal('.'),
-        Literal(' '),
-      ],
-    ),
-    min: 0,
-    max: 1,
-    greedy: true,
-    lazy: false,
-    possessive: false,
-  ),
-
-  // Prefix - three digits captured
-  Group(
-    capturing: true,
-    body: Sequence([
-      Quantifier(
-        target: CharacterClass(
-      negated: false,
-      members: [Escape('digit')],
-    ),
-        min: 3,
-        max: 3,
-        greedy: true,
-        lazy: false,
-        possessive: false,
-      ),
-    ]),
-  ),
-
-  // optional separator
-  Quantifier(
-    target: CharacterClass(
-      negated: false,
-      members: [
-        Literal('-'),
-        Literal('.'),
-        Literal(' '),
-      ],
-    ),
-    min: 0,
-    max: 1,
-    greedy: true,
-    lazy: false,
-    possessive: false,
-  ),
-
-  // Line number - four digits captured
-  Group(
-    capturing: true,
-    body: Sequence([
-      Quantifier(
-        target: CharacterClass(
-      negated: false,
-      members: [Escape('digit')],
-    ),
-        min: 4,
-        max: 4,
-        greedy: true,
-        lazy: false,
-        possessive: false,
-      ),
-    ]),
-  ),
-
-  Anchor('End'),
+// Build a pattern for ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+final usPhonePattern = Simply.merge([
+  Simply.start(),
+  Simply.digit(3, 3).asCapture(),       // Area code
+  Simply.inChars('-. ').optional(),      // Optional separator
+  Simply.digit(3, 3).asCapture(),       // Prefix
+  Simply.inChars('-. ').optional(),      // Optional separator
+  Simply.digit(4, 4).asCapture(),       // Line number
+  Simply.end(),
 ]);
 
-// Note: the Dart binding currently exposes the AST model — emitters in
-// downstream tooling (or other helper libraries) can turn the AST into
-// concrete regular expression strings or engine-specific objects.
+// Get the intermediate representation (IR)
+final ir = usPhonePattern.toIR();
+
+// The IR can be passed to emitters in downstream tooling to generate
+// concrete regular expression strings for different regex engines.
 ```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+
+### Alternative: Using Raw AST Nodes
+
+For advanced use cases, you can still construct patterns using raw AST nodes:
+
+```dart
+import 'package:strling/strling.dart';
+
+final Node usPhoneAst = Sequence([
+  Anchor('Start'),
+  Group(
+    capturing: true,
+    body: Quantifier(
+      target: CharacterClass(negated: false, members: [Escape('digit')]),
+      min: 3,
+      max: 3,
+      greedy: true,
+      lazy: false,
+      possessive: false,
+    ),
+  ),
+  // ... etc
+]);
+```
 
 ## 🚀 Why STRling?
 
