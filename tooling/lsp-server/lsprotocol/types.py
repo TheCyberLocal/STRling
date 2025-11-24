@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import List, Optional, Any
+from enum import IntEnum
+from typing import List, Optional, Union
 
 
 @dataclass
@@ -14,23 +15,21 @@ class Range:
     end: Position
 
 
-class DiagnosticSeverity(int):
+class DiagnosticSeverity(IntEnum):
     Error = 1
     Warning = 2
     Information = 3
     Hint = 4
-
-    def __new__(cls, value: int = 1):
-        return int.__new__(cls, value)
 
 
 @dataclass
 class Diagnostic:
     range: Range
     message: str
-    severity: Optional[int] = DiagnosticSeverity.Error
+    severity: Optional[DiagnosticSeverity] = DiagnosticSeverity.Error
     source: Optional[str] = None
-    code: Optional[Any] = None
+    # LSP allows string or numeric codes
+    code: Optional[Union[str, int]] = None
 
 
 @dataclass
@@ -40,18 +39,28 @@ class PublishDiagnosticsParams:
 
 
 @dataclass
+class TextDocument:
+    uri: str
+    # some implementations include text/source; keep optional for stubs/tests
+    text: Optional[str] = None
+    language_id: Optional[str] = None
+
+
+@dataclass
 class DidOpenTextDocumentParams:
-    text_document: Any
+    text_document: TextDocument
 
 
+@dataclass
 @dataclass
 class DidChangeTextDocumentParams:
-    text_document: Any
+    text_document: TextDocument
 
 
 @dataclass
+@dataclass
 class DidSaveTextDocumentParams:
-    text_document: Any
+    text_document: TextDocument
 
 
 @dataclass

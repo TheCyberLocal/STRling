@@ -17,11 +17,10 @@ import re
 import shlex
 import shutil
 import subprocess
-import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import List, Optional, Tuple, Dict
+from typing import List, Optional, Tuple, Dict, NamedTuple
 
 
 def _find_repo_root(start: Optional[str] = None) -> str:
@@ -110,9 +109,16 @@ def choose_command(binding: str, binding_dir: str) -> List[str]:
     return ["true"]
 
 
+class RunResult(NamedTuple):
+    rc: Optional[int]
+    stdout: str
+    stderr: str
+    duration: float
+
+
 def run_command(
     cmd: List[str], cwd: Optional[str], timeout: Optional[int]
-) -> Tuple[Optional[int], str, str, float]:
+) -> RunResult:
     start = time.perf_counter()
     try:
         # Use shutil.which to ensure the command is available; if not, we'll capture error
@@ -142,7 +148,7 @@ def run_command(
         stdout = ""
         stderr = str(e)
     end = time.perf_counter()
-    return rc, stdout, stderr, end - start
+    return RunResult(rc, stdout, stderr, end - start)
 
 
 def parse_counts_from_text(

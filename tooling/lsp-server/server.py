@@ -23,7 +23,8 @@ import sys
 import json
 import subprocess
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import List, Dict, TypedDict, Union
+from json import JSONDecodeError
 import os
 
 from lsprotocol import types as lsp
@@ -45,6 +46,28 @@ class STRlingLanguageServer(JsonRPCServer):
 
 # Initialize the language server
 server: STRlingLanguageServer = STRlingLanguageServer()
+
+
+class CLIPosition(TypedDict):
+    line: int
+    character: int
+
+
+class CLIRange(TypedDict):
+    start: CLIPosition
+    end: CLIPosition
+
+
+class CLIDiagnostic(TypedDict, total=False):
+    range: CLIRange
+    message: str
+    severity: Union[int, str]
+    source: str
+    code: Union[str, int]
+
+
+class CLIResponse(TypedDict, total=False):
+    diagnostics: List[CLIDiagnostic]
 
 
 def get_diagnostics_from_cli(content: str) -> List[lsp.Diagnostic]:
@@ -76,7 +99,7 @@ def get_diagnostics_from_cli(content: str) -> List[lsp.Diagnostic]:
         prev = env.get("PYTHONPATH", "")
         env["PYTHONPATH"] = python_src + (os.pathsep + prev if prev else "")
 
-        result = subprocess.run(
+        result: subprocess.CompletedProcess[str] = subprocess.run(
             [sys.executable, "-m", "STRling.cli_server", "--diagnostics-stdin"],
             input=content,
             capture_output=True,
@@ -85,8 +108,23 @@ def get_diagnostics_from_cli(content: str) -> List[lsp.Diagnostic]:
             env=env,
         )
 
+        # If the CLI server returned non-zero and no stdout, treat as an error
+        if (
+            result.returncode is not None
+            and result.returncode != 0
+            and not result.stdout
+        ):
+            server.show_message_log(
+                f"CLI diagnostics returned non-zero ({result.returncode}): {result.stderr}"
+            )
+            raise RuntimeError("CLI diagnostics failed to run or returned no output")
+
         # Parse JSON output
-        response: Dict[str, Any] = json.loads(result.stdout)
+        try:
+            response: CLIResponse = json.loads(result.stdout) if result.stdout else {}
+        except JSONDecodeError as exc:  # pragma: no cover - defensive
+            server.show_message_log(f"Failed to parse CLI JSON: {exc}")
+            raise
 
         # Convert JSON diagnostics to LSP Diagnostic objects
         diagnostics = []
@@ -103,7 +141,8 @@ def get_diagnostics_from_cli(content: str) -> List[lsp.Diagnostic]:
                     end=lsp.Position(line=end["line"], character=end["character"]),
                 ),
                 message=diag.get("message", "Unknown error"),
-                severity=lsp.DiagnosticSeverity(diag.get("severity", 1)),
+                # Normalize severity as an integer if possible
+                severity=lsp.DiagnosticSeverity(int(diag.get("severity", 1))),
                 source=diag.get("source", "STRling"),
                 code=diag.get("code"),
             )
