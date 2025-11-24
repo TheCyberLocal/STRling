@@ -53,6 +53,31 @@ our %EXPORT_TAGS = (
     all => \@EXPORT_OK,
 );
 
+# Private helper function to validate named groups uniqueness
+sub _validate_named_groups {
+    my ($function_name, @patterns) = @_;
+    
+    my %named_group_counts;
+    for my $pattern (@patterns) {
+        for my $group_name (@{$pattern->{named_groups}}) {
+            $named_group_counts{$group_name}++;
+        }
+    }
+    
+    my @duplicates = grep { $named_group_counts{$_} > 1 } keys %named_group_counts;
+    if (@duplicates) {
+        my $dup_info = join(", ", map { "$_: $named_group_counts{$_}" } @duplicates);
+        die "$function_name: Named groups must be unique. Duplicate named groups found: $dup_info\n";
+    }
+    
+    # Return all named groups for caller to use
+    my @all_named_groups;
+    for my $p (@patterns) {
+        push @all_named_groups, @{$p->{named_groups}};
+    }
+    return @all_named_groups;
+}
+
 =head1 FUNCTIONS
 
 =head2 Constructors
@@ -86,19 +111,8 @@ sub merge {
         push @clean_patterns, $p;
     }
     
-    # Check for duplicate named groups
-    my %named_group_counts;
-    for my $pattern (@clean_patterns) {
-        for my $group_name (@{$pattern->{named_groups}}) {
-            $named_group_counts{$group_name}++;
-        }
-    }
-    
-    my @duplicates = grep { $named_group_counts{$_} > 1 } keys %named_group_counts;
-    if (@duplicates) {
-        my $dup_info = join(", ", map { "$_: $named_group_counts{$_}" } @duplicates);
-        die "merge: Named groups must be unique. Duplicate named groups found: $dup_info\n";
-    }
+    # Validate named groups and get combined list
+    my @all_named_groups = _validate_named_groups('merge', @clean_patterns);
     
     my @child_nodes = map { $_->{node} } @clean_patterns;
     
@@ -108,11 +122,6 @@ sub merge {
     }
     
     my $node = STRling::Core::Nodes::Seq->new(parts => \@child_nodes);
-    
-    my @all_named_groups;
-    for my $p (@clean_patterns) {
-        push @all_named_groups, @{$p->{named_groups}};
-    }
     
     return STRling::Simply::Pattern->_new(
         node => $node,
@@ -148,19 +157,8 @@ sub capture {
         push @clean_patterns, $p;
     }
     
-    # Check for duplicate named groups
-    my %named_group_counts;
-    for my $pattern (@clean_patterns) {
-        for my $group_name (@{$pattern->{named_groups}}) {
-            $named_group_counts{$group_name}++;
-        }
-    }
-    
-    my @duplicates = grep { $named_group_counts{$_} > 1 } keys %named_group_counts;
-    if (@duplicates) {
-        my $dup_info = join(", ", map { "$_: $named_group_counts{$_}" } @duplicates);
-        die "capture: Named groups must be unique. Duplicate named groups found: $dup_info\n";
-    }
+    # Validate named groups and get combined list
+    my @all_named_groups = _validate_named_groups('capture', @clean_patterns);
     
     my $body_node;
     if (@clean_patterns == 1) {
@@ -175,11 +173,6 @@ sub capture {
         body => $body_node,
         name => undef,
     );
-    
-    my @all_named_groups;
-    for my $p (@clean_patterns) {
-        push @all_named_groups, @{$p->{named_groups}};
-    }
     
     return STRling::Simply::Pattern->_new(
         node => $node,
@@ -216,19 +209,8 @@ sub may {
         push @clean_patterns, $p;
     }
     
-    # Check for duplicate named groups
-    my %named_group_counts;
-    for my $pattern (@clean_patterns) {
-        for my $group_name (@{$pattern->{named_groups}}) {
-            $named_group_counts{$group_name}++;
-        }
-    }
-    
-    my @duplicates = grep { $named_group_counts{$_} > 1 } keys %named_group_counts;
-    if (@duplicates) {
-        my $dup_info = join(", ", map { "$_: $named_group_counts{$_}" } @duplicates);
-        die "may: Named groups must be unique. Duplicate named groups found: $dup_info\n";
-    }
+    # Validate named groups and get combined list
+    my @all_named_groups = _validate_named_groups('may', @clean_patterns);
     
     my $body_node;
     if (@clean_patterns == 1) {
@@ -244,11 +226,6 @@ sub may {
         max => 1,
         mode => 'Greedy',
     );
-    
-    my @all_named_groups;
-    for my $p (@clean_patterns) {
-        push @all_named_groups, @{$p->{named_groups}};
-    }
     
     return STRling::Simply::Pattern->_new(
         node => $node,
@@ -288,19 +265,9 @@ sub group {
         push @clean_patterns, $p;
     }
     
-    # Check for duplicate named groups
-    my %named_group_counts;
-    for my $pattern (@clean_patterns) {
-        for my $group_name (@{$pattern->{named_groups}}) {
-            $named_group_counts{$group_name}++;
-        }
-    }
-    
-    my @duplicates = grep { $named_group_counts{$_} > 1 } keys %named_group_counts;
-    if (@duplicates) {
-        my $dup_info = join(", ", map { "$_: $named_group_counts{$_}" } @duplicates);
-        die "group: Named groups must be unique. Duplicate named groups found: $dup_info\n";
-    }
+    # Validate named groups and get combined list
+    my @all_named_groups = _validate_named_groups('group', @clean_patterns);
+    push @all_named_groups, $name;
     
     my $body_node;
     if (@clean_patterns == 1) {
@@ -315,12 +282,6 @@ sub group {
         body => $body_node,
         name => $name,
     );
-    
-    my @all_named_groups;
-    for my $p (@clean_patterns) {
-        push @all_named_groups, @{$p->{named_groups}};
-    }
-    push @all_named_groups, $name;
     
     return STRling::Simply::Pattern->_new(
         node => $node,
@@ -514,16 +475,26 @@ sub compile {
 
 Applies a repetition quantifier to the pattern.
 
-    my $pattern = digit()->rep(3);      # Exactly 3 digits
-    my $pattern = digit()->rep(3, 5);   # 3-5 digits
-    my $pattern = digit()->rep(3, 0);   # 3 or more digits
+    my $pattern = digit()->rep(3);      # Exactly 3 digits: \d{3}
+    my $pattern = digit()->rep(3, 5);   # 3-5 digits: \d{3,5}
+    my $pattern = digit()->rep(3, 0);   # 3 or more digits: \d{3,}
 
 Parameters:
-  - $min: Minimum repetitions
-  - $max: Maximum repetitions (0 means unlimited, undef means exactly $min)
+  - $min: Minimum repetitions (required)
+  - $max: Maximum repetitions (optional)
+          - If omitted: matches exactly $min times
+          - If 0: matches $min or more times (unlimited)
+          - Otherwise: matches between $min and $max times
 
 Returns:
   - A new Pattern object with the repetition applied
+
+Note:
+  - Named groups cannot be repeated as they must be unique.
+  - Numbered (captured) groups created with C<capture()> only accept exact counts.
+    For example, C<capture(digit(3))-E<gt>rep(4)> creates 4 separate capture groups,
+    not a quantified single group. Using C<rep($min, $max)> with different values
+    on a captured group will result in an error.
 
 =cut
 
@@ -592,7 +563,7 @@ sub _emit_pcre2 {
             if ($item_type eq 'STRling::Core::IR::IRClassLiteral') {
                 my $ch = $item->ch;
                 # Escape special chars within character class
-                $ch =~ s/([\[\]\\^-])/\\$1/g;
+                $ch =~ s/([\[\]\\^}\-])/\\$1/g;
                 $result .= $ch;
             }
             elsif ($item_type eq 'STRling::Core::IR::IRClassRange') {
