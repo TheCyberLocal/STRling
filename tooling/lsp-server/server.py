@@ -44,7 +44,7 @@ class STRlingLanguageServer(JsonRPCServer):
 
 
 # Initialize the language server
-server = STRlingLanguageServer()
+server: STRlingLanguageServer = STRlingLanguageServer()
 
 
 def get_diagnostics_from_cli(content: str) -> List[lsp.Diagnostic]:
@@ -70,7 +70,7 @@ def get_diagnostics_from_cli(content: str) -> List[lsp.Diagnostic]:
         # Ensure the subprocess can import the STRling package in-tree by
         # adding the Python binding source dir to PYTHONPATH. This is required
         # when tests run using system Python without a project-installed package.
-        env = os.environ.copy()
+        env: Dict[str, str] = os.environ.copy()
         repo_root = Path(__file__).resolve().parents[2]
         python_src = str(repo_root / "bindings" / "python" / "src")
         prev = env.get("PYTHONPATH", "")
@@ -86,7 +86,7 @@ def get_diagnostics_from_cli(content: str) -> List[lsp.Diagnostic]:
         )
 
         # Parse JSON output
-        response = json.loads(result.stdout)
+        response: Dict[str, Any] = json.loads(result.stdout)
 
         # Convert JSON diagnostics to LSP Diagnostic objects
         diagnostics = []
@@ -140,7 +140,7 @@ def get_diagnostics_from_cli(content: str) -> List[lsp.Diagnostic]:
         ]
 
 
-def validate_document(ls: STRlingLanguageServer, uri: str):
+def validate_document(ls: STRlingLanguageServer, uri: str) -> None:
     """
     Validate a STRling document and publish diagnostics.
 
@@ -168,31 +168,33 @@ def validate_document(ls: STRlingLanguageServer, uri: str):
 
 
 @server.feature(lsp.TEXT_DOCUMENT_DID_OPEN)
-def did_open(ls: STRlingLanguageServer, params: lsp.DidOpenTextDocumentParams):
+def did_open(ls: STRlingLanguageServer, params: lsp.DidOpenTextDocumentParams) -> None:
     """Handle document open event."""
     ls.show_message_log(f"Document opened: {params.text_document.uri}")
     validate_document(ls, params.text_document.uri)
 
 
 @server.feature(lsp.TEXT_DOCUMENT_DID_CHANGE)
-def did_change(ls: STRlingLanguageServer, params: lsp.DidChangeTextDocumentParams):
+def did_change(
+    ls: STRlingLanguageServer, params: lsp.DidChangeTextDocumentParams
+) -> None:
     """Handle document change event."""
     validate_document(ls, params.text_document.uri)
 
 
 @server.feature(lsp.TEXT_DOCUMENT_DID_SAVE)
-def did_save(ls: STRlingLanguageServer, params: lsp.DidSaveTextDocumentParams):
+def did_save(ls: STRlingLanguageServer, params: lsp.DidSaveTextDocumentParams) -> None:
     """Handle document save event."""
     validate_document(ls, params.text_document.uri)
 
 
 @server.feature(lsp.INITIALIZE)
-def initialize(ls: STRlingLanguageServer, params: lsp.InitializeParams):
+def initialize(ls: STRlingLanguageServer, params: lsp.InitializeParams) -> None:
     """Handle initialization request."""
     ls.show_message_log("STRling Language Server initialized")
 
 
-def main():
+def main() -> None:
     """Main entry point for the language server."""
     import argparse
 

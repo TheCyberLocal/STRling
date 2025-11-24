@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Any, Dict, List
 
 
 class JsonRPCServer:
@@ -9,11 +9,11 @@ class JsonRPCServer:
     implements the surface area the repository's tests expect.
     """
 
-    def __init__(self, protocol_cls=None, converter_factory=None):
-        self._features = {}
+    def __init__(self, protocol_cls: Any = None, converter_factory: Any = None) -> None:
+        self._features: Dict[str, List[Callable[..., Any]]] = {}
 
-    def feature(self, name: str) -> Callable:
-        def decorator(func: Callable) -> Callable:
+    def feature(self, name: str) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             # store a reference for potential introspection
             self._features.setdefault(name, []).append(func)
             return func
@@ -30,6 +30,6 @@ class JsonRPCServer:
         # no-op for tests
         return None
 
-    def text_document_publish_diagnostics(self, params) -> None:
+    def text_document_publish_diagnostics(self, params: Any) -> None:
         # no-op for tests
         return None

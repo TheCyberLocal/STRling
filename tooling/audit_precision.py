@@ -5,6 +5,7 @@ import re
 import json
 import sys
 from pathlib import Path
+from typing import List, Dict, Any, Tuple
 
 # Configuration
 PROJECT_ROOT = Path(__file__).parent.parent.resolve()
@@ -13,7 +14,7 @@ BINDINGS_DIR = PROJECT_ROOT / "bindings"
 
 
 # Baseline Metrics
-def get_baseline_metrics():
+def get_baseline_metrics() -> Tuple[int, int]:
     spec_files = list(SPEC_DIR.glob("*.json"))
     total_specs = len(spec_files)
     compiler_only = 0
@@ -29,7 +30,7 @@ def get_baseline_metrics():
 
 
 # Binding Configurations
-BINDINGS = [
+BINDINGS: List[Dict[str, Any]] = [
     {
         "name": "python",
         "command": ["pytest", "tests/unit/test_conformance.py"],
@@ -108,7 +109,7 @@ def run_audit():
     print(f"  Compiler-Only (AST): {compiler_only}")
     print("-" * 40)
 
-    results = []
+    results: List[Dict[str, Any]] = []
 
     # 2. Check Bindings
     binding_dirs = [d for d in BINDINGS_DIR.iterdir() if d.is_dir()]
