@@ -4,9 +4,10 @@ import json
 import sys
 import urllib.request
 import urllib.error
+from typing import List
 
 
-def check_npm(package, version):
+def check_npm(package: str, version: str) -> bool:
     url = f"https://registry.npmjs.org/{package}"
     try:
         with urllib.request.urlopen(url) as response:
@@ -19,7 +20,7 @@ def check_npm(package, version):
         raise e
 
 
-def check_pypi(package, version):
+def check_pypi(package: str, version: str) -> bool:
     url = f"https://pypi.org/pypi/{package}/json"
     try:
         with urllib.request.urlopen(url) as response:
@@ -32,7 +33,7 @@ def check_pypi(package, version):
         raise e
 
 
-def check_crates(package, version):
+def check_crates(package: str, version: str) -> bool:
     url = f"https://crates.io/api/v1/crates/{package}/{version}"
     try:
         # Crates.io returns 200 if version exists, 404 if not
@@ -44,10 +45,10 @@ def check_crates(package, version):
         raise e
 
 
-def check_nuget(package, version):
+def check_nuget(package: str, version: str) -> bool:
     # Nuget V3 flat container requires lowercase
-    pkg_lower = package.lower()
-    ver_lower = version.lower()
+    pkg_lower: str = package.lower()
+    ver_lower: str = version.lower()
     url = f"https://api.nuget.org/v3-flatcontainer/{pkg_lower}/{ver_lower}/{pkg_lower}.nuspec"
     try:
         with urllib.request.urlopen(url) as response:
@@ -58,7 +59,7 @@ def check_nuget(package, version):
         raise e
 
 
-def check_rubygems(package, version):
+def check_rubygems(package: str, version: str) -> bool:
     url = f"https://rubygems.org/api/v1/versions/{package}.json"
     try:
         with urllib.request.urlopen(url) as response:
@@ -74,12 +75,12 @@ def check_rubygems(package, version):
         raise e
 
 
-def check_pub(package, version):
+def check_pub(package: str, version: str) -> bool:
     url = f"https://pub.dev/api/packages/{package}"
     try:
         with urllib.request.urlopen(url) as response:
             data = json.loads(response.read().decode())
-            versions = [v["version"] for v in data.get("versions", [])]
+            versions: List[str] = [v["version"] for v in data.get("versions", [])]
             return version in versions
     except urllib.error.HTTPError as e:
         if e.code == 404:
@@ -87,7 +88,7 @@ def check_pub(package, version):
         raise e
 
 
-def check_luarocks(package, version):
+def check_luarocks(package: str, version: str) -> bool:
     # LuaRocks doesn't have a simple JSON API for checking versions.
     # We check if the rockspec file exists in the manifest.
     # URL pattern: https://luarocks.org/manifests/<user>/<package>-<version>.rockspec
@@ -110,7 +111,7 @@ def check_luarocks(package, version):
     # If the input version doesn't have a revision, we might miss it.
     # But let's assume the input version is the full version string from the rockspec.
 
-    users = ["thecyberlocal", "strling"]
+    users: List[str] = ["thecyberlocal", "strling"]
     for user in users:
         url = f"https://luarocks.org/manifests/{user}/{package}-{version}.rockspec"
         try:
@@ -123,7 +124,7 @@ def check_luarocks(package, version):
     return False
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Check if a package version exists on a registry."
     )
@@ -138,7 +139,7 @@ def main():
 
     args = parser.parse_args()
 
-    exists = False
+    exists: bool = False
     try:
         if args.registry == "npm":
             exists = check_npm(args.package, args.version)
