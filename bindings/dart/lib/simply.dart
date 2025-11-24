@@ -86,16 +86,32 @@ class Pattern {
     );
   }
 
-  /// Makes this pattern repeat between min and max times
+  /// Makes this pattern repeat between min and max times.
+  ///
+  /// If [max] is null, repeats exactly [min] times (equivalent to `{min}`).
+  /// If [max] is 0, repeats [min] or more times (unbounded, equivalent to `{min,}`).
+  /// Otherwise, repeats between [min] and [max] times (inclusive, equivalent to `{min,max}`).
+  ///
+  /// Examples:
+  /// - `repeat(3)` - exactly 3 times `{3}`
+  /// - `repeat(2, 5)` - between 2 and 5 times `{2,5}`
+  /// - `repeat(1, 0)` - 1 or more times `{1,}`
   Pattern repeat(int min, [int? max]) {
     if (min < 0 || (max != null && max < 0)) {
       throw STRlingError(
           'Pattern.repeat(min, max): min and max must be 0 or greater.');
     }
 
-    if (_namedGroups.isNotEmpty && (max != null || min > 1)) {
+    if (max != null && max != 0 && max < min) {
       throw STRlingError(
-          'Pattern.repeat(min, max): Named groups cannot be repeated as they must be unique. '
+          'Pattern.repeat(min, max): max must be greater than or equal to min (use 0 for unbounded).');
+    }
+
+    // Convert max to actual value for validation
+    final actualMax = max == null ? min : (max == 0 ? double.infinity : max);
+    if (_namedGroups.isNotEmpty && actualMax > 1) {
+      throw STRlingError(
+          'Pattern.repeat(min, max): Named groups cannot be repeated more than once as they must be unique. '
           'Consider using asCapture() or Simply.merge() instead.');
     }
 
@@ -164,7 +180,7 @@ class Pattern {
         target: quant.target,
         min: quant.min,
         max: quant.max,
-        greedy: false,
+        greedy: true,
         lazy: false,
         possessive: true,
       ),
@@ -437,64 +453,44 @@ class Simply {
     return (startStr, endStr);
   }
 
+  /// Helper method to parse character members from various input types
+  static List<nodes.Node> _parseCharMembers(dynamic charsOrPatterns, List<dynamic>? rest, String methodName) {
+    final List<dynamic> items = rest != null
+        ? [charsOrPatterns, ...rest]
+        : (charsOrPatterns is List ? charsOrPatterns : [charsOrPatterns]);
+
+    final members = <nodes.Node>[];
+    for (final item in items) {
+      if (item is String) {
+        for (final char in item.split('')) {
+          members.add(nodes.Literal(char));
+        }
+      } else if (item is Pattern) {
+        if (item._node is nodes.CharacterClass) {
+          final cc = item._node as nodes.CharacterClass;
+          members.addAll(cc.members);
+        } else {
+          throw STRlingError('$methodName: Pattern arguments must be character classes');
+        }
+      } else {
+        throw STRlingError('$methodName: Arguments must be strings or Patterns');
+      }
+    }
+    return members;
+  }
+
   /// Creates a literal pattern from a string
   static Pattern literal(String text) => Pattern._(nodes.Literal(text));
 
   /// Matches any character in the given string or patterns
   static Pattern inChars(dynamic charsOrPatterns, [List<dynamic>? rest]) {
-    final List<dynamic> items = rest != null
-        ? [charsOrPatterns, ...rest]
-        : (charsOrPatterns is List ? charsOrPatterns : [charsOrPatterns]);
-
-    final members = <nodes.Node>[];
-    for (final item in items) {
-      if (item is String) {
-        // Add each character as a literal
-        for (final char in item.split('')) {
-          members.add(nodes.Literal(char));
-        }
-      } else if (item is Pattern) {
-        // If it's a character class, merge members
-        if (item._node is nodes.CharacterClass) {
-          final cc = item._node as nodes.CharacterClass;
-          members.addAll(cc.members);
-        } else {
-          throw STRlingError(
-              'inChars: Pattern arguments must be character classes');
-        }
-      } else {
-        throw STRlingError('inChars: Arguments must be strings or Patterns');
-      }
-    }
-
+    final members = _parseCharMembers(charsOrPatterns, rest, 'inChars');
     return Pattern._(nodes.CharacterClass(negated: false, members: members));
   }
 
   /// Matches any character NOT in the given string or patterns
   static Pattern notInChars(dynamic charsOrPatterns, [List<dynamic>? rest]) {
-    final List<dynamic> items = rest != null
-        ? [charsOrPatterns, ...rest]
-        : (charsOrPatterns is List ? charsOrPatterns : [charsOrPatterns]);
-
-    final members = <nodes.Node>[];
-    for (final item in items) {
-      if (item is String) {
-        for (final char in item.split('')) {
-          members.add(nodes.Literal(char));
-        }
-      } else if (item is Pattern) {
-        if (item._node is nodes.CharacterClass) {
-          final cc = item._node as nodes.CharacterClass;
-          members.addAll(cc.members);
-        } else {
-          throw STRlingError(
-              'notInChars: Pattern arguments must be character classes');
-        }
-      } else {
-        throw STRlingError('notInChars: Arguments must be strings or Patterns');
-      }
-    }
-
+    final members = _parseCharMembers(charsOrPatterns, rest, 'notInChars');
     return Pattern._(nodes.CharacterClass(negated: true, members: members));
   }
 
@@ -526,39 +522,41 @@ class Simply {
   // Constructors (Composition)
   // =========================================================================
 
+  /// Helper method to convert dynamic items to Pattern objects
+  static List<Pattern> _convertToPatterns(List<dynamic> items, String methodName) {
+    final cleanPatterns = <Pattern>[];
+    for (final item in items) {
+      if (item is String) {
+        cleanPatterns.add(literal(item));
+      } else if (item is Pattern) {
+        cleanPatterns.add(item);
+      } else {
+        throw STRlingError('$methodName: Arguments must be strings or Patterns');
+      }
+    }
+    return cleanPatterns;
+  }
+
+  /// Helper method to validate unique named groups
+  static void _validateUniqueNamedGroups(List<String> namedGroups, String methodName) {
+    final seen = <String>{};
+    for (final name in namedGroups) {
+      if (seen.contains(name)) {
+        throw STRlingError('$methodName: Named groups must be unique. Duplicate found: $name');
+      }
+      seen.add(name);
+    }
+  }
+
   /// Concatenates patterns into a sequence
   static Pattern merge(List<dynamic> patterns) {
     if (patterns.isEmpty) {
       throw STRlingError('merge: At least one pattern is required');
     }
 
-    final cleanPatterns = <Pattern>[];
-    final namedGroups = <String>[];
-
-    for (final item in patterns) {
-      Pattern p;
-      if (item is String) {
-        p = literal(item);
-      } else if (item is Pattern) {
-        p = item;
-      } else {
-        throw STRlingError(
-            'merge: Arguments must be strings or Patterns');
-      }
-
-      cleanPatterns.add(p);
-      namedGroups.addAll(p._namedGroups);
-    }
-
-    // Check for duplicate named groups
-    final seen = <String>{};
-    for (final name in namedGroups) {
-      if (seen.contains(name)) {
-        throw STRlingError(
-            'merge: Named groups must be unique. Duplicate found: $name');
-      }
-      seen.add(name);
-    }
+    final cleanPatterns = _convertToPatterns(patterns, 'merge');
+    final namedGroups = cleanPatterns.expand((p) => p._namedGroups).toList();
+    _validateUniqueNamedGroups(namedGroups, 'merge');
 
     if (cleanPatterns.length == 1) {
       return cleanPatterns[0];
@@ -574,33 +572,9 @@ class Simply {
       throw STRlingError('anyOf: At least one pattern is required');
     }
 
-    final cleanPatterns = <Pattern>[];
-    final namedGroups = <String>[];
-
-    for (final item in patterns) {
-      Pattern p;
-      if (item is String) {
-        p = literal(item);
-      } else if (item is Pattern) {
-        p = item;
-      } else {
-        throw STRlingError(
-            'anyOf: Arguments must be strings or Patterns');
-      }
-
-      cleanPatterns.add(p);
-      namedGroups.addAll(p._namedGroups);
-    }
-
-    // Check for duplicate named groups
-    final seen = <String>{};
-    for (final name in namedGroups) {
-      if (seen.contains(name)) {
-        throw STRlingError(
-            'anyOf: Named groups must be unique. Duplicate found: $name');
-      }
-      seen.add(name);
-    }
+    final cleanPatterns = _convertToPatterns(patterns, 'anyOf');
+    final namedGroups = cleanPatterns.expand((p) => p._namedGroups).toList();
+    _validateUniqueNamedGroups(namedGroups, 'anyOf');
 
     final childNodes = cleanPatterns.map((p) => p._node).toList();
     return Pattern._(nodes.Alternation(childNodes), namedGroups: namedGroups);
@@ -612,33 +586,9 @@ class Simply {
       throw STRlingError('may: At least one pattern is required');
     }
 
-    final cleanPatterns = <Pattern>[];
-    final namedGroups = <String>[];
-
-    for (final item in patterns) {
-      Pattern p;
-      if (item is String) {
-        p = literal(item);
-      } else if (item is Pattern) {
-        p = item;
-      } else {
-        throw STRlingError(
-            'may: Arguments must be strings or Patterns');
-      }
-
-      cleanPatterns.add(p);
-      namedGroups.addAll(p._namedGroups);
-    }
-
-    // Check for duplicate named groups
-    final seen = <String>{};
-    for (final name in namedGroups) {
-      if (seen.contains(name)) {
-        throw STRlingError(
-            'may: Named groups must be unique. Duplicate found: $name');
-      }
-      seen.add(name);
-    }
+    final cleanPatterns = _convertToPatterns(patterns, 'may');
+    final namedGroups = cleanPatterns.expand((p) => p._namedGroups).toList();
+    _validateUniqueNamedGroups(namedGroups, 'may');
 
     nodes.Node bodyNode;
     if (cleanPatterns.length == 1) {
@@ -666,33 +616,9 @@ class Simply {
       throw STRlingError('capture: At least one pattern is required');
     }
 
-    final cleanPatterns = <Pattern>[];
-    final namedGroups = <String>[];
-
-    for (final item in patterns) {
-      Pattern p;
-      if (item is String) {
-        p = literal(item);
-      } else if (item is Pattern) {
-        p = item;
-      } else {
-        throw STRlingError(
-            'capture: Arguments must be strings or Patterns');
-      }
-
-      cleanPatterns.add(p);
-      namedGroups.addAll(p._namedGroups);
-    }
-
-    // Check for duplicate named groups
-    final seen = <String>{};
-    for (final name in namedGroups) {
-      if (seen.contains(name)) {
-        throw STRlingError(
-            'capture: Named groups must be unique. Duplicate found: $name');
-      }
-      seen.add(name);
-    }
+    final cleanPatterns = _convertToPatterns(patterns, 'capture');
+    final namedGroups = cleanPatterns.expand((p) => p._namedGroups).toList();
+    _validateUniqueNamedGroups(namedGroups, 'capture');
 
     nodes.Node bodyNode;
     if (cleanPatterns.length == 1) {
@@ -713,37 +639,12 @@ class Simply {
       throw STRlingError('group: At least one pattern is required');
     }
 
-    final cleanPatterns = <Pattern>[];
-    final namedGroups = <String>[];
+    final cleanPatterns = _convertToPatterns(patterns, 'group');
+    final namedGroups = cleanPatterns.expand((p) => p._namedGroups).toList();
+    _validateUniqueNamedGroups(namedGroups, 'group');
 
-    for (final item in patterns) {
-      Pattern p;
-      if (item is String) {
-        p = literal(item);
-      } else if (item is Pattern) {
-        p = item;
-      } else {
-        throw STRlingError(
-            'group: Arguments must be strings or Patterns');
-      }
-
-      cleanPatterns.add(p);
-      namedGroups.addAll(p._namedGroups);
-    }
-
-    // Check for duplicate named groups
-    final seen = <String>{};
-    for (final n in namedGroups) {
-      if (seen.contains(n)) {
-        throw STRlingError(
-            'group: Named groups must be unique. Duplicate found: $n');
-      }
-      seen.add(n);
-    }
-
-    if (seen.contains(name)) {
-      throw STRlingError(
-          'group: Named groups must be unique. Duplicate found: $name');
+    if (namedGroups.contains(name)) {
+      throw STRlingError('group: Named groups must be unique. Duplicate found: $name');
     }
 
     nodes.Node bodyNode;

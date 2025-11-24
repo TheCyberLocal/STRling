@@ -67,7 +67,19 @@ final Node usPhoneAst = Sequence([
       possessive: false,
     ),
   ),
-  // ... etc
+  Quantifier(
+    target: CharacterClass(
+      negated: false,
+      members: [Literal('-'), Literal('.'), Literal(' ')],
+    ),
+    min: 0,
+    max: 1,
+    greedy: true,
+    lazy: false,
+    possessive: false,
+  ),
+  // ... pattern continues for remaining groups and separators
+  Anchor('End'),
 ]);
 ```
 

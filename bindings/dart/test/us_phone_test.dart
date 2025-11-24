@@ -143,6 +143,27 @@ void main() {
         () => Simply.literal('x').lazy(),
         throwsA(isA<STRlingError>()),
       );
+
+      // Test invalid repeat: max < min
+      expect(
+        () => Simply.literal('x').repeat(5, 3),
+        throwsA(isA<STRlingError>()),
+      );
+
+      // Test named group repetition validation
+      final namedPattern = Simply.group('test', [Simply.literal('x')]);
+      expect(
+        () => namedPattern.repeat(2),
+        throwsA(isA<STRlingError>()),
+      );
+      expect(
+        () => namedPattern.repeat(0, 2),
+        throwsA(isA<STRlingError>()),
+      );
+      // But repeat(0, 1) should be allowed (same as optional)
+      expect(() => namedPattern.repeat(0, 1), returnsNormally);
+      // And repeat(1, 1) should be allowed (exactly once)
+      expect(() => namedPattern.repeat(1, 1), returnsNormally);
     });
   });
 }
