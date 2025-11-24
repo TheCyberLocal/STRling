@@ -188,12 +188,12 @@ class Pattern
      */
     public function rep(int $minRep, ?int $maxRep = null): Pattern
     {
-        // If maxRep is null, match exactly minRep times
-        $max = $maxRep ?? $minRep;
-        
         // Handle unlimited repetition (0 means unlimited, matching Python/TS convention)
         if ($maxRep === 0) {
             $max = 'inf';
+        } else {
+            // If maxRep is null, match exactly minRep times
+            $max = $maxRep ?? $minRep;
         }
         
         $quantifierNode = new Nodes\Quantifier(
