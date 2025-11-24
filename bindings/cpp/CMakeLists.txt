@@ -94,7 +94,7 @@ option(BUILD_TESTS "Build test suite" ON)
 
 if(BUILD_TESTS)
     enable_testing()
-    # add_subdirectory(test)
+    add_subdirectory(test)
     
     add_executable(conformance_test tests/conformance_test.cpp)
     target_link_libraries(conformance_test PRIVATE strling nlohmann_json::nlohmann_json)
