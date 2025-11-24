@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - R Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,13 +14,87 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+Install directly from the GitHub repository (development build):
+
+```r
+# install.packages("devtools") # if you don't have devtools already
+devtools::install_github("TheCyberLocal/STRling", subdir = "bindings/r")
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to build a US Phone number AST (e.g. `555-0199`) using the R S3 constructors
+and compile it to the intermediate representation (IR). Many bindings provide emitters
+to convert IR → regex (PCRE2, JS, Python); the R binding exposes the AST constructors and
+the compiler (`compile_ast`) so you can inspect and manipulate the IR directly.
 
-{Usage_Snippet}
+```r
+library(strling)
+
+# Build a STRling AST with S3 constructors
+phone <- strling_sequence(parts = list(
+  # Start of line.
+  strling_anchor("Start"),
+
+  # Match the area code (3 digits)
+  strling_group(
+    strling_quantifier(
+      strling_character_class(list(strling_class_escape("d"))),
+      min = 3L, max = 3L
+    ),
+    capturing = TRUE
+  ),
+
+  # Optional separator: [-. ]
+  strling_quantifier(
+    strling_character_class(list(
+      strling_class_literal("-"),
+      strling_class_literal("."),
+      strling_class_literal(" ")
+    )),
+    min = 0L, max = 1L
+  ),
+
+  # Match the central office code (3 digits)
+  strling_group(
+    strling_quantifier(
+      strling_character_class(list(strling_class_escape("d"))),
+      min = 3L, max = 3L
+    ),
+    capturing = TRUE
+  ),
+
+  # Optional separator: [-. ]
+  strling_quantifier(
+    strling_character_class(list(
+      strling_class_literal("-"),
+      strling_class_literal("."),
+      strling_class_literal(" ")
+    )),
+    min = 0L, max = 1L
+  ),
+
+  # Match the station number (4 digits)
+  strling_group(
+    strling_quantifier(
+      strling_character_class(list(strling_class_escape("d"))),
+      min = 4L, max = 4L
+    ),
+    capturing = TRUE
+  ),
+
+  # End of line.
+  strling_anchor("End")
+))
+
+# Compile the AST to IR for inspection
+ir <- compile_ast(phone)
+print(ir)
+
+# NOTE: An emitter (for example PCRE2) will convert the IR → a final regex string.
+# For the canonical PCRE2 emitter the final emitted regex for the AST above is:
+# ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
