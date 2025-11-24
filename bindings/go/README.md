@@ -53,6 +53,8 @@ func main() {
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
+> **Migration Guide:** If you are using the older raw AST API (with `NodeWrapper`, pointers, or manual `core.Group` construction), please switch to the `simply` package for a cleaner, more idiomatic Go experience. The low-level AST types remain available for advanced use cases but are no longer recommended for general use.
+
 ## 🚀 Why STRling?
 
 Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
