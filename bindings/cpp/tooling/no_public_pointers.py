@@ -38,7 +38,7 @@ def main():
         r'\bstd::shared_ptr\b',
         r'\bstd::make_shared\b',
         r'\bstd::make_unique\b',
-        r'\bnew\s+\w+',  # "new SomeType" but not "new" as part of a word
+        r'\bnew\s+[\w:]+',  # "new SomeType" or "new std::string" but not "new" as part of a word
     ]
     
     violations = []
@@ -48,8 +48,9 @@ def main():
     code_lines = []
     
     for line_num, line in enumerate(content.splitlines(), start=1):
-        # Track code blocks (```cpp ... ```)
-        if line.strip().startswith('```'):
+        # Track code blocks (```cpp ... ``` or ``` ... ```)
+        stripped = line.strip()
+        if stripped.startswith('```'):
             in_code_block = not in_code_block
             continue
         
