@@ -35,8 +35,8 @@ class Simply
     /**
      * Create a pattern matching digits with optional repetition.
      * 
-     * @param int|null $minRep Minimum number of digits (null = match once)
-     * @param int|null $maxRep Maximum number of digits (null = exact count, 0 = unlimited)
+     * @param int|null $minRep Minimum number of digits (null = match exactly once)
+     * @param int|null $maxRep Maximum number of digits (null = match exactly $minRep times, 0 = unlimited)
      * @return Pattern A Pattern object representing digit pattern
      */
     public static function digit(?int $minRep = null, ?int $maxRep = null): Pattern
@@ -179,8 +179,11 @@ class Pattern
     /**
      * Apply repetition quantifier to this pattern.
      * 
+     * This method matches the Python/TypeScript API convention where 0 represents
+     * unlimited repetition. For example, rep(1, 0) means "one or more".
+     * 
      * @param int $minRep Minimum number of repetitions
-     * @param int|null $maxRep Maximum number of repetitions (null = exact count, 0 = unlimited)
+     * @param int|null $maxRep Maximum repetitions (null = exactly $minRep, 0 = unlimited)
      * @return Pattern A new Pattern with quantifier applied
      */
     public function rep(int $minRep, ?int $maxRep = null): Pattern
@@ -188,7 +191,7 @@ class Pattern
         // If maxRep is null, match exactly minRep times
         $max = $maxRep ?? $minRep;
         
-        // Handle unlimited repetition (0 means unlimited)
+        // Handle unlimited repetition (0 means unlimited, matching Python/TS convention)
         if ($maxRep === 0) {
             $max = 'inf';
         }
