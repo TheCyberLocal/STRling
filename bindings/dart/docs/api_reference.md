@@ -1,8 +1,8 @@
-# API Reference - {Language}
+# API Reference - Dart
 
 [← Back to README](../README.md)
 
-This document provides a comprehensive reference for the STRling API in **{Language}**.
+This document provides a comprehensive reference for the STRling API in **Dart**.
 
 ## Table of Contents
 
@@ -26,25 +26,35 @@ Anchors match a position within the string, not a character itself.
 
 Matches the beginning (`^`) or end (`$`) of a line.
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Anchors_Line}
+```dart
+final Anchor start = Anchor('Start');
+final Anchor end = Anchor('End');
+```
 
 ### Start/End of String
 
 Matches the absolute beginning (`\A`) or end (`\z`) of the string, ignoring multiline mode.
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Anchors_String}
+```dart
+final Anchor absoluteStart = Anchor('AbsoluteStart');
+final Anchor absoluteEnd = Anchor('AbsoluteEnd');
+final Anchor endBeforeFinalNewline = Anchor('EndBeforeFinalNewline');
+```
 
 ### Word Boundaries
 
 Matches the position between a word character and a non-word character (`\b`), or the inverse (`\B`).
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Anchors_Boundary}
+```dart
+final Anchor wordBoundary = Anchor('WordBoundary');
+final Anchor notWordBoundary = Anchor('NotWordBoundary');
+```
 
 ---
 
@@ -59,33 +69,70 @@ Standard shorthands for common character sets.
 -   `\s`: Whitespace
 -   `.`: Any character (except newline)
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_CharClass_Builtin}
+```dart
+final CharacterClass builtin = CharacterClass(
+  negated: false,
+  members: [
+    Escape('word'),
+    Escape('digit'),
+    Escape('space'),
+  ],
+);
+```
 
 ### Custom Classes & Ranges
 
 Define a set of allowed characters (`[...]`) or a range (`a-z`).
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_CharClass_Custom}
+```dart
+final CharacterClass custom = CharacterClass(
+  negated: false,
+  members: [
+    Range(from: 'a', to: 'z'),
+    Range(from: 'A', to: 'Z'),
+    Range(from: '0', to: '9'),
+    Literal('-'),
+  ],
+);
+```
 
 ### Negated Classes
 
 Match any character _not_ in the set (`[^...]`).
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_CharClass_Negated}
+```dart
+final CharacterClass notVowels = CharacterClass(
+  negated: true,
+  members: [
+    Literal('a'),
+    Literal('e'),
+    Literal('i'),
+    Literal('o'),
+    Literal('u'),
+  ],
+);
+```
 
 ### Unicode Properties
 
 Match characters based on Unicode properties (`\p{...}`), such as scripts, categories, or blocks. Unicode property escapes allow matching by Script (e.g. `\p{Latin}`), General Category (e.g. `\p{Lu}` for uppercase letters) or named blocks.
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_CharClass_Unicode}
+```dart
+final CharacterClass greek = CharacterClass(
+  negated: false,
+  members: [
+    UnicodeProperty(value: 'Greek', negated: false),
+  ],
+);
+```
 
 ## Escape Sequences
 
@@ -102,9 +149,13 @@ Standard control escapes supported across most engines and in STRling's grammar:
 -   `\\v`: Vertical Tab
 -   `\\0`: Null Byte
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Escapes_Control}
+```dart
+final Literal newline = Literal('\n');
+final Literal tab = Literal('\t');
+final Literal nullByte = Literal('\0');
+```
 
 ### Hexadecimal & Unicode
 
@@ -115,9 +166,12 @@ Define characters by their code point.
 -   `\\uHHHH`: 4-digit Unicode (e.g. `\\u00A9`)
 -   `\\u{...}`: braced Unicode code point (variable length, e.g. `\\u{1F600}`)
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Escapes_Hex}
+```dart
+final Literal copyright = Literal('\u00A9');
+final Literal smile = Literal('\u{1F600}');
+```
 
 ---
 
@@ -132,17 +186,38 @@ Match as much as possible (standard behavior).
 -   `?`: 0 or 1
 -   `{n,m}`: Specific range
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Quantifiers_Greedy}
+```dart
+final Quantifier oneOrMoreDigits = Quantifier(
+  target: Escape('digit'),
+  min: 1,
+  max: null,
+  greedy: true,
+  lazy: false,
+  possessive: false,
+);
+```
 
 ### Lazy Quantifiers
 
 Match as little as possible. Appending `?` to a quantifier (e.g., `*?`).
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Quantifiers_Lazy}
+```dart
+final Quantifier lazyMatch = Quantifier(
+  target: CharacterClass(
+    negated: false,
+    members: [Literal('.')],
+  ),
+  min: 0,
+  max: null,
+  greedy: false,
+  lazy: true,
+  possessive: false,
+);
+```
 
 ### Possessive Quantifiers
 
@@ -150,9 +225,18 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 
 > **Note:** This is a key performance feature in STRling.
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Quantifiers_Possessive}
+```dart
+final Quantifier possessiveDigits = Quantifier(
+  target: Escape('digit'),
+  min: 1,
+  max: null,
+  greedy: false,
+  lazy: false,
+  possessive: true,
+);
+```
 
 ---
 
@@ -162,25 +246,50 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 
 Standard groups `(...)` that capture the matched text.
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Groups_Capturing}
+```dart
+final Group captureArea = Group(
+  capturing: true,
+  body: Sequence([
+    Quantifier(
+      target: Escape('digit'),
+      min: 3,
+      max: 3,
+      greedy: true,
+      lazy: false,
+      possessive: false,
+    ),
+  ]),
+);
+```
 
 ### Named Groups
 
 Capturing groups with a specific name `(?<name>...)` for easier extraction.
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Groups_Named}
+```dart
+final Group namedArea = Group(
+  capturing: true,
+  name: 'area',
+  body: Sequence([Escape('digit')]),
+);
+```
 
 ### Non-Capturing Groups
 
 Groups `(?:...)` that group logic without capturing text.
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Groups_NonCapturing}
+```dart
+final Group nonCapture = Group(
+  capturing: false,
+  body: Sequence([Literal('x')]),
+);
+```
 
 ### Atomic Groups
 
@@ -188,9 +297,24 @@ Groups `(?>...)` that discard backtracking information once the group matches.
 
 > **Note:** Useful for optimizing performance and preventing catastrophic backtracking.
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Groups_Atomic}
+```dart
+final Group atomic = Group(
+  capturing: false,
+  atomic: true,
+  body: Sequence([
+    Quantifier(
+      target: Literal('a'),
+      min: 1,
+      max: null,
+      greedy: true,
+      lazy: false,
+      possessive: false,
+    ),
+  ]),
+);
+```
 
 ---
 
@@ -203,18 +327,42 @@ Zero-width assertions that match a group without consuming characters.
 -   Positive `(?=...)`: Asserts that what follows matches the pattern.
 -   Negative `(?!...)`: Asserts that what follows does _not_ match.
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Lookarounds_Ahead}
+```dart
+final Lookaround lookahead = Lookaround(
+  dir: 'Ahead',
+  neg: false,
+  body: Sequence([Literal('foo')]),
+);
+
+final Lookaround negative = Lookaround(
+  dir: 'Ahead',
+  neg: true,
+  body: Sequence([Literal('bar')]),
+);
+```
 
 ### Lookbehind
 
 -   Positive `(?<=...)`: Asserts that what precedes matches the pattern.
 -   Negative `(?<!...)`: Asserts that what precedes does _not_ match.
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Lookarounds_Behind}
+```dart
+final Lookaround lookbehind = Lookaround(
+  dir: 'Behind',
+  neg: false,
+  body: Sequence([Literal('prefix')]),
+);
+
+final Lookaround negativeBehind = Lookaround(
+  dir: 'Behind',
+  neg: true,
+  body: Sequence([Literal('nope')]),
+);
+```
 
 ---
 
@@ -224,9 +372,14 @@ Zero-width assertions that match a group without consuming characters.
 
 Matches one pattern OR another (`|`).
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Logic_Alternation}
+```dart
+final Alternation choose = Alternation([
+  Sequence([Literal('cat')]),
+  Sequence([Literal('dog')]),
+]);
+```
 
 ---
 
@@ -236,9 +389,12 @@ Matches one pattern OR another (`|`).
 
 Reference a previously captured group by index (`\1`) or name (`\k<name>`).
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_References}
+```dart
+final Backreference byIndex = Backreference(index: 1);
+final Backreference byName = Backreference(name: 'area');
+```
 
 ---
 
@@ -251,9 +407,13 @@ Global flags that alter the behavior of the regex engine.
 -   `s`: Dotall (single line) mode
 -   `x`: Extended mode (ignore whitespace)
 
-#### Usage ({Language})
+#### Usage (Dart)
 
-{Snippet_Flags}
+```dart
+// Flags are not modelled identically across all bindings; some bindings
+// expose a dedicated Flags object. This is a conceptual example:
+final dynamic flags = /* Flags(ignoreCase: true, multiline: false) */ null;
+```
 
 ---
 
@@ -269,8 +429,12 @@ Example directives block:
 
 ```text
 %flags imsux
-%lang {Language}
+%lang dart
 %engine pcre2
 ```
 
-{Snippet_Directives}
+```text
+%flags imsux
+%lang dart
+%engine pcre2
+```
