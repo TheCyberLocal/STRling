@@ -98,7 +98,7 @@ use STRling::Core::Nodes;
 
 my $pattern = STRling::Core::Nodes::Seq->new(parts => [
     STRling::Core::Nodes::Anchor->new(at => 'Start'),
-    STRling::Core::Nodes::Group->new(capturing => 1, body => STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::ClassEscape->new(type => 'd'), min => 3, max => 3, mode => 'Greedy')),
+    STRling::Core::Nodes::Group->new(capturing => 1, body => STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'd') ]), min => 3, max => 3, mode => 'Greedy')),
     STRling::Core::Nodes::Anchor->new(at => 'End'),
 ]);
 # Match exactly 3 digits (\d{3})
@@ -234,7 +234,7 @@ Match as much as possible (standard behavior).
 use STRling::Core::Nodes;
 
 # Match one or more word characters (greedy)
-my $pattern = STRling::Core::Nodes::Seq->new(parts => [ STRling::Core::Nodes::Anchor->new(at => 'Start'), STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::ClassEscape->new(type => 'w'), min => 1, max => 'Inf', mode => 'Greedy'), STRling::Core::Nodes::Anchor->new(at => 'End') ]);
+my $pattern = STRling::Core::Nodes::Seq->new(parts => [ STRling::Core::Nodes::Anchor->new(at => 'Start'), STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'w') ]), min => 1, max => 'Inf', mode => 'Greedy'), STRling::Core::Nodes::Anchor->new(at => 'End') ]);
 # Match one or more letters (greedy)
 ```
 
@@ -248,7 +248,7 @@ Match as little as possible. Appending `?` to a quantifier (e.g., `*?`).
 use STRling::Core::Nodes;
 
 # Lazy quantifier: match between 1 and 5 word characters lazily
-my $pattern = STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::ClassEscape->new(type => 'w'), min => 1, max => 5, mode => 'Lazy');
+my $pattern = STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'w') ]), min => 1, max => 5, mode => 'Lazy');
 # Match between 1 and 5 characters lazily
 ```
 
@@ -264,7 +264,7 @@ Match as much as possible and **do not backtrack**. Appending `+` to a quantifie
 use STRling::Core::Nodes;
 
 # Possessive quantifier avoids backtracking when supported
-my $pattern = STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::ClassEscape->new(type => 'd'), min => 1, max => 'Inf', mode => 'Possessive');
+my $pattern = STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'd') ]), min => 1, max => 'Inf', mode => 'Possessive');
 # Match one or more digits possessively
 ```
 
@@ -281,7 +281,7 @@ Standard groups `(...)` that capture the matched text.
 ```perl
 use STRling::Core::Nodes;
 
-my $pattern = STRling::Core::Nodes::Group->new(capturing => 1, body => STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::ClassEscape->new(type => 'w'), min => 3, max => 3, mode => 'Greedy'));
+my $pattern = STRling::Core::Nodes::Group->new(capturing => 1, body => STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'w') ]), min => 3, max => 3, mode => 'Greedy'));
 # Capture three letters for later extraction
 ```
 
@@ -294,7 +294,7 @@ Capturing groups with a specific name `(?<name>...)` for easier extraction.
 ```perl
 use STRling::Core::Nodes;
 
-my $pattern = STRling::Core::Nodes::Group->new(capturing => 1, name => 'area', body => STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::ClassEscape->new(type => 'd'), min => 3, max => 3, mode => 'Greedy'));
+my $pattern = STRling::Core::Nodes::Group->new(capturing => 1, name => 'area', body => STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'd') ]), min => 3, max => 3, mode => 'Greedy'));
 # Named group 'area' captures three digits
 ```
 
@@ -332,7 +332,7 @@ Groups `(?>...)` that discard backtracking information once the group matches.
 ```perl
 use STRling::Core::Nodes;
 
-my $pattern = STRling::Core::Nodes::Group->new(capturing => 0, atomic => 1, body => STRling::Core::Nodes::Seq->new(parts => [ STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::ClassEscape->new(type => 'd'), min => 1, max => 'Inf', mode => 'Greedy'), STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::ClassEscape->new(type => 'w'), min => 1, max => 'Inf', mode => 'Greedy') ]));
+my $pattern = STRling::Core::Nodes::Group->new(capturing => 0, atomic => 1, body => STRling::Core::Nodes::Seq->new(parts => [ STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'd') ]), min => 1, max => 'Inf', mode => 'Greedy'), STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'w') ]), min => 1, max => 'Inf', mode => 'Greedy') ]));
 # Atomic grouping prevents internal backtracking once matched
 ```
 
@@ -400,7 +400,7 @@ Reference a previously captured group by index (`\1`) or name (`\k<name>`).
 ```perl
 use STRling::Core::Nodes;
 
-my $p = STRling::Core::Nodes::Group->new(capturing => 1, body => STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::ClassEscape->new(type => 'w'), min => 3, max => 3, mode => 'Greedy'));
+my $p = STRling::Core::Nodes::Group->new(capturing => 1, body => STRling::Core::Nodes::Quant->new(child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'w') ]), min => 3, max => 3, mode => 'Greedy'));
 my $pattern = STRling::Core::Nodes::Seq->new(parts => [ $p, STRling::Core::Nodes::Lit->new(value => '-'), STRling::Core::Nodes::Backref->new(byIndex => 1) ]);
 # Backreference to the first numbered capture group
 ```
