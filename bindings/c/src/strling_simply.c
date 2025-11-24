@@ -19,6 +19,9 @@ sl_pattern_t sl_literal(const char* text) {
 }
 
 sl_pattern_t sl_digit(int count) {
+    /* Validate count is positive */
+    if (count <= 0) return NULL;
+    
     /* Create a digit character class using escape sequence */
     STRlingClassItem* digit_escape = strling_class_escape_create("d", NULL);
     if (!digit_escape) return NULL;
@@ -113,7 +116,10 @@ sl_pattern_t sl_seq(int count, ...) {
     for (int i = 0; i < count; i++) {
         parts[i] = va_arg(args, STRlingASTNode*);
         if (!parts[i]) {
-            /* On NULL pattern, cleanup and fail */
+            /* On NULL pattern, cleanup previously collected patterns and fail */
+            for (int j = 0; j < i; j++) {
+                strling_ast_node_free(parts[j]);
+            }
             va_end(args);
             free(parts);
             return NULL;
