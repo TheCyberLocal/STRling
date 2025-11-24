@@ -8,7 +8,7 @@ use STRling\Compiler;
 /**
  * STRling Simply API - Static Pattern Constructor
  * 
- * Provides a fluent, chainable API for building regex patterns using static methods.
+ * Provides a composable API for building regex patterns using static methods.
  * This API uses static methods to wrap patterns, mimicking the Python/TypeScript nesting approach.
  * 
  * Example usage:
@@ -18,9 +18,9 @@ use STRling\Compiler;
  * $phone = Simply::merge(
  *     Simply::start(),
  *     Simply::capture(Simply::digit(3)),
- *     Simply::may(Simply::anyOf("-. ")),
+ *     Simply::may(Simply::inChars("-. ")),
  *     Simply::capture(Simply::digit(3)),
- *     Simply::may(Simply::anyOf("-. ")),
+ *     Simply::may(Simply::inChars("-. ")),
  *     Simply::capture(Simply::digit(4)),
  *     Simply::end()
  * );
@@ -33,12 +33,13 @@ use STRling\Compiler;
 class Simply
 {
     /**
-     * Create a pattern matching exactly n digits.
+     * Create a pattern matching digits with optional repetition.
      * 
-     * @param int $n The number of digits to match
-     * @return Pattern A Pattern object representing n digits
+     * @param int|null $minRep Minimum number of digits (null = match once)
+     * @param int|null $maxRep Maximum number of digits (null = exact count, 0 = unlimited)
+     * @return Pattern A Pattern object representing digit pattern
      */
-    public static function digit(int $n): Pattern
+    public static function digit(?int $minRep = null, ?int $maxRep = null): Pattern
     {
         // Create a character class containing the digit escape (\d)
         $escapeNode = new Nodes\Escape('digit');
@@ -47,17 +48,8 @@ class Simply
             members: [$escapeNode]
         );
         
-        // Wrap in a quantifier to match exactly n times
-        $quantifierNode = new Nodes\Quantifier(
-            target: $charClassNode,
-            min: $n,
-            max: $n,
-            greedy: true,
-            lazy: false,
-            possessive: false
-        );
-        
-        return new Pattern($quantifierNode);
+        $pattern = new Pattern($charClassNode);
+        return $minRep !== null ? $pattern->rep($minRep, $maxRep) : $pattern;
     }
     
     /**
@@ -66,7 +58,7 @@ class Simply
      * @param string $chars The characters to match (e.g., "-. ")
      * @return Pattern A Pattern object representing a character class
      */
-    public static function anyOf(string $chars): Pattern
+    public static function inChars(string $chars): Pattern
     {
         $members = [];
         for ($i = 0; $i < strlen($chars); $i++) {
@@ -182,6 +174,35 @@ class Pattern
     public function getNode(): Nodes\Node
     {
         return $this->node;
+    }
+    
+    /**
+     * Apply repetition quantifier to this pattern.
+     * 
+     * @param int $minRep Minimum number of repetitions
+     * @param int|null $maxRep Maximum number of repetitions (null = exact count, 0 = unlimited)
+     * @return Pattern A new Pattern with quantifier applied
+     */
+    public function rep(int $minRep, ?int $maxRep = null): Pattern
+    {
+        // If maxRep is null, match exactly minRep times
+        $max = $maxRep ?? $minRep;
+        
+        // Handle unlimited repetition (0 means unlimited)
+        if ($maxRep === 0) {
+            $max = 'inf';
+        }
+        
+        $quantifierNode = new Nodes\Quantifier(
+            target: $this->node,
+            min: $minRep,
+            max: $max,
+            greedy: true,
+            lazy: false,
+            possessive: false
+        );
+        
+        return new Pattern($quantifierNode);
     }
     
     /**

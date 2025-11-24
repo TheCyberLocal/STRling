@@ -35,9 +35,9 @@ use STRling\Simply;
 $phone = Simply::merge(
     Simply::start(),
     Simply::capture(Simply::digit(3)),
-    Simply::may(Simply::anyOf("-. ")),
+    Simply::may(Simply::inChars("-. ")),
     Simply::capture(Simply::digit(3)),
-    Simply::may(Simply::anyOf("-. ")),
+    Simply::may(Simply::inChars("-. ")),
     Simply::capture(Simply::digit(4)),
     Simply::end()
 );
@@ -50,7 +50,7 @@ echo $ir . PHP_EOL;
 // Final regex: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
 ```
 
-> **Note:** The Simply API provides a clean, fluent interface for building patterns with **structural identity** - using `Simply::capture($inner)` instead of `$inner->capture()`, matching Python/TypeScript naming conventions.
+> **Note:** The Simply API provides a clean, composable interface for building patterns with **structural identity**—using `Simply::capture($inner)` instead of `$inner->capture()`. Method names are inspired by Python/TypeScript but may differ (e.g., `inChars` for character classes in PHP vs. `in_chars` in Python/TypeScript).
 
 ### Low-Level AST API
 

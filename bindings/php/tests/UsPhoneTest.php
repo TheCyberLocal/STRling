@@ -21,7 +21,8 @@ class UsPhoneTest extends TestCase
      * 
      * Demonstrates the target UX with structural identity:
      * - Uses Simply::capture($inner), NOT $inner->capture()
-     * - Uses `may`, `anyOf`, `merge` naming (not `optional`, `oneOf`, `concat`)
+     * - Uses `may`, `inChars`, `merge` naming
+     *   Note: `inChars` creates character classes ([abc]), matching `in_chars` in Python/TypeScript
      */
     public function testUsPhonePattern(): void
     {
@@ -29,9 +30,9 @@ class UsPhoneTest extends TestCase
         $phone = Simply::merge(
             Simply::start(),
             Simply::capture(Simply::digit(3)),
-            Simply::may(Simply::anyOf("-. ")),
+            Simply::may(Simply::inChars("-. ")),
             Simply::capture(Simply::digit(3)),
-            Simply::may(Simply::anyOf("-. ")),
+            Simply::may(Simply::inChars("-. ")),
             Simply::capture(Simply::digit(4)),
             Simply::end()
         );
@@ -55,12 +56,18 @@ class UsPhoneTest extends TestCase
      */
     public function testSimplyApiMethods(): void
     {
-        // Test digit()
-        $digit3 = Simply::digit(3);
+        // Test digit() with various signatures
+        $digit1 = Simply::digit();  // Match single digit
+        $this->assertInstanceOf(Pattern::class, $digit1);
+        
+        $digit3 = Simply::digit(3);  // Match exactly 3 digits
         $this->assertInstanceOf(Pattern::class, $digit3);
         
-        // Test anyOf()
-        $sep = Simply::anyOf("-. ");
+        $digit35 = Simply::digit(3, 5);  // Match 3-5 digits
+        $this->assertInstanceOf(Pattern::class, $digit35);
+        
+        // Test inChars()
+        $sep = Simply::inChars("-. ");
         $this->assertInstanceOf(Pattern::class, $sep);
         
         // Test start() and end()
