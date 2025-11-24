@@ -46,7 +46,7 @@ func main() {
   )
 
   // Compile to string
-  regex, _ := phone.ToRegex()
+  regex := phone.ToRegex()
   fmt.Println(regex)
 }
 ```

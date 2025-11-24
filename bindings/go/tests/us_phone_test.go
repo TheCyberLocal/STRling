@@ -37,10 +37,7 @@ func TestUSPhoneNumberPattern(t *testing.T) {
 	phone := createUSPhonePattern()
 
 	// Compile to regex string
-	pattern, err := phone.ToRegex()
-	if err != nil {
-		t.Fatalf("Failed to compile pattern: %v", err)
-	}
+	pattern := phone.ToRegex()
 
 	// The emitter escapes '-' inside character classes, resulting in "[\-. ]"
 	// This matches the TypeScript reference output
@@ -56,10 +53,7 @@ func TestUSPhoneNumberPattern(t *testing.T) {
 func TestUSPhoneNumberMatching(t *testing.T) {
 	phone := createUSPhonePattern()
 
-	pattern, err := phone.ToRegex()
-	if err != nil {
-		t.Fatalf("Failed to compile pattern: %v", err)
-	}
+	pattern := phone.ToRegex()
 
 	// Compile to Go regexp for validation
 	re := regexp.MustCompile(pattern)

@@ -12,11 +12,10 @@ type Pattern struct {
 }
 
 // ToRegex compiles the pattern to a PCRE2 regex string.
-func (p Pattern) ToRegex() (string, error) {
+func (p Pattern) ToRegex() string {
 	compiler := core.NewCompiler()
 	ir := compiler.Compile(p.node)
-	regex := emitters.Emit(ir, nil)
-	return regex, nil
+	return emitters.Emit(ir, nil)
 }
 
 // Start matches the beginning of a line (^).
@@ -35,7 +34,7 @@ func Lit(s string) Pattern {
 }
 
 // Digit matches exactly n digits (\d{n}).
-// If n is not provided or is 0, matches a single digit.
+// If n is less than or equal to 0, defaults to matching a single digit.
 func Digit(n int) Pattern {
 	digitClass := core.CharClass{
 		Negated: false,

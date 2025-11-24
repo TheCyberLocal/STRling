@@ -18,10 +18,7 @@ func TestUSPhone(t *testing.T) {
 		End(),
 	)
 
-	pattern, err := phone.ToRegex()
-	if err != nil {
-		t.Fatalf("Failed to compile pattern: %v", err)
-	}
+	pattern := phone.ToRegex()
 
 	// The emitter may escape '-' inside a character class, which results in "[\-. ]"
 	expected := `^(\d{3})[\-. ]?(\d{3})[\-. ]?(\d{4})$`
