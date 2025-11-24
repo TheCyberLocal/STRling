@@ -200,7 +200,7 @@ public class Pattern {
             }
         } else {
             // Regular case: create a quantifier node
-            String qMax = maxRep == null ? String.valueOf(minRep) : (maxRep == 0 ? "Inf" : String.valueOf(maxRep));
+            Object qMax = maxRep == null ? minRep : (maxRep == 0 ? "Inf" : maxRep);
             Nodes.Quant newNode = new Nodes.Quant(this.node, minRep, qMax, "Greedy");
             return createModifiedInstance(newNode);
         }

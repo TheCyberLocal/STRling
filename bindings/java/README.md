@@ -24,56 +24,62 @@ mvn clean install
 Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Java**:
 
 ```java
-import com.strling.core.Nodes;
-import java.util.List;
+import static com.strling.simply.Constructors.*;
+import static com.strling.simply.Static.*;
 
-// Build an AST that represents: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+import com.strling.simply.Pattern;
+import com.strling.simply.Simply;
+
+// Build the phone pattern using the Simply fluent API
+// Match: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+Pattern phonePattern = merge(
+    start(),                  // Start of line
+    capture(digit(3)),        // 3 digits (area code)
+    may(anyOf("-", ".", " ")), // Optional separator
+    capture(digit(3)),        // 3 digits (exchange)
+    may(anyOf("-", ".", " ")), // Optional separator
+    capture(digit(4)),        // 4 digits (line number)
+    end()                     // End of line
+);
+
+// Compile to regex string
+Simply compiler = new Simply();
+String regex = compiler.build(phonePattern);
+System.out.println(regex);  // ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
+```
+
+> **Note:** This compiles to the optimized regex: `^(\d{3})[\-. ]?(\d{3})[\-. ]?(\d{4})$`
+
+### Zero Boilerplate
+
+The Simply API eliminates verbose constructor calls. Compare the old verbose style:
+
+```java
+// ❌ Old verbose style (NOT recommended)
 Nodes.Node phoneAst = new Nodes.Seq(List.of(
   new Nodes.Anchor("Start"),
-
-  // (\d{3})
   new Nodes.Group(true, new Nodes.Quant(
     new Nodes.CharClass(false, List.of(new Nodes.ClassEscape("d"))),
     3, 3, "Greedy"
   )),
-
-  // optional separator [-. ]?
-  new Nodes.Quant(
-    new Nodes.CharClass(false, List.of(
-      new Nodes.ClassLiteral("-"),
-      new Nodes.ClassLiteral("."),
-      new Nodes.ClassLiteral(" ")
-    )),
-    0, 1, "Greedy"
-  ),
-
-  // (\d{3})
-  new Nodes.Group(true, new Nodes.Quant(
-    new Nodes.CharClass(false, List.of(new Nodes.ClassEscape("d"))),
-    3, 3, "Greedy"
-  )),
-
-  // optional separator [-. ]?
-  new Nodes.Quant(
-    new Nodes.CharClass(false, List.of(
-      new Nodes.ClassLiteral("-"),
-      new Nodes.ClassLiteral("."),
-      new Nodes.ClassLiteral(" ")
-    )),
-    0, 1, "Greedy"
-  ),
-
-  // (\d{4})
-  new Nodes.Group(true, new Nodes.Quant(
-    new Nodes.CharClass(false, List.of(new Nodes.ClassEscape("d"))),
-    4, 4, "Greedy"
-  )),
-
-  new Nodes.Anchor("End")
+  // ... many more lines
 ));
 ```
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+With the modern fluent API:
+
+```java
+// ✅ Modern fluent style (recommended)
+Pattern phonePattern = merge(
+    start(),
+    capture(digit(3)),
+    may(anyOf("-", ".", " ")),
+    capture(digit(3)),
+    may(anyOf("-", ".", " ")),
+    capture(digit(4)),
+    end()
+);
+```
 
 ## 🚀 Why STRling?
 

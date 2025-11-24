@@ -25,7 +25,7 @@ public class Static {
      */
     public static Pattern digit(Integer minRep, Integer maxRep) {
         Node node = new CharClass(false, Arrays.<ClassItem>asList(
-            new ClassRange(String.valueOf('0'), String.valueOf('9'))
+            new ClassEscape("d")
         ));
         Pattern p = new Pattern(node, true, false, false);
         return (minRep != null) ? p.call(minRep, maxRep) : p;
@@ -38,6 +38,16 @@ public class Static {
      */
     public static Pattern digit() {
         return digit(null, null);
+    }
+
+    /**
+     * Matches an exact number of digit characters (0-9).
+     *
+     * @param count Exact number of digits to match.
+     * @return A new Pattern object representing the digit character class with exact count.
+     */
+    public static Pattern digit(int count) {
+        return digit(count, null);
     }
 
     /**
@@ -63,6 +73,16 @@ public class Static {
      */
     public static Pattern letter() {
         return letter(null, null);
+    }
+
+    /**
+     * Matches an exact number of letter characters (A-Z, a-z).
+     *
+     * @param count Exact number of letters to match.
+     * @return A new Pattern object representing the letter character class with exact count.
+     */
+    public static Pattern letter(int count) {
+        return letter(count, null);
     }
 
     /**
@@ -92,6 +112,16 @@ public class Static {
     }
 
     /**
+     * Matches an exact number of alphanumeric characters (letter or digit).
+     *
+     * @param count Exact number of alphanumeric characters to match.
+     * @return A new Pattern object representing the alphanumeric character class with exact count.
+     */
+    public static Pattern alphaNum(int count) {
+        return alphaNum(count, null);
+    }
+
+    /**
      * Matches any special character (!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~).
      *
      * @param minRep Minimum number of characters to match.
@@ -116,6 +146,16 @@ public class Static {
      */
     public static Pattern specialChar() {
         return specialChar(null, null);
+    }
+
+    /**
+     * Matches an exact number of special characters.
+     *
+     * @param count Exact number of special characters to match.
+     * @return A new Pattern object representing the special character class with exact count.
+     */
+    public static Pattern specialChar(int count) {
+        return specialChar(count, null);
     }
 
     /**
@@ -189,6 +229,16 @@ public class Static {
     }
 
     /**
+     * Matches an exact number of uppercase letters (A-Z).
+     *
+     * @param count Exact number of uppercase letters to match.
+     * @return A new Pattern object representing the uppercase letter character class with exact count.
+     */
+    public static Pattern upper(int count) {
+        return upper(count, null);
+    }
+
+    /**
      * Matches any character that is not an uppercase letter.
      *
      * @param minRep Minimum number of characters to match.
@@ -234,6 +284,16 @@ public class Static {
      */
     public static Pattern lower() {
         return lower(null, null);
+    }
+
+    /**
+     * Matches an exact number of lowercase letters (a-z).
+     *
+     * @param count Exact number of lowercase letters to match.
+     * @return A new Pattern object representing the lowercase letter character class with exact count.
+     */
+    public static Pattern lower(int count) {
+        return lower(count, null);
     }
 
     /**
@@ -339,6 +399,16 @@ public class Static {
     }
 
     /**
+     * Matches an exact number of hex-digit characters (A-F, a-f, 0-9).
+     *
+     * @param count Exact number of hex-digit characters to match.
+     * @return A new Pattern object representing the hex-digit character class with exact count.
+     */
+    public static Pattern hexDigit(int count) {
+        return hexDigit(count, null);
+    }
+
+    /**
      * Matches any character that is not a hex-digit.
      *
      * @param minRep Minimum number of characters to match.
@@ -410,6 +480,16 @@ public class Static {
      */
     public static Pattern whitespace() {
         return whitespace(null, null);
+    }
+
+    /**
+     * Matches an exact number of whitespace characters.
+     *
+     * @param count Exact number of whitespace characters to match.
+     * @return A new Pattern object representing the whitespace character class with exact count.
+     */
+    public static Pattern whitespace(int count) {
+        return whitespace(count, null);
     }
 
     /**
