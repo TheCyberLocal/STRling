@@ -1,0 +1,3 @@
+nohup: ignoring input
+Wrote test report to tooling/TEST_REPORT.md
+EXIT_CODE:2
