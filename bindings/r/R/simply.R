@@ -39,7 +39,7 @@ sl_digit <- function(n = 1L) {
   }
   
   if (n <= 0) {
-    warning("sl_digit: n must be positive, defaulting to 1")
+    warning(sprintf("sl_digit: n must be a positive integer, received %s. Defaulting to 1", n))
     n <- 1L
   }
   

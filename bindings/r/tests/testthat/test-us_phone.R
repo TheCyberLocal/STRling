@@ -41,13 +41,16 @@ test_that("US Phone Number Pattern with Simply API", {
   
   expect_true(length(capturing_groups) >= 3)
 
-  # Check that each capturing group contains a quantifier with digits
-  for (group in capturing_groups) {
+  # Check that each capturing group contains a quantifier with correct digit count
+  # Pattern has 3 groups: digit(3), digit(3), digit(4)
+  digit_counts <- sapply(capturing_groups, function(group) {
     body <- group$body
     expect_true(is.list(body))
     expect_equal(body$ir, "Quant")
-    expect_true(body$min >= 3)  # All digit groups are at least 3
-  }
+    body$min
+  })
+  
+  expect_equal(sort(digit_counts), c(3, 3, 4))
 
   # Check for optional character classes
   optionals <- Filter(function(p) {
