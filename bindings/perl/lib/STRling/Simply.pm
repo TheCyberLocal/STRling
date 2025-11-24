@@ -534,7 +534,7 @@ sub rep {
         unless defined $min_rep;
     
     # Named groups cannot be repeated (they must be unique)
-    if (@{$self->{named_groups}} && defined $min_rep) {
+    if (@{$self->{named_groups}}) {
         die "rep: Named groups cannot be repeated as they must be unique\n";
     }
     

@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# Test Design — us_phone.t
+# Test Design -- us_phone.t
 #
 # ## Purpose
 # This test suite validates the STRling::Simply fluent API by building
