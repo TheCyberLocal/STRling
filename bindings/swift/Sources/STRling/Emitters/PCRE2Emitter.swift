@@ -64,32 +64,71 @@ public class PCRE2Emitter {
     }
     
     private func emitCharClass(_ node: CharClass) throws -> String {
-        var result = "["
-        if node.negated {
-            result += "^"
+        // --- Single-item shorthand optimization ---------------------------------
+        // If the class is exactly one shorthand escape (like \d or \p{Lu}), 
+        // prefer the shorthand (with negation flipping) instead of a bracketed class.
+        if node.items.count == 1, let escape = node.items[0] as? ClassEscape {
+            let k = escape.type
+            
+            // Handle d, w, s with negation flipping
+            if ["d", "w", "s"].contains(k) {
+                if node.negated {
+                    return "\\" + k.uppercased()
+                }
+                return "\\" + k
+            }
+            
+            // Handle already-negated shorthands D, W, S
+            if ["D", "W", "S"].contains(k) {
+                if node.negated {
+                    return "\\" + k.lowercased()
+                }
+                return "\\" + k
+            }
+            
+            // Handle \p{...} and \P{...}
+            if ["p", "P"].contains(k), let prop = escape.property {
+                let shouldNegate = node.negated != (k == "P")
+                let use = shouldNegate ? "P" : "p"
+                return "\\\(use){\(prop)}"
+            }
         }
         
+        // --- General case: build a bracket class --------------------------------
+        var parts: [String] = []
+        var hasHyphen = false
+        
         for item in node.items {
-            if let range = item as? ClassRange {
-                result += "\(range.fromCh)-\(range.toCh)"
-            } else if let literal = item as? ClassLiteral {
-                // Simple escaping for char class
-                if "[]\\-^".contains(literal.ch) {
-                    result += "\\" + literal.ch
+            if let literal = item as? ClassLiteral {
+                // Check if this is a hyphen literal - handle specially
+                if literal.ch == "-" {
+                    hasHyphen = true
+                    // Don't add to parts yet - we'll add it at the beginning
                 } else {
-                    result += literal.ch
+                    // Escape special characters in character class
+                    if "[]\\^".contains(literal.ch) {
+                        parts.append("\\" + literal.ch)
+                    } else {
+                        parts.append(literal.ch)
+                    }
                 }
+            } else if let range = item as? ClassRange {
+                // For ranges, we need to escape the endpoints if necessary
+                let fromEscaped = "[]\\^".contains(range.fromCh) ? "\\" + range.fromCh : range.fromCh
+                let toEscaped = "[]\\^".contains(range.toCh) ? "\\" + range.toCh : range.toCh
+                parts.append("\(fromEscaped)-\(toEscaped)")
             } else if let escape = item as? ClassEscape {
                 if let prop = escape.property {
-                    result += "\\\(escape.type){\(prop)}"
+                    parts.append("\\\(escape.type){\(prop)}")
                 } else {
-                    result += "\\\(escape.type)"
+                    parts.append("\\\(escape.type)")
                 }
             }
         }
         
-        result += "]"
-        return result
+        // Build the inner content with hyphen at the start if present
+        let inner = hasHyphen ? "-" + parts.joined() : parts.joined()
+        return "[\(node.negated ? "^" : "")\(inner)]"
     }
     
     private func emitQuant(_ node: Quant) throws -> String {

@@ -6,7 +6,7 @@ final class UsPhoneTests: XCTestCase {
     
     func testUsPhonePattern() throws {
         // Build a US phone number pattern using the Simply API
-        // Expected format: 555-0199 or 555.0199 or 555 0199 or 5550199
+        // Expected format: 555-555-0199 (3-3-4 format)
         let phone = Simply.merge([
             Simply.start(),
             Simply.capture(Simply.digit(3)),
@@ -19,8 +19,8 @@ final class UsPhoneTests: XCTestCase {
         
         let regex = try phone.compile()
         
-        // The emitter produces simplified form
-        XCTAssertEqual(regex, "^([\\d]{3})[\\-. ]?([\\d]{3})[\\-. ]?([\\d]{4})$")
+        // Strict parity with TypeScript reference output
+        XCTAssertEqual(regex, "^(\\d{3})[-. ]?(\\d{3})[-. ]?(\\d{4})$")
     }
     
     func testUsPhonePatternMatches() throws {
@@ -55,19 +55,19 @@ final class UsPhoneTests: XCTestCase {
     func testDigit() throws {
         let pattern = Simply.digit(3)
         let regex = try pattern.compile()
-        XCTAssertEqual(regex, "[\\d]{3}")
+        XCTAssertEqual(regex, "\\d{3}")
     }
     
     func testAnyOf() throws {
         let pattern = Simply.anyOf("-. ")
         let regex = try pattern.compile()
-        XCTAssertEqual(regex, "[\\-. ]")
+        XCTAssertEqual(regex, "[-. ]")
     }
     
     func testCapture() throws {
         let pattern = Simply.capture(Simply.digit(3))
         let regex = try pattern.compile()
-        XCTAssertEqual(regex, "([\\d]{3})")
+        XCTAssertEqual(regex, "(\\d{3})")
     }
     
     func testMay() throws {
@@ -83,6 +83,6 @@ final class UsPhoneTests: XCTestCase {
             Simply.digit(4)
         ])
         let regex = try pattern.compile()
-        XCTAssertEqual(regex, "[\\d]{3}[\\-][\\d]{4}")
+        XCTAssertEqual(regex, "\\d{3}[-]\\d{4}")
     }
 }
