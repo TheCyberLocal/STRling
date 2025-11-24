@@ -152,14 +152,18 @@ object Simply {
                 require(start.length == 1 && end.length == 1) {
                     "between(start, end): Both must be single characters"
                 }
-                require(start[0].isLetter() && end[0].isLetter()) {
-                    "between(start, end): Both must be letters"
+                val startChar = start[0]
+                val endChar = end[0]
+                require((startChar.isLetter() && endChar.isLetter()) || (startChar.isDigit() && endChar.isDigit())) {
+                    "between(start, end): Both must be either letters or digits, not mixed"
                 }
-                require(
-                    (start[0].isLowerCase() && end[0].isLowerCase()) ||
-                    (start[0].isUpperCase() && end[0].isUpperCase())
-                ) {
-                    "between(start, end): Both letters must be the same case"
+                if (startChar.isLetter()) {
+                    require(
+                        (startChar.isLowerCase() && endChar.isLowerCase()) ||
+                        (startChar.isUpperCase() && endChar.isUpperCase())
+                    ) {
+                        "between(start, end): Both letters must be the same case"
+                    }
                 }
                 require(start <= end) {
                     "between(start, end): start must not be greater than end"
@@ -217,7 +221,8 @@ object Simply {
             }
         }
         
-        return Pattern(Alternation(alternatives = nodes))
+        val allNamedGroups = patterns.filterIsInstance<Pattern>().flatMap { it.namedGroups }
+        return Pattern(Alternation(alternatives = nodes), namedGroups = allNamedGroups)
     }
     
     /**
@@ -238,10 +243,11 @@ object Simply {
             }
         }
         
+        val allNamedGroups = patterns.filterIsInstance<Pattern>().flatMap { it.namedGroups }
         return if (nodes.size == 1) {
-            Pattern(nodes[0])
+            Pattern(nodes[0], namedGroups = allNamedGroups)
         } else {
-            Pattern(Sequence(parts = nodes))
+            Pattern(Sequence(parts = nodes), namedGroups = allNamedGroups)
         }
     }
     
@@ -274,6 +280,12 @@ object Simply {
             Sequence(parts = nodes)
         }
         
+        val allNamedGroups = if (patterns.size == 1 && patterns[0] is Pattern) {
+            (patterns[0] as Pattern).namedGroups
+        } else {
+            patterns.filterIsInstance<Pattern>().flatMap { it.namedGroups }
+        }
+        
         return Pattern(
             Quantifier(
                 target = bodyNode,
@@ -282,7 +294,8 @@ object Simply {
                 greedy = true,
                 lazy = false,
                 possessive = false
-            )
+            ),
+            namedGroups = allNamedGroups
         )
     }
     
@@ -315,7 +328,13 @@ object Simply {
             Sequence(parts = nodes)
         }
         
-        return Pattern(Group(capturing = true, body = bodyNode))
+        val allNamedGroups = if (patterns.size == 1 && patterns[0] is Pattern) {
+            (patterns[0] as Pattern).namedGroups
+        } else {
+            patterns.filterIsInstance<Pattern>().flatMap { it.namedGroups }
+        }
+        
+        return Pattern(Group(capturing = true, body = bodyNode), namedGroups = allNamedGroups)
     }
     
     /**
@@ -349,7 +368,14 @@ object Simply {
             Sequence(parts = nodes)
         }
         
-        return Pattern(Group(capturing = true, body = bodyNode, name = name), namedGroups = listOf(name))
+        // Collect named groups from input patterns and combine with the new group name
+        val existingNamedGroups = patterns
+            .filterIsInstance<Pattern>()
+            .flatMap { it.namedGroups }
+        return Pattern(
+            Group(capturing = true, body = bodyNode, name = name),
+            namedGroups = existingNamedGroups + name
+        )
     }
 }
 

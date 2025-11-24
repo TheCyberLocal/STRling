@@ -259,6 +259,33 @@ class UsPhoneTest {
     }
     
     @Test
+    fun `Should propagate named groups through combinators`() {
+        // Create patterns with named groups
+        val group1 = Simply.group("first", Simply.digit(3))
+        val group2 = Simply.group("second", Simply.letter(2))
+        
+        // Test merge propagates named groups
+        val merged = Simply.merge(group1, "-", group2)
+        assertEquals(listOf("first", "second"), merged.namedGroups)
+        
+        // Test anyOf propagates named groups
+        val anyOfPattern = Simply.anyOf(group1, group2)
+        assertEquals(setOf("first", "second"), anyOfPattern.namedGroups.toSet())
+        
+        // Test may propagates named groups
+        val optional = Simply.may(group1)
+        assertEquals(listOf("first"), optional.namedGroups)
+        
+        // Test capture propagates named groups
+        val captured = Simply.capture(group1)
+        assertEquals(listOf("first"), captured.namedGroups)
+        
+        // Test nested group combines named groups
+        val nestedGroup = Simply.group("outer", group1)
+        assertEquals(listOf("first", "outer"), nestedGroup.namedGroups)
+    }
+    
+    @Test
     fun `Should prevent named group repetition`() {
         val namedPattern = Simply.group("test", Simply.literal("x"))
         
@@ -271,5 +298,18 @@ class UsPhoneTest {
         
         // And repeat(1, 1) should work (exactly once)
         assertNotNull(namedPattern.repeat(1, 1))
+    }
+    
+    @Test
+    fun `Should validate between with mixed types correctly`() {
+        // Valid: both are digits (using string)
+        assertNotNull(Simply.between("0", "9"))
+        
+        // Valid: both are letters (using string)
+        assertNotNull(Simply.between("a", "z"))
+        
+        // Invalid: mixed digit and letter strings
+        assertFails { Simply.between("0", "z") }
+        assertFails { Simply.between("a", "9") }
     }
 }
