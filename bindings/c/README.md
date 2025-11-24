@@ -84,7 +84,7 @@ int main(void) {
 
 **Key Features:**
 - **Zero Boilerplate:** Simple, readable pattern construction with `sl_*` functions
-- **Memory Safety:** Single `strling_ast_node_free(phone)` call cleans up entire pattern
+- **Memory Safety:** Single `sl_free(phone)` call cleans up entire pattern
 - **Fluent API:** Chain operations naturally with `sl_seq`, `sl_capture`, `sl_optional`, etc.
 
 ### Low-Level API
