@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - Perl Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,13 +14,116 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+```bash
+# install runtime dependencies for this binding from CPAN
+cpanm --installdeps .
+
+# or install the published distribution (if available)
+cpanm STRling
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Perl**:
 
-{Usage_Snippet}
+```perl
+use strict;
+use warnings;
+
+# If you want to parse a DSL string into an AST and compile it:
+use STRling::Core::Parser qw(parse);
+use STRling::Core::Compiler;
+
+my ($flags, $ast) = parse(
+    "start capture(digit(3)) may(any_of('-', '.', ' ')) capture(digit(3)) may(any_of('-', '.', ' ')) capture(digit(4)) end"
+);
+
+# Or construct the same AST explicitly using Moo-based node constructors:
+use STRling::Core::Nodes;
+
+# Start of line.
+# Match the area code (3 digits)
+# Optional separator: [-. ]
+# Match the central office code (3 digits)
+# Optional separator: [-. ]
+# Match the station number (4 digits)
+# End of line.
+
+my $phone_ast = STRling::Core::Nodes::Seq->new(parts => [
+    STRling::Core::Nodes::Anchor->new(at => 'Start'),
+
+    # Group 1: 3 digits
+    STRling::Core::Nodes::Group->new(
+        capturing => 1,
+        body      => STRling::Core::Nodes::Quant->new(
+            child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'd') ]),
+            min   => 3,
+            max   => 3,
+            mode  => 'Greedy',
+        ),
+    ),
+
+    # Optional separator: [-. ]
+    STRling::Core::Nodes::Quant->new(
+        child => STRling::Core::Nodes::CharClass->new(
+            negated => 0,
+            items   => [
+                STRling::Core::Nodes::ClassLiteral->new(ch => '-'),
+                STRling::Core::Nodes::ClassLiteral->new(ch => '.'),
+                STRling::Core::Nodes::ClassLiteral->new(ch => ' '),
+            ]
+        ),
+        min  => 0,
+        max  => 1,
+        mode => 'Greedy',
+    ),
+
+    # Group 2: 3 digits
+    STRling::Core::Nodes::Group->new(
+        capturing => 1,
+        body      => STRling::Core::Nodes::Quant->new(
+            child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'd') ]),
+            min   => 3,
+            max   => 3,
+            mode  => 'Greedy',
+        ),
+    ),
+
+    # Optional separator: [-. ]
+    STRling::Core::Nodes::Quant->new(
+        child => STRling::Core::Nodes::CharClass->new(
+            negated => 0,
+            items   => [
+                STRling::Core::Nodes::ClassLiteral->new(ch => '-'),
+                STRling::Core::Nodes::ClassLiteral->new(ch => '.'),
+                STRling::Core::Nodes::ClassLiteral->new(ch => ' '),
+            ]
+        ),
+        min  => 0,
+        max  => 1,
+        mode => 'Greedy',
+    ),
+
+    # Group 3: 4 digits
+    STRling::Core::Nodes::Group->new(
+        capturing => 1,
+        body      => STRling::Core::Nodes::Quant->new(
+            child => STRling::Core::Nodes::CharClass->new(negated => 0, items => [ STRling::Core::Nodes::ClassEscape->new(type => 'd') ]),
+            min   => 4,
+            max   => 4,
+            mode  => 'Greedy',
+        ),
+    ),
+
+    STRling::Core::Nodes::Anchor->new(at => 'End'),
+]);
+
+# Compile to the IR representation (emitters live in other bindings).
+my $ir = STRling::Core::Compiler->compile($phone_ast);
+
+# Note: the final regex emission is typically performed by a language emitter (e.g. TypeScript/Rust emitters).
+```
+
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 
