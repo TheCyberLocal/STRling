@@ -84,12 +84,24 @@ namespace Strling.Emit
                 }
             }
 
+            // Smart hyphen handling: collect hyphens separately and emit them first (unescaped)
             var parts = new List<string>();
+            var hasHyphen = false;
+            
             foreach (var it in items)
             {
                 if (it is IRClassLiteral lit)
                 {
-                    parts.Add(EscapeClassChar(lit.Ch[0]));
+                    // Check if this is a hyphen literal
+                    if (lit.Ch[0] == '-')
+                    {
+                        hasHyphen = true;
+                        // Don't add to parts yet - we'll add it at the beginning
+                    }
+                    else
+                    {
+                        parts.Add(EscapeClassChar(lit.Ch[0]));
+                    }
                 }
                 else if (it is IRClassRange range)
                 {
@@ -115,7 +127,9 @@ namespace Strling.Emit
                     throw new Exception($"class item {it.GetType().Name}");
                 }
             }
-            var inner = string.Join("", parts);
+            
+            // Build the inner content with hyphen at the start if present
+            var inner = hasHyphen ? "-" + string.Join("", parts) : string.Join("", parts);
             return "[" + (cc.Negated ? "^" : "") + inner + "]";
         }
 
