@@ -25,7 +25,7 @@ public class Static {
      */
     public static Pattern digit(Integer minRep, Integer maxRep) {
         Node node = new CharClass(false, Arrays.<ClassItem>asList(
-            new ClassRange(String.valueOf('0'), String.valueOf('9'))
+            new ClassEscape("d")
         ));
         Pattern p = new Pattern(node, true, false, false);
         return (minRep != null) ? p.call(minRep, maxRep) : p;
