@@ -29,29 +29,31 @@ package main
 
 import (
   "fmt"
-  simply "github.com/thecyberlocal/strling/bindings/go/simply"
+  s "github.com/thecyberlocal/strling/bindings/go/simply"
 )
 
 func main() {
   // Build a US phone number pattern using the fluent `simply` builder.
-  phone := simply.Seq(
-    simply.Start(),
-    simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
-    simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
-    simply.GroupCapture(simply.Quant(simply.Digit(), 3, 3)),
-    simply.Quant(simply.CharClassFromLiterals("-", ".", " "), 0, 1),
-    simply.GroupCapture(simply.Quant(simply.Digit(), 4, 4)),
-    simply.End(),
+  // Start -> Capture(Digit(3)) -> Optional("-. ") ...
+  phone := s.Merge(
+    s.Start(),
+    s.Capture(s.Digit(3)),
+    s.May(s.AnyOf("-. ")),
+    s.Capture(s.Digit(3)),
+    s.May(s.AnyOf("-. ")),
+    s.Capture(s.Digit(4)),
+    s.End(),
   )
 
-  // This compiles to: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
-  // The user does not need to touch the internal AST types or NodeWrapper.
-  _ = phone
-  fmt.Println("Constructed phone AST (via simply) — use compiler.Emit to produce regex.")
+  // Compile to string
+  regex := phone.ToRegex()
+  fmt.Println(regex)
 }
 ```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+
+> **Migration Guide:** If you are using the older raw AST API (with `NodeWrapper`, pointers, or manual `core.Group` construction), please switch to the `simply` package for a cleaner, more idiomatic Go experience. The low-level AST types remain available for advanced use cases but are no longer recommended for general use.
 
 ## 🚀 Why STRling?
 
