@@ -88,6 +88,7 @@ public struct Simply {
     ///
     /// - Parameter chars: String containing characters to match
     /// - Returns: A SimplyPattern matching any of the characters
+    /// - Note: Special regex characters are automatically escaped by the emitter
     public static func anyOf(_ chars: String) -> SimplyPattern {
         let items = chars.map { ClassLiteral(ch: String($0)) as ClassItem }
         let charClass = CharClass(negated: false, items: items)

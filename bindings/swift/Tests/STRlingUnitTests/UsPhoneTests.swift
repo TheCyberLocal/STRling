@@ -38,15 +38,18 @@ final class UsPhoneTests: XCTestCase {
         let pattern = try NSRegularExpression(pattern: regex)
         
         // Test valid phone numbers (3-3-4 format)
-        XCTAssertNotNil(pattern.firstMatch(in: "555-555-0199", options: [], range: NSRange(location: 0, length: 12)))
-        XCTAssertNotNil(pattern.firstMatch(in: "555.555.0199", options: [], range: NSRange(location: 0, length: 12)))
-        XCTAssertNotNil(pattern.firstMatch(in: "555 555 0199", options: [], range: NSRange(location: 0, length: 12)))
-        XCTAssertNotNil(pattern.firstMatch(in: "5555550199", options: [], range: NSRange(location: 0, length: 10)))
+        let validNumbers = ["555-555-0199", "555.555.0199", "555 555 0199", "5555550199"]
+        for number in validNumbers {
+            let range = NSRange(location: 0, length: number.utf16.count)
+            XCTAssertNotNil(pattern.firstMatch(in: number, options: [], range: range), "Should match '\(number)'")
+        }
         
         // Test invalid phone numbers
-        XCTAssertNil(pattern.firstMatch(in: "55-555-0199", options: [], range: NSRange(location: 0, length: 11)))
-        XCTAssertNil(pattern.firstMatch(in: "555-555-019", options: [], range: NSRange(location: 0, length: 11)))
-        XCTAssertNil(pattern.firstMatch(in: "abc-def-ghij", options: [], range: NSRange(location: 0, length: 12)))
+        let invalidNumbers = ["55-555-0199", "555-555-019", "abc-def-ghij"]
+        for number in invalidNumbers {
+            let range = NSRange(location: 0, length: number.utf16.count)
+            XCTAssertNil(pattern.firstMatch(in: number, options: [], range: range), "Should not match '\(number)'")
+        }
     }
     
     func testDigit() throws {
