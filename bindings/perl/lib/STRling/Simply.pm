@@ -574,31 +574,31 @@ sub _emit_pcre2 {
     
     my $type = ref($ir);
     
-    if ($type eq 'STRling::Core::IR::Literal') {
+    if ($type eq 'STRling::Core::IR::IRLit') {
         # Escape special regex characters
         my $value = $ir->value;
         $value =~ s/([\[\](){}.*+?^$|\\])/\\$1/g;
         return $value;
     }
-    elsif ($type eq 'STRling::Core::IR::Sequence') {
+    elsif ($type eq 'STRling::Core::IR::IRSeq') {
         return join('', map { $self->_emit_pcre2($_) } @{$ir->parts});
     }
-    elsif ($type eq 'STRling::Core::IR::CharClass') {
+    elsif ($type eq 'STRling::Core::IR::IRCharClass') {
         my $result = '[';
         $result .= '^' if $ir->negated;
         
         for my $item (@{$ir->items}) {
             my $item_type = ref($item);
-            if ($item_type eq 'STRling::Core::IR::ClassLiteral') {
+            if ($item_type eq 'STRling::Core::IR::IRClassLiteral') {
                 my $ch = $item->ch;
                 # Escape special chars within character class
                 $ch =~ s/([\[\]\\^-])/\\$1/g;
                 $result .= $ch;
             }
-            elsif ($item_type eq 'STRling::Core::IR::ClassRange') {
+            elsif ($item_type eq 'STRling::Core::IR::IRClassRange') {
                 $result .= $item->from_ch . '-' . $item->to_ch;
             }
-            elsif ($item_type eq 'STRling::Core::IR::ClassEscape') {
+            elsif ($item_type eq 'STRling::Core::IR::IRClassEscape') {
                 $result .= '\\' . $item->type;
             }
         }
@@ -606,7 +606,7 @@ sub _emit_pcre2 {
         $result .= ']';
         return $result;
     }
-    elsif ($type eq 'STRling::Core::IR::Quantifier') {
+    elsif ($type eq 'STRling::Core::IR::IRQuant') {
         my $child = $self->_emit_pcre2($ir->child);
         my $min = $ir->min;
         my $max = $ir->max;
@@ -630,7 +630,7 @@ sub _emit_pcre2 {
             return $child . '{' . $min . ',' . $max . '}';
         }
     }
-    elsif ($type eq 'STRling::Core::IR::Group') {
+    elsif ($type eq 'STRling::Core::IR::IRGroup') {
         my $body = $self->_emit_pcre2($ir->body);
         
         if ($ir->capturing) {
@@ -641,7 +641,7 @@ sub _emit_pcre2 {
         }
         return '(?:' . $body . ')';
     }
-    elsif ($type eq 'STRling::Core::IR::Anchor') {
+    elsif ($type eq 'STRling::Core::IR::IRAnchor') {
         my $at = $ir->at;
         return '^' if $at eq 'Start';
         return '$' if $at eq 'End';
@@ -651,7 +651,7 @@ sub _emit_pcre2 {
         return '\\Z' if $at eq 'EndBeforeFinalNewline';
         return '\\z' if $at eq 'AbsoluteEnd';
     }
-    elsif ($type eq 'STRling::Core::IR::Alternation') {
+    elsif ($type eq 'STRling::Core::IR::IRAlt') {
         return join('|', map { $self->_emit_pcre2($_) } @{$ir->branches});
     }
     
