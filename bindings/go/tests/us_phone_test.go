@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/thecyberlocal/strling/bindings/go/core"
@@ -48,7 +49,7 @@ func TestUSPhoneNumberPattern(t *testing.T) {
 }
 
 // TestUSPhoneNumberMatching verifies that the generated regex correctly matches
-// valid US phone numbers in various formats.
+// valid US phone numbers in various formats and rejects invalid ones.
 func TestUSPhoneNumberMatching(t *testing.T) {
 	phone := simply.Seq(
 		simply.Start(),
@@ -64,7 +65,10 @@ func TestUSPhoneNumberMatching(t *testing.T) {
 	ir := compiler.Compile(phone)
 	pattern := emitters.Emit(ir, nil)
 
-	// Test cases: valid phone numbers
+	// Compile to Go regexp for validation
+	re := regexp.MustCompile(pattern)
+
+	// Test cases: valid phone numbers should match
 	validNumbers := []string{
 		"555-123-4567",
 		"555.123.4567",
@@ -75,9 +79,23 @@ func TestUSPhoneNumberMatching(t *testing.T) {
 	}
 
 	for _, number := range validNumbers {
-		// Note: We're just checking the pattern string is correct
-		// Actual regex matching would require importing regexp package
-		// but the pattern correctness is validated in the first test
-		t.Logf("Pattern %q should match: %s", pattern, number)
+		if !re.MatchString(number) {
+			t.Errorf("Expected pattern to match %q, but it did not", number)
+		}
+	}
+
+	// Invalid phone numbers should not match
+	invalidNumbers := []string{
+		"555-12-4567",   // Middle section too short
+		"55-123-4567",   // Area code too short
+		"555-123-456",   // Last section too short
+		"555-123-45678", // Last section too long
+		"abc-123-4567",  // Non-digits in area code
+	}
+
+	for _, number := range invalidNumbers {
+		if re.MatchString(number) {
+			t.Errorf("Expected pattern NOT to match %q, but it did", number)
+		}
 	}
 }
