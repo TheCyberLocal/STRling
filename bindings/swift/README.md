@@ -48,7 +48,7 @@ let phone = Simply.merge([
 ])
 
 let regex = try phone.compile()
-print(regex) // => ^([\d]{3})[\-. ]?([\d]{3})[\-. ]?([\d]{4})$
+print(regex) // => ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
 ```
 
 > **Note:** The Simply API provides a clean, readable interface with static methods that align with the core specification format: `Simply.capture(...)`, `Simply.digit(...)`, etc.
