@@ -30,6 +30,38 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
+# Handle 'setup all' command
+if [ "$COMMAND" == "setup" ] && [ "$LANG" == "all" ]; then
+    echo ">> WARNING: You're about to run setup for ALL bindings (this will install toolchains for 17+ languages and may consume significant disk space and take considerable time)."
+    echo ">> Recommended: run a binding-specific setup instead, e.g. ./strling setup python"
+
+    # Refuse to run in a non-interactive shell to avoid accidental usage in CI
+    if [ ! -t 0 ]; then
+        echo "Error: non-interactive shell detected. Aborting 'setup all'."
+        echo "Run './strling setup <lang>' for a single binding instead."
+        exit 1
+    fi
+
+    # Ask user to confirm explicitly
+    read -p "Are you sure you want to continue? Type 'yes' to proceed: " CONFIRM
+    if [[ "$CONFIRM" != "yes" ]]; then
+        echo "Aborting 'setup all'. No changes made. Use './strling setup <lang>' for a single binding."
+        exit 1
+    fi
+
+    echo ">> Running setup for ALL bindings..."
+
+    # Get list of languages
+    LANGS=$(python3 -c "import json; print(' '.join(json.load(open('$TOOLCHAIN'))['bindings'].keys()))")
+
+    for L in $LANGS; do
+        echo "--------------------------------------------------"
+        echo ">> Setting up $L..."
+        "$0" setup "$L"
+    done
+    exit 0
+fi
+
 # Helper to get value from JSON
 get_json_value() {
     local key="$1"

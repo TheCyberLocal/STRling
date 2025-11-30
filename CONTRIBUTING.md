@@ -77,6 +77,12 @@ We provide a unified CLI tool `strling` (and `strling.ps1` for Windows) to manag
 # Setup dependencies (e.g., pip install, npm install)
 ./strling setup python
 
+# Setup ALL bindings (Not recommended)
+# Warning: This will install toolchains for 17+ languages and consume significant disk space.
+# The `setup all` command now prompts for confirmation (you must type 'yes' to proceed).
+# Prefer running a binding-specific setup instead, for example: `./strling setup python`.
+./strling setup all
+
 # Run tests
 ./strling test python
 ./strling test rust
