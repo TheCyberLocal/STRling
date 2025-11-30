@@ -555,6 +555,15 @@ sub _emit_pcre2 {
         return join('', map { $self->_emit_pcre2($_) } @{$ir->parts});
     }
     elsif ($type eq 'STRling::Core::IR::IRCharClass') {
+        # Optimization: if single escape and not negated, emit directly without brackets
+        # This ensures parity with TypeScript which emits \d instead of [\d]
+        if (!$ir->negated && scalar(@{$ir->items}) == 1) {
+            my $item = $ir->items->[0];
+            if (ref($item) eq 'STRling::Core::IR::IRClassEscape') {
+                return '\\' . $item->type;
+            }
+        }
+
         my $result = '[';
         $result .= '^' if $ir->negated;
         

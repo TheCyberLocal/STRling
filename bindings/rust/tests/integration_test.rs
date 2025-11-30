@@ -1,8 +1,8 @@
 //! Integration tests for STRling core data structures
 
-use strling_core::core::nodes::{Flags, Literal, Node};
-use strling_core::core::ir::{IRLit, IROp, IROpTrait};
-use strling_core::core::errors::STRlingParseError;
+use strling::core::nodes::{Flags, Literal, Node};
+use strling::core::ir::{IRLit, IROp, IROpTrait};
+use strling::core::errors::STRlingParseError;
 
 #[test]
 fn test_flags_from_letters() {

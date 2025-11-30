@@ -1,5 +1,5 @@
 use serde_json;
-use strling_core::core::nodes::*;
+use strling::core::nodes::*;
 
 #[test]
 fn class_escape_kind_normalizes() {
