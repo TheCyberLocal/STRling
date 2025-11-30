@@ -12,6 +12,7 @@
 
 require_relative '../core/ir'
 require_relative '../core/nodes'
+require_relative '../ir'
 
 module Strling
   module Emitters
@@ -41,30 +42,34 @@ module Strling
       # @return [String] The PCRE2 pattern fragment
       def emit_node(node)
         case node
-        when Strling::Core::IRAlt
+        when Strling::Core::IRAlt, Strling::IR::Alt
           # (branch1|branch2|...)
           branches = node.branches.map { |b| emit_node(b) }
           branches.length == 1 ? branches[0] : "(#{branches.join('|')})"
-        when Strling::Core::IRSeq
+        when Strling::Core::IRSeq, Strling::IR::Seq
           # Concatenate parts
           node.parts.map { |p| emit_node(p) }.join
-        when Strling::Core::IRLit
+        when Strling::Core::IRLit, Strling::IR::Lit
           # Escape metacharacters
           escape_literal(node.value)
-        when Strling::Core::IRDot
+        when Strling::Core::IRDot, Strling::IR::Dot
           '.'
-        when Strling::Core::IRAnchor
+        when Strling::Core::IRAnchor, Strling::IR::Anchor
           emit_anchor(node.at)
-        when Strling::Core::IRCharClass
+        when Strling::Core::IRCharClass, Strling::IR::CharClass
           emit_char_class(node)
-        when Strling::Core::IRQuant
+        when Strling::Core::IRQuant, Strling::IR::Quant
           emit_quantifier(node)
-        when Strling::Core::IRGroup
+        when Strling::Core::IRGroup, Strling::IR::Group
           emit_group(node)
         when Strling::Core::IRBackref
           emit_backref(node)
-        when Strling::Core::IRLook
+        when Strling::IR::BackRef
+          emit_backref(node)
+        when Strling::Core::IRLook, Strling::IR::Look
           emit_lookaround(node)
+        when Strling::IR::Esc
+          emit_escape(node)
         else
           raise "Unknown IR node type: #{node.class}"
         end
@@ -128,22 +133,35 @@ module Strling
         case item
         when Strling::Core::IRClassRange
           "#{item.from_ch}-#{item.to_ch}"
+        when Strling::IR::Range
+          "#{item.from}-#{item.to}"
         when Strling::Core::IRClassLiteral
-          # Escape special characters in character class context
-          case item.ch
-          when ']', '\\', '^', '-'
-            "\\#{item.ch}"
-          else
-            item.ch
-          end
+          emit_class_literal(item.ch)
+        when Strling::IR::Char
+          emit_class_literal(item.char)
         when Strling::Core::IRClassEscape
-          if %w[p P].include?(item.type)
-            "\\#{item.type}{#{item.property}}"
-          else
-            "\\#{item.type}"
-          end
+          emit_escape(item)
+        when Strling::IR::Esc
+          emit_escape(item)
         else
           raise "Unknown class item type: #{item.class}"
+        end
+      end
+
+      def emit_class_literal(ch)
+        case ch
+        when ']', '\\', '^', '-'
+          "\\#{ch}"
+        else
+          ch
+        end
+      end
+
+      def emit_escape(item)
+        if %w[p P].include?(item.type)
+          "\\#{item.type}{#{item.property}}"
+        else
+          "\\#{item.type}"
         end
       end
 

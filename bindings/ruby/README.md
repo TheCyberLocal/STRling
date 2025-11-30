@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - Ruby Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,15 +14,52 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+```bash
+gem install strling
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Ruby**:
 
-{Usage_Snippet}
+```ruby
+require 'strling'
+
+# Using the Simply Fluent API
+s = Strling::Simply
+
+pattern = s.merge(
+  s.start,
+  s.capture(s.digit.times(3)),
+  s.may(s.any_of('-', '.', ' ')),
+  s.capture(s.digit.times(3)),
+  s.may(s.any_of('-', '.', ' ')),
+  s.capture(s.digit.times(4)),
+  s.end
+)
+
+puts pattern.to_s
+# Output: ^(\d{3})(-|\.| )?(\d{3})(-|\.| )?(\d{4})$
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+
+## 🧩 Simply API Usage
+
+The `Simply` API provides a fluent interface for constructing patterns:
+
+```ruby
+require 'strling'
+
+# Create a pattern: digit followed by optional "foo"
+s = Strling::Simply
+pattern = s.merge(
+  s.digit,
+  s.capture(
+    s.may("foo")
+  )
+)
+```
 
 ## 🚀 Why STRling?
 

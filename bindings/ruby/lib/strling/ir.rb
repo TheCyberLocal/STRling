@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'core/nodes'
+
 module Strling
   module IR
     Lit = Data.define(:ir, :value)
@@ -22,6 +24,59 @@ module Strling
         return nil if ast_node.nil?
 
         case ast_node
+        # Core Nodes
+        when Strling::Core::Lit
+          Lit.new(ir: 'Lit', value: ast_node.value)
+        when Strling::Core::Quant
+          Quant.new(
+            ir: 'Quant',
+            child: compile(ast_node.child),
+            min: ast_node.min,
+            max: ast_node.max,
+            mode: ast_node.mode
+          )
+        when Strling::Core::Group
+          Group.new(
+            ir: 'Group',
+            capturing: ast_node.capturing,
+            body: compile(ast_node.body),
+            name: ast_node.name,
+            atomic: ast_node.atomic
+          )
+        when Strling::Core::Alt
+          Alt.new(
+            ir: 'Alt',
+            branches: ast_node.branches.map { |b| compile(b) }
+          )
+        when Strling::Core::Seq
+          parts = ast_node.parts.map { |p| compile(p) }
+          merged_parts = []
+          parts.each do |part|
+            if part.is_a?(Lit) && merged_parts.last.is_a?(Lit)
+              last = merged_parts.pop
+              merged_parts << Lit.new(ir: 'Lit', value: last.value + part.value)
+            else
+              merged_parts << part
+            end
+          end
+          if merged_parts.size == 1
+            merged_parts.first
+          else
+            Seq.new(ir: 'Seq', parts: merged_parts)
+          end
+        when Strling::Core::Esc
+          Esc.new(ir: 'Esc', type: ast_node.type, property: ast_node.property)
+        when Strling::Core::Anchor
+          at = ast_node.at == 'NonWordBoundary' ? 'NotWordBoundary' : ast_node.at
+          Anchor.new(ir: 'Anchor', at: at)
+        when Strling::Core::Look
+          Look.new(
+            ir: 'Look',
+            dir: ast_node.dir,
+            neg: ast_node.neg,
+            body: compile(ast_node.body)
+          )
+        # Legacy Nodes
         when Strling::Nodes::Literal
           Lit.new(ir: 'Lit', value: ast_node.value)
         when Strling::Nodes::Quantifier

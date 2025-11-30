@@ -180,6 +180,28 @@ module Strling
       end
     end
 
+    # Represents a standalone escape sequence (e.g. \d, \w, \s).
+    class Esc < Node
+      # @return [String] The escape type (d, D, w, W, s, S, p, P)
+      attr_accessor :type
+
+      # @return [String, nil] The Unicode property name (for \p and \P)
+      attr_accessor :property
+
+      # @param type [String] The escape type
+      # @param property [String, nil] The Unicode property name
+      def initialize(type, property: nil)
+        @type = type
+        @property = property
+      end
+
+      def to_dict
+        data = { 'kind' => 'Esc', 'type' => type }
+        data['property'] = property if %w[p P].include?(type) && property
+        data
+      end
+    end
+
     # Base class for character class items.
     class ClassItem
       # Serialize the item to hash representation.
