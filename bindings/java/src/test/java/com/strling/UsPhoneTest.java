@@ -1,13 +1,12 @@
 package com.strling;
 
-import com.strling.simply.*;
+import com.strling.simply.Simply;
 import org.junit.jupiter.api.Test;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.strling.simply.Constructors.*;
-import static com.strling.simply.Static.*;
+import static com.strling.simply.Simply.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -40,9 +39,9 @@ public class UsPhoneTest {
         com.strling.simply.Pattern phonePattern = merge(
             start(),
             capture(digit(3)),
-            may(anyOf("-", ".", " ")),
+            may(anyOf("-. ")),
             capture(digit(3)),
-            may(anyOf("-", ".", " ")),
+            may(anyOf("-. ")),
             capture(digit(4)),
             end()
         );
@@ -96,9 +95,9 @@ public class UsPhoneTest {
         com.strling.simply.Pattern phonePattern = merge(
             start(),
             group("areaCode", digit(3)),
-            may(anyOf("-", ".", " ")),
+            may(anyOf("-. ")),
             group("exchange", digit(3)),
-            may(anyOf("-", ".", " ")),
+            may(anyOf("-. ")),
             group("lineNumber", digit(4)),
             end()
         );

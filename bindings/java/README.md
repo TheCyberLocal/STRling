@@ -24,8 +24,7 @@ mvn clean install
 Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Java**:
 
 ```java
-import static com.strling.simply.Constructors.*;
-import static com.strling.simply.Static.*;
+import static com.strling.simply.Simply.*;
 
 import com.strling.simply.Pattern;
 import com.strling.simply.Simply;
@@ -35,9 +34,9 @@ import com.strling.simply.Simply;
 Pattern phonePattern = merge(
     start(),                  // Start of line
     capture(digit(3)),        // 3 digits (area code)
-    may(anyOf("-", ".", " ")), // Optional separator
+    may(anyOf("-. ")),        // Optional separator
     capture(digit(3)),        // 3 digits (exchange)
-    may(anyOf("-", ".", " ")), // Optional separator
+    may(anyOf("-. ")),        // Optional separator
     capture(digit(4)),        // 4 digits (line number)
     end()                     // End of line
 );
