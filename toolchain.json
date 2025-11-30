@@ -85,7 +85,7 @@
             "path": "bindings/python",
             "check_bin": "python3",
             "setup": ["pip", "install", "-r", "requirements.txt"],
-            "test": ["pytest", "-W", "error"]
+            "test": ["pytest", "-v", "-W", "error"]
         },
         "r": {
             "path": "bindings/r",
@@ -119,7 +119,7 @@
             "path": "bindings/typescript",
             "check_bin": "npm",
             "setup": ["npm", "install"],
-            "test": ["npm", "test"]
+            "test": ["npm", "test", "--", "--verbose"]
         }
     }
 }

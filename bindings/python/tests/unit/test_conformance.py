@@ -1,5 +1,8 @@
 import json
-import pytest
+
+# pylint: disable=import-error
+import pytest  # type: ignore[reportMissingImports]
+from typing import Any, TYPE_CHECKING, ContextManager, Type, Protocol
 from pathlib import Path
 from STRling.core.parser import from_json_fixture, parse, STRlingParseError
 from STRling.core.compiler import Compiler
@@ -20,15 +23,46 @@ from STRling.emitters.pcre2 import emit
 # Let's verify.
 FIXTURES_DIR = Path(__file__).parents[4] / "tests/spec"
 
+# Provide narrow type hints for the handful of pytest members used by this test
+# so static checkers (Pylance) can type-check without needing pytest stubs present.
+if TYPE_CHECKING:
 
-def get_fixtures():
+    class _PytestRaisesCM(Protocol):
+        value: Any
+
+    class _PytestProtocol(Protocol):
+        def fail(self, msg: str) -> None: ...
+
+        def raises(
+            self, exc: Type[BaseException]
+        ) -> ContextManager[_PytestRaisesCM]: ...
+
+        def skip(self, msg: str) -> None: ...
+
+        mark: Any
+
+    # Tell the type checker that `pytest` conforms to this protocol;
+    # at runtime the imported `pytest` module is used unchanged.
+    pytest: _PytestProtocol  # type: ignore[assignment]
+
+
+def get_fixtures() -> list[Path]:
     if not FIXTURES_DIR.exists():
         return []
     return sorted(list(FIXTURES_DIR.rglob("*.json")))
 
 
-@pytest.mark.parametrize("fixture_path", get_fixtures(), ids=lambda p: p.name)
-def test_conformance(fixture_path):
+def get_test_id(path: Path) -> str:
+    name = path.name
+    if name == "semantic_duplicates.json":
+        return "test_semantic_duplicate_capture_group"
+    if name == "semantic_ranges.json":
+        return "test_semantic_ranges"
+    return name
+
+
+@pytest.mark.parametrize("fixture_path", get_fixtures(), ids=get_test_id)
+def test_conformance(fixture_path: Path) -> None:
     with open(fixture_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
@@ -57,6 +91,7 @@ def test_conformance(fixture_path):
         ast_root = from_json_fixture(data["input_ast"])
     except ValueError as e:
         pytest.fail(f"Deserialization failed: {e}")
+        return
 
     # Compile to IR
     compiler = Compiler()

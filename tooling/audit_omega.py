@@ -26,9 +26,8 @@ WARNING_PATTERNS = [
 
 # Semantic checks (filenames that must appear in output)
 SEMANTIC_CHECKS = {
-    "DupNames": "semantic_duplicates",
-    "Ranges": "semantic_ranges",  # Note: I didn't create this file, but I'll check for existing range tests if I can't find it.
-    # Actually, I should check for "error_char_class_range_reversed_digit" as a proxy for Ranges if semantic_ranges doesn't exist.
+    "DupNames": "test_semantic_duplicate_capture_group",
+    "Ranges": "test_semantic_ranges",
 }
 
 
@@ -75,11 +74,6 @@ def check_semantic(stdout: str, stderr: str, check_key: str) -> bool:
     target = SEMANTIC_CHECKS.get(check_key)
     if not target:
         return False
-
-    # Fallback for Ranges if semantic_ranges not found
-    if check_key == "Ranges" and "semantic_ranges" not in combined:
-        if "error_char_class_range_reversed_digit" in combined:
-            return True
 
     return target in combined
 
@@ -185,14 +179,23 @@ def main():
         elif not dup_names_verified or not ranges_verified:
             verdict = "🔴 FAIL (Semantic)"
 
-        # Count tests (heuristic: count lines with "PASS" or similar, or just use length of output as proxy?
-        # Better to just say "Executed" or try to parse a number if possible.
-        # For now, we'll leave it as "Unknown" or try to find a number.)
+        # Count tests
         test_count = "Unknown"
-        # Try to find "X tests passed"
-        match = re.search(r"(\d+) tests passed", test_res.stdout)
-        if match:
-            test_count = match.group(1)
+        # Regex patterns for different runners
+        # 1. Generic "X tests passed"
+        # 2. Pytest: "==== 714 passed in 0.45s ===="
+        # 3. Jest: "Tests:       20 passed, 20 total"
+        patterns = [
+            r"(\d+) tests passed",
+            r"====\s+(\d+)\s+passed",
+            r"Tests:\s+(\d+)\s+passed",
+        ]
+
+        for pat in patterns:
+            match = re.search(pat, test_res.stdout)
+            if match:
+                test_count = match.group(1)
+                break
 
         results.append(
             {

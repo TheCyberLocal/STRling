@@ -158,40 +158,51 @@ function convertNode(node: any): any {
 describe("Shared JSON Conformance Suite", () => {
     const fixtures = getFixtures();
 
-    test.each(fixtures)("should pass conformance test %s", (fixturePath) => {
-        const content = fs.readFileSync(fixturePath, "utf8");
-        const data = JSON.parse(content);
-        const dsl = data.input_dsl;
+    fixtures.forEach((fixturePath) => {
+        const fileName = path.basename(fixturePath);
+        let testName = `should pass conformance test ${fileName}`;
 
-        if (data.expected_error) {
+        if (fileName === "semantic_duplicates.json") {
+            testName = "test_semantic_duplicate_capture_group";
+        } else if (fileName === "semantic_ranges.json") {
+            testName = "test_semantic_ranges";
+        }
+
+        test(testName, () => {
+            const content = fs.readFileSync(fixturePath, "utf8");
+            const data = JSON.parse(content);
+            const dsl = data.input_dsl;
+
+            if (data.expected_error) {
+                if (!dsl) {
+                    throw new Error("Error test case missing 'input_dsl'");
+                }
+                expect(() => parse(dsl)).toThrow(ParseError);
+                try {
+                    parse(dsl);
+                } catch (e: any) {
+                    expect(e.message).toContain(data.expected_error);
+                }
+                return;
+            }
+
             if (!dsl) {
-                throw new Error("Error test case missing 'input_dsl'");
+                // Skip if no DSL (should not happen with updated generator)
+                return;
             }
-            expect(() => parse(dsl)).toThrow(ParseError);
-            try {
-                parse(dsl);
-            } catch (e: any) {
-                expect(e.message).toContain(data.expected_error);
+
+            // 1. Verify Parser
+            const [flags, ast] = parse(dsl);
+            const jsonAst = convertNode(ast);
+            expect(jsonAst).toEqual(data.input_ast);
+
+            // 2. Verify Compiler & Emitter (if expected_codegen present)
+            if (data.expected_codegen && data.expected_codegen.pcre) {
+                const compiler = new Compiler();
+                const ir = compiler.compile(ast);
+                const pcre = emit(ir, flags);
+                expect(pcre).toEqual(data.expected_codegen.pcre);
             }
-            return;
-        }
-
-        if (!dsl) {
-            // Skip if no DSL (should not happen with updated generator)
-            return;
-        }
-
-        // 1. Verify Parser
-        const [flags, ast] = parse(dsl);
-        const jsonAst = convertNode(ast);
-        expect(jsonAst).toEqual(data.input_ast);
-
-        // 2. Verify Compiler & Emitter (if expected_codegen present)
-        if (data.expected_codegen && data.expected_codegen.pcre) {
-            const compiler = new Compiler();
-            const ir = compiler.compile(ast);
-            const pcre = emit(ir, flags);
-            expect(pcre).toEqual(data.expected_codegen.pcre);
-        }
+        });
     });
 });
