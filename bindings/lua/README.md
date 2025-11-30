@@ -1,4 +1,4 @@
-# STRling - {Language} Binding
+# STRling - Lua Binding
 
 > Part of the [STRling Project](https://github.com/TheCyberLocal/STRling/blob/main/README.md)
 
@@ -14,13 +14,29 @@
 
 ## 💿 Installation
 
-{Installation_Command}
+```bash
+luarocks install strling
+```
 
 ## 📦 Usage
 
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Lua**:
 
-{Usage_Snippet}
+```lua
+local strling = require("strling")
+local simply = strling.simply
+
+local phone = simply.merge(
+  simply.capture(simply.digit(3)),
+  simply.may(simply.any_of("-", ".", " ")),
+  simply.capture(simply.digit(3)),
+  simply.may(simply.any_of("-", ".", " ")),
+  simply.capture(simply.digit(4))
+)
+
+local regex = strling.compile(phone)
+print(regex)
+```
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 

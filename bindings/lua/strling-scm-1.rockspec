@@ -12,11 +12,13 @@ description = {
    license = "MIT"
 }
 dependencies = {
-   "lua >= 5.1"
+   "lua >= 5.1",
+   "lua-cjson"
 }
 build = {
    type = "builtin",
    modules = {
-      strling = "src/strling.lua"
+      strling = "src/strling.lua",
+      ["strling.simply"] = "src/simply.lua"
    }
 }
