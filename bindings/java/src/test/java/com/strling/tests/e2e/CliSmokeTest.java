@@ -78,7 +78,21 @@ public class CliSmokeTest {
      * A simple data carrier for the CLI process result.
      * Equivalent to the `CliResult` interface in TypeScript.
      */
-    private record CliResult(int code, String stdout, String stderr) {}
+    private static class CliResult {
+        final int code;
+        final String stdout;
+        final String stderr;
+
+        CliResult(int code, String stdout, String stderr) {
+            this.code = code;
+            this.stdout = stdout;
+            this.stderr = stderr;
+        }
+
+        int code() { return code; }
+        String stdout() { return stdout; }
+        String stderr() { return stderr; }
+    }
 
     /**
      * Runs the Python CLI script as a subprocess.
@@ -255,15 +269,13 @@ public class CliSmokeTest {
             Path filePath = writeTempFile("valid_for_invalid_schema.strl", "a(?<b>c)");
 
             // Create a deliberately broken schema
-            String invalidSchemaContent = """
-              {
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "type": "object",
-                "properties": {
-                  "root": false
-                }
-              }
-            """;
+            String invalidSchemaContent = "{\n" +
+              "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+              "  \"type\": \"object\",\n" +
+              "  \"properties\": {\n" +
+              "    \"root\": false\n" +
+              "  }\n" +
+              "}";
             Path invalidSchemaPath = writeTempFile("invalid.schema.json", invalidSchemaContent);
 
             CliResult result = runCli(

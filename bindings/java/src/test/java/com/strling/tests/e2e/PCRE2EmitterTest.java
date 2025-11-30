@@ -9,6 +9,7 @@ import com.strling.core.STRlingParseError;
 import com.strling.emitters.Pcre2Emitter;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -81,9 +82,10 @@ public class PCRE2EmitterTest {
      * DSL features.
      */
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class CategoryACoreLanguageFeatures {
 
-        static Stream<Arguments> testCases() {
+        Stream<Arguments> testCases() {
             return Stream.of(
                 // A.1: Complex pattern with named groups, classes, quantifiers, and flags
                 Arguments.of(
@@ -161,9 +163,10 @@ public class PCRE2EmitterTest {
      * Covers end-to-end compilation of PCRE2-specific extension features.
      */
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class CategoryCExtensionFeatures {
 
-        static Stream<Arguments> testCases() {
+        Stream<Arguments> testCases() {
             return Stream.of(
                 Arguments.of("(?>a+)", "(?>a+)", "atomic_group"),
                 Arguments.of("a*+", "a*+", "possessive_quantifier")
@@ -186,9 +189,10 @@ public class PCRE2EmitterTest {
      * complete, production-grade validation and parsing problems.
      */
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class CategoryDGoldenPatterns {
 
-        static Stream<Arguments> testCases() {
+        Stream<Arguments> testCases() {
             return Stream.of(
                 // Category 1: Common Validation Patterns
                 // Email Address (RFC 5322 subset - simplified)

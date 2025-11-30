@@ -1,5 +1,5 @@
 package = "strling"
-version = "3.0.0-alpha-1"
+version = "scm-1"
 source = {
    url = "git+https://github.com/TheCyberLocal/STRling.git"
 }

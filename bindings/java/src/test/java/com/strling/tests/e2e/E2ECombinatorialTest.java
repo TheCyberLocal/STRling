@@ -7,6 +7,7 @@ import com.strling.core.Nodes.Node;
 import com.strling.core.Parser;
 import com.strling.emitters.Pcre2Emitter;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -80,8 +81,9 @@ public class E2ECombinatorialTest {
          * Flags + other features
          */
         @Nested
+        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         class FlagsAndOtherFeatures {
-            static Stream<Arguments> testCases() {
+            Stream<Arguments> testCases() {
                 return Stream.of(
                     // Flags + Literals
                     Arguments.of("flags_literals_case_insensitive", "%flags i\nhello", "(?i)hello"),
@@ -121,8 +123,9 @@ public class E2ECombinatorialTest {
          * Literals + other features
          */
         @Nested
+        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         class LiteralsAndOtherFeatures {
-            static Stream<Arguments> testCases() {
+            Stream<Arguments> testCases() {
                 return Stream.of(
                     // Literals + Character Classes
                     Arguments.of("literals_charclass", "abc[xyz]", "abc[xyz]"),
@@ -160,8 +163,9 @@ public class E2ECombinatorialTest {
          * Character classes + other features
          */
         @Nested
+        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         class CharClassesAndOtherFeatures {
-            static Stream<Arguments> testCases() {
+            Stream<Arguments> testCases() {
                 return Stream.of(
                     // Character Classes + Anchors
                     Arguments.of("charclass_anchor_start", "^[a-z]+", "^[a-z]+"),
@@ -196,8 +200,9 @@ public class E2ECombinatorialTest {
          * Anchors + other features
          */
         @Nested
+        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         class AnchorsAndOtherFeatures {
-            static Stream<Arguments> testCases() {
+            Stream<Arguments> testCases() {
                 return Stream.of(
                     // Anchors + Quantifiers
                     Arguments.of("anchor_quantifier_start", "^a+", "^a+"),
@@ -227,8 +232,9 @@ public class E2ECombinatorialTest {
          * Quantifiers + other features
          */
         @Nested
+        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         class QuantifiersAndOtherFeatures {
-            static Stream<Arguments> testCases() {
+            Stream<Arguments> testCases() {
                 return Stream.of(
                     // Quantifiers + Groups
                     Arguments.of("quantifier_group_capturing", "(abc)+", "(abc)+"),
@@ -258,8 +264,9 @@ public class E2ECombinatorialTest {
          * Groups + other features
          */
         @Nested
+        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         class GroupsAndOtherFeatures {
-            static Stream<Arguments> testCases() {
+            Stream<Arguments> testCases() {
                 return Stream.of(
                     // Groups + Lookarounds
                     Arguments.of("group_lookahead_inside", "((?=test)abc)", "((?=test)abc)"),
@@ -285,8 +292,9 @@ public class E2ECombinatorialTest {
          * Lookarounds + other features
          */
         @Nested
+        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         class LookaroundsAndOtherFeatures {
-            static Stream<Arguments> testCases() {
+            Stream<Arguments> testCases() {
                 return Stream.of(
                     // Lookarounds + Alternation
                     Arguments.of("lookahead_alternation", "(?=a|b)", "(?=a|b)"),
@@ -308,8 +316,9 @@ public class E2ECombinatorialTest {
          * Alternation + backreferences
          */
         @Nested
+        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         class AlternationAndBackreferences {
-            static Stream<Arguments> testCases() {
+            Stream<Arguments> testCases() {
                 return Stream.of(
                     Arguments.of("alternation_backref", "(a)\\1|(b)\\2", "(a)\\1|(b)\\2")
                 );
@@ -332,9 +341,10 @@ public class E2ECombinatorialTest {
      * and Alternation.
      */
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class Tier2StrategicTripletTests {
 
-        static Stream<Arguments> strategicTriplets() {
+        Stream<Arguments> strategicTriplets() {
             return Stream.of(
                 // Flags + Groups + Quantifiers
                 Arguments.of("flags_groups_quantifiers_case", "%flags i\n(hello)+", "(?i)(hello)+"),
@@ -375,9 +385,10 @@ public class E2ECombinatorialTest {
      * Tests complex nested combinations that are especially prone to bugs.
      */
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class ComplexNestedFeatureTests {
 
-        static Stream<Arguments> complexNestedFeatures() {
+        Stream<Arguments> complexNestedFeatures() {
             return Stream.of(
                 // Deeply nested groups with quantifiers
                 Arguments.of("deeply_nested_quantifiers", "((a+)+)+", "((a+)+)+"),
