@@ -1,0 +1,9 @@
+{
+    "id": "semantic_duplicates",
+    "description": "Duplicate capture group names should error",
+    "input_dsl": "(?<name>a)(?<name>b)",
+    "expected_error": "Duplicate group name",
+    "metadata_expectations": {
+        "features_used": []
+    }
+}

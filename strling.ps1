@@ -13,6 +13,50 @@ if (-not (Test-Path $ToolchainFile)) {
     exit 1
 }
 
+if ($Command -eq "clean") {
+    if ($Language -eq "all") {
+        Write-Host ">> Cleaning global artifacts..."
+        $DirsToRemove = @("build", "target", "dist", "vendor", "__pycache__", ".venv", ".pytest_cache", ".mypy_cache")
+        
+        # Recursively find and remove these directories
+        # Using Get-ChildItem with -Recurse and -Directory
+        # Note: This can be slow on large trees.
+        
+        Get-ChildItem -Path $PSScriptRoot -Recurse -Directory -Force -ErrorAction SilentlyContinue | Where-Object { $DirsToRemove -contains $_.Name } | ForEach-Object {
+            Write-Host "Removing $($_.FullName)..."
+            Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        
+        Write-Host ">> Global clean complete."
+        exit 0
+    } else {
+        # Clean specific language
+        try {
+            $Json = Get-Content $ToolchainFile -Raw | ConvertFrom-Json
+            $Binding = $Json.bindings.$Language
+            if (-not $Binding) {
+                Write-Error "Language '$Language' not found in toolchain.json"
+                exit 1
+            }
+            $Path = $Binding.path
+            $TargetDir = Join-Path $PSScriptRoot $Path
+            
+            Write-Host ">> Cleaning artifacts in $TargetDir..."
+            $DirsToRemove = @("build", "target", "dist", "vendor", "__pycache__", ".venv")
+            
+            Get-ChildItem -Path $TargetDir -Recurse -Directory -Force -ErrorAction SilentlyContinue | Where-Object { $DirsToRemove -contains $_.Name } | ForEach-Object {
+                Write-Host "Removing $($_.FullName)..."
+                Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            }
+            Write-Host ">> Clean complete for $Language."
+            exit 0
+        } catch {
+            Write-Error "Failed to clean $Language: $_"
+            exit 1
+        }
+    }
+}
+
 try {
     $Json = Get-Content $ToolchainFile -Raw | ConvertFrom-Json
 } catch {

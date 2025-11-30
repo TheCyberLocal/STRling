@@ -9,7 +9,14 @@
         "cpp": {
             "path": "bindings/cpp",
             "check_bin": "cmake",
-            "setup": ["cmake", "-S", ".", "-B", "build"],
+            "setup": [
+                "cmake",
+                "-S",
+                ".",
+                "-B",
+                "build",
+                "-DCMAKE_COMPILE_WARNING_AS_ERROR=ON"
+            ],
             "build": ["cmake", "--build", "build"],
             "test": ["ctest", "--test-dir", "build"]
         },
@@ -78,7 +85,7 @@
             "path": "bindings/python",
             "check_bin": "python3",
             "setup": ["pip", "install", "-r", "requirements.txt"],
-            "test": ["pytest"]
+            "test": ["pytest", "-W", "error"]
         },
         "r": {
             "path": "bindings/r",
@@ -100,13 +107,13 @@
             "path": "bindings/rust",
             "check_bin": "cargo",
             "setup": [],
-            "test": ["cargo", "test"]
+            "test": ["env", "RUSTFLAGS=-D warnings", "cargo", "test"]
         },
         "swift": {
             "path": "bindings/swift",
             "check_bin": "swift",
             "setup": [],
-            "test": ["swift", "test"]
+            "test": ["swift", "test", "-Xswiftc", "-warnings-as-errors"]
         },
         "typescript": {
             "path": "bindings/typescript",

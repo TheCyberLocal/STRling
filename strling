@@ -62,6 +62,46 @@ if [ "$COMMAND" == "setup" ] && [ "$LANG" == "all" ]; then
     exit 0
 fi
 
+# Handle 'clean' command
+if [ "$COMMAND" == "clean" ]; then
+    if [ "$LANG" == "all" ]; then
+        echo ">> Cleaning global artifacts..."
+        # Remove common build directories recursively
+        find "$DIR" -type d \( -name "build" -o -name "target" -o -name "dist" -o -name "vendor" -o -name "__pycache__" -o -name ".venv" -o -name ".pytest_cache" -o -name ".mypy_cache" \) -prune -exec rm -rf {} +
+        echo ">> Global clean complete."
+        exit 0
+    else
+        echo ">> Cleaning $LANG..."
+        # For specific language, we might want to look up a clean command or just clean its directory
+        # But for now, the requirement is mostly about the global clean.
+        # Let's just warn that specific clean is not fully implemented or just do a targeted clean if we knew the path.
+        # We can use the path from toolchain.
+        
+        # We need to fetch the path first, which happens below.
+        # So we let it fall through to the normal logic? 
+        # But toolchain.json doesn't have a 'clean' command.
+        # So we should handle it here.
+        
+        # Let's fetch the path using the helper (we need to define it first or move this block down)
+        # The helper is defined below. Let's move the helper up or duplicate logic?
+        # Better to move the helper up.
+        # But I can't easily move code with replace_string.
+        # I'll just use the python one-liner again.
+        
+        BINDING_PATH=$(python3 -c "import json; try: print(json.load(open('$TOOLCHAIN'))['bindings']['$LANG']['path']); except: pass")
+        if [ -z "$BINDING_PATH" ]; then
+             echo "Error: Language '$LANG' not found in toolchain.json"
+             exit 1
+        fi
+        
+        TARGET_DIR="$DIR/$BINDING_PATH"
+        echo ">> Cleaning artifacts in $TARGET_DIR..."
+        find "$TARGET_DIR" -type d \( -name "build" -o -name "target" -o -name "dist" -o -name "vendor" -o -name "__pycache__" -o -name ".venv" \) -prune -exec rm -rf {} +
+        echo ">> Clean complete for $LANG."
+        exit 0
+    fi
+fi
+
 # Helper to get value from JSON
 get_json_value() {
     local key="$1"
