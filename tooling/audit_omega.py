@@ -101,6 +101,9 @@ def main():
         setup_res = run_command(f"{STRLING_CLI} setup {lang}")
         if setup_res is None or setup_res.returncode != 0:
             print(f"!! Setup failed for {lang}")
+            if setup_res:
+                print(f"STDOUT: {setup_res.stdout}")
+                print(f"STDERR: {setup_res.stderr}")
             results.append(
                 {
                     "binding": lang,
