@@ -1,0 +1,107 @@
+{
+    "bindings": {
+        "c": {
+            "path": "bindings/c",
+            "check_bin": "make",
+            "setup": [],
+            "test": ["make", "tests"]
+        },
+        "cpp": {
+            "path": "bindings/cpp",
+            "check_bin": "cmake",
+            "setup": ["cmake", "-S", ".", "-B", "build"],
+            "build": ["cmake", "--build", "build"],
+            "test": ["ctest", "--test-dir", "build"]
+        },
+        "csharp": {
+            "path": "bindings/csharp",
+            "check_bin": "dotnet",
+            "setup": ["dotnet", "restore"],
+            "test": ["dotnet", "test"]
+        },
+        "dart": {
+            "path": "bindings/dart",
+            "check_bin": "dart",
+            "setup": ["dart", "pub", "get"],
+            "test": ["dart", "test"]
+        },
+        "fsharp": {
+            "path": "bindings/fsharp",
+            "check_bin": "dotnet",
+            "setup": ["dotnet", "restore"],
+            "test": ["dotnet", "test"]
+        },
+        "go": {
+            "path": "bindings/go",
+            "check_bin": "go",
+            "setup": ["go", "mod", "download"],
+            "test": ["go", "test", "./..."]
+        },
+        "java": {
+            "path": "bindings/java",
+            "check_bin": "mvn",
+            "setup": [],
+            "test": ["mvn", "test"]
+        },
+        "kotlin": {
+            "path": "bindings/kotlin",
+            "check_bin": "java",
+            "setup": [],
+            "test": ["./gradlew", "test"]
+        },
+        "lua": {
+            "path": "bindings/lua",
+            "check_bin": "busted",
+            "setup": [],
+            "test": ["busted"]
+        },
+        "perl": {
+            "path": "bindings/perl",
+            "check_bin": "perl",
+            "setup": ["perl", "Makefile.PL"],
+            "test": ["prove", "-l", "t"]
+        },
+        "php": {
+            "path": "bindings/php",
+            "check_bin": "composer",
+            "setup": ["composer", "install"],
+            "test": ["vendor/bin/phpunit"]
+        },
+        "python": {
+            "path": "bindings/python",
+            "check_bin": "python3",
+            "setup": ["pip", "install", "-r", "requirements.txt"],
+            "test": ["pytest"]
+        },
+        "r": {
+            "path": "bindings/r",
+            "check_bin": "Rscript",
+            "setup": [],
+            "test": ["Rscript", "-e", "testthat::test_dir('tests/testthat')"]
+        },
+        "ruby": {
+            "path": "bindings/ruby",
+            "check_bin": "bundle",
+            "setup": ["bundle", "install"],
+            "test": ["bundle", "exec", "rake", "test"]
+        },
+        "rust": {
+            "path": "bindings/rust",
+            "check_bin": "cargo",
+            "setup": [],
+            "test": ["cargo", "test"]
+        },
+        "swift": {
+            "path": "bindings/swift",
+            "check_bin": "swift",
+            "setup": [],
+            "test": ["swift", "test"]
+        },
+        "typescript": {
+            "path": "bindings/typescript",
+            "check_bin": "npm",
+            "setup": ["npm", "install"],
+            "test": ["npm", "test"]
+        }
+    }
+}

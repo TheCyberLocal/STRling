@@ -69,27 +69,32 @@ If you are working on a specific language binding (e.g., Rust), your goal is **C
 
 ### 3. Running Tests
 
-We support a massive matrix of languages. Here is the cheat sheet for running tests in each binding:
+We provide a unified CLI tool `strling` (and `strling.ps1` for Windows) to manage setup, testing, and building across all 17 languages.
 
-| Language       | Command                                                                                   |
-| :------------- | :---------------------------------------------------------------------------------------- |
-| **C**          | `cd bindings/c && make tests`                                                             |
-| **C++**        | `cd bindings/cpp && cmake -S . -B build && cmake --build build && ctest --test-dir build` |
-| **C#**         | `cd bindings/csharp && dotnet test`                                                       |
-| **Dart**       | `cd bindings/dart && dart test`                                                           |
-| **Go**         | `cd bindings/go && go test ./...`                                                         |
-| **Java**       | `cd bindings/java && mvn test`                                                            |
-| **JavaScript** | (See TypeScript)                                                                          |
-| **Kotlin**     | `cd bindings/kotlin && ./gradlew test`                                                    |
-| **Lua**        | `cd bindings/lua && busted`                                                               |
-| **PHP**        | `cd bindings/php && vendor/bin/phpunit`                                                   |
-| **Python**     | `cd bindings/python && pytest`                                                            |
-| **Perl**       | `cd bindings/perl && prove -l t`                                                          |
-| **R**          | `cd bindings/r && Rscript -e "testthat::test_dir('tests/testthat')"`                      |
-| **Ruby**       | `cd bindings/ruby && bundle exec rake test`                                               |
-| **Rust**       | `cd bindings/rust && cargo test`                                                          |
-| **Swift**      | `cd bindings/swift && swift test`                                                         |
-| **TypeScript** | `cd bindings/typescript && npm test`                                                      |
+**Usage:**
+
+```bash
+# Setup dependencies (e.g., pip install, npm install)
+./strling setup python
+
+# Run tests
+./strling test python
+./strling test rust
+./strling test java
+
+# Build (for compiled languages like C++)
+./strling build cpp
+```
+
+**Windows (PowerShell):**
+
+```powershell
+.\strling.ps1 test csharp
+```
+
+**Manual Commands (Reference):**
+
+If you prefer running commands manually, you can inspect `toolchain.json` to see the exact commands used for each language.
 
 ---
 

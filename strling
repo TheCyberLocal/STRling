@@ -1,0 +1,68 @@
+#!/bin/bash
+set -e
+
+# Resolve script directory to locate toolchain.json
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+TOOLCHAIN="$DIR/toolchain.json"
+
+COMMAND=$1
+LANG=$2
+
+# Help / Usage
+if [ -z "$COMMAND" ] || [ -z "$LANG" ]; then
+    echo "Usage: ./strling <command> <language>"
+    echo "Commands: setup, test, build"
+    echo "Example: ./strling test python"
+    exit 1
+fi
+
+if [ ! -f "$TOOLCHAIN" ]; then
+    echo "Error: toolchain.json not found at $TOOLCHAIN"
+    exit 1
+fi
+
+# Check for python3
+if ! command -v python3 &> /dev/null; then
+    echo "Error: python3 is required to parse toolchain.json"
+    exit 1
+fi
+
+# Helper to get value from JSON
+get_json_value() {
+    python3 -c "import json, sys; data = json.load(sys.stdin); print(data['bindings'].get('$LANG', {}).get('$1', ''))" < "$TOOLCHAIN" 2>/dev/null
+}
+
+# Helper to get command string from JSON (properly quoted)
+get_cmd_string() {
+    python3 -c "import json, sys, shlex; data = json.load(sys.stdin); cmd = data['bindings'].get('$LANG', {}).get('$1', []); print(' '.join(shlex.quote(x) for x in cmd))" < "$TOOLCHAIN" 2>/dev/null
+}
+
+BINDING_PATH=$(get_json_value "path")
+CHECK_BIN=$(get_json_value "check_bin")
+
+if [ -z "$BINDING_PATH" ]; then
+    echo "Error: Language '$LANG' not found in toolchain.json"
+    exit 1
+fi
+
+# Check if the required binary exists
+if ! command -v "$CHECK_BIN" &> /dev/null; then
+    echo "Error: Required tool '$CHECK_BIN' not found. Please install it to work with $LANG."
+    exit 1
+fi
+
+CMD_STRING=$(get_cmd_string "$COMMAND")
+
+if [ -z "$CMD_STRING" ]; then
+    echo "No '$COMMAND' command defined for $LANG."
+    exit 0
+fi
+
+echo ">> Running $COMMAND for $LANG in $BINDING_PATH..."
+echo ">> Executing: $CMD_STRING"
+
+# Execute in the binding directory
+(
+    cd "$DIR/$BINDING_PATH"
+    eval "$CMD_STRING"
+)
