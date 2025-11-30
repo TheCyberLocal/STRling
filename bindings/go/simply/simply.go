@@ -5,88 +5,97 @@ import (
 	"github.com/thecyberlocal/strling/bindings/go/emitters"
 )
 
-// Pattern is a high-level wrapper around core.Node that provides a fluent API
-// matching the TypeScript/Python "Gold Standard" implementation.
+// Pattern is a wrapper around the core AST node to provide a fluent/functional API.
+// It hides the complexity of the AST from the user.
 type Pattern struct {
 	node core.Node
 }
 
-// ToRegex compiles the pattern to a PCRE2 regex string.
+// ToRegex compiles the pattern to a regex string.
+// It uses the core compiler and emitter to generate the final string.
 func (p Pattern) ToRegex() string {
 	compiler := core.NewCompiler()
 	ir := compiler.Compile(p.node)
 	return emitters.Emit(ir, nil)
 }
 
-// Start matches the beginning of a line (^).
+// Start matches the start of the string/line (^).
 func Start() Pattern {
 	return Pattern{node: core.Anchor{At: "Start"}}
 }
 
-// End matches the end of a line ($).
+// End matches the end of the string/line ($).
 func End() Pattern {
 	return Pattern{node: core.Anchor{At: "End"}}
 }
 
-// Lit creates a literal pattern that matches the exact string.
-func Lit(s string) Pattern {
-	return Pattern{node: core.Lit{Value: s}}
-}
-
-// Digit matches exactly n digits (\d{n}).
-// If n is less than or equal to 0, defaults to matching a single digit.
+// Digit matches exactly n digits.
+// If n <= 0, it defaults to 1.
 func Digit(n int) Pattern {
-	digitClass := core.CharClass{
-		Negated: false,
-		Items:   []core.ClassItem{core.ClassEscape{Type: "d"}},
-	}
-	
 	if n <= 0 {
 		n = 1
 	}
-	
-	if n == 1 {
-		return Pattern{node: digitClass}
+	// Create a digit class item (\d)
+	digit := core.ClassEscape{Type: "d"}
+	classNode := core.CharClass{
+		Negated: false,
+		Items:   []core.ClassItem{digit},
 	}
 	
-	return Pattern{node: core.Quant{Child: digitClass, Min: n, Max: n, Mode: "Greedy"}}
+	if n == 1 {
+		return Pattern{node: classNode}
+	}
+	
+	return Pattern{node: core.Quant{
+		Child: classNode,
+		Min:   n,
+		Max:   n,
+		Mode:  "Greedy",
+	}}
 }
 
-// AnyOf creates a character class matching any of the provided characters.
-// Similar to TypeScript's inChars function.
+// AnyOf matches any single character from the provided string.
+// Example: AnyOf("abc") matches [abc].
 func AnyOf(chars string) Pattern {
 	items := make([]core.ClassItem, 0, len(chars))
 	for _, c := range chars {
 		items = append(items, core.ClassLiteral{Ch: string(c)})
 	}
-	return Pattern{node: core.CharClass{Negated: false, Items: items}}
+	return Pattern{node: core.CharClass{
+		Negated: false,
+		Items:   items,
+	}}
 }
 
-// Merge concatenates multiple patterns into a single sequence.
-// Equivalent to TypeScript's s.merge(...patterns).
-func Merge(patterns ...Pattern) Pattern {
-	if len(patterns) == 0 {
+// Merge combines multiple patterns into a sequence.
+func Merge(parts ...Pattern) Pattern {
+	if len(parts) == 0 {
 		return Pattern{node: core.Seq{Parts: []core.Node{}}}
 	}
-	if len(patterns) == 1 {
-		return patterns[0]
+	if len(parts) == 1 {
+		return parts[0]
 	}
-	
-	nodes := make([]core.Node, len(patterns))
-	for i, p := range patterns {
+	nodes := make([]core.Node, len(parts))
+	for i, p := range parts {
 		nodes[i] = p.node
 	}
 	return Pattern{node: core.Seq{Parts: nodes}}
 }
 
-// Capture creates a numbered capture group around the pattern.
-// Equivalent to TypeScript's s.capture(...patterns).
-func Capture(pattern Pattern) Pattern {
-	return Pattern{node: core.Group{Capturing: true, Body: pattern.node}}
+// Capture wraps a pattern in a capturing group.
+func Capture(inner Pattern) Pattern {
+	return Pattern{node: core.Group{
+		Capturing: true,
+		Body:      inner.node,
+	}}
 }
 
-// May makes the pattern optional (matches 0 or 1 times, equivalent to ?).
-// Equivalent to TypeScript's s.may(...patterns).
-func May(pattern Pattern) Pattern {
-	return Pattern{node: core.Quant{Child: pattern.node, Min: 0, Max: 1, Mode: "Greedy"}}
+// May makes a pattern optional (matches 0 or 1 times).
+func May(inner Pattern) Pattern {
+	return Pattern{node: core.Quant{
+		Child: inner.node,
+		Min:   0,
+		Max:   1,
+		Mode:  "Greedy",
+	}}
 }

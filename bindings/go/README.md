@@ -34,7 +34,7 @@ import (
 
 func main() {
   // Build a US phone number pattern using the fluent `simply` builder.
-  // Start -> Capture(Digit(3)) -> Optional("-. ") ...
+  // Start -> Capture(Digit(3)) -> May(AnyOf("-. ")) ...
   phone := s.Merge(
     s.Start(),
     s.Capture(s.Digit(3)),
