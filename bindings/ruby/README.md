@@ -25,40 +25,21 @@ Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **Rub
 ```ruby
 require 'strling'
 
-# Using the Simply Fluent API
-s = Strling::Simply
-
-pattern = s.merge(
-  s.start,
-  s.capture(s.digit.times(3)),
-  s.may(s.any_of('-', '.', ' ')),
-  s.capture(s.digit.times(3)),
-  s.may(s.any_of('-', '.', ' ')),
-  s.capture(s.digit.times(4)),
-  s.end
+# Start -> Capture(Digit(3)) -> May(AnyOf("-. ")) ...
+# Note: Using STRling::Simply namespace
+phone = STRling::Simply.merge(
+  STRling::Simply.start(),
+  STRling::Simply.capture(STRling::Simply.digit(3)),
+  STRling::Simply.may(STRling::Simply.any_of("-. ")),
+  STRling::Simply.capture(STRling::Simply.digit(3)),
+  STRling::Simply.may(STRling::Simply.any_of("-. ")),
+  STRling::Simply.capture(STRling::Simply.digit(4)),
+  STRling::Simply.end()
 )
 
-puts pattern.to_s
-# Output: ^(\d{3})(-|\.| )?(\d{3})(-|\.| )?(\d{4})$
-```
-
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
-
-## 🧩 Simply API Usage
-
-The `Simply` API provides a fluent interface for constructing patterns:
-
-```ruby
-require 'strling'
-
-# Create a pattern: digit followed by optional "foo"
-s = Strling::Simply
-pattern = s.merge(
-  s.digit,
-  s.capture(
-    s.may("foo")
-  )
-)
+# Compile to Regex
+regex = phone.to_regex()
+puts regex
 ```
 
 ## 🚀 Why STRling?
