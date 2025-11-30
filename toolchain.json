@@ -51,8 +51,9 @@
         },
         "lua": {
             "path": "bindings/lua",
-            "check_bin": "busted",
-            "setup": [],
+            "check_bin": "luarocks",
+            "runtime": "Lua >= 5.1",
+            "setup": ["luarocks", "install", "busted"],
             "test": ["busted"]
         },
         "perl": {
@@ -64,7 +65,13 @@
         "php": {
             "path": "bindings/php",
             "check_bin": "composer",
-            "setup": ["composer", "install"],
+            "setup": [
+                "env",
+                "COMPOSER_ALLOW_SUPERUSER=1",
+                "composer",
+                "install",
+                "--no-interaction"
+            ],
             "test": ["vendor/bin/phpunit"]
         },
         "python": {

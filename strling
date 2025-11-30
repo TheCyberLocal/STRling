@@ -1,9 +1,12 @@
 #!/bin/bash
-set -e
+set -o pipefail
 
 # Resolve script directory to locate toolchain.json
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 TOOLCHAIN="$DIR/toolchain.json"
+
+# Where python virtualenv will live when using python binding
+VENV_DIR=".venv"
 
 COMMAND=$1
 LANG=$2
@@ -29,13 +32,24 @@ fi
 
 # Helper to get value from JSON
 get_json_value() {
-    python3 -c "import json, sys; data = json.load(sys.stdin); print(data['bindings'].get('$LANG', {}).get('$1', ''))" < "$TOOLCHAIN" 2>/dev/null
+    local key="$1"
+    python3 - <<PY
+import json
+try:
+    data=json.load(open('$TOOLCHAIN'))
+    b=data['bindings'].get('$LANG', {})
+    val=b.get('$key','')
+    if isinstance(val, list):
+        print(' '.join(val))
+    else:
+        print(val)
+except Exception:
+    pass
+PY
 }
 
 # Helper to get command string from JSON (properly quoted)
-get_cmd_string() {
-    python3 -c "import json, sys, shlex; data = json.load(sys.stdin); cmd = data['bindings'].get('$LANG', {}).get('$1', []); print(' '.join(shlex.quote(x) for x in cmd))" < "$TOOLCHAIN" 2>/dev/null
-}
+get_cmd_string() { get_json_value "$1"; }
 
 BINDING_PATH=$(get_json_value "path")
 CHECK_BIN=$(get_json_value "check_bin")
@@ -46,6 +60,7 @@ if [ -z "$BINDING_PATH" ]; then
 fi
 
 # Check if the required binary exists
+# Check for required binary
 if ! command -v "$CHECK_BIN" &> /dev/null; then
     echo "Error: Required tool '$CHECK_BIN' not found. Please install it to work with $LANG."
     exit 1
@@ -59,10 +74,36 @@ if [ -z "$CMD_STRING" ]; then
 fi
 
 echo ">> Running $COMMAND for $LANG in $BINDING_PATH..."
+
+cd "$DIR/$BINDING_PATH" || exit 1
+
+# Python: create & use venv so pip doesn't try to write system files
+if [[ "$LANG" == "python" ]]; then
+    if [[ ! -d "$VENV_DIR" ]]; then
+        echo ">> Creating Python virtual environment..."
+        python3 -m venv "$VENV_DIR"
+    fi
+    export PATH="$(pwd)/$VENV_DIR/bin:$PATH"
+    echo ">> Using python env: $(which python) (pip: $(which pip))"
+fi
+
 echo ">> Executing: $CMD_STRING"
 
-# Execute in the binding directory
-(
-    cd "$DIR/$BINDING_PATH"
-    eval "$CMD_STRING"
-)
+# Safely split and run the command
+read -r -a CMD_ARGS <<< "$CMD_STRING"
+
+# Historically we exec'd dotnet directly to avoid a wrapper process.
+# In some environments (including CI and certain WSL setups) replacing the shell
+# process with dotnet could cause unexpected segfaults. Run dotnet normally so
+# the wrapper stays alive and we can capture exit codes and logs reliably.
+if [[ "${CMD_ARGS[0]}" == "dotnet" ]]; then
+    echo ">> Running dotnet command in a clean shell to avoid direct-invocation issues"
+    bash -lc "$CMD_STRING"
+else
+    "${CMD_ARGS[@]}"
+fi
+EXIT_CODE=$?
+if [[ $EXIT_CODE -ne 0 ]]; then
+    echo "Command failed with exit code $EXIT_CODE"
+    exit $EXIT_CODE
+fi
