@@ -63,7 +63,7 @@ namespace Strling.Simply
         /// </summary>
         /// <param name="parts">The patterns to match in sequence.</param>
         /// <returns>A Pattern that matches all the input patterns in order.</returns>
-        public static Pattern Sequence(params Pattern[] parts)
+        public static Pattern Merge(params Pattern[] parts)
         {
             var list = new List<Node>();
             foreach (var p in parts) list.Add(p.Node);

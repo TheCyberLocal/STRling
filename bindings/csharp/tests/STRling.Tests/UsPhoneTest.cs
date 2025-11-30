@@ -8,12 +8,12 @@ public class UsPhoneTest
     [Fact]
     public void FluentApiProducesExpectedRegexString()
     {
-        var phone = S.Sequence(
+        var phone = S.Merge(
             S.Start(),
             S.Digit(3).Capture(),
-            S.AnyOf("-. ").Optional(),
+            S.AnyOf("-. ").May(),
             S.Digit(3).Capture(),
-            S.AnyOf("-. ").Optional(),
+            S.AnyOf("-. ").May(),
             S.Digit(4).Capture(),
             S.End()
         );

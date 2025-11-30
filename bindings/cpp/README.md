@@ -27,12 +27,12 @@ Here is how to match a US Phone number (e.g., `555-0199`) using the new `simply`
 using namespace strling;
 
 int main() {
-    auto phone = simply::sequence({
+    auto phone = simply::merge({
         simply::start(),
         simply::digit(3).as_capture(),
-        simply::any_of("-. ").optional(),
+        simply::any_of("-. ").may(),
         simply::digit(3).as_capture(),
-        simply::any_of("-. ").optional(),
+        simply::any_of("-. ").may(),
         simply::digit(4).as_capture(),
         simply::end()
     });

@@ -6,12 +6,12 @@ using namespace strling::simply;
 
 TEST(SimplyPattern, USPhoneBuilderMatchesReference) {
     // Build the phone example exactly like the README/target API
-    auto phone = sequence({
+    auto phone = merge({
         start(),
         digit(3).as_capture(),
-        any_of("-. ").optional(),
+        any_of("-. ").may(),
         digit(3).as_capture(),
-        any_of("-. ").optional(),
+        any_of("-. ").may(),
         digit(4).as_capture(),
         end()
     });

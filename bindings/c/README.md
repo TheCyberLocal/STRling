@@ -39,12 +39,12 @@ int main(void) {
      * Pattern: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
      * Matches: 555-0199, 555.0199, 555 0199, 5550199
      */
-    sl_pattern_t phone = sl_seq(7,
+    sl_pattern_t phone = sl_merge(7,
         sl_start(),
         sl_capture(sl_digit(3)),
-        sl_optional(sl_any_of("-. ")),
+        sl_may(sl_any_of("-. ")),
         sl_capture(sl_digit(3)),
-        sl_optional(sl_any_of("-. ")),
+        sl_may(sl_any_of("-. ")),
         sl_capture(sl_digit(4)),
         sl_end()
     );
@@ -53,7 +53,7 @@ int main(void) {
      * In the future, we'll add AST->JSON serialization to enable direct
      * compilation. For now, the Simply API constructs the correct AST
      * structure that can be used with future serialization capabilities.
-     * 
+     *
      * The JSON below represents the same pattern for demonstration.
      */
     const char* phone_json =
@@ -83,9 +83,10 @@ int main(void) {
 ```
 
 **Key Features:**
-- **Zero Boilerplate:** Simple, readable pattern construction with `sl_*` functions
-- **Memory Safety:** Single `sl_free(phone)` call cleans up entire pattern
-- **Fluent API:** Chain operations naturally with `sl_seq`, `sl_capture`, `sl_optional`, etc.
+
+-   **Zero Boilerplate:** Simple, readable pattern construction with `sl_*` functions
+-   **Memory Safety:** Single `sl_free(phone)` call cleans up entire pattern
+-   **Fluent API:** Chain operations naturally with `sl_seq`, `sl_capture`, `sl_optional`, etc.
 
 ### Low-Level API
 

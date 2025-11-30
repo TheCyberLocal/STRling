@@ -27,13 +27,13 @@ Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **C#*
 ```csharp
 using Strling.Simply;
 
-// Fluent: Start -> Capture(Digit(3)) -> Optional("-. ") -> Capture(Digit(3)) -> Optional("-. ") -> Capture(Digit(4)) -> End
-var phone = S.Sequence(
+// Fluent: Start -> Capture(Digit(3)) -> May("-. ") -> Capture(Digit(3)) -> May("-. ") -> Capture(Digit(4)) -> End
+var phone = S.Merge(
     S.Start(),
     S.Digit(3).Capture(),
-    S.AnyOf("-. ").Optional(),
+    S.AnyOf("-. ").May(),
     S.Digit(3).Capture(),
-    S.AnyOf("-. ").Optional(),
+    S.AnyOf("-. ").May(),
     S.Digit(4).Capture(),
     S.End()
 );
@@ -41,7 +41,6 @@ var phone = S.Sequence(
 string regex = phone.Compile();
 // regex -> "^(\\d{3})[-. ]?(\\d{3})[-. ]?(\\d{4})$"
 ```
-
 
 > **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
 

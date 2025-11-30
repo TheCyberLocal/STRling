@@ -78,11 +78,11 @@ Pattern literal(std::string_view s) { return Pattern(make_literal(s)); }
 Pattern any_of(std::string_view s) { return Pattern(make_anyof(s)); }
 Pattern start() { return Pattern(make_anchor("Start")); }
 Pattern end()   { return Pattern(make_anchor("End")); }
-Pattern sequence(const std::vector<Pattern>& parts) { return Pattern(make_seq(parts)); }
-Pattern sequence(std::initializer_list<Pattern> parts) { return sequence(std::vector<Pattern>(parts)); }
+Pattern merge(const std::vector<Pattern>& parts) { return Pattern(make_seq(parts)); }
+Pattern merge(std::initializer_list<Pattern> parts) { return merge(std::vector<Pattern>(parts)); }
 
 // returns a NEW Pattern (immutability)
-Pattern Pattern::optional() const {
+Pattern Pattern::may() const {
     // wrap current impl in a quantifier (min=0, max=1)
     return Pattern(make_quant(this->impl, 0, 1));
 }

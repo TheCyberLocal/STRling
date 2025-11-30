@@ -18,7 +18,7 @@ namespace Strling.Simply
         /// <summary>
         /// Make this pattern optional (quantifier 0..1).
         /// </summary>
-        public Pattern Optional()
+        public Pattern May()
         {
             return new Pattern(new Quant(Node, 0, 1, true, false, false));
         }

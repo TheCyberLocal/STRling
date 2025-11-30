@@ -63,6 +63,7 @@ val phonePattern = Simply.merge(
 The Simply API provides a fluent, chainable interface for building regex patterns:
 
 **Static Patterns:**
+
 ```kotlin
 Simply.start()        // Start anchor (^)
 Simply.end()          // End anchor ($)
@@ -74,6 +75,7 @@ Simply.literal("abc") // Literal text
 ```
 
 **Character Sets:**
+
 ```kotlin
 Simply.between('a', 'z')  // Lowercase letters
 Simply.between(0, 9)      // Digits
@@ -81,6 +83,7 @@ Simply.anyOf("-. ")       // Any of: -, ., or space
 ```
 
 **Constructors:**
+
 ```kotlin
 Simply.merge(p1, p2, p3)  // Concatenate patterns
 Simply.may(p1)            // Optional pattern (0 or 1)
@@ -90,8 +93,9 @@ Simply.anyOf(p1, p2)      // Alternation (p1 OR p2)
 ```
 
 **Fluent Methods:**
+
 ```kotlin
-pattern.optional()        // Make pattern optional
+pattern.may()             // Make pattern optional
 pattern.repeat(2, 5)      // Repeat 2-5 times
 pattern.asCapture()       // Wrap in capture group
 pattern.asGroup("name")   // Wrap in named group

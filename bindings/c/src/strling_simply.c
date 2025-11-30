@@ -97,12 +97,12 @@ sl_pattern_t sl_capture(sl_pattern_t inner) {
     return strling_ast_group_create(true, inner, NULL, false);
 }
 
-sl_pattern_t sl_optional(sl_pattern_t inner) {
+sl_pattern_t sl_may(sl_pattern_t inner) {
     if (!inner) return NULL;
     return strling_ast_quant_create(inner, 0, 1, "Greedy");
 }
 
-sl_pattern_t sl_seq(int count, ...) {
+sl_pattern_t sl_merge(int count, ...) {
     if (count <= 0) return NULL;
     
     /* Allocate array for patterns */

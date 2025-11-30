@@ -116,11 +116,11 @@ class UsPhoneTest {
     
     @Test
     fun `Should support fluent pattern methods`() {
-        // Test optional() method
+        // Test may() method
         val digit = Simply.digit()
-        val optionalDigit = digit.optional()
+        val optionalDigit = digit.may()
         
-        assertTrue(optionalDigit.node is Quantifier, "optional() should create Quantifier")
+        assertTrue(optionalDigit.node is Quantifier, "may() should create Quantifier")
         
         // Test asCapture() method
         val capturedDigit = digit.asCapture()

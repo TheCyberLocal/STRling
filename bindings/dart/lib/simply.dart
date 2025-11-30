@@ -56,7 +56,7 @@ class Pattern {
   Map<String, dynamic> toIR() => _node.toIR();
 
   /// Makes this pattern optional (matches 0 or 1 times)
-  Pattern optional() {
+  Pattern may() {
     return Pattern._(
       nodes.Quantifier(
         target: _node,
@@ -483,8 +483,8 @@ class Simply {
   static Pattern literal(String text) => Pattern._(nodes.Literal(text));
 
   /// Matches any character in the given string or patterns
-  static Pattern inChars(dynamic charsOrPatterns, [List<dynamic>? rest]) {
-    final members = _parseCharMembers(charsOrPatterns, rest, 'inChars');
+  static Pattern anyOf(dynamic charsOrPatterns, [List<dynamic>? rest]) {
+    final members = _parseCharMembers(charsOrPatterns, rest, 'anyOf');
     return Pattern._(nodes.CharacterClass(negated: false, members: members));
   }
 

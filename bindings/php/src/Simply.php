@@ -58,7 +58,7 @@ class Simply
      * @param string $chars The characters to match (e.g., "-. ")
      * @return Pattern A Pattern object representing a character class
      */
-    public static function inChars(string $chars): Pattern
+    public static function anyOf(string $chars): Pattern
     {
         $members = [];
         for ($i = 0; $i < strlen($chars); $i++) {

@@ -392,7 +392,7 @@ data class Pattern(
     /**
      * Makes this pattern optional (matches 0 or 1 times).
      */
-    fun optional(): Pattern {
+    fun may(): Pattern {
         return Pattern(
             Quantifier(
                 target = node,

@@ -38,12 +38,12 @@ static void test_us_phone_simply_api_construction(void **state)
     (void)state; /* unused */
 
     /* Build pattern using Simply API */
-    sl_pattern_t phone = sl_seq(7,
+    sl_pattern_t phone = sl_merge(7,
         sl_start(),
         sl_capture(sl_digit(3)),
-        sl_optional(sl_any_of("-. ")),
+        sl_may(sl_any_of("-. ")),
         sl_capture(sl_digit(3)),
-        sl_optional(sl_any_of("-. ")),
+        sl_may(sl_any_of("-. ")),
         sl_capture(sl_digit(4)),
         sl_end()
     );

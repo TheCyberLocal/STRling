@@ -35,9 +35,9 @@ use STRling\Simply;
 $phone = Simply::merge(
     Simply::start(),
     Simply::capture(Simply::digit(3)),
-    Simply::may(Simply::inChars("-. ")),
+    Simply::may(Simply::anyOf("-. ")),
     Simply::capture(Simply::digit(3)),
-    Simply::may(Simply::inChars("-. ")),
+    Simply::may(Simply::anyOf("-. ")),
     Simply::capture(Simply::digit(4)),
     Simply::end()
 );

@@ -30,9 +30,9 @@ class UsPhoneTest extends TestCase
         $phone = Simply::merge(
             Simply::start(),
             Simply::capture(Simply::digit(3)),
-            Simply::may(Simply::inChars("-. ")),
+            Simply::may(Simply::anyOf("-. ")),
             Simply::capture(Simply::digit(3)),
-            Simply::may(Simply::inChars("-. ")),
+            Simply::may(Simply::anyOf("-. ")),
             Simply::capture(Simply::digit(4)),
             Simply::end()
         );
@@ -66,8 +66,8 @@ class UsPhoneTest extends TestCase
         $digit35 = Simply::digit(3, 5);  // Match 3-5 digits
         $this->assertInstanceOf(Pattern::class, $digit35);
         
-        // Test inChars()
-        $sep = Simply::inChars("-. ");
+        // Test anyOf()
+        $sep = Simply::anyOf("-. ");
         $this->assertInstanceOf(Pattern::class, $sep);
         
         // Test start() and end()

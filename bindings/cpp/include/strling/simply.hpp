@@ -20,9 +20,9 @@ Pattern literal(std::string_view s);
 Pattern any_of(std::string_view chars);
 Pattern start();
 Pattern end();
-Pattern sequence(const std::vector<Pattern>& parts);
-// Convenience overload to allow braced-init lists such as sequence({a, b, c})
-Pattern sequence(std::initializer_list<Pattern> parts);
+Pattern merge(const std::vector<Pattern>& parts);
+// Convenience overload to allow braced-init lists such as merge({a, b, c})
+Pattern merge(std::initializer_list<Pattern> parts);
 
 // Pattern class — immutable (returns new Pattern from combinators)
 class Pattern {
@@ -32,7 +32,7 @@ public:
     explicit Pattern(std::shared_ptr<Impl> impl);
 
     // Fluent combinators
-    Pattern optional() const;      // like ?
+    Pattern may() const;      // like ?
     Pattern as_capture() const;    // make this a capturing group
 
 #ifdef STRLING_INTERNAL

@@ -8,9 +8,9 @@ void main() {
       final pattern = Simply.merge([
         Simply.start(),
         Simply.digit(3, 3).asCapture(),
-        Simply.inChars('-. ').optional(),
+        Simply.anyOf('-. ').may(),
         Simply.digit(3, 3).asCapture(),
-        Simply.inChars('-. ').optional(),
+        Simply.anyOf('-. ').may(),
         Simply.digit(4, 4).asCapture(),
         Simply.end(),
       ]);
@@ -26,7 +26,7 @@ void main() {
     test('Should match the TypeScript reference output structure', () {
       // This pattern should produce IR that matches the TypeScript implementation
       final areaCode = Simply.digit(3, 3).asCapture();
-      final separator = Simply.inChars('-. ').optional();
+      final separator = Simply.anyOf('-. ').may();
       final prefix = Simply.digit(3, 3).asCapture();
       final lineNumber = Simply.digit(4, 4).asCapture();
 

@@ -95,30 +95,16 @@ sl_pattern_t sl_capture(sl_pattern_t inner);
  * @param inner The pattern to make optional
  * @return A new quantifier node
  */
-sl_pattern_t sl_optional(sl_pattern_t inner);
+sl_pattern_t sl_may(sl_pattern_t inner);
 
 /**
- * Create a sequence of patterns (variadic version).
+ * Create a sequence pattern from multiple parts.
  * 
- * This function takes a variable number of pattern arguments and concatenates
- * them into a sequence. The sequence owns all child patterns.
- * 
- * @param count Number of patterns in the sequence
- * @param ... Variable number of sl_pattern_t arguments
- * @return A new sequence node containing all patterns
- * 
- * @example
- * sl_pattern_t phone = sl_seq(7,
- *     sl_start(),
- *     sl_capture(sl_digit(3)),
- *     sl_optional(sl_any_of("-. ")),
- *     sl_capture(sl_digit(3)),
- *     sl_optional(sl_any_of("-. ")),
- *     sl_capture(sl_digit(4)),
- *     sl_end()
- * );
+ * @param count Number of parts
+ * @param ... Variable arguments of type sl_pattern_t
+ * @return A new sequence node
  */
-sl_pattern_t sl_seq(int count, ...);
+sl_pattern_t sl_merge(int count, ...);
 
 /* ==================== Memory Management ==================== */
 
