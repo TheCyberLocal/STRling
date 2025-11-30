@@ -1,0 +1,19 @@
+[
+  {"binding":"c","build":"✅","tests":"520","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"},
+  {"binding":"cpp","build":"✅","tests":"420","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"},
+  {"binding":"csharp","build":"✅","tests":"360","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"},
+  {"binding":"dart","build":"✅","tests":"200","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"},
+  {"binding":"fsharp","build":"✅","tests":"0","skips":"N/A","warnings":"N/A","dup_names":"❓ Missing","ranges":"❓ Missing","verdict":"🔴 FAIL (Semantic)"},
+  {"binding":"go","build":"✅","tests":"0","skips":"✅","warnings":"✅","dup_names":"❓ Missing","ranges":"❓ Missing","verdict":"🔴 FAIL (Redux)"},
+  {"binding":"java","build":"✅","tests":"0","skips":"✅","warnings":"✅","dup_names":"❓ Missing","ranges":"❓ Missing","verdict":"🔴 FAIL (Redux)"},
+  {"binding":"kotlin","build":"✅","tests":"190","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"},
+  {"binding":"lua","build":"❌ Fail (Setup)","tests":"0","skips":"N/A","warnings":"N/A","dup_names":"N/A","ranges":"N/A","verdict":"🔴 FAIL"},
+  {"binding":"perl","build":"✅","tests":"120","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"},
+  {"binding":"php","build":"✅","tests":"160","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"},
+  {"binding":"python","build":"✅","tests":"672","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"},
+  {"binding":"r","build":"✅","tests":"125","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"},
+  {"binding":"ruby","build":"✅","tests":"0","skips":"❌ (1 Skip)","warnings":"✅","dup_names":"❓ Missing","ranges":"❓ Missing","verdict":"🔴 FAIL (Skips)"},
+  {"binding":"rust","build":"✅","tests":"108","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"},
+  {"binding":"swift","build":"✅","tests":"300","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"},
+  {"binding":"typescript","build":"✅","tests":"714","skips":"✅","warnings":"✅","dup_names":"✅ Verified","ranges":"✅ Verified","verdict":"🟢 CERTIFIED"}
+]

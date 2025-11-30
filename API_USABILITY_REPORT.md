@@ -1,6 +1,6 @@
 # STRling API Usability Status
 
-**Last Updated:** November 30, 2025
+**Last Updated:** November 30, 2025 (synchronized with FINAL_AUDIT_REPORT.md — Operation Omega)
 
 | Binding        | Tier |   Status   | Notes                                             |
 | :------------- | :--: | :--------: | :------------------------------------------------ |
