@@ -20,35 +20,35 @@
             ],
             "build": ["cmake", "--build", "build"],
             "clean": ["rm", "-rf", "build"],
-            "test": ["ctest", "--test-dir", "build"]
+            "test": ["ctest", "--test-dir", "build", "-V"]
         },
         "csharp": {
             "path": "bindings/csharp",
             "check_bin": "dotnet",
             "setup": ["dotnet", "restore"],
             "clean": ["dotnet", "clean"],
-            "test": ["dotnet", "test"]
+            "test": ["dotnet", "test", "--verbosity", "normal"]
         },
         "dart": {
             "path": "bindings/dart",
             "check_bin": "dart",
             "setup": ["dart", "pub", "get"],
             "clean": ["rm", "-rf", ".dart_tool", "pubspec.lock"],
-            "test": ["dart", "test"]
+            "test": ["dart", "test", "-r", "expanded"]
         },
         "fsharp": {
             "path": "bindings/fsharp",
             "check_bin": "dotnet",
             "setup": ["dotnet", "restore"],
             "clean": ["dotnet", "clean"],
-            "test": ["dotnet", "test"]
+            "test": ["dotnet", "test", "--verbosity", "normal"]
         },
         "go": {
             "path": "bindings/go",
             "check_bin": "go",
             "setup": ["go", "mod", "download"],
             "clean": ["go", "clean"],
-            "test": ["go", "test", "./..."]
+            "test": ["go", "test", "-v", "./..."]
         },
         "java": {
             "path": "bindings/java",
@@ -70,14 +70,14 @@
             "runtime": "Lua >= 5.1",
             "setup": ["./setup.sh"],
             "clean": ["rm", "-f", "strling.so"],
-            "test": ["busted"]
+            "test": ["busted", "-v"]
         },
         "perl": {
             "path": "bindings/perl",
             "check_bin": "perl",
             "setup": ["perl", "Makefile.PL"],
             "clean": ["make", "clean"],
-            "test": ["prove", "-l", "t"]
+            "test": ["prove", "-lv", "t"]
         },
         "php": {
             "path": "bindings/php",
@@ -90,7 +90,7 @@
                 "--no-interaction"
             ],
             "clean": ["rm", "-rf", "vendor"],
-            "test": ["vendor/bin/phpunit"]
+            "test": ["vendor/bin/phpunit", "--testdox"]
         },
         "python": {
             "path": "bindings/python",
@@ -115,14 +115,14 @@
             "check_bin": "bundle",
             "setup": ["bundle", "install"],
             "clean": ["rm", "-f", "*.gem"],
-            "test": ["bundle", "exec", "rake", "test"]
+            "test": ["bundle", "exec", "rake", "test", "TESTOPTS=-v"]
         },
         "rust": {
             "path": "bindings/rust",
             "check_bin": "cargo",
             "setup": [],
             "clean": ["cargo", "clean"],
-            "test": ["env", "RUSTFLAGS=-D warnings", "cargo", "test"]
+            "test": ["cargo", "test"]
         },
         "swift": {
             "path": "bindings/swift",

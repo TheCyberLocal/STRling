@@ -2,7 +2,7 @@
     "id": "semantic_ranges",
     "description": "Invalid range endpoints (min > max) should error",
     "input_dsl": "[z-a]",
-    "expected_error": "Invalid range",
+    "expected_error": "Invalid character range",
     "metadata_expectations": {
         "features_used": []
     }
