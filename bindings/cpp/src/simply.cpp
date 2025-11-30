@@ -54,6 +54,7 @@ static std::shared_ptr<Impl> make_anchor(std::string_view name) {
 }
 
 static std::shared_ptr<Impl> make_quant(std::shared_ptr<Impl> child, int min, int max = -1) {
+    (void)max;
     auto p = std::make_shared<Impl>();
     p->kind = Impl::Kind::Quantifier;
     p->parts.push_back(child);
