@@ -4,6 +4,7 @@
             "path": "bindings/c",
             "check_bin": "make",
             "setup": [],
+            "clean": ["make", "clean"],
             "test": ["make", "tests"]
         },
         "cpp": {
@@ -18,55 +19,64 @@
                 "-DCMAKE_COMPILE_WARNING_AS_ERROR=ON"
             ],
             "build": ["cmake", "--build", "build"],
+            "clean": ["rm", "-rf", "build"],
             "test": ["ctest", "--test-dir", "build"]
         },
         "csharp": {
             "path": "bindings/csharp",
             "check_bin": "dotnet",
             "setup": ["dotnet", "restore"],
+            "clean": ["dotnet", "clean"],
             "test": ["dotnet", "test"]
         },
         "dart": {
             "path": "bindings/dart",
             "check_bin": "dart",
             "setup": ["dart", "pub", "get"],
+            "clean": ["rm", "-rf", ".dart_tool", "pubspec.lock"],
             "test": ["dart", "test"]
         },
         "fsharp": {
             "path": "bindings/fsharp",
             "check_bin": "dotnet",
             "setup": ["dotnet", "restore"],
+            "clean": ["dotnet", "clean"],
             "test": ["dotnet", "test"]
         },
         "go": {
             "path": "bindings/go",
             "check_bin": "go",
             "setup": ["go", "mod", "download"],
+            "clean": ["go", "clean"],
             "test": ["go", "test", "./..."]
         },
         "java": {
             "path": "bindings/java",
             "check_bin": "mvn",
             "setup": [],
+            "clean": ["mvn", "clean"],
             "test": ["mvn", "test"]
         },
         "kotlin": {
             "path": "bindings/kotlin",
             "check_bin": "java",
             "setup": [],
+            "clean": ["./gradlew", "clean"],
             "test": ["./gradlew", "test"]
         },
         "lua": {
             "path": "bindings/lua",
             "check_bin": "luarocks",
             "runtime": "Lua >= 5.1",
-            "setup": ["luarocks", "install", "busted", "lua-cjson"],
+            "setup": ["./setup.sh"],
+            "clean": ["rm", "-f", "strling.so"],
             "test": ["busted"]
         },
         "perl": {
             "path": "bindings/perl",
             "check_bin": "perl",
             "setup": ["perl", "Makefile.PL"],
+            "clean": ["make", "clean"],
             "test": ["prove", "-l", "t"]
         },
         "php": {
@@ -79,18 +89,21 @@
                 "install",
                 "--no-interaction"
             ],
+            "clean": ["rm", "-rf", "vendor"],
             "test": ["vendor/bin/phpunit"]
         },
         "python": {
             "path": "bindings/python",
             "check_bin": "python3",
             "setup": ["pip", "install", "-r", "requirements.txt"],
+            "clean": ["rm", "-rf", "build", "dist", "src/STRling.egg-info"],
             "test": ["pytest", "-v", "-W", "error"]
         },
         "r": {
             "path": "bindings/r",
             "check_bin": "Rscript",
             "setup": [],
+            "clean": ["rm", "-f", "src/*.o", "src/*.so"],
             "test": [
                 "Rscript",
                 "-e",
@@ -101,24 +114,28 @@
             "path": "bindings/ruby",
             "check_bin": "bundle",
             "setup": ["bundle", "install"],
+            "clean": ["rm", "-f", "*.gem"],
             "test": ["bundle", "exec", "rake", "test"]
         },
         "rust": {
             "path": "bindings/rust",
             "check_bin": "cargo",
             "setup": [],
+            "clean": ["cargo", "clean"],
             "test": ["env", "RUSTFLAGS=-D warnings", "cargo", "test"]
         },
         "swift": {
             "path": "bindings/swift",
             "check_bin": "swift",
             "setup": [],
+            "clean": ["swift", "package", "clean"],
             "test": ["swift", "test", "-Xswiftc", "-warnings-as-errors"]
         },
         "typescript": {
             "path": "bindings/typescript",
             "check_bin": "npm",
             "setup": ["npm", "install"],
+            "clean": ["rm", "-rf", "dist", "coverage"],
             "test": ["npm", "test", "--", "--verbose"]
         }
     }
