@@ -461,7 +461,53 @@ NodePtr Parser::parse_quantifier(NodePtr child) {
         return std::make_unique<Quant>(std::move(child), 0, 1, mode);
     }
     
-    // TODO: Handle {m,n} quantifiers
+    if (ch == "{") {
+        cur.take(); // consume '{'
+        std::string min_str;
+        while (!cur.eof() && std::isdigit(cur.peek()[0])) {
+            min_str += cur.take();
+        }
+        if (min_str.empty()) {
+             raise_error("Expected digits in quantifier", cur.i);
+        }
+        int min = std::stoi(min_str);
+        
+        std::variant<int, std::string> max_var = min;
+        
+        if (cur.peek() == ",") {
+            cur.take(); // consume ','
+            if (cur.peek() == "}") {
+                // {n,} -> min=n, max=inf
+                max_var = "inf";
+            } else {
+                // {n,m}
+                std::string max_str;
+                while (!cur.eof() && std::isdigit(cur.peek()[0])) {
+                    max_str += cur.take();
+                }
+                if (max_str.empty()) {
+                     raise_error("Expected digits or '}' after comma", cur.i);
+                }
+                max_var = std::stoi(max_str);
+            }
+        }
+        
+        if (cur.peek() != "}") {
+             raise_error("Expected '}'", cur.i);
+        }
+        cur.take(); // consume '}'
+        
+        std::string mode = "Greedy";
+        if (cur.peek() == "?") {
+            cur.take();
+            mode = "Lazy";
+        } else if (cur.peek() == "+") {
+            cur.take();
+            mode = "Possessive";
+        }
+        
+        return std::make_unique<Quant>(std::move(child), min, max_var, mode);
+    }
     
     return child;
 }
@@ -519,15 +565,39 @@ NodePtr Parser::parse_group() {
             } else if (next == "!") {
                 cur.take();
                 look_neg = true;
+            } else {
+                // Named group
+                std::string group_name;
+                while (!cur.eof() && cur.peek() != ">") {
+                    group_name += cur.take();
+                }
+                if (cur.peek() != ">") {
+                     raise_error("Expected '>' after group name", cur.i);
+                }
+                cur.take(); // consume >
+                
+                if (cap_names.count(group_name)) {
+                     raise_error("Duplicate group name '" + group_name + "'", cur.i);
+                }
+                cap_names.insert(group_name);
+                name = group_name;
+                // Continue to parse body as a group (fall through)
             }
-            NodePtr body = parse_alt();
-            if (cur.peek() != ")") {
-                raise_error("Expected ')'", cur.i);
+            
+            if (next == "=" || next == "!") {
+                NodePtr body = parse_alt();
+                if (cur.peek() != ")") {
+                    raise_error("Expected ')'", cur.i);
+                }
+                cur.take();
+                return std::make_unique<Look>("Behind", look_neg, std::move(body));
             }
-            cur.take();
-            return std::make_unique<Look>("Behind", look_neg, std::move(body));
+        } else {
+             if (modifier == "i" || modifier == "m" || modifier == "s" || modifier == "u" || modifier == "x" || modifier == "-") {
+                 raise_error("Inline modifiers not supported", cur.i);
+             }
+             raise_error("Unknown group modifier", cur.i);
         }
-        // TODO: Handle named groups
     }
     
     // Parse group body
@@ -576,6 +646,21 @@ NodePtr Parser::parse_class() {
             if (esc == "d" || esc == "D" || esc == "w" || esc == "W" || 
                 esc == "s" || esc == "S") {
                 items.push_back(std::make_unique<ClassEscape>(esc));
+            } else if (esc == "p" || esc == "P") {
+                bool negated = (esc == "P");
+                if (cur.peek() != "{") {
+                     raise_error("Expected '{' after \\p", cur.i);
+                }
+                cur.take();
+                std::string prop;
+                while (!cur.eof() && cur.peek() != "}") {
+                    prop += cur.take();
+                }
+                if (cur.eof()) {
+                     raise_error("Unterminated unicode property", cur.i);
+                }
+                cur.take(); // consume }
+                items.push_back(std::make_unique<ClassEscape>(negated ? "P" : "p", prop));
             } else {
                 // Literal escaped character
                 items.push_back(std::make_unique<ClassLiteral>(esc));
@@ -594,6 +679,10 @@ NodePtr Parser::parse_class() {
                 items.push_back(std::make_unique<ClassLiteral>(lit));
             }
         }
+    }
+    
+    if (cur.eof()) {
+        raise_error("Unterminated character class", cur.i);
     }
     
     if (cur.peek() != "]") {
@@ -655,7 +744,83 @@ NodePtr Parser::parse_escape() {
     // Backreference
     if (std::isdigit(esc[0])) {
         int num = esc[0] - '0';
+        if (num > cap_count) {
+             raise_error("Backreference to undefined group " + std::to_string(num), cur.i);
+        }
         return std::make_unique<Backref>(num);
+    }
+
+    if (esc == "k") {
+        if (cur.peek() != "<") {
+             raise_error("Expected '<' after \\k", cur.i);
+        }
+        cur.take();
+        std::string name;
+        while (!cur.eof() && cur.peek() != ">") {
+            name += cur.take();
+        }
+        if (cur.peek() != ">") {
+             raise_error("Expected '>' after group name", cur.i);
+        }
+        cur.take();
+        if (cap_names.find(name) == cap_names.end()) {
+             raise_error("Backreference to undefined group " + name, cur.i);
+        }
+        return std::make_unique<Backref>(std::nullopt, name);
+    }
+
+    if (esc == "x" || esc == "u") {
+        if (cur.peek() == "{") {
+            cur.take();
+            std::string hex;
+            while (!cur.eof() && cur.peek() != "}") {
+                char c = cur.peek()[0];
+                if (!std::isxdigit(static_cast<unsigned char>(c))) {
+                     raise_error("Invalid hex digit", cur.i);
+                }
+                hex += cur.take();
+            }
+            if (cur.eof()) {
+                 raise_error("Unterminated hex escape", cur.i);
+            }
+            if (hex.empty()) {
+                 raise_error("Empty hex escape", cur.i);
+            }
+            cur.take();
+            return std::make_unique<Lit>("?"); 
+        } else {
+            int len = (esc == "x") ? 2 : 4;
+            std::string hex;
+            for (int i = 0; i < len; i++) {
+                if (cur.eof()) raise_error("Incomplete hex escape", cur.i);
+                char c = cur.peek()[0];
+                if (!std::isxdigit(static_cast<unsigned char>(c))) {
+                     raise_error("Invalid hex digit", cur.i);
+                }
+                hex += cur.take();
+            }
+            return std::make_unique<Lit>("?"); 
+        }
+    }
+
+    if (esc == "p" || esc == "P") {
+        bool negated = (esc == "P");
+        if (cur.peek() != "{") {
+             raise_error("Expected '{' after \\p", cur.i);
+        }
+        cur.take();
+        std::string prop;
+        while (!cur.eof() && cur.peek() != "}") {
+            prop += cur.take();
+        }
+        if (cur.eof()) {
+             raise_error("Unterminated unicode property", cur.i);
+        }
+        cur.take(); // consume }
+        
+        std::vector<ClassItemPtr> items;
+        items.push_back(std::make_unique<ClassEscape>(negated ? "P" : "p", prop));
+        return std::make_unique<CharClass>(false, std::move(items));
     }
     
     // Unknown escape - for now, treat as literal

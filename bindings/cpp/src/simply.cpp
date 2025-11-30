@@ -1,6 +1,7 @@
 #include "strling/simply.hpp"
 #include <sstream>
 #include <algorithm>
+#include <utility>
 
 namespace strling::simply {
 
