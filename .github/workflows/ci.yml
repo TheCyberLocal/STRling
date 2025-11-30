@@ -104,6 +104,155 @@ jobs:
 
     # --- DEPLOYMENT JOBS (ALPHABETICALLY ORDERED) ---
 
+    deploy-c:
+        name: Deploy C (Tag Validation)
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        steps:
+            - uses: actions/checkout@v4
+            - name: Verify Version Match
+              working-directory: bindings/c
+              run: |
+                  TAG_VERSION=${GITHUB_REF#refs/tags/v}
+                  # Extract version from src/strling.c: return "3.0.0-alpha";
+                  FILE_VERSION=$(grep 'return "' src/strling.c | cut -d '"' -f 2)
+                  echo "Tag: $TAG_VERSION"
+                  echo "File: $FILE_VERSION"
+                  if [ "$TAG_VERSION" != "$FILE_VERSION" ]; then
+                    echo "Version mismatch!"
+                    exit 1
+                  fi
+
+    deploy-cpp:
+        name: Deploy C++ (Tag Validation)
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        steps:
+            - uses: actions/checkout@v4
+            - name: Verify Version Match
+              working-directory: bindings/cpp
+              run: |
+                  TAG_VERSION=${GITHUB_REF#refs/tags/v}
+                  # Extract version from CMakeLists.txt: VERSION 3.0.0
+                  FILE_VERSION=$(grep "VERSION [0-9]" CMakeLists.txt | awk '{print $2}')
+                  echo "Tag: $TAG_VERSION"
+                  echo "File: $FILE_VERSION"
+                  # Note: CMake often uses just X.Y.Z, while tag might be X.Y.Z-alpha.
+                  # We'll do a simple prefix check or exact match if possible.
+                  if [[ "$TAG_VERSION" != "$FILE_VERSION"* ]]; then
+                     echo "Version mismatch! (Expected $FILE_VERSION to be part of $TAG_VERSION)"
+                     exit 1
+                  fi
+
+    deploy-csharp:
+        name: Deploy C# to NuGet
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: "9.0"
+            - name: Check NuGet registry
+              id: check_nuget
+              working-directory: bindings/csharp
+              run: |
+                  VERSION=$(grep "<Version>" src/STRling/STRling.csproj | sed -e 's/.*<Version>\(.*\)<\/Version>.*/\1/')
+                  if python3 ../../tooling/check_version_exists.py --registry nuget --package "STRling" --version "$VERSION"; then
+                     echo "exists=true" >> $GITHUB_OUTPUT
+                     echo "Version $VERSION already exists on NuGet. Skipping publish."
+                  else
+                     echo "exists=false" >> $GITHUB_OUTPUT
+                     echo "Version $VERSION not found on NuGet. Proceeding to publish."
+                  fi
+            - name: Pack
+              if: steps.check_nuget.outputs.exists == 'false'
+              working-directory: bindings/csharp
+              run: dotnet pack --configuration Release
+            - name: Push to NuGet
+              if: steps.check_nuget.outputs.exists == 'false'
+              working-directory: bindings/csharp
+              run: dotnet nuget push src/STRling/bin/Release/*.nupkg --api-key ${{ secrets.NUGET_KEY }} --source https://api.nuget.org/v3/index.json
+
+    deploy-dart:
+        name: Deploy Dart to Pub.dev
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        permissions:
+            id-token: write
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dart-lang/setup-dart@v1
+            - name: Check Pub.dev registry
+              id: check_pub
+              working-directory: bindings/dart
+              run: |
+                  VERSION=$(grep "^version:" pubspec.yaml | cut -d ' ' -f 2)
+                  if python3 ../../tooling/check_version_exists.py --registry pub --package "strling" --version "$VERSION"; then
+                     echo "exists=true" >> $GITHUB_OUTPUT
+                     echo "Version $VERSION already exists on Pub.dev. Skipping publish."
+                  else
+                     echo "exists=false" >> $GITHUB_OUTPUT
+                     echo "Version $VERSION not found on Pub.dev. Proceeding to publish."
+                  fi
+            - name: Publish to Pub.dev
+              if: steps.check_pub.outputs.exists == 'false'
+              working-directory: bindings/dart
+              run: dart pub publish --force
+
+    deploy-fsharp:
+        name: Deploy F# to NuGet
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: "9.0"
+            - name: Check NuGet registry
+              id: check_nuget_fs
+              working-directory: bindings/fsharp
+              run: |
+                  VERSION=$(grep "<Version>" src/STRling/STRling.fsproj | sed -e 's/.*<Version>\(.*\)<\/Version>.*/\1/')
+                  if python3 ../../tooling/check_version_exists.py --registry nuget --package "STRling.FSharp" --version "$VERSION"; then
+                     echo "exists=true" >> $GITHUB_OUTPUT
+                     echo "Version $VERSION already exists on NuGet. Skipping publish."
+                  else
+                     echo "exists=false" >> $GITHUB_OUTPUT
+                     echo "Version $VERSION not found on NuGet. Proceeding to publish."
+                  fi
+            - name: Pack
+              if: steps.check_nuget_fs.outputs.exists == 'false'
+              working-directory: bindings/fsharp
+              run: dotnet pack src/STRling/STRling.fsproj --configuration Release
+            - name: Push to NuGet
+              if: steps.check_nuget_fs.outputs.exists == 'false'
+              working-directory: bindings/fsharp
+              run: dotnet nuget push src/STRling/bin/Release/*.nupkg --api-key ${{ secrets.NUGET_KEY }} --source https://api.nuget.org/v3/index.json
+
+    deploy-go:
+        name: Deploy Go (Tag Validation)
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        steps:
+            - uses: actions/checkout@v4
+            - name: Verify Version Match
+              run: |
+                  TAG_VERSION=${GITHUB_REF#refs/tags/v}
+                  echo "Verifying Release $TAG_VERSION..."
+                  # Go modules are versioned by git tags.
+                  # We just verify the tag format is valid semver if needed, or just pass.
+                  if [[ ! "$TAG_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+                    echo "Invalid SemVer tag: $TAG_VERSION"
+                    exit 1
+                  fi
+
     deploy-java:
         name: Deploy Java to Maven Central
         runs-on: ubuntu-latest
@@ -122,6 +271,246 @@ jobs:
             - name: Build and deploy to Maven Central
               working-directory: bindings/java
               run: echo "Java deployment not yet implemented" && true
+
+    deploy-kotlin:
+        name: Deploy Kotlin to Maven Central
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-java@v4
+              with:
+                  distribution: "temurin"
+                  java-version: "11"
+            - name: Publish to Maven Central
+              working-directory: bindings/kotlin
+              env:
+                  MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+                  MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+                  ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
+              run: ./gradlew publish
+
+    deploy-lua:
+        name: Deploy Lua to LuaRocks
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: leafo/gh-actions-lua@v10
+            - uses: leafo/gh-actions-luarocks@v4
+            - name: Check LuaRocks registry
+              id: check_luarocks
+              working-directory: bindings/lua
+              run: |
+                  VERSION=$(grep "^version =" strling-scm-1.rockspec | cut -d '"' -f 2)
+                  if python3 ../../tooling/check_version_exists.py --registry luarocks --package "strling" --version "$VERSION"; then
+                     echo "exists=true" >> $GITHUB_OUTPUT
+                     echo "Version $VERSION already exists on LuaRocks. Skipping publish."
+                  else
+                     echo "exists=false" >> $GITHUB_OUTPUT
+                     echo "Version $VERSION not found on LuaRocks. Proceeding to publish."
+                  fi
+            - name: Upload to LuaRocks
+              if: steps.check_luarocks.outputs.exists == 'false'
+              working-directory: bindings/lua
+              env:
+                  LUAROCKS_API_KEY: ${{ secrets.LUA_API_KEY }}
+              run: luarocks upload strling-scm-1.rockspec --api-key=${LUAROCKS_API_KEY}
+
+    deploy-perl:
+        name: Deploy Perl to CPAN
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: shogo82148/actions-setup-perl@v1
+            - name: Install Upload Tool
+              run: cpanm App::cpanupload
+            - name: Upload to CPAN
+              working-directory: bindings/perl
+              env:
+                  PAUSE_USERNAME: ${{ secrets.PAUSE_USERNAME }}
+                  PAUSE_PASSWORD: ${{ secrets.PAUSE_PASSWORD }}
+              run: |
+                  # Assuming Makefile.PL or dist.ini exists and we can build a tarball
+                  # For now, we'll assume a standard make dist
+                  perl Makefile.PL
+                  make dist
+                  cpan-upload -u $PAUSE_USERNAME -p $PAUSE_PASSWORD *.tar.gz
+
+    deploy-php:
+        name: Deploy PHP (Tag Validation)
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        steps:
+            - uses: actions/checkout@v4
+            - name: Verify Version Match
+              working-directory: bindings/php
+              run: |
+                  TAG_VERSION=${GITHUB_REF#refs/tags/v}
+                  # Extract version from composer.json: "version": "3.0.0-alpha"
+                  FILE_VERSION=$(grep '"version":' composer.json | cut -d '"' -f 4)
+                  echo "Tag: $TAG_VERSION"
+                  echo "File: $FILE_VERSION"
+                  if [ "$TAG_VERSION" != "$FILE_VERSION" ]; then
+                    echo "Version mismatch!"
+                    exit 1
+                  fi
+
+    deploy-python:
+        name: Deploy Python to PyPI
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        permissions:
+            contents: read
+            id-token: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Setup Python 3.10
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.10"
+            - name: Check PyPI registry
+              id: check_pypi
+              working-directory: bindings/python
+              run: |
+                  pip install tomli
+                  VERSION=$(python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
+                  if python ../../tooling/check_version_exists.py --registry pypi --package "STRling" --version "$VERSION"; then
+                    echo "exists=true" >> $GITHUB_OUTPUT
+                    echo "Version $VERSION already exists on PyPI. Skipping publish."
+                  else
+                    echo "exists=false" >> $GITHUB_OUTPUT
+                    echo "Version $VERSION not found on PyPI. Proceeding to publish."
+                  fi
+            - name: Install build tools and build package
+              if: steps.check_pypi.outputs.exists == 'false'
+              working-directory: bindings/python
+              run: |
+                  python -m pip install --upgrade pip build
+                  python -m build
+            - name: Publish package to PyPI
+              if: steps.check_pypi.outputs.exists == 'false'
+              uses: pypa/gh-action-pypi-publish@release/v1
+              with:
+                  packages-dir: bindings/python/dist/
+
+    deploy-r:
+        name: Deploy R (Tag Validation)
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        steps:
+            - uses: actions/checkout@v4
+            - name: Verify Version Match
+              working-directory: bindings/r
+              run: |
+                  TAG_VERSION=${GITHUB_REF#refs/tags/v}
+                  # Extract version from DESCRIPTION: Version: 3.0.0-alpha
+                  FILE_VERSION=$(grep 'Version:' DESCRIPTION | awk '{print $2}')
+                  echo "Tag: $TAG_VERSION"
+                  echo "File: $FILE_VERSION"
+                  if [ "$TAG_VERSION" != "$FILE_VERSION" ]; then
+                    echo "Version mismatch!"
+                    exit 1
+                  fi
+
+    deploy-ruby:
+        name: Deploy Ruby to RubyGems
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        permissions:
+            contents: read
+            id-token: write
+        steps:
+            - uses: actions/checkout@v4
+            - uses: ruby/setup-ruby@v1
+              with:
+                  ruby-version: "3.2"
+            - name: Check RubyGems registry
+              id: check_rubygems
+              working-directory: bindings/ruby
+              run: |
+                  VERSION=$(grep "spec.version =" strling.gemspec | cut -d "'" -f 2)
+                  if python3 ../../tooling/check_version_exists.py --registry rubygems --package "strling" --version "$VERSION"; then
+                     echo "exists=true" >> $GITHUB_OUTPUT
+                     echo "Version $VERSION already exists on RubyGems. Skipping publish."
+                  else
+                     echo "exists=false" >> $GITHUB_OUTPUT
+                     echo "Version $VERSION not found on RubyGems. Proceeding to publish."
+                  fi
+            - name: Build Gem
+              if: steps.check_rubygems.outputs.exists == 'false'
+              working-directory: bindings/ruby
+              run: gem build strling.gemspec
+            - name: Publish to RubyGems
+              if: steps.check_rubygems.outputs.exists == 'false'
+              working-directory: bindings/ruby
+              env:
+                  GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_KEY }}
+              run: |
+                  mkdir -p ~/.gem
+                  cat << EOF > ~/.gem/credentials
+                  ---
+                  :rubygems_api_key: ${GEM_HOST_API_KEY}
+                  EOF
+                  chmod 0600 ~/.gem/credentials
+                  gem push *.gem
+
+    deploy-rust:
+        name: Deploy Rust to Crates.io
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dtolnay/rust-toolchain@stable
+              with:
+                  toolchain: "1.65"
+            - name: Check Crates.io registry
+              id: check_crates
+              working-directory: bindings/rust
+              run: |
+                  VERSION=$(grep "^version" Cargo.toml | head -n 1 | cut -d '"' -f 2)
+                  if python3 ../../tooling/check_version_exists.py --registry crates --package "strling_core" --version "$VERSION"; then
+                    echo "exists=true" >> $GITHUB_OUTPUT
+                    echo "Version $VERSION already exists on Crates.io. Skipping publish."
+                  else
+                    echo "exists=false" >> $GITHUB_OUTPUT
+                    echo "Version $VERSION not found on Crates.io. Proceeding to publish."
+                  fi
+            - name: Publish to Crates.io
+              if: steps.check_crates.outputs.exists == 'false'
+              working-directory: bindings/rust
+              env:
+                  CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_TOKEN }}
+              run: cargo publish
+
+    deploy-swift:
+        name: Deploy Swift (Tag Validation)
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/v')
+        needs: [test-matrix]
+        steps:
+            - uses: actions/checkout@v4
+            - name: Verify Version Match
+              run: |
+                  TAG_VERSION=${GITHUB_REF#refs/tags/v}
+                  echo "Verifying Release $TAG_VERSION..."
+                  # SwiftPM packages are versioned by git tags.
+                  if [[ ! "$TAG_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+                    echo "Invalid SemVer tag: $TAG_VERSION"
+                    exit 1
+                  fi
 
     deploy-typescript:
         name: Deploy TypeScript to NPM
@@ -185,201 +574,3 @@ jobs:
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: npm publish
-
-    deploy-python:
-        name: Deploy Python to PyPI
-        runs-on: ubuntu-latest
-        if: startsWith(github.ref, 'refs/tags/v')
-        needs: [test-matrix]
-        permissions:
-            contents: read
-            id-token: write
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-            - name: Setup Python 3.10
-              uses: actions/setup-python@v5
-              with:
-                  python-version: "3.10"
-            - name: Check PyPI registry
-              id: check_pypi
-              working-directory: bindings/python
-              run: |
-                  pip install tomli
-                  VERSION=$(python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
-                  if python ../../tooling/check_version_exists.py --registry pypi --package "STRling" --version "$VERSION"; then
-                    echo "exists=true" >> $GITHUB_OUTPUT
-                    echo "Version $VERSION already exists on PyPI. Skipping publish."
-                  else
-                    echo "exists=false" >> $GITHUB_OUTPUT
-                    echo "Version $VERSION not found on PyPI. Proceeding to publish."
-                  fi
-            - name: Install build tools and build package
-              if: steps.check_pypi.outputs.exists == 'false'
-              working-directory: bindings/python
-              run: |
-                  python -m pip install --upgrade pip build
-                  python -m build
-            - name: Publish package to PyPI
-              if: steps.check_pypi.outputs.exists == 'false'
-              uses: pypa/gh-action-pypi-publish@release/v1
-              with:
-                  packages-dir: bindings/python/dist/
-
-    deploy-rust:
-        name: Deploy Rust to Crates.io
-        runs-on: ubuntu-latest
-        if: startsWith(github.ref, 'refs/tags/v')
-        needs: [test-matrix]
-        steps:
-            - uses: actions/checkout@v4
-            - uses: dtolnay/rust-toolchain@stable
-              with:
-                  toolchain: "1.65"
-            - name: Check Crates.io registry
-              id: check_crates
-              working-directory: bindings/rust
-              run: |
-                  VERSION=$(grep "^version" Cargo.toml | head -n 1 | cut -d '"' -f 2)
-                  if python3 ../../tooling/check_version_exists.py --registry crates --package "strling_core" --version "$VERSION"; then
-                    echo "exists=true" >> $GITHUB_OUTPUT
-                    echo "Version $VERSION already exists on Crates.io. Skipping publish."
-                  else
-                    echo "exists=false" >> $GITHUB_OUTPUT
-                    echo "Version $VERSION not found on Crates.io. Proceeding to publish."
-                  fi
-            - name: Publish to Crates.io
-              if: steps.check_crates.outputs.exists == 'false'
-              working-directory: bindings/rust
-              env:
-                  CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_TOKEN }}
-              run: cargo publish
-
-    deploy-csharp:
-        name: Deploy C# to NuGet
-        runs-on: ubuntu-latest
-        if: startsWith(github.ref, 'refs/tags/v')
-        needs: [test-matrix]
-        steps:
-            - uses: actions/checkout@v4
-            - uses: actions/setup-dotnet@v4
-              with:
-                  dotnet-version: "9.0"
-            - name: Check NuGet registry
-              id: check_nuget
-              working-directory: bindings/csharp
-              run: |
-                  VERSION=$(grep "<Version>" src/STRling/STRling.csproj | sed -e 's/.*<Version>\(.*\)<\/Version>.*/\1/')
-                  if python3 ../../tooling/check_version_exists.py --registry nuget --package "STRling" --version "$VERSION"; then
-                     echo "exists=true" >> $GITHUB_OUTPUT
-                     echo "Version $VERSION already exists on NuGet. Skipping publish."
-                  else
-                     echo "exists=false" >> $GITHUB_OUTPUT
-                     echo "Version $VERSION not found on NuGet. Proceeding to publish."
-                  fi
-            - name: Pack
-              if: steps.check_nuget.outputs.exists == 'false'
-              working-directory: bindings/csharp
-              run: dotnet pack --configuration Release
-            - name: Push to NuGet
-              if: steps.check_nuget.outputs.exists == 'false'
-              working-directory: bindings/csharp
-              run: dotnet nuget push src/STRling/bin/Release/*.nupkg --api-key ${{ secrets.NUGET_KEY }} --source https://api.nuget.org/v3/index.json
-
-    deploy-ruby:
-        name: Deploy Ruby to RubyGems
-        runs-on: ubuntu-latest
-        if: startsWith(github.ref, 'refs/tags/v')
-        needs: [test-matrix]
-        permissions:
-            contents: read
-            id-token: write
-        steps:
-            - uses: actions/checkout@v4
-            - uses: ruby/setup-ruby@v1
-              with:
-                  ruby-version: "3.2"
-            - name: Check RubyGems registry
-              id: check_rubygems
-              working-directory: bindings/ruby
-              run: |
-                  VERSION=$(grep "spec.version =" strling.gemspec | cut -d "'" -f 2)
-                  if python3 ../../tooling/check_version_exists.py --registry rubygems --package "strling" --version "$VERSION"; then
-                     echo "exists=true" >> $GITHUB_OUTPUT
-                     echo "Version $VERSION already exists on RubyGems. Skipping publish."
-                  else
-                     echo "exists=false" >> $GITHUB_OUTPUT
-                     echo "Version $VERSION not found on RubyGems. Proceeding to publish."
-                  fi
-            - name: Build Gem
-              if: steps.check_rubygems.outputs.exists == 'false'
-              working-directory: bindings/ruby
-              run: gem build strling.gemspec
-            - name: Publish to RubyGems
-              if: steps.check_rubygems.outputs.exists == 'false'
-              working-directory: bindings/ruby
-              env:
-                  GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_KEY }}
-              run: |
-                  mkdir -p ~/.gem
-                  cat << EOF > ~/.gem/credentials
-                  ---
-                  :rubygems_api_key: ${GEM_HOST_API_KEY}
-                  EOF
-                  chmod 0600 ~/.gem/credentials
-                  gem push *.gem
-
-    deploy-dart:
-        name: Deploy Dart to Pub.dev
-        runs-on: ubuntu-latest
-        if: startsWith(github.ref, 'refs/tags/v')
-        needs: [test-matrix]
-        permissions:
-            id-token: write
-        steps:
-            - uses: actions/checkout@v4
-            - uses: dart-lang/setup-dart@v1
-            - name: Check Pub.dev registry
-              id: check_pub
-              working-directory: bindings/dart
-              run: |
-                  VERSION=$(grep "^version:" pubspec.yaml | cut -d ' ' -f 2)
-                  if python3 ../../tooling/check_version_exists.py --registry pub --package "strling" --version "$VERSION"; then
-                     echo "exists=true" >> $GITHUB_OUTPUT
-                     echo "Version $VERSION already exists on Pub.dev. Skipping publish."
-                  else
-                     echo "exists=false" >> $GITHUB_OUTPUT
-                     echo "Version $VERSION not found on Pub.dev. Proceeding to publish."
-                  fi
-            - name: Publish to Pub.dev
-              if: steps.check_pub.outputs.exists == 'false'
-              working-directory: bindings/dart
-              run: dart pub publish --force
-
-    deploy-lua:
-        name: Deploy Lua to LuaRocks
-        runs-on: ubuntu-latest
-        if: startsWith(github.ref, 'refs/tags/v')
-        needs: [test-matrix]
-        steps:
-            - uses: actions/checkout@v4
-            - uses: leafo/gh-actions-lua@v10
-            - uses: leafo/gh-actions-luarocks@v4
-            - name: Check LuaRocks registry
-              id: check_luarocks
-              working-directory: bindings/lua
-              run: |
-                  VERSION=$(grep "^version =" strling-scm-1.rockspec | cut -d '"' -f 2)
-                  if python3 ../../tooling/check_version_exists.py --registry luarocks --package "strling" --version "$VERSION"; then
-                     echo "exists=true" >> $GITHUB_OUTPUT
-                     echo "Version $VERSION already exists on LuaRocks. Skipping publish."
-                  else
-                     echo "exists=false" >> $GITHUB_OUTPUT
-                     echo "Version $VERSION not found on LuaRocks. Proceeding to publish."
-                  fi
-            - name: Upload to LuaRocks
-              if: steps.check_luarocks.outputs.exists == 'false'
-              working-directory: bindings/lua
-              env:
-                  LUAROCKS_API_KEY: ${{ secrets.LUA_API_KEY }}
-              run: luarocks upload strling-scm-1.rockspec --api-key=${LUAROCKS_API_KEY}
