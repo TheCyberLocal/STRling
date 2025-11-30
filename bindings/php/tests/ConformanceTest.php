@@ -12,10 +12,6 @@ class ConformanceTest extends TestCase
     #[DataProvider('provideSpecFiles')]
     public function testConformance(string $filename, array $spec): void
     {
-        if (!isset($spec['input_ast']) || !isset($spec['expected_ir'])) {
-            $this->markTestSkipped("Spec file $filename missing input_ast or expected_ir");
-        }
-
         // 1. Hydrate AST
         try {
             $ast = NodeFactory::fromArray($spec['input_ast']);
@@ -65,6 +61,10 @@ class ConformanceTest extends TestCase
             $json = json_decode($content, true);
             
             if (json_last_error() !== JSON_ERROR_NONE) {
+                continue;
+            }
+
+            if (!isset($json['input_ast']) || !isset($json['expected_ir'])) {
                 continue;
             }
 

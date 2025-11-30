@@ -27,15 +27,14 @@ void main() {
 
   for (final file in files) {
     final filename = p.basename(file.path);
+    final content = file.readAsStringSync();
+    final json = jsonDecode(content) as Map<String, dynamic>;
+
+    if (!json.containsKey('input_ast') || !json.containsKey('expected_ir')) {
+      continue;
+    }
+
     test('Conformance: $filename', () {
-      final content = file.readAsStringSync();
-      final json = jsonDecode(content) as Map<String, dynamic>;
-
-      if (!json.containsKey('input_ast') || !json.containsKey('expected_ir')) {
-        // print('Skipping $filename: missing input_ast or expected_ir');
-        return;
-      }
-
       final inputAst = json['input_ast'] as Map<String, dynamic>;
       final expectedIr = json['expected_ir'] as Map<String, dynamic>;
 

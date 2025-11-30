@@ -7,28 +7,26 @@ class ConformanceTest < Minitest::Test
   SPEC_DIR = File.expand_path('../../../../tests/spec', __FILE__)
 
   Dir.glob(File.join(SPEC_DIR, '*.json')).each do |file|
+    # Pre-check to filter invalid specs
+    begin
+      pre_spec = JSON.parse(File.read(file))
+      next unless pre_spec['input_ast'] && pre_spec['expected_ir']
+    rescue JSON::ParserError
+      next
+    end
+
     test_name = "test_conformance_#{File.basename(file, '.json').gsub(/[^a-zA-Z0-9_]/, '_')}"
     
     define_method(test_name) do
       spec = JSON.parse(File.read(file))
       
-      skip "No input_ast or expected_ir" unless spec['input_ast'] && spec['expected_ir']
-
       # Hydrate AST
-      begin
-        ast = Strling::Nodes::NodeFactory.from_json(spec['input_ast'])
-      rescue => e
-        skip "Hydration error: #{e.message}"
-      end
+      ast = Strling::Nodes::NodeFactory.from_json(spec['input_ast'])
       
       # Compile to IR
-      begin
-        ir = Strling::IR::Compiler.compile(ast)
-      rescue => e
-        skip "Compilation error: #{e.message}"
-      end
+      ir = Strling::IR::Compiler.compile(ast)
 
-      skip "Compilation returned nil" if ir.nil?
+      refute_nil ir, "Compilation returned nil"
       
       # Compare
       expected = spec['expected_ir']
