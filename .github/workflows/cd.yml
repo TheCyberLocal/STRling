@@ -76,7 +76,7 @@ jobs:
                       m = re.search(p, t, re.M)
                       if not m: raise RuntimeError(f"No version for {l}.")
                       return m.group(1).strip()
-                  def verify_version(file_path, expected_version, pattern=None, template_suffix='-template'):
+                  def verify_version(file_path, expected_version, pattern=None, template_path=None, template_suffix='-template'):
                       path = Path(file_path)
                       if path.exists():
                         content = read_text(path)
@@ -89,7 +89,10 @@ jobs:
                           raise ValueError(f"Version mismatch in {file_path}")
                         return expected_version
 
-                      template_path = path.with_name(f"{path.stem}{template_suffix}{path.suffix}")
+                      if template_path is None:
+                        template_path = path.with_name(f"{path.stem}{template_suffix}{path.suffix}")
+                      else:
+                        template_path = Path(template_path)
                       if template_path.exists():
                         content = read_text(template_path)
                         if "VERSION" in content:
@@ -107,7 +110,7 @@ jobs:
                   lua_version = verify_version('bindings/lua/strling.rockspec', ssot, r'^version\s*=\s*"([^"]+)"')
                   lua_path = Path('bindings/lua/strling.rockspec') if Path('bindings/lua/strling.rockspec').exists() else Path('bindings/lua/strling-template.rockspec')
                   lua_text = read_text(lua_path)
-                  ruby_version = verify_version('bindings/ruby/strling.gemspec', ssot, r"spec\.version\s*=\s*'([^']+)'")
+                  ruby_version = verify_version('bindings/ruby/strling.gemspec', ssot, r"spec\.version\s*=\s*'([^']+)'", 'bindings/ruby/strling.gemspec.template')
 
                   # Fix for f-string backslash limitation in Python < 3.12
                   cpp_text = read_text('bindings/cpp/CMakeLists.txt')
@@ -693,7 +696,7 @@ jobs:
                   GEMSPEC="strling.gemspec"
 
                   # Generate a versioned gemspec from the template for this release.
-                  sed "s/0.0.0/${VERSION}/g" strling-template.gemspec > $GEMSPEC
+                  sed "s/VERSION/${VERSION}/g" strling.gemspec.template > $GEMSPEC
 
                   # Build the gem and keep the generated gemspec ephemeral.
                   gem build $GEMSPEC
