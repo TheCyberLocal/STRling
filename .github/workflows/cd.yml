@@ -464,20 +464,26 @@ jobs:
         needs: [verify-release, compile-dart]
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
-        permissions: { id-token: write }
+        permissions:
+            id-token: write
+            contents: read
         steps:
             - uses: actions/checkout@v5
               with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
             - uses: dart-lang/setup-dart@v1
-            - name: Compliance and Publish
+            - name: Sync Metadata and Publish
               working-directory: bindings/dart
               run: |
-                  # Resolve required license file for pub.dev from repo root
+                  # Copy root files required by pub.dev
                   cp ../../LICENSE .
+                  cp ../../README.md .
+
                   if [ ! -f "CHANGELOG.md" ]; then
                     echo "## ${{ needs.verify-release.outputs.version }}" > CHANGELOG.md
-                    echo "- Release version ${{ needs.verify-release.outputs.version }}" >> CHANGELOG.md
+                    echo "- Official release of version ${{ needs.verify-release.outputs.version }}" >> CHANGELOG.md
                   fi
+
+                  # Validate metadata before publishing
                   if [ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]; then
                     dart pub publish --dry-run
                   else
