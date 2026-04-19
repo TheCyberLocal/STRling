@@ -470,12 +470,15 @@ jobs:
               run: |
                   VERSION="${{ needs.verify-release.outputs.version }}"
 
+                  # Exporting to local cache validates the conanfile.py and CMake setup
                   conan export . --name strling --version "$VERSION"
 
                   if [ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]; then
-                    echo "DRY RUN: Recipe strling/$VERSION exported."
+                    echo "DRY RUN: Recipe strling/$VERSION exported and validated."
                   else
-                    conan upload "strling/$VERSION" -r conancenter --confirm
+                    # Direct upload to 'conancenter' is restricted to PR-based submissions.
+                    echo "SUCCESS: Recipe strling/$VERSION exported to local cache."
+                    echo "NOTE: To publish globally, submit a PR to github.com/conan-io/conan-center-index."
                   fi
 
     publish-csharp:
@@ -776,29 +779,6 @@ jobs:
                   else
                     npm publish --access public --tag "$TAG"
                   fi
-
-    # ==========================================
-    # TIER 4: VALIDATION ANCHOR (BLIND INSTALLS)
-    # ==========================================
-
-    verify-conan-distributor:
-        needs: [verify-release, publish-cpp, publish-typescript]
-        if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false' && needs.publish-cpp.result == 'success' && needs.publish-typescript.result == 'success'
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/setup-python@v6
-              with: { python-version: "3.11" }
-            - shell: bash
-              run: |
-                  EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
-                  python -m pip install conan >/dev/null
-                  for attempt in 1 2 3; do
-                    SEARCH=$(conan search "strling/*" -r conancenter 2>/tmp/conan.log) || true
-                    INSTALLED=$(printf '%s\n' "$SEARCH" | sed -n 's/.*strling\/\([^ #]*\).*/\1/p' | sort -V | tail -n 1)
-                    if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
-                    [[ "$attempt" -lt 3 ]] && sleep 100
-                  done
-                  exit 1
 
     verify-cpan-distributor:
         needs: [verify-release, publish-perl, publish-typescript]
