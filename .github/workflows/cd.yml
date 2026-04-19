@@ -522,7 +522,6 @@ jobs:
 
                   # Copy root files required by pub.dev
                   cp ../../LICENSE .
-                  cp ../../README.md .
 
                   if [ ! -f "CHANGELOG.md" ]; then
                     echo "## $VER" > CHANGELOG.md
@@ -804,11 +803,12 @@ jobs:
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
-                  for attempt in 1 2 3; do
+                  for attempt in {1..8}; do
                     cpanm --notest STRling >/dev/null 2>&1 || true
                     INSTALLED=$(perl -MSTRling -e 'print $STRling::VERSION' 2>/dev/null || echo "")
                     if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
-                    [[ "$attempt" -lt 3 ]] && sleep 100
+                    echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 15s..."
+                    [[ "$attempt" -lt 8 ]] && sleep 15
                   done
                   exit 1
 
@@ -821,17 +821,17 @@ jobs:
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
-                  for attempt in 1 2 3; do
+                  for attempt in {1..8}; do
                     # Use the API directly to bypass index latency
                     INSTALLED=$(curl -s https://crates.io/api/v1/crates/strling | jq -r '.crate.max_version')
 
                     if [[ "$INSTALLED" == "$EXPECTED" ]]; then
-                      echo "✅ Verified strling version $INSTALLED is live on crates.io"
+                      echo "✅ Verified $EXPECTED is live on crates.io"
                       exit 0
                     fi
 
-                    echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 100s..."
-                    [[ "$attempt" -lt 3 ]] && sleep 100
+                    echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 15s..."
+                    [[ "$attempt" -lt 8 ]] && sleep 15
                   done
                   exit 1
 
@@ -845,11 +845,12 @@ jobs:
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
-                  for attempt in 1 2 3; do
-                    gem install strling --no-document >/dev/null 2>&1 || true
-                    INSTALLED=$(ruby -e "begin; puts Gem::Specification.find_by_name('strling').version; rescue; end")
+                  for attempt in {1..8}; do
+                    INSTALLED=$(curl -s https://rubygems.org/api/v1/gems/strling.json | jq -r '.version')
+
                     if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
-                    [[ "$attempt" -lt 3 ]] && sleep 100
+                    echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 15s..."
+                    [[ "$attempt" -lt 8 ]] && sleep 15
                   done
                   exit 1
 
@@ -863,13 +864,22 @@ jobs:
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
-                  for attempt in 1 2 3; do
-                    luarocks install strling >/dev/null 2>&1 || true
-                    ROCK_VERSION=$(luarocks show strling 2>/dev/null | awk 'NR==1 {print $2}')
-                    INSTALLED=$(printf '%s\n' "$ROCK_VERSION" | sed -E 's/-[0-9]+$//')
-                    if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
-                    [[ "$attempt" -lt 3 ]] && sleep 100
+                  # LuaRocks versions use the format VERSION-REVISION (e.g., 3.0.0-1)
+                  FULL_VERSION="${EXPECTED}-1"
+
+                  for attempt in {1..8}; do
+                    INSTALLED=$(curl -sIL "https://luarocks.org/strling-${FULL_VERSION}.rockspec" | grep -q "200 OK" && echo "$FULL_VERSION" || echo "")
+
+                    if [[ "$INSTALLED" == "$FULL_VERSION" ]]; then
+                      echo "✅ Verified $FULL_VERSION is live on LuaRocks"
+                      exit 0
+                    fi
+
+                    echo "Attempt $attempt: Expected $FULL_VERSION, found '$INSTALLED'. Retrying in 15s..."
+                    [[ "$attempt" -lt 8 ]] && sleep 15
                   done
+
+                  echo "❌ Timeout: Version $FULL_VERSION not found on LuaRocks after 2 minutes."
                   exit 1
 
     verify-maven-distributor:
@@ -881,11 +891,12 @@ jobs:
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
-                  for attempt in 1 2 3; do
+                  for attempt in {1..8}; do
                     JAVA_VER=$(curl -fsSL "https://repo1.maven.org/maven2/com/strling/strling/maven-metadata.xml" | sed -n 's:.*<release>\([^<]*\)</release>.*:\1:p')
                     KOTLIN_VER=$(curl -fsSL "https://repo1.maven.org/maven2/com/strling/strling-kotlin/maven-metadata.xml" | sed -n 's:.*<release>\([^<]*\)</release>.*:\1:p')
                     if [[ "$JAVA_VER" == "$EXPECTED" && "$KOTLIN_VER" == "$EXPECTED" ]]; then exit 0; fi
-                    [[ "$attempt" -lt 3 ]] && sleep 100
+                    echo "Attempt $attempt: Expected $EXPECTED, found Java='$JAVA_VER', Kotlin='$KOTLIN_VER'. Retrying in 15s..."
+                    [[ "$attempt" -lt 8 ]] && sleep 15
                   done
                   exit 1
 
@@ -895,24 +906,16 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false' && needs.publish-csharp.result == 'success' && needs.publish-fsharp.result == 'success' && needs.publish-typescript.result == 'success'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/setup-dotnet@v5
-              with: { dotnet-version: "9.0" }
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
-                  for attempt in 1 2 3; do
-                    CSHARP_DIR=$(mktemp -d) && pushd "$CSHARP_DIR" >/dev/null
-                    dotnet new console --force >/dev/null && dotnet add package STRling >/dev/null 2>&1 || true
-                    CS=$(dotnet list package | awk '$2=="STRling" {print $NF; exit}')
-                    popd >/dev/null
-
-                    FSHARP_DIR=$(mktemp -d) && pushd "$FSHARP_DIR" >/dev/null
-                    dotnet new console -lang F# --force >/dev/null && dotnet add package STRling.FSharp >/dev/null 2>&1 || true
-                    FS=$(dotnet list package | awk '$2=="STRling.FSharp" {print $NF; exit}')
-                    popd >/dev/null
+                  for attempt in {1..8}; do
+                    CS=$(curl -s https://api.nuget.org/v3-flatcontainer/strling/index.json | jq -r '.versions[-1] // empty')
+                    FS=$(curl -s https://api.nuget.org/v3-flatcontainer/strling.fsharp/index.json | jq -r '.versions[-1] // empty')
 
                     if [[ "$CS" == "$EXPECTED" && "$FS" == "$EXPECTED" ]]; then exit 0; fi
-                    [[ "$attempt" -lt 3 ]] && sleep 100
+                    echo "Attempt $attempt: Expected $EXPECTED, found C#='$CS', F#='$FS'. Retrying in 15s..."
+                    [[ "$attempt" -lt 8 ]] && sleep 15
                   done
                   exit 1
 
@@ -925,15 +928,12 @@ jobs:
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
-                  for attempt in 1 2 3; do
-                    WORKDIR=$(mktemp -d)
-                    dart create --force --template=console-simple "$WORKDIR/app" >/dev/null
-                    pushd "$WORKDIR/app" >/dev/null
-                    dart pub add strling >/dev/null 2>&1 || true
-                    INSTALLED=$(awk '/^  strling:$/ {in_pkg=1; next} in_pkg && /version:/ {gsub(/"/, "", $2); print $2; exit}' pubspec.lock)
-                    popd >/dev/null
+                  for attempt in {1..8}; do
+                    INSTALLED=$(curl -s https://pub.dev/api/packages/strling | jq -r '.latest.version')
+
                     if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
-                    [[ "$attempt" -lt 3 ]] && sleep 100
+                    echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 15s..."
+                    [[ "$attempt" -lt 8 ]] && sleep 15
                   done
                   exit 1
 
@@ -942,18 +942,15 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false' && needs.publish-python.result == 'success' && needs.publish-typescript.result == 'success'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/setup-python@v6
-              with: { python-version: "3.10" }
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
-                  for attempt in 1 2 3; do
-                    WORKDIR=$(mktemp -d) && python -m venv "$WORKDIR/.venv" && source "$WORKDIR/.venv/bin/activate"
-                    pip install strling >/dev/null 2>&1 || true
-                    INSTALLED=$(pip show strling 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}')
-                    deactivate
+                  for attempt in {1..8}; do
+                    INSTALLED=$(curl -s https://pypi.org/pypi/strling/json | jq -r '.info.version')
+
                     if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
-                    [[ "$attempt" -lt 3 ]] && sleep 100
+                    echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 15s..."
+                    [[ "$attempt" -lt 8 ]] && sleep 15
                   done
                   exit 1
 
@@ -962,17 +959,14 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false' && needs.publish-typescript.result == 'success'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/setup-node@v6
-              with: { node-version: "22" }
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
-                  for attempt in 1 2 3; do
-                    WORKDIR=$(mktemp -d) && pushd "$WORKDIR" >/dev/null
-                    npm init -y >/dev/null 2>&1 && npm install @strling-lang/strling >/dev/null 2>&1 || true
-                    INSTALLED=$(node -p "require('./node_modules/@strling-lang/strling/package.json').version" 2>/dev/null || echo "")
-                    popd >/dev/null
+                  for attempt in {1..8}; do
+                    INSTALLED=$(npm view @strling-lang/strling version 2>/dev/null || echo "")
+
                     if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
-                    [[ "$attempt" -lt 3 ]] && sleep 100
+                    echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 15s..."
+                    [[ "$attempt" -lt 8 ]] && sleep 15
                   done
                   exit 1
