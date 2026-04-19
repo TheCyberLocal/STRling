@@ -122,9 +122,10 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: ${{ steps.cache-config.outputs.path }}
-                  key: ${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ matrix.language }}-${{ hashFiles(format('bindings/{0}/{1}', matrix.language, steps.cache-config.outputs.lockfile)) }}
+                  # Hardcode the version prefix (e.g., 'v1-') directly into the key
+                  key: v1-${{ runner.os }}-${{ matrix.language }}-${{ hashFiles(format('bindings/{0}/{1}', matrix.language, steps.cache-config.outputs.lockfile)) }}
                   restore-keys: |
-                      ${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ matrix.language }}-
+                      v1-${{ runner.os }}-${{ matrix.language }}-
 
             - name: 📦 Install Dependencies (Setup)
               run: ./strling setup ${{ matrix.language }}
