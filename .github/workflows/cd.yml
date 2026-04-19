@@ -569,13 +569,22 @@ jobs:
             - uses: leafo/gh-actions-luarocks@v6
             - working-directory: bindings/lua
               env:
-                  LUAROCKS_API_KEY: ${{ secrets.LUA_API_KEY }}
+                  LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
               run: |
-                  SPEC=$(ls strling-*.rockspec | head -n 1)
-                  VER=$(grep "^version =" "$SPEC" | cut -d '"' -f 2)
-                  if python3 ../../tooling/check_version_exists.py --registry luarocks --package "strling" --version "$VER"; then exit 0; fi
-                  [[ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]] && exit 0
-                  luarocks upload "$SPEC" --api-key=${LUAROCKS_API_KEY}
+                  VERSION="${{ needs.verify-release.outputs.version }}"
+                  ROCKSPEC="strling-${VERSION}-1.rockspec"
+
+                  sed "s/VERSION/${VERSION}/g" strling-template.rockspec > "$ROCKSPEC"
+
+                  ROCKSPEC_VERSION=$(grep '^version =' "$ROCKSPEC" | cut -d '"' -f 2)
+                  if python3 ../../tooling/check_version_exists.py --registry luarocks --package "strling" --version "$ROCKSPEC_VERSION"; then exit 0; fi
+
+                  if [[ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]]; then
+                    echo "DRY RUN: luarocks make $ROCKSPEC"
+                    luarocks make "$ROCKSPEC"
+                  else
+                    luarocks upload "$ROCKSPEC" --api-key="${LUAROCKS_API_KEY}"
+                  fi
 
     publish-perl:
         needs: [verify-release, compile-perl]

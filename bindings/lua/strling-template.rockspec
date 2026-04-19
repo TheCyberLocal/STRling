@@ -1,14 +1,12 @@
 package = "strling"
-version = "3.0.0-1"
+version = "VERSION-1" -- The CD will inject the version here
 source = {
    url = "git+https://github.com/strling-lang/strling.git",
-   tag = "v3.0.0"
+   tag = "vVERSION"
 }
 description = {
-   summary = "A next-generation regex DSL compiler",
-   detailed = [[
-      STRling is a next-generation regex DSL compiler.
-   ]],
+   summary = "Next-generation production-grade syntax for regular expressions",
+   detailed = [[ STRling provides an object-oriented approach to pattern matching with a focus on instructional error handling. ]],
    homepage = "https://github.com/strling-lang/strling",
    license = "MIT"
 }
