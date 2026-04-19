@@ -816,9 +816,15 @@ jobs:
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
                   for attempt in 1 2 3; do
-                    cargo install strling --dry-run >/tmp/crates.log 2>&1 || true
-                    INSTALLED=$(cargo search strling --limit 1 | sed -n 's/^strling = "\([^"]*\)".*/\1/p')
-                    if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
+                    # Use the API directly to bypass index latency
+                    INSTALLED=$(curl -s https://crates.io/api/v1/crates/strling | jq -r '.crate.max_version')
+
+                    if [[ "$INSTALLED" == "$EXPECTED" ]]; then
+                      echo "✅ Verified strling version $INSTALLED is live on crates.io"
+                      exit 0
+                    fi
+
+                    echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 100s..."
                     [[ "$attempt" -lt 3 ]] && sleep 100
                   done
                   exit 1
