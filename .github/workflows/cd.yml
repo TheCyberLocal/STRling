@@ -512,13 +512,21 @@ jobs:
             - name: Sync Metadata and Publish
               working-directory: bindings/dart
               run: |
+                  VER="${{ needs.verify-release.outputs.version }}"
+
+                  # Guard: exit successfully if this version is already on pub.dev.
+                  if python3 ../../tooling/check_version_exists.py --registry pub --package "strling" --version "$VER"; then
+                    echo "Version $VER already exists on pub.dev. Skipping publish."
+                    exit 0
+                  fi
+
                   # Copy root files required by pub.dev
                   cp ../../LICENSE .
                   cp ../../README.md .
 
                   if [ ! -f "CHANGELOG.md" ]; then
-                    echo "## ${{ needs.verify-release.outputs.version }}" > CHANGELOG.md
-                    echo "- Official release of version ${{ needs.verify-release.outputs.version }}" >> CHANGELOG.md
+                    echo "## $VER" > CHANGELOG.md
+                    echo "- Official release of version $VER" >> CHANGELOG.md
                   fi
 
                   # Validate metadata before publishing
@@ -715,6 +723,13 @@ jobs:
               working-directory: bindings/ruby
               run: |
                   VERSION="${{ needs.verify-release.outputs.version }}"
+
+                  # Guard: exit successfully if this version is already on RubyGems.
+                  if python3 ../../tooling/check_version_exists.py --registry rubygems --package "strling" --version "$VERSION"; then
+                    echo "Version $VERSION already exists on RubyGems. Skipping publish."
+                    exit 0
+                  fi
+
                   GEMSPEC="strling.gemspec"
 
                   # Generate a versioned gemspec from the template for this release.
