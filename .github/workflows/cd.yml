@@ -719,25 +719,31 @@ jobs:
                   rubygems: latest
 
             - name: 🔑 Configure RubyGems OIDC
-              uses: rubygems/configure-rubygems-credentials@v0
+              uses: rubygems/configure-rubygems-credentials@main
 
             - name: 🚀 Build and Publish Gem
               working-directory: bindings/ruby
               run: |
                   VERSION="${{ needs.verify-release.outputs.version }}"
 
+                  # 1. Idempotency Guard
                   if python3 ../../tooling/check_version_exists.py --registry rubygems --package "strling" --version "$VERSION"; then
                     echo "Version $VERSION already exists on RubyGems. Skipping publish."
                     exit 0
                   fi
 
+                  # 2. Build Artifact
                   GEMSPEC="strling.gemspec"
                   sed "s/VERSION/${VERSION}/g" strling.gemspec.template > $GEMSPEC
-
                   gem build $GEMSPEC
 
-                  # The CLI will now find the OIDC token automatically
-                  gem push "strling-${VERSION}.gem"
+                  # 3. Conditional Push
+                  if [ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]; then
+                    echo "DRY RUN: Successfully built strling-${VERSION}.gem (push skipped)"
+                  else
+                    # The CLI will now find the OIDC token automatically via the action above
+                    gem push "strling-${VERSION}.gem"
+                  fi
 
                   rm -f $GEMSPEC
 
