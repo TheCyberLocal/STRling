@@ -604,6 +604,8 @@ jobs:
 
                   sed "s/VERSION/${VERSION}/g" strling-template.rockspec > "$ROCKSPEC"
 
+                  luarocks lint "$ROCKSPEC"
+
                   ROCKSPEC_VERSION=$(grep '^version =' "$ROCKSPEC" | cut -d '"' -f 2)
                   if python3 ../../tooling/check_version_exists.py --registry luarocks --package "strling" --version "$ROCKSPEC_VERSION"; then exit 0; fi
 
