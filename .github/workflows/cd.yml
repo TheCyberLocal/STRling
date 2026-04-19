@@ -823,7 +823,7 @@ jobs:
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
                   for attempt in {1..8}; do
                     # Use the API directly to bypass index latency
-                    INSTALLED=$(curl -s https://crates.io/api/v1/crates/strling | jq -r '.crate.max_version')
+                    INSTALLED=$(curl -s -H "User-Agent: STRling-CI (contact@strling.com)" https://crates.io/api/v1/crates/strling | jq -r '.crate.max_version')
 
                     if [[ "$INSTALLED" == "$EXPECTED" ]]; then
                       echo "✅ Verified $EXPECTED is live on crates.io"
@@ -846,7 +846,7 @@ jobs:
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
                   for attempt in {1..8}; do
-                    INSTALLED=$(curl -s https://rubygems.org/api/v1/gems/strling.json | jq -r '.version')
+                    INSTALLED=$(curl -s -H "User-Agent: STRling-CI" https://rubygems.org/api/v1/gems/strling.json | jq -r '.version')
 
                     if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
                     echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 15s..."
@@ -868,7 +868,7 @@ jobs:
                   FULL_VERSION="${EXPECTED}-1"
 
                   for attempt in {1..8}; do
-                    INSTALLED=$(curl -sIL "https://luarocks.org/strling-${FULL_VERSION}.rockspec" | grep -q "200 OK" && echo "$FULL_VERSION" || echo "")
+                    INSTALLED=$(curl -sIL -H "User-Agent: STRling-CI" "https://luarocks.org/strling-${FULL_VERSION}.rockspec" | grep -q "200 OK" && echo "$FULL_VERSION" || echo "")
 
                     if [[ "$INSTALLED" == "$FULL_VERSION" ]]; then
                       echo "✅ Verified $FULL_VERSION is live on LuaRocks"
@@ -892,8 +892,8 @@ jobs:
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
                   for attempt in {1..8}; do
-                    JAVA_VER=$(curl -fsSL "https://repo1.maven.org/maven2/com/strling/strling/maven-metadata.xml" | sed -n 's:.*<release>\([^<]*\)</release>.*:\1:p')
-                    KOTLIN_VER=$(curl -fsSL "https://repo1.maven.org/maven2/com/strling/strling-kotlin/maven-metadata.xml" | sed -n 's:.*<release>\([^<]*\)</release>.*:\1:p')
+                    JAVA_VER=$(curl -fsSL -H "User-Agent: STRling-CI" "https://repo1.maven.org/maven2/com/strling/strling/maven-metadata.xml" | sed -n 's:.*<release>\([^<]*\)</release>.*:\1:p')
+                    KOTLIN_VER=$(curl -fsSL -H "User-Agent: STRling-CI" "https://repo1.maven.org/maven2/com/strling/strling-kotlin/maven-metadata.xml" | sed -n 's:.*<release>\([^<]*\)</release>.*:\1:p')
                     if [[ "$JAVA_VER" == "$EXPECTED" && "$KOTLIN_VER" == "$EXPECTED" ]]; then exit 0; fi
                     echo "Attempt $attempt: Expected $EXPECTED, found Java='$JAVA_VER', Kotlin='$KOTLIN_VER'. Retrying in 15s..."
                     [[ "$attempt" -lt 8 ]] && sleep 15
@@ -910,8 +910,8 @@ jobs:
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
                   for attempt in {1..8}; do
-                    CS=$(curl -s https://api.nuget.org/v3-flatcontainer/strling/index.json | jq -r '.versions[-1] // empty')
-                    FS=$(curl -s https://api.nuget.org/v3-flatcontainer/strling.fsharp/index.json | jq -r '.versions[-1] // empty')
+                    CS=$(curl -s -H "User-Agent: STRling-CI" https://api.nuget.org/v3-flatcontainer/strling/index.json | jq -r '.versions[-1] // empty')
+                    FS=$(curl -s -H "User-Agent: STRling-CI" https://api.nuget.org/v3-flatcontainer/strling.fsharp/index.json | jq -r '.versions[-1] // empty')
 
                     if [[ "$CS" == "$EXPECTED" && "$FS" == "$EXPECTED" ]]; then exit 0; fi
                     echo "Attempt $attempt: Expected $EXPECTED, found C#='$CS', F#='$FS'. Retrying in 15s..."
@@ -929,7 +929,7 @@ jobs:
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
                   for attempt in {1..8}; do
-                    INSTALLED=$(curl -s https://pub.dev/api/packages/strling | jq -r '.latest.version')
+                    INSTALLED=$(curl -s -H "User-Agent: STRling-CI" https://pub.dev/api/packages/strling | jq -r '.latest.version')
 
                     if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
                     echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 15s..."
@@ -946,7 +946,7 @@ jobs:
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
                   for attempt in {1..8}; do
-                    INSTALLED=$(curl -s https://pypi.org/pypi/strling/json | jq -r '.info.version')
+                    INSTALLED=$(curl -s -H "User-Agent: STRling-CI" https://pypi.org/pypi/strling/json | jq -r '.info.version')
 
                     if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
                     echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 15s..."
