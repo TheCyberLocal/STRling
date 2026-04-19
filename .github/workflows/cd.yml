@@ -95,6 +95,7 @@ jobs:
                         if "VERSION" in content:
                           print(f"✅ Verified {template_path.name} uses VERSION placeholder")
                           return expected_version
+                        raise ValueError(f"Template {template_path} is missing the 'VERSION' placeholder string.")
                       raise FileNotFoundError(f"Could not find {file_path} or its template.")
 
                   # Extract versions
