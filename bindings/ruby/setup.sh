@@ -12,7 +12,6 @@ fi
 
 if [ ! -f "$GEMSPEC" ]; then
     sed "s/VERSION/${VERSION}/g" "$TEMPLATE" > "$GEMSPEC"
-    trap 'rm -f "$GEMSPEC"' EXIT
 fi
 
 bundle install
