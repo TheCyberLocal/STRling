@@ -228,7 +228,7 @@
                 "winget": ["RubyInstallerTeam.Ruby.3.2"],
                 "choco": ["ruby"]
             },
-            "setup": ["bundle", "install"],
+            "setup": ["bash", "setup.sh"],
             "clean": ["rm", "-f", "*.gem"],
             "test": [
                 "bundle",
