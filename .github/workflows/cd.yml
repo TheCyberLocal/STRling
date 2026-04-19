@@ -262,8 +262,12 @@ jobs:
               with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
             - uses: leafo/gh-actions-lua@v12
             - uses: leafo/gh-actions-luarocks@v6
-            - run: luarocks lint $(ls *.rockspec | head -n 1)
-              working-directory: bindings/lua
+            - working-directory: bindings/lua
+              run: |
+                  VERSION="${{ needs.verify-release.outputs.version }}"
+                  ROCKSPEC="strling-${VERSION}-1.rockspec"
+                  sed "s/VERSION/${VERSION}/g" strling-template.rockspec > "$ROCKSPEC"
+                  luarocks lint "$ROCKSPEC"
 
     compile-perl:
         needs: verify-release
@@ -318,8 +322,11 @@ jobs:
               with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
             - uses: ruby/setup-ruby@v1
               with: { ruby-version: "3.2" }
-            - run: gem build strling.gemspec
-              working-directory: bindings/ruby
+            - working-directory: bindings/ruby
+              run: |
+                  VERSION="${{ needs.verify-release.outputs.version }}"
+                  sed "s/VERSION/${VERSION}/g" strling.gemspec.template > strling.gemspec
+                  gem build strling.gemspec
 
     compile-rust:
         needs: verify-release
@@ -513,7 +520,7 @@ jobs:
 
                   # Validate metadata before publishing
                   if [ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]; then
-                    dart pub publish --dry-run
+                    dart pub publish --dry-run --force
                   else
                     dart pub publish --force
                   fi
