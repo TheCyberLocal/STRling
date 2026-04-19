@@ -649,22 +649,38 @@ jobs:
         needs: [verify-release, compile-ruby]
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
-        permissions: { id-token: write }
+        permissions:
+            id-token: write
+            contents: read
         steps:
             - uses: actions/checkout@v5
               with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: ruby/setup-ruby@v1
-              with: { ruby-version: "3.2" }
-            - working-directory: bindings/ruby
-              env:
-                  GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_KEY }}
+            - name: 💎 Setup Ruby
+              uses: ruby/setup-ruby@v1
+              with:
+                  ruby-version: "3.2"
+                  bundler-cache: true
+
+            - name: 🚀 Build and Publish Gem
+              working-directory: bindings/ruby
               run: |
-                  VER=$(grep "spec.version =" strling.gemspec | cut -d "'" -f 2)
-                  if python3 ../../tooling/check_version_exists.py --registry rubygems --package "strling" --version "$VER"; then exit 0; fi
-                  gem build strling.gemspec
-                  [[ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]] && exit 0
-                  mkdir -p ~/.gem && echo -e "---\n:rubygems_api_key: ${GEM_HOST_API_KEY}" > ~/.gem/credentials && chmod 0600 ~/.gem/credentials
-                  gem push *.gem
+                  VERSION="${{ needs.verify-release.outputs.version }}"
+                  GEMSPEC="strling.gemspec"
+
+                  # Generate a versioned gemspec from the template for this release.
+                  sed "s/0.0.0/${VERSION}/g" strling-template.gemspec > $GEMSPEC
+
+                  # Build the gem and keep the generated gemspec ephemeral.
+                  gem build $GEMSPEC
+
+                  if [ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]; then
+                      echo "DRY RUN: skipping push for strling-${VERSION}.gem"
+                  else
+                      # RubyGems Trusted Publishing uses OIDC; no API key required.
+                      gem push "strling-${VERSION}.gem"
+                  fi
+
+                  rm -f $GEMSPEC
 
     publish-rust:
         needs: [verify-release, compile-rust]
