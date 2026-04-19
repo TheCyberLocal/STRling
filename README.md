@@ -51,6 +51,14 @@ Use the root CLI as the canonical setup and test entry point:
 
 The CLI will create the Python binding virtual environment automatically and will attempt best-effort prerequisite installation for missing language toolchains when the current package manager is supported.
 
+## 📦 Distribution Channels
+
+STRling supports multiple integration paths depending on the binding and ecosystem:
+
+- **Registry-Distributed:** Python on PyPI and TypeScript on npm.
+- **Git/Module-Delivered:** Go via `go get github.com/strling-lang/strling/bindings/go`.
+- **Source-Integrated / Manual Build:** C++, C, Rust, and Swift for teams integrating directly from repository source or binding-local build tooling.
+
 ## 📚 Documentation
 
 - [**Developer Documentation Hub**](docs/index.md): Architecture, testing standards, and contribution guidelines.
