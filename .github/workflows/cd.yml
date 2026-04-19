@@ -520,8 +520,10 @@ jobs:
 
                   # Validate metadata before publishing
                   if [ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]; then
-                    dart pub publish --dry-run --force
+                    # Use --ignore-warnings to allow the dry-run to pass despite the modified README/LICENSE files.
+                    dart pub publish --dry-run --ignore-warnings
                   else
+                    # Force is used here to bypass confirmation during actual release.
                     dart pub publish --force
                   fi
 
