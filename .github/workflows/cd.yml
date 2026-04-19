@@ -806,6 +806,7 @@ jobs:
                   for attempt in {1..8}; do
                     cpanm --notest STRling >/dev/null 2>&1 || true
                     INSTALLED=$(perl -MSTRling -e 'print $STRling::VERSION' 2>/dev/null || echo "")
+
                     if [[ "$INSTALLED" == "$EXPECTED" ]]; then exit 0; fi
                     echo "Attempt $attempt: Expected $EXPECTED, found $INSTALLED. Retrying in 15s..."
                     [[ "$attempt" -lt 8 ]] && sleep 15
@@ -894,6 +895,7 @@ jobs:
                   for attempt in {1..8}; do
                     JAVA_VER=$(curl -fsSL -H "User-Agent: STRling-CI" "https://repo1.maven.org/maven2/com/strling/strling/maven-metadata.xml" | sed -n 's:.*<release>\([^<]*\)</release>.*:\1:p')
                     KOTLIN_VER=$(curl -fsSL -H "User-Agent: STRling-CI" "https://repo1.maven.org/maven2/com/strling/strling-kotlin/maven-metadata.xml" | sed -n 's:.*<release>\([^<]*\)</release>.*:\1:p')
+
                     if [[ "$JAVA_VER" == "$EXPECTED" && "$KOTLIN_VER" == "$EXPECTED" ]]; then exit 0; fi
                     echo "Attempt $attempt: Expected $EXPECTED, found Java='$JAVA_VER', Kotlin='$KOTLIN_VER'. Retrying in 15s..."
                     [[ "$attempt" -lt 8 ]] && sleep 15
