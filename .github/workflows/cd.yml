@@ -717,33 +717,27 @@ jobs:
               with:
                   ruby-version: "3.2"
                   rubygems: latest
-                  bundler-cache: true
+
+            - name: 🔑 Configure RubyGems OIDC
+              uses: rubygems/configure-rubygems-credentials@v0
 
             - name: 🚀 Build and Publish Gem
               working-directory: bindings/ruby
               run: |
                   VERSION="${{ needs.verify-release.outputs.version }}"
 
-                  # Guard: exit successfully if this version is already on RubyGems.
                   if python3 ../../tooling/check_version_exists.py --registry rubygems --package "strling" --version "$VERSION"; then
                     echo "Version $VERSION already exists on RubyGems. Skipping publish."
                     exit 0
                   fi
 
                   GEMSPEC="strling.gemspec"
-
-                  # Generate a versioned gemspec from the template for this release.
                   sed "s/VERSION/${VERSION}/g" strling.gemspec.template > $GEMSPEC
 
-                  # Build the gem and keep the generated gemspec ephemeral.
                   gem build $GEMSPEC
 
-                  if [ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]; then
-                      echo "DRY RUN: skipping push for strling-${VERSION}.gem"
-                  else
-                      # RubyGems Trusted Publishing uses OIDC; no API key required.
-                      gem push "strling-${VERSION}.gem"
-                  fi
+                  # The CLI will now find the OIDC token automatically
+                  gem push "strling-${VERSION}.gem"
 
                   rm -f $GEMSPEC
 
