@@ -553,18 +553,25 @@ jobs:
               with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
             - uses: actions/setup-java@v5
               with: { distribution: "temurin", java-version: "11" }
-            - working-directory: bindings/java
+            - name: 🔑 Import GPG Private Key
               env:
-                  MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-                  MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-                  GPG_KEY: ${{ secrets.GPG_KEY }}
+                  GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+              run: |
+                  printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --import
+
+            - name: 🚀 Deploy to Sonatype (OSSRH)
+              working-directory: bindings/java
+              env:
+                  SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+                  SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+                  GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
               run: |
                   VER=$(grep '<version>' pom.xml | head -1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/')
                   if python3 ../../tooling/check_version_exists.py --registry maven --group "com.strling" --package "strling" --version "$VER"; then exit 0; fi
                   if [ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]; then
-                    mvn deploy -DskipTests -Dgpg.skip=true -Dmaven.deploy.skip=true
+                    mvn deploy -DskipTests -Dgpg.skip=true -Dmaven.deploy.skip=true --settings ../../tooling/maven-settings.xml
                   else
-                    mvn deploy -DskipTests -Dgpg.passphrase="${GPG_KEY}"
+                    mvn deploy -DskipTests --settings ../../tooling/maven-settings.xml -Dgpg.passphrase="${GPG_PASSPHRASE}"
                   fi
 
     publish-kotlin:
