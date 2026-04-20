@@ -3,6 +3,7 @@
   "description": "Generated from error_flag_invalid.pattern",
   "input_dsl": "%flags foo",
   "expected_error": "Invalid flag",
+  "expected_hint": "Unknown flag. Valid flags are: i (case-insensitive), m (multiline), s (dotAll), u (unicode), x (extended/free-spacing).",
   "metadata_expectations": {
     "features_used": []
   }

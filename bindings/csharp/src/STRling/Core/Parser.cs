@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Strling.Core;
 
@@ -52,12 +53,10 @@ public class Parser
         var lines = text.Split('\n');
         var patternLines = new List<string>();
         var inPattern = false;
-        var lineNum = 0;
 
-        foreach (var rawLine in lines)
+        for (int lineNum = 0; lineNum < lines.Length; lineNum++)
         {
-            lineNum++;
-            var line = rawLine.TrimEnd('\r');
+            var line = lines[lineNum].TrimEnd('\r');
             var stripped = line.Trim();
 
             if (!inPattern && (stripped == "" || stripped.StartsWith("#")))
@@ -65,49 +64,88 @@ public class Parser
                 continue;
             }
 
-            if (!inPattern && stripped.StartsWith("%flags"))
+            if (stripped.StartsWith("%"))
             {
+                if (inPattern)
+                {
+                    var pos = lines.Take(lineNum).Sum(l => l.Length + 1) + line.IndexOf("%");
+                    var hint = HintEngine.GetHint("Directive after pattern", text, pos);
+                    throw new STRlingParseError("Directive after pattern", pos, text, hint);
+                }
+
+                if (!stripped.StartsWith("%flags"))
+                {
+                    var pos = lines.Take(lineNum).Sum(l => l.Length + 1) + line.IndexOf("%");
+                    var hint = HintEngine.GetHint("Malformed directive", text, pos);
+                    throw new STRlingParseError("Malformed directive", pos, text, hint);
+                }
+
                 var idx = line.IndexOf("%flags");
                 var after = line.Substring(idx + "%flags".Length);
+                var allowed = " ,\t[]imsuxIMSUX";
 
-                var letters = System.Text.RegularExpressions.Regex.Replace(after, @"[,\[\]\s]+", " ").Trim().ToLower();
-                var validFlags = new HashSet<char> { 'i', 'm', 's', 'u', 'x' };
-
-                foreach (var ch in letters.Replace(" ", ""))
+                int j = 0;
+                while (j < after.Length && allowed.Contains(after[j]))
                 {
-                    if (ch != '\0' && !validFlags.Contains(ch))
+                    j++;
+                }
+
+                var flagsToken = after.Substring(0, j);
+                var remainder = j < after.Length ? after.Substring(j) : "";
+
+                var letters = "";
+                foreach (var ch in flagsToken)
+                {
+                    if (char.IsLetter(ch))
                     {
-                        var pos = lines.Take(lineNum - 1).Sum(l => l.Length + 1) + idx;
-                        var hint = HintEngine.GetHint($"Invalid flag '{ch}'", _originalText, pos);
-                        throw new STRlingParseError($"Invalid flag '{ch}'", pos, _originalText, hint);
+                        letters += char.ToLower(ch);
                     }
                 }
 
-                flags = Flags.FromLetters(letters);
-
-                var remainder = after.Trim();
-                if (remainder.Length > 0 && !remainder.All(c => " ,\t[]imsuxIMSUX".Contains(c)))
+                var validFlags = "imsux";
+                foreach (var ch in letters)
                 {
+                    if (!validFlags.Contains(ch))
+                    {
+                        var flagPos = lines.Take(lineNum).Sum(l => l.Length + 1) + idx;
+                        var hint = HintEngine.GetHint($"Invalid flag '{ch}'", text, flagPos);
+                        throw new STRlingParseError($"Invalid flag '{ch}'", flagPos, text, hint);
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(letters))
+                {
+                    flags = Flags.FromLetters(letters);
+                }
+                else
+                {
+                    // Check remainder for invalid flag
+                    var trimmed = remainder.TrimStart();
+                    if (trimmed.Length > 0)
+                    {
+                        var ch = trimmed[0];
+                        var flagPos = lines.Take(lineNum).Sum(l => l.Length + 1) + idx;
+                        var hint = HintEngine.GetHint($"Invalid flag '{ch}'", text, flagPos);
+                        throw new STRlingParseError($"Invalid flag '{ch}'", flagPos, text, hint);
+                    }
+                }
+
+                // Check if there's pattern content in remainder
+                var remTrimmed = remainder.TrimStart();
+                if (remTrimmed.Length > 0)
+                {
+                    patternLines.Add(remainder);
                     inPattern = true;
-                    var patternStart = after.TakeWhile(c => " ,\t[]imsuxIMSUX".Contains(c)).Count();
-                    if (patternStart < after.Length)
-                    {
-                        patternLines.Add(after.Substring(patternStart));
-                    }
                 }
                 continue;
             }
 
-            if (!inPattern && stripped.StartsWith("%"))
-            {
-                continue;
-            }
-
+            // Check for directive after pattern
             if (line.Contains("%flags"))
             {
-                var pos = lines.Take(lineNum - 1).Sum(l => l.Length + 1) + line.IndexOf("%flags");
-                var hint = HintEngine.GetHint("Directive after pattern content", _originalText, pos);
-                throw new STRlingParseError("Directive after pattern content", pos, _originalText, hint);
+                var pos = lines.Take(lineNum).Sum(l => l.Length + 1) + line.IndexOf("%flags");
+                var hint = HintEngine.GetHint("Directive after pattern", text, pos);
+                throw new STRlingParseError("Directive after pattern", pos, text, hint);
             }
 
             inPattern = true;
@@ -123,7 +161,7 @@ public class Parser
         _cur.SkipWsAndComments();
         if (_cur.Eof())
         {
-            return new Lit("");
+            return new Seq(new List<Node>());
         }
 
         var node = ParseAlt();
@@ -131,6 +169,10 @@ public class Parser
 
         if (!_cur.Eof())
         {
+            if (_cur.Peek() == ')')
+            {
+                RaiseError("Unmatched ')'", _cur.I);
+            }
             RaiseError("Unexpected trailing input", _cur.I);
         }
 
@@ -139,6 +181,14 @@ public class Parser
 
     private Node ParseAlt()
     {
+        _cur.SkipWsAndComments();
+
+        // Check for stray pipe at start
+        if (_cur.Peek() == '|')
+        {
+            RaiseError("Alternation lacks left-hand side", _cur.I);
+        }
+
         var branches = new List<Node>();
         branches.Add(ParseSeq());
 
@@ -146,6 +196,13 @@ public class Parser
         {
             _cur.Take();
             _cur.SkipWsAndComments();
+
+            // Check for empty alternation (|| or trailing |)
+            if (_cur.Peek() == '|' || _cur.Eof() || _cur.Peek() == ')')
+            {
+                RaiseError("Empty alternation", _cur.I);
+            }
+
             branches.Add(ParseSeq());
         }
 
@@ -164,7 +221,40 @@ public class Parser
 
             if (ch != '\0' && "*+?{".Contains(ch) && parts.Count == 0)
             {
-                RaiseError($"Invalid quantifier '{ch}'", _cur.I);
+                if (ch == '{')
+                {
+                    // Check if it's a valid quantifier pattern
+                    int j = _cur.I + 1;
+                    var look = "";
+                    while (j < _cur.Text.Length && _cur.Text[j] != '}')
+                    {
+                        look += _cur.Text[j];
+                        j++;
+                    }
+                    if (j < _cur.Text.Length && look.Length > 0)
+                    {
+                        if (Regex.IsMatch(look, @"^\d+(,\d*)?$"))
+                        {
+                            RaiseError($"Invalid quantifier '{ch}'", _cur.I);
+                        }
+                        else
+                        {
+                            RaiseError("Brace quantifier: Invalid brace quantifier content", _cur.I);
+                        }
+                    }
+                    else if (j >= _cur.Text.Length)
+                    {
+                        RaiseError("Incomplete quantifier", _cur.I);
+                    }
+                    else
+                    {
+                        RaiseError($"Invalid quantifier '{ch}'", _cur.I);
+                    }
+                }
+                else
+                {
+                    RaiseError($"Invalid quantifier '{ch}'", _cur.I);
+                }
             }
 
             if (ch == '|' || ch == ')' || ch == '\0')
@@ -252,49 +342,229 @@ public class Parser
     private Node ParseEscapeAtom()
     {
         var startPos = _cur.I;
-        _cur.Take();
+        _cur.Take(); // consume backslash
 
         if (_cur.Eof())
         {
             RaiseError("Unexpected end of pattern after '\\'", startPos);
         }
 
-        var ch = _cur.Take();
+        var ch = _cur.Peek();
 
-        switch (ch)
+        // Anchors
+        if (ch == 'b') { _cur.Take(); return new Anchor("WordBoundary"); }
+        if (ch == 'B') { _cur.Take(); return new Anchor("NotWordBoundary"); }
+        if (ch == 'A') { _cur.Take(); return new Anchor("AbsoluteStart"); }
+        if (ch == 'Z') { _cur.Take(); return new Anchor("EndBeforeFinalNewline"); }
+
+        // Shorthand classes
+        if (ch == 'd') { _cur.Take(); return new CharClass(false, new List<ClassItem> { new ClassEscape("digit") }); }
+        if (ch == 'D') { _cur.Take(); return new CharClass(false, new List<ClassItem> { new ClassEscape("not-digit") }); }
+        if (ch == 'w') { _cur.Take(); return new CharClass(false, new List<ClassItem> { new ClassEscape("word") }); }
+        if (ch == 'W') { _cur.Take(); return new CharClass(false, new List<ClassItem> { new ClassEscape("not-word") }); }
+        if (ch == 's') { _cur.Take(); return new CharClass(false, new List<ClassItem> { new ClassEscape("whitespace") }); }
+        if (ch == 'S') { _cur.Take(); return new CharClass(false, new List<ClassItem> { new ClassEscape("not-whitespace") }); }
+
+        // Control escapes
+        if (ControlEscapes.ContainsKey(ch)) { _cur.Take(); return new Lit(ControlEscapes[ch]); }
+
+        // Unicode property: \p{...} and \P{...}
+        if (ch == 'p' || ch == 'P')
         {
-            case 'b': return new Anchor("WordBoundary");
-            case 'B': return new Anchor("NotWordBoundary");
-            case 'A': return new Anchor("AbsoluteStart");
-            case 'Z': return new Anchor("EndBeforeFinalNewline");
-
-            case 'd': return new CharClass(false, new List<ClassItem> { new ClassEscape("digit") });
-            case 'D': return new CharClass(false, new List<ClassItem> { new ClassEscape("not-digit") });
-            case 'w': return new CharClass(false, new List<ClassItem> { new ClassEscape("word") });
-            case 'W': return new CharClass(false, new List<ClassItem> { new ClassEscape("not-word") });
-            case 's': return new CharClass(false, new List<ClassItem> { new ClassEscape("whitespace") });
-            case 'S': return new CharClass(false, new List<ClassItem> { new ClassEscape("not-whitespace") });
-
-            case 'n': return new Lit(ControlEscapes['n']);
-            case 'r': return new Lit(ControlEscapes['r']);
-            case 't': return new Lit(ControlEscapes['t']);
-            case 'f': return new Lit(ControlEscapes['f']);
-            case 'v': return new Lit(ControlEscapes['v']);
-
-            default:
-                if ("^$.*+?()[]{}|\\".Contains(ch))
-                {
-                    return new Lit(ch.ToString());
-                }
-                RaiseError($"Unknown escape sequence \\{ch}", startPos);
-                return new Lit("");
+            bool neg = ch == 'P';
+            _cur.Take();
+            if (_cur.Peek() != '{')
+            {
+                RaiseError("Expected { after \\p/\\P", startPos);
+            }
+            _cur.Take(); // consume {
+            var prop = "";
+            while (!_cur.Eof() && _cur.Peek() != '}')
+            {
+                prop += _cur.Take();
+            }
+            if (_cur.Eof())
+            {
+                RaiseError("Unterminated \\p{...}", startPos);
+            }
+            _cur.Take(); // consume }
+            // Parse property name=value or just name
+            string? propName = null;
+            string propValue = prop;
+            if (prop.Contains("="))
+            {
+                var parts = prop.Split('=', 2);
+                propName = parts[0];
+                propValue = parts[1];
+            }
+            return new CharClass(false, new List<ClassItem> {
+                new ClassUnicodeProperty(propName, propValue, neg)
+            });
         }
+
+        // Hex escape: \x{...} or \xHH
+        if (ch == 'x')
+        {
+            _cur.Take();
+            if (_cur.Peek() == '{')
+            {
+                _cur.Take();
+                var hex = "";
+                while (!_cur.Eof() && _cur.Peek() != '}')
+                {
+                    hex += _cur.Take();
+                }
+                if (_cur.Eof())
+                {
+                    RaiseError("Unterminated \\x{...}", startPos);
+                }
+                _cur.Take(); // consume }
+                int cp = Convert.ToInt32(hex.Length > 0 ? hex : "0", 16);
+                return new Lit(char.ConvertFromUtf32(cp));
+            }
+            else
+            {
+                // \xHH - exactly 2 hex digits
+                var hex = "";
+                for (int i = 0; i < 2; i++)
+                {
+                    var h = _cur.Peek();
+                    if (h == '\0' || !"0123456789ABCDEFabcdef".Contains(h))
+                    {
+                        RaiseError("Invalid \\xHH escape", startPos);
+                    }
+                    hex += _cur.Take();
+                }
+                int cp = Convert.ToInt32(hex, 16);
+                return new Lit(((char)cp).ToString());
+            }
+        }
+
+        // Unicode escape: \u{...} or \uHHHH
+        if (ch == 'u')
+        {
+            _cur.Take();
+            if (_cur.Peek() == '{')
+            {
+                _cur.Take();
+                var hex = "";
+                while (!_cur.Eof() && _cur.Peek() != '}')
+                {
+                    hex += _cur.Take();
+                }
+                if (_cur.Eof())
+                {
+                    RaiseError("Unterminated \\u{...}", startPos);
+                }
+                _cur.Take(); // consume }
+                int cp = Convert.ToInt32(hex.Length > 0 ? hex : "0", 16);
+                return new Lit(char.ConvertFromUtf32(cp));
+            }
+            else
+            {
+                // \uHHHH - exactly 4 hex digits
+                var hex = "";
+                for (int i = 0; i < 4; i++)
+                {
+                    var h = _cur.Peek();
+                    if (h == '\0' || !"0123456789ABCDEFabcdef".Contains(h))
+                    {
+                        RaiseError("Invalid \\uHHHH escape", startPos);
+                    }
+                    hex += _cur.Take();
+                }
+                int cp = Convert.ToInt32(hex, 16);
+                return new Lit(char.ConvertFromUtf32(cp));
+            }
+        }
+
+        // \UHHHHHHHH - 8 hex digits
+        if (ch == 'U')
+        {
+            _cur.Take();
+            var hex = "";
+            for (int i = 0; i < 8; i++)
+            {
+                var h = _cur.Peek();
+                if (h == '\0' || !"0123456789ABCDEFabcdef".Contains(h))
+                {
+                    RaiseError("Invalid \\UHHHHHHHH escape", startPos);
+                }
+                hex += _cur.Take();
+            }
+            int cp = Convert.ToInt32(hex, 16);
+            return new Lit(char.ConvertFromUtf32(cp));
+        }
+
+        // Backreference: \1-\9
+        if (ch >= '1' && ch <= '9')
+        {
+            var numStr = "";
+            while (_cur.Peek() >= '0' && _cur.Peek() <= '9')
+            {
+                numStr += _cur.Take();
+            }
+            int num = int.Parse(numStr);
+            if (num > _capCount)
+            {
+                RaiseError($"Backreference to undefined group \\{num}", startPos);
+            }
+            return new Backref(num, null);
+        }
+
+        // Forbidden octal: \0
+        if (ch == '0')
+        {
+            RaiseError("Forbidden octal escape", startPos);
+        }
+
+        // Named backreference: \k<name>
+        if (ch == 'k')
+        {
+            _cur.Take();
+            if (_cur.Peek() != '<')
+            {
+                RaiseError("Expected '<' after \\k", startPos);
+            }
+            _cur.Take(); // consume <
+            var name = "";
+            while (!_cur.Eof() && _cur.Peek() != '>')
+            {
+                name += _cur.Take();
+            }
+            if (_cur.Eof())
+            {
+                RaiseError("Unterminated named backref", startPos);
+            }
+            _cur.Take(); // consume >
+            if (!_capNames.Contains(name))
+            {
+                RaiseError($"Backreference to undefined group <{name}>", startPos);
+            }
+            return new Backref(null, name);
+        }
+
+        // Meta escapes
+        if ("^$.*+?()[]{}|\\/".Contains(ch))
+        {
+            _cur.Take();
+            return new Lit(ch.ToString());
+        }
+
+        // Unknown escape - if alphanumeric, error
+        if (char.IsLetterOrDigit(ch))
+        {
+            RaiseError($"Unknown escape sequence \\{ch}", startPos);
+        }
+
+        _cur.Take();
+        return new Lit(ch.ToString());
     }
 
     private Node ParseGroupOrLook()
     {
         var startPos = _cur.I;
-        _cur.Take();
+        _cur.Take(); // consume (
         _cur.SkipWsAndComments();
 
         if (_cur.Peek() == '?')
@@ -302,78 +572,126 @@ public class Parser
             _cur.Take();
             var next = _cur.Peek();
 
-            switch (next)
+            if (next == ':')
             {
-                case ':':
+                _cur.Take();
+                var body = ParseAlt();
+                if (_cur.Peek() != ')') RaiseError("Unterminated group", _cur.I);
+                _cur.Take();
+                return new Group(false, body, null, false);
+            }
+
+            if (next == '=')
+            {
+                _cur.Take();
+                var body = ParseAlt();
+                if (_cur.Peek() != ')') RaiseError("Unterminated lookahead", _cur.I);
+                _cur.Take();
+                return new Lookahead(body);
+            }
+
+            if (next == '!')
+            {
+                _cur.Take();
+                var body = ParseAlt();
+                if (_cur.Peek() != ')') RaiseError("Unterminated lookahead", _cur.I);
+                _cur.Take();
+                return new NegativeLookahead(body);
+            }
+
+            if (next == '<')
+            {
+                _cur.Take();
+                var afterAngle = _cur.Peek();
+                if (afterAngle == '=')
+                {
                     _cur.Take();
                     var body = ParseAlt();
-                    if (_cur.Peek() != ')') RaiseError("Unterminated group", startPos);
+                    if (_cur.Peek() != ')') RaiseError("Unterminated lookbehind", _cur.I);
                     _cur.Take();
-                    return new Group(false, body, null, false);
-
-                case '=':
+                    return new Lookbehind(body);
+                }
+                else if (afterAngle == '!')
+                {
                     _cur.Take();
-                    body = ParseAlt();
-                    if (_cur.Peek() != ')') RaiseError("Unterminated lookahead", startPos);
+                    var body = ParseAlt();
+                    if (_cur.Peek() != ')') RaiseError("Unterminated lookbehind", _cur.I);
                     _cur.Take();
-                    return new Lookahead(body);
-
-                case '!':
-                    _cur.Take();
-                    body = ParseAlt();
-                    if (_cur.Peek() != ')') RaiseError("Unterminated lookahead", startPos);
-                    _cur.Take();
-                    return new NegativeLookahead(body);
-
-                case '<':
-                    _cur.Take();
-                    var afterAngle = _cur.Peek();
-                    if (afterAngle == '=')
+                    return new NegativeLookbehind(body);
+                }
+                else
+                {
+                    // Named group
+                    var name = "";
+                    while (!_cur.Eof() && _cur.Peek() != '>')
                     {
-                        _cur.Take();
-                        body = ParseAlt();
-                        if (_cur.Peek() != ')') RaiseError("Unterminated lookbehind", startPos);
-                        _cur.Take();
-                        return new Lookbehind(body);
+                        name += _cur.Take();
                     }
-                    else if (afterAngle == '!')
+                    if (_cur.Eof())
                     {
-                        _cur.Take();
-                        body = ParseAlt();
-                        if (_cur.Peek() != ')') RaiseError("Unterminated lookbehind", startPos);
-                        _cur.Take();
-                        return new NegativeLookbehind(body);
+                        RaiseError("Unterminated group name", _cur.I);
                     }
-                    else
+                    _cur.Take(); // consume >
+
+                    // Validate group name
+                    if (name.Length == 0 || (!char.IsLetter(name[0]) && name[0] != '_'))
                     {
-                        var name = ReadIdentUntil('>');
-                        if (_cur.Peek() != '>') RaiseError("Unterminated group name", startPos);
-                        _cur.Take();
-                        _capCount++;
-                        _capNames.Add(name);
-                        body = ParseAlt();
-                        if (_cur.Peek() != ')') RaiseError("Unterminated group", startPos);
-                        _cur.Take();
-                        return new Group(true, body, name, false);
+                        RaiseError($"Invalid group name '{name}'", startPos);
+                    }
+                    for (int k = 1; k < name.Length; k++)
+                    {
+                        if (!char.IsLetterOrDigit(name[k]) && name[k] != '_')
+                        {
+                            RaiseError($"Invalid group name '{name}'", startPos);
+                        }
                     }
 
-                case '>':
-                    _cur.Take();
-                    body = ParseAlt();
-                    if (_cur.Peek() != ')') RaiseError("Unterminated atomic group", startPos);
-                    _cur.Take();
-                    return new Group(false, body, null, true);
+                    if (_capNames.Contains(name))
+                    {
+                        RaiseError($"Duplicate group name '{name}'", startPos);
+                    }
+                    _capNames.Add(name);
+                    _capCount++;
 
-                default:
-                    RaiseError($"Unknown group type '(?{next}'", startPos);
-                    return new Lit("");
+                    var body = ParseAlt();
+                    if (_cur.Peek() != ')') RaiseError("Unterminated group", _cur.I);
+                    _cur.Take();
+                    return new Group(true, body, name, false);
+                }
             }
+
+            if (next == '>')
+            {
+                _cur.Take();
+                var body = ParseAlt();
+                if (_cur.Peek() != ')') RaiseError("Unterminated atomic group", _cur.I);
+                _cur.Take();
+                return new Group(false, body, null, true);
+            }
+
+            // Check for inline modifiers
+            var save = _cur.I;
+            var scan = "";
+            int sj = save;
+            while (sj < _cur.Text.Length && "imsux".Contains(_cur.Text[sj]))
+            {
+                scan += _cur.Text[sj];
+                sj++;
+            }
+            if (scan.Length > 0 && sj < _cur.Text.Length && _cur.Text[sj] == ')')
+            {
+                RaiseError($"Inline modifiers like (?{scan}...) are not supported", startPos);
+            }
+
+            RaiseError($"Unknown group modifier: ?{next}", _cur.I - 1);
+            return new Lit("");
         }
         else
         {
+            // Capturing group
             _capCount++;
             var body = ParseAlt();
-            if (_cur.Peek() != ')') RaiseError("Unterminated group", startPos);
+            if (_cur.Peek() != ')') RaiseError("Unterminated group", _cur.I);
             _cur.Take();
             return new Group(true, body, null, false);
         }
@@ -382,7 +700,7 @@ public class Parser
     private CharClass ParseCharClass()
     {
         var startPos = _cur.I;
-        _cur.Take();
+        _cur.Take(); // consume [
         _cur.InClass++;
 
         var negated = false;
@@ -392,63 +710,242 @@ public class Parser
             _cur.Take();
         }
 
+        // Empty class: [] or [^]
+        if (_cur.Peek() == ']')
+        {
+            _cur.InClass--;
+            RaiseError("Unterminated character class", _cur.I);
+        }
+
         var items = new List<ClassItem>();
 
         while (!_cur.Eof() && _cur.Peek() != ']')
         {
-            items.Add(ReadClassItem());
+            var item = ParseClassItem();
+
+            // Check for range
+            if (_cur.Peek() == '-' && PeekAt(1) != ']' && !_cur.Eof())
+            {
+                if (item is ClassLiteral fromLit)
+                {
+                    _cur.Take(); // consume -
+                    if (_cur.Eof() || _cur.Peek() == ']')
+                    {
+                        items.Add(item);
+                        items.Add(new ClassLiteral("-"));
+                        continue;
+                    }
+                    var toItem = ParseClassItem();
+                    if (toItem is ClassLiteral toLit)
+                    {
+                        if (string.Compare(toLit.Value, fromLit.Value, StringComparison.Ordinal) < 0)
+                        {
+                            _cur.InClass--;
+                            RaiseError("Invalid character range", startPos);
+                        }
+                        items.Add(new ClassRange(fromLit.Value, toLit.Value));
+                        continue;
+                    }
+                    else
+                    {
+                        items.Add(item);
+                        items.Add(new ClassLiteral("-"));
+                        items.Add(toItem);
+                        continue;
+                    }
+                }
+            }
+
+            items.Add(item);
         }
 
-        if (_cur.Peek() != ']')
+        if (_cur.Eof())
         {
-            RaiseError("Unterminated character class", startPos);
+            _cur.InClass--;
+            RaiseError("Unterminated character class", _cur.I);
         }
 
+        _cur.Take(); // consume ]
         _cur.InClass--;
-        _cur.Take();
-
         return new CharClass(negated, items);
     }
 
-    private ClassItem ReadClassItem()
+    private ClassItem ParseClassItem()
     {
         var ch = _cur.Peek();
 
         if (ch == '\\')
         {
-            _cur.Take();
-            var escCh = _cur.Take();
+            var startPos = _cur.I;
+            _cur.Take(); // consume backslash
 
-            switch (escCh)
+            if (_cur.Eof())
             {
-                case 'd': return new ClassEscape("digit");
-                case 'D': return new ClassEscape("not-digit");
-                case 'w': return new ClassEscape("word");
-                case 'W': return new ClassEscape("not-word");
-                case 's': return new ClassEscape("whitespace");
-                case 'S': return new ClassEscape("not-whitespace");
-
-                case 'n': return new ClassLiteral("\n");
-                case 'r': return new ClassLiteral("\r");
-                case 't': return new ClassLiteral("\t");
-
-                default:
-                    return new ClassLiteral(escCh.ToString());
+                RaiseError("Unexpected end of pattern after '\\'", startPos);
             }
+
+            var escCh = _cur.Peek();
+
+            // Shorthand classes
+            if (escCh == 'd') { _cur.Take(); return new ClassEscape("digit"); }
+            if (escCh == 'D') { _cur.Take(); return new ClassEscape("not-digit"); }
+            if (escCh == 'w') { _cur.Take(); return new ClassEscape("word"); }
+            if (escCh == 'W') { _cur.Take(); return new ClassEscape("not-word"); }
+            if (escCh == 's') { _cur.Take(); return new ClassEscape("whitespace"); }
+            if (escCh == 'S') { _cur.Take(); return new ClassEscape("not-whitespace"); }
+
+            // Control escapes
+            if (ControlEscapes.ContainsKey(escCh))
+            {
+                _cur.Take();
+                return new ClassLiteral(ControlEscapes[escCh]);
+            }
+
+            // Unicode property: \p{...} and \P{...}
+            if (escCh == 'p' || escCh == 'P')
+            {
+                bool neg = escCh == 'P';
+                _cur.Take();
+                if (_cur.Peek() != '{')
+                {
+                    RaiseError("Expected { after \\p/\\P", startPos);
+                }
+                _cur.Take();
+                var prop = "";
+                while (!_cur.Eof() && _cur.Peek() != '}')
+                {
+                    prop += _cur.Take();
+                }
+                if (_cur.Eof())
+                {
+                    _cur.InClass--;
+                    RaiseError("Unterminated \\p{...}", startPos);
+                }
+                _cur.Take();
+                string? propName = null;
+                string propValue = prop;
+                if (prop.Contains("="))
+                {
+                    var parts = prop.Split('=', 2);
+                    propName = parts[0];
+                    propValue = parts[1];
+                }
+                return new ClassUnicodeProperty(propName, propValue, neg);
+            }
+
+            // Hex escape: \x{...} or \xHH
+            if (escCh == 'x')
+            {
+                _cur.Take();
+                if (_cur.Peek() == '{')
+                {
+                    _cur.Take();
+                    var hex = "";
+                    while (!_cur.Eof() && _cur.Peek() != '}')
+                    {
+                        hex += _cur.Take();
+                    }
+                    if (_cur.Eof())
+                    {
+                        _cur.InClass--;
+                        RaiseError("Unterminated \\x{...}", startPos);
+                    }
+                    _cur.Take();
+                    int cp = Convert.ToInt32(hex.Length > 0 ? hex : "0", 16);
+                    return new ClassLiteral(char.ConvertFromUtf32(cp));
+                }
+                else
+                {
+                    var hex = "";
+                    for (int i = 0; i < 2; i++)
+                    {
+                        var h = _cur.Peek();
+                        if (h == '\0' || !"0123456789ABCDEFabcdef".Contains(h))
+                        {
+                            _cur.InClass--;
+                            RaiseError("Invalid \\xHH escape", startPos);
+                        }
+                        hex += _cur.Take();
+                    }
+                    int cp = Convert.ToInt32(hex, 16);
+                    return new ClassLiteral(((char)cp).ToString());
+                }
+            }
+
+            // Unicode escape: \u{...} or \uHHHH
+            if (escCh == 'u')
+            {
+                _cur.Take();
+                if (_cur.Peek() == '{')
+                {
+                    _cur.Take();
+                    var hex = "";
+                    while (!_cur.Eof() && _cur.Peek() != '}')
+                    {
+                        hex += _cur.Take();
+                    }
+                    if (_cur.Eof())
+                    {
+                        _cur.InClass--;
+                        RaiseError("Unterminated \\u{...}", startPos);
+                    }
+                    _cur.Take();
+                    int cp = Convert.ToInt32(hex.Length > 0 ? hex : "0", 16);
+                    return new ClassLiteral(char.ConvertFromUtf32(cp));
+                }
+                else
+                {
+                    var hex = "";
+                    for (int i = 0; i < 4; i++)
+                    {
+                        var h = _cur.Peek();
+                        if (h == '\0' || !"0123456789ABCDEFabcdef".Contains(h))
+                        {
+                            _cur.InClass--;
+                            RaiseError("Invalid \\uHHHH escape", startPos);
+                        }
+                        hex += _cur.Take();
+                    }
+                    int cp = Convert.ToInt32(hex, 16);
+                    return new ClassLiteral(char.ConvertFromUtf32(cp));
+                }
+            }
+
+            // Forbidden octal: \0
+            if (escCh == '0')
+            {
+                _cur.InClass--;
+                RaiseError("Forbidden octal escape", startPos);
+            }
+
+            // Meta escapes in class
+            if ("^$.*+?()[]{}|\\/\\-".Contains(escCh))
+            {
+                _cur.Take();
+                return new ClassLiteral(escCh.ToString());
+            }
+
+            // Unknown escape - alphanumeric is error
+            if (char.IsLetterOrDigit(escCh))
+            {
+                _cur.InClass--;
+                RaiseError($"Unknown escape sequence \\{escCh}", startPos);
+            }
+
+            _cur.Take();
+            return new ClassLiteral(escCh.ToString());
         }
         else
         {
-            var literal = _cur.Take().ToString();
-
-            if (_cur.Peek() == '-' && _cur.Peek(1) != ']')
-            {
-                _cur.Take();
-                var endCh = _cur.Take().ToString();
-                return new ClassRange(literal, endCh);
-            }
-
-            return new ClassLiteral(literal);
+            _cur.Take();
+            return new ClassLiteral(ch.ToString());
         }
+    }
+
+    private char PeekAt(int offset)
+    {
+        var j = _cur.I + offset;
+        return j < _cur.Text.Length ? _cur.Text[j] : '\0';
     }
 
     private (Node, bool) ParseQuantIfAny(Node child)
@@ -458,7 +955,7 @@ public class Parser
 
         if (child is Anchor)
         {
-            if ("*+?{".Contains(ch))
+            if (ch != '\0' && "*+?{".Contains(ch))
             {
                 RaiseError("Cannot quantify anchor", _cur.I);
             }
@@ -492,9 +989,9 @@ public class Parser
                 break;
 
             case '{':
-                var (minVal, maxVal) = ParseBraceQuant();
-                if (minVal == null) return (child, false);
-                min = minVal.Value;
+                var (minVal, maxVal, ok) = ParseBraceQuant();
+                if (!ok) return (child, true);
+                min = minVal;
                 max = maxVal;
                 break;
 
@@ -518,66 +1015,67 @@ public class Parser
         return (new Quant(child, min, max, greedy, lazy, possessive), true);
     }
 
-    private (int?, int?) ParseBraceQuant()
+    private (int, int?, bool) ParseBraceQuant()
     {
         var startPos = _cur.I;
-        _cur.Take();
-        _cur.SkipWsAndComments();
+        _cur.Take(); // consume {
 
-        var minStr = "";
-        while (char.IsDigit(_cur.Peek()))
+        // Look at the content to determine if it's a valid quantifier
+        var contentStart = _cur.I;
+        var content = "";
+        while (!_cur.Eof() && _cur.Peek() != '}')
         {
-            minStr += _cur.Take();
+            content += _cur.Take();
         }
 
-        if (minStr == "")
+        if (_cur.Eof())
         {
-            RaiseError("Invalid brace quantifier content", startPos);
-            return (null, null);
+            RaiseError("Incomplete quantifier", startPos);
         }
 
-        var min = int.Parse(minStr);
-        int? max = min;
+        _cur.Take(); // consume }
 
-        _cur.SkipWsAndComments();
-        if (_cur.Peek() == ',')
+        // Validate content
+        if (content.Length == 0)
         {
-            _cur.Take();
-            _cur.SkipWsAndComments();
+            RaiseError("Brace quantifier: Invalid brace quantifier content", startPos);
+        }
 
-            var maxStr = "";
-            while (char.IsDigit(_cur.Peek()))
+        // Check if it matches valid quantifier format: digits, optionally comma and optional digits
+        if (!Regex.IsMatch(content, @"^\d+(,\d*)?$"))
+        {
+            RaiseError("Brace quantifier: Invalid brace quantifier content", startPos);
+        }
+
+        // Parse min,max
+        var commaIdx = content.IndexOf(',');
+        if (commaIdx == -1)
+        {
+            int val = int.Parse(content);
+            return (val, val, true);
+        }
+        else
+        {
+            int minVal = int.Parse(content.Substring(0, commaIdx));
+            int? maxVal = null;
+            if (commaIdx + 1 < content.Length)
             {
-                maxStr += _cur.Take();
+                maxVal = int.Parse(content.Substring(commaIdx + 1));
             }
 
-            max = maxStr == "" ? null : int.Parse(maxStr);
-        }
+            if (maxVal.HasValue && maxVal.Value < minVal)
+            {
+                RaiseError("Invalid quantifier range", startPos);
+            }
 
-        _cur.SkipWsAndComments();
-        if (_cur.Peek() != '}')
-        {
-            RaiseError("Unterminated {m,n}", startPos);
+            return (minVal, maxVal, true);
         }
-        _cur.Take();
-
-        return (min, max);
     }
 
     private Lit TakeLiteralChar()
     {
         var ch = _cur.Take();
         return new Lit(ch.ToString());
-    }
-
-    private string ReadIdentUntil(char end)
-    {
-        var ident = "";
-        while (!_cur.Eof() && _cur.Peek() != end)
-        {
-            ident += _cur.Take();
-        }
-        return ident;
     }
 
     private class Cursor
@@ -613,7 +1111,7 @@ public class Parser
 
         public bool Match(string s)
         {
-            if (Text.Substring(I).StartsWith(s))
+            if (I + s.Length <= Text.Length && Text.Substring(I, s.Length) == s)
             {
                 I += s.Length;
                 return true;

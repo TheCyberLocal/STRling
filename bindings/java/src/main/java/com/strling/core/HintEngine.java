@@ -64,6 +64,9 @@ public final class HintEngine {
         HINT_GENERATORS.put("Unknown escape sequence", HintEngine::hintUnknownEscape);
         HINT_GENERATORS.put("Invalid quantifier", HintEngine::hintInvalidQuantifier);
         HINT_GENERATORS.put("Expected '<' after \\k", HintEngine::hintUnterminatedNamedBackref);
+        HINT_GENERATORS.put("Incomplete quantifier", HintEngine::hintIncompleteQuantifier);
+        HINT_GENERATORS.put("Invalid \\UHHHHHHHH escape", HintEngine::hintInvalidUnicodeLong);
+        HINT_GENERATORS.put("Unmatched ')'", HintEngine::hintUnmatchedCloseParen);
     }
 
     /**
@@ -107,7 +110,7 @@ public final class HintEngine {
 
     private static String hintUnterminatedNamedBackref(String msg, String text, int pos) {
         return "Named backreferences use the syntax \\k<name>. " +
-               "Make sure to close the '<name>' with '>';";
+               "Make sure to close the '<name>' with '>'.";
     }
 
     private static String hintUnterminatedGroupName(String msg, String text, int pos) {
@@ -277,5 +280,20 @@ public final class HintEngine {
     private static String hintUnicodePropertyMissingBrace(String msg, String text, int pos) {
         return "Unicode property escapes require braces: \\p{Letter} or \\P{Letter}. " +
                "Use \\p{L} for letters, \\p{N} for numbers, etc.";
+    }
+
+    private static String hintIncompleteQuantifier(String msg, String text, int pos) {
+        return "Brace quantifiers require a complete form: {n}, {m,n}, or {m,}. " +
+               "Make sure to close the quantifier with '}' and provide valid numbers.";
+    }
+
+    private static String hintInvalidUnicodeLong(String msg, String text, int pos) {
+        return "8-digit Unicode escapes must use valid hexadecimal digits (0-9, A-F). " +
+               "Use \\UHHHHHHHH for 8-digit codes or \\u{...} for variable-length codes.";
+    }
+
+    private static String hintUnmatchedCloseParen(String msg, String text, int pos) {
+        return "This ')' does not have a matching opening '('. " +
+               "Remove the extra ')' or add an opening '(' earlier in the pattern.";
     }
 }

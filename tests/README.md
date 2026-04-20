@@ -43,6 +43,12 @@ The core logic of STRling is defined in the **Shared Spec Suite** located in `te
 2.  **Commit**: Commit the updated `tests/spec/*.json` files.
 3.  **Verify**: All other bindings (Python, Java, C, etc.) run their test suites against these JSON files to ensure they match the reference implementation.
 
+#### Error Fixtures and `expected_hint`
+
+Error fixtures (files with `expected_error`) also contain an `expected_hint` field — the exact pedagogical hint string from the TypeScript HintEngine. Binding conformance runners assert **exact equality** on this field, ensuring consistent error guidance across all 17 language bindings.
+
+The fixture schema at `spec/schema/conformance-fixture.schema.json` enforces that every error fixture includes `expected_hint`.
+
 ### The 3-Test Standard
 
 Every feature must pass three types of tests:

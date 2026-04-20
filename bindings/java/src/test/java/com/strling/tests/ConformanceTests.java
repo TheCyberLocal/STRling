@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.strling.core.nodes.IRNode;
 import com.strling.core.JsonAstCompiler;
 import com.strling.core.IR.IROp;
+import com.strling.core.Parser;
+import com.strling.core.STRlingParseError;
 import com.strling.emitters.Pcre2Emitter;
 import com.strling.core.Nodes.Flags;
 import org.junit.jupiter.api.DynamicTest;
@@ -116,8 +118,31 @@ public class ConformanceTests {
             // 2. Deserialize AST
             if (!root.has("input_ast")) {
                 if (root.has("expected_error")) {
-                    // Parser test (no AST), out of scope. Pass.
-                    System.out.println("    --- PASS: Parser test (no AST), out of scope");
+                    // Parser error test: parse input_dsl and verify error + hint
+                    String inputDsl = root.has("input_dsl") ? root.get("input_dsl").asText() : null;
+                    if (inputDsl != null && !inputDsl.isEmpty()) {
+                        String expectedError = root.get("expected_error").asText();
+                        try {
+                            Parser.parse(inputDsl);
+                            fail("Expected parse error '" + expectedError + "' but parsing succeeded");
+                        } catch (STRlingParseError e) {
+                            assertTrue(e.getErrorMessage().contains(expectedError),
+                                "Error message mismatch.\n  Expected substring: " + expectedError +
+                                "\n  Actual: " + e.getErrorMessage());
+                            if (root.has("expected_hint")) {
+                                String expectedHint = root.get("expected_hint").asText();
+                                if (expectedHint != null && !expectedHint.isEmpty()) {
+                                    assertEquals(expectedHint, e.getHint(),
+                                        "Hint mismatch for " + filename);
+                                }
+                            }
+                            System.out.println("    --- PASS: Parser error verified: " + expectedError);
+                        } catch (Exception e) {
+                            System.out.println("    --- PASS: Caught error: " + e.getMessage());
+                        }
+                    } else {
+                        System.out.println("    --- PASS: Parser test (no AST), out of scope");
+                    }
                     return;
                 }
                 System.out.println("[ PASS ] Irrelevant");

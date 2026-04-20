@@ -43,7 +43,7 @@ module Parser =
                 ch
         
         member this.Match(s: string) =
-            if text.Substring(i).StartsWith(s) then
+            if i + s.Length <= text.Length && text.Substring(i, s.Length) = s then
                 i <- i + s.Length
                 true
             else
@@ -82,43 +82,61 @@ module Parser =
             let line = rawLine.TrimEnd('\r')
             let stripped = line.Trim()
             
-            // Skip leading blank lines or comments
             if not inPattern && (stripped = "" || stripped.StartsWith("#")) then
                 ()
-            // Process %flags directive
-            elif not inPattern && stripped.StartsWith("%flags") then
+            elif stripped.StartsWith("%") then
+                if inPattern then
+                    let pos = lines |> Seq.take (lineNum - 1) |> Seq.sumBy (fun l -> l.Length + 1)
+                    let hint = HintEngine.getHint "Directive after pattern" text pos
+                    raise (STRlingParseError("Directive after pattern", pos + line.IndexOf("%"), text, ?hint = hint))
+                
+                if not (stripped.StartsWith("%flags")) then
+                    let pos = lines |> Seq.take (lineNum - 1) |> Seq.sumBy (fun l -> l.Length + 1)
+                    let hint = HintEngine.getHint "Malformed directive" text pos
+                    raise (STRlingParseError("Malformed directive", pos + line.IndexOf("%"), text, ?hint = hint))
+                
                 let idx = line.IndexOf("%flags")
                 let after = line.Substring(idx + "%flags".Length)
+                let allowed = " ,\t[]imsuxIMSUX"
                 
-                // Normalize separators and whitespace
-                let letters = Regex.Replace(after, @"[,\[\]\s]+", " ").Trim().ToLower()
-                let validFlags = set ['i'; 'm'; 's'; 'u'; 'x']
+                let mutable j = 0
+                while j < after.Length && allowed.Contains(after.[j]) do
+                    j <- j + 1
                 
-                for ch in letters.Replace(" ", "") do
-                    if ch <> '\000' && not (validFlags.Contains(ch)) then
+                let flagsToken = after.Substring(0, j)
+                let remainder = if j < after.Length then after.Substring(j) else ""
+                
+                let mutable letters = ""
+                for ch in flagsToken do
+                    if Char.IsLetter(ch) then
+                        letters <- letters + string (Char.ToLower(ch))
+                
+                let validFlags = "imsux"
+                for ch in letters do
+                    if not (validFlags.Contains(ch)) then
                         let pos = lines |> Seq.take (lineNum - 1) |> Seq.sumBy (fun l -> l.Length + 1)
-                        let hint = HintEngine.getHint (sprintf "Invalid flag '%c'" ch) text pos
+                        let hint = HintEngine.getHint (sprintf "Invalid flag '%c'" ch) text (pos + idx)
                         raise (STRlingParseError(sprintf "Invalid flag '%c'" ch, pos + idx, text, ?hint = hint))
                 
-                flags <- Flags.fromLetters letters
-                
-                // Check for remainder pattern content on the same line
-                let remainder = after.Trim()
-                if remainder.Length > 0 && not (remainder |> Seq.forall (fun c -> " ,\t[]imsuxIMSUX".Contains(c))) then
-                    inPattern <- true
-                    let patternStart = after |> Seq.takeWhile (fun c -> " ,\t[]imsuxIMSUX".Contains(c)) |> Seq.length
-                    if patternStart < after.Length then
-                        patternLines.Add(after.Substring(patternStart))
+                if letters.Length > 0 then
+                    flags <- Flags.fromLetters letters
                 else
+                    let trimmed = remainder.TrimStart()
+                    if trimmed.Length > 0 then
+                        let ch = trimmed.[0]
+                        let pos = lines |> Seq.take (lineNum - 1) |> Seq.sumBy (fun l -> l.Length + 1)
+                        let hint = HintEngine.getHint (sprintf "Invalid flag '%c'" ch) text (pos + idx)
+                        raise (STRlingParseError(sprintf "Invalid flag '%c'" ch, pos + idx, text, ?hint = hint))
+                
+                let remTrimmed = remainder.TrimStart()
+                if remTrimmed.Length > 0 then
+                    patternLines.Add(remainder)
                     inPattern <- true
-            // Reject unknown directives
-            elif not inPattern && stripped.StartsWith("%") then
-                ()
-            // Check for directive after pattern content
+                
             elif line.Contains("%flags") then
                 let pos = lines |> Seq.take (lineNum - 1) |> Seq.sumBy (fun l -> l.Length + 1)
-                let hint = HintEngine.getHint "Directive after pattern content" text pos
-                raise (STRlingParseError("Directive after pattern content", pos + line.IndexOf("%flags"), text, ?hint = hint))
+                let hint = HintEngine.getHint "Directive after pattern" text pos
+                raise (STRlingParseError("Directive after pattern", pos + line.IndexOf("%flags"), text, ?hint = hint))
             else
                 inPattern <- true
                 patternLines.Add(line)
@@ -138,23 +156,39 @@ module Parser =
             let hint = HintEngine.getHint msg src pos
             raise (STRlingParseError(msg, pos, src, ?hint = hint))
         
+        let isHexDigit (c: char) =
+            (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')
+        
         let rec parsePattern () =
             cur.SkipWsAndComments()
-            if cur.Eof() then Lit ""
+            if cur.Eof() then Seq []
             else
                 let node = parseAlt()
                 cur.SkipWsAndComments()
                 if not (cur.Eof()) then
+                    if cur.Peek() = ')' then
+                        raiseError "Unmatched ')'" cur.I
                     raiseError "Unexpected trailing input" cur.I
                 node
         
         and parseAlt () =
+            cur.SkipWsAndComments()
+            
+            // Check for stray pipe at start
+            if cur.Peek() = '|' then
+                raiseError "Alternation lacks left-hand side" cur.I
+            
             let branches = ResizeArray<Node>()
             branches.Add(parseSeq())
             
             while cur.Peek() = '|' do
                 cur.Take() |> ignore
                 cur.SkipWsAndComments()
+                
+                // Check for empty alternation
+                if cur.Peek() = '|' || cur.Eof() || cur.Peek() = ')' then
+                    raiseError "Empty alternation" cur.I
+                
                 branches.Add(parseSeq())
             
             if branches.Count = 1 then branches.[0]
@@ -170,7 +204,24 @@ module Parser =
                 let ch = cur.Peek()
                 
                 if ch <> '\000' && "*+?{".Contains(ch) && parts.Count = 0 then
-                    raiseError (sprintf "Invalid quantifier '%c'" ch) cur.I
+                    if ch = '{' then
+                        // Check brace content
+                        let mutable j = cur.I + 1
+                        let mutable look = ""
+                        while j < cur.Text.Length && cur.Text.[j] <> '}' do
+                            look <- look + string cur.Text.[j]
+                            j <- j + 1
+                        if j < cur.Text.Length && look.Length > 0 then
+                            if Regex.IsMatch(look, @"^\d+(,\d*)?$") then
+                                raiseError (sprintf "Invalid quantifier '%c'" ch) cur.I
+                            else
+                                raiseError "Brace quantifier: Invalid brace quantifier content" cur.I
+                        elif j >= cur.Text.Length then
+                            raiseError "Incomplete quantifier" cur.I
+                        else
+                            raiseError (sprintf "Invalid quantifier '%c'" ch) cur.I
+                    else
+                        raiseError (sprintf "Invalid quantifier '%c'" ch) cur.I
                 
                 if ch = '|' || ch = ')' || ch = '\000' then
                     cont <- false
@@ -222,52 +273,158 @@ module Parser =
         
         and parseEscapeAtom () =
             let startPos = cur.I
-            cur.Take() |> ignore
+            cur.Take() |> ignore // consume backslash
             
             if cur.Eof() then
                 raiseError "Unexpected end of pattern after '\\'" startPos
             
-            let ch = cur.Take()
+            let ch = cur.Peek()
             
+            // Anchors
             match ch with
-            | 'b' -> Anchor "WordBoundary"
-            | 'B' -> Anchor "NotWordBoundary"
-            | 'A' -> Anchor "AbsoluteStart"
-            | 'Z' -> Anchor "EndBeforeFinalNewline"
-            | 'd' -> CharClass (false, [ClassEscape "digit"])
-            | 'D' -> CharClass (false, [ClassEscape "not-digit"])
-            | 'w' -> CharClass (false, [ClassEscape "word"])
-            | 'W' -> CharClass (false, [ClassEscape "not-word"])
-            | 's' -> CharClass (false, [ClassEscape "whitespace"])
-            | 'S' -> CharClass (false, [ClassEscape "not-whitespace"])
-            | 'n' -> Lit (controlEscapes.['n'])
-            | 'r' -> Lit (controlEscapes.['r'])
-            | 't' -> Lit (controlEscapes.['t'])
-            | 'f' -> Lit (controlEscapes.['f'])
-            | 'v' -> Lit (controlEscapes.['v'])
-            | 'k' ->
-                // Named backreference \k<name>
-                if cur.Peek() = '<' then
+            | 'b' -> cur.Take() |> ignore; Anchor "WordBoundary"
+            | 'B' -> cur.Take() |> ignore; Anchor "NotWordBoundary"
+            | 'A' -> cur.Take() |> ignore; Anchor "AbsoluteStart"
+            | 'Z' -> cur.Take() |> ignore; Anchor "EndBeforeFinalNewline"
+            
+            // Shorthand classes
+            | 'd' -> cur.Take() |> ignore; CharClass (false, [ClassEscape "digit"])
+            | 'D' -> cur.Take() |> ignore; CharClass (false, [ClassEscape "not-digit"])
+            | 'w' -> cur.Take() |> ignore; CharClass (false, [ClassEscape "word"])
+            | 'W' -> cur.Take() |> ignore; CharClass (false, [ClassEscape "not-word"])
+            | 's' -> cur.Take() |> ignore; CharClass (false, [ClassEscape "whitespace"])
+            | 'S' -> cur.Take() |> ignore; CharClass (false, [ClassEscape "not-whitespace"])
+            
+            // Control escapes
+            | 'n' -> cur.Take() |> ignore; Lit controlEscapes.['n']
+            | 'r' -> cur.Take() |> ignore; Lit controlEscapes.['r']
+            | 't' -> cur.Take() |> ignore; Lit controlEscapes.['t']
+            | 'f' -> cur.Take() |> ignore; Lit controlEscapes.['f']
+            | 'v' -> cur.Take() |> ignore; Lit controlEscapes.['v']
+            
+            // Unicode property
+            | 'p' | 'P' ->
+                let neg = ch = 'P'
+                cur.Take() |> ignore
+                if cur.Peek() <> '{' then
+                    raiseError "Expected { after \\p/\\P" startPos
+                cur.Take() |> ignore // consume {
+                let mutable prop = ""
+                while not (cur.Eof()) && cur.Peek() <> '}' do
+                    prop <- prop + string (cur.Take())
+                if cur.Eof() then
+                    raiseError "Unterminated \\p{...}" startPos
+                cur.Take() |> ignore // consume }
+                let mutable propName = None
+                let mutable propValue = prop
+                if prop.Contains("=") then
+                    let parts = prop.Split([|'='|], 2)
+                    propName <- Some parts.[0]
+                    propValue <- parts.[1]
+                CharClass (false, [ClassUnicodeProperty(propName, propValue, neg)])
+            
+            // Hex escape
+            | 'x' ->
+                cur.Take() |> ignore
+                if cur.Peek() = '{' then
                     cur.Take() |> ignore
-                    let name = readIdentUntil '>'
-                    if cur.Peek() <> '>' then
-                        raiseError "Unterminated backreference name" startPos
+                    let mutable hex = ""
+                    while not (cur.Eof()) && cur.Peek() <> '}' do
+                        hex <- hex + string (cur.Take())
+                    if cur.Eof() then
+                        raiseError "Unterminated \\x{...}" startPos
                     cur.Take() |> ignore
-                    Backref (None, Some name)
+                    let cp = Convert.ToInt32((if hex.Length > 0 then hex else "0"), 16)
+                    Lit (Char.ConvertFromUtf32(cp))
                 else
-                    raiseError "Expected '<' after \\k" startPos
-                    Lit ""
+                    let mutable hex = ""
+                    for _ in 0..1 do
+                        let h = cur.Peek()
+                        if not (isHexDigit h) then
+                            raiseError "Invalid \\xHH escape" startPos
+                        hex <- hex + string (cur.Take())
+                    let cp = Convert.ToInt32(hex, 16)
+                    Lit (string (char cp))
+            
+            // Unicode escape \u
+            | 'u' ->
+                cur.Take() |> ignore
+                if cur.Peek() = '{' then
+                    cur.Take() |> ignore
+                    let mutable hex = ""
+                    while not (cur.Eof()) && cur.Peek() <> '}' do
+                        hex <- hex + string (cur.Take())
+                    if cur.Eof() then
+                        raiseError "Unterminated \\u{...}" startPos
+                    cur.Take() |> ignore
+                    let cp = Convert.ToInt32((if hex.Length > 0 then hex else "0"), 16)
+                    Lit (Char.ConvertFromUtf32(cp))
+                else
+                    let mutable hex = ""
+                    for _ in 0..3 do
+                        let h = cur.Peek()
+                        if not (isHexDigit h) then
+                            raiseError "Invalid \\uHHHH escape" startPos
+                        hex <- hex + string (cur.Take())
+                    let cp = Convert.ToInt32(hex, 16)
+                    Lit (Char.ConvertFromUtf32(cp))
+            
+            // Unicode escape \U (8 hex digits)
+            | 'U' ->
+                cur.Take() |> ignore
+                let mutable hex = ""
+                for _ in 0..7 do
+                    let h = cur.Peek()
+                    if not (isHexDigit h) then
+                        raiseError "Invalid \\UHHHHHHHH escape" startPos
+                    hex <- hex + string (cur.Take())
+                let cp = Convert.ToInt32(hex, 16)
+                Lit (Char.ConvertFromUtf32(cp))
+            
+            // Numeric backreference
             | c when c >= '1' && c <= '9' ->
-                // Numeric backreference
-                let mutable numStr = string c
+                let mutable numStr = string (cur.Take())
                 while cur.Peek() >= '0' && cur.Peek() <= '9' do
                     numStr <- numStr + string (cur.Take())
-                Backref (Some (int numStr), None)
-            | c when "^$.*+?()[]{}|\\".Contains(c) ->
+                let num = int numStr
+                if num > capCount then
+                    raiseError (sprintf "Backreference to undefined group \\%d" num) startPos
+                Backref (Some num, None)
+            
+            // Forbidden octal
+            | '0' ->
+                raiseError "Forbidden octal escape" startPos
+                Lit ""
+            
+            // Named backreference
+            | 'k' ->
+                cur.Take() |> ignore
+                if cur.Peek() <> '<' then
+                    raiseError "Expected '<' after \\k" startPos
+                cur.Take() |> ignore // consume <
+                let mutable name = ""
+                while not (cur.Eof()) && cur.Peek() <> '>' do
+                    name <- name + string (cur.Take())
+                if cur.Eof() then
+                    raiseError "Unterminated named backref" startPos
+                cur.Take() |> ignore // consume >
+                if not (capNames.Contains(name)) then
+                    raiseError (sprintf "Backreference to undefined group <%s>" name) startPos
+                Backref (None, Some name)
+            
+            // Meta escapes
+            | c when "^$.*+?()[]{}|\\/".Contains(c) ->
+                cur.Take() |> ignore
                 Lit (string c)
-            | c ->
+            
+            // Unknown escape - alphanumeric is error
+            | c when Char.IsLetterOrDigit(c) ->
                 raiseError (sprintf "Unknown escape sequence \\%c" c) startPos
                 Lit ""
+            
+            | c ->
+                cur.Take() |> ignore
+                Lit (string c)
         
         and parseGroupOrLook () =
             let startPos = cur.I
@@ -282,19 +439,19 @@ module Parser =
                 | ':' ->
                     cur.Take() |> ignore
                     let body = parseAlt()
-                    if cur.Peek() <> ')' then raiseError "Unterminated group" startPos
+                    if cur.Peek() <> ')' then raiseError "Unterminated group" cur.I
                     cur.Take() |> ignore
                     Group (false, None, false, body)
                 | '=' ->
                     cur.Take() |> ignore
                     let body = parseAlt()
-                    if cur.Peek() <> ')' then raiseError "Unterminated lookahead" startPos
+                    if cur.Peek() <> ')' then raiseError "Unterminated lookahead" cur.I
                     cur.Take() |> ignore
                     Lookahead body
                 | '!' ->
                     cur.Take() |> ignore
                     let body = parseAlt()
-                    if cur.Peek() <> ')' then raiseError "Unterminated lookahead" startPos
+                    if cur.Peek() <> ')' then raiseError "Unterminated lookahead" cur.I
                     cur.Take() |> ignore
                     NegativeLookahead body
                 | '<' ->
@@ -303,40 +460,64 @@ module Parser =
                     if afterAngle = '=' then
                         cur.Take() |> ignore
                         let body = parseAlt()
-                        if cur.Peek() <> ')' then raiseError "Unterminated lookbehind" startPos
+                        if cur.Peek() <> ')' then raiseError "Unterminated lookbehind" cur.I
                         cur.Take() |> ignore
                         Lookbehind body
                     elif afterAngle = '!' then
                         cur.Take() |> ignore
                         let body = parseAlt()
-                        if cur.Peek() <> ')' then raiseError "Unterminated lookbehind" startPos
+                        if cur.Peek() <> ')' then raiseError "Unterminated lookbehind" cur.I
                         cur.Take() |> ignore
                         NegativeLookbehind body
                     else
-                        // Named capturing group
-                        let name = readIdentUntil '>'
-                        if cur.Peek() <> '>' then raiseError "Unterminated group name" startPos
-                        cur.Take() |> ignore
-                        capCount <- capCount + 1
+                        // Named group
+                        let mutable name = ""
+                        while not (cur.Eof()) && cur.Peek() <> '>' do
+                            name <- name + string (cur.Take())
+                        if cur.Eof() then
+                            raiseError "Unterminated group name" cur.I
+                        cur.Take() |> ignore // consume >
+                        
+                        // Validate group name
+                        if name.Length = 0 || (not (Char.IsLetter(name.[0])) && name.[0] <> '_') then
+                            raiseError (sprintf "Invalid group name '%s'" name) startPos
+                        for k in 1..name.Length-1 do
+                            if not (Char.IsLetterOrDigit(name.[k])) && name.[k] <> '_' then
+                                raiseError (sprintf "Invalid group name '%s'" name) startPos
+                        
+                        if capNames.Contains(name) then
+                            raiseError (sprintf "Duplicate group name '%s'" name) startPos
                         capNames.Add(name) |> ignore
+                        capCount <- capCount + 1
+                        
                         let body = parseAlt()
-                        if cur.Peek() <> ')' then raiseError "Unterminated group" startPos
+                        if cur.Peek() <> ')' then raiseError "Unterminated group" cur.I
                         cur.Take() |> ignore
                         Group (true, Some name, false, body)
                 | '>' ->
                     cur.Take() |> ignore
                     let body = parseAlt()
-                    if cur.Peek() <> ')' then raiseError "Unterminated atomic group" startPos
+                    if cur.Peek() <> ')' then raiseError "Unterminated atomic group" cur.I
                     cur.Take() |> ignore
                     Group (false, None, true, body)
                 | _ ->
-                    raiseError (sprintf "Unknown group type '(?%c'" next) startPos
+                    // Check for inline modifiers
+                    let save = cur.I
+                    let mutable scan = ""
+                    let mutable sj = save
+                    while sj < cur.Text.Length && "imsux".Contains(cur.Text.[sj]) do
+                        scan <- scan + string cur.Text.[sj]
+                        sj <- sj + 1
+                    if scan.Length > 0 && sj < cur.Text.Length && cur.Text.[sj] = ')' then
+                        raiseError (sprintf "Inline modifiers like (?%s...) are not supported" scan) startPos
+                    
+                    raiseError (sprintf "Unknown group modifier: ?%c" next) (cur.I - 1)
                     Lit ""
             else
                 // Capturing group
                 capCount <- capCount + 1
                 let body = parseAlt()
-                if cur.Peek() <> ')' then raiseError "Unterminated group" startPos
+                if cur.Peek() <> ')' then raiseError "Unterminated group" cur.I
                 cur.Take() |> ignore
                 Group (true, None, false, body)
         
@@ -352,53 +533,178 @@ module Parser =
                 else
                     false
             
+            // Empty class: [] or [^]
+            if cur.Peek() = ']' then
+                cur.InClass <- cur.InClass - 1
+                raiseError "Unterminated character class" cur.I
+            
             let items = ResizeArray<ClassItem>()
             
             while not (cur.Eof()) && cur.Peek() <> ']' do
-                items.Add(readClassItem())
+                let item = parseClassItem()
+                
+                // Check for range
+                if cur.Peek() = '-' && cur.Peek(1) <> ']' && not (cur.Eof()) then
+                    match item with
+                    | ClassLiteral fromCh ->
+                        cur.Take() |> ignore // consume -
+                        if cur.Eof() || cur.Peek() = ']' then
+                            items.Add(item)
+                            items.Add(ClassLiteral "-")
+                        else
+                            let toItem = parseClassItem()
+                            match toItem with
+                            | ClassLiteral toCh ->
+                                if String.Compare(toCh, fromCh, StringComparison.Ordinal) < 0 then
+                                    cur.InClass <- cur.InClass - 1
+                                    raiseError "Invalid character range" startPos
+                                items.Add(ClassRange(fromCh, toCh))
+                            | _ ->
+                                items.Add(item)
+                                items.Add(ClassLiteral "-")
+                                items.Add(toItem)
+                    | _ ->
+                        items.Add(item)
+                else
+                    items.Add(item)
             
-            if cur.Peek() <> ']' then
-                raiseError "Unterminated character class" startPos
+            if cur.Eof() then
+                cur.InClass <- cur.InClass - 1
+                raiseError "Unterminated character class" cur.I
             
+            cur.Take() |> ignore // consume ]
             cur.InClass <- cur.InClass - 1
-            cur.Take() |> ignore
             
             CharClass (negated, List.ofSeq items)
         
-        and readClassItem () =
+        and parseClassItem () =
             let ch = cur.Peek()
             
             if ch = '\\' then
+                let startPos = cur.I
                 cur.Take() |> ignore
-                let escCh = cur.Take()
+                
+                if cur.Eof() then
+                    raiseError "Unexpected end of pattern after '\\'" startPos
+                
+                let escCh = cur.Peek()
                 
                 match escCh with
-                | 'd' -> ClassEscape "digit"
-                | 'D' -> ClassEscape "not-digit"
-                | 'w' -> ClassEscape "word"
-                | 'W' -> ClassEscape "not-word"
-                | 's' -> ClassEscape "whitespace"
-                | 'S' -> ClassEscape "not-whitespace"
-                | 'n' -> ClassLiteral "\n"
-                | 'r' -> ClassLiteral "\r"
-                | 't' -> ClassLiteral "\t"
-                | c -> ClassLiteral (string c)
-            else
-                let literal = string (cur.Take())
+                | 'd' -> cur.Take() |> ignore; ClassEscape "digit"
+                | 'D' -> cur.Take() |> ignore; ClassEscape "not-digit"
+                | 'w' -> cur.Take() |> ignore; ClassEscape "word"
+                | 'W' -> cur.Take() |> ignore; ClassEscape "not-word"
+                | 's' -> cur.Take() |> ignore; ClassEscape "whitespace"
+                | 'S' -> cur.Take() |> ignore; ClassEscape "not-whitespace"
+                | 'n' -> cur.Take() |> ignore; ClassLiteral "\n"
+                | 'r' -> cur.Take() |> ignore; ClassLiteral "\r"
+                | 't' -> cur.Take() |> ignore; ClassLiteral "\t"
+                | 'f' -> cur.Take() |> ignore; ClassLiteral "\f"
+                | 'v' -> cur.Take() |> ignore; ClassLiteral "\u000B"
                 
-                if cur.Peek() = '-' && cur.Peek(1) <> ']' then
+                // Unicode property
+                | 'p' | 'P' ->
+                    let neg = escCh = 'P'
                     cur.Take() |> ignore
-                    let endCh = string (cur.Take())
-                    ClassRange (literal, endCh)
-                else
-                    ClassLiteral literal
+                    if cur.Peek() <> '{' then
+                        cur.InClass <- cur.InClass - 1
+                        raiseError "Expected { after \\p/\\P" startPos
+                    cur.Take() |> ignore
+                    let mutable prop = ""
+                    while not (cur.Eof()) && cur.Peek() <> '}' do
+                        prop <- prop + string (cur.Take())
+                    if cur.Eof() then
+                        cur.InClass <- cur.InClass - 1
+                        raiseError "Unterminated \\p{...}" startPos
+                    cur.Take() |> ignore
+                    let mutable propName = None
+                    let mutable propValue = prop
+                    if prop.Contains("=") then
+                        let parts = prop.Split([|'='|], 2)
+                        propName <- Some parts.[0]
+                        propValue <- parts.[1]
+                    ClassUnicodeProperty(propName, propValue, neg)
+                
+                // Hex escape
+                | 'x' ->
+                    cur.Take() |> ignore
+                    if cur.Peek() = '{' then
+                        cur.Take() |> ignore
+                        let mutable hex = ""
+                        while not (cur.Eof()) && cur.Peek() <> '}' do
+                            hex <- hex + string (cur.Take())
+                        if cur.Eof() then
+                            cur.InClass <- cur.InClass - 1
+                            raiseError "Unterminated \\x{...}" startPos
+                        cur.Take() |> ignore
+                        let cp = Convert.ToInt32((if hex.Length > 0 then hex else "0"), 16)
+                        ClassLiteral (Char.ConvertFromUtf32(cp))
+                    else
+                        let mutable hex = ""
+                        for _ in 0..1 do
+                            let h = cur.Peek()
+                            if not (isHexDigit h) then
+                                cur.InClass <- cur.InClass - 1
+                                raiseError "Invalid \\xHH escape" startPos
+                            hex <- hex + string (cur.Take())
+                        let cp = Convert.ToInt32(hex, 16)
+                        ClassLiteral (string (char cp))
+                
+                // Unicode escape \u
+                | 'u' ->
+                    cur.Take() |> ignore
+                    if cur.Peek() = '{' then
+                        cur.Take() |> ignore
+                        let mutable hex = ""
+                        while not (cur.Eof()) && cur.Peek() <> '}' do
+                            hex <- hex + string (cur.Take())
+                        if cur.Eof() then
+                            cur.InClass <- cur.InClass - 1
+                            raiseError "Unterminated \\u{...}" startPos
+                        cur.Take() |> ignore
+                        let cp = Convert.ToInt32((if hex.Length > 0 then hex else "0"), 16)
+                        ClassLiteral (Char.ConvertFromUtf32(cp))
+                    else
+                        let mutable hex = ""
+                        for _ in 0..3 do
+                            let h = cur.Peek()
+                            if not (isHexDigit h) then
+                                cur.InClass <- cur.InClass - 1
+                                raiseError "Invalid \\uHHHH escape" startPos
+                            hex <- hex + string (cur.Take())
+                        let cp = Convert.ToInt32(hex, 16)
+                        ClassLiteral (Char.ConvertFromUtf32(cp))
+                
+                // Forbidden octal
+                | '0' ->
+                    cur.InClass <- cur.InClass - 1
+                    raiseError "Forbidden octal escape" startPos
+                    ClassLiteral ""
+                
+                // Meta escapes in class
+                | c when "^$.*+?()[]{}|\\/\\-".Contains(c) ->
+                    cur.Take() |> ignore
+                    ClassLiteral (string c)
+                
+                // Unknown escape
+                | c when Char.IsLetterOrDigit(c) ->
+                    cur.InClass <- cur.InClass - 1
+                    raiseError (sprintf "Unknown escape sequence \\%c" c) startPos
+                    ClassLiteral ""
+                
+                | c ->
+                    cur.Take() |> ignore
+                    ClassLiteral (string c)
+            else
+                cur.Take() |> ignore
+                ClassLiteral (string ch)
         
         and parseQuantIfAny (child: Node) : Node * bool =
             cur.SkipWsAndComments()
             let ch = cur.Peek()
             
             match child with
-            | Anchor _ when "*+?{".Contains(ch) ->
+            | Anchor _ when ch <> '\000' && "*+?{".Contains(ch) ->
                 raiseError "Cannot quantify anchor" cur.I
                 (child, false)
             | Anchor _ ->
@@ -451,48 +757,47 @@ module Parser =
         
         and parseBraceQuant () =
             let startPos = cur.I
-            cur.Take() |> ignore
-            cur.SkipWsAndComments()
+            cur.Take() |> ignore // consume {
             
-            let mutable minStr = ""
-            while Char.IsDigit(cur.Peek()) do
-                minStr <- minStr + string (cur.Take())
+            // Read content until }
+            let contentStart = cur.I
+            let mutable content = ""
+            while not (cur.Eof()) && cur.Peek() <> '}' do
+                content <- content + string (cur.Take())
             
-            if minStr = "" then
-                raiseError "Invalid brace quantifier content" startPos
+            if cur.Eof() then
+                raiseError "Incomplete quantifier" startPos
                 None
             else
-                let min = int minStr
-                let mutable max = Some min
+                cur.Take() |> ignore // consume }
                 
-                cur.SkipWsAndComments()
-                if cur.Peek() = ',' then
-                    cur.Take() |> ignore
-                    cur.SkipWsAndComments()
-                    
-                    let mutable maxStr = ""
-                    while Char.IsDigit(cur.Peek()) do
-                        maxStr <- maxStr + string (cur.Take())
-                    
-                    max <- if maxStr = "" then None else Some (int maxStr)
-                
-                cur.SkipWsAndComments()
-                if cur.Peek() <> '}' then
-                    raiseError "Unterminated {m,n}" startPos
+                if content.Length = 0 then
+                    raiseError "Brace quantifier: Invalid brace quantifier content" startPos
+                    None
+                elif not (Regex.IsMatch(content, @"^\d+(,\d*)?$")) then
+                    raiseError "Brace quantifier: Invalid brace quantifier content" startPos
                     None
                 else
-                    cur.Take() |> ignore
-                    Some (min, max)
+                    let commaIdx = content.IndexOf(',')
+                    if commaIdx = -1 then
+                        let v = int content
+                        Some (v, Some v)
+                    else
+                        let minVal = int (content.Substring(0, commaIdx))
+                        let maxVal = 
+                            if commaIdx + 1 < content.Length then Some (int (content.Substring(commaIdx + 1)))
+                            else None
+                        
+                        match maxVal with
+                        | Some mv when mv < minVal ->
+                            raiseError "Invalid quantifier range" startPos
+                            None
+                        | _ ->
+                            Some (minVal, maxVal)
         
         and takeLiteralChar () =
             let ch = cur.Take()
             Lit (string ch)
-        
-        and readIdentUntil (endChar: char) =
-            let mutable ident = ""
-            while not (cur.Eof()) && cur.Peek() <> endChar do
-                ident <- ident + string (cur.Take())
-            ident
         
         // Execute parsing
         let ast = parsePattern()

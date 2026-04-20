@@ -67,29 +67,45 @@ class Parser
     private function parseDirectives(string $text): array
     {
         $flags = new Flags();
+        $lines = explode("\n", $text);
+        $patternLines = [];
+        $inPattern = false;
         
-        // Look for %flags directive
-        if (preg_match('/^\\s*%flags\\s*([imsux,\\[\\]\\s]*)/im', $text, $matches, PREG_OFFSET_CAPTURE)) {
-            $flagStr = strtolower(preg_replace('/[,\\[\\]\\s]/', '', $matches[1][0]));
-            $flags = Flags::fromLetters($flagStr);
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
             
-            // Remove directive line(s) from pattern
-            $lines = explode("\n", $text);
-            $patternLines = [];
-            $inPattern = false;
-            
-            foreach ($lines as $line) {
-                $trimmed = trim($line);
-                if (!$inPattern && (str_starts_with($trimmed, '%flags') || $trimmed === '' || str_starts_with($trimmed, '#'))) {
+            if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+                if (!$inPattern) {
                     continue;
                 }
-                $inPattern = true;
                 $patternLines[] = $line;
+                continue;
             }
             
-            $text = implode("\n", $patternLines);
+            if (str_starts_with($trimmed, '%')) {
+                if ($inPattern) {
+                    throw new STRlingParseError("Directive after pattern", 0, $text);
+                }
+                if (preg_match('/^%flags\\s*(.*)/i', $trimmed, $m)) {
+                    $flagStr = strtolower(preg_replace('/[,\\[\\]\\s]/', '', $m[1]));
+                    $flags = Flags::fromLetters($flagStr, function(string $ch) use ($text) {
+                        throw new STRlingParseError("Invalid flag '$ch'", 0, $text);
+                    });
+                } else {
+                    throw new STRlingParseError("Malformed directive", 0, $text);
+                }
+                continue;
+            }
+            
+            $inPattern = true;
+            // Check if a directive appears mid-line
+            if (preg_match("/%flags\\b/", $trimmed) && !str_starts_with($trimmed, "%")) {
+                throw new STRlingParseError("Directive after pattern", 0, $text);
+            }
+            $patternLines[] = $line;
         }
         
+        $text = implode("\n", $patternLines);
         return [$flags, $text];
     }
 
@@ -162,7 +178,10 @@ class Parser
             $this->take();
             $this->skipWsAndComments();
             
-            if ($this->eof() || $this->peek() === '|') {
+            if ($this->peek() === '|') {
+                throw new STRlingParseError("Empty alternation", $pipePos, $this->src);
+            }
+            if ($this->eof() || $this->peek() === ')') {
                 throw new STRlingParseError("Alternation lacks right-hand side", $pipePos, $this->src);
             }
             
@@ -260,6 +279,17 @@ class Parser
             $save = $this->i;
             $this->take();
             
+            // Look ahead to check for invalid brace quantifier content
+            $lookAhead = '';
+            $j = $this->i;
+            while ($j < $this->len && $this->src[$j] !== '}') {
+                $lookAhead .= $this->src[$j];
+                $j++;
+            }
+            if ($j < $this->len && $this->src[$j] === '}' && $lookAhead !== '' && !preg_match('/^\d+(,\d*)?$/', $lookAhead)) {
+                throw new STRlingParseError("Brace quantifier: Invalid brace quantifier content", $save, $this->src);
+            }
+            
             $m = $this->readIntOptional();
             if ($m === null) {
                 $this->i = $save;
@@ -279,6 +309,11 @@ class Parser
                 throw new STRlingParseError("Incomplete quantifier", $this->i, $this->src);
             }
             $this->take();
+            
+            // Validate range
+            if ($max !== null && $min > $max) {
+                throw new STRlingParseError("Invalid quantifier range", $save, $this->src);
+            }
         } else {
             return $child;
         }
@@ -343,6 +378,11 @@ class Parser
             return new NegativeLookbehind($body);
         }
         
+        // Inline modifiers
+        if ($this->peek() === '?' && preg_match('/^[imsx]+\)/', substr($this->src, $this->i + 1))) {
+            throw new STRlingParseError("Inline modifiers are not supported", $this->i - 1, $this->src);
+        }
+        
         // Named capturing group
         if ($this->match('?<')) {
             $name = '';
@@ -351,6 +391,9 @@ class Parser
             }
             if (!$this->match('>')) {
                 throw new STRlingParseError("Unterminated group name", $this->i, $this->src);
+            }
+            if ($name === '' || !preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $name)) {
+                throw new STRlingParseError("Invalid group name", $this->i, $this->src);
             }
             if (in_array($name, $this->capNames, true)) {
                 throw new STRlingParseError("Duplicate group name <{$name}>", $this->i, $this->src);
@@ -412,6 +455,10 @@ class Parser
             $this->take();
         }
         
+        if ($this->peek() === ']') {
+            throw new STRlingParseError("Unterminated character class", $this->i, $this->src);
+        }
+        
         $items = [];
         
         while (!$this->eof() && $this->peek() !== ']') {
@@ -424,6 +471,9 @@ class Parser
                 if ($this->peek() === '-' && $this->peek(1) !== ']') {
                     $this->take(); // consume '-'
                     $endCh = $this->take();
+                    if (ord($endCh) < ord($ch)) {
+                        throw new STRlingParseError("Invalid character range", $this->i, $this->src);
+                    }
                     $items[] = new Range($ch, $endCh);
                 } else {
                     $items[] = new Literal($ch);
@@ -465,7 +515,7 @@ class Parser
         if ($nxt === 'p' || $nxt === 'P') {
             $tp = $this->take();
             if (!$this->match('{')) {
-                throw new STRlingParseError("Expected '{' after \\p/\\P", $startPos, $this->src);
+                throw new STRlingParseError("Expected { after \\p/\\P", $startPos, $this->src);
             }
             $prop = '';
             while ($this->peek() !== '}' && $this->peek() !== '') {
@@ -495,7 +545,12 @@ class Parser
             return new Literal("\x00");
         }
         
-        // Identity escape
+        // Unknown escape for alphanumeric
+        if (ctype_alnum($nxt)) {
+            throw new STRlingParseError("Unknown escape sequence \\{$nxt}", $startPos, $this->src);
+        }
+        
+        // Identity escape (punctuation)
         return new Literal($this->take());
     }
 
@@ -560,7 +615,7 @@ class Parser
         if ($nxt === 'p' || $nxt === 'P') {
             $tp = $this->take();
             if (!$this->match('{')) {
-                throw new STRlingParseError("Expected '{' after \\p/\\P", $startPos, $this->src);
+                throw new STRlingParseError("Expected { after \\p/\\P", $startPos, $this->src);
             }
             $prop = '';
             while ($this->peek() !== '}' && $this->peek() !== '') {
@@ -595,7 +650,12 @@ class Parser
             return new Literal("\x00");
         }
         
-        // Identity escape
+        // Unknown escape for alphanumeric
+        if (ctype_alnum($nxt)) {
+            throw new STRlingParseError("Unknown escape sequence \\{$nxt}", $startPos, $this->src);
+        }
+        
+        // Identity escape (punctuation)
         return new Literal($this->take());
     }
 

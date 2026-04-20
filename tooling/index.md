@@ -8,7 +8,7 @@ If you add or change tooling, please update this index so maintainers and CI con
 
 ## Quick links
 
-- Audit & reporting: `audit_precision.py`, `audit_hints.py`, `audit_omega.py`
+- Audit & reporting: `audit_precision.py`, `audit_hints.py`, `audit_omega.py`, `audit_hint_parity.py`
 - Release helpers: `sync_versions.py`, `check_version_exists.py`
 - Fixture tooling: `js_to_json_ast/`
 - LSP & editor tooling: `lsp-server/`
@@ -27,6 +27,12 @@ If you add or change tooling, please update this index so maintainers and CI con
     python3 tooling/audit_hints.py "[a-"
     python3 tooling/audit_hints.py "(?<name"
     python3 tooling/audit_hints.py "a{3,1}"   # invalid quantifier range
+    ```
+
+- `audit_hint_parity.py` — **Cross-Binding Hint Parity Auditor**. Statically analyzes all binding hint engine source files and reports which of the 38 canonical error-pattern keys (from the TypeScript reference) are present or missing. Exits with code 0 for full parity, 1 for drift.
+
+    ```bash
+    python3 tooling/audit_hint_parity.py
     ```
 
 - `audit_omega.py` — The unified Final Certification harness. Runs the global audit and generates `docs/generated/FINAL_AUDIT_REPORT.md`.

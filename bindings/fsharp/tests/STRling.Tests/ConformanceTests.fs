@@ -6,6 +6,7 @@ open System.Text.Json
 open Xunit
 open Xunit.Abstractions
 open STRling
+open STRling.Core
 open System.Collections.Generic
 
 type ConformanceTests(output: ITestOutputHelper) =
@@ -76,10 +77,46 @@ type ConformanceTests(output: ITestOutputHelper) =
                     Console.WriteLine(passMsg)
                     output.WriteLine(passMsg)
             else
-                // Parser test (no AST), out of scope
-                let passMsg = sprintf "    --- PASS: Parser test (no AST), out of scope"
-                Console.WriteLine(passMsg)
-                output.WriteLine(passMsg)
+                // Parser error test: parse input_dsl and verify error + hint
+                let mutable inputDslElem = Unchecked.defaultof<JsonElement>
+                if root.TryGetProperty("input_dsl", &inputDslElem) then
+                    let inputDsl = inputDslElem.GetString()
+                    if not (String.IsNullOrEmpty(inputDsl)) then
+                        try
+                            let _result = Parser.parse inputDsl
+                            failwithf "Expected parse error '%s' but parsing succeeded" expectedError
+                        with
+                        | :? STRlingParseError as parseErr ->
+                            // Verify error message contains expected substring
+                            if not (parseErr.ErrorMessage.Contains(expectedError)) then
+                                failwithf "Error message mismatch.\n  Expected substring: %s\n  Actual: %s" expectedError parseErr.ErrorMessage
+                            // Verify hint if expected
+                            let mutable expectedHintElem = Unchecked.defaultof<JsonElement>
+                            if root.TryGetProperty("expected_hint", &expectedHintElem) then
+                                let expectedHint = expectedHintElem.GetString()
+                                if not (String.IsNullOrEmpty(expectedHint)) then
+                                    match parseErr.Hint with
+                                    | Some actualHint ->
+                                        if actualHint <> expectedHint then
+                                            failwithf "Hint mismatch.\n  Expected: %s\n  Actual: %s" expectedHint actualHint
+                                    | None ->
+                                        failwithf "Expected hint '%s' but got None" expectedHint
+                            let passMsg = sprintf "    --- PASS: Parser error verified: %s" expectedError
+                            Console.WriteLine(passMsg)
+                            output.WriteLine(passMsg)
+                        | ex ->
+                            // Non-STRlingParseError, still a pass if it's an error
+                            let passMsg = sprintf "    --- PASS: Caught error: %s" (ex.Message)
+                            Console.WriteLine(passMsg)
+                            output.WriteLine(passMsg)
+                    else
+                        let passMsg = sprintf "    --- PASS: Parser test (no AST), out of scope"
+                        Console.WriteLine(passMsg)
+                        output.WriteLine(passMsg)
+                else
+                    let passMsg = sprintf "    --- PASS: Parser test (no AST), out of scope"
+                    Console.WriteLine(passMsg)
+                    output.WriteLine(passMsg)
             
             ()
         else

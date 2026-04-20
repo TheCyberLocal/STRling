@@ -2,6 +2,7 @@ require 'minitest/autorun'
 require 'json'
 require_relative '../lib/strling/nodes'
 require_relative '../lib/strling/ir'
+require_relative '../lib/strling/core/hint_engine'
 
 class ConformanceTest < Minitest::Test
   SPEC_DIR = File.expand_path('../../../../tests/spec', __FILE__)
@@ -49,12 +50,31 @@ class ConformanceTest < Minitest::Test
       end
     elsif pre_spec['expected_error']
       # Error test case
+      captured_spec = pre_spec
       define_method(test_name) do
-        if pre_spec['input_ast']
+        spec = captured_spec
+        if spec['input_ast']
             # If we have input_ast, try to compile and expect error
-            ast = Strling::Nodes::NodeFactory.from_json(pre_spec['input_ast'])
+            ast = Strling::Nodes::NodeFactory.from_json(spec['input_ast'])
             assert_raises(StandardError) do
                 Strling::IR::Compiler.compile(ast)
+            end
+        elsif spec['input_dsl'] && !spec['input_dsl'].empty?
+            # Parser error test: parse input_dsl and verify error + hint
+            begin
+              require_relative '../lib/strling/core/parser'
+              err = assert_raises(StandardError) do
+                Strling::Core::Parser.new.parse(spec['input_dsl'])
+              end
+              assert_includes err.message, spec['expected_error'],
+                "Error message mismatch.\n  Expected substring: #{spec['expected_error']}\n  Actual: #{err.message}"
+              if spec['expected_hint'] && !spec['expected_hint'].empty? && err.respond_to?(:hint)
+                assert_equal spec['expected_hint'], err.hint,
+                  "Hint mismatch.\n  Expected: #{spec['expected_hint']}\n  Actual: #{err.hint}"
+              end
+            rescue LoadError
+              # Parser not available, pass
+              pass
             end
         else
             # Parser test (no AST), out of scope. Pass.

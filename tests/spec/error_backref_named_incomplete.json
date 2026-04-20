@@ -3,6 +3,7 @@
   "description": "Generated from error_backref_named_incomplete.pattern",
   "input_dsl": "\\k",
   "expected_error": "Expected '<' after \\k",
+  "expected_hint": "Named backreferences use the syntax \\k<name>. Make sure to close the '<name>' with '>'.",
   "metadata_expectations": {
     "features_used": []
   }

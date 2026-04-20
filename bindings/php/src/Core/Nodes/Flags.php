@@ -17,7 +17,7 @@ class Flags implements JsonSerializable
         public bool $extended = false,
     ) {}
 
-    public static function fromLetters(string $letters): self
+    public static function fromLetters(string $letters, ?callable $onError = null): self
     {
         $f = new self();
         $cleaned = str_replace([',', ' '], '', $letters);
@@ -29,7 +29,7 @@ class Flags implements JsonSerializable
                 's' => $f->dotAll = true,
                 'u' => $f->unicode = true,
                 'x' => $f->extended = true,
-                default => null,
+                default => $onError !== null ? $onError($ch) : null,
             };
         }
         

@@ -300,9 +300,9 @@ package STRling::Core::parser::Parser {
                     $pos_before += length($lines[$k * 2]) + length($lines[$k * 2 + 1] || '');
                 }
                 my $pos = $pos_before + index($line, '%flags');
-                my $hint = STRling::Core::HintEngine::get_hint("Directive after pattern content", $text, $pos);
+                my $hint = STRling::Core::HintEngine::get_hint("Directive after pattern", $text, $pos);
                 die STRling::Core::Errors::STRlingParseError->new(
-                    message => "Directive after pattern content",
+                    message => "Directive after pattern",
                     pos     => $pos,
                     text    => $text,
                     hint    => $hint,
@@ -334,7 +334,7 @@ package STRling::Core::parser::Parser {
                     message => "Unmatched ')'",
                     pos     => $self->cur->i,
                     text    => $self->src,
-                    hint    => "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?",
+                    hint    => "This ')' does not have a matching opening '('. Remove the extra ')' or add an opening '(' earlier in the pattern. '\\)'?",
                 );
             }
             if ($self->cur->peek() eq '|') {
@@ -373,7 +373,7 @@ package STRling::Core::parser::Parser {
             
             # Check if the pipe is followed by another pipe (empty branch)
             if ($self->cur->peek() eq '|') {
-                $self->_raise_error("Empty alternation branch", $pipe_pos);
+                $self->_raise_error("Empty alternation", $pipe_pos);
             }
             
             push @branches, $self->parse_seq();

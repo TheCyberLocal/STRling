@@ -3,6 +3,7 @@
   "description": "Generated from directive_after_content.pattern",
   "input_dsl": "a\n%flags i",
   "expected_error": "Directive after pattern",
+  "expected_hint": "Directives such as '%flags' must appear at the start of the pattern (before any pattern content). Move the directive to the top of the input on its own line.",
   "metadata_expectations": {
     "features_used": []
   }

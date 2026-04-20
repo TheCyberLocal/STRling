@@ -1,21 +1,8 @@
 # frozen_string_literal: true
 
 # STRling Parser - Recursive Descent Parser for STRling DSL
-#
-# This module implements a hand-rolled recursive-descent parser that transforms
-# STRling pattern syntax into Abstract Syntax Tree (AST) nodes. The parser handles:
-#   - Alternation and sequencing
-#   - Character classes and ranges
-#   - Quantifiers (greedy, lazy, possessive)
-#   - Groups (capturing, non-capturing, named, atomic)
-#   - Lookarounds (lookahead and lookbehind, positive and negative)
-#   - Anchors and special escapes
-#   - Extended/free-spacing mode with comments
-#
-# The parser produces AST nodes (defined in nodes.rb) that can be compiled
-# to IR and ultimately emitted as target-specific regex patterns. It includes
-# comprehensive error handling with position tracking for helpful diagnostics.
 
+require 'set'
 require_relative 'nodes'
 require_relative 'errors'
 require_relative 'hint_engine'
@@ -65,7 +52,6 @@ module Strling
       def skip_ws_and_comments
         return if !@extended_mode || @in_class > 0
 
-        # In free-spacing mode, ignore spaces/tabs/newlines and #-to-EOL comments
         until eof?
           ch = peek
           if " \t\r\n".include?(ch)
@@ -73,7 +59,6 @@ module Strling
             next
           end
           if ch == '#'
-            # skip comment to end of line
             @i += 1 until eof? || "\r\n".include?(peek)
             next
           end
@@ -86,7 +71,6 @@ module Strling
     class Parser
       attr_reader :flags, :src, :cur
 
-      # Control character escapes mapping
       CONTROL_ESCAPES = {
         'n' => "\n",
         'r' => "\r",
@@ -95,31 +79,30 @@ module Strling
         'v' => "\v"
       }.freeze
 
-      def initialize(text)
-        # Store original text for error reporting
+      def initialize(text = nil)
+        return unless text
+
         @original_text = text
-        # Extract directives first
         @flags, @src = parse_directives(text)
         @cur = Cursor.new(@src, 0, @flags.extended, 0)
         @cap_count = 0
         @cap_names = Set.new
       end
 
-      # Main parsing entry point
-      # Returns the root AST node
-      def parse
+      def parse(text = nil)
+        if text
+          @original_text = text
+          @flags, @src = parse_directives(text)
+          @cur = Cursor.new(@src, 0, @flags.extended, 0)
+          @cap_count = 0
+          @cap_names = Set.new
+        end
         node = parse_alt
         @cur.skip_ws_and_comments
         unless @cur.eof?
           if @cur.peek == ')'
-            raise STRlingParseError.new(
-              "Unmatched ')'",
-              @cur.i,
-              text: @src,
-              hint: "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?"
-            )
-          end
-          if @cur.peek == '|'
+            raise_error("Unmatched ')'", @cur.i)
+          elsif @cur.peek == '|'
             raise_error('Alternation lacks right-hand side', @cur.i)
           else
             raise_error('Unexpected trailing input', @cur.i)
@@ -135,70 +118,74 @@ module Strling
         raise STRlingParseError.new(message, pos, text: @src, hint: hint)
       end
 
-      # Parse directives (%flags, etc.) from the start of the text
+      def raise_error_with_text(message, pos, text)
+        hint = Strling::Core.get_hint(message, text, pos)
+        raise STRlingParseError.new(message, pos, text: text, hint: hint)
+      end
+
       def parse_directives(text)
         flags = Flags.new
         lines = text.lines
         pattern_lines = []
         in_pattern = false
-        line_num = 0
 
         lines.each do |line|
-          line_num += 1
           stripped = line.strip
 
-          # Skip leading blank lines or comments
-          if !in_pattern && (stripped.empty? || stripped.start_with?('#'))
-            next
-          end
+          next if !in_pattern && (stripped.empty? || stripped.start_with?('#'))
 
-          # Process %flags directive
-          if !in_pattern && stripped.start_with?('%flags')
+          if stripped.start_with?('%')
+            if in_pattern
+              raise_error_with_text('Directive after pattern', 0, text)
+            end
+
+            unless stripped.start_with?('%flags')
+              raise_error_with_text('Malformed directive', 0, text)
+            end
+
             idx = line.index('%flags')
-            after = line[(idx + 7)..]
-            # Extract flags
-            letters = after.gsub(/[,\[\]\s]+/, ' ').strip.downcase
+            after = line[(idx + 6)..]
             valid_flags = Set.new(%w[i m s u x])
+            allowed = Set.new(" ,\t[]imsuxIMSUX".chars)
 
-            letters.delete(' ').each_char do |ch|
-              next if ch.empty?
-
-              unless valid_flags.include?(ch)
-                pos = lines[0...line_num - 1].join.length + idx
-                raise STRlingParseError.new(
-                  "Invalid flag '#{ch}'",
-                  pos,
-                  text: @original_text,
-                  hint: nil
-                )
+            j = 0
+            after.each_char.with_index do |c, k|
+              if allowed.include?(c)
+                j = k + 1
+              else
+                break
               end
             end
 
-            flags = Flags.from_letters(letters)
-            # Check for pattern content on same line
-            remainder = after.gsub(/[imsux,\[\]\s]+/, '')
-            if !remainder.empty?
+            flags_token = after[0...j]
+            remainder = after[j..]
+
+            letters = flags_token.gsub(/[^a-zA-Z]/, '').downcase
+
+            letters.each_char do |ch|
+              unless valid_flags.include?(ch)
+                raise_error_with_text("Invalid flag '#{ch}'", 0, text)
+              end
+            end
+
+            if !letters.empty?
+              flags = Flags.from_letters(letters)
+            elsif remainder && !remainder.strip.empty?
+              ch = remainder.strip[0]
+              raise_error_with_text("Invalid flag '#{ch}'", 0, text)
+            end
+
+            if remainder && !remainder.strip.empty?
+              pattern_lines << remainder
               in_pattern = true
-              pattern_lines << line[(idx + 7 + after.index(remainder))..] if after.index(remainder)
             end
             next
           end
 
-          # Skip other directives
-          next if !in_pattern && stripped.start_with?('%')
-
-          # Check for misplaced %flags
           if line.include?('%flags')
-            pos = lines[0...line_num - 1].join.length + line.index('%flags')
-            raise STRlingParseError.new(
-              'Directive after pattern content',
-              pos,
-              text: @original_text,
-              hint: nil
-            )
+            raise_error_with_text('Directive after pattern', 0, text)
           end
 
-          # All other lines are pattern content
           in_pattern = true
           pattern_lines << line
         end
@@ -207,10 +194,12 @@ module Strling
         [flags, pattern]
       end
 
-      # Parse alternation: alt := seq ('|' seq)+ | seq
       def parse_alt
         @cur.skip_ws_and_comments
-        raise_error('Alternation lacks left-hand side', @cur.i) if @cur.peek == '|'
+
+        if @cur.peek == '|'
+          raise_error('Alternation lacks left-hand side', @cur.i)
+        end
 
         branches = [parse_seq]
         @cur.skip_ws_and_comments
@@ -220,8 +209,15 @@ module Strling
           @cur.take
           @cur.skip_ws_and_comments
 
-          raise_error('Alternation lacks right-hand side', pipe_pos) if @cur.peek.empty?
-          raise_error('Empty alternation branch', pipe_pos) if @cur.peek == '|'
+          if @cur.eof?
+            raise_error('Alternation lacks right-hand side', pipe_pos)
+          end
+          if @cur.peek == '|'
+            raise_error('Empty alternation', pipe_pos)
+          end
+          if @cur.peek == ')'
+            raise_error('Alternation lacks right-hand side', pipe_pos)
+          end
 
           branches << parse_seq
           @cur.skip_ws_and_comments
@@ -230,59 +226,35 @@ module Strling
         branches.length == 1 ? branches[0] : Alt.new(branches)
       end
 
-      # Parse sequence: seq := { term }
       def parse_seq
         parts = []
-        prev_had_failed_quant = false
 
         loop do
           @cur.skip_ws_and_comments
           ch = @cur.peek
-
-          # Invalid quantifier at start
-          if !ch.empty? && '*+?{'.include?(ch) && parts.empty?
-            raise_error("Invalid quantifier '#{ch}'", @cur.i)
-          end
-
-          # Stop parsing sequence
           break if ch.empty? || ')|'.include?(ch)
 
-          # Parse atom
           atom = parse_atom
+          @cur.skip_ws_and_comments
 
-          # Parse quantifier if present
-          quantified_atom, had_failed_quant = parse_quant_if_any(atom)
-
-          # Coalesce adjacent literals (simplified logic)
-          should_coalesce = quantified_atom.is_a?(Lit) &&
-                            !parts.empty? &&
-                            parts.last.is_a?(Lit) &&
-                            !@cur.extended_mode &&
-                            !prev_had_failed_quant
-
-          if should_coalesce
-            parts[-1] = Lit.new(parts.last.value + quantified_atom.value)
-          else
-            parts << quantified_atom
-          end
-
-          prev_had_failed_quant = had_failed_quant
+          quantified_atom = parse_quant_if_any(atom)
+          parts << quantified_atom
         end
 
-        parts.length == 1 ? parts[0] : Seq.new(parts)
+        if parts.empty?
+          Lit.new('')
+        elsif parts.length == 1
+          parts[0]
+        else
+          Seq.new(parts)
+        end
       end
 
-      # Parse individual atom (literal, group, class, anchor, etc.)
       def parse_atom
         ch = @cur.peek
+        raise_error('Unexpected end of input', @cur.i) if ch.empty?
 
         case ch
-        when '('
-          parse_group
-        when '['
-          parse_char_class
-        when '\\'
-          parse_escape
         when '.'
           @cur.take
           Dot.new
@@ -292,146 +264,46 @@ module Strling
         when '$'
           @cur.take
           Anchor.new('End')
-        when '*', '+', '?', '{', ')', '|'
-          raise_error("Unexpected '#{ch}'", @cur.i)
+        when '('
+          parse_group
+        when '['
+          parse_char_class
+        when '\\'
+          parse_escape
+        when '*', '+', '?'
+          raise_error("Invalid quantifier '#{ch}'", @cur.i)
+        when '{'
+          # Check for invalid brace content
+          save = @cur.i
+          look = ''
+          j = @cur.i + 1
+          while j < @cur.text.length && @cur.text[j] != '}'
+            look += @cur.text[j]
+            j += 1
+          end
+          if j < @cur.text.length && !look.empty? && look !~ /^\d+(,\d*)?$/
+            raise_error('Brace quantifier: Invalid brace quantifier content', save)
+          end
+          raise_error("Invalid quantifier '#{ch}'", @cur.i)
         else
           parse_literal
         end
       end
 
-      # Parse group: (pattern) or (?:pattern) or (?<name>pattern) etc.
-      def parse_group
-        raise_error("Expected '('", @cur.i) unless @cur.take == '('
-
-        # Simplified group parsing
-        # TODO: Handle all group types (?:...), (?<name>...), (?=...), etc.
-        
-        # Check for special group syntax
-        if @cur.peek == '?'
-          @cur.take
-          case @cur.peek
-          when ':'
-            @cur.take
-            body = parse_alt
-            raise_error("Unclosed group", @cur.i) unless @cur.take == ')'
-            return Group.new(false, body)
-          when '='
-            @cur.take
-            body = parse_alt
-            raise_error("Unclosed lookahead", @cur.i) unless @cur.take == ')'
-            return Look.new('Ahead', false, body)
-          when '!'
-            @cur.take
-            body = parse_alt
-            raise_error("Unclosed lookahead", @cur.i) unless @cur.take == ')'
-            return Look.new('Ahead', true, body)
-          when '<'
-            @cur.take
-            if @cur.peek == '='
-              @cur.take
-              body = parse_alt
-              raise_error("Unclosed lookbehind", @cur.i) unless @cur.take == ')'
-              return Look.new('Behind', false, body)
-            elsif @cur.peek == '!'
-              @cur.take
-              body = parse_alt
-              raise_error("Unclosed lookbehind", @cur.i) unless @cur.take == ')'
-              return Look.new('Behind', true, body)
-            else
-              # Named capture: (?<name>...)
-              name = ''
-              until @cur.peek == '>' || @cur.eof?
-                name += @cur.take
-              end
-              raise_error("Unclosed named group", @cur.i) if @cur.eof?
-              @cur.take # consume '>'
-              @cap_count += 1
-              @cap_names.add(name)
-              body = parse_alt
-              raise_error("Unclosed group", @cur.i) unless @cur.take == ')'
-              return Group.new(true, body, name: name)
-            end
-          when '>'
-            # Atomic group
-            @cur.take
-            body = parse_alt
-            raise_error("Unclosed atomic group", @cur.i) unless @cur.take == ')'
-            return Group.new(false, body, atomic: true)
-          else
-            raise_error("Unknown group syntax", @cur.i - 1)
-          end
-        end
-
-        # Capturing group
-        @cap_count += 1
-        body = parse_alt
-        raise_error("Unclosed group", @cur.i) unless @cur.take == ')'
-        Group.new(true, body)
+      def parse_literal
+        ch = @cur.take
+        raise_error('Unexpected end of input', @cur.i) if ch.empty?
+        Lit.new(ch)
       end
 
-      # Parse character class: [abc] or [^abc] or [a-z]
-      def parse_char_class
-        raise_error("Expected '['", @cur.i) unless @cur.take == '['
-
-        @cur.in_class += 1
-        negated = false
-
-        if @cur.peek == '^'
-          negated = true
-          @cur.take
-        end
-
-        items = []
-
-        # Simplified character class parsing
-        # TODO: Handle ranges, escapes, nested classes
-        until @cur.peek == ']' || @cur.eof?
-          if @cur.peek == '\\'
-            @cur.take
-            type_ch = @cur.take
-            case type_ch
-            when 'd', 'D', 'w', 'W', 's', 'S'
-              items << ClassEscape.new(type_ch)
-            when 'b'
-              # \b in class means backspace
-              items << ClassLiteral.new("\b")
-            else
-              # Escaped literal
-              items << ClassLiteral.new(type_ch)
-            end
-          elsif @cur.peek(1) == '-' && @cur.peek(2) != ']' && !@cur.eof?
-            # Range
-            from_ch = @cur.take
-            @cur.take # consume '-'
-            to_ch = @cur.take
-            items << ClassRange.new(from_ch, to_ch)
-          else
-            items << ClassLiteral.new(@cur.take)
-          end
-        end
-
-        raise_error("Unclosed character class", @cur.i) if @cur.eof?
-
-        @cur.take # consume ']'
-        @cur.in_class -= 1
-
-        CharClass.new(negated, items)
-      end
-
-      # Parse escape sequence: \d, \w, \b, \123, \x41, etc.
       def parse_escape
-        raise_error("Expected '\\'", @cur.i) unless @cur.take == '\\'
+        start_pos = @cur.i
+        @cur.take # consume backslash
+        raise_error('Incomplete escape sequence', start_pos) if @cur.eof?
 
         ch = @cur.take
-        raise_error("Unexpected end after '\\'", @cur.i) if ch.empty?
 
         case ch
-        when 'd', 'D', 'w', 'W', 's', 'S'
-          # Shorthand character classes
-          CharClass.new(
-            ch == ch.upcase,
-            [ClassEscape.new(ch.downcase)]
-          )
         when 'b'
           Anchor.new('WordBoundary')
         when 'B'
@@ -440,140 +312,470 @@ module Strling
           Anchor.new('AbsoluteStart')
         when 'Z'
           Anchor.new('EndBeforeFinalNewline')
+        # NOTE: lowercase \z is intentionally NOT an anchor
+
+        when 'd', 'D', 'w', 'W', 's', 'S'
+          CharClass.new(false, [ClassEscape.new(ch)])
+
         when 'n', 'r', 't', 'f', 'v'
-          # Control escapes
           Lit.new(CONTROL_ESCAPES[ch])
-        when '0'..'9'
-          # Backreference
-          num = ch
+
+        when '0'
+          # Check for forbidden octal - \0 followed by more digits
+          if @cur.peek =~ /[0-9]/
+            raise_error("Forbidden octal escape \\0#{@cur.peek}", start_pos)
+          end
+          Lit.new("\x00")
+
+        when '1', '2', '3', '4', '5', '6', '7', '8', '9'
+          num_str = ch
           while @cur.peek =~ /[0-9]/ && !@cur.eof?
-            num += @cur.take
+            num_str += @cur.take
           end
-          Backref.new(by_index: num.to_i)
+          num = num_str.to_i
+          if num > @cap_count
+            raise_error("Backreference to undefined group \\#{num}", start_pos)
+          end
+          Backref.new(by_index: num)
+
+        when 'k'
+          raise_error("Expected '<' after \\k", @cur.i) unless @cur.peek == '<'
+          @cur.take # consume <
+          name = ''
+          until @cur.peek == '>' || @cur.eof?
+            name += @cur.take
+          end
+          raise_error('Unterminated named backref', @cur.i) if @cur.eof?
+          @cur.take # consume >
+          unless @cap_names.include?(name)
+            raise_error("Backreference to undefined group <#{name}>", start_pos)
+          end
+          Backref.new(by_name: name)
+
+        when 'x'
+          parse_hex_escape(start_pos)
+
+        when 'u'
+          parse_unicode_escape('u', start_pos)
+
+        when 'U'
+          parse_unicode_escape('U', start_pos)
+
+        when 'p', 'P'
+          raise_error("Expected { after \\p/\\P", start_pos) unless @cur.peek == '{'
+          @cur.take # consume {
+          prop = ''
+          until @cur.peek == '}' || @cur.eof?
+            prop += @cur.take
+          end
+          raise_error("Unterminated \\p{...}", start_pos) if @cur.eof?
+          @cur.take # consume }
+          CharClass.new(false, [ClassEscape.new(ch, property: prop)])
+
         else
-          # Handle other escapes or literal
-          if 'nrtfv'.include?(ch)
-            Lit.new(CONTROL_ESCAPES[ch])
-          elsif '^$.*+?{}[]()|\\/'.include?(ch)
-            # Escaped metacharacter
-            Lit.new(ch)
+          if ch =~ /[a-zA-Z0-9]/
+            raise_error("Unknown escape sequence \\#{ch}", start_pos)
+          end
+          Lit.new(ch)
+        end
+      end
+
+      def parse_hex_escape(start_pos)
+        if @cur.peek == '{'
+          @cur.take # consume {
+          hex = ''
+          while @cur.peek =~ /[0-9a-fA-F]/ && !@cur.eof?
+            hex += @cur.take
+          end
+          unless @cur.match('}')
+            raise_error("Unterminated \\x{...}", start_pos)
+          end
+          cp = hex.to_i(16)
+          return Lit.new([cp].pack('U'))
+        end
+
+        hex = ''
+        2.times { hex += @cur.take unless @cur.eof? }
+        if hex.length != 2 || hex !~ /^[0-9a-fA-F]{2}$/
+          raise_error("Invalid \\xHH escape", start_pos)
+        end
+        cp = hex.to_i(16)
+        Lit.new([cp].pack('U'))
+      end
+
+      def parse_unicode_escape(tp, start_pos)
+        if tp == 'u' && @cur.peek == '{'
+          @cur.take
+          hex = ''
+          while @cur.peek =~ /[0-9a-fA-F]/ && !@cur.eof?
+            hex += @cur.take
+          end
+          unless @cur.match('}')
+            raise_error("Unterminated \\u{...}", start_pos)
+          end
+          cp = hex.to_i(16)
+          return Lit.new([cp].pack('U'))
+        end
+
+        if tp == 'u'
+          hex = ''
+          4.times { hex += @cur.take unless @cur.eof? }
+          if hex.length != 4 || hex !~ /^[0-9a-fA-F]{4}$/
+            raise_error("Invalid \\uHHHH escape", start_pos)
+          end
+          cp = hex.to_i(16)
+          return Lit.new([cp].pack('U'))
+        end
+
+        if tp == 'U'
+          hex = ''
+          8.times { hex += @cur.take unless @cur.eof? }
+          if hex.length != 8 || hex !~ /^[0-9a-fA-F]{8}$/
+            raise_error("Invalid \\UHHHHHHHH escape", start_pos)
+          end
+          cp = hex.to_i(16)
+          return Lit.new([cp].pack('U'))
+        end
+
+        raise_error('Invalid unicode escape', start_pos)
+      end
+
+      def parse_group
+        start_pos = @cur.i
+        @cur.take # consume '('
+
+        if @cur.peek == '?'
+          @cur.take
+
+          case @cur.peek
+          when ':'
+            @cur.take
+            body = parse_alt
+            expect_char(')', 'Unterminated group')
+            return Group.new(false, body)
+          when '='
+            @cur.take
+            body = parse_alt
+            expect_char(')', 'Unterminated lookahead')
+            return Look.new('Ahead', false, body)
+          when '!'
+            @cur.take
+            body = parse_alt
+            expect_char(')', 'Unterminated lookahead')
+            return Look.new('Ahead', true, body)
+          when '<'
+            @cur.take
+            if @cur.peek == '='
+              @cur.take
+              body = parse_alt
+              expect_char(')', 'Unterminated lookbehind')
+              return Look.new('Behind', false, body)
+            elsif @cur.peek == '!'
+              @cur.take
+              body = parse_alt
+              expect_char(')', 'Unterminated lookbehind')
+              return Look.new('Behind', true, body)
+            else
+              # Named group
+              name = ''
+              until @cur.peek == '>' || @cur.eof?
+                name += @cur.take
+              end
+              raise_error('Unterminated group name', @cur.i) if @cur.eof?
+              @cur.take # consume >
+
+              unless name =~ /^[a-zA-Z_][a-zA-Z0-9_]*$/
+                raise_error("Invalid group name '#{name}'", start_pos)
+              end
+
+              if @cap_names.include?(name)
+                raise_error("Duplicate group name '#{name}'", start_pos)
+              end
+
+              @cap_names.add(name)
+              @cap_count += 1
+              body = parse_alt
+              expect_char(')', 'Unterminated group')
+              return Group.new(true, body, name: name)
+            end
+          when '>'
+            @cur.take
+            body = parse_alt
+            expect_char(')', 'Unterminated atomic group')
+            return Group.new(false, body, atomic: true)
           else
-            # Unknown escape - raise error
-            raise_error("Unknown escape sequence \\#{ch}", @cur.i - 2)
+            # Check for inline modifiers like (?i), (?im)
+            save = @cur.i
+            scan = ''
+            j = save
+            while j < @cur.text.length && 'imsux'.include?(@cur.text[j])
+              scan += @cur.text[j]
+              j += 1
+            end
+            if !scan.empty? && j < @cur.text.length && @cur.text[j] == ')'
+              raise_error("Inline modifiers like (?#{scan}...) are not supported", start_pos)
+            end
+            raise_error("Unknown group modifier: ?#{@cur.peek}", @cur.i - 1)
           end
         end
+
+        # Regular capturing group
+        @cap_count += 1
+        body = parse_alt
+        expect_char(')', 'Unterminated group')
+        Group.new(true, body)
       end
 
-      # Parse literal character(s)
-      def parse_literal
-        value = ''
-        loop do
-          ch = @cur.peek
-          # Stop at metacharacters or end
-          break if ch.empty? || '\\[](){}.*+?|^$'.include?(ch)
+      def parse_char_class
+        start_pos = @cur.i
+        @cur.take # consume '['
+        @cur.in_class += 1
 
-          value += @cur.take
-          # Only take one character at a time in normal mode
-          break unless @cur.extended_mode
+        negated = false
+        if @cur.peek == '^'
+          negated = true
+          @cur.take
         end
 
-        value.empty? ? raise_error('Empty literal', @cur.i) : Lit.new(value)
+        # Empty/unterminated char class: [] or [^]
+        if @cur.peek == ']'
+          @cur.in_class -= 1
+          raise_error('Unterminated character class', start_pos)
+        end
+
+        items = []
+
+        loop do
+          if @cur.eof?
+            @cur.in_class -= 1
+            raise_error('Unterminated character class', start_pos)
+          end
+
+          break if @cur.peek == ']'
+
+          item = parse_class_item
+
+          # Check for range
+          if @cur.peek == '-' && @cur.peek(1) != ']' && !@cur.eof?
+            if item.is_a?(ClassLiteral)
+              from_ch = item.ch
+              @cur.take # consume -
+
+              if @cur.eof? || @cur.peek == ']'
+                items << item
+                items << ClassLiteral.new('-')
+                next
+              end
+
+              to_item = parse_class_item
+              if to_item.is_a?(ClassLiteral)
+                to_ch = to_item.ch
+                if to_ch < from_ch
+                  @cur.in_class -= 1
+                  raise_error('Invalid character range', start_pos)
+                end
+                items << ClassRange.new(from_ch, to_ch)
+                next
+              else
+                items << item
+                items << ClassLiteral.new('-')
+                items << to_item
+                next
+              end
+            end
+          end
+
+          items << item
+        end
+
+        @cur.take # consume ']'
+        @cur.in_class -= 1
+
+        CharClass.new(negated, items)
       end
 
-      # Parse quantifier if present
+      def parse_class_item
+        if @cur.peek == '\\'
+          start_pos = @cur.i
+          @cur.take # consume backslash
+          raise_error('Incomplete escape sequence', start_pos) if @cur.eof?
+
+          ch = @cur.take
+
+          case ch
+          when 'd', 'D', 'w', 'W', 's', 'S'
+            ClassEscape.new(ch)
+          when 'b'
+            ClassLiteral.new("\b")
+          when '0'
+            ClassLiteral.new("\x00")
+          when 'n'
+            ClassLiteral.new("\n")
+          when 'r'
+            ClassLiteral.new("\r")
+          when 't'
+            ClassLiteral.new("\t")
+          when 'f'
+            ClassLiteral.new("\f")
+          when 'v'
+            ClassLiteral.new("\v")
+          when 'x'
+            if @cur.peek == '{'
+              @cur.take
+              hex = ''
+              while @cur.peek =~ /[0-9a-fA-F]/ && !@cur.eof?
+                hex += @cur.take
+              end
+              unless @cur.match('}')
+                raise_error("Unterminated \\x{...}", start_pos)
+              end
+              cp = hex.to_i(16)
+              ClassLiteral.new([cp].pack('U'))
+            else
+              hex = ''
+              2.times { hex += @cur.take unless @cur.eof? }
+              if hex.length != 2 || hex !~ /^[0-9a-fA-F]{2}$/
+                raise_error("Invalid \\xHH escape", start_pos)
+              end
+              ClassLiteral.new([hex.to_i(16)].pack('U'))
+            end
+          when 'u'
+            if @cur.peek == '{'
+              @cur.take
+              hex = ''
+              while @cur.peek =~ /[0-9a-fA-F]/ && !@cur.eof?
+                hex += @cur.take
+              end
+              unless @cur.match('}')
+                raise_error("Unterminated \\u{...}", start_pos)
+              end
+              cp = hex.to_i(16)
+              ClassLiteral.new([cp].pack('U'))
+            else
+              hex = ''
+              4.times { hex += @cur.take unless @cur.eof? }
+              if hex.length != 4 || hex !~ /^[0-9a-fA-F]{4}$/
+                raise_error("Invalid \\uHHHH escape", start_pos)
+              end
+              ClassLiteral.new([hex.to_i(16)].pack('U'))
+            end
+          when 'p', 'P'
+            raise_error("Expected { after \\p/\\P", start_pos) unless @cur.peek == '{'
+            @cur.take
+            prop = ''
+            until @cur.peek == '}' || @cur.eof?
+              prop += @cur.take
+            end
+            raise_error("Unterminated \\p{...}", start_pos) if @cur.eof?
+            @cur.take
+            ClassEscape.new(ch, property: prop)
+          else
+            if ch =~ /[a-zA-Z0-9]/
+              raise_error("Unknown escape sequence \\#{ch}", start_pos)
+            end
+            ClassLiteral.new(ch)
+          end
+        else
+          ClassLiteral.new(@cur.take)
+        end
+      end
+
       def parse_quant_if_any(child)
         @cur.skip_ws_and_comments
         ch = @cur.peek
-        had_failed_quant = false
+        return child if ch.empty? || !'*+?{'.include?(ch)
 
-        # Check if child can be quantified
-        # Note: Must check ch is not empty first, as ''.include?('') is true in Ruby
-        if !ch.empty? && '*+?{'.include?(ch)
-          if child.is_a?(Anchor)
-            raise_error('Cannot quantify anchor', @cur.i)
-          end
+        start_pos = @cur.i
 
+        case ch
+        when '*'
+          @cur.take
           min = 0
           max = 'Inf'
+        when '+'
+          @cur.take
+          min = 1
+          max = 'Inf'
+        when '?'
+          @cur.take
+          min = 0
+          max = 1
+        when '{'
+          save = @cur.i
+          @cur.take # consume {
 
-          case ch
-          when '*'
-            @cur.take
-            min = 0
-            max = 'Inf'
-          when '+'
-            @cur.take
-            min = 1
-            max = 'Inf'
-          when '?'
-            @cur.take
-            min = 0
-            max = 1
-          when '{'
-            # Parse {m,n} quantifier
-            brace_start = @cur.i
-            @cur.take  # consume '{'
-            
-            # Parse min
-            min_str = ''
+          # Look ahead for invalid brace content
+          look = ''
+          j = @cur.i
+          while j < @cur.text.length && @cur.text[j] != '}'
+            look += @cur.text[j]
+            j += 1
+          end
+
+          if j < @cur.text.length && !look.empty? && look !~ /^\d+(,\d*)?$/
+            raise_error('Brace quantifier: Invalid brace quantifier content', save)
+          end
+
+          min_str = ''
+          while @cur.peek =~ /\d/
+            min_str += @cur.take
+          end
+
+          if min_str.empty?
+            raise_error('Expected number in quantifier', @cur.i)
+          end
+          min = min_str.to_i
+
+          if @cur.match(',')
+            max_str = ''
             while @cur.peek =~ /\d/
-              min_str += @cur.take
+              max_str += @cur.take
             end
-            
-            if min_str.empty?
-              raise_error('Expected digit in brace quantifier', @cur.i)
-            end
-            min = min_str.to_i
-            
-            # Check for comma
-            if @cur.peek == ','
-              @cur.take  # consume ','
-              
-              # Parse optional max
-              max_str = ''
-              while @cur.peek =~ /\d/
-                max_str += @cur.take
-              end
-              
-              max = max_str.empty? ? 'Inf' : max_str.to_i
-            else
-              # Exact quantifier {n}
-              max = min
-            end
-            
-            # Expect closing brace
-            if @cur.peek != '}'
-              raise_error('Expected } in brace quantifier', @cur.i)
-            end
-            @cur.take  # consume '}'
-            
-            # Validate min <= max
-            if max != 'Inf' && min > max
-              raise_error("Invalid quantifier: min (#{min}) > max (#{max})", brace_start)
-            end
+            max = max_str.empty? ? 'Inf' : max_str.to_i
+          else
+            max = min
           end
 
-          # Check for lazy (?) or possessive (+) modifier
-          mode = 'Greedy'
-          if @cur.peek == '?'
-            @cur.take
-            mode = 'Lazy'
-          elsif @cur.peek == '+'
-            @cur.take
-            mode = 'Possessive'
+          unless @cur.match('}')
+            raise_error('Incomplete quantifier', @cur.i)
           end
 
-          return [Quant.new(child, min, max, mode), had_failed_quant]
+          if max != 'Inf' && min > max
+            raise_error('Invalid quantifier range', save)
+          end
+        else
+          return child
         end
 
-        [child, had_failed_quant]
+        # Cannot quantify anchor
+        if child.is_a?(Anchor)
+          raise_error('Cannot quantify anchor', start_pos)
+        end
+
+        mode = 'Greedy'
+        if @cur.peek == '?'
+          @cur.take
+          mode = 'Lazy'
+        elsif @cur.peek == '+'
+          @cur.take
+          mode = 'Possessive'
+        end
+
+        Quant.new(child, min, max, mode)
+      end
+
+      def expect_char(expected, error_msg)
+        ch = @cur.take
+        unless ch == expected
+          raise_error(error_msg, @cur.i - (ch.empty? ? 0 : 1))
+        end
       end
     end
 
     # Module-level parse function for convenience
     def self.parse(text)
       parser = Parser.new(text)
-      [parser.flags, parser.parse]
+      parser.parse
     end
   end
 end

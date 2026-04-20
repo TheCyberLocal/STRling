@@ -3,6 +3,7 @@
   "description": "Generated from unterminated_hex_brace.pattern",
   "input_dsl": "\\x{12",
   "expected_error": "Unterminated \\x{...}",
+  "expected_hint": "Variable-length hex escapes use the syntax \\x{...}. Make sure to close the escape with '}'.",
   "metadata_expectations": {
     "features_used": []
   }

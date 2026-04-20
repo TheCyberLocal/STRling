@@ -1,16 +1,12 @@
 /**
  * @file parser.cpp
  * @brief Implementation of STRling Parser
- * 
- * This is a PARTIAL implementation demonstrating the pattern for porting
- * the Python parser to C++. A full implementation would require significant
- * additional development (est. 1000+ lines of complex parsing logic).
- * 
  * @copyright Copyright (c) 2024 STRling Team
  * @license MIT License
  */
 
 #include "strling/core/parser.hpp"
+#include "strling/core/hint_engine.hpp"
 #include <algorithm>
 #include <sstream>
 #include <regex>
@@ -56,7 +52,6 @@ void Cursor::skip_ws_and_comments() {
     if (!extended_mode || in_class > 0) {
         return;
     }
-    // In free-spacing mode, ignore spaces/tabs/newlines and #-to-EOL comments
     while (!eof()) {
         char ch = text[i];
         if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') {
@@ -64,7 +59,6 @@ void Cursor::skip_ws_and_comments() {
             continue;
         }
         if (ch == '#') {
-            // Skip comment to end of line
             while (!eof() && text[i] != '\r' && text[i] != '\n') {
                 i++;
             }
@@ -81,21 +75,14 @@ void Cursor::skip_ws_and_comments() {
 Parser::Parser(const std::string& text)
     : original_text(text)
 {
-    // Initialize control escapes
     CONTROL_ESCAPES = {
-        {"n", "\n"},
-        {"r", "\r"},
-        {"t", "\t"},
-        {"f", "\f"},
-        {"v", "\v"}
+        {"n", "\n"}, {"r", "\r"}, {"t", "\t"}, {"f", "\f"}, {"v", "\v"}
     };
-    
-    // Parse directives and extract pattern
+
     auto [parsed_flags, pattern] = parse_directives(text);
     flags = parsed_flags;
     src = pattern;
-    
-    // Initialize cursor
+
     cur.text = src;
     cur.i = 0;
     cur.extended_mode = flags.extended;
@@ -103,39 +90,27 @@ Parser::Parser(const std::string& text)
 }
 
 void Parser::raise_error(const std::string& message, size_t pos) {
-    // For now, simplified error - would need hint_engine implementation
-    throw STRlingParseError(message, static_cast<int>(pos), src, "");
+    auto hint = getHintOrFallback(message, src, pos);
+    throw STRlingParseError(message, static_cast<int>(pos), src, hint);
 }
 
 std::tuple<Flags, std::string> Parser::parse_directives(const std::string& text) {
     Flags flags;
     std::vector<std::string> pattern_lines;
     bool in_pattern = false;
-    
-    // Split into lines preserving line endings
+
     std::vector<std::string> lines;
-    size_t start = 0;
-    size_t pos = 0;
-    while (pos < text.length()) {
-        if (text[pos] == '\n') {
-            lines.push_back(text.substr(start, pos - start + 1));
-            start = pos + 1;
-        }
-        pos++;
-    }
-    if (start < text.length()) {
-        lines.push_back(text.substr(start));
+    std::istringstream stream(text);
+    std::string line;
+    while (std::getline(stream, line)) {
+        lines.push_back(line);
     }
     if (lines.empty()) {
         lines.push_back(text);
     }
-    
-    size_t line_num = 0;
-    for (const auto& line : lines) {
-        line_num++;
-        
-        // Trim whitespace for checking
-        std::string stripped = line;
+
+    for (const auto& raw_line : lines) {
+        std::string stripped = raw_line;
         size_t first = stripped.find_first_not_of(" \t\r\n");
         size_t last = stripped.find_last_not_of(" \t\r\n");
         if (first != std::string::npos) {
@@ -143,670 +118,724 @@ std::tuple<Flags, std::string> Parser::parse_directives(const std::string& text)
         } else {
             stripped = "";
         }
-        
-        // Skip leading blank lines or comments
+
         if (!in_pattern && (stripped.empty() || stripped[0] == '#')) {
             continue;
         }
-        
-        // Process %flags directive
-        if (!in_pattern && stripped.find("%flags") == 0) {
-            size_t idx = line.find("%flags");
-            std::string after;
-            if (idx + 7 < line.length()) {
-                after = line.substr(idx + 7);  // 7 = len("%flags")
+
+        if (stripped.size() > 0 && stripped[0] == '%') {
+            if (in_pattern) {
+                auto hint = getHintOrFallback("Directive after pattern", text, 0);
+                throw STRlingParseError("Directive after pattern", 0, text, hint);
             }
-            
-            // Scan for valid flag characters
-            std::string allowed_chars = " ,\t[]imsuxIMSUX\r\n";
+            if (stripped.substr(0, 6) != "%flags") {
+                auto hint = getHintOrFallback("Malformed directive", text, 0);
+                throw STRlingParseError("Malformed directive", 0, text, hint);
+            }
+
+            size_t idx = raw_line.find("%flags");
+            std::string after = (idx + 6 < raw_line.size()) ? raw_line.substr(idx + 6) : "";
+            std::string allowed = " ,\t[]imsuxIMSUX";
+
             size_t j = 0;
-            while (j < after.length() && allowed_chars.find(after[j]) != std::string::npos) {
+            while (j < after.size() && allowed.find(after[j]) != std::string::npos) {
                 j++;
             }
-            
+
             std::string flags_token = after.substr(0, j);
-            std::string remainder = j < after.length() ? after.substr(j) : "";
-            
-            // Normalize and extract flag letters
+            std::string remainder = (j < after.size()) ? after.substr(j) : "";
+
             std::string letters;
             for (char ch : flags_token) {
-                if (ch == 'i' || ch == 'm' || ch == 's' || ch == 'u' || ch == 'x' ||
-                    ch == 'I' || ch == 'M' || ch == 'S' || ch == 'U' || ch == 'X') {
+                if (std::isalpha(static_cast<unsigned char>(ch))) {
                     letters += std::tolower(ch);
                 }
             }
-            
-            // Check if we have remainder that isn't just whitespace (invalid flag)
-            if (j < after.length()) {
-                std::string rem_check = remainder;
-                size_t first_non_ws = rem_check.find_first_not_of(" \t\r\n");
-                if (first_non_ws != std::string::npos) {
-                    char invalid_char = rem_check[first_non_ws];
-                    size_t error_pos = 0;
-                    for (size_t i = 0; i < line_num - 1; i++) {
-                        error_pos += lines[i].length();
-                    }
-                    error_pos += idx + 7 + j + first_non_ws;
-                    raise_error(std::string("Invalid flag '") + invalid_char + "'", error_pos);
-                }
-            }
-            
-            // Check for invalid flags
+
             std::string valid_flags = "imsux";
             for (char ch : letters) {
-                if (valid_flags.find(ch) == std::string::npos && ch != ' ') {
-                    size_t error_pos = 0;
-                    for (size_t i = 0; i < line_num - 1; i++) {
-                        error_pos += lines[i].length();
-                    }
-                    error_pos += idx;
-                    raise_error(std::string("Invalid flag '") + ch + "'", error_pos);
+                if (valid_flags.find(ch) == std::string::npos) {
+                    std::string msg = std::string("Invalid flag '") + ch + "'";
+                    auto hint = getHintOrFallback(msg, text, 0);
+                    throw STRlingParseError(msg, 0, text, hint);
                 }
             }
-            
-            // Set flags
+
             if (!letters.empty()) {
                 flags = Flags::fromLetters(letters);
+            } else {
+                // Check remainder for invalid flag
+                size_t rem_first = remainder.find_first_not_of(" \t\r\n");
+                if (rem_first != std::string::npos) {
+                    char ch = remainder[rem_first];
+                    std::string msg = std::string("Invalid flag '") + ch + "'";
+                    auto hint = getHintOrFallback(msg, text, 0);
+                    throw STRlingParseError(msg, 0, text, hint);
+                }
             }
-            
-            // Check if there's pattern content on the same line
-            std::string remainder_trimmed = remainder;
-            size_t rem_first = remainder_trimmed.find_first_not_of(" \t\r\n");
+
+            // Check if there's pattern content in remainder
+            size_t rem_first = remainder.find_first_not_of(" \t\r\n");
             if (rem_first != std::string::npos) {
-                remainder_trimmed = remainder_trimmed.substr(rem_first);
-                if (!remainder_trimmed.empty()) {
-                    in_pattern = true;
-                    pattern_lines.push_back(remainder);
-                }
+                pattern_lines.push_back(remainder);
+                in_pattern = true;
             }
             continue;
         }
-        
-        // Skip other directives, but check for malformed %flags
-        if (!in_pattern && stripped[0] == '%') {
-            // Check if it looks like a malformed %flags directive
-            if (stripped.length() >= 5 && stripped.substr(0, 5) == "%flag" && 
-                stripped.substr(0, 6) != "%flags") {
-                // Malformed %flags directive
-                size_t error_pos = 0;
-                for (size_t i = 0; i < line_num - 1; i++) {
-                    error_pos += lines[i].length();
-                }
-                error_pos += line.find("%flag");
-                raise_error("Unknown directive (did you mean %flags?)", error_pos);
-            }
-            continue;
+
+        // Check for directive after pattern
+        if (raw_line.find("%flags") != std::string::npos) {
+            auto hint = getHintOrFallback("Directive after pattern", text, 0);
+            throw STRlingParseError("Directive after pattern", 0, text, hint);
         }
-        
-        // This is pattern content
-        // Check if %flags appears anywhere in this line (would be misplaced)
-        if (line.find("%flags") != std::string::npos) {
-            size_t error_pos = 0;
-            for (size_t i = 0; i < line_num - 1; i++) {
-                error_pos += lines[i].length();
-            }
-            error_pos += line.find("%flags");
-            raise_error("Directive after pattern content", error_pos);
-        }
-        
-        // All other lines are pattern content
+
         in_pattern = true;
-        pattern_lines.push_back(line);
+        pattern_lines.push_back(raw_line);
     }
-    
-    // Join all pattern lines
+
     std::string pattern;
-    for (const auto& pline : pattern_lines) {
-        pattern += pline;
+    for (size_t i = 0; i < pattern_lines.size(); i++) {
+        if (i > 0) pattern += "\n";
+        pattern += pattern_lines[i];
     }
-    
+
     return {flags, pattern};
 }
 
 NodePtr Parser::parse() {
+    cur.skip_ws_and_comments();
+    if (cur.eof()) {
+        std::vector<NodePtr> empty;
+        return std::make_unique<Seq>(std::move(empty));
+    }
+
     NodePtr result = parse_alt();
-    
-    // Ensure we consumed all input
+
     cur.skip_ws_and_comments();
     if (!cur.eof()) {
+        if (cur.peek() == ")") {
+            raise_error("Unmatched ')'", cur.i);
+        }
         raise_error("Unexpected trailing input", cur.i);
     }
-    
+
     return result;
 }
 
 NodePtr Parser::parse_alt() {
+    cur.skip_ws_and_comments();
+
+    if (cur.peek() == "|") {
+        raise_error("Alternation lacks left-hand side", cur.i);
+    }
+
     std::vector<NodePtr> branches;
     branches.push_back(parse_seq());
-    
+
+    cur.skip_ws_and_comments();
     while (cur.peek() == "|") {
+        size_t pipe_pos = cur.i;
         cur.take(); // consume '|'
         cur.skip_ws_and_comments();
+
+        if (cur.eof()) {
+            raise_error("Alternation lacks right-hand side", pipe_pos);
+        }
+        if (cur.peek() == "|") {
+            raise_error("Empty alternation", pipe_pos);
+        }
+        if (cur.peek() == ")") {
+            raise_error("Alternation lacks right-hand side", pipe_pos);
+        }
+
         branches.push_back(parse_seq());
+        cur.skip_ws_and_comments();
     }
-    
+
     if (branches.size() == 1) {
         return std::move(branches[0]);
     }
-    
+
     return std::make_unique<Alt>(std::move(branches));
 }
 
 NodePtr Parser::parse_seq() {
     std::vector<NodePtr> parts;
-    
-    cur.skip_ws_and_comments();
-    
-    while (!cur.eof()) {
-        // Check for sequence terminators
-        std::string peek_ch = cur.peek();
-        if (peek_ch == "|" || peek_ch == ")") {
-            break;
-        }
-        
+
+    while (true) {
+        cur.skip_ws_and_comments();
+        std::string ch = cur.peek();
+        if (ch.empty() || ch == "|" || ch == ")") break;
+
         NodePtr atom = parse_atom();
-        if (!atom) {
-            break;
-        }
-        
-        // Try to parse quantifier
+        if (!atom) break;
+
+        cur.skip_ws_and_comments();
         atom = parse_quantifier(std::move(atom));
         parts.push_back(std::move(atom));
-        
-        cur.skip_ws_and_comments();
     }
-    
+
     if (parts.empty()) {
-        // Empty sequence - return empty Seq
-        return std::make_unique<Seq>(std::vector<NodePtr>());
+        return std::make_unique<Lit>("");
     }
-    
     if (parts.size() == 1) {
         return std::move(parts[0]);
     }
-    
     return std::make_unique<Seq>(std::move(parts));
 }
 
 NodePtr Parser::parse_atom() {
     cur.skip_ws_and_comments();
-    
+
     if (cur.eof()) {
-        return nullptr;
+        raise_error("Unexpected end of input", cur.i);
     }
-    
-    // Try anchor first
-    NodePtr anchor = parse_anchor();
-    if (anchor) {
-        return anchor;
-    }
-    
+
     std::string ch = cur.peek();
-    
-    // Dot
-    if (ch == ".") {
-        cur.take();
-        return std::make_unique<Dot>();
+
+    if (ch == ".") { cur.take(); return std::make_unique<Dot>(); }
+    if (ch == "^") { cur.take(); return std::make_unique<Anchor>("Start"); }
+    if (ch == "$") { cur.take(); return std::make_unique<Anchor>("End"); }
+    if (ch == "(") { return parse_group(); }
+    if (ch == "[") { return parse_class(); }
+    if (ch == "\\") { return parse_escape(); }
+
+    if (ch == "*" || ch == "+" || ch == "?") {
+        raise_error("Invalid quantifier '" + ch + "'", cur.i);
     }
-    
-    // Group
-    if (ch == "(") {
-        return parse_group();
+
+    if (ch == "{") {
+        size_t save = cur.i;
+        // Look ahead for brace content
+        std::string look;
+        size_t j = cur.i + 1;
+        while (j < cur.text.size() && cur.text[j] != '}') {
+            look += cur.text[j];
+            j++;
+        }
+        if (j < cur.text.size() && !look.empty()) {
+            // Check if content is valid quantifier format
+            // Must be digits, optionally followed by comma and optional digits
+            std::regex quant_re("^\\d+(,\\d*)?$");
+            if (!std::regex_match(look, quant_re)) {
+                raise_error("Brace quantifier: Invalid brace quantifier content", save);
+            }
+        }
+        raise_error("Invalid quantifier '" + ch + "'", cur.i);
     }
-    
-    // Character class
-    if (ch == "[") {
-        return parse_class();
-    }
-    
-    // Literal or escape
-    return parse_literal();
+
+    // Regular literal
+    cur.take();
+    return std::make_unique<Lit>(ch);
 }
 
 NodePtr Parser::parse_anchor() {
-    std::string ch = cur.peek();
-    
-    if (ch == "^") {
-        cur.take();
-        return std::make_unique<Anchor>("Start");
-    }
-    
-    if (ch == "$") {
-        cur.take();
-        return std::make_unique<Anchor>("End");
-    }
-    
-    // Check for escape sequences
-    if (ch == "\\") {
-        std::string next = cur.peek(1);
-        
-        if (next == "b") {
-            cur.take(); // consume '\'
-            cur.take(); // consume 'b'
-            return std::make_unique<Anchor>("WordBoundary");
-        }
-        
-        if (next == "B") {
-            cur.take(); // consume '\'
-            cur.take(); // consume 'B'
-            return std::make_unique<Anchor>("NotWordBoundary");
-        }
-        
-        if (next == "A") {
-            cur.take(); // consume '\'
-            cur.take(); // consume 'A'
-            return std::make_unique<Anchor>("AbsoluteStart");
-        }
-        
-        if (next == "Z") {
-            cur.take(); // consume '\'
-            cur.take(); // consume 'Z'
-            return std::make_unique<Anchor>("EndBeforeFinalNewline");
-        }
-    }
-    
+    // Not used in new design - anchors handled in parse_atom
     return nullptr;
 }
 
 NodePtr Parser::parse_quantifier(NodePtr child) {
-    // Check if child can be quantified
-    if (dynamic_cast<Anchor*>(child.get())) {
-        // Check if next char is a quantifier
-        std::string ch = cur.peek();
-        if (ch == "*" || ch == "+" || ch == "?" || ch == "{") {
-            raise_error("Cannot quantify anchor", cur.i);
-        }
-        return child;
-    }
-    
+    cur.skip_ws_and_comments();
     std::string ch = cur.peek();
-    
+    if (ch.empty()) return child;
+    if (ch != "*" && ch != "+" && ch != "?" && ch != "{") return child;
+
+    size_t start_pos = cur.i;
+    int min = 0;
+    std::variant<int, std::string> max_var = 0;
+
     if (ch == "*") {
         cur.take();
-        // Check for lazy/possessive mode
-        std::string mode = "Greedy";
-        if (cur.peek() == "?") {
-            cur.take();
-            mode = "Lazy";
-        } else if (cur.peek() == "+") {
-            cur.take();
-            mode = "Possessive";
-        }
-        return std::make_unique<Quant>(std::move(child), 0, "inf", mode);
-    }
-    
-    if (ch == "+") {
+        min = 0; max_var = std::string("inf");
+    } else if (ch == "+") {
         cur.take();
-        std::string mode = "Greedy";
-        if (cur.peek() == "?") {
-            cur.take();
-            mode = "Lazy";
-        } else if (cur.peek() == "+") {
-            cur.take();
-            mode = "Possessive";
-        }
-        return std::make_unique<Quant>(std::move(child), 1, "inf", mode);
-    }
-    
-    if (ch == "?") {
+        min = 1; max_var = std::string("inf");
+    } else if (ch == "?") {
         cur.take();
-        std::string mode = "Greedy";
-        if (cur.peek() == "?") {
-            cur.take();
-            mode = "Lazy";
-        } else if (cur.peek() == "+") {
-            cur.take();
-            mode = "Possessive";
-        }
-        return std::make_unique<Quant>(std::move(child), 0, 1, mode);
-    }
-    
-    if (ch == "{") {
+        min = 0; max_var = 1;
+    } else if (ch == "{") {
+        size_t save = cur.i;
         cur.take(); // consume '{'
+
+        // Look ahead for invalid brace content
+        std::string look;
+        size_t j = cur.i;
+        while (j < cur.text.size() && cur.text[j] != '}') {
+            look += cur.text[j];
+            j++;
+        }
+        if (j < cur.text.size() && !look.empty()) {
+            std::regex quant_re("^\\d+(,\\d*)?$");
+            if (!std::regex_match(look, quant_re)) {
+                raise_error("Brace quantifier: Invalid brace quantifier content", save);
+            }
+        }
+
         std::string min_str;
-        while (!cur.eof() && std::isdigit(cur.peek()[0])) {
+        while (!cur.eof() && !cur.peek().empty() && std::isdigit(cur.peek()[0])) {
             min_str += cur.take();
         }
         if (min_str.empty()) {
-             raise_error("Expected digits in quantifier", cur.i);
+            raise_error("Incomplete quantifier", cur.i);
         }
-        int min = std::stoi(min_str);
-        
-        std::variant<int, std::string> max_var = min;
-        
+        min = std::stoi(min_str);
+
         if (cur.peek() == ",") {
             cur.take(); // consume ','
             if (cur.peek() == "}") {
-                // {n,} -> min=n, max=inf
-                max_var = "inf";
+                max_var = std::string("inf");
             } else {
-                // {n,m}
                 std::string max_str;
-                while (!cur.eof() && std::isdigit(cur.peek()[0])) {
+                while (!cur.eof() && !cur.peek().empty() && std::isdigit(cur.peek()[0])) {
                     max_str += cur.take();
                 }
                 if (max_str.empty()) {
-                     raise_error("Expected digits or '}' after comma", cur.i);
+                    raise_error("Incomplete quantifier", cur.i);
                 }
                 max_var = std::stoi(max_str);
             }
+        } else {
+            max_var = min;
         }
-        
-        if (cur.peek() != "}") {
-             raise_error("Expected '}'", cur.i);
+
+        if (!cur.match("}")) {
+            raise_error("Incomplete quantifier", cur.i);
         }
-        cur.take(); // consume '}'
-        
-        std::string mode = "Greedy";
-        if (cur.peek() == "?") {
-            cur.take();
-            mode = "Lazy";
-        } else if (cur.peek() == "+") {
-            cur.take();
-            mode = "Possessive";
+
+        // Check range
+        if (auto* max_int = std::get_if<int>(&max_var)) {
+            if (min > *max_int) {
+                raise_error("Invalid quantifier range", save);
+            }
         }
-        
-        return std::make_unique<Quant>(std::move(child), min, max_var, mode);
+    } else {
+        return child;
     }
-    
-    return child;
+
+    // Cannot quantify anchor
+    if (dynamic_cast<Anchor*>(child.get())) {
+        raise_error("Cannot quantify anchor", start_pos);
+    }
+
+    std::string mode = "Greedy";
+    if (cur.peek() == "?") { cur.take(); mode = "Lazy"; }
+    else if (cur.peek() == "+") { cur.take(); mode = "Possessive"; }
+
+    return std::make_unique<Quant>(std::move(child), min, max_var, mode);
 }
 
 NodePtr Parser::parse_group() {
-    if (cur.peek() != "(") {
-        raise_error("Expected '('", cur.i);
-    }
-    
+    size_t start_pos = cur.i;
     cur.take(); // consume '('
-    
-    // Check for group modifiers
-    bool capturing = true;
-    bool atomic = false;
-    std::optional<std::string> name;
-    std::string look_dir;
-    bool look_neg = false;
-    
+
     if (cur.peek() == "?") {
         cur.take(); // consume '?'
-        std::string modifier = cur.peek();
-        
-        if (modifier == ":") {
-            cur.take();
-            capturing = false;
-        } else if (modifier == ">") {
-            cur.take();
-            capturing = false;
-            atomic = true;
-        } else if (modifier == "=") {
-            // Positive lookahead
+        std::string next = cur.peek();
+
+        if (next == ":") {
             cur.take();
             NodePtr body = parse_alt();
-            if (cur.peek() != ")") {
-                raise_error("Expected ')'", cur.i);
+            if (!cur.match(")")) {
+                raise_error("Unterminated group", cur.i);
             }
-            cur.take();
-            return std::make_unique<Look>("Ahead", false, std::move(body));
-        } else if (modifier == "!") {
-            // Negative lookahead
-            cur.take();
-            NodePtr body = parse_alt();
-            if (cur.peek() != ")") {
-                raise_error("Expected ')'", cur.i);
-            }
-            cur.take();
-            return std::make_unique<Look>("Ahead", true, std::move(body));
-        } else if (modifier == "<") {
-            // Lookbehind
-            cur.take();
-            std::string next = cur.peek();
-            if (next == "=") {
-                cur.take();
-                look_neg = false;
-            } else if (next == "!") {
-                cur.take();
-                look_neg = true;
-            } else {
-                // Named group
-                std::string group_name;
-                while (!cur.eof() && cur.peek() != ">") {
-                    group_name += cur.take();
-                }
-                if (cur.peek() != ">") {
-                     raise_error("Expected '>' after group name", cur.i);
-                }
-                cur.take(); // consume >
-                
-                if (cap_names.count(group_name)) {
-                     raise_error("Duplicate group name '" + group_name + "'", cur.i);
-                }
-                cap_names.insert(group_name);
-                name = group_name;
-                // Continue to parse body as a group (fall through)
-            }
-            
-            if (next == "=" || next == "!") {
-                NodePtr body = parse_alt();
-                if (cur.peek() != ")") {
-                    raise_error("Expected ')'", cur.i);
-                }
-                cur.take();
-                return std::make_unique<Look>("Behind", look_neg, std::move(body));
-            }
-        } else {
-             if (modifier == "i" || modifier == "m" || modifier == "s" || modifier == "u" || modifier == "x" || modifier == "-") {
-                 raise_error("Inline modifiers not supported", cur.i);
-             }
-             raise_error("Unknown group modifier", cur.i);
+            return std::make_unique<Group>(false, std::move(body));
         }
+        if (next == "=") {
+            cur.take();
+            NodePtr body = parse_alt();
+            if (!cur.match(")")) {
+                raise_error("Unterminated lookahead", cur.i);
+            }
+            return std::make_unique<Look>("Ahead", false, std::move(body));
+        }
+        if (next == "!") {
+            cur.take();
+            NodePtr body = parse_alt();
+            if (!cur.match(")")) {
+                raise_error("Unterminated lookahead", cur.i);
+            }
+            return std::make_unique<Look>("Ahead", true, std::move(body));
+        }
+        if (next == "<") {
+            cur.take();
+            if (cur.peek() == "=") {
+                cur.take();
+                NodePtr body = parse_alt();
+                if (!cur.match(")")) {
+                    raise_error("Unterminated lookbehind", cur.i);
+                }
+                return std::make_unique<Look>("Behind", false, std::move(body));
+            }
+            if (cur.peek() == "!") {
+                cur.take();
+                NodePtr body = parse_alt();
+                if (!cur.match(")")) {
+                    raise_error("Unterminated lookbehind", cur.i);
+                }
+                return std::make_unique<Look>("Behind", true, std::move(body));
+            }
+            // Named group
+            std::string name;
+            while (!cur.eof() && cur.peek() != ">") {
+                name += cur.take();
+            }
+            if (cur.eof()) {
+                raise_error("Unterminated group name", cur.i);
+            }
+            cur.take(); // consume >
+
+            // Validate group name
+            if (name.empty() || (!std::isalpha(static_cast<unsigned char>(name[0])) && name[0] != '_')) {
+                raise_error("Invalid group name '" + name + "'", start_pos);
+            }
+            for (size_t k = 1; k < name.size(); k++) {
+                char c = name[k];
+                if (!std::isalnum(static_cast<unsigned char>(c)) && c != '_') {
+                    raise_error("Invalid group name '" + name + "'", start_pos);
+                }
+            }
+
+            if (cap_names.count(name)) {
+                raise_error("Duplicate group name '" + name + "'", start_pos);
+            }
+            cap_names.insert(name);
+            cap_count++;
+
+            NodePtr body = parse_alt();
+            if (!cur.match(")")) {
+                raise_error("Unterminated group", cur.i);
+            }
+            return std::make_unique<Group>(true, std::move(body), name);
+        }
+        if (next == ">") {
+            cur.take();
+            NodePtr body = parse_alt();
+            if (!cur.match(")")) {
+                raise_error("Unterminated atomic group", cur.i);
+            }
+            return std::make_unique<Group>(false, std::move(body), std::nullopt, true);
+        }
+
+        // Check for inline modifiers
+        size_t save = cur.i;
+        std::string scan;
+        size_t j = save;
+        while (j < cur.text.size() && (cur.text[j] == 'i' || cur.text[j] == 'm' ||
+               cur.text[j] == 's' || cur.text[j] == 'u' || cur.text[j] == 'x')) {
+            scan += cur.text[j];
+            j++;
+        }
+        if (!scan.empty() && j < cur.text.size() && cur.text[j] == ')') {
+            raise_error("Inline modifiers like (?" + scan + "...) are not supported", start_pos);
+        }
+        raise_error("Unknown group modifier: ?" + next, cur.i - 1);
     }
-    
-    // Parse group body
+
+    // Capturing group
+    cap_count++;
     NodePtr body = parse_alt();
-    
-    if (cur.peek() != ")") {
-        raise_error("Expected ')'", cur.i);
+    if (!cur.match(")")) {
+        raise_error("Unterminated group", cur.i);
     }
-    cur.take(); // consume ')'
-    
-    if (capturing) {
-        cap_count++;
-    }
-    
-    auto group = std::make_unique<Group>(capturing, std::move(body), name, atomic);
-    
-    return group;
+    return std::make_unique<Group>(true, std::move(body));
 }
 
 NodePtr Parser::parse_class() {
-    // Simplified character class parsing
-    if (cur.peek() != "[") {
-        raise_error("Expected '['", cur.i);
-    }
-    
+    size_t start_pos = cur.i;
     cur.take(); // consume '['
     cur.in_class++;
-    
+
     bool negated = false;
     if (cur.peek() == "^") {
-        cur.take();
         negated = true;
+        cur.take();
     }
-    
-    std::vector<ClassItemPtr> items;
-    
-    // Parse class items (simplified)
-    while (!cur.eof() && cur.peek() != "]") {
-        std::string ch = cur.peek();
-        
-        if (ch == "\\") {
-            // Escape sequence
-            cur.take();
-            std::string esc = cur.take();
-            
-            if (esc == "d" || esc == "D" || esc == "w" || esc == "W" || 
-                esc == "s" || esc == "S") {
-                items.push_back(std::make_unique<ClassEscape>(esc));
-            } else if (esc == "p" || esc == "P") {
-                bool negated = (esc == "P");
-                if (cur.peek() != "{") {
-                     raise_error("Expected '{' after \\p", cur.i);
-                }
-                cur.take();
-                std::string prop;
-                while (!cur.eof() && cur.peek() != "}") {
-                    prop += cur.take();
-                }
-                if (cur.eof()) {
-                     raise_error("Unterminated unicode property", cur.i);
-                }
-                cur.take(); // consume }
-                items.push_back(std::make_unique<ClassEscape>(negated ? "P" : "p", prop));
-            } else {
-                // Literal escaped character
-                items.push_back(std::make_unique<ClassLiteral>(esc));
-            }
-        } else {
-            // Check for range
-            std::string next = cur.peek(1);
-            if (next == "-" && cur.peek(2) != "]") {
-                std::string from_ch = cur.take();
-                cur.take(); // consume '-'
-                std::string to_ch = cur.take();
-                items.push_back(std::make_unique<ClassRange>(from_ch, to_ch));
-            } else {
-                // Literal character
-                std::string lit = cur.take();
-                items.push_back(std::make_unique<ClassLiteral>(lit));
-            }
-        }
-    }
-    
-    if (cur.eof()) {
+
+    // Check for empty/unterminated class: [] or [^]
+    if (cur.peek() == "]") {
+        cur.in_class--;
         raise_error("Unterminated character class", cur.i);
     }
-    
-    if (cur.peek() != "]") {
-        raise_error("Expected ']'", cur.i);
+
+    std::vector<ClassItemPtr> items;
+
+    while (!cur.eof() && cur.peek() != "]") {
+        auto item = parse_class_item();
+
+        // Check for range
+        if (cur.peek() == "-" && cur.peek(1) != "]" && !cur.eof()) {
+            auto* cl = dynamic_cast<ClassLiteral*>(item.get());
+            if (cl) {
+                std::string from_ch = cl->ch;
+                cur.take(); // consume '-'
+                if (cur.eof() || cur.peek() == "]") {
+                    items.push_back(std::move(item));
+                    items.push_back(std::make_unique<ClassLiteral>("-"));
+                    continue;
+                }
+                auto to_item = parse_class_item();
+                auto* to_cl = dynamic_cast<ClassLiteral*>(to_item.get());
+                if (to_cl) {
+                    std::string to_ch = to_cl->ch;
+                    if (to_ch < from_ch) {
+                        cur.in_class--;
+                        raise_error("Invalid character range", start_pos);
+                    }
+                    items.push_back(std::make_unique<ClassRange>(from_ch, to_ch));
+                    continue;
+                } else {
+                    items.push_back(std::move(item));
+                    items.push_back(std::make_unique<ClassLiteral>("-"));
+                    items.push_back(std::move(to_item));
+                    continue;
+                }
+            }
+        }
+
+        items.push_back(std::move(item));
     }
-    
+
+    if (cur.eof()) {
+        cur.in_class--;
+        raise_error("Unterminated character class", cur.i);
+    }
+
     cur.take(); // consume ']'
     cur.in_class--;
-    
     return std::make_unique<CharClass>(negated, std::move(items));
+}
+
+ClassItemPtr Parser::parse_class_item() {
+    if (cur.peek() == "\\") {
+        size_t start_pos = cur.i;
+        cur.take(); // consume backslash
+        if (cur.eof()) {
+            raise_error("Incomplete escape sequence", start_pos);
+        }
+        std::string ch = cur.take();
+
+        if (ch == "d" || ch == "D" || ch == "w" || ch == "W" ||
+            ch == "s" || ch == "S") {
+            return std::make_unique<ClassEscape>(ch);
+        }
+        if (ch == "b") return std::make_unique<ClassLiteral>(std::string(1, '\b'));
+        if (ch == "0") return std::make_unique<ClassLiteral>(std::string(1, '\0'));
+        if (ch == "n") return std::make_unique<ClassLiteral>("\n");
+        if (ch == "r") return std::make_unique<ClassLiteral>("\r");
+        if (ch == "t") return std::make_unique<ClassLiteral>("\t");
+        if (ch == "f") return std::make_unique<ClassLiteral>("\f");
+        if (ch == "v") return std::make_unique<ClassLiteral>("\v");
+        if (ch == "x") {
+            if (cur.peek() == "{") {
+                cur.take();
+                std::string hex;
+                while (!cur.eof() && cur.peek() != "}" &&
+                       std::isxdigit(static_cast<unsigned char>(cur.peek()[0]))) {
+                    hex += cur.take();
+                }
+                if (!cur.match("}")) {
+                    raise_error("Unterminated \\x{...}", start_pos);
+                }
+                unsigned long cp = std::stoul(hex, nullptr, 16);
+                return std::make_unique<ClassLiteral>(std::string(1, static_cast<char>(cp)));
+            }
+            std::string hex;
+            for (int i = 0; i < 2 && !cur.eof(); i++) hex += cur.take();
+            if (hex.size() != 2) raise_error("Invalid \\xHH escape", start_pos);
+            for (char c : hex) {
+                if (!std::isxdigit(static_cast<unsigned char>(c)))
+                    raise_error("Invalid \\xHH escape", start_pos);
+            }
+            unsigned long cp = std::stoul(hex, nullptr, 16);
+            return std::make_unique<ClassLiteral>(std::string(1, static_cast<char>(cp)));
+        }
+        if (ch == "u") {
+            if (cur.peek() == "{") {
+                cur.take();
+                std::string hex;
+                while (!cur.eof() && cur.peek() != "}" &&
+                       std::isxdigit(static_cast<unsigned char>(cur.peek()[0]))) {
+                    hex += cur.take();
+                }
+                if (!cur.match("}")) {
+                    raise_error("Unterminated \\u{...}", start_pos);
+                }
+                return std::make_unique<ClassLiteral>("?");
+            }
+            std::string hex;
+            for (int i = 0; i < 4 && !cur.eof(); i++) hex += cur.take();
+            if (hex.size() != 4) raise_error("Invalid \\uHHHH escape", start_pos);
+            for (char c : hex) {
+                if (!std::isxdigit(static_cast<unsigned char>(c)))
+                    raise_error("Invalid \\uHHHH escape", start_pos);
+            }
+            return std::make_unique<ClassLiteral>("?");
+        }
+        if (ch == "p" || ch == "P") {
+            if (cur.peek() != "{") {
+                raise_error("Expected { after \\p/\\P", start_pos);
+            }
+            cur.take();
+            std::string prop;
+            while (!cur.eof() && cur.peek() != "}") { prop += cur.take(); }
+            if (cur.eof()) { raise_error("Unterminated \\p{...}", start_pos); }
+            cur.take();
+            return std::make_unique<ClassEscape>(ch, prop);
+        }
+        if (std::isalnum(static_cast<unsigned char>(ch[0]))) {
+            raise_error("Unknown escape sequence \\" + ch, start_pos);
+        }
+        return std::make_unique<ClassLiteral>(ch);
+    }
+    std::string ch = cur.take();
+    return std::make_unique<ClassLiteral>(ch);
 }
 
 NodePtr Parser::parse_literal() {
     std::string ch = cur.peek();
-    
-    if (ch == "\\") {
-        return parse_escape();
-    }
-    
-    // Regular literal character
-    if (!ch.empty() && ch[0] != '|' && ch[0] != ')' && ch[0] != '*' && 
-        ch[0] != '+' && ch[0] != '?' && ch[0] != '{') {
+    if (ch == "\\") { return parse_escape(); }
+    if (!ch.empty() && ch[0] != '|' && ch[0] != ')') {
         cur.take();
         return std::make_unique<Lit>(ch);
     }
-    
     return nullptr;
 }
 
 NodePtr Parser::parse_escape() {
-    if (cur.peek() != "\\") {
-        raise_error("Expected '\\'", cur.i);
-    }
-    
+    size_t start_pos = cur.i;
     cur.take(); // consume '\'
-    std::string esc = cur.peek();
-    
-    if (esc.empty()) {
-        raise_error("Incomplete escape sequence", cur.i - 1);
+    if (cur.eof()) {
+        raise_error("Incomplete escape sequence", start_pos);
     }
-    
-    cur.take(); // consume escape character
-    
+    std::string esc = cur.take();
+
+    // Anchors
+    if (esc == "b") return std::make_unique<Anchor>("WordBoundary");
+    if (esc == "B") return std::make_unique<Anchor>("NotWordBoundary");
+    if (esc == "A") return std::make_unique<Anchor>("AbsoluteStart");
+    if (esc == "Z") return std::make_unique<Anchor>("EndBeforeFinalNewline");
+    // NOTE: \z is NOT an anchor
+
+    // Character class shortcuts
+    if (esc == "d" || esc == "D" || esc == "w" || esc == "W" ||
+        esc == "s" || esc == "S") {
+        std::vector<ClassItemPtr> items;
+        items.push_back(std::make_unique<ClassEscape>(esc));
+        return std::make_unique<CharClass>(false, std::move(items));
+    }
+
     // Control escapes
     if (CONTROL_ESCAPES.count(esc)) {
         return std::make_unique<Lit>(CONTROL_ESCAPES[esc]);
     }
-    
-    // Character class shortcuts
-    if (esc == "d" || esc == "D" || esc == "w" || esc == "W" || 
-        esc == "s" || esc == "S") {
-        // These should return CharClass nodes, but for simplicity treating as escape
-        std::vector<ClassItemPtr> items;
-        items.push_back(std::make_unique<ClassEscape>(esc));
-        bool negated = (esc == "D" || esc == "W" || esc == "S");
-        return std::make_unique<CharClass>(negated, std::move(items));
+
+    // Null byte
+    if (esc == "0") {
+        if (!cur.eof() && !cur.peek().empty() && std::isdigit(cur.peek()[0])) {
+            raise_error("Forbidden octal escape \\0" + cur.peek(), start_pos);
+        }
+        return std::make_unique<Lit>(std::string(1, '\0'));
     }
-    
-    // Backreference
-    if (std::isdigit(esc[0])) {
-        int num = esc[0] - '0';
+
+    // Backreference by number
+    if (std::isdigit(static_cast<unsigned char>(esc[0])) && esc[0] != '0') {
+        std::string num_str = esc;
+        while (!cur.eof() && !cur.peek().empty() && std::isdigit(cur.peek()[0])) {
+            num_str += cur.take();
+        }
+        int num = std::stoi(num_str);
         if (num > cap_count) {
-             raise_error("Backreference to undefined group " + std::to_string(num), cur.i);
+            raise_error("Backreference to undefined group \\" + std::to_string(num), start_pos);
         }
         return std::make_unique<Backref>(num);
     }
 
+    // Named backreference
     if (esc == "k") {
         if (cur.peek() != "<") {
-             raise_error("Expected '<' after \\k", cur.i);
+            raise_error("Expected '<' after \\k", cur.i);
         }
-        cur.take();
+        cur.take(); // consume '<'
         std::string name;
         while (!cur.eof() && cur.peek() != ">") {
             name += cur.take();
         }
-        if (cur.peek() != ">") {
-             raise_error("Expected '>' after group name", cur.i);
+        if (cur.eof()) {
+            raise_error("Unterminated named backref", cur.i);
         }
-        cur.take();
+        cur.take(); // consume '>'
         if (cap_names.find(name) == cap_names.end()) {
-             raise_error("Backreference to undefined group " + name, cur.i);
+            raise_error("Backreference to undefined group <" + name + ">", start_pos);
         }
         return std::make_unique<Backref>(std::nullopt, name);
     }
 
-    if (esc == "x" || esc == "u") {
+    // Hex escape
+    if (esc == "x") {
         if (cur.peek() == "{") {
             cur.take();
             std::string hex;
-            while (!cur.eof() && cur.peek() != "}") {
-                char c = cur.peek()[0];
-                if (!std::isxdigit(static_cast<unsigned char>(c))) {
-                     raise_error("Invalid hex digit", cur.i);
-                }
+            while (!cur.eof() && cur.peek() != "}" &&
+                   std::isxdigit(static_cast<unsigned char>(cur.peek()[0]))) {
                 hex += cur.take();
             }
-            if (cur.eof()) {
-                 raise_error("Unterminated hex escape", cur.i);
+            if (!cur.match("}")) {
+                raise_error("Unterminated \\x{...}", start_pos);
             }
-            if (hex.empty()) {
-                 raise_error("Empty hex escape", cur.i);
-            }
-            cur.take();
-            return std::make_unique<Lit>("?"); 
-        } else {
-            int len = (esc == "x") ? 2 : 4;
-            std::string hex;
-            for (int i = 0; i < len; i++) {
-                if (cur.eof()) raise_error("Incomplete hex escape", cur.i);
-                char c = cur.peek()[0];
-                if (!std::isxdigit(static_cast<unsigned char>(c))) {
-                     raise_error("Invalid hex digit", cur.i);
-                }
-                hex += cur.take();
-            }
-            return std::make_unique<Lit>("?"); 
+            unsigned long cp = std::stoul(hex, nullptr, 16);
+            return std::make_unique<Lit>(std::string(1, static_cast<char>(cp)));
         }
+        std::string hex;
+        for (int i = 0; i < 2 && !cur.eof(); i++) hex += cur.take();
+        if (hex.size() != 2) raise_error("Invalid \\xHH escape", start_pos);
+        for (char c : hex) {
+            if (!std::isxdigit(static_cast<unsigned char>(c)))
+                raise_error("Invalid \\xHH escape", start_pos);
+        }
+        unsigned long cp = std::stoul(hex, nullptr, 16);
+        return std::make_unique<Lit>(std::string(1, static_cast<char>(cp)));
     }
 
+    // Unicode escape \u
+    if (esc == "u") {
+        if (cur.peek() == "{") {
+            cur.take();
+            std::string hex;
+            while (!cur.eof() && cur.peek() != "}" &&
+                   std::isxdigit(static_cast<unsigned char>(cur.peek()[0]))) {
+                hex += cur.take();
+            }
+            if (!cur.match("}")) {
+                raise_error("Unterminated \\u{...}", start_pos);
+            }
+            return std::make_unique<Lit>("?"); // placeholder
+        }
+        std::string hex;
+        for (int i = 0; i < 4 && !cur.eof(); i++) hex += cur.take();
+        if (hex.size() != 4) raise_error("Invalid \\uHHHH escape", start_pos);
+        for (char c : hex) {
+            if (!std::isxdigit(static_cast<unsigned char>(c)))
+                raise_error("Invalid \\uHHHH escape", start_pos);
+        }
+        return std::make_unique<Lit>("?"); // placeholder
+    }
+
+    // Long Unicode escape \U
+    if (esc == "U") {
+        std::string hex;
+        for (int i = 0; i < 8 && !cur.eof(); i++) hex += cur.take();
+        if (hex.size() != 8) raise_error("Invalid \\UHHHHHHHH escape", start_pos);
+        for (char c : hex) {
+            if (!std::isxdigit(static_cast<unsigned char>(c)))
+                raise_error("Invalid \\UHHHHHHHH escape", start_pos);
+        }
+        return std::make_unique<Lit>("?"); // placeholder
+    }
+
+    // Unicode property escapes
     if (esc == "p" || esc == "P") {
-        bool negated = (esc == "P");
         if (cur.peek() != "{") {
-             raise_error("Expected '{' after \\p", cur.i);
+            raise_error("Expected { after \\p/\\P", start_pos);
         }
         cur.take();
         std::string prop;
@@ -814,22 +843,21 @@ NodePtr Parser::parse_escape() {
             prop += cur.take();
         }
         if (cur.eof()) {
-             raise_error("Unterminated unicode property", cur.i);
+            raise_error("Unterminated \\p{...}", start_pos);
         }
         cur.take(); // consume }
-        
+
         std::vector<ClassItemPtr> items;
-        items.push_back(std::make_unique<ClassEscape>(negated ? "P" : "p", prop));
+        items.push_back(std::make_unique<ClassEscape>(esc, prop));
         return std::make_unique<CharClass>(false, std::move(items));
     }
-    
-    // Unknown escape - for now, treat as literal
-    // Full implementation would have comprehensive escape handling
-    if (esc == "z") {
-        raise_error("Unknown escape sequence \\z", cur.i - 2);
+
+    // Unknown alphanumeric escape
+    if (std::isalnum(static_cast<unsigned char>(esc[0]))) {
+        raise_error("Unknown escape sequence \\" + esc, start_pos);
     }
-    
-    // Literal escaped character
+
+    // Identity escape (punctuation)
     return std::make_unique<Lit>(esc);
 }
 

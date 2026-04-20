@@ -39,19 +39,39 @@ public struct Flags {
     /// Extended mode (ignore whitespace and allow comments)
     public var extended: Bool
     
+    /// Internal: malformed directive detected during parsing
+    public var malformedDirective: Bool
+    
+    /// Internal: directive after pattern detected during parsing
+    public var directiveAfterPattern: Bool
+    
+    /// Internal: invalid flag detected during parsing
+    public var invalidFlag: Bool
+    
+    /// Internal: the invalid flag character
+    public var invalidFlagChar: String?
+    
     /// Initialize with default values (all flags disabled)
     public init(
         ignoreCase: Bool = false,
         multiline: Bool = false,
         dotAll: Bool = false,
         unicode: Bool = false,
-        extended: Bool = false
+        extended: Bool = false,
+        malformedDirective: Bool = false,
+        directiveAfterPattern: Bool = false,
+        invalidFlag: Bool = false,
+        invalidFlagChar: String? = nil
     ) {
         self.ignoreCase = ignoreCase
         self.multiline = multiline
         self.dotAll = dotAll
         self.unicode = unicode
         self.extended = extended
+        self.malformedDirective = malformedDirective
+        self.directiveAfterPattern = directiveAfterPattern
+        self.invalidFlag = invalidFlag
+        self.invalidFlagChar = invalidFlagChar
     }
     
     /// Convert flags to dictionary representation

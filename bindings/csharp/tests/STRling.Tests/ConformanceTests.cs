@@ -77,7 +77,40 @@ public class ConformanceTests
         {
             if (expectedErrorNode != null)
             {
-                // Parser test (no AST), out of scope. Pass.
+                // Parser error test: parse input_dsl and verify error + hint
+                var inputDslNode = jsonDoc["input_dsl"];
+                if (inputDslNode != null)
+                {
+                    var inputDsl = inputDslNode.GetValue<string>();
+                    if (!string.IsNullOrEmpty(inputDsl))
+                    {
+                        var expectedError = expectedErrorNode.GetValue<string>();
+                        try
+                        {
+                            Parser.Parse(inputDsl);
+                            throw new Exception($"Expected parse error '{expectedError}' but parsing succeeded");
+                        }
+                        catch (STRlingParseError parseErr)
+                        {
+                            Assert.Contains(expectedError, parseErr.ErrorMessage);
+                            var expectedHintNode = jsonDoc["expected_hint"];
+                            if (expectedHintNode != null)
+                            {
+                                var expectedHint = expectedHintNode.GetValue<string>();
+                                if (!string.IsNullOrEmpty(expectedHint))
+                                {
+                                    Assert.Equal(expectedHint, parseErr.Hint);
+                                }
+                            }
+                            Console.WriteLine($"    --- PASS: Parser error verified: {expectedError}");
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("    --- PASS: Caught error");
+                        }
+                        return;
+                    }
+                }
                 Console.WriteLine("    --- PASS: Parser test (no AST), out of scope");
                 return;
             }

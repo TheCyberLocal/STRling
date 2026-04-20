@@ -21,12 +21,14 @@ local CONTROL_ESCAPES = {
 local STRlingParseError = {}
 STRlingParseError.__index = STRlingParseError
 
+local hint_engine = require("src.hint_engine")
+
 function STRlingParseError.new(message, position, source, hint)
     local self = setmetatable({}, STRlingParseError)
     self.message = message
     self.position = position
-    self.source = source
-    self.hint = hint
+    self.source = source or ""
+    self.hint = hint or hint_engine.get_hint(message, self.source, position)
     return self
 end
 
@@ -48,7 +50,7 @@ function Flags.new()
     return self
 end
 
-function Flags.fromLetters(letters)
+function Flags.fromLetters(letters, raiseErr)
     local f = Flags.new()
     for ch in letters:lower():gmatch(".") do
         if ch == "i" then f.ignoreCase = true
@@ -56,6 +58,8 @@ function Flags.fromLetters(letters)
         elseif ch == "s" then f.dotAll = true
         elseif ch == "u" then f.unicode = true
         elseif ch == "x" then f.extended = true
+        elseif raiseErr then
+            raiseErr("Invalid flag '" .. ch .. "'")
         end
     end
     return f
@@ -141,31 +145,53 @@ end
 
 function Parser:parseDirectives(text)
     local flags = Flags.new()
-    local pattern = text
-    
-    -- Match %flags directive
-    local flagStr = text:match("^%s*%%flags%s*([imsux,%[%]%s]*)")
-    if flagStr then
-        -- Clean and parse flags
-        flagStr = flagStr:lower():gsub("[,%[%]%s]", "")
-        flags = Flags.fromLetters(flagStr)
-        
-        -- Remove directive lines
-        local lines = {}
-        local inPattern = false
-        for line in (text .. "\n"):gmatch("([^\n]*)\n") do
-            local trimmed = line:match("^%s*(.-)%s*$")
-            if not inPattern and (trimmed:match("^%%flags") or trimmed == "" or trimmed:match("^#")) then
-                -- skip
-            else
-                inPattern = true
-                table.insert(lines, line)
-            end
+    local patternLines = {}
+    local inPattern = false
+    local pos = 0
+
+    for line in (text .. "\n"):gmatch("([^\n]*)\n") do
+        local trimmed = line:match("^%s*(.-)%s*$")
+        local handled = false
+
+        -- Skip empty lines and comments before pattern
+        if not inPattern and (trimmed == "" or trimmed:match("^#")) then
+            handled = true
         end
-        pattern = table.concat(lines, "\n")
+
+        -- Process %flags directive
+        if not handled and not inPattern and trimmed:match("^%%flags") then
+            local idx = line:find("%%flags")
+            local after = line:sub(idx + 6)
+            local flagStr = after:gsub("[,%[%]%s]", ""):lower()
+            local linePos = pos
+            flags = Flags.fromLetters(flagStr, function(msg)
+                error(STRlingParseError.new(msg, linePos + idx - 1, text))
+            end)
+            inPattern = true
+            handled = true
+        end
+
+        -- Reject unknown directives (e.g. %flagg)
+        if not handled and not inPattern and trimmed:match("^%%") then
+            local idx = line:find("%%")
+            error(STRlingParseError.new("Malformed directive", pos + idx - 1, text))
+        end
+
+        -- Check for directive after pattern content
+        if not handled and line:find("%%flags") then
+            local idx = line:find("%%flags")
+            error(STRlingParseError.new("Directive after pattern", pos + idx - 1, text))
+        end
+
+        if not handled then
+            inPattern = true
+            table.insert(patternLines, line)
+        end
+
+        pos = pos + #line + 1
     end
-    
-    return flags, pattern
+
+    return flags, table.concat(patternLines, "\n")
 end
 
 function Parser:parse()
@@ -198,8 +224,12 @@ function Parser:parseAlt()
         self.cur:take()
         self.cur:skipWsAndComments()
         
-        if self.cur:eof() or self.cur:peek() == "|" then
+        if self.cur:eof() or self.cur:peek() == ")" then
             error(STRlingParseError.new("Alternation lacks right-hand side", pipePos, self.src))
+        end
+
+        if self.cur:peek() == "|" then
+            error(STRlingParseError.new("Empty alternation", self.cur.i, self.src))
         end
         
         table.insert(branches, self:parseSeq())
@@ -286,6 +316,18 @@ function Parser:parseQuantIfAny(child)
         
         local m = self:readIntOptional()
         if not m then
+            -- Look ahead for closing } with non-numeric content
+            local j = self.cur.i
+            local content = ""
+            while j <= #self.cur.text do
+                local c = self.cur.text:sub(j, j)
+                if c == "}" or c == "\r" or c == "\n" then break end
+                content = content .. c
+                j = j + 1
+            end
+            if j <= #self.cur.text and self.cur.text:sub(j, j) == "}" and content ~= "" and content:match("[^%d,]") then
+                error(STRlingParseError.new("Brace quantifier: Invalid brace quantifier content", save, self.src))
+            end
             self.cur.i = save
             return child
         end
@@ -302,6 +344,11 @@ function Parser:parseQuantIfAny(child)
             error(STRlingParseError.new("Incomplete quantifier", self.cur.i, self.src))
         end
         self.cur:take()
+        
+        -- Validate quantifier range
+        if max and type(max) == "number" and min > max then
+            error(STRlingParseError.new("Invalid quantifier range", save, self.src))
+        end
     else
         return child
     end
@@ -375,6 +422,10 @@ function Parser:parseGroupOrLook()
         if not self.cur:match(">") then
             error(STRlingParseError.new("Unterminated group name", self.cur.i, self.src))
         end
+        -- Validate group name: must be a valid identifier
+        if name == "" or not name:match("^[%a_][%a%d_]*$") then
+            error(STRlingParseError.new("Invalid group name", self.cur.i, self.src))
+        end
         if self.capNames[name] then
             error(STRlingParseError.new("Duplicate group name <" .. name .. ">", self.cur.i, self.src))
         end
@@ -412,6 +463,17 @@ function Parser:parseGroupOrLook()
         return { type = "NegativeLookahead", body = body }
     end
     
+    -- Detect inline modifiers like (?i), (?m-s), etc.
+    if self.cur:peek() == "?" then
+        local saved = self.cur.i
+        self.cur:take()  -- consume '?'
+        local nxt = self.cur:peek()
+        if nxt:match("[imsux]") or nxt == "-" then
+            error(STRlingParseError.new("Inline modifiers", saved - 1, self.src))
+        end
+        self.cur.i = saved  -- backtrack
+    end
+    
     self.capCount = self.capCount + 1
     local body = self:parseAlt()
     if not self.cur:match(")") then
@@ -431,6 +493,11 @@ function Parser:parseCharClass()
     end
     
     local members = {}
+
+    -- Detect empty character class []
+    if self.cur:peek() == "]" then
+        error(STRlingParseError.new("Unterminated character class", self.cur.i, self.src))
+    end
     
     while not self.cur:eof() and self.cur:peek() ~= "]" do
         if self.cur:peek() == "\\" then
@@ -488,7 +555,7 @@ function Parser:parseClassEscape()
     if nxt == "p" or nxt == "P" then
         local tp = self.cur:take()
         if not self.cur:match("{") then
-            error(STRlingParseError.new("Expected '{' after \\p/\\P", startPos, self.src))
+            error(STRlingParseError.new("Expected { after \\p/\\P", startPos, self.src))
         end
         local prop = ""
         while self.cur:peek() ~= "}" and self.cur:peek() ~= "" do
@@ -515,7 +582,12 @@ function Parser:parseClassEscape()
         return { type = "Literal", value = "\0" }
     end
     
-    return { type = "Literal", value = self.cur:take() }
+    -- Unknown escape in char class context
+    local ch = self.cur:take()
+    if not ch:match("[%a%d]") then
+        return { type = "Literal", value = ch }
+    end
+    error(STRlingParseError.new("Unknown escape sequence \\" .. ch, startPos, self.src))
 end
 
 function Parser:parseEscapeAtom()
@@ -587,7 +659,7 @@ function Parser:parseEscapeAtom()
     if nxt == "p" or nxt == "P" then
         local tp = self.cur:take()
         if not self.cur:match("{") then
-            error(STRlingParseError.new("Expected '{' after \\p/\\P", startPos, self.src))
+            error(STRlingParseError.new("Expected { after \\p/\\P", startPos, self.src))
         end
         local prop = ""
         while self.cur:peek() ~= "}" and self.cur:peek() ~= "" do
@@ -622,7 +694,13 @@ function Parser:parseEscapeAtom()
         return { type = "Literal", value = "\0" }
     end
     
-    return { type = "Literal", value = self.cur:take() }
+    -- Unknown escape in atom context
+    local ch = self.cur:take()
+    if not ch:match("[%a%d]") then
+        -- Punctuation escapes are allowed as literal
+        return { type = "Literal", value = ch }
+    end
+    error(STRlingParseError.new("Unknown escape sequence \\" .. ch, startPos, self.src))
 end
 
 function Parser:parseHexEscape(startPos)

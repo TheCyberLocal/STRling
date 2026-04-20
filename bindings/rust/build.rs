@@ -12,7 +12,9 @@ fn main() {
     content.push_str("use strling::core::nodes::Node;\n");
     content.push_str("use strling::core::ir::IROp;\n");
     content.push_str("use strling::core::compiler::Compiler;\n");
+    content.push_str("use strling::core::parser;\n");
     content.push_str("use serde::Deserialize;\n");
+    content.push_str("use serde_json::Value;\n");
     content.push_str("use std::fs;\n\n");
     
     content.push_str("#[derive(Deserialize)]\n");
@@ -20,6 +22,9 @@ fn main() {
     content.push_str("    id: String,\n");
     content.push_str("    input_ast: Option<Node>,\n");
     content.push_str("    expected_ir: Option<IROp>,\n");
+    content.push_str("    input_dsl: Option<String>,\n");
+    content.push_str("    expected_error: Option<String>,\n");
+    content.push_str("    expected_hint: Option<String>,\n");
     content.push_str("}\n\n");
 
     let pattern = "../../tests/spec/*.json";
@@ -28,32 +33,42 @@ fn main() {
     for entry in paths {
         if let Ok(path) = entry {
             let file_stem = path.file_stem().unwrap().to_string_lossy();
-            let file_name = path.file_name().unwrap().to_string_lossy();
-            
-            // Skip error tests
-            if file_name.starts_with("error_") {
-                continue;
-            }
 
             // Sanitize function name
             let func_name = file_stem.replace("-", "_").replace(".", "_");
-            // Use absolute path or relative to cargo manifest dir if possible, but here we use relative to workspace root which might be tricky if running from different dir.
-            // Better to use CARGO_MANIFEST_DIR
             let _manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-            // We need to construct a path that works at runtime.
-            // The path found by glob is relative to where build.rs runs (usually package root).
-            // So `../../tests/spec` is correct relative to `bindings/rust`.
-            // At runtime, tests run with CWD as package root too.
             let path_str = path.to_string_lossy().replace("\\", "/");
 
             content.push_str(&format!("#[test]\nfn test_{}() {{\n", func_name));
             content.push_str(&format!("    let path = \"{}\";\n", path_str));
             content.push_str("    let content = fs::read_to_string(path).expect(\"Failed to read file\");\n");
-            content.push_str("    if content.contains(\"\\\"expected_error\\\"\") { return; }\n");
             content.push_str("    let test_case: TestCase = match serde_json::from_str(&content) {\n");
             content.push_str("        Ok(tc) => tc,\n");
             content.push_str("        Err(e) => panic!(\"Failed to deserialize {}: {}\", path, e),\n");
             content.push_str("    };\n");
+            content.push_str("    // Handle parser error test cases\n");
+            content.push_str("    if test_case.expected_error.is_some() && test_case.input_ast.is_none() {\n");
+            content.push_str("        if let Some(ref input_dsl) = test_case.input_dsl {\n");
+            content.push_str("            if !input_dsl.is_empty() {\n");
+            content.push_str("                let result = parser::parse(input_dsl);\n");
+            content.push_str("                assert!(result.is_err(), \"Expected parse error but got success\");\n");
+            content.push_str("                let err = result.unwrap_err();\n");
+            content.push_str("                let expected_error = test_case.expected_error.as_ref().unwrap();\n");
+            content.push_str("                assert!(err.message.contains(expected_error.as_str()),\n");
+            content.push_str("                    \"Error message mismatch.\\n  Expected substring: {}\\n  Actual: {}\",\n");
+            content.push_str("                    expected_error, err.message);\n");
+            content.push_str("                if let Some(ref expected_hint) = test_case.expected_hint {\n");
+            content.push_str("                    if !expected_hint.is_empty() {\n");
+            content.push_str("                        assert_eq!(err.hint.as_deref().unwrap_or_default(), expected_hint.as_str(),\n");
+            content.push_str("                            \"Hint mismatch for {}\", test_case.id);\n");
+            content.push_str("                    }\n");
+            content.push_str("                }\n");
+            content.push_str("            }\n");
+            content.push_str("        }\n");
+            content.push_str("        return;\n");
+            content.push_str("    }\n");
+            content.push_str("    // Handle compilation error test cases\n");
+            content.push_str("    if test_case.expected_error.is_some() { return; }\n");
             content.push_str("    if let (Some(ast), Some(expected)) = (test_case.input_ast, test_case.expected_ir) {\n");
             content.push_str("        let mut compiler = Compiler::new();\n");
             content.push_str("        let ir = compiler.compile(&ast);\n");

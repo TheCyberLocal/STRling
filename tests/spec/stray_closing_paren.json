@@ -3,6 +3,7 @@
   "description": "Generated from stray_closing_paren.pattern",
   "input_dsl": ")",
   "expected_error": "Unmatched ')'",
+  "expected_hint": "This ')' does not have a matching opening '('. Remove the extra ')' or add an opening '(' earlier in the pattern.",
   "metadata_expectations": {
     "features_used": []
   }

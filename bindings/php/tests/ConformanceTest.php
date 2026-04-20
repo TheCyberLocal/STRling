@@ -5,6 +5,8 @@ namespace STRling\Tests;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use STRling\Core\NodeFactory;
+use STRling\Core\Parser;
+use STRling\Core\STRlingParseError;
 use STRling\Compiler;
 
 class ConformanceTest extends TestCase
@@ -63,6 +65,24 @@ class ConformanceTest extends TestCase
                 // Expected error
                 fwrite(STDOUT, "    --- PASS: Caught expected error\n");
                 $this->assertTrue(true);
+            }
+        } elseif (isset($spec['input_dsl']) && isset($spec['expected_hint'])) {
+            // Parser error fixture: parse input_dsl, assert error message and hint
+            try {
+                $parser = new Parser($spec['input_dsl']);
+                $parser->parse();
+                $this->fail("Expected error '{$spec['expected_error']}' but parsing succeeded for $filename");
+            } catch (STRlingParseError $e) {
+                $this->assertStringContainsString(
+                    $spec['expected_error'],
+                    $e->getMessage(),
+                    "Error message mismatch in $filename"
+                );
+                $this->assertSame(
+                    $spec['expected_hint'],
+                    $e->hint,
+                    "Hint mismatch in $filename"
+                );
             }
         } else {
             // Parser test (no AST), out of scope. Pass.

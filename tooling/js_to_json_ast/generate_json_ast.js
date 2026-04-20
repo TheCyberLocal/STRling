@@ -5,11 +5,11 @@ const path = require("path");
 const repoRoot = path.resolve(__dirname, "../..");
 const distParser = path.join(
     repoRoot,
-    "bindings/typescript/dist/STRling/core/parser.js"
+    "bindings/typescript/dist/STRling/core/parser.js",
 );
 const srcParser = path.join(
     repoRoot,
-    "bindings/typescript/src/STRling/core/parser.ts"
+    "bindings/typescript/src/STRling/core/parser.ts",
 );
 
 function findParser() {
@@ -17,10 +17,10 @@ function findParser() {
     // We cannot require TS source directly. Ask user to build if dist missing.
     if (fs.existsSync(srcParser)) {
         console.error(
-            "Compiled JS not found. Please build the TypeScript binding first:"
+            "Compiled JS not found. Please build the TypeScript binding first:",
         );
         console.error(
-            "  cd bindings/typescript && npm install && npm run build"
+            "  cd bindings/typescript && npm install && npm run build",
         );
     } else {
         console.error("Parser source not found. Expected at:", distParser);
@@ -34,24 +34,44 @@ const parser = require(parserPath);
 let Compiler = null;
 let emitter = null;
 try {
-    Compiler = require(path.join(
-        repoRoot,
-        "bindings/typescript/dist/STRling/core/compiler.js"
-    )).Compiler;
-    emitter = require(path.join(
-        repoRoot,
-        "bindings/typescript/dist/STRling/emitters/pcre2.js"
-    ));
+    Compiler = require(
+        path.join(
+            repoRoot,
+            "bindings/typescript/dist/STRling/core/compiler.js",
+        ),
+    ).Compiler;
+    emitter = require(
+        path.join(
+            repoRoot,
+            "bindings/typescript/dist/STRling/emitters/pcre2.js",
+        ),
+    );
 } catch (e) {
     // It's ok if emitter/compilation isn't available; we'll just skip expected annotation
     Compiler = null;
     emitter = null;
 }
 
+// Load hint engine for deriving expected_hint on error fixtures
+let getHintOrFallback = null;
+try {
+    const hintModule = require(
+        path.join(
+            repoRoot,
+            "bindings/typescript/dist/STRling/core/hint_engine.js",
+        ),
+    );
+    getHintOrFallback = hintModule.getHintOrFallback;
+} catch (e) {
+    console.warn(
+        "Hint engine not available; error fixtures will lack expected_hint.",
+    );
+}
+
 if (typeof parser.parseToArtifact !== "function") {
     console.error(
         "parseToArtifact() not found on parser module at",
-        parserPath
+        parserPath,
     );
     process.exit(3);
 }
@@ -108,33 +128,39 @@ for (const f of files) {
             try {
                 parser.parseToArtifact(src);
                 console.error(
-                    `[FAIL] ${f}: Expected error "${expectedError}" but parsed successfully.`
+                    `[FAIL] ${f}: Expected error "${expectedError}" but parsed successfully.`,
                 );
                 continue;
             } catch (e) {
                 const msg = e.message || String(e);
                 if (!msg.includes(expectedError)) {
                     console.error(
-                        `[FAIL] ${f}: Expected error "${expectedError}" but got "${msg}"`
+                        `[FAIL] ${f}: Expected error "${expectedError}" but got "${msg}"`,
                     );
                     continue;
                 }
+                // Derive expected_hint from the hint engine
+                const hintText = getHintOrFallback
+                    ? getHintOrFallback(msg, src.trim(), 0)
+                    : "Check the STRling documentation for help with this syntax.";
+
                 // Write error artifact
                 const cArtifact = {
                     id: f.replace(/\.(pattern|json)$/, ""),
                     description: `Generated from ${f}`,
                     input_dsl: src.trim(),
                     expected_error: expectedError,
+                    expected_hint: hintText,
                     metadata_expectations: { features_used: [] },
                 };
                 const outPath = path.join(
                     outDir,
-                    f.replace(/\.(pattern|json)$/, ".json")
+                    f.replace(/\.(pattern|json)$/, ".json"),
                 );
                 fs.writeFileSync(
                     outPath,
                     JSON.stringify(cArtifact, null, 2),
-                    "utf8"
+                    "utf8",
                 );
                 console.log("Wrote (Error)", outPath);
                 continue;
@@ -184,7 +210,7 @@ for (const f of files) {
                     return {
                         type: "Sequence",
                         parts: (node.parts || node.children || []).map(
-                            convertNode
+                            convertNode,
                         ),
                     };
                 case "Dot":
@@ -207,7 +233,7 @@ for (const f of files) {
                         type: "CharacterClass",
                         negated: !!node.negated,
                         members: (node.items || node.members || []).map(
-                            convertNode
+                            convertNode,
                         ),
                     };
                 case "ClassLiteral":
@@ -281,7 +307,7 @@ for (const f of files) {
                     // but other parts use `body`. Emit both for compatibility.
                     const bodyNode = convertNode(
                         node.body ||
-                            (node.parts && { kind: "Seq", parts: node.parts })
+                            (node.parts && { kind: "Seq", parts: node.parts }),
                     );
                     return {
                         type: "Group",
@@ -340,7 +366,7 @@ for (const f of files) {
                     ir,
                     nodeFlags && nodeFlags.toDict
                         ? nodeFlags.toDict()
-                        : artifact.flags || {}
+                        : artifact.flags || {},
                 );
                 expected_codegen = { success: true, pcre };
             } catch (e) {
@@ -366,7 +392,7 @@ for (const f of files) {
 
         const outPath = path.join(
             outDir,
-            f.replace(/\.(pattern|json)$/, ".json")
+            f.replace(/\.(pattern|json)$/, ".json"),
         );
         fs.writeFileSync(outPath, JSON.stringify(cArtifact, null, 2), "utf8");
         console.log("Wrote", outPath);
@@ -375,7 +401,7 @@ for (const f of files) {
             "Failed to parse",
             f,
             ":",
-            err && err.message ? err.message : err
+            err && err.message ? err.message : err,
         );
     }
 }

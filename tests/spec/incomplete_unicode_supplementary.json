@@ -3,6 +3,7 @@
   "description": "Generated from incomplete_unicode_supplementary.pattern",
   "input_dsl": "\\U1234567",
   "expected_error": "Invalid \\UHHHHHHHH escape",
+  "expected_hint": "8-digit Unicode escapes must use valid hexadecimal digits (0-9, A-F). Use \\UHHHHHHHH for 8-digit codes or \\u{...} for variable-length codes.",
   "metadata_expectations": {
     "features_used": []
   }

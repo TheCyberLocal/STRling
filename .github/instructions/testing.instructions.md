@@ -103,6 +103,9 @@ cd bindings/typescript && npm test
 
 # Run full certification audit across all 17 bindings
 python3 tooling/audit_omega.py
+
+# Run hint parity audit — checks all bindings have 38 canonical hint patterns
+python3 tooling/audit_hint_parity.py
 ```
 
 ---
@@ -122,3 +125,4 @@ python3 tooling/audit_omega.py
 - **Do not** introduce flaky tests. Tests must pass consistently and execute quickly.
 - **Do not** merge a PR that reduces the conformance pass count below the current baseline (~594+ tests).
 - **Do not** add a feature to a non-TypeScript binding without first verifying that the corresponding spec fixtures exist.
+- **Do not** add a new error pattern to the TypeScript HintEngine without propagating it to all binding hint engines. Run `python3 tooling/audit_hint_parity.py` to verify.

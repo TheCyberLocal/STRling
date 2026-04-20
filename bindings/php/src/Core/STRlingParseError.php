@@ -43,9 +43,9 @@ class STRlingParseError extends Exception
     public string $text;
     
     /**
-     * @var string|null An instructional hint explaining how to fix the error
+     * @var string An instructional hint explaining how to fix the error
      */
-    public ?string $hint;
+    public string $hint;
     
     /**
      * Initialize a STRlingParseError.
@@ -53,7 +53,7 @@ class STRlingParseError extends Exception
      * @param string $message A concise description of what went wrong
      * @param int $pos The character position (0-indexed) where the error occurred
      * @param string $text The full input text being parsed (default: "")
-     * @param string|null $hint An instructional hint explaining how to fix the error (default: null)
+     * @param string|null $hint An instructional hint explaining how to fix the error (default: auto-generated)
      */
     public function __construct(
         string $message,
@@ -64,7 +64,7 @@ class STRlingParseError extends Exception
         $this->errorMessage = $message;
         $this->pos = $pos;
         $this->text = $text;
-        $this->hint = $hint;
+        $this->hint = $hint ?? HintEngine::getHint($message, $text, $pos);
         
         // Call parent constructor with formatted message
         parent::__construct($this->formatError(), 0, null);
@@ -115,10 +115,8 @@ class STRlingParseError extends Exception
         $parts[] = "> " . $lineNum . " | " . $lineText;
         $parts[] = ">   | " . str_repeat(' ', $col) . "^";
         
-        if ($this->hint !== null) {
-            $parts[] = "";
-            $parts[] = "Hint: " . $this->hint;
-        }
+        $parts[] = "";
+        $parts[] = "Hint: " . $this->hint;
         
         return implode("\n", $parts);
     }
@@ -187,10 +185,7 @@ class STRlingParseError extends Exception
         }
         
         // Build the diagnostic message
-        $diagnosticMessage = $this->errorMessage;
-        if ($this->hint !== null) {
-            $diagnosticMessage .= "\n\nHint: " . $this->hint;
-        }
+        $diagnosticMessage = $this->errorMessage . "\n\nHint: " . $this->hint;
         
         // Create error code from message (normalize to snake_case)
         $errorCode = strtolower($this->errorMessage);

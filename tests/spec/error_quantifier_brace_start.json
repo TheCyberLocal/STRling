@@ -3,6 +3,7 @@
   "description": "Generated from error_quantifier_brace_start.pattern",
   "input_dsl": "{5}",
   "expected_error": "Invalid quantifier '{'",
+  "expected_hint": "The quantifier '{' must follow an atom (a character or group). Place '{' after the thing it should quantify, e.g., 'a{'.",
   "metadata_expectations": {
     "features_used": []
   }

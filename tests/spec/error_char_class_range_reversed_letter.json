@@ -3,6 +3,7 @@
   "description": "Generated from error_char_class_range_reversed_letter.pattern",
   "input_dsl": "[z-a]",
   "expected_error": "Invalid character range",
+  "expected_hint": "Character ranges must be ascending, e.g., '[a-z]' or '[0-9]'. Reversed ranges like '[z-a]' are invalid.",
   "metadata_expectations": {
     "features_used": []
   }

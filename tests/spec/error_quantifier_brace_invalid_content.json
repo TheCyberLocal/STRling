@@ -3,6 +3,7 @@
   "description": "Generated from error_quantifier_brace_invalid_content.pattern",
   "input_dsl": "a{foo}",
   "expected_error": "Brace quantifier: Invalid brace quantifier content",
+  "expected_hint": "Brace quantifiers require numeric digits: use {n}, {m,n}, or {m,}. Only numbers are valid inside braces — to match a literal '{', escape it with '\\{'.",
   "metadata_expectations": {
     "features_used": []
   }

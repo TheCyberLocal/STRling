@@ -3,6 +3,7 @@
   "description": "Generated from error_quantifier_brace_unterminated.pattern",
   "input_dsl": "a{5",
   "expected_error": "Incomplete quantifier",
+  "expected_hint": "Brace quantifiers require a complete form: {n}, {m,n}, or {m,}. Make sure to close the quantifier with '}' and provide valid numbers.",
   "metadata_expectations": {
     "features_used": []
   }

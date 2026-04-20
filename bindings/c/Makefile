@@ -8,7 +8,9 @@ SRCS := $(SRCDIR)/strling.c \
 	$(SRCDIR)/strling_simply.c \
 	$(COREDIR)/nodes.c \
         $(COREDIR)/ir.c \
-        $(COREDIR)/errors.c
+        $(COREDIR)/errors.c \
+        $(COREDIR)/hint_engine.c \
+        $(COREDIR)/parser.c
 OBJS := $(SRCS:.c=.o)
 LIB := libstrling.a
 

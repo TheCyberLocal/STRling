@@ -229,7 +229,7 @@ public class Parser {
                             String.format("Invalid flag '%c'", ch),
                             pos,
                             text,
-                            "Valid flags are: i (ignore case), m (multiline), s (dotAll), u (unicode), x (extended)"
+                            HintEngine.getHint("Invalid flag", text, pos)
                         );
                     }
                 } else {
@@ -239,7 +239,7 @@ public class Parser {
                                 String.format("Invalid flag '%c'", ch),
                                 idx,
                                 text,
-                                "Valid flags are: i (ignore case), m (multiline), s (dotAll), u (unicode), x (extended)"
+                                HintEngine.getHint("Invalid flag", text, idx)
                             );
                         }
                         switch (ch) {
@@ -263,11 +263,12 @@ public class Parser {
             // Reject unknown directives starting with %
             if (!inPattern && stripped.startsWith("%")) {
                 int idx = line.indexOf("%");
+                String hint = HintEngine.getHint("Malformed directive", text, idx);
                 throw new STRlingParseError(
-                    "Unknown directive",
+                    "Malformed directive",
                     idx,
                     text,
-                    "Only %flags directive is supported. Check your pattern syntax."
+                    hint
                 );
             }
             // All other lines are pattern content. If a `%flags` directive
@@ -287,7 +288,7 @@ public class Parser {
                 pos += idx;
                 String hint = HintEngine.getHint("Directive after pattern", text, pos);
                 throw new STRlingParseError(
-                    "Directive must appear at the start of the pattern",
+                    "Directive after pattern",
                     pos,
                     text,
                     hint
@@ -322,7 +323,7 @@ public class Parser {
                     "Unmatched ')'",
                     cur.i,
                     src,
-                    "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?"
+                    HintEngine.getHint("Unmatched ')'", src, cur.i)
                 );
             }
             if (cur.peek().equals("|")) {
@@ -361,7 +362,7 @@ public class Parser {
             }
             // Check if the pipe is followed by another pipe (empty branch)
             if (cur.peek().equals("|")) {
-                raiseError("Empty alternation branch", pipePos);
+                raiseError("Empty alternation", pipePos);
             }
             branches.add(parseSeq());
             cur.skipWsAndComments();
@@ -650,7 +651,7 @@ public class Parser {
                 "Unmatched ')'",
                 cur.i,
                 src,
-                "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?"
+                "This ')' does not have a matching opening '('. Remove the extra ')' or add an opening '(' earlier in the pattern. '\\)'?"
             );
         }
         if (ch.equals("|")) {
@@ -905,7 +906,7 @@ public class Parser {
             for (int i = 0; i < 8; i++) {
                 String ch = cur.take();
                 if (!ch.matches("[0-9A-Fa-f]")) {
-                    raiseError("Invalid \\UHHHHHHHH", startPos);
+                    raiseError("Invalid \\UHHHHHHHH escape", startPos);
                 }
                 hexs.append(ch);
             }
@@ -918,7 +919,7 @@ public class Parser {
         for (int i = 0; i < 4; i++) {
             String ch = cur.take();
             if (!ch.matches("[0-9A-Fa-f]")) {
-                raiseError("Invalid \\uHHHH", startPos);
+                raiseError("Invalid \\uHHHH escape", startPos);
             }
             hexs.append(ch);
         }
@@ -962,10 +963,7 @@ public class Parser {
                 // Throw with message 'Unterminated character class' for
                 // compatibility with existing tests, but provide an explicit
                 // instructional hint that mentions the class is empty.
-                String hint = HintEngine.getHint("Empty character class", src, startPos);
-                if (hint == null) {
-                    hint = "Empty character class '[]' detected. Character classes must contain at least one element (e.g., [a-z]) — do not leave them empty. If you meant a literal '[', escape it with '\\['.";
-                }
+                String hint = HintEngine.getHint("Unterminated character class", src, startPos);
                 cur.inClass--;
                 throw new STRlingParseError(
                     "Unterminated character class",

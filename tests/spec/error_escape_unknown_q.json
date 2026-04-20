@@ -3,6 +3,7 @@
   "description": "Generated from error_escape_unknown_q.pattern",
   "input_dsl": "\\q",
   "expected_error": "Unknown escape sequence \\q",
+  "expected_hint": "Unknown escape sequence '\\q'. If you intended a literal 'q', remove the backslash or use a recognized escape.",
   "metadata_expectations": {
     "features_used": []
   }

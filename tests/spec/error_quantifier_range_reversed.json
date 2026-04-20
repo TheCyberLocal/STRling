@@ -3,6 +3,7 @@
   "description": "Generated from error_quantifier_range_reversed.pattern",
   "input_dsl": "a{5,2}",
   "expected_error": "Invalid quantifier range",
+  "expected_hint": "Quantifier ranges must have the minimum less than or equal to the maximum (m <= n). For example, use '{2,5}' or '{2,2}', not '{5,2}'.",
   "metadata_expectations": {
     "features_used": []
   }

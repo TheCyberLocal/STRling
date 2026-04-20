@@ -3,6 +3,7 @@
   "description": "Generated from stray_pipe.pattern",
   "input_dsl": "|",
   "expected_error": "Alternation lacks left-hand side",
+  "expected_hint": "The alternation operator '|' requires an expression on the left side. Use 'a|b' to match either 'a' or 'b'.",
   "metadata_expectations": {
     "features_used": []
   }

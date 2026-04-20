@@ -3,15 +3,17 @@
 /// Transforms STRling pattern syntax into AST nodes.
 
 import '../nodes.dart';
+import 'hint_engine.dart';
 
 /// Parse error with position information
 class STRlingParseError implements Exception {
   final String message;
   final int position;
   final String source;
-  final String? hint;
+  final String hint;
 
-  STRlingParseError(this.message, this.position, this.source, [this.hint]);
+  STRlingParseError(this.message, this.position, this.source, [String? hint])
+      : hint = hint ?? HintEngine.getHint(message, source, position);
 
   @override
   String toString() => 'STRlingParseError: $message at position $position';
@@ -33,7 +35,7 @@ class Flags {
     this.extended = false,
   });
 
-  static Flags fromLetters(String letters) {
+  static Flags fromLetters(String letters, {void Function(String)? onError}) {
     final f = Flags();
     for (final ch in letters.toLowerCase().split('')) {
       switch (ch) {
@@ -51,6 +53,9 @@ class Flags {
           break;
         case 'x':
           f.extended = true;
+          break;
+        default:
+          if (onError != null) onError("Invalid flag '$ch'");
           break;
       }
     }
@@ -140,29 +145,54 @@ class Parser {
 
   (Flags, String) _parseDirectives(String text) {
     var flags = Flags();
-    final flagsMatch = RegExp(r'^\s*%flags\s*([imsux,\[\]\s]*)').firstMatch(text);
-    
-    if (flagsMatch != null) {
-      final flagStr = flagsMatch.group(1)!.toLowerCase().replaceAll(RegExp(r'[,\[\]\s]'), '');
-      flags = Flags.fromLetters(flagStr);
-      
-      // Remove directive lines
-      final lines = text.split('\n');
-      final patternLines = <String>[];
-      var inPattern = false;
-      
-      for (final line in lines) {
-        final trimmed = line.trim();
-        if (!inPattern && (trimmed.startsWith('%flags') || trimmed.isEmpty || trimmed.startsWith('#'))) {
-          continue;
-        }
+    final lines = text.split('\n');
+    final patternLines = <String>[];
+    var inPattern = false;
+    var pos = 0;
+
+    for (final line in lines) {
+      final trimmed = line.trim();
+      var handled = false;
+
+      // Skip empty lines and comments before pattern
+      if (!inPattern && (trimmed.isEmpty || trimmed.startsWith('#'))) {
+        handled = true;
+      }
+
+      // Process %flags directive
+      if (!handled && !inPattern && trimmed.startsWith('%flags')) {
+        final idx = line.indexOf('%flags');
+        final after = line.substring(idx + 6);
+        final flagStr = after.replaceAll(RegExp(r'[,\[\]\s]'), '').toLowerCase();
+        final linePos = pos;
+        flags = Flags.fromLetters(flagStr, onError: (msg) {
+          throw STRlingParseError(msg, linePos + idx, text);
+        });
+        inPattern = true;
+        handled = true;
+      }
+
+      // Reject unknown directives
+      if (!handled && !inPattern && trimmed.startsWith('%')) {
+        final idx = line.indexOf('%');
+        throw STRlingParseError('Malformed directive', pos + idx, text);
+      }
+
+      // Check for directive after pattern content
+      if (!handled && line.contains('%flags')) {
+        final idx = line.indexOf('%flags');
+        throw STRlingParseError('Directive after pattern', pos + idx, text);
+      }
+
+      if (!handled) {
         inPattern = true;
         patternLines.add(line);
       }
-      text = patternLines.join('\n');
+
+      pos += line.length + 1;
     }
-    
-    return (flags, text);
+
+    return (flags, patternLines.join('\n'));
   }
 
   (Flags, Node) parse() {
@@ -195,8 +225,12 @@ class Parser {
       _cur.take();
       _cur.skipWsAndComments();
       
-      if (_cur.eof || _cur.peek() == '|') {
+      if (_cur.eof || _cur.peek() == ')') {
         throw STRlingParseError('Alternation lacks right-hand side', pipePos, src);
+      }
+
+      if (_cur.peek() == '|') {
+        throw STRlingParseError('Empty alternation', _cur.i, src);
       }
       
       branches.add(_parseSeq());
@@ -286,6 +320,18 @@ class Parser {
       
       final m = _readIntOptional();
       if (m == null) {
+        // Look ahead for closing } with non-numeric content
+        var j = 0;
+        var content = '';
+        while (true) {
+          final c = _cur.peek(j);
+          if (c.isEmpty || c == '}' || c == '\r' || c == '\n') break;
+          content += c;
+          j++;
+        }
+        if (_cur.peek(j) == '}' && content.isNotEmpty && RegExp(r'[^0-9,]').hasMatch(content)) {
+          throw STRlingParseError('Brace quantifier: Invalid brace quantifier content', save, src);
+        }
         _cur.i = save;
         return child;
       }
@@ -302,6 +348,11 @@ class Parser {
         throw STRlingParseError('Incomplete quantifier', _cur.i, src);
       }
       _cur.take();
+      
+      // Validate quantifier range
+      if (max != null && max is int && min! > max) {
+        throw STRlingParseError('Invalid quantifier range', save, src);
+      }
     } else {
       return child;
     }
@@ -374,6 +425,10 @@ class Parser {
       if (!_cur.match('>')) {
         throw STRlingParseError('Unterminated group name', _cur.i, src);
       }
+      // Validate group name: must be a valid identifier
+      if (name.isEmpty || !RegExp(r'^[a-zA-Z_][a-zA-Z0-9_]*$').hasMatch(name)) {
+        throw STRlingParseError('Invalid group name', _cur.i, src);
+      }
       if (_capNames.contains(name)) {
         throw STRlingParseError('Duplicate group name <$name>', _cur.i, src);
       }
@@ -411,6 +466,17 @@ class Parser {
       return Lookaround(dir: 'Ahead', neg: true, body: body);
     }
     
+    // Detect inline modifiers like (?i), (?m-s), etc.
+    if (_cur.peek() == '?') {
+      final saved = _cur.i;
+      _cur.take(); // consume '?'
+      final nxt = _cur.peek();
+      if ('imsux'.contains(nxt) || nxt == '-') {
+        throw STRlingParseError('Inline modifiers', saved - 1, src);
+      }
+      _cur.i = saved; // backtrack
+    }
+    
     _capCount++;
     final body = _parseAlt();
     if (!_cur.match(')')) {
@@ -430,6 +496,11 @@ class Parser {
     }
     
     final members = <Node>[];
+
+    // Detect empty character class []
+    if (_cur.peek() == ']') {
+      throw STRlingParseError('Unterminated character class', _cur.i, src);
+    }
     
     while (!_cur.eof && _cur.peek() != ']') {
       if (_cur.peek() == '\\') {
@@ -440,6 +511,14 @@ class Parser {
         if (_cur.peek() == '-' && _cur.peek(1) != ']') {
           _cur.take(); // consume '-'
           final endCh = _cur.take();
+          // Validate ascending character range
+          final sc = ch.codeUnitAt(0);
+          final ec = endCh.codeUnitAt(0);
+          final bothDigits = RegExp(r'[0-9]').hasMatch(ch) && RegExp(r'[0-9]').hasMatch(endCh);
+          final bothLetters = RegExp(r'[A-Za-z]').hasMatch(ch) && RegExp(r'[A-Za-z]').hasMatch(endCh);
+          if ((bothDigits || bothLetters) && sc > ec) {
+            throw STRlingParseError('Invalid character range', _cur.i, src);
+          }
           members.add(Range(from: ch, to: endCh));
         } else {
           members.add(Literal(ch));
@@ -479,7 +558,7 @@ class Parser {
     if (nxt == 'p' || nxt == 'P') {
       final tp = _cur.take();
       if (!_cur.match('{')) {
-        throw STRlingParseError("Expected '{' after \\p/\\P", startPos, src);
+        throw STRlingParseError("Expected { after \\p/\\P", startPos, src);
       }
       var prop = '';
       while (_cur.peek() != '}' && _cur.peek().isNotEmpty) {
@@ -506,7 +585,12 @@ class Parser {
       return Literal('\x00');
     }
     
-    return Literal(_cur.take());
+    // Unknown escape in char class
+    final ch = _cur.take();
+    if (!RegExp(r'[a-zA-Z0-9]').hasMatch(ch)) {
+      return Literal(ch);
+    }
+    throw STRlingParseError('Unknown escape sequence \\$ch', startPos, src);
   }
 
   Node _parseEscapeAtom() {
@@ -577,7 +661,7 @@ class Parser {
     if (nxt == 'p' || nxt == 'P') {
       final tp = _cur.take();
       if (!_cur.match('{')) {
-        throw STRlingParseError("Expected '{' after \\p/\\P", startPos, src);
+        throw STRlingParseError("Expected { after \\p/\\P", startPos, src);
       }
       var prop = '';
       while (_cur.peek() != '}' && _cur.peek().isNotEmpty) {
@@ -608,7 +692,12 @@ class Parser {
       return Literal('\x00');
     }
     
-    return Literal(_cur.take());
+    // Unknown escape in atom context
+    final ech = _cur.take();
+    if (!RegExp(r'[a-zA-Z0-9]').hasMatch(ech)) {
+      return Literal(ech);
+    }
+    throw STRlingParseError('Unknown escape sequence \\$ech', startPos, src);
   }
 
   String _parseHexEscape(int startPos) {

@@ -60,6 +60,9 @@ class HintEngine {
             ["Unknown escape sequence", this.hintUnknownEscape],
             ["Invalid quantifier", this.hintInvalidQuantifier],
             ["Expected '<' after \\k", this.hintUnterminatedNamedBackref],
+            ["Incomplete quantifier", this.hintIncompleteQuantifier],
+            ["Invalid \\UHHHHHHHH escape", this.hintInvalidUnicodeLong],
+            ["Unmatched ')'", this.hintUnmatchedCloseParen],
         ]);
     }
 
@@ -88,7 +91,7 @@ class HintEngine {
     private hintUnterminatedGroup(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "This group was opened with '(' but never closed. " +
@@ -99,7 +102,7 @@ class HintEngine {
     private hintUnterminatedCharClass(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "This character class was opened with '[' but never closed. " +
@@ -110,7 +113,7 @@ class HintEngine {
     private hintUnterminatedNamedBackref(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Named backreferences use the syntax \\k<name>. " +
@@ -121,7 +124,7 @@ class HintEngine {
     private hintUnterminatedGroupName(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Named groups use the syntax (?<name>...). " +
@@ -132,7 +135,7 @@ class HintEngine {
     private hintUnterminatedLookahead(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "This lookahead was opened with '(?=' or '(?!' but never closed. " +
@@ -143,7 +146,7 @@ class HintEngine {
     private hintUnterminatedLookbehind(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "This lookbehind was opened with '(?<=' or '(?<!' but never closed. " +
@@ -154,7 +157,7 @@ class HintEngine {
     private hintUnterminatedAtomicGroup(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "This atomic group was opened with '(?>' but never closed. " +
@@ -165,7 +168,7 @@ class HintEngine {
     private hintUnterminatedBraceQuant(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Brace quantifiers use the syntax {m,n} or {n}. " +
@@ -176,7 +179,7 @@ class HintEngine {
     private hintUnexpectedToken(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         // Try to identify the unexpected character
         if (pos < text.length) {
@@ -199,7 +202,7 @@ class HintEngine {
     private hintUnexpectedTrailing(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "There is unexpected content after the pattern ended. " +
@@ -210,7 +213,7 @@ class HintEngine {
     private hintCannotQuantifyAnchor(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Anchors like ^, $, \\b, \\B match positions, not characters, " +
@@ -221,7 +224,7 @@ class HintEngine {
     private hintUndefinedBackref(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Backreferences refer to previously captured groups. " +
@@ -233,7 +236,7 @@ class HintEngine {
     private hintDuplicateGroupName(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Each named group must have a unique name. " +
@@ -244,7 +247,7 @@ class HintEngine {
     private hintAlternationNoLhs(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "The alternation operator '|' requires an expression on the left side. " +
@@ -255,7 +258,7 @@ class HintEngine {
     private hintAlternationNoRhs(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "The alternation operator '|' requires an expression on the right side. " +
@@ -266,7 +269,7 @@ class HintEngine {
     private hintInlineModifiers(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "STRling does not support inline modifiers like (?i) for case-insensitivity. " +
@@ -291,7 +294,7 @@ class HintEngine {
     private hintUnterminatedHexBrace(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Variable-length hex escapes use the syntax \\x{...}. " +
@@ -302,7 +305,7 @@ class HintEngine {
     private hintUnterminatedUnicodeBrace(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Variable-length unicode escapes use the syntax \\u{...}. " +
@@ -313,7 +316,7 @@ class HintEngine {
     private hintUnterminatedUnicodeProperty(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Unicode property escapes use the syntax \\p{Property} or \\P{Property}. " +
@@ -324,7 +327,7 @@ class HintEngine {
     private hintInvalidGroupName(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Named groups require identifiers: IDENTIFIER = letter or '_' followed by letters, digits or '_'. " +
@@ -335,7 +338,7 @@ class HintEngine {
     private hintInvalidQuantifierRange(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Quantifier ranges must have the minimum less than or equal to the maximum (m <= n). " +
@@ -346,7 +349,7 @@ class HintEngine {
     private hintInvalidCharacterRange(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Character ranges must be ascending, e.g., '[a-z]' or '[0-9]'. " +
@@ -361,7 +364,7 @@ class HintEngine {
     private hintEmptyAlternation(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return "One of the alternation branches is empty. Remove the empty branch or provide an expression, e.g., 'a|b' instead of 'a||b'.";
     }
@@ -369,7 +372,7 @@ class HintEngine {
     private hintDirectiveAfterPattern(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Directives such as '%flags' must appear at the start of the pattern (before any pattern content). " +
@@ -380,7 +383,7 @@ class HintEngine {
     private hintMalformedDirective(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "This directive looks malformed. Directives begin with '%' and must be one of the supported forms, " +
@@ -401,7 +404,7 @@ class HintEngine {
     private hintInvalidQuantifier(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         const m = msg.match(/Invalid quantifier '(.)'/);
         const ch = m ? m[1] : "*";
@@ -411,7 +414,7 @@ class HintEngine {
     private hintInvalidBraceQuantContent(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Brace quantifiers require numeric digits: use {n}, {m,n}, or {m,}. " +
@@ -422,7 +425,7 @@ class HintEngine {
     private hintEmptyCharacterClass(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Empty character class '[]' detected. " +
@@ -434,17 +437,57 @@ class HintEngine {
     private hintUnicodePropertyMissingBrace(
         msg: string,
         text: string,
-        pos: number
+        pos: number,
     ): string {
         return (
             "Unicode property escapes require braces: \\p{Letter} or \\P{Letter}. " +
             "Use \\p{L} for letters, \\p{N} for numbers, etc."
         );
     }
+
+    private hintIncompleteQuantifier(
+        msg: string,
+        text: string,
+        pos: number,
+    ): string {
+        return (
+            "Brace quantifiers require a complete form: {n}, {m,n}, or {m,}. " +
+            "Make sure to close the quantifier with '}' and provide valid numbers."
+        );
+    }
+
+    private hintInvalidUnicodeLong(
+        msg: string,
+        text: string,
+        pos: number,
+    ): string {
+        return (
+            "8-digit Unicode escapes must use valid hexadecimal digits (0-9, A-F). " +
+            "Use \\UHHHHHHHH for 8-digit codes or \\u{...} for variable-length codes."
+        );
+    }
+
+    private hintUnmatchedCloseParen(
+        msg: string,
+        text: string,
+        pos: number,
+    ): string {
+        return (
+            "This ')' does not have a matching opening '('. " +
+            "Remove the extra ')' or add an opening '(' earlier in the pattern."
+        );
+    }
 }
 
 // Global hint engine instance
 const hintEngineInstance = new HintEngine();
+
+/**
+ * Generic fallback hint used when no specific hint pattern matches.
+ * This is the contractual default for `expected_hint` in conformance fixtures.
+ */
+export const GENERIC_HINT_FALLBACK =
+    "Check the STRling documentation for help with this syntax.";
 
 /**
  * Get a hint for the given error.
@@ -459,7 +502,29 @@ const hintEngineInstance = new HintEngine();
 export function getHint(
     errorMessage: string,
     text: string,
-    pos: number
+    pos: number,
 ): string | null {
     return hintEngineInstance.getHint(errorMessage, text, pos);
+}
+
+/**
+ * Get a hint for the given error, falling back to the generic hint.
+ *
+ * Used by the fixture generator to ensure every error fixture has a
+ * non-null `expected_hint` value.
+ *
+ * @param errorMessage - The error message from the parser
+ * @param text - The full input text being parsed
+ * @param pos - The position where the error occurred
+ * @returns A helpful hint string (never null)
+ */
+export function getHintOrFallback(
+    errorMessage: string,
+    text: string,
+    pos: number,
+): string {
+    return (
+        hintEngineInstance.getHint(errorMessage, text, pos) ??
+        GENERIC_HINT_FALLBACK
+    );
 }

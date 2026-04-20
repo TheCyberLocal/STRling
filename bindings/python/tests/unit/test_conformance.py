@@ -78,6 +78,14 @@ def test_conformance(fixture_path: Path) -> None:
 
         # Verify error message contains expected substring
         assert expected_error_msg in str(excinfo.value)
+
+        # Verify hint if expected
+        expected_hint = data.get("expected_hint")
+        if expected_hint:
+            actual_hint = getattr(excinfo.value, "hint", None)
+            assert actual_hint == expected_hint, (
+                f"Hint mismatch.\n  Expected: {expected_hint}\n  Actual: {actual_hint}"
+            )
         return
 
     # Skip if no expected pcre

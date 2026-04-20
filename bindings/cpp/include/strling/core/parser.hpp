@@ -182,6 +182,12 @@ private:
     NodePtr parse_class();
     
     /**
+     * @brief Parse a single item inside a character class
+     * @return ClassItem (ClassLiteral, ClassEscape, etc.)
+     */
+    ClassItemPtr parse_class_item();
+    
+    /**
      * @brief Parse a literal character or escape sequence
      * @return Lit node or other node type for special escapes
      */

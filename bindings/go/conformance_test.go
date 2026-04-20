@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/strling-lang/strling/bindings/go/core"
@@ -19,6 +20,7 @@ type SpecFile struct {
 	ExpectedIR    map[string]interface{} `json:"expected_ir"`
 	InputDSL      string                 `json:"input_dsl"`
 	ExpectedError string                 `json:"expected_error"`
+	ExpectedHint  string                 `json:"expected_hint"`
 }
 
 func TestConformance(t *testing.T) {
@@ -50,9 +52,27 @@ func TestConformance(t *testing.T) {
 				t.Fatalf("failed to unmarshal spec: %v", err)
 			}
 
-			// Skip test cases without input_ast (typically parser error test cases)
-			// This matches Java/Kotlin behavior which also return early for such cases
+			// Parser error test cases: parse input_dsl and check error + hint
 			if spec.InputAST.Node == nil {
+				if spec.InputDSL == "" || spec.ExpectedError == "" {
+					return // no input to test
+				}
+				_, _, parseErr := core.Parse(spec.InputDSL)
+				if parseErr == nil {
+					t.Fatalf("expected parse error but got success")
+				}
+				parseError, ok := parseErr.(*core.STRlingParseError)
+				if !ok {
+					t.Fatalf("expected STRlingParseError, got %T", parseErr)
+				}
+				if !strings.Contains(parseError.Message, spec.ExpectedError) {
+					t.Errorf("error message mismatch\n  Expected substring: %s\n  Actual: %s",
+						spec.ExpectedError, parseError.Message)
+				}
+				if spec.ExpectedHint != "" && parseError.Hint != spec.ExpectedHint {
+					t.Errorf("hint mismatch\n  Expected: %s\n  Actual:   %s",
+						spec.ExpectedHint, parseError.Hint)
+				}
 				return
 			}
 

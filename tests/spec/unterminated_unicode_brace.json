@@ -3,6 +3,7 @@
   "description": "Generated from unterminated_unicode_brace.pattern",
   "input_dsl": "\\u{1F60",
   "expected_error": "Unterminated \\u{...}",
+  "expected_hint": "Variable-length unicode escapes use the syntax \\u{...}. Make sure to close the escape with '}'.",
   "metadata_expectations": {
     "features_used": []
   }

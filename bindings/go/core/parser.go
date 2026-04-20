@@ -132,7 +132,7 @@ func NewParser(text string) *Parser {
 
 // raiseError raises a STRlingParseError with an instructional hint.
 func (p *Parser) raiseError(message string, pos int) error {
-	hint := GetHint(message, p.src, pos)
+	hint := GetHintOrFallback(message, p.src, pos)
 	return &STRlingParseError{
 		Message: message,
 		Pos:     pos,
@@ -156,8 +156,27 @@ func (p *Parser) parseDirectives(text string) (Flags, string) {
 			continue
 		}
 		
-		// Process directives only before pattern content
-		if !inPattern && strings.HasPrefix(stripped, "%flags") {
+		// Process directives (lines starting with %)
+		if strings.HasPrefix(stripped, "%") {
+			if inPattern {
+				hint := GetHint("Directive after pattern", p.originalText, 0)
+				panic(&STRlingParseError{
+					Message: "Directive after pattern",
+					Pos:     0,
+					Text:    p.originalText,
+					Hint:    hint,
+				})
+			}
+			if !strings.HasPrefix(stripped, "%flags") {
+				hint := GetHint("Malformed directive", p.originalText, 0)
+				panic(&STRlingParseError{
+					Message: "Malformed directive",
+					Pos:     0,
+					Text:    p.originalText,
+					Hint:    hint,
+				})
+			}
+			// It's %flags - process it
 			idx := strings.Index(line, "%flags")
 			after := line[idx+len("%flags"):]
 			
@@ -218,6 +237,16 @@ func (p *Parser) parseDirectives(text string) (Flags, string) {
 				inPattern = true
 			}
 		} else {
+			// Check for mid-line directive
+			if strings.Contains(stripped, "%flags") {
+				hint := GetHint("Directive after pattern", p.originalText, 0)
+				panic(&STRlingParseError{
+					Message: "Directive after pattern",
+					Pos:     0,
+					Text:    p.originalText,
+					Hint:    hint,
+				})
+			}
 			patternLines = append(patternLines, line)
 			inPattern = true
 		}
@@ -228,11 +257,12 @@ func (p *Parser) parseDirectives(text string) (Flags, string) {
 }
 
 // Parse parses the STRling pattern and returns flags and AST.
-func Parse(text string) (Flags, Node, error) {
+func Parse(text string) (flags Flags, node Node, retErr error) {
 	defer func() {
 		if r := recover(); r != nil {
 			if err, ok := r.(*STRlingParseError); ok {
-				panic(err)
+				retErr = err
+				return
 			}
 			panic(r)
 		}
@@ -245,7 +275,11 @@ func Parse(text string) (Flags, Node, error) {
 	}
 	
 	if !p.cur.eof() {
-		return Flags{}, nil, p.raiseError("Unexpected character", p.cur.i)
+		ch := p.cur.peek(0)
+		if ch == ")" {
+			return Flags{}, nil, p.raiseError("Unmatched ')'", p.cur.i)
+		}
+		return Flags{}, nil, p.raiseError("Unexpected trailing input", p.cur.i)
 	}
 	
 	return p.flags, ast, nil
@@ -254,6 +288,11 @@ func Parse(text string) (Flags, Node, error) {
 // parseAlt parses alternation (a|b|c).
 func (p *Parser) parseAlt() (Node, error) {
 	p.cur.skipWsAndComments()
+	
+	// Check for stray leading pipe
+	if p.cur.peek(0) == "|" {
+		return nil, p.raiseError("Alternation lacks left-hand side", p.cur.i)
+	}
 	
 	branches := []Node{}
 	first, err := p.parseSeq()
@@ -264,10 +303,22 @@ func (p *Parser) parseAlt() (Node, error) {
 	
 	for {
 		p.cur.skipWsAndComments()
-		if !p.cur.match("|") {
+		if p.cur.peek(0) != "|" {
 			break
 		}
+		pipePos := p.cur.i
+		p.cur.take() // consume |
 		p.cur.skipWsAndComments()
+		
+		// Empty alternation (||)
+		if p.cur.peek(0) == "|" {
+			return nil, p.raiseError("Empty alternation", pipePos)
+		}
+		// Trailing pipe
+		if p.cur.eof() || p.cur.peek(0) == ")" {
+			return nil, p.raiseError("Alternation lacks right-hand side", pipePos)
+		}
+		
 		branch, err := p.parseSeq()
 		if err != nil {
 			return nil, err
@@ -392,9 +443,8 @@ func (p *Parser) parseEscape() (Node, error) {
 	if ch == "Z" {
 		return Anchor{At: "EndBeforeFinalNewline"}, nil
 	}
-	if ch == "z" {
-		return Anchor{At: "AbsoluteEnd"}, nil
-	}
+	
+	// NOTE: lowercase '\z' is intentionally NOT treated as an anchor
 	
 	// Digit escapes
 	if ch == "d" {
@@ -440,17 +490,22 @@ func (p *Parser) parseEscape() (Node, error) {
 	
 	// Backreference (numeric)
 	if ch >= "1" && ch <= "9" {
+		startPos := p.cur.i - 2
 		num := int(ch[0] - '0')
 		// Continue reading digits
 		for !p.cur.eof() && p.cur.peek(0) >= "0" && p.cur.peek(0) <= "9" {
 			ch = p.cur.take()
 			num = num*10 + int(ch[0]-'0')
 		}
+		if num > p.capCount {
+			return nil, p.raiseError(fmt.Sprintf("Backreference to undefined group \\%d", num), startPos)
+		}
 		return Backref{ByIndex: &num, ByName: nil}, nil
 	}
 	
 	// Named backreference
 	if ch == "k" {
+		startPos := p.cur.i - 2
 		if p.cur.peek(0) != "<" {
 			return nil, p.raiseError("Expected '<' after \\k", p.cur.i)
 		}
@@ -462,10 +517,13 @@ func (p *Parser) parseEscape() (Node, error) {
 		}
 		
 		if p.cur.eof() {
-			return nil, p.raiseError("Unclosed named backreference", p.cur.i)
+			return nil, p.raiseError("Unterminated named backref", p.cur.i)
 		}
 		p.cur.take() // consume >
 		
+		if !p.capNames[name] {
+			return nil, p.raiseError(fmt.Sprintf("Backreference to undefined group <%s>", name), startPos)
+		}
 		return Backref{ByIndex: nil, ByName: &name}, nil
 	}
 	
@@ -474,7 +532,60 @@ func (p *Parser) parseEscape() (Node, error) {
 		return Lit{Value: val}, nil
 	}
 	
-	// Literal escape
+	// Null byte
+	if ch == "0" {
+		return Lit{Value: "\x00"}, nil
+	}
+	
+	// Forbidden octal escape
+	if ch >= "0" && ch <= "9" {
+		return nil, p.raiseError(fmt.Sprintf("Forbidden octal escape \\%s", ch), p.cur.i-2)
+	}
+	
+	// Hex escape
+	if ch == "x" {
+		startPos := p.cur.i - 2
+		return p.parseHexEscape(startPos)
+	}
+	
+	// Unicode escape
+	if ch == "u" || ch == "U" {
+		startPos := p.cur.i - 2
+		return p.parseUnicodeEscape(ch, startPos)
+	}
+	
+	// Unicode property
+	if ch == "p" || ch == "P" {
+		startPos := p.cur.i - 2
+		if p.cur.peek(0) != "{" {
+			return nil, p.raiseError("Expected { after \\p/\\P", startPos)
+		}
+		p.cur.take() // consume {
+		prop := ""
+		for !p.cur.eof() && p.cur.peek(0) != "}" {
+			prop += p.cur.take()
+		}
+		if p.cur.eof() {
+			return nil, p.raiseError("Unterminated \\p{...}", startPos)
+		}
+		p.cur.take() // consume }
+		escType := "p"
+		if ch == "P" {
+			escType = "P"
+		}
+		propStr := prop
+		return CharClass{
+			Negated: false,
+			Items:   []ClassItem{ClassEscape{Type: escType, Property: &propStr}},
+		}, nil
+	}
+	
+	// Unknown escape for alphanumeric
+	if (ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z") {
+		return nil, p.raiseError(fmt.Sprintf("Unknown escape sequence \\%s", ch), p.cur.i-2)
+	}
+	
+	// Identity escape (punctuation)
 	return Lit{Value: ch}, nil
 }
 
@@ -482,9 +593,13 @@ func (p *Parser) parseEscape() (Node, error) {
 func (p *Parser) parseLiteral() (Node, error) {
 	// Check for special chars that should not be treated as literals
 	ch := p.cur.peek(0)
-	special := "*+?{|()[]"
+	quantifiers := "*+?{"
+	if strings.ContainsRune(quantifiers, rune(ch[0])) {
+		return nil, p.raiseError(fmt.Sprintf("Invalid quantifier '%s'", ch), p.cur.i)
+	}
+	special := "|()]"
 	if strings.ContainsRune(special, rune(ch[0])) {
-		return nil, p.raiseError(fmt.Sprintf("Unexpected special character '%s'", ch), p.cur.i)
+		return nil, p.raiseError(fmt.Sprintf("Unexpected token '%s'", ch), p.cur.i)
 	}
 	
 	val := p.cur.take()
@@ -506,6 +621,11 @@ func (p *Parser) parseCharClass() (Node, error) {
 		p.cur.take()
 	}
 	
+	// Empty character class
+	if p.cur.peek(0) == "]" {
+		return nil, p.raiseError("Unterminated character class", p.cur.i)
+	}
+	
 	items := []ClassItem{}
 	
 	for !p.cur.eof() && p.cur.peek(0) != "]" {
@@ -517,7 +637,7 @@ func (p *Parser) parseCharClass() (Node, error) {
 	}
 	
 	if p.cur.eof() {
-		return nil, p.raiseError("Unclosed character class", p.cur.i)
+		return nil, p.raiseError("Unterminated character class", p.cur.i)
 	}
 	
 	p.cur.take() // consume ]
@@ -546,7 +666,40 @@ func (p *Parser) parseClassItem() (ClassItem, error) {
 			return ClassLiteral{Ch: val}, nil
 		}
 		
-		// Literal escape
+		// Backspace in class
+		if ch == "b" {
+			return ClassLiteral{Ch: "\x08"}, nil
+		}
+		
+		// Null byte
+		if ch == "0" {
+			return ClassLiteral{Ch: "\x00"}, nil
+		}
+		
+		// Unicode property in class
+		if ch == "p" || ch == "P" {
+			startPos := p.cur.i - 2
+			if p.cur.peek(0) != "{" {
+				return nil, p.raiseError("Expected { after \\p/\\P", startPos)
+			}
+			p.cur.take() // consume {
+			prop := ""
+			for !p.cur.eof() && p.cur.peek(0) != "}" {
+				prop += p.cur.take()
+			}
+			if p.cur.eof() {
+				return nil, p.raiseError("Unterminated \\p{...}", startPos)
+			}
+			p.cur.take() // consume }
+			return ClassEscape{Type: ch, Property: &prop}, nil
+		}
+		
+		// Unknown escape for alphanumeric
+		if (ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z") {
+			return nil, p.raiseError(fmt.Sprintf("Unknown escape sequence \\%s", ch), p.cur.i-2)
+		}
+		
+		// Identity escape (punctuation)
 		return ClassLiteral{Ch: ch}, nil
 	}
 	
@@ -555,6 +708,9 @@ func (p *Parser) parseClassItem() (ClassItem, error) {
 	if p.cur.peek(0) == "-" && p.cur.peek(1) != "]" {
 		p.cur.take() // consume -
 		toCh := p.cur.take()
+		if toCh < ch {
+			return nil, p.raiseError("Invalid character range", p.cur.i)
+		}
 		return ClassRange{FromCh: ch, ToCh: toCh}, nil
 	}
 	
@@ -578,7 +734,7 @@ func (p *Parser) parseGroup() (Node, error) {
 				return nil, err
 			}
 			if !p.cur.match(")") {
-				return nil, p.raiseError("Unclosed non-capturing group", p.cur.i)
+				return nil, p.raiseError("Unterminated group", p.cur.i)
 			}
 			return Group{Capturing: false, Body: body, Name: nil, Atomic: nil}, nil
 		}
@@ -590,7 +746,7 @@ func (p *Parser) parseGroup() (Node, error) {
 				return nil, err
 			}
 			if !p.cur.match(")") {
-				return nil, p.raiseError("Unclosed lookahead", p.cur.i)
+				return nil, p.raiseError("Unterminated lookahead", p.cur.i)
 			}
 			return Look{Dir: "Ahead", Neg: false, Body: body}, nil
 		}
@@ -602,7 +758,7 @@ func (p *Parser) parseGroup() (Node, error) {
 				return nil, err
 			}
 			if !p.cur.match(")") {
-				return nil, p.raiseError("Unclosed negative lookahead", p.cur.i)
+				return nil, p.raiseError("Unterminated lookahead", p.cur.i)
 			}
 			return Look{Dir: "Ahead", Neg: true, Body: body}, nil
 		}
@@ -616,7 +772,7 @@ func (p *Parser) parseGroup() (Node, error) {
 					return nil, err
 				}
 				if !p.cur.match(")") {
-					return nil, p.raiseError("Unclosed lookbehind", p.cur.i)
+					return nil, p.raiseError("Unterminated lookbehind", p.cur.i)
 				}
 				return Look{Dir: "Behind", Neg: false, Body: body}, nil
 			}
@@ -626,7 +782,7 @@ func (p *Parser) parseGroup() (Node, error) {
 					return nil, err
 				}
 				if !p.cur.match(")") {
-					return nil, p.raiseError("Unclosed negative lookbehind", p.cur.i)
+					return nil, p.raiseError("Unterminated lookbehind", p.cur.i)
 				}
 				return Look{Dir: "Behind", Neg: true, Body: body}, nil
 			}
@@ -637,16 +793,25 @@ func (p *Parser) parseGroup() (Node, error) {
 				name += p.cur.take()
 			}
 			if p.cur.eof() {
-				return nil, p.raiseError("Unclosed named group", p.cur.i)
+				return nil, p.raiseError("Unterminated group name", p.cur.i)
 			}
 			p.cur.take() // consume >
+			
+			// Validate group name
+			validName := regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
+			if name == "" || !validName.MatchString(name) {
+				return nil, p.raiseError("Invalid group name", p.cur.i)
+			}
+			if p.capNames[name] {
+				return nil, p.raiseError(fmt.Sprintf("Duplicate group name <%s>", name), p.cur.i)
+			}
 			
 			body, err := p.parseAlt()
 			if err != nil {
 				return nil, err
 			}
 			if !p.cur.match(")") {
-				return nil, p.raiseError("Unclosed named group", p.cur.i)
+				return nil, p.raiseError("Unterminated group", p.cur.i)
 			}
 			
 			p.capCount++
@@ -661,10 +826,23 @@ func (p *Parser) parseGroup() (Node, error) {
 				return nil, err
 			}
 			if !p.cur.match(")") {
-				return nil, p.raiseError("Unclosed atomic group", p.cur.i)
+				return nil, p.raiseError("Unterminated atomic group", p.cur.i)
 			}
 			atomic := true
 			return Group{Capturing: false, Body: body, Name: nil, Atomic: &atomic}, nil
+		}
+		
+		// Inline modifier detection (e.g. (?i), (?ms))
+		ch0 := p.cur.peek(0)
+		if ch0 != "" && strings.ContainsRune("imsux", rune(ch0[0])) {
+			// Check if this looks like an inline modifier
+			j := 0
+			for p.cur.i+j < len(p.cur.text) && strings.ContainsRune("imsux", rune(p.cur.text[p.cur.i+j])) {
+				j++
+			}
+			if p.cur.i+j < len(p.cur.text) && p.cur.text[p.cur.i+j] == ')' {
+				return nil, p.raiseError("Inline modifiers are not supported", p.cur.i-2)
+			}
 		}
 		
 		return nil, p.raiseError("Unknown group type", p.cur.i)
@@ -677,7 +855,7 @@ func (p *Parser) parseGroup() (Node, error) {
 		return nil, err
 	}
 	if !p.cur.match(")") {
-		return nil, p.raiseError("Unclosed capturing group", p.cur.i)
+		return nil, p.raiseError("Unterminated group", p.cur.i)
 	}
 	
 	return Group{Capturing: true, Body: body, Name: nil, Atomic: nil}, nil
@@ -705,8 +883,23 @@ func (p *Parser) parseQuantifier(child Node) (Node, error) {
 	} else if p.cur.match("?") {
 		min, max, maxInf = 0, 1, false
 		hasQuant = true
-	} else if p.cur.match("{") {
+	} else if p.cur.peek(0) == "{" {
+		save := p.cur.i
+		p.cur.take() // consume {
 		hasQuant = true
+		
+		// Look ahead to check for invalid brace quantifier content
+		lookAhead := ""
+		j := p.cur.i
+		for j < len(p.cur.text) && p.cur.text[j] != '}' {
+			lookAhead += string(p.cur.text[j])
+			j++
+		}
+		validContent := regexp.MustCompile(`^\d+(,\d*)?$`)
+		if j < len(p.cur.text) && p.cur.text[j] == '}' && lookAhead != "" && !validContent.MatchString(lookAhead) {
+			return nil, p.raiseError("Brace quantifier: Invalid brace quantifier content", save)
+		}
+		
 		// Parse {n,m} quantifier
 		numStr := ""
 		for !p.cur.eof() && p.cur.peek(0) >= "0" && p.cur.peek(0) <= "9" {
@@ -735,12 +928,22 @@ func (p *Parser) parseQuantifier(child Node) (Node, error) {
 		}
 		
 		if !p.cur.match("}") {
-			return nil, p.raiseError("Unclosed quantifier", p.cur.i)
+			return nil, p.raiseError("Incomplete quantifier", p.cur.i)
+		}
+		
+		// Validate range
+		if !maxInf && min > max {
+			return nil, p.raiseError("Invalid quantifier range", save)
 		}
 	}
 	
 	if !hasQuant {
 		return child, nil
+	}
+	
+	// Cannot quantify anchor
+	if _, ok := child.(Anchor); ok {
+		return nil, p.raiseError("Cannot quantify anchor", p.cur.i)
 	}
 	
 	// Check for lazy/possessive mode
@@ -759,4 +962,82 @@ func (p *Parser) parseQuantifier(child Node) (Node, error) {
 	}
 	
 	return Quant{Child: child, Min: min, Max: maxVal, Mode: mode}, nil
+}
+
+// parseHexEscape parses \x hex escapes.
+func (p *Parser) parseHexEscape(startPos int) (Node, error) {
+	if p.cur.peek(0) == "{" {
+		p.cur.take() // consume {
+		hex := ""
+		for !p.cur.eof() && isHexDigit(p.cur.peek(0)) {
+			hex += p.cur.take()
+		}
+		if !p.cur.match("}") {
+			return nil, p.raiseError("Unterminated \\x{...}", startPos)
+		}
+		return Lit{Value: hexToChar(hex)}, nil
+	}
+	
+	h1 := p.cur.take()
+	h2 := p.cur.take()
+	if !isHexDigit(h1) || !isHexDigit(h2) {
+		return nil, p.raiseError("Invalid \\xHH escape", startPos)
+	}
+	return Lit{Value: hexToChar(h1 + h2)}, nil
+}
+
+// parseUnicodeEscape parses \u and \U unicode escapes.
+func (p *Parser) parseUnicodeEscape(tp string, startPos int) (Node, error) {
+	if tp == "u" && p.cur.peek(0) == "{" {
+		p.cur.take() // consume {
+		hex := ""
+		for !p.cur.eof() && isHexDigit(p.cur.peek(0)) {
+			hex += p.cur.take()
+		}
+		if !p.cur.match("}") {
+			return nil, p.raiseError("Unterminated \\u{...}", startPos)
+		}
+		return Lit{Value: hexToChar(hex)}, nil
+	}
+	
+	if tp == "u" {
+		hex := ""
+		for i := 0; i < 4; i++ {
+			hex += p.cur.take()
+		}
+		if !regexp.MustCompile(`^[0-9A-Fa-f]{4}$`).MatchString(hex) {
+			return nil, p.raiseError("Invalid \\uHHHH escape", startPos)
+		}
+		return Lit{Value: hexToChar(hex)}, nil
+	}
+	
+	if tp == "U" {
+		hex := ""
+		for i := 0; i < 8; i++ {
+			hex += p.cur.take()
+		}
+		if !regexp.MustCompile(`^[0-9A-Fa-f]{8}$`).MatchString(hex) {
+			return nil, p.raiseError("Invalid \\UHHHHHHHH escape", startPos)
+		}
+		return Lit{Value: hexToChar(hex)}, nil
+	}
+	
+	return nil, p.raiseError("Invalid unicode escape", startPos)
+}
+
+func isHexDigit(s string) bool {
+	if s == "" {
+		return false
+	}
+	c := s[0]
+	return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
+}
+
+func hexToChar(hex string) string {
+	if hex == "" {
+		return "\x00"
+	}
+	var cp int64
+	fmt.Sscanf(hex, "%x", &cp)
+	return string(rune(cp))
 }

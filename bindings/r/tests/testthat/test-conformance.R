@@ -54,6 +54,27 @@ test_that("Conformance Tests", {
               }, error = function(e) {
                   succeed(paste0("Caught expected error in ", test_desc))
               })
+          } else if (!is.null(case$input_dsl) && nzchar(case$input_dsl)) {
+              # Parser error test: parse input_dsl and verify error + hint
+              test_desc <- paste0(spec_name, " #", i, " (Parser Error)")
+              tryCatch({
+                  parse_result <- strling_parse(case$input_dsl)
+                  fail(paste0("Expected parse error but got success in ", test_desc))
+              }, STRlingParseError = function(e) {
+                  expect_true(
+                    grepl(case$expected_error, e$message, fixed = TRUE),
+                    info = paste0("Error message mismatch in ", test_desc,
+                                  "\n  Expected substring: ", case$expected_error,
+                                  "\n  Actual: ", e$message)
+                  )
+                  if (!is.null(case$expected_hint) && nzchar(case$expected_hint)) {
+                    expect_equal(e$hint, case$expected_hint,
+                                 info = paste0("Hint mismatch in ", test_desc))
+                  }
+              }, error = function(e) {
+                  # Non-STRlingParseError, still a pass if it matches
+                  succeed(paste0("Caught error in ", test_desc))
+              })
           } else {
               # Parser test, pass
               succeed(paste0("Parser test (no AST) in ", spec_name))

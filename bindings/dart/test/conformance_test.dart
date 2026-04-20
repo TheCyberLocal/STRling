@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 import 'package:strling/strling.dart';
+import 'package:strling/src/core/parser.dart' as parser_lib;
 import 'package:test/test.dart';
 
 void main() {
@@ -31,7 +32,7 @@ void main() {
     final json = jsonDecode(content) as Map<String, dynamic>;
 
     if (json.containsKey('expected_error')) {
-      if (json.containsKey('input_ast')) {
+      if (json.containsKey('input_ast') && !json.containsKey('input_dsl')) {
         test('Conformance (Error): $filename', () {
           print('=== RUN $filename');
           final inputAst = json['input_ast'] as Map<String, dynamic>;
@@ -41,6 +42,22 @@ void main() {
             fail('Expected error but compilation succeeded');
           } catch (e) {
             print('    --- PASS: Caught expected error');
+          }
+        });
+      } else if (json.containsKey('input_dsl') && json.containsKey('expected_hint')) {
+        test('Conformance (Parser Error): $filename', () {
+          print('=== RUN $filename');
+          final inputDsl = json['input_dsl'] as String;
+          final expectedError = json['expected_error'] as String;
+          final expectedHint = json['expected_hint'] as String;
+          try {
+            parser_lib.parse(inputDsl);
+            fail('Expected error \'$expectedError\' but parsing succeeded');
+          } on parser_lib.STRlingParseError catch (e) {
+            expect(e.message, contains(expectedError),
+                reason: 'Error message mismatch in $filename');
+            expect(e.hint, equals(expectedHint),
+                reason: 'Hint mismatch in $filename');
           }
         });
       } else {

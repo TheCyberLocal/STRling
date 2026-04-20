@@ -3,6 +3,7 @@
   "description": "Generated from backref_single_digit_error.pattern",
   "input_dsl": "\\1",
   "expected_error": "Backreference to undefined group",
+  "expected_hint": "Backreferences refer to previously captured groups. Make sure the group is defined before referencing it. STRling does not support forward references.",
   "metadata_expectations": {
     "features_used": []
   }

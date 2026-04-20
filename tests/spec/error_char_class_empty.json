@@ -3,6 +3,7 @@
   "description": "Generated from error_char_class_empty.pattern",
   "input_dsl": "[]",
   "expected_error": "Unterminated character class",
+  "expected_hint": "This character class was opened with '[' but never closed. Add a matching ']' to close the character class.",
   "metadata_expectations": {
     "features_used": []
   }

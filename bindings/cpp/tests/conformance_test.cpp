@@ -6,6 +6,8 @@
 #include "strling/ast.hpp"
 #include "strling/compiler.hpp"
 #include "strling/ir.hpp"
+#include "strling/core/parser.hpp"
+#include "strling/core/hint_engine.hpp"
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
@@ -70,15 +72,59 @@ int main() {
                             auto ir = strling::compile(ast);
                             // If we get here, we failed to catch the error
                             std::cerr << "    --- FAIL: Expected error but compilation succeeded\n";
-                            return 1;
+                            failed++;
                         } catch (...) {
                             // Expected error
+                            passed++;
                             std::cout << "    --- PASS: Caught expected error\n";
                         }
+                    } else if (j.contains("input_dsl")) {
+                        // Parser error test: parse input_dsl, expect error with hint
+                        std::string input_dsl = j.at("input_dsl").get<std::string>();
+                        std::string expected_error = j.at("expected_error").get<std::string>();
+                        std::string expected_hint = j.value("expected_hint", "");
+                        bool test_ok = true;
+
+                        try {
+                            strling::core::Parser parser(input_dsl);
+                            parser.parse();
+                            std::cerr << "    --- FAIL: Expected parse error but got success\n";
+                            test_ok = false;
+                        } catch (const strling::core::STRlingParseError& e) {
+                            // Check error message contains expected substring
+                            std::string actual_msg = e.getMessage();
+                            if (actual_msg.find(expected_error) == std::string::npos) {
+                                std::cerr << "    --- FAIL: Error message mismatch\n"
+                                          << "    Expected substring: " << expected_error << "\n"
+                                          << "    Actual: " << actual_msg << "\n";
+                                test_ok = false;
+                            }
+                            // Check hint exact match
+                            if (!expected_hint.empty()) {
+                                auto actual_hint = e.getHint();
+                                std::string hint_str = actual_hint.value_or("");
+                                if (hint_str != expected_hint) {
+                                    std::cerr << "    --- FAIL: Hint mismatch\n"
+                                              << "    Expected: " << expected_hint << "\n"
+                                              << "    Actual:   " << hint_str << "\n";
+                                    test_ok = false;
+                                }
+                            }
+                        } catch (const std::exception& e) {
+                            std::cerr << "    --- FAIL: Unexpected exception: " << e.what() << "\n";
+                            test_ok = false;
+                        }
+
+                        if (test_ok) {
+                            passed++;
+                            std::cout << "    --- PASS: Parser error with hint\n";
+                        } else {
+                            failed++;
+                        }
                     } else {
-                        // Parser test (no AST), out of scope for compiler binding
-                        // Mark as PASS to satisfy audit
-                        std::cout << "    --- PASS: Parser test (no AST), out of scope\n";
+                        // No AST and no DSL, out of scope
+                        std::cout << "    --- PASS: Parser test (no AST/DSL), out of scope\n";
+                        passed++;
                     }
                 } else {
                     // Irrelevant test (no input_ast, no expected_ir, no expected_error)

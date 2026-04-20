@@ -1,0 +1,80 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/schema/conformance-fixture.schema.json",
+    "title": "STRling Conformance Fixture (v1)",
+    "description": "Schema for shared conformance test fixtures in tests/spec/. Covers both IR fixtures (input_ast + expected_ir) and error fixtures (expected_error + expected_hint).",
+    "type": "object",
+    "required": ["id", "input_dsl"],
+    "properties": {
+        "id": {
+            "type": "string",
+            "description": "Unique fixture identifier, derived from the source filename."
+        },
+        "description": {
+            "type": "string",
+            "description": "Human-readable description of the fixture."
+        },
+        "input_dsl": {
+            "type": "string",
+            "description": "The DSL input string to parse."
+        },
+        "input_ast": {
+            "type": "object",
+            "description": "Parsed AST node tree (present for IR fixtures)."
+        },
+        "flags": {
+            "type": "object",
+            "description": "Parsed flags from directives (present for IR fixtures)."
+        },
+        "expected_ir": {
+            "type": "object",
+            "description": "Expected IR after compilation (present for IR fixtures)."
+        },
+        "expected_codegen": {
+            "type": "object",
+            "description": "Expected code generation output (present for IR fixtures).",
+            "properties": {
+                "success": { "type": "boolean" },
+                "pcre": { "type": ["string", "null"] },
+                "error": { "type": "string" }
+            }
+        },
+        "expected_error": {
+            "type": "string",
+            "description": "Substring of the expected parser error message (present for error fixtures)."
+        },
+        "expected_hint": {
+            "type": "string",
+            "description": "Exact pedagogical hint string for the error. Required for error fixtures. Must match the TypeScript HintEngine output exactly.",
+            "default": "Check the STRling documentation for help with this syntax."
+        },
+        "metadata_expectations": {
+            "type": "object",
+            "description": "Additional metadata about the fixture.",
+            "properties": {
+                "features_used": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                }
+            }
+        }
+    },
+    "allOf": [
+        {
+            "if": {
+                "required": ["expected_error"]
+            },
+            "then": {
+                "required": ["expected_hint"]
+            }
+        },
+        {
+            "if": {
+                "required": ["input_ast"]
+            },
+            "then": {
+                "required": ["expected_ir"]
+            }
+        }
+    ]
+}

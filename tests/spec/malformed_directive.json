@@ -3,6 +3,7 @@
   "description": "Generated from malformed_directive.pattern",
   "input_dsl": "%flagg i",
   "expected_error": "Malformed directive",
+  "expected_hint": "This directive looks malformed. Directives begin with '%' and must be one of the supported forms, for example '%flags i' on a line by itself.",
   "metadata_expectations": {
     "features_used": []
   }

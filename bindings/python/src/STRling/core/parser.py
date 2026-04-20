@@ -219,11 +219,9 @@ class Parser:
                 pos = sum(len(line) for line in lines[: line_num - 1]) + line.index(
                     "%flags"
                 )
-                hint = get_hint(
-                    "Directive after pattern content", self._original_text, pos
-                )
+                hint = get_hint("Directive after pattern", self._original_text, pos)
                 raise STRlingParseError(
-                    "Directive after pattern content", pos, self._original_text, hint
+                    "Directive after pattern", pos, self._original_text, hint
                 )
             # All other lines are pattern content
             # Once we hit pattern content, we stop processing directives
@@ -261,12 +259,7 @@ class Parser:
             # If there's an unmatched closing parenthesis at top-level, raise
             # an explicit unmatched-parenthesis error with the instructional hint.
             if self.cur.peek() == ")":
-                raise STRlingParseError(
-                    "Unmatched ')'",
-                    self.cur.i,
-                    self.src,
-                    "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?",
-                )
+                self._raise_error("Unmatched ')'", self.cur.i)
             if self.cur.peek() == "|":
                 # Alternation must have a right-hand side
                 self._raise_error("Alternation lacks right-hand side", self.cur.i)
@@ -292,7 +285,7 @@ class Parser:
                 self._raise_error("Alternation lacks right-hand side", pipe_pos)
             # Check if the pipe is followed by another pipe (empty branch)
             if self.cur.peek() == "|":
-                self._raise_error("Empty alternation branch", pipe_pos)
+                self._raise_error("Empty alternation", pipe_pos)
             branches.append(self.parse_seq())
             self.cur.skip_ws_and_comments()
         if len(branches) == 1:
@@ -510,15 +503,7 @@ class Parser:
         if cur.match(","):
             n = self._read_int_optional()
             if not cur.match("}"):
-                # Unterminated brace quantifier -> raise specific instructional hint
-                # Use a clear message that matches test expectations while
-                # providing an instructional hint explaining the expected syntax.
-                raise STRlingParseError(
-                    "Incomplete quantifier (closing '}')",
-                    cur.i,
-                    self.src,
-                    "Brace quantifiers use the syntax {m,n} or {n}. Make sure to close the quantifier with '}'.",
-                )
+                self._raise_error("Incomplete quantifier", cur.i)
             if n is None:
                 mmin, mmax = m, "Inf"
             else:
@@ -530,14 +515,7 @@ class Parser:
                 mmin, mmax = m, n
         else:
             if not cur.match("}"):
-                # Unterminated brace quantifier -> raise specific instructional hint
-                # For the form 'a{1' we raise a clear 'Unterminated brace quantifier'.
-                raise STRlingParseError(
-                    "Incomplete quantifier (closing '}')",
-                    cur.i,
-                    self.src,
-                    "Brace quantifiers use the syntax {m,n} or {n}. Make sure to close the quantifier with '}'.",
-                )
+                self._raise_error("Incomplete quantifier", cur.i)
             mmin, mmax = m, m
         mode = "Greedy"
         # Note: The lazy/possessive modifier is now handled in parse_quant_if_any
@@ -607,13 +585,7 @@ class Parser:
         # If we encounter a closing paren here it means there was no matching
         # opening parenthesis at a higher level -> unmatched parenthesis.
         if ch == ")":
-            # Raise STRlingParseError with an explicit instructional hint
-            raise STRlingParseError(
-                "Unmatched ')'",
-                cur.i,
-                self.src,
-                "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?",
-            )
+            self._raise_error("Unmatched ')'", cur.i)
         if ch == "|":
             self._raise_error("Unexpected token", cur.i)
         return Literal(self._take_literal_char())
@@ -836,22 +808,7 @@ class Parser:
         # immediate closing bracket). Do NOT raise for cases like '[]a]' where
         # ']' is intended as a literal at the start of the class.
         if cur.peek() == "]" and (cur.peek(1) == "" or cur.peek(1) == "]"):
-            # Raise a message compatible with existing tests while supplying
-            # an explicit hint that mentions the class is empty.
-            hint = get_hint(
-                "Empty character class",
-                self._original_text,
-                start_pos,
-            ) or (
-                "Empty character class '[]' detected. Character classes must contain at least one element (e.g., [a-z]) — do not leave them empty. "
-                "If you meant a literal '[', escape it with '\\['."
-            )
-            raise STRlingParseError(
-                "Unterminated character class",
-                start_pos,
-                self.src,
-                hint,
-            )
+            self._raise_error("Unterminated character class", start_pos)
 
         # helper: read one class item (escape or literal)
         def read_item() -> ClassItem:

@@ -84,4 +84,76 @@ final class ConformanceTests: XCTestCase {
 
         print("Passed \(passedCount)/\(totalCount) tests")
     }
+
+    func testErrorConformance() throws {
+        let thisFile = URL(fileURLWithPath: #file)
+        let specDir = thisFile
+            .deletingLastPathComponent() // STRlingConformanceTests
+            .deletingLastPathComponent() // Tests
+            .deletingLastPathComponent() // swift
+            .deletingLastPathComponent() // bindings
+            .deletingLastPathComponent() // root
+            .appendingPathComponent("tests")
+            .appendingPathComponent("spec")
+
+        let fileManager = FileManager.default
+        guard fileManager.fileExists(atPath: specDir.path) else {
+            print("Spec directory not found at \(specDir.path). Skipping error conformance tests.")
+            return
+        }
+
+        let files = try fileManager.contentsOfDirectory(atPath: specDir.path)
+        var passedCount = 0
+        var totalCount = 0
+
+        struct ErrorFixture: Decodable {
+            let input_dsl: String
+            let expected_error: String
+            let expected_hint: String
+        }
+
+        for file in files where file.hasSuffix(".json") {
+            let url = specDir.appendingPathComponent(file)
+            let data = try Data(contentsOf: url)
+
+            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  json["expected_error"] != nil,
+                  json["expected_hint"] != nil,
+                  json["input_dsl"] != nil,
+                  json["input_ast"] == nil else {
+                continue
+            }
+
+            let fixture: ErrorFixture
+            do {
+                fixture = try JSONDecoder().decode(ErrorFixture.self, from: data)
+            } catch {
+                print("Skipping \(file): could not decode error fixture: \(error)")
+                continue
+            }
+
+            totalCount += 1
+            print("Processing error fixture \(file)...")
+
+            do {
+                let _ = try parse(fixture.input_dsl)
+                XCTFail("Expected error '\(fixture.expected_error)' but parsing succeeded for \(file)")
+            } catch let error as STRlingParseError {
+                XCTAssertTrue(
+                    error.message.contains(fixture.expected_error),
+                    "Error message mismatch in \(file): expected to contain '\(fixture.expected_error)' but got '\(error.message)'"
+                )
+                XCTAssertEqual(
+                    error.hint,
+                    fixture.expected_hint,
+                    "Hint mismatch in \(file): expected '\(fixture.expected_hint)' but got '\(error.hint)'"
+                )
+                passedCount += 1
+            } catch {
+                XCTFail("Unexpected error type in \(file): \(error)")
+            }
+        }
+
+        print("Passed \(passedCount)/\(totalCount) error conformance tests")
+    }
 }

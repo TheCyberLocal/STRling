@@ -88,7 +88,7 @@ static void test_category_a_star(void **state)
     const TestCase cases[] = {
         {"star_greedy", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a*", 0},
         {"star_lazy", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a*?", 0},
-        {"star_possessive", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\", 0}}", "a*+", 0}};
+        {"star_possessive", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a*+", 0}};
     run_test_batch(state, cases, 3);
 }
 
@@ -97,7 +97,7 @@ static void test_category_a_plus(void **state)
     const TestCase cases[] = {
         {"plus_greedy", "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a+", 0},
         {"plus_lazy", "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a+?", 0},
-        {"plus_possessive", "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\", 0}}", "a++", 0}};
+        {"plus_possessive", "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a++", 0}};
     run_test_batch(state, cases, 3);
 }
 
@@ -106,7 +106,7 @@ static void test_category_a_optional(void **state)
     const TestCase cases[] = {
         {"opt_greedy", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a?", 0},
         {"opt_lazy", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a??", 0},
-        {"opt_possessive", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\", 0}}", "a?+", 0}};
+        {"opt_possessive", "{\"type\": \"Quantifier\", \"min\": 0, \"max\": 1, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a?+", 0}};
     run_test_batch(state, cases, 3);
 }
 
@@ -115,7 +115,7 @@ static void test_category_a_exact(void **state)
     const TestCase cases[] = {
         {"exact_greedy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 3, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3}", 0},
         {"exact_lazy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 3, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3}?", 0},
-        {"exact_possessive", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 3, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\", 0}}", "a{3}+", 0}};
+        {"exact_possessive", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 3, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3}+", 0}};
     run_test_batch(state, cases, 3);
 }
 
@@ -124,7 +124,7 @@ static void test_category_a_at_least(void **state)
     const TestCase cases[] = {
         {"at_least_greedy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,}", 0},
         {"at_least_lazy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": null, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,}?", 0},
-        {"at_least_possessive", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": null, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\", 0}}", "a{3,}+", 0}};
+        {"at_least_possessive", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": null, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,}+", 0}};
     run_test_batch(state, cases, 3);
 }
 
@@ -133,7 +133,7 @@ static void test_category_a_range(void **state)
     const TestCase cases[] = {
         {"range_greedy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 5, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,5}", 0},
         {"range_lazy", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 5, \"greedy\": false, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,5}?", 0},
-        {"range_possessive", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 5, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\", 0}}", "a{3,5}+", 0}};
+        {"range_possessive", "{\"type\": \"Quantifier\", \"min\": 3, \"max\": 5, \"greedy\": true, \"possessive\": true, \"target\": {\"type\": \"Literal\", \"value\": \"a\"}}", "a{3,5}+", 0}};
     run_test_batch(state, cases, 3);
 }
 
@@ -189,7 +189,7 @@ static void test_category_d_interactions(void **state)
     const TestCase cases[] = {
         // D.1: Precedence 'ab*'
         {"prec_sequence",
-         "{\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\", 0}, {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"b\"}}]}",
+         "{\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"b\"}}]}",
          "ab*", 0},
 
         // D.2: Quantify Shorthand '\d*'
@@ -214,7 +214,7 @@ static void test_category_d_interactions(void **state)
 
         // D.6: Quantify Alternation '(?:a|b)+'
         {"quant_alt",
-         "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": false, \"expression\": {\"type\": \"Alternation\", \"alternatives\": [{\"type\": \"Literal\", \"value\": \"a\", 0}, {\"type\": \"Literal\", \"value\": \"b\"}]}}}",
+         "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Group\", \"capturing\": false, \"expression\": {\"type\": \"Alternation\", \"alternatives\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Literal\", \"value\": \"b\"}]}}}",
          "(?:a|b)+", 0},
 
         // D.7: Quantify Lookaround '(?=a)+' -> '(?:(?=a))+'
@@ -343,7 +343,7 @@ static void test_category_i_flags(void **state)
         // I.1: Free spacing, space ignored, * literal
         // Input AST: Literal("a"), Literal("*")
         {"flag_x_space_ignored",
-         "{\"flags\": \"x\", \"pattern\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\", 0}, {\"type\": \"Literal\", \"value\": \"*\"}]}}",
+         "{\"flags\": \"x\", \"pattern\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Literal\", \"value\": \"*\"}]}}",
          "(?x)a\\*", 0},
 
         // I.2: Free spacing, escaped space quantified

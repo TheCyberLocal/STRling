@@ -3,6 +3,7 @@
   "description": "Generated from invalid_hex_char_short.pattern",
   "input_dsl": "\\xG",
   "expected_error": "Invalid \\xHH escape",
+  "expected_hint": "Hex escapes must use valid hexadecimal digits (0-9, A-F). Use \\xHH for 2-digit hex codes (e.g., \\x41 for 'A').",
   "metadata_expectations": {
     "features_used": []
   }

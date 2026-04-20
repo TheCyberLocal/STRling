@@ -16,6 +16,7 @@ that help users understand and fix their mistakes.
 
 use strict;
 use warnings;
+use utf8;
 
 our $VERSION = '3.0.0';
 
@@ -40,7 +41,7 @@ my %HINT_GENERATORS = (
     'Invalid quantifier' => \&_hint_invalid_quantifier,  # More general, comes second
     'Invalid character range' => \&_hint_invalid_character_range,
     'Invalid flag' => \&_hint_invalid_flag,
-    'Directive after pattern content' => \&_hint_directive_after_pattern,
+    'Directive after pattern' => \&_hint_directive_after_pattern,
     'Unknown escape sequence' => \&_hint_unknown_escape,
     'Unexpected token' => \&_hint_unexpected_token,
     'Unexpected trailing input' => \&_hint_unexpected_trailing,
@@ -48,7 +49,7 @@ my %HINT_GENERATORS = (
     'Backreference to undefined group' => \&_hint_undefined_backref,
     'Duplicate group name' => \&_hint_duplicate_group_name,
     'Invalid group name' => \&_hint_invalid_group_name,
-    'Empty alternation branch' => \&_hint_empty_alternation,
+    'Empty alternation' => \&_hint_empty_alternation,
     'Alternation lacks left-hand side' => \&_hint_alternation_no_lhs,
     'Alternation lacks right-hand side' => \&_hint_alternation_no_rhs,
     'Expected \'<\' after \\k' => \&_hint_incomplete_named_backref,
@@ -59,6 +60,10 @@ my %HINT_GENERATORS = (
     'Unterminated \\u{...}' => \&_hint_unterminated_unicode_brace,
     'Unterminated \\p{...}' => \&_hint_unterminated_unicode_property,
     'Expected { after \\p/\\P' => \&_hint_unicode_property_missing_brace,
+    'Malformed directive' => \&_hint_malformed_directive,
+    'Incomplete quantifier' => \&_hint_incomplete_quantifier,
+    'Invalid \\UHHHHHHHH escape' => \&_hint_invalid_unicode_long,
+    'Unmatched \')\'' => \&_hint_unmatched_close_paren,
 );
 
 =head1 FUNCTIONS
@@ -83,7 +88,8 @@ sub get_hint {
     my ($error_message, $text, $pos) = @_;
     
     # Try to match error message to a hint generator
-    for my $pattern (keys %HINT_GENERATORS) {
+    # Sort by length descending so more specific patterns match first
+    for my $pattern (sort { length($b) <=> length($a) } keys %HINT_GENERATORS) {
         if (index($error_message, $pattern) >= 0) {
             my $generator = $HINT_GENERATORS{$pattern};
             return $generator->($error_message, $text, $pos);
@@ -148,25 +154,23 @@ sub _hint_empty_character_class {
 }
 
 sub _hint_invalid_quantifier_range {
-    return "Quantifier range {m,n} must have m ≤ n. " .
-           "Check that the minimum value is not greater than the maximum value.";
+    return "Quantifier ranges must have the minimum less than or equal to the maximum (m <= n). " .
+           "For example, use '{2,5}' or '{2,2}', not '{5,2}'.";
 }
 
 sub _hint_invalid_quantifier {
     my ($msg, $text, $pos) = @_;
-    # Extract the actual quantifier from the message
-    # Message format: "Invalid quantifier 'X'"
     my $quant = '*';
     if ($msg =~ /'([*+?{])'/) {
         $quant = $1;
     }
-    return "The quantifier '$quant' cannot be at the start of a pattern or group. " .
-           "It must follow a character or group it can quantify.";
+    return "The quantifier '$quant' must follow an atom (a character or group). " .
+           "Place '$quant' after the thing it should quantify, e.g., 'a$quant'.";
 }
 
 sub _hint_invalid_character_range {
-    return "Character ranges must be in ascending order. " .
-           "For example, use [a-z] instead of [z-a], or [0-9] instead of [9-0].";
+    return "Character ranges must be ascending, e.g., '[a-z]' or '[0-9]'. " .
+           "Reversed ranges like '[z-a]' are invalid.";
 }
 
 sub _hint_invalid_flag {
@@ -175,28 +179,20 @@ sub _hint_invalid_flag {
 }
 
 sub _hint_directive_after_pattern {
-    return "Directives like %flags must appear at the start of the pattern, " .
-           "before any regex content.";
+    return "Directives such as '%flags' must appear at the start of the pattern (before any pattern content). " .
+           "Move the directive to the top of the input on its own line.";
 }
 
 sub _hint_unknown_escape {
     my ($msg, $text, $pos) = @_;
-    # Extract the actual escape character from the message
-    # Message format: "Unknown escape sequence \X"
     if ($msg =~ /\\(.)/) {
         my $ch = $1;
-        # Provide context-specific hints for common mistakes
         if ($ch eq 'z') {
             return "'\\z' is not a recognized escape sequence. " .
-                   "Did you mean '\\Z' (end of string) or just 'z' (a literal 'z')?";
-        } elsif ($ch =~ /[A-Z]/) {
-            # Suggest lowercase version
-            return "'\\$ch' is not a recognized escape sequence. " .
-                   "To match literal '$ch', use '$ch' without the backslash.";
-        } else {
-            return "'\\$ch' is not a recognized escape sequence. " .
-                   "To match literal '$ch', use '$ch' or escape special characters with '\\'.";
+                   "Did you mean '\\Z' (end of string) or escape the literal 'z' as 'z'?";
         }
+        return "Unknown escape sequence '\\$ch'. If you intended a literal '$ch', " .
+               "remove the backslash or use a recognized escape.";
     }
     return "This is not a recognized escape sequence.";
 }
@@ -239,14 +235,13 @@ sub _hint_duplicate_group_name {
 }
 
 sub _hint_invalid_group_name {
-    return "Group names must follow the IDENTIFIER rule: start with a letter or " .
-           "underscore, followed by letters, digits, or underscores. " .
-           "Use (?<name>...) with a valid identifier.";
+    return "Named groups require identifiers: IDENTIFIER = letter or '_' followed by letters, digits or '_'. " .
+           "Choose a name that starts with a letter or underscore and contains only letters, digits, or underscores.";
 }
 
 sub _hint_empty_alternation {
-    return "Empty alternation branch detected (consecutive '|' operators). " .
-           "Use 'a|b' instead of 'a||b', or '(a|)b' if you want to match optional 'a'.";
+    return "One of the alternation branches is empty. Remove the empty branch or provide an expression, " .
+           "e.g., 'a|b' instead of 'a||b'.";
 }
 
 sub _hint_alternation_no_lhs {
@@ -261,7 +256,7 @@ sub _hint_alternation_no_rhs {
 
 sub _hint_incomplete_named_backref {
     return "Named backreferences use the syntax \\k<name>. " .
-           "The '<' is required after \\k, like \\k<groupname>.";
+           "Make sure to close the '<name>' with '>'.";
 }
 
 sub _hint_inline_modifiers {
@@ -297,6 +292,26 @@ sub _hint_unterminated_unicode_property {
 sub _hint_unicode_property_missing_brace {
     return "Unicode property escapes require braces: \\p{Letter} or \\P{Letter}. " .
            "Use \\p{L} for letters, \\p{N} for numbers, etc.";
+}
+
+sub _hint_malformed_directive {
+    return "This directive looks malformed. Directives begin with '%' and must be one of the supported forms, " .
+           "for example '%flags i' on a line by itself.";
+}
+
+sub _hint_incomplete_quantifier {
+    return "Brace quantifiers require a complete form: {n}, {m,n}, or {m,}. " .
+           "Make sure to close the quantifier with '}' and provide valid numbers.";
+}
+
+sub _hint_invalid_unicode_long {
+    return "8-digit Unicode escapes must use valid hexadecimal digits (0-9, A-F). " .
+           "Use \\UHHHHHHHH for 8-digit codes or \\u{...} for variable-length codes.";
+}
+
+sub _hint_unmatched_close_paren {
+    return "This ')' does not have a matching opening '('. " .
+           "Remove the extra ')' or add an opening '(' earlier in the pattern.";
 }
 
 =head1 SEE ALSO

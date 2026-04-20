@@ -37,7 +37,7 @@ class HintEngine:
             "Invalid quantifier": self._hint_invalid_quantifier,  # More general, comes second
             "Invalid character range": self._hint_invalid_character_range,
             "Invalid flag": self._hint_invalid_flag,
-            "Directive after pattern content": self._hint_directive_after_pattern,
+            "Directive after pattern": self._hint_directive_after_pattern,
             "Unknown escape sequence": self._hint_unknown_escape,
             "Unexpected token": self._hint_unexpected_token,
             "Unexpected trailing input": self._hint_unexpected_trailing,
@@ -45,7 +45,7 @@ class HintEngine:
             "Backreference to undefined group": self._hint_undefined_backref,
             "Duplicate group name": self._hint_duplicate_group_name,
             "Invalid group name": self._hint_invalid_group_name,
-            "Empty alternation branch": self._hint_empty_alternation,
+            "Empty alternation": self._hint_empty_alternation,
             "Alternation lacks left-hand side": self._hint_alternation_no_lhs,
             "Alternation lacks right-hand side": self._hint_alternation_no_rhs,
             "Expected '<' after \\k": self._hint_incomplete_named_backref,
@@ -56,6 +56,10 @@ class HintEngine:
             "Unterminated \\u{...}": self._hint_unterminated_unicode_brace,
             "Unterminated \\p{...}": self._hint_unterminated_unicode_property,
             "Expected { after \\p/\\P": self._hint_unicode_property_missing_brace,
+            "Incomplete quantifier": self._hint_incomplete_quantifier,
+            "Invalid \\UHHHHHHHH escape": self._hint_invalid_unicode_long,
+            "Unmatched ')'": self._hint_unmatched_close_paren,
+            "Malformed directive": self._hint_malformed_directive,
         }
 
     def get_hint(self, error_message: str, text: str, pos: int) -> Optional[str]:
@@ -149,8 +153,8 @@ class HintEngine:
 
     def _hint_invalid_quantifier_range(self, msg: str, text: str, pos: int) -> str:
         return (
-            "Quantifier range {m,n} must have m ≤ n. "
-            "Check that the minimum value is not greater than the maximum value."
+            "Quantifier ranges must have the minimum less than or equal to the maximum (m <= n). "
+            "For example, use '{2,5}' or '{2,2}', not '{5,2}'."
         )
 
     def _hint_invalid_quantifier(self, msg: str, text: str, pos: int) -> str:
@@ -161,14 +165,14 @@ class HintEngine:
         match = re.search(r"'([*+?{])'", msg)
         quant = match.group(1) if match else "*"
         return (
-            f"The quantifier '{quant}' cannot be at the start of a pattern or group. "
-            f"It must follow a character or group it can quantify."
+            f"The quantifier '{quant}' must follow an atom (a character or group). "
+            f"Place '{quant}' after the thing it should quantify, e.g., 'a{quant}'."
         )
 
     def _hint_invalid_character_range(self, msg: str, text: str, pos: int) -> str:
         return (
-            "Character ranges must be in ascending order. "
-            "For example, use [a-z] instead of [z-a], or [0-9] instead of [9-0]."
+            "Character ranges must be ascending, e.g., '[a-z]' or '[0-9]'. "
+            "Reversed ranges like '[z-a]' are invalid."
         )
 
     def _hint_invalid_flag(self, msg: str, text: str, pos: int) -> str:
@@ -179,8 +183,8 @@ class HintEngine:
 
     def _hint_directive_after_pattern(self, msg: str, text: str, pos: int) -> str:
         return (
-            "Directives like %flags must appear at the start of the pattern, "
-            "before any regex content."
+            "Directives such as '%flags' must appear at the start of the pattern "
+            "(before any pattern content). Move the directive to the top of the input on its own line."
         )
 
     def _hint_unknown_escape(self, msg: str, text: str, pos: int) -> str:
@@ -195,7 +199,7 @@ class HintEngine:
             if ch == "z":
                 return (
                     "'\\z' is not a recognized escape sequence. "
-                    "Did you mean '\\Z' (end of string) or just 'z' (a literal 'z')?"
+                    "Did you mean '\\Z' (end of string) or escape the literal 'z' as 'z'?"
                 )
             elif ch.isupper():
                 # Suggest lowercase version
@@ -205,8 +209,8 @@ class HintEngine:
                 )
             else:
                 return (
-                    f"'\\{ch}' is not a recognized escape sequence. "
-                    f"To match literal '{ch}', use '{ch}' or escape special characters with '\\'."
+                    f"Unknown escape sequence '\\{ch}'. If you intended a literal '{ch}', "
+                    f"remove the backslash or use a recognized escape."
                 )
         return "This is not a recognized escape sequence."
 
@@ -253,15 +257,15 @@ class HintEngine:
 
     def _hint_invalid_group_name(self, msg: str, text: str, pos: int) -> str:
         return (
-            "Group names must follow the IDENTIFIER rule: start with a letter or "
-            "underscore, followed by letters, digits, or underscores. "
-            "Use (?<name>...) with a valid identifier."
+            "Named groups require identifiers: IDENTIFIER = letter or '_' followed by "
+            "letters, digits or '_'. Choose a name that starts with a letter or underscore "
+            "and contains only letters, digits, or underscores."
         )
 
     def _hint_empty_alternation(self, msg: str, text: str, pos: int) -> str:
         return (
-            "Empty alternation branch detected (consecutive '|' operators). "
-            "Use 'a|b' instead of 'a||b', or '(a|)b' if you want to match optional 'a'."
+            "One of the alternation branches is empty. Remove the empty branch or provide an expression, "
+            "e.g., 'a|b' instead of 'a||b'."
         )
 
     def _hint_alternation_no_lhs(self, msg: str, text: str, pos: int) -> str:
@@ -279,7 +283,7 @@ class HintEngine:
     def _hint_incomplete_named_backref(self, msg: str, text: str, pos: int) -> str:
         return (
             "Named backreferences use the syntax \\k<name>. "
-            "The '<' is required after \\k, like \\k<groupname>."
+            "Make sure to close the '<name>' with '>'."
         )
 
     def _hint_inline_modifiers(self, msg: str, text: str, pos: int) -> str:
@@ -324,6 +328,30 @@ class HintEngine:
         return (
             "Unicode property escapes require braces: \\p{Letter} or \\P{Letter}. "
             "Use \\p{L} for letters, \\p{N} for numbers, etc."
+        )
+
+    def _hint_incomplete_quantifier(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "Brace quantifiers require a complete form: {n}, {m,n}, or {m,}. "
+            "Make sure to close the quantifier with '}' and provide valid numbers."
+        )
+
+    def _hint_invalid_unicode_long(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "8-digit Unicode escapes must use valid hexadecimal digits (0-9, A-F). "
+            "Use \\UHHHHHHHH for 8-digit codes or \\u{...} for variable-length codes."
+        )
+
+    def _hint_unmatched_close_paren(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "This ')' does not have a matching opening '('. "
+            "Remove the extra ')' or add an opening '(' earlier in the pattern."
+        )
+
+    def _hint_malformed_directive(self, msg: str, text: str, pos: int) -> str:
+        return (
+            "This directive looks malformed. Directives begin with '%' and must be one of the supported forms, "
+            "for example '%flags i' on a line by itself."
         )
 
 

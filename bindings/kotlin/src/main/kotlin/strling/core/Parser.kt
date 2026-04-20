@@ -91,8 +91,7 @@ class Parser private constructor(text: String) {
      * Raise a STRlingParseError with an instructional hint.
      */
     private fun raiseError(message: String, pos: Int): Nothing {
-        val hint = HintEngine.getHint(message, src, pos)
-        throw STRlingParseError(message, pos, src, hint)
+        throw STRlingParseError(message, pos, src)
     }
     
     /**
@@ -130,8 +129,7 @@ class Parser private constructor(text: String) {
                 for (ch in letters.replace(" ", "")) {
                     if (ch !in validFlags) {
                         val pos = lines.take(lineNum).sumOf { it.length + 1 }
-                        val hint = "Valid flags are: i (ignore case), m (multiline), s (dotAll), u (unicode), x (extended)"
-                        throw STRlingParseError("Invalid flag '$ch'", pos + idx, text, hint)
+                        throw STRlingParseError("Invalid flag '$ch'", pos + idx, text)
                     }
                 }
                 
@@ -153,18 +151,17 @@ class Parser private constructor(text: String) {
             
             // Reject unknown directives
             if (!inPattern && stripped.startsWith("%")) {
-                continue
+                val pos = lines.take(lineNum).sumOf { it.length + 1 }
+                throw STRlingParseError("Malformed directive", pos + line.indexOf("%"), text)
             }
             
             // Check for directive after pattern content
             if (line.contains("%flags")) {
                 val pos = lines.take(lineNum).sumOf { it.length + 1 }
-                val hint = HintEngine.getHint("Directive after pattern", text, pos)
                 throw STRlingParseError(
-                    "Directive must appear at the start of the pattern",
+                    "Directive after pattern",
                     pos + line.indexOf("%flags"),
-                    text,
-                    hint
+                    text
                 )
             }
             
@@ -189,12 +186,7 @@ class Parser private constructor(text: String) {
         
         if (!cur.eof()) {
             when (cur.peek()) {
-                ")" -> throw STRlingParseError(
-                    "Unmatched ')'",
-                    cur.i,
-                    src,
-                    "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?"
-                )
+                ")" -> raiseError("Unmatched ')'", cur.i)
                 "|" -> raiseError("Alternation lacks right-hand side", cur.i)
                 else -> raiseError("Unexpected trailing input", cur.i)
             }
@@ -225,7 +217,7 @@ class Parser private constructor(text: String) {
                 raiseError("Alternation lacks right-hand side", pipePos)
             }
             if (cur.peek() == "|") {
-                raiseError("Empty alternation branch", pipePos)
+                raiseError("Empty alternation", pipePos)
             }
             
             branches.add(parseSeq())
@@ -389,6 +381,19 @@ class Parser private constructor(text: String) {
         
         cur.skipWsAndComments()
         if (min == null) {
+            // Look ahead for a closing '}' with non-digit/non-comma content (e.g. {foo})
+            val saved = cur.i
+            var j = 0
+            val content = StringBuilder()
+            while (true) {
+                val ch = cur.peek(j)
+                if (ch == "" || ch == "}" || ch == "\r" || ch == "\n") break
+                content.append(ch)
+                j++
+            }
+            if (cur.peek(j) == "}" && content.isNotEmpty() && content.toString().any { !it.isDigit() && it != ',' }) {
+                raiseError("Brace quantifier: Invalid brace quantifier content", quantStart)
+            }
             cur.i = quantStart
             return null
         }
@@ -441,12 +446,7 @@ class Parser private constructor(text: String) {
             "(" -> parseGroupOrLook()
             "[" -> parseCharClass()
             "\\" -> parseEscapeAtom()
-            ")" -> throw STRlingParseError(
-                "Unmatched ')'",
-                cur.i,
-                src,
-                "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?"
-            )
+            ")" -> raiseError("Unmatched ')'", cur.i)
             "|" -> {
                 raiseError("Unexpected token", cur.i)
             }
@@ -634,7 +634,7 @@ class Parser private constructor(text: String) {
             repeat(8) {
                 val ch = cur.take()
                 if (!ch.matches(Regex("[0-9A-Fa-f]"))) {
-                    raiseError("Invalid \\UHHHHHHHH", startPos)
+                    raiseError("Invalid \\UHHHHHHHH escape", startPos)
                 }
                 hexs.append(ch)
             }
@@ -646,7 +646,7 @@ class Parser private constructor(text: String) {
         repeat(4) {
             val ch = cur.take()
             if (!ch.matches(Regex("[0-9A-Fa-f]"))) {
-                raiseError("Invalid \\uHHHH", startPos)
+                raiseError("Invalid \\uHHHH escape", startPos)
             }
             hexs.append(ch)
         }
@@ -886,21 +886,4 @@ class Parser private constructor(text: String) {
     }
 }
 
-/**
- * Hint Engine for generating instructional error hints.
- */
-object HintEngine {
-    fun getHint(message: String, source: String, pos: Int): String? {
-        val msg = message.lowercase()
-        
-        return when {
-            msg.contains("unexpected token") -> "Check for unbalanced parentheses or brackets."
-            msg.contains("unterminated") -> "Make sure all groups, classes, and quoted sequences are properly closed."
-            msg.contains("invalid quantifier") -> "Quantifiers like *, +, ?, {} must follow an expression to quantify."
-            msg.contains("invalid flag") -> "Valid flags are: i (ignore case), m (multiline), s (dotAll), u (unicode), x (extended)"
-            msg.contains("escape sequence") -> "Use valid escape sequences like \\n, \\t, \\d, \\w, \\s, or escape special chars with \\."
-            msg.contains("directive") -> "Directives like %flags must appear at the start of the pattern, before any regex content."
-            else -> null
-        }
-    }
-}
+// HintEngine is now in its own file: strling/core/HintEngine.kt

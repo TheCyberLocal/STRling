@@ -3,6 +3,7 @@
   "description": "Generated from error_group_name_hyphen.pattern",
   "input_dsl": "(?<name-bad>)",
   "expected_error": "Invalid group name",
+  "expected_hint": "Named groups require identifiers: IDENTIFIER = letter or '_' followed by letters, digits or '_'. Choose a name that starts with a letter or underscore and contains only letters, digits, or underscores.",
   "metadata_expectations": {
     "features_used": []
   }

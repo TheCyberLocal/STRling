@@ -28,7 +28,7 @@ class STRlingParseError(
     message: String,
     val pos: Int,
     val text: String = "",
-    val hint: String? = null
+    val hint: String = HintEngine.getHint(message, text, pos)
 ) : Exception(message) {
     
     /**
@@ -77,10 +77,8 @@ class STRlingParseError(
         parts.add("> $lineNum | $lineText")
         parts.add(">   | ${" ".repeat(col)}^")
         
-        if (hint != null) {
-            parts.add("")
-            parts.add("Hint: $hint")
-        }
+        parts.add("")
+        parts.add("Hint: $hint")
         
         return parts.joinToString("\n")
     }
@@ -142,11 +140,7 @@ class STRlingParseError(
         }
         
         // Build the diagnostic message
-        val diagnosticMessage = if (hint != null) {
-            "$message\n\nHint: $hint"
-        } else {
-            message ?: ""
-        }
+        val diagnosticMessage = "$message\n\nHint: $hint"
         
         // Create error code from message (normalize to snake_case)
         var errorCode = (message ?: "").lowercase()

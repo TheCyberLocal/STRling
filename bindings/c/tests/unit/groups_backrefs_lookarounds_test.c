@@ -89,7 +89,7 @@ static void test_category_a_capturing(void **state)
          "{\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"b\"}}}",
          "((b))", 0},
         {"cap_sequence",
-         "{\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\", 0}, {\"type\": \"Literal\", \"value\": \"b\"}]}}",
+         "{\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Literal\", \"value\": \"b\"}]}}",
          "(ab)", 0},
         {"cap_empty",
          "{\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Sequence\", \"parts\": []}}",
@@ -164,7 +164,7 @@ static void test_category_d_atomic(void **state)
          "{\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Group\", \"atomic\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"c\"}}}",
          "(?>c)+", 0},
         {"atomic_complex",
-         "{\"type\": \"Group\", \"atomic\": true, \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\", 0}, {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"b\"}}]}}",
+         "{\"type\": \"Group\", \"atomic\": true, \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Quantifier\", \"min\": 0, \"max\": null, \"greedy\": true, \"target\": {\"type\": \"Literal\", \"value\": \"b\"}}]}}",
          "(?>ab*)", 0}};
     run_test_batch(state, cases, sizeof(cases) / sizeof(cases[0]));
 }
@@ -187,7 +187,7 @@ static void test_category_e_numeric_backrefs(void **state)
          "{\"type\": \"BackReference\", \"kind\": \"relative\", \"ref\": -1}",
          "\\g{-1}", 0}, // PCRE2 relative syntax
         {"backref_nested",
-         "{\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\", 0}, {\"type\": \"BackReference\", \"kind\": \"numbered\", \"ref\": 1}]}}",
+         "{\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"BackReference\", \"kind\": \"numbered\", \"ref\": 1}]}}",
          "(a\\1)", 0}};
     run_test_batch(state, cases, sizeof(cases) / sizeof(cases[0]));
 }
@@ -227,7 +227,7 @@ static void test_category_g_lookaheads(void **state)
          "{\"type\": \"Lookaround\", \"kind\": \"lookahead\", \"negated\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"b\"}}",
          "(?!b)", 0},
         {"lookahead_seq",
-         "{\"type\": \"Lookaround\", \"kind\": \"lookahead\", \"negated\": false, \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\", 0}, {\"type\": \"Literal\", \"value\": \"b\"}]}}",
+         "{\"type\": \"Lookaround\", \"kind\": \"lookahead\", \"negated\": false, \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Literal\", \"value\": \"b\"}]}}",
          "(?=ab)", 0},
         {"lookahead_nested",
          "{\"type\": \"Lookaround\", \"kind\": \"lookahead\", \"negated\": false, \"expression\": {\"type\": \"Lookaround\", \"kind\": \"lookahead\", \"negated\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"c\"}}}",
@@ -253,13 +253,13 @@ static void test_category_h_lookbehinds(void **state)
          "{\"type\": \"Lookaround\", \"kind\": \"lookbehind\", \"negated\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"b\"}}",
          "(?<!b)", 0},
         {"lookbehind_fixed_length",
-         "{\"type\": \"Lookaround\", \"kind\": \"lookbehind\", \"negated\": false, \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\", 0}, {\"type\": \"Literal\", \"value\": \"b\"}]}}",
+         "{\"type\": \"Lookaround\", \"kind\": \"lookbehind\", \"negated\": false, \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Literal\", \"value\": \"b\"}]}}",
          "(?<=ab)", 0},
         {"lookbehind_nested_lookahead",
          "{\"type\": \"Lookaround\", \"kind\": \"lookbehind\", \"negated\": false, \"expression\": {\"type\": \"Lookaround\", \"kind\": \"lookahead\", \"negated\": false, \"expression\": {\"type\": \"Literal\", \"value\": \"c\"}}}",
          "(?<=(?=c))", 0},
         {"lookbehind_alternation",
-         "{\"type\": \"Lookaround\", \"kind\": \"lookbehind\", \"negated\": false, \"expression\": {\"type\": \"Alternation\", \"alternatives\": [{\"type\": \"Literal\", \"value\": \"a\", 0}, {\"type\": \"Literal\", \"value\": \"b\"}]}}",
+         "{\"type\": \"Lookaround\", \"kind\": \"lookbehind\", \"negated\": false, \"expression\": {\"type\": \"Alternation\", \"alternatives\": [{\"type\": \"Literal\", \"value\": \"a\"}, {\"type\": \"Literal\", \"value\": \"b\"}]}}",
          "(?<=a|b)", 0},
         {"lookbehind_empty",
          "{\"type\": \"Lookaround\", \"kind\": \"lookbehind\", \"negated\": true, \"expression\": {\"type\": \"Sequence\", \"parts\": []}}",
@@ -273,7 +273,7 @@ static void test_category_i_integration(void **state)
 {
     const TestCase cases[] = {
         {"complex_nested_all",
-         "{\"type\": \"Group\", \"capturing\": true, \"name\": \"all\", \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Lookaround\", \"kind\": \"lookahead\", \"negated\": false, \"expression\": {\"type\": \"Literal\", \"value\": \"start\"}}, {\"type\": \"Literal\", \"value\": \"body\", 0}, {\"type\": \"BackReference\", \"kind\": \"named\", \"name\": \"all\"}]}}",
+         "{\"type\": \"Group\", \"capturing\": true, \"name\": \"all\", \"expression\": {\"type\": \"Sequence\", \"parts\": [{\"type\": \"Lookaround\", \"kind\": \"lookahead\", \"negated\": false, \"expression\": {\"type\": \"Literal\", \"value\": \"start\"}}, {\"type\": \"Literal\", \"value\": \"body\"}, {\"type\": \"BackReference\", \"kind\": \"named\", \"name\": \"all\"}]}}",
          "(?<all>(?=start)body\\k<all>)", 0},
         {"alternation_groups",
          "{\"type\": \"Alternation\", \"alternatives\": [{\"type\": \"Group\", \"capturing\": true, \"expression\": {\"type\": \"Literal\", \"value\": \"a\"}}, {\"type\": \"Group\", \"capturing\": false, \"expression\": {\"type\": \"Literal\", \"value\": \"b\"}}]}",

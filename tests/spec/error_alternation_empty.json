@@ -3,6 +3,7 @@
   "description": "Generated from error_alternation_empty.pattern",
   "input_dsl": "a||b",
   "expected_error": "Empty alternation",
+  "expected_hint": "One of the alternation branches is empty. Remove the empty branch or provide an expression, e.g., 'a|b' instead of 'a||b'.",
   "metadata_expectations": {
     "features_used": []
   }

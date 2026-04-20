@@ -8,6 +8,7 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 use STRling::NodeFactory;
 use STRling::Core::Compiler;
+use STRling::Core::HintEngine qw(get_hint);
 
 my $spec_dir = "$FindBin::Bin/../../../tests/spec";
 my @files = glob("$spec_dir/*.json");
@@ -32,9 +33,32 @@ foreach my $file (@files) {
     # Skip if not a full test case
     if (!(exists $spec->{input_ast} && exists $spec->{expected_ir})) {
         if (exists $spec->{expected_error}) {
-            # Parser test (no AST), out of scope. Pass.
             print "=== RUN " . basename($file) . "\n";
-            print "    --- PASS: Parser test (no AST), out of scope\n";
+            if (exists $spec->{input_dsl} && $spec->{input_dsl} ne '') {
+                # Parser error test: parse input_dsl and verify error + hint
+                my $input_dsl = $spec->{input_dsl};
+                my $expected_error = $spec->{expected_error};
+                
+                subtest basename($file) . " (parser error)" => sub {
+                    eval {
+                        require STRling::Core::Parser;
+                        my $parser = STRling::Core::Parser->new();
+                        $parser->parse($input_dsl);
+                    };
+                    ok($@, "Expected parse error");
+                    if ($@) {
+                        like($@, qr/\Q$expected_error\E/, "Error message contains expected substring");
+                        if (exists $spec->{expected_hint} && defined $spec->{expected_hint} && $spec->{expected_hint} ne '') {
+                            # Check hint if the error object supports it
+                            if (ref $@ && $@->can('hint')) {
+                                is($@->hint(), $spec->{expected_hint}, "Hint matches expected");
+                            }
+                        }
+                    }
+                };
+            } else {
+                print "    --- PASS: Parser test (no AST), out of scope\n";
+            }
         }
         next;
     }

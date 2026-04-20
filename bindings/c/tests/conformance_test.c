@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "../deps/parson.h"
 #include "../include/strling.h"
+#include "../src/core/parser.h"
 
 /* Helper to read file content */
 static char *read_file(const char *path) {
@@ -287,8 +288,49 @@ int main(int argc, char **argv) {
         
         /* Check for input_ast */
         if (!json_object_has_value(root_obj, "input_ast")) {
-            /* Skip parser-only tests or incomplete tests */
-            printf("    --- PASS: (no input_ast, out of scope)\n");
+            /* Parser error test: check input_dsl + expected_error + expected_hint */
+            const char *input_dsl = json_object_get_string(root_obj, "input_dsl");
+            const char *expected_error = json_object_get_string(root_obj, "expected_error");
+            const char *expected_hint = json_object_get_string(root_obj, "expected_hint");
+
+            if (input_dsl && expected_error) {
+                total_tests++;
+                STRlingParseResult *parse_result = strling_parse(input_dsl);
+                int test_ok = 1;
+
+                if (!parse_result || !parse_result->error) {
+                    printf("FAIL: %s\n  Expected parse error but got success\n", ent->d_name);
+                    test_ok = 0;
+                } else {
+                    /* Check error message contains expected substring */
+                    if (!strstr(parse_result->error->message, expected_error)) {
+                        printf("FAIL: %s\n  Error message mismatch\n  Expected substring: %s\n  Actual: %s\n",
+                               ent->d_name, expected_error, parse_result->error->message);
+                        test_ok = 0;
+                    }
+                    /* Check hint exact match */
+                    if (expected_hint) {
+                        const char *actual_hint = parse_result->error->hint;
+                        if (!actual_hint || strcmp(actual_hint, expected_hint) != 0) {
+                            printf("FAIL: %s\n  Hint mismatch\n  Expected: %s\n  Actual:   %s\n",
+                                   ent->d_name, expected_hint,
+                                   actual_hint ? actual_hint : "(null)");
+                            test_ok = 0;
+                        }
+                    }
+                }
+
+                if (test_ok) {
+                    passed_tests++;
+                    printf("    --- PASS: %s (parser error)\n", test_name);
+                } else {
+                    failed_tests++;
+                }
+
+                if (parse_result) strling_parse_result_free(parse_result);
+            } else {
+                printf("    --- PASS: (no input_ast, out of scope)\n");
+            }
             json_value_free(root_value);
             free(file_content);
             continue;
