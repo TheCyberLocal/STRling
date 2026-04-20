@@ -1,99 +1,80 @@
-# STRling AI Coding Instructions
+# STRling AI Orchestration Matrix
 
-STRling is a polyglot regex DSL compiler with 17 language bindings. The TypeScript binding is the **Reference Implementation**.
+STRling is a polyglot regex DSL compiler with 17 language bindings. To maintain the hermetic context and architectural integrity of the STRling engine, you MUST load the specific instruction sets based on the active objective:
 
-## Architecture: The Pipeline
+- **For API Design & Fluent Interfaces:** Load `instructions/philosophy.instructions.md`
+- **For AST, Parsing, or Core Logic:** Load `instructions/architecture.instructions.md`
+- **For Validation & Parity Checks:** Load `instructions/testing.instructions.md`
+- **For Documentation, Inline Comments, & Pedagogy:** Load `instructions/documentation.instructions.md`
+- **For PRs & Error Handling:** Load `instructions/workflow.instructions.md`
 
-```
-DSL String → Parse → AST → Compile → IR → Emit → Target Regex (PCRE2/JS/Python)
-```
+Do not execute implementation tasks without ingesting the appropriate bounded context.
 
-Each binding implements the same 3-stage pipeline in `bindings/<lang>/src/`:
+---
 
--   **Parser** (`core/parser.*`): DSL text → AST nodes
--   **Compiler** (`core/compiler.*`): AST → target-agnostic IR
--   **Emitter** (`emitters/pcre2.*`): IR → regex string
+## Routing Rules
 
-**Iron Law**: Emitters are pure functions with signature `emit(ir, flags) → string`. No side effects.
+The following rules determine which instruction file(s) to load. When a task spans multiple domains, load all applicable files.
 
-## Key Files & Directories
+### Philosophy (`instructions/philosophy.instructions.md`)
 
-| Path                        | Purpose                                                |
-| --------------------------- | ------------------------------------------------------ |
-| `bindings/typescript/`      | **Reference Implementation** — all features start here |
-| `tests/spec/*.json`         | Golden master test fixtures (generated from TS)        |
-| `spec/grammar/dsl.ebnf`     | Canonical grammar definition                           |
-| `spec/grammar/semantics.md` | Normative semantics for all constructs                 |
-| `tooling/audit_omega.py`    | Final certification audit (validates all 17 bindings)  |
-| `tooling/sync_versions.py`  | Propagates version from Python SSOT                    |
+Load this context when the task involves:
 
-## Test Fixture Format
+- Designing, extending, or renaming public API methods
+- Working on the Simply API or any fluent builder interface
+- Reviewing user-facing naming conventions
+- Evaluating whether a feature exposes raw regex to users
 
-Each JSON file in [tests/spec/](../tests/spec/) follows this schema:
+### Architecture (`instructions/architecture.instructions.md`)
 
-```json
-{
-  "id": "plus_greedy",
-  "input_dsl": "a+",
-  "input_ast": { "type": "Quantifier", "target": {...}, "min": 1, "max": null },
-  "expected_ir": { "ir": "Quant", "child": {...}, "min": 1, "max": "Inf", "mode": "Greedy" },
-  "expected_codegen": { "pcre": "a+" }
-}
-```
+Load this context when the task involves:
 
-Conformance tests: Parse `input_ast` → Compile → Assert IR matches `expected_ir`.
+- Modifying the parser, compiler, or any emitter
+- Changing AST or IR node structures
+- Adding a new language binding or target engine
+- Updating the grammar (`dsl.ebnf`) or semantics specification
+- Working with version management or the TypeScript reference implementation
 
-## Developer Workflow Commands
+### Testing (`instructions/testing.instructions.md`)
 
-```bash
-# Regenerate all spec fixtures from TypeScript
-cd bindings/typescript && npm run build:specs
+Load this context when the task involves:
 
-# Run final certification audit across all 17 bindings
-python3 tooling/audit_omega.py
+- Writing or debugging conformance, unit, semantic, or E2E tests
+- Regenerating or validating golden master fixtures
+- Investigating cross-binding parity failures
+- Running the Omega Audit or interpreting its output
 
-# Run binding-specific tests
-cd bindings/python && pytest
-cd bindings/go && go test ./...
-cd bindings/rust && cargo test
-cd bindings/typescript && npm test
-```
+### Documentation (`instructions/documentation.instructions.md`)
 
-## Coding Conventions
+Load this context when the task involves:
 
-1. **Mirror the Reference**: When implementing a feature, match TypeScript's logic exactly. Check `bindings/typescript/src/STRling/core/compiler.ts` for IR generation patterns.
+- Writing or updating files under `docs/`
+- Adding or standardizing docstrings, JSDoc, XML docs, or rustdoc comments
+- Adding module-level pedagogy headers or inline architectural comments
+- Evaluating whether code changes require synchronous documentation updates
 
-2. **Simply API Pattern**: The user-facing API uses chainable `Pattern` objects:
+### Workflow (`instructions/workflow.instructions.md`)
 
-    ```typescript
-    // bindings/typescript/src/STRling/simply/pattern.ts
-    simply.digit().oneOrMore(); // creates Pattern wrapping Quantifier node
-    ```
+Load this context when the task involves:
 
-3. **Error Classes**: Use `STRlingParseError` with instructional messages explaining what's wrong AND how to fix it.
+- Preparing a Pull Request or responding to review feedback
+- Writing or improving error messages and parser hints
+- Creating contributor-facing Issues or task scaffolding
+- Modifying CLI tooling output or audit feedback messages
 
-4. **No Octal Escapes**: `\0` (null byte) only. All other octal patterns are forbidden per [semantics.md](../spec/grammar/semantics.md).
+---
 
-## Version Management (Critical)
+## Quick Reference
 
-**Single Source of Truth**: `bindings/python/pyproject.toml`
+| Resource                 | Path                             |
+| ------------------------ | -------------------------------- |
+| Reference Implementation | `bindings/typescript/`           |
+| Golden Master Fixtures   | `tests/spec/*.json`              |
+| Grammar                  | `spec/grammar/dsl.ebnf`          |
+| Semantics                | `spec/grammar/semantics.md`      |
+| Documentation Hub        | `docs/index.md`                  |
+| Omega Audit              | `tooling/audit_omega.py`         |
+| Version SSOT             | `bindings/python/pyproject.toml` |
+| Version Sync             | `tooling/sync_versions.py`       |
 
-Never manually edit versions in `package.json`, `Cargo.toml`, etc. Use:
-
-```bash
-python3 tooling/sync_versions.py --write  # propagates to all bindings
-```
-
-## Adding a New Feature
-
-1. **Grammar First**: Update `spec/grammar/dsl.ebnf` and `spec/grammar/semantics.md`
-2. **TypeScript Implementation**: Add to `bindings/typescript/src/STRling/`
-3. **Generate Specs**: `cd bindings/typescript && npm run build:specs`
-4. **Implement in Other Bindings**: Match the TypeScript logic exactly
-5. **Verify Conformance**: `python3 tooling/audit_omega.py`
-
-## Debugging Tips
-
--   **IR Mismatch**: Compare `expected_ir` vs actual using the binding's `compileWithMetadata()` method
--   **Emitter Issues**: Check `_escapeLiteral()` and `_escapeClassChar()` in the PCRE2 emitter
--   **Conformance Failures**: Look at which fixtures fail in `tooling/test_logs/`
+> All instruction file paths above are relative to `.github/`.
