@@ -83,9 +83,10 @@ cd tooling/lsp-server
 npm run install:local
 ```
 
-The install script removes the previously installed `strling-lang.vscode-strling`
-extension before reinstalling the fresh VSIX, so local iteration does not rely
-on `code --install-extension --force`.
+The install script copies the packaged payload into the active user's
+`~/.vscode-server/extensions/strling-lang.vscode-strling-0.1.0` directory,
+repairs ownership to match the home directory, and clears the VSIX cache so
+WSL sessions see the fresh extension without relying on `code --force`.
 
 After installation, open a TypeScript, JavaScript, Python, Rust, Java, or
 `.strl`-associated document and check the Output panel entry named

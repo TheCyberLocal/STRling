@@ -81,7 +81,7 @@
         "assemble": "bash ./assemble.sh",
         "build:dist": "npm run assemble",
         "package": "npm run assemble && (cd dist && npx @vscode/vsce package --out ../vscode-strling.vsix)",
-        "install:local": "npm run package && (code --uninstall-extension strling-lang.vscode-strling >/dev/null 2>&1 || true) && code --install-extension vscode-strling.vsix"
+        "install:local": "npm run package && bash ./sync-local-install.sh"
     },
     "devDependencies": {
         "@types/node": "^18.0.0",

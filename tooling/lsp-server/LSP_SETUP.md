@@ -87,6 +87,10 @@ npm install
 npm run install:local
 ```
 
+The local install step synchronizes the packaged extension into the active
+VS Code server profile under `~/.vscode-server/extensions/`, fixes ownership,
+and clears the cached VSIX metadata that can hide the new payload in WSL.
+
 ### Neovim (with nvim-lspconfig)
 
 Add to your Neovim configuration:
