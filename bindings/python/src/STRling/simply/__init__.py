@@ -65,6 +65,11 @@ from STRling.simply.static import (
     not_bound,
     start,
     end,
+    email,
+    url,
+    uuid,
+    ip,
+    date_time,
 )
 
 # Public API surface exported by `STRling.simply`
@@ -117,4 +122,10 @@ __all__ = [
     "not_bound",
     "start",
     "end",
+    # standard library
+    "email",
+    "url",
+    "uuid",
+    "ip",
+    "date_time",
 ]

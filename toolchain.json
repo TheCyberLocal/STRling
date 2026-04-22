@@ -136,7 +136,11 @@
             },
             "setup": ["./setup.sh"],
             "clean": ["rm", "-f", "strling.so"],
-            "test": ["./run_tests.sh", "-o", "plainTerminal"]
+            "test": [
+                "bash",
+                "-c",
+                "./run_tests.sh -o plainTerminal && eval \"$(luarocks path --bin)\" && busted -v -o gtest spec/essential_5_spec.lua"
+            ]
         },
         "perl": {
             "path": "bindings/perl",
@@ -154,7 +158,7 @@
             "test": [
                 "bash",
                 "-c",
-                "PERL5LIB=${HOME}/perl5/lib/perl5:$PERL5LIB prove -lv t/conformance.t"
+                "PERL5LIB=${HOME}/perl5/lib/perl5:$PERL5LIB prove -lv t/conformance.t t/essential_5.t"
             ]
         },
         "php": {
@@ -181,7 +185,8 @@
                 "vendor/bin/phpunit",
                 "--testdox",
                 "tests/ConformanceTest.php",
-                "tests/Core"
+                "tests/Core",
+                "tests/Essential5Test.php"
             ]
         },
         "python": {
@@ -231,12 +236,9 @@
             "setup": ["bash", "setup.sh"],
             "clean": ["rm", "-f", "*.gem"],
             "test": [
-                "bundle",
-                "exec",
-                "ruby",
-                "-Ilib:test",
-                "test/conformance_test.rb",
-                "-v"
+                "bash",
+                "-c",
+                "bundle exec ruby -Ilib:test test/conformance_test.rb -v && bundle exec ruby -Ilib:test test/essential_5_test.rb -v"
             ]
         },
         "rust": {
@@ -260,7 +262,9 @@
                 "--test",
                 "conformance",
                 "--test",
-                "deser"
+                "deser",
+                "--test",
+                "essential_5"
             ]
         },
         "swift": {

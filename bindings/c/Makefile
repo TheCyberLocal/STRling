@@ -6,6 +6,7 @@ COREDIR := $(SRCDIR)/core
 SRCS := $(SRCDIR)/strling.c \
 	$(SRCDIR)/compat.c \
 	$(SRCDIR)/strling_simply.c \
+	$(SRCDIR)/strling_essential.c \
 	$(COREDIR)/nodes.c \
         $(COREDIR)/ir.c \
         $(COREDIR)/errors.c \
@@ -21,7 +22,7 @@ PARSON_OBJ := $(DEPSDIR)/parson.o
 # Test configuration
 TESTDIR := tests
 TEST_CFLAGS := $(CFLAGS) -include setjmp.h -include string.h
-TEST_LDFLAGS := -lcmocka $(LDFLAGS)
+TEST_LDFLAGS := -lcmocka -lpcre2-8 $(LDFLAGS)
 UNIT_TESTS := $(wildcard $(TESTDIR)/unit/*_test.c)
 E2E_TESTS := $(wildcard $(TESTDIR)/e2e/*_test.c)
 ALL_TESTS := $(UNIT_TESTS) $(E2E_TESTS)

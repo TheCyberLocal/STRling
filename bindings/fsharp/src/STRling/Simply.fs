@@ -246,6 +246,133 @@ module Simply =
     /// Computation expression builder for strling patterns.
     let strling = STRlingBuilder()
 
+    // ========================================================================
+    // Standard Library — Essential Patterns
+    //
+    // Canonical, RFC-grounded patterns for the most commonly validated string
+    // formats. Each helper composes existing Simply primitives so the compiled
+    // output flows through the standard pipeline and no raw regex leaks into
+    // the public API.
+    // ========================================================================
+
+    let private classOf (items: ClassItem list) (min: int) (maxOpt: int option) =
+        let body = CharClass(false, items)
+        match min, maxOpt with
+        | 1, Some 1 -> Pattern(body)
+        | _ -> Pattern(Quant(body, min, maxOpt, true, false, false))
+
+    let private letterItems = [ClassRange("A", "Z"); ClassRange("a", "z")]
+    let private digitItems = [ClassEscape "digit"]
+    let private hexItems = [ClassRange("A", "F"); ClassRange("a", "f"); ClassRange("0", "9")]
+
+    let private digN min maxOpt = classOf digitItems min maxOpt
+    let private hexN min maxOpt = classOf hexItems min maxOpt
+    let private lettersN min maxOpt = classOf letterItems min maxOpt
+
+    /// Matches an email address (RFC 5322 addr-spec, basic structure).
+    let email () : Pattern =
+        let localItems =
+            letterItems @ digitItems @
+            [ ClassLiteral "."; ClassLiteral "_"; ClassLiteral "%";
+              ClassLiteral "+"; ClassLiteral "-" ]
+        let domainItems =
+            letterItems @ digitItems @
+            [ ClassLiteral "."; ClassLiteral "-" ]
+        let local = classOf localItems 1 None
+        let domain = classOf domainItems 1 None
+        let tld = lettersN 2 None
+        merge [local; lit "@"; domain; lit "."; tld]
+
+    /// Matches an HTTP or HTTPS URL (RFC 3986 generic syntax).
+    let url () : Pattern =
+        let urlBaseChars =
+            letterItems @ digitItems @
+            [ ClassLiteral "/"; ClassLiteral "_"; ClassLiteral "-";
+              ClassLiteral "."; ClassLiteral "~"; ClassLiteral "%";
+              ClassLiteral "&"; ClassLiteral "="; ClassLiteral ":";
+              ClassLiteral "@"; ClassLiteral "!"; ClassLiteral "$";
+              ClassLiteral "'"; ClassLiteral "("; ClassLiteral ")";
+              ClassLiteral "*"; ClassLiteral "+"; ClassLiteral ",";
+              ClassLiteral ";" ]
+        let hostItems = letterItems @ digitItems @ [ClassLiteral "."; ClassLiteral "-"]
+        let scheme = merge [lit "http"; may (lit "s")]
+        let host = classOf hostItems 1 None
+        let port = may (merge [lit ":"; digN 1 None])
+        let path = may (merge [lit "/"; classOf urlBaseChars 0 None])
+        let query = may (merge [lit "?"; classOf (urlBaseChars @ [ClassLiteral "?"]) 0 None])
+        let fragment = may (merge [lit "#"; classOf (urlBaseChars @ [ClassLiteral "?"; ClassLiteral "#"]) 0 None])
+        merge [scheme; lit "://"; host; port; path; query; fragment]
+
+    /// Matches a UUID (RFC 4122). Pass `version=4` for v4-specific validation.
+    let uuid (version: int) : Pattern =
+        let dash = lit "-"
+        if version = 4 then
+            let variantItems =
+                [ ClassLiteral "8"; ClassLiteral "9";
+                  ClassLiteral "A"; ClassLiteral "B";
+                  ClassLiteral "a"; ClassLiteral "b" ]
+            let variant = classOf variantItems 1 (Some 1)
+            merge [
+                hexN 8 (Some 8); dash
+                hexN 4 (Some 4); dash
+                lit "4"; hexN 3 (Some 3); dash
+                variant; hexN 3 (Some 3); dash
+                hexN 12 (Some 12)
+            ]
+        else
+            merge [
+                hexN 8 (Some 8); dash
+                hexN 4 (Some 4); dash
+                hexN 4 (Some 4); dash
+                hexN 4 (Some 4); dash
+                hexN 12 (Some 12)
+            ]
+
+    /// Convenience: generic UUID without version validation.
+    let uuidAny () = uuid 0
+
+    /// Matches an IPv4 (RFC 791) or full-form IPv6 (RFC 4291) address.
+    let ip (version: int) : Pattern =
+        let ipv4 =
+            merge [
+                digN 1 (Some 3); lit "."
+                digN 1 (Some 3); lit "."
+                digN 1 (Some 3); lit "."
+                digN 1 (Some 3)
+            ]
+        let ipv6 =
+            merge [
+                hexN 1 (Some 4); lit ":"
+                hexN 1 (Some 4); lit ":"
+                hexN 1 (Some 4); lit ":"
+                hexN 1 (Some 4); lit ":"
+                hexN 1 (Some 4); lit ":"
+                hexN 1 (Some 4); lit ":"
+                hexN 1 (Some 4); lit ":"
+                hexN 1 (Some 4)
+            ]
+        match version with
+        | 4 -> ipv4
+        | 6 -> ipv6
+        | _ -> either [ipv4; ipv6]
+
+    /// Convenience: accepts both IPv4 and IPv6.
+    let ipAny () = ip 0
+
+    /// Matches an ISO 8601 / RFC 3339 datetime.
+    let dateTime () : Pattern =
+        let signItems = [ClassLiteral "+"; ClassLiteral "-"]
+        let sign = classOf signItems 1 (Some 1)
+        let frac = merge [lit "."; digN 1 None]
+        let offset = merge [sign; digN 2 (Some 2); lit ":"; digN 2 (Some 2)]
+        merge [
+            digN 4 (Some 4); lit "-"; digN 2 (Some 2); lit "-"; digN 2 (Some 2)
+            lit "T"
+            digN 2 (Some 2); lit ":"; digN 2 (Some 2); lit ":"; digN 2 (Some 2)
+            may frac
+            may (either [lit "Z"; offset])
+        ]
+
 
 /// Convenience operators for pattern building.
 [<AutoOpen>]

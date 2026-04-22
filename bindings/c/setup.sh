@@ -37,7 +37,8 @@ else
     echo "Parson already present."
 fi
 
-# Install system libraries if not present (jansson for JSON, cmocka for testing)
+# Install system libraries if not present (jansson for JSON, cmocka for tests,
+# pcre2 for end-to-end regex execution in the Essential 5 suite)
 install_system_deps() {
     local deps_to_install=""
     
@@ -49,6 +50,11 @@ install_system_deps() {
     # Check for cmocka (test framework)
     if ! pkg-config --exists cmocka 2>/dev/null; then
         deps_to_install="$deps_to_install libcmocka-dev"
+    fi
+
+    # Check for PCRE2 (used by end-to-end matcher tests)
+    if ! pkg-config --exists libpcre2-8 2>/dev/null; then
+        deps_to_install="$deps_to_install libpcre2-dev"
     fi
     
     if [ -z "$deps_to_install" ]; then
@@ -71,6 +77,7 @@ install_system_deps() {
             case "$dep" in
                 libjansson-dev) fedora_deps="$fedora_deps jansson-devel" ;;
                 libcmocka-dev) fedora_deps="$fedora_deps libcmocka-devel" ;;
+                libpcre2-dev) fedora_deps="$fedora_deps pcre2-devel" ;;
             esac
         done
         # shellcheck disable=SC2086
@@ -84,6 +91,7 @@ install_system_deps() {
             case "$dep" in
                 libjansson-dev) arch_deps="$arch_deps jansson" ;;
                 libcmocka-dev) arch_deps="$arch_deps cmocka" ;;
+                libpcre2-dev) arch_deps="$arch_deps pcre2" ;;
             esac
         done
         # shellcheck disable=SC2086
@@ -97,6 +105,7 @@ install_system_deps() {
             case "$dep" in
                 libjansson-dev) brew_deps="$brew_deps jansson" ;;
                 libcmocka-dev) brew_deps="$brew_deps cmocka" ;;
+                libpcre2-dev) brew_deps="$brew_deps pcre2" ;;
             esac
         done
         # shellcheck disable=SC2086
@@ -106,8 +115,8 @@ install_system_deps() {
     else
         echo "Warning: Could not auto-install dependencies. Please install manually:"
         echo "  Ubuntu/Debian: sudo apt-get install $deps_to_install"
-        echo "  macOS: brew install jansson cmocka"
-        echo "  Fedora: sudo dnf install jansson-devel libcmocka-devel"
+        echo "  macOS: brew install jansson cmocka pcre2"
+        echo "  Fedora: sudo dnf install jansson-devel libcmocka-devel pcre2-devel"
     fi
 }
 
@@ -127,6 +136,13 @@ if pkg-config --exists cmocka 2>/dev/null; then
     echo "  ✓ cmocka library is available."
 else
     echo "  ✗ cmocka library not found."
+    deps_ok=false
+fi
+
+if pkg-config --exists libpcre2-8 2>/dev/null; then
+    echo "  ✓ pcre2 library is available."
+else
+    echo "  ✗ pcre2 library not found."
     deps_ok=false
 fi
 

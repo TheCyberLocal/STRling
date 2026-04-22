@@ -13,6 +13,7 @@
 require_relative 'strling/nodes'
 require_relative 'strling/ir'
 require_relative 'strling/simply'
+require_relative 'strling/essential'
 
 module Strling
   # Version constant

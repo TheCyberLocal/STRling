@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="ConformanceTests.fs" />
     <Compile Include="EmitterEdgesConformance.fs" />
+    <Compile Include="Essential5Tests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

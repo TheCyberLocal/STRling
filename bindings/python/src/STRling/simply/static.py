@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from .pattern import Pattern
 from STRling.core import nodes
+from .constructors import merge, any_of, may
+from .sets import in_chars
 
 
 def alpha_num(min_rep: int | None = None, max_rep: int | None = None) -> Pattern:
@@ -595,3 +597,210 @@ def end() -> Pattern:
     """
     node = nodes.Anchor("End")
     return Pattern(node)
+
+
+# ============================================================================
+# Standard Library — Essential Patterns
+#
+# The following helpers expose canonical, RFC-grounded patterns for the most
+# commonly validated string formats. Each helper composes existing Simply
+# primitives so the compiled output flows through the standard pipeline and no
+# raw regex leaks into the public API.
+# ============================================================================
+
+
+def email() -> Pattern:
+    """Matches an email address (RFC 5322 addr-spec, basic structure).
+
+    Accepts a local part of letters, digits, and the punctuation
+    ``. _ % + -``, followed by ``@``, a domain of letters, digits, dots, and
+    hyphens, and a top-level domain of two or more letters. Quoted local parts
+    and internationalized (IDN) labels are intentionally out of scope.
+    """
+    local = in_chars(letter(), digit(), ".", "_", "%", "+", "-")(1, 0)
+    domain_body = in_chars(letter(), digit(), ".", "-")(1, 0)
+    tld = letter(2, 0)
+    return merge(local, "@", domain_body, ".", tld)
+
+
+def url() -> Pattern:
+    """Matches an HTTP or HTTPS URL (RFC 3986 generic syntax).
+
+    Components recognised: scheme (``http``/``https``), authority with optional
+    port, optional path, optional query, and optional fragment.
+    """
+    scheme = merge("http", may("s"))
+    host = in_chars(letter(), digit(), ".", "-")(1, 0)
+    port = may(merge(":", digit(1, 0)))
+    path_chars = in_chars(
+        letter(),
+        digit(),
+        "/",
+        "_",
+        "-",
+        ".",
+        "~",
+        "%",
+        "&",
+        "=",
+        ":",
+        "@",
+        "!",
+        "$",
+        "'",
+        "(",
+        ")",
+        "*",
+        "+",
+        ",",
+        ";",
+    )(0, 0)
+    path = may(merge("/", path_chars))
+    query_chars = in_chars(
+        letter(),
+        digit(),
+        "/",
+        "_",
+        "-",
+        ".",
+        "~",
+        "%",
+        "&",
+        "=",
+        ":",
+        "@",
+        "!",
+        "$",
+        "'",
+        "(",
+        ")",
+        "*",
+        "+",
+        ",",
+        ";",
+        "?",
+    )(0, 0)
+    query = may(merge("?", query_chars))
+    fragment_chars = in_chars(
+        letter(),
+        digit(),
+        "/",
+        "_",
+        "-",
+        ".",
+        "~",
+        "%",
+        "&",
+        "=",
+        ":",
+        "@",
+        "!",
+        "$",
+        "'",
+        "(",
+        ")",
+        "*",
+        "+",
+        ",",
+        ";",
+        "?",
+        "#",
+    )(0, 0)
+    fragment = may(merge("#", fragment_chars))
+    return merge(scheme, "://", host, port, path, query, fragment)
+
+
+def uuid(version: int | None = None) -> Pattern:
+    """Matches a UUID in the standard 8-4-4-4-12 hex format (RFC 4122).
+
+    When ``version`` is ``4``, the pattern additionally enforces the version-4
+    layout: the third group's first hex digit is ``4`` and the fourth group's
+    first hex digit is one of ``8``, ``9``, ``a``, ``b``.
+    """
+    dash = "-"
+    if version == 4:
+        return merge(
+            hex_digit(8),
+            dash,
+            hex_digit(4),
+            dash,
+            "4",
+            hex_digit(3),
+            dash,
+            in_chars("89ABab"),
+            hex_digit(3),
+            dash,
+            hex_digit(12),
+        )
+    return merge(
+        hex_digit(8),
+        dash,
+        hex_digit(4),
+        dash,
+        hex_digit(4),
+        dash,
+        hex_digit(4),
+        dash,
+        hex_digit(12),
+    )
+
+
+def ip(version: int | None = None) -> Pattern:
+    """Matches an IPv4 (RFC 791) or full-form IPv6 (RFC 4291) address.
+
+    ``version=4`` restricts to IPv4 dot-decimal. ``version=6`` restricts to
+    eight-group IPv6 colon-hex. Omitting the argument accepts either family.
+    Compressed IPv6 forms (``::``) are out of scope for this basic helper.
+    """
+    ipv4 = merge(
+        digit(1, 3),
+        ".",
+        digit(1, 3),
+        ".",
+        digit(1, 3),
+        ".",
+        digit(1, 3),
+    )
+    ipv6 = merge(
+        hex_digit(1, 4),
+        ":",
+        hex_digit(1, 4),
+        ":",
+        hex_digit(1, 4),
+        ":",
+        hex_digit(1, 4),
+        ":",
+        hex_digit(1, 4),
+        ":",
+        hex_digit(1, 4),
+        ":",
+        hex_digit(1, 4),
+        ":",
+        hex_digit(1, 4),
+    )
+    if version == 4:
+        return ipv4
+    if version == 6:
+        return ipv6
+    return any_of(ipv4, ipv6)
+
+
+def date_time() -> Pattern:
+    """Matches an ISO 8601 / RFC 3339 datetime: ``YYYY-MM-DDTHH:MM:SS`` with
+    optional fractional seconds and timezone designator (``Z`` or ``+HH:MM``).
+    """
+    return merge(
+        digit(4),
+        "-",
+        digit(2),
+        "-",
+        digit(2),
+        "T",
+        digit(2),
+        ":",
+        digit(2),
+        ":",
+        digit(2),
+        may(merge(".", digit(1, 0))),
+        may(any_of("Z", merge(in_chars("+-"), digit(2), ":", digit(2)))),
+    )

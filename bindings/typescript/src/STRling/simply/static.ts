@@ -9,6 +9,8 @@
  */
 
 import { Pattern, nodes } from "./pattern.js";
+import { merge, anyOf, may } from "./constructors.js";
+import { inChars } from "./sets.js";
 
 /**
 Matches any letter (uppercase or lowercase) or digit.
@@ -51,7 +53,7 @@ Matches any special character.
 export function specialChar(minRep?: number, maxRep?: number): Pattern {
     const specialChars = `!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`;
     const items = Array.from(specialChars).map(
-        (char) => new nodes.ClassLiteral(char)
+        (char) => new nodes.ClassLiteral(char),
     );
 
     const node = new nodes.CharClass(false, items);
@@ -68,7 +70,7 @@ Matches any character that is not a special character.
 export function notSpecialChar(minRep?: number, maxRep?: number): Pattern {
     const specialChars = `!"#$%&'()*+,-./:;<=>?@[\\]^_\`{|}~`;
     const items = Array.from(specialChars).map(
-        (char) => new nodes.ClassLiteral(char)
+        (char) => new nodes.ClassLiteral(char),
     );
 
     const node = new nodes.CharClass(true, items);
@@ -322,4 +324,244 @@ Matches the end of a line.
 */
 export function end(): Pattern {
     return Pattern.createModifiedInstance(new nodes.Anchor("End"), {});
+}
+
+// ============================================================================
+// Standard Library — Essential Patterns
+//
+// The following helpers expose canonical, RFC-grounded patterns for the most
+// commonly validated string formats. Each helper composes existing Simply
+// primitives so the compiled output flows through the standard pipeline and no
+// raw regex leaks into the public API.
+// ============================================================================
+
+/**
+Matches an email address (RFC 5322 addr-spec, basic structure).
+
+The pattern accepts a local part of letters, digits, and the punctuation
+`. _ % + -`, followed by `@`, a domain of letters, digits, dots, and hyphens,
+and a top-level domain of two or more letters. Quoted local parts and
+internationalized (IDN) labels are intentionally out of scope for this helper.
+
+@returns A Pattern matching an email address.
+*/
+export function email(): Pattern {
+    const local = inChars(letter(), digit(), ".", "_", "%", "+", "-")(1, 0);
+    const domainBody = inChars(letter(), digit(), ".", "-")(1, 0);
+    const tld = letter(2, 0);
+    return merge(local, "@", domainBody, ".", tld);
+}
+
+/**
+Matches an HTTP or HTTPS URL with scheme, authority, optional path, query,
+and fragment (RFC 3986 generic syntax).
+
+Components recognised:
+  - scheme: `http` or `https`
+  - authority: host of letters, digits, dots, and hyphens, with optional `:port`
+  - path: optional, beginning with `/`
+  - query: optional, beginning with `?`
+  - fragment: optional, beginning with `#`
+
+@returns A Pattern matching a URL.
+*/
+export function url(): Pattern {
+    const scheme = merge("http", may("s"));
+    const host = inChars(letter(), digit(), ".", "-")(1, 0);
+    const port = may(merge(":", digit(1, 0)));
+    const path = may(
+        merge(
+            "/",
+            inChars(
+                letter(),
+                digit(),
+                "/",
+                "_",
+                "-",
+                ".",
+                "~",
+                "%",
+                "&",
+                "=",
+                ":",
+                "@",
+                "!",
+                "$",
+                "'",
+                "(",
+                ")",
+                "*",
+                "+",
+                ",",
+                ";",
+            )(0, 0),
+        ),
+    );
+    const query = may(
+        merge(
+            "?",
+            inChars(
+                letter(),
+                digit(),
+                "/",
+                "_",
+                "-",
+                ".",
+                "~",
+                "%",
+                "&",
+                "=",
+                ":",
+                "@",
+                "!",
+                "$",
+                "'",
+                "(",
+                ")",
+                "*",
+                "+",
+                ",",
+                ";",
+                "?",
+            )(0, 0),
+        ),
+    );
+    const fragment = may(
+        merge(
+            "#",
+            inChars(
+                letter(),
+                digit(),
+                "/",
+                "_",
+                "-",
+                ".",
+                "~",
+                "%",
+                "&",
+                "=",
+                ":",
+                "@",
+                "!",
+                "$",
+                "'",
+                "(",
+                ")",
+                "*",
+                "+",
+                ",",
+                ";",
+                "?",
+                "#",
+            )(0, 0),
+        ),
+    );
+    return merge(scheme, "://", host, port, path, query, fragment);
+}
+
+/**
+Matches a UUID in the standard 8-4-4-4-12 hexadecimal format (RFC 4122).
+
+When `version` is `4`, the pattern additionally enforces the version-4 layout:
+the third group's first hex digit is `4` and the fourth group's first hex
+digit is one of `8`, `9`, `a`, `b` (the variant nibble).
+
+@param version - Optional UUID version. Currently `4` is recognised for
+                 version-specific validation; any other value (or omission)
+                 yields the generic 8-4-4-4-12 pattern.
+@returns A Pattern matching a UUID.
+*/
+export function uuid(version?: number): Pattern {
+    const dash = "-";
+    if (version === 4) {
+        return merge(
+            hexDigit(8),
+            dash,
+            hexDigit(4),
+            dash,
+            "4",
+            hexDigit(3),
+            dash,
+            inChars("89ABab"),
+            hexDigit(3),
+            dash,
+            hexDigit(12),
+        );
+    }
+    return merge(
+        hexDigit(8),
+        dash,
+        hexDigit(4),
+        dash,
+        hexDigit(4),
+        dash,
+        hexDigit(4),
+        dash,
+        hexDigit(12),
+    );
+}
+
+/**
+Matches an IP address in either IPv4 dot-decimal notation (RFC 791) or
+the full eight-group IPv6 colon-hex notation (RFC 4291).
+
+@param version - Optional IP version. `4` restricts to IPv4, `6` restricts to
+                 IPv6, and omitting the argument accepts either. Compressed
+                 IPv6 forms (`::`) are out of scope for this basic helper.
+@returns A Pattern matching an IP address.
+*/
+export function ip(version?: number): Pattern {
+    const ipv4 = merge(
+        digit(1, 3),
+        ".",
+        digit(1, 3),
+        ".",
+        digit(1, 3),
+        ".",
+        digit(1, 3),
+    );
+    const ipv6 = merge(
+        hexDigit(1, 4),
+        ":",
+        hexDigit(1, 4),
+        ":",
+        hexDigit(1, 4),
+        ":",
+        hexDigit(1, 4),
+        ":",
+        hexDigit(1, 4),
+        ":",
+        hexDigit(1, 4),
+        ":",
+        hexDigit(1, 4),
+        ":",
+        hexDigit(1, 4),
+    );
+    if (version === 4) return ipv4;
+    if (version === 6) return ipv6;
+    return anyOf(ipv4, ipv6);
+}
+
+/**
+Matches an ISO 8601 / RFC 3339 datetime: `YYYY-MM-DDTHH:MM:SS` with
+optional fractional seconds and timezone designator (`Z` or `±HH:MM`).
+
+@returns A Pattern matching an ISO 8601 datetime.
+*/
+export function dateTime(): Pattern {
+    return merge(
+        digit(4),
+        "-",
+        digit(2),
+        "-",
+        digit(2),
+        "T",
+        digit(2),
+        ":",
+        digit(2),
+        ":",
+        digit(2),
+        may(merge(".", digit(1, 0))),
+        may(anyOf("Z", merge(inChars("+-"), digit(2), ":", digit(2)))),
+    );
 }

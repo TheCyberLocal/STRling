@@ -13,6 +13,7 @@
 pub mod core;
 pub mod emitters;
 pub mod simply;
+pub mod essential;
 
 // Re-export commonly used types for convenience
 pub use core::errors::STRlingParseError;

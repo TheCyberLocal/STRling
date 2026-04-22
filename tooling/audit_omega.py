@@ -104,6 +104,22 @@ SEMANTIC_CHECKS = {
         "Ranges",
         "semantic_ranges.json",  # For Go and other runners that output full filename
     ],
+    # Essential 5 stdlib coverage. Bindings emit test names that vary per
+    # runner, but the substring "email" reliably appears for any runner that
+    # exercised the Essential helpers (e.g. test_email_valid, EmailValid,
+    # essential_5/email, "Essential5.EmailValid", etc.).
+    "Essential5": [
+        "Essential5",
+        "essential_5",
+        "essential5",
+        "essential-5",
+        "test_email",
+        "EmailValid",
+        "email_valid",
+        "email valid",
+        "Essential.email",
+        "essential::email",
+    ],
 }
 
 # Test count patterns (Generic to Specific)
@@ -302,6 +318,9 @@ def main():
             test_res.stdout, test_res.stderr, "DupNames"
         )
         ranges_verified = check_semantic(test_res.stdout, test_res.stderr, "Ranges")
+        essential5_verified = check_semantic(
+            test_res.stdout, test_res.stderr, "Essential5"
+        )
 
         # Verdict
         verdict = "🟢 CERTIFIED"
@@ -311,7 +330,7 @@ def main():
             verdict = "🔴 FAIL (Skips)"
         elif warn_count > 0:
             verdict = "🔴 FAIL (Warnings)"
-        elif not dup_names_verified or not ranges_verified:
+        elif not dup_names_verified or not ranges_verified or not essential5_verified:
             verdict = "🔴 FAIL (Semantic)"
 
         # Count tests
@@ -377,6 +396,7 @@ def main():
                 "warnings": "✅" if warn_count == 0 else f"❌ ({warn_count} Warn)",
                 "dup_names": "✅ Verified" if dup_names_verified else "❓ Missing",
                 "ranges": "✅ Verified" if ranges_verified else "❓ Missing",
+                "essential5": "✅ Verified" if essential5_verified else "❓ Missing",
                 "verdict": verdict,
             }
         )
@@ -389,13 +409,15 @@ def main():
     with open(REPORT_PATH, "w") as f:
         f.write("# Final Audit Report\n\n")
         f.write(
-            "| Binding | Build | Tests | Zero Skips | Zero Warnings | Semantic: DupNames | Semantic: Ranges | Verdict |\n"
+            "| Binding | Build | Tests | Zero Skips | Zero Warnings | Semantic: DupNames | Semantic: Ranges | Stdlib: Essential5 | Verdict |\n"
         )
-        f.write("| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n")
+        f.write(
+            "| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n"
+        )
 
         for r in results:
             f.write(
-                f"| {r['binding']} | {r['build']} | {r['tests']} | {r['skips']} | {r['warnings']} | {r['dup_names']} | {r['ranges']} | {r['verdict']} |\n"
+                f"| {r['binding']} | {r['build']} | {r['tests']} | {r['skips']} | {r['warnings']} | {r['dup_names']} | {r['ranges']} | {r.get('essential5', 'N/A')} | {r['verdict']} |\n"
             )
 
     print(f">> Audit Complete. Report saved to {REPORT_PATH}")
