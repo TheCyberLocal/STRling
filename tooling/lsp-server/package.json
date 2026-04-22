@@ -3,12 +3,9 @@
     "displayName": "STRling Language Support",
     "description": "Real-time STRling diagnostics, hovers, and quick-fixes for embedded patterns across 17 host languages (TypeScript, Python, Rust, Java, C, C++, C#, F#, Go, Kotlin, Swift, Dart, PHP, Ruby, Perl, Lua, R) and native .strl files.",
     "version": "1.0.0",
+    "icon": "strling-icon.png",
     "publisher": "strling-lang",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/strling-lang/strling",
-        "directory": "tooling/lsp-server"
-    },
+    "repository": "https://github.com/strling-lang/strling",
     "license": "MIT",
     "engines": {
         "vscode": "^1.80.0"
@@ -16,13 +13,6 @@
     "categories": [
         "Programming Languages",
         "Linters"
-    ],
-    "files": [
-        "out/**",
-        "server/**",
-        "README.md",
-        "LICENSE",
-        "language-configuration.json"
     ],
     "activationEvents": [
         "onLanguage:typescript",
@@ -46,7 +36,7 @@
         "onLanguage:lua",
         "onLanguage:r"
     ],
-    "main": "./dist/out/extension.js",
+    "main": "./out/extension.js",
     "contributes": {
         "languages": [
             {

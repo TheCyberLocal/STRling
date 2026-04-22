@@ -17,6 +17,12 @@ hermetic build pipeline that assembles a disposable extension payload under
 - `assemble.sh` is the authoritative assembly pipeline. `build_extension.sh`
   remains only as a compatibility wrapper.
 
+The assembly step copies the authored `package.json` into `dist/` as-is so the
+packaged manifest already points `main` at `./out/extension.js`, keeps the
+repository metadata in a string form for Marketplace validation, and relies on
+`.vscodeignore` for VSIX payload selection. It also refuses to package if
+`strling-icon.png` is not a 128x128 PNG.
+
 ## Hermetic Build Pipeline
 
 Build the extension from this directory:
@@ -30,7 +36,7 @@ npm run package
 
 Each build starts from an empty `dist/` folder and then:
 
-1. Copies extension metadata into `dist/`.
+1. Copies extension metadata into `dist/` without rewriting the manifest.
 2. Copies `server/server.py` and `server/island_extractor.py` into `dist/server/`.
 3. Vendors `pygls`, `lsprotocol`, and the local `bindings/python` package into
    `dist/server/libs/`.
