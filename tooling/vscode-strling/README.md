@@ -4,7 +4,7 @@ Reference VS Code client for the STRling Language Server.
 
 ## What it does
 
-- Spawns `tooling/lsp-server/server.py` over stdio.
+- Spawns the bundled `server/server.py` over stdio.
 - Activates on native `.strl` files and registers for `.ts/.tsx/.js/.jsx`, `.py`, `.rs`, and `.java` host files.
 - Forwards diagnostics + hovers from the Island Grammar bridge.
 - Leaves host-language syntax highlighting untouched (the host LSPs remain
@@ -37,10 +37,12 @@ code --install-extension ./vscode-strling.vsix
 
 Or, inside VS Code: open the **Extensions** view, click the `…` overflow
 menu, choose **Install from VSIX…** and pick the generated file. Beta
-testers should also ensure `python3` (or whichever interpreter the
+testers should ensure `python3` (or whichever interpreter the
 `strling.languageServer.command` setting points at) has the `STRling`
 package importable — typically by running `pip install -e bindings/python`
-from the repository root.
+from the repository root. The language-server transport dependencies are
+vendored with the extension, so no extra `pygls` or `lsprotocol` install is
+required.
 
 For pre-release marketplace channels, use `npm run package:pre-release`
 (adds the `--pre-release` flag). `npm run publish` requires a Personal
@@ -49,11 +51,11 @@ release maintainers.
 
 ## Configuration
 
-| Setting                          | Default                     | Purpose                               |
-| -------------------------------- | --------------------------- | ------------------------------------- |
-| `strling.languageServer.command` | `python`                    | Executable used to launch the server. |
-| `strling.languageServer.args`    | bundled `server.py --stdio` | Arguments passed to the command.      |
-| `strling.trace.server`           | `off`                       | LSP message tracing.                  |
+| Setting                          | Default                            | Purpose                               |
+| -------------------------------- | ---------------------------------- | ------------------------------------- |
+| `strling.languageServer.command` | `python`                           | Executable used to launch the server. |
+| `strling.languageServer.args`    | bundled `server/server.py --stdio` | Arguments passed to the command.      |
+| `strling.trace.server`           | `off`                              | LSP message tracing.                  |
 
 ## Definition of Done verification
 

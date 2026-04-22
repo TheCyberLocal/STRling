@@ -2,9 +2,10 @@
  * STRling VS Code Reference Client
  * --------------------------------
  *
- * Spawns the Python-based STRling language server (`tooling/lsp-server/server.py`)
- * over stdio and registers it for both native `.strl` files and a curated set
- * of host languages (TypeScript / Python / Rust / Java). The server is
+ * Spawns the Python-based STRling language server bundled in this extension
+ * (`server/server.py`) over stdio and registers it for both native `.strl`
+ * files and a curated set of host languages (TypeScript / Python / Rust /
+ * Java). The server is
  * responsible for the Island Grammar bridge — this client only ships the
  * coordinate-faithful diagnostics back to VS Code so the existing host
  * language services (TS Server, Pylance, rust-analyzer, JDT.LS) keep their
@@ -30,9 +31,9 @@ export function activate(context: ExtensionContext): void {
     const args = configuredArgs.length
         ? configuredArgs
         : [
-              // Default: launch the in-tree server bundled alongside the extension
-              // during development. Production installs should set the absolute
-              // path via `strling.languageServer.args`.
+              // Default: launch the bundled server that ships inside the
+              // extension package. Advanced users can still override this with
+              // `strling.languageServer.args`.
               context.asAbsolutePath(path.join("server", "server.py")),
               "--stdio",
           ];

@@ -52,7 +52,7 @@
                 "strling.languageServer.args": {
                     "type": "array",
                     "default": [],
-                    "description": "Arguments passed to the language-server command. Defaults to the bundled server.py."
+                    "description": "Arguments passed to the language-server command. Defaults to the bundled server/server.py."
                 },
                 "strling.trace.server": {
                     "type": "string",
@@ -69,9 +69,8 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run bundle",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "bundle": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+        "bundle": "npm run sync-server && esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --platform=node",
+        "sync-server": "mkdir -p ./server && cp ../lsp-server/server.py ../lsp-server/island_extractor.py ./server/",
         "package": "npm run bundle && vsce package --out vscode-strling.vsix"
     },
     "devDependencies": {
