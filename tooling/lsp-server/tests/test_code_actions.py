@@ -87,11 +87,15 @@ class TestRedosDetector:
 
 @pytest.fixture
 def server_module():
-    import server  # type: ignore[import-not-found]
+    # ``server`` is a package whose hand-authored implementation lives in
+    # ``server/server.py``; the package ``__init__`` is intentionally empty,
+    # so we import the inner submodule directly to access the in-process
+    # caches and handler functions.
+    from server import server as server_mod  # type: ignore[import-not-found]
 
-    server._LAST_DIAGNOSTICS.clear()
-    server._ISLANDS_BY_URI.clear()
-    return server
+    server_mod._LAST_DIAGNOSTICS.clear()
+    server_mod._ISLANDS_BY_URI.clear()
+    return server_mod
 
 
 @pytest.fixture

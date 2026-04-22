@@ -2,6 +2,10 @@
     "$comment": "Canonical registry of STRling island-grammar boundary calls and host-language suffixes. Consumed by the Python language-intelligence layer (bindings/python/src/STRling/core/islands.py) and by the Node-side test extractor (tooling/js_to_json_ast/extract_patterns_from_js_tests.js). Boundary regexes are POSIX-ERE-style and MUST terminate immediately before the opening string delimiter so the host-language literal scanner can take over deterministically.",
     "version": 1,
     "languages": {
+        "strl": {
+            "suffixes": [".strl"],
+            "boundaries": []
+        },
         "python": {
             "suffixes": [".py", ".pyi"],
             "boundaries": [
@@ -18,6 +22,7 @@
                 "\\bsimply\\.parse\\s*\\(\\s*",
                 "\\bstrl\\.parse\\s*\\(\\s*",
                 "\\bs\\.parse\\s*\\(\\s*",
+                "\\bSTRling\\.parse\\s*\\(\\s*",
                 "\\bnew\\s+Pattern\\s*\\(\\s*"
             ]
         },
@@ -34,6 +39,101 @@
             "boundaries": [
                 "\\bSTRling\\.parse\\s*\\(\\s*",
                 "\\bSTRlingPattern\\s*\\.\\s*compile\\s*\\(\\s*"
+            ]
+        },
+        "c": {
+            "suffixes": [".c", ".h"],
+            "boundaries": [
+                "\\bstrling_parse\\s*\\(\\s*",
+                "\\bstrling_compile\\s*\\(\\s*"
+            ]
+        },
+        "cpp": {
+            "suffixes": [".cpp", ".cc", ".cxx", ".hpp", ".hh", ".hxx"],
+            "boundaries": [
+                "\\bstrling::parse\\s*\\(\\s*",
+                "\\bstrling::Parser::parse\\s*\\(\\s*",
+                "\\bparser\\.parse\\s*\\(\\s*"
+            ]
+        },
+        "csharp": {
+            "suffixes": [".cs"],
+            "boundaries": [
+                "\\bSTRling\\.Parse\\s*\\(\\s*",
+                "\\bStrling\\.Parse\\s*\\(\\s*",
+                "\\bSTRling\\.Parser\\.Parse\\s*\\(\\s*"
+            ]
+        },
+        "fsharp": {
+            "suffixes": [".fs", ".fsi", ".fsx"],
+            "boundaries": [
+                "\\bSTRling\\.parse\\s*\\(\\s*",
+                "\\bParser\\.parse\\s*\\(\\s*"
+            ]
+        },
+        "go": {
+            "suffixes": [".go"],
+            "boundaries": [
+                "\\bstrling\\.Parse\\s*\\(\\s*",
+                "\\bcore\\.Parse\\s*\\(\\s*",
+                "\\bstrling\\.MustParse\\s*\\(\\s*"
+            ]
+        },
+        "kotlin": {
+            "suffixes": [".kt", ".kts"],
+            "boundaries": [
+                "\\bSTRling\\.parse\\s*\\(\\s*",
+                "\\bStrling\\.parse\\s*\\(\\s*",
+                "\\bParser\\.parse\\s*\\(\\s*"
+            ]
+        },
+        "swift": {
+            "suffixes": [".swift"],
+            "boundaries": [
+                "\\bSTRling\\.parse\\s*\\(\\s*",
+                "\\bStrling\\.parse\\s*\\(\\s*",
+                "\\bParser\\.parse\\s*\\(\\s*"
+            ]
+        },
+        "dart": {
+            "suffixes": [".dart"],
+            "boundaries": [
+                "\\bSTRling\\.parse\\s*\\(\\s*",
+                "\\bStrling\\.parse\\s*\\(\\s*"
+            ]
+        },
+        "php": {
+            "suffixes": [".php"],
+            "boundaries": [
+                "\\bSTRling::parse\\s*\\(\\s*",
+                "\\bStrling\\\\Core\\\\Parser::parse\\s*\\(\\s*",
+                "\\\\STRling::parse\\s*\\(\\s*"
+            ]
+        },
+        "ruby": {
+            "suffixes": [".rb"],
+            "boundaries": [
+                "\\bSTRling\\.parse\\s*\\(\\s*",
+                "\\bStrling\\.parse\\s*\\(\\s*",
+                "\\bStrling::Core::Parser\\.parse\\s*\\(\\s*"
+            ]
+        },
+        "perl": {
+            "suffixes": [".pl", ".pm", ".t"],
+            "boundaries": [
+                "\\bSTRling::parse\\s*\\(\\s*",
+                "\\bSTRling->parse\\s*\\(\\s*"
+            ]
+        },
+        "lua": {
+            "suffixes": [".lua"],
+            "boundaries": ["\\bstrling\\.parse\\s*\\(\\s*"]
+        },
+        "r": {
+            "suffixes": [".r", ".R"],
+            "boundaries": [
+                "\\bstrling_parse\\s*\\(\\s*",
+                "\\bstrling::parse\\s*\\(\\s*"
             ]
         }
     }

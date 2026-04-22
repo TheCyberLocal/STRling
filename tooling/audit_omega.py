@@ -3,6 +3,7 @@ import os
 import subprocess
 import re
 import sys
+from datetime import datetime
 from typing import Optional, Tuple, List, Dict, Any
 
 # Configuration
@@ -408,6 +409,7 @@ def main():
 
     with open(REPORT_PATH, "w") as f:
         f.write("# Final Audit Report\n\n")
+        f.write(f"## {datetime.now().astimezone().isoformat(timespec='seconds')}\n\n")
         f.write(
             "| Binding | Build | Tests | Zero Skips | Zero Warnings | Semantic: DupNames | Semantic: Ranges | Stdlib: Essential5 | Verdict |\n"
         )

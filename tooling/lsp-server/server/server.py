@@ -263,10 +263,52 @@ def _project_diagnostic(diag: lsp.Diagnostic, island: Island) -> lsp.Diagnostic:
     """Translate a virtual-document diagnostic onto host coordinates."""
     start = island.to_host(diag.range.start.line, diag.range.start.character)
     end = island.to_host(diag.range.end.line, diag.range.end.character)
+    if "\n" not in island.virtual_content and start.line == end.line:
+        visible_end = island.host_start.character + len(island.virtual_content)
+        end = type(end)(line=end.line, character=min(end.character, visible_end))
     return lsp.Diagnostic(
         range=lsp.Range(
             start=lsp.Position(line=start.line, character=start.character),
             end=lsp.Position(line=end.line, character=end.character),
+        ),
+        message=diag.message,
+        severity=diag.severity,
+        source=diag.source,
+        code=diag.code,
+        data=diag.data,
+    )
+
+
+def _clamp_diagnostic_to_single_line(
+    diag: lsp.Diagnostic, source: str
+) -> lsp.Diagnostic:
+    """Clamp a diagnostic so its published range never bleeds past one line.
+
+    Unterminated constructs sometimes surface an end offset anchored at a
+    virtual EOF position. Once projected through a host file, that can produce
+    a multi-line squiggle and keep editor hover/loading affordances waiting on a
+    huge span. The LSP contract here is intentionally stricter: diagnostics must
+    stay on the line where they begin.
+    """
+    lines = source.split("\n")
+    if not lines:
+        lines = [""]
+
+    start_line = min(max(diag.range.start.line, 0), len(lines) - 1)
+    start_limit = len(lines[start_line])
+    start_char = min(max(diag.range.start.character, 0), start_limit)
+
+    end_line = start_line
+    end_limit = start_limit
+    if diag.range.end.line == diag.range.start.line:
+        end_limit = len(lines[min(max(diag.range.end.line, 0), len(lines) - 1)])
+        end_line = start_line
+    end_char = min(max(diag.range.end.character, start_char), end_limit)
+
+    return lsp.Diagnostic(
+        range=lsp.Range(
+            start=lsp.Position(line=start_line, character=start_char),
+            end=lsp.Position(line=end_line, character=end_char),
         ),
         message=diag.message,
         severity=diag.severity,
@@ -283,7 +325,11 @@ def _diagnostics_for_host(uri: str, source: str) -> List[lsp.Diagnostic]:
     projected: List[lsp.Diagnostic] = []
     for island in islands:
         for diag in get_diagnostics_for_pattern(island.virtual_content):
-            projected.append(_project_diagnostic(diag, island))
+            projected.append(
+                _clamp_diagnostic_to_single_line(
+                    _project_diagnostic(diag, island), source
+                )
+            )
     return projected
 
 
@@ -304,6 +350,10 @@ def validate_document(ls: STRlingLanguageServer, uri: str) -> None:
             diagnostics = _diagnostics_for_host(uri, content)
         else:
             diagnostics = get_diagnostics_for_pattern(content)
+
+        diagnostics = [
+            _clamp_diagnostic_to_single_line(diag, content) for diag in diagnostics
+        ]
 
         _LAST_DIAGNOSTICS[uri] = diagnostics
         ls.text_document_publish_diagnostics(

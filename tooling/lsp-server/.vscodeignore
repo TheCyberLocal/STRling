@@ -1,0 +1,32 @@
+# STRling VS Code extension package exclusions.
+# Applied during `vsce package` from inside dist/.
+# Keep this list aligned with assemble.sh (which controls what lands in dist/).
+
+# Python bytecode and packaging metadata produced by the vendored install.
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.dist-info/**
+**/*.egg-info/**
+
+# Test corpora and developer-only fixtures (none should be in dist/, but
+# guard against future drift).
+**/tests/**
+**/test/**
+**/_design/**
+**/spec/corpora/**
+
+# Source maps and intermediate build artifacts.
+**/*.map
+
+# Editor / VCS clutter.
+.vscode/**
+.git/**
+.gitignore
+
+# Vendor venv must never ship; cleanup trap in assemble.sh removes it,
+# but exclude defensively.
+.vendor-venv/**
+
+# This file itself.
+.vscodeignore

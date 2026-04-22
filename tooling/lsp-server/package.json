@@ -1,8 +1,8 @@
 {
     "name": "vscode-strling",
     "displayName": "STRling Language Support",
-    "description": "Real-time STRling diagnostics and hover docs for embedded patterns inside TypeScript, Python, Rust and Java files.",
-    "version": "0.1.0",
+    "description": "Real-time STRling diagnostics, hovers, and quick-fixes for embedded patterns across 17 host languages (TypeScript, Python, Rust, Java, C, C++, C#, F#, Go, Kotlin, Swift, Dart, PHP, Ruby, Perl, Lua, R) and native .strl files.",
+    "version": "1.0.0",
     "publisher": "strling-lang",
     "repository": {
         "type": "git",
@@ -31,7 +31,20 @@
         "onLanguage:javascriptreact",
         "onLanguage:python",
         "onLanguage:rust",
-        "onLanguage:java"
+        "onLanguage:java",
+        "onLanguage:c",
+        "onLanguage:cpp",
+        "onLanguage:csharp",
+        "onLanguage:fsharp",
+        "onLanguage:go",
+        "onLanguage:kotlin",
+        "onLanguage:swift",
+        "onLanguage:dart",
+        "onLanguage:php",
+        "onLanguage:ruby",
+        "onLanguage:perl",
+        "onLanguage:lua",
+        "onLanguage:r"
     ],
     "main": "./dist/out/extension.js",
     "contributes": {
@@ -46,6 +59,96 @@
                     ".strl"
                 ],
                 "configuration": "./language-configuration.json"
+            },
+            {
+                "id": "c",
+                "extensions": [
+                    ".c",
+                    ".h"
+                ]
+            },
+            {
+                "id": "cpp",
+                "extensions": [
+                    ".cpp",
+                    ".cc",
+                    ".cxx",
+                    ".hpp",
+                    ".hh",
+                    ".hxx"
+                ]
+            },
+            {
+                "id": "csharp",
+                "extensions": [
+                    ".cs"
+                ]
+            },
+            {
+                "id": "fsharp",
+                "extensions": [
+                    ".fs",
+                    ".fsi",
+                    ".fsx"
+                ]
+            },
+            {
+                "id": "go",
+                "extensions": [
+                    ".go"
+                ]
+            },
+            {
+                "id": "kotlin",
+                "extensions": [
+                    ".kt",
+                    ".kts"
+                ]
+            },
+            {
+                "id": "swift",
+                "extensions": [
+                    ".swift"
+                ]
+            },
+            {
+                "id": "dart",
+                "extensions": [
+                    ".dart"
+                ]
+            },
+            {
+                "id": "php",
+                "extensions": [
+                    ".php"
+                ]
+            },
+            {
+                "id": "ruby",
+                "extensions": [
+                    ".rb"
+                ]
+            },
+            {
+                "id": "perl",
+                "extensions": [
+                    ".pl",
+                    ".pm",
+                    ".t"
+                ]
+            },
+            {
+                "id": "lua",
+                "extensions": [
+                    ".lua"
+                ]
+            },
+            {
+                "id": "r",
+                "extensions": [
+                    ".r",
+                    ".R"
+                ]
             }
         ],
         "configuration": {

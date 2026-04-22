@@ -62,6 +62,7 @@ class Island:
     virtual_content: str
     host_start: HostPosition
     line_offsets: List[HostPosition] = field(default_factory=lambda: [])
+    line_lengths: List[int] = field(default_factory=lambda: [])
     boundary_call: str = ""
 
     def to_host(self, vd_line: int, vd_character: int) -> HostPosition:
@@ -70,12 +71,20 @@ class Island:
             return self.host_start
         if vd_line < 0:
             vd_line = 0
+        lines = self.virtual_content.split("\n")
         if vd_line >= len(self.line_offsets):
             vd_line = len(self.line_offsets) - 1
+        line_lengths = self.line_lengths or [len(line) for line in lines]
+        line_len = line_lengths[vd_line] if vd_line < len(line_lengths) else 0
+        if vd_character < 0:
+            vd_character = 0
+        if vd_character > line_len:
+            vd_character = line_len
         base = self.line_offsets[vd_line]
-        # Subsequent virtual lines start at host column 0; the first virtual
-        # line is offset by the column where the literal opened.
-        host_char = base.character + vd_character if vd_line == 0 else vd_character
+        # The per-line host offset already points at the first raw character
+        # for that virtual line, so the clamped virtual character can be
+        # added directly.
+        host_char = base.character + vd_character
         return HostPosition(line=base.line, character=host_char)
 
     def contains_host(self, line: int, character: int) -> bool:
@@ -84,11 +93,13 @@ class Island:
             return False
         last_line_idx = len(self.line_offsets) - 1
         last_base = self.line_offsets[last_line_idx]
-        lines = self.virtual_content.split("\n")
-        last_len = len(lines[last_line_idx])
-        last_end_char = (
-            last_base.character + last_len if last_line_idx == 0 else last_len
+        line_lengths = self.line_lengths or [
+            len(line) for line in self.virtual_content.split("\n")
+        ]
+        last_len = (
+            line_lengths[last_line_idx] if last_line_idx < len(line_lengths) else 0
         )
+        last_end_char = last_base.character + last_len
 
         first = self.line_offsets[0]
         if line < first.line or line > last_base.line:
@@ -132,6 +143,7 @@ _DEFAULT_BOUNDARIES: Dict[str, List[str]] = {
         r"\bsimply\.parse\s*\(\s*",
         r"\bstrl\.parse\s*\(\s*",
         r"\bs\.parse\s*\(\s*",
+        r"\bSTRling\.parse\s*\(\s*",
         r"\bnew\s+Pattern\s*\(\s*",
     ],
     "rust": [
@@ -143,9 +155,68 @@ _DEFAULT_BOUNDARIES: Dict[str, List[str]] = {
         r"\bSTRling\.parse\s*\(\s*",
         r"\bSTRlingPattern\s*\.\s*compile\s*\(\s*",
     ],
+    "c": [
+        r"\bstrling_parse\s*\(\s*",
+        r"\bstrling_compile\s*\(\s*",
+    ],
+    "cpp": [
+        r"\bstrling::parse\s*\(\s*",
+        r"\bstrling::Parser::parse\s*\(\s*",
+        r"\bparser\.parse\s*\(\s*",
+    ],
+    "csharp": [
+        r"\bSTRling\.Parse\s*\(\s*",
+        r"\bStrling\.Parse\s*\(\s*",
+        r"\bSTRling\.Parser\.Parse\s*\(\s*",
+    ],
+    "fsharp": [
+        r"\bSTRling\.parse\s*\(\s*",
+        r"\bParser\.parse\s*\(\s*",
+    ],
+    "go": [
+        r"\bstrling\.Parse\s*\(\s*",
+        r"\bcore\.Parse\s*\(\s*",
+        r"\bstrling\.MustParse\s*\(\s*",
+    ],
+    "kotlin": [
+        r"\bSTRling\.parse\s*\(\s*",
+        r"\bStrling\.parse\s*\(\s*",
+        r"\bParser\.parse\s*\(\s*",
+    ],
+    "swift": [
+        r"\bSTRling\.parse\s*\(\s*",
+        r"\bStrling\.parse\s*\(\s*",
+        r"\bParser\.parse\s*\(\s*",
+    ],
+    "dart": [
+        r"\bSTRling\.parse\s*\(\s*",
+        r"\bStrling\.parse\s*\(\s*",
+    ],
+    "php": [
+        r"\bSTRling::parse\s*\(\s*",
+        r"\bStrling\\Core\\Parser::parse\s*\(\s*",
+        r"\\STRling::parse\s*\(\s*",
+    ],
+    "ruby": [
+        r"\bSTRling\.parse\s*\(\s*",
+        r"\bStrling\.parse\s*\(\s*",
+        r"\bStrling::Core::Parser\.parse\s*\(\s*",
+    ],
+    "perl": [
+        r"\bSTRling::parse\s*\(\s*",
+        r"\bSTRling->parse\s*\(\s*",
+    ],
+    "lua": [
+        r"\bstrling\.parse\s*\(\s*",
+    ],
+    "r": [
+        r"\bstrling_parse\s*\(\s*",
+        r"\bstrling::parse\s*\(\s*",
+    ],
 }
 
 _DEFAULT_LANGUAGE_BY_SUFFIX: Dict[str, str] = {
+    ".strl": "strl",
     ".py": "python",
     ".pyi": "python",
     ".ts": "typescript",
@@ -156,6 +227,31 @@ _DEFAULT_LANGUAGE_BY_SUFFIX: Dict[str, str] = {
     ".cjs": "typescript",
     ".rs": "rust",
     ".java": "java",
+    ".c": "c",
+    ".h": "c",
+    ".cpp": "cpp",
+    ".cc": "cpp",
+    ".cxx": "cpp",
+    ".hpp": "cpp",
+    ".hh": "cpp",
+    ".hxx": "cpp",
+    ".cs": "csharp",
+    ".fs": "fsharp",
+    ".fsi": "fsharp",
+    ".fsx": "fsharp",
+    ".go": "go",
+    ".kt": "kotlin",
+    ".kts": "kotlin",
+    ".swift": "swift",
+    ".dart": "dart",
+    ".php": "php",
+    ".rb": "ruby",
+    ".pl": "perl",
+    ".pm": "perl",
+    ".t": "perl",
+    ".lua": "lua",
+    ".r": "r",
+    ".R": "r",
 }
 
 
@@ -271,50 +367,448 @@ def language_for_uri(uri: str) -> Optional[str]:
 # --------------------------------------------------------------------------- #
 
 
-# Python / Rust / Java / JS share enough literal syntax that we can enumerate
-# the supported forms in a single table. Each entry is
-# ``(opening_delimiter, closing_delimiter, allow_escape)``.
-#
-# String interpolation (template-literal expressions, f-string braces) is
-# intentionally out of scope — interpolation breaks the 1:1 character-mapping
-# guarantee that the projection algebra depends on.
-_LITERAL_FORMS: List[Tuple[str, str, bool]] = [
-    ('"""', '"""', True),
-    ("'''", "'''", True),
-    ("`", "`", True),  # JS/TS template literal (no ${} support)
-    ('r"', '"', False),  # Python raw string
-    ("r'", "'", False),
-    ('"', '"', True),
-    ("'", "'", True),
-]
+def _is_identifier_char(ch: str) -> bool:
+    return ch.isalnum() or ch == "_"
 
 
-def _scan_literal(source: str, start: int) -> Optional[Tuple[str, int, int]]:
-    """Scan a string literal beginning at ``source[start]``.
-
-    Returns ``(content, content_start, content_end)`` where the indices are
-    absolute offsets into ``source`` and ``content`` is the *raw* text
-    between the delimiters. Returns ``None`` if no recognisable literal
-    starts at the position.
-    """
-    for opener, closer, allow_escape in _LITERAL_FORMS:
-        if not source.startswith(opener, start):
+def _scan_quoted_literal(
+    source: str, start: int, opener: str, closer: str, allow_escape: bool
+) -> Optional[Tuple[str, int, int, int]]:
+    """Scan a quoted literal and return raw content with its end offset."""
+    if not source.startswith(opener, start):
+        return None
+    content_start = start + len(opener)
+    idx = content_start
+    while idx < len(source):
+        ch = source[idx]
+        if allow_escape and ch == "\\" and idx + 1 < len(source):
+            idx += 2
             continue
-        content_start = start + len(opener)
-        idx = content_start
+        if source.startswith(closer, idx):
+            content = source[content_start:idx]
+            return content, content_start, idx, idx + len(closer)
+        idx += 1
+    return None
+
+
+def _scan_python_string(source: str, start: int) -> Optional[Tuple[str, int, int, int]]:
+    """Scan a Python string literal, including common prefixes."""
+    if start >= len(source):
+        return None
+    if source[start] in ('"', "'"):
+        quote_start = start
+        prefix = ""
+    else:
+        if source[start] not in "rRuUbBfF" or (
+            start > 0 and _is_identifier_char(source[start - 1])
+        ):
+            return None
+        quote_start = start
+        while (
+            quote_start < len(source)
+            and quote_start - start < 2
+            and source[quote_start] in "rRuUbBfF"
+        ):
+            quote_start += 1
+        if quote_start >= len(source) or source[quote_start] not in ('"', "'"):
+            return None
+        prefix = source[start:quote_start]
+    quote = source[quote_start]
+    triple = source.startswith(quote * 3, quote_start)
+    opener = prefix + (quote * 3 if triple else quote)
+    closer = quote * 3 if triple else quote
+    allow_escape = "r" not in prefix.lower()
+    return _scan_quoted_literal(source, start, opener, closer, allow_escape)
+
+
+def _scan_c_like_string(source: str, start: int) -> Optional[Tuple[str, int, int, int]]:
+    """Scan a C/TS/Java-style string or template literal."""
+    if start >= len(source):
+        return None
+    if source[start] == "`":
+        return _scan_quoted_literal(source, start, "`", "`", True)
+    if source[start] in ('"', "'"):
+        return _scan_quoted_literal(source, start, source[start], source[start], True)
+    return None
+
+
+def _scan_rust_raw_string(
+    source: str, start: int
+) -> Optional[Tuple[str, int, int, int]]:
+    """Scan a Rust raw string like ``r#"..."#`` or ``br#"..."#``."""
+    if start >= len(source):
+        return None
+    prefix_len = 0
+    if source[start] in "bB":
+        if start + 1 < len(source) and source[start + 1] in "rR":
+            prefix_len = 2
+        else:
+            return None
+    elif source[start] not in "rR":
+        return None
+    i = start + prefix_len
+    hash_count = 0
+    while i + hash_count < len(source) and source[i + hash_count] == "#":
+        hash_count += 1
+    if i + hash_count >= len(source) or source[i + hash_count] != '"':
+        return None
+    closer = '"' + ("#" * hash_count)
+    content_start = i + hash_count + 1
+    idx = content_start
+    while idx < len(source):
+        if source.startswith(closer, idx):
+            content = source[content_start:idx]
+            return content, content_start, idx, idx + len(closer)
+        idx += 1
+    return None
+
+
+def _scan_rust_string(source: str, start: int) -> Optional[Tuple[str, int, int, int]]:
+    """Scan a Rust string literal, including byte and raw-string forms."""
+    if start >= len(source):
+        return None
+    raw = _scan_rust_raw_string(source, start)
+    if raw is not None:
+        return raw
+    if (
+        source[start] in "bB"
+        and start + 1 < len(source)
+        and source[start + 1] in ('"', "'")
+    ):
+        return _scan_quoted_literal(
+            source, start, source[start : start + 2], source[start + 1], True
+        )
+    if source[start] in ('"', "'"):
+        return _scan_quoted_literal(source, start, source[start], source[start], True)
+    return None
+
+
+def _scan_swift_hashed_string(
+    source: str, start: int
+) -> Optional[Tuple[str, int, int, int]]:
+    # Scan a Swift extended delimiter string. The opener is one or more
+    # ``#`` characters followed by ``"`` or ``"""``; the closer mirrors
+    # the same hash count, e.g. ``#"..."#`` or ``##"""..."""##``.
+    if start >= len(source) or source[start] != "#":
+        return None
+    i = start
+    hash_count = 0
+    while i < len(source) and source[i] == "#":
+        hash_count += 1
+        i += 1
+    if i >= len(source) or source[i] != '"':
+        return None
+    triple = source.startswith('"""', i)
+    quote_run = '"""' if triple else '"'
+    closer = quote_run + ("#" * hash_count)
+    content_start = i + len(quote_run)
+    idx = content_start
+    while idx < len(source):
+        if source.startswith(closer, idx):
+            content = source[content_start:idx]
+            return content, content_start, idx, idx + len(closer)
+        idx += 1
+    return None
+
+
+def _scan_swift_string(source: str, start: int) -> Optional[Tuple[str, int, int, int]]:
+    """Scan a Swift string literal, covering hashed and multiline forms."""
+    if start >= len(source):
+        return None
+    if source[start] == "#":
+        return _scan_swift_hashed_string(source, start)
+    if source.startswith('"""', start):
+        return _scan_quoted_literal(source, start, '"""', '"""', True)
+    if source[start] in ('"', "'"):
+        return _scan_quoted_literal(source, start, source[start], source[start], True)
+    return None
+
+
+_CPP_RAW_DELIM_FORBIDDEN = set(" ()\\\t\n\r\v\f")
+
+
+def _scan_cpp_raw_string(
+    source: str, start: int
+) -> Optional[Tuple[str, int, int, int]]:
+    """Scan a C++11 raw string literal: ``R"delim(content)delim"``."""
+    if start >= len(source):
+        return None
+    prefix_len = 0
+    # Allow optional encoding prefix: u8, u, U, L (followed by optional R).
+    if source.startswith("u8", start):
+        prefix_len = 2
+    elif source[start] in "uUL":
+        prefix_len = 1
+    if start + prefix_len >= len(source) or source[start + prefix_len] != "R":
+        return None
+    if start + prefix_len + 1 >= len(source) or source[start + prefix_len + 1] != '"':
+        return None
+    delim_begin = start + prefix_len + 2
+    delim_end = delim_begin
+    while (
+        delim_end < len(source)
+        and delim_end - delim_begin < 16
+        and source[delim_end] not in _CPP_RAW_DELIM_FORBIDDEN
+        and source[delim_end] != "("
+    ):
+        delim_end += 1
+    if delim_end >= len(source) or source[delim_end] != "(":
+        return None
+    delim = source[delim_begin:delim_end]
+    content_start = delim_end + 1
+    closer = ")" + delim + '"'
+    idx = content_start
+    while idx < len(source):
+        if source.startswith(closer, idx):
+            content = source[content_start:idx]
+            return content, content_start, idx, idx + len(closer)
+        idx += 1
+    return None
+
+
+def _scan_cpp_string(source: str, start: int) -> Optional[Tuple[str, int, int, int]]:
+    """Scan a C++ string literal, including raw-string and encoding prefixes."""
+    if start >= len(source):
+        return None
+    raw = _scan_cpp_raw_string(source, start)
+    if raw is not None:
+        return raw
+    return _scan_c_like_string(source, start)
+
+
+def _scan_lua_long_bracket(
+    source: str, start: int
+) -> Optional[Tuple[str, int, int, int]]:
+    """Scan a Lua long-bracket string ``[[...]]`` / ``[=[...]=]``."""
+    if start >= len(source) or source[start] != "[":
+        return None
+    i = start + 1
+    eq_count = 0
+    while i < len(source) and source[i] == "=":
+        eq_count += 1
+        i += 1
+    if i >= len(source) or source[i] != "[":
+        return None
+    content_start = i + 1
+    closer = "]" + ("=" * eq_count) + "]"
+    idx = content_start
+    while idx < len(source):
+        if source.startswith(closer, idx):
+            content = source[content_start:idx]
+            return content, content_start, idx, idx + len(closer)
+        idx += 1
+    return None
+
+
+def _scan_lua_string(source: str, start: int) -> Optional[Tuple[str, int, int, int]]:
+    """Scan a Lua string literal, including long-bracket form."""
+    if start >= len(source):
+        return None
+    if source[start] == "[":
+        return _scan_lua_long_bracket(source, start)
+    if source[start] in ('"', "'"):
+        return _scan_quoted_literal(source, start, source[start], source[start], True)
+    return None
+
+
+# --------------------------------------------------------------------------- #
+# Per-language lexer profiles                                                 #
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(frozen=True)
+class LexerProfile:
+    """Describe how to skip non-code regions for a host language.
+
+    A profile is a small data record consumed by :func:`_skip_via_profile`.
+    Adding a new language means adding a new entry to ``_LANGUAGE_PROFILES`` —
+    no new scanner code is required unless the language has a string form
+    not already covered by the existing scanners (currently: c-like,
+    c-like-template, python, rust, swift, cpp, lua).
+    """
+
+    line_comments: Tuple[str, ...] = ()
+    block_comments: Tuple[Tuple[str, str], ...] = ()
+    block_comments_nest: bool = False
+    string_scanner: str = "c-like"
+    long_bracket_block_comment: bool = False  # Lua's ``--[[ ... ]]``
+
+
+_STRING_SCANNERS = {
+    "python": _scan_python_string,
+    "rust": _scan_rust_string,
+    "swift": _scan_swift_string,
+    "cpp": _scan_cpp_string,
+    "lua": _scan_lua_string,
+    "c-like": _scan_c_like_string,
+    "c-like-template": _scan_c_like_string,
+}
+
+
+_LANGUAGE_PROFILES: Dict[str, LexerProfile] = {
+    "python": LexerProfile(line_comments=("#",), string_scanner="python"),
+    "typescript": LexerProfile(
+        line_comments=("//",),
+        block_comments=(("/*", "*/"),),
+        string_scanner="c-like-template",
+    ),
+    "rust": LexerProfile(
+        line_comments=("//",),
+        block_comments=(("/*", "*/"),),
+        block_comments_nest=True,
+        string_scanner="rust",
+    ),
+    "java": LexerProfile(
+        line_comments=("//",),
+        block_comments=(("/*", "*/"),),
+        string_scanner="c-like",
+    ),
+    "c": LexerProfile(
+        line_comments=("//",),
+        block_comments=(("/*", "*/"),),
+        string_scanner="c-like",
+    ),
+    "cpp": LexerProfile(
+        line_comments=("//",),
+        block_comments=(("/*", "*/"),),
+        string_scanner="cpp",
+    ),
+    "csharp": LexerProfile(
+        line_comments=("//",),
+        block_comments=(("/*", "*/"),),
+        string_scanner="c-like",
+    ),
+    "fsharp": LexerProfile(
+        line_comments=("//",),
+        block_comments=(("(*", "*)"),),
+        block_comments_nest=True,
+        string_scanner="c-like",
+    ),
+    "go": LexerProfile(
+        line_comments=("//",),
+        block_comments=(("/*", "*/"),),
+        string_scanner="c-like-template",
+    ),
+    "kotlin": LexerProfile(
+        line_comments=("//",),
+        block_comments=(("/*", "*/"),),
+        block_comments_nest=True,
+        string_scanner="c-like",
+    ),
+    "swift": LexerProfile(
+        line_comments=("//",),
+        block_comments=(("/*", "*/"),),
+        block_comments_nest=True,
+        string_scanner="swift",
+    ),
+    "dart": LexerProfile(
+        line_comments=("//",),
+        block_comments=(("/*", "*/"),),
+        block_comments_nest=True,
+        string_scanner="c-like",
+    ),
+    "php": LexerProfile(
+        line_comments=("//", "#"),
+        block_comments=(("/*", "*/"),),
+        string_scanner="c-like",
+    ),
+    "ruby": LexerProfile(
+        line_comments=("#",),
+        string_scanner="c-like",
+    ),
+    "perl": LexerProfile(
+        line_comments=("#",),
+        string_scanner="c-like",
+    ),
+    "lua": LexerProfile(
+        line_comments=("--",),
+        string_scanner="lua",
+        long_bracket_block_comment=True,
+    ),
+    "r": LexerProfile(
+        line_comments=("#",),
+        string_scanner="c-like",
+    ),
+}
+
+
+def _scan_literal(
+    source: str, start: int, language: str
+) -> Optional[Tuple[str, int, int, int]]:
+    """Scan the STRling literal that follows a boundary call."""
+    profile = _LANGUAGE_PROFILES.get(language)
+    scanner_name = profile.string_scanner if profile is not None else "c-like"
+    scanner = _STRING_SCANNERS.get(scanner_name, _scan_c_like_string)
+    return scanner(source, start)
+
+
+def _skip_line_comment(
+    source: str, start: int, markers: Tuple[str, ...]
+) -> Optional[int]:
+    for marker in markers:
+        if marker and source.startswith(marker, start):
+            end = source.find("\n", start)
+            return len(source) if end == -1 else end
+    return None
+
+
+def _skip_block_comment(
+    source: str,
+    start: int,
+    pairs: Tuple[Tuple[str, str], ...],
+    nest: bool,
+) -> Optional[int]:
+    for opener, closer in pairs:
+        if not opener or not source.startswith(opener, start):
+            continue
+        idx = start + len(opener)
+        depth = 1
         while idx < len(source):
-            ch = source[idx]
-            if allow_escape and ch == "\\" and idx + 1 < len(source):
-                # Skip escape sequence — note we still advance over the
-                # original characters (no unfolding) preserving 1:1 mapping.
-                idx += 2
+            if nest and source.startswith(opener, idx):
+                depth += 1
+                idx += len(opener)
                 continue
             if source.startswith(closer, idx):
-                return source[content_start:idx], content_start, idx
+                depth -= 1
+                idx += len(closer)
+                if depth == 0:
+                    return idx
+                continue
             idx += 1
-        # Unterminated literal — bail out.
-        return None
+        return len(source)
     return None
+
+
+def _skip_via_profile(source: str, start: int, profile: LexerProfile) -> Optional[int]:
+    # Lua-special: ``--[[ ... ]]`` must be detected BEFORE the line-comment
+    # rule fires, because the same ``--`` prefix opens both forms.
+    if profile.long_bracket_block_comment and source.startswith("--", start):
+        scanned = _scan_lua_long_bracket(source, start + 2)
+        if scanned is not None:
+            return scanned[3]
+    end = _skip_line_comment(source, start, profile.line_comments)
+    if end is not None:
+        return end
+    end = _skip_block_comment(
+        source, start, profile.block_comments, profile.block_comments_nest
+    )
+    if end is not None:
+        return end
+    scanner = _STRING_SCANNERS.get(profile.string_scanner, _scan_c_like_string)
+    scanned = scanner(source, start)
+    return scanned[3] if scanned is not None else None
+
+
+def _skip_code_region(source: str, start: int, language: str) -> Optional[int]:
+    profile = _LANGUAGE_PROFILES.get(language)
+    if profile is None:
+        return None
+    return _skip_via_profile(source, start, profile)
+
+
+def _normalize_boundary_call(raw: str) -> str:
+    """Strip trailing call punctuation from a matched boundary."""
+    return re.sub(r"[!\s(]+$", "", raw)
 
 
 # --------------------------------------------------------------------------- #
@@ -344,6 +838,31 @@ def _build_line_offsets(content: str, start: HostPosition) -> List[HostPosition]
     return offsets
 
 
+def _build_line_lengths(content: str) -> List[int]:
+    """Compute the virtual line lengths for an extracted island."""
+    return [len(line) for line in content.split("\n")]
+
+
+def _extract_pure_line_islands(source: str) -> List[Island]:
+    """Treat each ``.strl`` line as a standalone island.
+
+    The STRling editor contract treats native ``.strl`` buffers as pure DSL
+    text with no host wrapper. Splitting by line keeps diagnostics local to the
+    line being edited, which prevents unterminated constructs from projecting a
+    range all the way to the document EOF.
+    """
+    return [
+        Island(
+            virtual_content=line,
+            host_start=HostPosition(index, 0),
+            line_offsets=[HostPosition(index, 0)],
+            line_lengths=[len(line)],
+            boundary_call=".strl",
+        )
+        for index, line in enumerate(source.splitlines())
+    ]
+
+
 # --------------------------------------------------------------------------- #
 # Public extraction entry points                                              #
 # --------------------------------------------------------------------------- #
@@ -351,28 +870,49 @@ def _build_line_offsets(content: str, start: HostPosition) -> List[HostPosition]
 
 def extract_islands(source: str, language: str) -> List[Island]:
     """Sweep ``source`` for STRling boundary calls and return all islands."""
+    if language == "strl":
+        return _extract_pure_line_islands(source)
+
     boundaries = boundary_calls().get(language)
     if not boundaries:
         return []
 
-    combined = re.compile("|".join(f"(?:{p})" for p in boundaries))
+    compiled_boundaries = [re.compile(pattern) for pattern in boundaries]
     islands: List[Island] = []
-    for match in combined.finditer(source):
-        literal_start = match.end()
-        scanned = _scan_literal(source, literal_start)
-        if scanned is None:
+    i = 0
+    n = len(source)
+    while i < n:
+        skipped = _skip_code_region(source, i, language)
+        if skipped is not None:
+            i = max(i + 1, skipped)
             continue
-        content, content_start, _content_end = scanned
-        host_start = _offset_to_position(source, content_start)
-        line_offsets = _build_line_offsets(content, host_start)
-        islands.append(
-            Island(
-                virtual_content=content,
-                host_start=host_start,
-                line_offsets=line_offsets,
-                boundary_call=match.group(0).rstrip("( \t").rstrip(),
+
+        matched = False
+        for boundary in compiled_boundaries:
+            match = boundary.match(source, i)
+            if match is None:
+                continue
+            literal_start = match.end()
+            scanned = _scan_literal(source, literal_start, language)
+            if scanned is None:
+                continue
+            content, content_start, _content_end, literal_end = scanned
+            host_start = _offset_to_position(source, content_start)
+            line_offsets = _build_line_offsets(content, host_start)
+            islands.append(
+                Island(
+                    virtual_content=content,
+                    host_start=host_start,
+                    line_offsets=line_offsets,
+                    line_lengths=_build_line_lengths(content),
+                    boundary_call=_normalize_boundary_call(match.group(0)),
+                )
             )
-        )
+            i = literal_end
+            matched = True
+            break
+        if not matched:
+            i += 1
     return islands
 
 

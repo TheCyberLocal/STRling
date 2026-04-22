@@ -25,11 +25,17 @@ const fs = require("fs");
 const [sourcePath, targetPath] = process.argv.slice(2);
 const manifest = JSON.parse(fs.readFileSync(sourcePath, "utf8"));
 manifest.main = "./out/extension.js";
+// vsce refuses to combine a `files` allowlist with `.vscodeignore`. The
+// dist/ payload is hermetically assembled, so the .vscodeignore is the
+// authoritative exclusion mechanism inside dist/. Strip the source
+// manifest's `files` allowlist before writing the packaged manifest.
+delete manifest.files;
 fs.writeFileSync(targetPath, `${JSON.stringify(manifest, null, 4)}\n`);
 EOF
 
 cp "${script_dir}/README.md" "${dist_dir}/README.md"
 cp "${script_dir}/language-configuration.json" "${dist_dir}/language-configuration.json"
+cp "${script_dir}/.vscodeignore" "${dist_dir}/.vscodeignore"
 cp "${repo_root}/LICENSE" "${dist_dir}/LICENSE"
 cp "${script_dir}/server/server.py" "${server_dir}/server.py"
 cp "${script_dir}/server/island_extractor.py" "${server_dir}/island_extractor.py"

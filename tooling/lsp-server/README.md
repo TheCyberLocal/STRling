@@ -57,6 +57,15 @@ In source-tree runs, the same bootstrap also falls back to the local shim
 packages under `tooling/lsp-server/` so tests can execute without building a
 VSIX first.
 
+Island extraction now operates in two modes:
+
+- Host-language mode scans known boundary calls such as `s.parse(...)`,
+  `simply.parse(...)`, and `STRling.parse(...)`, then projects diagnostics back
+  into the original TypeScript/JavaScript/Python/Rust/Java document.
+- Pure `.strl` mode bypasses boundary regexes and treats each source line as a
+  standalone STRling island so unterminated constructs stay clamped to the line
+  being edited instead of bleeding to the file EOF.
+
 ## Local Installation
 
 ## Local Development
