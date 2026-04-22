@@ -22,38 +22,102 @@ Usage:
 """
 
 import sys
+import os
 import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from lsprotocol import types as lsp
-from pygls.server import JsonRPCServer
-from pygls.protocol import LanguageServerProtocol, default_converter
+_SERVER_FILE = os.path.realpath(os.path.abspath(__file__))
+_SERVER_DIR = os.path.dirname(_SERVER_FILE)
+_VENDOR_DIR = os.path.join(_SERVER_DIR, "libs")
+
+if os.path.isdir(_VENDOR_DIR) and _VENDOR_DIR not in sys.path:
+    sys.path.insert(0, _VENDOR_DIR)
+
+
+def _find_python_binding_src() -> Optional[str]:
+    """Return the in-repo Python binding source directory when available."""
+    candidates = [
+        os.path.realpath(os.path.join(_SERVER_DIR, "..", "..")),
+        os.path.realpath(os.path.join(_SERVER_DIR, "..", "..", "..")),
+    ]
+    for repo_root in candidates:
+        python_src = os.path.join(repo_root, "bindings", "python", "src")
+        if os.path.isdir(python_src):
+            return python_src
+    return None
+
+
+_PYTHON_SRC = _find_python_binding_src()
+if _PYTHON_SRC is not None and _PYTHON_SRC not in sys.path:
+    sys.path.insert(0, _PYTHON_SRC)
+
+
+def _format_sys_path_matrix() -> str:
+    """Render ``sys.path`` as an indexed matrix for stderr forensics."""
+    return "\n".join(
+        f"  [{index}] {entry or '<empty>'}" for index, entry in enumerate(sys.path)
+    )
+
+
+def _exit_with_import_context(import_target: str, import_error: ImportError) -> None:
+    """Terminate with a signpost error that includes path and env forensics."""
+    sys.stderr.write(
+        f"STRling language server failed to import {import_target}.\n"
+        f"ImportError: {import_error}\n"
+        f"Server file: {_SERVER_FILE}\n"
+        f"Server directory: {_SERVER_DIR}\n"
+        f"Target vendor directory: {_VENDOR_DIR}\n"
+        f"Vendor directory exists: {os.path.isdir(_VENDOR_DIR)}\n"
+        f"Resolved STRling Python source: {_PYTHON_SRC or '<not found>'}\n"
+        f"Current working directory: {os.getcwd()}\n"
+        f"Python executable: {sys.executable}\n"
+        f"PYTHONPATH env: {os.environ.get('PYTHONPATH', '<unset>')}\n"
+        "sys.path matrix:\n"
+        f"{_format_sys_path_matrix()}\n"
+        "Next step: rebuild the extension dist folder so dist/server/libs contains "
+        "pygls, lsprotocol, and the STRling Python binding before relaunching the server.\n"
+    )
+    sys.exit(1)
+
+
+try:
+    from lsprotocol import types as lsp
+    from pygls.server import JsonRPCServer
+    from pygls.protocol import LanguageServerProtocol, default_converter
+except ImportError as import_error:
+    _exit_with_import_context("its transport dependencies", import_error)
 
 # Make the in-tree Python binding importable when running the LSP server
 # directly out of the repository (the common development path). Production
 # installs that already have ``STRling`` on ``sys.path`` are unaffected
 # because :func:`Path.insert` is idempotent for duplicate entries here.
-_REPO_ROOT = Path(__file__).resolve().parents[2]
-_PYTHON_SRC = _REPO_ROOT / "bindings" / "python" / "src"
-if _PYTHON_SRC.is_dir() and str(_PYTHON_SRC) not in sys.path:
-    sys.path.insert(0, str(_PYTHON_SRC))
+_PYTHON_SRC_PATH = Path(_PYTHON_SRC) if _PYTHON_SRC is not None else None
+if (
+    _PYTHON_SRC_PATH is not None
+    and _PYTHON_SRC_PATH.is_dir()
+    and str(_PYTHON_SRC_PATH) not in sys.path
+):
+    sys.path.insert(0, str(_PYTHON_SRC_PATH))
 
-from STRling.core.intelligence import (  # noqa: E402  (intentional path mutation)
-    Island,
-    SEMANTIC_TOKEN_MODIFIERS,
-    SEMANTIC_TOKEN_TYPES,
-    analyze_content,
-    emit_pcre2_for_pattern,
-    extract_document_symbols,
-    extract_islands_for_uri,
-    find_registry_definition,
-    format_pattern,
-    get_completion_items,
-    get_registry_documentation,
-    language_for_uri,
-    tokenize_pattern,
-)
+try:
+    from STRling.core.intelligence import (  # noqa: E402  (intentional path mutation)
+        Island,
+        SEMANTIC_TOKEN_MODIFIERS,
+        SEMANTIC_TOKEN_TYPES,
+        analyze_content,
+        emit_pcre2_for_pattern,
+        extract_document_symbols,
+        extract_islands_for_uri,
+        find_registry_definition,
+        format_pattern,
+        get_completion_items,
+        get_registry_documentation,
+        language_for_uri,
+        tokenize_pattern,
+    )
+except ImportError as import_error:
+    _exit_with_import_context("the STRling Python binding", import_error)
 
 
 # Define the server with proper protocol

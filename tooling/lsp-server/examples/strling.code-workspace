@@ -11,9 +11,9 @@
     },
     "genericLanguageServer.languageConfigs": {
       "strling": {
-        "command": "python",
+        "command": "python3",
         "args": [
-          "${workspaceFolder}/tooling/lsp-server/server.py",
+          "${workspaceFolder}/tooling/lsp-server/server/server.py",
           "--stdio"
         ],
         "filetypes": ["strl", "strling"],

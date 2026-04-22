@@ -25,6 +25,8 @@ pip install -e .
 ```bash
 cd tooling/lsp-server
 pip install -r requirements.txt
+npm install
+npm run assemble
 ```
 
 This will install:
@@ -48,7 +50,7 @@ Test the LSP server imports:
 
 ```bash
 cd tooling/lsp-server
-python -c "from server import server; print('LSP Server ready!')"
+python3 -c "from server.server import server; print('LSP Server ready!')"
 ```
 
 ## Editor Configuration
@@ -64,9 +66,9 @@ python -c "from server import server; print('LSP Server ready!')"
 {
     "genericLanguageServer.languageConfigs": {
         "strling": {
-            "command": "python",
+            "command": "python3",
             "args": [
-                "/absolute/path/to/STRling/tooling/lsp-server/server.py",
+                "/absolute/path/to/STRling/tooling/lsp-server/server/server.py",
                 "--stdio"
             ],
             "filetypes": ["strl", "strling"]
@@ -75,9 +77,17 @@ python -c "from server import server; print('LSP Server ready!')"
 }
 ```
 
-#### Option 2: Custom Extension (Future Work)
+#### Option 2: Bundled STRling Extension
 
-A dedicated VS Code extension is planned for future development.
+Build and install the repository's bundled extension:
+
+```bash
+cd tooling/lsp-server
+npm install
+npm run assemble
+npm run package
+code --install-extension dist/vscode-strling.vsix --force
+```
 
 ### Neovim (with nvim-lspconfig)
 
@@ -92,8 +102,8 @@ if not configs.strling then
   configs.strling = {
     default_config = {
       cmd = {
-        'python',
-        '/absolute/path/to/STRling/tooling/lsp-server/server.py',
+                'python3',
+                '/absolute/path/to/STRling/tooling/lsp-server/server/server.py',
         '--stdio'
       },
       filetypes = {'strl', 'strling'},
@@ -117,8 +127,8 @@ lspconfig.strling.setup{}
         "strling": {
             "enabled": true,
             "command": [
-                "python",
-                "/absolute/path/to/STRling/tooling/lsp-server/server.py",
+                "python3",
+                "/absolute/path/to/STRling/tooling/lsp-server/server/server.py",
                 "--stdio"
             ],
             "selector": "source.strling",
@@ -177,11 +187,11 @@ Currently, all diagnostics are reported as **Error** level.
 
 **Solutions**:
 
-1. Verify Python is in your PATH: `python --version`
+1. Verify Python is in your PATH: `python3 --version`
 2. Check the server imports correctly:
     ```bash
     cd tooling/lsp-server
-    python -c "from server import server; print('OK')"
+    python3 -c "from server.server import server; print('OK')"
     ```
 3. Check editor logs for detailed error messages
 
@@ -204,12 +214,13 @@ Currently, all diagnostics are reported as **Error** level.
 
 **Solutions**:
 
-1. Reinstall STRling in editable mode:
+1. Rebuild the hermetic payload so `dist/server/libs` is repopulated:
     ```bash
-    cd bindings/python
-    pip install -e .
+    cd tooling/lsp-server
+    npm run package
     ```
-2. Verify installation: `python -c "import STRling; print('OK')"`
+2. For direct source-tree runs, verify the binding imports:
+   `python3 -c "import sys; sys.path.insert(0, 'bindings/python/src'); import STRling; print('OK')"`
 
 ### Diagnostics Too Slow
 
@@ -228,7 +239,7 @@ Run the test suite to verify everything is working:
 ```bash
 # Test island extractor + LSP integration (uses the in-process intelligence core)
 cd tooling/lsp-server
-python -m pytest tests/test_island_extractor.py tests/test_lsp_server.py -v
+python3 -m pytest tests/test_island_extractor.py tests/test_lsp_server.py -v
 
 # Test LSP diagnostic conversion
 cd ../../bindings/python
@@ -236,7 +247,7 @@ python -m pytest tests/unit/test_lsp_diagnostics.py -v
 
 # Test LSP server
 cd ../../tooling/lsp-server
-python -m pytest tests/test_lsp_server.py -v
+python3 -m pytest tests/test_lsp_server.py -v
 ```
 
 All tests should pass.

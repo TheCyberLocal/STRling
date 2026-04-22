@@ -63,8 +63,8 @@ If you add or change tooling, please update this index so maintainers and CI con
 - `js_to_json_ast/` — JS→JSON AST generator and fixtures pipeline. Use this to extract patterns from JS tests (`extract_patterns_from_js_tests.js`), generate JSON AST artifacts (`generate_json_ast.js`), verify parity with the C emitter (`verify_js_c_parity.js`), and to manage the large fixtures corpus in `js_to_json_ast/fixtures/`.
     - See `tooling/js_to_json_ast/README.md` for full generator workflows and environment setup (requires building the TypeScript binding).
 
-- `lsp-server/` — Language Server Protocol implementation and docs. Provides an LSP server (`server.py`) that consumes the unified Python language-intelligence core (`STRling.core.intelligence`) in-process — the same module that backs `tooling/parse_strl.py`. Includes examples demonstrating valid/invalid `.strl` files, vendored support libs, and README/setup docs.
-    - Key files: `server.py`, `LSP_SETUP.md`, `IMPLEMENTATION_SUMMARY.md`, `README.md`.
+- `lsp-server/` — Unified source-of-truth for the Python LSP server and the VS Code extension packaging pipeline. The hand-authored sources live here (`server/server.py`, `server/island_extractor.py`, `client/extension.ts`), while `assemble.sh` assembles a disposable `dist/` folder containing the vendored Python runtime and packaged VSIX payload.
+    - Key files: `server/server.py`, `client/extension.ts`, `assemble.sh`, `README.md`, `LSP_SETUP.md`.
 
 - `scripts/` — Miscellaneous helper scripts for environment verification and CI maintenance tasks. Example: `scripts/verify_ecosystem.py`.
 
@@ -92,12 +92,20 @@ cd tooling/js_to_json_ast
 node ./generate_json_ast.js fixtures/ out/
 ```
 
-- Start the LSP server (recommended to create a Python venv and install `tooling/lsp-server/requirements.txt`):
+- Build the VS Code extension from the unified LSP source tree:
+
+```bash
+cd tooling/lsp-server
+npm install
+npm run package
+```
+
+- Start the Python LSP server directly (development path):
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r tooling/lsp-server/requirements.txt
-python tooling/lsp-server/server.py --stdio
+python tooling/lsp-server/server/server.py --stdio
 ```
 
 ---
@@ -189,13 +197,13 @@ Note: `tooling/js_to_json_ast/fixtures/` contains many fixture files (pattern so
 
 - `tooling/lsp-server/` — The Python LSP implementation used for editor integration (live diagnostics, hints). Key files:
     - `tooling/lsp-server/README.md` — setup and integration notes
-    - `tooling/lsp-server/server.py` — main entrypoint for running the LSP server
+    - `tooling/lsp-server/server/server.py` — main entrypoint for running the LSP server
 
     Typical usage:
 
     ```bash
     pip install -r tooling/lsp-server/requirements.txt
-    python tooling/lsp-server/server.py --stdio
+    python tooling/lsp-server/server/server.py --stdio
     ```
 
     The folder contains examples under `tooling/lsp-server/examples/` which are helpful when testing editor behavior.

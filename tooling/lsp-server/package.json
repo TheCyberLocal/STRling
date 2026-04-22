@@ -1,27 +1,87 @@
 {
-    "name": "strling-lsp-server",
-    "version": "1.0.0",
-    "description": "Language Server Protocol implementation for STRling - providing real-time diagnostics for STRling pattern files",
-    "main": "server.py",
-    "scripts": {
-        "start": "python server.py"
-    },
-    "keywords": [
-        "strling",
-        "lsp",
-        "language-server",
-        "diagnostics",
-        "regex",
-        "pattern"
-    ],
-    "author": "STRling Team",
-    "license": "MIT",
+    "name": "vscode-strling",
+    "displayName": "STRling Language Support",
+    "description": "Real-time STRling diagnostics and hover docs for embedded patterns inside TypeScript, Python, Rust and Java files.",
+    "version": "0.1.0",
+    "publisher": "strling-lang",
     "repository": {
         "type": "git",
         "url": "https://github.com/strling-lang/strling.git",
         "directory": "tooling/lsp-server"
     },
+    "license": "MIT",
     "engines": {
-        "python": ">=3.8"
+        "vscode": "^1.80.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Linters"
+    ],
+    "activationEvents": [
+        "onLanguage:typescript",
+        "onLanguage:typescriptreact",
+        "onLanguage:javascript",
+        "onLanguage:javascriptreact",
+        "onLanguage:python",
+        "onLanguage:rust",
+        "onLanguage:java"
+    ],
+    "main": "./dist/out/extension.js",
+    "contributes": {
+        "languages": [
+            {
+                "id": "strling",
+                "aliases": [
+                    "STRling",
+                    "strling"
+                ],
+                "extensions": [
+                    ".strl"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "STRling",
+            "properties": {
+                "strling.languageServer.command": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Executable used to launch the STRling language server. Leave blank to auto-detect python3/python from the extension host environment."
+                },
+                "strling.languageServer.args": {
+                    "type": "array",
+                    "default": [],
+                    "description": "Arguments passed to the language-server command. Defaults to the bundled server/server.py."
+                },
+                "strling.trace.server": {
+                    "type": "string",
+                    "enum": [
+                        "off",
+                        "messages",
+                        "verbose"
+                    ],
+                    "default": "off",
+                    "description": "Trace LSP communication for diagnostics."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "node -e \"process.exit(0)\"",
+        "bundle": "npx esbuild ./client/extension.ts --bundle --outfile=./dist/out/extension.js --external:vscode --platform=node",
+        "assemble": "bash ./assemble.sh",
+        "build:dist": "npm run assemble",
+        "package": "npm run assemble && cd dist && npx @vscode/vsce package --out vscode-strling.vsix",
+        "install:local": "npm run package && code --install-extension ./dist/vscode-strling.vsix --force"
+    },
+    "devDependencies": {
+        "@types/node": "^18.0.0",
+        "@types/vscode": "^1.80.0",
+        "@vscode/vsce": "^3.0.0",
+        "esbuild": "^0.20.0",
+        "typescript": "^5.0.0",
+        "vscode-languageclient": "^9.0.1"
     }
 }

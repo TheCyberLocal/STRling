@@ -1,161 +1,103 @@
-# STRling Language Server
+# STRling Language Server And VS Code Extension
 
-A Language Server Protocol (LSP) implementation for STRling, providing real-time diagnostics and intelligent error handling in code editors.
+This directory is the single source of truth for the STRling editor integration
+stack: the hand-authored Python language server, the VS Code client, and the
+hermetic build pipeline that assembles a disposable extension payload under
+`dist/`.
 
-## Overview
+## Source Layout
 
-This LSP server acts as a **delivery mechanism** for STRling's "Intelligent Error Handling" engine, translating rich `STRlingParseError` objects into real-time, instructional feedback within code editors like VS Code.
+- `server/server.py` is the canonical Python entrypoint for the language server.
+- `server/island_extractor.py` is the compatibility shim for island extraction.
+- `client/extension.ts` launches the bundled server with an explicit `cwd` and
+  `PYTHONPATH`, and auto-detects `python3` or `python` when the user has not
+  configured a command override.
+- `package.json`, `language-configuration.json`, and this `README.md` are the
+  metadata templates copied into `dist/`.
+- `assemble.sh` is the authoritative assembly pipeline. `build_extension.sh`
+  remains only as a compatibility wrapper.
 
-## Architecture
+## Hermetic Build Pipeline
 
-The LSP server consumes the unified Python language-intelligence core in-process — there is no longer a separate CLI subprocess shadow:
-
-```
-Editor (VS Code) ←→ LSP Server ───→ Intelligence Core ───→ Parser
-                    (server.py)      (STRling.core.intelligence)   (STRling.core.parser)
-```
-
-### Key Components
-
-1. **LSP Server** (`server.py`): Handles LSP protocol communication with editors and owns Island-Grammar dispatch.
-   The local `pygls` shim now provides the actual stdio/TCP transport loop, so the server stays alive long enough to receive initialize/didOpen/didChange messages.
-2. **Intelligence Core** (`../../bindings/python/src/STRling/core/intelligence.py`): The single facade that produces diagnostics and exposes island extraction. The `tooling/parse_strl.py` CLI wraps the same module so editor diagnostics and CLI diagnostics never drift.
-3. **Parser** (`../../bindings/python/src/STRling/core/parser.py`): Core parsing logic, surfaced through `STRling.core.intelligence.analyze_content`.
-
-This separation ensures:
-
-- A single source of truth for diagnostics across the LSP and CLI surfaces.
-- Future compatibility with the Rust core implementation.
-- Multi-language binding support and clear separation of concerns.
-
-## Installation
-
-### Prerequisites
-
-- Python 3.8 or higher
-- pip (Python package manager)
-
-### Setup
+Build the extension from this directory:
 
 ```bash
-# From the tooling/lsp-server directory
-pip install -r requirements.txt
-
-# Install STRling Python bindings in development mode
-cd ../../bindings/python
-pip install -e .
+cd tooling/lsp-server
+npm install
+npm run assemble
+npm run package
 ```
 
-## Usage
+Each build starts from an empty `dist/` folder and then:
 
-### Standalone Server
+1. Copies extension metadata into `dist/`.
+2. Copies `server/server.py` and `server/island_extractor.py` into `dist/server/`.
+3. Vendors `pygls`, `lsprotocol`, and the local `bindings/python` package into
+   `dist/server/libs/`.
+4. Bundles `client/extension.ts` into `dist/out/extension.js` with `esbuild`.
+5. Packages the extension from `dist/` into `dist/vscode-strling.vsix`.
 
-Start the LSP server:
+The resulting VSIX is hermetic with respect to Python modules: the packaged
+server resolves `pygls`, `lsprotocol`, and `STRling` from `server/libs/`
+without requiring global `pip` installs.
+
+## Runtime Behavior
+
+The Python bootstrap at the top of `server/server.py` inserts `libs/` at
+`sys.path[0]` before importing transport or STRling modules. On import failure
+it emits a forensic stderr report that includes:
+
+- the resolved server path
+- the expected vendor directory
+- the current working directory
+- the `PYTHONPATH` environment value
+- the full `sys.path` matrix
+
+In source-tree runs, the same bootstrap also falls back to the local shim
+packages under `tooling/lsp-server/` so tests can execute without building a
+VSIX first.
+
+## Local Installation
+
+## Local Development
+
+Do not edit `dist/` directly. Treat it as a disposable build artifact.
+
+During local development, change files under `tooling/lsp-server/` and then
+rebuild the generated extension payload with:
 
 ```bash
-# Using stdio (default)
-python server.py --stdio
-
-# Using TCP
-python server.py --tcp --host 127.0.0.1 --port 2087
+cd tooling/lsp-server
+npm run assemble
 ```
 
-### VS Code Integration
+Use `npm run package` when you need a VSIX, and only inspect `dist/` to verify
+the assembled payload.
 
-Create or update `.vscode/settings.json` in your project:
+## Local Installation
 
-```json
-{
-    "strling.languageServer.enabled": true,
-    "strling.languageServer.command": "python",
-    "strling.languageServer.args": [
-        "/path/to/STRling/tooling/lsp-server/server.py",
-        "--stdio"
-    ]
-}
-```
-
-## Features
-
-### ✅ Implemented (MVP)
-
-- **Real-time Diagnostics**: Instant error detection as you type
-- **Instructional Hints**: Beginner-friendly error messages with fix suggestions
-- **Position Tracking**: Accurate error location with line/column info
-- **Multi-line Support**: Handles patterns spanning multiple lines
-
-### 🚧 Planned Features
-
-- Code completion and suggestions
-- Hover documentation
-- Go to definition for named groups
-- Symbol highlighting
-- Quick fixes and refactoring
-
-## JSON Communication Contract
-
-The CLI server emits JSON diagnostics in LSP-compatible format:
-
-```json
-{
-    "success": false,
-    "diagnostics": [
-        {
-            "range": {
-                "start": { "line": 0, "character": 4 },
-                "end": { "line": 0, "character": 5 }
-            },
-            "severity": 1,
-            "message": "Unterminated group\n\nHint: This group was opened with '(' but never closed.",
-            "source": "STRling",
-            "code": "unterminated_group"
-        }
-    ],
-    "version": "1.0.0"
-}
-```
-
-### Severity Levels
-
-- `1` = Error (parse failures, syntax errors)
-- `2` = Warning (deprecated features, best practices)
-- `3` = Information (informational messages)
-- `4` = Hint (optimization suggestions)
-
-## Testing
-
-See the `tests/` directory for functional tests.
+Install the generated VSIX into VS Code with:
 
 ```bash
-# Run LSP server tests
-python -m pytest tests/
+cd tooling/lsp-server
+npm run install:local
 ```
 
-## Development
+After installation, open a TypeScript, JavaScript, Python, Rust, Java, or
+`.strl`-associated document and check the Output panel entry named
+`STRling Language Server`.
 
-### Adding New Features
+## Verification
 
-1. Extend the intelligence core (`STRling.core.intelligence`) to expose new diagnostics
-2. Update the LSP server (`server.py`) to handle new LSP capabilities
-3. Add tests to validate the new functionality
-4. Update documentation
+Useful checks while iterating:
 
-### Debugging
-
-Enable logging in VS Code:
-
-```json
-{
-    "strling.trace.server": "verbose"
-}
+```bash
+cd tooling/lsp-server
+python3 -m pytest tests/test_lsp_server.py -v
+npm run assemble
+npm run package
+python3 dist/server/server.py --help
 ```
 
-Check the Output panel → "STRling Language Server" for logs.
-
-## License
-
-MIT License - See the root LICENSE file for details.
-
-## Contributing
-
-Contributions are welcome! Please see the main project CONTRIBUTING guidelines.
+For direct source-tree setup outside the packaged VS Code flow, see
+`LSP_SETUP.md`.

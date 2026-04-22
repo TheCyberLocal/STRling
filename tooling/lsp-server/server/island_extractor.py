@@ -15,7 +15,7 @@ from pathlib import Path
 
 # Ensure the in-tree Python binding is importable when this shim is used
 # from the lsp-server tree without the package being installed.
-_REPO_ROOT = Path(__file__).resolve().parents[2]
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 _PY_SRC = _REPO_ROOT / "bindings" / "python" / "src"
 if _PY_SRC.is_dir() and str(_PY_SRC) not in sys.path:
     sys.path.insert(0, str(_PY_SRC))

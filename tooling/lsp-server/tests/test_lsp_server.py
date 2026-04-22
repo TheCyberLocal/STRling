@@ -1,8 +1,9 @@
 """
-Basic smoke tests for the STRling LSP Server
-
-These tests verify that the server can start and perform basic operations.
-Full LSP integration testing would require more complex setup with an LSP client.
+Module Pedagogy:
+These smoke tests pin the language server's boot path to the normalized
+`tooling/lsp-server/server/` source package. They catch regressions where the
+build or test harness accidentally falls back to the old flat layout before we
+pay the cost of packaging a VSIX.
 """
 
 import sys
@@ -20,7 +21,7 @@ class TestLSPServerStartup:
             [
                 sys.executable,
                 "-c",
-                "import sys; sys.path.insert(0, '.'); from server import server",
+                "import sys; sys.path.insert(0, '.'); from server.server import server",
             ],
             cwd=str(Path(__file__).parent.parent),
             capture_output=True,
@@ -36,7 +37,7 @@ class TestLSPServerStartup:
         test_code = """
 import sys
 sys.path.insert(0, ".")
-from server import get_diagnostics_from_cli
+from server.server import get_diagnostics_from_cli
 
 diagnostics = get_diagnostics_from_cli("(abc")
 print(len(diagnostics))
@@ -60,7 +61,7 @@ print(diagnostics[0].message if diagnostics else "No diagnostics")
     def test_server_help_message(self):
         """Test that the server prints help."""
         result = subprocess.run(
-            [sys.executable, "server.py", "--help"],
+            [sys.executable, "server/server.py", "--help"],
             cwd=str(Path(__file__).parent.parent),
             capture_output=True,
             text=True,

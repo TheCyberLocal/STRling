@@ -13,8 +13,10 @@
  */
 
 import * as path from "path";
+import { spawnSync } from "child_process";
 import { ExtensionContext, workspace } from "vscode";
 import {
+    ExecutableOptions,
     LanguageClient,
     LanguageClientOptions,
     ServerOptions,
@@ -23,10 +25,38 @@ import {
 
 let client: LanguageClient | undefined;
 
+function resolveLanguageServerCommand(configuredCommand?: string): string {
+    if (configuredCommand && configuredCommand.trim().length > 0) {
+        return configuredCommand;
+    }
+
+    const candidates =
+        process.platform === "win32" ? ["python", "py"] : ["python3", "python"];
+
+    for (const candidate of candidates) {
+        const probe = spawnSync(candidate, ["--version"], {
+            encoding: "utf8",
+        });
+        if (!probe.error && probe.status === 0) {
+            return candidate;
+        }
+    }
+
+    return candidates[0];
+}
+
 export function activate(context: ExtensionContext): void {
     const config = workspace.getConfiguration("strling");
+    const extensionRoot = context.extensionPath;
+    const bundledServerPath = context.asAbsolutePath(
+        path.join("server", "server.py"),
+    );
+    const bundledVendorPath = context.asAbsolutePath(
+        path.join("server", "libs"),
+    );
 
-    const command = config.get<string>("languageServer.command", "python");
+    const configuredCommand = config.get<string>("languageServer.command", "");
+    const command = resolveLanguageServerCommand(configuredCommand);
     const configuredArgs = config.get<string[]>("languageServer.args", []);
     const args = configuredArgs.length
         ? configuredArgs
@@ -34,13 +64,35 @@ export function activate(context: ExtensionContext): void {
               // Default: launch the bundled server that ships inside the
               // extension package. Advanced users can still override this with
               // `strling.languageServer.args`.
-              context.asAbsolutePath(path.join("server", "server.py")),
+              bundledServerPath,
               "--stdio",
           ];
 
+    const inheritedPythonPath = process.env.PYTHONPATH;
+    const pythonPathEntries = inheritedPythonPath
+        ? [bundledVendorPath, inheritedPythonPath]
+        : [bundledVendorPath];
+    const executableOptions: ExecutableOptions = {
+        cwd: extensionRoot,
+        env: {
+            ...process.env,
+            PYTHONPATH: pythonPathEntries.join(path.delimiter),
+        },
+    };
+
     const serverOptions: ServerOptions = {
-        run: { command, args, transport: TransportKind.stdio },
-        debug: { command, args, transport: TransportKind.stdio },
+        run: {
+            command,
+            args,
+            options: executableOptions,
+            transport: TransportKind.stdio,
+        },
+        debug: {
+            command,
+            args,
+            options: executableOptions,
+            transport: TransportKind.stdio,
+        },
     };
 
     // Document selectors: every language we want to receive Island Grammar
@@ -60,13 +112,6 @@ export function activate(context: ExtensionContext): void {
         synchronize: {
             configurationSection: "strling",
         },
-        // Phase 1.1 handshake: explicitly opt-in to ambient-intelligence
-        // features so the language server knows the client supports them.
-        // `vscode-languageclient` auto-registers the matching providers
-        // (hover, semanticTokens/full) once the server advertises the
-        // capabilities in its initialize response — these flags are what
-        // we surface to the server via `initializationOptions` so it can
-        // choose whether to pay the compile/tokenise cost.
         initializationOptions: {
             features: {
                 hover: true,
@@ -78,10 +123,6 @@ export function activate(context: ExtensionContext): void {
                 formatting: true,
             },
         },
-        // Important: do NOT contribute syntax highlighting for host languages —
-        // the host LSPs remain authoritative. The client registers the
-        // Semantic Token Provider returned by the server and overlays its
-        // tokens on top of the host's existing colouring.
         middleware: {},
     };
 
