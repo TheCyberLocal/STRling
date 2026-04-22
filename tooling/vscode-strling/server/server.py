@@ -31,17 +31,12 @@ from pygls.server import JsonRPCServer
 from pygls.protocol import LanguageServerProtocol, default_converter
 
 # Make the in-tree Python binding importable when running the LSP server
-# directly out of a repository checkout. The extension package can live at a
-# different depth than the sibling tooling workspace, so we walk upward until
-# we find the checkout root that contains ``bindings/python/src``. Production
-# installs that already have ``STRling`` on ``sys.path`` are unaffected.
-_PYTHON_SRC = None
-for _candidate in Path(__file__).resolve().parents:
-    _maybe_python_src = _candidate / "bindings" / "python" / "src"
-    if _maybe_python_src.is_dir():
-        _PYTHON_SRC = _maybe_python_src
-        break
-if _PYTHON_SRC is not None and str(_PYTHON_SRC) not in sys.path:
+# directly out of the repository (the common development path). Production
+# installs that already have ``STRling`` on ``sys.path`` are unaffected
+# because :func:`Path.insert` is idempotent for duplicate entries here.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_PYTHON_SRC = _REPO_ROOT / "bindings" / "python" / "src"
+if _PYTHON_SRC.is_dir() and str(_PYTHON_SRC) not in sys.path:
     sys.path.insert(0, str(_PYTHON_SRC))
 
 from STRling.core.intelligence import (  # noqa: E402  (intentional path mutation)
