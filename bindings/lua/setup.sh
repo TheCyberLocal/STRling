@@ -42,6 +42,10 @@ luarocks install $LOCAL_FLAG --only-deps "$ROCKSPEC"
 echo "Installing busted test runner..."
 luarocks install $LOCAL_FLAG busted
 
+# Install the PCRE2 runtime used by the essential_5_spec.lua integration test.
+echo "Installing Lua PCRE2 runtime..."
+luarocks install $LOCAL_FLAG lrexlib-pcre2
+
 # Build/Install the rock locally to ensure paths are correct
 echo "Building and installing strling rock..."
 luarocks make $LOCAL_FLAG "$ROCKSPEC"
