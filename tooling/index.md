@@ -63,7 +63,7 @@ If you add or change tooling, please update this index so maintainers and CI con
 - `js_to_json_ast/` — JS→JSON AST generator and fixtures pipeline. Use this to extract patterns from JS tests (`extract_patterns_from_js_tests.js`), generate JSON AST artifacts (`generate_json_ast.js`), verify parity with the C emitter (`verify_js_c_parity.js`), and to manage the large fixtures corpus in `js_to_json_ast/fixtures/`.
     - See `tooling/js_to_json_ast/README.md` for full generator workflows and environment setup (requires building the TypeScript binding).
 
-- `lsp-server/` — Language Server Protocol implementation and docs. Provides an LSP server that wraps the CLI diagnostics (`server.py`), examples demonstrating valid/invalid `.strl` files, vendored support libs, and README/setup docs.
+- `lsp-server/` — Language Server Protocol implementation and docs. Provides an LSP server (`server.py`) that consumes the unified Python language-intelligence core (`STRling.core.intelligence`) in-process — the same module that backs `tooling/parse_strl.py`. Includes examples demonstrating valid/invalid `.strl` files, vendored support libs, and README/setup docs.
     - Key files: `server.py`, `LSP_SETUP.md`, `IMPLEMENTATION_SUMMARY.md`, `README.md`.
 
 - `scripts/` — Miscellaneous helper scripts for environment verification and CI maintenance tasks. Example: `scripts/verify_ecosystem.py`.

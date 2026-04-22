@@ -28,19 +28,20 @@ pip install -r requirements.txt
 ```
 
 This will install:
+
 - `pygls` - Python Generic Language Server implementation
 - `lsprotocol` - LSP protocol types
 
 ### 3. Verify Installation
 
-Test the CLI server:
+Test the parser CLI (which now wraps the unified intelligence core):
 
 ```bash
-# Test with stdin
-echo "(abc" | python -m STRling.cli_server --diagnostics-stdin
+# Parse from stdin (exit 2 + JSON error envelope on failure)
+echo "(abc" | python3 tooling/parse_strl.py -
 
-# Test with a file
-python -m STRling.cli_server --diagnostics path/to/file.strl
+# Parse a file
+python3 tooling/parse_strl.py path/to/file.strl
 ```
 
 Test the LSP server imports:
@@ -61,16 +62,16 @@ python -c "from server import server; print('LSP Server ready!')"
 
 ```json
 {
-  "genericLanguageServer.languageConfigs": {
-    "strling": {
-      "command": "python",
-      "args": [
-        "/absolute/path/to/STRling/tooling/lsp-server/server.py",
-        "--stdio"
-      ],
-      "filetypes": ["strl", "strling"]
+    "genericLanguageServer.languageConfigs": {
+        "strling": {
+            "command": "python",
+            "args": [
+                "/absolute/path/to/STRling/tooling/lsp-server/server.py",
+                "--stdio"
+            ],
+            "filetypes": ["strl", "strling"]
+        }
     }
-  }
 }
 ```
 
@@ -112,24 +113,25 @@ lspconfig.strling.setup{}
 
 ```json
 {
-  "clients": {
-    "strling": {
-      "enabled": true,
-      "command": [
-        "python",
-        "/absolute/path/to/STRling/tooling/lsp-server/server.py",
-        "--stdio"
-      ],
-      "selector": "source.strling",
-      "schemes": ["file"]
+    "clients": {
+        "strling": {
+            "enabled": true,
+            "command": [
+                "python",
+                "/absolute/path/to/STRling/tooling/lsp-server/server.py",
+                "--stdio"
+            ],
+            "selector": "source.strling",
+            "schemes": ["file"]
+        }
     }
-  }
 }
 ```
 
 ## File Extensions
 
 The LSP server will automatically activate for files with these extensions:
+
 - `.strl` - Recommended
 - `.strling` - Alternative
 
@@ -158,12 +160,12 @@ You may need to configure your editor to recognize these file types.
 
 The LSP server uses standard LSP severity levels:
 
-| Level | Value | Description |
-|-------|-------|-------------|
-| Error | 1 | Parse failures, syntax errors |
-| Warning | 2 | Deprecated features, best practices |
-| Information | 3 | Informational messages |
-| Hint | 4 | Optimization suggestions |
+| Level       | Value | Description                         |
+| ----------- | ----- | ----------------------------------- |
+| Error       | 1     | Parse failures, syntax errors       |
+| Warning     | 2     | Deprecated features, best practices |
+| Information | 3     | Informational messages              |
+| Hint        | 4     | Optimization suggestions            |
 
 Currently, all diagnostics are reported as **Error** level.
 
@@ -174,12 +176,13 @@ Currently, all diagnostics are reported as **Error** level.
 **Problem**: Editor shows "LSP server failed to start"
 
 **Solutions**:
+
 1. Verify Python is in your PATH: `python --version`
 2. Check the server imports correctly:
-   ```bash
-   cd tooling/lsp-server
-   python -c "from server import server; print('OK')"
-   ```
+    ```bash
+    cd tooling/lsp-server
+    python -c "from server import server; print('OK')"
+    ```
 3. Check editor logs for detailed error messages
 
 ### No Diagnostics Appearing
@@ -187,11 +190,12 @@ Currently, all diagnostics are reported as **Error** level.
 **Problem**: File opens but no errors are shown for invalid patterns
 
 **Solutions**:
+
 1. Verify file extension is `.strl` or `.strling`
-2. Check the CLI server works:
-   ```bash
-   echo "(abc" | python -m STRling.cli_server --diagnostics-stdin
-   ```
+2. Check the parser CLI works:
+    ```bash
+    echo "(abc" | python3 tooling/parse_strl.py -
+    ```
 3. Check editor LSP logs (usually in Output panel)
 
 ### Import Errors
@@ -199,11 +203,12 @@ Currently, all diagnostics are reported as **Error** level.
 **Problem**: `ModuleNotFoundError: No module named 'STRling'`
 
 **Solutions**:
+
 1. Reinstall STRling in editable mode:
-   ```bash
-   cd bindings/python
-   pip install -e .
-   ```
+    ```bash
+    cd bindings/python
+    pip install -e .
+    ```
 2. Verify installation: `python -c "import STRling; print('OK')"`
 
 ### Diagnostics Too Slow
@@ -211,18 +216,19 @@ Currently, all diagnostics are reported as **Error** level.
 **Problem**: Diagnostics appear with significant delay
 
 **Solutions**:
-1. The CLI server has a 5-second timeout - very complex patterns may timeout
-2. Consider breaking large patterns into smaller components
-3. Check if your system is under high load
+
+1. The LSP debounces text changes by 50 ms; very complex patterns may exceed that.
+2. Consider breaking large patterns into smaller components.
+3. Check if your system is under high load.
 
 ## Testing
 
 Run the test suite to verify everything is working:
 
 ```bash
-# Test CLI server
+# Test island extractor + LSP integration (uses the in-process intelligence core)
 cd tooling/lsp-server
-python -m pytest tests/test_cli_server.py -v
+python -m pytest tests/test_island_extractor.py tests/test_lsp_server.py -v
 
 # Test LSP diagnostic conversion
 cd ../../bindings/python
@@ -240,20 +246,22 @@ All tests should pass.
 1. Create a STRling pattern file: `touch pattern.strl`
 2. Open it in your editor (VS Code, Neovim, etc.)
 3. Start typing a pattern:
-   ```
-   (hello world
-   ```
+    ```
+    (hello world
+    ```
 4. The LSP server will immediately show an error:
-   ```
-   Unterminated group
-   
-   Hint: This group was opened with '(' but never closed. 
-   Add a matching ')' to close the group.
-   ```
+
+    ```
+    Unterminated group
+
+    Hint: This group was opened with '(' but never closed.
+    Add a matching ')' to close the group.
+    ```
+
 5. Fix the error by adding the closing parenthesis:
-   ```
-   (hello world)
-   ```
+    ```
+    (hello world)
+    ```
 6. The error clears automatically!
 
 ## Architecture
@@ -270,15 +278,14 @@ All tests should pass.
 │   LSP Server    │
 │   (server.py)   │
 └────────┬────────┘
-         │ CLI/JSON
-         │ (subprocess)
+         │ In-process Python call
          ▼
-┌─────────────────┐
-│   CLI Server    │
-│ (cli_server.py) │
-└────────┬────────┘
+┌─────────────────────┐
+│ Intelligence Core   │
+│ (STRling.core.      │
+│  intelligence)      │
+└────────┬───────────┘
          │ Python API
-         │
          ▼
 ┌─────────────────┐
 │  STRling Parser │
@@ -287,6 +294,8 @@ All tests should pass.
 ```
 
 This architecture ensures:
+
+- One single source of truth for diagnostics (shared with `tooling/parse_strl.py`)
 - **Binding-agnostic** design
 - Future compatibility with Rust core
 - Clear separation of concerns
@@ -295,9 +304,8 @@ This architecture ensures:
 ## Performance
 
 - **Startup Time**: < 1 second
-- **Diagnostic Latency**: < 100ms for typical patterns
+- **Diagnostic Latency**: < 100ms for typical patterns (in-process, no subprocess hop)
 - **Memory Usage**: ~50MB base + pattern size
-- **Timeout**: 5 seconds for complex patterns
 
 ## Security
 
@@ -322,5 +330,6 @@ MIT License - See the root LICENSE file for details.
 ## Support
 
 For issues or questions:
+
 - GitHub Issues: https://github.com/strling-lang/strling/issues
 - Documentation: https://github.com/strling-lang/strling/tree/main/docs

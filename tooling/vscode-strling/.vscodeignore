@@ -1,0 +1,7 @@
+# .vscodeignore
+.vscode/**
+src/**
+tsconfig.json
+node_modules/**
+!server/**
+!out/**

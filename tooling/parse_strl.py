@@ -1,46 +1,69 @@
 #!/usr/bin/env python3
-import sys
-import json
+"""
+parse_strl.py — Thin CLI wrapper over the unified language-intelligence core.
+
+Module Pedagogy:
+================
+This script is the single command-line surface for analyzing STRling DSL
+files. After the consolidation of the previous CLI server shadow, all
+parsing, validation, and emission flows go through the same Python core
+that the LSP server consumes (see
+``bindings/python/src/STRling/core/intelligence.py``). This file owns
+*only* CLI argument parsing, file/stdin I/O, and JSON output formatting.
+
+The output JSON contract and exit codes are stable and asserted by the
+end-to-end smoke tests
+(``bindings/python/tests/e2e/test_cli_smoke.py``):
+
+* Success without ``--emit``  → empty stdout, exit ``0``.
+* Success with ``--emit``     → ``{"artifact": ..., "emitted": ...}`` on
+  stdout, exit ``0``.
+* Schema validation failure   → ``{"validation_error": ..., "artifact": ...}``,
+  exit ``3``.
+* Parse failure               → ``{"error": {"message": ..., "pos": ...}}``,
+  exit ``2``.
+* Missing input file          → uncaught ``FileNotFoundError`` propagates
+  to stderr with no stdout, non-zero exit (mirrors prior behaviour).
+"""
+
+from __future__ import annotations
+
 import argparse
+import json
+import sys
 from pathlib import Path
-from typing import Any, Dict, TYPE_CHECKING
-import importlib
+from typing import Any, Dict
 
-# Make local `bindings/python/src` importable at runtime when this script
-# is executed from the repository workspace. This helps running the script
-# directly (and often helps IDEs/static analyzers discover the package).
-_repo_root = Path(__file__).resolve().parents[1]
-_py_src = _repo_root / "bindings" / "python" / "src"
-if str(_py_src) not in sys.path:
-    sys.path.insert(0, str(_py_src))
+# Make the in-tree Python binding importable when running this script
+# directly from the repository checkout. Production installs already have
+# ``STRling`` on ``sys.path`` so this insert is a no-op for them.
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+_PY_SRC = _REPO_ROOT / "bindings" / "python" / "src"
+if _PY_SRC.is_dir() and str(_PY_SRC) not in sys.path:
+    sys.path.insert(0, str(_PY_SRC))
 
-# Load core modules dynamically at runtime to avoid static import errors
-# in editors that don't include the local package path.
-parse_to_artifact: Any = None
-parse: Any = None
-ParseError: Any = Exception
-validate_artifact: Any = None
-try:
-    _mod_parser = importlib.import_module("STRling.core.parser")
-    parse_to_artifact = getattr(_mod_parser, "parse_to_artifact")
-    parse = getattr(_mod_parser, "parse")
-    ParseError = getattr(_mod_parser, "ParseError")
-    _mod_validator = importlib.import_module("STRling.core.validator")
-    validate_artifact = getattr(_mod_validator, "validate_artifact")
-except Exception:
-    # leave placeholders in place if imports fail at runtime
-    pass
-
-if TYPE_CHECKING:
-    # Avoid importing `STRling.core` directly in editors where the package
-    # path is not configured. Provide Any-typed aliases so type checkers
-    # won't raise missing-import diagnostics and we avoid unused-import
-    # warnings from linters.
-    _parser: Any = None
-    _validator: Any = None
+from STRling.core.errors import STRlingParseError  # noqa: E402
+from STRling.core.parser import parse, parse_to_artifact  # noqa: E402
+from STRling.core.validator import validate_artifact  # noqa: E402
 
 
-def main():
+def _emit_pcre2(src: str) -> str:
+    """Compile ``src`` and serialize via the PCRE2 emitter.
+
+    Compiler and emitter are imported lazily so the parse-only path does
+    not pay for them. Returns the emitted regex string.
+    """
+    from STRling.core.compiler import Compiler
+    from STRling.emitters import pcre2 as pcre2_emitter
+
+    flags, ast = parse(src)
+    ir_root = Compiler().compile(ast)
+    flags_dict = flags.to_dict() if hasattr(flags, "to_dict") else None
+    return pcre2_emitter.emit(ir_root, flags_dict)
+
+
+def main() -> None:
+    """Entry point for ``python3 tooling/parse_strl.py``."""
     ap = argparse.ArgumentParser(description="STRling Parser & Emitter")
     ap.add_argument("input", help=".strl file path or '-' for stdin")
     ap.add_argument("--schema", help="Path to base.schema.json for validation")
@@ -55,25 +78,25 @@ def main():
         else Path(args.input).read_text(encoding="utf-8")
     )
 
-    # parse_to_artifact may be typed only for static checkers; guard at runtime.
+    # --- Parse stage ----------------------------------------------------- #
     try:
-        artifact: Dict[str, Any] = parse_to_artifact(src)  # type: ignore
-    except ParseError as e:  # type: ignore[arg-type]
-        # ParseError expected to have .message and .pos attributes per spec.
-        message = getattr(e, "message", str(e))
-        pos = getattr(e, "pos", None)
+        artifact: Dict[str, Any] = parse_to_artifact(src)
+    except STRlingParseError as e:
+        # Preserve the historical error envelope so existing smoke tests
+        # and downstream consumers continue to parse the response.
         print(
             json.dumps(
-                {"error": {"message": message, "pos": pos}},
+                {"error": {"message": e.message, "pos": e.pos}},
                 ensure_ascii=False,
                 indent=2,
             )
         )
         sys.exit(2)
 
+    # --- Optional schema validation -------------------------------------- #
     if args.schema:
         try:
-            validate_artifact(artifact, args.schema)  # type: ignore
+            validate_artifact(artifact, args.schema)
         except Exception as e:
             print(
                 json.dumps(
@@ -84,38 +107,18 @@ def main():
             )
             sys.exit(3)
 
+    # --- Optional regex emission ----------------------------------------- #
     if args.emit:
-        # Import compiler and emitters lazily; include type-ignore for runtime
-        try:
-            from STRling.core.compiler import Compiler  # type: ignore
-            from STRling.emitters import pcre2 as pcre2_emitter  # type: ignore
-        except Exception:
-            Compiler = None  # type: ignore
-            pcre2_emitter = None  # type: ignore
-
-        flags: Any = None
-        ast: Any = None
-        if parse is not None:
-            flags, ast = parse(src)  # type: ignore
-
-        ir_root: Any = None
-        if Compiler is not None and ast is not None:
-            ir_root = Compiler().compile(ast)  # type: ignore
-
-        emitted: Any = None
         if args.emit == "pcre2":
-            if pcre2_emitter is not None and flags is not None and ir_root is not None:
-                # flags expected to have a `to_dict()` method.
-                flags_dict = getattr(flags, "to_dict", lambda: None)()
-                emitted = pcre2_emitter.emit(ir_root, flags_dict)  # type: ignore
-            else:
-                emitted = "Emitter 'pcre2' not available in this environment."
-        else:
+            emitted: Any = _emit_pcre2(src)
+        else:  # pragma: no cover - argparse choices keeps this unreachable
             emitted = f"Emitter '{args.emit}' not implemented."
 
         print(
             json.dumps(
-                {"artifact": artifact, "emitted": emitted}, ensure_ascii=False, indent=2
+                {"artifact": artifact, "emitted": emitted},
+                ensure_ascii=False,
+                indent=2,
             )
         )
 

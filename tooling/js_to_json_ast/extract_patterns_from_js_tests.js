@@ -5,6 +5,48 @@ const path = require("path");
 const testsDir = path.join(__dirname, "../../bindings/javascript/__tests__");
 const outDir = path.join(__dirname, "fixtures");
 
+// --------------------------------------------------------------------------
+// Shared Island-Grammar boundary registry.
+//
+// The Python language-intelligence layer (bindings/python/src/STRling/core/islands.py)
+// and this Node-side test extractor read boundary-call regexes from the same
+// canonical JSON file: spec/tooling/island_boundaries.json. Keeping a single
+// source of truth prevents the LSP and the test-fixture pipeline from drifting
+// on which call shapes count as "embedded STRling".
+// --------------------------------------------------------------------------
+const BOUNDARY_SPEC_PATH = path.join(
+    __dirname,
+    "..",
+    "..",
+    "spec",
+    "tooling",
+    "island_boundaries.json",
+);
+
+function loadTypescriptBoundaryRegex() {
+    try {
+        const spec = JSON.parse(fs.readFileSync(BOUNDARY_SPEC_PATH, "utf8"));
+        const entry = (spec.languages && spec.languages.typescript) || {};
+        const patterns = entry.boundaries || [];
+        if (patterns.length === 0) return null;
+        // Boundaries terminate immediately before the opening string
+        // delimiter; we anchor a literal scanner directly after the match.
+        const combined = patterns.map((p) => `(?:${p})`).join("|");
+        return new RegExp(
+            `(?:${combined})(String\\.raw\`[\\s\\S]*?\`|\`[\\s\\S]*?\`|"(?:\\\\.|[^\\\\\"])*"|'(?:\\\\.|[^\\\\\'])*')`,
+            "g",
+        );
+    } catch (err) {
+        console.warn(
+            `[extract_patterns] Could not load shared boundary spec at ${BOUNDARY_SPEC_PATH}; falling back to permissive parse() match.`,
+            err && err.message,
+        );
+        return null;
+    }
+}
+
+const BOUNDARY_REGEX = loadTypescriptBoundaryRegex();
+
 // Statistics tracking
 const stats = {
     literalParse: 0,
@@ -115,7 +157,7 @@ function extractFromArrayFormat(arrayContent) {
             const innerArray = arrayContent.substring(i + 1, endIdx);
             // Extract first string literal
             const stringMatch = innerArray.match(
-                /^\s*(String\.raw`[^`]*`|`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/
+                /^\s*(String\.raw`[^`]*`|`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/,
             );
             if (stringMatch) {
                 const pattern = unquote(stringMatch[1]);
@@ -152,7 +194,7 @@ function extractFromObjectFormat(arrayContent) {
             const objContent = arrayContent.substring(i + 1, endIdx);
             // Look for input: "pattern" or pattern: "pattern"
             const inputMatch = objContent.match(
-                /(?:input|pattern)\s*:\s*(String\.raw`[^`]*`|`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/
+                /(?:input|pattern)\s*:\s*(String\.raw`[^`]*`|`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/,
             );
             if (inputMatch) {
                 const pattern = unquote(inputMatch[1]);
@@ -200,22 +242,21 @@ function extractPatternsFromTestEach(content, filePath) {
             // Look for variable declaration: const/let varName = [...]
             const varRegex = new RegExp(
                 `(?:const|let)\\s+${varName}\\s*(?::\\s*[^=]+)?\\s*=\\s*\\[`,
-                "g"
+                "g",
             );
             let varMatch;
             while ((varMatch = varRegex.exec(content)) !== null) {
-                const arrayStart =
-                    varMatch.index + varMatch[0].length - 1;
+                const arrayStart = varMatch.index + varMatch[0].length - 1;
                 const arrayEnd = findMatchingBracket(
                     content,
                     arrayStart,
                     "[",
-                    "]"
+                    "]",
                 );
                 if (arrayEnd !== -1) {
                     const arrayContent = content.substring(
                         arrayStart + 1,
-                        arrayEnd
+                        arrayEnd,
                     );
                     const arrayPatterns = extractFromArrayFormat(arrayContent);
                     const objPatterns = extractFromObjectFormat(arrayContent);
@@ -234,12 +275,19 @@ function extractPatternsFromTestEach(content, filePath) {
 function extractPatternsFromText(fileContent, filePath) {
     const patterns = [];
 
-    // Extract from literal parse() calls
+    // Extract from boundary-call literal arguments (e.g. simply.parse("..."),
+    // strl.parse(`...`), s.parse('...'), new Pattern("...")). The boundary
+    // registry is loaded from the shared spec so this stays in lockstep with
+    // the Python LSP island extractor.
     const parseRegex =
+        BOUNDARY_REGEX ||
         /parse\(\s*(String\.raw`[\s\S]*?`|`[\s\S]*?`|"(?:\\.|[^\\"])*"|'(?:\\.|[^\\'])*')\s*\)/g;
+    parseRegex.lastIndex = 0;
     let match;
     while ((match = parseRegex.exec(fileContent)) !== null) {
-        const pattern = unquote(match[1]);
+        const literal = match[1];
+        if (!literal) continue;
+        const pattern = unquote(literal);
         if (pattern) {
             patterns.push(pattern);
             stats.literalParse++;
@@ -247,10 +295,7 @@ function extractPatternsFromText(fileContent, filePath) {
     }
 
     // Extract from test.each blocks
-    const testEachPatterns = extractPatternsFromTestEach(
-        fileContent,
-        filePath
-    );
+    const testEachPatterns = extractPatternsFromTestEach(fileContent, filePath);
     patterns.push(...testEachPatterns);
 
     return patterns;
@@ -270,7 +315,7 @@ for (const f of files) {
 // Write pattern files
 let count = 0;
 for (const pattern of allPatterns) {
-    const name = "js_test_pattern_" + (++count) + ".pattern";
+    const name = "js_test_pattern_" + ++count + ".pattern";
     const outPath = path.join(outDir, name);
     fs.writeFileSync(outPath, pattern + "\n", "utf8");
 }
@@ -282,7 +327,7 @@ console.log("Patterns from literal parse() calls:", stats.literalParse);
 console.log("Patterns from inline test.each arrays:", stats.inlineArray);
 console.log(
     "Patterns from variable-resolved test.each:",
-    stats.variableResolved
+    stats.variableResolved,
 );
 console.log("Total unique patterns extracted:", allPatterns.size);
 console.log("Output directory:", outDir);

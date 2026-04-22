@@ -52,7 +52,6 @@ from STRling.core.intelligence import (  # noqa: E402  (intentional path mutatio
     get_completion_items,
     get_registry_documentation,
     language_for_uri,
-    registry,
     tokenize_pattern,
 )
 

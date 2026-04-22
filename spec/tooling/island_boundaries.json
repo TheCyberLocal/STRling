@@ -1,0 +1,40 @@
+{
+    "$comment": "Canonical registry of STRling island-grammar boundary calls and host-language suffixes. Consumed by the Python language-intelligence layer (bindings/python/src/STRling/core/islands.py) and by the Node-side test extractor (tooling/js_to_json_ast/extract_patterns_from_js_tests.js). Boundary regexes are POSIX-ERE-style and MUST terminate immediately before the opening string delimiter so the host-language literal scanner can take over deterministically.",
+    "version": 1,
+    "languages": {
+        "python": {
+            "suffixes": [".py", ".pyi"],
+            "boundaries": [
+                "\\bs\\.parse\\s*\\(\\s*",
+                "\\bstrl\\.parse\\s*\\(\\s*",
+                "\\bSTRling\\.parse\\s*\\(\\s*",
+                "\\bPattern\\s*\\(\\s*"
+            ]
+        },
+        "typescript": {
+            "suffixes": [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"],
+            "boundaries": [
+                "\\bstrl\\.simply\\.parse\\s*\\(\\s*",
+                "\\bsimply\\.parse\\s*\\(\\s*",
+                "\\bstrl\\.parse\\s*\\(\\s*",
+                "\\bs\\.parse\\s*\\(\\s*",
+                "\\bnew\\s+Pattern\\s*\\(\\s*"
+            ]
+        },
+        "rust": {
+            "suffixes": [".rs"],
+            "boundaries": [
+                "\\bstrling::parse!\\s*\\(\\s*",
+                "\\bstrl::parse\\s*\\(\\s*",
+                "\\bstrling::Pattern::new\\s*\\(\\s*"
+            ]
+        },
+        "java": {
+            "suffixes": [".java"],
+            "boundaries": [
+                "\\bSTRling\\.parse\\s*\\(\\s*",
+                "\\bSTRlingPattern\\s*\\.\\s*compile\\s*\\(\\s*"
+            ]
+        }
+    }
+}

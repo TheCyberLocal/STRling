@@ -1,5 +1,4 @@
 {
-    "$schema": "../schema/stdlib.schema.json",
     "title": "STRling Essential 5 — Standard Library Patterns",
     "description": "Normative AST + regex specification for the five canonical Simply patterns. Every binding's Simply module MUST expose these helpers and produce the regex output recorded here. Test fixtures provide cross-binding parity validation against the cited RFCs.",
     "patterns": {

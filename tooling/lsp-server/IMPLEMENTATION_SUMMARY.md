@@ -1,5 +1,13 @@
 # STRling LSP Implementation Summary
 
+> **Historical note (consolidation rev):** The original MVP shipped with a
+> dedicated CLI shadow server (`STRling.cli_server`) that the LSP invoked as
+> a subprocess. That layer has since been removed. The LSP server now calls
+> the unified language-intelligence core (`STRling.core.intelligence`)
+> in-process, and `tooling/parse_strl.py` is a thin CLI wrapper over the
+> same module. See `README.md` and `LSP_SETUP.md` for the current
+> architecture; the file lists below describe the original scope.
+
 ## Project Overview
 
 This document summarizes the implementation of the Language Server Protocol (LSP) for STRling, providing real-time diagnostics and intelligent error handling in code editors.
@@ -58,20 +66,20 @@ The CLI server emits JSON in LSP-compatible format:
 
 ```json
 {
-  "success": false,
-  "diagnostics": [
-    {
-      "range": {
-        "start": {"line": 0, "character": 4},
-        "end": {"line": 0, "character": 5}
-      },
-      "severity": 1,
-      "message": "Error message\n\nHint: Helpful suggestion",
-      "source": "STRling",
-      "code": "error_code"
-    }
-  ],
-  "version": "1.0.0"
+    "success": false,
+    "diagnostics": [
+        {
+            "range": {
+                "start": { "line": 0, "character": 4 },
+                "end": { "line": 0, "character": 5 }
+            },
+            "severity": 1,
+            "message": "Error message\n\nHint: Helpful suggestion",
+            "source": "STRling",
+            "code": "error_code"
+        }
+    ],
+    "version": "1.0.0"
 }
 ```
 
@@ -80,50 +88,50 @@ The CLI server emits JSON in LSP-compatible format:
 ### Core Implementation (4 files)
 
 1. **`bindings/python/src/STRling/cli_server.py`** (207 lines)
-   - CLI interface for JSON diagnostics
-   - Handles file and stdin input
-   - Main entry point: `python -m STRling.cli_server`
+    - CLI interface for JSON diagnostics
+    - Handles file and stdin input
+    - Main entry point: `python -m STRling.cli_server`
 
 2. **`bindings/python/src/STRling/core/errors.py`** (Enhanced)
-   - Added `to_lsp_diagnostic()` method (65 lines)
-   - Converts parse errors to LSP format
-   - Maintains backward compatibility
+    - Added `to_lsp_diagnostic()` method (65 lines)
+    - Converts parse errors to LSP format
+    - Maintains backward compatibility
 
 3. **`tooling/lsp-server/server.py`** (222 lines)
-   - LSP server implementation using pygls
-   - Handles document lifecycle events
-   - Publishes diagnostics in real-time
+    - LSP server implementation using pygls
+    - Handles document lifecycle events
+    - Publishes diagnostics in real-time
 
 4. **`tooling/lsp-server/requirements.txt`** (3 lines)
-   - pygls>=1.0.0
-   - Dependencies auto-managed
+    - pygls>=1.0.0
+    - Dependencies auto-managed
 
 ### Configuration Files (2 files)
 
 5. **`tooling/lsp-server/package.json`**
-   - Package metadata
-   - NPM-compatible format for future extensions
+    - Package metadata
+    - NPM-compatible format for future extensions
 
 6. **`tooling/lsp-server/examples/strling.code-workspace`**
-   - VS Code workspace configuration
-   - Generic LSP client settings
+    - VS Code workspace configuration
+    - Generic LSP client settings
 
 ### Documentation (4 files)
 
 7. **`tooling/lsp-server/README.md`**
-   - Quick start guide
-   - Feature overview
-   - Architecture explanation
+    - Quick start guide
+    - Feature overview
+    - Architecture explanation
 
 8. **`tooling/lsp-server/LSP_SETUP.md`**
-   - Comprehensive setup guide
-   - Editor configurations (VS Code, Neovim, Sublime)
-   - Troubleshooting section
+    - Comprehensive setup guide
+    - Editor configurations (VS Code, Neovim, Sublime)
+    - Troubleshooting section
 
 9. **`tooling/lsp-server/examples/README.md`**
-   - Guide to example files
-   - Testing workflow
-   - Expected behavior
+    - Guide to example files
+    - Testing workflow
+    - Expected behavior
 
 10. **This file** (`IMPLEMENTATION_SUMMARY.md`)
 
@@ -137,9 +145,7 @@ The CLI server emits JSON in LSP-compatible format:
     - Multiple error examples
     - Demonstrates "first error wins"
 
-13-17. **`tooling/lsp-server/examples/errors/*.strl`** (5 files)
-    - Individual error examples
-    - One error per file for testing
+13-17. **`tooling/lsp-server/examples/errors/*.strl`** (5 files) - Individual error examples - One error per file for testing
 
 ### Tests (3 files, 30 tests)
 
@@ -171,23 +177,23 @@ The CLI server emits JSON in LSP-compatible format:
 ### Test Categories
 
 1. **Unit Tests** (12 tests)
-   - Error to LSP diagnostic conversion
-   - Position mapping accuracy
-   - Error code generation
+    - Error to LSP diagnostic conversion
+    - Position mapping accuracy
+    - Error code generation
 
 2. **Integration Tests** (15 tests)
-   - CLI server functionality
-   - File and stdin input
-   - JSON format compliance
+    - CLI server functionality
+    - File and stdin input
+    - JSON format compliance
 
 3. **Smoke Tests** (3 tests)
-   - Server imports correctly
-   - CLI integration works
-   - Help message displays
+    - Server imports correctly
+    - CLI integration works
+    - Help message displays
 
 4. **Regression Tests** (40 tests)
-   - All existing error tests still pass
-   - Backward compatibility maintained
+    - All existing error tests still pass
+    - Backward compatibility maintained
 
 ## Features Delivered
 
@@ -289,6 +295,7 @@ pip install -r requirements.txt
 ### For Production
 
 Future work will include:
+
 - PyPI package for easy installation
 - VS Code extension marketplace
 - Homebrew/apt package managers

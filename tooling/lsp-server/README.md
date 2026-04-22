@@ -8,23 +8,25 @@ This LSP server acts as a **delivery mechanism** for STRling's "Intelligent Erro
 
 ## Architecture
 
-The LSP server follows a **binding-agnostic architecture**:
+The LSP server consumes the unified Python language-intelligence core in-process — there is no longer a separate CLI subprocess shadow:
 
 ```
-Editor (VS Code) ←→ LSP Server ←→ CLI Server ←→ Parser
-                    (server.py)   (cli_server.py)   (parser.py)
+Editor (VS Code) ←→ LSP Server ───→ Intelligence Core ───→ Parser
+                    (server.py)      (STRling.core.intelligence)   (STRling.core.parser)
 ```
 
 ### Key Components
 
-1. **LSP Server** (`server.py`): Handles LSP protocol communication with editors
-2. **CLI Server** (`../../bindings/python/src/STRling/cli_server.py`): Provides JSON diagnostics via CLI
-3. **Parser** (`../../bindings/python/src/STRling/core/parser.py`): Core parsing logic
+1. **LSP Server** (`server.py`): Handles LSP protocol communication with editors and owns Island-Grammar dispatch.
+   The local `pygls` shim now provides the actual stdio/TCP transport loop, so the server stays alive long enough to receive initialize/didOpen/didChange messages.
+2. **Intelligence Core** (`../../bindings/python/src/STRling/core/intelligence.py`): The single facade that produces diagnostics and exposes island extraction. The `tooling/parse_strl.py` CLI wraps the same module so editor diagnostics and CLI diagnostics never drift.
+3. **Parser** (`../../bindings/python/src/STRling/core/parser.py`): Core parsing logic, surfaced through `STRling.core.intelligence.analyze_content`.
 
 This separation ensures:
-- Future compatibility with Rust core implementation
-- Multi-language binding support
-- Clear separation of concerns
+
+- A single source of truth for diagnostics across the LSP and CLI surfaces.
+- Future compatibility with the Rust core implementation.
+- Multi-language binding support and clear separation of concerns.
 
 ## Installation
 
@@ -64,12 +66,12 @@ Create or update `.vscode/settings.json` in your project:
 
 ```json
 {
-  "strling.languageServer.enabled": true,
-  "strling.languageServer.command": "python",
-  "strling.languageServer.args": [
-    "/path/to/STRling/tooling/lsp-server/server.py",
-    "--stdio"
-  ]
+    "strling.languageServer.enabled": true,
+    "strling.languageServer.command": "python",
+    "strling.languageServer.args": [
+        "/path/to/STRling/tooling/lsp-server/server.py",
+        "--stdio"
+    ]
 }
 ```
 
@@ -96,20 +98,20 @@ The CLI server emits JSON diagnostics in LSP-compatible format:
 
 ```json
 {
-  "success": false,
-  "diagnostics": [
-    {
-      "range": {
-        "start": {"line": 0, "character": 4},
-        "end": {"line": 0, "character": 5}
-      },
-      "severity": 1,
-      "message": "Unterminated group\n\nHint: This group was opened with '(' but never closed.",
-      "source": "STRling",
-      "code": "unterminated_group"
-    }
-  ],
-  "version": "1.0.0"
+    "success": false,
+    "diagnostics": [
+        {
+            "range": {
+                "start": { "line": 0, "character": 4 },
+                "end": { "line": 0, "character": 5 }
+            },
+            "severity": 1,
+            "message": "Unterminated group\n\nHint: This group was opened with '(' but never closed.",
+            "source": "STRling",
+            "code": "unterminated_group"
+        }
+    ],
+    "version": "1.0.0"
 }
 ```
 
@@ -133,7 +135,7 @@ python -m pytest tests/
 
 ### Adding New Features
 
-1. Update the CLI server (`cli_server.py`) to expose new diagnostics
+1. Extend the intelligence core (`STRling.core.intelligence`) to expose new diagnostics
 2. Update the LSP server (`server.py`) to handle new LSP capabilities
 3. Add tests to validate the new functionality
 4. Update documentation
@@ -144,7 +146,7 @@ Enable logging in VS Code:
 
 ```json
 {
-  "strling.trace.server": "verbose"
+    "strling.trace.server": "verbose"
 }
 ```
 
