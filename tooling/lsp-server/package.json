@@ -17,6 +17,13 @@
         "Programming Languages",
         "Linters"
     ],
+    "files": [
+        "out/**",
+        "server/**",
+        "README.md",
+        "LICENSE",
+        "language-configuration.json"
+    ],
     "activationEvents": [
         "onLanguage:typescript",
         "onLanguage:typescriptreact",
@@ -73,8 +80,8 @@
         "bundle": "npx esbuild ./client/extension.ts --bundle --outfile=./dist/out/extension.js --external:vscode --platform=node",
         "assemble": "bash ./assemble.sh",
         "build:dist": "npm run assemble",
-        "package": "npm run assemble && cd dist && npx @vscode/vsce package --out vscode-strling.vsix",
-        "install:local": "npm run package && code --install-extension ./dist/vscode-strling.vsix --force"
+        "package": "npm run assemble && (cd dist && npx @vscode/vsce package --out ../vscode-strling.vsix)",
+        "install:local": "npm run package && (code --uninstall-extension strling-lang.vscode-strling >/dev/null 2>&1 || true) && code --install-extension vscode-strling.vsix"
     },
     "devDependencies": {
         "@types/node": "^18.0.0",
@@ -83,5 +90,8 @@
         "esbuild": "^0.20.0",
         "typescript": "^5.0.0",
         "vscode-languageclient": "^9.0.1"
-    }
+    },
+    "extensionKind": [
+        "workspace"
+    ]
 }

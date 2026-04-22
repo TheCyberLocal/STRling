@@ -7,11 +7,18 @@ repo_root="$(cd "${script_dir}/../.." && pwd)"
 dist_dir="${script_dir}/dist"
 server_dir="${dist_dir}/server"
 vendor_dir="${server_dir}/libs"
+vendor_venv_dir="${dist_dir}/.vendor-venv"
 python_cmd="${PYTHON:-python3}"
 python_binding_src="${repo_root}/bindings/python/src/STRling"
 
 rm -rf "${dist_dir}"
 mkdir -p "${server_dir}" "${vendor_dir}" "${dist_dir}/out"
+
+cleanup() {
+  rm -rf "${vendor_venv_dir}"
+}
+
+trap cleanup EXIT
 
 node - "${script_dir}/package.json" "${dist_dir}/package.json" <<'EOF'
 const fs = require("fs");
@@ -27,7 +34,19 @@ cp "${repo_root}/LICENSE" "${dist_dir}/LICENSE"
 cp "${script_dir}/server/server.py" "${server_dir}/server.py"
 cp "${script_dir}/server/island_extractor.py" "${server_dir}/island_extractor.py"
 
-"${python_cmd}" -m pip install \
+"${python_cmd}" -m venv "${vendor_venv_dir}"
+
+venv_python="${vendor_venv_dir}/bin/python"
+if [[ ! -x "${venv_python}" ]]; then
+  venv_python="${vendor_venv_dir}/Scripts/python.exe"
+fi
+
+if [[ ! -x "${venv_python}" ]]; then
+  echo "Failed to locate the temporary packaging Python environment." >&2
+  exit 1
+fi
+
+"${venv_python}" -m pip install \
   --target "${vendor_dir}" \
   --implementation py \
   --only-binary=:all: \

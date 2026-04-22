@@ -35,7 +35,7 @@ Each build starts from an empty `dist/` folder and then:
 3. Vendors `pygls`, `lsprotocol`, and the local `bindings/python` package into
    `dist/server/libs/`.
 4. Bundles `client/extension.ts` into `dist/out/extension.js` with `esbuild`.
-5. Packages the extension from `dist/` into `dist/vscode-strling.vsix`.
+5. Packages only the runtime payload from `dist/` into `dist/vscode-strling.vsix`.
 
 The resulting VSIX is hermetic with respect to Python modules: the packaged
 server resolves `pygls`, `lsprotocol`, and `STRling` from `server/libs/`
@@ -83,6 +83,10 @@ cd tooling/lsp-server
 npm run install:local
 ```
 
+The install script removes the previously installed `strling-lang.vscode-strling`
+extension before reinstalling the fresh VSIX, so local iteration does not rely
+on `code --install-extension --force`.
+
 After installation, open a TypeScript, JavaScript, Python, Rust, Java, or
 `.strl`-associated document and check the Output panel entry named
 `STRling Language Server`.
@@ -96,6 +100,7 @@ cd tooling/lsp-server
 python3 -m pytest tests/test_lsp_server.py -v
 npm run assemble
 npm run package
+npm run install:local
 python3 dist/server/server.py --help
 ```
 

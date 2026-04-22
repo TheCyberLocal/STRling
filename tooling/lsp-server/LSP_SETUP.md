@@ -84,9 +84,7 @@ Build and install the repository's bundled extension:
 ```bash
 cd tooling/lsp-server
 npm install
-npm run assemble
-npm run package
-code --install-extension dist/vscode-strling.vsix --force
+npm run install:local
 ```
 
 ### Neovim (with nvim-lspconfig)
