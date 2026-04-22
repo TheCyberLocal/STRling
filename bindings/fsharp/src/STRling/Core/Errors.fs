@@ -165,3 +165,31 @@ module HintEngine =
         match getHint message source pos with
         | Some hint -> hint
         | None -> GenericHintFallback
+
+/// Fatal emitter-stage error raised by an IR safety guard. Mirrors the
+/// `STRlingCompilationError` type in the TypeScript reference and the
+/// matching types in the C / C++ / C# / Python / Java / Rust bindings.
+/// Carries a stable `Code` (`VLB_NOT_SUPPORTED`, `MAX_DEPTH`) and the
+/// offending `Engine` so cross-binding parity tests can match on shared
+/// substrings without coupling to a specific message wording.
+type STRlingCompilationError(message: string, code: string, ?engine: string) =
+    inherit Exception(message)
+    member _.Code = code
+    member _.Engine = defaultArg engine "pcre2"
+
+/// Non-fatal diagnostic emitted alongside a compiled pattern. Currently
+/// used for `REDOS_RISK` (nested unbounded quantifiers). The
+/// `ToString()` form matches the SSOT `STRlingWarning [CODE]: message`
+/// shape so the global pathological fixture's `expected_warning`
+/// substring compares 1:1 across bindings.
+type STRlingWarning =
+    { Code: string
+      Message: string }
+    override this.ToString() = sprintf "STRlingWarning [%s]: %s" this.Code this.Message
+
+/// Result of an emit pass: the produced PCRE2 pattern plus any
+/// non-fatal diagnostics collected during emission. Returned by
+/// `Pcre2.emitWithDiagnostics`.
+type CompileResult =
+    { Pattern: string
+      Warnings: STRlingWarning list }

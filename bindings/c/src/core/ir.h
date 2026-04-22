@@ -121,6 +121,52 @@ STRlingIROp* strling_ir_look_create(const char* dir, bool neg, STRlingIROp* body
 void strling_ir_node_free(STRlingIROp* node);
 void strling_ir_class_item_free(STRlingIRClassItem* item);
 
+/* ===================================================================
+ * Emitter Safety Context (port of TypeScript SSOT guards)
+ *
+ * Tracks AST traversal depth, lookbehind state, and accumulated
+ * non-fatal warnings during PCRE2 emission. The context is threaded
+ * through `compile_node_to_pcre2()` so each guard (depth, VLB, ReDoS)
+ * can inspect global emission state without relying on globals.
+ * Mirrors `EmitContext` in
+ * `bindings/typescript/src/STRling/emitters/pcre2.ts`.
+ * ===================================================================
+ */
+
+/* Default cap on AST nesting depth before emission aborts to protect
+ * the host stack (matches the TypeScript reference implementation). */
+#define STRLING_DEFAULT_MAX_DEPTH 250
+
+/* Stable warning code emitted when a pattern exhibits a ReDoS shape
+ * (nested unbounded quantifiers such as `(a+)+`). */
+#define STRLING_WARNING_CODE_REDOS "REDOS_RISK"
+
+typedef struct {
+    int depth;          /* current traversal depth (incremented per node) */
+    int max_depth;      /* abort threshold; <=0 selects the default */
+    bool in_lookbehind; /* set while emitting nodes under a lookbehind */
+    char** warnings;    /* heap-owned "CODE: message" strings */
+    size_t nwarnings;
+    size_t cap_warnings;
+} strling_emit_context_t;
+
+/* Initialise a context. `max_depth <= 0` selects STRLING_DEFAULT_MAX_DEPTH.
+ * The caller owns the storage; warnings are allocated on first push. */
+void strling_emit_context_init(strling_emit_context_t* ctx, int max_depth);
+
+/* Release any heap memory owned by the context (warnings array + entries). */
+void strling_emit_context_free(strling_emit_context_t* ctx);
+
+/* Returns true if a warning with the given code has already been pushed
+ * (used to dedupe ReDoS warnings during a single emission). */
+bool strling_emit_context_has_warning(const strling_emit_context_t* ctx,
+                                      const char* code);
+
+/* Append a "CODE: message" warning. No-op on allocation failure. */
+void strling_emit_context_push_warning(strling_emit_context_t* ctx,
+                                       const char* code,
+                                       const char* message);
+
 #ifdef __cplusplus
 }
 #endif

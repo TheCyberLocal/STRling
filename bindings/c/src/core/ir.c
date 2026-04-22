@@ -226,3 +226,65 @@ void strling_ir_node_free(STRlingIROp* node) {
     }
     free(node);
 }
+
+/* ===================================================================
+ * Emitter Safety Context
+ * Mirrors EmitContext in bindings/typescript/src/STRling/emitters/pcre2.ts
+ * ===================================================================
+ */
+
+#include <stdio.h>
+
+void strling_emit_context_init(strling_emit_context_t* ctx, int max_depth) {
+    if (!ctx) return;
+    ctx->depth = 0;
+    ctx->max_depth = (max_depth > 0) ? max_depth : STRLING_DEFAULT_MAX_DEPTH;
+    ctx->in_lookbehind = false;
+    ctx->warnings = NULL;
+    ctx->nwarnings = 0;
+    ctx->cap_warnings = 0;
+}
+
+void strling_emit_context_free(strling_emit_context_t* ctx) {
+    if (!ctx) return;
+    if (ctx->warnings) {
+        for (size_t i = 0; i < ctx->nwarnings; ++i) free(ctx->warnings[i]);
+        free(ctx->warnings);
+    }
+    ctx->warnings = NULL;
+    ctx->nwarnings = 0;
+    ctx->cap_warnings = 0;
+}
+
+bool strling_emit_context_has_warning(const strling_emit_context_t* ctx,
+                                      const char* code) {
+    if (!ctx || !code || !ctx->warnings) return false;
+    size_t code_len = strlen(code);
+    for (size_t i = 0; i < ctx->nwarnings; ++i) {
+        const char* w = ctx->warnings[i];
+        if (!w) continue;
+        /* Stored as "CODE: message" — compare prefix up to ':'. */
+        if (strncmp(w, code, code_len) == 0 && w[code_len] == ':') return true;
+    }
+    return false;
+}
+
+void strling_emit_context_push_warning(strling_emit_context_t* ctx,
+                                       const char* code,
+                                       const char* message) {
+    if (!ctx || !code || !message) return;
+
+    if (ctx->nwarnings == ctx->cap_warnings) {
+        size_t new_cap = ctx->cap_warnings ? ctx->cap_warnings * 2 : 4;
+        char** grown = (char**)realloc(ctx->warnings, new_cap * sizeof(char*));
+        if (!grown) return;
+        ctx->warnings = grown;
+        ctx->cap_warnings = new_cap;
+    }
+
+    size_t need = strlen(code) + 2 + strlen(message) + 1; /* "CODE: msg\0" */
+    char* buf = (char*)malloc(need);
+    if (!buf) return;
+    snprintf(buf, need, "%s: %s", code, message);
+    ctx->warnings[ctx->nwarnings++] = buf;
+}

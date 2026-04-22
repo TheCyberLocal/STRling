@@ -1,8 +1,12 @@
 package com.strling.emitters;
 
+import com.strling.core.CompileResult;
 import com.strling.core.IR.*;
 import com.strling.core.Nodes.Flags;
+import com.strling.core.STRlingCompilationError;
+import com.strling.core.STRlingWarning;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +26,128 @@ import java.util.Map;
  * includes most modern regex implementations).
  */
 public class Pcre2Emitter {
-    
+
+    /**
+     * Default upper bound on AST/IR nesting depth before the emitter aborts.
+     * Mirrors {@code DEFAULT_MAX_DEPTH} in the TypeScript reference (and the
+     * matching constants in the C/C++/Python bindings). Tests may override
+     * this via {@link #emitWithDiagnostics(IROp, Flags, int)}.
+     */
+    public static final int DEFAULT_MAX_DEPTH = 250;
+
+    /**
+     * Mutable context threaded through {@link #emitNode} so the depth,
+     * lookbehind, and warning-collection guards can fire without polluting
+     * the public API. Kept package-private; the top-level
+     * {@link #emit} / {@link #emitWithDiagnostics} entry points remain
+     * stateless from the caller's perspective.
+     */
+    static final class EmitContext {
+        int depth = 0;
+        int maxDepth = DEFAULT_MAX_DEPTH;
+        boolean inLookbehind = false;
+        final List<STRlingWarning> warnings = new ArrayList<>();
+    }
+
+    private static EmitContext newContext(int maxDepth) {
+        EmitContext ctx = new EmitContext();
+        ctx.maxDepth = (maxDepth > 0) ? maxDepth : DEFAULT_MAX_DEPTH;
+        return ctx;
+    }
+
+    /** True iff a quantifier has an unbounded upper bound. */
+    private static boolean isUnboundedQuant(IRQuant q) {
+        // IRMaxBound sentinel in the wire format is the string "Inf";
+        // tolerate negative ints from legacy callers as well.
+        if ("Inf".equals(q.max)) return true;
+        if (q.max instanceof Integer) return ((Integer) q.max) < 0;
+        return false;
+    }
+
+    /** True iff a quantifier matches a variable number of characters. */
+    private static boolean isVariableLengthQuant(IRQuant q) {
+        // Object.equals is null-safe and value-correct for boxed Integers
+        // and the "Inf" String sentinel used by the wire format.
+        Object minBoxed = Integer.valueOf(q.min);
+        return !minBoxed.equals(q.max);
+    }
+
+    /**
+     * Mirror of {@code _isFixedLengthBody} in the TS SSOT. Returns
+     * {@code true} when {@code node} consumes a fixed (statically known)
+     * number of characters and is therefore safe inside a PCRE2 lookbehind.
+     */
+    private static boolean isFixedLengthBody(IROp node) {
+        if (node instanceof IRQuant) {
+            IRQuant q = (IRQuant) node;
+            return !isVariableLengthQuant(q) && isFixedLengthBody(q.child);
+        }
+        if (node instanceof IRSeq) {
+            for (IROp p : ((IRSeq) node).parts) {
+                if (!isFixedLengthBody(p)) return false;
+            }
+            return true;
+        }
+        if (node instanceof IRAlt) {
+            // Conservative parity with TS: every branch must be fixed-length;
+            // the per-branch length-equality check is delegated to PCRE2.
+            for (IROp b : ((IRAlt) node).branches) {
+                if (!isFixedLengthBody(b)) return false;
+            }
+            return true;
+        }
+        if (node instanceof IRGroup) {
+            return isFixedLengthBody(((IRGroup) node).body);
+        }
+        if (node instanceof IRLook) {
+            // Nested lookarounds are zero-width, hence safe inside a lookbehind.
+            return true;
+        }
+        // Lit, Dot, CharClass, Anchor, Backref are single- or zero-width.
+        return true;
+    }
+
+    /**
+     * Mirror of {@code _hasNestedUnboundedQuant} in the TS SSOT. Detects an
+     * unbounded quantifier reachable from {@code child} via single-child
+     * wrappers (IRGroup, single-element IRSeq) or any branch of an IRAlt.
+     * Used to flag the canonical {@code (a+)+} ReDoS shape ONLY when the
+     * outer quantifier is itself unbounded.
+     */
+    private static boolean hasNestedUnboundedQuant(IROp child) {
+        if (child instanceof IRQuant) {
+            return isUnboundedQuant((IRQuant) child);
+        }
+        if (child instanceof IRGroup) {
+            return hasNestedUnboundedQuant(((IRGroup) child).body);
+        }
+        if (child instanceof IRSeq) {
+            IRSeq seq = (IRSeq) child;
+            if (seq.parts.size() == 1) return hasNestedUnboundedQuant(seq.parts.get(0));
+            return false;
+        }
+        if (child instanceof IRAlt) {
+            for (IROp b : ((IRAlt) child).branches) {
+                if (hasNestedUnboundedQuant(b)) return true;
+            }
+        }
+        return false;
+    }
+
+    private static final String REDOS_MESSAGE =
+        "The pattern contains overlapping alternations or nested unbounded "
+      + "quantifiers (e.g., (a+)+). This can lead to catastrophic backtracking "
+      + "and exponential CPU spikes. Consider using possessive quantifiers "
+      + "(++ or *+) or atomic groups to guarantee execution safety.";
+
+    /** Append a single REDOS_RISK warning, deduplicated per emit pass. */
+    private static void pushReDoSWarning(EmitContext ctx) {
+        for (STRlingWarning w : ctx.warnings) {
+            if ("REDOS_RISK".equals(w.getCode())) return;
+        }
+        ctx.warnings.add(new STRlingWarning("REDOS_RISK", REDOS_MESSAGE));
+    }
+
     /**
      * Escapes PCRE2 metacharacters in literal strings.
      *
@@ -263,104 +388,162 @@ public class Pcre2Emitter {
     /**
      * Emit a single IR node to PCRE2 syntax.
      */
-    private static String emitNode(IROp node, String parentKind) {
-        if (node instanceof IRLit) {
-            return escapeLiteral(((IRLit) node).value);
-        }
-        
-        if (node instanceof IRDot) {
-            return ".";
-        }
-        
-        if (node instanceof IRAnchor) {
-            IRAnchor anchor = (IRAnchor) node;
-            // Handle both NotWordBoundary and NonWordBoundary
-            String at = anchor.at;
-            if ("NonWordBoundary".equals(at)) {
-                return "\\B";
+    private static String emitNode(IROp node, String parentKind, EmitContext ctx) {
+        // Depth tracking surfaces the offending depth as a Signpost-pattern
+        // error rather than letting the host stack overflow. Increment on
+        // entry, decrement in the finally block so every return path stays
+        // balanced even under exceptions.
+        ctx.depth += 1;
+        try {
+            if (ctx.depth > ctx.maxDepth) {
+                throw new STRlingCompilationError(
+                    "Maximum AST depth exceeded (limit: " + ctx.maxDepth + "). "
+                  + "This pattern is too deeply nested and risks host stack "
+                  + "exhaustion during emission. Refactor the pattern to "
+                  + "reduce nesting, or flatten capturing groups where possible.",
+                    "MAX_DEPTH",
+                    "pcre2"
+                );
             }
-            Map<String, String> mapping = Map.of(
-                "Start", "^",
-                "End", "$",
-                "WordBoundary", "\\b",
-                "NotWordBoundary", "\\B",
-                "AbsoluteStart", "\\A",
-                "EndBeforeFinalNewline", "\\Z",
-                "AbsoluteEnd", "\\z"
-            );
-            return mapping.getOrDefault(at, "");
-        }
-        
-        if (node instanceof IRBackref) {
-            IRBackref backref = (IRBackref) node;
-            if (backref.byName != null) {
-                return "\\k<" + backref.byName + ">";
+
+            if (node instanceof IRLit) {
+                return escapeLiteral(((IRLit) node).value);
             }
-            if (backref.byIndex != null) {
-                return "\\" + backref.byIndex;
+
+            if (node instanceof IRDot) {
+                return ".";
             }
-            return "";
-        }
-        
-        if (node instanceof IRCharClass) {
-            return emitClass((IRCharClass) node);
-        }
-        
-        if (node instanceof IRSeq) {
-            IRSeq seq = (IRSeq) node;
-            StringBuilder sb = new StringBuilder();
-            for (IROp p : seq.parts) {
-                sb.append(emitNode(p, "Seq"));
+
+            if (node instanceof IRAnchor) {
+                IRAnchor anchor = (IRAnchor) node;
+                String at = anchor.at;
+                if ("NonWordBoundary".equals(at)) {
+                    return "\\B";
+                }
+                Map<String, String> mapping = Map.of(
+                    "Start", "^",
+                    "End", "$",
+                    "WordBoundary", "\\b",
+                    "NotWordBoundary", "\\B",
+                    "AbsoluteStart", "\\A",
+                    "EndBeforeFinalNewline", "\\Z",
+                    "AbsoluteEnd", "\\z"
+                );
+                return mapping.getOrDefault(at, "");
             }
-            return sb.toString();
-        }
-        
-        if (node instanceof IRAlt) {
-            IRAlt alt = (IRAlt) node;
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < alt.branches.size(); i++) {
-                if (i > 0) sb.append("|");
-                sb.append(emitNode(alt.branches.get(i), "Alt"));
+
+            if (node instanceof IRBackref) {
+                IRBackref backref = (IRBackref) node;
+                if (backref.byName != null) {
+                    return "\\k<" + backref.byName + ">";
+                }
+                if (backref.byIndex != null) {
+                    return "\\" + backref.byIndex;
+                }
+                return "";
             }
-            String body = sb.toString();
-            // Alt inside sequence/quant should be grouped
-            if ("Seq".equals(parentKind) || "Quant".equals(parentKind)) {
-                return "(?:" + body + ")";
+
+            if (node instanceof IRCharClass) {
+                return emitClass((IRCharClass) node);
             }
-            return body;
-        }
-        
-        if (node instanceof IRQuant) {
-            IRQuant quant = (IRQuant) node;
-            String childStr = emitNode(quant.child, "Quant");
-            if (needsGroupForQuant(quant.child) && !(quant.child instanceof IRGroup)) {
-                childStr = "(?:" + childStr + ")";
+
+            if (node instanceof IRSeq) {
+                IRSeq seq = (IRSeq) node;
+                StringBuilder sb = new StringBuilder();
+                for (IROp p : seq.parts) {
+                    sb.append(emitNode(p, "Seq", ctx));
+                }
+                return sb.toString();
             }
-            return childStr + emitQuantSuffix(quant.min, quant.max, quant.mode);
-        }
-        
-        if (node instanceof IRGroup) {
-            IRGroup group = (IRGroup) node;
-            return emitGroupOpen(group) + emitNode(group.body, "Group") + ")";
-        }
-        
-        if (node instanceof IRLook) {
-            IRLook look = (IRLook) node;
-            String op;
-            if ("Ahead".equals(look.dir) && !look.neg) {
-                op = "?=";
-            } else if ("Ahead".equals(look.dir) && look.neg) {
-                op = "?!";
-            } else if ("Behind".equals(look.dir) && !look.neg) {
-                op = "?<=";
-            } else {
-                op = "?<!";
+
+            if (node instanceof IRAlt) {
+                IRAlt alt = (IRAlt) node;
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < alt.branches.size(); i++) {
+                    if (i > 0) sb.append("|");
+                    sb.append(emitNode(alt.branches.get(i), "Alt", ctx));
+                }
+                String body = sb.toString();
+                if ("Seq".equals(parentKind) || "Quant".equals(parentKind)) {
+                    return "(?:" + body + ")";
+                }
+                return body;
             }
-            return "(" + op + emitNode(look.body, "Look") + ")";
+
+            if (node instanceof IRQuant) {
+                IRQuant quant = (IRQuant) node;
+                // ReDoS guard: only flag when the *outer* quantifier is itself
+                // unbounded (e.g. `(a+)+`). A bounded outer like `(a+){0,3}`
+                // cannot produce exponential backtracking on its own.
+                if (isUnboundedQuant(quant) && hasNestedUnboundedQuant(quant.child)) {
+                    pushReDoSWarning(ctx);
+                }
+
+                String childStr = emitNode(quant.child, "Quant", ctx);
+                if (needsGroupForQuant(quant.child) && !(quant.child instanceof IRGroup)) {
+                    childStr = "(?:" + childStr + ")";
+                }
+                return childStr + emitQuantSuffix(quant.min, quant.max, quant.mode);
+            }
+
+            if (node instanceof IRGroup) {
+                IRGroup group = (IRGroup) node;
+                return emitGroupOpen(group) + emitNode(group.body, "Group", ctx) + ")";
+            }
+
+            if (node instanceof IRLook) {
+                IRLook look = (IRLook) node;
+                // Variable-length lookbehind guard: PCRE2 mandates a fixed-width
+                // lookbehind body. Detect the violation here so the user sees a
+                // Signpost-pattern error rather than an opaque PCRE2 compile
+                // failure leaking from the runtime.
+                if ("Behind".equals(look.dir) && !isFixedLengthBody(look.body)) {
+                    throw new STRlingCompilationError(
+                        "PCRE2 does not support variable-length lookbehinds. "
+                      + "The lookbehind body contains a quantifier that makes "
+                      + "its length unpredictable. Rewrite the assertion using "
+                      + "a fixed-length range (e.g. `{1,8}` instead of `+`), "
+                      + "or restructure the pattern using a Lookahead, or "
+                      + "extract the quantified portion outside the assertion.",
+                        "VLB_NOT_SUPPORTED",
+                        "pcre2"
+                    );
+                }
+
+                boolean wasInLookbehind = ctx.inLookbehind;
+                if ("Behind".equals(look.dir)) ctx.inLookbehind = true;
+                try {
+                    String op;
+                    if ("Ahead".equals(look.dir) && !look.neg) {
+                        op = "?=";
+                    } else if ("Ahead".equals(look.dir) && look.neg) {
+                        op = "?!";
+                    } else if ("Behind".equals(look.dir) && !look.neg) {
+                        op = "?<=";
+                    } else {
+                        op = "?<!";
+                    }
+                    return "(" + op + emitNode(look.body, "Look", ctx) + ")";
+                } finally {
+                    ctx.inLookbehind = wasInLookbehind;
+                }
+            }
+
+            throw new UnsupportedOperationException("Emitter missing for " + node.getClass());
+        } finally {
+            ctx.depth -= 1;
         }
-        
-        throw new UnsupportedOperationException("Emitter missing for " + node.getClass());
     }
+
+    /**
+     * Back-compat overload for callers that already pass without a context.
+     * Constructs a fresh context internally — used by the legacy
+     * {@link #emit(IROp, Flags)} entry point and by direct unit tests.
+     */
+    private static String emitNode(IROp node, String parentKind) {
+        return emitNode(node, parentKind, newContext(0));
+    }
+
     
     /**
      * Build the inline prefix form expected by tests, e.g. "(?imx)"
@@ -389,22 +572,49 @@ public class Pcre2Emitter {
      * Emit a PCRE2 pattern string from IR.
      *
      * If 'flags' is provided, it can be a Flags object with toDict() method.
+     *
+     * <p>Throws {@link STRlingCompilationError} when an emitter safety guard
+     * rejects the IR (variable-length lookbehind, AST depth exceeded).
+     * Diagnostic warnings (e.g. {@code REDOS_RISK}) are silently dropped
+     * from this back-compat entry point; callers that need them must use
+     * {@link #emitWithDiagnostics(IROp, Flags)} or the depth-aware overload.
      */
     public static String emit(IROp irRoot, Flags flags) {
-        String prefix = "";
-        if (flags != null) {
-            Map<String, Boolean> flagDict = flags.toDict();
-            prefix = emitPrefixFromFlags(flagDict);
-        }
-        String body = emitNode(irRoot, "");
-        // IMPORTANT: Always return prefix + body (no localized "(?imx:...)" groups)
-        return prefix + body;
+        return emitWithDiagnostics(irRoot, flags, 0).getPattern();
     }
-    
+
     /**
      * Emit a PCRE2 pattern string from IR without flags.
      */
     public static String emit(IROp irRoot) {
         return emit(irRoot, null);
+    }
+
+    /**
+     * Like {@link #emit(IROp, Flags)}, but also returns the list of
+     * {@link STRlingWarning}s collected during emission. Used by the
+     * conformance test runner and any caller that wants to surface
+     * {@code REDOS_RISK} (or future) warnings to the end user.
+     */
+    public static CompileResult emitWithDiagnostics(IROp irRoot, Flags flags) {
+        return emitWithDiagnostics(irRoot, flags, 0);
+    }
+
+    /**
+     * Diagnostics-bearing entry point with an optional depth-cap override.
+     * Pass {@code maxDepth <= 0} to use {@link #DEFAULT_MAX_DEPTH}. The
+     * override is primarily used by the conformance fixture
+     * {@code tests/conformance/inputs/emitter_edges/} to provoke the depth
+     * guard with a small input.
+     */
+    public static CompileResult emitWithDiagnostics(IROp irRoot, Flags flags, int maxDepth) {
+        String prefix = "";
+        if (flags != null) {
+            Map<String, Boolean> flagDict = flags.toDict();
+            prefix = emitPrefixFromFlags(flagDict);
+        }
+        EmitContext ctx = newContext(maxDepth);
+        String body = emitNode(irRoot, "", ctx);
+        return new CompileResult(prefix + body, ctx.warnings);
     }
 }

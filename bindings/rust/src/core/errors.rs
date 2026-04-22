@@ -191,3 +191,89 @@ impl fmt::Display for STRlingParseError {
 }
 
 impl Error for STRlingParseError {}
+
+// ---------------------------------------------------------------------------
+// Compilation-stage diagnostics
+// ---------------------------------------------------------------------------
+//
+// These types live in the same module as `STRlingParseError` so the entire
+// "things that can go wrong" surface is co-located. They mirror the
+// TypeScript SSOT (`STRlingCompilationError`, `STRlingWarning`) and the
+// matching Python and Java types so cross-binding parity tests can match
+// on shared substrings without coupling to language-specific wording.
+
+/// Fatal emitter-stage failure raised by an IR safety guard.
+///
+/// Carries a stable `code` (e.g. `"VLB_NOT_SUPPORTED"`, `"MAX_DEPTH"`) and
+/// the offending `engine` so the global pathological fixture can match
+/// across bindings without locking onto a specific message wording.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct STRlingCompilationError {
+    pub message: String,
+    pub code: String,
+    pub engine: String,
+}
+
+impl STRlingCompilationError {
+    /// Build an emitter error tagged with `engine = "pcre2"` (the only
+    /// engine currently produced by this crate).
+    pub fn new(message: impl Into<String>, code: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+            code: code.into(),
+            engine: "pcre2".to_string(),
+        }
+    }
+
+    /// Build an emitter error with an explicit engine tag — kept for
+    /// forward compatibility with future RE2 / V8 emitters that will
+    /// share this error type.
+    pub fn with_engine(
+        message: impl Into<String>,
+        code: impl Into<String>,
+        engine: impl Into<String>,
+    ) -> Self {
+        Self {
+            message: message.into(),
+            code: code.into(),
+            engine: engine.into(),
+        }
+    }
+}
+
+impl fmt::Display for STRlingCompilationError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Format mirrors the TS reference's `STRlingCompilationError:` label
+        // so substring assertions in the conformance fixture line up.
+        write!(f, "STRlingCompilationError: {}", self.message)
+    }
+}
+
+impl Error for STRlingCompilationError {}
+
+/// Non-fatal diagnostic emitted alongside a successful compile.
+///
+/// Currently used for `REDOS_RISK` (nested unbounded quantifiers).
+/// `Display` matches the TypeScript SSOT's `STRlingWarning [CODE]: msg`
+/// shape so the global fixture's `expected_warning` substring matches
+/// across all bindings.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct STRlingWarning {
+    pub code: String,
+    pub message: String,
+}
+
+impl STRlingWarning {
+    pub fn new(code: impl Into<String>, message: impl Into<String>) -> Self {
+        Self {
+            code: code.into(),
+            message: message.into(),
+        }
+    }
+}
+
+impl fmt::Display for STRlingWarning {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "STRlingWarning [{}]: {}", self.code, self.message)
+    }
+}

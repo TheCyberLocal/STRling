@@ -3,11 +3,13 @@
 #undef strling_result_free
 #include "core/nodes.h"
 #include "core/errors.h"
+#include "core/ir.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <jansson.h>
 #include <stdint.h>
+#include <stdio.h>
 
 /* Forward declarations */
 static char *escape_literal_for_pcre2_len(const char *lit, size_t len);
@@ -401,8 +403,181 @@ static char *escape_literal_for_pcre2(const char *lit)
     *p = '\0';
 }
 
+/* ===================================================================
+ * Emitter Safety Guard helpers
+ *
+ * These mirror the predicates in
+ * `bindings/typescript/src/STRling/emitters/pcre2.ts` (`_isUnboundedQuant`,
+ * `_isFixedLengthBody`, `_hasNestedUnboundedQuant`). They operate on the
+ * raw JSON AST that the C emitter consumes, so the C and TypeScript
+ * implementations agree node-for-node on what counts as variable-length
+ * or unbounded.
+ * ===================================================================
+ */
+
+/* Returns the child node carried by a Quantifier, supporting both the
+ * `target` field (parser AST) and the `content` / `child` aliases used by
+ * the conformance fixtures. */
+static json_t *_quant_child(json_t *node)
+{
+    json_t *child = json_object_get(node, "target");
+    if (!child) child = json_object_get(node, "content");
+    if (!child) child = json_object_get(node, "child");
+    return child;
+}
+
+/* True when a Quantifier has no upper bound (`+`, `*`, `{n,}`).
+ * In the AST, an unbounded `max` is encoded as JSON null or a missing
+ * field; some emitters also use -1 sentinels. */
+static bool _is_unbounded_quant_json(json_t *quant)
+{
+    json_t *max_obj = json_object_get(quant, "max");
+    if (!max_obj || json_is_null(max_obj)) return true;
+    if (json_is_integer(max_obj) && json_integer_value(max_obj) < 0) return true;
+    return false;
+}
+
+/* True when a Quantifier may match a varying number of characters
+ * (`min != max`, including all unbounded forms). */
+static bool _is_variable_length_quant_json(json_t *quant)
+{
+    if (_is_unbounded_quant_json(quant)) return true;
+    json_t *min_obj = json_object_get(quant, "min");
+    json_t *max_obj = json_object_get(quant, "max");
+    int min_v = (min_obj && json_is_integer(min_obj)) ? (int)json_integer_value(min_obj) : 0;
+    int max_v = (int)json_integer_value(max_obj);
+    return min_v != max_v;
+}
+
+static bool _is_fixed_length_body_json(json_t *node);
+
+/* Walk a Sequence's `parts` (and the conformance alias `items`). */
+static bool _all_parts_fixed_length(json_t *parts)
+{
+    if (!parts || !json_is_array(parts)) return true;
+    size_t n = json_array_size(parts);
+    for (size_t i = 0; i < n; ++i) {
+        if (!_is_fixed_length_body_json(json_array_get(parts, i))) return false;
+    }
+    return true;
+}
+
+/* Conservative fixed-length check matching `_isFixedLengthBody` in the
+ * TypeScript reference. We do not attempt to verify per-branch length
+ * equality; PCRE2 surfaces that itself. */
+static bool _is_fixed_length_body_json(json_t *node)
+{
+    if (!node) return true;
+    const char *type = get_node_type(node);
+    if (!type) return true;
+
+    if (strcmp(type, "Quantifier") == 0) {
+        if (_is_variable_length_quant_json(node)) return false;
+        return _is_fixed_length_body_json(_quant_child(node));
+    }
+    if (strcmp(type, "Sequence") == 0) {
+        json_t *parts = json_object_get(node, "parts");
+        if (!parts) parts = json_object_get(node, "items");
+        return _all_parts_fixed_length(parts);
+    }
+    if (strcmp(type, "Alternation") == 0) {
+        json_t *alts = json_object_get(node, "alternatives");
+        if (!alts) alts = json_object_get(node, "branches");
+        return _all_parts_fixed_length(alts);
+    }
+    if (strcmp(type, "Group") == 0) {
+        json_t *body = json_object_get(node, "body");
+        if (!body) body = json_object_get(node, "expression");
+        if (!body) body = json_object_get(node, "content");
+        if (!body) body = json_object_get(node, "child");
+        return _is_fixed_length_body_json(body);
+    }
+    /* Lookarounds consume zero characters; safe inside a lookbehind. */
+    if (strcmp(type, "Lookahead") == 0 ||
+        strcmp(type, "NegativeLookahead") == 0 ||
+        strcmp(type, "Lookbehind") == 0 ||
+        strcmp(type, "NegativeLookbehind") == 0 ||
+        strcmp(type, "Lookaround") == 0 ||
+        strcmp(type, "Look") == 0) {
+        return true;
+    }
+    /* Literal, Dot, CharacterClass, Anchor, Backreference are atomic. */
+    return true;
+}
+
+/* True when the immediate body of an outer quantifier itself contains an
+ * unbounded quantifier (e.g. the inner `+` of `(a+)+`). Mirrors
+ * `_hasNestedUnboundedQuant` in the TypeScript emitter. */
+static bool _has_nested_unbounded_quant_json(json_t *node)
+{
+    if (!node) return false;
+    const char *type = get_node_type(node);
+    if (!type) return false;
+
+    if (strcmp(type, "Quantifier") == 0) {
+        return _is_unbounded_quant_json(node);
+    }
+    if (strcmp(type, "Group") == 0) {
+        json_t *body = json_object_get(node, "body");
+        if (!body) body = json_object_get(node, "expression");
+        if (!body) body = json_object_get(node, "content");
+        if (!body) body = json_object_get(node, "child");
+        return _has_nested_unbounded_quant_json(body);
+    }
+    if (strcmp(type, "Sequence") == 0) {
+        json_t *parts = json_object_get(node, "parts");
+        if (!parts) parts = json_object_get(node, "items");
+        if (parts && json_is_array(parts) && json_array_size(parts) == 1) {
+            return _has_nested_unbounded_quant_json(json_array_get(parts, 0));
+        }
+        return false;
+    }
+    if (strcmp(type, "Alternation") == 0) {
+        json_t *alts = json_object_get(node, "alternatives");
+        if (!alts) alts = json_object_get(node, "branches");
+        if (!alts || !json_is_array(alts)) return false;
+        size_t n = json_array_size(alts);
+        for (size_t i = 0; i < n; ++i) {
+            if (_has_nested_unbounded_quant_json(json_array_get(alts, i))) return true;
+        }
+        return false;
+    }
+    return false;
+}
+
+static int compile_node_to_pcre2_inner(json_t *node, const STRlingFlags *flags,
+                                       char **out_pattern, char **out_error,
+                                       strling_emit_context_t *ctx);
+
+/* Depth-tracking wrapper. Increments / decrements `ctx->depth` around
+ * the inner emitter and aborts with the canonical MAX_DEPTH message
+ * when the cap is exceeded. */
+static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags,
+                                 char **out_pattern, char **out_error,
+                                 strling_emit_context_t *ctx)
+{
+    ctx->depth += 1;
+    if (ctx->depth > ctx->max_depth) {
+        char msg[320];
+        snprintf(msg, sizeof(msg),
+                 "Maximum AST depth exceeded (limit: %d). "
+                 "This pattern is too deeply nested and risks host stack "
+                 "exhaustion during emission. Refactor the pattern to "
+                 "reduce nesting, or flatten capturing groups where possible.",
+                 ctx->max_depth);
+        *out_error = strdup(msg);
+        ctx->depth -= 1;
+        return 1;
+    }
+    int rc = compile_node_to_pcre2_inner(node, flags, out_pattern, out_error, ctx);
+    ctx->depth -= 1;
+    return rc;
+}
+
 /* Recursive compiler with error propagation */
-static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char **out_pattern, char **out_error)
+static int compile_node_to_pcre2_inner(json_t *node, const STRlingFlags *flags,
+                                       char **out_pattern, char **out_error,
+                                       strling_emit_context_t *ctx)
 {
     if (!node)
     {
@@ -465,7 +640,7 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
         {
             json_t *part = json_array_get(parts, i);
             char *raw_part = NULL;
-            if (compile_node_to_pcre2(part, flags, &raw_part, out_error) != 0)
+            if (compile_node_to_pcre2(part, flags, &raw_part, out_error, ctx) != 0)
             {
                 /* Free already allocated parts */
                 for (size_t j = 0; j < i; j++)
@@ -553,11 +728,30 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
         json_t *greedy_obj = json_object_get(node, "greedy");
         json_t *possessive_obj = json_object_get(node, "possessive");
         json_t *target = json_object_get(node, "target");
+        if (!target) target = json_object_get(node, "content");
+        if (!target) target = json_object_get(node, "child");
 
         if (!target)
         {
             *out_error = strdup("Invalid Quantifier: Missing 'target'");
             return 1;
+        }
+
+        /* ReDoS guard. Only flag when the *outer* quantifier is
+         * itself unbounded (e.g. `(a+)+`); a bounded outer like `(a+){0,3}`
+         * does not produce exponential backtracking. Mirrors the TS
+         * `_pushReDoSWarning` trigger in pcre2.ts. */
+        if (_is_unbounded_quant_json(node) &&
+            _has_nested_unbounded_quant_json(target) &&
+            !strling_emit_context_has_warning(ctx, STRLING_WARNING_CODE_REDOS))
+        {
+            strling_emit_context_push_warning(
+                ctx,
+                STRLING_WARNING_CODE_REDOS,
+                "The pattern contains overlapping alternations or nested unbounded "
+                "quantifiers (e.g., (a+)+). This can lead to catastrophic backtracking "
+                "and exponential CPU spikes. Consider using possessive quantifiers "
+                "(++ or *+) or atomic groups to guarantee execution safety.");
         }
 
         /* Check if target is an Anchor */
@@ -569,7 +763,7 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
         }
 
         char *target_str = NULL;
-        if (compile_node_to_pcre2(target, flags, &target_str, out_error) != 0)
+        if (compile_node_to_pcre2(target, flags, &target_str, out_error, ctx) != 0)
         {
             return 1;
         }
@@ -743,7 +937,7 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
         if (n == 1)
         {
             json_t *alt = json_array_get(alternatives, 0);
-            return compile_node_to_pcre2(alt, flags, out_pattern, out_error);
+            return compile_node_to_pcre2(alt, flags, out_pattern, out_error, ctx);
         }
 
         /* Compile all alternatives */
@@ -757,7 +951,7 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
 
         for (size_t i = 0; i < n; i++)
         {
-            if (compile_node_to_pcre2(json_array_get(alternatives, i), flags, &alt_strs[i], out_error) != 0)
+            if (compile_node_to_pcre2(json_array_get(alternatives, i), flags, &alt_strs[i], out_error, ctx) != 0)
             {
                 for (size_t j = 0; j < i; j++)
                     free(alt_strs[j]);
@@ -1353,7 +1547,7 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
 
         /* Compile the body */
         char *body_str = NULL;
-        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
+        if (compile_node_to_pcre2(body, flags, &body_str, out_error, ctx) != 0)
         {
             return 1;
         }
@@ -1601,7 +1795,7 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
         }
 
         char *expr_str = NULL;
-        if (compile_node_to_pcre2(expression, flags, &expr_str, out_error) != 0)
+        if (compile_node_to_pcre2(expression, flags, &expr_str, out_error, ctx) != 0)
         {
             return 1;
         }
@@ -1655,7 +1849,7 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
         }
 
         char *body_str = NULL;
-        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
+        if (compile_node_to_pcre2(body, flags, &body_str, out_error, ctx) != 0)
         {
             return 1;
         }
@@ -1684,7 +1878,7 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
         }
 
         char *body_str = NULL;
-        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
+        if (compile_node_to_pcre2(body, flags, &body_str, out_error, ctx) != 0)
         {
             return 1;
         }
@@ -1707,13 +1901,35 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
         if (!body)
             body = json_object_get(node, "expression");
         if (!body)
+            body = json_object_get(node, "content");
+        if (!body)
         {
             *out_error = strdup("Invalid Lookbehind: Missing 'body'");
             return 1;
         }
 
+        /* Variable-length lookbehind guard. PCRE2 requires a
+         * fixed-length lookbehind body — surface a Signpost-pattern
+         * error here so users get a coherent diagnostic instead of an
+         * opaque pcre2_compile() failure at runtime. */
+        if (!_is_fixed_length_body_json(body))
+        {
+            *out_error = strdup(
+                "PCRE2 does not support variable-length lookbehinds. "
+                "The lookbehind body contains a quantifier that makes "
+                "its length unpredictable. Rewrite the assertion using "
+                "a fixed-length range (e.g. `{1,8}` instead of `+`), "
+                "or restructure the pattern using a Lookahead, or "
+                "extract the quantified portion outside the assertion.");
+            return 1;
+        }
+
+        bool prev_in_lb = ctx->in_lookbehind;
+        ctx->in_lookbehind = true;
         char *body_str = NULL;
-        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
+        int rc_lb = compile_node_to_pcre2(body, flags, &body_str, out_error, ctx);
+        ctx->in_lookbehind = prev_in_lb;
+        if (rc_lb != 0)
         {
             return 1;
         }
@@ -1736,13 +1952,32 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
         if (!body)
             body = json_object_get(node, "expression");
         if (!body)
+            body = json_object_get(node, "content");
+        if (!body)
         {
             *out_error = strdup("Invalid NegativeLookbehind: Missing 'body'");
             return 1;
         }
 
+        /* Variable-length lookbehind guard (negative form). */
+        if (!_is_fixed_length_body_json(body))
+        {
+            *out_error = strdup(
+                "PCRE2 does not support variable-length lookbehinds. "
+                "The lookbehind body contains a quantifier that makes "
+                "its length unpredictable. Rewrite the assertion using "
+                "a fixed-length range (e.g. `{1,8}` instead of `+`), "
+                "or restructure the pattern using a Lookahead, or "
+                "extract the quantified portion outside the assertion.");
+            return 1;
+        }
+
+        bool prev_in_lb = ctx->in_lookbehind;
+        ctx->in_lookbehind = true;
         char *body_str = NULL;
-        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
+        int rc_nlb = compile_node_to_pcre2(body, flags, &body_str, out_error, ctx);
+        ctx->in_lookbehind = prev_in_lb;
+        if (rc_nlb != 0)
         {
             return 1;
         }
@@ -1766,16 +2001,12 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
         json_t *body = json_object_get(node, "body");
         if (!body)
             body = json_object_get(node, "expression");
+        if (!body)
+            body = json_object_get(node, "content");
 
         if (!body)
         {
             *out_error = strdup("Invalid Look: Missing 'body'");
-            return 1;
-        }
-
-        char *body_str = NULL;
-        if (compile_node_to_pcre2(body, flags, &body_str, out_error) != 0)
-        {
             return 1;
         }
 
@@ -1786,6 +2017,31 @@ static int compile_node_to_pcre2(json_t *node, const STRlingFlags *flags, char *
         bool neg = false;
         if (neg_obj && json_is_boolean(neg_obj))
             neg = json_boolean_value(neg_obj);
+
+        bool is_behind = (strcmp(dir, "Behind") == 0);
+
+        /* Variable-length lookbehind guard for the unified Look node. */
+        if (is_behind && !_is_fixed_length_body_json(body))
+        {
+            *out_error = strdup(
+                "PCRE2 does not support variable-length lookbehinds. "
+                "The lookbehind body contains a quantifier that makes "
+                "its length unpredictable. Rewrite the assertion using "
+                "a fixed-length range (e.g. `{1,8}` instead of `+`), "
+                "or restructure the pattern using a Lookahead, or "
+                "extract the quantified portion outside the assertion.");
+            return 1;
+        }
+
+        bool prev_in_lb = ctx->in_lookbehind;
+        if (is_behind) ctx->in_lookbehind = true;
+        char *body_str = NULL;
+        int rc_look = compile_node_to_pcre2(body, flags, &body_str, out_error, ctx);
+        ctx->in_lookbehind = prev_in_lb;
+        if (rc_look != 0)
+        {
+            return 1;
+        }
 
         /* Construct prefix: (?=, (?!, (?<=, (?<! */
         char prefix[5] = "(?";
@@ -1990,6 +2246,11 @@ static int validate_semantics_recursive(json_t *node, ValidationContext *ctx, ch
 
 STRlingResult *strling_compile(const char *json_str, const STRlingFlags *flags)
 {
+    return strling_compile_ex(json_str, flags, 0);
+}
+
+STRlingResult *strling_compile_ex(const char *json_str, const STRlingFlags *flags, int max_depth)
+{
     if (!json_str)
     {
         return create_error_result("NULL JSON input", 0, "Provide a valid JSON string");
@@ -2041,20 +2302,26 @@ STRlingResult *strling_compile(const char *json_str, const STRlingFlags *flags)
     char *compile_error = NULL;
 
     /* Perform semantic validation */
-    ValidationContext ctx;
-    ctx_init(&ctx);
-    if (validate_semantics_recursive(pattern_node, &ctx, &compile_error, true) != 0)
+    ValidationContext vctx;
+    ctx_init(&vctx);
+    if (validate_semantics_recursive(pattern_node, &vctx, &compile_error, true) != 0)
     {
-        ctx_free(&ctx);
+        ctx_free(&vctx);
         json_decref(root);
         STRlingResult *res = create_error_result(compile_error, 0, NULL);
         free(compile_error);
         return res;
     }
-    ctx_free(&ctx);
+    ctx_free(&vctx);
 
-    if (compile_node_to_pcre2(pattern_node, flags, &pcre2_pattern, &compile_error) != 0)
+    /* Thread an emitter safety context through the pattern walk
+     * so the depth, VLB, and ReDoS guards can fire and accumulate warnings. */
+    strling_emit_context_t emit_ctx;
+    strling_emit_context_init(&emit_ctx, max_depth);
+
+    if (compile_node_to_pcre2(pattern_node, flags, &pcre2_pattern, &compile_error, &emit_ctx) != 0)
     {
+        strling_emit_context_free(&emit_ctx);
         json_decref(root);
         STRlingResult *res = create_error_result(compile_error, 0, NULL);
         free(compile_error);
@@ -2148,6 +2415,18 @@ STRlingResult *strling_compile(const char *json_str, const STRlingFlags *flags)
     json_decref(root);
     STRlingResult *result = create_success_result(final_pattern);
     free(final_pattern); /* Free since create_success_result makes a copy */
+
+    /* Hand off any accumulated warnings to the result. The
+     * context's array is moved verbatim; the result owns it from here. */
+    if (result && emit_ctx.nwarnings > 0)
+    {
+        result->warnings = emit_ctx.warnings;
+        result->nwarnings = emit_ctx.nwarnings;
+        emit_ctx.warnings = NULL;
+        emit_ctx.nwarnings = 0;
+        emit_ctx.cap_warnings = 0;
+    }
+    strling_emit_context_free(&emit_ctx);
     return result;
 }
 
@@ -2157,5 +2436,10 @@ void strling_result_free_ptr(STRlingResult *result)
         return;
     free(result->pattern);
     strling_error_free(result->error);
+    if (result->warnings)
+    {
+        for (size_t i = 0; i < result->nwarnings; ++i) free(result->warnings[i]);
+        free(result->warnings);
+    }
     free(result);
 }

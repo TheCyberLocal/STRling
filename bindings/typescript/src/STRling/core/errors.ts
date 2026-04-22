@@ -42,7 +42,7 @@ export class STRlingParseError extends Error {
         message: string,
         pos: number,
         text: string = "",
-        hint: string | null = null
+        hint: string | null = null,
     ) {
         super(message);
         this.message = message;
@@ -127,5 +127,61 @@ export class STRlingParseError extends Error {
      */
     toString(): string {
         return this.formatError();
+    }
+}
+
+/**
+ * Raised by an emitter when a valid AST/IR cannot be safely lowered to the
+ * target engine's syntax. Examples:
+ *   - The IR exceeds the configured `maxDepth` (host-stack safety guard).
+ *   - The IR uses a variable-length lookbehind against an engine (PCRE2)
+ *     that requires fixed-length lookbehinds.
+ *
+ * Per the Signpost Pattern, every message must (1) state the failure,
+ * (2) explain the constraint, and (3) direct the user to a fix.
+ */
+export class STRlingCompilationError extends Error {
+    /** Stable machine-readable code (e.g. "VLB_NOT_SUPPORTED", "MAX_DEPTH"). */
+    code: string;
+
+    /** Target engine that triggered the rejection (e.g. "pcre2"). */
+    engine: string;
+
+    constructor(
+        message: string,
+        code: string = "EMITTER_ERROR",
+        engine: string = "pcre2",
+    ) {
+        super(message);
+        this.name = "STRlingCompilationError";
+        this.message = message;
+        this.code = code;
+        this.engine = engine;
+        Object.setPrototypeOf(this, STRlingCompilationError.prototype);
+    }
+
+    toString(): string {
+        return `STRlingCompilationError: ${this.message}`;
+    }
+}
+
+/**
+ * Diagnostic warning emitted alongside a successfully-produced pattern.
+ *
+ * Warnings do not abort emission. They are collected on the artifact's
+ * `warnings` array (see `emitWithDiagnostics`). The canonical use-case is
+ * `REDOS_RISK` for nested unbounded quantifiers and overlapping alternations.
+ */
+export class STRlingWarning {
+    code: string;
+    message: string;
+
+    constructor(code: string, message: string) {
+        this.code = code;
+        this.message = message;
+    }
+
+    toString(): string {
+        return `STRlingWarning [${this.code}]: ${this.message}`;
     }
 }

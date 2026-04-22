@@ -183,71 +183,177 @@ object Pcre2Emitter {
     }
     
     /**
+     * Default upper bound on AST/IR nesting depth before the emitter
+     * aborts. Mirrors the SSOT in the TypeScript reference and the
+     * matching constants in every other binding.
+     */
+    const val DEFAULT_MAX_DEPTH = 250
+
+    private const val REDOS_MESSAGE =
+        "The pattern contains overlapping alternations or nested unbounded " +
+            "quantifiers (e.g., (a+)+). This can lead to catastrophic backtracking " +
+            "and exponential CPU spikes. Consider using possessive quantifiers " +
+            "(++ or *+) or atomic groups to guarantee execution safety."
+
+    /**
+     * Mutable per-emit context threaded through [emitNode] so the depth,
+     * lookbehind and warning-collection guards can fire without
+     * polluting the public API.
+     */
+    private class EmitContext(maxDepth: Int) {
+        var depth: Int = 0
+        val maxDepth: Int = if (maxDepth > 0) maxDepth else DEFAULT_MAX_DEPTH
+        var inLookbehind: Boolean = false
+        val warnings: MutableList<STRlingWarning> = mutableListOf()
+    }
+
+    /** Resolve a `IRQuant.max` JsonElement to either an Int or the string "Inf". */
+    private fun resolveMax(maxEl: Any): Any {
+        return when {
+            maxEl is JsonPrimitive -> maxEl.intOrNull ?: maxEl.content
+            maxEl.toString() == "\"Inf\"" -> "Inf"
+            else -> maxEl.toString().replace("\"", "")
+        }
+    }
+
+    /** True iff a quantifier has an unbounded upper bound. */
+    private fun isUnboundedQuant(q: IRQuant): Boolean = resolveMax(q.max) == "Inf"
+
+    /** True iff a quantifier matches a variable number of characters. */
+    private fun isVariableLengthQuant(q: IRQuant): Boolean {
+        val mx = resolveMax(q.max)
+        return mx != q.min
+    }
+
+    /**
+     * Mirror of `_isFixedLengthBody` in the TS SSOT. Returns true when
+     * [node] consumes a fixed number of characters and is therefore
+     * safe inside a PCRE2 lookbehind.
+     */
+    private fun isFixedLengthBody(node: IROp): Boolean = when (node) {
+        is IRQuant -> !isVariableLengthQuant(node) && isFixedLengthBody(node.child)
+        is IRSeq -> node.parts.all { isFixedLengthBody(it) }
+        is IRAlt -> node.branches.all { isFixedLengthBody(it) }
+        is IRGroup -> isFixedLengthBody(node.body)
+        is IRLook -> true // lookarounds are zero-width
+        else -> true
+    }
+
+    /**
+     * Mirror of `_hasNestedUnboundedQuant` in the TS SSOT. Detects an
+     * unbounded quantifier reachable via single-child wrappers or any
+     * branch of an Alt.
+     */
+    private fun hasNestedUnboundedQuant(child: IROp): Boolean = when (child) {
+        is IRQuant -> isUnboundedQuant(child)
+        is IRGroup -> hasNestedUnboundedQuant(child.body)
+        is IRSeq -> child.parts.size == 1 && hasNestedUnboundedQuant(child.parts[0])
+        is IRAlt -> child.branches.any { hasNestedUnboundedQuant(it) }
+        else -> false
+    }
+
+    private fun pushReDoSWarning(ctx: EmitContext) {
+        if (ctx.warnings.any { it.code == "REDOS_RISK" }) return
+        ctx.warnings.add(STRlingWarning("REDOS_RISK", REDOS_MESSAGE))
+    }
+
+    /**
      * Emit a single IR node to PCRE2 syntax.
      */
     private fun emitNode(node: IROp, parentKind: String): String {
-        return when (node) {
-            is IRLit -> escapeLiteral(node.value)
-            is IRDot -> "."
-            is IRAnchor -> {
-                val at = if (node.at == "NonWordBoundary") "NotWordBoundary" else node.at
-                when (at) {
-                    "Start" -> "^"
-                    "End" -> "$"
-                    "WordBoundary" -> "\\b"
-                    "NotWordBoundary" -> "\\B"
-                    "AbsoluteStart" -> "\\A"
-                    "EndBeforeFinalNewline" -> "\\Z"
-                    "AbsoluteEnd" -> "\\z"
-                    else -> ""
-                }
+        return emitNode(node, parentKind, EmitContext(0))
+    }
+
+    private fun emitNode(node: IROp, parentKind: String, ctx: EmitContext): String {
+        ctx.depth += 1
+        try {
+            if (ctx.depth > ctx.maxDepth) {
+                throw STRlingCompilationError(
+                    "Maximum AST depth exceeded (limit: ${ctx.maxDepth}). " +
+                        "This pattern is too deeply nested and risks host stack " +
+                        "exhaustion during emission. Refactor the pattern to " +
+                        "reduce nesting, or flatten capturing groups where possible.",
+                    "MAX_DEPTH",
+                )
             }
-            is IRBackref -> {
-                when {
-                    node.byName != null -> "\\k<${node.byName}>"
-                    node.byIndex != null -> "\\${node.byIndex}"
-                    else -> ""
-                }
-            }
-            is IRCharClass -> emitClass(node)
-            is IRSeq -> {
-                node.parts.joinToString("") { emitNode(it, "Seq") }
-            }
-            is IRAlt -> {
-                val body = node.branches.joinToString("|") { emitNode(it, "Alt") }
-                if (parentKind in listOf("Seq", "Quant")) "(?:$body)" else body
-            }
-            is IRQuant -> {
-                var childStr = emitNode(node.child, "Quant")
-                if (needsGroupForQuant(node.child) && node.child !is IRGroup) {
-                    childStr = "(?:$childStr)"
-                }
-                
-                // Parse max value from JsonElement
-                val maxVal: Any = when {
-                    node.max.toString() == "\"Inf\"" -> "Inf"
-                    node.max is JsonPrimitive -> {
-                        val jp = node.max as JsonPrimitive
-                        jp.intOrNull ?: jp.content
+            return when (node) {
+                is IRLit -> escapeLiteral(node.value)
+                is IRDot -> "."
+                is IRAnchor -> {
+                    val at = if (node.at == "NonWordBoundary") "NotWordBoundary" else node.at
+                    when (at) {
+                        "Start" -> "^"
+                        "End" -> "$"
+                        "WordBoundary" -> "\\b"
+                        "NotWordBoundary" -> "\\B"
+                        "AbsoluteStart" -> "\\A"
+                        "EndBeforeFinalNewline" -> "\\Z"
+                        "AbsoluteEnd" -> "\\z"
+                        else -> ""
                     }
-                    else -> node.max.toString().replace("\"", "")
                 }
-                
-                childStr + emitQuantSuffix(node.min, maxVal, node.mode)
-            }
-            is IRGroup -> {
-                emitGroupOpen(node) + emitNode(node.body, "Group") + ")"
-            }
-            is IRLook -> {
-                val op = when {
-                    node.dir == "Ahead" && !node.neg -> "?="
-                    node.dir == "Ahead" && node.neg -> "?!"
-                    node.dir == "Behind" && !node.neg -> "?<="
-                    node.dir == "Behind" && node.neg -> "?<!"
-                    else -> "?="
+                is IRBackref -> {
+                    when {
+                        node.byName != null -> "\\k<${node.byName}>"
+                        node.byIndex != null -> "\\${node.byIndex}"
+                        else -> ""
+                    }
                 }
-                "($op${emitNode(node.body, "Look")})"
+                is IRCharClass -> emitClass(node)
+                is IRSeq -> node.parts.joinToString("") { emitNode(it, "Seq", ctx) }
+                is IRAlt -> {
+                    val body = node.branches.joinToString("|") { emitNode(it, "Alt", ctx) }
+                    if (parentKind in listOf("Seq", "Quant")) "(?:$body)" else body
+                }
+                is IRQuant -> {
+                    // ReDoS guard: only flag when the *outer* quantifier is
+                    // itself unbounded (e.g. `(a+)+`). A bounded outer like
+                    // `(a+){0,3}` cannot produce exponential backtracking on
+                    // its own.
+                    if (isUnboundedQuant(node) && hasNestedUnboundedQuant(node.child)) {
+                        pushReDoSWarning(ctx)
+                    }
+                    var childStr = emitNode(node.child, "Quant", ctx)
+                    if (needsGroupForQuant(node.child) && node.child !is IRGroup) {
+                        childStr = "(?:$childStr)"
+                    }
+                    childStr + emitQuantSuffix(node.min, resolveMax(node.max), node.mode)
+                }
+                is IRGroup -> emitGroupOpen(node) + emitNode(node.body, "Group", ctx) + ")"
+                is IRLook -> {
+                    // Variable-length lookbehind guard: PCRE2 mandates a
+                    // fixed-width lookbehind body. Detect the violation here
+                    // so the user sees a Signpost-pattern error rather than
+                    // an opaque PCRE2 compile failure leaking from the runtime.
+                    if (node.dir == "Behind" && !isFixedLengthBody(node.body)) {
+                        throw STRlingCompilationError(
+                            "PCRE2 does not support variable-length lookbehinds. " +
+                                "The lookbehind body contains a quantifier that makes " +
+                                "its length unpredictable. Rewrite the assertion using " +
+                                "a fixed-length range (e.g. `{1,8}` instead of `+`), " +
+                                "or restructure the pattern using a Lookahead, or " +
+                                "extract the quantified portion outside the assertion.",
+                            "VLB_NOT_SUPPORTED",
+                        )
+                    }
+                    val wasInLb = ctx.inLookbehind
+                    if (node.dir == "Behind") ctx.inLookbehind = true
+                    try {
+                        val op = when {
+                            node.dir == "Ahead" && !node.neg -> "?="
+                            node.dir == "Ahead" && node.neg -> "?!"
+                            node.dir == "Behind" && !node.neg -> "?<="
+                            node.dir == "Behind" && node.neg -> "?<!"
+                            else -> "?="
+                        }
+                        "($op${emitNode(node.body, "Look", ctx)})"
+                    } finally {
+                        ctx.inLookbehind = wasInLb
+                    }
+                }
             }
+        } finally {
+            ctx.depth -= 1
         }
     }
     
@@ -269,8 +375,18 @@ object Pcre2Emitter {
      * Emit a PCRE2 pattern string from IR.
      */
     fun emit(irRoot: IROp, flags: Flags? = null): String {
+        return emitWithDiagnostics(irRoot, flags, 0).pattern
+    }
+
+    /**
+     * Emit a PCRE2 pattern string from IR and surface any non-fatal
+     * diagnostics collected during emission. Pass [maxDepth] <= 0 to
+     * use [DEFAULT_MAX_DEPTH].
+     */
+    fun emitWithDiagnostics(irRoot: IROp, flags: Flags? = null, maxDepth: Int = 0): CompileResult {
         val prefix = if (flags != null) emitPrefixFromFlags(flags) else ""
-        val body = emitNode(irRoot, "")
-        return prefix + body
+        val ctx = EmitContext(maxDepth)
+        val body = emitNode(irRoot, "", ctx)
+        return CompileResult(prefix + body, ctx.warnings.toList())
     }
 }

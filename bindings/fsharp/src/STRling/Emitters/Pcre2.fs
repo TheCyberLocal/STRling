@@ -127,54 +127,153 @@ module Pcre2 =
             | None -> "("
         else "(?:"
     
-    /// Emit a single IR node to PCRE2 syntax.
-    let rec private emitNode (parentKind: string) (node: IROp) : string =
+    /// Default upper bound on AST/IR nesting depth before the emitter
+    /// aborts. Mirrors the SSOT in the TypeScript reference.
+    let DEFAULT_MAX_DEPTH = 250
+
+    let private REDOS_MESSAGE =
+        "The pattern contains overlapping alternations or nested unbounded "
+        + "quantifiers (e.g., (a+)+). This can lead to catastrophic backtracking "
+        + "and exponential CPU spikes. Consider using possessive quantifiers "
+        + "(++ or *+) or atomic groups to guarantee execution safety."
+
+    /// Mutable per-emit context threaded through `emitNode` so the depth,
+    /// lookbehind, and warning-collection guards can fire without
+    /// polluting the public API.
+    type private EmitContext =
+        { mutable Depth: int
+          MaxDepth: int
+          mutable InLookbehind: bool
+          Warnings: ResizeArray<STRlingWarning> }
+
+    let private newContext (maxDepth: int) : EmitContext =
+        { Depth = 0
+          MaxDepth = if maxDepth > 0 then maxDepth else DEFAULT_MAX_DEPTH
+          InLookbehind = false
+          Warnings = ResizeArray<STRlingWarning>() }
+
+    /// True iff a quantifier has an unbounded upper bound.
+    let private isUnboundedQuant (max: string) : bool = max = "Inf"
+
+    /// True iff a quantifier matches a variable number of characters.
+    let private isVariableLengthQuant (minv: int) (maxv: string) : bool =
+        // Maxv is either an int rendered as a string or the sentinel "Inf".
+        maxv <> string minv
+
+    /// Mirror of `_isFixedLengthBody` in the TS SSOT. Returns `true` when
+    /// `node` consumes a fixed number of characters and is therefore safe
+    /// inside a PCRE2 lookbehind.
+    let rec private isFixedLengthBody (node: IROp) : bool =
         match node with
-        | IRLit v -> escapeLiteral v
-        | IRDot -> "."
-        | IRAnchor at ->
-            match at with
-            | "Start" -> "^"
-            | "End" -> "$"
-            | "WordBoundary" -> "\\b"
-            | "NotWordBoundary" -> "\\B"
-            | "NonWordBoundary" -> "\\B"
-            | "AbsoluteStart" -> "\\A"
-            | "EndBeforeFinalNewline" -> "\\Z"
-            | "AbsoluteEnd" -> "\\z"
-            | _ -> ""
-        | IRBackref (byIndex, byName) ->
-            match byName with
-            | Some n -> sprintf "\\k<%s>" n
-            | None ->
-                match byIndex with
-                | Some i -> "\\" + string i
-                | None -> ""
-        | IRCharClass (negated, items) -> emitClass negated items
-        | IRSeq parts -> parts |> List.map (emitNode "Seq") |> String.concat ""
-        | IRAlt branches ->
-            let body = branches |> List.map (emitNode "Alt") |> String.concat "|"
-            if parentKind = "Seq" || parentKind = "Quant" then "(?:" + body + ")"
-            else body
-        | IRQuant (child, min, max, mode) ->
-            let childStr = emitNode "Quant" child
-            let grouped = 
-                match child with
-                | IRGroup _ -> childStr
-                | _ when needsGroupForQuant child -> "(?:" + childStr + ")"
-                | _ -> childStr
-            grouped + emitQuantSuffix min max mode
-        | IRGroup (capturing, body, name, atomic) ->
-            emitGroupOpen capturing name atomic + emitNode "Group" body + ")"
-        | IRLook (dir, neg, body) ->
-            let op =
-                match dir, neg with
-                | "Ahead", false -> "?="
-                | "Ahead", true -> "?!"
-                | "Behind", false -> "?<="
-                | "Behind", true -> "?<!"
-                | _, _ -> "?="
-            "(" + op + emitNode "Look" body + ")"
+        | IRQuant (child, minv, maxv, _) ->
+            (not (isVariableLengthQuant minv maxv)) && isFixedLengthBody child
+        | IRSeq parts -> parts |> List.forall isFixedLengthBody
+        | IRAlt branches -> branches |> List.forall isFixedLengthBody
+        | IRGroup (_, body, _, _) -> isFixedLengthBody body
+        | IRLook _ -> true
+        | _ -> true
+
+    /// Mirror of `_hasNestedUnboundedQuant` in the TS SSOT. Detects an
+    /// unbounded quantifier reachable from `child` via single-child
+    /// wrappers or any branch of an Alt.
+    let rec private hasNestedUnboundedQuant (child: IROp) : bool =
+        match child with
+        | IRQuant (_, _, maxv, _) -> isUnboundedQuant maxv
+        | IRGroup (_, body, _, _) -> hasNestedUnboundedQuant body
+        | IRSeq parts when parts.Length = 1 -> hasNestedUnboundedQuant parts.[0]
+        | IRAlt branches -> branches |> List.exists hasNestedUnboundedQuant
+        | _ -> false
+
+    /// Append a single REDOS_RISK warning, deduplicated per pass.
+    let private pushReDoSWarning (ctx: EmitContext) =
+        let already =
+            ctx.Warnings
+            |> Seq.exists (fun w -> w.Code = "REDOS_RISK")
+        if not already then
+            ctx.Warnings.Add({ Code = "REDOS_RISK"; Message = REDOS_MESSAGE })
+
+    /// Emit a single IR node to PCRE2 syntax.
+    let rec private emitNode (parentKind: string) (node: IROp) (ctx: EmitContext) : string =
+        ctx.Depth <- ctx.Depth + 1
+        try
+            if ctx.Depth > ctx.MaxDepth then
+                let msg =
+                    sprintf
+                        "Maximum AST depth exceeded (limit: %d). This pattern is too deeply nested and risks host stack exhaustion during emission. Refactor the pattern to reduce nesting, or flatten capturing groups where possible."
+                        ctx.MaxDepth
+                raise (STRlingCompilationError(msg, "MAX_DEPTH"))
+            match node with
+            | IRLit v -> escapeLiteral v
+            | IRDot -> "."
+            | IRAnchor at ->
+                match at with
+                | "Start" -> "^"
+                | "End" -> "$"
+                | "WordBoundary" -> "\\b"
+                | "NotWordBoundary" -> "\\B"
+                | "NonWordBoundary" -> "\\B"
+                | "AbsoluteStart" -> "\\A"
+                | "EndBeforeFinalNewline" -> "\\Z"
+                | "AbsoluteEnd" -> "\\z"
+                | _ -> ""
+            | IRBackref (byIndex, byName) ->
+                match byName with
+                | Some n -> sprintf "\\k<%s>" n
+                | None ->
+                    match byIndex with
+                    | Some i -> "\\" + string i
+                    | None -> ""
+            | IRCharClass (negated, items) -> emitClass negated items
+            | IRSeq parts -> parts |> List.map (fun p -> emitNode "Seq" p ctx) |> String.concat ""
+            | IRAlt branches ->
+                let body = branches |> List.map (fun b -> emitNode "Alt" b ctx) |> String.concat "|"
+                if parentKind = "Seq" || parentKind = "Quant" then "(?:" + body + ")"
+                else body
+            | IRQuant (child, minv, maxv, mode) ->
+                // ReDoS guard: only flag when the *outer* quantifier is
+                // itself unbounded (e.g. `(a+)+`). A bounded outer like
+                // `(a+){0,3}` cannot produce exponential backtracking on
+                // its own.
+                if isUnboundedQuant maxv && hasNestedUnboundedQuant child then
+                    pushReDoSWarning ctx
+                let childStr = emitNode "Quant" child ctx
+                let grouped =
+                    match child with
+                    | IRGroup _ -> childStr
+                    | _ when needsGroupForQuant child -> "(?:" + childStr + ")"
+                    | _ -> childStr
+                grouped + emitQuantSuffix minv maxv mode
+            | IRGroup (capturing, body, name, atomic) ->
+                emitGroupOpen capturing name atomic + emitNode "Group" body ctx + ")"
+            | IRLook (dir, neg, body) ->
+                // Variable-length lookbehind guard: PCRE2 mandates a
+                // fixed-width lookbehind body. Detect the violation here
+                // so the user sees a Signpost-pattern error rather than
+                // an opaque PCRE2 compile failure leaking from the runtime.
+                if dir = "Behind" && not (isFixedLengthBody body) then
+                    let msg =
+                        "PCRE2 does not support variable-length lookbehinds. "
+                        + "The lookbehind body contains a quantifier that makes "
+                        + "its length unpredictable. Rewrite the assertion using "
+                        + "a fixed-length range (e.g. `{1,8}` instead of `+`), "
+                        + "or restructure the pattern using a Lookahead, or "
+                        + "extract the quantified portion outside the assertion."
+                    raise (STRlingCompilationError(msg, "VLB_NOT_SUPPORTED"))
+                let wasInLb = ctx.InLookbehind
+                if dir = "Behind" then ctx.InLookbehind <- true
+                try
+                    let op =
+                        match dir, neg with
+                        | "Ahead", false -> "?="
+                        | "Ahead", true -> "?!"
+                        | "Behind", false -> "?<="
+                        | "Behind", true -> "?<!"
+                        | _, _ -> "?="
+                    "(" + op + emitNode "Look" body ctx + ")"
+                finally
+                    ctx.InLookbehind <- wasInLb
+        finally
+            ctx.Depth <- ctx.Depth - 1
     
     /// Build the inline prefix form expected by tests, e.g. "(?imx)".
     let private emitPrefixFromFlags (flags: Flags) : string =
@@ -193,8 +292,22 @@ module Pcre2 =
             match flags with
             | Some f -> emitPrefixFromFlags f
             | None -> ""
-        let body = emitNode "" irRoot
+        let ctx = newContext 0
+        let body = emitNode "" irRoot ctx
         prefix + body
+
+    /// Emit a PCRE2 pattern string from IR and surface any non-fatal
+    /// diagnostics collected during emission. Pass `maxDepth <= 0` to
+    /// use `DEFAULT_MAX_DEPTH`.
+    let emitWithDiagnostics (irRoot: IROp) (flags: Flags option) (maxDepth: int) : CompileResult =
+        let prefix =
+            match flags with
+            | Some f -> emitPrefixFromFlags f
+            | None -> ""
+        let ctx = newContext maxDepth
+        let body = emitNode "" irRoot ctx
+        { Pattern = prefix + body
+          Warnings = ctx.Warnings |> List.ofSeq }
     
     /// Emit a PCRE2 pattern string from IR without flags.
     let emitNoFlags (irRoot: IROp) : string =

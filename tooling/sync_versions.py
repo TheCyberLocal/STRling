@@ -28,15 +28,31 @@ def normalize_ruby_gem_version(version: str) -> str:
 
 
 def normalize_lua_rockspec_version(version: str) -> str:
-    """Convert semver prereleases to a LuaRocks-friendly rockspec version."""
+    """Convert semver prereleases to a LuaRocks-friendly rockspec version.
+
+    LuaRocks rockspec versions take the form ``<upstream>-<revision>`` where
+    ``<revision>`` is a positive integer. Inputs are interpreted as follows:
+
+    * ``"1.2.3"`` → ``"1.2.3-1"`` (default revision appended)
+    * ``"1.2.3-2"`` → ``"1.2.3-2"`` (already a revision; preserved verbatim)
+    * ``"1.2.3-rc1"`` → ``"1.2.3-rc1-1"`` (semver prerelease + revision)
+    * ``"1.2.3-rc1-1"`` → ``"1.2.3-rc1-1"`` (already includes a revision)
+    """
     if "-" not in version:
         return version + "-1"
 
     base, prerelease = version.split("-", 1)
-    if prerelease.endswith("-1"):
-        return base + prerelease
 
-    return base + prerelease + "-1"
+    # Pure-numeric suffix is already a LuaRocks revision; preserve as-is.
+    if prerelease.isdigit():
+        return f"{base}-{prerelease}"
+
+    # Suffix already carries a trailing "-<n>" revision; keep the full form.
+    if re.search(r"-\d+$", prerelease):
+        return f"{base}-{prerelease}"
+
+    # Semver prerelease without a revision; append the default "-1".
+    return f"{base}-{prerelease}-1"
 
 
 # Configuration

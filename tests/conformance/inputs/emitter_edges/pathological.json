@@ -1,0 +1,48 @@
+{
+    "description": "Pathological ASTs that must trigger Emitter Safety Guards",
+    "tests": [
+        {
+            "name": "Variable-Length Lookbehind Rejection",
+            "ast": {
+                "type": "Lookbehind",
+                "content": {
+                    "type": "Quantifier",
+                    "min": 1,
+                    "max": null,
+                    "content": { "type": "Literal", "value": "a" }
+                }
+            },
+            "expected_error": "STRlingCompilationError: PCRE2 does not support variable-length lookbehinds."
+        },
+        {
+            "name": "AST Depth Limit Exceeded",
+            "ast": {
+                "type": "Group",
+                "content": {
+                    "type": "Group",
+                    "content": {
+                        "type": "Group",
+                        "content": { "type": "Literal", "value": "deep" }
+                    }
+                }
+            },
+            "depth_override_for_test": 2,
+            "expected_error": "STRlingCompilationError: Maximum AST depth exceeded"
+        },
+        {
+            "name": "ReDoS Risk Warning: Nested Quantifiers",
+            "ast": {
+                "type": "Quantifier",
+                "min": 1,
+                "max": null,
+                "content": {
+                    "type": "Quantifier",
+                    "min": 1,
+                    "max": null,
+                    "content": { "type": "Literal", "value": "a" }
+                }
+            },
+            "expected_warning": "STRlingWarning [REDOS_RISK]: The pattern contains overlapping alternations or nested unbounded quantifiers"
+        }
+    ]
+}

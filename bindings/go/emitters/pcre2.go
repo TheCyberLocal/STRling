@@ -224,7 +224,237 @@ func emitGroupOpen(g core.IRGroup) string {
 }
 
 // emitNode emits PCRE2 pattern string from an IR node.
+//
+// Deprecated wrapper used by the Emit fast path; new call sites should
+// use emitNodeCtx so the depth, lookbehind and warning-collection
+// guards activate.
 func emitNode(node core.IROp, parentKind string) string {
+	ctx := newEmitContext(0)
+	return emitNodeCtx(node, parentKind, ctx)
+}
+
+// DEFAULT_MAX_DEPTH bounds AST/IR nesting depth before the emitter
+// aborts. Mirrors the SSOT in the TypeScript reference and the
+// matching constants in every other binding.
+const DEFAULT_MAX_DEPTH = 250
+
+const redosMessage = "The pattern contains overlapping alternations or nested unbounded quantifiers (e.g., (a+)+). This can lead to catastrophic backtracking and exponential CPU spikes. Consider using possessive quantifiers (++ or *+) or atomic groups to guarantee execution safety."
+
+// emitContext is the mutable per-emit state threaded through emitNodeCtx
+// so the depth, lookbehind, and warning-collection guards can fire
+// without polluting the public API.
+type emitContext struct {
+	depth        int
+	maxDepth     int
+	inLookbehind bool
+	warnings     []core.STRlingWarning
+}
+
+func newEmitContext(maxDepth int) *emitContext {
+	if maxDepth <= 0 {
+		maxDepth = DEFAULT_MAX_DEPTH
+	}
+	return &emitContext{maxDepth: maxDepth}
+}
+
+// isUnboundedQuant reports whether a quantifier has an unbounded upper bound.
+func isUnboundedQuant(q core.IRQuant) bool {
+	if s, ok := q.Max.(string); ok {
+		return s == "Inf"
+	}
+	return false
+}
+
+// isVariableLengthQuant reports whether a quantifier matches a variable
+// number of characters.
+func isVariableLengthQuant(q core.IRQuant) bool {
+	if isUnboundedQuant(q) {
+		return true
+	}
+	if maxI, ok := q.Max.(int); ok {
+		return maxI != q.Min
+	}
+	// Unknown shape — be conservative.
+	return true
+}
+
+// isFixedLengthBody mirrors `_isFixedLengthBody` in the TS SSOT. Returns
+// true when `node` consumes a fixed number of characters and is
+// therefore safe inside a PCRE2 lookbehind.
+func isFixedLengthBody(node core.IROp) bool {
+	switch n := node.(type) {
+	case core.IRQuant:
+		return !isVariableLengthQuant(n) && isFixedLengthBody(n.Child)
+	case core.IRSeq:
+		for _, p := range n.Parts {
+			if !isFixedLengthBody(p) {
+				return false
+			}
+		}
+		return true
+	case core.IRAlt:
+		for _, b := range n.Branches {
+			if !isFixedLengthBody(b) {
+				return false
+			}
+		}
+		return true
+	case core.IRGroup:
+		return isFixedLengthBody(n.Body)
+	case core.IRLook:
+		// Nested lookarounds are zero-width.
+		return true
+	}
+	return true
+}
+
+// hasNestedUnboundedQuant mirrors `_hasNestedUnboundedQuant` in the TS
+// SSOT. Detects an unbounded quantifier reachable via single-child
+// wrappers or any branch of an Alt.
+func hasNestedUnboundedQuant(child core.IROp) bool {
+	switch n := child.(type) {
+	case core.IRQuant:
+		return isUnboundedQuant(n)
+	case core.IRGroup:
+		return hasNestedUnboundedQuant(n.Body)
+	case core.IRSeq:
+		return len(n.Parts) == 1 && hasNestedUnboundedQuant(n.Parts[0])
+	case core.IRAlt:
+		for _, b := range n.Branches {
+			if hasNestedUnboundedQuant(b) {
+				return true
+			}
+		}
+		return false
+	}
+	return false
+}
+
+// pushReDoSWarning appends a single REDOS_RISK warning, deduplicated per pass.
+func pushReDoSWarning(ctx *emitContext) {
+	for _, w := range ctx.warnings {
+		if w.Code == "REDOS_RISK" {
+			return
+		}
+	}
+	ctx.warnings = append(ctx.warnings, core.STRlingWarning{Code: "REDOS_RISK", Message: redosMessage})
+}
+
+// emitNodeCtx is the depth-tracking, guard-aware emitter core. Panics
+// with a *core.STRlingCompilationError on guard violations; the public
+// EmitWithDiagnostics entry point recovers and returns it as an error.
+func emitNodeCtx(node core.IROp, parentKind string, ctx *emitContext) string {
+	ctx.depth++
+	defer func() { ctx.depth-- }()
+	if ctx.depth > ctx.maxDepth {
+		panic(core.NewSTRlingCompilationError(
+			fmt.Sprintf("Maximum AST depth exceeded (limit: %d). This pattern is too deeply nested and risks host stack exhaustion during emission. Refactor the pattern to reduce nesting, or flatten capturing groups where possible.", ctx.maxDepth),
+			"MAX_DEPTH", ""))
+	}
+	switch n := node.(type) {
+	case core.IRLit:
+		return escapeLiteral(n.Value)
+
+	case core.IRDot:
+		return "."
+
+	case core.IRAnchor:
+		mapping := map[string]string{
+			"Start":                 "^",
+			"End":                   "$",
+			"WordBoundary":          `\b`,
+			"NotWordBoundary":       `\B`,
+			"AbsoluteStart":         `\A`,
+			"EndBeforeFinalNewline": `\Z`,
+			"AbsoluteEnd":           `\z`,
+		}
+		if val, ok := mapping[n.At]; ok {
+			return val
+		}
+		return ""
+
+	case core.IRBackref:
+		if n.ByName != nil {
+			return fmt.Sprintf(`\k<%s>`, *n.ByName)
+		}
+		if n.ByIndex != nil {
+			return fmt.Sprintf(`\%d`, *n.ByIndex)
+		}
+		return ""
+
+	case core.IRCharClass:
+		return emitClass(n)
+
+	case core.IRSeq:
+		var parts []string
+		for _, p := range n.Parts {
+			parts = append(parts, emitNodeCtx(p, "Seq", ctx))
+		}
+		return strings.Join(parts, "")
+
+	case core.IRAlt:
+		var branches []string
+		for _, b := range n.Branches {
+			branches = append(branches, emitNodeCtx(b, "Alt", ctx))
+		}
+		body := strings.Join(branches, "|")
+		if parentKind == "Seq" || parentKind == "Quant" {
+			return "(?:" + body + ")"
+		}
+		return body
+
+	case core.IRQuant:
+		// ReDoS guard: only flag when the *outer* quantifier is itself
+		// unbounded (e.g. `(a+)+`). A bounded outer like `(a+){0,3}`
+		// cannot produce exponential backtracking on its own.
+		if isUnboundedQuant(n) && hasNestedUnboundedQuant(n.Child) {
+			pushReDoSWarning(ctx)
+		}
+		childStr := emitNodeCtx(n.Child, "Quant", ctx)
+		if needsGroupForQuant(n.Child) {
+			if _, ok := n.Child.(core.IRGroup); !ok {
+				childStr = "(?:" + childStr + ")"
+			}
+		}
+		return childStr + emitQuantSuffix(n.Min, n.Max, n.Mode)
+
+	case core.IRGroup:
+		return emitGroupOpen(n) + emitNodeCtx(n.Body, "Group", ctx) + ")"
+
+	case core.IRLook:
+		// Variable-length lookbehind guard: PCRE2 mandates a fixed-width
+		// lookbehind body. Detect the violation here so the user sees a
+		// Signpost-pattern error rather than an opaque PCRE2 compile
+		// failure leaking from the runtime.
+		if n.Dir == "Behind" && !isFixedLengthBody(n.Body) {
+			panic(core.NewSTRlingCompilationError(
+				"PCRE2 does not support variable-length lookbehinds. The lookbehind body contains a quantifier that makes its length unpredictable. Rewrite the assertion using a fixed-length range (e.g. `{1,8}` instead of `+`), or restructure the pattern using a Lookahead, or extract the quantified portion outside the assertion.",
+				"VLB_NOT_SUPPORTED", ""))
+		}
+		wasInLb := ctx.inLookbehind
+		if n.Dir == "Behind" {
+			ctx.inLookbehind = true
+		}
+		defer func() { ctx.inLookbehind = wasInLb }()
+		var op string
+		if n.Dir == "Ahead" && !n.Neg {
+			op = "?="
+		} else if n.Dir == "Ahead" && n.Neg {
+			op = "?!"
+		} else if n.Dir == "Behind" && !n.Neg {
+			op = "?<="
+		} else {
+			op = "?<!"
+		}
+		return "(" + op + emitNodeCtx(n.Body, "Look", ctx) + ")"
+	}
+
+	return ""
+}
+
+// emitNodeLegacy is the original guard-free implementation. Retained
+// only as a reference; not used by the public API.
+func emitNodeLegacy(node core.IROp, parentKind string) string {
 	switch n := node.(type) {
 	case core.IRLit:
 		return escapeLiteral(n.Value)
@@ -335,8 +565,20 @@ func emitPrefixFromFlags(flags map[string]bool) string {
 //
 // If 'flags' is provided (as a Flags struct or map), it will be prefixed to the pattern.
 func Emit(irRoot core.IROp, flags interface{}) string {
+	res, err := EmitWithDiagnostics(irRoot, flags, 0)
+	if err != nil {
+		// Preserve panic-on-fatal semantics for legacy callers that do
+		// not consume the structured result.
+		panic(err)
+	}
+	return res.Pattern
+}
+
+// EmitWithDiagnostics emits a PCRE2 pattern string from IR and surfaces
+// any non-fatal diagnostics (e.g. REDOS_RISK warnings) collected during
+// emission. Pass maxDepth <= 0 to use DEFAULT_MAX_DEPTH.
+func EmitWithDiagnostics(irRoot core.IROp, flags interface{}, maxDepth int) (result *core.CompileResult, err error) {
 	var flagDict map[string]bool
-	
 	if flags != nil {
 		switch f := flags.(type) {
 		case map[string]bool:
@@ -345,12 +587,22 @@ func Emit(irRoot core.IROp, flags interface{}) string {
 			flagDict = f.ToDict()
 		}
 	}
-	
 	prefix := ""
 	if flagDict != nil {
 		prefix = emitPrefixFromFlags(flagDict)
 	}
-	
-	body := emitNode(irRoot, "")
-	return prefix + body
+
+	ctx := newEmitContext(maxDepth)
+	defer func() {
+		if r := recover(); r != nil {
+			if ce, ok := r.(*core.STRlingCompilationError); ok {
+				result = nil
+				err = ce
+				return
+			}
+			panic(r)
+		}
+	}()
+	body := emitNodeCtx(irRoot, "", ctx)
+	return &core.CompileResult{Pattern: prefix + body, Warnings: ctx.warnings}, nil
 }

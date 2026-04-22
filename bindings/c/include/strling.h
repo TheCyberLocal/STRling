@@ -34,6 +34,12 @@ void strling_error_free(STRlingError* error);
 typedef struct STRlingResult {
     char* pattern;        /* Compiled PCRE2 pattern (NULL on error) */
     STRlingError* error;  /* Error details (NULL on success) */
+    /* Non-fatal diagnostics surfaced by emitter safety guards.
+     * Each entry is a heap-owned "CODE: message" string. May be NULL when
+     * `nwarnings == 0`. Lifetime is bound to the result; freed by
+     * `strling_result_free_ptr()`. */
+    char** warnings;
+    size_t nwarnings;
 } STRlingResult;
 
 /* Compilation flags */
@@ -58,6 +64,16 @@ void strling_flags_free(STRlingFlags* flags);
  */
 STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags);
 
+/* Compile with explicit emitter options. Currently exposes the AST depth
+ * cap (defaults to STRLING_DEFAULT_MAX_DEPTH when `max_depth <= 0`) so
+ * conformance tests can probe the depth-limit guard without constructing
+ * 250-deep ASTs. The returned result follows the same ownership rules as
+ * `strling_compile()` and must be released with `strling_result_free_ptr()`.
+ */
+STRlingResult* strling_compile_ex(const char* json_str,
+                                  const STRlingFlags* flags,
+                                  int max_depth);
+
 /* Free a compilation result (pointer-based API) */
 void strling_result_free_ptr(STRlingResult* result);
 
@@ -78,12 +94,21 @@ typedef struct {
     char* error_message;    /* NULL on success */
     char* pcre2_pattern;    /* Compiled pattern (NULL on error) */
     int error_position;     /* Position in input, if available */
+    /* Non-fatal diagnostics. See STRlingResult.warnings. */
+    char** warnings;
+    size_t nwarnings;
 } strling_result_t;
 
 #define STRling_OK 0
 
 /* Compatibility wrapper prototype (implemented in src/compat.c) */
 strling_result_t strling_compile_compat(const char* json_str, const STRlingFlags* flags);
+
+/* Same as `strling_compile_compat` but accepts a custom AST depth cap.
+ * Pass `max_depth <= 0` for the default. */
+strling_result_t strling_compile_compat_ex(const char* json_str,
+                                           const STRlingFlags* flags,
+                                           int max_depth);
 
 /* Compatibility free (value-based). Implemented in src/compat.c. */
 void strling_result_free_compat(strling_result_t* result);

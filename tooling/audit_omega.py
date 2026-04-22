@@ -49,12 +49,15 @@ SKIP_EXCLUDE_PATTERNS = [
     r"\b0 pending\b",  # Busted summary line (e.g., "598 successes / 0 failures / 0 errors / 0 pending")
 ]
 
-# Warning patterns for test/build output
-# Exclude common false positives like locale warnings
+# Warning patterns for test/build output.
+# Keep these scoped to actual diagnostic formats so test names like
+# "ReDoS Risk Warning: Nested Quantifiers" do not count as build noise.
 WARNING_PATTERNS = [
-    r"warning:",
-    r"WARNING:",
-    r"Warning:",
+    r"^\s*warning\b",
+    r"^\s*WARNING\b",
+    r"^\s*Warning\b",
+    r":\s*warning(?:\s+[A-Z]+\d+)?:",
+    r"^\s*npm\s+WARN\b",
 ]
 
 # Patterns that should NOT be counted as warnings (false positives)
@@ -64,6 +67,8 @@ WARNING_EXCLUDE_PATTERNS = [
     r"Setting locale failed",
     r"LANGUAGE",
     r"LC_ALL",
+    r"\bwarnings\s*:\s*\[",
+    r"\bno\s+warnings\b",
     # Rust/Cargo compiler warnings
     r"unused variable",
     r"unused import",

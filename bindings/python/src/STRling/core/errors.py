@@ -184,3 +184,52 @@ class STRlingParseError(Exception):
             "source": "STRling",
             "code": error_code,
         }
+
+
+class STRlingCompilationError(Exception):
+    """
+    Raised by IR emitters when a safety guard rejects a pattern.
+
+    Used by the PCRE2 emitter for fatal structural problems such as
+    variable-length lookbehinds or AST nesting that exceeds the depth
+    ceiling. Carries a stable ``code`` (e.g. ``"VLB_NOT_SUPPORTED"``,
+    ``"MAX_DEPTH"``) and the offending ``engine`` name so cross-binding
+    parity tests can match on substrings without coupling to wording.
+
+    Mirrors ``STRlingCompilationError`` in the TypeScript reference.
+    """
+
+    def __init__(self, message: str, code: str, engine: str = "pcre2") -> None:
+        self.message = message
+        self.code = code
+        self.engine = engine
+        # Match the TypeScript SSOT's ``toString()`` shape so substring
+        # parity assertions in the global pathological fixture line up:
+        # ``STRlingCompilationError: <message>``.
+        super().__init__(message)
+
+    def __str__(self) -> str:  # pragma: no cover - trivial
+        return self.message
+
+
+class STRlingWarning:
+    """
+    Non-fatal diagnostic emitted alongside a compiled pattern.
+
+    Currently used for ``REDOS_RISK`` (nested unbounded quantifiers).
+    Plain value object — not an exception — so it can be collected and
+    surfaced to the caller without aborting compilation.
+    """
+
+    def __init__(self, code: str, message: str) -> None:
+        self.code = code
+        self.message = message
+
+    def __repr__(self) -> str:  # pragma: no cover - trivial
+        return f"STRlingWarning({self.code!r}, {self.message!r})"
+
+    def __str__(self) -> str:
+        # Match the TypeScript SSOT's ``toString()`` so the global
+        # pathological fixture's ``expected_warning`` substring compares
+        # 1:1 across bindings.
+        return f"STRlingWarning [{self.code}]: {self.message}"

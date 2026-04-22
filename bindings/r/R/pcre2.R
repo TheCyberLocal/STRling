@@ -9,6 +9,43 @@ LITERAL_SPECIAL <- "[\\]^$.|?*+(){}"
 # Special characters inside character class
 CLASS_SPECIAL <- "[\\]^-"
 
+#' Default upper bound on IR nesting depth before the emitter aborts.
+#' Mirrors the SSOT in the TypeScript reference.
+#' @export
+DEFAULT_MAX_DEPTH <- 250L
+
+.REDOS_MESSAGE <- paste0(
+  "The pattern contains overlapping alternations or nested unbounded ",
+  "quantifiers (e.g., (a+)+). This can lead to catastrophic backtracking ",
+  "and exponential CPU spikes. Consider using possessive quantifiers ",
+  "(++ or *+) or atomic groups to guarantee execution safety."
+)
+
+# Reference-semantics emit context. R uses copy-on-modify for lists, so
+# we use an environment to thread depth + warnings through the recursive
+# emitter without rewriting every internal helper signature.
+.new_emit_context <- function(max_depth = 0L) {
+  ctx <- new.env(parent = emptyenv())
+  ctx$depth <- 0L
+  ctx$max_depth <- if (is.numeric(max_depth) && max_depth > 0) as.integer(max_depth) else DEFAULT_MAX_DEPTH
+  ctx$in_lookbehind <- FALSE
+  ctx$warnings <- list()
+  ctx
+}
+
+# Implicit context — emit_pcre2() is the public, single-pattern entry
+# point and creates a fresh ctx per call. Internal helpers grab it from
+# .pcre2_emit_ctx via getOption() to stay backward-compatible with the
+# legacy function signatures.
+.get_ctx <- function() {
+  ctx <- getOption(".pcre2_emit_ctx", default = NULL)
+  if (is.null(ctx)) {
+    ctx <- .new_emit_context()
+    options(.pcre2_emit_ctx = ctx)
+  }
+  ctx
+}
+
 #' Check if character is in special set
 contains_char <- function(str, ch) {
   grepl(ch, str, fixed = TRUE)
@@ -44,6 +81,46 @@ escape_class_char <- function(ch) {
 #' @return Compiled PCRE2 regex string
 #' @export
 emit_pcre2 <- function(ir, flags = NULL) {
+  res <- emit_pcre2_with_diagnostics(ir, flags)
+  res$pattern
+}
+
+#' Emit PCRE2 pattern AND surface non-fatal diagnostics.
+#'
+#' Pass `max_depth <= 0` to use [DEFAULT_MAX_DEPTH].
+#'
+#' @param ir IR representation.
+#' @param flags Optional flags.
+#' @param max_depth Optional override for [DEFAULT_MAX_DEPTH].
+#' @return [CompileResult]
+#' @export
+emit_pcre2_with_diagnostics <- function(ir, flags = NULL, max_depth = 0L) {
+  ctx <- .new_emit_context(max_depth)
+  prev <- getOption(".pcre2_emit_ctx", default = NULL)
+  options(.pcre2_emit_ctx = ctx)
+  on.exit(options(.pcre2_emit_ctx = prev), add = TRUE)
+  pattern <- .emit_node(ir, ctx)
+  CompileResult(pattern, ctx$warnings)
+}
+
+.emit_node <- function(ir, ctx) {
+  ctx$depth <- ctx$depth + 1L
+  on.exit(ctx$depth <- ctx$depth - 1L, add = TRUE)
+  if (ctx$depth > ctx$max_depth) {
+    stop(STRlingCompilationError(
+      paste0(
+        "Maximum AST depth exceeded (limit: ", ctx$max_depth, "). ",
+        "This pattern is too deeply nested and risks host stack ",
+        "exhaustion during emission. Refactor the pattern to reduce ",
+        "nesting, or flatten capturing groups where possible."
+      ),
+      "MAX_DEPTH"
+    ))
+  }
+  .dispatch(ir)
+}
+
+.dispatch <- function(ir) {
   ir_type <- ir$ir
   
   if (ir_type == "Lit") {
@@ -73,22 +150,76 @@ emit_pcre2 <- function(ir, flags = NULL) {
   }
 }
 
+# --- Safety predicates --------------------------------------------------
+
+.is_unbounded_quant <- function(q) {
+  is.null(q$max) || identical(q$max, "Inf")
+}
+
+.is_variable_length_quant <- function(q) {
+  if (.is_unbounded_quant(q)) return(TRUE)
+  !identical(q$max, q$min)
+}
+
+.is_fixed_length_body <- function(node) {
+  t <- node$ir
+  if (is.null(t)) return(TRUE)
+  if (t == "Quant") {
+    return((!.is_variable_length_quant(node)) && .is_fixed_length_body(node$child))
+  }
+  if (t == "Seq") {
+    return(all(vapply(node$parts, .is_fixed_length_body, logical(1))))
+  }
+  if (t == "Alt") {
+    return(all(vapply(node$branches, .is_fixed_length_body, logical(1))))
+  }
+  if (t == "Group") {
+    return(.is_fixed_length_body(node$body))
+  }
+  if (t == "Look") return(TRUE)
+  TRUE
+}
+
+.has_nested_unbounded_quant <- function(child) {
+  t <- child$ir
+  if (is.null(t)) return(FALSE)
+  if (t == "Quant") return(.is_unbounded_quant(child))
+  if (t == "Group") return(.has_nested_unbounded_quant(child$body))
+  if (t == "Seq") {
+    return(length(child$parts) == 1L && .has_nested_unbounded_quant(child$parts[[1]]))
+  }
+  if (t == "Alt") {
+    return(any(vapply(child$branches, .has_nested_unbounded_quant, logical(1))))
+  }
+  FALSE
+}
+
+.push_redos_warning <- function(ctx) {
+  for (w in ctx$warnings) {
+    if (identical(w$code, "REDOS_RISK")) return(invisible())
+  }
+  ctx$warnings <- c(ctx$warnings, list(STRlingWarning("REDOS_RISK", .REDOS_MESSAGE)))
+}
+
 emit_lit <- function(ir) {
   escape_literal(ir$value)
 }
 
 emit_seq <- function(ir) {
-  parts <- sapply(ir$parts, emit_pcre2)
+  ctx <- .get_ctx()
+  parts <- vapply(ir$parts, function(p) .emit_node(p, ctx), character(1))
   paste0(parts, collapse = "")
 }
 
 emit_alt <- function(ir) {
-  branches <- sapply(ir$branches, emit_pcre2)
+  ctx <- .get_ctx()
+  branches <- vapply(ir$branches, function(b) .emit_node(b, ctx), character(1))
   paste0(branches, collapse = "|")
 }
 
 emit_group <- function(ir) {
-  body <- emit_pcre2(ir$body)
+  ctx <- .get_ctx()
+  body <- .emit_node(ir$body, ctx)
   capturing <- isTRUE(ir$capturing)
   name <- ir$name
   atomic <- isTRUE(ir$atomic)
@@ -106,12 +237,20 @@ emit_group <- function(ir) {
 }
 
 emit_quant <- function(ir) {
+  ctx <- .get_ctx()
   child <- ir$child
   min_val <- ir$min
   max_val <- ir$max
   mode <- if (is.null(ir$mode)) "Greedy" else ir$mode
-  
-  child_str <- emit_pcre2(child)
+
+  # ReDoS guard: only flag when the *outer* quantifier is itself
+  # unbounded. A bounded outer like `(a+){0,3}` cannot produce
+  # exponential backtracking on its own.
+  if (.is_unbounded_quant(ir) && .has_nested_unbounded_quant(child)) {
+    .push_redos_warning(ctx)
+  }
+
+  child_str <- .emit_node(child, ctx)
   
   # Check if we need parentheses
   needs_parens <- needs_quantifier_parens(child, child_str)
@@ -265,10 +404,33 @@ emit_backref <- function(ir) {
 }
 
 emit_look <- function(ir) {
+  ctx <- .get_ctx()
   dir <- ir$dir
   neg <- isTRUE(ir$neg)
-  body <- emit_pcre2(ir$body)
-  
+
+  # Variable-length lookbehind guard: PCRE2 mandates a fixed-width
+  # lookbehind body. Detect the violation here so the user sees a
+  # Signpost-pattern error rather than an opaque PCRE2 compile failure
+  # leaking from the runtime.
+  if (identical(dir, "Behind") && !.is_fixed_length_body(ir$body)) {
+    stop(STRlingCompilationError(
+      paste0(
+        "PCRE2 does not support variable-length lookbehinds. The ",
+        "lookbehind body contains a quantifier that makes its length ",
+        "unpredictable. Rewrite the assertion using a fixed-length ",
+        "range (e.g. `{1,8}` instead of `+`), or restructure the ",
+        "pattern using a Lookahead, or extract the quantified portion ",
+        "outside the assertion."
+      ),
+      "VLB_NOT_SUPPORTED"
+    ))
+  }
+
+  was_in_lb <- ctx$in_lookbehind
+  if (identical(dir, "Behind")) ctx$in_lookbehind <- TRUE
+  body <- .emit_node(ir$body, ctx)
+  ctx$in_lookbehind <- was_in_lb
+
   if (dir == "Ahead") {
     if (neg) {
       return(paste0("(?!", body, ")"))
