@@ -12,7 +12,8 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 dist_dir="${script_dir}/dist"
 target_home="${HOME}"
 target_extensions_dir="${target_home}/.vscode-server/extensions"
-target_extension_dir="${target_extensions_dir}/strling-lang.vscode-strling-0.1.0"
+extension_version="$(node -p "require('${dist_dir}/package.json').version")"
+target_extension_dir="${target_extensions_dir}/strling-lang.vscode-strling-${extension_version}"
 cached_vsix_dir="${target_home}/.vscode-server/data/CachedExtensionVSIXs"
 
 if [[ ! -f "${dist_dir}/package.json" ]]; then
@@ -28,6 +29,7 @@ mkdir -p "${target_extension_dir}"
 cp -R "${dist_dir}/." "${target_extension_dir}/"
 
 rm -f "${target_extension_dir}/vscode-strling.vsix"
+rm -f "${target_extension_dir}/vscode-strling-${extension_version}.vsix"
 
 chown -R "${home_owner}" "${target_extension_dir}"
 

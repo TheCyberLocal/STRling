@@ -93,9 +93,9 @@ npm run install:local
 ```
 
 The install script copies the packaged payload into the active user's
-`~/.vscode-server/extensions/strling-lang.vscode-strling-0.1.0` directory,
-repairs ownership to match the home directory, and clears the VSIX cache so
-WSL sessions see the fresh extension without relying on `code --force`.
+versioned `~/.vscode-server/extensions/strling-lang.vscode-strling-<version>`
+directory, repairs ownership to match the home directory, and clears the VSIX
+cache so WSL sessions see the fresh extension without relying on `code --force`.
 
 After installation, open a TypeScript, JavaScript, Python, Rust, Java, or
 `.strl`-associated document and check the Output panel entry named

@@ -6,7 +6,7 @@
     "publisher": "strling-lang",
     "repository": {
         "type": "git",
-        "url": "https://github.com/strling-lang/strling.git",
+        "url": "https://github.com/strling-lang/strling",
         "directory": "tooling/lsp-server"
     },
     "license": "MIT",
@@ -183,7 +183,7 @@
         "bundle": "npx esbuild ./client/extension.ts --bundle --outfile=./dist/out/extension.js --external:vscode --platform=node",
         "assemble": "bash ./assemble.sh",
         "build:dist": "npm run assemble",
-        "package": "npm run assemble && (cd dist && npx @vscode/vsce package --out ../vscode-strling.vsix)",
+        "package": "npm run assemble && node -e \"const version=require('./package.json').version; const { execSync } = require('node:child_process'); execSync('cd dist && npx @vscode/vsce package --out ../vscode-strling-' + version + '.vsix', { stdio: 'inherit' });\"",
         "install:local": "npm run package && bash ./sync-local-install.sh"
     },
     "devDependencies": {
