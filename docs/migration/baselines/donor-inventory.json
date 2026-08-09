@@ -1,0 +1,593 @@
+{
+    "schema_version": "1.0.0",
+    "inventory_id": "dev-capability-inventory",
+    "comparison": {
+        "donor_commit": "d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc",
+        "governed_commit": "4abc8ec71b4466a13be19fb0b6435c7a6a6b6b13",
+        "merge_base": "d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc",
+        "donor_only_commits": 0,
+        "governed_only_commits": 36
+    },
+    "classification_vocabulary": {
+        "preserve": "Retain substantially as-is because the asset and its architectural role remain suitable.",
+        "port": "Transfer valuable implementation or behavior into the target architecture with bounded adaptation.",
+        "rewrite": "Retain the capability or obligation while replacing an implementation that conflicts with the target architecture.",
+        "retire": "Deliberately remove behavior or tooling superseded by the target architecture after replacement evidence exists.",
+        "evidence": "Retain for historical, regression, conformance, or differential comparison, not as future implementation.",
+        "discard": "Exclude accidental, obsolete, generated, packaged, or otherwise irrelevant material from preservation obligations."
+    },
+    "capabilities": [
+        {
+            "id": "conformance-fixture-schema",
+            "capability": "Structured shared conformance fixture contract",
+            "donor_paths": ["spec/schema/conformance-fixture.schema.json"],
+            "architectural_role": "Versioned interchange shape for shared semantic, diagnostic, IR, and code-generation cases.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "certified",
+            "disposition": "preserve",
+            "rationale": "The schema is governed by an enforced public snapshot and is a useful contract boundary, although implementation-derived expected values remain lower-authority evidence.",
+            "future_destination": "Versioned conformance data contracts",
+            "reuse_prerequisites": [
+                "Remove TypeScript-oracle wording when independently authored cases replace implementation-derived expectations.",
+                "Version any incompatible field change through the public contract process."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "essential-standard-library-definition",
+            "capability": "Essential helper registry, AST data, citations, and examples",
+            "donor_paths": [
+                "spec/stdlib/essential_5.json",
+                "spec/stdlib/registry.json"
+            ],
+            "architectural_role": "Candidate standard-library source data and editor documentation for email, URL, UUID, IP, and date-time helpers.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "certified",
+            "disposition": "preserve",
+            "rationale": "The structured definitions and citations are valuable input to future versioned stdlib contracts, but their donor claim of normativity must be reconciled through the specification hierarchy.",
+            "future_destination": "Authoritative versioned standard-library specification",
+            "reuse_prerequisites": [
+                "Ratify product scope, exact semantics, and authority before treating regex or AST values as normative.",
+                "Resolve incomplete RFC coverage and target-portability expectations."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "emitter-pathological-input-corpus",
+            "capability": "Pathological PCRE2 emitter input corpus",
+            "donor_paths": [
+                "tests/conformance/inputs/emitter_edges/pathological.json"
+            ],
+            "architectural_role": "Adversarial input cases for target planning, safety diagnostics, and emission.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "certified",
+            "disposition": "preserve",
+            "rationale": "The source inputs remain useful independently reviewable test material even when current per-binding expected outputs are demoted to evidence.",
+            "future_destination": "Specification-authored target-planning and emitter conformance corpus",
+            "reuse_prerequisites": [
+                "Review each expected outcome against the target profile and diagnostic contracts."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "vscode-language-client",
+            "capability": "VS Code language client, language configuration, icon, and extension manifest",
+            "donor_paths": [
+                "tooling/lsp-server/client/extension.ts",
+                "tooling/lsp-server/language-configuration.json",
+                "tooling/lsp-server/package.json",
+                "tooling/lsp-server/strling-icon.png"
+            ],
+            "architectural_role": "Thin editor client and user-facing product integration.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "mixed",
+            "disposition": "preserve",
+            "rationale": "The client transport and editor metadata do not own semantic meaning and can remain thin consumers of a future canonical language service.",
+            "future_destination": "VS Code extension adapter",
+            "reuse_prerequisites": [
+                "Point the client at the canonical language-service packaging and protocol contract.",
+                "Add extension packaging and smoke certification."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "engineering-contribution-guidance",
+            "capability": "Architecture, documentation, testing, philosophy, workflow, and contribution guidance",
+            "donor_paths": [
+                ".github/instructions/**",
+                ".github/copilot-instructions.md",
+                "CONTRIBUTING.md",
+                "tests/README.md"
+            ],
+            "architectural_role": "Contributor process and implementation guidance.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "certified",
+            "disposition": "preserve",
+            "rationale": "Durable contributor guidance remains useful where it conforms to the Engineering Constitution; governed revisions already supersede conflicting TypeScript-oracle and workflow claims.",
+            "future_destination": "Governed contributor documentation",
+            "reuse_prerequisites": [
+                "Continue resolving conflicts in favor of governance/authority.md and versioned specifications."
+            ],
+            "preserve_behavior": false
+        },
+        {
+            "id": "lua-pcre2-runtime-setup",
+            "capability": "Lua PCRE2 runtime installation support",
+            "donor_paths": ["bindings/lua/setup.sh"],
+            "architectural_role": "Binding-specific runtime dependency setup.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "unverified",
+            "disposition": "preserve",
+            "rationale": "PCRE2 runtime availability remains a legitimate thin-adapter concern and does not create semantic duplication.",
+            "future_destination": "Lua adapter setup and release verification",
+            "reuse_prerequisites": [
+                "Make platform/package-manager assumptions explicit and add setup smoke coverage."
+            ],
+            "preserve_behavior": false
+        },
+        {
+            "id": "structured-diagnostic-result-contracts",
+            "capability": "Structured parse, compilation, warning, and result models",
+            "donor_paths": [
+                "bindings/*/**/diagnostics.*",
+                "bindings/*/**/Diagnostics.*",
+                "bindings/*/**/CompileResult.*",
+                "bindings/*/**/STRlingCompilationError.*",
+                "bindings/*/**/STRlingWarning.*"
+            ],
+            "architectural_role": "Machine-readable diagnostic/result shapes and host-language error conversion.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "mixed",
+            "disposition": "port",
+            "rationale": "Stable codes, ranges, severities, messages, warnings, and successful-result payloads are valuable product contracts; the cross-language shapes need consolidation before reuse.",
+            "future_destination": "Versioned canonical diagnostic and compilation-result contracts with thin adapter mappings",
+            "reuse_prerequisites": [
+                "Specify canonical codes, ranges, severity, related data, ordering, and serialization.",
+                "Separate public compatibility from inconsistent host-specific formatting."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "python-intelligence-consolidation",
+            "capability": "Consolidated analysis, emission preview, tokenization, registry, symbols, definitions, and formatting intelligence",
+            "donor_paths": ["bindings/python/src/STRling/core/intelligence.py"],
+            "architectural_role": "Shared semantic/editor intelligence currently hosted inside the Python binding.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "mixed",
+            "disposition": "port",
+            "rationale": "The consolidated algorithms and API decomposition are valuable, but their semantic ownership must move behind the canonical compiler/tooling interface.",
+            "future_destination": "Canonical compiler analysis service and language-tooling facade",
+            "reuse_prerequisites": [
+                "Reconcile every semantic result with authoritative contracts.",
+                "Replace Python binding imports with the canonical service interface.",
+                "Add deterministic unit and protocol-contract coverage."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "embedded-language-island-extraction",
+            "capability": "Polyglot embedded STRling island extraction and coordinate projection",
+            "donor_paths": [
+                "bindings/python/src/STRling/core/islands.py",
+                "spec/tooling/island_boundaries.json",
+                "tooling/lsp-server/tests/test_island_extractor.py"
+            ],
+            "architectural_role": "Authoring frontend that extracts virtual STRling documents from 17 host-language syntaxes.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "tested",
+            "disposition": "port",
+            "rationale": "Boundary specs, length-preserving extraction, comment/string scanners, and bidirectional coordinate maps are valuable frontend work distinct from compiler semantics.",
+            "future_destination": "Canonical tooling frontend or language-service preprocessing layer",
+            "reuse_prerequisites": [
+                "Version the boundary specification.",
+                "Define host escaping and interpolation behavior per language.",
+                "Certify the LSP test suite in the canonical hardgate."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "lsp-diagnostics",
+            "capability": "Real-time multi-error LSP diagnostics with host projection, clamping, caching, and debouncing",
+            "donor_paths": [
+                "tooling/lsp-server/server/server.py",
+                "tooling/lsp-server/tests/test_diagnostics.py"
+            ],
+            "architectural_role": "Protocol adapter from compiler diagnostics to editor ranges and publish events.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "tested",
+            "disposition": "port",
+            "rationale": "Projection and protocol mechanics are reusable while diagnostic production must come from the canonical compiler.",
+            "future_destination": "Canonical LSP diagnostics adapter",
+            "reuse_prerequisites": [
+                "Define the versioned diagnostic contract.",
+                "Route analysis through the canonical compiler interface.",
+                "Promote LSP tests into certification."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "lsp-hover-completion",
+            "capability": "Registry-backed hover, PCRE2 preview, and completion",
+            "donor_paths": [
+                "tooling/lsp-server/server/server.py",
+                "spec/stdlib/registry.json"
+            ],
+            "architectural_role": "Editor documentation and discoverability surface.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "unverified",
+            "disposition": "port",
+            "rationale": "The user experience is valuable, but direct registry and Python-intelligence access is not the target semantic boundary and dedicated regression coverage is absent.",
+            "future_destination": "Canonical LSP hover/completion adapter",
+            "reuse_prerequisites": [
+                "Ratify stdlib registry authority and schema.",
+                "Obtain hover/preview data from the canonical compiler/tooling service.",
+                "Add protocol tests for native and embedded documents."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "lsp-semantic-tokens",
+            "capability": "Full-document semantic tokenization and host-coordinate projection",
+            "donor_paths": [
+                "tooling/lsp-server/server/server.py",
+                "bindings/python/src/STRling/core/intelligence.py"
+            ],
+            "architectural_role": "Editor syntax/intelligence projection.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "unverified",
+            "disposition": "port",
+            "rationale": "The protocol handler and token projection are useful, but token meaning belongs to a versioned syntax/semantic service and no dedicated tests currently certify the feature.",
+            "future_destination": "Canonical LSP semantic-token adapter",
+            "reuse_prerequisites": [
+                "Define token legend and versioned tokenization contract.",
+                "Add native and embedded coordinate/delta-encoding tests."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "lsp-navigation-formatting",
+            "capability": "Document symbols, registry definition navigation, and host-aware formatting",
+            "donor_paths": [
+                "tooling/lsp-server/server/server.py",
+                "tooling/lsp-server/tests/test_navigation.py"
+            ],
+            "architectural_role": "Editor navigation and source-rewrite adapter.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "tested",
+            "disposition": "port",
+            "rationale": "The protocol and coordinate work are useful, while symbol construction, definition targets, and formatting semantics must be supplied by canonical contracts.",
+            "future_destination": "Canonical LSP navigation and formatting adapters",
+            "reuse_prerequisites": [
+                "Define stable symbol and source-edit contracts.",
+                "Route parser/formatter requests through the canonical service.",
+                "Promote tests into certification."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "lsp-code-actions",
+            "capability": "Diagnostic-driven ReDoS quick fixes and rewrite actions",
+            "donor_paths": [
+                "tooling/lsp-server/server/server.py",
+                "tooling/lsp-server/tests/test_code_actions.py"
+            ],
+            "architectural_role": "Editor action adapter consuming structured diagnostic replacement data.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "tested",
+            "disposition": "port",
+            "rationale": "The action materialization and host-coordinate edits are valuable, but rewrite safety and replacement payloads must originate in canonical analysis.",
+            "future_destination": "Canonical LSP code-action adapter",
+            "reuse_prerequisites": [
+                "Ratify ReDoS diagnostic and safe-rewrite contracts.",
+                "Prove replacements preserve semantics.",
+                "Promote native and embedded action tests into certification."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "duplicated-binding-hint-engines",
+            "capability": "Seventeen per-binding pedagogical hint engines",
+            "donor_paths": [
+                "bindings/*/**/hint_engine.*",
+                "bindings/*/**/HintEngine.*"
+            ],
+            "architectural_role": "Duplicated semantic classification and user guidance.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "mixed",
+            "disposition": "rewrite",
+            "rationale": "The instructional capability is valuable, but static string parity with TypeScript is not a canonical semantic implementation or a versioned diagnostic contract.",
+            "future_destination": "Canonical diagnostic engine with localized/thin adapter presentation",
+            "reuse_prerequisites": [
+                "Specify codes and hint intent independently of implementation strings.",
+                "Preserve accepted user guidance through contract-driven conformance cases."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "duplicated-binding-compilers",
+            "capability": "Per-binding parser, compiler, validator, IR, and PCRE2 emitter expansions",
+            "donor_paths": [
+                "bindings/*/**/parser.*",
+                "bindings/*/**/Parser.*",
+                "bindings/*/**/compiler.*",
+                "bindings/*/**/Compiler.*",
+                "bindings/*/**/pcre2.*",
+                "bindings/*/**/Pcre2Emitter.*",
+                "bindings/*/**/PCRE2Emitter.*"
+            ],
+            "architectural_role": "Seventeen independent semantic compiler implementations.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "certified",
+            "disposition": "rewrite",
+            "rationale": "The implemented capability and accepted behavior evidence are valuable, but independent semantic compilers directly violate the target single-authority architecture.",
+            "future_destination": "Canonical compiler core plus thin host-language adapters",
+            "reuse_prerequisites": [
+                "Establish authoritative product/specification contracts.",
+                "Create independent conformance cases.",
+                "Migrate one adapter at a time with differential certification."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "emitter-safety-planning",
+            "capability": "Variable-lookbehind, AST-depth, and ReDoS safety checks added at emitter edges",
+            "donor_paths": [
+                "bindings/*/**/pcre2.*",
+                "bindings/*/**/Pcre2Emitter.*",
+                "bindings/*/**/PCRE2Emitter.*"
+            ],
+            "architectural_role": "Target capability analysis and safety diagnostics currently duplicated inside emitters.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "mixed",
+            "disposition": "rewrite",
+            "rationale": "Safety outcomes must survive, but capability planning belongs before serialization and the donor audit itself records incomplete and inconsistent enforcement.",
+            "future_destination": "Canonical semantic analysis and target portability planner",
+            "reuse_prerequisites": [
+                "Specify target profiles, thresholds, diagnostic codes, and safe rewrites.",
+                "Resolve audit gaps and add fuzz/property coverage."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "essential-binding-helpers",
+            "capability": "Essential helper implementations across all bindings",
+            "donor_paths": [
+                "bindings/*/**/essential.*",
+                "bindings/*/**/Essential.*"
+            ],
+            "architectural_role": "Duplicated construction of standard-library patterns in host adapters.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "certified",
+            "disposition": "rewrite",
+            "rationale": "The user-facing helpers should remain, but semantic AST construction must derive from one versioned standard-library definition rather than seventeen implementations.",
+            "future_destination": "Canonical stdlib data/constructors with idiomatic thin binding APIs",
+            "reuse_prerequisites": [
+                "Ratify Essential semantics and version.",
+                "Define adapter API compatibility obligations."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "extension-assembly-installation",
+            "capability": "LSP extension assembly, local installation, ownership repair, and cache cleanup",
+            "donor_paths": [
+                "tooling/lsp-server/assemble.sh",
+                "tooling/lsp-server/build_extension.sh",
+                "tooling/lsp-server/sync-local-install.sh"
+            ],
+            "architectural_role": "Development and release packaging pipeline.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "documented",
+            "disposition": "rewrite",
+            "rationale": "Installability is valuable, but mutable ownership repair, cache cleanup, bundled payload assumptions, and absent release verification do not meet deterministic packaging policy.",
+            "future_destination": "Pinned reproducible extension build and install-smoke pipeline",
+            "reuse_prerequisites": [
+                "Define package contents and provenance.",
+                "Remove machine-specific ownership/cache assumptions.",
+                "Add installed-artifact smoke certification."
+            ],
+            "preserve_behavior": false
+        },
+        {
+            "id": "lsp-python-semantic-coupling",
+            "capability": "Direct LSP imports of Python-binding intelligence and parser modules",
+            "donor_paths": [
+                "tooling/lsp-server/server/server.py",
+                "tooling/lsp-server/tests/**"
+            ],
+            "architectural_role": "Transitional semantic dependency from tooling to a host binding.",
+            "representation": "partially-superseded",
+            "quality_evidence": "mixed",
+            "disposition": "rewrite",
+            "rationale": "The language-service capability is valuable, but this dependency is an explicitly governed architecture transition and cannot survive canonical-core migration.",
+            "future_destination": "Stable canonical compiler/tooling service interface",
+            "reuse_prerequisites": [
+                "Establish the canonical interface before changing imports.",
+                "Preserve LSP behavior through protocol-level differential tests."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "duplicated-diagnostic-implementations",
+            "capability": "Per-binding diagnostic formatting, warning collection, and result conversion",
+            "donor_paths": [
+                "bindings/*/**/diagnostics.*",
+                "bindings/*/**/Diagnostics.*",
+                "bindings/*/**/errors.*",
+                "bindings/*/**/Errors.*"
+            ],
+            "architectural_role": "Duplicated diagnostic semantics mixed with idiomatic adapter presentation.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "mixed",
+            "disposition": "rewrite",
+            "rationale": "Host-specific exception conversion may remain, but codes, ranges, severity, ordering, and warning semantics must have one canonical producer.",
+            "future_destination": "Canonical diagnostics with host adapter error mapping",
+            "reuse_prerequisites": [
+                "Separate semantic payloads from presentation.",
+                "Snapshot governed public adapter shapes before migration."
+            ],
+            "preserve_behavior": true
+        },
+        {
+            "id": "typescript-oracle-parity-tooling",
+            "capability": "TypeScript-derived hint parity and implementation-generated semantic expectations",
+            "donor_paths": [
+                "tooling/audit_hint_parity.py",
+                "tooling/js_to_json_ast/**",
+                "spec/schema/conformance-fixture.schema.json"
+            ],
+            "architectural_role": "Transitional comparison tooling that treats TypeScript output as expected behavior.",
+            "representation": "partially-superseded",
+            "quality_evidence": "mixed",
+            "disposition": "retire",
+            "rationale": "It is useful short-term evidence, but TypeScript cannot remain the semantic oracle and implementation output cannot author normative fixtures.",
+            "future_destination": "Contract-derived fixture projection and differential comparison tooling",
+            "reuse_prerequisites": [
+                "Replace every oracle dependency with specification-authored inputs and versioned expected contracts."
+            ],
+            "preserve_behavior": false
+        },
+        {
+            "id": "vendored-lsp-transport",
+            "capability": "Locally copied pygls and lsprotocol transport modules",
+            "donor_paths": [
+                "tooling/lsp-server/pygls/server.py",
+                "tooling/lsp-server/lsprotocol/types.py"
+            ],
+            "architectural_role": "Bundled third-party protocol/runtime dependency.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "documented",
+            "disposition": "retire",
+            "rationale": "Vendored snapshots obscure provenance and maintenance; protocol transport should be pinned and reproducibly packaged rather than maintained as product source.",
+            "future_destination": "Pinned language-server dependencies or a deliberately owned protocol layer",
+            "reuse_prerequisites": [
+                "Inventory local modifications and licensing.",
+                "Add dependency provenance and package smoke tests."
+            ],
+            "preserve_behavior": false
+        },
+        {
+            "id": "legacy-audit-certification",
+            "capability": "Environment-dependent final audit report and stdout-oriented audit runner",
+            "donor_paths": [
+                "tooling/audit_omega.py",
+                "docs/generated/FINAL_AUDIT_REPORT.md"
+            ],
+            "architectural_role": "Legacy certification summary and presentation.",
+            "representation": "partially-superseded",
+            "quality_evidence": "mixed",
+            "disposition": "retire",
+            "rationale": "Canonical quality commands and structured results supersede mutable wall-clock, environment-count, and stdout assumptions.",
+            "future_destination": "Deterministic structured certification evidence with separate presentation",
+            "reuse_prerequisites": [
+                "Retain only metrics that have stable definitions and authoritative inputs."
+            ],
+            "preserve_behavior": false
+        },
+        {
+            "id": "per-binding-emitter-edge-tests",
+            "capability": "Duplicated emitter-edge and Essential binding tests",
+            "donor_paths": [
+                "bindings/*/**/*emitter*edge*",
+                "bindings/*/**/*Essential5*",
+                "bindings/*/**/*essential_5*"
+            ],
+            "architectural_role": "Implementation-specific regression and cross-language differential evidence.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "certified",
+            "disposition": "evidence",
+            "rationale": "The cases are valuable for differential migration review, but duplicated test code and current outputs are neither future implementation nor semantic authority.",
+            "future_destination": "Historical differential corpus and adapter conformance projections",
+            "reuse_prerequisites": [
+                "Trace shared intent to specification-authored cases.",
+                "Separate adapter behavior from canonical compiler behavior."
+            ],
+            "preserve_behavior": false
+        },
+        {
+            "id": "diagnostic-parser-regressions",
+            "capability": "Diagnostic coordinate, multi-error, and exhaustive parser regression suites",
+            "donor_paths": [
+                "tooling/lsp-server/tests/test_diagnostics.py",
+                "tooling/lsp-server/tests/test_parser_exhaustive.py",
+                "tests/spec/error_*.json",
+                "tests/spec/*error.json"
+            ],
+            "architectural_role": "Historical behavioral and editor-coordinate regression evidence.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "tested",
+            "disposition": "evidence",
+            "rationale": "The breadth is valuable for detecting migration drift, but implementation-specific messages and parser outcomes require specification review before becoming compatibility obligations.",
+            "future_destination": "Differential migration suite and accepted diagnostic conformance cases",
+            "reuse_prerequisites": [
+                "Classify each case as specification-authored, accepted compatibility, known defect, or implementation accident."
+            ],
+            "preserve_behavior": false
+        },
+        {
+            "id": "implementation-derived-shared-fixtures",
+            "capability": "Shared AST, IR, code-generation, error, and hint fixtures plus duplicated binding consumers",
+            "donor_paths": ["tests/spec/*.json", "bindings/*/**/*conformance*"],
+            "architectural_role": "Large cross-binding compatibility and differential evidence corpus.",
+            "representation": "equivalent-in-governed",
+            "quality_evidence": "certified",
+            "disposition": "evidence",
+            "rationale": "The corpus is high-value migration evidence, but governance records it as implementation-derived and explicitly non-normative.",
+            "future_destination": "Frozen historical corpus plus independently authored conformance contracts",
+            "reuse_prerequisites": [
+                "Trace provenance and classify contradictions.",
+                "Do not regenerate expected semantics from the implementation under test."
+            ],
+            "preserve_behavior": false
+        },
+        {
+            "id": "emitter-hardening-audits",
+            "capability": "PCRE2 emitter edge audit and child-issue analysis",
+            "donor_paths": [
+                "docs/audits/pcre2_emitter_edges_audit.md",
+                "docs/audits/pcre2_emitter_edges_child_issues.md"
+            ],
+            "architectural_role": "Historical gap analysis and safety-requirement evidence.",
+            "representation": "modified-in-governed",
+            "quality_evidence": "documented",
+            "disposition": "evidence",
+            "rationale": "The audits identify valuable gaps and intended outcomes, but their implementation-era coverage matrix is not a future component or semantic contract.",
+            "future_destination": "Product/specification safety decision inputs and migration acceptance criteria",
+            "reuse_prerequisites": [
+                "Revalidate every finding against current code and ratified target-profile contracts."
+            ],
+            "preserve_behavior": false
+        },
+        {
+            "id": "temporary-generated-development-artifacts",
+            "capability": "Temporary source copies, build binaries, packaged VSIX, cache/status files, and scratch specifications",
+            "donor_paths": [
+                "bindings/c/src/compat.c.new",
+                "bindings/c/tests/conformance_test",
+                "bindings/cpp/include/strling/compiler.hpp.new",
+                "bindings/cpp/src/compiler.cpp.new",
+                "bindings/ruby/.rspec_status",
+                "spec/tooling/island_boundaries.json.tmp",
+                "tooling/js_to_json_ast/inspect_compile",
+                "tooling/lsp-server/vscode-strling-1.0.0.vsix",
+                "tooling/test_logs/audit_bindings_rerun.status"
+            ],
+            "architectural_role": "Accidental or reproducible development output with no source authority.",
+            "representation": "fully-superseded",
+            "quality_evidence": "generated",
+            "disposition": "discard",
+            "rationale": "The governed branch already removed these files through hygiene enforcement; they must not be treated as product features or donor obligations.",
+            "future_destination": null,
+            "reuse_prerequisites": [],
+            "preserve_behavior": false
+        }
+    ],
+    "summary": {
+        "preserve": 6,
+        "port": 8,
+        "rewrite": 7,
+        "retire": 3,
+        "evidence": 4,
+        "discard": 1
+    }
+}

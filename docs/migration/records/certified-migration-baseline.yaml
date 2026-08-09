@@ -129,8 +129,20 @@ checkpoints:
             result: passed
             details: Evidence records twelve public-extractor, eight generated-artifact, and three architecture transitions; one future rule; five active or accepted waiver identifiers; and three known defects excluded from contract status.
     - name: Donor-branch capability inventory
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Git history and representation comparison
+            command: git log main..dev; git diff main..dev; git diff dev..HEAD; targeted git show and source/test review
+            result: passed
+            details: The 16-commit, 259-file main-to-dev delta and the complete dev-to-governed delta were reviewed; dev is the governed branch merge base, so all donor ancestry is present and representation status prevents false future ports.
+          - check: Capability coverage and dispositions
+            command: Donor inventory JSON Schema validation and recalculated disposition counts
+            result: passed
+            details: "Twenty-nine unique capabilities validate: six preserve, eight port, seven rewrite, three retire, four evidence, and one discard family. Every item records paths, role, evidence, rationale, destination, prerequisites, and behavior obligation."
+          - check: Highlighted subsystem review
+            command: Targeted review of diagnostic/result models, hint engines, Python intelligence, island extraction, LSP handlers/tests, Essential data, conformance schema, emitter audits, binding implementations, packaging, and removed artifacts
+            result: passed
+            details: Diagnostics, hover, semantic tokens, navigation, code actions, VS Code integration, safety fixtures, stdlib work, parser/compiler/emitter expansions, duplication, and temporary artifacts are each represented without treating filenames or binding count as independent capabilities.
     - name: Frozen baseline and preservation matrix
       status: planned
       evidence: []
@@ -147,3 +159,5 @@ commits:
       subject: "style(governance): format baseline contracts"
     - sha: 77f6a81e6b0a63cc6052fdadb428c719b16c7c61
       subject: "fix(governance): select locked Bundler for certification"
+    - sha: 4abc8ec71b4466a13be19fb0b6435c7a6a6b6b13
+      subject: "docs(certification): record governed architecture baseline"
