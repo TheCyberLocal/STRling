@@ -25,9 +25,11 @@ change_classification:
     public_api_change:
         level: none
         evidence: []
+        affected_surfaces: []
     schema_change:
         level: none
         evidence: []
+        affected_surfaces: []
     diagnostic_change:
         level: none
         evidence: []

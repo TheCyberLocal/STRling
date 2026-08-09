@@ -52,6 +52,18 @@
                 },
                 "tracked_paths": {
                     "$ref": "#/$defs/paths"
+                },
+                "forbidden_modules": {
+                    "$ref": "#/$defs/paths"
+                },
+                "allowed_reference_roots": {
+                    "$ref": "#/$defs/paths"
+                },
+                "guarded_roots": {
+                    "$ref": "#/$defs/paths"
+                },
+                "semantic_names": {
+                    "$ref": "#/$defs/paths"
                 }
             }
         },
@@ -83,6 +95,9 @@
                         "generated-input-cycle",
                         "task-record-placement",
                         "new-top-level-directory",
+                        "forbidden-import",
+                        "schema-reference-boundary",
+                        "semantic-island-placement",
                         "tracked-transition"
                     ]
                 },
@@ -180,6 +195,58 @@
                             "configuration": {
                                 "required": [
                                     "allowed_top_level_directories",
+                                    "requires_declaration"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": { "const": "forbidden-import" }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": ["sources", "forbidden_modules"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": { "const": "schema-reference-boundary" }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "sources",
+                                    "allowed_reference_roots"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": { "const": "semantic-island-placement" }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "guarded_roots",
+                                    "semantic_names",
                                     "requires_declaration"
                                 ]
                             }

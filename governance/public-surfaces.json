@@ -1,0 +1,682 @@
+{
+    "registry_version": 1,
+    "classifications": [
+        "unchanged",
+        "compatible",
+        "additive",
+        "breaking",
+        "intentional-correction"
+    ],
+    "surfaces": [
+        {
+            "id": "c-public-api",
+            "ecosystem": "C",
+            "component": "c",
+            "kind": "host-api",
+            "source_locations": ["bindings/c/include/strling.h"],
+            "extraction": {
+                "mechanism": "c-header-declarations",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "c-public-api"
+                ],
+                "normalization": [
+                    "strip comments and include guards",
+                    "collapse declaration whitespace",
+                    "preserve function, typedef, field, and constant structure"
+                ],
+                "exclusions": [
+                    "implementation headers under bindings/c/src",
+                    "test-only compatibility declarations outside the installed header"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/c-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "declaration-set",
+            "enforcement": "planned",
+            "activation_condition": "Activate after declaration parsing, normalization, stale-snapshot, symbol-addition, removal, and signature-change tests pass."
+        },
+        {
+            "id": "cpp-public-api",
+            "ecosystem": "C++",
+            "component": "cpp",
+            "kind": "host-api",
+            "source_locations": ["bindings/cpp/include/**/*.hpp"],
+            "extraction": {
+                "mechanism": "c-header-declarations",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "cpp-public-api"
+                ],
+                "normalization": [
+                    "compiler-resolved declarations and namespaces"
+                ],
+                "exclusions": [
+                    "private class members",
+                    "source-only declarations"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/cpp-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "declaration-set",
+            "enforcement": "transitional",
+            "rationale": "The umbrella header is a stub while installable headers expose additional types; a text-only list would misstate include visibility and overload structure.",
+            "retirement_condition": "Pin a compiler-backed AST extraction command over the installed header set, define macro/standard flags, and pass overload, access-control, include-path, and normalization tests."
+        },
+        {
+            "id": "csharp-public-api",
+            "ecosystem": ".NET C#",
+            "component": "csharp",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/csharp/src/STRling/STRling.csproj",
+                "bindings/csharp/src/STRling/**/*.cs"
+            ],
+            "extraction": {
+                "mechanism": "dotnet-assembly-api",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "csharp-public-api"
+                ],
+                "normalization": [
+                    "assembly metadata names and public signatures"
+                ],
+                "exclusions": [
+                    "non-public members",
+                    "STRling.Cli executable internals"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/csharp-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "transitional",
+            "rationale": "No checked-in deterministic assembly API lister currently normalizes nullable metadata, records, generated accessors, and target-framework noise.",
+            "retirement_condition": "Build to an isolated output directory with the pinned SDK, extract public metadata without loading product behavior, normalize compiler-generated members, and pass reproducibility tests."
+        },
+        {
+            "id": "dart-public-api",
+            "ecosystem": "Dart",
+            "component": "dart",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/dart/pubspec.yaml",
+                "bindings/dart/lib/**/*.dart"
+            ],
+            "extraction": {
+                "mechanism": "dart-analyzer-api",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "dart-public-api"
+                ],
+                "normalization": [
+                    "library exports and analyzer-resolved signatures"
+                ],
+                "exclusions": [
+                    "lib/src declarations not reachable from lib/strling.dart"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/dart-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "transitional",
+            "rationale": "The package uses export reachability, and no stable analyzer-backed machine listing is configured to distinguish reachable declarations from lib/src implementation detail.",
+            "retirement_condition": "Pin an analyzer API extractor that starts at lib/strling.dart, resolves show/hide/export chains, normalizes nullability and defaults, and reproduces in CI."
+        },
+        {
+            "id": "fsharp-public-api",
+            "ecosystem": ".NET F#",
+            "component": "fsharp",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/fsharp/src/STRling/STRling.fsproj",
+                "bindings/fsharp/src/STRling/**/*.fs",
+                "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
+                "bindings/fsharp/src/STRling.FSharp/**/*.fs"
+            ],
+            "extraction": {
+                "mechanism": "dotnet-assembly-api",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "fsharp-public-api"
+                ],
+                "normalization": [
+                    "F# module/type signatures and assembly metadata"
+                ],
+                "exclusions": ["private values", "test assemblies"]
+            },
+            "snapshot_path": "governance/contracts/snapshots/fsharp-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "transitional",
+            "rationale": "Two library projects expose different surfaces and no deterministic F# signature or normalized assembly metadata extractor is configured.",
+            "retirement_condition": "Select the shipped package assemblies, extract normalized public F# signatures for both projects with the pinned SDK, and prove repeatability without build-tree residue."
+        },
+        {
+            "id": "go-public-api",
+            "ecosystem": "Go",
+            "component": "go",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/go/go.mod",
+                "bindings/go/*.go",
+                "bindings/go/core/*.go",
+                "bindings/go/emitters/*.go",
+                "bindings/go/simply/*.go"
+            ],
+            "extraction": {
+                "mechanism": "go-doc-declarations",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "go-public-api"
+                ],
+                "normalization": [
+                    "enumerate declared product packages",
+                    "discard prose documentation",
+                    "collapse exported declaration whitespace"
+                ],
+                "exclusions": ["test packages and unexported identifiers"]
+            },
+            "snapshot_path": "governance/contracts/snapshots/go-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "declaration-set",
+            "enforcement": "planned",
+            "activation_condition": "Activate after pinned go doc output is reduced to exported declarations and controlled package, field, method, addition, removal, and signature tests pass."
+        },
+        {
+            "id": "java-public-api",
+            "ecosystem": "JVM Java",
+            "component": "java",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/java/pom.xml",
+                "bindings/java/src/main/java/**/*.java"
+            ],
+            "extraction": {
+                "mechanism": "java-class-api",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "java-public-api"
+                ],
+                "normalization": [
+                    "javap public/protected class and member signatures"
+                ],
+                "exclusions": [
+                    "test classes",
+                    "private and package-private members"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/java-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "transitional",
+            "rationale": "The Maven executable is not version-pinned and no isolated, normalized javap listing currently removes compiler and classfile-order noise.",
+            "retirement_condition": "Add a pinned Maven wrapper or direct pinned compiler path, build into temporary output, normalize javap output, and pass package/member compatibility tests."
+        },
+        {
+            "id": "kotlin-public-api",
+            "ecosystem": "JVM Kotlin",
+            "component": "kotlin",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/kotlin/build.gradle.kts",
+                "bindings/kotlin/src/main/kotlin/**/*.kt"
+            ],
+            "extraction": {
+                "mechanism": "kotlin-binary-api",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "kotlin-public-api"
+                ],
+                "normalization": [
+                    "Kotlin source and JVM binary public signatures"
+                ],
+                "exclusions": [
+                    "internal/private declarations",
+                    "test source sets"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/kotlin-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "transitional",
+            "rationale": "Kotlin default visibility and generated JVM bridges require metadata-aware extraction; javap alone would overstate the idiomatic Kotlin contract.",
+            "retirement_condition": "Pin a Kotlin binary-compatibility or metadata extractor, isolate build output, normalize bridges/default methods, and certify source and binary compatibility cases."
+        },
+        {
+            "id": "lua-public-api",
+            "ecosystem": "Lua",
+            "component": "lua",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/lua/strling-template.rockspec",
+                "bindings/lua/src/strling.lua",
+                "bindings/lua/src/simply.lua"
+            ],
+            "extraction": {
+                "mechanism": "lua-module-exports",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "lua-public-api"
+                ],
+                "normalization": [
+                    "returned module keys and explicit function parameters"
+                ],
+                "exclusions": ["local functions and fallback loader paths"]
+            },
+            "snapshot_path": "governance/contracts/snapshots/lua-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "transitional",
+            "rationale": "Exports are assembled dynamically across module tables and the release rockspec path is itself transitional, so regex-only assignment capture would be incomplete.",
+            "retirement_condition": "Use a parser-backed Lua export walk over both installed modules, define treatment of metatables/dynamic keys, align the rockspec, and pass signature and module-path tests."
+        },
+        {
+            "id": "perl-public-api",
+            "ecosystem": "Perl",
+            "component": "perl",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/perl/Makefile.PL",
+                "bindings/perl/lib/STRling.pm",
+                "bindings/perl/lib/STRling/**/*.pm"
+            ],
+            "extraction": {
+                "mechanism": "perl-package-exports",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "perl-public-api"
+                ],
+                "normalization": [
+                    "package names, EXPORT/EXPORT_OK sets, and prototypes"
+                ],
+                "exclusions": ["underscore-prefixed subs not exported"]
+            },
+            "snapshot_path": "governance/contracts/snapshots/perl-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "transitional",
+            "rationale": "Export sets are explicit but most call signatures are runtime conventions without prototypes; symbol-only extraction would not detect required signature drift.",
+            "retirement_condition": "Define the supported export and method contract, add parser-backed export/prototype extraction plus declared arity metadata where prototypes are absent, and certify changes without loading compiler behavior."
+        },
+        {
+            "id": "php-public-api",
+            "ecosystem": "PHP",
+            "component": "php",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/php/composer.json",
+                "bindings/php/src/**/*.php"
+            ],
+            "extraction": {
+                "mechanism": "php-token-api",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "php-public-api"
+                ],
+                "normalization": ["PSR-4 names and public symbol signatures"],
+                "exclusions": ["non-public members", "test namespaces"]
+            },
+            "snapshot_path": "governance/contracts/snapshots/php-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "transitional",
+            "rationale": "Composer is not present in the quality image as a pinned extractor dependency, and reflection would execute autoloaded product code.",
+            "retirement_condition": "Implement token_get_all or another parser-backed, non-executing PSR-4 API extractor, normalize promoted/readonly properties and union types, and pass compatibility tests."
+        },
+        {
+            "id": "python-public-api",
+            "ecosystem": "Python",
+            "component": "python",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/python/pyproject.toml",
+                "bindings/python/src/STRling/__init__.py",
+                "bindings/python/src/STRling/simply/__init__.py",
+                "bindings/python/src/STRling/simply/*.py"
+            ],
+            "extraction": {
+                "mechanism": "python-ast-exports",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "python-public-api"
+                ],
+                "normalization": [
+                    "follow literal __all__ and from-import exports",
+                    "serialize AST signatures without importing product modules",
+                    "sort fully qualified symbols"
+                ],
+                "exclusions": [
+                    "modules not reachable from STRling.__all__",
+                    "underscore-prefixed class members"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/python-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "planned",
+            "activation_condition": "Activate after AST export resolution, class/method signatures, malformed __all__, addition, removal, signature, and no-import-execution tests pass."
+        },
+        {
+            "id": "r-public-api",
+            "ecosystem": "R",
+            "component": "r",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/r/DESCRIPTION",
+                "bindings/r/NAMESPACE",
+                "bindings/r/R/*.R"
+            ],
+            "extraction": {
+                "mechanism": "r-namespace-exports",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "r-public-api"
+                ],
+                "normalization": [
+                    "read explicit NAMESPACE exports and S3 methods",
+                    "resolve top-level function formals",
+                    "sort qualified symbols"
+                ],
+                "exclusions": [
+                    "non-exported helpers and dot-prefixed functions"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/r-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "planned",
+            "activation_condition": "Activate after balanced-formal parsing, NAMESPACE resolution, S3 registration, missing-export, addition, removal, and signature tests pass."
+        },
+        {
+            "id": "ruby-public-api",
+            "ecosystem": "Ruby",
+            "component": "ruby",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/ruby/strling.gemspec",
+                "bindings/ruby/lib/**/*.rb"
+            ],
+            "extraction": {
+                "mechanism": "ruby-ast-api",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "ruby-public-api"
+                ],
+                "normalization": [
+                    "Ripper module/class/method signatures and visibility"
+                ],
+                "exclusions": ["private methods and test helpers"]
+            },
+            "snapshot_path": "governance/contracts/snapshots/ruby-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "transitional",
+            "rationale": "The gemspec file set is explicit, but no Ripper-based visibility/signature extractor is configured and runtime reflection would execute compiler modules.",
+            "retirement_condition": "Add a non-executing Ripper AST extractor for shipped files, normalize singleton/instance methods and keyword parameters, and pass visibility and metaprogramming-gap tests."
+        },
+        {
+            "id": "rust-public-api",
+            "ecosystem": "Rust",
+            "component": "rust",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/rust/Cargo.toml",
+                "bindings/rust/src/lib.rs",
+                "bindings/rust/src/**/*.rs"
+            ],
+            "extraction": {
+                "mechanism": "rust-public-api",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "rust-public-api"
+                ],
+                "normalization": ["rustdoc public item paths and signatures"],
+                "exclusions": [
+                    "private items",
+                    "binary-only CLI implementation"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/rust-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "transitional",
+            "rationale": "Stable rustdoc JSON is not available under the declared MSRV and cargo-public-api is not a pinned repository tool.",
+            "retirement_condition": "Pin an MSRV-compatible public API extractor or stabilized rustdoc metadata path, isolate target output, normalize blanket/derived items, and certify features and re-exports."
+        },
+        {
+            "id": "swift-public-api",
+            "ecosystem": "Swift",
+            "component": "swift",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/swift/Package.swift",
+                "bindings/swift/Sources/STRling/**/*.swift"
+            ],
+            "extraction": {
+                "mechanism": "swift-symbolgraph",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "swift-public-api"
+                ],
+                "normalization": [
+                    "public symbol graph identifiers and declarations"
+                ],
+                "exclusions": ["internal/private symbols", "test targets"]
+            },
+            "snapshot_path": "governance/contracts/snapshots/swift-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "transitional",
+            "rationale": "Swift symbol graph output embeds toolchain and module metadata that has not been normalized or proven stable across supported runners.",
+            "retirement_condition": "Pin symbolgraph extraction flags and Swift version, isolate build output, remove non-contract metadata, and pass overload, availability, Codable synthesis, and repeatability tests."
+        },
+        {
+            "id": "typescript-package-entrypoints",
+            "ecosystem": "TypeScript/npm",
+            "component": "typescript",
+            "kind": "package-entrypoints",
+            "source_locations": ["bindings/typescript/package.json"],
+            "extraction": {
+                "mechanism": "typescript-package-entrypoints",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "typescript-package-entrypoints"
+                ],
+                "normalization": [
+                    "sort exports, main, types, and published file roots"
+                ],
+                "exclusions": [
+                    "scripts, dependencies, descriptive package metadata"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/typescript-package-entrypoints.json",
+            "authority": "compatibility-baseline",
+            "comparison": "package-entrypoints",
+            "enforcement": "planned",
+            "activation_condition": "Activate after deterministic manifest selection and entrypoint addition, removal, retargeting, malformed-manifest, and ordering tests pass.",
+            "known_gaps": [
+                "The advertised ./core, ./emitters/pcre2, and ./simply output paths do not correspond to current declaration build paths; this inconsistency is recorded and must be corrected only in separately authorized public API work."
+            ]
+        },
+        {
+            "id": "typescript-public-api",
+            "ecosystem": "TypeScript/npm",
+            "component": "typescript",
+            "kind": "host-api",
+            "source_locations": [
+                "bindings/typescript/package.json",
+                "bindings/typescript/tsconfig.json",
+                "bindings/typescript/src/index.ts",
+                "bindings/typescript/src/STRling/**/*.ts"
+            ],
+            "extraction": {
+                "mechanism": "typescript-declarations",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "typescript-public-api"
+                ],
+                "normalization": [
+                    "emit declarations to an isolated temporary directory",
+                    "follow relative declaration references from the package root",
+                    "remove comments and collapse declaration whitespace"
+                ],
+                "exclusions": [
+                    "declaration files not reachable from src/index.ts",
+                    "tests and generated JavaScript"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/typescript-public-api.json",
+            "authority": "compatibility-baseline",
+            "comparison": "declaration-set",
+            "enforcement": "planned",
+            "activation_condition": "Activate after isolated declaration emission, reachability, normalization, extraction-failure, addition, removal, and signature-change tests pass."
+        },
+        {
+            "id": "root-cli",
+            "ecosystem": "POSIX shell CLI",
+            "component": "repository",
+            "kind": "cli",
+            "source_locations": ["strling"],
+            "extraction": {
+                "mechanism": "cli-help-parser",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "root-cli"
+                ],
+                "normalization": [
+                    "parse command usage rows from print_help",
+                    "exclude environment-dependent binding readiness output",
+                    "sort command names"
+                ],
+                "exclusions": [
+                    "private _run-configured command",
+                    "examples and banners"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/root-cli.json",
+            "authority": "compatibility-baseline",
+            "comparison": "cli-command-set",
+            "enforcement": "planned",
+            "activation_condition": "Activate after help-source parsing, command option, addition, removal, private-command, and malformed-help tests pass."
+        },
+        {
+            "id": "schema-conformance-fixture",
+            "ecosystem": "JSON Schema 2020-12",
+            "component": "spec",
+            "kind": "schema",
+            "source_locations": ["spec/schema/conformance-fixture.schema.json"],
+            "extraction": {
+                "mechanism": "json-schema",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "schema-conformance-fixture"
+                ],
+                "normalization": [
+                    "parse JSON and sort object keys recursively"
+                ],
+                "exclusions": [
+                    "none; descriptive metadata is retained but compared compatibly"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/schema-conformance-fixture.json",
+            "authority": "versioned-contract",
+            "comparison": "json-schema-structure",
+            "enforcement": "planned",
+            "activation_condition": "Activate after additive property/enum and breaking required/removal/constraint tests pass."
+        },
+        {
+            "id": "schema-pcre2-target",
+            "ecosystem": "JSON Schema 2020-12",
+            "component": "spec",
+            "kind": "schema",
+            "source_locations": ["spec/schema/pcre2.v1.schema.json"],
+            "extraction": {
+                "mechanism": "json-schema",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "schema-pcre2-target"
+                ],
+                "normalization": [
+                    "parse JSON and sort object keys recursively"
+                ],
+                "exclusions": [
+                    "none; descriptive metadata is retained but compared compatibly"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/schema-pcre2-target.json",
+            "authority": "versioned-contract",
+            "comparison": "json-schema-structure",
+            "enforcement": "planned",
+            "activation_condition": "Activate after reference preservation, capability addition/removal, required-property, and constraint tests pass."
+        },
+        {
+            "id": "schema-target-artifact",
+            "ecosystem": "JSON Schema 2020-12",
+            "component": "spec",
+            "kind": "schema",
+            "source_locations": ["spec/schema/base.schema.json"],
+            "extraction": {
+                "mechanism": "json-schema",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "schema-target-artifact"
+                ],
+                "normalization": [
+                    "parse JSON and sort object keys recursively"
+                ],
+                "exclusions": [
+                    "none; Diagnostic and SourceRange definitions are governed in place"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/schema-target-artifact.json",
+            "authority": "versioned-contract",
+            "comparison": "json-schema-structure",
+            "enforcement": "planned",
+            "activation_condition": "Activate after optional-property, required-property, enum, alternative, property-removal, and tightening tests pass."
+        }
+    ]
+}

@@ -1,7 +1,8 @@
 {
     "configuration_version": 1,
-    "active_task": "docs/migration/records/generated-artifact-change-integrity.yaml",
+    "active_task": "docs/migration/records/public-contract-architecture-fitness.yaml",
     "generated_artifact_registry": "governance/generated-artifacts.json",
+    "public_surface_registry": "governance/public-surfaces.json",
     "architecture_rule_registry": "governance/architecture-rules.json",
     "path_evidence": [
         {

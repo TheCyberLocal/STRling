@@ -1,0 +1,132 @@
+record_version: 2.0.0
+title: Public contract snapshots and architecture fitness certification
+status: in_progress
+objective: Establish deterministic, declaration-governed compatibility baselines for externally meaningful APIs and structured contracts, deepen dependency-aware architecture fitness, and integrate both into canonical local and CI hardgates without changing STRling product semantics.
+scope:
+    diff:
+        base: b5ff2f0cec8153388e80eec1aac738f882eb89e1
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/ci.yml
+        - docs/migration/**
+        - docs/toolchains.md
+        - governance/**
+        - strling
+        - strling.ps1
+        - toolchain.json
+        - tooling/governance.py
+        - tooling/index.md
+        - tooling/public_contracts.py
+        - tooling/quality.py
+        - tooling/tests/**
+    forbidden_paths:
+        - bindings/**
+        - spec/**
+        - tests/spec/**
+        - tests/conformance/**
+        - package.json
+        - package-lock.json
+    expected_files:
+        - docs/migration/records/public-contract-architecture-fitness.yaml
+        - governance/architecture-rules.json
+        - governance/architecture.md
+        - governance/change-control.json
+        - governance/public-contracts.md
+        - governance/public-surfaces.json
+        - governance/schemas/architecture-rules.schema.json
+        - governance/schemas/change-control.schema.json
+        - governance/schemas/public-surface-registry.schema.json
+        - governance/schemas/task-record.schema.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Governance schemas add public-surface inventory, affected-surface declaration, and dependency-rule configuration without changing product schemas.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Architecture policy adds dependency, structured-reference, semantic-island placement, transition-reporting, and monotonic activation categories without changing product structure.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Public surface contract validation
+      command: python3 -m unittest tooling.tests.test_governance_contracts tooling.tests.test_public_contracts
+      expected_result: Registry, snapshots, classifiers, declarations, and controlled malformed or incompatible cases behave deterministically.
+    - name: Public contract reproduction
+      command: ./strling contracts --check
+      expected_result: Every enforced surface exactly reproduces its committed snapshot and every transition is explicit.
+    - name: Architecture fitness
+      command: ./strling governance
+      expected_result: Active dependency and placement rules pass, transitions report without false failure, and future rules remain non-blocking.
+    - name: Canonical quality
+      command: BUNDLER_VERSION=2.4.20 ./strling check
+      expected_result: Public contracts and architecture fitness run through the canonical aggregate before component checks.
+    - name: Certification
+      command: BUNDLER_VERSION=2.4.20 ./strling certify
+      expected_result: Complete hardgate certification passes without compiler or product behavior changes.
+checkpoints:
+    - name: Public surface and fitness contract
+      status: passed
+      evidence:
+          - check: Clean committed starting state
+            command: git status --short --branch; git rev-parse HEAD; git branch --show-current
+            result: passed
+            details: The task started from a clean architecture/v4 tree at b5ff2f0cec8153388e80eec1aac738f882eb89e1; the branch was 22 commits ahead of origin.
+          - check: Public surface inventory and extraction selection
+            command: public manifest, entrypoint, declaration, schema, and CLI inspection
+            result: passed
+            details: Twenty-two surfaces cover all 17 binding APIs, TypeScript package entrypoints, the root CLI, and three stable specification schemas; ten deterministic strategies are planned and twelve gaps have explicit retirement conditions.
+          - check: Contract and classification validation
+            command: python3 -m unittest tooling.tests.test_governance_contracts
+            result: passed
+            details: Ten tests validated all schemas and instances, unique identifiers, every compatibility label, change evidence, safe paths, and required planned/transitional lifecycle conditions.
+          - check: Architecture policy and current transitions
+            command: ./strling governance
+            result: passed
+            details: Existing enforced rules passed; dependency, structured-reference, and semantic-island categories validate; the direct LSP-to-Python-binding dependency is recorded as transitional and final canonical-core rules remain future-state.
+          - check: Existing quality baseline and patch integrity
+            command: BUNDLER_VERSION=2.4.20 ./strling check; ./strling format --check repository; git diff --check
+            result: passed
+            details: The established Bundler-pinned aggregate passed formatting, hygiene, lint, type analysis, generation, governance, and all 19 TypeScript suites with 963 tests; no product source or semantics changed.
+    - name: Deterministic API and contract snapshots
+      status: planned
+      evidence: []
+    - name: Change classification enforcement
+      status: planned
+      evidence: []
+    - name: Dependency architecture fitness
+      status: planned
+      evidence: []
+    - name: Quality and CI integration certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []

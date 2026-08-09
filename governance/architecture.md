@@ -72,3 +72,24 @@ replaced. Each gate MUST state its current scope, allowed exceptions, and
 evidence. Transitional code MAY be temporarily outside a final-state rule only
 through recorded scope or a governed waiver; it MUST NOT be represented as
 already compliant.
+
+## Fitness rule categories
+
+Architecture policy distinguishes placement, dependency, authority, and
+transition rules. Placement rules govern where task records and new semantic
+components may appear. Dependency rules inspect language imports or structured
+references where a reliable parser is available. Authority rules prevent
+generated or implementation output from becoming specification input.
+Transition rules report current duplication or temporary dependencies without
+misrepresenting final-state compliance.
+
+New dependency analyzers MUST resolve the syntax they govern (for example the
+Python AST or JSON Schema `$ref` values) and MUST fail closed on malformed
+source. Text search may support discovery but is not sufficient evidence for an
+enforced import boundary when a language-aware parser is reasonably available.
+
+Rules tighten monotonically. A transition records its exact retirement
+condition; activation changes only its status and does not require a new rule
+framework. Weakening an enforced boundary requires an explicit breaking
+architecture declaration, affected rule or surface identifiers, and evidence
+for the replacement or bounded exception.

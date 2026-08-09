@@ -99,6 +99,55 @@
             "retirement_condition": "Replace implementation-derived expected behavior with independently accepted specification-authored conformance contracts and deterministic projections."
         },
         {
+            "id": "lsp-python-binding-semantic-dependency",
+            "description": "The editor tooling currently reaches STRling semantics through the Python binding and must migrate to the future canonical compiler interface.",
+            "status": "transitional",
+            "kind": "forbidden-import",
+            "configuration": {
+                "sources": [
+                    "tooling/lsp-server/island_extractor.py",
+                    "tooling/lsp-server/server/island_extractor.py",
+                    "tooling/lsp-server/tests/test_navigation.py",
+                    "tooling/lsp-server/tests/test_parser_exhaustive.py",
+                    "tooling/lsp-server/tests/test_code_actions.py"
+                ],
+                "forbidden_modules": ["STRling"]
+            },
+            "rationale": "The LSP and its tests directly import Python-binding intelligence while no canonical compiler service exists; treating this as a current violation would begin the prohibited product migration.",
+            "retirement_condition": "After the canonical compiler interface exists, route editor semantics through that interface, remove direct STRling binding imports from tooling, and promote the rule to enforced."
+        },
+        {
+            "id": "specification-reference-authority-boundary",
+            "description": "Specification schemas may reference only specification-owned schema contracts, never generated implementation output.",
+            "status": "future",
+            "kind": "schema-reference-boundary",
+            "configuration": {
+                "sources": ["spec/schema/*.json"],
+                "allowed_reference_roots": ["spec/schema"]
+            },
+            "rationale": "The invariant is valid now, but structured reference analysis is activated only after its parser and malformed-reference tests are certified.",
+            "activation_condition": "Promote to enforced when repository-relative and fragment JSON Schema references are resolved safely and controlled forbidden, escaping, and malformed cases fail."
+        },
+        {
+            "id": "new-tooling-semantic-islands",
+            "description": "New parser, compiler, analyzer, planner, or emitter implementations under tooling require explicit architecture review.",
+            "status": "future",
+            "kind": "semantic-island-placement",
+            "configuration": {
+                "guarded_roots": ["tooling"],
+                "semantic_names": [
+                    "parser",
+                    "compiler",
+                    "analyzer",
+                    "planner",
+                    "emitter"
+                ],
+                "requires_declaration": "architecture_change"
+            },
+            "rationale": "The placement invariant is current, but activation awaits a change-aware classifier that excludes tests, third-party payloads, and non-semantic orchestration names.",
+            "activation_condition": "Promote to enforced after controlled new-island, quality-tool false-positive, test-file, generated-payload, and explicit-declaration cases pass."
+        },
+        {
             "id": "binding-canonical-core-dependency",
             "description": "Host-language bindings depend only on the stable canonical compiler interface for STRling semantics.",
             "status": "future",

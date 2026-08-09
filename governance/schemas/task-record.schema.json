@@ -249,6 +249,14 @@
                 },
                 "evidence": {
                     "$ref": "#/$defs/stringList"
+                },
+                "affected_surfaces": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{2,63}$"
+                    },
+                    "uniqueItems": true
                 }
             },
             "allOf": [

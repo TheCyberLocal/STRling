@@ -35,11 +35,15 @@ class GovernanceContractTests(unittest.TestCase):
         cls.architecture_schema = load_json(
             GOVERNANCE / "schemas/architecture-rules.schema.json"
         )
+        cls.public_surface_schema = load_json(
+            GOVERNANCE / "schemas/public-surface-registry.schema.json"
+        )
 
         cls.task_validator = Draft202012Validator(cls.task_schema)
         cls.artifact_validator = Draft202012Validator(cls.artifact_schema)
         cls.change_control_validator = Draft202012Validator(cls.change_control_schema)
         cls.architecture_validator = Draft202012Validator(cls.architecture_schema)
+        cls.public_surface_validator = Draft202012Validator(cls.public_surface_schema)
 
     def test_schemas_are_valid_draft_2020_12(self) -> None:
         for schema in (
@@ -47,6 +51,7 @@ class GovernanceContractTests(unittest.TestCase):
             self.artifact_schema,
             self.change_control_schema,
             self.architecture_schema,
+            self.public_surface_schema,
         ):
             Draft202012Validator.check_schema(schema)
 
@@ -68,16 +73,23 @@ class GovernanceContractTests(unittest.TestCase):
         self.architecture_validator.validate(
             load_json(GOVERNANCE / "architecture-rules.json")
         )
+        self.public_surface_validator.validate(
+            load_json(GOVERNANCE / "public-surfaces.json")
+        )
 
     def test_registry_and_rule_identifiers_are_unique(self) -> None:
         registry = load_json(GOVERNANCE / "generated-artifacts.json")
         rules = load_json(GOVERNANCE / "architecture-rules.json")
+        surfaces = load_json(GOVERNANCE / "public-surfaces.json")
         assert isinstance(registry, dict)
         assert isinstance(rules, dict)
+        assert isinstance(surfaces, dict)
         artifact_ids = [artifact["id"] for artifact in registry["artifacts"]]
         rule_ids = [rule["id"] for rule in rules["rules"]]
+        surface_ids = [surface["id"] for surface in surfaces["surfaces"]]
         self.assertEqual(len(artifact_ids), len(set(artifact_ids)))
         self.assertEqual(len(rule_ids), len(set(rule_ids)))
+        self.assertEqual(len(surface_ids), len(set(surface_ids)))
 
     def test_v2_task_requires_every_change_class(self) -> None:
         task = load_yaml(GOVERNANCE / "templates/task-record.yaml")
@@ -125,6 +137,32 @@ class GovernanceContractTests(unittest.TestCase):
         del transitional["retirement_condition"]
         with self.assertRaises(ValidationError):
             self.architecture_validator.validate(invalid)
+
+    def test_transitional_surface_requires_retirement_condition(self) -> None:
+        registry = load_json(GOVERNANCE / "public-surfaces.json")
+        assert isinstance(registry, dict)
+        invalid = copy.deepcopy(registry)
+        transitional = next(
+            surface
+            for surface in invalid["surfaces"]
+            if surface["enforcement"] == "transitional"
+        )
+        del transitional["retirement_condition"]
+        with self.assertRaises(ValidationError):
+            self.public_surface_validator.validate(invalid)
+
+    def test_planned_surface_requires_activation_condition(self) -> None:
+        registry = load_json(GOVERNANCE / "public-surfaces.json")
+        assert isinstance(registry, dict)
+        invalid = copy.deepcopy(registry)
+        planned = next(
+            surface
+            for surface in invalid["surfaces"]
+            if surface["enforcement"] == "planned"
+        )
+        del planned["activation_condition"]
+        with self.assertRaises(ValidationError):
+            self.public_surface_validator.validate(invalid)
 
 
 if __name__ == "__main__":

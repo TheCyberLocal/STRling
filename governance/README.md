@@ -29,6 +29,11 @@ work; they do not define STRling language syntax or semantics.
 -   `architecture-rules.json` distinguishes rules enforced now from
     transitional allowances and future rules. Its schema is
     `schemas/architecture-rules.schema.json`.
+-   `public-surfaces.json` inventories binding APIs, package entrypoints, the
+    root CLI, and stable structured contracts with an explicit deterministic
+    extractor or bounded transition. Its schema is
+    `schemas/public-surface-registry.schema.json`; compatibility and authority
+    rules are documented in `public-contracts.md`.
 -   `schemas/waiver.schema.json` defines bounded exceptions with a stable ID,
     explicit rule and scope, rationale, and retirement condition.
 -   `templates/waiver.yaml` is a validating starting point for an exception
@@ -67,3 +72,7 @@ or is checked in. The `authoritative_sources` field identifies the controlling
 contract; `generator_inputs` records what the current producer actually reads.
 A mismatch between those fields is explicit transition debt, not an elevation
 of the implementation.
+
+Public snapshots follow the same authority rule: a snapshot is reviewable
+compatibility evidence, not a semantic specification. Detection of snapshot
+drift and approval through a surface-specific task declaration remain separate.

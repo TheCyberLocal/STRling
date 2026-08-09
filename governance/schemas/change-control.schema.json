@@ -8,6 +8,7 @@
         "configuration_version",
         "active_task",
         "generated_artifact_registry",
+        "public_surface_registry",
         "architecture_rule_registry",
         "path_evidence",
         "documentation_paths",
@@ -21,6 +22,9 @@
             "$ref": "#/$defs/path"
         },
         "generated_artifact_registry": {
+            "$ref": "#/$defs/path"
+        },
+        "public_surface_registry": {
             "$ref": "#/$defs/path"
         },
         "architecture_rule_registry": {
