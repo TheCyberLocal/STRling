@@ -1,6 +1,6 @@
 record_version: 1.0.0
 title: Canonical formatting and repository-hygiene hardgates
-status: in_progress
+status: complete
 objective: Establish deterministic formatter enforcement and tracked-repository hygiene validation through the canonical root quality interface without changing STRling language or compiler semantics.
 scope:
     allowed_paths:
@@ -150,8 +150,20 @@ checkpoints:
             result: passed
             details: The build passed and all 19 suites and 963 tests passed after hardgate integration.
     - name: Completion and readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Committed-state certification
+            command: ./strling format --check; ./strling hygiene; ./strling check; ./strling check --json; git diff --check; git status --short
+            result: passed
+            details: Canonical formatting, tracked-file hygiene, human and structured aggregates, patch integrity, and clean-tree verification all passed from the committed implementation state.
+          - check: Product behavior preservation
+            command: Compare recorded before/after ecosystem baselines and review all product-adjacent diffs
+            result: passed
+            details: Formatting and text normalization were mechanical; grammar, parser, compiler, emitter, AST/IR, public API, target, package-version, and test-result behavior remained unchanged.
+          - check: Next-task assessment
+            command: Review hardgate coverage, explicit formatter dispositions, bounded exceptions, and remaining static-analysis capability states
+            result: passed
+            details: Formatting and hygiene gates are operational; deferred formatter ecosystems have retirement conditions, and strict linting, warning discipline, and expanded static analysis can proceed as contained follow-up work.
 commits:
     - subject: "docs(quality): define formatting and repository hygiene policy"
       sha: 0052b461818a82b86c73f5113ee46769bfb2d932
@@ -161,3 +173,38 @@ commits:
       sha: 2acaf53c0e8d85e1b592cee1b4073d6bedeb98fa
     - subject: "chore(repository): enforce tracked-file hygiene"
       sha: a09b694b88c89856766cabaa04a88632ba32cb5c
+    - subject: "ci(quality): enforce formatting and repository hygiene"
+      sha: 7dfe6331224ce3a39dd06303183ef5220d3031c5
+completion:
+    accomplished:
+        - Every active source class has exactly one canonical formatting disposition with a deterministic authority or a bounded technical deferral.
+        - Prettier 3.3.3, Ruff 0.15.21, dotnet format whitespace, and dart format provide separate root write and non-mutating check modes over six enforceable targets.
+        - Governed source is in canonical formatter state, including 90 mechanically formatted files and 143 text-normalized files.
+        - A machine-readable tracked-file hygiene policy and root scanner enforce artifact, binary, credential-marker, size, text, executable-mode, and case-collision rules.
+        - The default developer and pull-request quality aggregate makes proven formatting and hygiene checks blocking through one canonical command.
+    verified:
+        - All 41 focused tooling tests pass, including the required negative formatting, process, temporary-file, and binary cases.
+        - Formatter check mode passes for repository, LSP, C#, Dart, Python, and TypeScript and preserves the worktree byte-for-byte.
+        - Repository hygiene passes across 2,220 tracked files with zero findings after nine accidental artifacts were removed.
+        - All 17 binding test baselines pass; directly affected counts remain C# 625, Dart 605, Python 789, and TypeScript 963.
+        - The TypeScript representative build passes, all machine-readable policies and governance records validate, CI YAML parses, and git diff --check passes.
+    behavior_changed: No STRling language/compiler semantics intentionally changed.
+    intentional_behavior_changes:
+        - Developer and CI quality commands now block noncanonical formatting, prohibited tracked artifacts, unavailable configured formatters, and formatter or scanner process failures.
+        - Nine accidental temporary, build, package, and test-state artifacts were removed from tracking and remain recoverable from Git history.
+        - The root shell router preserves the process locale instead of reusing LANG for a command argument.
+    preserved_behavior:
+        - Grammar and specification meaning are unchanged.
+        - Parser, compiler, and emitter semantics are unchanged.
+        - AST and IR behavior are unchanged.
+        - Public APIs and target behavior are unchanged.
+        - Package and dependency versions are unchanged.
+    deferred_work:
+        - Strict lint baselining, warnings-as-errors, and expanded static-analysis enforcement remain separate follow-up work.
+        - C, C++, F#, Go, Java, Kotlin, Lua, Perl, PHP, R, Ruby, Rust, Swift, shell, PowerShell, STRling fixture, XML, TOML, and build-metadata formatting remain bounded by the path-specific reasons and retirement conditions in governance/formatting.json.
+        - Generated-artifact reproduction integrity, task-scope automation, architecture fitness tests, public API snapshots, and supply-chain certification remain separate hardgates.
+        - Node 18 remains a bounded local transition until developer environments converge on the supported Node 22 toolchain.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Establish strict linting, warnings-as-errors, and expanded static-analysis enforcement without broad semantic or compiler changes.
+    rationale: The canonical root and CI paths now enforce every formatter and repository-hygiene capability proven safe; remaining formatter and static-analysis gaps are explicit, bounded, and do not block the next contained hardgate task.

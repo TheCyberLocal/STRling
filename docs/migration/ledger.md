@@ -143,3 +143,87 @@ certify command.
 
 The next contained objective is canonical formatting and repository-hygiene
 enforcement on top of this shared substrate.
+
+## Canonical formatting and repository-hygiene hardgates
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `99e953fdfae0bd4e9c9829e00dc9951d8bdfa900`
+-   Behavior change: Developer tooling and tracked-repository state only; no
+    STRling language/compiler semantics intentionally changed
+-   Completion record:
+    [`formatting-repository-hygiene.yaml`](records/formatting-repository-hygiene.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                       | Result | Commit                                     | Verification                                                                                                                                                |
+| -------------------------------- | ------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Formatting and hygiene contract  | Passed | `0052b461818a82b86c73f5113ee46769bfb2d932` | Every active source class received one disposition; tracked artifact and text debt was enumerated; policies and baseline behavior passed                    |
+| Canonical formatter integration  | Passed | `c01437529e29151d363e160bc59b91caf85eeb16` | Write/check separation, scoping, structured results, missing tools, mismatches, and aggregate failure propagation passed                                    |
+| Mechanical source formatting     | Passed | `2acaf53c0e8d85e1b592cee1b4073d6bedeb98fa` | Ninety files were mechanically formatted; C#, Dart, Python, TypeScript, and tooling baselines were unchanged                                                |
+| Tracked-file hygiene enforcement | Passed | `a09b694b88c89856766cabaa04a88632ba32cb5c` | Nine accidental artifacts were removed; 143 files received text-only normalization; scanner and all 17 binding test baselines passed                        |
+| Developer and CI hardgate        | Passed | `7dfe6331224ce3a39dd06303183ef5220d3031c5` | Ten-result root aggregate and JSON output passed; 41 tooling tests covered required negative cases; PR CI invokes the canonical root command without bypass |
+| Completion and readiness         | Passed | Recorded by the readiness commit           | Completion, preservation, bounded deferral, exact verification, and next-task readiness are schema-valid                                                    |
+
+### Accomplished
+
+-   `governance/formatting.json` assigns one canonical strategy to every active
+    source class. Prettier 3.3.3, Ruff 0.15.21, `dotnet format whitespace`, and
+    `dart format` are enforceable for repository, LSP, C#, Dart, Python, and
+    TypeScript targets.
+-   `./strling format` is write mode and `./strling format --check` is
+    non-mutating verification. Configured-tool absence, formatter mismatch,
+    process failure, malformed policy, and aggregate failure propagate.
+-   `governance/repository-hygiene.json` and `./strling hygiene` govern temporary,
+    editor, log, scratch, coverage, package, build, binary, archive, credential,
+    text-normalization, executable-mode, size, and case-collision hazards.
+-   `./strling check` blocks all proven formatting and hygiene checks locally.
+    GitHub Actions installs their governed tools and invokes the same command on
+    every pull request and governed branch or tag change.
+
+### Canonical formatting state
+
+-   Prettier governs TypeScript, JavaScript, authored JSON, YAML, and Markdown.
+-   Ruff format governs Python.
+-   `dotnet format whitespace` governs C#.
+-   `dart format` governs Dart.
+-   Serializer-owned/generated data is explicitly not applicable to source
+    formatting. Every remaining source ecosystem has a concrete technical
+    reason and retirement condition rather than a fabricated passing gate.
+
+### Repository hygiene state
+
+-   Nine accidental `.new`, `.tmp`, ELF build, VSIX package, test-state, and log
+    artifacts were removed from tracking.
+-   The intentional Gradle wrapper JAR and LSP icon PNG have exact path, type,
+    size, and SHA-256 allowlists; the example editor workspace has an exact
+    documented exception.
+-   The Perl `Parser.pm`/`parser.pm` case collision has one bounded governed
+    waiver whose retirement condition is consolidation to a single canonical
+    module path.
+-   Governed authored text is UTF-8 with LF endings, no invalid trailing
+    whitespace, and a final newline where appropriate. Exact-input and
+    serializer-owned files have narrow exclusions.
+
+### Preserved behavior
+
+Grammar, parser, compiler, emitter, AST, IR, public API, target, package-version,
+and dependency-version behavior was not intentionally changed. Canonical
+Rust-core work, binding migration, specification redesign, and compiler
+architecture migration have not begun.
+
+### Carry-forward
+
+-   Strict lint baselining, warnings-as-errors, and broader static-analysis
+    coverage are the next contained hardgate objective.
+-   Deferred formatter ecosystems retain the bounded, path-specific retirement
+    conditions in `governance/formatting.json`.
+-   Generated-artifact reproduction integrity, task-scope automation,
+    architecture fitness tests, public API snapshots, and supply-chain
+    certification remain separate work.
+-   Node 18 remains an explicitly bounded local transition until developer
+    environments converge on supported Node 22.
+
+The repository is ready for strict linting, warning discipline, and expanded
+static-analysis enforcement with the recorded carry-forward above.
