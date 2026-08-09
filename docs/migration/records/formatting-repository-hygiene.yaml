@@ -81,8 +81,28 @@ checkpoints:
         result: passed
         details: Before policy changes, 19 suites and 963 tests passed with the existing bounded Node transition reported.
   - name: Canonical formatter integration
-    status: planned
-    evidence: []
+    status: passed
+    evidence:
+      - check: Root formatter routing
+        command: ./strling format --check python; ./strling format --check typescript --json; ./strling format --check c --json
+        result: passed
+        details: Ruff check passed for Python; Prettier mismatch returned exit 1 with structured formatter, component, environment, and status data; the unconfigured C disposition was reported explicitly rather than claimed formatted.
+      - check: Non-mutating verification
+        command: Compare git status inventory hashes before and after root format checks
+        result: passed
+        details: Check-mode execution left the worktree inventory unchanged.
+      - check: Controlled mismatch
+        command: node_modules/.bin/prettier --check --config .prettierrc tooling/tests/formatter-mismatch-fixture.json
+        result: passed
+        details: A disposable valid but noncanonical JSON fixture returned exit 1 and was removed immediately after the negative test.
+      - check: Focused orchestration tests
+        command: python3 -m unittest discover -s tooling/tests -p "test_*.py" -v
+        result: passed
+        details: All 29 tooling tests passed, including configured success, mismatch, unavailable formatter, non-applicable component, scope, and aggregate failure propagation.
+      - check: Representative behavioral baseline
+        command: npm ci --ignore-scripts --dry-run --no-audit --no-fund; ./strling build typescript; ./strling test typescript
+        result: passed
+        details: The lock resolved deterministically, the TypeScript build passed, and all 19 suites and 963 tests passed.
   - name: Mechanical formatting and hygiene enforcement
     status: planned
     evidence: []
@@ -92,4 +112,6 @@ checkpoints:
   - name: Completion and readiness
     status: planned
     evidence: []
-commits: []
+commits:
+  - subject: "docs(quality): define formatting and repository hygiene policy"
+    sha: 0052b461818a82b86c73f5113ee46769bfb2d932

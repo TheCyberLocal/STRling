@@ -79,6 +79,7 @@ class OperationResult:
     command: list[str] | None
     exit_code: int | None
     reason: str | None
+    formatters: list[str] = field(default_factory=list)
     environment: list[ToolResult] = field(default_factory=list)
     stdout: str = field(default="", repr=False)
     stderr: str = field(default="", repr=False)
@@ -91,6 +92,7 @@ class OperationResult:
             "command": self.command,
             "exit_code": self.exit_code,
             "reason": self.reason,
+            "formatters": self.formatters,
             "environment": [result.as_dict() for result in self.environment],
         }
 
@@ -135,7 +137,9 @@ class Toolchain:
                 targets[name] = Target(name, kind, config)
         return targets
 
-    def select(self, requested: str | None, defaults: Sequence[str] | None = None) -> list[Target]:
+    def select(
+        self, requested: str | None, defaults: Sequence[str] | None = None
+    ) -> list[Target]:
         targets = self.targets
         if requested is None and defaults is not None:
             names = list(defaults)
@@ -156,6 +160,26 @@ class Toolchain:
         assert isinstance(capabilities, dict)
         return capabilities[operation]  # type: ignore[return-value]
 
+    def operation_tools(self, target: Target, operation: str | None) -> list[str]:
+        configured = target.config.get("operation_tools", {})
+        assert isinstance(configured, dict)
+        if operation is None:
+            tools: list[str] = []
+            for values in configured.values():
+                assert isinstance(values, list)
+                tools.extend(values)
+            return list(dict.fromkeys(tools))
+        values = configured.get(operation, [])
+        assert isinstance(values, list)
+        return list(values)
+
+    def formatter_names(self, target: Target, operation: str) -> list[str]:
+        if operation not in ("format", "format_check"):
+            return []
+        formatters = target.config.get("formatters", [])
+        assert isinstance(formatters, list)
+        return list(formatters)
+
     def resolve_command(self, target: Target, operation: str) -> tuple[str, list[str]]:
         aliases = target.config.get("command_aliases", {})
         if not isinstance(aliases, dict):
@@ -164,15 +188,21 @@ class Toolchain:
         seen: set[str] = set()
         while resolved in aliases:
             if resolved in seen:
-                raise ConfigurationError(f"{target.name} contains a command alias cycle")
+                raise ConfigurationError(
+                    f"{target.name} contains a command alias cycle"
+                )
             seen.add(resolved)
             alias = aliases[resolved]
             if not isinstance(alias, str):
-                raise ConfigurationError(f"{target.name}.{resolved} alias must be a string")
+                raise ConfigurationError(
+                    f"{target.name}.{resolved} alias must be a string"
+                )
             resolved = alias
         command = target.config.get(resolved)
-        if not isinstance(command, list) or not command or not all(
-            isinstance(item, str) and item for item in command
+        if (
+            not isinstance(command, list)
+            or not command
+            or not all(isinstance(item, str) and item for item in command)
         ):
             raise ConfigurationError(
                 f"{target.name}.{operation} is configured without a command"
@@ -225,9 +255,13 @@ class Toolchain:
                 raise ConfigurationError(f"tool {name} must declare resolution")
             model = resolution.get("model")
             if model not in declared_models:
-                raise ConfigurationError(f"tool {name} has unknown resolution model '{model}'")
-            if not isinstance(command, list) or not command or not all(
-                isinstance(item, str) and item for item in command
+                raise ConfigurationError(
+                    f"tool {name} has unknown resolution model '{model}'"
+                )
+            if (
+                not isinstance(command, list)
+                or not command
+                or not all(isinstance(item, str) and item for item in command)
             ):
                 raise ConfigurationError(f"tool {name} must declare version_command")
             if not isinstance(pattern, str):
@@ -235,11 +269,15 @@ class Toolchain:
             try:
                 re.compile(pattern)
             except re.error as exc:
-                raise ConfigurationError(f"tool {name} has invalid version_pattern: {exc}") from exc
+                raise ConfigurationError(
+                    f"tool {name} has invalid version_pattern: {exc}"
+                ) from exc
             if model in ("exact", "constrained"):
                 version = resolution.get("version")
                 if not isinstance(version, str):
-                    raise ConfigurationError(f"tool {name} must declare a version constraint")
+                    raise ConfigurationError(
+                        f"tool {name} must declare a version constraint"
+                    )
                 if model == "exact" and not re.fullmatch(
                     r"[0-9]+(?:\.[0-9]+){0,3}", version
                 ):
@@ -286,10 +324,14 @@ class Toolchain:
                     raise ConfigurationError(f"{name}.path must be a non-empty string")
                 runtime = raw.get("runtime")
                 if runtime not in tools:
-                    raise ConfigurationError(f"{name}.runtime references unknown tool '{runtime}'")
+                    raise ConfigurationError(
+                        f"{name}.runtime references unknown tool '{runtime}'"
+                    )
                 required = raw.get("required_bins")
                 if not isinstance(required, list) or not required:
-                    raise ConfigurationError(f"{name}.required_bins must be a non-empty list")
+                    raise ConfigurationError(
+                        f"{name}.required_bins must be a non-empty list"
+                    )
                 unknown_tools = [tool for tool in required if tool not in tools]
                 if unknown_tools:
                     raise ConfigurationError(
@@ -301,6 +343,47 @@ class Toolchain:
                 if set(capabilities) != set(QUALITY_OPERATIONS):
                     raise ConfigurationError(
                         f"{name}.capabilities must declare every quality operation"
+                    )
+                operation_tools = raw.get("operation_tools", {})
+                if not isinstance(operation_tools, dict):
+                    raise ConfigurationError(
+                        f"{name}.operation_tools must be an object"
+                    )
+                for operation, operation_required in operation_tools.items():
+                    if operation not in QUALITY_OPERATIONS:
+                        raise ConfigurationError(
+                            f"{name}.operation_tools contains unknown operation '{operation}'"
+                        )
+                    if not isinstance(operation_required, list) or not all(
+                        isinstance(tool, str) and tool for tool in operation_required
+                    ):
+                        raise ConfigurationError(
+                            f"{name}.{operation} operation tools must be a list of tool names"
+                        )
+                    unknown_operation_tools = [
+                        tool for tool in operation_required if tool not in tools
+                    ]
+                    if unknown_operation_tools:
+                        raise ConfigurationError(
+                            f"{name}.{operation} references unknown tool "
+                            f"'{unknown_operation_tools[0]}'"
+                        )
+                formatters = raw.get("formatters", [])
+                if not isinstance(formatters, list) or not all(
+                    isinstance(formatter, str) and formatter for formatter in formatters
+                ):
+                    raise ConfigurationError(
+                        f"{name}.formatters must be a list of names"
+                    )
+                if (
+                    any(
+                        capabilities[operation] == "configured"
+                        for operation in ("format", "format_check")
+                    )
+                    and not formatters
+                ):
+                    raise ConfigurationError(
+                        f"{name} configures formatting without formatter metadata"
                     )
                 target = Target(name, section_name[:-1], raw)
                 for operation, status in capabilities.items():
@@ -321,7 +404,9 @@ class Toolchain:
             if any(operation not in QUALITY_OPERATIONS for operation in operations):
                 raise ConfigurationError(f"{name} contains an unknown operation")
             if not isinstance(defaults, list) or not defaults:
-                raise ConfigurationError(f"{name}.default_targets must be a non-empty list")
+                raise ConfigurationError(
+                    f"{name}.default_targets must be a non-empty list"
+                )
             if any(target not in target_names for target in defaults):
                 raise ConfigurationError(f"{name} contains an unknown default target")
 
@@ -340,7 +425,9 @@ def version_satisfies(actual: str, constraint: str) -> bool:
     actual_version = _version_tuple(actual)
     for alternative in constraint.split("||"):
         matches = True
-        clauses = [clause.strip() for clause in alternative.split(",") if clause.strip()]
+        clauses = [
+            clause.strip() for clause in alternative.split(",") if clause.strip()
+        ]
         if not clauses:
             raise ConfigurationError(f"empty version constraint '{constraint}'")
         for clause in clauses:
@@ -382,15 +469,19 @@ class EnvironmentInspector:
         self.which = which or shutil.which
         self._cache: dict[str, ToolResult] = {}
 
-    def check_target(self, target: Target) -> list[ToolResult]:
+    def check_target(
+        self, target: Target, operation: str | None = None
+    ) -> list[ToolResult]:
         required = target.config["required_bins"]
         assert isinstance(required, list)
+        operation_required = self.toolchain.operation_tools(target, operation)
         orchestration = self.toolchain.data["orchestration"]
         assert isinstance(orchestration, dict)
         tools = [
             orchestration["shell"],
             orchestration["runtime"],
             *required,
+            *operation_required,
         ]
         unique = list(dict.fromkeys(tools))
         return [self.check_tool(tool) for tool in unique]
@@ -496,7 +587,9 @@ class EnvironmentInspector:
                 )
             else:
                 transitional = resolution.get("transitional_version")
-                if isinstance(transitional, str) and version_satisfies(actual, transitional):
+                if isinstance(transitional, str) and version_satisfies(
+                    actual, transitional
+                ):
                     result = ToolResult(
                         name,
                         "transitional",
@@ -528,7 +621,9 @@ class EnvironmentInspector:
         try:
             content = path.read_text(encoding="utf-8")
         except OSError as exc:
-            raise ConfigurationError(f"cannot read repository version file {path}: {exc}") from exc
+            raise ConfigurationError(
+                f"cannot read repository version file {path}: {exc}"
+            ) from exc
         match = re.search(pattern, content)
         if not match:
             raise ConfigurationError(
@@ -580,7 +675,8 @@ class QualityRunner:
                 f"{operation.replace('_', ' ')} is {wording} for {target.name}",
             )
         resolved, command = self.toolchain.resolve_command(target, operation)
-        environment = self.inspector.check_target(target)
+        formatters = self.toolchain.formatter_names(target, operation)
+        environment = self.inspector.check_target(target, operation)
         blockers = [
             result
             for result in environment
@@ -597,6 +693,7 @@ class QualityRunner:
                 command=None,
                 exit_code=None,
                 reason=details,
+                formatters=formatters,
                 environment=environment,
             )
         execution = self.executor(target, resolved, command)
@@ -617,12 +714,15 @@ class QualityRunner:
             command=command,
             exit_code=execution.returncode,
             reason=reason,
+            formatters=formatters,
             environment=environment,
             stdout=execution.stdout,
             stderr=execution.stderr,
         )
 
-    def run_operation(self, operation: str, requested: str | None) -> list[OperationResult]:
+    def run_operation(
+        self, operation: str, requested: str | None
+    ) -> list[OperationResult]:
         return [
             self.run_leaf(operation, target)
             for target in self.toolchain.select(requested)
@@ -656,9 +756,7 @@ class QualityRunner:
                 if result.status in ("transitional", "deferred")
             ]
             if blockers:
-                notices.extend(
-                    f"{result.tool}: {result.reason}" for result in blockers
-                )
+                notices.extend(f"{result.tool}: {result.reason}" for result in blockers)
             results.append(
                 OperationResult(
                     operation=ENVIRONMENT_OPERATION,
@@ -673,7 +771,7 @@ class QualityRunner:
         return results
 
     def _execute(self, target: Target, resolved: str, command: list[str]) -> Execution:
-        if target.kind == "binding":
+        if target.kind == "binding" and resolved not in ("format", "format_check"):
             invocation = [
                 str(self.toolchain.root / "strling"),
                 "_run-configured",
@@ -723,7 +821,9 @@ def _parse_cli(argv: Sequence[str]) -> tuple[str, str | None, bool]:
 
 
 def _overall_exit(results: Iterable[OperationResult], single: bool) -> int:
-    failures = [result for result in results if result.status in ("failed", "unavailable")]
+    failures = [
+        result for result in results if result.status in ("failed", "unavailable")
+    ]
     if not failures:
         return 0
     if single and failures[0].exit_code:
@@ -740,11 +840,18 @@ def _render_human(
         if result.stdout:
             print(result.stdout, end="" if result.stdout.endswith("\n") else "\n")
         if result.stderr:
-            print(result.stderr, end="" if result.stderr.endswith("\n") else "\n", file=sys.stderr)
+            print(
+                result.stderr,
+                end="" if result.stderr.endswith("\n") else "\n",
+                file=sys.stderr,
+            )
         command = shlex.join(result.command) if result.command else "-"
         suffix = f" ({result.reason})" if result.reason else ""
+        formatters = ", ".join(result.formatters)
+        formatter_suffix = f" [formatters: {formatters}]" if formatters else ""
         print(
-            f"[{result.status}] {result.component} {result.operation}: {command}{suffix}"
+            f"[{result.status}] {result.component} {result.operation}: "
+            f"{command}{formatter_suffix}{suffix}"
         )
         if operation == ENVIRONMENT_OPERATION:
             for tool in result.environment:

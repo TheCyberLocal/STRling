@@ -287,6 +287,61 @@
             "reason": "Generated outputs are reproduced rather than independently formatted."
         }
     ],
+    "enforcement": {
+        "targets": {
+            "repository": [
+                {
+                    "formatter": "prettier",
+                    "include": ["*.json", "*.md", "*.yaml", "*.yml", "*.js", "*.mjs", ".prettierrc"],
+                    "exclude": ["package-lock.json", "*/package-lock.json", "tests/spec/*", "bindings/c/tests/fixtures/*", "bindings/swift/Tests/STRlingConformanceTests/Resources/*", "docs/generated/*", "tooling/js_to_json_ast/out/*", "tooling/lsp-server/dist/*", "bindings/typescript/*.js", "bindings/typescript/*.mjs", "tooling/lsp-server/*.js", "tooling/lsp-server/*.mjs"]
+                },
+                {
+                    "formatter": "ruff-format",
+                    "include": ["tooling/*.py"],
+                    "exclude": ["tooling/lsp-server/*"]
+                }
+            ],
+            "lsp": [
+                {
+                    "formatter": "prettier",
+                    "include": ["tooling/lsp-server/*.ts", "tooling/lsp-server/*.js", "tooling/lsp-server/*.mjs"],
+                    "exclude": []
+                },
+                {
+                    "formatter": "ruff-format",
+                    "include": ["tooling/lsp-server/*.py"],
+                    "exclude": []
+                }
+            ],
+            "csharp": [
+                {
+                    "formatter": "dotnet-format",
+                    "arguments": ["bindings/csharp/STRling.sln", "whitespace", "--no-restore"]
+                }
+            ],
+            "dart": [
+                {
+                    "formatter": "dart-format",
+                    "include": ["bindings/dart/*.dart"],
+                    "exclude": []
+                }
+            ],
+            "python": [
+                {
+                    "formatter": "ruff-format",
+                    "include": ["bindings/python/*.py"],
+                    "exclude": []
+                }
+            ],
+            "typescript": [
+                {
+                    "formatter": "prettier",
+                    "include": ["bindings/typescript/*.ts", "bindings/typescript/*.js", "bindings/typescript/*.mjs"],
+                    "exclude": []
+                }
+            ]
+        }
+    },
     "integration_targets": {
         "repository": ["javascript", "json", "yaml", "markdown", "python"],
         "lsp": ["typescript", "python"],

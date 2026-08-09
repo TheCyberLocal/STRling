@@ -34,6 +34,8 @@ def target_config(
     statuses: dict[str, str] | None = None,
     commands: dict[str, list[str]] | None = None,
     aliases: dict[str, str] | None = None,
+    formatters: list[str] | None = None,
+    operation_tools: dict[str, list[str]] | None = None,
 ) -> dict[str, object]:
     capabilities = {operation: "not_yet_configured" for operation in OPERATIONS}
     capabilities.update(statuses or {})
@@ -50,6 +52,10 @@ def target_config(
         "capabilities": capabilities,
     }
     result.update(commands or {})
+    if formatters:
+        result["formatters"] = formatters
+    if operation_tools:
+        result["operation_tools"] = operation_tools
     if aliases:
         result["command_aliases"] = aliases
     return result
@@ -77,7 +83,7 @@ def policy(
                     "operations": ["build", "test"],
                     "default_targets": ["alpha"],
                 },
-            }
+            },
         },
         "orchestration": {"shell": "python3", "runtime": "python3"},
         "tools": {
@@ -85,7 +91,12 @@ def policy(
                 "resolution": {"model": "constrained", "version": ">=3.8,<4.0"},
                 "version_command": ["python3", "--version"],
                 "version_pattern": "Python ([0-9.]+)",
-            }
+            },
+            "fixture-format": {
+                "resolution": {"model": "exact", "version": "1.2.3"},
+                "version_command": ["fixture-format", "--version"],
+                "version_pattern": "fixture-format ([0-9.]+)",
+            },
         },
         "components": {},
         "bindings": {
@@ -98,7 +109,9 @@ def policy(
 class QualityRoutingTests(unittest.TestCase):
     def test_valid_and_all_selection(self) -> None:
         toolchain = Toolchain(policy(), Path.cwd())
-        self.assertEqual(["alpha"], [target.name for target in toolchain.select("alpha")])
+        self.assertEqual(
+            ["alpha"], [target.name for target in toolchain.select("alpha")]
+        )
         self.assertEqual(
             ["alpha", "beta"],
             [target.name for target in toolchain.select("all")],
@@ -129,6 +142,111 @@ class QualityRoutingTests(unittest.TestCase):
             calls,
         )
 
+    def test_configured_formatter_success_reports_formatter(self) -> None:
+        alpha = target_config(
+            {"format": "configured"},
+            {"format": ["fixture-format", "--write"]},
+            formatters=["Fixture Format 1.2.3"],
+        )
+        toolchain = Toolchain(policy(alpha=alpha), Path.cwd())
+        result = QualityRunner(
+            toolchain,
+            lambda *_args: Execution(0),
+        ).run_operation("format", "alpha")[0]
+        self.assertEqual("passed", result.status)
+        self.assertEqual(["Fixture Format 1.2.3"], result.formatters)
+        self.assertEqual(["Fixture Format 1.2.3"], result.as_dict()["formatters"])
+
+    def test_formatter_mismatch_propagates_exact_exit(self) -> None:
+        alpha = target_config(
+            {"format_check": "configured"},
+            {"format_check": ["fixture-format", "--check"]},
+            formatters=["Fixture Format 1.2.3"],
+        )
+        toolchain = Toolchain(policy(alpha=alpha), Path.cwd())
+        result = QualityRunner(
+            toolchain,
+            lambda *_args: Execution(3, stderr="would reformat fixture"),
+        ).run_operation("format_check", "alpha")[0]
+        self.assertEqual("failed", result.status)
+        self.assertEqual(3, result.exit_code)
+        self.assertEqual(3, _overall_exit([result], True))
+
+    def test_unavailable_formatter_prevents_execution(self) -> None:
+        alpha = target_config(
+            {"format_check": "configured"},
+            {"format_check": ["fixture-format", "--check"]},
+            formatters=["Fixture Format 1.2.3"],
+            operation_tools={"format_check": ["fixture-format"]},
+        )
+        toolchain = Toolchain(policy(alpha=alpha), Path.cwd())
+        inspector = EnvironmentInspector(
+            toolchain,
+            probe=lambda command: Execution(
+                0,
+                stdout=(
+                    "Python 3.12.4"
+                    if command[0] == "python3"
+                    else "fixture-format 1.2.3"
+                ),
+            ),
+            which=lambda command: (
+                None if command == "fixture-format" else "/fixture/tool"
+            ),
+        )
+
+        def unexpected(*_args):
+            raise AssertionError("executor should not be called")
+
+        result = QualityRunner(toolchain, unexpected, inspector).run_operation(
+            "format_check", "alpha"
+        )[0]
+        self.assertEqual("unavailable", result.status)
+        self.assertIn("fixture-format", result.reason or "")
+
+    def test_format_non_applicable_is_explicit(self) -> None:
+        alpha = target_config({"format": "not_applicable"})
+        result = QualityRunner(
+            Toolchain(policy(alpha=alpha), Path.cwd())
+        ).run_operation("format", "alpha")[0]
+        self.assertEqual("not_applicable", result.status)
+
+    def test_formatter_execution_is_scoped_to_selected_component(self) -> None:
+        def configured(name: str) -> dict[str, object]:
+            return target_config(
+                {"format": "configured"},
+                {"format": ["fixture-format", name]},
+                formatters=["Fixture Format 1.2.3"],
+            )
+
+        toolchain = Toolchain(
+            policy(alpha=configured("alpha"), beta=configured("beta")),
+            Path.cwd(),
+        )
+        calls: list[str] = []
+        QualityRunner(
+            toolchain,
+            lambda target, *_args: calls.append(target.name) or Execution(0),
+        ).run_operation("format", "beta")
+        self.assertEqual(["beta"], calls)
+
+    def test_aggregate_formatter_failure_propagates(self) -> None:
+        alpha = target_config(
+            {"format_check": "configured"},
+            {"format_check": ["fixture-format", "--check"]},
+            formatters=["Fixture Format 1.2.3"],
+        )
+        data = policy(alpha=alpha)
+        aggregates = data["policy"]["aggregates"]  # type: ignore[index]
+        aggregates["check"]["operations"] = ["format_check"]  # type: ignore[index]
+        toolchain = Toolchain(data, Path.cwd())
+        results = QualityRunner(
+            toolchain,
+            lambda *_args: Execution(23),
+        ).run_aggregate("check", None)
+        self.assertEqual("failed", results[0].status)
+        self.assertEqual(1, _overall_exit(results, False))
+
     def test_command_alias_uses_authoritative_command(self) -> None:
         alpha = target_config(
             {"build": "configured", "typecheck": "configured"},
@@ -142,9 +260,9 @@ class QualityRoutingTests(unittest.TestCase):
             calls.append(operation)
             return Execution(0)
 
-        result = QualityRunner(toolchain, execute).run_operation(
-            "typecheck", "alpha"
-        )[0]
+        result = QualityRunner(toolchain, execute).run_operation("typecheck", "alpha")[
+            0
+        ]
         self.assertEqual("passed", result.status)
         self.assertEqual(["fixture-compiler", "--build"], result.command)
         self.assertEqual(["build"], calls)
@@ -156,9 +274,7 @@ class QualityRoutingTests(unittest.TestCase):
         def unexpected(*_args):
             raise AssertionError("executor should not be called")
 
-        result = QualityRunner(toolchain, unexpected).run_operation(
-            "build", "alpha"
-        )[0]
+        result = QualityRunner(toolchain, unexpected).run_operation("build", "alpha")[0]
         self.assertEqual("not_applicable", result.status)
         self.assertIsNone(result.command)
         self.assertIsNone(result.exit_code)
@@ -195,18 +311,13 @@ class QualityRoutingTests(unittest.TestCase):
         ).run_aggregate("check", None)
         self.assertEqual(
             [("alpha", "lint", "passed"), ("alpha", "typecheck", "not_applicable")],
-            [
-                (result.component, result.operation, result.status)
-                for result in results
-            ],
+            [(result.component, result.operation, result.status) for result in results],
         )
         self.assertEqual(0, _overall_exit(results, False))
 
     def test_malformed_configured_capability_is_rejected(self) -> None:
         alpha = target_config({"lint": "configured"})
-        with self.assertRaisesRegex(
-            ConfigurationError, "configured without a command"
-        ):
+        with self.assertRaisesRegex(ConfigurationError, "configured without a command"):
             Toolchain(policy(alpha=alpha), Path.cwd())
 
     def test_format_check_and_json_options_parse_in_any_order(self) -> None:
@@ -266,9 +377,7 @@ class EnvironmentValidationTests(unittest.TestCase):
         tool = data["tools"]["python3"]  # type: ignore[index]
         tool["resolution"]["transitional_version"] = ">=3.7,<3.8"  # type: ignore[index]
         tool["resolution"]["reason"] = "fixture transition"  # type: ignore[index]
-        result = self.inspector(output="Python 3.7.9", data=data).check_tool(
-            "python3"
-        )
+        result = self.inspector(output="Python 3.7.9", data=data).check_tool("python3")
         self.assertEqual("transitional", result.status)
         self.assertEqual("fixture transition", result.reason)
 
@@ -287,9 +396,9 @@ class EnvironmentValidationTests(unittest.TestCase):
         def unexpected(*_args):
             raise AssertionError("executor should not be called")
 
-        result = QualityRunner(
-            toolchain, unexpected, inspector
-        ).run_operation("test", "alpha")[0]
+        result = QualityRunner(toolchain, unexpected, inspector).run_operation(
+            "test", "alpha"
+        )[0]
         self.assertEqual("unavailable", result.status)
         self.assertIsNone(result.command)
 
