@@ -1,1 +1,21 @@
-{}
+record_version: 1.0.0
+title: Describe the permanent engineering capability
+status: planned
+objective: State the contained outcome that this work must achieve.
+scope:
+  allowed_paths:
+    - path/within/scope/**
+  forbidden_paths:
+    - path/outside/scope/**
+change_classification:
+  behavioral_change: none
+  public_api_change: none
+required_verification:
+  - name: Define a success check before implementation
+    command: exact command to run
+    expected_result: State the acceptance result.
+checkpoints:
+  - name: Scope and baseline
+    status: planned
+    evidence: []
+commits: []

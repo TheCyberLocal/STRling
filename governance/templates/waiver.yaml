@@ -1,1 +1,13 @@
-{}
+record_version: 1.0.0
+# Replace this example ID with a stable, never-reused identifier.
+waiver_id: WVR-EXAMPLE-001
+status: requested
+rule: Identify the exact engineering rule requiring an exception.
+scope:
+  description: Describe the narrow boundary of the exception.
+  paths:
+    - path/covered/by/waiver/**
+rationale: Explain why the bounded exception is necessary.
+retirement:
+  condition: State the observable condition that retires this waiver.
+  replacement_work: []

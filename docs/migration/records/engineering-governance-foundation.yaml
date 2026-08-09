@@ -1,0 +1,82 @@
+record_version: 1.0.0
+title: Engineering governance foundation
+status: in_progress
+objective: Establish permanent engineering authority, architectural invariants, and traceable governance contracts before semantic migration.
+scope:
+  allowed_paths:
+    - governance/**
+    - docs/migration/**
+  forbidden_paths:
+    - bindings/**
+    - spec/**
+    - tests/**
+    - tooling/**
+    - package.json
+    - package-lock.json
+    - toolchain.json
+change_classification:
+  behavioral_change: none
+  public_api_change: none
+required_verification:
+  - name: Baseline ancestry
+    command: git merge-base architecture/v4 dev
+    expected_result: The merge-base equals the recorded starting dev SHA.
+  - name: Patch integrity
+    command: git diff --check dev...architecture/v4
+    expected_result: No whitespace errors.
+  - name: Governance contract validation
+    command: python3 JSON Schema and YAML validation using jsonschema and PyYAML
+    expected_result: Both schemas are valid and both templates and this record conform.
+  - name: Behavioral baseline
+    command: ./strling test typescript
+    expected_result: Existing TypeScript behavior remains green.
+  - name: Scope review
+    command: git diff --name-only dev...architecture/v4
+    expected_result: Only governance and migration-control paths changed.
+  - name: Permanent vocabulary review
+    command: targeted repository search of lines added by this initiative
+    expected_result: No temporary campaign identifiers appear in permanent artifacts or commit subjects.
+checkpoints:
+  - name: Scope and baseline lock
+    status: passed
+    evidence:
+      - check: Branch and ancestry
+        command: git rev-parse dev; git rev-parse origin/dev; git merge-base architecture/v4 dev
+        result: passed
+        details: All values resolved to d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc at branch creation.
+      - check: Behavioral baseline
+        command: ./strling test typescript
+        result: passed
+        details: 19 suites and 963 tests passed; the unchanged ts-jest TS151002 warning was recorded as carry-forward debt.
+  - name: Constitution and authority contract
+    status: passed
+    evidence:
+      - check: Contradiction review
+        result: passed
+        details: New policy was reviewed against specification, architecture, contribution, testing, and release claims and explicitly governs transitional conflicts.
+      - check: Markdown structure and links
+        result: passed
+        details: All three policy documents have valid heading structure and resolving local links.
+  - name: Governance contracts and migration traceability
+    status: passed
+    evidence:
+      - check: Schema and instance validation
+        result: passed
+        details: Draft 2020-12 checks accepted both schemas; the task template, waiver template, and active record validated.
+      - check: Negative contract validation
+        result: passed
+        details: Validation rejected a completed task without completion/readiness and a waiver without a retirement condition.
+      - check: Migration traceability review
+        result: passed
+        details: The lifecycle, ledger role, record storage, commit evidence, and permanent-vocabulary boundary are documented without creating semantic authority.
+  - name: Integration and governance certification
+    status: planned
+    evidence: []
+  - name: Completion and readiness
+    status: planned
+    evidence: []
+commits:
+  - sha: 252d16b495d573051d8c317c980423bcc2bbc64b
+    subject: "docs(governance): establish engineering governance foundation"
+  - sha: 264ff22c4930a21e39254d384a35aa64194cd5b4
+    subject: "docs(architecture): define engineering constitution and authority hierarchy"
