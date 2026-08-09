@@ -104,7 +104,7 @@ The complete committed-state certification contract is:
 ```sh
 ./strling format --check all
 ./strling hygiene
-./strling lint all
+BUNDLER_VERSION=2.4.20 ./strling lint all
 ./strling typecheck all
 ./strling generate --check
 ./strling generate --check --json

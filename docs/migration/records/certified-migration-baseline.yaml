@@ -73,7 +73,7 @@ required_verification:
       command: python3 -m json.tool on every new governance schema and Python YAML parsing for the active task record
       expected_result: All contracts parse and the task record validates under governance/schemas/task-record.schema.json.
     - name: Canonical leaf hardgates
-      command: ./strling format --check all; ./strling hygiene; ./strling lint all; ./strling typecheck all; ./strling generate --check; ./strling contracts --check; ./strling governance
+      command: ./strling format --check all; ./strling hygiene; BUNDLER_VERSION=2.4.20 ./strling lint all; ./strling typecheck all; ./strling generate --check; ./strling contracts --check; ./strling governance
       expected_result: Every enforced leaf hardgate passes and all transitions remain explicitly governed.
     - name: Canonical aggregate hardgates
       command: BUNDLER_VERSION=2.4.20 ./strling check all; BUNDLER_VERSION=2.4.20 ./strling certify all
