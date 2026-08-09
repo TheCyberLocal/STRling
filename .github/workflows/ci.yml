@@ -67,7 +67,7 @@ jobs:
                     ./strling setup "$component"
                   done
 
-            - name: Enforce canonical quality hardgates
+            - name: Enforce canonical contract, architecture, and quality hardgates
               run: ./strling check
 
     # --- TEST JOBS (ALPHABETICALLY ORDERED) ---

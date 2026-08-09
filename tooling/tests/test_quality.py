@@ -483,6 +483,25 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual(["passed", "failed"], [result.status for result in results])
         self.assertEqual(1, _overall_exit(results, False))
 
+    def test_repository_contract_and_architecture_hardgates_are_canonical(self) -> None:
+        toolchain = Toolchain.load(TOOLING_DIR.parent / "toolchain.json")
+        gates = toolchain.integrity_hardgates("check")
+        self.assertEqual(
+            ["contracts_check", "generate_check", "governance"],
+            [gate["operation"] for gate in gates],
+        )
+        self.assertEqual(
+            ["python3", "tooling/public_contracts.py", "--check"],
+            gates[0]["command"],
+        )
+        self.assertEqual(
+            ["python3", "tooling/governance.py"],
+            gates[2]["command"],
+        )
+        self.assertTrue(
+            all(gate["aggregates"] == ["check", "certify"] for gate in gates)
+        )
+
     def test_integrity_hardgates_precede_aggregate_and_cannot_be_scoped_away(
         self,
     ) -> None:

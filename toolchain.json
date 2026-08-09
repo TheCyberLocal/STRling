@@ -38,6 +38,16 @@
         ],
         "integrity_hardgates": [
             {
+                "operation": "contracts_check",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--check"
+                ],
+                "aggregates": ["check", "certify"]
+            },
+            {
                 "operation": "generate_check",
                 "component": "repository",
                 "command": [
@@ -398,9 +408,11 @@
                     "governance/static-analysis.json",
                     "governance/generated-artifacts.json",
                     "governance/change-control.json",
+                    "governance/public-surfaces.json",
                     "governance/architecture-rules.json",
                     "governance/schemas/generated-artifact-registry.schema.json",
                     "governance/schemas/change-control.schema.json",
+                    "governance/schemas/public-surface-registry.schema.json",
                     "governance/schemas/architecture-rules.schema.json",
                     "governance/schemas/task-record.schema.json"
                 ]

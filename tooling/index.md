@@ -11,7 +11,7 @@ If you add or change tooling, please update this index so maintainers and CI con
 -   Audit & reporting: `audit_precision.py`, `audit_hints.py`, `audit_omega.py`, `audit_hint_parity.py`
 -   Release helpers: `sync_versions.py`, `check_version_exists.py`
 -   Fixture tooling: `js_to_json_ast/`
--   Governance hardgates: `generated_artifacts.py`, `governance.py`, `sync_fixture_projection.py`
+-   Governance hardgates: `public_contracts.py`, `contract_declarations.py`, `architecture_fitness.py`, `generated_artifacts.py`, `governance.py`, `sync_fixture_projection.py`
 -   LSP & editor tooling: `lsp-server/`
 -   Utilities: `parse_strl.py`, `generate_c_asts.sh`
 -   CLI: `strling`
@@ -49,6 +49,10 @@ If you add or change tooling, please update this index so maintainers and CI con
 
 -   `check_version_exists.py` — Release helper to detect whether a particular package version already exists on registries (npm, PyPI, crates.io, NuGet, RubyGems, Pub.Dev, LuaRocks). Use during release automation to avoid publishing duplicates.
 
+-   `contract_declarations.py` — Compares governed snapshots with the active task's Git base and requires compatible, additive, breaking, or intentional-correction declarations naming exact surface identifiers.
+
+-   `architecture_fitness.py` — Performs language-aware import, JSON Schema reference, generated-authority, transition, and new semantic-island checks for `governance.py`.
+
 -   `generate_c_asts.sh` — Helper script that builds/produces C AST artifacts from parser outputs. Used by C/C++ integration tasks and tests which rely on JSON AST artifacts.
 
 -   `generated_artifacts.py` — Validates the generated-artifact registry and either regenerates governed outputs or certifies exact committed reproduction without mutating the working tree. Exposed as `./strling generate [--check]`.
@@ -56,6 +60,8 @@ If you add or change tooling, please update this index so maintainers and CI con
 -   `governance.py` — Validates the active contained-task diff, change declarations, registered generated-output changes, and active architecture fitness rules. Exposed as `./strling governance`.
 
 -   `parse_strl.py` — Command-line parsing/validation tool for STRling DSL files. Can emit JSON ASTs or run emitters to produce a target regex. Handy for local parsing, debugging, and scripting.
+
+-   `public_contracts.py` — Extracts, writes, and checks deterministic public API, package-entrypoint, CLI, and stable-schema compatibility snapshots. Exposed as `./strling contracts [--check]`.
 
 -   `strling` — The root CLI utility. Handles setup, build, test, and clean lifecycles for all bindings.
 

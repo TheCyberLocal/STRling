@@ -196,3 +196,5 @@ commits:
       subject: "feat(governance): verify public API and contract snapshots"
     - sha: c66960e5b9248f095ea84402b1fadb63f4b183e2
       subject: "feat(governance): enforce public contract change declarations"
+    - sha: 409c2c30e250ca851b90a86f4faf7055545e0e52
+      subject: "feat(architecture): enforce dependency fitness rules"
