@@ -1,0 +1,496 @@
+{
+    "schema_version": "1.0.0",
+    "baseline_id": "governed-architecture-foundation",
+    "authority": "Engineering and compatibility evidence subordinate to normative specifications and ratified versioned contracts.",
+    "identity": {
+        "certified_commit": "77f6a81e6b0a63cc6052fdadb428c719b16c7c61",
+        "donor_commit": "d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc",
+        "main_commit": "664d08de53565929c8f62379b006cd29f93b239f",
+        "certified_branch": "architecture/v4",
+        "merge_bases": {
+            "certified_donor": "d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc",
+            "certified_main": "664d08de53565929c8f62379b006cd29f93b239f",
+            "donor_main": "664d08de53565929c8f62379b006cd29f93b239f"
+        }
+    },
+    "specifications": [
+        {
+            "id": "formal-specification",
+            "version": "unversioned-transitional",
+            "path": "spec/README.md",
+            "authority": "transitional"
+        },
+        {
+            "id": "target-artifact-base",
+            "version": "v1",
+            "path": "spec/schema/base.schema.json",
+            "authority": "versioned-contract"
+        },
+        {
+            "id": "conformance-fixture",
+            "version": "v1",
+            "path": "spec/schema/conformance-fixture.schema.json",
+            "authority": "versioned-contract"
+        },
+        {
+            "id": "pcre2-target",
+            "version": "v1",
+            "path": "spec/schema/pcre2.v1.schema.json",
+            "authority": "versioned-contract"
+        },
+        {
+            "id": "essential-stdlib-registry",
+            "version": "1.0.0",
+            "path": "spec/stdlib/registry.json",
+            "authority": "transitional"
+        },
+        {
+            "id": "strling-package-version",
+            "version": "3.0.0",
+            "path": "bindings/python/pyproject.toml",
+            "authority": "transitional"
+        }
+    ],
+    "fingerprint_algorithm": "sha256 of sorted UTF-8 records: repository path, NUL, lowercase SHA-256 of file bytes, LF; glob patterns expand against the selected source tree",
+    "fingerprints": [
+        {
+            "id": "c-public-api-snapshot",
+            "paths": ["governance/contracts/snapshots/c-public-api.json"],
+            "sha256": "95a8288966697cf8331b788f1fabccecc1fcca416e7122c973f16a282704f354",
+            "source": "certified-commit",
+            "role": "public-surface-snapshot",
+            "authority": "compatibility-evidence"
+        },
+        {
+            "id": "go-public-api-snapshot",
+            "paths": ["governance/contracts/snapshots/go-public-api.json"],
+            "sha256": "f7219bec4ae7152a3c87ce2170bc7610b70a68909f69de963de01c3a45e5f60a",
+            "source": "certified-commit",
+            "role": "public-surface-snapshot",
+            "authority": "compatibility-evidence"
+        },
+        {
+            "id": "python-public-api-snapshot",
+            "paths": ["governance/contracts/snapshots/python-public-api.json"],
+            "sha256": "e17ee6720ae093389e9500c5fe972495f3445ea09995523275fb4627400dd050",
+            "source": "certified-commit",
+            "role": "public-surface-snapshot",
+            "authority": "compatibility-evidence"
+        },
+        {
+            "id": "r-public-api-snapshot",
+            "paths": ["governance/contracts/snapshots/r-public-api.json"],
+            "sha256": "c49bbaea29df9b79c4d092e0aa1d7c611b1d21ce77e6bbe44a5e1e643ce20f92",
+            "source": "certified-commit",
+            "role": "public-surface-snapshot",
+            "authority": "compatibility-evidence"
+        },
+        {
+            "id": "root-cli-snapshot",
+            "paths": ["governance/contracts/snapshots/root-cli.json"],
+            "sha256": "999fc23067b1ef224ce475908537bef51d06060a841ff8ad9220757a99c91497",
+            "source": "certified-commit",
+            "role": "public-surface-snapshot",
+            "authority": "compatibility-evidence"
+        },
+        {
+            "id": "schema-conformance-fixture-snapshot",
+            "paths": [
+                "governance/contracts/snapshots/schema-conformance-fixture.json"
+            ],
+            "sha256": "a1d080b2137f6b4b9fda9bd9f96a208955915f138891b51eeae8dbea051c371c",
+            "source": "certified-commit",
+            "role": "public-surface-snapshot",
+            "authority": "compatibility-evidence"
+        },
+        {
+            "id": "schema-pcre2-target-snapshot",
+            "paths": [
+                "governance/contracts/snapshots/schema-pcre2-target.json"
+            ],
+            "sha256": "5c4d50aef04b2ec767321be40c8f53cdbfeca40e70d35c7531010b42dbd47e15",
+            "source": "certified-commit",
+            "role": "public-surface-snapshot",
+            "authority": "compatibility-evidence"
+        },
+        {
+            "id": "schema-target-artifact-snapshot",
+            "paths": [
+                "governance/contracts/snapshots/schema-target-artifact.json"
+            ],
+            "sha256": "8997e331732524bea97623e599732f0af3cc49f81c4b190e5efa1af0b043d2e1",
+            "source": "certified-commit",
+            "role": "public-surface-snapshot",
+            "authority": "compatibility-evidence"
+        },
+        {
+            "id": "typescript-entrypoints-snapshot",
+            "paths": [
+                "governance/contracts/snapshots/typescript-package-entrypoints.json"
+            ],
+            "sha256": "2726df2f7ccaf9ab9ee5fb1fba44e356564fc4d89f8be1e9c64d6af5b3027845",
+            "source": "certified-commit",
+            "role": "public-surface-snapshot",
+            "authority": "compatibility-evidence"
+        },
+        {
+            "id": "typescript-public-api-snapshot",
+            "paths": [
+                "governance/contracts/snapshots/typescript-public-api.json"
+            ],
+            "sha256": "fbfa175e3058b9a4aacc83dc7478a80d2dd7fce4611d26e28bef16cfc2ab05ad",
+            "source": "certified-commit",
+            "role": "public-surface-snapshot",
+            "authority": "compatibility-evidence"
+        },
+        {
+            "id": "version-synchronized-metadata",
+            "paths": [
+                "bindings/c/src/strling.c",
+                "bindings/cpp/CMakeLists.txt",
+                "bindings/cpp/conanfile.py",
+                "bindings/csharp/src/STRling/STRling.csproj",
+                "bindings/dart/pubspec.yaml",
+                "bindings/fsharp/src/STRling/STRling.fsproj",
+                "bindings/java/pom.xml",
+                "bindings/java/src/main/java/com/strling/Strling.java",
+                "bindings/kotlin/build.gradle.kts",
+                "bindings/perl/lib/STRling.pm",
+                "bindings/php/composer.json",
+                "bindings/php/src/STRling.php",
+                "bindings/r/DESCRIPTION",
+                "bindings/ruby/lib/strling.rb",
+                "bindings/ruby/strling.gemspec",
+                "bindings/rust/Cargo.toml",
+                "bindings/typescript/package.json"
+            ],
+            "sha256": "eaf38cd37057dd9989b8d139e2469dd07ea7c39bc2ab92904597733466cda965",
+            "source": "certified-commit",
+            "role": "generated-artifact",
+            "authority": "implementation-evidence"
+        },
+        {
+            "id": "swift-compatibility-fixtures",
+            "paths": [
+                "bindings/swift/Tests/STRlingConformanceTests/Resources/*.json"
+            ],
+            "sha256": "f8be4945416fd386e71fd587a32279b400e156050c8bdb449f4646d48822a7f9",
+            "source": "certified-commit",
+            "role": "generated-artifact",
+            "authority": "implementation-evidence"
+        },
+        {
+            "id": "formal-specification",
+            "paths": [
+                "spec/README.md",
+                "spec/features.json",
+                "spec/grammar/dsl.ebnf",
+                "spec/grammar/semantics.md"
+            ],
+            "sha256": "d0ee71d908f328cba54b3df245f08f18c1f93e0c33dab07630a711c20530a13f",
+            "source": "certified-commit",
+            "role": "specification",
+            "authority": "normative"
+        },
+        {
+            "id": "stdlib-definition",
+            "paths": [
+                "spec/stdlib/essential_5.json",
+                "spec/stdlib/registry.json"
+            ],
+            "sha256": "49c5904187c40986ee2fdae2246707d011d06e681827a2076a237a2639c118a7",
+            "source": "certified-commit",
+            "role": "specification",
+            "authority": "compatibility-evidence"
+        },
+        {
+            "id": "base-schema",
+            "paths": ["spec/schema/base.schema.json"],
+            "sha256": "b9e5a959024cd3dc40db7e90cea4bc1bc1991646de2f759ad458f26563bf24cb",
+            "source": "certified-commit",
+            "role": "schema",
+            "authority": "versioned-contract"
+        },
+        {
+            "id": "conformance-fixture-schema",
+            "paths": ["spec/schema/conformance-fixture.schema.json"],
+            "sha256": "5361dd85994b31592b4e8fe6a51ece421a35b7ccc80ce80ffd301c44bfa44833",
+            "source": "certified-commit",
+            "role": "schema",
+            "authority": "versioned-contract"
+        },
+        {
+            "id": "pcre2-v1-schema",
+            "paths": ["spec/schema/pcre2.v1.schema.json"],
+            "sha256": "3984ff5063e2563f1ea1f5e6ac7e675e928f5d9c5647c2420e395cfe9531e993",
+            "source": "certified-commit",
+            "role": "schema",
+            "authority": "versioned-contract"
+        },
+        {
+            "id": "architecture-rules-policy",
+            "paths": ["governance/architecture-rules.json"],
+            "sha256": "a4ac78b20f06efc4b4525370a65fe36295df71e2b03366d2031ec9dd6bfbda86",
+            "source": "certified-commit",
+            "role": "architecture-policy",
+            "authority": "engineering-policy"
+        },
+        {
+            "id": "architecture-authority-policy",
+            "paths": [
+                "governance/ENGINEERING_CONSTITUTION.md",
+                "governance/architecture.md",
+                "governance/authority.md"
+            ],
+            "sha256": "9c9f5dc8642dd7af7f130a34ffa08a12c78207223a5182bd8f5582423d17fc88",
+            "source": "certified-commit",
+            "role": "architecture-policy",
+            "authority": "engineering-policy"
+        },
+        {
+            "id": "toolchain-policy",
+            "paths": ["toolchain.json"],
+            "sha256": "dba4d68cd759fca3698c06ded5e2ee73fe5f33dea49e1c4072be989d7fd51389",
+            "source": "certified-commit",
+            "role": "toolchain-policy",
+            "authority": "engineering-policy"
+        },
+        {
+            "id": "quality-policy",
+            "paths": [
+                "governance/formatting.json",
+                "governance/repository-hygiene.json",
+                "governance/static-analysis.json",
+                "governance/waivers/WVR-PERL-PARSER-CASE-001.yaml"
+            ],
+            "sha256": "71dd10eed18bccc92db106655fc6276c936a9ed24444380301dfcd3bb3849da8",
+            "source": "certified-commit",
+            "role": "quality-policy",
+            "authority": "engineering-policy"
+        },
+        {
+            "id": "public-surface-registry",
+            "paths": ["governance/public-surfaces.json"],
+            "sha256": "03b82e5fad9d09cd72fe0795c714c5bd15d9b39f4b82f51d85a6bd13e2eabc3d",
+            "source": "certified-commit",
+            "role": "registry",
+            "authority": "engineering-policy"
+        },
+        {
+            "id": "generated-artifact-registry",
+            "paths": ["governance/generated-artifacts.json"],
+            "sha256": "1b021c68a8687da56cc59d64b1639b967c5c3c93251b6a7f859c07556301ccb4",
+            "source": "certified-commit",
+            "role": "registry",
+            "authority": "engineering-policy"
+        },
+        {
+            "id": "change-control-registry",
+            "paths": ["governance/change-control.json"],
+            "sha256": "f9764e1eaad4ce8d7164bf7edcf941f9d1d843ccf0dfbe4773e9c88823ba73e6",
+            "source": "certified-commit",
+            "role": "registry",
+            "authority": "engineering-policy"
+        },
+        {
+            "id": "certification-evidence",
+            "paths": ["docs/migration/baselines/certification.json"],
+            "sha256": "3a09b980f27cb6b1f46431111ed73f1e5d7c32bc6bcf4774e55e83937f331d20",
+            "source": "frozen-record",
+            "role": "certification-evidence",
+            "authority": "migration-record"
+        },
+        {
+            "id": "donor-inventory",
+            "paths": ["docs/migration/baselines/donor-inventory.json"],
+            "sha256": "49e81f92b6a1c9ed58129fe51e598e4638c014d670133847453504ad4557c424",
+            "source": "frozen-record",
+            "role": "donor-inventory",
+            "authority": "migration-record"
+        },
+        {
+            "id": "preservation-matrix",
+            "paths": [
+                "docs/migration/baselines/compatibility-preservation.json"
+            ],
+            "sha256": "dc5e7a5d9cbe3cfb43caf4450b0715762c40c63630bc263457597b5759fe9d75",
+            "source": "frozen-record",
+            "role": "preservation-matrix",
+            "authority": "migration-record"
+        }
+    ],
+    "active_waivers": [
+        {
+            "id": "WVR-PERL-PARSER-CASE-001",
+            "source": "governance/waivers/WVR-PERL-PARSER-CASE-001.yaml"
+        },
+        {
+            "id": "WVR-STATIC-PYTHON-001",
+            "source": "governance/static-analysis.json"
+        },
+        {
+            "id": "WVR-STATIC-TYPESCRIPT-PATTERN-001",
+            "source": "governance/static-analysis.json"
+        },
+        {
+            "id": "WVR-STATIC-TS-JEST-NODENEXT-001",
+            "source": "governance/static-analysis.json"
+        },
+        {
+            "id": "WVR-STATIC-SHELL-INTEROP-001",
+            "source": "governance/static-analysis.json"
+        }
+    ],
+    "active_transitions": [
+        {
+            "id": "cpp-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Pin a compiler-backed AST extraction command over the installed header set, define macro/standard flags, and pass overload, access-control, include-path, and normalization tests."
+        },
+        {
+            "id": "csharp-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Build to an isolated output directory with the pinned SDK, extract public metadata without loading product behavior, normalize compiler-generated members, and pass reproducibility tests."
+        },
+        {
+            "id": "dart-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Pin an analyzer API extractor that starts at lib/strling.dart, resolves show/hide/export chains, normalizes nullability and defaults, and reproduces in CI."
+        },
+        {
+            "id": "fsharp-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Select the shipped package assemblies, extract normalized public F# signatures for both projects with the pinned SDK, and prove repeatability without build-tree residue."
+        },
+        {
+            "id": "java-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Add a pinned Maven wrapper or direct pinned compiler path, build into temporary output, normalize javap output, and pass package/member compatibility tests."
+        },
+        {
+            "id": "kotlin-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Pin a Kotlin binary-compatibility or metadata extractor, isolate build output, normalize bridges/default methods, and certify source and binary compatibility cases."
+        },
+        {
+            "id": "lua-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Use a parser-backed Lua export walk over both installed modules, define treatment of metatables/dynamic keys, align the rockspec, and pass signature and module-path tests."
+        },
+        {
+            "id": "perl-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Define the supported export and method contract, add parser-backed export/prototype extraction plus declared arity metadata where prototypes are absent, and certify changes without loading compiler behavior."
+        },
+        {
+            "id": "php-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Implement token_get_all or another parser-backed, non-executing PSR-4 API extractor, normalize promoted/readonly properties and union types, and pass compatibility tests."
+        },
+        {
+            "id": "ruby-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Add a non-executing Ripper AST extractor for shipped files, normalize singleton/instance methods and keyword parameters, and pass visibility and metaprogramming-gap tests."
+        },
+        {
+            "id": "rust-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Pin an MSRV-compatible public API extractor or stabilized rustdoc metadata path, isolate target output, normalize blanket/derived items, and certify features and re-exports."
+        },
+        {
+            "id": "swift-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Pin symbolgraph extraction flags and Swift version, isolate build output, remove non-contract metadata, and pass overload, availability, Codable synthesis, and repeatability tests."
+        },
+        {
+            "id": "shared-semantic-fixtures",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Replace implementation-derived expectations with independently accepted specification-authored cases, define the complete output set, make missing generator components fatal, and prove clean exact reproduction."
+        },
+        {
+            "id": "c-compatibility-fixtures",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Trace every fixture to an accepted source case, restore or replace the exact deterministic producer, and certify the complete expected output set."
+        },
+        {
+            "id": "c-test-skeleton",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Reconcile the intended output path, validate the source fixture set, and prove byte-exact deterministic reproduction."
+        },
+        {
+            "id": "final-audit-report",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Separate deterministic certification data from presentation metadata, define stable inputs, and compare a normalized semantic report without hiding meaningful differences."
+        },
+        {
+            "id": "package-manager-lockfiles",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Split the family by package manager, pin each serializer, define offline inputs or trusted registry provenance, and prove exact reproduction without treating a lockfile as its own source."
+        },
+        {
+            "id": "lua-release-rockspec",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Assign one release generator, test template substitution and filename construction, and certify the packaged rockspec during release-artifact verification."
+        },
+        {
+            "id": "lsp-extension-payload",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Certify the extension package from pinned inputs in the release-artifact hardgate."
+        },
+        {
+            "id": "rust-conformance-build-source",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Retire the implementation-derived fixture authority and certify the build output from accepted conformance contracts."
+        },
+        {
+            "id": "duplicated-binding-compilers",
+            "category": "architecture-rule",
+            "source": "governance/architecture-rules.json",
+            "retirement_condition": "Activate binding-to-canonical-core dependency rules after each binding is migrated and its legacy semantic implementation is removed under contained verification."
+        },
+        {
+            "id": "implementation-derived-shared-fixtures",
+            "category": "architecture-rule",
+            "source": "governance/architecture-rules.json",
+            "retirement_condition": "Replace implementation-derived expected behavior with independently accepted specification-authored conformance contracts and deterministic projections."
+        },
+        {
+            "id": "lsp-python-binding-semantic-dependency",
+            "category": "architecture-rule",
+            "source": "governance/architecture-rules.json",
+            "retirement_condition": "After the canonical compiler interface exists, route editor semantics through that interface, remove direct STRling binding imports from tooling, and promote the rule to enforced."
+        }
+    ],
+    "certification": {
+        "path": "docs/migration/baselines/certification.json",
+        "sha256": "433798cac8341991b4b896adfb0ecc30940f4ab645d31776ebd11c1b20583bcb"
+    },
+    "donor_inventory": {
+        "path": "docs/migration/baselines/donor-inventory.json",
+        "sha256": "2c01b35bd74280cfe85085cd8b4476ef5e6a05a07b3d9c23d4bbf21d67db6bd4"
+    },
+    "preservation_matrix": {
+        "path": "docs/migration/baselines/compatibility-preservation.json",
+        "sha256": "a499b8e016d1425441ca415cddb0c7e26ee4db0ffca12e2ef8825a179cdd2ca3"
+    }
+}

@@ -23,14 +23,24 @@ scope:
         - package.json
         - package-lock.json
     expected_files:
+        - docs/migration/baselines/certification.json
+        - docs/migration/baselines/certification.md
+        - docs/migration/baselines/compatibility-preservation.json
+        - docs/migration/baselines/compatibility-preservation.md
+        - docs/migration/baselines/donor-inventory.json
+        - docs/migration/baselines/donor-inventory.md
         - docs/migration/records/certified-migration-baseline.yaml
         - governance/baseline-contract.md
+        - governance/baselines/migration-baseline.json
+        - governance/baselines/registry.json
         - governance/change-control.json
         - governance/schemas/certification-evidence.schema.json
         - governance/schemas/compatibility-preservation.schema.json
         - governance/schemas/donor-inventory.schema.json
         - governance/schemas/frozen-baseline-registry.schema.json
         - governance/schemas/migration-baseline.schema.json
+        - tooling/baseline.py
+        - tooling/tests/test_baseline.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -89,7 +99,7 @@ required_verification:
       expected_result: Frozen identities, manifest digest, fingerprints, evidence schemas, inventory totals, and preservation records validate without using mutable branch names.
     - name: Controlled baseline mutation
       command: python3 -m unittest tooling.tests.test_baseline
-      expected_result: Controlled manifest identity, fingerprint, evidence, inventory, matrix, registry digest, missing-path, and certified-tree mutations fail closed.
+      expected_result: Controlled manifest identity, fingerprint, evidence, transition, and registry-digest mutations fail closed even when a changed manifest is explicitly re-pinned.
     - name: Repository integrity
       command: git diff --check; git status --short
       expected_result: Patch integrity passes and final committed state is clean.
@@ -144,8 +154,24 @@ checkpoints:
             result: passed
             details: Diagnostics, hover, semantic tokens, navigation, code actions, VS Code integration, safety fixtures, stdlib work, parser/compiler/emitter expansions, duplication, and temporary artifacts are each represented without treating filenames or binding count as independent capabilities.
     - name: Frozen baseline and preservation matrix
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Frozen manifest and evidence registry
+            command: python3 tooling/baseline.py --check; python3 tooling/baseline.py --check --json
+            result: passed
+            details: The registry pins the manifest bytes; the manifest resolves certified SHA 77f6a81e6b0a63cc6052fdadb428c719b16c7c61, donor SHA d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc, main SHA 664d08de53565929c8f62379b006cd29f93b239f, 27 material fingerprints, 23 transitions, 5 waivers, 29 donor capabilities, and 21 preservation entries.
+          - check: Controlled frozen-record validation
+            command: python3 -m unittest tooling.tests.test_baseline -v
+            result: passed
+            details: Seven tests prove deterministic path-set hashing and reject unpinned or explicitly re-pinned identity, fingerprint, transition, and evidence mutations.
+          - check: Checkpoint quality and aggregate baseline
+            command: Complete 150-test tooling suite; Ruff checks; format --check all; hygiene; governance; BUNDLER_VERSION=2.4.20 ./strling check all --json; git diff --check
+            result: passed
+            details: All focused tests and enforced hardgates passed; the aggregate retained 49 passing enforced results and 39 explicitly governed incomplete capabilities without failures or unavailable results.
+          - check: Authority and portability review
+            command: Manifest schema validation and repository-path review
+            result: passed
+            details: No working-directory path or mutable ref is required to reconstruct identity; the formal specification is explicitly recorded as unversioned-transitional, and all migration evidence remains subordinate to normative specifications and ratified contracts.
     - name: Baseline protection and final certification
       status: planned
       evidence: []
@@ -161,3 +187,5 @@ commits:
       subject: "fix(governance): select locked Bundler for certification"
     - sha: 4abc8ec71b4466a13be19fb0b6435c7a6a6b6b13
       subject: "docs(certification): record governed architecture baseline"
+    - sha: 78e494198a37711aa639d7643ac79531c3e0dccf
+      subject: "docs(architecture): classify legacy implementation donor assets"

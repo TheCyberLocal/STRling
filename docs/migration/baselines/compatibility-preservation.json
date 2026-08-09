@@ -1,0 +1,197 @@
+{
+    "schema_version": "1.0.0",
+    "baseline_id": "governed-architecture-foundation",
+    "authority": "Migration obligations only; normative specifications and ratified versioned contracts remain higher authority.",
+    "must_preserve": [
+        {
+            "id": "registered-public-surfaces",
+            "obligation": "Governed public API, package entrypoint, CLI, and structured-contract shapes require explicit compatible, breaking, or intentional-correction review.",
+            "evidence": [
+                "governance/public-surfaces.json",
+                "governance/contracts/snapshots"
+            ],
+            "future_handling": "Keep thin adapter compatibility where possible; use versioned contract decisions for incompatible change."
+        },
+        {
+            "id": "accepted-semantic-evidence",
+            "obligation": "Validated current semantic outcomes must remain differential evidence until a higher-authority specification decision explicitly revises them.",
+            "evidence": [
+                "tests/spec",
+                "docs/migration/baselines/certification.json"
+            ],
+            "future_handling": "Classify cases by authority and preserve accepted behavior during canonical-core migration unless specification review authorizes change."
+        },
+        {
+            "id": "structured-conformance-contracts",
+            "obligation": "The conformance fixture and target-artifact schemas are versioned public data boundaries.",
+            "evidence": [
+                "spec/schema/base.schema.json",
+                "spec/schema/conformance-fixture.schema.json",
+                "spec/schema/pcre2.v1.schema.json"
+            ],
+            "future_handling": "Version incompatible changes and remove implementation-oracle wording without silently changing field meaning."
+        },
+        {
+            "id": "diagnostic-result-capability",
+            "obligation": "Machine-readable diagnostics, warnings, compilation results, source ranges, and instructional guidance are selected product capabilities.",
+            "evidence": [
+                "docs/migration/baselines/donor-inventory.json#structured-diagnostic-result-contracts",
+                "docs/migration/baselines/donor-inventory.json#lsp-diagnostics"
+            ],
+            "future_handling": "Define canonical diagnostic contracts, then preserve accepted adapter/public shapes through explicit mapping."
+        },
+        {
+            "id": "editor-intelligence-capabilities",
+            "obligation": "Island extraction, diagnostics, hover/completion, semantic tokens, navigation/formatting, code actions, and VS Code integration are selected user-facing capabilities.",
+            "evidence": [
+                "docs/migration/baselines/donor-inventory.json#embedded-language-island-extraction",
+                "docs/migration/baselines/donor-inventory.json#lsp-diagnostics",
+                "docs/migration/baselines/donor-inventory.json#lsp-hover-completion",
+                "docs/migration/baselines/donor-inventory.json#lsp-semantic-tokens",
+                "docs/migration/baselines/donor-inventory.json#lsp-navigation-formatting",
+                "docs/migration/baselines/donor-inventory.json#lsp-code-actions",
+                "docs/migration/baselines/donor-inventory.json#vscode-language-client"
+            ],
+            "future_handling": "Preserve user outcomes while replacing semantic dependencies with the canonical compiler/tooling interface."
+        },
+        {
+            "id": "standard-library-capability",
+            "obligation": "The Essential helper product capability and its structured source data must receive an explicit product/specification decision.",
+            "evidence": [
+                "spec/stdlib/essential_5.json",
+                "spec/stdlib/registry.json"
+            ],
+            "future_handling": "Ratify scope and semantics before canonical design; preserve accepted public helpers unless a versioned decision revises them."
+        },
+        {
+            "id": "target-safety-obligations",
+            "obligation": "Target capability failures, AST-depth safety, variable-length lookbehind handling, and ReDoS analysis require deliberate canonical outcomes.",
+            "evidence": [
+                "tests/conformance/inputs/emitter_edges/pathological.json",
+                "docs/audits/pcre2_emitter_edges_audit.md"
+            ],
+            "future_handling": "Move decisions into analysis and target planning, then certify diagnostics and safe rewrites independently of emitters."
+        }
+    ],
+    "evidence_only": [
+        {
+            "id": "implementation-derived-fixtures",
+            "obligation": "Retain the shared fixture corpus for historical and differential comparison without semantic-authority status.",
+            "evidence": ["tests/spec", "governance/generated-artifacts.json"],
+            "future_handling": "Freeze historical bytes and replace normative expectations with specification-authored cases."
+        },
+        {
+            "id": "duplicated-binding-regressions",
+            "obligation": "Retain per-binding parser, emitter-edge, Essential, and conformance tests as migration evidence.",
+            "evidence": ["bindings/*/**/*test*", "bindings/*/**/*spec*"],
+            "future_handling": "Use for differential review, then reduce duplication after canonical and adapter coverage exists."
+        },
+        {
+            "id": "legacy-emitter-outputs",
+            "obligation": "Retain historical generated patterns, warnings, and error strings only where useful for regression diagnosis.",
+            "evidence": [
+                "docs/migration/baselines/donor-inventory.json#per-binding-emitter-edge-tests",
+                "docs/migration/baselines/donor-inventory.json#diagnostic-parser-regressions"
+            ],
+            "future_handling": "Do not elevate legacy output to normative target behavior; classify conflicts explicitly."
+        },
+        {
+            "id": "historical-audits",
+            "obligation": "Retain donor audit reports as implementation-era gap evidence.",
+            "evidence": [
+                "docs/audits/pcre2_emitter_edges_audit.md",
+                "docs/audits/pcre2_emitter_edges_child_issues.md"
+            ],
+            "future_handling": "Revalidate findings against ratified product and target-profile contracts."
+        }
+    ],
+    "intentionally_replace": [
+        {
+            "id": "typescript-semantic-oracle",
+            "obligation": "TypeScript implementation behavior must not remain the source of semantic truth.",
+            "evidence": [
+                "governance/authority.md",
+                "docs/migration/baselines/donor-inventory.json#typescript-oracle-parity-tooling"
+            ],
+            "future_handling": "Replace with normative/versioned contracts and independent conformance evidence."
+        },
+        {
+            "id": "implementation-authored-expectations",
+            "obligation": "Generators must not derive normative expected semantics from the implementation under test.",
+            "evidence": [
+                "governance/generated-artifacts.json#shared-semantic-fixtures",
+                "governance/architecture-rules.json#implementation-derived-shared-fixtures"
+            ],
+            "future_handling": "Create specification-authored cases and deterministic projections."
+        },
+        {
+            "id": "per-binding-semantic-compilers",
+            "obligation": "Independent binding parsers, compilers, validators, planners, emitters, hints, and diagnostic producers are transitional.",
+            "evidence": [
+                "governance/architecture-rules.json#duplicated-binding-compilers",
+                "docs/migration/baselines/donor-inventory.json#duplicated-binding-compilers"
+            ],
+            "future_handling": "Replace with one canonical semantic core and thin idiomatic adapters after differential certification."
+        },
+        {
+            "id": "emitter-owned-target-planning",
+            "obligation": "Emitters must not continue inventing capability, safety, or portability outcomes during serialization.",
+            "evidence": [
+                "governance/architecture.md",
+                "docs/migration/baselines/donor-inventory.json#emitter-safety-planning"
+            ],
+            "future_handling": "Move decisions into explicit canonical target planning before emission."
+        },
+        {
+            "id": "lsp-python-binding-dependency",
+            "obligation": "Editor semantics must not remain coupled directly to the Python binding.",
+            "evidence": [
+                "governance/architecture-rules.json#lsp-python-binding-semantic-dependency"
+            ],
+            "future_handling": "Route semantic requests through the stable canonical compiler/tooling interface."
+        },
+        {
+            "id": "legacy-certification-packaging",
+            "obligation": "Stdout-oriented audit assumptions, mutable local-install scripts, vendored transport snapshots, and checked-in package payloads are not the target pipeline.",
+            "evidence": [
+                "docs/migration/baselines/donor-inventory.json#legacy-audit-certification",
+                "docs/migration/baselines/donor-inventory.json#extension-assembly-installation",
+                "docs/migration/baselines/donor-inventory.json#vendored-lsp-transport"
+            ],
+            "future_handling": "Use deterministic structured evidence, pinned provenance, reproducible packages, and installation smoke tests."
+        }
+    ],
+    "known_defect_non_contractual": [
+        {
+            "id": "typescript-callable-pattern-contract",
+            "obligation": "Suppressed callable-Pattern type errors are a suspected product-contract defect, not accepted compatibility.",
+            "evidence": [
+                "governance/static-analysis.json#WVR-STATIC-TYPESCRIPT-PATTERN-001"
+            ],
+            "future_handling": "Resolve through separately authorized product/API contract work."
+        },
+        {
+            "id": "typescript-package-entrypoint-paths",
+            "obligation": "Advertised core, PCRE2 emitter, and Simply paths do not match current declaration build paths.",
+            "evidence": [
+                "governance/public-surfaces.json#typescript-package-entrypoints.known_gaps"
+            ],
+            "future_handling": "Correct through separately authorized public API/package work; do not preserve the inconsistency."
+        },
+        {
+            "id": "perl-parser-case-collision",
+            "obligation": "Duplicate Perl parser module paths differing only by case are a portability defect under waiver.",
+            "evidence": ["governance/waivers/WVR-PERL-PARSER-CASE-001.yaml"],
+            "future_handling": "Resolve after compatibility proof on case-sensitive and case-insensitive filesystems."
+        },
+        {
+            "id": "emitter-safety-inconsistency",
+            "obligation": "Current safety guards and warnings are incomplete or inconsistent across bindings.",
+            "evidence": [
+                "docs/audits/pcre2_emitter_edges_audit.md",
+                "docs/migration/baselines/donor-inventory.json#emitter-safety-planning"
+            ],
+            "future_handling": "Specify canonical target/safety outcomes and do not freeze current gaps as required behavior."
+        }
+    ]
+}

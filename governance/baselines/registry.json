@@ -1,0 +1,11 @@
+{
+    "schema_version": "1.0.0",
+    "baselines": [
+        {
+            "id": "governed-architecture-foundation",
+            "manifest": "governance/baselines/migration-baseline.json",
+            "sha256": "990d3d8827d8cbfd03d7a2cd03076a2e5b68c883974880caddbaf552dc1f5f3a",
+            "status": "frozen"
+        }
+    ]
+}
