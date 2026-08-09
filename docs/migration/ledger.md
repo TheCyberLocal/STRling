@@ -227,3 +227,91 @@ architecture migration have not begun.
 
 The repository is ready for strict linting, warning discipline, and expanded
 static-analysis enforcement with the recorded carry-forward above.
+
+## Strict linting, warning discipline, and static-analysis hardgates
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `bb334b0980327b8f3599cd6da0562022c365641a`
+-   Behavior change: Developer and CI quality enforcement only; no STRling
+    language/compiler semantics intentionally changed
+-   Completion record:
+    [`static-analysis-warning-hardgates.yaml`](records/static-analysis-warning-hardgates.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                                 | Result | Commit                                     | Verification                                                                                                                        |
+| ------------------------------------------ | ------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Static-quality contract and baseline       | Passed | `a2bd48f8ead42bd7d9dfe154e0074d7f3fda6f08` | All 19 ecosystems received explicit dispositions; 92 directives and reproducible analyzer findings were inventoried                 |
+| Canonical lint and static-analysis routing | Passed | `8602659a75d5a371e4b3ba14610cadf690b8b95a` | Scoped human/JSON commands, analyzer process failures, unavailable tools, transitions, and aggregate propagation were verified      |
+| Warning and suppression governance         | Passed | `5058bbdd20816d8827451f73978fc2e29a62044e` | Fatal mature warning paths and exact suppression governance passed controlled warning, unmanaged, invalid, and expired-waiver cases |
+| Behavior-neutral remediation               | Passed | `43ca9b52a80e921d73408ce38770e053d99c107d` | Required Python, Dart, Kotlin, Ruby, Rust, and CMake findings were removed without changing recorded binding behavior               |
+| Hardgate integration and certification     | Passed | `b19d18106202fb09400eb1bfdb279cedf45943bc` | Twelve lint and ten type/static operations, 87 managed directives/four waivers, structured output, CI routing, and 963 tests passed |
+| Completion and next-task readiness         | Passed | Recorded by the readiness commit           | Completion, preservation, deferral, exact certification, and next-task readiness are recorded                                       |
+
+### Enforced static-quality state
+
+| Ecosystem  | Lint                                      | Type/static                          | Warning policy                                      |
+| ---------- | ----------------------------------------- | ------------------------------------ | --------------------------------------------------- |
+| Repository | Ruff plus suppression governance enforced | Python checker transitional          | Not applicable                                      |
+| LSP        | Ruff enforced                             | Strict TypeScript enforced           | Not applicable                                      |
+| C          | GCC strict-warning baseline transitional  | Not applicable                       | Transitional on four semantic-risk findings         |
+| C++        | Compiler/static strategy transitional     | Not applicable                       | Configured; compiler authority/transitive debt open |
+| C#         | .NET analyzers enforced                   | Compiler analysis enforced           | Warnings are errors                                 |
+| Dart       | `dart analyze` enforced                   | `dart analyze` enforced              | Fatal                                               |
+| F#         | Compiler analysis enforced                | Compiler analysis enforced           | Warnings are errors                                 |
+| Go         | `go vet` enforced                         | `go build` enforced                  | Not applicable                                      |
+| Java       | `javac -Xlint:all` through Maven enforced | Compiler analysis enforced           | Warnings are errors                                 |
+| Kotlin     | Compiler analysis enforced                | Compiler analysis enforced           | All warnings are errors                             |
+| Lua        | luacheck transitional                     | Not applicable                       | Not applicable                                      |
+| Perl       | Native compile lint enforced              | Not applicable                       | Native warnings are fatal                           |
+| PHP        | Recursive syntax lint enforced            | PHPStan transitional                 | Not applicable                                      |
+| Python     | Ruff enforced                             | Python checker transitional          | Pytest warnings-as-errors configured                |
+| R          | R CMD check/lintr transitional            | Not applicable                       | Transitional with package metadata/runtime          |
+| Ruby       | Native warning lint enforced              | Not applicable                       | Native warnings are fatal                           |
+| Rust       | Clippy transitional                       | `cargo check --all-targets` enforced | `RUSTFLAGS=-Dwarnings`                              |
+| Swift      | SwiftLint transitional                    | Strict compiler build enforced       | `-warnings-as-errors`                               |
+| TypeScript | ESLint transitional                       | Strict TypeScript 5.9.3 enforced     | Test-tool diagnostic has one exact governed waiver  |
+
+### Hardgate and suppression state
+
+-   `./strling check` blocks Ruff for repository, LSP, and Python; .NET C#/F#
+    analysis; Dart analysis; Go vet/build; Java and Kotlin compiler analysis;
+    Perl/Ruby fatal native warnings; PHP syntax; strict LSP/TypeScript checking;
+    Rust warning-denied checking; Swift warning-denied compilation; and the
+    repository suppression audit.
+-   PR CI provisions the governed environments and invokes the canonical root
+    aggregate; language jobs use scoped root lint/typecheck commands rather than
+    embedded analyzer logic.
+-   Six obsolete Rust `allow` attributes were removed. Eighty-seven remaining
+    directives match four exact waivers with zero findings: 76 bounded Python
+    directives, three suspected-product TypeScript directives, one exact
+    ts-jest diagnostic-code waiver, and seven permanent shell interoperability
+    directives.
+
+### Preserved behavior
+
+Grammar, parser, compiler, emitter, AST, IR, public API, target, package-version,
+and dependency-version behavior was not intentionally changed. Canonical Rust
+compiler work, target engines, host-binding migration, Simply redesign, and LSP
+intelligence migration have not begun.
+
+### Carry-forward
+
+-   Four C `-Wformat-truncation` findings, three TypeScript callable-Pattern
+    findings, and the Ruby interaction baseline are suspected product defects;
+    they require contained semantic work and are not quality-baseline debt.
+-   C/C++ analyzer authority, Lua, R, PHP/Python/repository type analysis,
+    RuboCop, Clippy, SwiftLint, and ESLint remain bounded transitions with exact
+    retirement conditions in `governance/static-analysis.json`.
+-   The ts-jest 151002 exact-code waiver expires 2027-02-01. Enabling its
+    recommended `isolatedModules` setting prevented all 19 suites from executing;
+    strict `tsc` and all 963 tests remain green.
+-   Generated-artifact integrity, contract governance, machine-enforced
+    change/task scope, architecture fitness tests, public API snapshots, and
+    supply-chain/release certification remain separate hardgates.
+
+The repository is ready for generated-artifact integrity, contract governance,
+and machine-enforced change/scope and architecture controls with the recorded
+carry-forward above.

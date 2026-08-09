@@ -1,6 +1,6 @@
 schema_version: 1
 title: Static analysis, warning discipline, and suppression hardgates
-status: in_progress
+status: completed
 objective: Establish deterministic defect-focused lint, type/static analysis, fatal warning policy, and governed suppressions without changing STRling semantics or public contracts.
 starting_sha: bb334b0980327b8f3599cd6da0562022c365641a
 branch: architecture/v4
@@ -123,6 +123,80 @@ checkpoints:
           - WVR-STATIC-SHELL-INTEROP-001 is a narrow permanent interoperability exception
       commit:
           subject: "ci(quality): enforce static analysis hardgates"
-          sha: pending
+          sha: b19d18106202fb09400eb1bfdb279cedf45943bc
+    - name: Completion and next-task readiness
+      status: passed
+      accomplishment:
+          - Certified the authoritative lint, type/static-analysis, warning, and suppression policies from the committed hardgate state.
+          - Separated bounded quality-tool transitions from three findings whose correction could change observable product behavior.
+          - Recorded complete checkpoint history, behavior preservation, remaining waivers, and next-task carry-forward.
+      verification:
+          - command: BUNDLER_VERSION=2.4.20 ./strling lint; BUNDLER_VERSION=2.4.20 ./strling typecheck; BUNDLER_VERSION=2.4.20 ./strling check
+            result: Every enforced static-quality operation and the aggregate hardgate passed from the committed implementation state.
+          - command: ./strling format --check; ./strling hygiene; BUNDLER_VERSION=2.4.20 ./strling check --json
+            result: Formatting and hygiene passed, and the structured aggregate returned status passed with exit_code 0.
+          - command: python3 -m unittest tooling.tests.test_static_analysis tooling.tests.test_quality; python3 -m pytest tooling/tests/test_sync_versions.py -q
+            result: 44 focused orchestration/suppression tests and six version-sync tests passed.
+          - command: git diff --check; git status --short
+            result: Patch integrity passed and the implementation commit left a clean working tree before completion records were written.
+      commit:
+          subject: "docs(quality): record static analysis hardgate readiness"
+          sha: recorded_by_readiness_commit
 behavior_changed: No STRling language/compiler semantics intentionally changed.
-readiness: pending
+commits:
+    - subject: "docs(quality): define static analysis and warning policy"
+      sha: a2bd48f8ead42bd7d9dfe154e0074d7f3fda6f08
+    - subject: "feat(quality): integrate canonical static analysis"
+      sha: 8602659a75d5a371e4b3ba14610cadf690b8b95a
+    - subject: "feat(quality): govern warnings and analyzer suppressions"
+      sha: 5058bbdd20816d8827451f73978fc2e29a62044e
+    - subject: "refactor(types): remove behavior-neutral static analysis violations"
+      sha: 43ca9b52a80e921d73408ce38770e053d99c107d
+    - subject: "ci(quality): enforce static analysis hardgates"
+      sha: b19d18106202fb09400eb1bfdb279cedf45943bc
+completion:
+    accomplished:
+        - Every active ecosystem has an authoritative lint, type/static-analysis, compiler-warning, suppression, and test disposition with an analyzer authority or bounded retirement condition.
+        - Canonical root lint and typecheck commands execute component-scoped analyzers, preserve diagnostics and process exits, and provide matching human and structured results.
+        - Twelve lint operations and ten type/static-analysis operations are enforced through check and certify; policy validation prevents enforced capabilities from being omitted.
+        - Mature C#, Dart, F#, Java, Kotlin, Perl, Ruby, Rust, and Swift warning paths fail on warnings, with Go vet, Ruff, PHP syntax, and strict TypeScript checks adding defect-focused coverage.
+        - Suppression governance recognizes exactly 87 directives through four narrow waivers and rejects unmanaged, moved, count-drifted, invalid, or expired directives.
+        - PR CI provisions governed analyzer environments and invokes canonical root or scoped commands without duplicating analyzer implementations.
+    verified:
+        - Canonical format check, hygiene, lint, typecheck, check, and their relevant structured modes pass.
+        - The aggregate passes all 12 enforced lint and ten enforced type/static operations plus 19 TypeScript suites and 963 tests.
+        - All 44 focused orchestration/suppression tests and six version-sync tests pass, including controlled lint, type, warning, process, aggregate, unmanaged, and expired-waiver failures.
+        - Affected Python, Dart, Kotlin, Ruby, and Rust tests pass; strict C++ warning-as-error compilation passes with only the recorded transitive dependency disposition.
+        - Governance JSON, migration YAML, and CI YAML parse; git diff --check passes.
+    behavior_changed: No STRling language/compiler semantics intentionally changed.
+    intentional_behavior_changes:
+        - Developer and CI quality commands now fail when an enforced analyzer, compiler warning, process, or suppression-governance rule fails.
+        - ts-jest diagnostic 151002 is silenced only by one governed exact-code test-tool waiver because enabling its recommended isolatedModules setting prevented all 19 suites from executing.
+    preserved_behavior:
+        - Grammar and specification meaning are unchanged.
+        - Parser, compiler, and emitter semantics are unchanged.
+        - AST and IR meaning are unchanged.
+        - Target behavior and public APIs are unchanged.
+        - Package and dependency versions are unchanged.
+        - Canonical Rust compiler work, target-engine work, binding migration, Simply redesign, and LSP intelligence migration have not begun.
+    suppression_state:
+        removed: Six obsolete Rust allow attributes were removed during behavior-neutral remediation.
+        governed_exceptions:
+            - WVR-STATIC-SHELL-INTEROP-001 permanently governs four intentional C setup expansions and three upstream Gradle-wrapper directives.
+        bounded_waivers:
+            - WVR-STATIC-PYTHON-001 expires 2027-02-01 and governs 76 pre-existing import/re-export/type directives until Python type analysis is introduced.
+            - WVR-STATIC-TYPESCRIPT-PATTERN-001 expires 2027-01-15 and governs three suspected-product-contract directives.
+            - WVR-STATIC-TS-JEST-NODENEXT-001 expires 2027-02-01 and governs exactly diagnostic code 151002 in the Jest transform.
+        deferred_suspected_defects:
+            - Four C format-truncation findings require contained review of observable diagnostic behavior.
+            - Three TypeScript callable-Pattern findings require contained public-contract work.
+            - The Ruby interaction baseline has four failures and eight errors in both committed and remediated forms and requires contained product work.
+    deferred_work:
+        - C and C++ analyzer/warning strictness remains bounded by semantic truncation findings and compiler/analyzer authority; the C++ transitive nlohmann/json warning remains explicitly non-project-owned.
+        - Lua luacheck, R CMD check/lintr, Rust Clippy, SwiftLint, TypeScript ESLint, PHPStan, and Python/repository type checking remain transitional with exact retirement conditions in governance/static-analysis.json.
+        - Deferred formatter ecosystems retain their existing path-specific transition records.
+        - Generated-artifact integrity, contract governance, machine-enforced change/task scope, architecture fitness tests, public API snapshots, and supply-chain/release certification remain separate hardgates.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Establish generated-artifact integrity, contract governance, and machine-enforced change/scope and architecture controls.
+    rationale: Every proven static-quality capability is now blocking locally and in CI; remaining analyzer gaps, waivers, and suspected product defects are narrow, explicit, and have retirement conditions or contained-product dispositions.
