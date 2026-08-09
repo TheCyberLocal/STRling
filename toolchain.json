@@ -21,6 +21,14 @@
             "not_yet_configured",
             "unavailable"
         ],
+        "environment_statuses": [
+            "compatible",
+            "incompatible",
+            "transitional",
+            "deferred",
+            "unknown",
+            "unavailable"
+        ],
         "aggregates": {
             "check": {
                 "operations": ["format_check", "lint", "typecheck", "test"],
@@ -130,7 +138,7 @@
         "Rscript": {
             "resolution": {"model": "deferred", "reason": "The R package and CI do not declare an R runtime version."},
             "version_command": ["Rscript", "--version"],
-            "version_pattern": "R scripting front-end version ([0-9]+(?:\\.[0-9]+){1,2})"
+            "version_pattern": "Rscript \\(R\\) version ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "R": {
             "resolution": {"model": "deferred", "reason": "The R package and CI do not declare an R runtime version."},
@@ -143,7 +151,11 @@
             "version_pattern": "ruby ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "bundle": {
-            "resolution": {"model": "repository_managed", "file": "bindings/ruby/Gemfile.lock"},
+            "resolution": {
+                "model": "repository_managed",
+                "file": "bindings/ruby/Gemfile.lock",
+                "file_pattern": "BUNDLED WITH\\s+([0-9]+(?:\\.[0-9]+){1,2})"
+            },
             "version_command": ["bundle", "--version"],
             "version_pattern": "Bundler version ([0-9]+(?:\\.[0-9]+){1,2})"
         },
@@ -168,7 +180,12 @@
             "version_pattern": "Swift version ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "node": {
-            "resolution": {"model": "constrained", "version": ">=22,<23"},
+            "resolution": {
+                "model": "constrained",
+                "version": ">=22,<23",
+                "transitional_version": ">=18,<19",
+                "reason": "The established local baseline still uses Node 18 while CI and dependency installation are converging on Node 22; remove this transition after developer environments are upgraded."
+            },
             "version_command": ["node", "--version"],
             "version_pattern": "v([0-9]+(?:\\.[0-9]+){1,2})"
         },
@@ -324,7 +341,7 @@
             "command_aliases": {"typecheck": "build"},
             "required_bins": ["dotnet"],
             "install": {
-                "winget": ["Microsoft.DotNet.SDK.8"],
+                "winget": ["Microsoft.DotNet.SDK.9"],
                 "choco": ["dotnet-sdk"],
                 "brew": ["dotnet-sdk"]
             },
@@ -390,7 +407,7 @@
             "command_aliases": {"typecheck": "build"},
             "required_bins": ["dotnet"],
             "install": {
-                "winget": ["Microsoft.DotNet.SDK.8"],
+                "winget": ["Microsoft.DotNet.SDK.9"],
                 "choco": ["dotnet-sdk"],
                 "brew": ["dotnet-sdk"]
             },

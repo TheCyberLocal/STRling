@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import json
+import re
 import shlex
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -21,6 +23,7 @@ QUALITY_OPERATIONS = (
     "test",
 )
 AGGREGATE_OPERATIONS = ("check", "certify")
+ENVIRONMENT_OPERATION = "environment"
 CAPABILITY_STATUSES = (
     "configured",
     "not_applicable",
@@ -47,6 +50,28 @@ class Execution:
 
 
 @dataclass
+class ToolResult:
+    tool: str
+    status: str
+    expected: str | None
+    actual: str | None
+    command: list[str] | None
+    exit_code: int | None
+    reason: str | None
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "tool": self.tool,
+            "status": self.status,
+            "expected": self.expected,
+            "actual": self.actual,
+            "command": self.command,
+            "exit_code": self.exit_code,
+            "reason": self.reason,
+        }
+
+
+@dataclass
 class OperationResult:
     operation: str
     component: str
@@ -54,6 +79,7 @@ class OperationResult:
     command: list[str] | None
     exit_code: int | None
     reason: str | None
+    environment: list[ToolResult] = field(default_factory=list)
     stdout: str = field(default="", repr=False)
     stderr: str = field(default="", repr=False)
 
@@ -65,6 +91,7 @@ class OperationResult:
             "command": self.command,
             "exit_code": self.exit_code,
             "reason": self.reason,
+            "environment": [result.as_dict() for result in self.environment],
         }
 
 
@@ -185,6 +212,65 @@ class Toolchain:
             raise ConfigurationError("policy.aggregates must be an object")
         tools = self.data["tools"]
         assert isinstance(tools, dict)
+        declared_models = policy.get("resolution_models")
+        if not isinstance(declared_models, list):
+            raise ConfigurationError("policy.resolution_models must be a list")
+        for name, raw_tool in tools.items():
+            if not isinstance(raw_tool, dict):
+                raise ConfigurationError(f"tool {name} must be an object")
+            resolution = raw_tool.get("resolution")
+            command = raw_tool.get("version_command")
+            pattern = raw_tool.get("version_pattern")
+            if not isinstance(resolution, dict):
+                raise ConfigurationError(f"tool {name} must declare resolution")
+            model = resolution.get("model")
+            if model not in declared_models:
+                raise ConfigurationError(f"tool {name} has unknown resolution model '{model}'")
+            if not isinstance(command, list) or not command or not all(
+                isinstance(item, str) and item for item in command
+            ):
+                raise ConfigurationError(f"tool {name} must declare version_command")
+            if not isinstance(pattern, str):
+                raise ConfigurationError(f"tool {name} must declare version_pattern")
+            try:
+                re.compile(pattern)
+            except re.error as exc:
+                raise ConfigurationError(f"tool {name} has invalid version_pattern: {exc}") from exc
+            if model in ("exact", "constrained"):
+                version = resolution.get("version")
+                if not isinstance(version, str):
+                    raise ConfigurationError(f"tool {name} must declare a version constraint")
+                if model == "exact" and not re.fullmatch(
+                    r"[0-9]+(?:\.[0-9]+){0,3}", version
+                ):
+                    raise ConfigurationError(
+                        f"exact tool {name} must declare one numeric version"
+                    )
+                version_satisfies("0", version)
+                transitional = resolution.get("transitional_version")
+                if transitional is not None:
+                    if not isinstance(transitional, str) or not isinstance(
+                        resolution.get("reason"), str
+                    ):
+                        raise ConfigurationError(
+                            f"tool {name} transitional version requires a constraint and reason"
+                        )
+                    version_satisfies("0", transitional)
+            elif model == "repository_managed":
+                if not isinstance(resolution.get("file"), str):
+                    raise ConfigurationError(
+                        f"repository-managed tool {name} must declare its authority file"
+                    )
+            elif not isinstance(resolution.get("reason"), str):
+                raise ConfigurationError(f"deferred tool {name} must declare a reason")
+        orchestration = self.data["orchestration"]
+        assert isinstance(orchestration, dict)
+        for field_name in ("shell", "runtime"):
+            tool_name = orchestration.get(field_name)
+            if tool_name not in tools:
+                raise ConfigurationError(
+                    f"orchestration.{field_name} references unknown tool '{tool_name}'"
+                )
         target_names: set[str] = set()
         for section_name in ("components", "bindings"):
             section = self.data[section_name]
@@ -240,15 +326,246 @@ class Toolchain:
                 raise ConfigurationError(f"{name} contains an unknown default target")
 
 
+def _version_tuple(version: str) -> tuple[int, ...]:
+    parts = version.split(".")
+    if not parts or any(not part.isdigit() for part in parts):
+        raise ConfigurationError(f"invalid numeric version '{version}'")
+    values = tuple(int(part) for part in parts)
+    return values + (0,) * (4 - len(values))
+
+
+def version_satisfies(actual: str, constraint: str) -> bool:
+    """Evaluate comma-separated comparisons with optional || alternatives."""
+
+    actual_version = _version_tuple(actual)
+    for alternative in constraint.split("||"):
+        matches = True
+        clauses = [clause.strip() for clause in alternative.split(",") if clause.strip()]
+        if not clauses:
+            raise ConfigurationError(f"empty version constraint '{constraint}'")
+        for clause in clauses:
+            match = re.fullmatch(r"(>=|<=|==|>|<)?\s*([0-9]+(?:\.[0-9]+){0,3})", clause)
+            if not match:
+                raise ConfigurationError(f"invalid version constraint '{constraint}'")
+            operator = match.group(1) or "=="
+            expected = _version_tuple(match.group(2))
+            comparisons = {
+                "==": actual_version == expected,
+                ">=": actual_version >= expected,
+                "<=": actual_version <= expected,
+                ">": actual_version > expected,
+                "<": actual_version < expected,
+            }
+            if not comparisons[operator]:
+                matches = False
+                break
+        if matches:
+            return True
+    return False
+
+
+Probe = Callable[[Sequence[str]], Execution]
+Which = Callable[[str], str | None]
+
+
+class EnvironmentInspector:
+    """Resolve executable availability and declared version compatibility."""
+
+    def __init__(
+        self,
+        toolchain: Toolchain,
+        probe: Probe | None = None,
+        which: Which | None = None,
+    ) -> None:
+        self.toolchain = toolchain
+        self.probe = probe or self._probe
+        self.which = which or shutil.which
+        self._cache: dict[str, ToolResult] = {}
+
+    def check_target(self, target: Target) -> list[ToolResult]:
+        required = target.config["required_bins"]
+        assert isinstance(required, list)
+        orchestration = self.toolchain.data["orchestration"]
+        assert isinstance(orchestration, dict)
+        tools = [
+            orchestration["shell"],
+            orchestration["runtime"],
+            *required,
+        ]
+        unique = list(dict.fromkeys(tools))
+        return [self.check_tool(tool) for tool in unique]
+
+    def check_tool(self, name: str) -> ToolResult:
+        if name in self._cache:
+            return self._cache[name]
+        raw = self.toolchain.tools[name]
+        assert isinstance(raw, dict)
+        command = raw["version_command"]
+        pattern = raw["version_pattern"]
+        resolution = raw["resolution"]
+        assert isinstance(command, list)
+        assert isinstance(pattern, str)
+        assert isinstance(resolution, dict)
+        executable = command[0]
+        assert isinstance(executable, str)
+        model = resolution["model"]
+        expected = resolution.get("version")
+        if not self.which(executable):
+            result = ToolResult(
+                name,
+                "unavailable",
+                str(expected) if expected else None,
+                None,
+                None,
+                None,
+                f"required executable '{executable}' was not found",
+            )
+            self._cache[name] = result
+            return result
+        execution = self.probe(command)
+        if execution.returncode != 0:
+            result = ToolResult(
+                name,
+                "unknown",
+                str(expected) if expected else None,
+                None,
+                list(command),
+                execution.returncode,
+                "version probe failed",
+            )
+            self._cache[name] = result
+            return result
+        output = execution.stdout + "\n" + execution.stderr
+        match = re.search(pattern, output, re.IGNORECASE)
+        if not match:
+            result = ToolResult(
+                name,
+                "unknown",
+                str(expected) if expected else None,
+                None,
+                list(command),
+                execution.returncode,
+                "version probe output did not match the declared pattern",
+            )
+            self._cache[name] = result
+            return result
+        actual = match.group(1)
+        if model == "deferred":
+            result = ToolResult(
+                name,
+                "deferred",
+                None,
+                actual,
+                list(command),
+                execution.returncode,
+                str(resolution["reason"]),
+            )
+        elif model == "repository_managed":
+            expected_version = self._repository_version(resolution)
+            if expected_version is None or version_satisfies(actual, expected_version):
+                result = ToolResult(
+                    name,
+                    "compatible",
+                    expected_version,
+                    actual,
+                    list(command),
+                    execution.returncode,
+                    None,
+                )
+            else:
+                result = ToolResult(
+                    name,
+                    "incompatible",
+                    expected_version,
+                    actual,
+                    list(command),
+                    execution.returncode,
+                    "installed version differs from the repository-managed version",
+                )
+        else:
+            assert isinstance(expected, str)
+            if version_satisfies(actual, expected):
+                result = ToolResult(
+                    name,
+                    "compatible",
+                    expected,
+                    actual,
+                    list(command),
+                    execution.returncode,
+                    None,
+                )
+            else:
+                transitional = resolution.get("transitional_version")
+                if isinstance(transitional, str) and version_satisfies(actual, transitional):
+                    result = ToolResult(
+                        name,
+                        "transitional",
+                        expected,
+                        actual,
+                        list(command),
+                        execution.returncode,
+                        str(resolution["reason"]),
+                    )
+                else:
+                    result = ToolResult(
+                        name,
+                        "incompatible",
+                        expected,
+                        actual,
+                        list(command),
+                        execution.returncode,
+                        f"version {actual} does not satisfy {expected}",
+                    )
+        self._cache[name] = result
+        return result
+
+    def _repository_version(self, resolution: Mapping[str, object]) -> str | None:
+        file_name = resolution.get("file")
+        pattern = resolution.get("file_pattern")
+        if not isinstance(file_name, str) or not isinstance(pattern, str):
+            return None
+        path = self.toolchain.root / file_name
+        try:
+            content = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            raise ConfigurationError(f"cannot read repository version file {path}: {exc}") from exc
+        match = re.search(pattern, content)
+        if not match:
+            raise ConfigurationError(
+                f"repository version file {file_name} does not match its declared pattern"
+            )
+        return match.group(1)
+
+    @staticmethod
+    def _probe(command: Sequence[str]) -> Execution:
+        try:
+            completed = subprocess.run(
+                list(command),
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+        except OSError as exc:
+            return Execution(127, stderr=str(exc))
+        return Execution(completed.returncode, completed.stdout, completed.stderr)
+
+
 Executor = Callable[[Target, str, list[str]], Execution]
 
 
 class QualityRunner:
     """Dispatch configured commands and preserve their exact status."""
 
-    def __init__(self, toolchain: Toolchain, executor: Executor | None = None) -> None:
+    def __init__(
+        self,
+        toolchain: Toolchain,
+        executor: Executor | None = None,
+        inspector: EnvironmentInspector | None = None,
+    ) -> None:
         self.toolchain = toolchain
         self.executor = executor or self._execute
+        self.inspector = inspector or EnvironmentInspector(toolchain)
 
     def run_leaf(self, operation: str, target: Target) -> OperationResult:
         capability = self.toolchain.capability(target, operation)
@@ -263,20 +580,46 @@ class QualityRunner:
                 f"{operation.replace('_', ' ')} is {wording} for {target.name}",
             )
         resolved, command = self.toolchain.resolve_command(target, operation)
+        environment = self.inspector.check_target(target)
+        blockers = [
+            result
+            for result in environment
+            if result.status in ("unavailable", "unknown", "incompatible")
+        ]
+        if blockers:
+            details = "; ".join(
+                f"{result.tool}: {result.reason}" for result in blockers
+            )
+            return OperationResult(
+                operation=operation,
+                component=target.name,
+                status="unavailable",
+                command=None,
+                exit_code=None,
+                reason=details,
+                environment=environment,
+            )
         execution = self.executor(target, resolved, command)
         status = "passed" if execution.returncode == 0 else "failed"
-        reason = None
+        notices = [
+            f"{result.tool} is {result.status}: {result.reason}"
+            for result in environment
+            if result.status in ("transitional", "deferred")
+        ]
+        reason = "; ".join(notices) if notices else None
         if execution.returncode != 0:
-            reason = f"command exited with status {execution.returncode}"
+            failure = f"command exited with status {execution.returncode}"
+            reason = f"{failure}; {reason}" if reason else failure
         return OperationResult(
-            operation,
-            target.name,
-            status,
-            command,
-            execution.returncode,
-            reason,
-            execution.stdout,
-            execution.stderr,
+            operation=operation,
+            component=target.name,
+            status=status,
+            command=command,
+            exit_code=execution.returncode,
+            reason=reason,
+            environment=environment,
+            stdout=execution.stdout,
+            stderr=execution.stderr,
         )
 
     def run_operation(self, operation: str, requested: str | None) -> list[OperationResult]:
@@ -297,6 +640,37 @@ class QualityRunner:
             for target in targets
             for operation in operations
         ]
+
+    def run_environment(self, requested: str | None) -> list[OperationResult]:
+        results: list[OperationResult] = []
+        for target in self.toolchain.select(requested):
+            environment = self.inspector.check_target(target)
+            blockers = [
+                result
+                for result in environment
+                if result.status in ("unavailable", "unknown", "incompatible")
+            ]
+            notices = [
+                f"{result.tool} is {result.status}: {result.reason}"
+                for result in environment
+                if result.status in ("transitional", "deferred")
+            ]
+            if blockers:
+                notices.extend(
+                    f"{result.tool}: {result.reason}" for result in blockers
+                )
+            results.append(
+                OperationResult(
+                    operation=ENVIRONMENT_OPERATION,
+                    component=target.name,
+                    status="unavailable" if blockers else "passed",
+                    command=None,
+                    exit_code=1 if blockers else 0,
+                    reason="; ".join(notices) if notices else None,
+                    environment=environment,
+                )
+            )
+        return results
 
     def _execute(self, target: Target, resolved: str, command: list[str]) -> Execution:
         if target.kind == "binding":
@@ -336,10 +710,13 @@ def _parse_cli(argv: Sequence[str]) -> tuple[str, str | None, bool]:
     if operation == "format" and "--check" in args:
         args.remove("--check")
         operation = "format_check"
-    if operation not in QUALITY_OPERATIONS + AGGREGATE_OPERATIONS:
+    if operation not in QUALITY_OPERATIONS + AGGREGATE_OPERATIONS + (
+        ENVIRONMENT_OPERATION,
+    ):
         raise ConfigurationError(f"unknown quality operation '{operation}'")
     if any(argument.startswith("-") for argument in args):
-        raise ConfigurationError(f"unknown option '{args[0]}'")
+        option = next(argument for argument in args if argument.startswith("-"))
+        raise ConfigurationError(f"unknown option '{option}'")
     if len(args) > 1:
         raise ConfigurationError("at most one component may be selected")
     return operation, args[0] if args else None, json_output
@@ -369,6 +746,11 @@ def _render_human(
         print(
             f"[{result.status}] {result.component} {result.operation}: {command}{suffix}"
         )
+        if operation == ENVIRONMENT_OPERATION:
+            for tool in result.environment:
+                expected = f", expected {tool.expected}" if tool.expected else ""
+                actual = tool.actual or "unavailable"
+                print(f"  {tool.tool}: {tool.status} ({actual}{expected})")
     if operation in AGGREGATE_OPERATIONS and incomplete:
         print("Incomplete capabilities:")
         grouped: dict[str, list[str]] = {}
@@ -382,7 +764,9 @@ def _print_help() -> None:
     print("Usage: ./strling <quality-command> [component|all] [--json]")
     print("       ./strling format [--check] [component|all] [--json]")
     print("")
-    print("Quality commands: format, lint, typecheck, build, test, check, certify")
+    print(
+        "Quality commands: format, lint, typecheck, build, test, check, certify, environment"
+    )
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -398,6 +782,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         if operation in AGGREGATE_OPERATIONS:
             results = runner.run_aggregate(operation, requested)
             incomplete = toolchain.incomplete_capabilities()
+        elif operation == ENVIRONMENT_OPERATION:
+            results = runner.run_environment(requested)
+            incomplete = []
         else:
             results = runner.run_operation(operation, requested)
             incomplete = []

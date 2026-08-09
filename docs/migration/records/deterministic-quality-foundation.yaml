@@ -94,10 +94,26 @@ checkpoints:
         result: passed
         details: Lockfile setup, build, and the 19-suite 963-test baseline passed. Setup now disables npm audit and funding network calls after the original command exposed an npm exit 139; lifecycle scripts and package-lock resolution remain enabled.
   - name: Environment enforcement
-    status: in_progress
-    evidence: []
+    status: passed
+    evidence:
+      - check: Version-policy test matrix
+        command: python3 -m unittest discover -s tooling/tests -p 'test_*.py' -v
+        result: passed
+        details: 17 tests passed, including matching and mismatched versions, supported constraint boundaries, unavailable tools, malformed policies, bounded transitions, and prevention of command execution in incompatible environments.
+      - check: Real TypeScript environment
+        command: ./strling environment typescript --json
+        result: passed
+        details: Bash 5.2.21 and Python 3.12.3 were compatible; Node 18.19.1 was explicitly transitional against supported Node 22; npm 9.2.0 was explicitly deferred.
+      - check: Full inventory environment audit
+        command: ./strling environment all --json
+        result: passed
+        details: The command returned failure as designed, with 17 environment targets usable and two honestly unavailable for certification because Go was absent and Bundler differed from the repository-managed 2.4.20 version.
+      - check: Representative operations after enforcement
+        command: ./strling setup typescript; ./strling typecheck typescript --json; ./strling build typescript --json; ./strling test typescript --json
+        result: passed
+        details: Deterministic lock setup, no-emit type analysis, build, and the 19-suite 963-test baseline passed while transition/deferred tool conditions remained machine-readable.
   - name: Quality-system integration
-    status: planned
+    status: in_progress
     evidence: []
   - name: Completion and readiness
     status: planned
@@ -105,3 +121,5 @@ checkpoints:
 commits:
   - sha: 62257da6ea7a561c13d8acc0c0f54585c42f98d3
     subject: "docs(tooling): define deterministic toolchain policy"
+  - sha: 1486385a6c762021ef7cc4066eb8027ddbade86a
+    subject: "feat(tooling): centralize repository quality commands"

@@ -43,6 +43,26 @@ file. A component's `runtime` and `required_bins` values reference tool IDs
 from the top-level `tools` inventory. Version policy is therefore declared
 once and reused by every component.
 
+Before a configured quality command executes, the coordinator probes the
+declared root and component tools. A missing executable, failed or unrecognized
+version probe, or hard version mismatch returns `unavailable` and prevents the
+language command from running. A deferred tool is allowed but reported with its
+rationale. A version outside the supported range is allowed only when it also
+matches a separately bounded `transitional_version`; that result is reported
+as `transitional`, never `compatible`.
+
+Use the same root interface to inspect an environment:
+
+```text
+./strling environment typescript
+./strling environment all --json
+```
+
+Environment results distinguish `compatible`, `incompatible`,
+`transitional`, `deferred`, `unknown`, and `unavailable`. The JSON
+result for every executed quality command includes the probes that authorized
+execution.
+
 ## Runtime and engineering-tool inventory
 
 | Environment | Runtime or compiler authority | Build/test implementation | Dependency resolution |
@@ -163,7 +183,8 @@ Append `--json` to any canonical quality command to receive one JSON object:
 The JSON object contains the requested operation, overall status and exit code,
 ordered leaf results, and the complete list of capabilities still marked
 `not_yet_configured` for aggregate commands. Language-tool output is retained
-for the human presentation but is not parsed to invent semantic results.
+for the human presentation but is not parsed to invent semantic results. Each
+leaf also contains its executable version-probe results.
 
 ## Recorded transitional conditions
 
@@ -176,6 +197,9 @@ The following gaps are intentionally inventoried rather than broadly repaired:
 - Java and Kotlin pin direct versions but do not lock transitive dependencies.
 - C++ downloads a versioned archive without a repository-recorded content hash.
 - the language-server Python dependencies are unbounded.
+- Node 22 is the supported TypeScript runtime. Node 18 is a bounded
+  transitional condition for the established local baseline and is reported on
+  every TypeScript quality result; npm itself remains version-deferred.
 - the CI runner image and several setup actions or channels are floating,
   including Dart `stable`, Rust `stable`, and a Posit `latest` snapshot.
 - CI currently turns a failing root build command into success with an

@@ -10,11 +10,13 @@ sys.path.insert(0, str(TOOLING_DIR))
 
 from quality import (  # noqa: E402
     ConfigurationError,
+    EnvironmentInspector,
     Execution,
     QualityRunner,
     Toolchain,
     _overall_exit,
     _parse_cli,
+    version_satisfies,
 )
 
 
@@ -60,6 +62,12 @@ def policy(
     return {
         "schema_version": 1,
         "policy": {
+            "resolution_models": [
+                "exact",
+                "constrained",
+                "repository_managed",
+                "deferred",
+            ],
             "aggregates": {
                 "check": {
                     "operations": ["lint", "typecheck"],
@@ -71,7 +79,7 @@ def policy(
                 },
             }
         },
-        "orchestration": {"shell": "bash", "runtime": "python3"},
+        "orchestration": {"shell": "python3", "runtime": "python3"},
         "tools": {
             "python3": {
                 "resolution": {"model": "constrained", "version": ">=3.8,<4.0"},
@@ -210,6 +218,80 @@ class QualityRoutingTests(unittest.TestCase):
             ("format_check", "alpha", True),
             _parse_cli(["format", "--json", "--check", "alpha"]),
         )
+
+
+class EnvironmentValidationTests(unittest.TestCase):
+    def inspector(
+        self,
+        output: str = "Python 3.12.4",
+        available: bool = True,
+        data: dict[str, object] | None = None,
+    ) -> EnvironmentInspector:
+        toolchain = Toolchain(data or policy(), Path.cwd())
+        return EnvironmentInspector(
+            toolchain,
+            probe=lambda _command: Execution(0, stdout=output),
+            which=lambda _command: "/fixture/tool" if available else None,
+        )
+
+    def test_matching_constrained_version(self) -> None:
+        result = self.inspector().check_tool("python3")
+        self.assertEqual("compatible", result.status)
+        self.assertEqual("3.12.4", result.actual)
+
+    def test_supported_constraint_boundaries(self) -> None:
+        self.assertTrue(version_satisfies("3.8.0", ">=3.8,<4.0"))
+        self.assertTrue(version_satisfies("3.13.2", ">=3.8,<4.0"))
+        self.assertFalse(version_satisfies("4.0.0", ">=3.8,<4.0"))
+
+    def test_mismatched_version_is_incompatible(self) -> None:
+        result = self.inspector(output="Python 4.0.0").check_tool("python3")
+        self.assertEqual("incompatible", result.status)
+        self.assertIn("does not satisfy", result.reason or "")
+
+    def test_unavailable_tool_is_explicit(self) -> None:
+        result = self.inspector(available=False).check_tool("python3")
+        self.assertEqual("unavailable", result.status)
+        self.assertIsNone(result.actual)
+
+    def test_malformed_version_policy_is_rejected(self) -> None:
+        data = policy()
+        tool = data["tools"]["python3"]  # type: ignore[index]
+        tool["resolution"]["version"] = "latest"  # type: ignore[index]
+        with self.assertRaisesRegex(ConfigurationError, "invalid version constraint"):
+            Toolchain(data, Path.cwd())
+
+    def test_bounded_transitional_version_is_distinct(self) -> None:
+        data = policy()
+        tool = data["tools"]["python3"]  # type: ignore[index]
+        tool["resolution"]["transitional_version"] = ">=3.7,<3.8"  # type: ignore[index]
+        tool["resolution"]["reason"] = "fixture transition"  # type: ignore[index]
+        result = self.inspector(output="Python 3.7.9", data=data).check_tool(
+            "python3"
+        )
+        self.assertEqual("transitional", result.status)
+        self.assertEqual("fixture transition", result.reason)
+
+    def test_incompatible_environment_prevents_execution(self) -> None:
+        alpha = target_config(
+            {"test": "configured"},
+            {"test": ["fixture-test"]},
+        )
+        toolchain = Toolchain(policy(alpha=alpha), Path.cwd())
+        inspector = EnvironmentInspector(
+            toolchain,
+            probe=lambda _command: Execution(0, stdout="Python 4.0.0"),
+            which=lambda _command: "/fixture/tool",
+        )
+
+        def unexpected(*_args):
+            raise AssertionError("executor should not be called")
+
+        result = QualityRunner(
+            toolchain, unexpected, inspector
+        ).run_operation("test", "alpha")[0]
+        self.assertEqual("unavailable", result.status)
+        self.assertIsNone(result.command)
 
 
 if __name__ == "__main__":
