@@ -1,15 +1,46 @@
-record_version: 1.0.0
+record_version: 2.0.0
 title: Describe the permanent engineering capability
 status: planned
 objective: State the contained outcome that this work must achieve.
 scope:
+    diff:
+        base: "0000000000000000000000000000000000000000"
+        head: working-tree
     allowed_paths:
         - path/within/scope/**
     forbidden_paths:
         - path/outside/scope/**
+    expected_files:
+        - path/within/scope/expected-file
+    permitted_generated_changes: []
+    required_verification_levels:
+        - contract
+        - quality
+    bounded_exemptions: []
 change_classification:
-    behavioral_change: none
-    public_api_change: none
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+    schema_change:
+        level: none
+        evidence: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: none
+        evidence: []
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
 required_verification:
     - name: Define a success check before implementation
       command: exact command to run

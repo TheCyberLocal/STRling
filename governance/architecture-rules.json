@@ -1,0 +1,121 @@
+{
+    "registry_version": 1,
+    "rules": [
+        {
+            "id": "governance-product-dependency-boundary",
+            "description": "Governance implementations must not import compiler or binding implementation modules.",
+            "status": "enforced",
+            "kind": "forbidden-dependency",
+            "configuration": {
+                "sources": [
+                    "tooling/generated_artifacts.py",
+                    "tooling/governance.py"
+                ],
+                "forbidden_dependencies": [
+                    "bindings",
+                    "spec"
+                ]
+            }
+        },
+        {
+            "id": "quality-semantic-dependency-boundary",
+            "description": "Repository quality tooling must orchestrate contracts and processes rather than import a semantic compiler implementation.",
+            "status": "enforced",
+            "kind": "forbidden-dependency",
+            "configuration": {
+                "sources": [
+                    "tooling/formatting.py",
+                    "tooling/generated_artifacts.py",
+                    "tooling/governance.py",
+                    "tooling/hygiene.py",
+                    "tooling/quality.py",
+                    "tooling/static_analysis.py"
+                ],
+                "forbidden_dependencies": [
+                    "bindings",
+                    "spec"
+                ]
+            }
+        },
+        {
+            "id": "generated-artifact-input-acyclicity",
+            "description": "A generated artifact must not appear among its own authoritative sources or generator inputs.",
+            "status": "enforced",
+            "kind": "generated-input-cycle",
+            "configuration": {}
+        },
+        {
+            "id": "task-record-placement",
+            "description": "Contained-task records and templates must remain in designated governance locations.",
+            "status": "enforced",
+            "kind": "task-record-placement",
+            "configuration": {
+                "allowed_record_roots": [
+                    "docs/migration/records",
+                    "governance/templates"
+                ]
+            }
+        },
+        {
+            "id": "new-top-level-implementation-islands",
+            "description": "New top-level implementation directories require an explicit architecture declaration.",
+            "status": "enforced",
+            "kind": "new-top-level-directory",
+            "configuration": {
+                "allowed_top_level_directories": [
+                    ".github",
+                    ".vscode",
+                    "bindings",
+                    "docs",
+                    "governance",
+                    "spec",
+                    "tests",
+                    "tooling"
+                ],
+                "requires_declaration": "architecture_change"
+            }
+        },
+        {
+            "id": "duplicated-binding-compilers",
+            "description": "Independent parser, compiler, and emitter implementations remain present across language bindings.",
+            "status": "transitional",
+            "kind": "tracked-transition",
+            "configuration": {
+                "tracked_paths": [
+                    "bindings/**/parser.*",
+                    "bindings/**/compiler.*",
+                    "bindings/**/emitters/**"
+                ]
+            },
+            "rationale": "The canonical compiler core and adapter migration have not begun, so prohibiting all binding semantic implementations would falsely certify the current architecture.",
+            "retirement_condition": "Activate binding-to-canonical-core dependency rules after each binding is migrated and its legacy semantic implementation is removed under contained verification."
+        },
+        {
+            "id": "implementation-derived-shared-fixtures",
+            "description": "Shared expected semantic and diagnostic fixtures remain derived from TypeScript implementation behavior.",
+            "status": "transitional",
+            "kind": "tracked-transition",
+            "configuration": {
+                "tracked_paths": [
+                    "tests/spec/*.json",
+                    "tooling/js_to_json_ast/**"
+                ]
+            },
+            "rationale": "The fixtures are necessary compatibility evidence but do not satisfy contract-first semantic authority.",
+            "retirement_condition": "Replace implementation-derived expected behavior with independently accepted specification-authored conformance contracts and deterministic projections."
+        },
+        {
+            "id": "binding-canonical-core-dependency",
+            "description": "Host-language bindings depend only on the stable canonical compiler interface for STRling semantics.",
+            "status": "future",
+            "kind": "tracked-transition",
+            "configuration": {
+                "tracked_paths": [
+                    "bindings/**"
+                ]
+            },
+            "rationale": "No canonical compiler core exists yet and final-state enforcement would reject every current binding.",
+            "activation_condition": "Activate per binding only after canonical-core implementation, adapter migration, and behavior-preservation certification."
+        }
+    ]
+}

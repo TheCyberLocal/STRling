@@ -242,23 +242,32 @@ test("phone number pattern end-to-end", () => {
 });
 ```
 
-### 4. Shared Spec Suite (SSOT)
+### 4. Shared Compatibility Fixture Suite
 
 **Purpose**: Ensure all bindings implement the exact same parsing and compilation logic as the reference implementation (JavaScript).
 
 **Characteristics:**
 
--   **Golden Master**: JSON files in `tests/spec/` represent the expected AST for a given STRling pattern.
--   **Generated**: Produced by the JavaScript binding (`npm run build:specs`).
+-   **Compatibility Evidence**: JSON files in `tests/spec/` record expected
+    historical behavior for a given STRling pattern; the authoritative contract
+    remains under `spec/`.
+-   **Transitional Generation**: Produced by the TypeScript binding
+    (`npm run build:specs`) until independently authored conformance contracts
+    replace implementation-derived expectations.
 -   **Language Agnostic**: All bindings (Python, Java, C, etc.) read these JSON files and assert that their parser produces the identical AST.
--   **Drift Protection**: CI ensures that the committed specs match the generator's output.
+-   **Governed Changes**: Fixture changes require an explicit semantic,
+    diagnostic, schema, or target-behavior declaration as applicable. The
+    current incomplete generator is recorded as transitional and is not
+    presented as an exact-reproduction hardgate.
 
 **Workflow:**
 
-1. Modify logic in JavaScript (Reference Implementation).
-2. Run `npm run build:specs` to update `tests/spec/*.json`.
-3. Commit changes.
-4. Other bindings run their tests, consuming the new specs.
+1. Change and review the controlling specification or versioned contract.
+2. Modify the relevant implementation under a declared contained scope.
+3. Run `npm run build:specs` to update `tests/spec/*.json`.
+4. Review the generated diff against the controlling contract.
+5. Commit the declared contract, implementation, and evidence changes.
+6. Other bindings run their tests, consuming the compatibility fixtures.
 
 ### 4. Conformance Tests
 

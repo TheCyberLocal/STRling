@@ -1,0 +1,136 @@
+record_version: 2.0.0
+title: Generated artifact and change integrity hardgates
+status: in_progress
+objective: Establish deterministic generated-artifact reproduction, declared change scope, and progressive architecture fitness enforcement without changing STRling product semantics.
+scope:
+    diff:
+        base: 29fda4705cd39857eccdf079ada69d76d97f199a
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/ci.yml
+        - CONTRIBUTING.md
+        - docs/migration/**
+        - docs/testing_design.md
+        - docs/testing_workflow.md
+        - docs/toolchains.md
+        - governance/**
+        - strling
+        - strling.ps1
+        - tests/README.md
+        - toolchain.json
+        - tooling/generated_artifacts.py
+        - tooling/governance.py
+        - tooling/index.md
+        - tooling/requirements-quality.txt
+        - tooling/sync_fixture_projection.py
+        - tooling/sync_versions.py
+        - tooling/tests/**
+    forbidden_paths:
+        - bindings/**/src/**
+        - bindings/**/lib/**
+        - bindings/**/include/**
+        - spec/**
+        - tests/spec/**
+        - tests/conformance/**
+        - package.json
+        - package-lock.json
+    expected_files:
+        - docs/migration/records/generated-artifact-change-integrity.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/generated-artifacts.json
+        - governance/schemas/architecture-rules.schema.json
+        - governance/schemas/change-control.schema.json
+        - governance/schemas/generated-artifact-registry.schema.json
+        - governance/schemas/task-record.schema.json
+        - governance/templates/task-record.yaml
+    permitted_generated_changes: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+    schema_change:
+        level: additive
+        evidence:
+            - Governance schemas add generated-artifact, change-intent, scope, and architecture-rule contracts without changing product schemas.
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Machine-readable rules encode boundaries valid in the transitional repository and record final-state rules without activating them.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Contract validation
+      command: python3 -m unittest tooling.tests.test_governance_contracts
+      expected_result: Valid registries, templates, and task records pass while malformed declarations fail.
+    - name: Generated artifact reproduction
+      command: ./strling generate --check
+      expected_result: Every enforced generated family exactly matches its authoritative inputs and check mode leaves the tree unchanged.
+    - name: Change governance
+      command: ./strling governance
+      expected_result: The declared diff, change classes, generated outputs, and active architecture rules pass.
+    - name: Canonical quality
+      command: ./strling check
+      expected_result: Every reliable hardgate passes through the root coordinator.
+    - name: Certification
+      command: ./strling certify
+      expected_result: The current certification aggregate passes without product behavior changes.
+checkpoints:
+    - name: Artifact and change-governance contract
+      status: passed
+      evidence:
+          - check: Clean starting state
+            command: git status --short --branch; git rev-parse HEAD; git branch --show-current
+            result: passed
+            details: The task started from a clean architecture/v4 working tree at 29fda4705cd39857eccdf079ada69d76d97f199a.
+          - check: Generated-artifact inventory and authority
+            result: passed
+            details: Ten material generated families identify controlling sources, actual generator inputs, implementations, commands where known, outputs, checked-in state, determinism, non-normative authority, enforcement disposition, and retirement conditions.
+          - check: Transitional generator findings
+            command: python3 tooling/sync_versions.py --check; fixture corpus comparison; audit generator inspection
+            result: passed
+            details: Version check returned success despite proposing a Lua template rewrite and rename; 491 generator inputs do not account for all 596 committed shared JSON fixtures and generation does not clean stale output; the checked-in final audit report embeds wall-clock and environment-dependent data. These findings were recorded without regenerating outputs.
+          - check: Governance contract validation
+            command: python3 -m unittest tooling.tests.test_governance_contracts
+            result: passed
+            details: Eight tests passed for valid schemas and instances plus missing declarations, missing evidence, unsafe paths, invalid enforced determinism, identifier uniqueness, and incomplete transitional rules.
+          - check: Existing quality hardgate
+            command: BUNDLER_VERSION=2.4.20 ./strling check
+            result: passed
+            details: Formatting, hygiene, enforced lint and type/static analysis, and all 19 TypeScript suites with 963 tests passed; no compiler or product behavior changed.
+          - check: Patch integrity
+            command: ./strling format --check; git diff --check
+            result: passed
+            details: Canonical formatting and patch-integrity checks passed.
+    - name: Generated-artifact reproduction hardgate
+      status: in_progress
+      evidence: []
+    - name: Task scope and architecture fitness enforcement
+      status: planned
+      evidence: []
+    - name: Quality and CI integration certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []

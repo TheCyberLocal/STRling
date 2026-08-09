@@ -1,0 +1,63 @@
+{
+    "configuration_version": 1,
+    "active_task": "docs/migration/records/generated-artifact-change-integrity.yaml",
+    "generated_artifact_registry": "governance/generated-artifacts.json",
+    "architecture_rule_registry": "governance/architecture-rules.json",
+    "path_evidence": [
+        {
+            "classification": "semantic_change",
+            "paths": [
+                "spec/grammar/**",
+                "spec/features.json",
+                "spec/stdlib/**",
+                "tests/spec/**"
+            ]
+        },
+        {
+            "classification": "schema_change",
+            "paths": [
+                "spec/schema/**",
+                "governance/schemas/**"
+            ]
+        },
+        {
+            "classification": "diagnostic_change",
+            "paths": [
+                "bindings/**/hint_engine.*",
+                "bindings/**/diagnostics.*"
+            ]
+        },
+        {
+            "classification": "target_behavior_change",
+            "paths": [
+                "bindings/**/emitters/**",
+                "tests/conformance/**"
+            ]
+        },
+        {
+            "classification": "public_api_change",
+            "paths": [
+                "bindings/c/include/**",
+                "bindings/cpp/include/**",
+                "bindings/typescript/src/index.ts"
+            ]
+        },
+        {
+            "classification": "architecture_change",
+            "paths": [
+                "governance/architecture.md",
+                "governance/architecture-rules.json",
+                "governance/schemas/architecture-rules.schema.json"
+            ]
+        }
+    ],
+    "documentation_paths": [
+        "**/*.md",
+        "docs/**"
+    ],
+    "internal_implementation_paths": [
+        "tooling/**",
+        "strling",
+        "strling.ps1"
+    ]
+}

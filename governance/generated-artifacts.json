@@ -1,0 +1,419 @@
+{
+    "registry_version": 1,
+    "artifacts": [
+        {
+            "id": "version-synchronized-metadata",
+            "category": "version-synchronized-metadata",
+            "description": "Binding package and runtime version fields projected from the Python package version.",
+            "authoritative_sources": [
+                "bindings/python/pyproject.toml"
+            ],
+            "generator_inputs": [
+                "bindings/python/pyproject.toml"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/sync_versions.py"
+                ],
+                "command": [
+                    "python3",
+                    "tooling/sync_versions.py",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "bindings/c/src/strling.c",
+                "bindings/cpp/CMakeLists.txt",
+                "bindings/cpp/conanfile.py",
+                "bindings/csharp/src/STRling/STRling.csproj",
+                "bindings/dart/pubspec.yaml",
+                "bindings/fsharp/src/STRling/STRling.fsproj",
+                "bindings/java/pom.xml",
+                "bindings/java/src/main/java/com/strling/Strling.java",
+                "bindings/kotlin/build.gradle.kts",
+                "bindings/perl/lib/STRling.pm",
+                "bindings/php/composer.json",
+                "bindings/php/src/STRling.php",
+                "bindings/r/DESCRIPTION",
+                "bindings/ruby/lib/strling.rb",
+                "bindings/ruby/strling.gemspec",
+                "bindings/rust/Cargo.toml",
+                "bindings/typescript/package.json"
+            ],
+            "determinism": "unverified",
+            "checked_in": true,
+            "authority": "operational-projection",
+            "verification": {
+                "method": "not-enforced",
+                "command": null
+            },
+            "enforcement": "candidate",
+            "transition": {
+                "rationale": "The updater is deterministic for declared package fields, but its check mode does not report drift and it incorrectly treats the Lua release template as a synchronized output.",
+                "retirement_condition": "Make check mode fail on byte differences, exclude the separately governed Lua release template, and prove write followed by check reproduces every listed output."
+            }
+        },
+        {
+            "id": "shared-semantic-fixtures",
+            "category": "spec-derived-fixture",
+            "description": "Cross-binding JSON AST, IR, code-generation, error, and hint compatibility fixtures.",
+            "authoritative_sources": [
+                "spec/grammar/dsl.ebnf",
+                "spec/grammar/semantics.md",
+                "spec/schema/conformance-fixture.schema.json",
+                "spec/stdlib/**"
+            ],
+            "generator_inputs": [
+                "bindings/typescript/src/**",
+                "tooling/js_to_json_ast/fixtures/**"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/js_to_json_ast/generate_json_ast.js",
+                    "bindings/typescript/package.json"
+                ],
+                "command": [
+                    "npm",
+                    "--prefix",
+                    "bindings/typescript",
+                    "run",
+                    "build:specs"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "tests/spec/*.json"
+            ],
+            "determinism": "unverified",
+            "checked_in": true,
+            "authority": "transitional-compatibility-evidence",
+            "verification": {
+                "method": "not-enforced",
+                "command": null
+            },
+            "enforcement": "transitional",
+            "transition": {
+                "rationale": "The generator derives expected semantics and diagnostics from the TypeScript implementation, covers fewer inputs than the committed output corpus, tolerates missing compiler/emitter modules, and leaves stale outputs in place.",
+                "retirement_condition": "Replace implementation-derived expectations with independently accepted specification-authored cases, define the complete output set, make missing generator components fatal, and prove clean exact reproduction."
+            }
+        },
+        {
+            "id": "c-compatibility-fixtures",
+            "category": "binding-generated-asset",
+            "description": "Historical JSON fixtures consumed by C binding tests.",
+            "authoritative_sources": [
+                "spec/grammar/dsl.ebnf",
+                "spec/grammar/semantics.md",
+                "spec/schema/conformance-fixture.schema.json"
+            ],
+            "generator_inputs": [
+                "bindings/typescript/__tests__/**"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/generate_c_asts.sh",
+                    "tooling/js_to_json_ast/extract_patterns_from_js_tests.js",
+                    "tooling/js_to_json_ast/generate_json_ast.js"
+                ],
+                "command": null,
+                "working_directory": "."
+            },
+            "outputs": [
+                "bindings/c/tests/fixtures/*.json"
+            ],
+            "determinism": "unverified",
+            "checked_in": true,
+            "authority": "transitional-compatibility-evidence",
+            "verification": {
+                "method": "not-enforced",
+                "command": null
+            },
+            "enforcement": "transitional",
+            "transition": {
+                "rationale": "The tracked fixture names reflect an older TypeScript-test extraction pipeline, while the documented helper now writes a different fixture family and no exact production command remains.",
+                "retirement_condition": "Trace every fixture to an accepted source case, restore or replace the exact deterministic producer, and certify the complete expected output set."
+            }
+        },
+        {
+            "id": "swift-compatibility-fixture-projection",
+            "category": "binding-generated-asset",
+            "description": "Swift package-resource projection of the historical C compatibility fixture set.",
+            "authoritative_sources": [
+                "spec/grammar/dsl.ebnf",
+                "spec/grammar/semantics.md",
+                "spec/schema/conformance-fixture.schema.json"
+            ],
+            "generator_inputs": [
+                "bindings/c/tests/fixtures/*.json"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/sync_fixture_projection.py"
+                ],
+                "command": [
+                    "python3",
+                    "tooling/sync_fixture_projection.py",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "bindings/swift/Tests/STRlingConformanceTests/Resources/*.json"
+            ],
+            "determinism": "unverified",
+            "checked_in": true,
+            "authority": "transitional-compatibility-evidence",
+            "verification": {
+                "method": "not-enforced",
+                "command": null
+            },
+            "enforcement": "candidate",
+            "transition": {
+                "rationale": "The two tracked directories are byte-identical today, but no canonical exact-copy command or stale-file check is recorded.",
+                "retirement_condition": "Add a deterministic exact-copy producer and check mode that rejects missing, changed, and extra destination files."
+            }
+        },
+        {
+            "id": "c-test-skeleton",
+            "category": "binding-generated-asset",
+            "description": "Generated C compile-assertion test skeleton derived from historical JSON fixtures.",
+            "authoritative_sources": [
+                "spec/grammar/dsl.ebnf",
+                "spec/grammar/semantics.md"
+            ],
+            "generator_inputs": [
+                "bindings/c/tests/fixtures/*.json"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/js_to_json_ast/convert_js_tests_to_c.js"
+                ],
+                "command": [
+                    "node",
+                    "tooling/js_to_json_ast/convert_js_tests_to_c.js"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "bindings/c/tests/unit/converted_from_js.c"
+            ],
+            "determinism": "unverified",
+            "checked_in": true,
+            "authority": "transitional-compatibility-evidence",
+            "verification": {
+                "method": "not-enforced",
+                "command": null
+            },
+            "enforcement": "transitional",
+            "transition": {
+                "rationale": "The generator currently targets converted_from_js_test.c rather than the tracked converted_from_js.c path and has no exact reproduction check.",
+                "retirement_condition": "Reconcile the intended output path, validate the source fixture set, and prove byte-exact deterministic reproduction."
+            }
+        },
+        {
+            "id": "final-audit-report",
+            "category": "audit-certification-output",
+            "description": "Human-readable ecosystem certification report generated by the audit runner.",
+            "authoritative_sources": [
+                "governance/ENGINEERING_CONSTITUTION.md",
+                "toolchain.json"
+            ],
+            "generator_inputs": [
+                "toolchain.json",
+                "tooling/audit_omega.py",
+                "bindings/**"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/audit_omega.py"
+                ],
+                "command": [
+                    "python3",
+                    "tooling/audit_omega.py"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "docs/generated/FINAL_AUDIT_REPORT.md"
+            ],
+            "determinism": "nondeterministic",
+            "checked_in": true,
+            "authority": "certification-evidence",
+            "verification": {
+                "method": "not-enforced",
+                "command": null
+            },
+            "enforcement": "transitional",
+            "transition": {
+                "rationale": "The report embeds wall-clock time and environment-dependent test counts and results.",
+                "retirement_condition": "Separate deterministic certification data from presentation metadata, define stable inputs, and compare a normalized semantic report without hiding meaningful differences."
+            }
+        },
+        {
+            "id": "package-manager-lockfiles",
+            "category": "package-manager-metadata",
+            "description": "Dependency-resolution lockfiles serialized by their owning package managers.",
+            "authoritative_sources": [
+                "package.json",
+                "bindings/dart/pubspec.yaml",
+                "bindings/php/composer.json",
+                "bindings/ruby/Gemfile",
+                "bindings/rust/Cargo.toml",
+                "bindings/typescript/package.json",
+                "tooling/lsp-server/package.json"
+            ],
+            "generator_inputs": [
+                "package.json",
+                "bindings/dart/pubspec.yaml",
+                "bindings/php/composer.json",
+                "bindings/ruby/Gemfile",
+                "bindings/rust/Cargo.toml",
+                "bindings/typescript/package.json",
+                "tooling/lsp-server/package.json"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "toolchain.json"
+                ],
+                "command": null,
+                "working_directory": "."
+            },
+            "outputs": [
+                "package-lock.json",
+                "bindings/dart/pubspec.lock",
+                "bindings/php/composer.lock",
+                "bindings/ruby/Gemfile.lock",
+                "bindings/rust/Cargo.lock",
+                "bindings/typescript/package-lock.json",
+                "tooling/lsp-server/package-lock.json"
+            ],
+            "determinism": "unverified",
+            "checked_in": true,
+            "authority": "operational-projection",
+            "verification": {
+                "method": "not-enforced",
+                "command": null
+            },
+            "enforcement": "transitional",
+            "transition": {
+                "rationale": "The family spans several package managers and registry-resolution models; no single offline, version-pinned reproduction command is currently certified.",
+                "retirement_condition": "Split the family by package manager, pin each serializer, define offline inputs or trusted registry provenance, and prove exact reproduction without treating a lockfile as its own source."
+            }
+        },
+        {
+            "id": "lua-release-rockspec",
+            "category": "package-manager-metadata",
+            "description": "Release-only Lua rockspec materialized from the checked-in template.",
+            "authoritative_sources": [
+                "bindings/python/pyproject.toml"
+            ],
+            "generator_inputs": [
+                "bindings/lua/strling-template.rockspec",
+                "bindings/python/pyproject.toml"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    ".github/workflows/cd.yml"
+                ],
+                "command": null,
+                "working_directory": "."
+            },
+            "outputs": [
+                "bindings/lua/strling-*.rockspec"
+            ],
+            "determinism": "unverified",
+            "checked_in": false,
+            "authority": "operational-projection",
+            "verification": {
+                "method": "not-enforced",
+                "command": null
+            },
+            "enforcement": "transitional",
+            "transition": {
+                "rationale": "Release workflow substitution, local version synchronization, and template naming currently disagree about ownership.",
+                "retirement_condition": "Assign one release generator, test template substitution and filename construction, and certify the packaged rockspec during release-artifact verification."
+            }
+        },
+        {
+            "id": "lsp-extension-payload",
+            "category": "build-output",
+            "description": "Disposable assembled language-server extension payload.",
+            "authoritative_sources": [
+                "tooling/lsp-server/client/**",
+                "tooling/lsp-server/server/**",
+                "tooling/lsp-server/package.json"
+            ],
+            "generator_inputs": [
+                "tooling/lsp-server/client/**",
+                "tooling/lsp-server/server/**",
+                "tooling/lsp-server/package.json"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "tooling/lsp-server/assemble.sh",
+                    "tooling/lsp-server/build_extension.sh"
+                ],
+                "command": [
+                    "bash",
+                    "tooling/lsp-server/assemble.sh"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "tooling/lsp-server/dist/**"
+            ],
+            "determinism": "unverified",
+            "checked_in": false,
+            "authority": "non-normative-projection",
+            "verification": {
+                "method": "not-enforced",
+                "command": null
+            },
+            "enforcement": "transitional",
+            "transition": {
+                "rationale": "The payload is intentionally disposable and not checked in; release-package integrity is outside the current repository-state hardgate.",
+                "retirement_condition": "Certify the extension package from pinned inputs in the release-artifact hardgate."
+            }
+        },
+        {
+            "id": "rust-conformance-build-source",
+            "category": "build-output",
+            "description": "Rust conformance source generated into Cargo OUT_DIR during a build.",
+            "authoritative_sources": [
+                "spec/grammar/dsl.ebnf",
+                "spec/grammar/semantics.md",
+                "tests/spec/*.json"
+            ],
+            "generator_inputs": [
+                "tests/spec/*.json",
+                "bindings/rust/build.rs"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "bindings/rust/build.rs"
+                ],
+                "command": [
+                    "cargo",
+                    "build"
+                ],
+                "working_directory": "bindings/rust"
+            },
+            "outputs": [
+                "bindings/rust/target/**/conformance_generated.rs"
+            ],
+            "determinism": "unverified",
+            "checked_in": false,
+            "authority": "transitional-compatibility-evidence",
+            "verification": {
+                "method": "not-enforced",
+                "command": null
+            },
+            "enforcement": "transitional",
+            "transition": {
+                "rationale": "The generated source is build-local and consumes the transitional shared fixture corpus.",
+                "retirement_condition": "Retire the implementation-derived fixture authority and certify the build output from accepted conformance contracts."
+            }
+        }
+    ]
+}

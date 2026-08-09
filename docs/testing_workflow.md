@@ -35,19 +35,27 @@ This ensures:
 
 ---
 
-## The Iron Law of Test Parity
+## Transitional Test-Parity Workflow
 
-**The TypeScript binding is the normative reference implementation.**
+The TypeScript binding is the current fixture producer and compatibility
+reference. It is subordinate to the normative grammar, semantics, and versioned
+contracts under `spec/`.
 
 ### What This Means
 
-1. **TypeScript tests define the contract**: All STRling features are first implemented and tested in TypeScript.
-2. **Other bindings must match 1:1**: Every TypeScript test must have a corresponding test in other bindings with identical behavior.
-3. **New features start in TypeScript**: Features are not considered complete until the Reference Implementation has them.
+1. **Contracts define behavior**: STRling features begin with the controlling
+   specification or versioned contract.
+2. **TypeScript currently produces compatibility evidence**: Other bindings
+   continue to preserve the recorded behavior while the canonical compiler does
+   not yet exist.
+3. **Generated expectations are reviewable projections**: Regeneration cannot
+   make implementation behavior normative or authorize an undeclared semantic
+   change.
 
-### Why TypeScript is Normative
+### Why TypeScript Is the Transitional Producer
 
--   **Single Source of Truth**: The TypeScript implementation generates the JSON specifications used by all other bindings.
+-   **Existing pipeline**: The TypeScript implementation generates the JSON
+    compatibility fixtures used by the other bindings.
 -   **Strict Typing**: TypeScript's type system helps define the AST and IR structures precisely.
 -   **Ecosystem**: The JS/TS ecosystem is ideal for the web-based playground and VS Code extension.
 

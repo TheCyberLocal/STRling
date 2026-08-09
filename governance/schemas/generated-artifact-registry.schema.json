@@ -1,0 +1,225 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/generated-artifact-registry.schema.json",
+    "title": "STRling generated-artifact registry",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["registry_version", "artifacts"],
+    "properties": {
+        "registry_version": {
+            "const": 1
+        },
+        "artifacts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/artifact"
+            }
+        }
+    },
+    "$defs": {
+        "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "paths": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/$defs/path"
+            }
+        },
+        "command": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "string",
+                "minLength": 1
+            }
+        },
+        "transition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["rationale", "retirement_condition"],
+            "properties": {
+                "rationale": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "retirement_condition": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "artifact": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "category",
+                "description",
+                "authoritative_sources",
+                "generator_inputs",
+                "generator",
+                "outputs",
+                "determinism",
+                "checked_in",
+                "authority",
+                "verification",
+                "enforcement"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9-]{2,63}$"
+                },
+                "category": {
+                    "enum": [
+                        "spec-derived-fixture",
+                        "binding-generated-asset",
+                        "generated-documentation",
+                        "version-synchronized-metadata",
+                        "package-manager-metadata",
+                        "audit-certification-output",
+                        "build-output"
+                    ]
+                },
+                "description": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "authoritative_sources": {
+                    "$ref": "#/$defs/paths"
+                },
+                "generator_inputs": {
+                    "$ref": "#/$defs/paths"
+                },
+                "generator": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "implementation_paths",
+                        "command",
+                        "working_directory"
+                    ],
+                    "properties": {
+                        "implementation_paths": {
+                            "$ref": "#/$defs/paths"
+                        },
+                        "command": {
+                            "oneOf": [
+                                {
+                                    "$ref": "#/$defs/command"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "working_directory": {
+                            "$ref": "#/$defs/path"
+                        }
+                    }
+                },
+                "outputs": {
+                    "$ref": "#/$defs/paths"
+                },
+                "determinism": {
+                    "enum": ["verified", "unverified", "nondeterministic"]
+                },
+                "checked_in": {
+                    "type": "boolean"
+                },
+                "authority": {
+                    "enum": [
+                        "operational-projection",
+                        "non-normative-projection",
+                        "transitional-compatibility-evidence",
+                        "certification-evidence"
+                    ]
+                },
+                "verification": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["method", "command"],
+                    "properties": {
+                        "method": {
+                            "enum": ["command-check", "not-enforced"]
+                        },
+                        "command": {
+                            "oneOf": [
+                                {
+                                    "$ref": "#/$defs/command"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "enforcement": {
+                    "enum": ["candidate", "enforced", "transitional"]
+                },
+                "transition": {
+                    "$ref": "#/$defs/transition"
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "enforcement": {
+                                "const": "enforced"
+                            }
+                        },
+                        "required": ["enforcement"]
+                    },
+                    "then": {
+                        "properties": {
+                            "determinism": {
+                                "const": "verified"
+                            },
+                            "checked_in": {
+                                "const": true
+                            },
+                            "generator": {
+                                "properties": {
+                                    "command": {
+                                        "$ref": "#/$defs/command"
+                                    }
+                                }
+                            },
+                            "verification": {
+                                "properties": {
+                                    "method": {
+                                        "const": "command-check"
+                                    },
+                                    "command": {
+                                        "$ref": "#/$defs/command"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "enforcement": {
+                                "enum": ["candidate", "transitional"]
+                            }
+                        },
+                        "required": ["enforcement"]
+                    },
+                    "then": {
+                        "required": ["transition"]
+                    }
+                }
+            ]
+        }
+    }
+}

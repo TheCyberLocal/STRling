@@ -1,0 +1,206 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/architecture-rules.schema.json",
+    "title": "STRling architecture fitness rules",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["registry_version", "rules"],
+    "properties": {
+        "registry_version": {
+            "const": 1
+        },
+        "rules": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/rule"
+            }
+        }
+    },
+    "$defs": {
+        "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "paths": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/$defs/path"
+            }
+        },
+        "configuration": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "sources": {
+                    "$ref": "#/$defs/paths"
+                },
+                "forbidden_dependencies": {
+                    "$ref": "#/$defs/paths"
+                },
+                "allowed_record_roots": {
+                    "$ref": "#/$defs/paths"
+                },
+                "allowed_top_level_directories": {
+                    "$ref": "#/$defs/paths"
+                },
+                "requires_declaration": {
+                    "const": "architecture_change"
+                },
+                "tracked_paths": {
+                    "$ref": "#/$defs/paths"
+                }
+            }
+        },
+        "rule": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "description",
+                "status",
+                "kind",
+                "configuration"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9][a-z0-9-]{2,63}$"
+                },
+                "description": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "status": {
+                    "enum": ["enforced", "transitional", "future"]
+                },
+                "kind": {
+                    "enum": [
+                        "forbidden-dependency",
+                        "generated-input-cycle",
+                        "task-record-placement",
+                        "new-top-level-directory",
+                        "tracked-transition"
+                    ]
+                },
+                "configuration": {
+                    "$ref": "#/$defs/configuration"
+                },
+                "rationale": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "retirement_condition": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "activation_condition": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "status": {
+                                "const": "transitional"
+                            }
+                        },
+                        "required": ["status"]
+                    },
+                    "then": {
+                        "required": ["rationale", "retirement_condition"]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "status": {
+                                "const": "future"
+                            }
+                        },
+                        "required": ["status"]
+                    },
+                    "then": {
+                        "required": ["rationale", "activation_condition"]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": {
+                                "const": "forbidden-dependency"
+                            }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": ["sources", "forbidden_dependencies"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": {
+                                "const": "task-record-placement"
+                            }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": ["allowed_record_roots"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": {
+                                "const": "new-top-level-directory"
+                            }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "allowed_top_level_directories",
+                                    "requires_declaration"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": {
+                                "const": "tracked-transition"
+                            }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": ["tracked_paths"]
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

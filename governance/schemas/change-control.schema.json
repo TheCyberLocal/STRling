@@ -1,0 +1,74 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/change-control.schema.json",
+    "title": "STRling change-control configuration",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "configuration_version",
+        "active_task",
+        "generated_artifact_registry",
+        "architecture_rule_registry",
+        "path_evidence",
+        "documentation_paths",
+        "internal_implementation_paths"
+    ],
+    "properties": {
+        "configuration_version": {
+            "const": 1
+        },
+        "active_task": {
+            "$ref": "#/$defs/path"
+        },
+        "generated_artifact_registry": {
+            "$ref": "#/$defs/path"
+        },
+        "architecture_rule_registry": {
+            "$ref": "#/$defs/path"
+        },
+        "path_evidence": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["classification", "paths"],
+                "properties": {
+                    "classification": {
+                        "enum": [
+                            "semantic_change",
+                            "public_api_change",
+                            "schema_change",
+                            "diagnostic_change",
+                            "target_behavior_change",
+                            "architecture_change"
+                        ]
+                    },
+                    "paths": {
+                        "$ref": "#/$defs/paths"
+                    }
+                }
+            }
+        },
+        "documentation_paths": {
+            "$ref": "#/$defs/paths"
+        },
+        "internal_implementation_paths": {
+            "$ref": "#/$defs/paths"
+        }
+    },
+    "$defs": {
+        "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "paths": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/$defs/path"
+            }
+        }
+    }
+}

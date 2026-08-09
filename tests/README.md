@@ -11,7 +11,7 @@ For comprehensive testing philosophy, standards, and the complete development wo
 ```
 tests/
 ├── spec/              # SHARED SPEC SUITE (Single Source of Truth)
-│   ├── *.json         # Generated JSON ASTs for all bindings to verify
+│   ├── *.json         # Transitional generated compatibility fixtures
 │   └── README.md      # Details on the spec format
 ├── _design/           # Test Charter documents (human-readable test plans)
 │   ├── unit/          # Unit test charters
@@ -33,15 +33,23 @@ Each language binding maintains its own test directory:
 
 STRling follows a **spec-driven, test-driven development workflow**: **specifications → tests → features**.
 
-### The Shared Spec Suite (SSOT)
+### The Shared Compatibility Fixture Suite
 
-The core logic of STRling is defined in the **Shared Spec Suite** located in `tests/spec/`. This directory contains JSON files that represent the "Golden Master" for parsing and compilation.
+The authoritative language contract lives under `spec/`. The generated JSON
+files in `tests/spec/` preserve cross-binding compatibility evidence for
+parsing, diagnostics, IR, and code generation. They are not a normative
+specification and cannot authorize a semantic change merely by being
+regenerated.
 
 **The Golden Master Workflow:**
 
-1.  **Generate**: The TypeScript binding is the reference implementation. When logic changes in TS, run `npm run build:specs` to regenerate the JSON specs in `tests/spec/`.
-2.  **Commit**: Commit the updated `tests/spec/*.json` files.
-3.  **Verify**: All other bindings (Python, Java, C, etc.) run their test suites against these JSON files to ensure they match the reference implementation.
+1.  **Authorize**: Declare the controlling specification or contract change
+    before changing expected behavior.
+2.  **Generate**: The transitional producer derives fixtures from the
+    TypeScript implementation with `npm run build:specs`.
+3.  **Review and commit**: Review fixture changes against the authoritative
+    contract before committing `tests/spec/*.json`.
+4.  **Verify**: Other bindings consume the fixtures as compatibility evidence.
 
 #### Error Fixtures and `expected_hint`
 
@@ -87,7 +95,7 @@ For day-to-day verification, prefer the root CLI over running individual languag
 ./strling audit           # Run the strict final omega audit
 ```
 
-### Shared Spec Generation (TypeScript)
+### Transitional Fixture Generation (TypeScript)
 
 ```bash
 cd bindings/typescript

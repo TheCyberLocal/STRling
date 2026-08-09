@@ -13,12 +13,22 @@ work; they do not define STRling language syntax or semantics.
 -   [`architecture.md`](architecture.md) defines target architectural invariants
     and distinguishes them from the transitional repository state.
 
-## Records and waivers
+## Machine-readable contracts
 
--   `schemas/task-record.schema.json` defines the scope, verification, checkpoint,
-    completion, commit, behavior, deferral, and readiness fields for contained
-    engineering work.
+-   `schemas/task-record.schema.json` defines declared change classes,
+    deterministic diff scope, expected files, generated-output permissions,
+    verification, completion, and readiness for contained engineering work.
 -   `templates/task-record.yaml` is a validating starting point for a new record.
+-   `generated-artifacts.json` inventories checked-in and material build-local
+    generated families, their controlling contracts, actual generator inputs,
+    producers, outputs, authority, determinism, and transition state. Its schema
+    is `schemas/generated-artifact-registry.schema.json`.
+-   `change-control.json` selects the active task and registries and maps
+    machine-detectable paths to required change declarations. Its schema is
+    `schemas/change-control.schema.json`.
+-   `architecture-rules.json` distinguishes rules enforced now from
+    transitional allowances and future rules. Its schema is
+    `schemas/architecture-rules.schema.json`.
 -   `schemas/waiver.schema.json` defines bounded exceptions with a stable ID,
     explicit rule and scope, rationale, and retirement condition.
 -   `templates/waiver.yaml` is a validating starting point for an exception
@@ -41,11 +51,19 @@ Every contained engineering task MUST:
 6. use meaningful commit subjects that describe the engineering change rather
    than a temporary campaign identifier.
 
-A task record is the durable evidence for those steps. A waiver authorizes only
+A task record is the durable evidence for those steps. Version 1 records remain
+valid historical evidence; every newly active task uses the stronger version 2
+scope and change-declaration contract. Path expressions are repository-relative,
+case-sensitive globs. Both sides of a rename and every deleted path remain in
+scope.
+
+A waiver authorizes only
 its declared exception and scope; it does not alter the authority hierarchy or
 become permanent debt by default. Related replacement work belongs in the
 waiver's retirement section.
 
-These schemas are foundational contracts. Automated scope enforcement, CI
-validation, architecture fitness gates, and certification generation are later
-work and are not implemented here.
+Generated output is never normative merely because it appears in the registry
+or is checked in. The `authoritative_sources` field identifies the controlling
+contract; `generator_inputs` records what the current producer actually reads.
+A mismatch between those fields is explicit transition debt, not an elevation
+of the implementation.
