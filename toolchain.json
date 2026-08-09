@@ -3,6 +3,8 @@
     "policy": {
         "authority": "toolchain.json",
         "documentation": "docs/toolchains.md",
+        "formatting_policy": "governance/formatting.json",
+        "repository_hygiene_policy": "governance/repository-hygiene.json",
         "resolution_models": [
             "exact",
             "constrained",
@@ -54,6 +56,16 @@
             "resolution": {"model": "constrained", "version": ">=3.8,<4.0"},
             "version_command": ["python3", "--version"],
             "version_pattern": "Python ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "prettier": {
+            "resolution": {"model": "exact", "version": "3.3.3"},
+            "version_command": ["node_modules/.bin/prettier", "--version"],
+            "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "ruff": {
+            "resolution": {"model": "exact", "version": "0.15.21"},
+            "version_command": ["ruff", "--version"],
+            "version_pattern": "ruff ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "make": {
             "resolution": {"model": "deferred", "reason": "No portable version floor is declared by the existing Makefiles or CI."},
@@ -208,7 +220,12 @@
             "files": {
                 "manifests": ["package.json"],
                 "locks": ["package-lock.json"],
-                "configs": ["toolchain.json", "pytest.ini"]
+                "configs": [
+                    "toolchain.json",
+                    "pytest.ini",
+                    "governance/formatting.json",
+                    "governance/repository-hygiene.json"
+                ]
             },
             "capabilities": {
                 "format": "not_yet_configured",

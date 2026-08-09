@@ -1,0 +1,298 @@
+{
+    "schema_version": 1,
+    "authority": "This file assigns exactly one canonical formatting strategy to every active source class. toolchain.json remains authoritative for executable versions and quality commands.",
+    "dispositions": [
+        "ready_for_integration",
+        "not_applicable",
+        "not_yet_enforceable"
+    ],
+    "formatters": {
+        "dart-format": {
+            "display_name": "dart format",
+            "toolchain_tool": "dart",
+            "mode": "language_native"
+        },
+        "dotnet-format": {
+            "display_name": "dotnet format whitespace",
+            "toolchain_tool": "dotnet",
+            "mode": "language_native"
+        },
+        "prettier": {
+            "display_name": "Prettier",
+            "toolchain_tool": "prettier",
+            "mode": "external"
+        },
+        "ruff-format": {
+            "display_name": "Ruff formatter",
+            "toolchain_tool": "ruff",
+            "mode": "external"
+        }
+    },
+    "source_classes": [
+        {
+            "id": "c",
+            "ecosystem": "C",
+            "extensions": [".c", ".h"],
+            "strategy": "clang-format",
+            "disposition": "not_yet_enforceable",
+            "reason": "No clang-format executable/version or repository .clang-format is declared, so a deterministic mechanical baseline cannot yet be proven.",
+            "retirement_condition": "Declare clang-format in toolchain.json, add one repository configuration, and prove a behavior-preserving baseline before enabling it."
+        },
+        {
+            "id": "cpp",
+            "ecosystem": "C++",
+            "extensions": [".cc", ".cpp", ".cxx", ".hh", ".hpp", ".hxx"],
+            "strategy": "clang-format",
+            "disposition": "not_yet_enforceable",
+            "reason": "No clang-format executable/version or repository .clang-format is declared, so a deterministic mechanical baseline cannot yet be proven.",
+            "retirement_condition": "Declare clang-format in toolchain.json, add one repository configuration, and prove a behavior-preserving baseline before enabling it."
+        },
+        {
+            "id": "csharp",
+            "ecosystem": "C#",
+            "extensions": [".cs"],
+            "strategy": "dotnet-format",
+            "disposition": "ready_for_integration",
+            "reason": "The governed .NET SDK provides whitespace-only write and verify modes; the initial check identified one mechanical-only source diff."
+        },
+        {
+            "id": "dart",
+            "ecosystem": "Dart",
+            "extensions": [".dart"],
+            "strategy": "dart-format",
+            "disposition": "ready_for_integration",
+            "reason": "The governed Dart SDK provides separate write and non-mutating failure modes; the initial debt is limited to ten files."
+        },
+        {
+            "id": "fsharp",
+            "ecosystem": "F#",
+            "extensions": [".fs", ".fsi", ".fsx"],
+            "strategy": "Fantomas",
+            "disposition": "not_yet_enforceable",
+            "reason": "dotnet format cannot open the repository F# projects and no repository-resolved Fantomas version exists.",
+            "retirement_condition": "Pin Fantomas through toolchain policy and prove a solution-wide mechanical baseline."
+        },
+        {
+            "id": "go",
+            "ecosystem": "Go",
+            "extensions": [".go"],
+            "strategy": "gofmt",
+            "disposition": "not_yet_enforceable",
+            "reason": "The current certification environment has no Go executable, so the existing tree cannot be baselined and reviewed here.",
+            "retirement_condition": "Run the governed Go 1.22 toolchain, review the complete gofmt diff, and pass the Go build and test baselines."
+        },
+        {
+            "id": "java",
+            "ecosystem": "Java",
+            "extensions": [".java"],
+            "strategy": "google-java-format",
+            "disposition": "not_yet_enforceable",
+            "reason": "No repository-resolved google-java-format version or formatter configuration exists.",
+            "retirement_condition": "Pin google-java-format and prove the full Java source diff against build and test baselines."
+        },
+        {
+            "id": "kotlin",
+            "ecosystem": "Kotlin",
+            "extensions": [".kt", ".kts"],
+            "strategy": "ktfmt",
+            "disposition": "not_yet_enforceable",
+            "reason": "The Gradle build does not resolve ktfmt and no formatter baseline has been reviewed.",
+            "retirement_condition": "Pin one ktfmt integration in the Gradle/toolchain policy and prove a mechanical build/test-preserving diff."
+        },
+        {
+            "id": "lua",
+            "ecosystem": "Lua",
+            "extensions": [".lua"],
+            "strategy": "StyLua",
+            "disposition": "not_yet_enforceable",
+            "reason": "StyLua is absent and the Lua dependency/tool installation is not lock-complete.",
+            "retirement_condition": "Pin StyLua, add one configuration, and prove the complete Lua formatting diff against tests."
+        },
+        {
+            "id": "perl",
+            "ecosystem": "Perl",
+            "extensions": [".pl", ".pm", ".t"],
+            "strategy": "Perl::Tidy",
+            "disposition": "not_yet_enforceable",
+            "reason": "Perl::Tidy is absent and the Perl dependency set has no lock file.",
+            "retirement_condition": "Resolve a deterministic Perl::Tidy version and prove formatting against the Perl test baseline."
+        },
+        {
+            "id": "php",
+            "ecosystem": "PHP",
+            "extensions": [".php"],
+            "strategy": "PHP-CS-Fixer",
+            "disposition": "not_yet_enforceable",
+            "reason": "PHP-CS-Fixer is not present in composer.lock and no formatting rule set is configured.",
+            "retirement_condition": "Lock PHP-CS-Fixer, define a formatting-only rule set, and prove the PHP test baseline."
+        },
+        {
+            "id": "python",
+            "ecosystem": "Python",
+            "extensions": [".py"],
+            "strategy": "ruff-format",
+            "disposition": "ready_for_integration",
+            "reason": "Ruff 0.15.21 exposes deterministic write/check modes and reports only two root-tooling files outside canonical form."
+        },
+        {
+            "id": "r",
+            "ecosystem": "R",
+            "extensions": [".r", ".R"],
+            "strategy": "styler",
+            "disposition": "not_yet_enforceable",
+            "reason": "The R runtime and dependencies are deferred and no renv lock resolves styler.",
+            "retirement_condition": "Lock the R formatter/runtime inputs and prove a behavior-preserving package test baseline."
+        },
+        {
+            "id": "ruby",
+            "ecosystem": "Ruby",
+            "extensions": [".rb"],
+            "strategy": "RuboCop formatter",
+            "disposition": "not_yet_enforceable",
+            "reason": "The locked bundle does not include RuboCop and no formatting-only RuboCop configuration exists.",
+            "retirement_condition": "Lock RuboCop, isolate formatting cops from lint expansion, and prove the Ruby test baseline."
+        },
+        {
+            "id": "rust",
+            "ecosystem": "Rust",
+            "extensions": [".rs"],
+            "strategy": "rustfmt",
+            "disposition": "not_yet_enforceable",
+            "reason": "rustfmt is unavailable in the current certification environment, so the existing tree cannot be reviewed against the governed Rust range.",
+            "retirement_condition": "Install the governed rustfmt component, review the complete diff, and pass Cargo checks and tests."
+        },
+        {
+            "id": "swift",
+            "ecosystem": "Swift",
+            "extensions": [".swift"],
+            "strategy": "swift-format",
+            "disposition": "not_yet_enforceable",
+            "reason": "The available swift-format baseline emits thousands of findings including identifier-renaming rules, which is not a formatting-only transformation under this task.",
+            "retirement_condition": "Pin a configuration that disables semantic lint transformations, then prove a formatting-only Swift build/test-preserving diff."
+        },
+        {
+            "id": "typescript",
+            "ecosystem": "TypeScript",
+            "extensions": [".ts", ".tsx"],
+            "strategy": "prettier",
+            "disposition": "ready_for_integration",
+            "reason": "Prettier 3.3.3 supports deterministic write/check modes and the existing 963-test baseline is available for before/after proof."
+        },
+        {
+            "id": "javascript",
+            "ecosystem": "JavaScript",
+            "extensions": [".js", ".jsx", ".mjs", ".cjs"],
+            "strategy": "prettier",
+            "disposition": "ready_for_integration",
+            "reason": "The same exact Prettier tool governs repository JavaScript without a competing formatter."
+        },
+        {
+            "id": "json",
+            "ecosystem": "Authored JSON",
+            "extensions": [".json"],
+            "strategy": "prettier",
+            "disposition": "ready_for_integration",
+            "reason": "Prettier governs authored JSON; lock files and generator-owned fixtures are excluded below and remain controlled by their serializers."
+        },
+        {
+            "id": "yaml",
+            "ecosystem": "YAML",
+            "extensions": [".yaml", ".yml"],
+            "strategy": "prettier",
+            "disposition": "ready_for_integration",
+            "reason": "Prettier governs authored YAML through the same exact repository tool."
+        },
+        {
+            "id": "markdown",
+            "ecosystem": "Markdown",
+            "extensions": [".md"],
+            "strategy": "prettier",
+            "disposition": "ready_for_integration",
+            "reason": "Prettier with prose wrapping preserved supplies mechanical document layout without rewriting prose."
+        },
+        {
+            "id": "shell",
+            "ecosystem": "POSIX/Bash shell",
+            "extensions": [".sh"],
+            "special_files": ["strling"],
+            "strategy": "shfmt",
+            "disposition": "not_yet_enforceable",
+            "reason": "shfmt is absent and no pinned version/configuration has been baselined against the orchestration scripts.",
+            "retirement_condition": "Pin shfmt and prove root and binding script behavior after a mechanical-only diff."
+        },
+        {
+            "id": "powershell",
+            "ecosystem": "PowerShell",
+            "extensions": [".ps1"],
+            "strategy": "PSScriptAnalyzer Invoke-Formatter",
+            "disposition": "not_yet_enforceable",
+            "reason": "PSScriptAnalyzer is not repository-resolved and the Windows command surface lacks a formatter baseline.",
+            "retirement_condition": "Pin PSScriptAnalyzer and verify the Windows command surface before enabling formatting."
+        },
+        {
+            "id": "strling-data",
+            "ecosystem": "STRling and exact pattern fixtures",
+            "extensions": [".strl", ".pattern"],
+            "strategy": "No semantics-safe formatter exists",
+            "disposition": "not_yet_enforceable",
+            "reason": "Whitespace and final bytes can be test input; the repository has no formatter defined by a versioned STRling syntax contract.",
+            "retirement_condition": "Define a versioned semantics-safe formatter and separate exact-input fixtures before enforcement."
+        },
+        {
+            "id": "xml",
+            "ecosystem": "XML project and schema files",
+            "extensions": [".xml", ".csproj", ".fsproj"],
+            "strategy": "xmllint format",
+            "disposition": "not_yet_enforceable",
+            "reason": "No repository-resolved XML formatter is declared and element-whitespace behavior in project files has not been baselined.",
+            "retirement_condition": "Pin one XML formatter and prove project/schema equivalence."
+        },
+        {
+            "id": "toml",
+            "ecosystem": "TOML",
+            "extensions": [".toml"],
+            "strategy": "Taplo",
+            "disposition": "not_yet_enforceable",
+            "reason": "Taplo is absent and no deterministic formatter version is declared.",
+            "retirement_condition": "Pin Taplo and prove manifest equivalence."
+        },
+        {
+            "id": "build-metadata",
+            "ecosystem": "Make, CMake, INI, properties, solution, and package metadata",
+            "extensions": [".ini", ".properties", ".sln"],
+            "special_files": ["CMakeLists.txt", "DESCRIPTION", "Makefile", "NAMESPACE"],
+            "strategy": "No single semantics-safe serializer is established",
+            "disposition": "not_yet_enforceable",
+            "reason": "These formats require format-specific tools and several contain order- or whitespace-sensitive syntax; no deterministic repository tool is configured.",
+            "retirement_condition": "Split the source class only when each replacement strategy is version-governed and behaviorally baselined."
+        }
+    ],
+    "generated_or_serialized": [
+        {
+            "paths": ["**/package-lock.json", "bindings/dart/pubspec.lock", "bindings/php/composer.lock", "bindings/ruby/Gemfile.lock", "bindings/rust/Cargo.lock"],
+            "disposition": "not_applicable",
+            "strategy": "Owning package manager serializer",
+            "reason": "Lock files are reproduced by their owning package manager and are not rewritten by a competing formatter."
+        },
+        {
+            "paths": ["tests/spec/**", "bindings/c/tests/fixtures/**", "bindings/swift/Tests/STRlingConformanceTests/Resources/**"],
+            "disposition": "not_applicable",
+            "strategy": "STRling fixture generation/copy pipeline",
+            "reason": "Generated or byte-exact conformance fixtures remain controlled by their producer and are not independently formatted."
+        },
+        {
+            "paths": ["docs/generated/**", "tooling/js_to_json_ast/out/**", "tooling/lsp-server/dist/**"],
+            "disposition": "not_applicable",
+            "strategy": "Owning generator",
+            "reason": "Generated outputs are reproduced rather than independently formatted."
+        }
+    ],
+    "integration_targets": {
+        "repository": ["javascript", "json", "yaml", "markdown", "python"],
+        "lsp": ["typescript", "python"],
+        "csharp": ["csharp"],
+        "dart": ["dart"],
+        "python": ["python"],
+        "typescript": ["typescript", "javascript"]
+    }
+}
