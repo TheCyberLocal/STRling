@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Public contract snapshots and architecture fitness certification
-status: in_progress
+status: complete
 objective: Establish deterministic, declaration-governed compatibility baselines for externally meaningful APIs and structured contracts, deepen dependency-aware architecture fitness, and integrate both into canonical local and CI hardgates without changing STRling product semantics.
 scope:
     diff:
@@ -184,11 +184,50 @@ checkpoints:
             result: passed
             details: The binding-to-canonical-core rule remains future and non-blocking until a canonical core exists and each adapter migration, legacy removal, and behavior-preservation certification is complete.
     - name: Quality and CI integration certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical hardgate routing
+            command: BUNDLER_VERSION=2.4.20 ./strling check; BUNDLER_VERSION=2.4.20 ./strling certify
+            result: passed
+            details: Both aggregates run contract snapshot verification, generated-artifact verification, and governance with dependency fitness before component operations; CI fetches full history and invokes only ./strling check without duplicated comparison logic, catch-all waivers, reset-on-check behavior, continue-on-error, or ignored extraction failure.
+          - check: Human and structured certification
+            command: ./strling check; ./strling certify; ./strling check --json; ./strling certify --json; ./strling contracts --check --json; ./strling governance --json
+            result: passed
+            details: All six committed-state operations passed, both aggregate JSON documents parsed, and the contract and governance reports identified enforced, transitional, and future results without timestamps or environment paths.
+          - check: Controlled CI-equivalent failures
+            command: python3 -m unittest tooling.tests.test_quality tooling.tests.test_governance tooling.tests.test_governance_contracts tooling.tests.test_contract_declarations tooling.tests.test_public_contracts
+            result: passed
+            details: All 106 focused tests passed, including removed and added symbols, signature drift, stale snapshots, extraction failure, undeclared and mismatched declarations, additive and breaking schemas, forbidden dependencies, transitional and future rules, malformed policies, and aggregate hardgate failure propagation.
+          - check: Affected language baselines
+            command: ./strling test c; ./strling test go; ./strling test python; ./strling test r; ./strling test typescript
+            result: passed
+            details: C passed 596 checks and 20 tests, Go passed, Python passed 789 tests, R passed 725 tests, and the complete TypeScript baseline passed 19 suites and 963 tests.
+          - check: Schema, CI, and repository integrity
+            command: governance JSON parsing; task and CI YAML parsing; git diff --check; git status --short
+            result: passed
+            details: Every governance JSON document, task YAML record, and the CI workflow parsed successfully; patch integrity passed and checkpoint-5 commit a943227c05c26e01ea29babe76962452e00a9faa was clean before this records-only update.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Committed-state leaf hardgates
+            command: ./strling format --check; ./strling hygiene; ./strling lint; ./strling typecheck; ./strling generate --check; ./strling contracts --check; ./strling governance
+            result: passed
+            details: Every enforced formatter, hygiene check, analyzer, static check, generated-artifact verifier, public-contract extractor, declaration validator, and active architecture rule passed; incomplete capabilities remained explicit transitions rather than fabricated successes.
+          - check: Committed-state aggregate certification
+            command: BUNDLER_VERSION=2.4.20 ./strling check; BUNDLER_VERSION=2.4.20 ./strling check --json; BUNDLER_VERSION=2.4.20 ./strling certify; BUNDLER_VERSION=2.4.20 ./strling certify --json
+            result: passed
+            details: Canonical developer, CI-equivalent, structured, and certification aggregates passed from checkpoint-5 committed state, including contract, generation, governance, component quality, and all 963 TypeScript tests.
+          - check: Public contract certification
+            command: ./strling contracts --check; ./strling contracts --check --json
+            result: passed
+            details: Ten enforceable surfaces reproduced exactly, twelve bounded extraction transitions reported, and base-relative change classification found no undeclared public or product schema drift.
+          - check: Architecture fitness certification
+            command: ./strling governance; ./strling governance --json
+            result: passed
+            details: Eight active rules passed repository-wide; three transitional structures reported 34 duplicated compiler paths, 1094 fixture or generator paths, and six direct LSP-to-Python-binding imports; one canonical-core rule remained future and non-blocking.
+          - check: Behavior and readiness review
+            result: passed
+            details: No product files, package versions, public APIs, compiler behavior, language semantics, or legacy implementations changed; all remaining gaps have objective retirement conditions and do not block the certified baseline-freeze task.
 commits:
     - sha: 66cecac811373c81876077a6dc07baba6394ee94
       subject: "docs(governance): define public contract and architecture fitness policy"
@@ -198,3 +237,55 @@ commits:
       subject: "feat(governance): enforce public contract change declarations"
     - sha: 409c2c30e250ca851b90a86f4faf7055545e0e52
       subject: "feat(architecture): enforce dependency fitness rules"
+    - sha: a943227c05c26e01ea29babe76962452e00a9faa
+      subject: "ci(governance): enforce public contracts and architecture fitness"
+completion:
+    accomplished:
+        - A machine-readable registry inventories all 17 binding APIs, TypeScript package entrypoints, the root CLI, and three stable specification schemas with authority, extraction, comparison, enforcement, and transition metadata.
+        - Ten deterministic, normalized, reviewable snapshots cover C, Go, Python, R, TypeScript declarations and entrypoints, the root CLI, and the base, conformance-fixture, and PCRE2 schemas.
+        - Structural comparison classifies unchanged, compatible, additive, breaking, and intentional-correction changes without treating snapshots as normative language semantics.
+        - Base-relative declaration enforcement requires the exact affected surface and compatible change class, preventing broad or unrelated declarations from authorizing drift.
+        - Eight dependency-aware current architecture rules, three evaluated transitions, and one future canonical-core rule govern dependency direction, authority, and semantic implementation placement.
+        - Root contracts, governance, check, and certify operations enforce public contracts and architecture fitness in both human and structured modes.
+        - Pull-request CI invokes the canonical root hardgate with full Git history and no duplicated or weakened contract or architecture logic.
+    verified:
+        - Committed-state format, hygiene, lint, typecheck, generation, contract, governance, check, structured check, certify, and structured certify operations passed.
+        - The affected C, Go, Python, R, and TypeScript test baselines passed, including all 19 TypeScript suites and 963 tests.
+        - All 106 focused governance and quality tests passed, including every required controlled public-symbol, signature, snapshot, extraction, declaration, schema, dependency, policy, and hardgate negative case.
+        - Governance JSON, task YAML, structured outputs, and CI YAML parsed successfully; git diff --check passed and checkpoint-5 committed state was clean.
+    behavior_changed: No STRling language/compiler semantics intentionally changed.
+    intentional_behavior_changes:
+        - Repository tooling now writes and non-mutatingly verifies deterministic public API and structured-contract snapshots.
+        - Public or schema drift now requires an exact, compatible task declaration tied to the changed surface identifier.
+        - Canonical local and CI hardgates now fail on stale snapshots, extraction failures, undeclared or incompatibly declared contract drift, and active architecture-rule violations.
+    preserved_behavior:
+        - Grammar, parser, compiler, emitter, AST, and IR meaning are unchanged.
+        - Diagnostics behavior, targets, standard-library semantics, and all existing public APIs are unchanged.
+        - Package and dependency versions are unchanged.
+        - Legacy binding implementations remain present; canonical compiler, binding, target-engine, Simply, and LSP-intelligence migration has not begun.
+    transitional_architecture:
+        - "cpp-public-api: retire when a pinned compiler-backed AST extraction over installed headers passes overload, access-control, include-path, macro, standard-mode, and normalization tests."
+        - "csharp-public-api: retire when pinned-SDK isolated builds produce normalized public metadata with compiler-generated and target-framework noise removed and reproducibility proven."
+        - "dart-public-api: retire when a pinned analyzer extractor resolves lib/strling.dart export reachability, show/hide chains, nullability, defaults, and reproduces in CI."
+        - "fsharp-public-api: retire when both shipped project assemblies yield normalized public F# signatures under the pinned SDK without build-tree residue."
+        - "java-public-api: retire when a pinned Maven wrapper or compiler path and isolated normalized javap extraction pass package/member compatibility tests."
+        - "kotlin-public-api: retire when a pinned Kotlin metadata-aware extractor normalizes bridges and default methods and certifies source and binary compatibility."
+        - "lua-public-api: retire when a parser-backed walk covers both installed modules, metatables and dynamic keys are defined, the rockspec is aligned, and module/signature tests pass."
+        - "perl-public-api: retire when the supported export and method contract has parser-backed export/prototype extraction plus declared arity metadata and can be certified without loading product behavior."
+        - "php-public-api: retire when a non-executing parser-backed PSR-4 extractor normalizes promoted and readonly properties and union types and passes compatibility tests."
+        - "ruby-public-api: retire when a non-executing Ripper extractor normalizes singleton and instance methods, visibility, and keyword parameters and covers metaprogramming gaps."
+        - "rust-public-api: retire when an MSRV-compatible pinned API extractor or stabilized rustdoc metadata path isolates output, normalizes derived and blanket items, and certifies features and re-exports."
+        - "swift-public-api: retire when pinned symbolgraph extraction removes non-contract metadata and passes overload, availability, Codable synthesis, and repeatability tests."
+        - "duplicated-binding-compilers: remain transitional until each binding depends on the canonical core and its legacy semantic implementation is removed under contained behavior-preservation verification."
+        - "implementation-derived-shared-fixtures: remain non-normative transitional evidence until independently accepted specification-authored contracts deterministically project the complete shared corpus."
+        - "lsp-python-binding-semantic-dependency: retire after a canonical compiler interface exists, editor semantics route through it, direct STRling binding imports are removed, and the rule is promoted to enforced."
+        - "binding-canonical-core-dependency: activate this future rule per binding only after canonical-core implementation, adapter migration, and behavior-preservation certification. No bounded task or architecture exemption was used."
+    deferred_work:
+        - Retire each of the twelve language-specific extraction transitions only by satisfying its recorded deterministic structural-extraction condition.
+        - Replace implementation-derived shared fixtures with independently accepted specification-authored contracts and deterministic projections before promoting them to normative certification authority.
+        - Retire the direct LSP-to-Python dependency and activate canonical-core dependency direction only during contained product-architecture migration after the canonical interface exists.
+        - Freeze this certified hardgate baseline and inventory donor branches before beginning compiler, binding, target, Simply, or LSP migration.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Certified baseline freeze and donor-branch inventory that closes the hardgate foundation and establishes immutable starting evidence for product-architecture migration.
+    rationale: Ten public and structured-contract surfaces and eight current architecture invariants are mechanically enforced through canonical local and CI hardgates; twelve extractor transitions, three present-day architecture transitions, and one future rule are bounded by objective retirement conditions and do not block freezing the certified migration baseline.

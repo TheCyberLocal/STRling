@@ -391,3 +391,98 @@ compiler removal has begun.
 The repository is ready for public API and contract snapshot enforcement plus
 deeper architectural fitness certification before the migration baseline is
 frozen, with the recorded carry-forward above.
+
+## Public contract snapshots and architecture fitness certification
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `b5ff2f0cec8153388e80eec1aac738f882eb89e1`
+-   Behavior change: Governance and quality enforcement only; no STRling
+    language/compiler semantics intentionally changed
+-   Completion record:
+    [`public-contract-architecture-fitness.yaml`](records/public-contract-architecture-fitness.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                               | Result | Commit                                     | Verification                                                                                                                                                         |
+| ---------------------------------------- | ------ | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public surface and fitness contract      | Passed | `66cecac811373c81876077a6dc07baba6394ee94` | Twenty-two surfaces, five compatibility classes, deterministic strategies, private exclusions, architecture categories, and explicit transition conditions validated |
+| Deterministic API and contract snapshots | Passed | `ec5a250a178a75d43ddc4e5ca38e9e1f42adc581` | Ten exact snapshots reproduce; stale, missing, malformed, extraction, public-symbol, signature, and incompatible-schema cases fail                                   |
+| Change classification enforcement        | Passed | `c66960e5b9248f095ea84402b1fadb63f4b183e2` | Git-base-relative classification requires exact change level, surface identifier, component match, evidence, and monotonic enforced coverage                         |
+| Dependency architecture fitness          | Passed | `409c2c30e250ca851b90a86f4faf7055545e0e52` | Eight active rules pass; three transitions report current evidence; one future canonical-core rule stays non-blocking                                                |
+| Quality and CI integration certification | Passed | `a943227c05c26e01ea29babe76962452e00a9faa` | Canonical human/JSON hardgates, 106 focused tests, affected binding suites, full 963-test TypeScript baseline, schema parsing, and CI routing passed                 |
+| Completion and next-task readiness       | Passed | Recorded by the readiness commit           | Preservation, exact certification, transition retirement, carry-forward, and baseline-freeze readiness are recorded                                                  |
+
+### Public contract state
+
+-   All 17 binding APIs, TypeScript package entrypoints, the root CLI, and the
+    stable base, conformance-fixture, and PCRE2 schemas are inventoried.
+-   C, Go, Python, R, TypeScript declarations, TypeScript package entrypoints,
+    the root CLI, and all three schemas have deterministic, normalized,
+    reviewable snapshots.
+-   Changes classify as unchanged, compatible, additive, breaking, or
+    intentional correction. Detection is separate from task declaration and
+    approval; exact affected surface identifiers are required.
+-   C++, C#, Dart, F#, Java, Kotlin, Lua, Perl, PHP, Ruby, Rust, and Swift remain
+    transitional until their registry-specific structural extractor,
+    normalization, isolation, and reproducibility conditions are satisfied.
+
+### Architecture fitness state
+
+-   Eight current rules protect governance/product and quality/semantic import
+    direction, generated-input acyclicity, implementation-derived fixture
+    authority, task and top-level placement, specification-schema reference
+    authority, and new tooling semantic-island placement.
+-   Duplicated binding compilers, implementation-derived shared fixtures, and
+    direct LSP-to-Python-binding imports are evaluated transitions with explicit
+    migration-dependent retirement conditions.
+-   Binding-to-canonical-core dependency direction remains future-state and
+    activates per binding only after core implementation, adapter migration,
+    legacy removal, and behavior-preservation certification.
+-   No bounded task, contract, or architecture waiver was used.
+
+### Hardgate state
+
+-   `./strling contracts --check` fails on stale or missing snapshots, public
+    symbol addition/removal, signature drift, extraction failure, malformed
+    registry data, incompatible schema mutation, undeclared drift, incompatible
+    declarations, and mismatched surface/component declarations.
+-   `./strling governance` fails on malformed policy, active forbidden
+    dependencies, out-of-authority schema references, implementation-derived
+    evidence promoted to normative authority, and undeclared new semantic
+    implementation islands.
+-   `./strling check` and `./strling certify` execute contract verification,
+    generated-artifact verification, and governance before component checks in
+    human and structured modes. Pull-request CI fetches full history and invokes
+    the same canonical `./strling check` command without duplicated logic.
+
+### Certification evidence
+
+-   Committed-state format, hygiene, lint, typecheck, generation, contracts,
+    governance, check, structured check, certify, and structured certify passed.
+-   All 106 governance/quality tests passed, including controlled CI-equivalent
+    stale snapshot, undeclared symbol removal, breaking schema, forbidden
+    dependency, malformed contract, and hardgate-propagation failures.
+-   C passed 596 checks and 20 tests; Go passed; Python passed 789 tests; R passed
+    725 tests; TypeScript passed all 19 suites and 963 tests.
+-   Governance JSON, task YAML, structured output, and CI YAML parsing passed;
+    `git diff --check` and checkpoint-5 clean-tree verification passed.
+
+### Preserved behavior and carry-forward
+
+Grammar, parser/compiler/emitter semantics, AST/IR meaning, diagnostics, targets,
+standard-library semantics, public APIs, and package versions were not
+intentionally changed. No canonical compiler, binding, target-engine, Simply, or
+LSP-intelligence migration has begun, and no legacy implementation was removed.
+
+The twelve language-specific extraction transitions, three current architecture
+transitions, and one future dependency rule retain the exact retirement and
+activation conditions in the completion record. These are the only
+contract/architecture carry-forward findings material to baseline freeze and
+later product-architecture migration.
+
+The repository is ready for the certified baseline freeze and donor-branch
+inventory that closes the hardgate foundation and establishes immutable starting
+evidence for product-architecture migration, with the recorded carry-forward
+above.
