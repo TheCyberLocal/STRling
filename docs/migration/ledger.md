@@ -315,3 +315,79 @@ intelligence migration have not begun.
 The repository is ready for generated-artifact integrity, contract governance,
 and machine-enforced change/scope and architecture controls with the recorded
 carry-forward above.
+
+## Generated-artifact and change-integrity hardgates
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `29fda4705cd39857eccdf079ada69d76d97f199a`
+-   Behavior change: Governance and quality tooling only; no STRling
+    language/compiler semantics intentionally changed
+-   Completion record:
+    [`generated-artifact-change-integrity.yaml`](records/generated-artifact-change-integrity.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                               | Result | Commit                                     | Verification                                                                                                                                                             |
+| ---------------------------------------- | ------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Artifact and change-governance contract  | Passed | `30ff939c9d2dcef449c6088eeef1cf354245ab01` | Ten generated families inventoried; authority and transition classifications recorded; v2 task/change/scope/architecture schemas and eight contract tests passed         |
+| Generated-artifact reproduction hardgate | Passed | `a1dd305649b0f5a7a689058d045ea4d05399a760` | Version metadata and 126 Swift compatibility fixtures reproduce exactly; controlled stale, failure, missing, malformed, mutation, extra-output, and cycle cases fail     |
+| Task scope and architecture fitness      | Passed | `b6c864d79ba8e98a8a7f842dd463e8bb8562cc9d` | Complete Git diff classification, path scope, generated-output declarations, five active rules, two transitions, one future rule, and 17 controlled cases passed         |
+| Quality and CI integration               | Passed | `7f31ebdcf416baf5309046be4ef7f213686e3d8f` | Check/certify run both repository hardgates first; CI uses the canonical command with full history; structured output, 86 focused tests, and 963 TypeScript tests passed |
+| Completion and next-task readiness       | Passed | Recorded by the readiness commit           | Committed-state leaf, human, structured, aggregate, certification, schema, CI-YAML, patch-integrity, behavior-preservation, transition, and readiness evidence recorded  |
+
+### Enforced generated-artifact state
+
+-   `version-synchronized-metadata` is reproduced from
+    `bindings/python/pyproject.toml` by `tooling/sync_versions.py`.
+-   `swift-compatibility-fixture-projection` is reproduced byte-for-byte from
+    `bindings/c/tests/fixtures/*.json` by
+    `tooling/sync_fixture_projection.py`.
+-   Check mode snapshots the entire repository before verification and fails if
+    a generator changes tracked or untracked state, even when the changed path
+    was already dirty.
+-   Eight additional families remain explicitly transitional rather than
+    receiving fabricated determinism claims: shared semantic fixtures, C
+    compatibility fixtures, the C test skeleton, final audit report, package
+    locks, Lua release rockspec, LSP extension payload, and Rust build source.
+
+### Enforced change-governance state
+
+-   Contained tasks declare semantic, public API, schema, diagnostic, target,
+    architecture, generated-output, documentation-only, and internal change
+    intent with evidence.
+-   Git diff selection covers committed, staged, unstaged, untracked, renamed,
+    and deleted paths. Allowed, forbidden, expected, and generated-output rules
+    are deterministic and case-sensitive; violations fail.
+-   Generated-output changes require registry membership, artifact permission,
+    and an appropriate declaration.
+-   Five active architecture rules protect governance/product dependencies,
+    quality/semantic dependencies, generated-input acyclicity, task-record
+    placement, and new top-level implementation islands.
+-   Duplicated binding compilers and implementation-derived fixtures are
+    recorded transitions with retirement conditions. Canonical-core dependency
+    enforcement remains inactive until that architecture exists.
+-   No bounded task or governance exemption was used.
+
+### Preserved behavior
+
+Grammar, parser, compiler, emitter, AST, IR, diagnostics, targets, public APIs,
+standard-library semantics, and package versions were not intentionally
+changed. No canonical compiler implementation, binding migration, or legacy
+compiler removal has begun.
+
+### Carry-forward
+
+-   Make shared semantic evidence contract-derived and exactly reproducible.
+-   Resolve or reclassify the C fixture and test-skeleton generator histories.
+-   Make the final audit, checked lockfile families, and Lua release projection
+    deterministic; certify disposable release/build outputs in their proper
+    release context.
+-   Add public API and contract snapshots, deeper dependency-graph fitness
+    checks, supply-chain provenance, release installation verification, and the
+    remaining recorded static-quality transitions.
+
+The repository is ready for public API and contract snapshot enforcement plus
+deeper architectural fitness certification before the migration baseline is
+frozen, with the recorded carry-forward above.

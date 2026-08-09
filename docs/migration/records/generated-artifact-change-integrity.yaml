@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Generated artifact and change integrity hardgates
-status: in_progress
+status: complete
 objective: Establish deterministic generated-artifact reproduction, declared change scope, and progressive architecture fitness enforcement without changing STRling product semantics.
 scope:
     diff:
@@ -191,8 +191,28 @@ checkpoints:
             result: passed
             details: Formatting, governed CRLF line endings, repository hygiene, static analysis, exact suppression counts, and patch integrity passed without broad exemptions or concealed generated changes.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Committed-state leaf certification
+            command: ./strling format --check; ./strling hygiene; ./strling lint; ./strling typecheck
+            result: passed
+            details: Every enforceable formatter, hygiene rule, lint and warning policy, and type/static check passed from checkpoint-4 commit 7f31ebdcf416baf5309046be4ef7f213686e3d8f; bounded incomplete capabilities remained explicit and non-fabricated.
+          - check: Committed-state integrity certification
+            command: ./strling generate --check; ./strling generate --check --json; ./strling governance; ./strling governance --json
+            result: passed
+            details: Both enforced artifact families reproduced exactly; the complete 32-path task diff, declarations, and five active architecture rules passed in human and structured modes.
+          - check: Committed-state aggregate certification
+            command: BUNDLER_VERSION=2.4.20 ./strling check; BUNDLER_VERSION=2.4.20 ./strling check --json; BUNDLER_VERSION=2.4.20 ./strling certify
+            result: passed
+            details: Canonical developer, CI-equivalent, structured, and broader certification aggregates passed, including the TypeScript build and all 19 suites with 963 tests.
+          - check: Controlled negative and contract certification
+            command: python3 -m unittest tooling.tests.test_quality tooling.tests.test_governance tooling.tests.test_generated_artifacts tooling.tests.test_sync_fixture_projection tooling.tests.test_governance_contracts; python3 -m pytest tooling/tests/test_sync_versions.py -q
+            result: passed
+            details: Seventy-eight quality/governance tests and eight version tests passed, including stale generation, generator failure, missing inputs/outputs, out-of-scope changes, rename, deletion, declaration mismatch, architecture violation, malformed contracts, and aggregate failure propagation.
+          - check: Repository and CI integrity
+            command: governance/schema parsing; CI YAML parsing; git diff --check; git status --short
+            result: passed
+            details: Schemas and active records parsed, CI retained canonical command routing with full history, patch integrity passed, and checkpoint-4 committed state was clean before this completion-only record update.
 commits:
     - sha: 30ff939c9d2dcef449c6088eeef1cf354245ab01
       subject: "docs(governance): define artifact and change-control contracts"
@@ -200,3 +220,51 @@ commits:
       subject: "feat(quality): verify generated artifact integrity"
     - sha: b6c864d79ba8e98a8a7f842dd463e8bb8562cc9d
       subject: "feat(governance): enforce change scope and architecture rules"
+    - sha: 7f31ebdcf416baf5309046be4ef7f213686e3d8f
+      subject: "ci(governance): enforce artifact and change integrity"
+completion:
+    accomplished:
+        - A machine-readable registry classifies ten generated-artifact families by source, generator, outputs, determinism, checked-in state, authority, verification, and transition status.
+        - Deterministic write and non-mutating check modes exactly reproduce version-synchronized metadata and the 126-file Swift compatibility-fixture projection.
+        - The contained-task contract declares semantic, public API, schema, diagnostic, target, architecture, generated-output, documentation-only, and internal-implementation intent with evidence.
+        - Task scope enforcement validates added, modified, renamed, deleted, and untracked paths against deterministic allowed, forbidden, expected, and generated-output rules.
+        - Architecture fitness rules distinguish enforced, transitional, and future invariants with explicit rationale, activation, and retirement conditions.
+        - The root quality coordinator runs generation and governance integrity hardgates before component checks in both check and certify aggregates.
+        - Pull-request CI fetches the declared Git range and invokes the canonical root aggregate without duplicating or weakening integrity logic.
+    verified:
+        - Committed-state format, hygiene, lint, typecheck, generation, governance, check, structured check, and certify operations passed.
+        - All 19 TypeScript suites and 963 tests passed without fixture regeneration or product-source changes.
+        - Seventy-eight quality/governance tests and eight version-synchronization tests passed, including every required controlled negative case.
+        - Governance schemas, registries, active task record, structured outputs, and CI YAML parsed successfully; git diff --check passed.
+    behavior_changed: No STRling language/compiler semantics intentionally changed.
+    intentional_behavior_changes:
+        - Repository tooling now exposes deterministic generated-artifact write/check operations and contained-change governance validation.
+        - Canonical check and certify aggregates, and therefore pull-request CI, now fail on enforced generation drift or governance violations.
+        - Contained tasks can declare governed change classes, scope, expected generated outputs, required verification, and bounded exemptions.
+    preserved_behavior:
+        - Grammar, parser, compiler, emitter, AST, and IR meaning are unchanged.
+        - Target behavior, diagnostics, standard-library semantics, and public APIs are unchanged.
+        - Package and dependency versions are unchanged.
+        - Legacy binding compiler implementations remain present and the canonical compiler migration has not begun.
+    transitional_architecture:
+        - Shared semantic fixtures remain implementation-derived compatibility evidence; retire this allowance when normative specification inputs independently generate the complete corpus with exact cleanup and reproduction.
+        - C compatibility fixtures lack a surviving exact producer; retire this transition when one authoritative command reproduces every tracked fixture or the family is explicitly reclassified as authored evidence.
+        - The tracked C test skeleton and its documented generator output disagree; retire this transition when output placement is reconciled and exact reproduction is enforced.
+        - The final audit report embeds time and environment-dependent results; retire this transition when non-semantic metadata has an explicit normalization policy and semantic content reproduces from declared inputs.
+        - Package-manager lockfiles lack one certified cross-ecosystem reproduction model; retire this transition as each checked-in lock family gains a pinned, deterministic verifier.
+        - Lua release rockspec ownership and naming disagree between local and release tooling; retire this transition when one source, output name, and exact verifier govern both workflows.
+        - The LSP extension payload is disposable and not checked in; retire its registry transition when release certification verifies the assembled artifact and confirms no repository output is expected.
+        - Rust conformance build source is build-local and consumes transitional fixtures; retire this transition when its authoritative fixture inputs become contract-derived and build-time reproduction is certified.
+        - Duplicated binding compilers remain allowed; retire the rule when bindings depend on the canonical core through thin adapters and legacy semantic implementations can be removed in contained work.
+        - Implementation-derived shared fixtures remain permitted but non-normative; retire the rule together with contract-derived semantic fixture generation.
+        - Canonical-core dependency enforcement remains future-state; activate it only after the core and adapter boundary exist. No bounded task or governance exemptions were used.
+    deferred_work:
+        - Public API and contract snapshot enforcement.
+        - Deeper dependency-graph and architectural fitness certification.
+        - Supply-chain provenance and checked dependency-resolution evidence.
+        - Release artifact installation and public-distribution verification.
+        - Remaining formatter, analyzer, warning, and type-checker transitions already recorded by the quality system.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Public API and contract snapshot enforcement with deeper architectural fitness certification before freezing the migration baseline.
+    rationale: Current generated state, contained change intent and scope, and valid present-day architecture boundaries are mechanically enforced locally and in CI; explicitly recorded transitional generators and future-state rules do not block the next contained hardgate.
