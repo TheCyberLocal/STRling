@@ -83,3 +83,63 @@ carry-forward quality debt rather than a result of this change.
 Temporary sequencing identifiers belong only to migration-control records and
 MUST NOT appear in implementation vocabulary, product documentation, generated
 output, release notes, or permanent commit subjects.
+
+## Deterministic toolchain and quality-command foundation
+
+- Status: Complete
+- Starting branch: `architecture/v4`
+- Starting commit: `e6003d0cd5f299feaf74b53e5a2ce6a958f374bc`
+- Behavior change: Developer tooling only; no STRling language/compiler
+  semantics intentionally changed
+- Completion record:
+  [`deterministic-quality-foundation.yaml`](records/deterministic-quality-foundation.yaml)
+- Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint | Result | Commit | Verification |
+| --- | --- | --- | --- |
+| Toolchain contract | Passed | `62257da6ea7a561c13d8acc0c0f54585c42f98d3` | 19 environments and 26 initial executable policies inventoried; configuration and task record validated; TypeScript remained 19 suites and 963 tests |
+| Root quality command framework | Passed | `1486385a6c762021ef7cc4066eb8027ddbade86a` | 10 routing/status tests passed; setup/build/test compatibility passed; JSON results and explicit incomplete states verified |
+| Environment enforcement | Passed | `02d3184d5f1626d7181017d082a1fa31a7ff2b04` | 17 total tooling tests passed; matching, mismatch, unavailable, malformed, constrained, and transitional cases verified; representative setup/build/test passed |
+| Quality-system integration | Passed | `61bcfd8021d2fb49c5e20881e08c2b0f0235211d` | CI and developer commands converged; check/certify passed; 63 incomplete capabilities remained explicit; swallowed-failure search, documentation links, and patch integrity passed |
+| Completion and readiness | Passed | Recorded by the readiness commit | Completion, preservation, deferral, and next-task evidence recorded and schema-valid |
+
+### Accomplished
+
+- `toolchain.json` now governs 17 bindings, repository tooling, language-server
+  tooling, executable version policy, dependency resolution, relevant files,
+  language commands, capability state, and aggregate scope.
+- `./strling` now provides format, format check, lint, typecheck, build, test,
+  check, certify, and environment operations with optional component scope and
+  JSON output.
+- Configured commands fail on unavailable or hard-incompatible environments;
+  bounded transitions and intentionally deferred tools remain visible.
+- CI uses the canonical environment, build, and test operations and no longer
+  converts a failed build into success.
+
+### Preserved behavior
+
+Existing parser, compiler, emitter, AST, IR, runtime, target, public API,
+package-version, dependency-version, and generated-fixture behavior was not
+intentionally altered. Omega remains in place and is not replaced by the new
+certify command.
+
+### Carry-forward
+
+- All formatter and formatter-check capabilities remain unconfigured.
+- General lint is configured only for Dart; type/static analysis remains
+  unconfigured where no trustworthy canonical tool has been baselined.
+- Sixty-three capabilities remain `not_yet_configured` and are returned by
+  aggregate JSON results.
+- Node 18 is a bounded local transition against supported Node 22; npm and
+  several system/package tools remain version-deferred.
+- Python, R, Lua, Perl, Java, Kotlin, and language-server Python dependency
+  resolution is not yet lock-complete.
+- The pre-existing C Makefile test loop does not propagate its accumulated
+  failure count.
+- Full generated-file, task-scope, architecture, public-API, release, and
+  supply-chain certification remains deferred.
+
+The next contained objective is canonical formatting and repository-hygiene
+enforcement on top of this shared substrate.

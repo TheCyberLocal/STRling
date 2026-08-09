@@ -1,6 +1,6 @@
 record_version: 1.0.0
 title: Deterministic toolchain and quality-command foundation
-status: in_progress
+status: complete
 objective: Establish one version-governed, machine-readable root interface for repository quality operations without changing STRling product semantics.
 scope:
   allowed_paths:
@@ -136,8 +136,19 @@ checkpoints:
         result: passed
         details: No whitespace errors were present after CI and documentation integration.
   - name: Completion and readiness
-    status: in_progress
-    evidence: []
+    status: passed
+    evidence:
+      - check: Complete quality-system verification
+        command: JSON/YAML/task-record parsing; 17 tooling tests; bash -n strling; root help; environment/build/test/check/certify; TypeScript baseline; documentation links; swallowed-failure search; git diff --check
+        result: passed
+        details: Configuration, routing, status, environment, aggregate, documentation, and patch-integrity checks passed; the full environment audit alone returned its expected nonzero result for unavailable Go and incompatible Bundler.
+      - check: Product behavior preservation
+        command: ./strling test typescript; git diff e6003d0cd5f299feaf74b53e5a2ce6a958f374bc...HEAD -- bindings spec tests
+        result: passed
+        details: The TypeScript baseline remained 19 suites and 963 tests, and no binding, specification, shared test, package-version, compiler, parser, emitter, AST, IR, or public API file changed.
+      - check: Readiness assessment
+        result: passed
+        details: The deterministic substrate is ready for canonical formatting and repository-hygiene enforcement with 63 unconfigured capabilities, deferred tool pins, and the bounded Node transition recorded as carry-forward.
 commits:
   - sha: 62257da6ea7a561c13d8acc0c0f54585c42f98d3
     subject: "docs(tooling): define deterministic toolchain policy"
@@ -145,3 +156,50 @@ commits:
     subject: "feat(tooling): centralize repository quality commands"
   - sha: 02d3184d5f1626d7181017d082a1fa31a7ff2b04
     subject: "feat(tooling): enforce declared development toolchains"
+  - sha: 61bcfd8021d2fb49c5e20881e08c2b0f0235211d
+    subject: "ci(tooling): route quality checks through canonical commands"
+completion:
+  accomplished:
+    - Established one authoritative inventory for 17 bindings, repository tooling, language-server tooling, 28 executable tools, dependency-resolution policy, and capability state.
+    - Established exact, constrained, repository-managed, and intentionally deferred version-resolution models with executable probes and bounded transition handling.
+    - Added canonical root format, format check, lint, typecheck, build, test, check, certify, and environment commands without reproducing language-tool logic.
+    - Added structured JSON results for operations, components, commands, exit codes, reasons, incomplete capabilities, and environment probes.
+    - Routed CI environment validation, build, and test through the same root interface used by developers and removed its unconditional build-success fallback.
+    - Documented developer and automation use through the root README, contributor guide, developer hub, and authoritative toolchain policy.
+  verified:
+    - "toolchain.json, the active task record, and GitHub Actions YAML parsed successfully."
+    - "python3 -m unittest discover -s tooling/tests -p 'test_*.py' passed 17 tests."
+    - "bash -n strling and ./strling help passed with every canonical command discoverable."
+    - "./strling environment typescript passed with compatible Bash/Python, transitional Node 18, and deferred npm reported explicitly."
+    - "./strling environment all failed as designed for missing Go and repository-incompatible Bundler while reporting 17 usable environments."
+    - "./strling build typescript, ./strling check, and ./strling certify passed."
+    - "./strling test typescript passed 19 suites and 963 tests."
+    - "Targeted searches found no inappropriate unconditional success fallback in modified orchestration or CI paths."
+    - "Local Markdown links and git diff --check passed."
+    - "No files under bindings, spec, or shared tests changed from the starting SHA."
+  behavior_changed: "No STRling language/compiler semantics intentionally changed."
+  intentional_behavior_changes:
+    - Root build commands no longer silently succeed when a capability is absent; they report configured, not-applicable, not-yet-configured, unavailable, passed, or failed state.
+    - Configured quality commands validate declared executable availability and versions before dispatch.
+    - TypeScript setup excludes npm audit and funding network calls while retaining package-lock resolution and lifecycle scripts.
+    - CI validates toolchains, uses canonical root build/test operations, and propagates build failures.
+  preserved_behavior:
+    - Existing parser, compiler, emitter, AST, IR, target, and runtime semantics were not intentionally altered.
+    - Existing binding public APIs, package versions, dependency versions, generated fixtures, and target behavior were not intentionally altered.
+    - Existing setup, bootstrap, clean, audit/Omega, cache-dir, lockfile, and list command surfaces remain available.
+  deferred_work:
+    - Formatter selection, formatting remediation, and format hardgates for all environments
+    - Strict lint rule baselining and warnings-as-errors
+    - Strict type-policy enforcement for capabilities still unconfigured
+    - Repository hygiene and generated-file integrity automation
+    - Task-scope enforcement and architectural fitness tests
+    - Public API snapshots
+    - Full machine-readable certification and release/supply-chain certification
+    - Lock-complete dependency resolution for Python, R, Lua, Perl, Java, Kotlin, and language-server Python dependencies
+    - Exact executable policy for tools still classified as deferred
+    - Retirement of the bounded Node 18 transition after developer environments use supported Node 22
+    - Correction of the pre-existing C test-loop exit status before C test certification becomes a hard gate
+readiness:
+  status: READY WITH RECORDED CARRY-FORWARD
+  next_task: Establish canonical formatting and repository-hygiene enforcement.
+  rationale: The shared command, result, and environment-validation substrate is implemented and verified without product semantic changes. Formatting remains explicitly unconfigured, and known dependency/tool transitions are visible rather than silently accepted.
