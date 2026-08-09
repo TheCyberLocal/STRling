@@ -18,10 +18,10 @@ end
 
 local function compile_node(node)
   if not node then return nil end
-  
+
   if node.type == "Literal" then
     return { ir = "Lit", value = node.value }
-    
+
   elseif node.type == "Sequence" then
     local parts = {}
     if node.parts then
@@ -41,7 +41,7 @@ local function compile_node(node)
       return parts[1]
     end
     return { ir = "Seq", parts = parts }
-    
+
   elseif node.type == "CharacterClass" then
     local items = {}
     if node.members then
@@ -49,10 +49,10 @@ local function compile_node(node)
         if m.type == "Literal" then
           table.insert(items, { ir = "Char", char = m.value })
         elseif m.type == "Range" then
-           table.insert(items, { 
-               ir = "Range", 
-               from = m.from, 
-               to = m.to 
+           table.insert(items, {
+               ir = "Range",
+               from = m.from,
+               to = m.to
            })
         elseif m.type == "Escape" then
            table.insert(items, compile_node(m))
@@ -64,7 +64,7 @@ local function compile_node(node)
       end
     end
     return { ir = "CharClass", negated = node.negated, items = items }
-    
+
   elseif node.type == "Quantifier" then
     local mode = "Greedy"
     if node.possessive then
@@ -72,10 +72,10 @@ local function compile_node(node)
     elseif not node.greedy then
       mode = "Lazy"
     end
-    
+
     local max = val_or_nil(node.max)
     if max == nil then max = "Inf" end
-    
+
     return {
       ir = "Quant",
       min = node.min,
@@ -83,7 +83,7 @@ local function compile_node(node)
       mode = mode,
       child = compile_node(node.target)
     }
-    
+
   elseif node.type == "Group" then
     local atomic = node.atomic
     if atomic == false then atomic = nil end
@@ -94,7 +94,7 @@ local function compile_node(node)
       name = val_or_nil(node.name),
       body = compile_node(node.body)
     }
-    
+
   elseif node.type == "Alternation" then
     local branches = {}
     if node.alternatives then
@@ -103,22 +103,22 @@ local function compile_node(node)
       end
     end
     return { ir = "Alt", branches = branches }
-    
+
   elseif node.type == "Anchor" then
     local at = node.at
     if at == "NonWordBoundary" then at = "NotWordBoundary" end
     return { ir = "Anchor", at = at }
-    
+
   elseif node.type == "Dot" then
     return { ir = "Dot" }
-    
+
   elseif node.type == "Escape" then
      if node.kind == "unicode_property" then
         local t = "p"
         if node.negated then t = "P" end
         return { ir = "Esc", type = t, property = node.property }
      end
-     
+
      local map = {
        digit = "d", ["not-digit"] = "D",
        space = "s", ["not-space"] = "S",
@@ -154,7 +154,7 @@ local function compile_node(node)
   elseif node.type == "NegativeLookbehind" then
     return { ir = "Look", dir = "Behind", neg = true, body = compile_node(node.body) }
   end
-  
+
   return { ir = "Unknown", type = node.type }
 end
 

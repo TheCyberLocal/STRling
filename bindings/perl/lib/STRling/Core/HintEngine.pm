@@ -86,7 +86,7 @@ Returns:
 
 sub get_hint {
     my ($error_message, $text, $pos) = @_;
-    
+
     # Try to match error message to a hint generator
     # Sort by length descending so more specific patterns match first
     for my $pattern (sort { length($b) <=> length($a) } keys %HINT_GENERATORS) {
@@ -95,7 +95,7 @@ sub get_hint {
             return $generator->($error_message, $text, $pos);
         }
     }
-    
+
     # No specific hint available
     return undef;
 }

@@ -87,7 +87,7 @@ module Strling
                  else
                    'Greedy'
                  end
-          
+
           # Handle max being null/nil -> "Inf"
           max_val = ast_node.max.nil? ? 'Inf' : ast_node.max
 
@@ -134,7 +134,7 @@ module Strling
           Esc.new(ir: 'Esc', type: type, property: ast_node.value)
         when Strling::Nodes::Sequence
           parts = ast_node.parts.map { |p| compile(p) }
-          
+
           # Merge adjacent Lit nodes
           merged_parts = []
           parts.each do |part|

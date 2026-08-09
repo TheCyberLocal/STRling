@@ -1,7 +1,7 @@
 /**
  * @file ir.cpp
  * @brief Implementation of STRling IR nodes
- * 
+ *
  * @copyright Copyright (c) 2024 STRling Team
  * @license MIT License
  */
@@ -89,13 +89,13 @@ std::map<std::string, std::string> IRQuant::toDict() const {
     std::map<std::string, std::string> result;
     result["ir"] = "Quant";
     result["min"] = std::to_string(min);
-    
+
     if (std::holds_alternative<int>(max)) {
         result["max"] = std::to_string(std::get<int>(max));
     } else {
         result["max"] = std::get<std::string>(max);
     }
-    
+
     result["mode"] = mode;
     return result;
 }
@@ -104,30 +104,30 @@ std::map<std::string, std::string> IRGroup::toDict() const {
     std::map<std::string, std::string> result;
     result["ir"] = "Group";
     result["capturing"] = capturing ? "true" : "false";
-    
+
     if (name.has_value()) {
         result["name"] = name.value();
     }
-    
+
     if (atomic.has_value()) {
         result["atomic"] = atomic.value() ? "true" : "false";
     }
-    
+
     return result;
 }
 
 std::map<std::string, std::string> IRBackref::toDict() const {
     std::map<std::string, std::string> result;
     result["ir"] = "Backref";
-    
+
     if (byIndex.has_value()) {
         result["byIndex"] = std::to_string(byIndex.value());
     }
-    
+
     if (byName.has_value()) {
         result["byName"] = byName.value();
     }
-    
+
     return result;
 }
 

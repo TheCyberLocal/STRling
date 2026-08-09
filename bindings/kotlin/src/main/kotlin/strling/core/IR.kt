@@ -7,7 +7,7 @@ import kotlinx.serialization.json.JsonElement
 
 /**
  * STRling Intermediate Representation (IR) Node Definitions
- * 
+ *
  * This module defines the complete set of IR node classes that represent
  * language-agnostic regex constructs.
  */

@@ -2,7 +2,7 @@ namespace Strling.Core;
 
 /// <summary>
 /// STRling Error Classes - Rich Error Handling for Instructional Diagnostics
-/// 
+///
 /// This module provides enhanced error classes that deliver context-aware,
 /// instructional error messages. The STRlingParseError class stores detailed
 /// information about syntax errors including position, context, and beginner-friendly
@@ -15,7 +15,7 @@ using System.Linq;
 
 /// <summary>
 /// Rich parse error with position tracking and instructional hints.
-/// 
+///
 /// This error class transforms parse failures into learning opportunities by
 /// providing:
 /// - The specific error message
@@ -143,7 +143,7 @@ public class STRlingParseError : Exception
 
     /// <summary>
     /// Convert the error to LSP Diagnostic format.
-    /// 
+    ///
     /// Returns a dictionary compatible with the Language Server Protocol
     /// Diagnostic specification, which can be serialized to JSON for
     /// communication with LSP clients.

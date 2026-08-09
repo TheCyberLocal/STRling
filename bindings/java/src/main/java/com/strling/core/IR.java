@@ -7,11 +7,11 @@ import java.util.Map;
 
 /**
  * STRling Intermediate Representation (IR) Node Definitions.
- * 
+ *
  * <p>This module defines the complete set of IR node classes that represent
  * language-agnostic regex constructs. The IR serves as an intermediate layer
  * between the parsed AST and the target-specific emitters (e.g., PCRE2).</p>
- * 
+ *
  * <p>IR nodes are designed to be:</p>
  * <ul>
  *   <li>Simple and composable</li>
@@ -19,37 +19,37 @@ import java.util.Map;
  *   <li>Independent of any specific regex flavor</li>
  *   <li>Optimized for transformation and analysis</li>
  * </ul>
- * 
+ *
  * <p>Each IR node corresponds to a fundamental regex operation (alternation,
  * sequencing, character classes, quantification, etc.) and can be serialized
  * to a dictionary representation for further processing or debugging.</p>
  */
 public class IR {
-    
+
     /**
      * Base class for all IR operations.
-     * 
+     *
      * <p>All IR nodes extend this base class and must implement the toDict() method
      * for serialization to a dictionary/object representation.</p>
      */
     public static abstract class IROp {
         /**
          * Serializes the IR node to a dictionary representation.
-         * 
+         *
          * @return The dictionary representation of this IR node
          */
         public abstract Map<String, Object> toDict();
     }
-    
+
     /**
      * Represents an alternation (OR) operation in the IR.
-     * 
+     *
      * <p>Matches any one of the provided branches. Equivalent to the | operator
      * in traditional regex syntax.</p>
      */
     public static class IRAlt extends IROp {
         public List<IROp> branches;
-        
+
         /**
          * Creates an alternation IR node.
          *
@@ -58,7 +58,7 @@ public class IR {
         public IRAlt(List<IROp> branches) {
             this.branches = branches;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -71,16 +71,16 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Represents a sequence (concatenation) operation in the IR.
-     * 
+     *
      * <p>Matches all parts in order. Equivalent to concatenating patterns
      * in traditional regex syntax.</p>
      */
     public static class IRSeq extends IROp {
         public List<IROp> parts;
-        
+
         /**
          * Creates a sequence IR node.
          *
@@ -89,7 +89,7 @@ public class IR {
         public IRSeq(List<IROp> parts) {
             this.parts = parts;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -102,7 +102,7 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Represents a literal string in the IR.
      *
@@ -111,7 +111,7 @@ public class IR {
      */
     public static class IRLit extends IROp {
         public String value;
-        
+
         /**
          * Creates a literal IR node.
          *
@@ -120,7 +120,7 @@ public class IR {
         public IRLit(String value) {
             this.value = value;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -129,7 +129,7 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Represents the "any character" wildcard in the IR.
      *
@@ -144,7 +144,7 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Represents an anchor (position assertion) in the IR.
      *
@@ -153,7 +153,7 @@ public class IR {
      */
     public static class IRAnchor extends IROp {
         public String at;
-        
+
         /**
          * Creates an anchor IR node.
          *
@@ -162,7 +162,7 @@ public class IR {
         public IRAnchor(String at) {
             this.at = at;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -171,7 +171,7 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Base class for character class items.
      *
@@ -181,12 +181,12 @@ public class IR {
     public static abstract class IRClassItem {
         /**
          * Serializes the character class item to a dictionary representation.
-         * 
+         *
          * @return Map containing the item's serialized representation
          */
         public abstract Map<String, Object> toDict();
     }
-    
+
     /**
      * Represents a character range in a character class.
      *
@@ -195,7 +195,7 @@ public class IR {
     public static class IRClassRange extends IRClassItem {
         public String fromCh;
         public String toCh;
-        
+
         /**
          * Creates a character range item.
          *
@@ -206,7 +206,7 @@ public class IR {
             this.fromCh = fromCh;
             this.toCh = toCh;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -216,7 +216,7 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Represents a single literal character in a character class.
      *
@@ -224,7 +224,7 @@ public class IR {
      */
     public static class IRClassLiteral extends IRClassItem {
         public String ch;
-        
+
         /**
          * Creates a literal character item.
          *
@@ -233,7 +233,7 @@ public class IR {
         public IRClassLiteral(String ch) {
             this.ch = ch;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -242,7 +242,7 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Represents an escape sequence in a character class.
      *
@@ -252,7 +252,7 @@ public class IR {
     public static class IRClassEscape extends IRClassItem {
         public String type;
         public String property;
-        
+
         /**
          * Creates an escape sequence item.
          *
@@ -261,7 +261,7 @@ public class IR {
         public IRClassEscape(String type) {
             this(type, null);
         }
-        
+
         /**
          * Creates an escape sequence item.
          *
@@ -272,7 +272,7 @@ public class IR {
             this.type = type;
             this.property = property;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -284,7 +284,7 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Represents a character class in the IR.
      *
@@ -294,7 +294,7 @@ public class IR {
     public static class IRCharClass extends IROp {
         public boolean negated;
         public List<IRClassItem> items;
-        
+
         /**
          * Creates a character class IR node.
          *
@@ -305,7 +305,7 @@ public class IR {
             this.negated = negated;
             this.items = items;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -319,7 +319,7 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Represents a quantifier (repetition) in the IR.
      *
@@ -337,7 +337,7 @@ public class IR {
          * Quantifier mode: "Greedy", "Lazy", or "Possessive".
          */
         public String mode;
-        
+
         /**
          * Creates a quantifier IR node.
          *
@@ -352,7 +352,7 @@ public class IR {
             this.max = max;
             this.mode = mode;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -364,7 +364,7 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Represents a group (capturing or non-capturing) in the IR.
      *
@@ -376,7 +376,7 @@ public class IR {
         public IROp body;
         public String name;
         public Boolean atomic;
-        
+
         /**
          * Creates a group IR node.
          *
@@ -386,7 +386,7 @@ public class IR {
         public IRGroup(boolean capturing, IROp body) {
             this(capturing, body, null, null);
         }
-        
+
         /**
          * Creates a group IR node.
          *
@@ -397,7 +397,7 @@ public class IR {
         public IRGroup(boolean capturing, IROp body, String name) {
             this(capturing, body, name, null);
         }
-        
+
         /**
          * Creates a group IR node.
          *
@@ -412,7 +412,7 @@ public class IR {
             this.name = name;
             this.atomic = atomic;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -428,7 +428,7 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Represents a backreference in the IR.
      *
@@ -438,14 +438,14 @@ public class IR {
     public static class IRBackref extends IROp {
         public Integer byIndex;
         public String byName;
-        
+
         /**
          * Creates a backreference IR node.
          */
         public IRBackref() {
             this(null, null);
         }
-        
+
         /**
          * Creates a backreference IR node.
          *
@@ -456,7 +456,7 @@ public class IR {
             this.byIndex = byIndex;
             this.byName = byName;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -470,7 +470,7 @@ public class IR {
             return map;
         }
     }
-    
+
     /**
      * Represents a lookaround assertion in the IR.
      *
@@ -482,7 +482,7 @@ public class IR {
         public String dir;
         public boolean neg;
         public IROp body;
-        
+
         /**
          * Creates a lookaround IR node.
          *
@@ -495,7 +495,7 @@ public class IR {
             this.neg = neg;
             this.body = body;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();

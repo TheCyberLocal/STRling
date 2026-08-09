@@ -266,7 +266,7 @@ module Strling
           push_redos_warning
         end
         child_str = emit_node(node.child)
-        
+
         # Determine quantifier syntax
         quant_str = if node.min == 0 && node.max == 'Inf'
                       '*'
@@ -298,7 +298,7 @@ module Strling
       # Emit a group
       def emit_group(node)
         body_str = emit_node(node.body)
-        
+
         if node.atomic
           "(?>#{body_str})"
         elsif !node.capturing

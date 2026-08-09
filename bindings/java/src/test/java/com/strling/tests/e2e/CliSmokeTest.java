@@ -109,7 +109,7 @@ public class CliSmokeTest {
         command.addAll(args);
 
         ProcessBuilder pb = new ProcessBuilder(command);
-        
+
         // Set PYTHONPATH environment variable so imports work
         Map<String, String> env = pb.environment();
         env.put("PYTHONPATH", PYTHON_PATH_ENV);
@@ -250,10 +250,10 @@ public class CliSmokeTest {
             // Check for JSON error structure
             assertTrue(result.stdout().contains("\"error\":"), "Stdout should contain 'error' key");
             assertTrue(result.stdout().contains("\"message\":"), "Stdout should contain 'message' key");
-            
+
             // Regex to robustly check for "pos": 3 (allowing for whitespace and newlines)
             assertTrue(
-                result.stdout().matches("(?s).*\"pos\"\\s*:\\s*3.*"), 
+                result.stdout().matches("(?s).*\"pos\"\\s*:\\s*3.*"),
                 "Stdout should contain '\"pos\": 3'"
             );
         }
@@ -305,7 +305,7 @@ public class CliSmokeTest {
 
             assertNotEquals(0, result.code(), "Exit code should be non-zero");
             assertTrue(result.stdout().isEmpty(), "Stdout should be empty");
-            
+
             // Check for the Python FileNotFoundError message
             assertTrue(result.stderr().contains("No such file or directory"), "Stderr should contain file not found message");
         }

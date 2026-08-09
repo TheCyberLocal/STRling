@@ -37,21 +37,21 @@ sl_digit <- function(n = 1L) {
   if (!is.numeric(n) || length(n) != 1) {
     stop("sl_digit expects a single numeric value for n")
   }
-  
+
   if (n <= 0) {
     warning(sprintf("sl_digit: n must be a positive integer, received %s. Defaulting to 1", n))
     n <- 1L
   }
-  
+
   digit_class <- strling_character_class(
     list(strling_class_escape("d")),
     negated = FALSE
   )
-  
+
   if (n == 1L) {
     return(digit_class)
   }
-  
+
   strling_quantifier(digit_class, min = as.integer(n), max = as.integer(n))
 }
 
@@ -70,10 +70,10 @@ sl_any_of <- function(chars) {
       paste(class(chars), collapse = ", ")
     ))
   }
-  
+
   char_vec <- strsplit(chars, "")[[1]]
   items <- lapply(char_vec, function(ch) strling_class_literal(ch))
-  
+
   strling_character_class(items, negated = FALSE)
 }
 
@@ -86,15 +86,15 @@ sl_any_of <- function(chars) {
 #' sl_merge(sl_start(), sl_digit(3), sl_end())
 sl_merge <- function(...) {
   patterns <- list(...)
-  
+
   if (length(patterns) == 0) {
     return(strling_sequence(list()))
   }
-  
+
   if (length(patterns) == 1) {
     return(patterns[[1]])
   }
-  
+
   strling_sequence(patterns)
 }
 

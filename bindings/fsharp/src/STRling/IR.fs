@@ -50,7 +50,7 @@ and IROpConverter() =
         use doc = JsonDocument.ParseValue(&reader)
         let root = doc.RootElement
         let typeProp = root.GetProperty("ir").GetString()
-        
+
         match typeProp with
         | "Alt" ->
             let branches = JsonSerializer.Deserialize<IROp list>(root.GetProperty("branches"), options)
@@ -68,7 +68,7 @@ and IROpConverter() =
         | "CharClass" ->
             let negated = root.GetProperty("negated").GetBoolean()
             let itemsJson = root.GetProperty("items")
-            let items = 
+            let items =
                 [ for item in itemsJson.EnumerateArray() do
                     yield JsonSerializer.Deserialize<IRClassItem>(item.GetRawText(), options) ]
             IRCharClass(negated, items)

@@ -396,6 +396,7 @@ print_help() {
     echo "Commands:"
     echo "  format [--check] [lang|all]  Run or verify configured formatters"
     echo "  lint [lang|all]              Run configured static analyzers"
+    echo "  hygiene                      Validate tracked repository artifacts"
     echo "  typecheck [lang|all]         Run configured type/static analysis"
     echo "  setup <lang|all>      Install prerequisites and dependencies"
     echo "  build <lang|all>      Build a binding if it has a build step"
@@ -443,7 +444,7 @@ if [[ "$COMMAND" == "_run-configured" ]]; then
     exit $?
 fi
 
-if [[ "$COMMAND" == "format" || "$COMMAND" == "lint" || "$COMMAND" == "typecheck" || "$COMMAND" == "build" || "$COMMAND" == "test" || "$COMMAND" == "check" || "$COMMAND" == "certify" || "$COMMAND" == "environment" ]]; then
+if [[ "$COMMAND" == "format" || "$COMMAND" == "hygiene" || "$COMMAND" == "lint" || "$COMMAND" == "typecheck" || "$COMMAND" == "build" || "$COMMAND" == "test" || "$COMMAND" == "check" || "$COMMAND" == "certify" || "$COMMAND" == "environment" ]]; then
     if [[ ! -f "$QUALITY_RUNNER" ]]; then
         echo "Error: quality runner not found at $QUALITY_RUNNER"
         exit 1

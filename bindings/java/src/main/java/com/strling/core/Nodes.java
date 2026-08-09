@@ -7,12 +7,12 @@ import java.util.Map;
 
 /**
  * STRling AST Node Definitions.
- * 
+ *
  * <p>This module defines the complete set of Abstract Syntax Tree (AST) node classes
  * that represent the parsed structure of STRling patterns. The AST is the direct
  * output of the parser and represents the syntactic structure of the pattern before
  * optimization and lowering to IR.</p>
- * 
+ *
  * <p>AST nodes are designed to:</p>
  * <ul>
  *   <li>Closely mirror the source pattern syntax</li>
@@ -20,18 +20,18 @@ import java.util.Map;
  *   <li>Provide a clean separation between parsing and compilation</li>
  *   <li>Support multiple target regex flavors through the compilation pipeline</li>
  * </ul>
- * 
+ *
  * <p>Each AST node type corresponds to a syntactic construct in the STRling DSL
  * (alternation, sequencing, character classes, anchors, etc.) and can be
  * serialized to a dictionary representation for debugging or storage.</p>
  */
 public class Nodes {
-    
+
     // ---- Flags container ----
-    
+
     /**
      * Container for regex flags/modifiers.
-     * 
+     *
      * <p>Flags control the behavior of pattern matching (case sensitivity, multiline
      * mode, etc.). This class encapsulates all standard regex flags and provides
      * utilities for creating flags from string representations.</p>
@@ -42,10 +42,10 @@ public class Nodes {
         public boolean dotAll = false;
         public boolean unicode = false;
         public boolean extended = false;
-        
+
         /**
          * Serializes the flags to a dictionary representation.
-         * 
+         *
          * @return Object containing all flag values
          */
         public Map<String, Boolean> toDict() {
@@ -57,10 +57,10 @@ public class Nodes {
             map.put("extended", extended);
             return map;
         }
-        
+
         /**
          * Creates Flags from a string of flag letters.
-         * 
+         *
          * @param letters String containing flag letters (i, m, s, u, x)
          * @return A new Flags instance with the specified flags enabled
          */
@@ -92,34 +92,34 @@ public class Nodes {
             return f;
         }
     }
-    
+
     // ---- Base node ----
-    
+
     /**
      * Base class for all AST nodes.
      */
     public static abstract class Node {
         /**
          * Serialize node to a dictionary representation.
-         * 
+         *
          * @return Map containing the node's serialized representation
          */
         public abstract Map<String, Object> toDict();
     }
-    
+
     // ---- Concrete nodes matching Base Schema ----
-    
+
     /**
      * Alternation node - represents a choice between multiple branches.
      * Corresponds to the | operator in traditional regex.
      */
     public static class Alt extends Node {
         public List<Node> branches;
-        
+
         public Alt(List<Node> branches) {
             this.branches = branches;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -132,17 +132,17 @@ public class Nodes {
             return map;
         }
     }
-    
+
     /**
      * Sequence node - represents a sequence of patterns that must match in order.
      */
     public static class Seq extends Node {
         public List<Node> parts;
-        
+
         public Seq(List<Node> parts) {
             this.parts = parts;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -155,17 +155,17 @@ public class Nodes {
             return map;
         }
     }
-    
+
     /**
      * Literal node - represents a literal string to match.
      */
     public static class Lit extends Node {
         public String value;
-        
+
         public Lit(String value) {
             this.value = value;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -174,7 +174,7 @@ public class Nodes {
             return map;
         }
     }
-    
+
     /**
      * Dot node - represents the wildcard (.) that matches any character.
      */
@@ -186,7 +186,7 @@ public class Nodes {
             return map;
         }
     }
-    
+
     /**
      * Anchor node - represents position anchors (start, end, word boundary, etc.).
      */
@@ -195,11 +195,11 @@ public class Nodes {
          * The anchor type: "Start"|"End"|"WordBoundary"|"NotWordBoundary"|Absolute* variants.
          */
         public String at;
-        
+
         public Anchor(String at) {
             this.at = at;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -208,33 +208,33 @@ public class Nodes {
             return map;
         }
     }
-    
+
     // --- CharClass ---
-    
+
     /**
      * Base class for character class items.
      */
     public static abstract class ClassItem {
         /**
          * Serialize class item to a dictionary representation.
-         * 
+         *
          * @return Map containing the item's serialized representation
          */
         public abstract Map<String, Object> toDict();
     }
-    
+
     /**
      * Character range within a character class (e.g., a-z).
      */
     public static class ClassRange extends ClassItem {
         public String fromCh;
         public String toCh;
-        
+
         public ClassRange(String fromCh, String toCh) {
             this.fromCh = fromCh;
             this.toCh = toCh;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -244,17 +244,17 @@ public class Nodes {
             return map;
         }
     }
-    
+
     /**
      * Literal character within a character class.
      */
     public static class ClassLiteral extends ClassItem {
         public String ch;
-        
+
         public ClassLiteral(String ch) {
             this.ch = ch;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -263,7 +263,7 @@ public class Nodes {
             return map;
         }
     }
-    
+
     /**
      * Character class escape sequence (e.g., \d, \w, \s, \p{...}).
      */
@@ -272,21 +272,21 @@ public class Nodes {
          * The escape type: d, D, w, W, s, S, p, P.
          */
         public String type;
-        
+
         /**
          * For Unicode property escapes (\p, \P), the property name.
          */
         public String property;
-        
+
         public ClassEscape(String type) {
             this(type, null);
         }
-        
+
         public ClassEscape(String type, String property) {
             this.type = type;
             this.property = property;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -298,19 +298,19 @@ public class Nodes {
             return map;
         }
     }
-    
+
     /**
      * Character class node - represents a character class [...] or negated class [^...].
      */
     public static class CharClass extends Node {
         public boolean negated;
         public List<ClassItem> items;
-        
+
         public CharClass(boolean negated, List<ClassItem> items) {
             this.negated = negated;
             this.items = items;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -324,7 +324,7 @@ public class Nodes {
             return map;
         }
     }
-    
+
     /**
      * Quantifier node - represents repetition (*, +, ?, {m,n}).
      */
@@ -339,14 +339,14 @@ public class Nodes {
          * Quantifier mode: "Greedy" | "Lazy" | "Possessive".
          */
         public String mode;
-        
+
         public Quant(Node child, int min, Object max, String mode) {
             this.child = child;
             this.min = min;
             this.max = max;
             this.mode = mode;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -358,7 +358,7 @@ public class Nodes {
             return map;
         }
     }
-    
+
     /**
      * Group node - represents a capturing or non-capturing group.
      */
@@ -370,22 +370,22 @@ public class Nodes {
          * Extension: whether the group is atomic (possessive).
          */
         public Boolean atomic;
-        
+
         public Group(boolean capturing, Node body) {
             this(capturing, body, null, null);
         }
-        
+
         public Group(boolean capturing, Node body, String name) {
             this(capturing, body, name, null);
         }
-        
+
         public Group(boolean capturing, Node body, String name, Boolean atomic) {
             this.capturing = capturing;
             this.body = body;
             this.name = name;
             this.atomic = atomic;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -401,23 +401,23 @@ public class Nodes {
             return map;
         }
     }
-    
+
     /**
      * Backreference node - references a previously captured group by index or name.
      */
     public static class Backref extends Node {
         public Integer byIndex;
         public String byName;
-        
+
         public Backref() {
             this(null, null);
         }
-        
+
         public Backref(Integer byIndex, String byName) {
             this.byIndex = byIndex;
             this.byName = byName;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();
@@ -431,7 +431,7 @@ public class Nodes {
             return map;
         }
     }
-    
+
     /**
      * Lookaround node - represents lookahead or lookbehind assertions.
      */
@@ -445,13 +445,13 @@ public class Nodes {
          */
         public boolean neg;
         public Node body;
-        
+
         public Look(String dir, boolean neg, Node body) {
             this.dir = dir;
             this.neg = neg;
             this.body = body;
         }
-        
+
         @Override
         public Map<String, Object> toDict() {
             Map<String, Object> map = new HashMap<>();

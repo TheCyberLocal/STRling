@@ -55,21 +55,21 @@ enum Commands {
     Diagnostics {
         /// Input file path (omit for stdin)
         file: Option<PathBuf>,
-        
+
         /// Read from stdin instead of a file
         #[arg(long)]
         stdin: bool,
     },
-    
+
     /// Emit compiled output in target format
     Emit {
         /// Target format (e.g., pcre2)
         #[arg(long)]
         target: String,
-        
+
         /// Input file path (omit for stdin)
         file: Option<PathBuf>,
-        
+
         /// Read from stdin instead of a file
         #[arg(long)]
         stdin: bool,
@@ -78,7 +78,7 @@ enum Commands {
 
 fn main() {
     let cli = Cli::parse();
-    
+
     match &cli.command {
         Some(Commands::Diagnostics { file, stdin }) => {
             let content = if *stdin || file.is_none() {
@@ -86,7 +86,7 @@ fn main() {
             } else {
                 read_file(file.as_ref().unwrap())
             };
-            
+
             match content {
                 Ok(_text) => {
                     // TODO: Call parser and generate diagnostics
@@ -108,7 +108,7 @@ fn main() {
             } else {
                 read_file(file.as_ref().unwrap())
             };
-            
+
             match content {
                 Ok(_text) => {
                     // TODO: Call parser, compiler, and emitter

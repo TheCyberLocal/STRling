@@ -66,12 +66,12 @@ subtest 'Category A: Positive Cases' => sub {
         ['%flags i,m s,u x', {ignoreCase => 1, multiline => 1, dotAll => 1, unicode => 1, extended => 1}, 'multiple_flags_mixed_separators'],
         ['  %flags i  ', {ignoreCase => 1}, 'leading_trailing_whitespace'],
     );
-    
+
     for my $test (@flag_tests) {
         my ($input, $expected, $id) = @$test;
         subtest "should parse flag directive \"$input\" correctly (ID: $id)" => sub {
             my ($flags) = parse($input);
-            
+
             # Build expected flags object
             my $expected_flags = STRling::Core::Nodes::Flags->new(
                 ignoreCase => $expected->{ignoreCase} // 0,
@@ -80,15 +80,15 @@ subtest 'Category A: Positive Cases' => sub {
                 unicode    => $expected->{unicode} // 0,
                 extended   => $expected->{extended} // 0,
             );
-            
+
             ok(flags_match($flags, $expected), 'Flags match expected values');
         };
     }
-    
+
     # Test free-spacing mode
     subtest 'should handle free-spacing mode for "%flags x\na b c" (ID: whitespace_is_ignored)' => sub {
         my ($flags, $ast) = parse("%flags x\na b c");
-        
+
         isa_ok($ast, 'STRling::Core::Nodes::Seq', 'AST is Seq');
         is(scalar @{$ast->parts}, 3, 'Seq has 3 parts');
         isa_ok($ast->parts->[0], 'STRling::Core::Nodes::Lit', 'Part 0 is Lit');
@@ -98,19 +98,19 @@ subtest 'Category A: Positive Cases' => sub {
         isa_ok($ast->parts->[2], 'STRling::Core::Nodes::Lit', 'Part 2 is Lit');
         is($ast->parts->[2]->value, 'c', 'Part 2 value is "c"');
     };
-    
+
     subtest 'should handle free-spacing mode for "%flags x\na # comment\n b" (ID: comments_are_ignored)' => sub {
         my ($flags, $ast) = parse("%flags x\na # comment\n b");
-        
+
         isa_ok($ast, 'STRling::Core::Nodes::Seq', 'AST is Seq');
         is(scalar @{$ast->parts}, 2, 'Seq has 2 parts');
         is($ast->parts->[0]->value, 'a', 'Part 0 value is "a"');
         is($ast->parts->[1]->value, 'b', 'Part 1 value is "b"');
     };
-    
+
     subtest 'should handle free-spacing mode for "%flags x\na\\ b" (ID: escaped_whitespace_is_literal)' => sub {
         my ($flags, $ast) = parse("%flags x\na\\ b");
-        
+
         isa_ok($ast, 'STRling::Core::Nodes::Seq', 'AST is Seq');
         is(scalar @{$ast->parts}, 3, 'Seq has 3 parts');
         is($ast->parts->[0]->value, 'a', 'Part 0 value is "a"');
@@ -123,7 +123,7 @@ subtest 'Category B: Negative Cases' => sub {
     subtest 'should reject bad directive "%flags z" (ID: unknown_flag)' => sub {
         dies_ok { parse('%flags z') } 'Unknown flag throws error';
     };
-    
+
     subtest 'should reject bad directive "%flagg i" (ID: malformed_directive)' => sub {
         # %flagg is not a valid directive, so it should be treated as pattern content
         # and 'g' is a valid literal
@@ -134,21 +134,21 @@ subtest 'Category B: Negative Cases' => sub {
 subtest 'Category C: Edge Cases' => sub {
     subtest 'should handle an empty flags directive' => sub {
         my ($flags) = parse('%flags');
-        
+
         ok(!$flags->ignoreCase, 'ignoreCase is false');
         ok(!$flags->multiline, 'multiline is false');
         ok(!$flags->dotAll, 'dotAll is false');
         ok(!$flags->unicode, 'unicode is false');
         ok(!$flags->extended, 'extended is false');
     };
-    
+
     subtest 'should reject a directive that appears after content' => sub {
         dies_ok { parse("a\n%flags i") } 'Directive after content throws error';
     };
-    
+
     subtest 'should handle a pattern with only comments and whitespace' => sub {
         my ($flags, $ast) = parse("%flags x\n# comment\n  \n# another");
-        
+
         isa_ok($ast, 'STRling::Core::Nodes::Seq', 'AST is Seq');
         is(scalar @{$ast->parts}, 0, 'Seq is empty');
     };
@@ -157,26 +157,26 @@ subtest 'Category C: Edge Cases' => sub {
 subtest 'Category D: Interaction Cases' => sub {
     subtest 'should disable free-spacing inside char class for "%flags x\n[a b]" (ID: whitespace_is_literal_in_class)' => sub {
         my ($flags, $ast) = parse("%flags x\n[a b]");
-        
+
         isa_ok($ast, 'STRling::Core::Nodes::CharClass', 'AST is CharClass');
         is(scalar @{$ast->items}, 3, 'CharClass has 3 items');
-        
+
         isa_ok($ast->items->[0], 'STRling::Core::Nodes::ClassLiteral', 'Item 0 is ClassLiteral');
         is($ast->items->[0]->ch, 'a', 'Item 0 is "a"');
-        
+
         isa_ok($ast->items->[1], 'STRling::Core::Nodes::ClassLiteral', 'Item 1 is ClassLiteral');
         is($ast->items->[1]->ch, ' ', 'Item 1 is space');
-        
+
         isa_ok($ast->items->[2], 'STRling::Core::Nodes::ClassLiteral', 'Item 2 is ClassLiteral');
         is($ast->items->[2]->ch, 'b', 'Item 2 is "b"');
     };
-    
+
     subtest 'should disable free-spacing inside char class for "%flags x\n[a#b]" (ID: comment_char_is_literal_in_class)' => sub {
         my ($flags, $ast) = parse("%flags x\n[a#b]");
-        
+
         isa_ok($ast, 'STRling::Core::Nodes::CharClass', 'AST is CharClass');
         is(scalar @{$ast->items}, 3, 'CharClass has 3 items');
-        
+
         is($ast->items->[0]->ch, 'a', 'Item 0 is "a"');
         is($ast->items->[1]->ch, '#', 'Item 1 is "#"');
         is($ast->items->[2]->ch, 'b', 'Item 2 is "b"');

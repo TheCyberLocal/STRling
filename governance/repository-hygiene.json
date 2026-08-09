@@ -190,6 +190,11 @@
             "path": "tooling/lsp-server/examples/strling.code-workspace",
             "rule": "editor-state",
             "rationale": "This is a user-facing example workspace, not personal editor state."
+        },
+        {
+            "path": "bindings/rust/src/bin/strling-cli.rs",
+            "rule": "compiler-and-build-output",
+            "rationale": "This is the Rust CLI source location defined by Cargo conventions, not compiler output."
         }
     ],
     "generated_paths": [
@@ -205,6 +210,7 @@
         },
         {
             "paths": [
+                "package-lock.json",
                 "**/package-lock.json",
                 "bindings/dart/pubspec.lock",
                 "bindings/php/composer.lock",
@@ -305,6 +311,7 @@
             "tests/spec/**",
             "bindings/c/tests/fixtures/**",
             "bindings/swift/Tests/STRlingConformanceTests/Resources/**",
+            "package-lock.json",
             "**/package-lock.json",
             "bindings/dart/pubspec.lock",
             "bindings/php/composer.lock",
@@ -318,6 +325,12 @@
         "-----BEGIN EC PRIVATE KEY-----",
         "-----BEGIN DSA PRIVATE KEY-----",
         "-----BEGIN PGP PRIVATE KEY BLOCK-----"
+    ],
+    "credential_marker_exclusions": [
+        {
+            "path": "governance/repository-hygiene.json",
+            "rationale": "The policy must contain the literal private-key markers that the scanner detects."
+        }
     ],
     "executable_allowlist": [
         "strling",

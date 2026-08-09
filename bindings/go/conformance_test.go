@@ -27,7 +27,7 @@ func TestConformance(t *testing.T) {
 	// Locate spec directory relative to this test file
 	// Assuming running from bindings/go
 	specDir := "../../tests/spec"
-	
+
 	// Verify spec dir exists
 	if _, err := os.Stat(specDir); os.IsNotExist(err) {
 		t.Skipf("Spec directory not found at %s, skipping conformance tests", specDir)

@@ -78,3 +78,32 @@ _build/
 # ---- TypeScript / JavaScript ----
 # node_modules/ and dist/ are covered by SHARED ARTIFACTS
 _codeql_detected_source_root
+
+# ---- Repository hygiene ----
+*.tmp
+*.new
+*.orig
+*~
+*.status
+.rspec_status
+.coverage
+coverage/
+htmlcov/
+coverage.xml
+lcov.info
+*.vsix
+*.whl
+*.nupkg
+*.zip
+*.tar
+*.tgz
+*.tar.gz
+*.gz
+*.7z
+*.rar
+*.pyc
+*.pyo
+.env
+.env.*
+
+bindings/c/tests/conformance_test

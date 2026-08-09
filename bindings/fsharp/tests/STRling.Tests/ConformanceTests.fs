@@ -19,11 +19,11 @@ type ConformanceTests(output: ITestOutputHelper) =
                 let parent = Directory.GetParent(dir)
                 if parent = null then failwith "Could not find repository root"
                 findRoot parent.FullName
-                
+
         let root = findRoot (Directory.GetCurrentDirectory())
         let specDir = Path.Combine(root, "tests", "spec")
         let files = Directory.GetFiles(specDir, "*.json")
-        
+
         seq {
             for f in files do
                 yield [| box f |]
@@ -47,22 +47,22 @@ type ConformanceTests(output: ITestOutputHelper) =
         options.Converters.Add(ClassItemConverter())
         options.Converters.Add(IROpConverter())
         options.Converters.Add(IRClassItemConverter())
-        
+
         let json = File.ReadAllText(file)
         use doc = JsonDocument.Parse(json)
         let root = doc.RootElement
-        
+
         // Output test name for audit visibility (Console) and xUnit logging (output)
         let runMsg = sprintf "=== RUN   %s (%s)" testName filename
         Console.WriteLine(runMsg)
         output.WriteLine(runMsg)
-        
+
         // Check for error test case
         let mutable expectedErrorElem = Unchecked.defaultof<JsonElement>
         if root.TryGetProperty("expected_error", &expectedErrorElem) then
             // Error test case
             let expectedError = expectedErrorElem.GetString()
-            
+
             // Only run if input_ast exists
             let mutable inputAstElem = Unchecked.defaultof<JsonElement>
             if root.TryGetProperty("input_ast", &inputAstElem) then
@@ -71,7 +71,7 @@ type ConformanceTests(output: ITestOutputHelper) =
                     let _ = Compiler.compile inputAst
                     failwithf "Expected error '%s' but compilation succeeded" expectedError
                 with
-                | _ -> 
+                | _ ->
                     // Expected error caught
                     let passMsg = sprintf "    --- PASS: Caught expected error: %s" expectedError
                     Console.WriteLine(passMsg)
@@ -117,7 +117,7 @@ type ConformanceTests(output: ITestOutputHelper) =
                     let passMsg = sprintf "    --- PASS: Parser test (no AST), out of scope"
                     Console.WriteLine(passMsg)
                     output.WriteLine(passMsg)
-            
+
             ()
         else
             // Only run if input_ast exists
@@ -125,9 +125,9 @@ type ConformanceTests(output: ITestOutputHelper) =
             if root.TryGetProperty("input_ast", &inputAstElem) then
                 let inputAst = JsonSerializer.Deserialize<Node>(inputAstElem.GetRawText(), options)
                 let expectedIr = JsonSerializer.Deserialize<IROp>(root.GetProperty("expected_ir").GetRawText(), options)
-                
+
                 let actualIr = Compiler.compile inputAst
-                
+
                 if actualIr <> expectedIr then
                     let actualJson = JsonSerializer.Serialize(actualIr, options)
                     let expectedJson = JsonSerializer.Serialize(expectedIr, options)

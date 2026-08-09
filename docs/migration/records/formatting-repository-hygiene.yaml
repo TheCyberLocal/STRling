@@ -104,8 +104,28 @@ checkpoints:
             result: passed
             details: The lock resolved deterministically, the TypeScript build passed, and all 19 suites and 963 tests passed.
     - name: Mechanical formatting and hygiene enforcement
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Formatter normalization
+            command: ./strling format; ./strling format --check for repository, lsp, csharp, dart, python, and typescript
+            result: passed
+            details: Canonical formatters normalized 90 files in an isolated formatting-only commit; every enforceable target then passed check mode.
+          - check: Before and after behavioral baselines
+            command: C# build/test; Dart test; Python test; TypeScript build/test; tooling unit tests
+            result: passed
+            details: Before and after formatting, C# built with zero warnings and passed 625 tests, Dart passed 605 tests, Python passed 789 tests, TypeScript passed 19 suites and 963 tests, and the tooling suite passed.
+          - check: Mechanical text proof
+            command: Compare HEAD and worktree content after canonicalizing CRLF/LF and trailing whitespace
+            result: passed
+            details: All 143 binding, specification, test, and support files changed by hygiene normalization were byte-equivalent after removing only governed line-ending, trailing-whitespace, and final-newline differences.
+          - check: Repository artifact enforcement
+            command: ./strling hygiene; ./strling hygiene --json
+            result: passed
+            details: The scanner reported zero findings after nine accidental temporary, build, package, and test-state artifacts were removed; two intentional binaries retain exact SHA-256 allowlists, the example workspace has an exact exception, and the Perl case collision retains its bounded waiver.
+          - check: Directly affected ecosystem tests
+            command: ./strling test all plus direct locked Go and Ruby test commands
+            result: passed
+            details: The aggregate passed 15 binding suites; after installing the declared Go runtime and lockfile-authorized Bundler 2.4.20, Go passed and Ruby passed 596 conformance plus 15 Essential tests with zero failures.
     - name: Hardgate integration and certification
       status: planned
       evidence: []
@@ -115,3 +135,7 @@ checkpoints:
 commits:
     - subject: "docs(quality): define formatting and repository hygiene policy"
       sha: 0052b461818a82b86c73f5113ee46769bfb2d932
+    - subject: "feat(quality): integrate canonical formatter enforcement"
+      sha: c01437529e29151d363e160bc59b91caf85eeb16
+    - subject: "style: apply canonical source formatting"
+      sha: 2acaf53c0e8d85e1b592cee1b4073d6bedeb98fa

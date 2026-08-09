@@ -252,7 +252,7 @@ public final class HintEngine {
         Pattern p = Pattern.compile("Unknown escape sequence \\\\\\\\?(.)" );
         Matcher m = p.matcher(msg);
         String ch = m.find() ? m.group(1) : "\\z";
-        
+
         if ("z".equals(ch)) {
             return "'\\z' is not a recognized escape sequence. Did you mean '\\Z' (end of string) or escape the literal 'z' as 'z'?";
         }

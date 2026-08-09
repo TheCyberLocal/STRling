@@ -41,7 +41,7 @@ our $VERSION = '3.0.0';
 
 package STRling::Core::IR::IROp {
     use Moo;
-    
+
 =head1 CLASSES
 
 =head2 IROp
@@ -68,7 +68,7 @@ Raises: dies if not implemented by subclass.
     sub to_dict {
         die "to_dict() must be implemented by subclass";
     }
-    
+
 =back
 
 =cut
@@ -79,7 +79,7 @@ Raises: dies if not implemented by subclass.
 package STRling::Core::IR::IRAlt {
     use Moo;
     extends 'STRling::Core::IR::IROp';
-    
+
 =head2 IRAlt
 
 Represents an alternation (OR) operation in the IR.
@@ -104,7 +104,7 @@ ArrayRef of IROp nodes representing the alternative branches.
         required => 1,
         # ArrayRef of IROp - the alternative branches
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -119,7 +119,7 @@ ArrayRef of IROp nodes representing the alternative branches.
 package STRling::Core::IR::IRSeq {
     use Moo;
     extends 'STRling::Core::IR::IROp';
-    
+
 =head2 IRSeq
 
 Represents a sequence operation in the IR.
@@ -143,7 +143,7 @@ ArrayRef of IROp nodes representing the sequential parts.
         required => 1,
         # ArrayRef of IROp - the sequential parts
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -158,7 +158,7 @@ ArrayRef of IROp nodes representing the sequential parts.
 package STRling::Core::IR::IRLit {
     use Moo;
     extends 'STRling::Core::IR::IROp';
-    
+
 =head2 IRLit
 
 Represents a literal string in the IR.
@@ -180,7 +180,7 @@ The literal string value.
         required => 1,
         # String - the literal value
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -195,7 +195,7 @@ The literal string value.
 package STRling::Core::IR::IRDot {
     use Moo;
     extends 'STRling::Core::IR::IROp';
-    
+
 =head2 IRDot
 
 Represents the dot (any character) operator in the IR.
@@ -213,7 +213,7 @@ Represents the dot (any character) operator in the IR.
 package STRling::Core::IR::IRAnchor {
     use Moo;
     extends 'STRling::Core::IR::IROp';
-    
+
 =head2 IRAnchor
 
 Represents an anchor (position assertion) in the IR.
@@ -235,7 +235,7 @@ The anchor type: "Start", "End", "WordBoundary", "NotWordBoundary", or Absolute*
         required => 1,
         # String - anchor type
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -249,7 +249,7 @@ The anchor type: "Start", "End", "WordBoundary", "NotWordBoundary", or Absolute*
 
 package STRling::Core::IR::IRClassItem {
     use Moo;
-    
+
 =head2 IRClassItem
 
 Base class for character class items.
@@ -264,7 +264,7 @@ Base class for character class items.
 package STRling::Core::IR::IRClassRange {
     use Moo;
     extends 'STRling::Core::IR::IRClassItem';
-    
+
 =head2 IRClassRange
 
 Represents a character range in a character class (e.g., a-z).
@@ -290,13 +290,13 @@ The ending character of the range.
         required => 1,
         # String - start character
     );
-    
+
     has 'to_ch' => (
         is       => 'ro',
         required => 1,
         # String - end character
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -310,7 +310,7 @@ The ending character of the range.
 package STRling::Core::IR::IRClassLiteral {
     use Moo;
     extends 'STRling::Core::IR::IRClassItem';
-    
+
 =head2 IRClassLiteral
 
 Represents a literal character in a character class.
@@ -332,7 +332,7 @@ The literal character.
         required => 1,
         # String - the character
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -345,7 +345,7 @@ The literal character.
 package STRling::Core::IR::IRClassEscape {
     use Moo;
     extends 'STRling::Core::IR::IRClassItem';
-    
+
 =head2 IRClassEscape
 
 Represents an escape sequence in a character class (e.g., \d, \w, \p{Lu}).
@@ -371,12 +371,12 @@ Unicode property name (for \p and \P types).
         required => 1,
         # String - escape type
     );
-    
+
     has 'property' => (
         is => 'ro',
         # String - optional unicode property
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         my $d = {
@@ -395,7 +395,7 @@ Unicode property name (for \p and \P types).
 package STRling::Core::IR::IRCharClass {
     use Moo;
     extends 'STRling::Core::IR::IROp';
-    
+
 =head2 IRCharClass
 
 Represents a character class in the IR.
@@ -421,13 +421,13 @@ ArrayRef of IRClassItem objects.
         required => 1,
         # Boolean - whether negated
     );
-    
+
     has 'items' => (
         is       => 'ro',
         required => 1,
         # ArrayRef of IRClassItem
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -443,7 +443,7 @@ ArrayRef of IRClassItem objects.
 package STRling::Core::IR::IRQuant {
     use Moo;
     extends 'STRling::Core::IR::IROp';
-    
+
 =head2 IRQuant
 
 Represents a quantifier in the IR.
@@ -477,25 +477,25 @@ Quantifier mode: "Greedy", "Lazy", or "Possessive".
         required => 1,
         # IROp - the child being quantified
     );
-    
+
     has 'min' => (
         is       => 'ro',
         required => 1,
         # Integer - minimum repetitions
     );
-    
+
     has 'max' => (
         is       => 'ro',
         required => 1,
         # Integer or "Inf" - maximum repetitions
     );
-    
+
     has 'mode' => (
         is       => 'ro',
         required => 1,
         # String - Greedy|Lazy|Possessive
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -513,7 +513,7 @@ Quantifier mode: "Greedy", "Lazy", or "Possessive".
 package STRling::Core::IR::IRGroup {
     use Moo;
     extends 'STRling::Core::IR::IROp';
-    
+
 =head2 IRGroup
 
 Represents a group in the IR.
@@ -547,23 +547,23 @@ Optional boolean indicating if the group is atomic.
         required => 1,
         # Boolean - whether capturing
     );
-    
+
     has 'body' => (
         is       => 'ro',
         required => 1,
         # IROp - the group body
     );
-    
+
     has 'name' => (
         is => 'ro',
         # Optional String - group name
     );
-    
+
     has 'atomic' => (
         is => 'ro',
         # Optional Boolean - atomic group
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         my $d = {
@@ -586,7 +586,7 @@ Optional boolean indicating if the group is atomic.
 package STRling::Core::IR::IRBackref {
     use Moo;
     extends 'STRling::Core::IR::IROp';
-    
+
 =head2 IRBackref
 
 Represents a backreference in the IR.
@@ -611,12 +611,12 @@ Optional string name for named backreferences.
         is => 'ro',
         # Optional Integer - backreference by index
     );
-    
+
     has 'byName' => (
         is => 'ro',
         # Optional String - backreference by name
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         my $d = { ir => 'Backref' };
@@ -635,7 +635,7 @@ Optional string name for named backreferences.
 package STRling::Core::IR::IRLook {
     use Moo;
     extends 'STRling::Core::IR::IROp';
-    
+
 =head2 IRLook
 
 Represents a lookaround assertion in the IR.
@@ -665,19 +665,19 @@ The IROp inside the lookaround.
         required => 1,
         # String - Ahead|Behind
     );
-    
+
     has 'neg' => (
         is       => 'ro',
         required => 1,
         # Boolean - whether negative
     );
-    
+
     has 'body' => (
         is       => 'ro',
         required => 1,
         # IROp - lookaround body
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {

@@ -6,19 +6,19 @@ open System
 /// This error class transforms parse failures into learning opportunities.
 type STRlingParseError(message: string, pos: int, text: string, ?hint: string) =
     inherit Exception(STRlingParseError.FormatError(message, pos, text, hint))
-    
+
     /// The error message.
     member _.ErrorMessage = message
-    
+
     /// The character position (0-indexed) where the error occurred.
     member _.Pos = pos
-    
+
     /// The full input text being parsed.
     member _.Text = text
-    
+
     /// An instructional hint explaining how to fix the error.
     member _.Hint = hint
-    
+
     static member private FormatError(message: string, pos: int, text: string, hint: string option) =
         if String.IsNullOrEmpty(text) then
             sprintf "%s at position %d" message pos
@@ -29,7 +29,7 @@ type STRlingParseError(message: string, pos: int, text: string, ?hint: string) =
             let mutable lineNum = 1
             let mutable lineText = ""
             let mutable col = pos
-            
+
             for i = 0 to lines.Length - 1 do
                 let line = lines.[i]
                 let lineLen = line.Length + 1 // +1 for newline
@@ -38,7 +38,7 @@ type STRlingParseError(message: string, pos: int, text: string, ?hint: string) =
                     lineText <- line.TrimEnd('\r')
                     col <- pos - currentPos
                 currentPos <- currentPos + lineLen
-            
+
             // Error is beyond the last line
             if lineText = "" && lines.Length > 0 then
                 lineNum <- lines.Length
@@ -47,20 +47,20 @@ type STRlingParseError(message: string, pos: int, text: string, ?hint: string) =
             elif lineText = "" then
                 lineText <- text
                 col <- pos
-            
+
             // Build the formatted error message
             let parts = ResizeArray<string>()
             parts.Add(sprintf "STRling Parse Error: %s" message)
             parts.Add("")
             parts.Add(sprintf "> %d | %s" lineNum lineText)
             parts.Add(sprintf ">   | %s^" (String.replicate col " "))
-            
+
             match hint with
             | Some h ->
                 parts.Add("")
                 parts.Add(sprintf "Hint: %s" h)
             | None -> ()
-            
+
             String.concat "\n" parts
 
 /// Hint Engine for generating instructional error hints.

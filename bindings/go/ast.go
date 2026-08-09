@@ -199,7 +199,7 @@ func (n *Group) ToCore() (core.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var atomic *bool
 	if n.Atomic != nil && *n.Atomic {
 		atomic = n.Atomic

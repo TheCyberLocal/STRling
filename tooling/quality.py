@@ -16,6 +16,7 @@ from typing import Callable, Iterable, Mapping, Sequence
 
 QUALITY_OPERATIONS = (
     "format",
+    "hygiene",
     "format_check",
     "lint",
     "typecheck",
@@ -214,6 +215,15 @@ class Toolchain:
         assert isinstance(aggregates, dict)
         return aggregates[name]  # type: ignore[return-value]
 
+    def operation_defaults(self, operation: str) -> list[str] | None:
+        defaults = self.policy.get("operation_defaults", {})
+        assert isinstance(defaults, dict)
+        selected = defaults.get(operation)
+        if selected is None:
+            return None
+        assert isinstance(selected, list)
+        return list(selected)
+
     def incomplete_capabilities(self) -> list[dict[str, str]]:
         incomplete: list[dict[str, str]] = []
         for name, target in sorted(self.targets.items()):
@@ -393,6 +403,22 @@ class Toolchain:
                         )
                     if status == "configured":
                         self.resolve_command(target, operation)
+        operation_defaults = policy.get("operation_defaults", {})
+        if not isinstance(operation_defaults, dict):
+            raise ConfigurationError("policy.operation_defaults must be an object")
+        for operation, default_targets in operation_defaults.items():
+            if operation not in QUALITY_OPERATIONS:
+                raise ConfigurationError(
+                    f"policy.operation_defaults contains unknown operation '{operation}'"
+                )
+            if not isinstance(default_targets, list) or not default_targets:
+                raise ConfigurationError(
+                    f"policy.operation_defaults.{operation} must be a non-empty list"
+                )
+            if any(target not in target_names for target in default_targets):
+                raise ConfigurationError(
+                    f"policy.operation_defaults.{operation} contains an unknown target"
+                )
         for name in AGGREGATE_OPERATIONS:
             aggregate = aggregates.get(name)
             if not isinstance(aggregate, dict):
@@ -723,9 +749,10 @@ class QualityRunner:
     def run_operation(
         self, operation: str, requested: str | None
     ) -> list[OperationResult]:
+        defaults = self.toolchain.operation_defaults(operation)
         return [
             self.run_leaf(operation, target)
-            for target in self.toolchain.select(requested)
+            for target in self.toolchain.select(requested, defaults)
         ]
 
     def run_aggregate(self, name: str, requested: str | None) -> list[OperationResult]:
@@ -872,7 +899,7 @@ def _print_help() -> None:
     print("       ./strling format [--check] [component|all] [--json]")
     print("")
     print(
-        "Quality commands: format, lint, typecheck, build, test, check, certify, environment"
+        "Quality commands: format, hygiene, lint, typecheck, build, test, check, certify, environment"
     )
 
 

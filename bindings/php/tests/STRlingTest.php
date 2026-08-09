@@ -7,10 +7,10 @@ use STRling\STRling;
 
 /**
  * Basic test suite for STRling PHP binding.
- * 
+ *
  * This test class will be expanded in Task 2 with functional tests for the Parser,
  * Compiler, and Validator components.
- * 
+ *
  * @package STRling\Tests
  */
 class STRlingTest extends TestCase
@@ -22,7 +22,7 @@ class STRlingTest extends TestCase
     {
         // Verify the main STRling class exists
         $this->assertTrue(class_exists(STRling::class));
-        
+
         // Verify version constant is defined
         $this->assertIsString(STRling::VERSION);
     }

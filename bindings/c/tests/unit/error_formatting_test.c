@@ -37,11 +37,11 @@ static void verify_error_contains(const char *json_input, const char *expected_s
 
     // 1. Assert Failure
     if (result.error_code == STRling_OK) {
-        printf("FAIL: Expected error but got success.\nInput: %s\nOutput: %s\n", 
+        printf("FAIL: Expected error but got success.\nInput: %s\nOutput: %s\n",
                json_input, result.pcre2_pattern);
     }
     assert_int_not_equal(result.error_code, STRling_OK);
-    
+
     // 2. Assert Error Message Existence
     assert_non_null(result.error_message);
 
@@ -50,7 +50,7 @@ static void verify_error_contains(const char *json_input, const char *expected_s
     if (strstr(result.error_message, expected_substring) == NULL) {
         printf("FAIL: Error message did not contain expected substring.\n"
                "Expected: '%s'\n"
-               "Got:      '%s'\n", 
+               "Got:      '%s'\n",
                expected_substring, result.error_message);
     }
     assert_non_null(strstr(result.error_message, expected_substring));
@@ -70,7 +70,7 @@ static void test_simple_error_structure(void **state) {
     (void)state;
     // Passing NULL as input should immediately trigger a generic error.
     strling_result_t result = strling_compile_compat(NULL, NULL);
-    
+
     assert_int_not_equal(result.error_code, STRling_OK);
     assert_non_null(result.error_message);
     // Expect a generic "Invalid input" or "NULL" message
@@ -88,7 +88,7 @@ static void test_simple_error_structure(void **state) {
 static void test_error_with_context(void **state) {
     (void)state;
     // Malformed JSON (missing closing brace)
-    const char *input = "{\"type\": \"Literal\", \"value\": \"a\""; 
+    const char *input = "{\"type\": \"Literal\", \"value\": \"a\"";
     verify_error_contains(input, "JSON"); // Should mention JSON parsing error
 }
 
@@ -110,7 +110,7 @@ static void test_error_position(void **state) {
  */
 static void test_multiline_error(void **state) {
     (void)state;
-    const char *input = 
+    const char *input =
         "{\n"
         "  \"type\": \"Literal\",\n"
         "  \"value\": \n" // Missing value
@@ -125,12 +125,12 @@ static void test_multiline_error(void **state) {
 static void test_error_string_consistency(void **state) {
     (void)state;
     const char *input = "{invalid}";
-    
+
     strling_result_t res1 = strling_compile_compat(input, NULL);
     strling_result_t res2 = strling_compile_compat(input, NULL);
-    
+
     assert_string_equal(res1.error_message, res2.error_message);
-    
+
     strling_result_free_compat(&res1);
     strling_result_free_compat(&res2);
 }
@@ -180,14 +180,14 @@ static void test_hint_unknown_node_type(void **state) {
 static void test_hint_quantified_anchor(void **state) {
     (void)state;
     // Semantic violation: Quantifying an Anchor
-    const char *input = 
+    const char *input =
         "{"
             "\"type\": \"Quantifier\", \"min\": 1, \"max\": null, \"greedy\": true,"
             "\"target\": {\"type\": \"Anchor\", \"at\": \"Start\"}"
         "}";
-    
+
     // The validation logic should catch this
-    verify_error_contains(input, "Anchor"); 
+    verify_error_contains(input, "Anchor");
 }
 
 /**
@@ -210,12 +210,12 @@ static void test_hint_invalid_literal_structure(void **state) {
 static void test_hint_generic_schema_error(void **state) {
     (void)state;
     // Valid JSON, but wrong types (e.g., 'parts' is a string, not array)
-    const char *input = 
+    const char *input =
         "{"
             "\"type\": \"Sequence\","
             "\"parts\": \"This should be an array\""
         "}";
-    
+
     // Should report type mismatch or schema error
     verify_error_contains(input, "parts");
 }

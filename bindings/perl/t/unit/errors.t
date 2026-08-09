@@ -49,12 +49,12 @@ subtest 'Grouping & Lookaround Errors' => sub {
         ['(?<=abc', 'Unterminated lookbehind', 7, 'unterminated_lookbehind'],
         ['(?i)abc', 'Inline modifiers', 1, 'unsupported_inline_modifier'],
     );
-    
+
     for my $test (@tests) {
         my ($invalid_dsl, $error_prefix, $error_pos, $id) = @$test;
         subtest "should fail for \"$invalid_dsl\" (ID: $id)" => sub {
             dies_ok { parse($invalid_dsl) } 'ParseError is thrown';
-            
+
             eval { parse($invalid_dsl) };
             my $err = $@;
             isa_ok($err, 'STRling::Core::Errors::STRlingParseError', 'Error type');
@@ -71,12 +71,12 @@ subtest 'Backreference & Naming Errors' => sub {
         ['(a)\\2', 'Backreference to undefined group', 3, 'nonexistent_reference_by_index'],
         ['\\k<', 'Unterminated named backref', 0, 'unterminated_named_backref'],
     );
-    
+
     for my $test (@tests) {
         my ($invalid_dsl, $error_prefix, $error_pos, $id) = @$test;
         subtest "should fail for \"$invalid_dsl\" (ID: $id)" => sub {
             dies_ok { parse($invalid_dsl) } 'ParseError is thrown';
-            
+
             eval { parse($invalid_dsl) };
             my $err = $@;
             isa_ok($err, 'STRling::Core::Errors::STRlingParseError', 'Error type');
@@ -84,10 +84,10 @@ subtest 'Backreference & Naming Errors' => sub {
             is($err->pos, $error_pos, 'Error position is correct');
         };
     }
-    
+
     subtest 'duplicate group name raises error' => sub {
         dies_ok { parse('(?<name>a)(?<name>b)') } 'ParseError is thrown';
-        
+
         eval { parse('(?<name>a)(?<name>b)') };
         like($@->message, qr/Duplicate group name/, 'Error message contains "Duplicate group name"');
     };
@@ -99,12 +99,12 @@ subtest 'Character Class Errors' => sub {
         ['[\\p{L', 'Unterminated \\p{...}', 1, 'unterminated_unicode_property'],
         ['[\\pL]', 'Expected { after \\p/\\P', 1, 'missing_braces_on_unicode_property'],
     );
-    
+
     for my $test (@tests) {
         my ($invalid_dsl, $error_prefix, $error_pos, $id) = @$test;
         subtest "should fail for \"$invalid_dsl\" (ID: $id)" => sub {
             dies_ok { parse($invalid_dsl) } 'ParseError is thrown';
-            
+
             eval { parse($invalid_dsl) };
             my $err = $@;
             isa_ok($err, 'STRling::Core::Errors::STRlingParseError', 'Error type');
@@ -121,12 +121,12 @@ subtest 'Escape & Codepoint Errors' => sub {
         ['\\x{', 'Unterminated \\x{...}', 0, 'unterminated_hex_brace_empty'],
         ['\\x{FFFF', 'Unterminated \\x{...}', 0, 'unterminated_hex_brace_with_digits'],
     );
-    
+
     for my $test (@tests) {
         my ($invalid_dsl, $error_prefix, $error_pos, $id) = @$test;
         subtest "should fail for \"$invalid_dsl\" (ID: $id)" => sub {
             dies_ok { parse($invalid_dsl) } 'ParseError is thrown';
-            
+
             eval { parse($invalid_dsl) };
             my $err = $@;
             isa_ok($err, 'STRling::Core::Errors::STRlingParseError', 'Error type');
@@ -140,16 +140,16 @@ subtest 'Quantifier Errors' => sub {
     subtest 'unterminated brace quantifier raises error' => sub {
         my $invalid_dsl = 'a{2,5';
         dies_ok { parse($invalid_dsl) } 'ParseError is thrown';
-        
+
         eval { parse($invalid_dsl) };
         my $err = $@;
         is($err->message, 'Incomplete quantifier', 'Error message is correct');
         is($err->pos, 5, 'Error position is correct');
     };
-    
+
     subtest 'quantifying a non-quantifiable atom raises error' => sub {
         dies_ok { parse('^*') } 'ParseError is thrown';
-        
+
         eval { parse('^*') };
         like($@->message, qr/Cannot quantify anchor/, 'Error message contains "Cannot quantify anchor"');
     };
@@ -159,7 +159,7 @@ subtest 'Invariant: First Error Wins' => sub {
     subtest 'first of multiple errors is reported' => sub {
         my $invalid_dsl = '[a|b(';
         dies_ok { parse($invalid_dsl) } 'ParseError is thrown';
-        
+
         eval { parse($invalid_dsl) };
         my $err = $@;
         like($err->message, qr/Unterminated character class/, 'Error message contains "Unterminated character class"');

@@ -42,7 +42,7 @@ our $VERSION = '3.0.0';
 
 package STRling::Core::Nodes::Flags {
     use Moo;
-    
+
 =head1 CLASSES
 
 =head2 Flags
@@ -85,31 +85,31 @@ Boolean flag for extended/verbose mode.
         default => sub { 0 },
         # Boolean - case-insensitive matching
     );
-    
+
     has 'multiline' => (
         is      => 'ro',
         default => sub { 0 },
         # Boolean - multiline mode
     );
-    
+
     has 'dotAll' => (
         is      => 'ro',
         default => sub { 0 },
         # Boolean - dot matches newlines
     );
-    
+
     has 'unicode' => (
         is      => 'ro',
         default => sub { 0 },
         # Boolean - unicode mode
     );
-    
+
     has 'extended' => (
         is      => 'ro',
         default => sub { 0 },
         # Boolean - extended/verbose mode
     );
-    
+
 =head3 METHODS
 
 =over 4
@@ -130,7 +130,7 @@ Serialize the flags to a hash reference.
             extended   => $self->extended ? 1 : 0,
         };
     }
-    
+
 =item from_letters
 
 Create a Flags object from a string of flag letters.
@@ -143,10 +143,10 @@ Supported letters: i (ignoreCase), m (multiline), s (dotAll), u (unicode), x (ex
 
     sub from_letters {
         my ($class, $letters) = @_;
-        
+
         # Remove commas and spaces
         $letters =~ s/[, ]//g;
-        
+
         my %flag_map = (
             i => 'ignoreCase',
             m => 'multiline',
@@ -154,7 +154,7 @@ Supported letters: i (ignoreCase), m (multiline), s (dotAll), u (unicode), x (ex
             u => 'unicode',
             x => 'extended',
         );
-        
+
         my %attrs;
         foreach my $ch (split //, $letters) {
             if (exists $flag_map{$ch}) {
@@ -162,10 +162,10 @@ Supported letters: i (ignoreCase), m (multiline), s (dotAll), u (unicode), x (ex
             }
             # Unknown flags are ignored at parser stage; may be warned later
         }
-        
+
         return $class->new(%attrs);
     }
-    
+
 =back
 
 =cut
@@ -175,7 +175,7 @@ Supported letters: i (ignoreCase), m (multiline), s (dotAll), u (unicode), x (ex
 
 package STRling::Core::Nodes::Node {
     use Moo;
-    
+
 =head2 Node
 
 Base class for all AST nodes.
@@ -197,7 +197,7 @@ Must be implemented by subclasses.
     sub to_dict {
         die "to_dict() must be implemented by subclass";
     }
-    
+
 =back
 
 =cut
@@ -208,7 +208,7 @@ Must be implemented by subclasses.
 package STRling::Core::Nodes::Alt {
     use Moo;
     extends 'STRling::Core::Nodes::Node';
-    
+
 =head2 Alt
 
 Represents an alternation (OR) node.
@@ -230,7 +230,7 @@ ArrayRef of Node objects representing the alternative branches.
         required => 1,
         # ArrayRef of Node - alternative branches
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -243,7 +243,7 @@ ArrayRef of Node objects representing the alternative branches.
 package STRling::Core::Nodes::Seq {
     use Moo;
     extends 'STRling::Core::Nodes::Node';
-    
+
 =head2 Seq
 
 Represents a sequence node.
@@ -265,7 +265,7 @@ ArrayRef of Node objects representing the sequential parts.
         required => 1,
         # ArrayRef of Node - sequential parts
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -278,7 +278,7 @@ ArrayRef of Node objects representing the sequential parts.
 package STRling::Core::Nodes::Lit {
     use Moo;
     extends 'STRling::Core::Nodes::Node';
-    
+
 =head2 Lit
 
 Represents a literal string node.
@@ -300,7 +300,7 @@ The literal string value.
         required => 1,
         # String - literal value
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -313,7 +313,7 @@ The literal string value.
 package STRling::Core::Nodes::Dot {
     use Moo;
     extends 'STRling::Core::Nodes::Node';
-    
+
 =head2 Dot
 
 Represents the dot (any character) node.
@@ -329,7 +329,7 @@ Represents the dot (any character) node.
 package STRling::Core::Nodes::Anchor {
     use Moo;
     extends 'STRling::Core::Nodes::Node';
-    
+
 =head2 Anchor
 
 Represents an anchor (position assertion) node.
@@ -351,7 +351,7 @@ The anchor type: "Start", "End", "WordBoundary", "NotWordBoundary", or Absolute*
         required => 1,
         # String - anchor type
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -365,7 +365,7 @@ The anchor type: "Start", "End", "WordBoundary", "NotWordBoundary", or Absolute*
 
 package STRling::Core::Nodes::ClassItem {
     use Moo;
-    
+
 =head2 ClassItem
 
 Base class for character class items.
@@ -380,7 +380,7 @@ Base class for character class items.
 package STRling::Core::Nodes::ClassRange {
     use Moo;
     extends 'STRling::Core::Nodes::ClassItem';
-    
+
 =head2 ClassRange
 
 Represents a character range in a character class (e.g., a-z).
@@ -406,13 +406,13 @@ The ending character of the range.
         required => 1,
         # String - start character
     );
-    
+
     has 'to_ch' => (
         is       => 'ro',
         required => 1,
         # String - end character
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -426,7 +426,7 @@ The ending character of the range.
 package STRling::Core::Nodes::ClassLiteral {
     use Moo;
     extends 'STRling::Core::Nodes::ClassItem';
-    
+
 =head2 ClassLiteral
 
 Represents a literal character in a character class.
@@ -448,7 +448,7 @@ The literal character.
         required => 1,
         # String - the character
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -461,7 +461,7 @@ The literal character.
 package STRling::Core::Nodes::ClassEscape {
     use Moo;
     extends 'STRling::Core::Nodes::ClassItem';
-    
+
 =head2 ClassEscape
 
 Represents an escape sequence in a character class (e.g., \d, \w, \p{Lu}).
@@ -487,12 +487,12 @@ Unicode property name (for \p and \P types).
         required => 1,
         # String - escape type
     );
-    
+
     has 'property' => (
         is => 'ro',
         # String - optional unicode property
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         my $data = {
@@ -509,7 +509,7 @@ Unicode property name (for \p and \P types).
 package STRling::Core::Nodes::CharClass {
     use Moo;
     extends 'STRling::Core::Nodes::Node';
-    
+
 =head2 CharClass
 
 Represents a character class node.
@@ -535,13 +535,13 @@ ArrayRef of ClassItem objects.
         required => 1,
         # Boolean - whether negated
     );
-    
+
     has 'items' => (
         is       => 'ro',
         required => 1,
         # ArrayRef of ClassItem
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -555,7 +555,7 @@ ArrayRef of ClassItem objects.
 package STRling::Core::Nodes::Quant {
     use Moo;
     extends 'STRling::Core::Nodes::Node';
-    
+
 =head2 Quant
 
 Represents a quantifier node.
@@ -589,25 +589,25 @@ Quantifier mode: "Greedy", "Lazy", or "Possessive".
         required => 1,
         # Node - the child being quantified
     );
-    
+
     has 'min' => (
         is       => 'ro',
         required => 1,
         # Integer - minimum repetitions
     );
-    
+
     has 'max' => (
         is       => 'ro',
         required => 1,
         # Integer or "Inf" - maximum repetitions
     );
-    
+
     has 'mode' => (
         is       => 'ro',
         required => 1,
         # String - Greedy|Lazy|Possessive
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {
@@ -623,7 +623,7 @@ Quantifier mode: "Greedy", "Lazy", or "Possessive".
 package STRling::Core::Nodes::Group {
     use Moo;
     extends 'STRling::Core::Nodes::Node';
-    
+
 =head2 Group
 
 Represents a group node.
@@ -657,23 +657,23 @@ Optional boolean indicating if the group is atomic.
         required => 1,
         # Boolean - whether capturing
     );
-    
+
     has 'body' => (
         is       => 'ro',
         required => 1,
         # Node - the group body
     );
-    
+
     has 'name' => (
         is => 'ro',
         # Optional String - group name
     );
-    
+
     has 'atomic' => (
         is => 'ro',
         # Optional Boolean - atomic group
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         my $data = {
@@ -694,7 +694,7 @@ Optional boolean indicating if the group is atomic.
 package STRling::Core::Nodes::Backref {
     use Moo;
     extends 'STRling::Core::Nodes::Node';
-    
+
 =head2 Backref
 
 Represents a backreference node.
@@ -719,12 +719,12 @@ Optional string name for named backreferences.
         is => 'ro',
         # Optional Integer - backreference by index
     );
-    
+
     has 'byName' => (
         is => 'ro',
         # Optional String - backreference by name
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         my $data = { kind => 'Backref' };
@@ -741,7 +741,7 @@ Optional string name for named backreferences.
 package STRling::Core::Nodes::Look {
     use Moo;
     extends 'STRling::Core::Nodes::Node';
-    
+
 =head2 Look
 
 Represents a lookaround assertion node.
@@ -771,19 +771,19 @@ The Node inside the lookaround.
         required => 1,
         # String - Ahead|Behind
     );
-    
+
     has 'neg' => (
         is       => 'ro',
         required => 1,
         # Boolean - whether negative
     );
-    
+
     has 'body' => (
         is       => 'ro',
         required => 1,
         # Node - lookaround body
     );
-    
+
     sub to_dict {
         my ($self) = @_;
         return {

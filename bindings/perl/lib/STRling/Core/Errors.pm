@@ -108,28 +108,28 @@ Returns a formatted error message with context and hints.
 
 sub _format_error {
     my ($self) = @_;
-    
+
     my $message = $self->message;
     my $pos     = $self->pos;
     my $text    = $self->text;
     my $hint    = $self->hint;
-    
+
     # Fallback to simple format if no text provided
     if (!$text) {
         return "$message at position $pos";
     }
-    
+
     # Find the line containing the error
     my @lines = split /\n/, $text, -1;
     my $current_pos = 0;
     my $line_num = 1;
     my $line_text = '';
     my $col = $pos;
-    
+
     for my $i (0 .. $#lines) {
         my $line = $lines[$i];
         my $line_len = length($line) + 1; # +1 for newline
-        
+
         if ($current_pos + $line_len > $pos) {
             $line_num = $i + 1;
             $line_text = $line;
@@ -138,7 +138,7 @@ sub _format_error {
         }
         $current_pos += $line_len;
     }
-    
+
     # Error is beyond the last line
     if (!$line_text) {
         if (@lines) {
@@ -150,17 +150,17 @@ sub _format_error {
             $col = $pos;
         }
     }
-    
+
     # Build the formatted error message
     my @parts = ("STRling Parse Error: $message", "");
     push @parts, "> $line_num | $line_text";
     push @parts, ">   | " . (' ' x $col) . '^';
-    
+
     if ($hint) {
         push @parts, "";
         push @parts, "Hint: $hint";
     }
-    
+
     return join("\n", @parts);
 }
 
@@ -205,22 +205,22 @@ Returns:
 
 sub to_lsp_diagnostic {
     my ($self) = @_;
-    
+
     my $message = $self->message;
     my $pos     = $self->pos;
     my $text    = $self->text;
     my $hint    = $self->hint;
-    
+
     # Find the line and column containing the error
     my @lines = $text ? split(/\n/, $text, -1) : ();
     my $current_pos = 0;
     my $line_num = 0; # 0-indexed for LSP
     my $col = $pos;
-    
+
     for my $i (0 .. $#lines) {
         my $line = $lines[$i];
         my $line_len = length($line) + 1; # +1 for newline
-        
+
         if ($current_pos + $line_len > $pos) {
             $line_num = $i;
             $col = $pos - $current_pos;
@@ -228,7 +228,7 @@ sub to_lsp_diagnostic {
         }
         $current_pos += $line_len;
     }
-    
+
     # Error is beyond the last line
     if (!@lines || $current_pos <= $pos) {
         if (@lines) {
@@ -239,19 +239,19 @@ sub to_lsp_diagnostic {
             $col = $pos;
         }
     }
-    
+
     # Build the diagnostic message
     my $diagnostic_message = $message;
     if ($hint) {
         $diagnostic_message .= "\n\nHint: $hint";
     }
-    
+
     # Create error code from message (normalize to snake_case)
     my $error_code = lc($message);
     $error_code =~ s/[\s'"()\[\]{}\\\/]/_/g;
     $error_code =~ s/_+/_/g;
     $error_code =~ s/^_|_$//g;
-    
+
     return {
         range => {
             start => { line => $line_num, character => $col },

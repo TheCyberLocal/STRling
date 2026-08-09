@@ -51,7 +51,7 @@ TEST(ErrorsGrouping, UnterminatedGroup) {
         FAIL() << "ParseError was not thrown";
     } catch (const ParseError& e) {
         std::string msg(e.what());
-        EXPECT_TRUE(msg.find("Unterminated") != std::string::npos || 
+        EXPECT_TRUE(msg.find("Unterminated") != std::string::npos ||
                     msg.find("Expected ')'") != std::string::npos);
         EXPECT_EQ(e.getPos(), 4);
     }
@@ -167,7 +167,7 @@ TEST(ErrorsBackref, UnterminatedNamedBackref) {
 /// Test duplicate group name
 TEST(ErrorsBackref, DuplicateGroupName) {
     EXPECT_THROW(parse("(?<name>a)(?<name>b)"), ParseError);
-    
+
     try {
         auto [flags, ast] = parse("(?<name>a)(?<name>b)");
         FAIL() << "ParseError was not thrown";
@@ -285,7 +285,7 @@ TEST(ErrorsQuantifier, UnterminatedBraceQuantifier) {
 /// Test quantifying non-quantifiable atom
 TEST(ErrorsQuantifier, QuantifyingAnchor) {
     EXPECT_THROW(parse("^*"), ParseError);
-    
+
     try {
         auto [flags, ast] = parse("^*");
         FAIL() << "ParseError was not thrown";

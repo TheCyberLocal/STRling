@@ -91,7 +91,7 @@ module Strling
         when 'Range'
             Range.new(from: hash['from'], to: hash['to'])
         else
-          # Generic fallback for unknown nodes to avoid crashing immediately, 
+          # Generic fallback for unknown nodes to avoid crashing immediately,
           # allowing us to see what's missing
           # puts "Warning: Unknown node type #{hash['type']}"
           Data.define(:type, :raw).new(type: hash['type'], raw: hash)

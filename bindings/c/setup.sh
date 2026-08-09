@@ -41,12 +41,12 @@ fi
 # pcre2 for end-to-end regex execution in the Essential 5 suite)
 install_system_deps() {
     local deps_to_install=""
-    
+
     # Check for jansson
     if ! pkg-config --exists jansson 2>/dev/null; then
         deps_to_install="$deps_to_install libjansson-dev"
     fi
-    
+
     # Check for cmocka (test framework)
     if ! pkg-config --exists cmocka 2>/dev/null; then
         deps_to_install="$deps_to_install libcmocka-dev"
@@ -56,14 +56,14 @@ install_system_deps() {
     if ! pkg-config --exists libpcre2-8 2>/dev/null; then
         deps_to_install="$deps_to_install libpcre2-dev"
     fi
-    
+
     if [ -z "$deps_to_install" ]; then
         echo "All system dependencies are already installed."
         return 0
     fi
-    
+
     echo "Installing missing system dependencies: $deps_to_install"
-    
+
     # Detect OS and install accordingly
     # Note: Package names are controlled by the case statement, so no injection risk
     if [ -f /etc/debian_version ] || [ -f /etc/ubuntu_version ] || command -v apt-get &> /dev/null; then

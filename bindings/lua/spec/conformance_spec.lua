@@ -14,7 +14,7 @@ describe("Conformance Tests", function()
     if f then
       local content = f:read("*a")
       f:close()
-      
+
       -- Decode once so we can safely reference spec.id in all branches
       local status, spec = pcall(json.decode, content)
       -- Handle error tests

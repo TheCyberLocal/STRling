@@ -7,7 +7,7 @@ import kotlinx.serialization.json.JsonElement
 
 /**
  * STRling AST Node Definitions
- * 
+ *
  * This module defines the complete set of Abstract Syntax Tree (AST) node classes
  * that represent the parsed structure of STRling patterns.
  */
@@ -35,7 +35,7 @@ data class Flags(
             var dotAll = false
             var unicode = false
             var extended = false
-            
+
             val cleaned = letters.replace(",", "").replace(" ", "")
             for (ch in cleaned) {
                 when (ch) {
@@ -46,7 +46,7 @@ data class Flags(
                     'x' -> extended = true
                 }
             }
-            
+
             return Flags(ignoreCase, multiline, dotAll, unicode, extended)
         }
     }

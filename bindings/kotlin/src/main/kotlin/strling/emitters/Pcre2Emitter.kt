@@ -12,14 +12,14 @@ import strling.core.*
  * Representation (IR) into PCRE2-compatible regex pattern strings.
  */
 object Pcre2Emitter {
-    
+
     /**
      * Escapes PCRE2 metacharacters in literal strings.
      */
     fun escapeLiteral(s: String): String {
         val metaChars = setOf('.', '^', '$', '|', '(', ')', '?', '*', '+', '{', '}', '[', ']', '\\')
         val result = StringBuilder()
-        
+
         for (ch in s) {
             if (ch in metaChars) {
                 result.append('\\').append(ch)
@@ -27,10 +27,10 @@ object Pcre2Emitter {
                 result.append(ch)
             }
         }
-        
+
         return result.toString()
     }
-    
+
     /**
      * Escapes a character for use inside [...] per PCRE2 rules.
      */
@@ -38,7 +38,7 @@ object Pcre2Emitter {
         if (ch.length != 1) {
             throw IllegalArgumentException("escapeClassChar expects single character")
         }
-        
+
         val c = ch[0]
         return when (c) {
             '\\', ']' -> "\\$c"
@@ -59,19 +59,19 @@ object Pcre2Emitter {
             }
         }
     }
-    
+
     /**
      * Emit a PCRE2 character class.
      */
     private fun emitClass(cc: IRCharClass): String {
         val items = cc.items
-        
+
         // Single-item shorthand optimization
         if (items.size == 1 && items[0] is IRClassEscape) {
             val esc = items[0] as IRClassEscape
             val k = esc.type
             val prop = esc.property
-            
+
             when (k) {
                 "d", "w", "s" -> {
                     if (cc.negated) {
@@ -98,7 +98,7 @@ object Pcre2Emitter {
                 }
             }
         }
-        
+
         // General case: build a bracket class
         val parts = StringBuilder()
         for (item in items) {
@@ -126,11 +126,11 @@ object Pcre2Emitter {
                 }
             }
         }
-        
+
         val inner = parts.toString()
         return "[" + (if (cc.negated) "^" else "") + inner + "]"
     }
-    
+
     /**
      * Emit quantifier suffix.
      */
@@ -143,14 +143,14 @@ object Pcre2Emitter {
             maxv == "Inf" -> "{$minv,}"
             else -> "{$minv,$maxv}"
         }
-        
+
         return when (mode) {
             "Lazy" -> "$q?"
             "Possessive" -> "$q+"
             else -> q
         }
     }
-    
+
     /**
      * Return true if 'child' needs a non-capturing group when quantifying.
      */
@@ -167,7 +167,7 @@ object Pcre2Emitter {
             else -> false
         }
     }
-    
+
     /**
      * Generate opening for group based on type.
      */
@@ -181,7 +181,7 @@ object Pcre2Emitter {
             else -> "(?:"
         }
     }
-    
+
     /**
      * Default upper bound on AST/IR nesting depth before the emitter
      * aborts. Mirrors the SSOT in the TypeScript reference and the
@@ -356,7 +356,7 @@ object Pcre2Emitter {
             ctx.depth -= 1
         }
     }
-    
+
     /**
      * Build the inline prefix form for flags.
      */
@@ -367,10 +367,10 @@ object Pcre2Emitter {
         if (flags.dotAll) letters.append('s')
         if (flags.unicode) letters.append('u')
         if (flags.extended) letters.append('x')
-        
+
         return if (letters.isNotEmpty()) "(?$letters)" else ""
     }
-    
+
     /**
      * Emit a PCRE2 pattern string from IR.
      */

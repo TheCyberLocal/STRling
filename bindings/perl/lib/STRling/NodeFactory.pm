@@ -6,9 +6,9 @@ use STRling::Core::Nodes;
 
 sub from_json {
     my ($class, $json, $is_class_member) = @_;
-    
+
     return undef unless defined $json;
-    
+
     my $type = $json->{type};
     die "Unknown node type: " . ($type // 'undef') unless defined $type;
 
@@ -62,7 +62,7 @@ sub from_json {
         my $mode = 'Greedy';
         if ($json->{lazy}) { $mode = 'Lazy'; }
         elsif ($json->{possessive}) { $mode = 'Possessive'; }
-        
+
         my $max = $json->{max};
         $max = 'Inf' unless defined $max;
 
@@ -97,7 +97,7 @@ sub from_json {
         elsif ($kind eq 'not-word') { $esc_type = 'W'; }
         elsif ($kind eq 'not-space') { $esc_type = 'S'; }
         else { die "Unknown escape kind: $kind"; }
-        
+
         return STRling::Core::Nodes::ClassEscape->new(
             type => $esc_type
         );
@@ -136,7 +136,7 @@ sub from_json {
             body => $class->from_json($json->{body} // $json->{expression})
         );
     }
-    
+
     die "Unsupported node type: $type";
 }
 

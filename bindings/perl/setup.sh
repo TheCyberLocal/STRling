@@ -10,13 +10,13 @@ echo "Setting up STRling Perl binding dependencies..."
 install_module() {
     local module=$1
     local apt_package=$2
-    
+
     # Check if module is already installed
     if perl -e "use $module" 2>/dev/null; then
         echo "$module is already installed."
         return 0
     fi
-    
+
     if command -v cpanm &> /dev/null; then
         cpanm --notest "$module" || cpanm --notest --sudo "$module"
     elif command -v apt-get &> /dev/null && [ -n "$apt_package" ]; then

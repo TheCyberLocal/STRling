@@ -18,7 +18,7 @@ print.STRlingParseError <- function(x, ...) {
 
 #' Flags container
 #' @export
-strling_flags <- function(ignoreCase = FALSE, multiline = FALSE, dotAll = FALSE, 
+strling_flags <- function(ignoreCase = FALSE, multiline = FALSE, dotAll = FALSE,
                           unicode = FALSE, extended = FALSE) {
   structure(
     list(
@@ -64,22 +64,22 @@ Cursor <- function(text, extended_mode = FALSE) {
   env$extended_mode <- extended_mode
   env$in_class <- 0L
   env$len <- nchar(text)
-  
+
   env$eof <- function() env$i > env$len
-  
+
   env$peek <- function(offset = 0L) {
     j <- env$i + offset
     if (j > env$len) return("")
     substr(env$text, j, j)
   }
-  
+
   env$take <- function() {
     if (env$eof()) return("")
     ch <- substr(env$text, env$i, env$i)
     env$i <- env$i + 1L
     ch
   }
-  
+
   env$match <- function(s) {
     slen <- nchar(s)
     if (env$i + slen - 1L > env$len) return(FALSE)
@@ -89,7 +89,7 @@ Cursor <- function(text, extended_mode = FALSE) {
     }
     FALSE
   }
-  
+
   env$skip_ws_and_comments <- function() {
     if (!env$extended_mode || env$in_class > 0L) return()
     while (!env$eof()) {
@@ -107,7 +107,7 @@ Cursor <- function(text, extended_mode = FALSE) {
       break
     }
   }
-  
+
   env
 }
 
@@ -115,7 +115,7 @@ Cursor <- function(text, extended_mode = FALSE) {
 Parser <- function(text) {
   env <- new.env(parent = emptyenv())
   env$original <- text
-  
+
   # Parse directives
   result <- parse_directives(text)
   env$flags <- result$flags
@@ -123,14 +123,14 @@ Parser <- function(text) {
   env$cur <- Cursor(env$src, env$flags$extended)
   env$cap_count <- 0L
   env$cap_names <- character(0)
-  
+
   env
 }
 
 parse_directives <- function(text) {
   flags <- strling_flags()
   pattern <- text
-  
+
   # Match %flags directive
   m <- regexpr("^\\s*%flags\\s*([imsux,\\[\\]\\s]*)", text, perl = TRUE)
   if (m > 0) {
@@ -138,7 +138,7 @@ parse_directives <- function(text) {
     flag_str <- sub("^\\s*%flags\\s*", "", flag_str)
     flag_str <- tolower(gsub("[,\\[\\]\\s]", "", flag_str))
     flags <- flags_from_letters(flag_str)
-    
+
     # Remove directive lines
     lines <- strsplit(text, "\n")[[1]]
     pattern_lines <- character(0)
@@ -153,7 +153,7 @@ parse_directives <- function(text) {
     }
     pattern <- paste(pattern_lines, collapse = "\n")
   }
-  
+
   list(flags = flags, pattern = pattern)
 }
 
@@ -169,7 +169,7 @@ strling_parse <- function(src) {
 parse_main <- function(p) {
   node <- parse_alt(p)
   p$cur$skip_ws_and_comments()
-  
+
   if (!p$cur$eof()) {
     ch <- p$cur$peek()
     if (ch == ")") {
@@ -177,55 +177,55 @@ parse_main <- function(p) {
     }
     stop(STRlingParseError("Unexpected trailing input", p$cur$i, p$src))
   }
-  
+
   list(flags = p$flags, node = node)
 }
 
 parse_alt <- function(p) {
   p$cur$skip_ws_and_comments()
-  
+
   if (p$cur$peek() == "|") {
     stop(STRlingParseError("Alternation lacks left-hand side", p$cur$i, p$src))
   }
-  
+
   branches <- list(parse_seq(p))
   p$cur$skip_ws_and_comments()
-  
+
   while (p$cur$peek() == "|") {
     pipe_pos <- p$cur$i
     p$cur$take()
     p$cur$skip_ws_and_comments()
-    
+
     if (p$cur$eof() || p$cur$peek() == "|") {
       stop(STRlingParseError("Alternation lacks right-hand side", pipe_pos, p$src))
     }
-    
+
     branches <- c(branches, list(parse_seq(p)))
     p$cur$skip_ws_and_comments()
   }
-  
+
   if (length(branches) == 1L) return(branches[[1]])
   strling_alternation(branches)
 }
 
 parse_seq <- function(p) {
   parts <- list()
-  
+
   while (TRUE) {
     p$cur$skip_ws_and_comments()
     ch <- p$cur$peek()
-    
+
     if (ch %in% c("*", "+", "?", "{") && length(parts) == 0L) {
       stop(STRlingParseError(sprintf("Invalid quantifier '%s'", ch), p$cur$i, p$src))
     }
-    
+
     if (ch == "" || ch %in% c("|", ")")) break
-    
+
     atom <- parse_atom(p)
     atom <- parse_quant_if_any(p, atom)
     parts <- c(parts, list(atom))
   }
-  
+
   if (length(parts) == 1L) return(parts[[1]])
   strling_sequence(parts)
 }
@@ -233,7 +233,7 @@ parse_seq <- function(p) {
 parse_atom <- function(p) {
   p$cur$skip_ws_and_comments()
   ch <- p$cur$peek()
-  
+
   if (ch == ".") {
     p$cur$take()
     return(strling_dot())
@@ -258,7 +258,7 @@ parse_atom <- function(p) {
   if (ch == ")") {
     stop(STRlingParseError("Unmatched ')'", p$cur$i, p$src))
   }
-  
+
   strling_literal(p$cur$take())
 }
 
@@ -269,7 +269,7 @@ parse_quant_if_any <- function(p, child) {
   greedy <- TRUE
   lazy <- FALSE
   possessive <- FALSE
-  
+
   if (ch == "*") {
     min <- 0L
     max <- NULL
@@ -285,21 +285,21 @@ parse_quant_if_any <- function(p, child) {
   } else if (ch == "{") {
     save <- p$cur$i
     p$cur$take()
-    
+
     m <- read_int_optional(p)
     if (is.null(m)) {
       p$cur$i <- save
       return(child)
     }
-    
+
     min <- m
     max <- m
-    
+
     if (p$cur$peek() == ",") {
       p$cur$take()
       max <- read_int_optional(p)
     }
-    
+
     if (p$cur$peek() != "}") {
       stop(STRlingParseError("Incomplete quantifier", p$cur$i, p$src))
     }
@@ -307,11 +307,11 @@ parse_quant_if_any <- function(p, child) {
   } else {
     return(child)
   }
-  
+
   if (inherits(child, "strling_anchor")) {
     stop(STRlingParseError("Cannot quantify anchor", p$cur$i, p$src))
   }
-  
+
   nxt <- p$cur$peek()
   if (nxt == "?") {
     greedy <- FALSE
@@ -322,7 +322,7 @@ parse_quant_if_any <- function(p, child) {
     possessive <- TRUE
     p$cur$take()
   }
-  
+
   mode <- if (lazy) "Lazy" else if (possessive) "Possessive" else "Greedy"
   strling_quantifier(child, min, max, mode)
 }
@@ -338,7 +338,7 @@ read_int_optional <- function(p) {
 
 parse_group_or_look <- function(p) {
   p$cur$take()  # consume '('
-  
+
   if (p$cur$match("?:")) {
     body <- parse_alt(p)
     if (!p$cur$match(")")) {
@@ -346,7 +346,7 @@ parse_group_or_look <- function(p) {
     }
     return(strling_group(body, capturing = FALSE))
   }
-  
+
   if (p$cur$match("?<=")) {
     body <- parse_alt(p)
     if (!p$cur$match(")")) {
@@ -354,7 +354,7 @@ parse_group_or_look <- function(p) {
     }
     return(strling_lookaround(body, kind = "Behind", negated = FALSE))
   }
-  
+
   if (p$cur$match("?<!")) {
     body <- parse_alt(p)
     if (!p$cur$match(")")) {
@@ -362,7 +362,7 @@ parse_group_or_look <- function(p) {
     }
     return(strling_lookaround(body, kind = "Behind", negated = TRUE))
   }
-  
+
   if (p$cur$match("?<")) {
     name <- ""
     while (p$cur$peek() != ">" && p$cur$peek() != "") {
@@ -376,14 +376,14 @@ parse_group_or_look <- function(p) {
     }
     p$cap_count <- p$cap_count + 1L
     p$cap_names <- c(p$cap_names, name)
-    
+
     body <- parse_alt(p)
     if (!p$cur$match(")")) {
       stop(STRlingParseError("Unterminated group", p$cur$i, p$src))
     }
     return(strling_group(body, capturing = TRUE, name = name))
   }
-  
+
   if (p$cur$match("?>")) {
     body <- parse_alt(p)
     if (!p$cur$match(")")) {
@@ -391,7 +391,7 @@ parse_group_or_look <- function(p) {
     }
     return(strling_group(body, capturing = FALSE, atomic = TRUE))
   }
-  
+
   if (p$cur$match("?=")) {
     body <- parse_alt(p)
     if (!p$cur$match(")")) {
@@ -399,7 +399,7 @@ parse_group_or_look <- function(p) {
     }
     return(strling_lookaround(body, kind = "Ahead", negated = FALSE))
   }
-  
+
   if (p$cur$match("?!")) {
     body <- parse_alt(p)
     if (!p$cur$match(")")) {
@@ -407,7 +407,7 @@ parse_group_or_look <- function(p) {
     }
     return(strling_lookaround(body, kind = "Ahead", negated = TRUE))
   }
-  
+
   p$cap_count <- p$cap_count + 1L
   body <- parse_alt(p)
   if (!p$cur$match(")")) {
@@ -419,21 +419,21 @@ parse_group_or_look <- function(p) {
 parse_char_class <- function(p) {
   p$cur$take()  # consume '['
   p$cur$in_class <- p$cur$in_class + 1L
-  
+
   neg <- FALSE
   if (p$cur$peek() == "^") {
     neg <- TRUE
     p$cur$take()
   }
-  
+
   members <- list()
-  
+
   while (!p$cur$eof() && p$cur$peek() != "]") {
     if (p$cur$peek() == "\\") {
       members <- c(members, list(parse_class_escape(p)))
     } else {
       ch <- p$cur$take()
-      
+
       if (p$cur$peek() == "-" && p$cur$peek(1L) != "]") {
         p$cur$take()  # consume '-'
         end_ch <- p$cur$take()
@@ -443,23 +443,23 @@ parse_char_class <- function(p) {
       }
     }
   }
-  
+
   if (p$cur$eof()) {
     stop(STRlingParseError("Unterminated character class", p$cur$i, p$src))
   }
-  
+
   p$cur$take()  # consume ']'
   p$cur$in_class <- p$cur$in_class - 1L
-  
+
   strling_character_class(members, negated = neg)
 }
 
 parse_class_escape <- function(p) {
   start_pos <- p$cur$i
   p$cur$take()  # consume '\'
-  
+
   nxt <- p$cur$peek()
-  
+
   if (nxt %in% c("d", "D", "w", "W", "s", "S")) {
     ch <- p$cur$take()
     type_code <- switch(ch,
@@ -469,7 +469,7 @@ parse_class_escape <- function(p) {
     )
     return(strling_class_escape(type_code))
   }
-  
+
   if (nxt %in% c("p", "P")) {
     tp <- p$cur$take()
     if (!p$cur$match("{")) {
@@ -485,31 +485,31 @@ parse_class_escape <- function(p) {
     type_code <- if (tp == "P") "P" else "p"
     return(strling_class_escape(type_code, prop))
   }
-  
+
   if (!is.null(CONTROL_ESCAPES[[nxt]])) {
     p$cur$take()
     return(strling_class_literal(CONTROL_ESCAPES[[nxt]]))
   }
-  
+
   if (nxt == "b") {
     p$cur$take()
     return(strling_class_literal("\b"))
   }
-  
+
   if (nxt == "0") {
     p$cur$take()
     return(strling_class_literal("\\0"))
   }
-  
+
   strling_class_literal(p$cur$take())
 }
 
 parse_escape_atom <- function(p) {
   start_pos <- p$cur$i
   p$cur$take()  # consume '\'
-  
+
   nxt <- p$cur$peek()
-  
+
   # Backreference
   if (grepl("^[1-9]$", nxt)) {
     num <- 0L
@@ -521,7 +521,7 @@ parse_escape_atom <- function(p) {
     }
     return(strling_backreference(index = num))
   }
-  
+
   if (nxt == "b") {
     p$cur$take()
     return(strling_anchor("WordBoundary"))
@@ -538,7 +538,7 @@ parse_escape_atom <- function(p) {
     p$cur$take()
     return(strling_anchor("EndBeforeFinalNewline"))
   }
-  
+
   if (nxt == "k") {
     p$cur$take()
     if (!p$cur$match("<")) {
@@ -556,7 +556,7 @@ parse_escape_atom <- function(p) {
     }
     return(strling_backreference(name = name))
   }
-  
+
   if (nxt %in% c("d", "D", "w", "W", "s", "S")) {
     ch <- p$cur$take()
     type_code <- switch(ch,
@@ -566,7 +566,7 @@ parse_escape_atom <- function(p) {
     )
     return(strling_character_class(list(strling_class_escape(type_code)), negated = FALSE))
   }
-  
+
   if (nxt %in% c("p", "P")) {
     tp <- p$cur$take()
     if (!p$cur$match("{")) {
@@ -582,26 +582,26 @@ parse_escape_atom <- function(p) {
     type_code <- if (tp == "P") "P" else "p"
     return(strling_character_class(list(strling_class_escape(type_code, prop)), negated = FALSE))
   }
-  
+
   if (!is.null(CONTROL_ESCAPES[[nxt]])) {
     p$cur$take()
     return(strling_literal(CONTROL_ESCAPES[[nxt]]))
   }
-  
+
   if (nxt == "x") {
     p$cur$take()
     return(strling_literal(parse_hex_escape(p, start_pos)))
   }
-  
+
   if (nxt %in% c("u", "U")) {
     return(strling_literal(parse_unicode_escape(p, start_pos)))
   }
-  
+
   if (nxt == "0") {
     p$cur$take()
     return(strling_literal("\\0"))
   }
-  
+
   strling_literal(p$cur$take())
 }
 
@@ -617,7 +617,7 @@ parse_hex_escape <- function(p, start_pos) {
     code <- strtoi(if (hex == "") "0" else hex, base = 16L)
     return(intToUtf8(code))
   }
-  
+
   h1 <- p$cur$take()
   h2 <- p$cur$take()
   if (!grepl("^[0-9A-Fa-f]$", h1) || !grepl("^[0-9A-Fa-f]$", h2)) {
@@ -628,7 +628,7 @@ parse_hex_escape <- function(p, start_pos) {
 
 parse_unicode_escape <- function(p, start_pos) {
   tp <- p$cur$take()
-  
+
   if (tp == "u" && p$cur$match("{")) {
     hex <- ""
     while (grepl("^[0-9A-Fa-f]$", p$cur$peek())) {
@@ -640,7 +640,7 @@ parse_unicode_escape <- function(p, start_pos) {
     code <- strtoi(if (hex == "") "0" else hex, base = 16L)
     return(intToUtf8(code))
   }
-  
+
   if (tp == "u") {
     hex <- ""
     for (i in 1:4) {
@@ -651,7 +651,7 @@ parse_unicode_escape <- function(p, start_pos) {
     }
     return(intToUtf8(strtoi(hex, base = 16L)))
   }
-  
+
   if (tp == "U") {
     hex <- ""
     for (i in 1:8) {
@@ -662,6 +662,6 @@ parse_unicode_escape <- function(p, start_pos) {
     }
     return(intToUtf8(strtoi(hex, base = 16L)))
   }
-  
+
   stop(STRlingParseError("Invalid unicode escape", start_pos, p$src))
 }

@@ -423,7 +423,7 @@ static STRlingASTNode* parse_alt(Parser* p) {
     while (cursor_peek(&p->cur, 0) == '|') {
         cursor_take(&p->cur);
         cursor_skip_ws_and_comments(&p->cur);
-        
+
         if (cursor_eof(&p->cur) || cursor_peek(&p->cur, 0) == '|' || cursor_peek(&p->cur, 0) == ')') {
             parser_set_error(p, "Empty alternation", (int)p->cur.i);
             for (size_t i = 0; i < nbranches; i++) strling_ast_node_free(branches[i]);
@@ -474,7 +474,7 @@ static STRlingASTNode* parse_seq(Parser* p) {
                     j++;
                 }
                 content[clen] = '\0';
-                
+
                 if (j < p->cur.len && clen > 0) {
                     /* Check if content is numeric quantifier pattern */
                     int is_numeric = 1;

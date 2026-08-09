@@ -2,7 +2,7 @@
 //!
 //! This module provides comprehensive unit tests for all core components:
 //! - Parser tests
-//! - Compiler tests  
+//! - Compiler tests
 //! - Emitter tests
 //! - Interaction tests (Parser→Compiler, Compiler→Emitter)
 

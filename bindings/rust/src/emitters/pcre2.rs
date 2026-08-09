@@ -306,7 +306,7 @@ impl PCRE2Emitter {
         match item {
             IRClassItem::Char(lit) => self.escape_class_char(&lit.ch),
             IRClassItem::Range(range) => {
-                format!("{}-{}", 
+                format!("{}-{}",
                     self.escape_class_char(&range.from_ch),
                     self.escape_class_char(&range.to_ch))
             }

@@ -1,6 +1,6 @@
 --[[
     STRling Parser - Recursive Descent Parser for Lua
-    
+
     Transforms STRling DSL patterns into AST nodes.
     Mirrors the TypeScript reference implementation.
 ]]
@@ -197,7 +197,7 @@ end
 function Parser:parse()
     local node = self:parseAlt()
     self.cur:skipWsAndComments()
-    
+
     if not self.cur:eof() then
         local ch = self.cur:peek()
         if ch == ")" then
@@ -205,25 +205,25 @@ function Parser:parse()
         end
         error(STRlingParseError.new("Unexpected trailing input", self.cur.i, self.src))
     end
-    
+
     return self.flags, node
 end
 
 function Parser:parseAlt()
     self.cur:skipWsAndComments()
-    
+
     if self.cur:peek() == "|" then
         error(STRlingParseError.new("Alternation lacks left-hand side", self.cur.i, self.src))
     end
-    
+
     local branches = { self:parseSeq() }
     self.cur:skipWsAndComments()
-    
+
     while self.cur:peek() == "|" do
         local pipePos = self.cur.i
         self.cur:take()
         self.cur:skipWsAndComments()
-        
+
         if self.cur:eof() or self.cur:peek() == ")" then
             error(STRlingParseError.new("Alternation lacks right-hand side", pipePos, self.src))
         end
@@ -231,33 +231,33 @@ function Parser:parseAlt()
         if self.cur:peek() == "|" then
             error(STRlingParseError.new("Empty alternation", self.cur.i, self.src))
         end
-        
+
         table.insert(branches, self:parseSeq())
         self.cur:skipWsAndComments()
     end
-    
+
     if #branches == 1 then return branches[1] end
     return { type = "Alternation", alternatives = branches }
 end
 
 function Parser:parseSeq()
     local parts = {}
-    
+
     while true do
         self.cur:skipWsAndComments()
         local ch = self.cur:peek()
-        
+
         if ("*+?{"):find(ch, 1, true) and #parts == 0 then
             error(STRlingParseError.new("Invalid quantifier '" .. ch .. "'", self.cur.i, self.src))
         end
-        
+
         if ch == "" or ch == "|" or ch == ")" then break end
-        
+
         local atom = self:parseAtom()
         atom = self:parseQuantIfAny(atom)
         table.insert(parts, atom)
     end
-    
+
     if #parts == 1 then return parts[1] end
     return { type = "Sequence", parts = parts }
 end
@@ -265,7 +265,7 @@ end
 function Parser:parseAtom()
     self.cur:skipWsAndComments()
     local ch = self.cur:peek()
-    
+
     if ch == "." then
         self.cur:take()
         return { type = "Dot" }
@@ -290,7 +290,7 @@ function Parser:parseAtom()
     if ch == ")" then
         error(STRlingParseError.new("Unmatched ')'", self.cur.i, self.src))
     end
-    
+
     return { type = "Literal", value = self.cur:take() }
 end
 
@@ -300,7 +300,7 @@ function Parser:parseQuantIfAny(child)
     local greedy = true
     local lazy = false
     local possessive = false
-    
+
     if ch == "*" then
         min, max = 0, nil
         self.cur:take()
@@ -313,7 +313,7 @@ function Parser:parseQuantIfAny(child)
     elseif ch == "{" then
         local save = self.cur.i
         self.cur:take()
-        
+
         local m = self:readIntOptional()
         if not m then
             -- Look ahead for closing } with non-numeric content
@@ -331,20 +331,20 @@ function Parser:parseQuantIfAny(child)
             self.cur.i = save
             return child
         end
-        
+
         min = m
         max = m
-        
+
         if self.cur:peek() == "," then
             self.cur:take()
             max = self:readIntOptional()
         end
-        
+
         if self.cur:peek() ~= "}" then
             error(STRlingParseError.new("Incomplete quantifier", self.cur.i, self.src))
         end
         self.cur:take()
-        
+
         -- Validate quantifier range
         if max and type(max) == "number" and min > max then
             error(STRlingParseError.new("Invalid quantifier range", save, self.src))
@@ -352,11 +352,11 @@ function Parser:parseQuantIfAny(child)
     else
         return child
     end
-    
+
     if child.type == "Anchor" then
         error(STRlingParseError.new("Cannot quantify anchor", self.cur.i, self.src))
     end
-    
+
     local nxt = self.cur:peek()
     if nxt == "?" then
         greedy = false
@@ -367,7 +367,7 @@ function Parser:parseQuantIfAny(child)
         possessive = true
         self.cur:take()
     end
-    
+
     return {
         type = "Quantifier",
         target = child,
@@ -389,7 +389,7 @@ end
 
 function Parser:parseGroupOrLook()
     self.cur:take()  -- consume '('
-    
+
     if self.cur:match("?:") then
         local body = self:parseAlt()
         if not self.cur:match(")") then
@@ -397,7 +397,7 @@ function Parser:parseGroupOrLook()
         end
         return { type = "Group", capturing = false, body = body }
     end
-    
+
     if self.cur:match("?<=") then
         local body = self:parseAlt()
         if not self.cur:match(")") then
@@ -405,7 +405,7 @@ function Parser:parseGroupOrLook()
         end
         return { type = "Lookbehind", body = body }
     end
-    
+
     if self.cur:match("?<!") then
         local body = self:parseAlt()
         if not self.cur:match(")") then
@@ -413,7 +413,7 @@ function Parser:parseGroupOrLook()
         end
         return { type = "NegativeLookbehind", body = body }
     end
-    
+
     if self.cur:match("?<") then
         local name = ""
         while self.cur:peek() ~= ">" and self.cur:peek() ~= "" do
@@ -431,14 +431,14 @@ function Parser:parseGroupOrLook()
         end
         self.capCount = self.capCount + 1
         self.capNames[name] = true
-        
+
         local body = self:parseAlt()
         if not self.cur:match(")") then
             error(STRlingParseError.new("Unterminated group", self.cur.i, self.src))
         end
         return { type = "Group", capturing = true, body = body, name = name }
     end
-    
+
     if self.cur:match("?>") then
         local body = self:parseAlt()
         if not self.cur:match(")") then
@@ -446,7 +446,7 @@ function Parser:parseGroupOrLook()
         end
         return { type = "Group", capturing = false, body = body, atomic = true }
     end
-    
+
     if self.cur:match("?=") then
         local body = self:parseAlt()
         if not self.cur:match(")") then
@@ -454,7 +454,7 @@ function Parser:parseGroupOrLook()
         end
         return { type = "Lookahead", body = body }
     end
-    
+
     if self.cur:match("?!") then
         local body = self:parseAlt()
         if not self.cur:match(")") then
@@ -462,7 +462,7 @@ function Parser:parseGroupOrLook()
         end
         return { type = "NegativeLookahead", body = body }
     end
-    
+
     -- Detect inline modifiers like (?i), (?m-s), etc.
     if self.cur:peek() == "?" then
         local saved = self.cur.i
@@ -473,7 +473,7 @@ function Parser:parseGroupOrLook()
         end
         self.cur.i = saved  -- backtrack
     end
-    
+
     self.capCount = self.capCount + 1
     local body = self:parseAlt()
     if not self.cur:match(")") then
@@ -485,26 +485,26 @@ end
 function Parser:parseCharClass()
     self.cur:take()  -- consume '['
     self.cur.inClass = self.cur.inClass + 1
-    
+
     local neg = false
     if self.cur:peek() == "^" then
         neg = true
         self.cur:take()
     end
-    
+
     local members = {}
 
     -- Detect empty character class []
     if self.cur:peek() == "]" then
         error(STRlingParseError.new("Unterminated character class", self.cur.i, self.src))
     end
-    
+
     while not self.cur:eof() and self.cur:peek() ~= "]" do
         if self.cur:peek() == "\\" then
             table.insert(members, self:parseClassEscape())
         else
             local ch = self.cur:take()
-            
+
             if self.cur:peek() == "-" and self.cur:peek(1) ~= "]" then
                 self.cur:take()  -- consume '-'
                 local endCh = self.cur:take()
@@ -522,23 +522,23 @@ function Parser:parseCharClass()
             end
         end
     end
-    
+
     if self.cur:eof() then
         error(STRlingParseError.new("Unterminated character class", self.cur.i, self.src))
     end
-    
+
     self.cur:take()  -- consume ']'
     self.cur.inClass = self.cur.inClass - 1
-    
+
     return { type = "CharacterClass", negated = neg, members = members }
 end
 
 function Parser:parseClassEscape()
     local startPos = self.cur.i
     self.cur:take()  -- consume '\'
-    
+
     local nxt = self.cur:peek()
-    
+
     if ("dDwWsS"):find(nxt, 1, true) then
         local ch = self.cur:take()
         local kind
@@ -551,7 +551,7 @@ function Parser:parseClassEscape()
         end
         return { type = "Escape", kind = kind }
     end
-    
+
     if nxt == "p" or nxt == "P" then
         local tp = self.cur:take()
         if not self.cur:match("{") then
@@ -566,22 +566,22 @@ function Parser:parseClassEscape()
         end
         return { type = "UnicodeProperty", value = prop, negated = (tp == "P") }
     end
-    
+
     if CONTROL_ESCAPES[nxt] then
         self.cur:take()
         return { type = "Literal", value = CONTROL_ESCAPES[nxt] }
     end
-    
+
     if nxt == "b" then
         self.cur:take()
         return { type = "Literal", value = "\b" }
     end
-    
+
     if nxt == "0" then
         self.cur:take()
         return { type = "Literal", value = "\0" }
     end
-    
+
     -- Unknown escape in char class context
     local ch = self.cur:take()
     if not ch:match("[%a%d]") then
@@ -593,9 +593,9 @@ end
 function Parser:parseEscapeAtom()
     local startPos = self.cur.i
     self.cur:take()  -- consume '\'
-    
+
     local nxt = self.cur:peek()
-    
+
     -- Backreference
     if nxt:match("%d") and nxt ~= "0" then
         local num = 0
@@ -607,7 +607,7 @@ function Parser:parseEscapeAtom()
         end
         return { type = "Backreference", index = num }
     end
-    
+
     if nxt == "b" then
         self.cur:take()
         return { type = "Anchor", at = "WordBoundary" }
@@ -624,7 +624,7 @@ function Parser:parseEscapeAtom()
         self.cur:take()
         return { type = "Anchor", at = "EndBeforeFinalNewline" }
     end
-    
+
     if nxt == "k" then
         self.cur:take()
         if not self.cur:match("<") then
@@ -642,7 +642,7 @@ function Parser:parseEscapeAtom()
         end
         return { type = "Backreference", name = name }
     end
-    
+
     if ("dDwWsS"):find(nxt, 1, true) then
         local ch = self.cur:take()
         local kind
@@ -655,7 +655,7 @@ function Parser:parseEscapeAtom()
         end
         return { type = "CharacterClass", negated = false, members = { { type = "Escape", kind = kind } } }
     end
-    
+
     if nxt == "p" or nxt == "P" then
         local tp = self.cur:take()
         if not self.cur:match("{") then
@@ -674,26 +674,26 @@ function Parser:parseEscapeAtom()
             members = { { type = "UnicodeProperty", value = prop, negated = (tp == "P") } }
         }
     end
-    
+
     if CONTROL_ESCAPES[nxt] then
         self.cur:take()
         return { type = "Literal", value = CONTROL_ESCAPES[nxt] }
     end
-    
+
     if nxt == "x" then
         self.cur:take()
         return { type = "Literal", value = self:parseHexEscape(startPos) }
     end
-    
+
     if nxt == "u" or nxt == "U" then
         return { type = "Literal", value = self:parseUnicodeEscape(startPos) }
     end
-    
+
     if nxt == "0" then
         self.cur:take()
         return { type = "Literal", value = "\0" }
     end
-    
+
     -- Unknown escape in atom context
     local ch = self.cur:take()
     if not ch:match("[%a%d]") then
@@ -715,7 +715,7 @@ function Parser:parseHexEscape(startPos)
         local code = tonumber(hex == "" and "0" or hex, 16)
         return utf8.char(code)
     end
-    
+
     local h1 = self.cur:take()
     local h2 = self.cur:take()
     if not h1:match("[0-9A-Fa-f]") or not h2:match("[0-9A-Fa-f]") then
@@ -726,7 +726,7 @@ end
 
 function Parser:parseUnicodeEscape(startPos)
     local tp = self.cur:take()
-    
+
     if tp == "u" and self.cur:match("{") then
         local hex = ""
         while self.cur:peek():match("[0-9A-Fa-f]") do
@@ -738,7 +738,7 @@ function Parser:parseUnicodeEscape(startPos)
         local code = tonumber(hex == "" and "0" or hex, 16)
         return utf8.char(code)
     end
-    
+
     if tp == "u" then
         local hex = ""
         for _ = 1, 4 do
@@ -749,7 +749,7 @@ function Parser:parseUnicodeEscape(startPos)
         end
         return utf8.char(tonumber(hex, 16))
     end
-    
+
     if tp == "U" then
         local hex = ""
         for _ = 1, 8 do
@@ -760,7 +760,7 @@ function Parser:parseUnicodeEscape(startPos)
         end
         return utf8.char(tonumber(hex, 16))
     end
-    
+
     error(STRlingParseError.new("Invalid unicode escape", startPos, self.src))
 end
 

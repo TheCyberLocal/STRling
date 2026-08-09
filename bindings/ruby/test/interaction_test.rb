@@ -20,9 +20,9 @@ class InteractionTest < Minitest::Test
   def test_parser_compiler_simple_literal
     parser = Strling::Core::Parser.new("hello")
     flags, ast = parser.parse
-    
+
     ir = Strling::Core::Compiler.compile(ast)
-    
+
     assert_not_nil ir
     serialized = serialize(ir)
     assert_equal 'Lit', serialized['ir']
@@ -31,70 +31,70 @@ class InteractionTest < Minitest::Test
   def test_parser_compiler_quantifier
     parser = Strling::Core::Parser.new("a+")
     flags, ast = parser.parse
-    
+
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
-    
+
     assert_equal 'Quant', serialized['ir']
   end
 
   def test_parser_compiler_character_class
     parser = Strling::Core::Parser.new("[abc]")
     flags, ast = parser.parse
-    
+
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
-    
+
     assert_equal 'CharClass', serialized['ir']
   end
 
   def test_parser_compiler_capturing_group
     parser = Strling::Core::Parser.new("(abc)")
     flags, ast = parser.parse
-    
+
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
-    
+
     assert_equal 'Group', serialized['ir']
   end
 
   def test_parser_compiler_alternation
     parser = Strling::Core::Parser.new("a|b")
     flags, ast = parser.parse
-    
+
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
-    
+
     assert_equal 'Alt', serialized['ir']
   end
 
   def test_parser_compiler_named_group
     parser = Strling::Core::Parser.new("(?<name>abc)")
     flags, ast = parser.parse
-    
+
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
-    
+
     assert_equal 'Group', serialized['ir']
   end
 
   def test_parser_compiler_lookahead
     parser = Strling::Core::Parser.new("(?=abc)")
     flags, ast = parser.parse
-    
+
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
-    
+
     assert_equal 'Look', serialized['ir']
   end
 
   def test_parser_compiler_lookbehind
     parser = Strling::Core::Parser.new("(?<=abc)")
     flags, ast = parser.parse
-    
+
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
-    
+
     assert_equal 'Look', serialized['ir']
   end
 

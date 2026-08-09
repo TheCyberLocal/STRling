@@ -4,7 +4,7 @@ use strling::emitters::pcre2::PCRE2Emitter;
 
 fn main() {
     println!("=== STRling Rust Binding Demo ===\n");
-    
+
     // Test 1: Simple literal
     println!("Test 1: Simple literal");
     let (flags, ast) = parse("hello").unwrap();
@@ -14,7 +14,7 @@ fn main() {
     println!("  Input:  'hello'");
     println!("  Output: '{}'", emitter.emit(&result.ir));
     println!("  Features: {:?}\n", result.metadata.features_used);
-    
+
     // Test 2: Anchors and quantifier
     println!("Test 2: Anchors and quantifier");
     let (flags, ast) = parse("^test.*$").unwrap();
@@ -24,7 +24,7 @@ fn main() {
     println!("  Input:  '^test.*$'");
     println!("  Output: '{}'", emitter.emit(&result.ir));
     println!("  Features: {:?}\n", result.metadata.features_used);
-    
+
     // Test 3: Alternation
     println!("Test 3: Alternation");
     let (flags, ast) = parse("cat|dog|bird").unwrap();
@@ -34,7 +34,7 @@ fn main() {
     println!("  Input:  'cat|dog|bird'");
     println!("  Output: '{}'", emitter.emit(&result.ir));
     println!("  Features: {:?}\n", result.metadata.features_used);
-    
+
     // Test 4: Groups and quantifiers
     println!("Test 4: Capturing group with quantifier");
     let (flags, ast) = parse("(ab)+").unwrap();
@@ -44,7 +44,7 @@ fn main() {
     println!("  Input:  '(ab)+'");
     println!("  Output: '{}'", emitter.emit(&result.ir));
     println!("  Features: {:?}\n", result.metadata.features_used);
-    
+
     // Test 5: Named group
     println!("Test 5: Named group");
     let (flags, ast) = parse("(?<word>\\w+)").unwrap();
@@ -54,7 +54,7 @@ fn main() {
     println!("  Input:  '(?<word>\\\\w+)'");
     println!("  Output: '{}'", emitter.emit(&result.ir));
     println!("  Features: {:?}\n", result.metadata.features_used);
-    
+
     // Test 6: Lookahead
     println!("Test 6: Positive lookahead");
     let (flags, ast) = parse("test(?=123)").unwrap();

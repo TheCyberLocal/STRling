@@ -54,7 +54,7 @@ int main() {
 
             std::string filename = entry.path().filename().string();
             std::string stem = entry.path().stem().string();
-            
+
             // Generate test name
             std::string test_name = generate_test_name(stem);
 
@@ -64,7 +64,7 @@ int main() {
                 if (j.contains("expected_error")) {
                     total++;
                     std::cout << "=== RUN   " << test_name << " (" << filename << ")\n";
-                    
+
                     if (j.contains("input_ast")) {
                         // If we have input_ast, we can try to compile and expect an error
                         try {

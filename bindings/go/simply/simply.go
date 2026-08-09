@@ -41,11 +41,11 @@ func Digit(n int) Pattern {
 		Negated: false,
 		Items:   []core.ClassItem{digit},
 	}
-	
+
 	if n == 1 {
 		return Pattern{node: classNode}
 	}
-	
+
 	return Pattern{node: core.Quant{
 		Child: classNode,
 		Min:   n,

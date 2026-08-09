@@ -5,16 +5,16 @@ module Compiler =
     let rec compile (node: Node) : IROp =
         match node with
         | Lit value -> IRLit value
-        | Seq parts -> 
+        | Seq parts ->
             let compiledParts = parts |> List.map compile
             createSeq compiledParts
         | Alt alts -> IRAlt (alts |> List.map compile)
         | Dot -> IRDot
         | Anchor at -> IRAnchor (mapAnchor at)
-        | CharClass (negated, members) -> 
+        | CharClass (negated, members) ->
             IRCharClass (negated, members |> List.map compileClassItem)
         | Quant (target, min, max, greedy, lazy_, possessive) ->
-            let mode = 
+            let mode =
                 if possessive then "Possessive"
                 elif lazy_ then "Lazy"
                 else "Greedy"
@@ -33,10 +33,10 @@ module Compiler =
         match item with
         | ClassRange (f, t) -> IRClassRange (f, t)
         | ClassLiteral c -> IRClassLiteral c
-        | ClassEscape k -> 
+        | ClassEscape k ->
             let type_ = mapEscapeKind k
             IRClassEscape (type_, None)
-        | ClassUnicodeProperty (_, value, negated) -> 
+        | ClassUnicodeProperty (_, value, negated) ->
             let type_ = if negated then "P" else "p"
             IRClassEscape (type_, Some value)
 
@@ -57,16 +57,16 @@ module Compiler =
 
     and createSeq (parts: IROp list) : IROp =
         // Flatten sequences
-        let flattened = 
+        let flattened =
             parts |> List.collect (function
                 | IRSeq subParts -> subParts
                 | other -> [other])
-        
+
         // Merge adjacent literals
-        let merged = 
+        let merged =
             flattened |> List.fold (fun acc op ->
                 match acc, op with
-                | (IRLit lastVal) :: rest, IRLit newVal -> 
+                | (IRLit lastVal) :: rest, IRLit newVal ->
                     (IRLit (lastVal + newVal)) :: rest
                 | _, _ -> op :: acc
             ) []

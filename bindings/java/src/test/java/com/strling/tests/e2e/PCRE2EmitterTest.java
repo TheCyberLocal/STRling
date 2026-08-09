@@ -262,9 +262,9 @@ public class PCRE2EmitterTest {
              * Nginx access log pattern raises on escaped space
              */
             String nginx = "(?<ip>\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})\\ -\\ (?<user>\\S+)\\ \\[(?<time>[^\\]]+)\\]\\ \"(?<method>\\w+)\\ (?<path>\\S+)\\ HTTP/(?<version>[\\d.]+)\"\\ (?<status>\\d+)\\ (?<size>\\d+)";
-            
+
             STRlingParseError error = assertThrows(
-                STRlingParseError.class, 
+                STRlingParseError.class,
                 () -> compileToPcre(nginx)
             );
             assertTrue(error.getMessage().contains("Unknown escape sequence"));
@@ -284,7 +284,7 @@ public class PCRE2EmitterTest {
              * compilation is attempted.
              */
             STRlingParseError error = assertThrows(
-                STRlingParseError.class, 
+                STRlingParseError.class,
                 () -> compileToPcre("a(b")
             );
             assertTrue(error.getMessage().contains("Unterminated group"));
@@ -296,7 +296,7 @@ public class PCRE2EmitterTest {
              * Ensure a pattern containing lowercase \z raises through the pipeline
              */
             STRlingParseError error = assertThrows(
-                STRlingParseError.class, 
+                STRlingParseError.class,
                 () -> compileToPcre("\\Astart\\z")
             );
             assertTrue(error.getMessage().contains("Unknown escape sequence \\z"));

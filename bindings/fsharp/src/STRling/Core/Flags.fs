@@ -18,7 +18,7 @@ module Flags =
         Unicode = false
         Extended = false
     }
-    
+
     /// Creates Flags from a string of flag letters (e.g., "imsu").
     let fromLetters (letters: string) =
         let cleaned = letters.Replace(",", "").Replace(" ", "").ToLower()
@@ -27,7 +27,7 @@ module Flags =
         let mutable dotAll = false
         let mutable unicode = false
         let mutable extended = false
-        
+
         for ch in cleaned do
             match ch with
             | 'i' -> ignoreCase <- true
@@ -36,13 +36,13 @@ module Flags =
             | 'u' -> unicode <- true
             | 'x' -> extended <- true
             | _ -> ()
-        
+
         { IgnoreCase = ignoreCase
           Multiline = multiline
           DotAll = dotAll
           Unicode = unicode
           Extended = extended }
-    
+
     /// Convert flags to a dictionary for serialization.
     let toDict (flags: Flags) =
         dict [

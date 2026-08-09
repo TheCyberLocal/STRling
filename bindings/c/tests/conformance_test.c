@@ -46,14 +46,14 @@ static const char *get_test_name(const char *filename, char *buf, size_t bufsize
         snprintf(buf, bufsize, "test_conformance_%.200s", filename);
         return buf;
     }
-    
+
     /* Create stem without extension */
     char stem[256];
     size_t stem_len = len - ext_len;
     if (stem_len >= sizeof(stem)) stem_len = sizeof(stem) - 1;
     memcpy(stem, filename, stem_len);
     stem[stem_len] = '\0';
-    
+
     /* Map semantic test names */
     if (strcmp(stem, "semantic_duplicates") == 0) {
         snprintf(buf, bufsize, "test_semantic_duplicate_capture_group");
@@ -83,7 +83,7 @@ static char *normalize_expected(const char *input, size_t len)
 
     while (p < end)
     {
-        if (*p == '\0') { 
+        if (*p == '\0') {
             // Handle null byte
             q += sprintf(q, "\\x{00}");
             p++;
@@ -279,13 +279,13 @@ int main(int argc, char **argv) {
         }
 
         JSON_Object *root_obj = json_value_get_object(root_value);
-        
+
         /* Get semantic test name for output */
         char test_name[256];
         get_test_name(ent->d_name, test_name, sizeof(test_name));
-        
+
         printf("=== RUN %s (%s)\n", test_name, ent->d_name);
-        
+
         /* Check for input_ast */
         if (!json_object_has_value(root_obj, "input_ast")) {
             /* Parser error test: check input_dsl + expected_error + expected_hint */
@@ -354,9 +354,9 @@ int main(int argc, char **argv) {
         /* Run compilation */
         /* Note: strling_compile takes the whole JSON string and looks for 'input_ast' or 'pattern' */
         /* The spec files have 'input_ast', so we can pass the file content directly. */
-        
+
         STRlingResult *result = strling_compile(file_content, NULL);
-        
+
         int test_passed = 0;
 
         if (expected_success) {
@@ -367,16 +367,16 @@ int main(int argc, char **argv) {
             } else {
                 char *norm_expected = normalize_expected(expected_pcre, expected_pcre_len);
                 char *norm_actual = normalize_expected(result->pattern, result->pattern ? strlen(result->pattern) : 0);
-                
+
                 if (norm_expected && norm_actual && strcmp(norm_actual, norm_expected) == 0) {
                     test_passed = 1;
                 } else {
-                    printf("FAIL: %s\n  Pattern mismatch\n  Expected: %s\n  Actual:   %s\n", 
-                           ent->d_name, 
-                           norm_expected ? norm_expected : expected_pcre, 
+                    printf("FAIL: %s\n  Pattern mismatch\n  Expected: %s\n  Actual:   %s\n",
+                           ent->d_name,
+                           norm_expected ? norm_expected : expected_pcre,
                            norm_actual ? norm_actual : result->pattern);
                 }
-                
+
                 if (norm_expected) free(norm_expected);
                 if (norm_actual) free(norm_actual);
             }
@@ -386,7 +386,7 @@ int main(int argc, char **argv) {
                 printf("FAIL: %s\n  Expected error, got success: %s\n", ent->d_name, result->pattern);
             } else {
                 /* Optionally check error message if provided in spec */
-                /* For now, just checking that it failed is enough for basic conformance, 
+                /* For now, just checking that it failed is enough for basic conformance,
                    but if expected_error is present, we could check it. */
                 test_passed = 1;
             }

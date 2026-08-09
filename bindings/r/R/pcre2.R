@@ -122,7 +122,7 @@ emit_pcre2_with_diagnostics <- function(ir, flags = NULL, max_depth = 0L) {
 
 .dispatch <- function(ir) {
   ir_type <- ir$ir
-  
+
   if (ir_type == "Lit") {
     return(emit_lit(ir))
   } else if (ir_type == "Seq") {
@@ -223,7 +223,7 @@ emit_group <- function(ir) {
   capturing <- isTRUE(ir$capturing)
   name <- ir$name
   atomic <- isTRUE(ir$atomic)
-  
+
   if (atomic) {
     return(paste0("(?>", body, ")"))
   }
@@ -251,13 +251,13 @@ emit_quant <- function(ir) {
   }
 
   child_str <- .emit_node(child, ctx)
-  
+
   # Check if we need parentheses
   needs_parens <- needs_quantifier_parens(child, child_str)
   if (needs_parens) {
     child_str <- paste0("(?:", child_str, ")")
   }
-  
+
   # Build quantifier suffix
   quant_str <- ""
   if (identical(max_val, "Inf") || is.null(max_val)) {
@@ -281,14 +281,14 @@ emit_quant <- function(ir) {
   } else {
     quant_str <- paste0("{", min_val, ",", max_val, "}")
   }
-  
+
   # Add mode suffix
   if (mode == "Lazy") {
     quant_str <- paste0(quant_str, "?")
   } else if (mode == "Possessive") {
     quant_str <- paste0(quant_str, "+")
   }
-  
+
   paste0(child_str, quant_str)
 }
 
@@ -306,15 +306,15 @@ needs_quantifier_parens <- function(child, child_str) {
 emit_char_class <- function(ir) {
   negated <- isTRUE(ir$negated)
   items <- ir$items
-  
+
   # Single-item shorthand optimization
   if (length(items) == 1) {
     item <- items[[1]]
     item_ir <- item$ir
-    
+
     if (item_ir == "Esc") {
       type_val <- item$type
-      
+
       # Handle d, w, s with negation flipping
       if (type_val %in% c("d", "w", "s")) {
         if (negated) {
@@ -322,7 +322,7 @@ emit_char_class <- function(ir) {
         }
         return(paste0("\\", type_val))
       }
-      
+
       # Handle D, W, S
       if (type_val %in% c("D", "W", "S")) {
         if (negated) {
@@ -330,7 +330,7 @@ emit_char_class <- function(ir) {
         }
         return(paste0("\\", type_val))
       }
-      
+
       # Handle \p{...} and \P{...}
       if (type_val %in% c("p", "P")) {
         prop <- item$property
@@ -342,14 +342,14 @@ emit_char_class <- function(ir) {
       }
     }
   }
-  
+
   # Build bracket class
   parts <- character(0)
   has_hyphen <- FALSE
-  
+
   for (item in items) {
     item_ir <- item$ir
-    
+
     if (item_ir == "Char") {
       ch <- item$char
       if (ch == "-") {
@@ -371,7 +371,7 @@ emit_char_class <- function(ir) {
       }
     }
   }
-  
+
   # Hyphen at start to avoid ambiguity
   inner <- if (has_hyphen) paste0("-", paste0(parts, collapse = "")) else paste0(parts, collapse = "")
   neg <- if (negated) "^" else ""
@@ -393,7 +393,7 @@ emit_anchor <- function(ir) {
 emit_backref <- function(ir) {
   by_index <- ir$byIndex
   by_name <- ir$byName
-  
+
   if (!is.null(by_name)) {
     return(paste0("\\k<", by_name, ">"))
   }
@@ -449,7 +449,7 @@ emit_look <- function(ir) {
 emit_esc <- function(ir) {
   type_val <- ir$type
   prop <- ir$property
-  
+
   if (!is.null(prop)) {
     return(paste0("\\", type_val, "{", prop, "}"))
   }

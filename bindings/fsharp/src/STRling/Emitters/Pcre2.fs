@@ -9,10 +9,10 @@ open STRling.Core
 /// This module implements the emitter that transforms STRling's Intermediate
 /// Representation (IR) into PCRE2-compatible regex pattern strings.
 module Pcre2 =
-    
+
     /// Characters that need escaping in PCRE2 patterns.
     let private metaChars = set ['.'; '^'; '$'; '|'; '('; ')'; '?'; '*'; '+'; '{'; '}'; '['; ']'; '\\']
-    
+
     /// Escape PCRE2 metacharacters in literal strings.
     let escapeLiteral (s: string) : string =
         let sb = StringBuilder()
@@ -23,7 +23,7 @@ module Pcre2 =
             else
                 sb.Append(ch) |> ignore
         sb.ToString()
-    
+
     /// Escape a character for use inside [...] per PCRE2 rules.
     let escapeClassChar (ch: char) : string =
         match ch with
@@ -40,7 +40,7 @@ module Pcre2 =
         | c when int c < 32 || (int c >= 127 && int c <= 159) ->
             sprintf "\\x%02x" (int c)
         | c -> string c
-    
+
     /// Emit a PCRE2 character class.
     let private emitClass (negated: bool) (items: IRClassItem list) : string =
         match items with
@@ -86,7 +86,7 @@ module Pcre2 =
                     | _, _ ->
                         parts.Append('\\').Append(typ) |> ignore
             "[" + (if negated then "^" else "") + parts.ToString() + "]"
-    
+
     /// Emit *, +, ?, {m}, {m,}, {m,n} plus optional lazy/possessive suffix.
     let private emitQuantSuffix (minv: int) (maxv: string) (mode: string) : string =
         let q =
@@ -101,7 +101,7 @@ module Pcre2 =
         | "Lazy" -> q + "?"
         | "Possessive" -> q + "+"
         | _ -> q
-    
+
     /// Return true if 'child' needs a non-capturing group when quantifying.
     let private needsGroupForQuant (child: IROp) : bool =
         match child with
@@ -117,7 +117,7 @@ module Pcre2 =
         | IRLook _ -> true
         | IRSeq parts -> parts.Length > 1
         | IRQuant _ -> true
-    
+
     /// Generate opening for group based on type.
     let private emitGroupOpen (capturing: bool) (name: string option) (atomic: bool) : string =
         if atomic then "(?>"
@@ -126,7 +126,7 @@ module Pcre2 =
             | Some n -> sprintf "(?<%s>" n
             | None -> "("
         else "(?:"
-    
+
     /// Default upper bound on AST/IR nesting depth before the emitter
     /// aborts. Mirrors the SSOT in the TypeScript reference.
     let DEFAULT_MAX_DEPTH = 250
@@ -274,7 +274,7 @@ module Pcre2 =
                     ctx.InLookbehind <- wasInLb
         finally
             ctx.Depth <- ctx.Depth - 1
-    
+
     /// Build the inline prefix form expected by tests, e.g. "(?imx)".
     let private emitPrefixFromFlags (flags: Flags) : string =
         let sb = StringBuilder()
@@ -285,10 +285,10 @@ module Pcre2 =
         if flags.Extended then sb.Append('x') |> ignore
         if sb.Length > 0 then sprintf "(?%s)" (sb.ToString())
         else ""
-    
+
     /// Emit a PCRE2 pattern string from IR.
     let emit (irRoot: IROp) (flags: Flags option) : string =
-        let prefix = 
+        let prefix =
             match flags with
             | Some f -> emitPrefixFromFlags f
             | None -> ""
@@ -308,7 +308,7 @@ module Pcre2 =
         let body = emitNode "" irRoot ctx
         { Pattern = prefix + body
           Warnings = ctx.Warnings |> List.ofSeq }
-    
+
     /// Emit a PCRE2 pattern string from IR without flags.
     let emitNoFlags (irRoot: IROp) : string =
         emit irRoot None

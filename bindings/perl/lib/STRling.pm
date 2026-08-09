@@ -14,7 +14,7 @@ STRling - Next-gen string pattern DSL & compiler for Perl
 =head1 SYNOPSIS
 
     use STRling;
-    
+
     # STRling provides a modern, readable alternative to traditional regex syntax
     # This module serves as the main entry point for the STRling Perl binding
 

@@ -26,7 +26,7 @@ subtest 'Intelligent Error Handling Gap Coverage' => sub {
             my $str = "$err";  # Stringify via overload
             like($str, qr/Test error at position 5/, 'Error message includes position');
         };
-        
+
         subtest 'error with text and hint' => sub {
             my $text = '(a|b))';
             my $err = STRling::Core::Errors::STRlingParseError->new(
@@ -36,7 +36,7 @@ subtest 'Intelligent Error Handling Gap Coverage' => sub {
                 hint    => "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?"
             );
             my $formatted = $err->to_formatted_string();
-            
+
             # Check that it contains the expected parts
             like($formatted, qr/STRling Parse Error: Unmatched '\)'/, 'Contains error type');
             like($formatted, qr/> 1 \| \(a\|b\)\)/, 'Contains source line');
@@ -44,7 +44,7 @@ subtest 'Intelligent Error Handling Gap Coverage' => sub {
             like($formatted, qr/Hint:/, 'Contains hint marker');
             like($formatted, qr/does not have a matching opening '\('/, 'Contains hint text');
         };
-        
+
         subtest 'error position indicator' => sub {
             my $text = 'abc def';
             my $err = STRling::Core::Errors::STRlingParseError->new(
@@ -53,7 +53,7 @@ subtest 'Intelligent Error Handling Gap Coverage' => sub {
                 text    => $text
             );
             my $formatted = $err->to_formatted_string();
-            
+
             # The caret should be under 'd' (position 4)
             my @lines = split /\n/, $formatted;
             my $found = 0;
@@ -69,7 +69,7 @@ subtest 'Intelligent Error Handling Gap Coverage' => sub {
             }
             ok($found, 'Found caret line');
         };
-        
+
         subtest 'multiline error' => sub {
             my $text = "abc\ndef\nghi";
             my $err = STRling::Core::Errors::STRlingParseError->new(
@@ -78,11 +78,11 @@ subtest 'Intelligent Error Handling Gap Coverage' => sub {
                 text    => $text
             );
             my $formatted = $err->to_formatted_string();
-            
+
             # Should show line 2
             like($formatted, qr/> 2 \| def/, 'Shows correct line number');
         };
-        
+
         subtest 'toFormattedString method' => sub {
             my $err = STRling::Core::Errors::STRlingParseError->new(
                 message => 'Test',
@@ -92,7 +92,7 @@ subtest 'Intelligent Error Handling Gap Coverage' => sub {
             is($err->to_formatted_string(), "$err", 'to_formatted_string equals stringify');
         };
     };
-    
+
     subtest 'HintEngine' => sub {
         subtest 'unterminated group hint' => sub {
             my $hint = get_hint('Unterminated group', '(abc', 4);
@@ -100,21 +100,21 @@ subtest 'Intelligent Error Handling Gap Coverage' => sub {
             like($hint, qr/opened with '\('/,  "Contains 'opened with'");
             like($hint, qr/Add a matching '\)'/, "Contains 'Add a matching'");
         };
-        
+
         subtest 'unterminated character class hint' => sub {
             my $hint = get_hint('Unterminated character class', '[abc', 4);
             ok(defined $hint, 'Hint is defined');
             like($hint, qr/opened with '\['/,  "Contains 'opened with'");
             like($hint, qr/Add a matching '\]'/, "Contains 'Add a matching'");
         };
-        
+
         subtest 'unexpected token hint - closing paren' => sub {
             my $hint = get_hint('Unexpected token', 'abc)', 3);
             ok(defined $hint, 'Hint is defined');
             like($hint, qr/does not have a matching opening '\('/, 'Contains matching hint');
             like($hint, qr/escape it with/, 'Contains escape hint');
         };
-        
+
         subtest 'cannot quantify anchor hint' => sub {
             my $hint = get_hint('Cannot quantify anchor', '^*', 1);
             ok(defined $hint, 'Hint is defined');
@@ -122,7 +122,7 @@ subtest 'Intelligent Error Handling Gap Coverage' => sub {
             like($hint, qr/match positions/, 'Contains match positions');
             like($hint, qr/cannot be quantified/, 'Contains cannot be quantified');
         };
-        
+
         subtest 'inline modifiers hint' => sub {
             my $hint = get_hint(
                 'Inline modifiers `(?imsx)` are not supported',
@@ -133,7 +133,7 @@ subtest 'Intelligent Error Handling Gap Coverage' => sub {
             like($hint, qr/%flags/, 'Contains %flags');
             like($hint, qr/directive/, 'Contains directive');
         };
-        
+
         subtest 'no hint for unknown error' => sub {
             my $hint = get_hint('Some unknown error message', 'abc', 0);
             ok(!defined $hint, 'No hint for unknown error');

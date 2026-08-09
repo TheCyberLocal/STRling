@@ -24,6 +24,7 @@ OPERATIONS = (
     "format",
     "format_check",
     "lint",
+    "hygiene",
     "typecheck",
     "build",
     "test",
@@ -84,6 +85,9 @@ def policy(
                     "default_targets": ["alpha"],
                 },
             },
+            "operation_defaults": {
+                "hygiene": ["alpha"],
+            },
         },
         "orchestration": {"shell": "python3", "runtime": "python3"},
         "tools": {
@@ -121,6 +125,20 @@ class QualityRoutingTests(unittest.TestCase):
         toolchain = Toolchain(policy(), Path.cwd())
         with self.assertRaisesRegex(ConfigurationError, "unknown component 'missing'"):
             toolchain.select("missing")
+
+    def test_operation_uses_declared_default_target(self) -> None:
+        alpha = target_config(
+            {"hygiene": "configured"},
+            {"hygiene": ["fixture-hygiene"]},
+        )
+        toolchain = Toolchain(policy(alpha=alpha), Path.cwd())
+        calls: list[str] = []
+        results = QualityRunner(
+            toolchain,
+            lambda target, *_args: calls.append(target.name) or Execution(0),
+        ).run_operation("hygiene", None)
+        self.assertEqual(["alpha"], calls)
+        self.assertEqual(["alpha"], [result.component for result in results])
 
     def test_configured_command_executes_once(self) -> None:
         calls: list[tuple[str, str, list[str]]] = []

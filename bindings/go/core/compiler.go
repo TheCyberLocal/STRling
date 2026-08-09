@@ -42,15 +42,15 @@ func NewCompiler() *Compiler {
 func (c *Compiler) CompileWithMetadata(rootNode Node) map[string]interface{} {
 	irRoot := c.lower(rootNode)
 	irRoot = c.normalize(irRoot)
-	
+
 	// Analyze the final IR tree for special features
 	c.analyzeFeatures(irRoot)
-	
+
 	features := make([]string, 0, len(c.featuresUsed))
 	for f := range c.featuresUsed {
 		features = append(features, f)
 	}
-	
+
 	return map[string]interface{}{
 		"ir": irRoot,
 		"metadata": map[string]interface{}{
@@ -77,13 +77,13 @@ func (c *Compiler) analyzeFeatures(node IROp) {
 			c.featuresUsed["named_group"] = true
 		}
 		c.analyzeFeatures(n.Body)
-		
+
 	case IRQuant:
 		if n.Mode == "Possessive" {
 			c.featuresUsed["possessive_quantifier"] = true
 		}
 		c.analyzeFeatures(n.Child)
-		
+
 	case IRLook:
 		if n.Dir == "Behind" {
 			c.featuresUsed["lookbehind"] = true
@@ -91,10 +91,10 @@ func (c *Compiler) analyzeFeatures(node IROp) {
 			c.featuresUsed["lookahead"] = true
 		}
 		c.analyzeFeatures(n.Body)
-		
+
 	case IRBackref:
 		c.featuresUsed["backreference"] = true
-		
+
 	case IRCharClass:
 		// Check for Unicode property escapes in character class items
 		for _, item := range n.Items {
@@ -102,12 +102,12 @@ func (c *Compiler) analyzeFeatures(node IROp) {
 				c.featuresUsed["unicode_property"] = true
 			}
 		}
-		
+
 	case IRSeq:
 		for _, part := range n.Parts {
 			c.analyzeFeatures(part)
 		}
-		
+
 	case IRAlt:
 		for _, branch := range n.Branches {
 			c.analyzeFeatures(branch)
@@ -124,45 +124,45 @@ func (c *Compiler) lower(node Node) IROp {
 			branches[i] = c.lower(b)
 		}
 		return IRAlt{Branches: branches}
-		
+
 	case Seq:
 		parts := make([]IROp, len(n.Parts))
 		for i, p := range n.Parts {
 			parts[i] = c.lower(p)
 		}
 		return IRSeq{Parts: parts}
-		
+
 	case Lit:
 		return IRLit{Value: n.Value}
-		
+
 	case Dot:
 		return IRDot{}
-		
+
 	case Anchor:
 		return IRAnchor{At: n.At}
-		
+
 	case CharClass:
 		items := make([]IRClassItem, len(n.Items))
 		for i, item := range n.Items {
 			items[i] = c.lowerClassItem(item)
 		}
 		return IRCharClass{Negated: n.Negated, Items: items}
-		
+
 	case Quant:
 		child := c.lower(n.Child)
 		return IRQuant{Child: child, Min: n.Min, Max: n.Max, Mode: n.Mode}
-		
+
 	case Group:
 		body := c.lower(n.Body)
 		return IRGroup{Capturing: n.Capturing, Body: body, Name: n.Name, Atomic: n.Atomic}
-		
+
 	case Backref:
 		return IRBackref{ByIndex: n.ByIndex, ByName: n.ByName}
-		
+
 	case Look:
 		body := c.lower(n.Body)
 		return IRLook{Dir: n.Dir, Neg: n.Neg, Body: body}
-		
+
 	default:
 		// Unknown node type
 		return IRLit{Value: ""}
@@ -192,7 +192,7 @@ func (c *Compiler) normalize(node IROp) IROp {
 		for i, p := range n.Parts {
 			parts[i] = c.normalize(p)
 		}
-		
+
 		// Flatten nested sequences
 		flattened := []IROp{}
 		for _, part := range parts {
@@ -202,7 +202,7 @@ func (c *Compiler) normalize(node IROp) IROp {
 				flattened = append(flattened, part)
 			}
 		}
-		
+
 		// Coalesce adjacent literals
 		coalesced := []IROp{}
 		for i := 0; i < len(flattened); i++ {
@@ -224,19 +224,19 @@ func (c *Compiler) normalize(node IROp) IROp {
 				coalesced = append(coalesced, flattened[i])
 			}
 		}
-		
+
 		if len(coalesced) == 1 {
 			return coalesced[0]
 		}
 		return IRSeq{Parts: coalesced}
-		
+
 	case IRAlt:
 		// Normalize children first
 		branches := make([]IROp, len(n.Branches))
 		for i, b := range n.Branches {
 			branches[i] = c.normalize(b)
 		}
-		
+
 		// Flatten nested alternations
 		flattened := []IROp{}
 		for _, branch := range branches {
@@ -246,24 +246,24 @@ func (c *Compiler) normalize(node IROp) IROp {
 				flattened = append(flattened, branch)
 			}
 		}
-		
+
 		if len(flattened) == 1 {
 			return flattened[0]
 		}
 		return IRAlt{Branches: flattened}
-		
+
 	case IRQuant:
 		child := c.normalize(n.Child)
 		return IRQuant{Child: child, Min: n.Min, Max: n.Max, Mode: n.Mode}
-		
+
 	case IRGroup:
 		body := c.normalize(n.Body)
 		return IRGroup{Capturing: n.Capturing, Body: body, Name: n.Name, Atomic: n.Atomic}
-		
+
 	case IRLook:
 		body := c.normalize(n.Body)
 		return IRLook{Dir: n.Dir, Neg: n.Neg, Body: body}
-		
+
 	default:
 		return node
 	}

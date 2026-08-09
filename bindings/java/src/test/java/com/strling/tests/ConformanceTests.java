@@ -34,15 +34,15 @@ import static org.junit.jupiter.api.Assertions.*;
  * 3. Emit correct PCRE2 patterns matching expected_codegen
  */
 public class ConformanceTests {
-    
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     // Path to fixtures directory - go up from bindings/java/src/test/java/com/strling/tests
     // to the repo root, then to tests/spec/
     private static final Path FIXTURES_DIR = Paths.get(
         System.getProperty("user.dir"), "..", "..", "tests", "spec"
     ).normalize();
-    
+
     /**
      * Get the semantic test name for a fixture file
      */
@@ -57,7 +57,7 @@ public class ConformanceTests {
                 return "test_conformance_" + stem;
         }
     }
-    
+
     /**
      * Get all JSON fixture files
      */
@@ -65,7 +65,7 @@ public class ConformanceTests {
         if (!Files.exists(FIXTURES_DIR)) {
             throw new IOException("Fixtures directory not found: " + FIXTURES_DIR);
         }
-        
+
         List<Path> fixtures = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(FIXTURES_DIR, 1)) {
             paths.filter(Files::isRegularFile)
@@ -75,14 +75,14 @@ public class ConformanceTests {
         }
         return fixtures;
     }
-    
+
     /**
      * Dynamically generate a test for each JSON fixture
      */
     @TestFactory
     public Stream<DynamicTest> testAllConformanceFixtures() throws IOException {
         List<Path> fixtures = getFixtures();
-        
+
         return fixtures.stream().map(fixturePath -> {
             String testName = getTestName(fixturePath.getFileName().toString());
             return DynamicTest.dynamicTest(
@@ -91,7 +91,7 @@ public class ConformanceTests {
             );
         });
     }
-    
+
     /**
      * Test a single JSON fixture
      */
@@ -103,7 +103,7 @@ public class ConformanceTests {
         try {
             // Load and parse the JSON fixture
             JsonNode root = MAPPER.readTree(fixturePath.toFile());
-            
+
             // 1. Deserialize Flags
             Flags flags = new Flags();
             if (root.has("flags")) {
@@ -148,7 +148,7 @@ public class ConformanceTests {
                 System.out.println("[ PASS ] Irrelevant");
                 return; // Skip if no input_ast and no expected_error
             }
-            
+
             // Check for expected error with input_ast
             if (root.has("expected_error")) {
                  try {
@@ -161,13 +161,13 @@ public class ConformanceTests {
                      return;
                  }
             }
-            
+
             IRNode astRoot = MAPPER.treeToValue(root.get("input_ast"), IRNode.class);
-            
+
             // 3. Compile to IR
             JsonAstCompiler compiler = new JsonAstCompiler();
             IROp irOp = compiler.compile(astRoot);
-            
+
             // 4. Verify IR (if expected_ir exists)
             if (root.has("expected_ir")) {
                 Map<String, Object> expectedIr = MAPPER.convertValue(root.get("expected_ir"), new TypeReference<Map<String, Object>>(){});

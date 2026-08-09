@@ -26,19 +26,19 @@ import strling.core.*
  * ```
  */
 object Simply {
-    
+
     // ========== Static Patterns / Character Classes ==========
-    
+
     /**
      * Matches the start of a line/string.
      */
     fun start(): Pattern = Pattern(Anchor(at = "Start"))
-    
+
     /**
      * Matches the end of a line/string.
      */
     fun end(): Pattern = Pattern(Anchor(at = "End"))
-    
+
     /**
      * Matches any digit character (0-9).
      *
@@ -54,7 +54,7 @@ object Simply {
         val pattern = Pattern(node)
         return if (minRep == 1 && maxRep == null) pattern else pattern.repeat(minRep, maxRep)
     }
-    
+
     /**
      * Matches any letter (uppercase or lowercase).
      *
@@ -72,7 +72,7 @@ object Simply {
         val pattern = Pattern(node)
         return if (minRep == 1 && maxRep == null) pattern else pattern.repeat(minRep, maxRep)
     }
-    
+
     /**
      * Matches any alphanumeric character (letter or digit).
      *
@@ -91,7 +91,7 @@ object Simply {
         val pattern = Pattern(node)
         return if (minRep == 1 && maxRep == null) pattern else pattern.repeat(minRep, maxRep)
     }
-    
+
     /**
      * Matches any whitespace character.
      *
@@ -106,16 +106,16 @@ object Simply {
         val pattern = Pattern(node)
         return if (minRep == 1 && maxRep == null) pattern else pattern.repeat(minRep, maxRep)
     }
-    
+
     /**
      * Creates a literal pattern from a string.
      *
      * @param text The text to match literally
      */
     fun literal(text: String): Pattern = Pattern(Literal(value = text))
-    
+
     // ========== Character Sets ==========
-    
+
     /**
      * Matches any character within a range.
      *
@@ -174,7 +174,7 @@ object Simply {
                 "between(start, end): Both arguments must be integers (0-9) or letters of the same case"
             )
         }
-        
+
         return Pattern(
             CharacterClass(
                 negated = false,
@@ -182,7 +182,7 @@ object Simply {
             )
         )
     }
-    
+
     /**
      * Matches any of the provided characters.
      * This creates a character class from a string of characters.
@@ -191,7 +191,7 @@ object Simply {
      */
     fun anyOf(chars: String): Pattern {
         require(chars.isNotEmpty()) { "anyOf(chars): chars cannot be empty" }
-        
+
         val members = chars.map { Literal(value = it.toString()) }
         return Pattern(
             CharacterClass(
@@ -200,9 +200,9 @@ object Simply {
             )
         )
     }
-    
+
     // ========== Constructors ==========
-    
+
     /**
      * Matches any one of the provided patterns (alternation/OR operation).
      *
@@ -210,7 +210,7 @@ object Simply {
      */
     fun anyOf(vararg patterns: Any): Pattern {
         require(patterns.isNotEmpty()) { "anyOf(...patterns): At least one pattern required" }
-        
+
         val nodes = patterns.map { pattern ->
             when (pattern) {
                 is Pattern -> pattern.node
@@ -220,11 +220,11 @@ object Simply {
                 )
             }
         }
-        
+
         val allNamedGroups = patterns.filterIsInstance<Pattern>().flatMap { it.namedGroups }
         return Pattern(Alternation(alternatives = nodes), namedGroups = allNamedGroups)
     }
-    
+
     /**
      * Concatenates patterns sequentially.
      *
@@ -232,7 +232,7 @@ object Simply {
      */
     fun merge(vararg patterns: Any): Pattern {
         require(patterns.isNotEmpty()) { "merge(...patterns): At least one pattern required" }
-        
+
         val nodes = patterns.map { pattern ->
             when (pattern) {
                 is Pattern -> pattern.node
@@ -242,7 +242,7 @@ object Simply {
                 )
             }
         }
-        
+
         val allNamedGroups = patterns.filterIsInstance<Pattern>().flatMap { it.namedGroups }
         return if (nodes.size == 1) {
             Pattern(nodes[0], namedGroups = allNamedGroups)
@@ -250,7 +250,7 @@ object Simply {
             Pattern(Sequence(parts = nodes), namedGroups = allNamedGroups)
         }
     }
-    
+
     /**
      * Makes patterns optional (matches 0 or 1 times).
      *
@@ -258,7 +258,7 @@ object Simply {
      */
     fun may(vararg patterns: Any): Pattern {
         require(patterns.isNotEmpty()) { "may(...patterns): At least one pattern required" }
-        
+
         val bodyNode = if (patterns.size == 1) {
             when (val pattern = patterns[0]) {
                 is Pattern -> pattern.node
@@ -279,13 +279,13 @@ object Simply {
             }
             Sequence(parts = nodes)
         }
-        
+
         val allNamedGroups = if (patterns.size == 1 && patterns[0] is Pattern) {
             (patterns[0] as Pattern).namedGroups
         } else {
             patterns.filterIsInstance<Pattern>().flatMap { it.namedGroups }
         }
-        
+
         return Pattern(
             Quantifier(
                 target = bodyNode,
@@ -298,7 +298,7 @@ object Simply {
             namedGroups = allNamedGroups
         )
     }
-    
+
     /**
      * Creates a numbered capture group.
      *
@@ -306,7 +306,7 @@ object Simply {
      */
     fun capture(vararg patterns: Any): Pattern {
         require(patterns.isNotEmpty()) { "capture(...patterns): At least one pattern required" }
-        
+
         val bodyNode = if (patterns.size == 1) {
             when (val pattern = patterns[0]) {
                 is Pattern -> pattern.node
@@ -327,16 +327,16 @@ object Simply {
             }
             Sequence(parts = nodes)
         }
-        
+
         val allNamedGroups = if (patterns.size == 1 && patterns[0] is Pattern) {
             (patterns[0] as Pattern).namedGroups
         } else {
             patterns.filterIsInstance<Pattern>().flatMap { it.namedGroups }
         }
-        
+
         return Pattern(Group(capturing = true, body = bodyNode), namedGroups = allNamedGroups)
     }
-    
+
     /**
      * Creates a named capture group.
      *
@@ -346,7 +346,7 @@ object Simply {
     fun group(name: String, vararg patterns: Any): Pattern {
         require(name.isNotEmpty()) { "group(name, ...patterns): name cannot be empty" }
         require(patterns.isNotEmpty()) { "group(name, ...patterns): At least one pattern required" }
-        
+
         val bodyNode = if (patterns.size == 1) {
             when (val pattern = patterns[0]) {
                 is Pattern -> pattern.node
@@ -367,7 +367,7 @@ object Simply {
             }
             Sequence(parts = nodes)
         }
-        
+
         // Collect named groups from input patterns and combine with the new group name
         val existingNamedGroups = patterns
             .filterIsInstance<Pattern>()
@@ -388,7 +388,7 @@ data class Pattern(
     val node: Node,
     val namedGroups: List<String> = emptyList()
 ) {
-    
+
     /**
      * Makes this pattern optional (matches 0 or 1 times).
      */
@@ -405,7 +405,7 @@ data class Pattern(
             namedGroups = namedGroups
         )
     }
-    
+
     /**
      * Wraps this pattern in a capturing group.
      */
@@ -415,7 +415,7 @@ data class Pattern(
             namedGroups = namedGroups
         )
     }
-    
+
     /**
      * Wraps this pattern in a named capturing group.
      *
@@ -428,7 +428,7 @@ data class Pattern(
             namedGroups = namedGroups + name
         )
     }
-    
+
     /**
      * Makes this pattern repeat between min and max times.
      *
@@ -446,7 +446,7 @@ data class Pattern(
                 }
             }
         }
-        
+
         // Validate named groups cannot be repeated more than once
         // max == null means exactly min times
         // max == 0 means unbounded (min or more)
@@ -456,20 +456,20 @@ data class Pattern(
             0 -> true  // unbounded
             else -> max > 1
         }
-        
+
         if (namedGroups.isNotEmpty() && canRepeatMultiple) {
             throw IllegalArgumentException(
                 "repeat(min, max): Named groups cannot be repeated more than once as they must be unique. " +
                 "Consider using asCapture() or Simply.merge() instead."
             )
         }
-        
+
         val qMax = when (max) {
             null -> JsonPrimitive(min)
             0 -> JsonPrimitive("Inf")
             else -> JsonPrimitive(max)
         }
-        
+
         return Pattern(
             Quantifier(
                 target = node,
@@ -482,7 +482,7 @@ data class Pattern(
             namedGroups = namedGroups
         )
     }
-    
+
     /**
      * Makes this pattern lazy (non-greedy).
      *
@@ -492,7 +492,7 @@ data class Pattern(
         require(node is Quantifier) {
             "lazy(): Can only make quantified patterns lazy. Use optional() or repeat() first."
         }
-        
+
         val quant = node as Quantifier
         return Pattern(
             Quantifier(

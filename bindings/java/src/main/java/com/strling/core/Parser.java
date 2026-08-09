@@ -26,20 +26,20 @@ import java.util.regex.Pattern;
  * comprehensive error handling with position tracking for helpful diagnostics.</p>
  */
 public class Parser {
-    
+
     /**
      * Result of a parse operation containing flags and the parsed AST.
      */
     public static class ParseResult {
         public final Flags flags;
         public final Node ast;
-        
+
         public ParseResult(Flags flags, Node ast) {
             this.flags = flags;
             this.ast = ast;
         }
     }
-    
+
     /**
      * Lexer cursor for tracking position within the input text.
      */
@@ -48,34 +48,34 @@ public class Parser {
         int i = 0;
         boolean extendedMode = false;
         int inClass = 0; // nesting count for char classes
-        
+
         Cursor(String text, int i, boolean extendedMode, int inClass) {
             this.text = text;
             this.i = i;
             this.extendedMode = extendedMode;
             this.inClass = inClass;
         }
-        
+
         boolean eof() {
             return i >= text.length();
         }
-        
+
         String peek() {
             return peek(0);
         }
-        
+
         String peek(int n) {
             int j = i + n;
             return (j >= text.length()) ? "" : String.valueOf(text.charAt(j));
         }
-        
+
         String take() {
             if (eof()) return "";
             char ch = text.charAt(i);
             i++;
             return String.valueOf(ch);
         }
-        
+
         boolean match(String s) {
             if (text.startsWith(s, i)) {
                 i += s.length();
@@ -83,10 +83,10 @@ public class Parser {
             }
             return false;
         }
-        
+
         /**
          * Skip whitespace and comments in extended/free-spacing mode.
-         * 
+         *
          * <p>In free-spacing mode, ignore spaces/tabs/newlines and #-to-EOL comments.</p>
          */
         void skipWsAndComments() {
@@ -111,7 +111,7 @@ public class Parser {
             }
         }
     }
-    
+
     private final String originalText;
     private final Flags flags;
     private final String src;
@@ -119,7 +119,7 @@ public class Parser {
     private int capCount = 0;
     private final Set<String> capNames = new HashSet<>();
     private final Map<String, String> CONTROL_ESCAPES = new HashMap<>();
-    
+
     private Parser(String text) {
         this.originalText = text;
         // Extract directives first
@@ -127,14 +127,14 @@ public class Parser {
         this.flags = dirResult.flags;
         this.src = dirResult.pattern;
         this.cur = new Cursor(this.src, 0, this.flags.extended, 0);
-        
+
         CONTROL_ESCAPES.put("n", "\n");
         CONTROL_ESCAPES.put("r", "\r");
         CONTROL_ESCAPES.put("t", "\t");
         CONTROL_ESCAPES.put("f", "\f");
         CONTROL_ESCAPES.put("v", "\u000B");
     }
-    
+
     /**
      * Raise a STRlingParseError with an instructional hint.
      *
@@ -146,10 +146,10 @@ public class Parser {
         String hint = getHint(message, src, pos);
         throw new STRlingParseError(message, pos, src, hint);
     }
-    
+
     /**
      * Get hint for error message using the HintEngine.
-     * 
+     *
      * @param message The error message
      * @param source The source text
      * @param pos The error position
@@ -158,20 +158,20 @@ public class Parser {
     private static String getHint(String message, String source, int pos) {
         return HintEngine.getHint(message, source, pos);
     }
-    
+
     /**
      * Directive parsing result.
      */
     static class DirectiveResult {
         final Flags flags;
         final String pattern;
-        
+
         DirectiveResult(Flags flags, String pattern) {
             this.flags = flags;
             this.pattern = pattern;
         }
     }
-    
+
     /**
      * Parse directives (like %flags) from the pattern.
      *
@@ -183,7 +183,7 @@ public class Parser {
         String[] lines = text.split("\\r?\\n", -1);
         List<String> patternLines = new ArrayList<>();
         boolean inPattern = false;
-        
+
         for (String line : lines) {
             String stripped = line.trim();
             // Skip leading blank lines or comments
@@ -298,11 +298,11 @@ public class Parser {
             inPattern = true;
             patternLines.add(line);
         }
-        
+
         String pattern = String.join("\n", patternLines);
         return new DirectiveResult(flags, pattern);
     }
-    
+
     /**
      * Parse the entire STRling pattern into an AST.
      *
@@ -335,7 +335,7 @@ public class Parser {
         }
         return node;
     }
-    
+
     /**
      * Parse an alternation expression: seq ('|' seq)+ | seq
      *
@@ -347,11 +347,11 @@ public class Parser {
         if (cur.peek().equals("|")) {
             raiseError("Alternation lacks left-hand side", cur.i);
         }
-        
+
         List<Node> branches = new ArrayList<>();
         branches.add(parseSeq());
         cur.skipWsAndComments();
-        
+
         while (cur.peek().equals("|")) {
             int pipePos = cur.i;
             cur.take();
@@ -367,13 +367,13 @@ public class Parser {
             branches.add(parseSeq());
             cur.skipWsAndComments();
         }
-        
+
         if (branches.size() == 1) {
             return branches.get(0);
         }
         return new Alt(branches);
     }
-    
+
     /**
      * Parse a sequence of terms.
      *
@@ -382,40 +382,40 @@ public class Parser {
     private Node parseSeq() {
         List<Node> parts = new ArrayList<>();
         boolean prevHadFailedQuant = false;
-        
+
         while (true) {
             cur.skipWsAndComments();
             String ch = cur.peek();
-            
+
             // Invalid quantifier at start of sequence/group (no previous atom)
             if (!ch.isEmpty() && ("*+?{".indexOf(ch) >= 0) && parts.isEmpty()) {
                 raiseError(String.format("Invalid quantifier '%s'", ch), cur.i);
             }
-            
+
             // Stop parsing sequence if we hit end, closing paren, or alternation pipe
             if (ch.isEmpty() || ch.equals(")") || ch.equals("|")) {
                 break;
             }
-            
+
             // Parse the fundamental unit (literal, class, group, escape, etc.)
             Node atom = parseAtom();
-            
+
             // Parse any quantifier (*, +, ?, {m,n}) that might follow the atom
             QuantResult quantResult = parseQuantIfAny(atom);
             Node quantifiedAtom = quantResult.node;
             boolean hadFailedQuantParse = quantResult.hadFailedParse;
-            
+
             // Coalesce adjacent Lit nodes if appropriate
             // Check if previous node is a backref
             boolean prevIsBackref = !parts.isEmpty() && parts.get(parts.size() - 1) instanceof Backref;
-            
+
             boolean shouldCoalesce = quantifiedAtom instanceof Lit
                 && !parts.isEmpty()
                 && parts.get(parts.size() - 1) instanceof Lit
                 && !cur.extendedMode
                 && !prevHadFailedQuant
                 && !prevIsBackref;
-            
+
             if (shouldCoalesce) {
                 Lit prevLit = (Lit) parts.get(parts.size() - 1);
                 Lit currLit = (Lit) quantifiedAtom;
@@ -423,10 +423,10 @@ public class Parser {
             } else {
                 parts.add(quantifiedAtom);
             }
-            
+
             prevHadFailedQuant = hadFailedQuantParse;
         }
-        
+
         // If the sequence ended up being just one atom, return it directly
         if (parts.size() == 1) {
             return parts.get(0);
@@ -434,20 +434,20 @@ public class Parser {
         // Otherwise, return a Sequence node containing all parts
         return new Seq(parts);
     }
-    
+
     /**
      * Result of quantifier parsing.
      */
     static class QuantResult {
         final Node node;
         final boolean hadFailedParse;
-        
+
         QuantResult(Node node, boolean hadFailedParse) {
             this.node = node;
             this.hadFailedParse = hadFailedParse;
         }
     }
-    
+
     /**
      * Parse an optional quantifier following an atom and apply it if present.
      *
@@ -456,7 +456,7 @@ public class Parser {
      */
     private QuantResult parseQuantIfAny(Node child) {
         String ch = cur.peek();
-        
+
         // Check if child is an anchor - anchors cannot be quantified
         if (child instanceof Anchor) {
             if (!ch.isEmpty() && "*+?{".indexOf(ch) >= 0) {
@@ -464,10 +464,10 @@ public class Parser {
             }
             return new QuantResult(child, false);
         }
-        
+
         int min = 0;
         Object max = 0;
-        
+
         if (ch.equals("*")) {
             cur.take();
             min = 0;
@@ -491,12 +491,12 @@ public class Parser {
             // No quantifier
             return new QuantResult(child, false);
         }
-        
+
         // Validate quantifier numeric range (m <= n)
         if (max instanceof Integer && min > (Integer) max) {
             raiseError("Invalid quantifier range", cur.i);
         }
-        
+
         // Check for mode suffix (?, +)
         String mode = "Greedy";
         String suffix = cur.peek();
@@ -507,23 +507,23 @@ public class Parser {
             cur.take();
             mode = "Possessive";
         }
-        
+
         return new QuantResult(new Quant(child, min, max, mode), false);
     }
-    
+
     /**
      * Result of brace quantifier parsing.
      */
     static class BraceQuantResult {
         final Integer min;
         final Object max; // Integer or String "Inf"
-        
+
         BraceQuantResult(Integer min, Object max) {
             this.min = min;
             this.max = max;
         }
     }
-    
+
     /**
      * Parse a brace quantifier {m,n}.
      *
@@ -602,7 +602,7 @@ public class Parser {
         raiseError("Incomplete quantifier", cur.i);
         return null;
     }
-    
+
     /**
      * Parse an atomic pattern element (the most basic building blocks).
      *
@@ -622,7 +622,7 @@ public class Parser {
     private Node parseAtom() {
         cur.skipWsAndComments();
         String ch = cur.peek();
-        
+
         if (ch.equals(".")) {
             cur.take();
             return new Dot();
@@ -659,7 +659,7 @@ public class Parser {
         }
         return new Lit(takeLiteralChar());
     }
-    
+
     /**
      * Take a single literal character from the input.
      *
@@ -668,7 +668,7 @@ public class Parser {
     private String takeLiteralChar() {
         return cur.take();
     }
-    
+
     /**
      * Parse an escape sequence atom.
      *
@@ -678,17 +678,17 @@ public class Parser {
         int startPos = cur.i; // Save position at start of escape
         assert cur.take().equals("\\");
         String nxt = cur.peek();
-        
+
         // Backref by index \1.. (but not \0)
         if (!nxt.isEmpty() && Character.isDigit(nxt.charAt(0)) && !nxt.equals("0")) {
             int savedPos = cur.i;
             StringBuilder numStr = new StringBuilder();
-            
+
             // Read digits one at a time
             while (!cur.peek().isEmpty() && Character.isDigit(cur.peek().charAt(0))) {
                 numStr.append(cur.take());
                 int num = Integer.parseInt(numStr.toString());
-                
+
                 if (num <= capCount) {
                     continue;
                 } else {
@@ -698,20 +698,20 @@ public class Parser {
                     break;
                 }
             }
-            
+
             if (numStr.length() > 0) {
                 int num = Integer.parseInt(numStr.toString());
                 if (num <= capCount) {
                     return new Backref(num, null);
                 }
             }
-            
+
             // No valid backref found
             cur.i = savedPos;
             int num = readDecimal();
             raiseError(String.format("Backreference to undefined group \\%d", num), startPos);
         }
-        
+
         // Anchors \b \B \A \Z
         if (nxt.equals("b") || nxt.equals("B") || nxt.equals("A") || nxt.equals("Z")) {
             String ch = cur.take();
@@ -722,7 +722,7 @@ public class Parser {
                 case "Z": return new Anchor("EndBeforeFinalNewline");
             }
         }
-        
+
         // \k<name> named backref
         if (nxt.equals("k")) {
             cur.take();
@@ -738,13 +738,13 @@ public class Parser {
             }
             return new Backref(null, name);
         }
-        
+
         // Shorthand classes \d \D \w \W \s \S
         if ("dDwWsS".indexOf(nxt) >= 0) {
             String type = cur.take();
             return new CharClass(false, Collections.singletonList(new ClassEscape(type)));
         }
-        
+
         // Property escapes \p{...} \P{...}
         if (nxt.equals("p") || nxt.equals("P")) {
             String tp = cur.take();
@@ -758,29 +758,29 @@ public class Parser {
             }
             return new CharClass(false, Collections.singletonList(new ClassEscape(tp, prop)));
         }
-        
+
         // Core control escapes \n \t \r \f \v
         if (CONTROL_ESCAPES.containsKey(nxt)) {
             String ch = cur.take();
             return new Lit(CONTROL_ESCAPES.get(ch));
         }
-        
+
         // Hex escapes: backslash-x-HH and backslash-x-brace-...-brace
         if (nxt.equals("x")) {
             return new Lit(parseHexEscape(startPos));
         }
-        
+
         // Unicode escapes: backslash-u-HHHH, backslash-u-brace..., backslash-U-00000000
         if (nxt.equals("u") || nxt.equals("U")) {
             return new Lit(parseUnicodeEscape(startPos));
         }
-        
+
         // Null byte: backslash-0
         if (nxt.equals("0")) {
             cur.take();
             return new Lit("\0");
         }
-        
+
         // Escaped literal
         if (!nxt.isEmpty()) {
             String escapedChar = cur.take();
@@ -801,11 +801,11 @@ public class Parser {
 
             return new Lit(escapedChar);
         }
-        
+
         raiseError("Incomplete escape at end of pattern", startPos);
         return null;
     }
-    
+
     /**
      * Read a decimal number from the current position.
      *
@@ -818,7 +818,7 @@ public class Parser {
         }
         return Integer.parseInt(digits.toString());
     }
-    
+
     /**
      * Read an identifier until the specified terminator.
      *
@@ -832,7 +832,7 @@ public class Parser {
         }
         return result.toString();
     }
-    
+
     /**
      * Read until the specified terminator.
      *
@@ -846,7 +846,7 @@ public class Parser {
         }
         return result.toString();
     }
-    
+
     /**
      * Parse a hex escape sequence (backslash-x-HH or backslash-x-brace-...-brace).
      *
@@ -855,7 +855,7 @@ public class Parser {
      */
     private String parseHexEscape(int startPos) {
         assert cur.take().equals("x");
-        
+
         if (cur.match("{")) {
             // backslash-x-brace-...-brace format
             StringBuilder hexs = new StringBuilder();
@@ -868,7 +868,7 @@ public class Parser {
             int cp = Integer.parseInt(hexs.length() > 0 ? hexs.toString() : "0", 16);
             return new String(Character.toChars(cp));
         }
-        
+
         // backslash-x-HH format
         String h1 = cur.take();
         String h2 = cur.take();
@@ -877,7 +877,7 @@ public class Parser {
         }
         return String.valueOf((char) Integer.parseInt(h1 + h2, 16));
     }
-    
+
     /**
      * Parse a Unicode escape sequence (backslash-u-HHHH, backslash-u-brace..., or backslash-U-00000000).
      *
@@ -886,7 +886,7 @@ public class Parser {
      */
     private String parseUnicodeEscape(int startPos) {
         String tp = cur.take(); // u or U
-        
+
         if (tp.equals("u") && cur.match("{")) {
             // backslash-u-brace-...-brace format
             StringBuilder hexs = new StringBuilder();
@@ -899,7 +899,7 @@ public class Parser {
             int cp = Integer.parseInt(hexs.length() > 0 ? hexs.toString() : "0", 16);
             return new String(Character.toChars(cp));
         }
-        
+
         if (tp.equals("U")) {
             // backslash-U-00000000 format (8 hex digits)
             StringBuilder hexs = new StringBuilder();
@@ -913,7 +913,7 @@ public class Parser {
             int cp = Integer.parseInt(hexs.toString(), 16);
             return new String(Character.toChars(cp));
         }
-        
+
         // backslash-u-HHHH format (4 hex digits)
         StringBuilder hexs = new StringBuilder();
         for (int i = 0; i < 4; i++) {
@@ -926,7 +926,7 @@ public class Parser {
         int cp = Integer.parseInt(hexs.toString(), 16);
         return new String(Character.toChars(cp));
     }
-    
+
     /**
      * Parse a character class [...] or negated class [^...].
      *
@@ -936,23 +936,23 @@ public class Parser {
         cur.take(); // consume [
         int startPos = cur.i; // Position after '['
         cur.inClass++;
-        
+
         boolean negated = false;
         if (cur.peek().equals("^")) {
             negated = true;
             cur.take();
             startPos = cur.i; // Update position after '^'
         }
-        
+
         List<ClassItem> items = new ArrayList<>();
-        
+
         // Helper to read one class item (escape or literal)
         while (true) {
             if (cur.eof()) {
                 cur.inClass--;
                 raiseError("Unterminated character class", cur.i);
             }
-            
+
             // Detect explicit empty character class '[]' (or '[^]') and raise a
             // specific instructional error only when the class truly contains no
             // elements (i.e., the next character is end-of-input or immediately
@@ -972,17 +972,17 @@ public class Parser {
                     hint
                 );
             }
-            
+
             // ] closes the class (except at the very start)
             if (cur.peek().equals("]") && cur.i > startPos) {
                 cur.take();
                 cur.inClass--;
                 return new CharClass(negated, items);
             }
-            
+
             // Check for range: '-' makes a range only if previous is a literal and next isn't ']'
-            if (cur.peek().equals("-") 
-                && !items.isEmpty() 
+            if (cur.peek().equals("-")
+                && !items.isEmpty()
                 && items.get(items.size() - 1) instanceof ClassLiteral
                 && !cur.peek(1).equals("]")) {
                 int dashPos = cur.i;
@@ -1004,12 +1004,12 @@ public class Parser {
                 }
                 continue;
             }
-            
+
             // General case: read one item
             items.add(readClassItem());
         }
     }
-    
+
     /**
      * Read one character class item (escape or literal).
      *
@@ -1020,12 +1020,12 @@ public class Parser {
             int escapeStart = cur.i;
             cur.take(); // consume backslash
             String nxt = cur.peek();
-            
+
             // Handle standard shorthands \d \D \w \W \s \S
             if ("dDwWsS".indexOf(nxt) >= 0) {
                 return new ClassEscape(cur.take());
             }
-            
+
             // Handle unicode properties \p{...} \P{...}
             if (nxt.equals("p") || nxt.equals("P")) {
                 String tp = cur.take();
@@ -1039,45 +1039,45 @@ public class Parser {
                 }
                 return new ClassEscape(tp, prop);
             }
-            
+
             // Handle hex escapes -> literal char
             if (nxt.equals("x")) {
                 String ch = parseHexEscape(escapeStart);
                 return new ClassLiteral(ch);
             }
-            
+
             // Handle unicode escapes -> literal char
             if (nxt.equals("u") || nxt.equals("U")) {
                 String ch = parseUnicodeEscape(escapeStart);
                 return new ClassLiteral(ch);
             }
-            
+
             // Handle null byte
             if (nxt.equals("0")) {
                 cur.take();
                 return new ClassLiteral("\0");
             }
-            
+
             // Handle core control escapes \n \t \r \f \v
             if (CONTROL_ESCAPES.containsKey(nxt)) {
                 String ch = cur.take();
                 return new ClassLiteral(CONTROL_ESCAPES.get(ch));
             }
-            
+
             // Special case: \b inside class is backspace (0x08)
             if (nxt.equals("b")) {
                 cur.take();
                 return new ClassLiteral("\b");
             }
-            
+
             // Identity escape: treat next char literally (e.g., \-, \^, \])
             return new ClassLiteral(cur.take());
         }
-        
+
         // Regular literal character (not preceded by \)
         return new ClassLiteral(cur.take());
     }
-    
+
     /**
      * Parse a group or lookaround construct.
      *
@@ -1086,7 +1086,7 @@ public class Parser {
     private Node parseGroupOrLook() {
         int startPos = cur.i;
         cur.take(); // consume (
-        
+
         // Check for special group types
         if (cur.match("?:")) {
             // Non-capturing group
@@ -1096,7 +1096,7 @@ public class Parser {
             }
             return new Group(false, body);
         }
-        
+
         if (cur.match("?>")) {
             // Atomic group
             Node body = parseAlt();
@@ -1105,7 +1105,7 @@ public class Parser {
             }
             return new Group(false, body, null, true);
         }
-        
+
         if (cur.match("?=")) {
             // Positive lookahead
             Node body = parseAlt();
@@ -1114,7 +1114,7 @@ public class Parser {
             }
             return new Look("Ahead", false, body);
         }
-        
+
         if (cur.match("?!")) {
             // Negative lookahead
             Node body = parseAlt();
@@ -1123,7 +1123,7 @@ public class Parser {
             }
             return new Look("Ahead", true, body);
         }
-        
+
         if (cur.match("?<=")) {
             // Positive lookbehind
             Node body = parseAlt();
@@ -1132,7 +1132,7 @@ public class Parser {
             }
             return new Look("Behind", false, body);
         }
-        
+
         if (cur.match("?<!")) {
             // Negative lookbehind
             Node body = parseAlt();
@@ -1141,7 +1141,7 @@ public class Parser {
             }
             return new Look("Behind", true, body);
         }
-        
+
         if (cur.match("?<")) {
             // Named capturing group
             int nameStartPos = cur.i;
@@ -1167,12 +1167,12 @@ public class Parser {
             }
             return new Group(true, body, name);
         }
-        
+
         // Check for inline modifiers (not supported)
         if (cur.peek().equals("?")) {
             raiseError("Inline modifiers are not supported", startPos + 1);
         }
-        
+
         // Default: capturing group
         capCount++;
         Node body = parseAlt();
@@ -1181,7 +1181,7 @@ public class Parser {
         }
         return new Group(true, body);
     }
-    
+
     /**
      * Public API: Parse a STRling pattern string into an AST.
      *
@@ -1194,10 +1194,10 @@ public class Parser {
         Node ast = p.parseInternal();
         return new ParseResult(p.flags, ast);
     }
-    
+
     /**
      * Public API: Parse a STRling pattern string and return a complete artifact.
-     * 
+     *
      * <p>This method parses the input pattern and wraps the result in a standard
      * artifact structure suitable for validation and emission. The artifact includes:</p>
      * <ul>

@@ -1,6 +1,6 @@
 --[[
     STRling PCRE2 Emitter - Lua Implementation
-    
+
     Transforms STRling IR into PCRE2-compatible regex strings.
     Iron Law: Emitters are pure functions with signature emit(ir, flags) → string.
 ]]
@@ -195,7 +195,7 @@ function Pcre2Emitter:emitGroup(ir)
     local capturing = ir.capturing
     local name = ir.name
     local atomic = ir.atomic
-    
+
     if atomic then
         return "(?>" .. body .. ")"
     end
@@ -222,13 +222,13 @@ function Pcre2Emitter:emitQuant(ir)
     end
 
     local childStr = self:emit(child)
-    
+
     -- Check if we need parentheses
     local needsParens = self:needsQuantifierParens(child, childStr)
     if needsParens then
         childStr = "(?:" .. childStr .. ")"
     end
-    
+
     -- Build quantifier suffix
     local quantStr
     if max == "Inf" or max == nil then
@@ -252,14 +252,14 @@ function Pcre2Emitter:emitQuant(ir)
     else
         quantStr = "{" .. min .. "," .. max .. "}"
     end
-    
+
     -- Add mode suffix
     if mode == "Lazy" then
         quantStr = quantStr .. "?"
     elseif mode == "Possessive" then
         quantStr = quantStr .. "+"
     end
-    
+
     return childStr .. quantStr
 end
 
@@ -277,15 +277,15 @@ end
 function Pcre2Emitter:emitCharClass(ir)
     local negated = ir.negated
     local items = ir.items
-    
+
     -- Single-item shorthand optimization
     if #items == 1 then
         local item = items[1]
         local itemIr = item.ir
-        
+
         if itemIr == "Esc" then
             local type_ = item.type
-            
+
             -- Handle d, w, s with negation flipping
             if type_:match("^[dws]$") then
                 if negated then
@@ -293,7 +293,7 @@ function Pcre2Emitter:emitCharClass(ir)
                 end
                 return "\\" .. type_
             end
-            
+
             -- Handle D, W, S
             if type_:match("^[DWS]$") then
                 if negated then
@@ -301,7 +301,7 @@ function Pcre2Emitter:emitCharClass(ir)
                 end
                 return "\\" .. type_
             end
-            
+
             -- Handle \p{...} and \P{...}
             if type_ == "p" or type_ == "P" then
                 local prop = item.property
@@ -313,14 +313,14 @@ function Pcre2Emitter:emitCharClass(ir)
             end
         end
     end
-    
+
     -- Build bracket class
     local parts = {}
     local hasHyphen = false
-    
+
     for _, item in ipairs(items) do
         local itemIr = item.ir
-        
+
         if itemIr == "Char" then
             local ch = item.char
             if ch == "-" then
@@ -342,7 +342,7 @@ function Pcre2Emitter:emitCharClass(ir)
             end
         end
     end
-    
+
     -- Hyphen at start to avoid ambiguity
     local inner
     if hasHyphen then
@@ -350,7 +350,7 @@ function Pcre2Emitter:emitCharClass(ir)
     else
         inner = table.concat(parts)
     end
-    
+
     local neg = negated and "^" or ""
     return "[" .. neg .. inner .. "]"
 end
@@ -370,7 +370,7 @@ end
 function Pcre2Emitter:emitBackref(ir)
     local byIndex = ir.byIndex
     local byName = ir.byName
-    
+
     if byName then
         return "\\k<" .. byName .. ">"
     end
@@ -423,7 +423,7 @@ end
 function Pcre2Emitter:emitEsc(ir)
     local type_ = ir.type
     local prop = ir.property
-    
+
     if prop then
         return "\\" .. type_ .. "{" .. prop .. "}"
     end

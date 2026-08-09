@@ -2,7 +2,7 @@
 
 This document explains the **meaning**, behavior, and design choices of the STRling DSL. It serves as the human-readable companion to the canonical EBNF grammar located in `dsl.ebnf`. While the EBNF defines the syntax, this document defines what that syntax _does_.
 
-**Status & Scope**  
+**Status & Scope**
 This document is **normative** for STRling v3 semantics and maps to TargetArtifact Base Schema **1.0.0** and PCRE2 emitter schema **v1**. Sections marked "Notes" are non-normative clarifications.
 
 ## 🧩 Core vs. Extensions

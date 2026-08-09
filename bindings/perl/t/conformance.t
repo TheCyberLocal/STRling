@@ -23,13 +23,13 @@ foreach my $file (@files) {
         open my $fh, '<', $file or die "Cannot open $file: $!";
         <$fh>;
     };
-    
+
     my $spec = eval { decode_json($json_text) };
     if ($@) {
         fail("Invalid JSON in $file: $@");
         next;
     }
-    
+
     # Skip if not a full test case
     if (!(exists $spec->{input_ast} && exists $spec->{expected_ir})) {
         if (exists $spec->{expected_error}) {
@@ -38,7 +38,7 @@ foreach my $file (@files) {
                 # Parser error test: parse input_dsl and verify error + hint
                 my $input_dsl = $spec->{input_dsl};
                 my $expected_error = $spec->{expected_error};
-                
+
                 subtest basename($file) . " (parser error)" => sub {
                     eval {
                         require STRling::Core::Parser;
@@ -62,7 +62,7 @@ foreach my $file (@files) {
         }
         next;
     }
-    
+
     print "=== RUN " . basename($file) . "\n";
     subtest $spec->{id} // basename($file) => sub {
         my $ast_node = eval { STRling::NodeFactory->from_json($spec->{input_ast}) };
@@ -70,13 +70,13 @@ foreach my $file (@files) {
             fail("AST Hydration failed: $@");
             return;
         }
-        
+
         my $ir_node = eval { STRling::Core::Compiler->compile($ast_node) };
         if ($@) {
             fail("Compilation failed: $@");
             return;
         }
-        
+
         my $got_ir = $ir_node->to_dict();
         my $expected_ir = normalize_expected($spec->{expected_ir});
         is_deeply($got_ir, $expected_ir, "IR matches expected");
@@ -85,7 +85,7 @@ foreach my $file (@files) {
 
 sub normalize_expected {
     my ($data) = @_;
-    
+
     if (ref $data eq 'HASH') {
         my $new_hash = {};
         foreach my $key (keys %$data) {
@@ -103,7 +103,7 @@ sub normalize_expected {
     elsif (JSON::PP::is_bool($data)) {
         return $data ? 1 : 0;
     }
-    
+
     return $data;
 }
 

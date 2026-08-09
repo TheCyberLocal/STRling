@@ -7,9 +7,9 @@ use Scalar::Util qw(blessed);
 
 sub compile {
     my ($class, $node) = @_;
-    
+
     return undef unless defined $node;
-    
+
     my $type = blessed($node);
     die "Not a blessed object" unless $type;
 
@@ -21,12 +21,12 @@ sub compile {
     elsif ($node->isa('STRling::Core::Nodes::Seq')) {
         my @compiled_parts = map { $class->compile($_) } @{ $node->parts };
         my @optimized_parts;
-        
+
         foreach my $part (@compiled_parts) {
-            if (@optimized_parts && 
-                $optimized_parts[-1]->isa('STRling::Core::IR::IRLit') && 
+            if (@optimized_parts &&
+                $optimized_parts[-1]->isa('STRling::Core::IR::IRLit') &&
                 $part->isa('STRling::Core::IR::IRLit')) {
-                
+
                 my $prev = pop @optimized_parts;
                 push @optimized_parts, STRling::Core::IR::IRLit->new(
                     value => $prev->value . $part->value
@@ -35,7 +35,7 @@ sub compile {
                 push @optimized_parts, $part;
             }
         }
-        
+
         if (@optimized_parts == 1) {
             return $optimized_parts[0];
         }
@@ -92,13 +92,13 @@ sub compile {
             body => $class->compile($node->body)
         );
     }
-    
+
     die "Unsupported node type for compilation: $type";
 }
 
 sub compile_class_item {
     my ($class, $node) = @_;
-    
+
     if ($node->isa('STRling::Core::Nodes::ClassRange')) {
         return STRling::Core::IR::IRClassRange->new(
             from_ch => $node->from_ch,
@@ -116,7 +116,7 @@ sub compile_class_item {
             property => $node->property
         );
     }
-    
+
     die "Unsupported class item type: " . blessed($node);
 }
 

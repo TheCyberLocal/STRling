@@ -73,10 +73,10 @@ void assert_compile_equals_from_json(const char *json_path, const char *expected
         fail_msg("%s", buf);
     }
     assert_non_null(res->pattern);
-    
+
     char *norm_expected = normalize_expected(expected_pattern);
     char *norm_actual = normalize_expected(res->pattern);
-    
+
     if (norm_expected && norm_actual) {
         if (strcmp(norm_actual, norm_expected) != 0) {
             printf("Mismatch!\nActual:   %s\nExpected: %s\n", norm_actual, norm_expected);
@@ -198,7 +198,7 @@ void assert_compile_matches_expected(const char *json_path)
                         fail_msg("%s", buf);
                     }
                     assert_non_null(res->pattern);
-                    
+
                     char *norm_expected = normalize_expected(escaped_expected);
                     if (norm_expected) {
                         assert_string_equal(res->pattern, norm_expected);

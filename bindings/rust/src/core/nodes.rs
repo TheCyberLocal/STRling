@@ -264,7 +264,7 @@ fn default_greedy_mode() -> String {
     "Greedy".to_string()
 }
 
-// Helper struct to handle "child" vs "target" naming if needed, 
+// Helper struct to handle "child" vs "target" naming if needed,
 // but JSON spec uses "target" for Quantifier?
 // Let's check the JSON spec for Quantifier.
 // "type": "Quantifier", "target": { ... }, "min": 1, "max": null, "greedy": true ...

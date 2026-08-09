@@ -154,7 +154,7 @@ public class Pcre2Emitter {
      * <p>Escapes characters that have special meaning in PCRE2 regex syntax when
      * used outside character classes. This ensures literal strings are matched
      * exactly as written.</p>
-     * 
+     *
      * @param s The literal string to escape
      * @return The escaped string safe for use in PCRE2 patterns
      */
@@ -185,10 +185,10 @@ public class Pcre2Emitter {
         }
         return result.toString();
     }
-    
+
     /**
      * Escapes a character for use inside [...] per PCRE2 rules.
-     * 
+     *
      * @param ch The character to escape
      * @return The escaped character safe for use inside character classes
      */
@@ -197,7 +197,7 @@ public class Pcre2Emitter {
             throw new IllegalArgumentException("escapeClassChar expects single character");
         }
         char c = ch.charAt(0);
-        
+
         // Inside [], ], \, -, ^ and [ are special and need escaping for safety.
         // ] and \ ALWAYS need escaping.
         // -, ^ and [ should be escaped to avoid ambiguity (Java's regex engine requires [ to be escaped).
@@ -213,7 +213,7 @@ public class Pcre2Emitter {
         if (c == '^') {
             return "\\^";
         }
-        
+
         // Handle non-printable chars / whitespace for clarity
         switch (c) {
             case '\n':
@@ -227,16 +227,16 @@ public class Pcre2Emitter {
             case '\u000B': // \v
                 return "\\v";
         }
-        
+
         // Handle other non-printable characters
         if (!isPrintable(c) || c < 32) {
             return String.format("\\x%02x", (int) c);
         }
-        
+
         // All other characters are literal within [] including ., *, ?, [, etc.
         return String.valueOf(c);
     }
-    
+
     private static boolean isPrintable(char c) {
         Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
         return (!Character.isISOControl(c)) &&
@@ -245,7 +245,7 @@ public class Pcre2Emitter {
                 block != null &&
                 block != Character.UnicodeBlock.SPECIALS;
     }
-    
+
     /**
      * Emit a PCRE2 character class. If the class is exactly one shorthand escape
      * (like \d or \p{Lu}), prefer the shorthand (with negation flipping) instead
@@ -253,13 +253,13 @@ public class Pcre2Emitter {
      */
     private static String emitClass(IRCharClass cc) {
         List<IRClassItem> items = cc.items;
-        
+
         // --- Single-item shorthand optimization ---------------------------------
         if (items.size() == 1 && items.get(0) instanceof IRClassEscape) {
             IRClassEscape esc = (IRClassEscape) items.get(0);
             String k = esc.type;
             String prop = esc.property;
-            
+
             if (k.equals("d") || k.equals("w") || k.equals("s")) {
                 // Flip to uppercase negated forms when the entire class is negated.
                 if (cc.negated && k.equals("d")) return "\\D";
@@ -267,13 +267,13 @@ public class Pcre2Emitter {
                 if (cc.negated && k.equals("s")) return "\\S";
                 return "\\" + k;
             }
-            
+
             if (k.equals("D") || k.equals("W") || k.equals("S")) {
                 // Already-negated shorthands; flip back if the class itself is negated.
                 String base = k.toLowerCase();
                 return cc.negated ? ("\\" + base) : ("\\" + k);
             }
-            
+
             if ((k.equals("p") || k.equals("P")) && prop != null) {
                 // For \p{..}/\P{..}, flip p<->P iff exactly-negated class.
                 boolean isKUpperP = k.equals("P");
@@ -282,7 +282,7 @@ public class Pcre2Emitter {
                 return "\\" + use + "{" + prop + "}";
             }
         }
-        
+
         // --- General case: build a bracket class --------------------------------
         StringBuilder parts = new StringBuilder();
         for (IRClassItem it : items) {
@@ -309,20 +309,20 @@ public class Pcre2Emitter {
                 throw new UnsupportedOperationException("Unknown class item type: " + it.getClass());
             }
         }
-        
+
         // Assemble the inner part
         String inner = parts.toString();
         return "[" + (cc.negated ? "^" : "") + inner + "]";
     }
-    
+
     /**
      * Emit *, +, ?, {m}, {m,}, {m,n} plus optional lazy/possessive suffix.
      */
     private static String emitQuantSuffix(Object minv, Object maxv, String mode) {
         String q;
-        
+
         int min = (minv instanceof Integer) ? (Integer) minv : 0;
-        
+
         if (min == 0 && "Inf".equals(maxv)) {
             q = "*";
         } else if (min == 1 && "Inf".equals(maxv)) {
@@ -336,16 +336,16 @@ public class Pcre2Emitter {
         } else {
             q = "{" + min + "," + maxv + "}";
         }
-        
+
         if ("Lazy".equals(mode)) {
             q += "?";
         } else if ("Possessive".equals(mode)) {
             q += "+";
         }
-        
+
         return q;
     }
-    
+
     /**
      * Return true if 'child' needs a non-capturing group when quantifying.
      * Literals of length > 1, Seq, Alt, and Look typically require grouping.
@@ -368,7 +368,7 @@ public class Pcre2Emitter {
         }
         return false;
     }
-    
+
     /**
      * Generate opening for group based on type.
      */
@@ -384,7 +384,7 @@ public class Pcre2Emitter {
         }
         return "(?:";
     }
-    
+
     /**
      * Emit a single IR node to PCRE2 syntax.
      */
@@ -544,7 +544,7 @@ public class Pcre2Emitter {
         return emitNode(node, parentKind, newContext(0));
     }
 
-    
+
     /**
      * Build the inline prefix form expected by tests, e.g. "(?imx)"
      */
@@ -567,7 +567,7 @@ public class Pcre2Emitter {
         }
         return letters.length() > 0 ? "(?" + letters + ")" : "";
     }
-    
+
     /**
      * Emit a PCRE2 pattern string from IR.
      *

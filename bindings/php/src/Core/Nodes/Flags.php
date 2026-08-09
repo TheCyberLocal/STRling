@@ -21,7 +21,7 @@ class Flags implements JsonSerializable
     {
         $f = new self();
         $cleaned = str_replace([',', ' '], '', $letters);
-        
+
         foreach (str_split($cleaned) as $ch) {
             match ($ch) {
                 'i' => $f->ignoreCase = true,
@@ -32,7 +32,7 @@ class Flags implements JsonSerializable
                 default => $onError !== null ? $onError($ch) : null,
             };
         }
-        
+
         return $f;
     }
 

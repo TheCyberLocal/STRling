@@ -99,19 +99,19 @@ TEST(FlagsPositive, ParseFlagsWithWhitespace) {
 TEST(FlagsFreespacing, WhitespaceIsIgnored) {
     auto [flags, ast] = parse("%flags x\na b c");
     EXPECT_TRUE(flags.extended);
-    
+
     Seq* seq = dynamic_cast<Seq*>(ast.get());
     ASSERT_NE(seq, nullptr);
     ASSERT_EQ(seq->parts.size(), 3);
-    
+
     Lit* lit0 = dynamic_cast<Lit*>(seq->parts[0].get());
     Lit* lit1 = dynamic_cast<Lit*>(seq->parts[1].get());
     Lit* lit2 = dynamic_cast<Lit*>(seq->parts[2].get());
-    
+
     ASSERT_NE(lit0, nullptr);
     ASSERT_NE(lit1, nullptr);
     ASSERT_NE(lit2, nullptr);
-    
+
     EXPECT_EQ(lit0->value, "a");
     EXPECT_EQ(lit1->value, "b");
     EXPECT_EQ(lit2->value, "c");
@@ -121,17 +121,17 @@ TEST(FlagsFreespacing, WhitespaceIsIgnored) {
 TEST(FlagsFreespacing, CommentsAreIgnored) {
     auto [flags, ast] = parse("%flags x\na # comment\n b");
     EXPECT_TRUE(flags.extended);
-    
+
     Seq* seq = dynamic_cast<Seq*>(ast.get());
     ASSERT_NE(seq, nullptr);
     ASSERT_EQ(seq->parts.size(), 2);
-    
+
     Lit* lit0 = dynamic_cast<Lit*>(seq->parts[0].get());
     Lit* lit1 = dynamic_cast<Lit*>(seq->parts[1].get());
-    
+
     ASSERT_NE(lit0, nullptr);
     ASSERT_NE(lit1, nullptr);
-    
+
     EXPECT_EQ(lit0->value, "a");
     EXPECT_EQ(lit1->value, "b");
 }
@@ -140,19 +140,19 @@ TEST(FlagsFreespacing, CommentsAreIgnored) {
 TEST(FlagsFreespacing, EscapedWhitespaceIsLiteral) {
     auto [flags, ast] = parse("%flags x\na\\ b");
     EXPECT_TRUE(flags.extended);
-    
+
     Seq* seq = dynamic_cast<Seq*>(ast.get());
     ASSERT_NE(seq, nullptr);
     ASSERT_EQ(seq->parts.size(), 3);
-    
+
     Lit* lit0 = dynamic_cast<Lit*>(seq->parts[0].get());
     Lit* lit1 = dynamic_cast<Lit*>(seq->parts[1].get());
     Lit* lit2 = dynamic_cast<Lit*>(seq->parts[2].get());
-    
+
     ASSERT_NE(lit0, nullptr);
     ASSERT_NE(lit1, nullptr);
     ASSERT_NE(lit2, nullptr);
-    
+
     EXPECT_EQ(lit0->value, "a");
     EXPECT_EQ(lit1->value, " ");
     EXPECT_EQ(lit2->value, "b");
@@ -191,7 +191,7 @@ TEST(FlagsEdgeCases, DirectiveAfterContent) {
 TEST(FlagsEdgeCases, OnlyCommentsAndWhitespace) {
     auto [flags, ast] = parse("%flags x\n# comment\n  \n# another");
     EXPECT_TRUE(flags.extended);
-    
+
     // Should result in empty sequence
     Seq* seq = dynamic_cast<Seq*>(ast.get());
     ASSERT_NE(seq, nullptr);
@@ -204,19 +204,19 @@ TEST(FlagsEdgeCases, OnlyCommentsAndWhitespace) {
 TEST(FlagsInteraction, WhitespaceIsLiteralInClass) {
     auto [flags, ast] = parse("%flags x\n[a b]");
     EXPECT_TRUE(flags.extended);
-    
+
     CharClass* cc = dynamic_cast<CharClass*>(ast.get());
     ASSERT_NE(cc, nullptr);
     ASSERT_EQ(cc->items.size(), 3);
-    
+
     ClassLiteral* lit0 = dynamic_cast<ClassLiteral*>(cc->items[0].get());
     ClassLiteral* lit1 = dynamic_cast<ClassLiteral*>(cc->items[1].get());
     ClassLiteral* lit2 = dynamic_cast<ClassLiteral*>(cc->items[2].get());
-    
+
     ASSERT_NE(lit0, nullptr);
     ASSERT_NE(lit1, nullptr);
     ASSERT_NE(lit2, nullptr);
-    
+
     EXPECT_EQ(lit0->ch, "a");
     EXPECT_EQ(lit1->ch, " ");
     EXPECT_EQ(lit2->ch, "b");
@@ -226,19 +226,19 @@ TEST(FlagsInteraction, WhitespaceIsLiteralInClass) {
 TEST(FlagsInteraction, CommentCharIsLiteralInClass) {
     auto [flags, ast] = parse("%flags x\n[a#b]");
     EXPECT_TRUE(flags.extended);
-    
+
     CharClass* cc = dynamic_cast<CharClass*>(ast.get());
     ASSERT_NE(cc, nullptr);
     ASSERT_EQ(cc->items.size(), 3);
-    
+
     ClassLiteral* lit0 = dynamic_cast<ClassLiteral*>(cc->items[0].get());
     ClassLiteral* lit1 = dynamic_cast<ClassLiteral*>(cc->items[1].get());
     ClassLiteral* lit2 = dynamic_cast<ClassLiteral*>(cc->items[2].get());
-    
+
     ASSERT_NE(lit0, nullptr);
     ASSERT_NE(lit1, nullptr);
     ASSERT_NE(lit2, nullptr);
-    
+
     EXPECT_EQ(lit0->ch, "a");
     EXPECT_EQ(lit1->ch, "#");
     EXPECT_EQ(lit2->ch, "b");

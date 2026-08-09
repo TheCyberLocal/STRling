@@ -26,7 +26,7 @@ class Parser
     private int $capCount = 0;
     /** @var array<string> */
     private array $capNames = [];
-    
+
     private const CONTROL_ESCAPES = [
         'n' => "\n",
         'r' => "\r",
@@ -49,7 +49,7 @@ class Parser
     {
         $node = $this->parseAlt();
         $this->skipWsAndComments();
-        
+
         if (!$this->eof()) {
             $ch = $this->peek();
             if ($ch === ')') {
@@ -57,7 +57,7 @@ class Parser
             }
             throw new STRlingParseError("Unexpected trailing input", $this->i, $this->src);
         }
-        
+
         return [$this->flags, $node];
     }
 
@@ -70,10 +70,10 @@ class Parser
         $lines = explode("\n", $text);
         $patternLines = [];
         $inPattern = false;
-        
+
         foreach ($lines as $line) {
             $trimmed = trim($line);
-            
+
             if ($trimmed === '' || str_starts_with($trimmed, '#')) {
                 if (!$inPattern) {
                     continue;
@@ -81,7 +81,7 @@ class Parser
                 $patternLines[] = $line;
                 continue;
             }
-            
+
             if (str_starts_with($trimmed, '%')) {
                 if ($inPattern) {
                     throw new STRlingParseError("Directive after pattern", 0, $text);
@@ -96,7 +96,7 @@ class Parser
                 }
                 continue;
             }
-            
+
             $inPattern = true;
             // Check if a directive appears mid-line
             if (preg_match("/%flags\\b/", $trimmed) && !str_starts_with($trimmed, "%")) {
@@ -104,7 +104,7 @@ class Parser
             }
             $patternLines[] = $line;
         }
-        
+
         $text = implode("\n", $patternLines);
         return [$flags, $text];
     }
@@ -165,59 +165,59 @@ class Parser
     private function parseAlt(): Node
     {
         $this->skipWsAndComments();
-        
+
         if ($this->peek() === '|') {
             throw new STRlingParseError("Alternation lacks left-hand side", $this->i, $this->src);
         }
-        
+
         $branches = [$this->parseSeq()];
         $this->skipWsAndComments();
-        
+
         while ($this->peek() === '|') {
             $pipePos = $this->i;
             $this->take();
             $this->skipWsAndComments();
-            
+
             if ($this->peek() === '|') {
                 throw new STRlingParseError("Empty alternation", $pipePos, $this->src);
             }
             if ($this->eof() || $this->peek() === ')') {
                 throw new STRlingParseError("Alternation lacks right-hand side", $pipePos, $this->src);
             }
-            
+
             $branches[] = $this->parseSeq();
             $this->skipWsAndComments();
         }
-        
+
         return count($branches) === 1 ? $branches[0] : new Alternation($branches);
     }
 
     private function parseSeq(): Node
     {
         $parts = [];
-        
+
         while (true) {
             $this->skipWsAndComments();
             $ch = $this->peek();
-            
+
             // Check for invalid quantifier at start
             if (in_array($ch, ['*', '+', '?', '{'], true) && count($parts) === 0) {
                 throw new STRlingParseError("Invalid quantifier '{$ch}'", $this->i, $this->src);
             }
-            
+
             if ($ch === '' || $ch === '|' || $ch === ')') {
                 break;
             }
-            
+
             $atom = $this->parseAtom();
             $atom = $this->parseQuantIfAny($atom);
             $parts[] = $atom;
         }
-        
+
         if (count($parts) === 1) {
             return $parts[0];
         }
-        
+
         return new Sequence($parts);
     }
 
@@ -225,7 +225,7 @@ class Parser
     {
         $this->skipWsAndComments();
         $ch = $this->peek();
-        
+
         if ($ch === '.') {
             $this->take();
             return new Dot();
@@ -250,7 +250,7 @@ class Parser
         if ($ch === ')') {
             throw new STRlingParseError("Unmatched ')'", $this->i, $this->src);
         }
-        
+
         return new Literal($this->take());
     }
 
@@ -262,7 +262,7 @@ class Parser
         $greedy = true;
         $lazy = false;
         $possessive = false;
-        
+
         if ($ch === '*') {
             $min = 0;
             $max = null;
@@ -278,7 +278,7 @@ class Parser
         } elseif ($ch === '{') {
             $save = $this->i;
             $this->take();
-            
+
             // Look ahead to check for invalid brace quantifier content
             $lookAhead = '';
             $j = $this->i;
@@ -289,27 +289,27 @@ class Parser
             if ($j < $this->len && $this->src[$j] === '}' && $lookAhead !== '' && !preg_match('/^\d+(,\d*)?$/', $lookAhead)) {
                 throw new STRlingParseError("Brace quantifier: Invalid brace quantifier content", $save, $this->src);
             }
-            
+
             $m = $this->readIntOptional();
             if ($m === null) {
                 $this->i = $save;
                 return $child;
             }
-            
+
             $min = $m;
             $max = $m;
-            
+
             if ($this->peek() === ',') {
                 $this->take();
                 $n = $this->readIntOptional();
                 $max = $n; // null means infinity
             }
-            
+
             if ($this->peek() !== '}') {
                 throw new STRlingParseError("Incomplete quantifier", $this->i, $this->src);
             }
             $this->take();
-            
+
             // Validate range
             if ($max !== null && $min > $max) {
                 throw new STRlingParseError("Invalid quantifier range", $save, $this->src);
@@ -317,12 +317,12 @@ class Parser
         } else {
             return $child;
         }
-        
+
         // Check anchor quantification
         if ($child instanceof Anchor) {
             throw new STRlingParseError("Cannot quantify anchor", $this->i, $this->src);
         }
-        
+
         // Check for lazy/possessive
         $nxt = $this->peek();
         if ($nxt === '?') {
@@ -334,7 +334,7 @@ class Parser
             $possessive = true;
             $this->take();
         }
-        
+
         return new Quantifier($child, $min, $max, $greedy, $lazy, $possessive);
     }
 
@@ -350,7 +350,7 @@ class Parser
     private function parseGroupOrLook(): Node
     {
         $this->take(); // consume '('
-        
+
         // Non-capturing
         if ($this->match('?:')) {
             $body = $this->parseAlt();
@@ -359,7 +359,7 @@ class Parser
             }
             return new Group(false, $body);
         }
-        
+
         // Lookbehind positive
         if ($this->match('?<=')) {
             $body = $this->parseAlt();
@@ -368,7 +368,7 @@ class Parser
             }
             return new Lookbehind($body);
         }
-        
+
         // Lookbehind negative
         if ($this->match('?<!')) {
             $body = $this->parseAlt();
@@ -377,12 +377,12 @@ class Parser
             }
             return new NegativeLookbehind($body);
         }
-        
+
         // Inline modifiers
         if ($this->peek() === '?' && preg_match('/^[imsx]+\)/', substr($this->src, $this->i + 1))) {
             throw new STRlingParseError("Inline modifiers are not supported", $this->i - 1, $this->src);
         }
-        
+
         // Named capturing group
         if ($this->match('?<')) {
             $name = '';
@@ -400,14 +400,14 @@ class Parser
             }
             $this->capCount++;
             $this->capNames[] = $name;
-            
+
             $body = $this->parseAlt();
             if (!$this->match(')')) {
                 throw new STRlingParseError("Unterminated group", $this->i, $this->src);
             }
             return new Group(true, $body, $name);
         }
-        
+
         // Atomic group
         if ($this->match('?>')) {
             $body = $this->parseAlt();
@@ -416,7 +416,7 @@ class Parser
             }
             return new Group(false, $body, null, true);
         }
-        
+
         // Lookahead positive
         if ($this->match('?=')) {
             $body = $this->parseAlt();
@@ -425,7 +425,7 @@ class Parser
             }
             return new Lookahead($body);
         }
-        
+
         // Lookahead negative
         if ($this->match('?!')) {
             $body = $this->parseAlt();
@@ -434,7 +434,7 @@ class Parser
             }
             return new NegativeLookahead($body);
         }
-        
+
         // Regular capturing group
         $this->capCount++;
         $body = $this->parseAlt();
@@ -448,25 +448,25 @@ class Parser
     {
         $this->take(); // consume '['
         $this->inClass++;
-        
+
         $neg = false;
         if ($this->peek() === '^') {
             $neg = true;
             $this->take();
         }
-        
+
         if ($this->peek() === ']') {
             throw new STRlingParseError("Unterminated character class", $this->i, $this->src);
         }
-        
+
         $items = [];
-        
+
         while (!$this->eof() && $this->peek() !== ']') {
             if ($this->peek() === '\\') {
                 $items[] = $this->parseClassEscape();
             } else {
                 $ch = $this->take();
-                
+
                 // Check for range
                 if ($this->peek() === '-' && $this->peek(1) !== ']') {
                     $this->take(); // consume '-'
@@ -480,14 +480,14 @@ class Parser
                 }
             }
         }
-        
+
         if ($this->eof()) {
             throw new STRlingParseError("Unterminated character class", $this->i, $this->src);
         }
-        
+
         $this->take(); // consume ']'
         $this->inClass--;
-        
+
         return new CharacterClass($neg, $items);
     }
 
@@ -495,9 +495,9 @@ class Parser
     {
         $startPos = $this->i;
         $this->take(); // consume '\'
-        
+
         $nxt = $this->peek();
-        
+
         // Shorthand classes
         if (in_array($nxt, ['d', 'D', 'w', 'W', 's', 'S'], true)) {
             $kind = match($this->take()) {
@@ -510,7 +510,7 @@ class Parser
             };
             return new Escape($kind);
         }
-        
+
         // Unicode property
         if ($nxt === 'p' || $nxt === 'P') {
             $tp = $this->take();
@@ -526,30 +526,30 @@ class Parser
             }
             return new Escape($tp === 'P' ? 'not-property' : 'property');
         }
-        
+
         // Control escapes
         if (isset(self::CONTROL_ESCAPES[$nxt])) {
             $this->take();
             return new Literal(self::CONTROL_ESCAPES[$nxt]);
         }
-        
+
         // Backspace in class
         if ($nxt === 'b') {
             $this->take();
             return new Literal("\x08");
         }
-        
+
         // Null
         if ($nxt === '0') {
             $this->take();
             return new Literal("\x00");
         }
-        
+
         // Unknown escape for alphanumeric
         if (ctype_alnum($nxt)) {
             throw new STRlingParseError("Unknown escape sequence \\{$nxt}", $startPos, $this->src);
         }
-        
+
         // Identity escape (punctuation)
         return new Literal($this->take());
     }
@@ -558,9 +558,9 @@ class Parser
     {
         $startPos = $this->i;
         $this->take(); // consume '\'
-        
+
         $nxt = $this->peek();
-        
+
         // Backreference by index
         if (ctype_digit($nxt) && $nxt !== '0') {
             $num = 0;
@@ -572,13 +572,13 @@ class Parser
             }
             return new Backreference($num, null);
         }
-        
+
         // Anchors
         if ($nxt === 'b') { $this->take(); return new Anchor('WordBoundary'); }
         if ($nxt === 'B') { $this->take(); return new Anchor('NotWordBoundary'); }
         if ($nxt === 'A') { $this->take(); return new Anchor('AbsoluteStart'); }
         if ($nxt === 'Z') { $this->take(); return new Anchor('EndBeforeFinalNewline'); }
-        
+
         // Named backref
         if ($nxt === 'k') {
             $this->take();
@@ -597,7 +597,7 @@ class Parser
             }
             return new Backreference(null, $name);
         }
-        
+
         // Shorthand classes
         if (in_array($nxt, ['d', 'D', 'w', 'W', 's', 'S'], true)) {
             $kind = match($this->take()) {
@@ -610,7 +610,7 @@ class Parser
             };
             return new CharacterClass(false, [new Escape($kind)]);
         }
-        
+
         // Unicode property
         if ($nxt === 'p' || $nxt === 'P') {
             $tp = $this->take();
@@ -626,35 +626,35 @@ class Parser
             }
             return new CharacterClass(false, [new Escape($tp === 'P' ? 'not-property' : 'property')]);
         }
-        
+
         // Control escapes
         if (isset(self::CONTROL_ESCAPES[$nxt])) {
             $this->take();
             return new Literal(self::CONTROL_ESCAPES[$nxt]);
         }
-        
+
         // Hex escape
         if ($nxt === 'x') {
             $this->take();
             return new Literal($this->parseHexEscape($startPos));
         }
-        
+
         // Unicode escape
         if ($nxt === 'u' || $nxt === 'U') {
             return new Literal($this->parseUnicodeEscape($startPos));
         }
-        
+
         // Null
         if ($nxt === '0') {
             $this->take();
             return new Literal("\x00");
         }
-        
+
         // Unknown escape for alphanumeric
         if (ctype_alnum($nxt)) {
             throw new STRlingParseError("Unknown escape sequence \\{$nxt}", $startPos, $this->src);
         }
-        
+
         // Identity escape (punctuation)
         return new Literal($this->take());
     }
@@ -672,7 +672,7 @@ class Parser
             $cp = hexdec($hex ?: '0');
             return mb_chr((int)$cp, 'UTF-8');
         }
-        
+
         $h1 = $this->take();
         $h2 = $this->take();
         if (!ctype_xdigit($h1) || !ctype_xdigit($h2)) {
@@ -684,7 +684,7 @@ class Parser
     private function parseUnicodeEscape(int $startPos): string
     {
         $tp = $this->take();
-        
+
         if ($tp === 'u' && $this->match('{')) {
             $hex = '';
             while (ctype_xdigit($this->peek())) {
@@ -696,7 +696,7 @@ class Parser
             $cp = hexdec($hex ?: '0');
             return mb_chr((int)$cp, 'UTF-8');
         }
-        
+
         if ($tp === 'u') {
             $hex = '';
             for ($i = 0; $i < 4; $i++) {
@@ -707,7 +707,7 @@ class Parser
             }
             return mb_chr((int)hexdec($hex), 'UTF-8');
         }
-        
+
         if ($tp === 'U') {
             $hex = '';
             for ($i = 0; $i < 8; $i++) {
@@ -718,7 +718,7 @@ class Parser
             }
             return mb_chr((int)hexdec($hex), 'UTF-8');
         }
-        
+
         throw new STRlingParseError("Invalid unicode escape", $startPos, $this->src);
     }
 }

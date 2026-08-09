@@ -38,22 +38,22 @@ typedef struct {
 
 static void run_test_batch(void **state, const TestCase *cases, size_t count) {
     (void)state;
-    
+
     for (size_t i = 0; i < count; i++) {
         strling_result_t result = strling_compile_compat(cases[i].json_input, NULL);
-        
+
         if (result.error_code != STRling_OK) {
             printf("FAIL [%s]: Compilation error: %s\n", cases[i].id, result.error_message);
         }
         assert_int_equal(result.error_code, STRling_OK);
         assert_non_null(result.pcre2_pattern);
-        
+
         if (strcmp(result.pcre2_pattern, cases[i].expected_pcre) != 0) {
-            printf("FAIL [%s]:\n  Expected: '%s'\n  Got:      '%s'\n", 
+            printf("FAIL [%s]:\n  Expected: '%s'\n  Got:      '%s'\n",
                    cases[i].id, cases[i].expected_pcre, result.pcre2_pattern);
         }
         assert_string_equal(result.pcre2_pattern, cases[i].expected_pcre);
-        
+
         strling_result_free_compat(&result);
     }
 }
@@ -63,23 +63,23 @@ static void run_test_batch(void **state, const TestCase *cases, size_t count) {
 static void test_category_a_single_flags(void **state) {
     const TestCase cases[] = {
         // 1. Ignore Case (i)
-        {"flag_i", 
-         "{\"flags\": \"i\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+        {"flag_i",
+         "{\"flags\": \"i\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}",
          "(?i)a"},
-         
+
         // 2. Multiline (m)
-        {"flag_m", 
-         "{\"flags\": \"m\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+        {"flag_m",
+         "{\"flags\": \"m\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}",
          "(?m)a"},
-         
+
         // 3. Dot All (s)
-        {"flag_s", 
-         "{\"flags\": \"s\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+        {"flag_s",
+         "{\"flags\": \"s\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}",
          "(?s)a"},
 
         // 4. Extended (x)
-        {"flag_x", 
-         "{\"flags\": \"x\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+        {"flag_x",
+         "{\"flags\": \"x\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}",
          "(?x)a"}
     };
     run_test_batch(state, cases, sizeof(cases) / sizeof(cases[0]));
@@ -90,23 +90,23 @@ static void test_category_a_single_flags(void **state) {
 static void test_category_b_combinations(void **state) {
     const TestCase cases[] = {
         // 5. Combined im
-        {"flags_im", 
-         "{\"flags\": \"im\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+        {"flags_im",
+         "{\"flags\": \"im\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}",
          "(?im)a"},
 
         // 6. All Flags imsx
-        {"flags_all_imsx", 
-         "{\"flags\": \"imsx\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+        {"flags_all_imsx",
+         "{\"flags\": \"imsx\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}",
          "(?imsx)a"},
 
         // 7. Separators (Space)
-        {"flags_separator_space", 
-         "{\"flags\": \"i m\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+        {"flags_separator_space",
+         "{\"flags\": \"i m\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}",
          "(?im)a"},
 
         // 8. Separators (Comma)
-        {"flags_separator_comma", 
-         "{\"flags\": \"s, x\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+        {"flags_separator_comma",
+         "{\"flags\": \"s, x\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}",
          "(?sx)a"}
     };
     run_test_batch(state, cases, sizeof(cases) / sizeof(cases[0]));
@@ -117,18 +117,18 @@ static void test_category_b_combinations(void **state) {
 static void test_category_c_edges(void **state) {
     const TestCase cases[] = {
         // 9. Padding Whitespace
-        {"flags_padded", 
-         "{\"flags\": \"  i  \", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+        {"flags_padded",
+         "{\"flags\": \"  i  \", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}",
          "(?i)a"},
 
         // 10. Duplicate Flags (ii -> i)
-        {"flags_duplicate", 
-         "{\"flags\": \"ii\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+        {"flags_duplicate",
+         "{\"flags\": \"ii\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}",
          "(?i)a"},
 
         // 11. Empty String Flags
-        {"flags_empty_string", 
-         "{\"flags\": \"\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}", 
+        {"flags_empty_string",
+         "{\"flags\": \"\", \"pattern\": {\"type\": \"Literal\", \"value\": \"a\"}}",
          "a"}
     };
     run_test_batch(state, cases, sizeof(cases) / sizeof(cases[0]));
@@ -142,26 +142,26 @@ static void test_category_d_free_spacing(void **state) {
         // 12. x flag with space in Literal
         // Input AST says "match a space". Since 'x' mode ignores unescaped spaces,
         // the emitter MUST escape it to '\ ' to preserve the AST's intent.
-        {"x_literal_space_escaped", 
-         "{\"flags\": \"x\", \"pattern\": {\"type\": \"Literal\", \"value\": \" \"}}", 
-         "(?x)\\ "}, 
+        {"x_literal_space_escaped",
+         "{\"flags\": \"x\", \"pattern\": {\"type\": \"Literal\", \"value\": \" \"}}",
+         "(?x)\\ "},
 
         // 13. x flag with hash in Literal
         // Hashes start comments in x mode. Emitter MUST escape it to '\#'.
-        {"x_literal_hash_escaped", 
-         "{\"flags\": \"x\", \"pattern\": {\"type\": \"Literal\", \"value\": \"#\"}}", 
+        {"x_literal_hash_escaped",
+         "{\"flags\": \"x\", \"pattern\": {\"type\": \"Literal\", \"value\": \"#\"}}",
          "(?x)\\#"},
 
         // 14. x flag with space in Character Class
         // Spaces are literal inside classes even in x mode. Emitter should NOT escape.
-        {"x_class_space_preserved", 
-         "{\"flags\": \"x\", \"pattern\": {\"type\": \"CharacterClass\", \"members\": [{\"type\": \"Literal\", \"value\": \" \"}]}}", 
+        {"x_class_space_preserved",
+         "{\"flags\": \"x\", \"pattern\": {\"type\": \"CharacterClass\", \"members\": [{\"type\": \"Literal\", \"value\": \" \"}]}}",
          "(?x)[ ]"},
 
         // 15. x flag with hash in Character Class
         // Hashes are literal inside classes. Emitter should NOT escape.
-        {"x_class_hash_preserved", 
-         "{\"flags\": \"x\", \"pattern\": {\"type\": \"CharacterClass\", \"members\": [{\"type\": \"Literal\", \"value\": \"#\"}]}}", 
+        {"x_class_hash_preserved",
+         "{\"flags\": \"x\", \"pattern\": {\"type\": \"CharacterClass\", \"members\": [{\"type\": \"Literal\", \"value\": \"#\"}]}}",
          "(?x)[#]"}
     };
     run_test_batch(state, cases, sizeof(cases) / sizeof(cases[0]));

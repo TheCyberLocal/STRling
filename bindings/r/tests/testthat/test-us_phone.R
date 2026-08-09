@@ -38,7 +38,7 @@ test_that("US Phone Number Pattern with Simply API", {
   capturing_groups <- Filter(function(p) {
     is.list(p) && p$ir == "Group" && isTRUE(p$capturing)
   }, parts)
-  
+
   expect_true(length(capturing_groups) >= 3)
 
   # Check that each capturing group contains a quantifier with correct digit count
@@ -49,14 +49,14 @@ test_that("US Phone Number Pattern with Simply API", {
     expect_equal(body$ir, "Quant")
     body$min
   })
-  
+
   expect_equal(sort(digit_counts), c(3, 3, 4))
 
   # Check for optional character classes
   optionals <- Filter(function(p) {
     is.list(p) && p$ir == "Quant" && p$min == 0 && p$max == 1
   }, parts)
-  
+
   expect_true(length(optionals) >= 2)  # Two optional separators
 })
 

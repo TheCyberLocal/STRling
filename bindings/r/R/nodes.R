@@ -60,7 +60,7 @@ strling_lookaround <- function(child, kind, negated = FALSE) {
 
 #' @export
 strling_anchor <- function(at) {
-  structure(list(type = "Anchor", at = at), class = c("strling_anchor", "strling_node"))   
+  structure(list(type = "Anchor", at = at), class = c("strling_anchor", "strling_node"))
 }
 
 #' @export

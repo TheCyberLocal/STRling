@@ -39,9 +39,9 @@ impl Compiler {
     pub fn compile_with_metadata(&mut self, root_node: &Node) -> CompileResult {
         let ir_root = self.lower(root_node);
         let ir_root = self.normalize(ir_root);
-        
+
         self.analyze_features(&ir_root);
-        
+
         CompileResult {
             ir: ir_root,
             metadata: Metadata {
@@ -85,7 +85,7 @@ impl Compiler {
                     MaxBound::Infinite(s) => IRMaxBound::Infinite(s.clone()),
                     MaxBound::Null => IRMaxBound::Infinite("Inf".to_string()),
                 };
-                
+
                 let mode = if quant.possessive {
                     "Possessive".to_string()
                 } else if quant.lazy {
@@ -177,11 +177,11 @@ impl Compiler {
                         new_parts.push(normalized);
                     }
                 }
-                
+
                 // Coalesce adjacent literals
                 let mut coalesced = Vec::new();
                 let mut pending_lit = String::new();
-                
+
                 for part in new_parts {
                     if let IROp::Lit(lit) = &part {
                         pending_lit.push_str(&lit.value);
@@ -195,13 +195,13 @@ impl Compiler {
                         coalesced.push(part);
                     }
                 }
-                
+
                 if !pending_lit.is_empty() {
                     coalesced.push(IROp::Lit(IRLit {
                         value: pending_lit,
                     }));
                 }
-                
+
                 if coalesced.len() == 1 {
                     coalesced.into_iter().next().unwrap()
                 } else {

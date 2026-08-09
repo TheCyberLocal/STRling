@@ -1,7 +1,7 @@
 /**
  * @file nodes.cpp
  * @brief Implementation of STRling AST nodes
- * 
+ *
  * @copyright Copyright (c) 2024 STRling Team
  * @license MIT License
  */
@@ -30,7 +30,7 @@ Flags Flags::fromLetters(const std::string& letters) {
         if (ch == ',' || ch == ' ') {
             continue;
         }
-        
+
         switch (ch) {
             case 'i':
                 f.ignoreCase = true;
@@ -142,13 +142,13 @@ std::map<std::string, std::string> Quant::toDict() const {
     std::map<std::string, std::string> result;
     result["kind"] = "Quant";
     result["min"] = std::to_string(min);
-    
+
     if (std::holds_alternative<int>(max)) {
         result["max"] = std::to_string(std::get<int>(max));
     } else {
         result["max"] = std::get<std::string>(max);
     }
-    
+
     result["mode"] = mode;
     return result;
 }
@@ -157,30 +157,30 @@ std::map<std::string, std::string> Group::toDict() const {
     std::map<std::string, std::string> result;
     result["kind"] = "Group";
     result["capturing"] = capturing ? "true" : "false";
-    
+
     if (name.has_value()) {
         result["name"] = name.value();
     }
-    
+
     if (atomic.has_value()) {
         result["atomic"] = atomic.value() ? "true" : "false";
     }
-    
+
     return result;
 }
 
 std::map<std::string, std::string> Backref::toDict() const {
     std::map<std::string, std::string> result;
     result["kind"] = "Backref";
-    
+
     if (byIndex.has_value()) {
         result["byIndex"] = std::to_string(byIndex.value());
     }
-    
+
     if (byName.has_value()) {
         result["byName"] = byName.value();
     }
-    
+
     return result;
 }
 

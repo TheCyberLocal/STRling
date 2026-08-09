@@ -19,33 +19,33 @@ class ConformanceTest < Minitest::Test
                 else
                   "test_conformance_#{base_name.gsub(/[^a-zA-Z0-9_]/, '_')}"
                 end
-    
+
     # Pre-check to determine test type
     begin
       pre_spec = JSON.parse(File.read(file))
     rescue JSON::ParserError
       next
     end
-    
+
     # Define test method based on spec type
     if pre_spec['input_ast'] && pre_spec['expected_ir']
       # Standard conformance test - capture pre_spec in closure to avoid re-reading file
       captured_spec = pre_spec
       define_method(test_name) do
         spec = captured_spec
-        
+
         # Hydrate AST
         ast = Strling::Nodes::NodeFactory.from_json(spec['input_ast'])
-        
+
         # Compile to IR
         ir = Strling::IR::Compiler.compile(ast)
 
         refute_nil ir, "Compilation returned nil"
-        
+
         # Compare
         expected = spec['expected_ir']
         actual = serialize(ir)
-        
+
         assert_equal expected, actual, "Mismatch in #{File.basename(file)}"
       end
     elsif pre_spec['expected_error']

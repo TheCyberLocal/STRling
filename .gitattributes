@@ -50,3 +50,14 @@ Dockerfile text eol=lf
 *.gif binary
 *.ico binary
 *.pdf binary
+*.jar binary
+*.vsix binary
+*.zip binary
+*.tar binary
+*.tgz binary
+*.gz binary
+*.7z binary
+*.rar binary
+*.gem binary
+*.whl binary
+*.nupkg binary

@@ -99,11 +99,11 @@ option(BUILD_TESTS "Build test suite" ON)
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
-    
+
     add_executable(conformance_test tests/conformance_test.cpp)
     target_link_libraries(conformance_test PRIVATE strling nlohmann_json::nlohmann_json)
     target_compile_definitions(conformance_test PRIVATE SPEC_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../tests/spec")
-    
+
     add_test(NAME conformance_test COMMAND conformance_test)
 
     # Lint public API / examples for forbidden pointer tokens

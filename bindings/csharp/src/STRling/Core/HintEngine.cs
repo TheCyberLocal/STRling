@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 /// <summary>
 /// STRling Hint Engine - Context-Aware Error Hints
-/// 
+///
 /// This module provides intelligent, beginner-friendly hints for common syntax errors.
 /// The hint engine maps specific error types and contexts to instructional messages
 /// that help users understand and fix their mistakes.

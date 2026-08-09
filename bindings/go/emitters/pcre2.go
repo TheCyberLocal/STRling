@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	
+
 	"github.com/strling-lang/strling/bindings/go/core"
 )
 
@@ -40,9 +40,9 @@ func escapeClassChar(ch string) string {
 	if len(ch) == 0 {
 		return ""
 	}
-	
+
 	c := ch[0]
-	
+
 	// ] and \ ALWAYS need escaping
 	if c == '\\' || c == ']' {
 		return "\\" + ch
@@ -54,7 +54,7 @@ func escapeClassChar(ch string) string {
 	if c == '^' {
 		return "\\^"
 	}
-	
+
 	// Handle non-printable chars / whitespace for clarity
 	switch c {
 	case '\n':
@@ -68,12 +68,12 @@ func escapeClassChar(ch string) string {
 	case '\v':
 		return `\v`
 	}
-	
+
 	// Other non-printable characters
 	if c < 32 || !strconv.IsPrint(rune(c)) {
 		return fmt.Sprintf("\\x%02x", c)
 	}
-	
+
 	// All other characters are literal within [] including ., *, ?, [, etc.
 	return ch
 }
@@ -83,13 +83,13 @@ func escapeClassChar(ch string) string {
 // prefer the shorthand (with negation flipping) instead of a bracketed class.
 func emitClass(cc core.IRCharClass) string {
 	items := cc.Items
-	
+
 	// Single-item shorthand optimization
 	if len(items) == 1 {
 		if esc, ok := items[0].(core.IRClassEscape); ok {
 			k := esc.Type
 			prop := esc.Property
-			
+
 			if k == "d" || k == "w" || k == "s" {
 				// Flip to uppercase negated forms when the entire class is negated
 				if cc.Negated {
@@ -103,7 +103,7 @@ func emitClass(cc core.IRCharClass) string {
 				}
 				return "\\" + k
 			}
-			
+
 			if k == "D" || k == "W" || k == "S" {
 				// Already-negated shorthands; flip back if the class itself is negated
 				base := strings.ToLower(k)
@@ -112,7 +112,7 @@ func emitClass(cc core.IRCharClass) string {
 				}
 				return "\\" + k
 			}
-			
+
 			if (k == "p" || k == "P") && prop != nil {
 				// For \p{..}/\P{..}, flip p<->P iff exactly-negated class
 				use := "p"
@@ -123,7 +123,7 @@ func emitClass(cc core.IRCharClass) string {
 			}
 		}
 	}
-	
+
 	// General case: build a bracket class
 	var parts []string
 	for _, it := range items {
@@ -146,7 +146,7 @@ func emitClass(cc core.IRCharClass) string {
 			}
 		}
 	}
-	
+
 	inner := strings.Join(parts, "")
 	negPrefix := ""
 	if cc.Negated {
@@ -158,9 +158,9 @@ func emitClass(cc core.IRCharClass) string {
 // emitQuantSuffix emits *, +, ?, {m}, {m,}, {m,n} plus optional lazy/possessive suffix.
 func emitQuantSuffix(minV interface{}, maxV interface{}, mode string) string {
 	var q string
-	
+
 	min, _ := minV.(int)
-	
+
 	// Check if max is "Inf" (string) or an int
 	maxIsInf := false
 	maxInt := 0
@@ -169,7 +169,7 @@ func emitQuantSuffix(minV interface{}, maxV interface{}, mode string) string {
 	} else if maxI, ok := maxV.(int); ok {
 		maxInt = maxI
 	}
-	
+
 	if min == 0 && maxIsInf {
 		q = "*"
 	} else if min == 1 && maxIsInf {
@@ -183,13 +183,13 @@ func emitQuantSuffix(minV interface{}, maxV interface{}, mode string) string {
 	} else {
 		q = fmt.Sprintf("{%d,%d}", min, maxInt)
 	}
-	
+
 	if mode == "Lazy" {
 		q += "?"
 	} else if mode == "Possessive" {
 		q += "+"
 	}
-	
+
 	return q
 }
 
@@ -458,10 +458,10 @@ func emitNodeLegacy(node core.IROp, parentKind string) string {
 	switch n := node.(type) {
 	case core.IRLit:
 		return escapeLiteral(n.Value)
-		
+
 	case core.IRDot:
 		return "."
-		
+
 	case core.IRAnchor:
 		mapping := map[string]string{
 			"Start":                   "^",
@@ -476,7 +476,7 @@ func emitNodeLegacy(node core.IROp, parentKind string) string {
 			return val
 		}
 		return ""
-		
+
 	case core.IRBackref:
 		if n.ByName != nil {
 			return fmt.Sprintf(`\k<%s>`, *n.ByName)
@@ -485,17 +485,17 @@ func emitNodeLegacy(node core.IROp, parentKind string) string {
 			return fmt.Sprintf(`\%d`, *n.ByIndex)
 		}
 		return ""
-		
+
 	case core.IRCharClass:
 		return emitClass(n)
-		
+
 	case core.IRSeq:
 		var parts []string
 		for _, p := range n.Parts {
 			parts = append(parts, emitNode(p, "Seq"))
 		}
 		return strings.Join(parts, "")
-		
+
 	case core.IRAlt:
 		var branches []string
 		for _, b := range n.Branches {
@@ -507,7 +507,7 @@ func emitNodeLegacy(node core.IROp, parentKind string) string {
 			return "(?:" + body + ")"
 		}
 		return body
-		
+
 	case core.IRQuant:
 		childStr := emitNode(n.Child, "Quant")
 		if needsGroupForQuant(n.Child) {
@@ -516,10 +516,10 @@ func emitNodeLegacy(node core.IROp, parentKind string) string {
 			}
 		}
 		return childStr + emitQuantSuffix(n.Min, n.Max, n.Mode)
-		
+
 	case core.IRGroup:
 		return emitGroupOpen(n) + emitNode(n.Body, "Group") + ")"
-		
+
 	case core.IRLook:
 		var op string
 		if n.Dir == "Ahead" && !n.Neg {
@@ -533,7 +533,7 @@ func emitNodeLegacy(node core.IROp, parentKind string) string {
 		}
 		return "(" + op + emitNode(n.Body, "Look") + ")"
 	}
-	
+
 	return ""
 }
 

@@ -57,7 +57,7 @@ STRlingFlags* strling_flags_create(void);
 /* Free flags */
 void strling_flags_free(STRlingFlags* flags);
 
-/* Compile a JSON AST to a PCRE2 pattern 
+/* Compile a JSON AST to a PCRE2 pattern
  * json_str: JSON string containing STRling AST
  * flags: Compilation flags (can be NULL for defaults)
  * Returns: Result containing pattern or error. Caller must free with strling_result_free()

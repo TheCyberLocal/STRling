@@ -287,7 +287,7 @@ class Pcre2Emitter
     {
         $toEscape = [' ', '#', '$', '&', '(', ')', '*', '+', '-', '.', '?', '[', '\\', ']', '^', '{', '|', '}', '~'];
         $result = '';
-        
+
         for ($i = 0; $i < strlen($s); $i++) {
             $ch = $s[$i];
             if (in_array($ch, $toEscape, true) && $ch !== '-') {
@@ -296,7 +296,7 @@ class Pcre2Emitter
                 $result .= $ch;
             }
         }
-        
+
         return $result;
     }
 
@@ -341,7 +341,7 @@ class Pcre2Emitter
                 'not-space' => 'S',
                 default => null,
             };
-            
+
             if ($k !== null) {
                 if (in_array($k, ['d', 'w', 's'], true)) {
                     if ($cc->negated) {
@@ -389,7 +389,7 @@ class Pcre2Emitter
     {
         $min = $q->min;
         $max = $q->max;
-        
+
         if ($min === 0 && $max === null) {
             $suffix = '*';
         } elseif ($min === 1 && $max === null) {

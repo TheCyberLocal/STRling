@@ -34,9 +34,9 @@ class InteractionTest extends TestCase
     {
         $parser = new Parser("hello");
         [$flags, $ast] = $parser->parse();
-        
+
         $ir = $this->compiler->compile($ast);
-        
+
         $this->assertNotNull($ir);
         $serialized = json_decode(json_encode($ir), true);
         $this->assertEquals('Lit', $serialized['ir']);
@@ -46,9 +46,9 @@ class InteractionTest extends TestCase
     {
         $parser = new Parser("a+");
         [$flags, $ast] = $parser->parse();
-        
+
         $ir = $this->compiler->compile($ast);
-        
+
         $serialized = json_decode(json_encode($ir), true);
         $this->assertEquals('Quant', $serialized['ir']);
     }
@@ -57,9 +57,9 @@ class InteractionTest extends TestCase
     {
         $parser = new Parser("[abc]");
         [$flags, $ast] = $parser->parse();
-        
+
         $ir = $this->compiler->compile($ast);
-        
+
         $serialized = json_decode(json_encode($ir), true);
         $this->assertEquals('CharClass', $serialized['ir']);
     }
@@ -68,9 +68,9 @@ class InteractionTest extends TestCase
     {
         $parser = new Parser("(abc)");
         [$flags, $ast] = $parser->parse();
-        
+
         $ir = $this->compiler->compile($ast);
-        
+
         $serialized = json_decode(json_encode($ir), true);
         $this->assertEquals('Group', $serialized['ir']);
     }
@@ -79,9 +79,9 @@ class InteractionTest extends TestCase
     {
         $parser = new Parser("a|b");
         [$flags, $ast] = $parser->parse();
-        
+
         $ir = $this->compiler->compile($ast);
-        
+
         $serialized = json_decode(json_encode($ir), true);
         $this->assertEquals('Alt', $serialized['ir']);
     }
@@ -90,9 +90,9 @@ class InteractionTest extends TestCase
     {
         $parser = new Parser("(?<name>abc)");
         [$flags, $ast] = $parser->parse();
-        
+
         $ir = $this->compiler->compile($ast);
-        
+
         $serialized = json_decode(json_encode($ir), true);
         $this->assertEquals('Group', $serialized['ir']);
     }
@@ -101,9 +101,9 @@ class InteractionTest extends TestCase
     {
         $parser = new Parser("(?=abc)");
         [$flags, $ast] = $parser->parse();
-        
+
         $ir = $this->compiler->compile($ast);
-        
+
         $serialized = json_decode(json_encode($ir), true);
         $this->assertEquals('Look', $serialized['ir']);
     }
@@ -112,9 +112,9 @@ class InteractionTest extends TestCase
     {
         $parser = new Parser("(?<=abc)");
         [$flags, $ast] = $parser->parse();
-        
+
         $ir = $this->compiler->compile($ast);
-        
+
         $serialized = json_decode(json_encode($ir), true);
         $this->assertEquals('Look', $serialized['ir']);
     }

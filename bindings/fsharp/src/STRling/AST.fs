@@ -79,9 +79,9 @@ type NodeConverter() =
         use doc = JsonDocument.ParseValue(&reader)
         let root = doc.RootElement
         let typeProp = root.GetProperty("type").GetString()
-        
+
         match typeProp with
-        | "Literal" -> 
+        | "Literal" ->
             let value = root.GetProperty("value").GetString()
             Lit value
         | "Sequence" ->
@@ -98,7 +98,7 @@ type NodeConverter() =
             let negated = root.GetProperty("negated").GetBoolean()
             // We need to use ClassItemConverter for members
             let membersJson = root.GetProperty("members")
-            let members = 
+            let members =
                 [ for item in membersJson.EnumerateArray() do
                     yield JsonSerializer.Deserialize<ClassItem>(item.GetRawText(), options) ]
             CharClass(negated, members)
@@ -141,7 +141,7 @@ type NodeConverter() =
     override this.Write(writer: Utf8JsonWriter, value: Node, options: JsonSerializerOptions) =
         writer.WriteStartObject()
         match value with
-        | Lit v -> 
+        | Lit v ->
             writer.WriteString("type", "Literal")
             writer.WriteString("value", v)
         | Seq parts ->

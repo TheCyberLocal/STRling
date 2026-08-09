@@ -16,25 +16,25 @@ public class STRlingParseError extends RuntimeException {
      * A concise description of what went wrong.
      */
     private final String message;
-    
+
     /**
      * The character position (0-indexed) where the error occurred.
      */
     private final int pos;
-    
+
     /**
      * The full input text being parsed.
      */
     private final String text;
-    
+
     /**
      * An instructional hint explaining how to fix the error.
      */
     private final String hint;
-    
+
     /**
      * Initializes a STRlingParseError.
-     * 
+     *
      * @param message A concise description of what went wrong
      * @param pos The character position (0-indexed) where the error occurred
      * @param text The full input text being parsed (default: "")
@@ -47,10 +47,10 @@ public class STRlingParseError extends RuntimeException {
         this.text = text != null ? text : "";
         this.hint = hint;
     }
-    
+
     /**
      * Initializes a STRlingParseError without a hint.
-     * 
+     *
      * @param message A concise description of what went wrong
      * @param pos The character position (0-indexed) where the error occurred
      * @param text The full input text being parsed
@@ -58,56 +58,56 @@ public class STRlingParseError extends RuntimeException {
     public STRlingParseError(String message, int pos, String text) {
         this(message, pos, text, null);
     }
-    
+
     /**
      * Initializes a STRlingParseError without text or hint.
-     * 
+     *
      * @param message A concise description of what went wrong
      * @param pos The character position (0-indexed) where the error occurred
      */
     public STRlingParseError(String message, int pos) {
         this(message, pos, "", null);
     }
-    
+
     /**
      * Gets the error message.
-     * 
+     *
      * @return The error message
      */
     public String getErrorMessage() {
         return message;
     }
-    
+
     /**
      * Gets the error position.
-     * 
+     *
      * @return The character position where the error occurred
      */
     public int getPos() {
         return pos;
     }
-    
+
     /**
      * Gets the input text.
-     * 
+     *
      * @return The full input text being parsed
      */
     public String getText() {
         return text;
     }
-    
+
     /**
      * Gets the hint.
-     * 
+     *
      * @return The instructional hint, or null if none provided
      */
     public String getHint() {
         return hint;
     }
-    
+
     /**
      * Formats the error in the visionary state format.
-     * 
+     *
      * @param message The error message
      * @param pos The character position where the error occurred
      * @param text The full input text
@@ -119,14 +119,14 @@ public class STRlingParseError extends RuntimeException {
             // Fallback to simple format if no text provided
             return message + " at position " + pos;
         }
-        
+
         // Find the line containing the error
         String[] lines = text.split("\n", -1);
         int currentPos = 0;
         int lineNum = 1;
         String lineText = "";
         int col = pos;
-        
+
         boolean found = false;
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
@@ -140,7 +140,7 @@ public class STRlingParseError extends RuntimeException {
             }
             currentPos += lineLen;
         }
-        
+
         if (!found) {
             // Error is beyond the last line
             if (lines.length > 0) {
@@ -152,7 +152,7 @@ public class STRlingParseError extends RuntimeException {
                 col = pos;
             }
         }
-        
+
         // Build the formatted error message
         StringBuilder sb = new StringBuilder();
         sb.append("STRling Parse Error: ").append(message).append("\n");
@@ -163,41 +163,41 @@ public class STRlingParseError extends RuntimeException {
             sb.append(" ");
         }
         sb.append("^\n");
-        
+
         if (hint != null && !hint.isEmpty()) {
             sb.append("\n");
             sb.append("Hint: ").append(hint);
         }
-        
+
         return sb.toString();
     }
-    
+
     /**
      * Gets the formatted error message.
-     * 
+     *
      * @return The formatted error string
      */
     public String toFormattedString() {
         return formatError(message, pos, text, hint);
     }
-    
+
     /**
      * Override toString to return formatted error.
-     * 
+     *
      * @return The formatted error string
      */
     @Override
     public String toString() {
         return formatError(message, pos, text, hint);
     }
-    
+
     /**
      * Converts the error to LSP Diagnostic format.
-     * 
+     *
      * <p>Returns a Map compatible with the Language Server Protocol
      * Diagnostic specification, which can be serialized to JSON for
      * communication with LSP clients.</p>
-     * 
+     *
      * @return A Map containing:
      *         <ul>
      *         <li>range: The line/column range where the error occurred</li>
@@ -213,7 +213,7 @@ public class STRlingParseError extends RuntimeException {
         int currentPos = 0;
         int lineNum = 0; // 0-indexed for LSP
         int col = pos;
-        
+
         boolean found = false;
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
@@ -226,7 +226,7 @@ public class STRlingParseError extends RuntimeException {
             }
             currentPos += lineLen;
         }
-        
+
         if (!found) {
             // Error is beyond the last line
             if (lines.length > 0) {
@@ -237,13 +237,13 @@ public class STRlingParseError extends RuntimeException {
                 col = pos;
             }
         }
-        
+
         // Build the diagnostic message
         String diagnosticMessage = message;
         if (hint != null && !hint.isEmpty()) {
             diagnosticMessage += "\n\nHint: " + hint;
         }
-        
+
         // Create error code from message (normalize to snake_case)
         String errorCode = message.toLowerCase();
         String[] charsToReplace = {" ", "'", "\"", "(", ")", "[", "]", "{", "}", "\\", "/"};
@@ -252,20 +252,20 @@ public class STRlingParseError extends RuntimeException {
         }
         // Remove multiple underscores and empty parts
         errorCode = errorCode.replaceAll("_+", "_").replaceAll("^_|_$", "");
-        
+
         // Build range
         Map<String, Integer> start = new HashMap<>();
         start.put("line", lineNum);
         start.put("character", col);
-        
+
         Map<String, Integer> end = new HashMap<>();
         end.put("line", lineNum);
         end.put("character", col + 1);
-        
+
         Map<String, Object> range = new HashMap<>();
         range.put("start", start);
         range.put("end", end);
-        
+
         // Build diagnostic
         Map<String, Object> diagnostic = new HashMap<>();
         diagnostic.put("range", range);
@@ -273,7 +273,7 @@ public class STRlingParseError extends RuntimeException {
         diagnostic.put("message", diagnosticMessage);
         diagnostic.put("source", "STRling");
         diagnostic.put("code", errorCode);
-        
+
         return diagnostic;
     }
 }

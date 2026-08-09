@@ -54,11 +54,11 @@ function simply.digit(count)
       { type = "Escape", kind = "digit" }
     }
   }
-  
+
   if count == nil then
     return digit_node
   end
-  
+
   return {
     type = "Quantifier",
     min = count,

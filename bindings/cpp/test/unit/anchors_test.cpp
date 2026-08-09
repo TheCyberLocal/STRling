@@ -33,10 +33,10 @@
  * -   Quantification of anchors.
  * -   The behavior of `\b` inside a character class, where it represents a
  * backspace literal (covered in `char_classes_test.cpp`).
- * 
+ *
  * NOTE: This is a PARTIAL implementation demonstrating the test porting pattern.
  * Full porting would require all 31 test cases from anchors.test.ts.
- * 
+ *
  * @copyright Copyright (c) 2024 STRling Team
  * @license MIT License
  */
@@ -53,7 +53,7 @@ using namespace strling::core;
 
 /**
  * @brief Test suite for positive anchor parsing cases
- * 
+ *
  * Covers all positive cases for valid anchor syntax. These tests verify
  * that each anchor token is parsed into the correct Anchor node with the
  * expected `at` value.
@@ -62,7 +62,7 @@ using namespace strling::core;
 /// Test parsing of start anchor (^)
 TEST(AnchorsPositive, ParseStartAnchor) {
     auto [flags, ast] = parse("^");
-    
+
     // Verify it's an Anchor node
     Anchor* anchor = dynamic_cast<Anchor*>(ast.get());
     ASSERT_NE(anchor, nullptr);
@@ -72,7 +72,7 @@ TEST(AnchorsPositive, ParseStartAnchor) {
 /// Test parsing of end anchor ($)
 TEST(AnchorsPositive, ParseEndAnchor) {
     auto [flags, ast] = parse("$");
-    
+
     Anchor* anchor = dynamic_cast<Anchor*>(ast.get());
     ASSERT_NE(anchor, nullptr);
     EXPECT_EQ(anchor->at, "End");
@@ -81,7 +81,7 @@ TEST(AnchorsPositive, ParseEndAnchor) {
 /// Test parsing of word boundary (\b)
 TEST(AnchorsPositive, ParseWordBoundary) {
     auto [flags, ast] = parse(R"(\b)");
-    
+
     Anchor* anchor = dynamic_cast<Anchor*>(ast.get());
     ASSERT_NE(anchor, nullptr);
     EXPECT_EQ(anchor->at, "WordBoundary");
@@ -90,7 +90,7 @@ TEST(AnchorsPositive, ParseWordBoundary) {
 /// Test parsing of not-word-boundary (\B)
 TEST(AnchorsPositive, ParseNotWordBoundary) {
     auto [flags, ast] = parse(R"(\B)");
-    
+
     Anchor* anchor = dynamic_cast<Anchor*>(ast.get());
     ASSERT_NE(anchor, nullptr);
     EXPECT_EQ(anchor->at, "NotWordBoundary");
@@ -99,7 +99,7 @@ TEST(AnchorsPositive, ParseNotWordBoundary) {
 /// Test parsing of absolute start anchor (\A)
 TEST(AnchorsPositive, ParseAbsoluteStart) {
     auto [flags, ast] = parse(R"(\A)");
-    
+
     Anchor* anchor = dynamic_cast<Anchor*>(ast.get());
     ASSERT_NE(anchor, nullptr);
     EXPECT_EQ(anchor->at, "AbsoluteStart");
@@ -108,7 +108,7 @@ TEST(AnchorsPositive, ParseAbsoluteStart) {
 /// Test parsing of end before newline anchor (\Z)
 TEST(AnchorsPositive, ParseEndBeforeFinalNewline) {
     auto [flags, ast] = parse(R"(\Z)");
-    
+
     Anchor* anchor = dynamic_cast<Anchor*>(ast.get());
     ASSERT_NE(anchor, nullptr);
     EXPECT_EQ(anchor->at, "EndBeforeFinalNewline");
@@ -118,32 +118,32 @@ TEST(AnchorsPositive, ParseEndBeforeFinalNewline) {
 
 /**
  * @brief Test suite for anchor edge cases
- * 
+ *
  * Covers edge cases related to the position and combination of anchors.
  */
 
 /// Test parsing a pattern with only anchors
 TEST(AnchorsEdgeCases, ParsePatternWithOnlyAnchors) {
     auto [flags, ast] = parse(R"(^\A\b$)");
-    
+
     // Should be a Seq with 4 anchors
     Seq* seq = dynamic_cast<Seq*>(ast.get());
     ASSERT_NE(seq, nullptr);
     ASSERT_EQ(seq->parts.size(), 4);
-    
+
     // Check each anchor
     Anchor* anchor0 = dynamic_cast<Anchor*>(seq->parts[0].get());
     ASSERT_NE(anchor0, nullptr);
     EXPECT_EQ(anchor0->at, "Start");
-    
+
     Anchor* anchor1 = dynamic_cast<Anchor*>(seq->parts[1].get());
     ASSERT_NE(anchor1, nullptr);
     EXPECT_EQ(anchor1->at, "AbsoluteStart");
-    
+
     Anchor* anchor2 = dynamic_cast<Anchor*>(seq->parts[2].get());
     ASSERT_NE(anchor2, nullptr);
     EXPECT_EQ(anchor2->at, "WordBoundary");
-    
+
     Anchor* anchor3 = dynamic_cast<Anchor*>(seq->parts[3].get());
     ASSERT_NE(anchor3, nullptr);
     EXPECT_EQ(anchor3->at, "End");
@@ -152,11 +152,11 @@ TEST(AnchorsEdgeCases, ParsePatternWithOnlyAnchors) {
 /// Test anchors in different positions
 TEST(AnchorsEdgeCases, ParseAnchorAtStart) {
     auto [flags, ast] = parse("^a");
-    
+
     Seq* seq = dynamic_cast<Seq*>(ast.get());
     ASSERT_NE(seq, nullptr);
     ASSERT_GE(seq->parts.size(), 2);
-    
+
     Anchor* anchor = dynamic_cast<Anchor*>(seq->parts[0].get());
     ASSERT_NE(anchor, nullptr);
     EXPECT_EQ(anchor->at, "Start");
@@ -164,11 +164,11 @@ TEST(AnchorsEdgeCases, ParseAnchorAtStart) {
 
 TEST(AnchorsEdgeCases, ParseAnchorInMiddle) {
     auto [flags, ast] = parse(R"(a\bb)");
-    
+
     Seq* seq = dynamic_cast<Seq*>(ast.get());
     ASSERT_NE(seq, nullptr);
     ASSERT_GE(seq->parts.size(), 3);
-    
+
     Anchor* anchor = dynamic_cast<Anchor*>(seq->parts[1].get());
     ASSERT_NE(anchor, nullptr);
     EXPECT_EQ(anchor->at, "WordBoundary");
@@ -176,11 +176,11 @@ TEST(AnchorsEdgeCases, ParseAnchorInMiddle) {
 
 TEST(AnchorsEdgeCases, ParseAnchorAtEnd) {
     auto [flags, ast] = parse("ab$");
-    
+
     Seq* seq = dynamic_cast<Seq*>(ast.get());
     ASSERT_NE(seq, nullptr);
     ASSERT_GE(seq->parts.size(), 2);
-    
+
     Anchor* anchor = dynamic_cast<Anchor*>(seq->parts[seq->parts.size() - 1].get());
     ASSERT_NE(anchor, nullptr);
     EXPECT_EQ(anchor->at, "End");
@@ -190,7 +190,7 @@ TEST(AnchorsEdgeCases, ParseAnchorAtEnd) {
 
 /**
  * @brief Test suite for anchor interaction cases
- * 
+ *
  * Covers how anchors interact with other DSL features, such as flags
  * and grouping constructs.
  */
@@ -199,18 +199,18 @@ TEST(AnchorsEdgeCases, ParseAnchorAtEnd) {
 TEST(AnchorsInteraction, MultilineFlagDoesNotChangeAST) {
     auto [flags1, ast1] = parse("^a$");
     auto [flags2, ast2] = parse("%flags m\n^a$");
-    
+
     // Both should produce Seq nodes
     Seq* seq1 = dynamic_cast<Seq*>(ast1.get());
     Seq* seq2 = dynamic_cast<Seq*>(ast2.get());
-    
+
     ASSERT_NE(seq1, nullptr);
     ASSERT_NE(seq2, nullptr);
-    
+
     // Both should have 3 parts
     ASSERT_EQ(seq1->parts.size(), 3);
     ASSERT_EQ(seq2->parts.size(), 3);
-    
+
     // First part should be Start anchor
     Anchor* anchor1_0 = dynamic_cast<Anchor*>(seq1->parts[0].get());
     Anchor* anchor2_0 = dynamic_cast<Anchor*>(seq2->parts[0].get());
@@ -218,7 +218,7 @@ TEST(AnchorsInteraction, MultilineFlagDoesNotChangeAST) {
     ASSERT_NE(anchor2_0, nullptr);
     EXPECT_EQ(anchor1_0->at, "Start");
     EXPECT_EQ(anchor2_0->at, "Start");
-    
+
     // Last part should be End anchor
     Anchor* anchor1_2 = dynamic_cast<Anchor*>(seq1->parts[2].get());
     Anchor* anchor2_2 = dynamic_cast<Anchor*>(seq2->parts[2].get());
@@ -231,16 +231,16 @@ TEST(AnchorsInteraction, MultilineFlagDoesNotChangeAST) {
 /// Test anchors inside capturing groups
 TEST(AnchorsInteraction, ParseAnchorInCapturingGroup) {
     auto [flags, ast] = parse("(^a)");
-    
+
     Group* group = dynamic_cast<Group*>(ast.get());
     ASSERT_NE(group, nullptr);
     EXPECT_TRUE(group->capturing);
-    
+
     // Body should be a Seq
     Seq* body = dynamic_cast<Seq*>(group->body.get());
     ASSERT_NE(body, nullptr);
     ASSERT_GE(body->parts.size(), 2);
-    
+
     // First part should be Start anchor
     Anchor* anchor = dynamic_cast<Anchor*>(body->parts[0].get());
     ASSERT_NE(anchor, nullptr);
@@ -250,16 +250,16 @@ TEST(AnchorsInteraction, ParseAnchorInCapturingGroup) {
 /// Test anchors inside non-capturing groups
 TEST(AnchorsInteraction, ParseAnchorInNonCapturingGroup) {
     auto [flags, ast] = parse(R"((?:a\b))");
-    
+
     Group* group = dynamic_cast<Group*>(ast.get());
     ASSERT_NE(group, nullptr);
     EXPECT_FALSE(group->capturing);
-    
+
     // Body should be a Seq
     Seq* body = dynamic_cast<Seq*>(group->body.get());
     ASSERT_NE(body, nullptr);
     ASSERT_GE(body->parts.size(), 2);
-    
+
     // Second part should be WordBoundary anchor
     Anchor* anchor = dynamic_cast<Anchor*>(body->parts[1].get());
     ASSERT_NE(anchor, nullptr);
@@ -269,17 +269,17 @@ TEST(AnchorsInteraction, ParseAnchorInNonCapturingGroup) {
 /// Test anchors in lookahead
 TEST(AnchorsInteraction, ParseAnchorInLookahead) {
     auto [flags, ast] = parse("(?=a$)");
-    
+
     Look* look = dynamic_cast<Look*>(ast.get());
     ASSERT_NE(look, nullptr);
     EXPECT_EQ(look->dir, "Ahead");
     EXPECT_FALSE(look->neg);
-    
+
     // Body should be a Seq
     Seq* body = dynamic_cast<Seq*>(look->body.get());
     ASSERT_NE(body, nullptr);
     ASSERT_GE(body->parts.size(), 2);
-    
+
     // Second part should be End anchor
     Anchor* anchor = dynamic_cast<Anchor*>(body->parts[1].get());
     ASSERT_NE(anchor, nullptr);
@@ -289,17 +289,17 @@ TEST(AnchorsInteraction, ParseAnchorInLookahead) {
 /// Test anchors in lookbehind
 TEST(AnchorsInteraction, ParseAnchorInLookbehind) {
     auto [flags, ast] = parse("(?<=^a)");
-    
+
     Look* look = dynamic_cast<Look*>(ast.get());
     ASSERT_NE(look, nullptr);
     EXPECT_EQ(look->dir, "Behind");
     EXPECT_FALSE(look->neg);
-    
+
     // Body should be a Seq
     Seq* body = dynamic_cast<Seq*>(look->body.get());
     ASSERT_NE(body, nullptr);
     ASSERT_GE(body->parts.size(), 2);
-    
+
     // First part should be Start anchor
     Anchor* anchor = dynamic_cast<Anchor*>(body->parts[0].get());
     ASSERT_NE(anchor, nullptr);
@@ -329,7 +329,7 @@ TEST(AnchorsNegative, UnknownEscapeZ) {
 
 /*
  * NOTE: This is a PARTIAL implementation demonstrating the test porting pattern.
- * 
+ *
  * The full anchors.test.ts file contains 31 test cases across 10 categories.
  * Additional test cases would include:
  * - Category E: Anchors in Complex Sequences (4 tests)
@@ -338,7 +338,7 @@ TEST(AnchorsNegative, UnknownEscapeZ) {
  * - Category H: Word Boundary Edge Cases (3 tests)
  * - Category I: Multiple Anchor Types (4 tests)
  * - And more...
- * 
+ *
  * To complete the porting:
  * 1. Add remaining test cases from anchors.test.ts
  * 2. Port the other 13 unit test files (char_classes, quantifiers, etc.)

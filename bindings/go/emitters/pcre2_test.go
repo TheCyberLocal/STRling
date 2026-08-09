@@ -2,7 +2,7 @@ package emitters
 
 import (
 	"testing"
-	
+
 	"github.com/strling-lang/strling/bindings/go/core"
 )
 
@@ -13,14 +13,14 @@ func TestBasicEmit(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Parse error: %v", err)
 	}
-	
+
 	// Compile to IR
 	compiler := core.NewCompiler()
 	ir := compiler.Compile(ast)
-	
+
 	// Emit to PCRE2
 	pattern := Emit(ir, nil)
-	
+
 	expected := `^hello$`
 	if pattern != expected {
 		t.Errorf("Expected %q, got %q", expected, pattern)
@@ -40,18 +40,18 @@ func TestAnchorEmit(t *testing.T) {
 		{`\A`, `\A`},
 		{`\Z`, `\Z`},
 	}
-	
+
 	for _, tc := range tests {
 		t.Run(tc.input, func(t *testing.T) {
 			_, ast, err := core.Parse(tc.input)
 			if err != nil {
 				t.Fatalf("Parse error: %v", err)
 			}
-			
+
 			compiler := core.NewCompiler()
 			ir := compiler.Compile(ast)
 			pattern := Emit(ir, nil)
-			
+
 			if pattern != tc.expected {
 				t.Errorf("Expected %q, got %q", tc.expected, pattern)
 			}

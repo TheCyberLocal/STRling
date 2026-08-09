@@ -57,7 +57,7 @@ func TestCategoryA_PositiveCases(t *testing.T) {
 		{`\A`, "AbsoluteStart", "absolute_start_ext"},
 		{`\Z`, "EndBeforeFinalNewline", "end_before_newline_ext"},
 	}
-	
+
 	for _, tc := range testCases {
 		t.Run(tc.id, func(t *testing.T) {
 			// Tests that each individual anchor token is parsed into the correct
@@ -66,12 +66,12 @@ func TestCategoryA_PositiveCases(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Parse error: %v", err)
 			}
-			
+
 			anchor, ok := ast.(Anchor)
 			if !ok {
 				t.Fatalf("Expected Anchor, got %T", ast)
 			}
-			
+
 			if anchor.At != tc.expectedAtValue {
 				t.Errorf("Expected at=%s, got at=%s", tc.expectedAtValue, anchor.At)
 			}
@@ -96,16 +96,16 @@ func TestCategoryC_EdgeCases(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Parse error: %v", err)
 		}
-		
+
 		seq, ok := ast.(Seq)
 		if !ok {
 			t.Fatalf("Expected Seq, got %T", ast)
 		}
-		
+
 		if len(seq.Parts) != 4 {
 			t.Fatalf("Expected 4 parts, got %d", len(seq.Parts))
 		}
-		
+
 		// Check all parts are anchors
 		expectedAtValues := []string{"Start", "AbsoluteStart", "WordBoundary", "End"}
 		for i, part := range seq.Parts {
@@ -118,7 +118,7 @@ func TestCategoryC_EdgeCases(t *testing.T) {
 			}
 		}
 	})
-	
+
 	// Test anchors in different positions
 	positionTests := []struct {
 		inputDsl         string
@@ -130,7 +130,7 @@ func TestCategoryC_EdgeCases(t *testing.T) {
 		{`a\bb`, 1, "WordBoundary", "in_middle"},
 		{`ab$`, 2, "End", "at_end"},
 	}
-	
+
 	for _, tc := range positionTests {
 		t.Run("should_parse_anchors_in_different_positions_"+tc.id, func(t *testing.T) {
 			// Tests that anchors are correctly parsed as part of a sequence at
@@ -139,22 +139,22 @@ func TestCategoryC_EdgeCases(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Parse error: %v", err)
 			}
-			
+
 			seq, ok := ast.(Seq)
 			if !ok {
 				t.Fatalf("Expected Seq, got %T", ast)
 			}
-			
+
 			if tc.expectedPosition >= len(seq.Parts) {
 				t.Fatalf("Position %d out of range (len=%d)", tc.expectedPosition, len(seq.Parts))
 			}
-			
+
 			anchorNode := seq.Parts[tc.expectedPosition]
 			anchor, ok := anchorNode.(Anchor)
 			if !ok {
 				t.Fatalf("Expected Anchor at position %d, got %T", tc.expectedPosition, anchorNode)
 			}
-			
+
 			if anchor.At != tc.expectedAtValue {
 				t.Errorf("Expected at=%s, got at=%s", tc.expectedAtValue, anchor.At)
 			}
@@ -173,39 +173,39 @@ func TestCategoryD_InteractionCases(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Parse error: %v", err)
 		}
-		
+
 		_, astWithM, err := Parse("%flags m\n^a$")
 		if err != nil {
 			t.Fatalf("Parse error: %v", err)
 		}
-		
+
 		// Compare the AST structures
 		seqNoM, ok := astNoM.(Seq)
 		if !ok {
 			t.Fatalf("Expected Seq, got %T", astNoM)
 		}
-		
+
 		seqWithM, ok := astWithM.(Seq)
 		if !ok {
 			t.Fatalf("Expected Seq, got %T", astWithM)
 		}
-		
+
 		if len(seqNoM.Parts) != len(seqWithM.Parts) {
 			t.Fatalf("Different number of parts: %d vs %d", len(seqNoM.Parts), len(seqWithM.Parts))
 		}
-		
+
 		// Check specific anchors
 		anchor0, ok := seqNoM.Parts[0].(Anchor)
 		if !ok || anchor0.At != "Start" {
 			t.Errorf("Expected Start anchor at position 0")
 		}
-		
+
 		anchor2, ok := seqNoM.Parts[2].(Anchor)
 		if !ok || anchor2.At != "End" {
 			t.Errorf("Expected End anchor at position 2")
 		}
 	})
-	
+
 	// Test anchors inside groups and lookarounds
 	groupTests := []struct {
 		inputDsl        string
@@ -217,7 +217,7 @@ func TestCategoryD_InteractionCases(t *testing.T) {
 		{`(?=a$)`, "End", "in_lookahead"},
 		{`(?<=^a)`, "Start", "in_lookbehind"},
 	}
-	
+
 	for _, tc := range groupTests {
 		t.Run("should_parse_anchors_inside_groups_and_lookarounds_"+tc.id, func(t *testing.T) {
 			// Tests that anchors are correctly parsed when nested inside other
@@ -226,7 +226,7 @@ func TestCategoryD_InteractionCases(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Parse error: %v", err)
 			}
-			
+
 			// The anchor is inside a container (Group or Look)
 			var containerBody Node
 			switch container := ast.(type) {
@@ -237,7 +237,7 @@ func TestCategoryD_InteractionCases(t *testing.T) {
 			default:
 				t.Fatalf("Expected Group or Look, got %T", ast)
 			}
-			
+
 			// Find the anchor in the body
 			var anchorNode *Anchor
 			switch body := containerBody.(type) {
@@ -253,11 +253,11 @@ func TestCategoryD_InteractionCases(t *testing.T) {
 				// Direct anchor
 				anchorNode = &body
 			}
-			
+
 			if anchorNode == nil {
 				t.Fatalf("No anchor found in container body")
 			}
-			
+
 			if anchorNode.At != tc.expectedAtValue {
 				t.Errorf("Expected at=%s, got at=%s", tc.expectedAtValue, anchorNode.At)
 			}

@@ -18,7 +18,7 @@ compile_ast.strling_literal <- function(node) {
 #' @export
 compile_ast.strling_sequence <- function(node) {
   parts <- lapply(node$parts, compile_ast)
-  
+
   # Merge adjacent literals
   merged_parts <- list()
   if (length(parts) > 0) {
@@ -36,7 +36,7 @@ compile_ast.strling_sequence <- function(node) {
     }
     merged_parts <- c(merged_parts, list(current))
   }
-  
+
   if (length(merged_parts) == 1) {
     return(merged_parts[[1]])
   } else {

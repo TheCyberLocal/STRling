@@ -15,7 +15,7 @@ import java.util.List;
  * rules without dealing with raw regex character class syntax.</p>
  */
 public class Sets {
-    
+
     /**
      * Matches all characters within and including the start and end of a letter or digit range.
      *
@@ -37,7 +37,7 @@ public class Sets {
             throw new STRlingError(message);
         }
     }
-    
+
     /**
      * Matches all characters within and including the start and end of a letter or digit range.
      *
@@ -48,7 +48,7 @@ public class Sets {
     public static Pattern between(Object start, Object end) {
         return between(start, end, null, null);
     }
-    
+
     /**
      * Helper method for between with character ranges.
      */
@@ -57,27 +57,27 @@ public class Sets {
         if (start.length() != 1 || end.length() != 1) {
             throw new STRlingError("The 'start' and 'end' characters must be single letters.");
         }
-        
+
         if (!start.matches("[a-zA-Z]") || !end.matches("[a-zA-Z]")) {
             throw new STRlingError("The 'start' and 'end' must be alphabetical characters.");
         }
-        
+
         boolean startLower = Character.isLowerCase(start.charAt(0));
         boolean endLower = Character.isLowerCase(end.charAt(0));
         if (startLower != endLower) {
             throw new STRlingError("The 'start' and 'end' characters must be of the same case.");
         }
-        
+
         if (start.charAt(0) > end.charAt(0)) {
             throw new STRlingError("The 'start' character must not be lexicographically greater than the 'end' character.");
         }
-        
+
         ClassRange rangeNode = new ClassRange(start, end);
         Node node = new CharClass(false, Arrays.asList(rangeNode));
         Pattern p = new Pattern(node, true, false, false);
         return (minRep != null) ? p.call(minRep, maxRep) : p;
     }
-    
+
     /**
      * Helper method for between with digit ranges.
      */
@@ -86,17 +86,17 @@ public class Sets {
         if (start > end) {
             throw new STRlingError("The 'start' integer must not be greater than the 'end' integer.");
         }
-        
+
         if (start < 0 || start > 9 || end < 0 || end > 9) {
             throw new STRlingError("The 'start' and 'end' integers must be single digits (0-9).");
         }
-        
+
         ClassRange rangeNode = new ClassRange(String.valueOf(start), String.valueOf(end));
         Node node = new CharClass(false, Arrays.asList(rangeNode));
         Pattern p = new Pattern(node, true, false, false);
         return (minRep != null) ? p.call(minRep, maxRep) : p;
     }
-    
+
     /**
      * Matches any character not within or including the start and end of a letter or digit range.
      *
@@ -118,7 +118,7 @@ public class Sets {
             throw new STRlingError(message);
         }
     }
-    
+
     /**
      * Matches any character not within or including the start and end of a letter or digit range.
      *
@@ -129,7 +129,7 @@ public class Sets {
     public static Pattern notBetween(Object start, Object end) {
         return notBetween(start, end, null, null);
     }
-    
+
     /**
      * Helper method for notBetween with character ranges.
      */
@@ -138,27 +138,27 @@ public class Sets {
         if (start.length() != 1 || end.length() != 1) {
             throw new STRlingError("The 'start' and 'end' characters must be single letters.");
         }
-        
+
         if (!start.matches("[a-zA-Z]") || !end.matches("[a-zA-Z]")) {
             throw new STRlingError("The 'start' and 'end' must be alphabetical characters.");
         }
-        
+
         boolean startLower = Character.isLowerCase(start.charAt(0));
         boolean endLower = Character.isLowerCase(end.charAt(0));
         if (startLower != endLower) {
             throw new STRlingError("The 'start' and 'end' characters must be of the same case.");
         }
-        
+
         if (start.charAt(0) > end.charAt(0)) {
             throw new STRlingError("The 'start' character must not be lexicographically greater than the 'end' character.");
         }
-        
+
         ClassRange rangeNode = new ClassRange(start, end);
         Node node = new CharClass(true, Arrays.asList(rangeNode));  // negated = true
         Pattern p = new Pattern(node, true, false, false);
         return (minRep != null) ? p.call(minRep, maxRep) : p;
     }
-    
+
     /**
      * Helper method for notBetween with digit ranges.
      */
@@ -167,17 +167,17 @@ public class Sets {
         if (start > end) {
             throw new STRlingError("The 'start' integer must not be greater than the 'end' integer.");
         }
-        
+
         if (start < 0 || start > 9 || end < 0 || end > 9) {
             throw new STRlingError("The 'start' and 'end' integers must be single digits (0-9).");
         }
-        
+
         ClassRange rangeNode = new ClassRange(String.valueOf(start), String.valueOf(end));
         Node node = new CharClass(true, Arrays.asList(rangeNode));  // negated = true
         Pattern p = new Pattern(node, true, false, false);
         return (minRep != null) ? p.call(minRep, maxRep) : p;
     }
-    
+
     /**
      * Matches any of the provided patterns, but they can't include subpatterns.
      *
@@ -190,7 +190,7 @@ public class Sets {
             if (obj instanceof String) {
                 obj = Pattern.lit((String) obj);
             }
-            
+
             if (!(obj instanceof Pattern)) {
                 String message = "\n" +
                     "Method: simply.inChars(...patterns)\n\n" +
@@ -198,10 +198,10 @@ public class Sets {
                     "Use a string such as \"123abc$\" to match literal characters, or use a predefined set like simply.letter().";
                 throw new STRlingError(message);
             }
-            
+
             cleanPatterns.add((Pattern) obj);
         }
-        
+
         // Check if any pattern is composite (Seq, Alt, Group, Quant, Look, etc.)
         String[] compositeNodeTypes = {"Seq", "Alt", "Group", "Quant", "Look"};
         for (Pattern p : cleanPatterns) {
@@ -215,7 +215,7 @@ public class Sets {
                 }
             }
         }
-        
+
         // Build the character class items by extracting them from input patterns
         List<ClassItem> items = new ArrayList<>();
         for (Pattern pattern : cleanPatterns) {
@@ -233,11 +233,11 @@ public class Sets {
             }
             // Handle other node types as needed
         }
-        
+
         Node node = new CharClass(false, items);
         return new Pattern(node, true, false, false);
     }
-    
+
     /**
      * Matches anything but the provided patterns, but they can't include subpatterns.
      *
@@ -250,7 +250,7 @@ public class Sets {
             if (obj instanceof String) {
                 obj = Pattern.lit((String) obj);
             }
-            
+
             if (!(obj instanceof Pattern)) {
                 String message = "\n" +
                     "Method: simply.notInChars(...patterns)\n\n" +
@@ -258,10 +258,10 @@ public class Sets {
                     "Use a string such as \"123abc$\" to match literal characters, or use a predefined set like simply.letter().";
                 throw new STRlingError(message);
             }
-            
+
             cleanPatterns.add((Pattern) obj);
         }
-        
+
         // Check if any pattern is composite
         for (Pattern p : cleanPatterns) {
             if (p.isComposite()) {
@@ -271,7 +271,7 @@ public class Sets {
                 throw new STRlingError(message);
             }
         }
-        
+
         // Build the character class items by extracting them from input patterns
         List<ClassItem> items = new ArrayList<>();
         for (Pattern pattern : cleanPatterns) {
@@ -289,7 +289,7 @@ public class Sets {
             }
             // Handle other node types as needed
         }
-        
+
         Node node = new CharClass(true, items);
         return new Pattern(node, true, false, false);
     }
