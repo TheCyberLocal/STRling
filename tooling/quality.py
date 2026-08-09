@@ -221,6 +221,13 @@ class Toolchain:
         assert isinstance(aggregates, dict)
         return aggregates[name]  # type: ignore[return-value]
 
+    def integrity_hardgates(self, aggregate: str) -> list[Mapping[str, object]]:
+        configured = self.policy.get("integrity_hardgates", [])
+        assert isinstance(configured, list)
+        return [
+            hardgate for hardgate in configured if aggregate in hardgate["aggregates"]
+        ]
+
     def operation_defaults(self, operation: str) -> list[str] | None:
         defaults = self.policy.get("operation_defaults", {})
         assert isinstance(defaults, dict)
@@ -278,6 +285,65 @@ class Toolchain:
         aggregates = policy.get("aggregates")
         if not isinstance(aggregates, dict):
             raise ConfigurationError("policy.aggregates must be an object")
+        hardgates = policy.get("integrity_hardgates", [])
+        if not isinstance(hardgates, list):
+            raise ConfigurationError("policy.integrity_hardgates must be a list")
+        hardgate_operations: set[str] = set()
+        hardgate_components: list[tuple[str, str]] = []
+        for hardgate in hardgates:
+            if not isinstance(hardgate, dict):
+                raise ConfigurationError(
+                    "policy.integrity_hardgates entries must be objects"
+                )
+            operation = hardgate.get("operation")
+            component = hardgate.get("component")
+            command = hardgate.get("command")
+            memberships = hardgate.get("aggregates")
+            if not isinstance(operation, str) or not operation:
+                raise ConfigurationError(
+                    "integrity hardgate operation must be a non-empty string"
+                )
+            if operation in hardgate_operations:
+                raise ConfigurationError(
+                    f"duplicate integrity hardgate operation '{operation}'"
+                )
+            if operation in (
+                *QUALITY_OPERATIONS,
+                *AGGREGATE_OPERATIONS,
+                ENVIRONMENT_OPERATION,
+            ):
+                raise ConfigurationError(
+                    f"integrity hardgate operation '{operation}' is reserved"
+                )
+            hardgate_operations.add(operation)
+            if not isinstance(component, str) or not component:
+                raise ConfigurationError(
+                    f"integrity hardgate {operation} must declare a component"
+                )
+            hardgate_components.append((operation, component))
+            if (
+                not isinstance(command, list)
+                or not command
+                or not all(isinstance(item, str) and item for item in command)
+            ):
+                raise ConfigurationError(
+                    f"integrity hardgate {operation} must declare a command"
+                )
+            if (
+                not isinstance(memberships, list)
+                or not memberships
+                or not all(
+                    isinstance(name, str) and name in AGGREGATE_OPERATIONS
+                    for name in memberships
+                )
+            ):
+                raise ConfigurationError(
+                    f"integrity hardgate {operation} must select known aggregates"
+                )
+            if len(set(memberships)) != len(memberships):
+                raise ConfigurationError(
+                    f"integrity hardgate {operation} repeats an aggregate"
+                )
         tools = self.data["tools"]
         assert isinstance(tools, dict)
         declared_models = policy.get("resolution_models")
@@ -457,6 +523,12 @@ class Toolchain:
                                     f"{name}.{operation} not_yet_enforceable requires a retirement condition"
                                 )
         operation_defaults = policy.get("operation_defaults", {})
+        for operation, component in hardgate_components:
+            if component not in target_names:
+                raise ConfigurationError(
+                    f"integrity hardgate {operation} references unknown component "
+                    f"'{component}'"
+                )
         if not isinstance(operation_defaults, dict):
             raise ConfigurationError("policy.operation_defaults must be an object")
         for operation, default_targets in operation_defaults.items():
@@ -758,6 +830,7 @@ class EnvironmentInspector:
 
 
 Executor = Callable[[Target, str, list[str]], Execution]
+HardgateExecutor = Callable[[str, list[str]], Execution]
 
 
 class QualityRunner:
@@ -768,10 +841,12 @@ class QualityRunner:
         toolchain: Toolchain,
         executor: Executor | None = None,
         inspector: EnvironmentInspector | None = None,
+        hardgate_executor: HardgateExecutor | None = None,
     ) -> None:
         self.toolchain = toolchain
         self.executor = executor or self._execute
         self.inspector = inspector or EnvironmentInspector(toolchain)
+        self.hardgate_executor = hardgate_executor or self._execute_hardgate
 
     def run_leaf(self, operation: str, target: Target) -> OperationResult:
         capability = self.toolchain.capability(target, operation)
@@ -855,20 +930,51 @@ class QualityRunner:
         operation_targets = aggregate.get("operation_targets", {})
         assert isinstance(defaults, list)
         assert isinstance(operation_targets, dict)
+        hardgates = [
+            self.run_integrity_hardgate(hardgate)
+            for hardgate in self.toolchain.integrity_hardgates(name)
+        ]
         if requested is not None:
             targets = self.toolchain.select(requested, defaults)
-            return [
+            return hardgates + [
                 self.run_leaf(operation, target)
                 for target in targets
                 for operation in operations
             ]
-        return [
+        return hardgates + [
             self.run_leaf(operation, target)
             for operation in operations
             for target in self.toolchain.select(
                 None, operation_targets.get(operation, defaults)
             )
         ]
+
+    def run_integrity_hardgate(self, hardgate: Mapping[str, object]) -> OperationResult:
+        operation = hardgate["operation"]
+        component = hardgate["component"]
+        command = hardgate["command"]
+        assert isinstance(operation, str)
+        assert isinstance(component, str)
+        assert isinstance(command, list)
+        assert all(isinstance(item, str) for item in command)
+        invocation = list(command)
+        execution = self.hardgate_executor(operation, invocation)
+        status = "passed" if execution.returncode == 0 else "failed"
+        reason = (
+            None
+            if execution.returncode == 0
+            else f"command exited with status {execution.returncode}"
+        )
+        return OperationResult(
+            operation=operation,
+            component=component,
+            status=status,
+            command=invocation,
+            exit_code=execution.returncode,
+            reason=reason,
+            stdout=execution.stdout,
+            stderr=execution.stderr,
+        )
 
     def run_environment(self, requested: str | None) -> list[OperationResult]:
         results: list[OperationResult] = []
@@ -916,6 +1022,20 @@ class QualityRunner:
             completed = subprocess.run(
                 invocation,
                 cwd=cwd,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+        except OSError as exc:
+            return Execution(127, stderr=str(exc))
+        return Execution(completed.returncode, completed.stdout, completed.stderr)
+
+    def _execute_hardgate(self, _operation: str, command: list[str]) -> Execution:
+        try:
+            completed = subprocess.run(
+                command,
+                cwd=self.toolchain.root,
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

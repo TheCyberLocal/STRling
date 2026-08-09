@@ -21,6 +21,7 @@ scope:
         - tooling/generated_artifacts.py
         - tooling/governance.py
         - tooling/index.md
+        - tooling/quality.py
         - tooling/requirements-quality.txt
         - tooling/sync_fixture_projection.py
         - tooling/sync_versions.py
@@ -167,8 +168,28 @@ checkpoints:
             result: passed
             details: The active v2 task record fixes the base commit and head mode; validation proves the base exists and is an ancestor, then includes committed, staged, unstaged, renamed, deleted, and untracked paths without relying on developer-local diff assumptions.
     - name: Quality and CI integration certification
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical quality aggregates
+            command: BUNDLER_VERSION=2.4.20 ./strling check; BUNDLER_VERSION=2.4.20 ./strling certify
+            result: passed
+            details: Both aggregates ran generated-artifact verification and change governance before component operations; formatting, hygiene, enforced lint and type analysis, TypeScript build where applicable, and all 19 TypeScript suites with 963 tests passed.
+          - check: Structured aggregate results
+            command: BUNDLER_VERSION=2.4.20 ./strling check --json
+            result: passed
+            details: The machine result passed with generate_check and governance as its first two repository results, each retaining command and exit status.
+          - check: Controlled CI-equivalent failures
+            command: python3 -m unittest tooling.tests.test_quality tooling.tests.test_governance tooling.tests.test_generated_artifacts tooling.tests.test_sync_fixture_projection tooling.tests.test_governance_contracts; python3 -m pytest tooling/tests/test_sync_versions.py -q
+            result: passed
+            details: Seventy-eight quality/governance tests and eight version tests passed. Controlled cases reject stale or missing generation, generator failure, out-of-scope and forbidden files, rename and deletion violations, inconsistent governed declarations, architecture-rule violations, malformed records, and any propagated integrity-hardgate failure.
+          - check: Canonical CI routing
+            command: python3 -c 'import pathlib,yaml; data=yaml.safe_load(pathlib.Path(".github/workflows/ci.yml").read_text()); assert isinstance(data, dict) and "jobs" in data'
+            result: passed
+            details: CI YAML parsed; the quality job fetches full Git history and invokes only ./strling check rather than duplicating generation, scope, declaration, or architecture logic.
+          - check: Repository policy integrity
+            command: ./strling format --check repository; ./strling hygiene; ./strling lint repository; git diff --check
+            result: passed
+            details: Formatting, governed CRLF line endings, repository hygiene, static analysis, exact suppression counts, and patch integrity passed without broad exemptions or concealed generated changes.
     - name: Completion and next-task readiness
       status: planned
       evidence: []
@@ -177,3 +198,5 @@ commits:
       subject: "docs(governance): define artifact and change-control contracts"
     - sha: a1dd305649b0f5a7a689058d045ea4d05399a760
       subject: "feat(quality): verify generated artifact integrity"
+    - sha: b6c864d79ba8e98a8a7f842dd463e8bb8562cc9d
+      subject: "feat(governance): enforce change scope and architecture rules"

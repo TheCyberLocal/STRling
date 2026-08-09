@@ -148,6 +148,8 @@ The permanent root vocabulary is:
 ./strling typecheck [component|all]
 ./strling build [component|all]
 ./strling test [component|all]
+./strling generate [--check] [--json]
+./strling governance [--json]
 ./strling check [component|all]
 ./strling certify [component|all]
 ```
@@ -156,11 +158,15 @@ The permanent root vocabulary is:
 `format --check` selects the non-mutating formatter check command. `check`
 is the shared developer and pull-request hardgate. It runs every enforceable
 formatter check, the repository-hygiene scanner, and the established
-TypeScript analysis/test baseline. `certify` establishes the broader
-aggregation contract without replacing Omega or the later release
-certification architecture. Aggregate membership and per-operation target
-sets are authoritative in the `policy.aggregates` section of
-`toolchain.json`.
+TypeScript analysis/test baseline. Before component checks, both aggregates
+run the repository-level generated-artifact reproduction and contained-change
+governance hardgates. Those checks still run when a component is selected, so
+component selection cannot bypass repository integrity. `certify` establishes
+the broader aggregation contract without replacing Omega or the later release
+certification architecture. Aggregate membership and per-operation target sets
+are authoritative in the `policy.aggregates` section of `toolchain.json`;
+repository-wide prerequisites are authoritative in
+`policy.integrity_hardgates`.
 
 Existing setup, bootstrap, clean, audit, cache, lockfile, and list behavior
 remains supported. Component selection follows the existing binding names and
@@ -175,14 +181,17 @@ full-inventory form.
 
 The GitHub Actions `quality-hardgates` job installs the declared formatter and
 TypeScript baseline dependencies, then invokes only `./strling check`; it does
-not reproduce formatter or hygiene policy in workflow shell. The binding
+not reproduce formatter, hygiene, generation, scope, or architecture policy in
+workflow shell. Full Git history is checked out because the active contained
+task declares a commit-based diff range. The binding
 quality matrix continues to use the same `environment`, `build`, and `test`
 commands. Its Node, Go, .NET, and Bundler setup values are aligned with this
 policy, and a failed build is never converted into success.
 
 ## Structured result contract
 
-Every leaf operation produces an internal result with:
+Every leaf operation and repository integrity hardgate produces an internal
+result with:
 
 -   `operation`;
 -   `component`;

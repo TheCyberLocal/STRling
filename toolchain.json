@@ -36,6 +36,24 @@
             "unknown",
             "unavailable"
         ],
+        "integrity_hardgates": [
+            {
+                "operation": "generate_check",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "tooling/generated_artifacts.py",
+                    "--check"
+                ],
+                "aggregates": ["check", "certify"]
+            },
+            {
+                "operation": "governance",
+                "component": "repository",
+                "command": ["python3", "tooling/governance.py"],
+                "aggregates": ["check", "certify"]
+            }
+        ],
         "aggregates": {
             "check": {
                 "operations": [
@@ -377,7 +395,14 @@
                     "pytest.ini",
                     "governance/formatting.json",
                     "governance/repository-hygiene.json",
-                    "governance/static-analysis.json"
+                    "governance/static-analysis.json",
+                    "governance/generated-artifacts.json",
+                    "governance/change-control.json",
+                    "governance/architecture-rules.json",
+                    "governance/schemas/generated-artifact-registry.schema.json",
+                    "governance/schemas/change-control.schema.json",
+                    "governance/schemas/architecture-rules.schema.json",
+                    "governance/schemas/task-record.schema.json"
                 ]
             },
             "capabilities": {

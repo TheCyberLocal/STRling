@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+from typing import cast
 
 
 TOOLING_DIR = Path(__file__).resolve().parents[1]
@@ -481,6 +482,93 @@ class QualityRoutingTests(unittest.TestCase):
         ).run_aggregate("check", None)
         self.assertEqual(["passed", "failed"], [result.status for result in results])
         self.assertEqual(1, _overall_exit(results, False))
+
+    def test_integrity_hardgates_precede_aggregate_and_cannot_be_scoped_away(
+        self,
+    ) -> None:
+        alpha = target_config(
+            {"lint": "configured", "typecheck": "not_applicable"},
+            {"lint": ["fixture-lint"]},
+        )
+        data = policy(alpha=alpha)
+        policy_data = cast(dict[str, object], data["policy"])
+        policy_data["integrity_hardgates"] = [
+            {
+                "operation": "fixture_integrity",
+                "component": "alpha",
+                "command": ["fixture-integrity", "--check"],
+                "aggregates": ["check", "certify"],
+            }
+        ]
+        calls: list[tuple[str, list[str]]] = []
+        results = QualityRunner(
+            Toolchain(data, Path.cwd()),
+            lambda *_args: Execution(0),
+            hardgate_executor=lambda operation, command: (
+                calls.append((operation, command)) or Execution(0)
+            ),
+        ).run_aggregate("check", "alpha")
+        self.assertEqual(
+            [
+                ("alpha", "fixture_integrity", "passed"),
+                ("alpha", "lint", "passed"),
+                ("alpha", "typecheck", "not_applicable"),
+            ],
+            [(result.component, result.operation, result.status) for result in results],
+        )
+        self.assertEqual(
+            [("fixture_integrity", ["fixture-integrity", "--check"])],
+            calls,
+        )
+
+    def test_integrity_hardgate_failure_propagates(self) -> None:
+        data = policy()
+        policy_data = cast(dict[str, object], data["policy"])
+        policy_data["integrity_hardgates"] = [
+            {
+                "operation": "fixture_integrity",
+                "component": "alpha",
+                "command": ["fixture-integrity", "--check"],
+                "aggregates": ["check"],
+            }
+        ]
+        results = QualityRunner(
+            Toolchain(data, Path.cwd()),
+            hardgate_executor=lambda *_args: Execution(31, stderr="stale\n"),
+        ).run_aggregate("check", None)
+        self.assertEqual("failed", results[0].status)
+        self.assertEqual(31, results[0].exit_code)
+        self.assertEqual("stale\n", results[0].stderr)
+        self.assertEqual(1, _overall_exit(results, False))
+
+    def test_integrity_hardgate_configuration_is_validated(self) -> None:
+        malformed_entries = [
+            {
+                "operation": "fixture_integrity",
+                "component": "repository",
+                "command": [],
+                "aggregates": ["check"],
+            },
+            {
+                "operation": "fixture_integrity",
+                "component": "missing",
+                "command": ["fixture-integrity"],
+                "aggregates": ["check"],
+            },
+            {
+                "operation": "lint",
+                "component": "alpha",
+                "command": ["fixture-integrity"],
+                "aggregates": ["check"],
+            },
+        ]
+        for entry in malformed_entries:
+            with self.subTest(entry=entry):
+                data = policy()
+                policy_data = cast(dict[str, object], data["policy"])
+                policy_data["integrity_hardgates"] = [entry]
+                with self.assertRaises(ConfigurationError):
+                    Toolchain(data, Path.cwd())
 
     def test_aggregate_uses_operation_specific_default_targets(self) -> None:
         alpha = target_config(
