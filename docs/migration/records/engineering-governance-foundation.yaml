@@ -1,6 +1,6 @@
 record_version: 1.0.0
 title: Engineering governance foundation
-status: in_progress
+status: complete
 objective: Establish permanent engineering authority, architectural invariants, and traceable governance contracts before semantic migration.
 scope:
   allowed_paths:
@@ -25,7 +25,7 @@ required_verification:
     command: git diff --check dev...architecture/v4
     expected_result: No whitespace errors.
   - name: Governance contract validation
-    command: python3 JSON Schema and YAML validation using jsonschema and PyYAML
+    command: Python validation using Draft202012Validator and PyYAML
     expected_result: Both schemas are valid and both templates and this record conform.
   - name: Behavioral baseline
     command: ./strling test typescript
@@ -34,7 +34,7 @@ required_verification:
     command: git diff --name-only dev...architecture/v4
     expected_result: Only governance and migration-control paths changed.
   - name: Permanent vocabulary review
-    command: targeted repository search of lines added by this initiative
+    command: Targeted search of added governance lines and initiative commit subjects
     expected_result: No temporary campaign identifiers appear in permanent artifacts or commit subjects.
 checkpoints:
   - name: Scope and baseline lock
@@ -70,13 +70,74 @@ checkpoints:
         result: passed
         details: The lifecycle, ledger role, record storage, commit evidence, and permanent-vocabulary boundary are documented without creating semantic authority.
   - name: Integration and governance certification
-    status: planned
-    evidence: []
+    status: passed
+    evidence:
+      - check: Complete diff integrity and scope
+        command: git diff --check dev...HEAD; git diff --name-only dev...HEAD
+        result: passed
+        details: Patch integrity passed and all 11 changed files were under governance or migration-control paths.
+      - check: Unchanged product architecture
+        command: git diff --exit-code dev...HEAD -- bindings spec tests tooling package.json package-lock.json toolchain.json
+        result: passed
+        details: No compiler, runtime, specification, test, tooling, package, or toolchain file changed.
+      - check: Governance and Markdown certification
+        result: passed
+        details: Schemas, templates, this record, negative contract cases, Markdown structure, and local links passed.
+      - check: Permanent vocabulary and commit subjects
+        result: passed
+        details: Targeted searches found no temporary campaign identifiers in permanent additions or initiative commit subjects.
+      - check: Behavioral regression suite
+        command: ./strling test typescript
+        result: passed
+        details: 19 suites and 963 tests passed at the certification commit.
   - name: Completion and readiness
-    status: planned
-    evidence: []
+    status: passed
+    evidence:
+      - check: Completion record
+        result: passed
+        details: Accomplishment, verification, behavior, deferral, commit, and readiness evidence is complete and schema-valid.
+      - check: Subsequent-task readiness
+        result: passed
+        details: Governance is ready for deterministic toolchain and root quality-command hard-gating with recorded carry-forward debt.
 commits:
   - sha: 252d16b495d573051d8c317c980423bcc2bbc64b
     subject: "docs(governance): establish engineering governance foundation"
   - sha: 264ff22c4930a21e39254d384a35aa64194cd5b4
     subject: "docs(architecture): define engineering constitution and authority hierarchy"
+  - sha: 00524ab9635113ce5c7297be1c219850ae718a44
+    subject: "feat(governance): add task and waiver contracts"
+completion:
+  accomplished:
+    - Established a concise normative engineering constitution and explicit artifact authority hierarchy.
+    - Established target architectural invariants while identifying duplicated binding semantics as transitional and not yet compliant.
+    - Added machine-readable foundational contracts and validating templates for contained tasks and governed waivers.
+    - Added a durable migration ledger and schema-valid task record with checkpoint and commit evidence.
+  verified:
+    - "git merge-base HEAD dev returned d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc."
+    - "git diff --check dev...HEAD passed."
+    - "git diff --exit-code dev...HEAD over bindings, spec, tests, tooling, package manifests, and toolchain.json passed."
+    - Both Draft 2020-12 schemas, both YAML templates, and this completed task record validated.
+    - Negative validation rejected incomplete completion evidence and a waiver without a retirement condition.
+    - Markdown heading structure and all local Markdown links passed for six governance and migration documents.
+    - Targeted searches found no temporary campaign identifiers in permanent additions or initiative commit subjects.
+    - "./strling test typescript passed 19 suites and 963 tests."
+  behavior_changed: "None — governance-only change."
+  intentional_behavior_changes: []
+  preserved_behavior:
+    - Existing parser, compiler, emitter, and runtime semantics were not intentionally altered.
+    - Existing public APIs, schemas for STRling behavior, packages, versions, generated fixtures, and tests were not altered.
+  deferred_work:
+    - Pinned toolchains and deterministic dependency setup
+    - Canonical formatter enforcement
+    - Linting and warnings-as-errors with governed suppressions
+    - Repository hygiene automation
+    - Generated-file enforcement
+    - Task-scope automation
+    - Public API snapshots
+    - Architecture fitness tests
+    - Machine-readable certification
+    - CI gate hierarchy
+readiness:
+  status: READY WITH RECORDED CARRY-FORWARD
+  next_task: Establish deterministic toolchain and root quality-command governance.
+  rationale: The governance foundation is certified and no product behavior changed. The existing ts-jest TS151002 warning and all automated hard gates remain explicitly deferred for the next contained quality-governance work.

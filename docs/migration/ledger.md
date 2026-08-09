@@ -2,11 +2,14 @@
 
 ## Engineering governance foundation
 
-- Status: In progress
+- Status: Complete
 - Starting branch: `dev`
 - Starting commit: `d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc`
 - Architecture branch: `architecture/v4`
-- Behavior change: None intended; governance-only work
+- Behavior change: None — governance-only change
+- Completion record:
+  [`engineering-governance-foundation.yaml`](records/engineering-governance-foundation.yaml)
+- Readiness: `READY WITH RECORDED CARRY-FORWARD`
 
 ### Baseline documentation inventory
 
@@ -33,7 +36,7 @@
   from every supported public distribution channel.
 
 These conflicts are recorded, not repaired here. The governance authority
-hierarchy will determine precedence while later contained work migrates the
+hierarchy determines precedence while later contained work migrates the
 transitional repository.
 
 ### Checkpoint evidence
@@ -42,9 +45,41 @@ transitional repository.
 | --- | --- | --- | --- |
 | Scope and baseline lock | Passed | `252d16b495d573051d8c317c980423bcc2bbc64b` | Starting SHA and documentation inventory recorded; JSON schemas and YAML templates parsed and validated; `git diff --check` passed; TypeScript suite passed (19 suites, 963 tests) |
 | Constitution and authority contract | Passed | `264ff22c4930a21e39254d384a35aa64194cd5b4` | Permanent engineering rules, artifact precedence, and target invariants reviewed against the specification, architecture, testing, contribution, and release documentation; local Markdown links and `git diff --check` passed |
-| Governance contracts and migration traceability | Passed | Recorded by the task-and-waiver-contract commit | Task and waiver schemas passed Draft 2020-12 schema checks; both templates and the active task record validated; negative cases rejected incomplete completion and a waiver without a retirement condition; local Markdown links and `git diff --check` passed |
+| Governance contracts and migration traceability | Passed | `00524ab9635113ce5c7297be1c219850ae718a44` | Task and waiver schemas passed Draft 2020-12 schema checks; both templates and the active task record validated; negative cases rejected incomplete completion and a waiver without a retirement condition; local Markdown links and `git diff --check` passed |
+| Integration and governance certification | Passed | No corrective commit required | Complete-diff scope and integrity passed; schemas, records, Markdown, local links, permanent vocabulary, and commit subjects passed; TypeScript suite passed (19 suites, 963 tests) |
+| Completion and readiness | Passed | Recorded by the readiness commit | Completion evidence recorded; behavior change classified as none; subsequent quality-governance work assessed as ready with carry-forward |
 
-The TypeScript run emitted the existing `ts-jest` TS151002 configuration warning.
-No TypeScript source, test, or configuration differs from the recorded `dev`
-baseline, so the warning is carry-forward quality debt rather than a result of
-this governance-only change.
+### Accomplished
+
+- Normative engineering rules, authority precedence, and target architectural
+  invariants now govern subsequent work.
+- Task and waiver contracts support scoped work, checkpoint evidence, meaningful
+  commits, governed exceptions, completion, and readiness.
+- Migration work has a durable evidence ledger and schema-valid completion
+  record without becoming product documentation or semantic authority.
+
+### Preserved behavior
+
+Existing parser, compiler, emitter, runtime, public API, package, and generated
+fixture behavior was not intentionally altered.
+
+### Deferred hard gates
+
+- Pinned toolchains and deterministic dependencies
+- Canonical formatting and lint enforcement
+- Warnings-as-errors and governed suppressions
+- Repository hygiene and generated-file enforcement
+- Task-scope automation and public API snapshots
+- Architecture fitness tests and machine-readable certification
+- CI gate hierarchy and public-distribution verification automation
+
+The TypeScript baseline passed while emitting the existing `ts-jest` TS151002
+configuration warning during the initial run. No TypeScript source, test, or
+configuration differs from the recorded `dev` baseline, so the warning is
+carry-forward quality debt rather than a result of this change.
+
+### Permanent vocabulary boundary
+
+Temporary sequencing identifiers belong only to migration-control records and
+MUST NOT appear in implementation vocabulary, product documentation, generated
+output, release notes, or permanent commit subjects.
