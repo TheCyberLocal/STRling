@@ -8,10 +8,13 @@
             "kind": "forbidden-dependency",
             "configuration": {
                 "sources": [
+                    "tooling/architecture_fitness.py",
+                    "tooling/contract_declarations.py",
                     "tooling/generated_artifacts.py",
-                    "tooling/governance.py"
+                    "tooling/governance.py",
+                    "tooling/public_contracts.py"
                 ],
-                "forbidden_dependencies": ["bindings", "spec"]
+                "forbidden_dependencies": ["STRling", "bindings", "spec"]
             }
         },
         {
@@ -21,14 +24,17 @@
             "kind": "forbidden-dependency",
             "configuration": {
                 "sources": [
+                    "tooling/architecture_fitness.py",
+                    "tooling/contract_declarations.py",
                     "tooling/formatting.py",
                     "tooling/generated_artifacts.py",
                     "tooling/governance.py",
                     "tooling/hygiene.py",
                     "tooling/quality.py",
-                    "tooling/static_analysis.py"
+                    "tooling/static_analysis.py",
+                    "tooling/public_contracts.py"
                 ],
-                "forbidden_dependencies": ["bindings", "spec"]
+                "forbidden_dependencies": ["STRling", "bindings", "spec"]
             }
         },
         {
@@ -37,6 +43,16 @@
             "status": "enforced",
             "kind": "generated-input-cycle",
             "configuration": {}
+        },
+        {
+            "id": "implementation-derived-fixture-authority",
+            "description": "Implementation-derived test generation may remain compatibility evidence but cannot become normative or certification authority.",
+            "status": "enforced",
+            "kind": "artifact-authority-boundary",
+            "configuration": {
+                "artifact_ids": ["shared-semantic-fixtures"],
+                "allowed_authorities": ["transitional-compatibility-evidence"]
+            }
         },
         {
             "id": "task-record-placement",
@@ -119,19 +135,17 @@
         {
             "id": "specification-reference-authority-boundary",
             "description": "Specification schemas may reference only specification-owned schema contracts, never generated implementation output.",
-            "status": "future",
+            "status": "enforced",
             "kind": "schema-reference-boundary",
             "configuration": {
                 "sources": ["spec/schema/*.json"],
                 "allowed_reference_roots": ["spec/schema"]
-            },
-            "rationale": "The invariant is valid now, but structured reference analysis is activated only after its parser and malformed-reference tests are certified.",
-            "activation_condition": "Promote to enforced when repository-relative and fragment JSON Schema references are resolved safely and controlled forbidden, escaping, and malformed cases fail."
+            }
         },
         {
             "id": "new-tooling-semantic-islands",
             "description": "New parser, compiler, analyzer, planner, or emitter implementations under tooling require explicit architecture review.",
-            "status": "future",
+            "status": "enforced",
             "kind": "semantic-island-placement",
             "configuration": {
                 "guarded_roots": ["tooling"],
@@ -143,9 +157,7 @@
                     "emitter"
                 ],
                 "requires_declaration": "architecture_change"
-            },
-            "rationale": "The placement invariant is current, but activation awaits a change-aware classifier that excludes tests, third-party payloads, and non-semantic orchestration names.",
-            "activation_condition": "Promote to enforced after controlled new-island, quality-tool false-positive, test-file, generated-payload, and explicit-declaration cases pass."
+            }
         },
         {
             "id": "binding-canonical-core-dependency",

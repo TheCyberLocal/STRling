@@ -138,6 +138,22 @@ class GovernanceContractTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             self.architecture_validator.validate(invalid)
 
+    def test_malformed_architecture_rule_configuration_fails(self) -> None:
+        rules = load_json(GOVERNANCE / "architecture-rules.json")
+        assert isinstance(rules, dict)
+        invalid = copy.deepcopy(rules)
+        invalid["rules"].append(
+            {
+                "id": "malformed-authority-rule",
+                "description": "Missing an allowed authority list.",
+                "status": "enforced",
+                "kind": "artifact-authority-boundary",
+                "configuration": {"artifact_ids": ["shared-semantic-fixtures"]},
+            }
+        )
+        with self.assertRaises(ValidationError):
+            self.architecture_validator.validate(invalid)
+
     def test_transitional_surface_requires_retirement_condition(self) -> None:
         registry = load_json(GOVERNANCE / "public-surfaces.json")
         assert isinstance(registry, dict)

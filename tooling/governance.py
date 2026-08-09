@@ -19,6 +19,11 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError, ValidationError
 
 try:
+    from architecture_fitness import evaluate_extended_rule
+except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
+    from tooling.architecture_fitness import evaluate_extended_rule
+
+try:
     from generated_artifacts import (
         RegistryError,
         load_registry,
@@ -491,12 +496,11 @@ def rule_result(
 ) -> RuleResult:
     identifier = str(rule["id"])
     status = str(rule["status"])
-    if status in ("transitional", "future"):
-        reason_key = "rationale"
+    if status == "future":
         return RuleResult(
             identifier,
             status,
-            reason=str(rule.get(reason_key, "")),
+            reason=str(rule.get("rationale", "")),
         )
 
     kind = str(rule["kind"])
@@ -576,13 +580,34 @@ def rule_result(
                     )
                 )
     else:
-        findings.append((f"unsupported enforced rule kind: {kind}", None))
+        extended = evaluate_extended_rule(
+            kind,
+            root=root,
+            configuration=configuration,
+            changes=changes,
+            artifact_registry=artifact_registry,
+            matches_any=matches_any,
+            architecture_declared=(
+                declaration_level(task, "architecture_change") != "none"
+            ),
+        )
+        if extended is None:
+            findings.append((f"unsupported enforced rule kind: {kind}", None))
+        else:
+            findings.extend(extended)
 
     active_findings = [
         message
         for message, path in findings
         if not is_exempt(exemptions, identifier, path)
     ]
+    if status == "transitional":
+        return RuleResult(
+            identifier,
+            "transitional",
+            active_findings,
+            reason=str(rule.get("rationale", "")),
+        )
     return RuleResult(
         identifier,
         "failed" if active_findings else "passed",

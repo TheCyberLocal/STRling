@@ -238,6 +238,24 @@ class ArchitectureValidationTests(unittest.TestCase):
         self.assertEqual("failed", result.status)
         self.assertIn("bindings.python.compiler", result.findings[0])
 
+    def test_valid_dependency_passes(self) -> None:
+        (self.root / "tooling/governance.py").write_text(
+            "import json\n", encoding="utf-8"
+        )
+        result = self.evaluate(
+            {
+                "id": "governance-boundary",
+                "status": "enforced",
+                "kind": "forbidden-dependency",
+                "configuration": {
+                    "sources": ["tooling/governance.py"],
+                    "forbidden_dependencies": ["bindings"],
+                },
+            }
+        )
+        self.assertEqual("passed", result.status)
+        self.assertEqual([], result.findings)
+
     def test_valid_transition_is_reported_without_failing(self) -> None:
         result = self.evaluate(
             {
@@ -250,6 +268,44 @@ class ArchitectureValidationTests(unittest.TestCase):
             }
         )
         self.assertEqual("transitional", result.status)
+        self.assertEqual([], result.findings)
+
+    def test_transitional_forbidden_import_is_reported_without_failing(self) -> None:
+        source = self.root / "tooling/lsp.py"
+        source.write_text("import STRling.core.parser\n", encoding="utf-8")
+        result = self.evaluate(
+            {
+                "id": "lsp-transition",
+                "status": "transitional",
+                "kind": "forbidden-import",
+                "configuration": {
+                    "sources": ["tooling/lsp.py"],
+                    "forbidden_modules": ["STRling"],
+                },
+                "rationale": "The canonical service is not available.",
+                "retirement_condition": "Route through the canonical service.",
+            }
+        )
+        self.assertEqual("transitional", result.status)
+        self.assertTrue(any("STRling.core.parser" in item for item in result.findings))
+
+    def test_future_rule_does_not_block_current_architecture(self) -> None:
+        source = self.root / "tooling/lsp.py"
+        source.write_text("import STRling.core.parser\n", encoding="utf-8")
+        result = self.evaluate(
+            {
+                "id": "future-canonical-dependency",
+                "status": "future",
+                "kind": "forbidden-import",
+                "configuration": {
+                    "sources": ["tooling/lsp.py"],
+                    "forbidden_modules": ["STRling"],
+                },
+                "rationale": "The canonical service is not available.",
+                "activation_condition": "Activate after migration.",
+            }
+        )
+        self.assertEqual("future", result.status)
         self.assertEqual([], result.findings)
 
     def test_new_top_level_directory_requires_architecture_declaration(self) -> None:
@@ -266,6 +322,127 @@ class ArchitectureValidationTests(unittest.TestCase):
         self.assertEqual("failed", self.evaluate(rule, [change]).status)
         set_level(self.task, "architecture_change", "additive")
         self.assertEqual("passed", self.evaluate(rule, [change]).status)
+
+    def test_new_semantic_implementation_island_requires_declaration(self) -> None:
+        source = self.root / "tooling/compiler.py"
+        source.write_text(
+            "class Compiler:\n    def compile(self):\n        return None\n",
+            encoding="utf-8",
+        )
+        rule = {
+            "id": "semantic-island",
+            "status": "enforced",
+            "kind": "semantic-island-placement",
+            "configuration": {
+                "guarded_roots": ["tooling"],
+                "semantic_names": ["parser", "compiler", "emitter"],
+                "requires_declaration": "architecture_change",
+            },
+        }
+        change = Change("A", None, "tooling/compiler.py")
+        self.assertEqual("failed", self.evaluate(rule, [change]).status)
+        set_level(self.task, "architecture_change", "additive")
+        self.assertEqual("passed", self.evaluate(rule, [change]).status)
+
+    def test_test_file_is_not_misclassified_as_semantic_island(self) -> None:
+        (self.root / "tooling/tests").mkdir()
+        source = self.root / "tooling/tests/test_parser.py"
+        source.write_text("def test_parser():\n    pass\n", encoding="utf-8")
+        result = self.evaluate(
+            {
+                "id": "semantic-island",
+                "status": "enforced",
+                "kind": "semantic-island-placement",
+                "configuration": {
+                    "guarded_roots": ["tooling"],
+                    "semantic_names": ["parser"],
+                    "requires_declaration": "architecture_change",
+                },
+            },
+            [Change("A", None, "tooling/tests/test_parser.py")],
+        )
+        self.assertEqual("passed", result.status)
+
+    def test_schema_reference_inside_allowed_root_passes(self) -> None:
+        schema_root = self.root / "spec/schema"
+        schema_root.mkdir(parents=True)
+        (schema_root / "base.json").write_text("{}", encoding="utf-8")
+        (schema_root / "child.json").write_text(
+            '{"$ref": "./base.json"}', encoding="utf-8"
+        )
+        result = self.evaluate(
+            {
+                "id": "schema-boundary",
+                "status": "enforced",
+                "kind": "schema-reference-boundary",
+                "configuration": {
+                    "sources": ["spec/schema/*.json"],
+                    "allowed_reference_roots": ["spec/schema"],
+                },
+            }
+        )
+        self.assertEqual("passed", result.status)
+
+    def test_schema_reference_outside_allowed_root_fails(self) -> None:
+        schema_root = self.root / "spec/schema"
+        generated_root = self.root / "generated"
+        schema_root.mkdir(parents=True)
+        generated_root.mkdir()
+        (generated_root / "output.json").write_text("{}", encoding="utf-8")
+        (schema_root / "child.json").write_text(
+            '{"$ref": "../../generated/output.json"}', encoding="utf-8"
+        )
+        result = self.evaluate(
+            {
+                "id": "schema-boundary",
+                "status": "enforced",
+                "kind": "schema-reference-boundary",
+                "configuration": {
+                    "sources": ["spec/schema/*.json"],
+                    "allowed_reference_roots": ["spec/schema"],
+                },
+            }
+        )
+        self.assertEqual("failed", result.status)
+        self.assertIn("outside allowed roots", result.findings[0])
+
+    def test_malformed_schema_source_fails_closed(self) -> None:
+        schema_root = self.root / "spec/schema"
+        schema_root.mkdir(parents=True)
+        (schema_root / "bad.json").write_text("{", encoding="utf-8")
+        result = self.evaluate(
+            {
+                "id": "schema-boundary",
+                "status": "enforced",
+                "kind": "schema-reference-boundary",
+                "configuration": {
+                    "sources": ["spec/schema/*.json"],
+                    "allowed_reference_roots": ["spec/schema"],
+                },
+            }
+        )
+        self.assertEqual("failed", result.status)
+        self.assertIn("malformed JSON schema", result.findings[0])
+
+    def test_implementation_fixture_authority_is_bounded(self) -> None:
+        rule = {
+            "id": "fixture-authority",
+            "status": "enforced",
+            "kind": "artifact-authority-boundary",
+            "configuration": {
+                "artifact_ids": ["fixtures"],
+                "allowed_authorities": ["transitional-compatibility-evidence"],
+            },
+        }
+        self.registry["artifacts"] = [
+            {
+                "id": "fixtures",
+                "authority": "transitional-compatibility-evidence",
+            }
+        ]
+        self.assertEqual("passed", self.evaluate(rule).status)
+        self.registry["artifacts"][0]["authority"] = "certification-evidence"
+        self.assertEqual("failed", self.evaluate(rule).status)
 
     def test_malformed_task_record_is_rejected(self) -> None:
         schema = load_json(ROOT / "governance/schemas/task-record.schema.json")

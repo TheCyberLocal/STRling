@@ -14,6 +14,7 @@ scope:
         - strling
         - strling.ps1
         - toolchain.json
+        - tooling/architecture_fitness.py
         - tooling/contract_declarations.py
         - tooling/governance.py
         - tooling/index.md
@@ -164,8 +165,24 @@ checkpoints:
             result: passed
             details: Removing or downgrading an enforced registry surface is classified as breaking architecture drift and requires a breaking architecture declaration naming that exact surface.
     - name: Dependency architecture fitness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Dependency and placement controlled cases
+            command: python3 -m unittest tooling.tests.test_governance tooling.tests.test_governance_contracts
+            result: passed
+            details: Thirty-seven tests prove valid imports pass, forbidden imports fail, transitional violations report without failing, future rules remain non-blocking, new semantic islands require architecture declarations, schema references stay within authority roots, fixture authority stays bounded, and malformed policies or governed source fail closed.
+          - check: Repository-wide architecture analysis
+            command: ./strling governance --json
+            result: passed
+            details: Eight current rules pass for governance and quality dependency direction, generated-input acyclicity, fixture authority, task and top-level placement, specification schema references, and new tooling semantic islands.
+          - check: Evaluated transitional dependencies
+            command: ./strling governance --json
+            result: passed
+            details: The analyzer reports 34 duplicated binding compiler paths, 1094 implementation-derived fixture or generator paths, and six direct LSP-to-Python-binding imports as transitional evidence with explicit retirement conditions.
+          - check: Future-state separation
+            command: future-rule controlled case and repository-wide analysis
+            result: passed
+            details: The binding-to-canonical-core rule remains future and non-blocking until a canonical core exists and each adapter migration, legacy removal, and behavior-preservation certification is complete.
     - name: Quality and CI integration certification
       status: planned
       evidence: []
@@ -177,3 +194,5 @@ commits:
       subject: "docs(governance): define public contract and architecture fitness policy"
     - sha: ec5a250a178a75d43ddc4e5ca38e9e1f42adc581
       subject: "feat(governance): verify public API and contract snapshots"
+    - sha: c66960e5b9248f095ea84402b1fadb63f4b183e2
+      subject: "feat(governance): enforce public contract change declarations"

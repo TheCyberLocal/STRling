@@ -64,6 +64,12 @@
                 },
                 "semantic_names": {
                     "$ref": "#/$defs/paths"
+                },
+                "artifact_ids": {
+                    "$ref": "#/$defs/paths"
+                },
+                "allowed_authorities": {
+                    "$ref": "#/$defs/paths"
                 }
             }
         },
@@ -98,6 +104,7 @@
                         "forbidden-import",
                         "schema-reference-boundary",
                         "semantic-island-placement",
+                        "artifact-authority-boundary",
                         "tracked-transition"
                     ]
                 },
@@ -248,6 +255,26 @@
                                     "guarded_roots",
                                     "semantic_names",
                                     "requires_declaration"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": {
+                                "const": "artifact-authority-boundary"
+                            }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "artifact_ids",
+                                    "allowed_authorities"
                                 ]
                             }
                         }

@@ -93,3 +93,25 @@ condition; activation changes only its status and does not require a new rule
 framework. Weakening an enforced boundary requires an explicit breaking
 architecture declaration, affected rule or surface identifiers, and evidence
 for the replacement or bounded exception.
+
+## Certified current fitness boundaries
+
+Enforced rules now parse Python imports for governance and quality dependency
+boundaries, resolve JSON Schema references within specification-owned roots,
+bound implementation-derived fixture authority, and inspect newly added Python
+or JavaScript-family declarations for semantic implementation islands. These
+checks complement generated-input acyclicity and task or top-level placement
+rules. Malformed governed source fails closed.
+
+Transitional rules are evaluated and report evidence without becoming false
+fatal violations. They currently cover duplicated binding parsers, compilers,
+and emitters; implementation-derived shared fixtures; and direct LSP imports of
+the Python binding. Their retirement conditions remain attached to the rule
+registry, so promotion requires only changing `transitional` to `enforced` once
+the stated migration evidence exists.
+
+The binding-to-canonical-core rule remains future-state because no canonical
+core exists. It must not block the current repository or be used to claim that
+per-binding semantic implementations are already violations. The future rule
+activates per binding only after core implementation, adapter migration, legacy
+implementation removal, and behavior-preservation certification.
