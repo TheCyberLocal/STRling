@@ -13,6 +13,7 @@ scope:
     expected_files:
         - path/within/scope/expected-file
     permitted_generated_changes: []
+    expected_generated_outputs: []
     required_verification_levels:
         - contract
         - quality

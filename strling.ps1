@@ -292,6 +292,7 @@ function Show-Help {
     Write-Host "  bootstrap <lang|all>  Run setup, build, and test in sequence"
     Write-Host "  clean <lang|all>      Clean artifacts"
     Write-Host "  generate [--check]    Regenerate or verify registered artifacts"
+    Write-Host "  governance [--json]   Validate task scope and architecture rules"
     Write-Host "  audit                 Run the final audit report generator"
     Write-Host "  cache-dir <lang>      Print cache directory path"
     Write-Host "  lockfile <lang>       Print cache key lockfile"
@@ -326,6 +327,28 @@ switch ($Command) {
         Push-Location $PSScriptRoot
         try {
             & $pythonCommand "tooling/generated_artifacts.py" @generateArguments
+            exit $LASTEXITCODE
+        }
+        finally {
+            Pop-Location
+        }
+    }
+    "governance" {
+        $pythonCommand = Resolve-CommandName "python3"
+        if (-not $pythonCommand) {
+            Write-Error "Python is required to validate change governance."
+            exit 1
+        }
+        $governanceArguments = @()
+        if ($Language) {
+            $governanceArguments += $Language
+        }
+        if ($Options) {
+            $governanceArguments += $Options
+        }
+        Push-Location $PSScriptRoot
+        try {
+            & $pythonCommand "tooling/governance.py" @governanceArguments
             exit $LASTEXITCODE
         }
         finally {

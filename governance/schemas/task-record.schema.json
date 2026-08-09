@@ -104,6 +104,7 @@
                             "forbidden_paths",
                             "expected_files",
                             "permitted_generated_changes",
+                            "expected_generated_outputs",
                             "required_verification_levels",
                             "bounded_exemptions"
                         ]
@@ -190,6 +191,14 @@
                     "$ref": "#/$defs/pathSet"
                 },
                 "permitted_generated_changes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9][a-z0-9-]{2,63}$"
+                    },
+                    "uniqueItems": true
+                },
+                "expected_generated_outputs": {
                     "type": "array",
                     "items": {
                         "type": "string",

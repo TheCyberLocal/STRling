@@ -45,6 +45,7 @@ scope:
         - governance/schemas/task-record.schema.json
         - governance/templates/task-record.yaml
     permitted_generated_changes: []
+    expected_generated_outputs: []
     required_verification_levels:
         - contract
         - unit
@@ -145,10 +146,28 @@ checkpoints:
             result: passed
             details: Canonical repository formatting, lint, suppression governance, and patch integrity passed.
     - name: Task scope and architecture fitness enforcement
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical change governance
+            command: ./strling governance; ./strling governance --json
+            result: passed
+            details: The full diff from the recorded starting SHA passed schema, allowed/forbidden scope, expected-file, generated-output, change-declaration, and architecture checks in human and structured modes.
+          - check: Git diff and path semantics
+            command: python3 -m unittest tooling.tests.test_governance
+            result: passed
+            details: Seventeen tests covered allowed, forbidden, undeclared, renamed, deleted, case-sensitive glob, bounded exemption, expected generated output, semantic declaration, documentation-only, architecture violation, transition, new top-level directory, and malformed-record cases.
+          - check: Active architecture fitness
+            command: ./strling governance
+            result: passed
+            details: Five current rules passed for governance/product dependencies, quality/semantic dependencies, generated-input acyclicity, task-record placement, and new top-level directories; two transition rules and one future canonical-core rule remained non-blocking with explicit activation or retirement conditions.
+          - check: Generated-output governance
+            result: passed
+            details: Registered output changes require a generated_output_change declaration, permission by artifact identifier, and any expected identifier to appear in the actual diff; generated hygiene paths absent from the registry fail as unknown output.
+          - check: CI-reproducible diff selection
+            result: passed
+            details: The active v2 task record fixes the base commit and head mode; validation proves the base exists and is an ancestor, then includes committed, staged, unstaged, renamed, deleted, and untracked paths without relying on developer-local diff assumptions.
     - name: Quality and CI integration certification
-      status: planned
+      status: in_progress
       evidence: []
     - name: Completion and next-task readiness
       status: planned
@@ -156,3 +175,5 @@ checkpoints:
 commits:
     - sha: 30ff939c9d2dcef449c6088eeef1cf354245ab01
       subject: "docs(governance): define artifact and change-control contracts"
+    - sha: a1dd305649b0f5a7a689058d045ea4d05399a760
+      subject: "feat(quality): verify generated artifact integrity"

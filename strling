@@ -6,6 +6,7 @@ TOOLCHAIN="$DIR/toolchain.json"
 SELF="$DIR/strling"
 QUALITY_RUNNER="$DIR/tooling/quality.py"
 GENERATED_ARTIFACT_RUNNER="$DIR/tooling/generated_artifacts.py"
+GOVERNANCE_RUNNER="$DIR/tooling/governance.py"
 
 if ! command -v python3 >/dev/null 2>&1; then
     echo "Error: python3 is required to run this script."
@@ -399,6 +400,7 @@ print_help() {
     echo "  lint [lang|all]              Run configured static analyzers"
     echo "  hygiene                      Validate tracked repository artifacts"
     echo "  generate [--check] [--json]  Regenerate or verify registered artifacts"
+    echo "  governance [--json]          Validate task scope and architecture rules"
     echo "  typecheck [lang|all]         Run configured type/static analysis"
     echo "  setup <lang|all>      Install prerequisites and dependencies"
     echo "  build <lang|all>      Build a binding if it has a build step"
@@ -417,6 +419,7 @@ print_help() {
     echo "Examples:"
     echo "  ./strling format --check"
     echo "  ./strling generate --check"
+    echo "  ./strling governance"
     echo "  ./strling check"
     echo "  ./strling environment typescript"
     echo "  ./strling lint rust"
@@ -454,6 +457,16 @@ if [[ "$COMMAND" == "generate" ]]; then
     fi
     cd "$DIR" || exit 1
     python3 "$GENERATED_ARTIFACT_RUNNER" "${@:2}"
+    exit $?
+fi
+
+if [[ "$COMMAND" == "governance" ]]; then
+    if [[ ! -f "$GOVERNANCE_RUNNER" ]]; then
+        echo "Error: governance runner not found at $GOVERNANCE_RUNNER"
+        exit 1
+    fi
+    cd "$DIR" || exit 1
+    python3 "$GOVERNANCE_RUNNER" "${@:2}"
     exit $?
 fi
 
