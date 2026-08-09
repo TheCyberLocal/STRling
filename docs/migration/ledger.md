@@ -40,7 +40,8 @@ transitional repository.
 
 | Checkpoint | Result | Commit | Verification |
 | --- | --- | --- | --- |
-| Scope and baseline lock | Passed | Recorded by the governance-foundation commit | Starting SHA and documentation inventory recorded; JSON schemas and YAML templates parsed and validated; `git diff --check` passed; TypeScript suite passed (19 suites, 963 tests) |
+| Scope and baseline lock | Passed | `252d16b495d573051d8c317c980423bcc2bbc64b` | Starting SHA and documentation inventory recorded; JSON schemas and YAML templates parsed and validated; `git diff --check` passed; TypeScript suite passed (19 suites, 963 tests) |
+| Constitution and authority contract | Passed | Recorded by the constitution-and-authority commit | Permanent engineering rules, artifact precedence, and target invariants reviewed against the specification, architecture, testing, contribution, and release documentation; local Markdown links and `git diff --check` passed |
 
 The TypeScript run emitted the existing `ts-jest` TS151002 configuration warning.
 No TypeScript source, test, or configuration differs from the recorded `dev`
