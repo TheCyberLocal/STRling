@@ -47,7 +47,29 @@ checkpoints:
           subject: "feat(quality): integrate canonical static analysis"
           sha: pending
     - name: Warning and suppression governance
-      status: pending
+      status: passed
+      accomplishment:
+          - Made C#, F#, Dart, Java, Kotlin, Rust, Swift, Perl, and Ruby warning paths fatal through compiler/analyzer flags or trustworthy wrapper handling.
+          - Added token-aware tracked-source suppression detection for Python plus directive detection for every active source family.
+          - Matched all 92 existing directives to four exact-path policy waivers; new or moved directives, count drift, invalid records, and expired bounded waivers fail.
+          - Kept the C truncation and TypeScript callable-Pattern findings recorded as product defects rather than silencing them.
+      verification:
+          - command: python tooling/static_analysis.py suppressions
+            result: Passed with 92 managed directives, four waivers, and zero findings after staging the scanner and its tests.
+          - command: python -m unittest tooling.tests.test_static_analysis
+            result: Seven tests passed for managed, unmanaged, expired, invalid, broad directive, repository baseline, and warning-to-failure cases.
+          - command: python -m json.tool toolchain.json; python -m json.tool governance/static-analysis.json; python -m py_compile tooling/quality.py tooling/static_analysis.py
+            result: Governance and implementation parsed successfully.
+          - command: Strict warning command baselines from checkpoint one plus explicit fatal flags in toolchain.json, pom.xml, and build.gradle.kts
+            result: Clean compiler paths are fatal now; Dart, Kotlin, Ruby, and Rust remain intentionally red until behavior-neutral checkpoint-four remediation.
+      active_waivers:
+          - WVR-STATIC-PYTHON-001 expires 2027-02-01
+          - WVR-STATIC-TYPESCRIPT-PATTERN-001 expires 2027-01-15 and records suspected product behavior
+          - WVR-STATIC-RUST-ALLOW-001 expires 2026-12-31
+          - WVR-STATIC-SHELL-INTEROP-001 is a narrow permanent interoperability exception
+      commit:
+          subject: "feat(quality): govern warnings and analyzer suppressions"
+          sha: pending
     - name: Behavior-neutral static-quality remediation
       status: pending
     - name: Hardgate integration and certification

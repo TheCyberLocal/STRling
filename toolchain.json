@@ -357,12 +357,7 @@
                 "--check"
             ],
             "hygiene": ["python3", "tooling/hygiene.py"],
-            "lint": [
-                "python3",
-                "tooling/static_analysis.py",
-                "ruff",
-                "repository"
-            ]
+            "lint": ["python3", "tooling/static_analysis.py", "repository"]
         },
         "lsp": {
             "path": "tooling/lsp-server",
@@ -534,8 +529,8 @@
                 "csharp",
                 "--check"
             ],
-            "command_aliases": { "typecheck": "build" },
-            "lint": ["dotnet", "build", "--no-restore"],
+            "command_aliases": { "typecheck": "lint" },
+            "lint": ["dotnet", "build", "--no-restore", "-warnaserror"],
             "required_bins": ["dotnet"],
             "install": {
                 "winget": ["Microsoft.DotNet.SDK.9"],
@@ -585,7 +580,7 @@
                 "brew": ["dart"]
             },
             "setup": ["dart", "pub", "get"],
-            "lint": ["dart", "analyze", "--no-fatal-warnings"],
+            "lint": ["dart", "analyze"],
             "clean": ["rm", "-rf", ".dart_tool", "pubspec.lock"],
             "test": ["dart", "test", "-r", "expanded"]
         },
@@ -614,8 +609,8 @@
                 "build": "configured",
                 "test": "configured"
             },
-            "command_aliases": { "typecheck": "build" },
-            "lint": ["dotnet", "build", "--no-restore"],
+            "command_aliases": { "typecheck": "lint" },
+            "lint": ["dotnet", "build", "--no-restore", "-warnaserror"],
             "required_bins": ["dotnet"],
             "install": {
                 "winget": ["Microsoft.DotNet.SDK.9"],
@@ -687,7 +682,7 @@
                 "build": "configured",
                 "test": "configured"
             },
-            "command_aliases": { "typecheck": "build" },
+            "command_aliases": { "typecheck": "lint" },
             "required_bins": ["java", "mvn"],
             "install": {
                 "apt": ["default-jdk", "maven"],
@@ -725,7 +720,7 @@
                 "build": "configured",
                 "test": "configured"
             },
-            "command_aliases": { "typecheck": "build" },
+            "command_aliases": { "typecheck": "lint" },
             "required_bins": ["java"],
             "install": {
                 "apt": ["default-jdk"],
@@ -1076,7 +1071,13 @@
             "setup": [],
             "build": ["cargo", "build"],
             "clean": ["cargo", "clean"],
-            "typecheck": ["cargo", "check"],
+            "typecheck": [
+                "env",
+                "RUSTFLAGS=-Dwarnings",
+                "cargo",
+                "check",
+                "--all-targets"
+            ],
             "test": [
                 "cargo",
                 "test",
@@ -1117,10 +1118,17 @@
                     "retirement_condition": "Pin SwiftLint with defect-focused rules that exclude naming and formatting policy."
                 }
             },
-            "command_aliases": { "typecheck": "build" },
             "required_bins": ["swift"],
             "setup": [],
             "build": ["swift", "build", "--jobs", "1"],
+            "typecheck": [
+                "swift",
+                "build",
+                "--jobs",
+                "1",
+                "-Xswiftc",
+                "-warnings-as-errors"
+            ],
             "clean": ["swift", "package", "clean"],
             "test": [
                 "swift",

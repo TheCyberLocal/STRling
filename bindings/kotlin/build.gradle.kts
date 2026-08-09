@@ -38,6 +38,9 @@ tasks.test {
 }
 
 kotlin {
+    compilerOptions {
+        allWarningsAsErrors = true
+    }
 }
 
 publishing {

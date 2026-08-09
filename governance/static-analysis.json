@@ -20,6 +20,7 @@
             "suspected_product_defect"
         ],
         "baseline_total": 92,
+        "baseline_sha": "bb334b0980327b8f3599cd6da0562022c365641a",
         "inventory_groups": [
             {
                 "kind": "python",
@@ -106,6 +107,72 @@
                 "locations": {
                     "bindings/c/setup.sh": [71, 83, 97, 111],
                     "bindings/kotlin/gradlew": [86, 149, 157]
+                }
+            }
+        ],
+        "waivers": [
+            {
+                "id": "WVR-STATIC-PYTHON-001",
+                "classification": "bounded_transition",
+                "expires_on": "2027-02-01",
+                "reason": "The governed Python paths contain pre-existing import-order, re-export, and type-checker directives while no repository type checker is pinned.",
+                "retirement_condition": "Retain only coded interop exceptions and retire broad type ignores as Python type analysis becomes enforceable.",
+                "path_counts": {
+                    "bindings/python/src/STRling/core/compiler.py": 13,
+                    "bindings/python/src/STRling/core/intelligence.py": 3,
+                    "bindings/python/src/STRling/core/validator.py": 2,
+                    "bindings/python/src/STRling/simply/pattern.py": 2,
+                    "bindings/python/tests/unit/test_conformance.py": 3,
+                    "tooling/audit_hints.py": 10,
+                    "tooling/hygiene.py": 4,
+                    "tooling/lsp-server/island_extractor.py": 1,
+                    "tooling/lsp-server/server.py": 1,
+                    "tooling/lsp-server/server/island_extractor.py": 1,
+                    "tooling/lsp-server/server/server.py": 1,
+                    "tooling/lsp-server/tests/test_code_actions.py": 3,
+                    "tooling/lsp-server/tests/test_diagnostics.py": 3,
+                    "tooling/lsp-server/tests/test_island_extractor.py": 1,
+                    "tooling/lsp-server/tests/test_navigation.py": 4,
+                    "tooling/lsp-server/tests/test_parser_exhaustive.py": 2,
+                    "tooling/parse_strl.py": 3,
+                    "tooling/quality.py": 4,
+                    "tooling/tests/test_formatting.py": 2,
+                    "tooling/tests/test_hygiene.py": 1,
+                    "tooling/tests/test_quality.py": 12
+                }
+            },
+            {
+                "id": "WVR-STATIC-TYPESCRIPT-PATTERN-001",
+                "classification": "suspected_product_defect",
+                "expires_on": "2027-01-15",
+                "reason": "Three tests suppress type errors around the potentially semantic callable-Pattern public contract.",
+                "retirement_condition": "Resolve the callable-Pattern contract as contained product work and remove or replace all three directives.",
+                "path_counts": {
+                    "bindings/typescript/__tests__/unit/simply_api.test.ts": 3
+                }
+            },
+            {
+                "id": "WVR-STATIC-RUST-ALLOW-001",
+                "classification": "obsolete_removable",
+                "expires_on": "2026-12-31",
+                "reason": "Six allow attributes predate strict all-target rustc analysis and require individual removal review.",
+                "retirement_condition": "Remove every obsolete attribute and separately govern any remaining attribute whose removal exposes semantic work.",
+                "path_counts": {
+                    "bindings/rust/src/core/nodes.rs": 1,
+                    "bindings/rust/src/core/parser.rs": 2,
+                    "bindings/rust/src/core/validator.rs": 1,
+                    "bindings/rust/tests/e2e_tests.rs": 1,
+                    "bindings/rust/tests/unit_tests.rs": 1
+                }
+            },
+            {
+                "id": "WVR-STATIC-SHELL-INTEROP-001",
+                "classification": "permanent_interoperability",
+                "reason": "The C setup script intentionally expands package lists and the repository-managed Gradle wrapper carries upstream portability directives.",
+                "retirement_condition": "Re-audit when package installation or the Gradle wrapper changes.",
+                "path_counts": {
+                    "bindings/c/setup.sh": 4,
+                    "bindings/kotlin/gradlew": 3
                 }
             }
         ]
@@ -264,7 +331,7 @@
                 "format": "enforced",
                 "lint": "configured",
                 "type_static_analysis": "configured",
-                "compiler_warnings": "configured",
+                "compiler_warnings": "enforced",
                 "tests": "configured"
             },
             "lint_strategy": "dotnet-csharp",
@@ -291,7 +358,7 @@
                 "format": "not_yet_enforceable",
                 "lint": "configured",
                 "type_static_analysis": "configured",
-                "compiler_warnings": "configured",
+                "compiler_warnings": "enforced",
                 "tests": "configured"
             },
             "lint_strategy": "dotnet-fsharp",
@@ -317,7 +384,7 @@
                 "format": "not_yet_enforceable",
                 "lint": "configured",
                 "type_static_analysis": "configured",
-                "compiler_warnings": "configured",
+                "compiler_warnings": "enforced",
                 "tests": "configured"
             },
             "lint_strategy": "javac-xlint",
@@ -358,7 +425,7 @@
                 "format": "not_yet_enforceable",
                 "lint": "configured",
                 "type_static_analysis": "not_applicable",
-                "compiler_warnings": "configured",
+                "compiler_warnings": "enforced",
                 "tests": "configured"
             },
             "lint_strategy": "perl-compile",
@@ -441,7 +508,7 @@
                 "format": "not_yet_enforceable",
                 "lint": "not_yet_enforceable",
                 "type_static_analysis": "configured",
-                "compiler_warnings": "configured",
+                "compiler_warnings": "enforced",
                 "tests": "configured"
             },
             "lint_strategy": "swiftlint",
