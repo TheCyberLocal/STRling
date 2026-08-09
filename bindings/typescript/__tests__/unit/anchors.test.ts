@@ -57,7 +57,6 @@ describe("Category A: Positive Cases", () => {
      * that each anchor token is parsed into the correct Anchor node with the
      * expected `at` value.
      */
-
 });
 
 describe("Category B: Negative Cases", () => {
@@ -73,8 +72,6 @@ describe("Category C: Edge Cases", () => {
     /**
      * Covers edge cases related to the position and combination of anchors.
      */
-
-
 });
 
 describe("Category D: Interaction Cases", () => {
@@ -83,10 +80,8 @@ describe("Category D: Interaction Cases", () => {
      * and grouping constructs.
      */
 
-
     // Define a type for the constructor of Node subclasses for cleaner type hinting
     type NodeConstructor = new (...args: any[]) => Group | Look;
-
 });
 
 // --- New Test Stubs for 3-Test Standard Compliance -----------------------------
@@ -95,54 +90,37 @@ describe("Category E: Anchors in Complex Sequences", () => {
     /**
      * Tests for anchors in complex sequences with quantified atoms.
      */
-
-
-
-
 });
 
 describe("Category F: Anchors in Alternation", () => {
     /**
      * Tests for anchors used in alternation patterns.
      */
-
-
-
 });
 
 describe("Category G: Anchors in Atomic Groups", () => {
     /**
      * Tests for anchors inside atomic groups.
      */
-
-
-
 });
 
 describe("Category H: Word Boundary Edge Cases", () => {
     /**
      * Tests for word boundary anchors in various contexts.
      */
-
-
-
 });
 
 describe("Category I: Multiple Anchor Types", () => {
     /**
      * Tests for patterns combining different anchor types.
      */
-
-
-
-
 });
 
 describe("Category J: Anchors with Quantifiers", () => {
     /**
      * Tests confirming that anchors themselves cannot be quantified.
      */
-
-
 });
-test("Tests migrated to conformance suite", () => { expect(true).toBe(true); });
+test("Tests migrated to conformance suite", () => {
+    expect(true).toBe(true);
+});

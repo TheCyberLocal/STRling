@@ -6,35 +6,183 @@
     "prohibited_patterns": [
         {
             "id": "temporary-copies",
-            "patterns": ["*.tmp", "**/*.tmp", "*.new", "**/*.new", "*.bak", "**/*.bak", "*.orig", "**/*.orig", "*~", "**/*~"]
+            "patterns": [
+                "*.tmp",
+                "**/*.tmp",
+                "*.new",
+                "**/*.new",
+                "*.bak",
+                "**/*.bak",
+                "*.orig",
+                "**/*.orig",
+                "*~",
+                "**/*~"
+            ]
         },
         {
             "id": "editor-state",
-            "patterns": [".idea/**", "**/.idea/**", ".vscode/**", "**/.vscode/**", ".vs/**", "**/.vs/**", "*.code-workspace", "**/*.code-workspace", "*.suo", "**/*.suo", "*.user", "**/*.user", "*.swp", "**/*.swp"]
+            "patterns": [
+                ".idea/**",
+                "**/.idea/**",
+                ".vscode/**",
+                "**/.vscode/**",
+                ".vs/**",
+                "**/.vs/**",
+                "*.code-workspace",
+                "**/*.code-workspace",
+                "*.suo",
+                "**/*.suo",
+                "*.user",
+                "**/*.user",
+                "*.swp",
+                "**/*.swp"
+            ]
         },
         {
             "id": "logs-and-test-state",
-            "patterns": ["*.log", "**/*.log", "*.status", "**/*.status", ".rspec_status", "**/.rspec_status", "test_output.txt", "**/test_output.txt", "npm-debug.log*", "**/npm-debug.log*", "yarn-error.log*", "**/yarn-error.log*"]
+            "patterns": [
+                "*.log",
+                "**/*.log",
+                "*.status",
+                "**/*.status",
+                ".rspec_status",
+                "**/.rspec_status",
+                "test_output.txt",
+                "**/test_output.txt",
+                "npm-debug.log*",
+                "**/npm-debug.log*",
+                "yarn-error.log*",
+                "**/yarn-error.log*"
+            ]
         },
         {
             "id": "coverage-output",
-            "patterns": [".coverage", "**/.coverage", "coverage/**", "**/coverage/**", "htmlcov/**", "**/htmlcov/**", "coverage.xml", "**/coverage.xml", "lcov.info", "**/lcov.info"]
+            "patterns": [
+                ".coverage",
+                "**/.coverage",
+                "coverage/**",
+                "**/coverage/**",
+                "htmlcov/**",
+                "**/htmlcov/**",
+                "coverage.xml",
+                "**/coverage.xml",
+                "lcov.info",
+                "**/lcov.info"
+            ]
         },
         {
             "id": "package-products",
-            "patterns": ["dist/**", "**/dist/**", "vendor/**", "**/vendor/**", "node_modules/**", "**/node_modules/**", "*.gem", "**/*.gem", "*.whl", "**/*.whl", "*.nupkg", "**/*.nupkg", "*.vsix", "**/*.vsix"]
+            "patterns": [
+                "dist/**",
+                "**/dist/**",
+                "vendor/**",
+                "**/vendor/**",
+                "node_modules/**",
+                "**/node_modules/**",
+                "*.gem",
+                "**/*.gem",
+                "*.whl",
+                "**/*.whl",
+                "*.nupkg",
+                "**/*.nupkg",
+                "*.vsix",
+                "**/*.vsix"
+            ]
         },
         {
             "id": "compiler-and-build-output",
-            "patterns": ["build/**", "**/build/**", "target/**", "**/target/**", "bin/**", "**/bin/**", "obj/**", "**/obj/**", ".build/**", "**/.build/**", ".dart_tool/**", "**/.dart_tool/**", ".gradle/**", "**/.gradle/**", "__pycache__/**", "**/__pycache__/**", "*.egg-info/**", "**/*.egg-info/**", "blib/**", "**/blib/**", "_build/**", "**/_build/**", "*.o", "**/*.o", "*.a", "**/*.a", "*.so", "**/*.so", "*.dylib", "**/*.dylib", "*.class", "**/*.class", "*.pyc", "**/*.pyc", "*.pyo", "**/*.pyo", "*.exe", "**/*.exe", "*.dll", "**/*.dll"]
+            "patterns": [
+                "build/**",
+                "**/build/**",
+                "target/**",
+                "**/target/**",
+                "bin/**",
+                "**/bin/**",
+                "obj/**",
+                "**/obj/**",
+                ".build/**",
+                "**/.build/**",
+                ".dart_tool/**",
+                "**/.dart_tool/**",
+                ".gradle/**",
+                "**/.gradle/**",
+                "__pycache__/**",
+                "**/__pycache__/**",
+                "*.egg-info/**",
+                "**/*.egg-info/**",
+                "blib/**",
+                "**/blib/**",
+                "_build/**",
+                "**/_build/**",
+                "*.o",
+                "**/*.o",
+                "*.a",
+                "**/*.a",
+                "*.so",
+                "**/*.so",
+                "*.dylib",
+                "**/*.dylib",
+                "*.class",
+                "**/*.class",
+                "*.pyc",
+                "**/*.pyc",
+                "*.pyo",
+                "**/*.pyo",
+                "*.exe",
+                "**/*.exe",
+                "*.dll",
+                "**/*.dll"
+            ]
         },
         {
             "id": "archives-and-packages",
-            "patterns": ["*.zip", "**/*.zip", "*.tar", "**/*.tar", "*.tgz", "**/*.tgz", "*.tar.gz", "**/*.tar.gz", "*.gz", "**/*.gz", "*.7z", "**/*.7z", "*.rar", "**/*.rar", "*.jar", "**/*.jar", "*.war", "**/*.war"]
+            "patterns": [
+                "*.zip",
+                "**/*.zip",
+                "*.tar",
+                "**/*.tar",
+                "*.tgz",
+                "**/*.tgz",
+                "*.tar.gz",
+                "**/*.tar.gz",
+                "*.gz",
+                "**/*.gz",
+                "*.7z",
+                "**/*.7z",
+                "*.rar",
+                "**/*.rar",
+                "*.jar",
+                "**/*.jar",
+                "*.war",
+                "**/*.war"
+            ]
         },
         {
             "id": "credential-like-files",
-            "patterns": [".env", "**/.env", ".env.*", "**/.env.*", "credentials.json", "**/credentials.json", "credentials.yml", "**/credentials.yml", "secrets.json", "**/secrets.json", "id_rsa", "**/id_rsa", "id_ed25519", "**/id_ed25519", "*.pem", "**/*.pem", "*.p12", "**/*.p12", "*.pfx", "**/*.pfx", "*.key", "**/*.key"]
+            "patterns": [
+                ".env",
+                "**/.env",
+                ".env.*",
+                "**/.env.*",
+                "credentials.json",
+                "**/credentials.json",
+                "credentials.yml",
+                "**/credentials.yml",
+                "secrets.json",
+                "**/secrets.json",
+                "id_rsa",
+                "**/id_rsa",
+                "id_ed25519",
+                "**/id_ed25519",
+                "*.pem",
+                "**/*.pem",
+                "*.p12",
+                "**/*.p12",
+                "*.pfx",
+                "**/*.pfx",
+                "*.key",
+                "**/*.key"
+            ]
         }
     ],
     "allowed_intentional_artifacts": [
@@ -46,19 +194,33 @@
     ],
     "generated_paths": [
         {
-            "paths": ["tests/spec/**", "bindings/c/tests/fixtures/**", "bindings/swift/Tests/STRlingConformanceTests/Resources/**"],
+            "paths": [
+                "tests/spec/**",
+                "bindings/c/tests/fixtures/**",
+                "bindings/swift/Tests/STRlingConformanceTests/Resources/**"
+            ],
             "owner": "STRling fixture generation and binding copy pipelines",
             "text_normalization": "serializer_owned",
             "rationale": "Fixture bytes, including the absence of a final newline, are controlled by the producer and may be exact test inputs."
         },
         {
-            "paths": ["**/package-lock.json", "bindings/dart/pubspec.lock", "bindings/php/composer.lock", "bindings/ruby/Gemfile.lock", "bindings/rust/Cargo.lock"],
+            "paths": [
+                "**/package-lock.json",
+                "bindings/dart/pubspec.lock",
+                "bindings/php/composer.lock",
+                "bindings/ruby/Gemfile.lock",
+                "bindings/rust/Cargo.lock"
+            ],
             "owner": "Owning package manager",
             "text_normalization": "serializer_owned",
             "rationale": "Lock-file layout is controlled by the package manager."
         },
         {
-            "paths": ["docs/generated/**", "tooling/js_to_json_ast/out/**", "tooling/lsp-server/dist/**"],
+            "paths": [
+                "docs/generated/**",
+                "tooling/js_to_json_ast/out/**",
+                "tooling/lsp-server/dist/**"
+            ],
             "owner": "Owning repository generator",
             "text_normalization": "serializer_owned",
             "rationale": "Generated outputs must be reproduced rather than hand-normalized."
@@ -84,9 +246,71 @@
         "crlf_paths": ["strling.ps1"],
         "require_final_newline": true,
         "forbid_trailing_whitespace": true,
-        "extensions": [".c", ".cc", ".cpp", ".cs", ".dart", ".ebnf", ".fs", ".fsi", ".fsx", ".go", ".h", ".hh", ".hpp", ".ini", ".java", ".js", ".json", ".kt", ".kts", ".lua", ".md", ".mjs", ".php", ".pl", ".pm", ".properties", ".ps1", ".py", ".r", ".rb", ".rockspec", ".rs", ".sh", ".sln", ".t", ".toml", ".ts", ".txt", ".xml", ".yaml", ".yml"],
-        "special_files": [".gitattributes", ".gitignore", ".prettierignore", ".prettierrc", "DESCRIPTION", "Gemfile", "Makefile", "NAMESPACE", "Rakefile", "strling"],
-        "excluded_paths": ["tests/spec/**", "bindings/c/tests/fixtures/**", "bindings/swift/Tests/STRlingConformanceTests/Resources/**", "**/package-lock.json", "bindings/dart/pubspec.lock", "bindings/php/composer.lock", "bindings/ruby/Gemfile.lock", "bindings/rust/Cargo.lock"]
+        "extensions": [
+            ".c",
+            ".cc",
+            ".cpp",
+            ".cs",
+            ".dart",
+            ".ebnf",
+            ".fs",
+            ".fsi",
+            ".fsx",
+            ".go",
+            ".h",
+            ".hh",
+            ".hpp",
+            ".ini",
+            ".java",
+            ".js",
+            ".json",
+            ".kt",
+            ".kts",
+            ".lua",
+            ".md",
+            ".mjs",
+            ".php",
+            ".pl",
+            ".pm",
+            ".properties",
+            ".ps1",
+            ".py",
+            ".r",
+            ".rb",
+            ".rockspec",
+            ".rs",
+            ".sh",
+            ".sln",
+            ".t",
+            ".toml",
+            ".ts",
+            ".txt",
+            ".xml",
+            ".yaml",
+            ".yml"
+        ],
+        "special_files": [
+            ".gitattributes",
+            ".gitignore",
+            ".prettierignore",
+            ".prettierrc",
+            "DESCRIPTION",
+            "Gemfile",
+            "Makefile",
+            "NAMESPACE",
+            "Rakefile",
+            "strling"
+        ],
+        "excluded_paths": [
+            "tests/spec/**",
+            "bindings/c/tests/fixtures/**",
+            "bindings/swift/Tests/STRlingConformanceTests/Resources/**",
+            "**/package-lock.json",
+            "bindings/dart/pubspec.lock",
+            "bindings/php/composer.lock",
+            "bindings/ruby/Gemfile.lock",
+            "bindings/rust/Cargo.lock"
+        ]
     },
     "private_key_markers": [
         "-----BEGIN RSA PRIVATE KEY-----",
@@ -107,7 +331,10 @@
     "case_collision_waivers": [
         {
             "waiver": "WVR-PERL-PARSER-CASE-001",
-            "paths": ["bindings/perl/lib/STRling/Core/Parser.pm", "bindings/perl/lib/STRling/Core/parser.pm"]
+            "paths": [
+                "bindings/perl/lib/STRling/Core/Parser.pm",
+                "bindings/perl/lib/STRling/Core/parser.pm"
+            ]
         }
     ]
 }

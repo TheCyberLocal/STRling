@@ -57,15 +57,16 @@ class Literal extends Node {
       'value': value,
     };
   }
-  
+
   Map<String, dynamic> toClassItem() {
-      if (value.length != 1) {
-          throw FormatException('Literal in character class must be single char, got $value');
-      }
-      return {
-          'ir': 'Char',
-          'char': value,
-      };
+    if (value.length != 1) {
+      throw FormatException(
+          'Literal in character class must be single char, got $value');
+    }
+    return {
+      'ir': 'Char',
+      'char': value,
+    };
   }
 }
 
@@ -76,7 +77,9 @@ class Sequence extends Node {
 
   factory Sequence.fromJson(Map<String, dynamic> json) {
     return Sequence(
-      (json['parts'] as List).map((e) => Node.fromJson(e as Map<String, dynamic>)).toList(),
+      (json['parts'] as List)
+          .map((e) => Node.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -85,7 +88,9 @@ class Sequence extends Node {
     final newParts = <Map<String, dynamic>>[];
     for (final part in parts) {
       final ir = part.toIR();
-      if (ir['ir'] == 'Lit' && newParts.isNotEmpty && newParts.last['ir'] == 'Lit') {
+      if (ir['ir'] == 'Lit' &&
+          newParts.isNotEmpty &&
+          newParts.last['ir'] == 'Lit') {
         newParts.last['value'] = newParts.last['value'] + ir['value'];
       } else {
         newParts.add(ir);
@@ -110,7 +115,9 @@ class Alternation extends Node {
 
   factory Alternation.fromJson(Map<String, dynamic> json) {
     return Alternation(
-      (json['alternatives'] as List).map((e) => Node.fromJson(e as Map<String, dynamic>)).toList(),
+      (json['alternatives'] as List)
+          .map((e) => Node.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -184,7 +191,8 @@ class Quantifier extends Node {
   @override
   Map<String, dynamic> toIR() {
     String mode = 'Greedy';
-    if (lazy) mode = 'Lazy';
+    if (lazy)
+      mode = 'Lazy';
     else if (possessive) mode = 'Possessive';
 
     return {
@@ -206,7 +214,9 @@ class CharacterClass extends Node {
   factory CharacterClass.fromJson(Map<String, dynamic> json) {
     return CharacterClass(
       negated: json['negated'] as bool? ?? false,
-      members: (json['members'] as List).map((e) => Node.fromJson(e as Map<String, dynamic>)).toList(),
+      members: (json['members'] as List)
+          .map((e) => Node.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -216,11 +226,12 @@ class CharacterClass extends Node {
       'ir': 'CharClass',
       'negated': negated,
       'items': members.map((e) {
-          if (e is Literal) return e.toClassItem();
-          if (e is Range) return e.toClassItem();
-          if (e is Escape) return e.toClassItem();
-          if (e is UnicodeProperty) return e.toClassItem();
-          throw FormatException('Unsupported node type in character class: ${e.runtimeType}');
+        if (e is Literal) return e.toClassItem();
+        if (e is Range) return e.toClassItem();
+        if (e is Escape) return e.toClassItem();
+        if (e is UnicodeProperty) return e.toClassItem();
+        throw FormatException(
+            'Unsupported node type in character class: ${e.runtimeType}');
       }).toList(),
     };
   }
@@ -243,13 +254,13 @@ class Range extends Node {
   Map<String, dynamic> toIR() {
     throw FormatException('Range cannot be used as a standalone IR node');
   }
-  
+
   Map<String, dynamic> toClassItem() {
-      return {
-          'ir': 'Range',
-          'from': from,
-          'to': to,
-      };
+    return {
+      'ir': 'Range',
+      'from': from,
+      'to': to,
+    };
   }
 }
 
@@ -319,12 +330,22 @@ class Lookaround extends Node {
     final type = json['type'] as String;
     String dir;
     bool neg;
-    
-    if (type == 'Lookahead') { dir = 'Ahead'; neg = false; }
-    else if (type == 'Lookbehind') { dir = 'Behind'; neg = false; }
-    else if (type == 'NegativeLookahead') { dir = 'Ahead'; neg = true; }
-    else if (type == 'NegativeLookbehind') { dir = 'Behind'; neg = true; }
-    else { throw FormatException('Invalid lookaround type: $type'); }
+
+    if (type == 'Lookahead') {
+      dir = 'Ahead';
+      neg = false;
+    } else if (type == 'Lookbehind') {
+      dir = 'Behind';
+      neg = false;
+    } else if (type == 'NegativeLookahead') {
+      dir = 'Ahead';
+      neg = true;
+    } else if (type == 'NegativeLookbehind') {
+      dir = 'Behind';
+      neg = true;
+    } else {
+      throw FormatException('Invalid lookaround type: $type');
+    }
 
     return Lookaround(
       dir: dir,
@@ -357,22 +378,35 @@ class Escape extends Node {
   Map<String, dynamic> toIR() {
     throw FormatException('Escape cannot be used as a standalone IR node');
   }
-  
+
   Map<String, dynamic> toClassItem() {
-      String type;
-      switch (kind) {
-          case 'digit': type = 'd'; break;
-          case 'not-digit': type = 'D'; break;
-          case 'word': type = 'w'; break;
-          case 'not-word': type = 'W'; break;
-          case 'space': type = 's'; break;
-          case 'not-space': type = 'S'; break;
-          default: throw FormatException('Unknown escape kind: $kind');
-      }
-      return {
-          'ir': 'Esc',
-          'type': type,
-      };
+    String type;
+    switch (kind) {
+      case 'digit':
+        type = 'd';
+        break;
+      case 'not-digit':
+        type = 'D';
+        break;
+      case 'word':
+        type = 'w';
+        break;
+      case 'not-word':
+        type = 'W';
+        break;
+      case 'space':
+        type = 's';
+        break;
+      case 'not-space':
+        type = 'S';
+        break;
+      default:
+        throw FormatException('Unknown escape kind: $kind');
+    }
+    return {
+      'ir': 'Esc',
+      'type': type,
+    };
   }
 }
 
@@ -391,14 +425,15 @@ class UnicodeProperty extends Node {
 
   @override
   Map<String, dynamic> toIR() {
-    throw FormatException('UnicodeProperty cannot be used as a standalone IR node');
+    throw FormatException(
+        'UnicodeProperty cannot be used as a standalone IR node');
   }
-  
+
   Map<String, dynamic> toClassItem() {
-      return {
-          'ir': 'Esc',
-          'type': negated ? 'P' : 'p',
-          'property': value,
-      };
+    return {
+      'ir': 'Esc',
+      'type': negated ? 'P' : 'p',
+      'property': value,
+    };
   }
 }

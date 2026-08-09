@@ -6,9 +6,9 @@ This guide explains how to set up the STRling Language Server Protocol (LSP) for
 
 ## Prerequisites
 
-- Python 3.8 or higher
-- pip (Python package manager)
-- A compatible code editor (VS Code, Neovim, Sublime Text, etc.)
+-   Python 3.8 or higher
+-   pip (Python package manager)
+-   A compatible code editor (VS Code, Neovim, Sublime Text, etc.)
 
 ## Installation
 
@@ -31,8 +31,8 @@ npm run assemble
 
 This will install:
 
-- `pygls` - Python Generic Language Server implementation
-- `lsprotocol` - LSP protocol types
+-   `pygls` - Python Generic Language Server implementation
+-   `lsprotocol` - LSP protocol types
 
 ### 3. Verify Installation
 
@@ -144,8 +144,8 @@ lspconfig.strling.setup{}
 
 The LSP server will automatically activate for files with these extensions:
 
-- `.strl` - Recommended
-- `.strling` - Alternative
+-   `.strl` - Recommended
+-   `.strling` - Alternative
 
 You may need to configure your editor to recognize these file types.
 
@@ -153,20 +153,20 @@ You may need to configure your editor to recognize these file types.
 
 ### Current (MVP)
 
-- ✅ **Real-time Diagnostics**: Instant error detection as you type
-- ✅ **Instructional Hints**: Beginner-friendly error messages
-- ✅ **Position Tracking**: Accurate error location (line/column)
-- ✅ **Multi-line Support**: Handles patterns spanning multiple lines
-- ✅ **Rich Error Context**: Shows error line with caret indicator
+-   ✅ **Real-time Diagnostics**: Instant error detection as you type
+-   ✅ **Instructional Hints**: Beginner-friendly error messages
+-   ✅ **Position Tracking**: Accurate error location (line/column)
+-   ✅ **Multi-line Support**: Handles patterns spanning multiple lines
+-   ✅ **Rich Error Context**: Shows error line with caret indicator
 
 ### Planned Features
 
-- 🔨 Code completion for STRling syntax
-- 🔨 Hover documentation
-- 🔨 Go to definition for named groups
-- 🔨 Symbol highlighting
-- 🔨 Quick fixes and refactoring
-- 🔨 Pattern snippets
+-   🔨 Code completion for STRling syntax
+-   🔨 Hover documentation
+-   🔨 Go to definition for named groups
+-   🔨 Symbol highlighting
+-   🔨 Quick fixes and refactoring
+-   🔨 Pattern snippets
 
 ## Diagnostic Severity Levels
 
@@ -308,24 +308,24 @@ All tests should pass.
 
 This architecture ensures:
 
-- One single source of truth for diagnostics (shared with `tooling/parse_strl.py`)
-- **Binding-agnostic** design
-- Future compatibility with Rust core
-- Clear separation of concerns
-- Easy to test and maintain
+-   One single source of truth for diagnostics (shared with `tooling/parse_strl.py`)
+-   **Binding-agnostic** design
+-   Future compatibility with Rust core
+-   Clear separation of concerns
+-   Easy to test and maintain
 
 ## Performance
 
-- **Startup Time**: < 1 second
-- **Diagnostic Latency**: < 100ms for typical patterns (in-process, no subprocess hop)
-- **Memory Usage**: ~50MB base + pattern size
+-   **Startup Time**: < 1 second
+-   **Diagnostic Latency**: < 100ms for typical patterns (in-process, no subprocess hop)
+-   **Memory Usage**: ~50MB base + pattern size
 
 ## Security
 
-- The LSP server runs locally - no network requests
-- Pattern files are only read, never modified
-- No external dependencies beyond Python standard library + pygls
-- Subprocess execution is restricted to the STRling CLI
+-   The LSP server runs locally - no network requests
+-   Pattern files are only read, never modified
+-   No external dependencies beyond Python standard library + pygls
+-   Subprocess execution is restricted to the STRling CLI
 
 ## Contributing
 
@@ -344,5 +344,5 @@ MIT License - See the root LICENSE file for details.
 
 For issues or questions:
 
-- GitHub Issues: https://github.com/strling-lang/strling/issues
-- Documentation: https://github.com/strling-lang/strling/tree/main/docs
+-   GitHub Issues: https://github.com/strling-lang/strling/issues
+-   Documentation: https://github.com/strling-lang/strling/tree/main/docs

@@ -1,80 +1,80 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://strling.dev/governance/waiver.schema.json",
-  "title": "STRling governance waiver",
-  "description": "A bounded, reviewable exception to an engineering rule.",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "record_version",
-    "waiver_id",
-    "status",
-    "rule",
-    "scope",
-    "rationale",
-    "retirement"
-  ],
-  "properties": {
-    "record_version": {
-      "const": "1.0.0"
-    },
-    "waiver_id": {
-      "type": "string",
-      "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]{2,63}$",
-      "description": "A stable identifier that is never reused."
-    },
-    "status": {
-      "enum": ["requested", "accepted", "retired", "expired"]
-    },
-    "rule": {
-      "type": "string",
-      "minLength": 1
-    },
-    "scope": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["description", "paths"],
-      "properties": {
-        "description": {
-          "type": "string",
-          "minLength": 1
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/waiver.schema.json",
+    "title": "STRling governance waiver",
+    "description": "A bounded, reviewable exception to an engineering rule.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "record_version",
+        "waiver_id",
+        "status",
+        "rule",
+        "scope",
+        "rationale",
+        "retirement"
+    ],
+    "properties": {
+        "record_version": {
+            "const": "1.0.0"
         },
-        "paths": {
-          "type": "array",
-          "minItems": 1,
-          "uniqueItems": true,
-          "items": {
+        "waiver_id": {
+            "type": "string",
+            "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]{2,63}$",
+            "description": "A stable identifier that is never reused."
+        },
+        "status": {
+            "enum": ["requested", "accepted", "retired", "expired"]
+        },
+        "rule": {
             "type": "string",
             "minLength": 1
-          }
-        }
-      }
-    },
-    "rationale": {
-      "type": "string",
-      "minLength": 1
-    },
-    "retirement": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["condition", "replacement_work"],
-      "properties": {
-        "condition": {
-          "type": "string",
-          "minLength": 1
         },
-        "expires_on": {
-          "type": "string",
-          "format": "date"
+        "scope": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["description", "paths"],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "paths": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
+            }
         },
-        "replacement_work": {
-          "type": "array",
-          "items": {
+        "rationale": {
             "type": "string",
             "minLength": 1
-          }
+        },
+        "retirement": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["condition", "replacement_work"],
+            "properties": {
+                "condition": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "expires_on": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "replacement_work": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
+            }
         }
-      }
     }
-  }
 }

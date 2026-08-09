@@ -34,8 +34,8 @@ STRling's **pedagogical hint system** is part of the shared conformance contract
 
 Error fixtures are validated against `spec/schema/conformance-fixture.schema.json`. The schema enforces:
 
-- If `expected_error` is present, `expected_hint` **must** also be present.
-- `expected_hint` is an exact-match contract value, not a substring or approximation.
+-   If `expected_error` is present, `expected_hint` **must** also be present.
+-   `expected_hint` is an exact-match contract value, not a substring or approximation.
 
 ### Key Principle
 
@@ -43,8 +43,8 @@ Error fixtures are validated against `spec/schema/conformance-fixture.schema.jso
 
 ## Additional Resources
 
-- **[Developer Hub](docs/index.md)**: Architecture, philosophy, and contribution guides
-- **[Contribution Guidelines](docs/guidelines.md)**: Full development workflow, commit standards, and PR process
-- **[Test Suite Guide](tests/README.md)**: Testing strategy and directory structure
-- **[Toolchains and Quality Commands](docs/toolchains.md)**: Runtime policy, canonical commands, and structured results
-- **[Specification Hub](spec/README.md)**: Formal grammar and semantics
+-   **[Developer Hub](docs/index.md)**: Architecture, philosophy, and contribution guides
+-   **[Contribution Guidelines](docs/guidelines.md)**: Full development workflow, commit standards, and PR process
+-   **[Test Suite Guide](tests/README.md)**: Testing strategy and directory structure
+-   **[Toolchains and Quality Commands](docs/toolchains.md)**: Runtime policy, canonical commands, and structured results
+-   **[Specification Hub](spec/README.md)**: Formal grammar and semantics

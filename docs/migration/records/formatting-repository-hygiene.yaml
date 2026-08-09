@@ -3,115 +3,115 @@ title: Canonical formatting and repository-hygiene hardgates
 status: in_progress
 objective: Establish deterministic formatter enforcement and tracked-repository hygiene validation through the canonical root quality interface without changing STRling language or compiler semantics.
 scope:
-  allowed_paths:
-    - toolchain.json
-    - strling
-    - tooling/quality.py
-    - tooling/formatting.py
-    - tooling/hygiene.py
-    - tooling/tests/**
-    - tooling/requirements-quality.txt
-    - governance/formatting.json
-    - governance/repository-hygiene.json
-    - governance/waivers/**
-    - .prettierrc
-    - .prettierignore
-    - .gitignore
-    - .gitattributes
-    - package.json
-    - package-lock.json
-    - .github/workflows/ci.yml
-    - docs/toolchains.md
-    - docs/migration/**
-    - bindings/** (mechanical formatting and tracked-artifact hygiene only)
-    - spec/** (mechanical text normalization only)
-    - tests/** (mechanical text normalization only)
-  forbidden_paths:
-    - bindings/** (logic, API, parser, compiler, emitter, AST, IR, target, or package-version changes)
-    - spec/** (grammar or semantic content changes)
-    - tests/** (test-behavior or expected-result changes)
-    - .github/workflows/cd.yml
+    allowed_paths:
+        - toolchain.json
+        - strling
+        - tooling/quality.py
+        - tooling/formatting.py
+        - tooling/hygiene.py
+        - tooling/tests/**
+        - tooling/requirements-quality.txt
+        - governance/formatting.json
+        - governance/repository-hygiene.json
+        - governance/waivers/**
+        - .prettierrc
+        - .prettierignore
+        - .gitignore
+        - .gitattributes
+        - package.json
+        - package-lock.json
+        - .github/workflows/ci.yml
+        - docs/toolchains.md
+        - docs/migration/**
+        - bindings/** (mechanical formatting and tracked-artifact hygiene only)
+        - spec/** (mechanical text normalization only)
+        - tests/** (mechanical text normalization only)
+    forbidden_paths:
+        - bindings/** (logic, API, parser, compiler, emitter, AST, IR, target, or package-version changes)
+        - spec/** (grammar or semantic content changes)
+        - tests/** (test-behavior or expected-result changes)
+        - .github/workflows/cd.yml
 change_classification:
-  behavioral_change: behavior-preserving
-  public_api_change: none
+    behavioral_change: behavior-preserving
+    public_api_change: none
 required_verification:
-  - name: Policy parsing
-    command: python3 -m json.tool toolchain.json && python3 -m json.tool governance/formatting.json && python3 -m json.tool governance/repository-hygiene.json
-    expected_result: All machine-readable quality policies parse successfully.
-  - name: Governance validation
-    command: Validate this record and active waivers against their Draft 2020-12 schemas.
-    expected_result: Records and waivers are schema-valid and all exceptions have retirement conditions.
-  - name: Formatter verification
-    command: ./strling format --check
-    expected_result: Every enforceable formatter passes without modifying the worktree; unavailable tools and formatting mismatches fail.
-  - name: Hygiene verification
-    command: ./strling hygiene
-    expected_result: Prohibited artifacts, text normalization errors, unexpected binaries/modes, unsafe filenames, and case collisions fail except for exact governed allowlists.
-  - name: Aggregate quality
-    command: ./strling check
-    expected_result: All proven formatter and hygiene hardgates plus the established TypeScript checks pass.
-  - name: Behavioral baseline
-    command: ./strling build typescript && ./strling test typescript
-    expected_result: The TypeScript build passes and the suite remains 19 suites and 963 tests.
-  - name: Patch integrity
-    command: git diff --check
-    expected_result: No whitespace errors remain.
+    - name: Policy parsing
+      command: python3 -m json.tool toolchain.json && python3 -m json.tool governance/formatting.json && python3 -m json.tool governance/repository-hygiene.json
+      expected_result: All machine-readable quality policies parse successfully.
+    - name: Governance validation
+      command: Validate this record and active waivers against their Draft 2020-12 schemas.
+      expected_result: Records and waivers are schema-valid and all exceptions have retirement conditions.
+    - name: Formatter verification
+      command: ./strling format --check
+      expected_result: Every enforceable formatter passes without modifying the worktree; unavailable tools and formatting mismatches fail.
+    - name: Hygiene verification
+      command: ./strling hygiene
+      expected_result: Prohibited artifacts, text normalization errors, unexpected binaries/modes, unsafe filenames, and case collisions fail except for exact governed allowlists.
+    - name: Aggregate quality
+      command: ./strling check
+      expected_result: All proven formatter and hygiene hardgates plus the established TypeScript checks pass.
+    - name: Behavioral baseline
+      command: ./strling build typescript && ./strling test typescript
+      expected_result: The TypeScript build passes and the suite remains 19 suites and 963 tests.
+    - name: Patch integrity
+      command: git diff --check
+      expected_result: No whitespace errors remain.
 checkpoints:
-  - name: Formatting and hygiene contract
-    status: passed
-    evidence:
-      - check: Clean starting repository
-        command: git status --short --branch; git rev-parse HEAD
-        result: passed
-        details: architecture/v4 was clean and started at 99e953fdfae0bd4e9c9829e00dc9951d8bdfa900.
-      - check: Active ecosystem and formatter inventory
-        command: Tracked-extension inventory and non-mutating formatter probes
-        result: passed
-        details: All 17 bindings plus TypeScript/JavaScript, authored JSON/YAML/Markdown, shell, PowerShell, STRling fixtures, XML/TOML, and build metadata have exactly one declared formatting disposition. C#, Dart, Python, TypeScript/JavaScript, JSON, YAML, and Markdown are ready for integration; other source classes have concrete retirement conditions.
-      - check: Existing formatting debt
-        command: Prettier, Ruff, dart format, dotnet format, swift-format, and F# dotnet-format check modes
-        result: passed
-        details: Prettier identified 80 authored files, Ruff identified two root-tooling files, Dart identified ten files, and C# identified one file. Swift produced thousands of findings including identifier renames; F# dotnet format could not open fsproj files. Those two ecosystems are not claimed enforceable.
-      - check: Tracked repository-hygiene inventory
-        command: git ls-files inventory with content, mode, signature, line-ending, filename, size, and case analysis
-        result: passed
-        details: Findings are three .new files, one .tmp placeholder, two ELF build products, one packaged VSIX, one RSpec state file, one test-log status file, one example editor workspace, one intentional Gradle wrapper JAR, one intentional PNG, one Perl case-collision pair, 58 CRLF files, 134 files with trailing whitespace, and 863 missing-final-newline files dominated by serializer-owned fixtures. The policy names removals, exact allowlists, normalization rules, generated ownership, and the bounded case waiver.
-      - check: Existing behavioral baseline
-        command: ./strling test typescript
-        result: passed
-        details: Before policy changes, 19 suites and 963 tests passed with the existing bounded Node transition reported.
-  - name: Canonical formatter integration
-    status: passed
-    evidence:
-      - check: Root formatter routing
-        command: ./strling format --check python; ./strling format --check typescript --json; ./strling format --check c --json
-        result: passed
-        details: Ruff check passed for Python; Prettier mismatch returned exit 1 with structured formatter, component, environment, and status data; the unconfigured C disposition was reported explicitly rather than claimed formatted.
-      - check: Non-mutating verification
-        command: Compare git status inventory hashes before and after root format checks
-        result: passed
-        details: Check-mode execution left the worktree inventory unchanged.
-      - check: Controlled mismatch
-        command: node_modules/.bin/prettier --check --config .prettierrc tooling/tests/formatter-mismatch-fixture.json
-        result: passed
-        details: A disposable valid but noncanonical JSON fixture returned exit 1 and was removed immediately after the negative test.
-      - check: Focused orchestration tests
-        command: python3 -m unittest discover -s tooling/tests -p "test_*.py" -v
-        result: passed
-        details: All 29 tooling tests passed, including configured success, mismatch, unavailable formatter, non-applicable component, scope, and aggregate failure propagation.
-      - check: Representative behavioral baseline
-        command: npm ci --ignore-scripts --dry-run --no-audit --no-fund; ./strling build typescript; ./strling test typescript
-        result: passed
-        details: The lock resolved deterministically, the TypeScript build passed, and all 19 suites and 963 tests passed.
-  - name: Mechanical formatting and hygiene enforcement
-    status: planned
-    evidence: []
-  - name: Hardgate integration and certification
-    status: planned
-    evidence: []
-  - name: Completion and readiness
-    status: planned
-    evidence: []
+    - name: Formatting and hygiene contract
+      status: passed
+      evidence:
+          - check: Clean starting repository
+            command: git status --short --branch; git rev-parse HEAD
+            result: passed
+            details: architecture/v4 was clean and started at 99e953fdfae0bd4e9c9829e00dc9951d8bdfa900.
+          - check: Active ecosystem and formatter inventory
+            command: Tracked-extension inventory and non-mutating formatter probes
+            result: passed
+            details: All 17 bindings plus TypeScript/JavaScript, authored JSON/YAML/Markdown, shell, PowerShell, STRling fixtures, XML/TOML, and build metadata have exactly one declared formatting disposition. C#, Dart, Python, TypeScript/JavaScript, JSON, YAML, and Markdown are ready for integration; other source classes have concrete retirement conditions.
+          - check: Existing formatting debt
+            command: Prettier, Ruff, dart format, dotnet format, swift-format, and F# dotnet-format check modes
+            result: passed
+            details: Prettier identified 80 authored files, Ruff identified two root-tooling files, Dart identified ten files, and C# identified one file. Swift produced thousands of findings including identifier renames; F# dotnet format could not open fsproj files. Those two ecosystems are not claimed enforceable.
+          - check: Tracked repository-hygiene inventory
+            command: git ls-files inventory with content, mode, signature, line-ending, filename, size, and case analysis
+            result: passed
+            details: Findings are three .new files, one .tmp placeholder, two ELF build products, one packaged VSIX, one RSpec state file, one test-log status file, one example editor workspace, one intentional Gradle wrapper JAR, one intentional PNG, one Perl case-collision pair, 58 CRLF files, 134 files with trailing whitespace, and 863 missing-final-newline files dominated by serializer-owned fixtures. The policy names removals, exact allowlists, normalization rules, generated ownership, and the bounded case waiver.
+          - check: Existing behavioral baseline
+            command: ./strling test typescript
+            result: passed
+            details: Before policy changes, 19 suites and 963 tests passed with the existing bounded Node transition reported.
+    - name: Canonical formatter integration
+      status: passed
+      evidence:
+          - check: Root formatter routing
+            command: ./strling format --check python; ./strling format --check typescript --json; ./strling format --check c --json
+            result: passed
+            details: Ruff check passed for Python; Prettier mismatch returned exit 1 with structured formatter, component, environment, and status data; the unconfigured C disposition was reported explicitly rather than claimed formatted.
+          - check: Non-mutating verification
+            command: Compare git status inventory hashes before and after root format checks
+            result: passed
+            details: Check-mode execution left the worktree inventory unchanged.
+          - check: Controlled mismatch
+            command: node_modules/.bin/prettier --check --config .prettierrc tooling/tests/formatter-mismatch-fixture.json
+            result: passed
+            details: A disposable valid but noncanonical JSON fixture returned exit 1 and was removed immediately after the negative test.
+          - check: Focused orchestration tests
+            command: python3 -m unittest discover -s tooling/tests -p "test_*.py" -v
+            result: passed
+            details: All 29 tooling tests passed, including configured success, mismatch, unavailable formatter, non-applicable component, scope, and aggregate failure propagation.
+          - check: Representative behavioral baseline
+            command: npm ci --ignore-scripts --dry-run --no-audit --no-fund; ./strling build typescript; ./strling test typescript
+            result: passed
+            details: The lock resolved deterministically, the TypeScript build passed, and all 19 suites and 963 tests passed.
+    - name: Mechanical formatting and hygiene enforcement
+      status: planned
+      evidence: []
+    - name: Hardgate integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and readiness
+      status: planned
+      evidence: []
 commits:
-  - subject: "docs(quality): define formatting and repository hygiene policy"
-    sha: 0052b461818a82b86c73f5113ee46769bfb2d932
+    - subject: "docs(quality): define formatting and repository hygiene policy"
+      sha: 0052b461818a82b86c73f5113ee46769bfb2d932

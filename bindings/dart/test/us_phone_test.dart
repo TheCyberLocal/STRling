@@ -53,7 +53,7 @@ void main() {
 
       expect(ir['ir'], equals('Seq'));
       final parts = ir['parts'] as List;
-      
+
       // Start anchor
       expect(parts[0]['ir'], equals('Anchor'));
       expect(parts[0]['at'], equals('Start'));
@@ -112,7 +112,8 @@ void main() {
       expect(capIr['capturing'], equals(true));
 
       // Test anyOf
-      final choice = Simply.anyOf([Simply.literal('cat'), Simply.literal('dog')]);
+      final choice =
+          Simply.anyOf([Simply.literal('cat'), Simply.literal('dog')]);
       final altIr = choice.toIR();
       expect(altIr['ir'], equals('Alt'));
       expect(altIr['branches'], hasLength(2));

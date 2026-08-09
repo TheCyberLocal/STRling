@@ -178,11 +178,11 @@ function runVerification() {
         JSON.stringify(
             { mismatches, total: files.length, failed: mismatches.length },
             null,
-            2
-        )
+            2,
+        ),
     );
     console.log(
-        `Done. Total artifacts: ${files.length}. Mismatches: ${mismatches.length}. Report: ${outReport}`
+        `Done. Total artifacts: ${files.length}. Mismatches: ${mismatches.length}. Report: ${outReport}`,
     );
 }
 

@@ -18,10 +18,10 @@ Every error message must satisfy three requirements:
 
 ### Non-Negotiable Rules
 
-- **Never dump native regex engine traces** when STRling can provide a semantic explanation instead. Users should see `"Expected a digit quantifier"` not `"Invalid token \\d{n} at position 4"`.
-- **Use `STRlingParseError`** (or the binding's equivalent) with instructional messages explaining what's wrong AND how to fix it.
-- **Hint Engine conformance:** Error fixtures include an `expected_hint` field. All bindings must produce hints that match the TypeScript HintEngine's output exactly.
-- **No silent failures.** If a pattern is malformed, the error must be raised — not swallowed into a default or fallback.
+-   **Never dump native regex engine traces** when STRling can provide a semantic explanation instead. Users should see `"Expected a digit quantifier"` not `"Invalid token \\d{n} at position 4"`.
+-   **Use `STRlingParseError`** (or the binding's equivalent) with instructional messages explaining what's wrong AND how to fix it.
+-   **Hint Engine conformance:** Error fixtures include an `expected_hint` field. All bindings must produce hints that match the TypeScript HintEngine's output exactly.
+-   **No silent failures.** If a pattern is malformed, the error must be raised — not swallowed into a default or fallback.
 
 ---
 
@@ -29,9 +29,9 @@ Every error message must satisfy three requirements:
 
 All user-facing output — error messages, documentation, CLI feedback — must be written for a **junior developer who is smart but unfamiliar with compiler theory or regex internals**.
 
-- Define technical terms (AST, IR, Emitter) on first use.
-- Prefer plain language over jargon.
-- Explain _why_ a decision was made, not just _what_ it is.
+-   Define technical terms (AST, IR, Emitter) on first use.
+-   Prefer plain language over jargon.
+-   Explain _why_ a decision was made, not just _what_ it is.
 
 ---
 
@@ -41,9 +41,9 @@ All user-facing output — error messages, documentation, CLI feedback — must 
 
 No exceptions.
 
-- **New features:** Unit tests (3-Test Standard minimum), E2E tests, conformance tests if portable.
-- **Bug fixes:** A test that reproduces the bug (fails before the fix, passes after).
-- **Refactoring:** Verification that all existing tests still pass. New tests if coverage gaps are discovered.
+-   **New features:** Unit tests (3-Test Standard minimum), E2E tests, conformance tests if portable.
+-   **Bug fixes:** A test that reproduces the bug (fails before the fix, passes after).
+-   **Refactoring:** Verification that all existing tests still pass. New tests if coverage gaps are discovered.
 
 ### Mandatory Certification
 
@@ -51,11 +51,11 @@ All Pull Requests **must** pass the **Omega Audit** (`python3 tooling/audit_omeg
 
 The audit validates:
 
-- Directory structure and file naming conventions
-- Test conformance pass rates across all bindings
-- Zero test skips
-- Zero warnings in build/test output
-- Semantic verification (duplicate capture groups, invalid ranges)
+-   Directory structure and file naming conventions
+-   Test conformance pass rates across all bindings
+-   Zero test skips
+-   Zero warnings in build/test output
+-   Semantic verification (duplicate capture groups, invalid ranges)
 
 ### Before Submitting
 
@@ -75,12 +75,12 @@ Look for `🟢 CERTIFIED` for **all 17 bindings** before requesting review.
 
 STRling enforces **Conventional Commits**:
 
-- `feat:` A new feature
-- `fix:` A bug fix
-- `docs:` Documentation-only changes
-- `chore:` Build process or auxiliary tooling changes
-- `refactor:` Code changes that neither fix a bug nor add a feature
-- `test:` Adding or correcting tests
+-   `feat:` A new feature
+-   `fix:` A bug fix
+-   `docs:` Documentation-only changes
+-   `chore:` Build process or auxiliary tooling changes
+-   `refactor:` Code changes that neither fix a bug nor add a feature
+-   `test:` Adding or correcting tests
 
 ---
 
@@ -99,8 +99,8 @@ When creating tasks (Issues) for contributors, provide the **scaffolding** — n
 
 ## Anti-Regression Rules
 
-- **Do not** surface raw regex engine stack traces in user-facing output when a semantic `STRlingParseError` is available.
-- **Do not** merge a PR without `🟢 CERTIFIED` status from the Omega Audit.
-- **Do not** bypass the Signpost Pattern. Errors that say "invalid input" without explaining why or what to do next are unacceptable.
-- **Do not** write error messages that require regex knowledge to interpret.
-- **No Octal Escapes:** `\0` (null byte) only. All other octal patterns are forbidden per `spec/grammar/semantics.md`.
+-   **Do not** surface raw regex engine stack traces in user-facing output when a semantic `STRlingParseError` is available.
+-   **Do not** merge a PR without `🟢 CERTIFIED` status from the Omega Audit.
+-   **Do not** bypass the Signpost Pattern. Errors that say "invalid input" without explaining why or what to do next are unacceptable.
+-   **Do not** write error messages that require regex knowledge to interpret.
+-   **No Octal Escapes:** `\0` (null byte) only. All other octal patterns are forbidden per `spec/grammar/semantics.md`.

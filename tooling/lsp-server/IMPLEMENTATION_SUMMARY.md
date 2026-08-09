@@ -88,16 +88,19 @@ The CLI server emits JSON in LSP-compatible format:
 ### Core Implementation (4 files)
 
 1. **`bindings/python/src/STRling/cli_server.py`** (207 lines)
+
     - CLI interface for JSON diagnostics
     - Handles file and stdin input
     - Main entry point: `python -m STRling.cli_server`
 
 2. **`bindings/python/src/STRling/core/errors.py`** (Enhanced)
+
     - Added `to_lsp_diagnostic()` method (65 lines)
     - Converts parse errors to LSP format
     - Maintains backward compatibility
 
 3. **`tooling/lsp-server/server.py`** (222 lines)
+
     - LSP server implementation using pygls
     - Handles document lifecycle events
     - Publishes diagnostics in real-time
@@ -109,6 +112,7 @@ The CLI server emits JSON in LSP-compatible format:
 ### Configuration Files (2 files)
 
 5. **`tooling/lsp-server/package.json`**
+
     - Package metadata
     - NPM-compatible format for future extensions
 
@@ -119,16 +123,19 @@ The CLI server emits JSON in LSP-compatible format:
 ### Documentation (4 files)
 
 7. **`tooling/lsp-server/README.md`**
+
     - Quick start guide
     - Feature overview
     - Architecture explanation
 
 8. **`tooling/lsp-server/LSP_SETUP.md`**
+
     - Comprehensive setup guide
     - Editor configurations (VS Code, Neovim, Sublime)
     - Troubleshooting section
 
 9. **`tooling/lsp-server/examples/README.md`**
+
     - Guide to example files
     - Testing workflow
     - Expected behavior
@@ -138,55 +145,61 @@ The CLI server emits JSON in LSP-compatible format:
 ### Example Files (8 files)
 
 11. **`tooling/lsp-server/examples/valid_patterns.strl`**
-    - Valid pattern examples
-    - Used to verify LSP is working
+
+    -   Valid pattern examples
+    -   Used to verify LSP is working
 
 12. **`tooling/lsp-server/examples/invalid_patterns.strl`**
-    - Multiple error examples
-    - Demonstrates "first error wins"
+    -   Multiple error examples
+    -   Demonstrates "first error wins"
 
 13-17. **`tooling/lsp-server/examples/errors/*.strl`** (5 files) - Individual error examples - One error per file for testing
 
 ### Tests (3 files, 30 tests)
 
 18. **`tooling/lsp-server/tests/test_cli_server.py`** (15 tests)
-    - CLI diagnostics interface
-    - File and stdin modes
-    - JSON format validation
+
+    -   CLI diagnostics interface
+    -   File and stdin modes
+    -   JSON format validation
 
 19. **`tooling/lsp-server/tests/test_lsp_server.py`** (3 tests)
-    - Server import and startup
-    - CLI integration
-    - Help message
+
+    -   Server import and startup
+    -   CLI integration
+    -   Help message
 
 20. **`bindings/python/tests/unit/test_lsp_diagnostics.py`** (12 tests)
-    - `to_lsp_diagnostic()` method
-    - Position mapping
-    - Error code generation
+    -   `to_lsp_diagnostic()` method
+    -   Position mapping
+    -   Error code generation
 
 ## Test Coverage
 
 ### Test Results Summary
 
-- **CLI Server Tests**: 15/15 ✅
-- **LSP Server Tests**: 3/3 ✅
-- **LSP Diagnostic Tests**: 12/12 ✅
-- **Existing Error Tests**: 40/40 ✅
-- **Total**: 70/70 tests passing ✅
+-   **CLI Server Tests**: 15/15 ✅
+-   **LSP Server Tests**: 3/3 ✅
+-   **LSP Diagnostic Tests**: 12/12 ✅
+-   **Existing Error Tests**: 40/40 ✅
+-   **Total**: 70/70 tests passing ✅
 
 ### Test Categories
 
 1. **Unit Tests** (12 tests)
+
     - Error to LSP diagnostic conversion
     - Position mapping accuracy
     - Error code generation
 
 2. **Integration Tests** (15 tests)
+
     - CLI server functionality
     - File and stdin input
     - JSON format compliance
 
 3. **Smoke Tests** (3 tests)
+
     - Server imports correctly
     - CLI integration works
     - Help message displays
@@ -199,61 +212,61 @@ The CLI server emits JSON in LSP-compatible format:
 
 ### MVP Features ✅
 
-- ✅ **Real-Time Diagnostics**: Instant error detection as you type
-- ✅ **Instructional Hints**: Beginner-friendly error messages with fix suggestions
-- ✅ **Position Tracking**: Accurate error location with line/column info
-- ✅ **Multi-line Support**: Handles patterns spanning multiple lines
-- ✅ **Binding-Agnostic**: Works independently of language bindings
-- ✅ **Editor Support**: Compatible with VS Code, Neovim, Sublime Text, etc.
+-   ✅ **Real-Time Diagnostics**: Instant error detection as you type
+-   ✅ **Instructional Hints**: Beginner-friendly error messages with fix suggestions
+-   ✅ **Position Tracking**: Accurate error location with line/column info
+-   ✅ **Multi-line Support**: Handles patterns spanning multiple lines
+-   ✅ **Binding-Agnostic**: Works independently of language bindings
+-   ✅ **Editor Support**: Compatible with VS Code, Neovim, Sublime Text, etc.
 
 ### Technical Features ✅
 
-- ✅ **LSP Protocol Compliance**: Standard textDocument/publishDiagnostics
-- ✅ **JSON-RPC Communication**: CLI server provides structured diagnostics
-- ✅ **Subprocess Isolation**: Clean separation of concerns
-- ✅ **Error Recovery**: Graceful handling of timeouts and errors
-- ✅ **Performance**: Sub-second latency for typical patterns
+-   ✅ **LSP Protocol Compliance**: Standard textDocument/publishDiagnostics
+-   ✅ **JSON-RPC Communication**: CLI server provides structured diagnostics
+-   ✅ **Subprocess Isolation**: Clean separation of concerns
+-   ✅ **Error Recovery**: Graceful handling of timeouts and errors
+-   ✅ **Performance**: Sub-second latency for typical patterns
 
 ## Performance Metrics
 
-- **Startup Time**: < 1 second
-- **Diagnostic Latency**: < 100ms for typical patterns
-- **Memory Usage**: ~50MB base + pattern size
-- **CLI Timeout**: 5 seconds for complex patterns
-- **Test Execution**: ~2-3 seconds for full suite
+-   **Startup Time**: < 1 second
+-   **Diagnostic Latency**: < 100ms for typical patterns
+-   **Memory Usage**: ~50MB base + pattern size
+-   **CLI Timeout**: 5 seconds for complex patterns
+-   **Test Execution**: ~2-3 seconds for full suite
 
 ## Dependencies
 
 ### Required
 
-- Python 3.8+
-- pygls 2.0.0+ (LSP library)
-- lsprotocol 2025.0.0+ (LSP types)
+-   Python 3.8+
+-   pygls 2.0.0+ (LSP library)
+-   lsprotocol 2025.0.0+ (LSP types)
 
 ### Optional
 
-- VS Code or compatible editor
-- pytest for running tests
+-   VS Code or compatible editor
+-   pytest for running tests
 
 ## Security
 
-- ✅ No vulnerabilities in dependencies (checked via GitHub Advisory Database)
-- ✅ Local execution only - no network requests
-- ✅ Read-only file access
-- ✅ Subprocess execution limited to STRling CLI
-- ✅ No external data transmission
+-   ✅ No vulnerabilities in dependencies (checked via GitHub Advisory Database)
+-   ✅ Local execution only - no network requests
+-   ✅ Read-only file access
+-   ✅ Subprocess execution limited to STRling CLI
+-   ✅ No external data transmission
 
 ## Compatibility
 
 ### Editors Tested
 
-- VS Code (with Generic LSP Client extension)
-- Configuration provided for Neovim and Sublime Text
+-   VS Code (with Generic LSP Client extension)
+-   Configuration provided for Neovim and Sublime Text
 
 ### File Extensions
 
-- `.strl` (recommended)
-- `.strling` (alternative)
+-   `.strl` (recommended)
+-   `.strling` (alternative)
 
 ## Future Enhancements
 
@@ -296,22 +309,22 @@ pip install -r requirements.txt
 
 Future work will include:
 
-- PyPI package for easy installation
-- VS Code extension marketplace
-- Homebrew/apt package managers
+-   PyPI package for easy installation
+-   VS Code extension marketplace
+-   Homebrew/apt package managers
 
 ## Success Criteria
 
 All original requirements from the issue have been met:
 
-- ✅ Implement MVP for STRling Language Server
-- ✅ Binding-agnostic architecture with CLI/JSON contract
-- ✅ Real-time diagnostics in code editors
-- ✅ Rich error messages with instructional hints
-- ✅ Compatible with future Rust core
-- ✅ Comprehensive testing (30 tests)
-- ✅ Documentation and examples
-- ✅ Editor integration examples
+-   ✅ Implement MVP for STRling Language Server
+-   ✅ Binding-agnostic architecture with CLI/JSON contract
+-   ✅ Real-time diagnostics in code editors
+-   ✅ Rich error messages with instructional hints
+-   ✅ Compatible with future Rust core
+-   ✅ Comprehensive testing (30 tests)
+-   ✅ Documentation and examples
+-   ✅ Editor integration examples
 
 ## Conclusion
 

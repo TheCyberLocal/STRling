@@ -23,7 +23,7 @@ describe("Intelligent Error Handling Gap Coverage", () => {
                 "Unmatched ')'",
                 5,
                 text,
-                "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?"
+                "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?",
             );
             const formatted = err.toString();
 
@@ -103,7 +103,7 @@ describe("Intelligent Error Handling Gap Coverage", () => {
             const hint = getHint(
                 "Inline modifiers `(?imsx)` are not supported",
                 "(?i)abc",
-                1
+                1,
             );
             expect(hint).not.toBeNull();
             expect(hint).toContain("%flags");

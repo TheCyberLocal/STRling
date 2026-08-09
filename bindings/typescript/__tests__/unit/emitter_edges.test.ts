@@ -193,7 +193,7 @@ describe("Category B: Shorthand Optimizations", () => {
              * shorthand equivalents.
              */
             expect(emit(irNode)).toBe(expectedStr);
-        }
+        },
     );
 
     test("should not apply optimization for multi-item class", () => {
@@ -240,7 +240,7 @@ describe("Category C: Automatic Grouping", () => {
              * Tests that non-capturing groups are added to preserve precedence.
              */
             expect(emit(irNode)).toBe(expectedStr);
-        }
+        },
     );
 
     test.each<[IROp, string, string]>([
@@ -249,7 +249,7 @@ describe("Category C: Automatic Grouping", () => {
                 new IRCharClass(false, [new IRClassLiteral("a")]),
                 0,
                 "Inf",
-                "Greedy"
+                "Greedy",
             ),
             "[a]*",
             "quantified_char_class",
@@ -267,7 +267,7 @@ describe("Category C: Automatic Grouping", () => {
              * Tests that quantifiers on single atoms do not get extra grouping.
              */
             expect(emit(irNode)).toBe(expectedStr);
-        }
+        },
     );
 });
 
@@ -290,7 +290,7 @@ describe("Category D: Flags and Emitter Directives", () => {
         (flags, expectedPrefix, id) => {
             /** Tests that the correct (?...) prefix is generated from a Flags object. */
             expect(emit(new IRLit("a"), flags)).toBe(`${expectedPrefix}a`);
-        }
+        },
     );
 
     test("should generate PCRE2-specific named group and backref syntax", () => {
@@ -314,7 +314,7 @@ describe("Category E: Extension Features", () => {
                 false,
                 new IRQuant(new IRLit("a"), 1, "Inf", "Greedy"),
                 undefined,
-                true
+                true,
             ),
             "(?>a+)",
             "atomic_group",
@@ -342,6 +342,6 @@ describe("Category E: Extension Features", () => {
              * quantifiers are emitted with the correct PCRE2 syntax.
              */
             expect(emit(irNode)).toBe(expectedStr);
-        }
+        },
     );
 });

@@ -50,7 +50,7 @@ function convertNode(node: any): any {
             return {
                 type: "Alternation",
                 alternatives: (node.branches || node.alternatives || []).map(
-                    convertNode
+                    convertNode,
                 ),
             };
         case "Anchor":
@@ -119,7 +119,7 @@ function convertNode(node: any): any {
             };
         case "Group":
             const bodyNode = convertNode(
-                node.body || (node.parts && { kind: "Seq", parts: node.parts })
+                node.body || (node.parts && { kind: "Seq", parts: node.parts }),
             );
             return {
                 type: "Group",

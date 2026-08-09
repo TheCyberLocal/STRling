@@ -12,13 +12,13 @@ const path = require("path");
 const fixturesOut = path.join(__dirname, "out");
 const destPath = path.join(
     __dirname,
-    "../../bindings/c/tests/unit/converted_from_js_test.c"
+    "../../bindings/c/tests/unit/converted_from_js_test.c",
 );
 const fixturesRel = "../../tooling/js_to_json_ast/out/";
 
 if (!fs.existsSync(fixturesOut)) {
     console.error(
-        "Fixtures out directory does not exist. Run generate_json_ast.js first."
+        "Fixtures out directory does not exist. Run generate_json_ast.js first.",
     );
     process.exit(1);
 }
@@ -26,7 +26,7 @@ if (!fs.existsSync(fixturesOut)) {
 const fixtures = fs.readdirSync(fixturesOut).filter((f) => f.endsWith(".json"));
 const lines = [];
 lines.push(
-    "/* Auto-generated C test file from JS fixtures — simple compile assertions */"
+    "/* Auto-generated C test file from JS fixtures — simple compile assertions */",
 );
 lines.push("#include <stdarg.h>");
 lines.push("#include <cmocka.h>");
@@ -40,7 +40,7 @@ fixtures.forEach((f, idx) => {
     lines.push("    (void)state;");
     // Read fixture and decide expected assertion
     const content = JSON.parse(
-        fs.readFileSync(path.join(fixturesOut, f), "utf8")
+        fs.readFileSync(path.join(fixturesOut, f), "utf8"),
     );
     // Delegate to helper that inspects the fixture's `expected` field
     lines.push(`    assert_compile_matches_expected("${fixturePath}");`);

@@ -36,6 +36,7 @@ The tests verify that the full compilation pipeline (parse → compile → emit)
 Tests all pairwise combinations of core STRling features to ensure basic interoperability.
 
 -   **Flags with Every Feature**:
+
     -   Flags + Literals (case-insensitive, free-spacing)
     -   Flags + Character Classes (unicode properties, case-insensitive)
     -   Flags + Anchors (multiline mode with line anchors)
@@ -46,6 +47,7 @@ Tests all pairwise combinations of core STRling features to ensure basic interop
     -   Flags + Backreferences (case-insensitive with backreferences)
 
 -   **Literals with Every Feature**:
+
     -   Literals + Character Classes
     -   Literals + Anchors (start/end anchors, word boundaries)
     -   Literals + Quantifiers
@@ -55,6 +57,7 @@ Tests all pairwise combinations of core STRling features to ensure basic interop
     -   Literals + Backreferences
 
 -   **Character Classes with Every Feature**:
+
     -   Character Classes + Anchors
     -   Character Classes + Quantifiers (greedy, lazy, possessive)
     -   Character Classes + Groups
@@ -63,6 +66,7 @@ Tests all pairwise combinations of core STRling features to ensure basic interop
     -   Character Classes + Backreferences
 
 -   **Anchors with Every Feature**:
+
     -   Anchors + Quantifiers (confirming anchors cannot be quantified)
     -   Anchors + Groups
     -   Anchors + Lookarounds
@@ -70,17 +74,20 @@ Tests all pairwise combinations of core STRling features to ensure basic interop
     -   Anchors + Backreferences
 
 -   **Quantifiers with Every Feature**:
+
     -   Quantifiers + Groups
     -   Quantifiers + Lookarounds
     -   Quantifiers + Alternation
     -   Quantifiers + Backreferences
 
 -   **Groups with Every Feature**:
+
     -   Groups + Lookarounds
     -   Groups + Alternation
     -   Groups + Backreferences
 
 -   **Lookarounds with Every Feature**:
+
     -   Lookarounds + Alternation
     -   Lookarounds + Backreferences
 
@@ -92,6 +99,7 @@ Tests all pairwise combinations of core STRling features to ensure basic interop
 Tests three-way combinations of features known to have complex interactions or high risk of bugs.
 
 -   **High-Risk Triplets**:
+
     -   Groups + Quantifiers + Alternation (e.g., `(a|b)+`)
     -   Lookarounds + Groups + Backreferences (e.g., `(?<a>x)(?=\k<a>)`)
     -   Flags + Anchors + Lookarounds (e.g., `%flags m\n(?<=^a)b`)
@@ -108,6 +116,7 @@ Tests three-way combinations of features known to have complex interactions or h
 Tests patterns with multiple levels of nesting and complex feature interactions.
 
 -   **Deep Nesting**:
+
     -   Multiple levels of nested groups with quantifiers and alternation.
     -   Lookarounds containing groups containing lookarounds.
     -   Complex alternation with nested groups and backreferences.

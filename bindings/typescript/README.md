@@ -41,7 +41,7 @@ const phonePattern = s.merge(
     s.capture(s.digit(3)),
     s.may(s.anyOf("-", ".", " ")),
     s.capture(s.digit(4)),
-    s.end()
+    s.end(),
 );
 
 const regex = new RegExp(String(phonePattern));

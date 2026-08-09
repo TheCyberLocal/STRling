@@ -3,203 +3,203 @@ title: Deterministic toolchain and quality-command foundation
 status: complete
 objective: Establish one version-governed, machine-readable root interface for repository quality operations without changing STRling product semantics.
 scope:
-  allowed_paths:
-    - toolchain.json
-    - strling
-    - tooling/quality.py
-    - tooling/tests/**
-    - .github/workflows/ci.yml
-    - README.md
-    - CONTRIBUTING.md
-    - docs/index.md
-    - docs/toolchains.md
-    - docs/migration/**
-  forbidden_paths:
-    - bindings/**
-    - spec/**
-    - tests/**
-    - .github/workflows/cd.yml
-    - package.json
-    - package-lock.json
+    allowed_paths:
+        - toolchain.json
+        - strling
+        - tooling/quality.py
+        - tooling/tests/**
+        - .github/workflows/ci.yml
+        - README.md
+        - CONTRIBUTING.md
+        - docs/index.md
+        - docs/toolchains.md
+        - docs/migration/**
+    forbidden_paths:
+        - bindings/**
+        - spec/**
+        - tests/**
+        - .github/workflows/cd.yml
+        - package.json
+        - package-lock.json
 change_classification:
-  behavioral_change: behavior-preserving
-  public_api_change: none
+    behavioral_change: behavior-preserving
+    public_api_change: none
 required_verification:
-  - name: Baseline ancestry
-    command: git merge-base architecture/v4 e6003d0cd5f299feaf74b53e5a2ce6a958f374bc
-    expected_result: The merge-base equals the recorded starting SHA.
-  - name: Configuration parsing
-    command: python3 -m json.tool toolchain.json
-    expected_result: The authoritative toolchain policy parses successfully.
-  - name: Root command tests
-    command: python3 -m unittest discover -s tooling/tests -p 'test_*.py'
-    expected_result: Routing, status, aggregate, and environment-validation tests pass.
-  - name: Root command discovery
-    command: ./strling help
-    expected_result: All canonical quality commands and existing compatible commands are discoverable.
-  - name: Behavioral baseline
-    command: ./strling test typescript
-    expected_result: The existing TypeScript baseline remains 19 suites and 963 passing tests.
-  - name: Aggregate quality
-    command: ./strling check && ./strling certify
-    expected_result: Configured checks pass and deferred capabilities are reported explicitly.
-  - name: Patch integrity
-    command: git diff --check
-    expected_result: No whitespace errors are present.
+    - name: Baseline ancestry
+      command: git merge-base architecture/v4 e6003d0cd5f299feaf74b53e5a2ce6a958f374bc
+      expected_result: The merge-base equals the recorded starting SHA.
+    - name: Configuration parsing
+      command: python3 -m json.tool toolchain.json
+      expected_result: The authoritative toolchain policy parses successfully.
+    - name: Root command tests
+      command: python3 -m unittest discover -s tooling/tests -p 'test_*.py'
+      expected_result: Routing, status, aggregate, and environment-validation tests pass.
+    - name: Root command discovery
+      command: ./strling help
+      expected_result: All canonical quality commands and existing compatible commands are discoverable.
+    - name: Behavioral baseline
+      command: ./strling test typescript
+      expected_result: The existing TypeScript baseline remains 19 suites and 963 passing tests.
+    - name: Aggregate quality
+      command: ./strling check && ./strling certify
+      expected_result: Configured checks pass and deferred capabilities are reported explicitly.
+    - name: Patch integrity
+      command: git diff --check
+      expected_result: No whitespace errors are present.
 checkpoints:
-  - name: Toolchain contract
-    status: passed
-    evidence:
-      - check: Clean starting repository
-        command: git status --short --branch; git rev-parse HEAD
-        result: passed
-        details: architecture/v4 was clean, matched origin/architecture/v4, and started at e6003d0cd5f299feaf74b53e5a2ce6a958f374bc.
-      - check: Existing behavioral baseline
-        command: ./strling test typescript
-        result: passed
-        details: 19 suites and 963 tests passed before any repository change.
-      - check: Toolchain and capability inventory
-        command: Machine-readable inventory validation over toolchain.json
-        result: passed
-        details: All 17 bindings plus the repository and language-server environments declare runtime references, dependency policy, relevant files, and six quality capability states; all required tool references resolve.
-      - check: Policy and record validation
-        command: python3 -m json.tool toolchain.json; Draft 2020-12 task-record validation
-        result: passed
-        details: The toolchain policy parsed, 19 environments and 26 governed tools passed consistency checks, and this record validated.
-      - check: Behavior preservation
-        command: ./strling test typescript; git diff --check
-        result: passed
-        details: The post-policy TypeScript baseline remained 19 suites and 963 tests, root help remained operational, and patch integrity passed.
-  - name: Root quality command framework
-    status: passed
-    evidence:
-      - check: Framework unit tests
-        command: python3 -m unittest discover -s tooling/tests -p 'test_*.py' -v
-        result: passed
-        details: 10 tests passed for valid and invalid selection, configured routing, command aliases, not-applicable and not-yet-configured states, failure propagation, aggregate ordering, malformed configuration, and option parsing.
-      - check: Root discovery and explicit capability states
-        command: ./strling help; ./strling lint python --json; ./strling build dart --json
-        result: passed
-        details: All canonical commands were discoverable; Python lint reported not_yet_configured and Dart build reported not_applicable without executing a command.
-      - check: Configured command execution
-        command: ./strling typecheck typescript --json; ./strling build typescript --json; ./strling test typescript --json
-        result: passed
-        details: TypeScript no-emit compiler analysis, build, and 19-suite 963-test baseline passed through the root coordinator with structured results.
-      - check: Aggregate and invalid target behavior
-        command: ./strling check --json; ./strling lint missing
-        result: passed
-        details: Check returned four ordered TypeScript results and 63 explicit incomplete capabilities; an invalid target failed with the available component set.
-      - check: Existing setup, build, and test compatibility
-        command: ./strling setup typescript; ./strling build typescript --json; ./strling test typescript --json
-        result: passed
-        details: Lockfile setup, build, and the 19-suite 963-test baseline passed. Setup now disables npm audit and funding network calls after the original command exposed an npm exit 139; lifecycle scripts and package-lock resolution remain enabled.
-  - name: Environment enforcement
-    status: passed
-    evidence:
-      - check: Version-policy test matrix
-        command: python3 -m unittest discover -s tooling/tests -p 'test_*.py' -v
-        result: passed
-        details: 17 tests passed, including matching and mismatched versions, supported constraint boundaries, unavailable tools, malformed policies, bounded transitions, and prevention of command execution in incompatible environments.
-      - check: Real TypeScript environment
-        command: ./strling environment typescript --json
-        result: passed
-        details: Bash 5.2.21 and Python 3.12.3 were compatible; Node 18.19.1 was explicitly transitional against supported Node 22; npm 9.2.0 was explicitly deferred.
-      - check: Full inventory environment audit
-        command: ./strling environment all --json
-        result: passed
-        details: The command returned failure as designed, with 17 environment targets usable and two honestly unavailable for certification because Go was absent and Bundler differed from the repository-managed 2.4.20 version.
-      - check: Representative operations after enforcement
-        command: ./strling setup typescript; ./strling typecheck typescript --json; ./strling build typescript --json; ./strling test typescript --json
-        result: passed
-        details: Deterministic lock setup, no-emit type analysis, build, and the 19-suite 963-test baseline passed while transition/deferred tool conditions remained machine-readable.
-  - name: Quality-system integration
-    status: passed
-    evidence:
-      - check: Developer and CI convergence
-        command: Review .github/workflows/ci.yml and developer documentation
-        result: passed
-        details: CI now uses root environment, build, and test commands; Node 22, Go 1.22, .NET 9, and Bundler 2.4.20 align with policy; contributor and documentation hubs point to the same interface.
-      - check: Root and CI integrity
-        command: Unit tests; JSON and YAML parsing; bash -n strling; ./strling help; targeted swallowed-failure search
-        result: passed
-        details: All 17 tests passed, configurations parsed, all commands were discoverable, and no inappropriate || true, continue-on-error true, or no-build success fallback exists in modified orchestration paths.
-      - check: Aggregate quality operations
-        command: ./strling check --json; ./strling certify --json
-        result: passed
-        details: Both aggregates passed the TypeScript baseline. Certify reported format_check and lint as not_yet_configured, passed typecheck/build/test, and returned all 63 incomplete capabilities.
-      - check: Final TypeScript baseline
-        command: ./strling build typescript --json; ./strling test typescript
-        result: passed
-        details: The build passed and the test baseline remained 19 suites and 963 tests with Node and npm transition state visible.
-      - check: Patch integrity
-        command: git diff --check
-        result: passed
-        details: No whitespace errors were present after CI and documentation integration.
-  - name: Completion and readiness
-    status: passed
-    evidence:
-      - check: Complete quality-system verification
-        command: JSON/YAML/task-record parsing; 17 tooling tests; bash -n strling; root help; environment/build/test/check/certify; TypeScript baseline; documentation links; swallowed-failure search; git diff --check
-        result: passed
-        details: Configuration, routing, status, environment, aggregate, documentation, and patch-integrity checks passed; the full environment audit alone returned its expected nonzero result for unavailable Go and incompatible Bundler.
-      - check: Product behavior preservation
-        command: ./strling test typescript; git diff e6003d0cd5f299feaf74b53e5a2ce6a958f374bc...HEAD -- bindings spec tests
-        result: passed
-        details: The TypeScript baseline remained 19 suites and 963 tests, and no binding, specification, shared test, package-version, compiler, parser, emitter, AST, IR, or public API file changed.
-      - check: Readiness assessment
-        result: passed
-        details: The deterministic substrate is ready for canonical formatting and repository-hygiene enforcement with 63 unconfigured capabilities, deferred tool pins, and the bounded Node transition recorded as carry-forward.
+    - name: Toolchain contract
+      status: passed
+      evidence:
+          - check: Clean starting repository
+            command: git status --short --branch; git rev-parse HEAD
+            result: passed
+            details: architecture/v4 was clean, matched origin/architecture/v4, and started at e6003d0cd5f299feaf74b53e5a2ce6a958f374bc.
+          - check: Existing behavioral baseline
+            command: ./strling test typescript
+            result: passed
+            details: 19 suites and 963 tests passed before any repository change.
+          - check: Toolchain and capability inventory
+            command: Machine-readable inventory validation over toolchain.json
+            result: passed
+            details: All 17 bindings plus the repository and language-server environments declare runtime references, dependency policy, relevant files, and six quality capability states; all required tool references resolve.
+          - check: Policy and record validation
+            command: python3 -m json.tool toolchain.json; Draft 2020-12 task-record validation
+            result: passed
+            details: The toolchain policy parsed, 19 environments and 26 governed tools passed consistency checks, and this record validated.
+          - check: Behavior preservation
+            command: ./strling test typescript; git diff --check
+            result: passed
+            details: The post-policy TypeScript baseline remained 19 suites and 963 tests, root help remained operational, and patch integrity passed.
+    - name: Root quality command framework
+      status: passed
+      evidence:
+          - check: Framework unit tests
+            command: python3 -m unittest discover -s tooling/tests -p 'test_*.py' -v
+            result: passed
+            details: 10 tests passed for valid and invalid selection, configured routing, command aliases, not-applicable and not-yet-configured states, failure propagation, aggregate ordering, malformed configuration, and option parsing.
+          - check: Root discovery and explicit capability states
+            command: ./strling help; ./strling lint python --json; ./strling build dart --json
+            result: passed
+            details: All canonical commands were discoverable; Python lint reported not_yet_configured and Dart build reported not_applicable without executing a command.
+          - check: Configured command execution
+            command: ./strling typecheck typescript --json; ./strling build typescript --json; ./strling test typescript --json
+            result: passed
+            details: TypeScript no-emit compiler analysis, build, and 19-suite 963-test baseline passed through the root coordinator with structured results.
+          - check: Aggregate and invalid target behavior
+            command: ./strling check --json; ./strling lint missing
+            result: passed
+            details: Check returned four ordered TypeScript results and 63 explicit incomplete capabilities; an invalid target failed with the available component set.
+          - check: Existing setup, build, and test compatibility
+            command: ./strling setup typescript; ./strling build typescript --json; ./strling test typescript --json
+            result: passed
+            details: Lockfile setup, build, and the 19-suite 963-test baseline passed. Setup now disables npm audit and funding network calls after the original command exposed an npm exit 139; lifecycle scripts and package-lock resolution remain enabled.
+    - name: Environment enforcement
+      status: passed
+      evidence:
+          - check: Version-policy test matrix
+            command: python3 -m unittest discover -s tooling/tests -p 'test_*.py' -v
+            result: passed
+            details: 17 tests passed, including matching and mismatched versions, supported constraint boundaries, unavailable tools, malformed policies, bounded transitions, and prevention of command execution in incompatible environments.
+          - check: Real TypeScript environment
+            command: ./strling environment typescript --json
+            result: passed
+            details: Bash 5.2.21 and Python 3.12.3 were compatible; Node 18.19.1 was explicitly transitional against supported Node 22; npm 9.2.0 was explicitly deferred.
+          - check: Full inventory environment audit
+            command: ./strling environment all --json
+            result: passed
+            details: The command returned failure as designed, with 17 environment targets usable and two honestly unavailable for certification because Go was absent and Bundler differed from the repository-managed 2.4.20 version.
+          - check: Representative operations after enforcement
+            command: ./strling setup typescript; ./strling typecheck typescript --json; ./strling build typescript --json; ./strling test typescript --json
+            result: passed
+            details: Deterministic lock setup, no-emit type analysis, build, and the 19-suite 963-test baseline passed while transition/deferred tool conditions remained machine-readable.
+    - name: Quality-system integration
+      status: passed
+      evidence:
+          - check: Developer and CI convergence
+            command: Review .github/workflows/ci.yml and developer documentation
+            result: passed
+            details: CI now uses root environment, build, and test commands; Node 22, Go 1.22, .NET 9, and Bundler 2.4.20 align with policy; contributor and documentation hubs point to the same interface.
+          - check: Root and CI integrity
+            command: Unit tests; JSON and YAML parsing; bash -n strling; ./strling help; targeted swallowed-failure search
+            result: passed
+            details: All 17 tests passed, configurations parsed, all commands were discoverable, and no inappropriate || true, continue-on-error true, or no-build success fallback exists in modified orchestration paths.
+          - check: Aggregate quality operations
+            command: ./strling check --json; ./strling certify --json
+            result: passed
+            details: Both aggregates passed the TypeScript baseline. Certify reported format_check and lint as not_yet_configured, passed typecheck/build/test, and returned all 63 incomplete capabilities.
+          - check: Final TypeScript baseline
+            command: ./strling build typescript --json; ./strling test typescript
+            result: passed
+            details: The build passed and the test baseline remained 19 suites and 963 tests with Node and npm transition state visible.
+          - check: Patch integrity
+            command: git diff --check
+            result: passed
+            details: No whitespace errors were present after CI and documentation integration.
+    - name: Completion and readiness
+      status: passed
+      evidence:
+          - check: Complete quality-system verification
+            command: JSON/YAML/task-record parsing; 17 tooling tests; bash -n strling; root help; environment/build/test/check/certify; TypeScript baseline; documentation links; swallowed-failure search; git diff --check
+            result: passed
+            details: Configuration, routing, status, environment, aggregate, documentation, and patch-integrity checks passed; the full environment audit alone returned its expected nonzero result for unavailable Go and incompatible Bundler.
+          - check: Product behavior preservation
+            command: ./strling test typescript; git diff e6003d0cd5f299feaf74b53e5a2ce6a958f374bc...HEAD -- bindings spec tests
+            result: passed
+            details: The TypeScript baseline remained 19 suites and 963 tests, and no binding, specification, shared test, package-version, compiler, parser, emitter, AST, IR, or public API file changed.
+          - check: Readiness assessment
+            result: passed
+            details: The deterministic substrate is ready for canonical formatting and repository-hygiene enforcement with 63 unconfigured capabilities, deferred tool pins, and the bounded Node transition recorded as carry-forward.
 commits:
-  - sha: 62257da6ea7a561c13d8acc0c0f54585c42f98d3
-    subject: "docs(tooling): define deterministic toolchain policy"
-  - sha: 1486385a6c762021ef7cc4066eb8027ddbade86a
-    subject: "feat(tooling): centralize repository quality commands"
-  - sha: 02d3184d5f1626d7181017d082a1fa31a7ff2b04
-    subject: "feat(tooling): enforce declared development toolchains"
-  - sha: 61bcfd8021d2fb49c5e20881e08c2b0f0235211d
-    subject: "ci(tooling): route quality checks through canonical commands"
+    - sha: 62257da6ea7a561c13d8acc0c0f54585c42f98d3
+      subject: "docs(tooling): define deterministic toolchain policy"
+    - sha: 1486385a6c762021ef7cc4066eb8027ddbade86a
+      subject: "feat(tooling): centralize repository quality commands"
+    - sha: 02d3184d5f1626d7181017d082a1fa31a7ff2b04
+      subject: "feat(tooling): enforce declared development toolchains"
+    - sha: 61bcfd8021d2fb49c5e20881e08c2b0f0235211d
+      subject: "ci(tooling): route quality checks through canonical commands"
 completion:
-  accomplished:
-    - Established one authoritative inventory for 17 bindings, repository tooling, language-server tooling, 28 executable tools, dependency-resolution policy, and capability state.
-    - Established exact, constrained, repository-managed, and intentionally deferred version-resolution models with executable probes and bounded transition handling.
-    - Added canonical root format, format check, lint, typecheck, build, test, check, certify, and environment commands without reproducing language-tool logic.
-    - Added structured JSON results for operations, components, commands, exit codes, reasons, incomplete capabilities, and environment probes.
-    - Routed CI environment validation, build, and test through the same root interface used by developers and removed its unconditional build-success fallback.
-    - Documented developer and automation use through the root README, contributor guide, developer hub, and authoritative toolchain policy.
-  verified:
-    - "toolchain.json, the active task record, and GitHub Actions YAML parsed successfully."
-    - "python3 -m unittest discover -s tooling/tests -p 'test_*.py' passed 17 tests."
-    - "bash -n strling and ./strling help passed with every canonical command discoverable."
-    - "./strling environment typescript passed with compatible Bash/Python, transitional Node 18, and deferred npm reported explicitly."
-    - "./strling environment all failed as designed for missing Go and repository-incompatible Bundler while reporting 17 usable environments."
-    - "./strling build typescript, ./strling check, and ./strling certify passed."
-    - "./strling test typescript passed 19 suites and 963 tests."
-    - "Targeted searches found no inappropriate unconditional success fallback in modified orchestration or CI paths."
-    - "Local Markdown links and git diff --check passed."
-    - "No files under bindings, spec, or shared tests changed from the starting SHA."
-  behavior_changed: "No STRling language/compiler semantics intentionally changed."
-  intentional_behavior_changes:
-    - Root build commands no longer silently succeed when a capability is absent; they report configured, not-applicable, not-yet-configured, unavailable, passed, or failed state.
-    - Configured quality commands validate declared executable availability and versions before dispatch.
-    - TypeScript setup excludes npm audit and funding network calls while retaining package-lock resolution and lifecycle scripts.
-    - CI validates toolchains, uses canonical root build/test operations, and propagates build failures.
-  preserved_behavior:
-    - Existing parser, compiler, emitter, AST, IR, target, and runtime semantics were not intentionally altered.
-    - Existing binding public APIs, package versions, dependency versions, generated fixtures, and target behavior were not intentionally altered.
-    - Existing setup, bootstrap, clean, audit/Omega, cache-dir, lockfile, and list command surfaces remain available.
-  deferred_work:
-    - Formatter selection, formatting remediation, and format hardgates for all environments
-    - Strict lint rule baselining and warnings-as-errors
-    - Strict type-policy enforcement for capabilities still unconfigured
-    - Repository hygiene and generated-file integrity automation
-    - Task-scope enforcement and architectural fitness tests
-    - Public API snapshots
-    - Full machine-readable certification and release/supply-chain certification
-    - Lock-complete dependency resolution for Python, R, Lua, Perl, Java, Kotlin, and language-server Python dependencies
-    - Exact executable policy for tools still classified as deferred
-    - Retirement of the bounded Node 18 transition after developer environments use supported Node 22
-    - Correction of the pre-existing C test-loop exit status before C test certification becomes a hard gate
+    accomplished:
+        - Established one authoritative inventory for 17 bindings, repository tooling, language-server tooling, 28 executable tools, dependency-resolution policy, and capability state.
+        - Established exact, constrained, repository-managed, and intentionally deferred version-resolution models with executable probes and bounded transition handling.
+        - Added canonical root format, format check, lint, typecheck, build, test, check, certify, and environment commands without reproducing language-tool logic.
+        - Added structured JSON results for operations, components, commands, exit codes, reasons, incomplete capabilities, and environment probes.
+        - Routed CI environment validation, build, and test through the same root interface used by developers and removed its unconditional build-success fallback.
+        - Documented developer and automation use through the root README, contributor guide, developer hub, and authoritative toolchain policy.
+    verified:
+        - "toolchain.json, the active task record, and GitHub Actions YAML parsed successfully."
+        - "python3 -m unittest discover -s tooling/tests -p 'test_*.py' passed 17 tests."
+        - "bash -n strling and ./strling help passed with every canonical command discoverable."
+        - "./strling environment typescript passed with compatible Bash/Python, transitional Node 18, and deferred npm reported explicitly."
+        - "./strling environment all failed as designed for missing Go and repository-incompatible Bundler while reporting 17 usable environments."
+        - "./strling build typescript, ./strling check, and ./strling certify passed."
+        - "./strling test typescript passed 19 suites and 963 tests."
+        - "Targeted searches found no inappropriate unconditional success fallback in modified orchestration or CI paths."
+        - "Local Markdown links and git diff --check passed."
+        - "No files under bindings, spec, or shared tests changed from the starting SHA."
+    behavior_changed: "No STRling language/compiler semantics intentionally changed."
+    intentional_behavior_changes:
+        - Root build commands no longer silently succeed when a capability is absent; they report configured, not-applicable, not-yet-configured, unavailable, passed, or failed state.
+        - Configured quality commands validate declared executable availability and versions before dispatch.
+        - TypeScript setup excludes npm audit and funding network calls while retaining package-lock resolution and lifecycle scripts.
+        - CI validates toolchains, uses canonical root build/test operations, and propagates build failures.
+    preserved_behavior:
+        - Existing parser, compiler, emitter, AST, IR, target, and runtime semantics were not intentionally altered.
+        - Existing binding public APIs, package versions, dependency versions, generated fixtures, and target behavior were not intentionally altered.
+        - Existing setup, bootstrap, clean, audit/Omega, cache-dir, lockfile, and list command surfaces remain available.
+    deferred_work:
+        - Formatter selection, formatting remediation, and format hardgates for all environments
+        - Strict lint rule baselining and warnings-as-errors
+        - Strict type-policy enforcement for capabilities still unconfigured
+        - Repository hygiene and generated-file integrity automation
+        - Task-scope enforcement and architectural fitness tests
+        - Public API snapshots
+        - Full machine-readable certification and release/supply-chain certification
+        - Lock-complete dependency resolution for Python, R, Lua, Perl, Java, Kotlin, and language-server Python dependencies
+        - Exact executable policy for tools still classified as deferred
+        - Retirement of the bounded Node 18 transition after developer environments use supported Node 22
+        - Correction of the pre-existing C test-loop exit status before C test certification becomes a hard gate
 readiness:
-  status: READY WITH RECORDED CARRY-FORWARD
-  next_task: Establish canonical formatting and repository-hygiene enforcement.
-  rationale: The shared command, result, and environment-validation substrate is implemented and verified without product semantic changes. Formatting remains explicitly unconfigured, and known dependency/tool transitions are visible rather than silently accepted.
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Establish canonical formatting and repository-hygiene enforcement.
+    rationale: The shared command, result, and environment-validation substrate is implemented and verified without product semantic changes. Formatting remains explicitly unconfigured, and known dependency/tool transitions are visible rather than silently accepted.

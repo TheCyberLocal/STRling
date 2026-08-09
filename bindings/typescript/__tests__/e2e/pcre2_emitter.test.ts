@@ -127,7 +127,7 @@ describe("Category B: Emitter-Specific Syntax", () => {
         // This regex escapes all special PCRE metacharacters for a literal context
         const escapedMetachars = metacharsLiteral.replace(
             /[.^$|()?*+{}\[\]\\]/g,
-            "\\$&"
+            "\\$&",
         );
 
         expect(compileToPcre(metacharsDsl)).toBe(escapedMetachars);
@@ -251,7 +251,7 @@ describe("Category E: Error Handling", () => {
         // Ensure a pattern containing lowercase \z raises through the pipeline
         expect(() => compileToPcre(String.raw`\Astart\z`)).toThrow(ParseError);
         expect(() => compileToPcre(String.raw`\Astart\z`)).toThrow(
-            /Unknown escape sequence \\z/
+            /Unknown escape sequence \\z/,
         );
     });
 });

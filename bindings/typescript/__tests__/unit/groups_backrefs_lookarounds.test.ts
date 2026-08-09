@@ -63,34 +63,24 @@ describe("Category A: Positive Cases", () => {
     /**
      * Covers all positive cases for valid group, backreference, and lookaround syntax.
      */
-
-
-
 });
 
 describe("Category B: Negative Cases", () => {
     /**
      * Covers all negative cases for malformed or invalid syntax.
      */
-
-
 });
 
 describe("Category C: Edge Cases", () => {
     /**
      * Covers edge cases for groups and backreferences.
      */
-
-
-
 });
 
 describe("Category D: Interaction Cases", () => {
     /**
      * Covers interactions between groups, lookarounds, and other DSL features.
      */
-
-
 });
 
 // --- New Test Stubs for 3-Test Standard Compliance -----------------------------
@@ -100,13 +90,6 @@ describe("Category E: Nested Groups", () => {
      * Tests for nested groups of the same and different types.
      * Validates that the parser correctly handles deep nesting.
      */
-
-
-
-
-
-
-
 });
 
 describe("Category F: Lookaround With Complex Content", () => {
@@ -114,21 +97,12 @@ describe("Category F: Lookaround With Complex Content", () => {
      * Tests for lookarounds containing complex patterns like alternations
      * and nested lookarounds.
      */
-
-
-
-
-
-
 });
 
 describe("Category G: Atomic Group Edge Cases", () => {
     /**
      * Tests for atomic groups with complex content.
      */
-
-
-
 });
 
 describe("Category H: Multiple Backreferences", () => {
@@ -136,20 +110,13 @@ describe("Category H: Multiple Backreferences", () => {
      * Tests for patterns with multiple backreferences and complex
      * backreference interactions.
      */
-
-
-
-
-
-
 });
 
 describe("Category I: Groups In Alternation", () => {
     /**
      * Tests for groups and lookarounds inside alternation patterns.
      */
-
-
-
 });
-test("Tests migrated to conformance suite", () => { expect(true).toBe(true); });
+test("Tests migrated to conformance suite", () => {
+    expect(true).toBe(true);
+});

@@ -147,7 +147,7 @@ class Pattern {
           'Pattern.lazy(): Can only make quantified patterns lazy. '
           'Use optional() or repeat() first.');
     }
-    
+
     final quant = _node as nodes.Quantifier;
     return Pattern._(
       nodes.Quantifier(
@@ -176,7 +176,7 @@ class Pattern {
           'Pattern.possessive(): Can only make quantified patterns possessive. '
           'Use optional() or repeat() first.');
     }
-    
+
     final quant = _node as nodes.Quantifier;
     return Pattern._(
       nodes.Quantifier(
@@ -413,7 +413,8 @@ class Simply {
   // =========================================================================
 
   /// Validates range arguments for between() and notBetween()
-  static (String, String) _validateRange(dynamic start, dynamic end, String methodName) {
+  static (String, String) _validateRange(
+      dynamic start, dynamic end, String methodName) {
     String startStr, endStr;
 
     if (start is int && end is int) {
@@ -422,14 +423,14 @@ class Simply {
             '$methodName: Integer arguments must be single digits (0-9)');
       }
       if (start > end) {
-        throw STRlingError(
-            '$methodName: start must not be greater than end');
+        throw STRlingError('$methodName: start must not be greater than end');
       }
       startStr = start.toString();
       endStr = end.toString();
     } else if (start is String && end is String) {
       if (start.length != 1 || end.length != 1) {
-        throw STRlingError('$methodName: String arguments must be single characters');
+        throw STRlingError(
+            '$methodName: String arguments must be single characters');
       }
       if (!RegExp(r'^[a-zA-Z]$').hasMatch(start) ||
           !RegExp(r'^[a-zA-Z]$').hasMatch(end)) {
@@ -443,8 +444,7 @@ class Simply {
             '$methodName: Letter arguments must be the same case');
       }
       if (start.codeUnitAt(0) > end.codeUnitAt(0)) {
-        throw STRlingError(
-            '$methodName: start must not be greater than end');
+        throw STRlingError('$methodName: start must not be greater than end');
       }
       startStr = start;
       endStr = end;
@@ -457,7 +457,8 @@ class Simply {
   }
 
   /// Helper method to parse character members from various input types
-  static List<nodes.Node> _parseCharMembers(dynamic charsOrPatterns, List<dynamic>? rest, String methodName) {
+  static List<nodes.Node> _parseCharMembers(
+      dynamic charsOrPatterns, List<dynamic>? rest, String methodName) {
     final List<dynamic> items = rest != null
         ? [charsOrPatterns, ...rest]
         : (charsOrPatterns is List ? charsOrPatterns : [charsOrPatterns]);
@@ -473,10 +474,12 @@ class Simply {
           final cc = item._node as nodes.CharacterClass;
           members.addAll(cc.members);
         } else {
-          throw STRlingError('$methodName: Pattern arguments must be character classes');
+          throw STRlingError(
+              '$methodName: Pattern arguments must be character classes');
         }
       } else {
-        throw STRlingError('$methodName: Arguments must be strings or Patterns');
+        throw STRlingError(
+            '$methodName: Arguments must be strings or Patterns');
       }
     }
     return members;
@@ -526,7 +529,8 @@ class Simply {
   // =========================================================================
 
   /// Helper method to convert dynamic items to Pattern objects
-  static List<Pattern> _convertToPatterns(List<dynamic> items, String methodName) {
+  static List<Pattern> _convertToPatterns(
+      List<dynamic> items, String methodName) {
     final cleanPatterns = <Pattern>[];
     for (final item in items) {
       if (item is String) {
@@ -534,18 +538,21 @@ class Simply {
       } else if (item is Pattern) {
         cleanPatterns.add(item);
       } else {
-        throw STRlingError('$methodName: Arguments must be strings or Patterns');
+        throw STRlingError(
+            '$methodName: Arguments must be strings or Patterns');
       }
     }
     return cleanPatterns;
   }
 
   /// Helper method to validate unique named groups
-  static void _validateUniqueNamedGroups(List<String> namedGroups, String methodName) {
+  static void _validateUniqueNamedGroups(
+      List<String> namedGroups, String methodName) {
     final seen = <String>{};
     for (final name in namedGroups) {
       if (seen.contains(name)) {
-        throw STRlingError('$methodName: Named groups must be unique. Duplicate found: $name');
+        throw STRlingError(
+            '$methodName: Named groups must be unique. Duplicate found: $name');
       }
       seen.add(name);
     }
@@ -647,7 +654,8 @@ class Simply {
     _validateUniqueNamedGroups(namedGroups, 'group');
 
     if (namedGroups.contains(name)) {
-      throw STRlingError('group: Named groups must be unique. Duplicate found: $name');
+      throw STRlingError(
+          'group: Named groups must be unique. Duplicate found: $name');
     }
 
     nodes.Node bodyNode;

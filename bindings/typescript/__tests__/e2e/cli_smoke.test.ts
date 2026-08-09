@@ -133,7 +133,7 @@ describe("Category A: Happy Path", () => {
 
         const { code, stdout, stderr } = runCli(
             ["--emit", "pcre2", "-"],
-            inputContent
+            inputContent,
         );
 
         expect(code).toBe(0);
@@ -202,7 +202,7 @@ describe("Category C: Error Handling", () => {
          */
         const filePath = writeTempFile(
             "valid_for_invalid_schema.strl",
-            "a(?<b>c)"
+            "a(?<b>c)",
         );
 
         // Create a deliberately broken schema
@@ -215,7 +215,7 @@ describe("Category C: Error Handling", () => {
         };
         const invalidSchemaPath = writeTempFile(
             "invalid.schema.json",
-            JSON.stringify(invalidSchemaContent)
+            JSON.stringify(invalidSchemaContent),
         );
 
         const { code, stdout, stderr } = runCli([

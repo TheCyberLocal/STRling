@@ -14,15 +14,15 @@ DSL String → Parse → AST → Compile → IR → Emit → Target Regex (PCRE2
 
 Each binding implements the same pipeline in `bindings/<lang>/src/`:
 
-- **Parser** (`core/parser.*`): DSL text → AST nodes
-- **Compiler** (`core/compiler.*`): AST → target-agnostic Intermediate Representation (IR)
-- **Emitter** (`emitters/pcre2.*`): IR → serialized regex string for a specific engine
+-   **Parser** (`core/parser.*`): DSL text → AST nodes
+-   **Compiler** (`core/compiler.*`): AST → target-agnostic Intermediate Representation (IR)
+-   **Emitter** (`emitters/pcre2.*`): IR → serialized regex string for a specific engine
 
 ### Separation Guarantees
 
-- **Portability:** New target engines are added by writing a new emitter — the parser and IR remain unchanged.
-- **Testability:** Each stage can be tested in isolation.
-- **Maintainability:** Changes to one stage do not cascade to others.
+-   **Portability:** New target engines are added by writing a new emitter — the parser and IR remain unchanged.
+-   **Testability:** Each stage can be tested in isolation.
+-   **Maintainability:** Changes to one stage do not cascade to others.
 
 ---
 
@@ -65,9 +65,9 @@ The EBNF grammar (`spec/grammar/dsl.ebnf`) and the semantics specification (`spe
 
 ### The Contract
 
-- The **grammar** defines **syntax** (what is parsable).
-- The **semantics** define **behavior** (what parsed constructs mean).
-- Both are versioned together and are equally authoritative.
+-   The **grammar** defines **syntax** (what is parsable).
+-   The **semantics** define **behavior** (what parsed constructs mean).
+-   Both are versioned together and are equally authoritative.
 
 ### Any New Feature Must Include
 
@@ -116,7 +116,7 @@ This propagates the canonical version to all 17 bindings.
 
 ## Anti-Regression Rules
 
-- **Do not** bypass the pipeline stages. All regex output must flow through Parse → Compile → Emit.
-- **Do not** add engine-specific logic to the parser or compiler. Engine awareness belongs exclusively in emitters.
-- **Do not** modify the IR schema without updating the TypeScript reference implementation first and regenerating spec fixtures.
-- **Do not** introduce mutable state in emitters.
+-   **Do not** bypass the pipeline stages. All regex output must flow through Parse → Compile → Emit.
+-   **Do not** add engine-specific logic to the parser or compiler. Engine awareness belongs exclusively in emitters.
+-   **Do not** modify the IR schema without updating the TypeScript reference implementation first and regenerating spec fixtures.
+-   **Do not** introduce mutable state in emitters.

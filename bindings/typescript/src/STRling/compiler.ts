@@ -24,11 +24,11 @@ const compiler = new Compiler();
 export function compileNode(
     pattern: Pattern,
     target = "pcre2",
-    options: any = {}
+    options: any = {},
 ): string {
     if (target !== "pcre2") {
         throw new Error(
-            `Target '${target}' not supported in TypeScript binding.`
+            `Target '${target}' not supported in TypeScript binding.`,
         );
     }
 
@@ -64,7 +64,7 @@ export function compileNode(
 export async function compileWeb(
     pattern: Pattern,
     endpoint: string,
-    target = "pcre2"
+    target = "pcre2",
 ): Promise<string> {
     return compileNode(pattern, target);
 }
@@ -80,7 +80,7 @@ export async function compileWeb(
 export function toRegExp(
     pattern: Pattern,
     flags = "",
-    options: any = {}
+    options: any = {},
 ): RegExp {
     // Pass flags to compileNode if they affect the pattern (like 'x' or 's' in some engines),
     // but JS RegExp takes flags in constructor.
@@ -125,7 +125,7 @@ export function toRegExp(
 export async function toRegExpAsync(
     pattern: Pattern,
     flags = "",
-    options: any = {}
+    options: any = {},
 ): Promise<RegExp> {
     return toRegExp(pattern, flags, options);
 }

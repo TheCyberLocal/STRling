@@ -11,20 +11,24 @@ void main() {
   // When running `dart test`, CWD is usually the package root (bindings/dart)
   var specPath = p.join(Directory.current.path, '../../tests/spec');
   var specDir = Directory(specPath);
-  
+
   if (!specDir.existsSync()) {
-      // Try relative to script if CWD is different
-      // This might happen if running from workspace root
-      specPath = p.join(Directory.current.path, 'tests/spec');
-      specDir = Directory(specPath);
+    // Try relative to script if CWD is different
+    // This might happen if running from workspace root
+    specPath = p.join(Directory.current.path, 'tests/spec');
+    specDir = Directory(specPath);
   }
 
   if (!specDir.existsSync()) {
-    print('Warning: Spec directory not found at ${specDir.path} or ../../tests/spec');
+    print(
+        'Warning: Spec directory not found at ${specDir.path} or ../../tests/spec');
     return;
   }
 
-  final files = specDir.listSync().whereType<File>().where((f) => f.path.endsWith('.json'));
+  final files = specDir
+      .listSync()
+      .whereType<File>()
+      .where((f) => f.path.endsWith('.json'));
 
   for (final file in files) {
     final filename = p.basename(file.path);
@@ -44,7 +48,8 @@ void main() {
             print('    --- PASS: Caught expected error');
           }
         });
-      } else if (json.containsKey('input_dsl') && json.containsKey('expected_hint')) {
+      } else if (json.containsKey('input_dsl') &&
+          json.containsKey('expected_hint')) {
         test('Conformance (Parser Error): $filename', () {
           print('=== RUN $filename');
           final inputDsl = json['input_dsl'] as String;

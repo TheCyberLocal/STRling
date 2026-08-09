@@ -101,7 +101,7 @@ describe("Category A: Sets Module Tests (sets.py)", () => {
             /**Test notBetween rejects invalid range (start > end)*/
             expect(() => s.notBetween(9, 0)).toThrow(s.STRlingError);
             expect(() => s.notBetween(9, 0)).toThrow(
-                /start.*must not be greater/
+                /start.*must not be greater/,
             );
         });
 
@@ -109,7 +109,7 @@ describe("Category A: Sets Module Tests (sets.py)", () => {
             /**Test notBetween rejects mixed types*/
             expect(() => s.notBetween("a", 9)).toThrow(s.STRlingError);
             expect(() => s.notBetween("a", 9)).toThrow(
-                /both be integers.*or letters/
+                /both be integers.*or letters/,
             );
         });
 
@@ -170,10 +170,10 @@ describe("Category A: Sets Module Tests (sets.py)", () => {
         test("Test inChars rejects composite patterns", () => {
             /**Test inChars rejects composite patterns*/
             expect(() => s.inChars(s.merge(s.digit(), s.letter()))).toThrow(
-                s.STRlingError
+                s.STRlingError,
             );
             expect(() => s.inChars(s.merge(s.digit(), s.letter()))).toThrow(
-                /non-composite/
+                /non-composite/,
             );
         });
     });
@@ -258,7 +258,7 @@ describe("Category B: Constructors Module Tests (constructors.py)", () => {
                 prefix,
                 ".",
                 s.whitespace(),
-                s.letter(1, 0)
+                s.letter(1, 0),
             );
             const regex = String(pattern);
             // Should match titles like "Mr. Smith", "Ms. Jones", etc.
@@ -272,7 +272,7 @@ describe("Category B: Constructors Module Tests (constructors.py)", () => {
             const group2 = s.group("name", s.letter());
             expect(() => s.anyOf(group1, group2)).toThrow(s.STRlingError);
             expect(() => s.anyOf(group1, group2)).toThrow(
-                /Named groups must be unique/
+                /Named groups must be unique/,
             );
         });
     });
@@ -300,7 +300,7 @@ describe("Category B: Constructors Module Tests (constructors.py)", () => {
                 separator,
                 s.digit(3),
                 separator,
-                s.digit(4)
+                s.digit(4),
             );
             const regex = String(pattern);
             // Should match phone number patterns
@@ -323,7 +323,7 @@ describe("Category B: Constructors Module Tests (constructors.py)", () => {
             const group2 = s.group("value", s.digit());
             expect(() => s.merge(group1, group2)).toThrow(s.STRlingError);
             expect(() => s.merge(group1, group2)).toThrow(
-                /Named groups must be unique/
+                /Named groups must be unique/,
             );
         });
     });
@@ -357,7 +357,7 @@ describe("Category C: Lookarounds Module Tests (lookarounds.py)", () => {
             const identifier = s.merge(s.letter(), s.alphaNum(0, 0));
             const pattern = s.merge(
                 identifier,
-                s.notAhead(s.merge("_tmp", s.end()))
+                s.notAhead(s.merge("_tmp", s.end())),
             );
             const regex = String(pattern);
             expect(new RegExp(regex).test("myvar")).toBe(true);
@@ -396,7 +396,7 @@ describe("Category C: Lookarounds Module Tests (lookarounds.py)", () => {
             // Match 'possible' not preceded by 'im'
             const pattern = s.merge(
                 s.notBehind(s.lit("im")),
-                s.lit("possible")
+                s.lit("possible"),
             );
             const regex = String(pattern);
             expect(new RegExp(regex).test("possible")).toBe(true);
@@ -742,7 +742,7 @@ describe("Category E: Pattern Class Methods Tests (pattern.py)", () => {
             const pattern = s.merge(
                 s.anyOf("cat", "dog"),
                 s.whitespace(),
-                s.digit(1, 3)
+                s.digit(1, 3),
             );
             const regex = String(pattern);
             // Should produce valid regex that matches

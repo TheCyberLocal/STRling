@@ -45,7 +45,7 @@ export class STRlingError extends Error {
             .map((line) => {
                 return line.replace(
                     new RegExp("\\s".repeat(indentedSpaces)),
-                    "        "
+                    "        ",
                 );
             })
             .join("\n");
@@ -274,7 +274,7 @@ export class Pattern {
      */
     static createModifiedInstance(
         newNode: nodes.Node,
-        kwargs: Partial<PatternOptions> = {}
+        kwargs: Partial<PatternOptions> = {},
     ): Pattern {
         const instance = new Pattern({ node: newNode, ...kwargs });
 

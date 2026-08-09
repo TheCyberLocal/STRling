@@ -6,23 +6,23 @@ work; they do not define STRling language syntax or semantics.
 
 ## Authority and invariants
 
-- [`ENGINEERING_CONSTITUTION.md`](ENGINEERING_CONSTITUTION.md) contains the
-  permanent normative engineering rules.
-- [`authority.md`](authority.md) defines precedence when project artifacts
-  disagree.
-- [`architecture.md`](architecture.md) defines target architectural invariants
-  and distinguishes them from the transitional repository state.
+-   [`ENGINEERING_CONSTITUTION.md`](ENGINEERING_CONSTITUTION.md) contains the
+    permanent normative engineering rules.
+-   [`authority.md`](authority.md) defines precedence when project artifacts
+    disagree.
+-   [`architecture.md`](architecture.md) defines target architectural invariants
+    and distinguishes them from the transitional repository state.
 
 ## Records and waivers
 
-- `schemas/task-record.schema.json` defines the scope, verification, checkpoint,
-  completion, commit, behavior, deferral, and readiness fields for contained
-  engineering work.
-- `templates/task-record.yaml` is a validating starting point for a new record.
-- `schemas/waiver.schema.json` defines bounded exceptions with a stable ID,
-  explicit rule and scope, rationale, and retirement condition.
-- `templates/waiver.yaml` is a validating starting point for an exception
-  request.
+-   `schemas/task-record.schema.json` defines the scope, verification, checkpoint,
+    completion, commit, behavior, deferral, and readiness fields for contained
+    engineering work.
+-   `templates/task-record.yaml` is a validating starting point for a new record.
+-   `schemas/waiver.schema.json` defines bounded exceptions with a stable ID,
+    explicit rule and scope, rationale, and retirement condition.
+-   `templates/waiver.yaml` is a validating starting point for an exception
+    request.
 
 Active architecture-migration records live in `docs/migration/records/`. The
 ledger summarizes their completion and evidence; it MUST NOT duplicate or

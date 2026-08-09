@@ -6,7 +6,8 @@
 import '../core/parser.dart' show Flags;
 import '../core/diagnostics.dart';
 
-export '../core/diagnostics.dart' show STRlingCompilationError, STRlingWarning, CompileResult;
+export '../core/diagnostics.dart'
+    show STRlingCompilationError, STRlingWarning, CompileResult;
 
 /// Special characters that need escaping in PCRE2
 const _literalSpecial = r'[\]^$.|?*+(){}';
@@ -62,7 +63,8 @@ class Pcre2Emitter {
 
   /// Emit PCRE2 pattern AND surface any non-fatal diagnostics collected
   /// during emission. Pass `maxDepth <= 0` to use [defaultMaxDepth].
-  CompileResult emitWithDiagnostics(Map<String, dynamic> ir, [Flags? flags, int maxDepth = 0]) {
+  CompileResult emitWithDiagnostics(Map<String, dynamic> ir,
+      [Flags? flags, int maxDepth = 0]) {
     _depth = 0;
     _maxDepth = maxDepth > 0 ? maxDepth : defaultMaxDepth;
     _inLookbehind = false;
@@ -92,10 +94,12 @@ class Pcre2Emitter {
             _isFixedLengthBody(node['child'] as Map<String, dynamic>);
       case 'Seq':
         final parts = node['parts'] as List;
-        return parts.every((p) => _isFixedLengthBody(p as Map<String, dynamic>));
+        return parts
+            .every((p) => _isFixedLengthBody(p as Map<String, dynamic>));
       case 'Alt':
         final branches = node['branches'] as List;
-        return branches.every((b) => _isFixedLengthBody(b as Map<String, dynamic>));
+        return branches
+            .every((b) => _isFixedLengthBody(b as Map<String, dynamic>));
       case 'Group':
         return _isFixedLengthBody(node['body'] as Map<String, dynamic>);
       case 'Look':
@@ -119,7 +123,8 @@ class Pcre2Emitter {
             _hasNestedUnboundedQuant(parts[0] as Map<String, dynamic>);
       case 'Alt':
         final branches = child['branches'] as List;
-        return branches.any((b) => _hasNestedUnboundedQuant(b as Map<String, dynamic>));
+        return branches
+            .any((b) => _hasNestedUnboundedQuant(b as Map<String, dynamic>));
       default:
         return false;
     }
@@ -136,9 +141,9 @@ class Pcre2Emitter {
       if (_depth > _maxDepth) {
         throw STRlingCompilationError(
           'Maximum AST depth exceeded (limit: $_maxDepth). '
-          'This pattern is too deeply nested and risks host stack '
-          'exhaustion during emission. Refactor the pattern to reduce '
-          'nesting, or flatten capturing groups where possible.',
+              'This pattern is too deeply nested and risks host stack '
+              'exhaustion during emission. Refactor the pattern to reduce '
+              'nesting, or flatten capturing groups where possible.',
           'MAX_DEPTH',
         );
       }
@@ -291,10 +296,10 @@ class Pcre2Emitter {
     if (items.length == 1) {
       final item = items[0] as Map<String, dynamic>;
       final itemIr = item['ir'] as String;
-      
+
       if (itemIr == 'Esc') {
         final type = item['type'] as String;
-        
+
         // Handle d, w, s with negation flipping
         if ('dws'.contains(type)) {
           if (negated) {
@@ -302,7 +307,7 @@ class Pcre2Emitter {
           }
           return '\\$type';
         }
-        
+
         // Handle D, W, S
         if ('DWS'.contains(type)) {
           if (negated) {
@@ -310,7 +315,7 @@ class Pcre2Emitter {
           }
           return '\\$type';
         }
-        
+
         // Handle \p{...} and \P{...}
         if (type == 'p' || type == 'P') {
           final prop = item['property'] as String?;
@@ -409,10 +414,10 @@ class Pcre2Emitter {
     if (dir == 'Behind' && !_isFixedLengthBody(bodyMap)) {
       throw STRlingCompilationError(
         'PCRE2 does not support variable-length lookbehinds. The lookbehind '
-        'body contains a quantifier that makes its length unpredictable. '
-        'Rewrite the assertion using a fixed-length range (e.g. `{1,8}` '
-        'instead of `+`), or restructure the pattern using a Lookahead, or '
-        'extract the quantified portion outside the assertion.',
+            'body contains a quantifier that makes its length unpredictable. '
+            'Rewrite the assertion using a fixed-length range (e.g. `{1,8}` '
+            'instead of `+`), or restructure the pattern using a Lookahead, or '
+            'extract the quantified portion outside the assertion.',
         'VLB_NOT_SUPPORTED',
       );
     }

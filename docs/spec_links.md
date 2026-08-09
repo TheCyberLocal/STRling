@@ -23,10 +23,11 @@ The formal grammar defines the **syntax** of the STRling DSL using Extended Back
 This is the canonical definition of what constitutes a valid STRling pattern. All parsers must conform to this grammar.
 
 **What you'll find:**
-- Production rules for all STRling constructs
-- Terminal and non-terminal definitions
-- Operator precedence and associativity
-- Lexical structure (tokens, whitespace, comments)
+
+-   Production rules for all STRling constructs
+-   Terminal and non-terminal definitions
+-   Operator precedence and associativity
+-   Lexical structure (tokens, whitespace, comments)
 
 ---
 
@@ -39,11 +40,12 @@ The semantics document defines the **meaning and behavior** of all STRling const
 This is the canonical definition of what parsed STRling constructs mean and how they should behave across different regex engines.
 
 **What you'll find:**
-- Behavioral contracts for every language feature
-- Portability rules across regex engines (PCRE2, ECMAScript, etc.)
-- Core features vs. extension features
-- Emitter requirements and conformance criteria
-- Examples demonstrating expected behavior
+
+-   Behavioral contracts for every language feature
+-   Portability rules across regex engines (PCRE2, ECMAScript, etc.)
+-   Core features vs. extension features
+-   Emitter requirements and conformance criteria
+-   Examples demonstrating expected behavior
 
 ---
 
@@ -56,20 +58,22 @@ JSON schemas define the structure of intermediate representations and target art
 Defines the core schema for STRling's Intermediate Representation (IR).
 
 **What you'll find:**
-- IR node type definitions
-- Required and optional fields for each node type
-- Validation rules for IR structures
-- Type constraints and enumerations
+
+-   IR node type definitions
+-   Required and optional fields for each node type
+-   Validation rules for IR structures
+-   Type constraints and enumerations
 
 ### [PCRE2 v1 Schema](../spec/schema/pcre2.v1.schema.json)
 
 Defines the target artifact schema for the PCRE2 emitter.
 
 **What you'll find:**
-- Output format specification for PCRE2 patterns
-- Metadata fields and their constraints
-- Version compatibility information
-- Extension points for PCRE2-specific features
+
+-   Output format specification for PCRE2 patterns
+-   Metadata fields and their constraints
+-   Version compatibility information
+-   Extension points for PCRE2-specific features
 
 ---
 
@@ -82,11 +86,12 @@ The feature registry tracks all STRling features and their implementation status
 A comprehensive, machine-readable list of all language features with metadata.
 
 **What you'll find:**
-- Complete feature inventory
-- Implementation status (planned, in-progress, complete)
-- Target engine support matrix
-- Feature categorization (core, extension, experimental)
-- Version information for when features were introduced
+
+-   Complete feature inventory
+-   Implementation status (planned, in-progress, complete)
+-   Target engine support matrix
+-   Feature categorization (core, extension, experimental)
+-   Version information for when features were introduced
 
 ---
 
@@ -96,8 +101,8 @@ A comprehensive, machine-readable list of all language features with metadata.
 
 The EBNF grammar and semantics document are **both normative** and must evolve in lockstep:
 
-- **Grammar** defines _what is parsable_ (syntax)
-- **Semantics** defines _what parsed constructs mean_ (behavior)
+-   **Grammar** defines _what is parsable_ (syntax)
+-   **Semantics** defines _what parsed constructs mean_ (behavior)
 
 For complete details, see the Grammar and Semantics Alignment principle in the Architectural Principles document (accessible via the Developer Hub).
 
@@ -115,6 +120,7 @@ For complete details, see the Grammar and Semantics Alignment principle in the A
 ### For Language Designers
 
 When adding or modifying features:
+
 1. Update the EBNF grammar with new syntax rules
 2. Update the semantics document with behavioral definitions
 3. Update or add JSON schemas if the change affects IR or artifacts
@@ -123,23 +129,25 @@ When adding or modifying features:
 ### For Emitter Implementers
 
 Emitter implementations must conform to:
-- The syntax rules defined in the grammar
-- The behavioral contracts defined in the semantics
-- The schema constraints defined in the JSON schemas
+
+-   The syntax rules defined in the grammar
+-   The behavioral contracts defined in the semantics
+-   The schema constraints defined in the JSON schemas
 
 See the Iron Law of Emitters section in the Architectural Principles document (accessible via the Developer Hub) for emitter design principles.
 
 ### For Binding Developers
 
 When implementing STRling bindings:
-- Parse according to the grammar specification
-- Implement behavior according to the semantics specification
-- Generate output that conforms to the target schema
-- Validate against the feature registry for completeness
+
+-   Parse according to the grammar specification
+-   Implement behavior according to the semantics specification
+-   Generate output that conforms to the target schema
+-   Validate against the feature registry for completeness
 
 ---
 
 ## Related Documentation
 
-- **[Developer Hub](index.md)**: Return to the central documentation hub for architecture, guidelines, and more
-- **[Specification Hub](../spec/README.md)**: Detailed specification overview
+-   **[Developer Hub](index.md)**: Return to the central documentation hub for architecture, guidelines, and more
+-   **[Specification Hub](../spec/README.md)**: Detailed specification overview

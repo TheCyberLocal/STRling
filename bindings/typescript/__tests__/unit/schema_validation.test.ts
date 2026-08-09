@@ -53,7 +53,7 @@ const SPEC_DIR = path.resolve(
     "..",
     "..",
     "spec",
-    "schema"
+    "schema",
 );
 const BASE_SCHEMA_PATH = path.join(SPEC_DIR, "base.schema.json");
 const PCRE2_SCHEMA_PATH = path.join(SPEC_DIR, "pcre2.v1.schema.json");
@@ -75,7 +75,7 @@ describe("Category A: Positive Cases", () => {
         const artifact = parseToArtifact("a");
         // Expecting this function not to throw an error
         expect(() =>
-            validateArtifact(artifact, BASE_SCHEMA_PATH)
+            validateArtifact(artifact, BASE_SCHEMA_PATH),
         ).not.toThrow();
     });
 
@@ -88,7 +88,7 @@ describe("Category A: Positive Cases", () => {
             String.raw`%flags i,x` + String.raw`(?<A>a|b)? - (?<=\b) \d+ \k<A>`;
         const artifact = parseToArtifact(complexDsl);
         expect(() =>
-            validateArtifact(artifact, BASE_SCHEMA_PATH)
+            validateArtifact(artifact, BASE_SCHEMA_PATH),
         ).not.toThrow();
     });
 
@@ -109,7 +109,7 @@ describe("Category A: Positive Cases", () => {
             absoluteAnchors: true,
         };
         expect(() =>
-            validateArtifact(artifact, PCRE2_SCHEMA_PATH)
+            validateArtifact(artifact, PCRE2_SCHEMA_PATH),
         ).not.toThrow();
     });
 });
@@ -173,7 +173,7 @@ describe("Category B: Negative Cases", () => {
              * may differ. We check for substrings that capture the *intent* of the error.
              */
             expect(() =>
-                validateArtifact(invalidArtifact, BASE_SCHEMA_PATH)
+                validateArtifact(invalidArtifact, BASE_SCHEMA_PATH),
             ).toThrow(ValidationError);
             try {
                 validateArtifact(invalidArtifact, BASE_SCHEMA_PATH);
@@ -186,22 +186,22 @@ describe("Category B: Negative Cases", () => {
                 const jsError = errorSubstring
                     .replace(
                         "'root' is a required property",
-                        "must have required property 'root'"
+                        "must have required property 'root'",
                     )
                     .replace("is not of type 'boolean'", "must be boolean")
                     .replace(
                         "is not valid under any of the given schemas",
-                        "must have required property|must be equal to one of the allowed values"
+                        "must have required property|must be equal to one of the allowed values",
                     )
                     .replace(
                         "Additional properties are not allowed",
-                        "must NOT have additional properties"
+                        "must NOT have additional properties",
                     );
 
                 const combinedRegex = new RegExp(`${pyError}|${jsError}`);
                 expect(err.message).toMatch(combinedRegex);
             }
-        }
+        },
     );
 });
 
@@ -216,7 +216,7 @@ describe("Category C: Edge Cases", () => {
          */
         const artifact = parseToArtifact("");
         expect(() =>
-            validateArtifact(artifact, BASE_SCHEMA_PATH)
+            validateArtifact(artifact, BASE_SCHEMA_PATH),
         ).not.toThrow();
     });
 
@@ -226,7 +226,7 @@ describe("Category C: Edge Cases", () => {
          */
         const artifact = parseToArtifact("%flags i,m");
         expect(() =>
-            validateArtifact(artifact, BASE_SCHEMA_PATH)
+            validateArtifact(artifact, BASE_SCHEMA_PATH),
         ).not.toThrow();
     });
 });

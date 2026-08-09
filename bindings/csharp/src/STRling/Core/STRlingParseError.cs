@@ -29,17 +29,17 @@ public class STRlingParseError : Exception
     /// A concise description of what went wrong.
     /// </summary>
     public string ErrorMessage { get; }
-    
+
     /// <summary>
     /// The character position (0-indexed) where the error occurred.
     /// </summary>
     public int Pos { get; }
-    
+
     /// <summary>
     /// The full input text being parsed.
     /// </summary>
     public string Text { get; }
-    
+
     /// <summary>
     /// An instructional hint explaining how to fix the error.
     /// </summary>

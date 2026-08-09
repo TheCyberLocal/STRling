@@ -53,7 +53,7 @@ const loadedSchemas = new Set<string>();
 export function validateArtifact(
     artifact: any,
     schemaPath: string,
-    registry: any = null
+    registry: any = null,
 ): boolean {
     /**
      * Validate a TargetArtifact against a JSON Schema (draft 2020-12).

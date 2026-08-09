@@ -73,7 +73,7 @@ export function anyOf(...patterns: (Pattern | string)[]): Pattern {
     });
 
     const duplicates = Object.entries(namedGroupCounts).filter(
-        ([_, count]) => count > 1
+        ([_, count]) => count > 1,
     );
     if (duplicates.length) {
         const duplicateInfo = duplicates
@@ -165,7 +165,7 @@ export function may(...patterns: (Pattern | string)[]): Pattern {
     });
 
     const duplicates = Object.entries(namedGroupCounts).filter(
-        ([_, count]) => count > 1
+        ([_, count]) => count > 1,
     );
     if (duplicates.length) {
         const duplicateInfo = duplicates
@@ -264,7 +264,7 @@ export function merge(...patterns: (Pattern | string)[]): Pattern {
     });
 
     const duplicates = Object.entries(namedGroupCounts).filter(
-        ([_, count]) => count > 1
+        ([_, count]) => count > 1,
     );
     if (duplicates.length) {
         const duplicateInfo = duplicates
@@ -369,7 +369,7 @@ export function capture(...patterns: (Pattern | string)[]): Pattern {
     });
 
     const duplicates = Object.entries(namedGroupCounts).filter(
-        ([_, count]) => count > 1
+        ([_, count]) => count > 1,
     );
     if (duplicates.length) {
         const duplicateInfo = duplicates
@@ -496,7 +496,7 @@ export function group(
     });
 
     const duplicates = Object.entries(namedGroupCounts).filter(
-        ([_, count]) => count > 1
+        ([_, count]) => count > 1,
     );
     if (duplicates.length) {
         const duplicateInfo = duplicates

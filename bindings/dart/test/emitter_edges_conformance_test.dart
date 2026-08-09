@@ -24,14 +24,21 @@ String _findFixture() {
   var dir = Directory.current.path;
   for (var i = 0; i < 12; i++) {
     if (File('$dir${Platform.pathSeparator}toolchain.json').existsSync()) {
-      return [dir, 'tests', 'conformance', 'inputs', 'emitter_edges', 'pathological.json']
-          .join(Platform.pathSeparator);
+      return [
+        dir,
+        'tests',
+        'conformance',
+        'inputs',
+        'emitter_edges',
+        'pathological.json'
+      ].join(Platform.pathSeparator);
     }
     final parent = Directory(dir).parent.path;
     if (parent == dir) break;
     dir = parent;
   }
-  throw StateError('could not locate workspace root from ${Directory.current.path}');
+  throw StateError(
+      'could not locate workspace root from ${Directory.current.path}');
 }
 
 Map<String, dynamic> astToIr(Map<String, dynamic> node) {
@@ -129,18 +136,21 @@ void main() {
           } on STRlingCompilationError catch (e) {
             caught = e;
           }
-          expect(caught, isNotNull, reason: '[$name] expected STRlingCompilationError');
+          expect(caught, isNotNull,
+              reason: '[$name] expected STRlingCompilationError');
           expect(caught!.message, contains(needle), reason: '[$name]');
         } else if (tc.containsKey('expected_warning')) {
           final needle = _expectedSubstring(tc['expected_warning'].toString());
           final result = Pcre2Emitter().emitWithDiagnostics(ir, null, maxDepth);
           // Warnings must NOT abort emission — the pattern is still produced.
           expect(result.pattern, isNotEmpty,
-              reason: '[$name] expected non-empty pattern when only a warning fires');
+              reason:
+                  '[$name] expected non-empty pattern when only a warning fires');
           final hit = result.warnings
               .any((w) => w.code == 'REDOS_RISK' && w.message.contains(needle));
           expect(hit, isTrue,
-              reason: '[$name] missing REDOS_RISK warning containing "$needle"');
+              reason:
+                  '[$name] missing REDOS_RISK warning containing "$needle"');
         } else {
           fail('[$name] declares neither expected_error nor expected_warning');
         }

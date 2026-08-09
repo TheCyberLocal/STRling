@@ -260,7 +260,12 @@
             "id": "build-metadata",
             "ecosystem": "Make, CMake, INI, properties, solution, and package metadata",
             "extensions": [".ini", ".properties", ".sln"],
-            "special_files": ["CMakeLists.txt", "DESCRIPTION", "Makefile", "NAMESPACE"],
+            "special_files": [
+                "CMakeLists.txt",
+                "DESCRIPTION",
+                "Makefile",
+                "NAMESPACE"
+            ],
             "strategy": "No single semantics-safe serializer is established",
             "disposition": "not_yet_enforceable",
             "reason": "These formats require format-specific tools and several contain order- or whitespace-sensitive syntax; no deterministic repository tool is configured.",
@@ -269,19 +274,33 @@
     ],
     "generated_or_serialized": [
         {
-            "paths": ["**/package-lock.json", "bindings/dart/pubspec.lock", "bindings/php/composer.lock", "bindings/ruby/Gemfile.lock", "bindings/rust/Cargo.lock"],
+            "paths": [
+                "**/package-lock.json",
+                "bindings/dart/pubspec.lock",
+                "bindings/php/composer.lock",
+                "bindings/ruby/Gemfile.lock",
+                "bindings/rust/Cargo.lock"
+            ],
             "disposition": "not_applicable",
             "strategy": "Owning package manager serializer",
             "reason": "Lock files are reproduced by their owning package manager and are not rewritten by a competing formatter."
         },
         {
-            "paths": ["tests/spec/**", "bindings/c/tests/fixtures/**", "bindings/swift/Tests/STRlingConformanceTests/Resources/**"],
+            "paths": [
+                "tests/spec/**",
+                "bindings/c/tests/fixtures/**",
+                "bindings/swift/Tests/STRlingConformanceTests/Resources/**"
+            ],
             "disposition": "not_applicable",
             "strategy": "STRling fixture generation/copy pipeline",
             "reason": "Generated or byte-exact conformance fixtures remain controlled by their producer and are not independently formatted."
         },
         {
-            "paths": ["docs/generated/**", "tooling/js_to_json_ast/out/**", "tooling/lsp-server/dist/**"],
+            "paths": [
+                "docs/generated/**",
+                "tooling/js_to_json_ast/out/**",
+                "tooling/lsp-server/dist/**"
+            ],
             "disposition": "not_applicable",
             "strategy": "Owning generator",
             "reason": "Generated outputs are reproduced rather than independently formatted."
@@ -292,8 +311,29 @@
             "repository": [
                 {
                     "formatter": "prettier",
-                    "include": ["*.json", "*.md", "*.yaml", "*.yml", "*.js", "*.mjs", ".prettierrc"],
-                    "exclude": ["package-lock.json", "*/package-lock.json", "tests/spec/*", "bindings/c/tests/fixtures/*", "bindings/swift/Tests/STRlingConformanceTests/Resources/*", "docs/generated/*", "tooling/js_to_json_ast/out/*", "tooling/lsp-server/dist/*", "bindings/typescript/*.js", "bindings/typescript/*.mjs", "tooling/lsp-server/*.js", "tooling/lsp-server/*.mjs"]
+                    "include": [
+                        "*.json",
+                        "*.md",
+                        "*.yaml",
+                        "*.yml",
+                        "*.js",
+                        "*.mjs",
+                        ".prettierrc"
+                    ],
+                    "exclude": [
+                        "package-lock.json",
+                        "*/package-lock.json",
+                        "tests/spec/*",
+                        "bindings/c/tests/fixtures/*",
+                        "bindings/swift/Tests/STRlingConformanceTests/Resources/*",
+                        "docs/generated/*",
+                        "tooling/js_to_json_ast/out/*",
+                        "tooling/lsp-server/dist/*",
+                        "bindings/typescript/*.js",
+                        "bindings/typescript/*.mjs",
+                        "tooling/lsp-server/*.js",
+                        "tooling/lsp-server/*.mjs"
+                    ]
                 },
                 {
                     "formatter": "ruff-format",
@@ -304,7 +344,11 @@
             "lsp": [
                 {
                     "formatter": "prettier",
-                    "include": ["tooling/lsp-server/*.ts", "tooling/lsp-server/*.js", "tooling/lsp-server/*.mjs"],
+                    "include": [
+                        "tooling/lsp-server/*.ts",
+                        "tooling/lsp-server/*.js",
+                        "tooling/lsp-server/*.mjs"
+                    ],
                     "exclude": []
                 },
                 {
@@ -316,7 +360,11 @@
             "csharp": [
                 {
                     "formatter": "dotnet-format",
-                    "arguments": ["bindings/csharp/STRling.sln", "whitespace", "--no-restore"]
+                    "arguments": [
+                        "bindings/csharp/STRling.sln",
+                        "whitespace",
+                        "--no-restore"
+                    ]
                 }
             ],
             "dart": [
@@ -336,7 +384,11 @@
             "typescript": [
                 {
                     "formatter": "prettier",
-                    "include": ["bindings/typescript/*.ts", "bindings/typescript/*.js", "bindings/typescript/*.mjs"],
+                    "include": [
+                        "bindings/typescript/*.ts",
+                        "bindings/typescript/*.js",
+                        "bindings/typescript/*.mjs"
+                    ],
                     "exclude": []
                 }
             ]

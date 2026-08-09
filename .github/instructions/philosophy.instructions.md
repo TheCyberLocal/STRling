@@ -28,9 +28,9 @@ The Simply API is the **primary fluent interface** for constructing patterns pro
 
 ### Design Rules
 
-- Every `Pattern` method maps to a meaningful pattern concept, not a regex syntax trick.
-- Method chains read as near-English descriptions of matching intent.
-- The compiled regex string is never the return type of a builder method; it is only produced by an explicit `compile()` or `emit()` terminal operation.
+-   Every `Pattern` method maps to a meaningful pattern concept, not a regex syntax trick.
+-   Method chains read as near-English descriptions of matching intent.
+-   The compiled regex string is never the return type of a builder method; it is only produced by an explicit `compile()` or `emit()` terminal operation.
 
 ### Example: Phone Number
 
@@ -46,10 +46,10 @@ This reads as intent. The equivalent raw regex `\d{3}-\d{3}-\d{4}` does not.
 
 ## Anti-Regression Rules
 
-- **Do not** introduce public API methods whose names require knowledge of regex syntax to understand.
-- **Do not** accept raw regex strings as parameters in the fluent API unless explicitly gated behind an `unsafe` or `raw` escape hatch that is clearly documented as an advanced opt-in.
-- **Do not** surface compiled regex output in error messages when a semantic explanation is available. Users should see "Expected a digit quantifier" not "Expected \d{n}".
-- **Do not** document STRling features by showing the regex output first. Always lead with the fluent API form; show the compiled output only as a secondary reference.
+-   **Do not** introduce public API methods whose names require knowledge of regex syntax to understand.
+-   **Do not** accept raw regex strings as parameters in the fluent API unless explicitly gated behind an `unsafe` or `raw` escape hatch that is clearly documented as an advanced opt-in.
+-   **Do not** surface compiled regex output in error messages when a semantic explanation is available. Users should see "Expected a digit quantifier" not "Expected \d{n}".
+-   **Do not** document STRling features by showing the regex output first. Always lead with the fluent API form; show the compiled output only as a secondary reference.
 
 ---
 

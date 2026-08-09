@@ -7,15 +7,15 @@ hermetic build pipeline that assembles a disposable extension payload under
 
 ## Source Layout
 
-- `server/server.py` is the canonical Python entrypoint for the language server.
-- `server/island_extractor.py` is the compatibility shim for island extraction.
-- `client/extension.ts` launches the bundled server with an explicit `cwd` and
-  `PYTHONPATH`, and auto-detects `python3` or `python` when the user has not
-  configured a command override.
-- `package.json`, `language-configuration.json`, and this `README.md` are the
-  metadata templates copied into `dist/`.
-- `assemble.sh` is the authoritative assembly pipeline. `build_extension.sh`
-  remains only as a compatibility wrapper.
+-   `server/server.py` is the canonical Python entrypoint for the language server.
+-   `server/island_extractor.py` is the compatibility shim for island extraction.
+-   `client/extension.ts` launches the bundled server with an explicit `cwd` and
+    `PYTHONPATH`, and auto-detects `python3` or `python` when the user has not
+    configured a command override.
+-   `package.json`, `language-configuration.json`, and this `README.md` are the
+    metadata templates copied into `dist/`.
+-   `assemble.sh` is the authoritative assembly pipeline. `build_extension.sh`
+    remains only as a compatibility wrapper.
 
 The assembly step copies the authored `package.json` into `dist/` as-is so the
 packaged manifest already points `main` at `./out/extension.js`, keeps the
@@ -53,11 +53,11 @@ The Python bootstrap at the top of `server/server.py` inserts `libs/` at
 `sys.path[0]` before importing transport or STRling modules. On import failure
 it emits a forensic stderr report that includes:
 
-- the resolved server path
-- the expected vendor directory
-- the current working directory
-- the `PYTHONPATH` environment value
-- the full `sys.path` matrix
+-   the resolved server path
+-   the expected vendor directory
+-   the current working directory
+-   the `PYTHONPATH` environment value
+-   the full `sys.path` matrix
 
 In source-tree runs, the same bootstrap also falls back to the local shim
 packages under `tooling/lsp-server/` so tests can execute without building a
@@ -65,12 +65,12 @@ VSIX first.
 
 Island extraction now operates in two modes:
 
-- Host-language mode scans known boundary calls such as `s.parse(...)`,
-  `simply.parse(...)`, and `STRling.parse(...)`, then projects diagnostics back
-  into the original TypeScript/JavaScript/Python/Rust/Java document.
-- Pure `.strl` mode bypasses boundary regexes and treats each source line as a
-  standalone STRling island so unterminated constructs stay clamped to the line
-  being edited instead of bleeding to the file EOF.
+-   Host-language mode scans known boundary calls such as `s.parse(...)`,
+    `simply.parse(...)`, and `STRling.parse(...)`, then projects diagnostics back
+    into the original TypeScript/JavaScript/Python/Rust/Java document.
+-   Pure `.strl` mode bypasses boundary regexes and treats each source line as a
+    standalone STRling island so unterminated constructs stay clamped to the line
+    being edited instead of bleeding to the file EOF.
 
 ## Local Installation
 

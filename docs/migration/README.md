@@ -4,9 +4,9 @@ This directory contains migration-control records and verification evidence for
 the architectural initiative. It is not product documentation and MUST NOT
 become a second source of STRling language semantics.
 
-- `ledger.md` is the concise index of completed work and verification evidence.
-- `records/` contains task records conforming to
-  `governance/schemas/task-record.schema.json`.
+-   `ledger.md` is the concise index of completed work and verification evidence.
+-   `records/` contains task records conforming to
+    `governance/schemas/task-record.schema.json`.
 
 Each contained task establishes scope and verification before implementation,
 records checkpoint evidence and meaningful commits, and closes with behavior,

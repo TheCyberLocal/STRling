@@ -70,7 +70,7 @@ const pattern = s.merge(
     s.capture(s.letter()),
     s.bound(),
     s.capture(s.digit()),
-    s.end()
+    s.end(),
 );
 // Word boundary (\b) separates letters from digits
 console.assert(new RegExp(String(pattern)).test("A1"));

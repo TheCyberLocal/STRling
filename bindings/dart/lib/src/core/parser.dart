@@ -163,7 +163,8 @@ class Parser {
       if (!handled && !inPattern && trimmed.startsWith('%flags')) {
         final idx = line.indexOf('%flags');
         final after = line.substring(idx + 6);
-        final flagStr = after.replaceAll(RegExp(r'[,\[\]\s]'), '').toLowerCase();
+        final flagStr =
+            after.replaceAll(RegExp(r'[,\[\]\s]'), '').toLowerCase();
         final linePos = pos;
         flags = Flags.fromLetters(flagStr, onError: (msg) {
           throw STRlingParseError(msg, linePos + idx, text);
@@ -198,7 +199,7 @@ class Parser {
   (Flags, Node) parse() {
     final node = _parseAlt();
     _cur.skipWsAndComments();
-    
+
     if (!_cur.eof) {
       final ch = _cur.peek();
       if (ch == ')') {
@@ -206,58 +207,59 @@ class Parser {
       }
       throw STRlingParseError('Unexpected trailing input', _cur.i, src);
     }
-    
+
     return (flags, node);
   }
 
   Node _parseAlt() {
     _cur.skipWsAndComments();
-    
+
     if (_cur.peek() == '|') {
       throw STRlingParseError('Alternation lacks left-hand side', _cur.i, src);
     }
-    
+
     final branches = <Node>[_parseSeq()];
     _cur.skipWsAndComments();
-    
+
     while (_cur.peek() == '|') {
       final pipePos = _cur.i;
       _cur.take();
       _cur.skipWsAndComments();
-      
+
       if (_cur.eof || _cur.peek() == ')') {
-        throw STRlingParseError('Alternation lacks right-hand side', pipePos, src);
+        throw STRlingParseError(
+            'Alternation lacks right-hand side', pipePos, src);
       }
 
       if (_cur.peek() == '|') {
         throw STRlingParseError('Empty alternation', _cur.i, src);
       }
-      
+
       branches.add(_parseSeq());
       _cur.skipWsAndComments();
     }
-    
+
     return branches.length == 1 ? branches[0] : Alternation(branches);
   }
 
   Node _parseSeq() {
     final parts = <Node>[];
-    
+
     while (true) {
       _cur.skipWsAndComments();
       final ch = _cur.peek();
-      
+
       if ('*+?{'.contains(ch) && parts.isEmpty) {
         throw STRlingParseError('Invalid quantifier \'$ch\'', _cur.i, src);
       }
-      
+
       if (ch.isEmpty || '|)'.contains(ch)) break;
-      
+
       var atom = _parseAtom();
       atom = _parseQuantIfAny(atom);
       parts.add(atom);
     }
-    
+
     if (parts.length == 1) return parts[0];
     return Sequence(parts);
   }
@@ -265,7 +267,7 @@ class Parser {
   Node _parseAtom() {
     _cur.skipWsAndComments();
     final ch = _cur.peek();
-    
+
     if (ch == '.') {
       _cur.take();
       return Dot();
@@ -290,7 +292,7 @@ class Parser {
     if (ch == ')') {
       throw STRlingParseError("Unmatched ')'", _cur.i, src);
     }
-    
+
     return Literal(_cur.take());
   }
 
@@ -301,7 +303,7 @@ class Parser {
     var greedy = true;
     var lazy = false;
     var possessive = false;
-    
+
     if (ch == '*') {
       min = 0;
       max = null;
@@ -317,7 +319,7 @@ class Parser {
     } else if (ch == '{') {
       final save = _cur.i;
       _cur.take();
-      
+
       final m = _readIntOptional();
       if (m == null) {
         // Look ahead for closing } with non-numeric content
@@ -329,26 +331,29 @@ class Parser {
           content += c;
           j++;
         }
-        if (_cur.peek(j) == '}' && content.isNotEmpty && RegExp(r'[^0-9,]').hasMatch(content)) {
-          throw STRlingParseError('Brace quantifier: Invalid brace quantifier content', save, src);
+        if (_cur.peek(j) == '}' &&
+            content.isNotEmpty &&
+            RegExp(r'[^0-9,]').hasMatch(content)) {
+          throw STRlingParseError(
+              'Brace quantifier: Invalid brace quantifier content', save, src);
         }
         _cur.i = save;
         return child;
       }
-      
+
       min = m;
       max = m;
-      
+
       if (_cur.peek() == ',') {
         _cur.take();
         max = _readIntOptional();
       }
-      
+
       if (_cur.peek() != '}') {
         throw STRlingParseError('Incomplete quantifier', _cur.i, src);
       }
       _cur.take();
-      
+
       // Validate quantifier range
       if (max != null && max is int && min! > max) {
         throw STRlingParseError('Invalid quantifier range', save, src);
@@ -356,11 +361,11 @@ class Parser {
     } else {
       return child;
     }
-    
+
     if (child is Anchor) {
       throw STRlingParseError('Cannot quantify anchor', _cur.i, src);
     }
-    
+
     final nxt = _cur.peek();
     if (nxt == '?') {
       greedy = false;
@@ -371,7 +376,7 @@ class Parser {
       possessive = true;
       _cur.take();
     }
-    
+
     return Quantifier(
       target: child,
       min: min,
@@ -392,7 +397,7 @@ class Parser {
 
   Node _parseGroupOrLook() {
     _cur.take(); // consume '('
-    
+
     if (_cur.match('?:')) {
       final body = _parseAlt();
       if (!_cur.match(')')) {
@@ -400,7 +405,7 @@ class Parser {
       }
       return Group(capturing: false, body: body);
     }
-    
+
     if (_cur.match('?<=')) {
       final body = _parseAlt();
       if (!_cur.match(')')) {
@@ -408,7 +413,7 @@ class Parser {
       }
       return Lookaround(dir: 'Behind', neg: false, body: body);
     }
-    
+
     if (_cur.match('?<!')) {
       final body = _parseAlt();
       if (!_cur.match(')')) {
@@ -416,7 +421,7 @@ class Parser {
       }
       return Lookaround(dir: 'Behind', neg: true, body: body);
     }
-    
+
     if (_cur.match('?<')) {
       var name = '';
       while (_cur.peek() != '>' && _cur.peek().isNotEmpty) {
@@ -434,14 +439,14 @@ class Parser {
       }
       _capCount++;
       _capNames.add(name);
-      
+
       final body = _parseAlt();
       if (!_cur.match(')')) {
         throw STRlingParseError('Unterminated group', _cur.i, src);
       }
       return Group(capturing: true, body: body, name: name);
     }
-    
+
     if (_cur.match('?>')) {
       final body = _parseAlt();
       if (!_cur.match(')')) {
@@ -449,7 +454,7 @@ class Parser {
       }
       return Group(capturing: false, body: body, atomic: true);
     }
-    
+
     if (_cur.match('?=')) {
       final body = _parseAlt();
       if (!_cur.match(')')) {
@@ -457,7 +462,7 @@ class Parser {
       }
       return Lookaround(dir: 'Ahead', neg: false, body: body);
     }
-    
+
     if (_cur.match('?!')) {
       final body = _parseAlt();
       if (!_cur.match(')')) {
@@ -465,7 +470,7 @@ class Parser {
       }
       return Lookaround(dir: 'Ahead', neg: true, body: body);
     }
-    
+
     // Detect inline modifiers like (?i), (?m-s), etc.
     if (_cur.peek() == '?') {
       final saved = _cur.i;
@@ -476,7 +481,7 @@ class Parser {
       }
       _cur.i = saved; // backtrack
     }
-    
+
     _capCount++;
     final body = _parseAlt();
     if (!_cur.match(')')) {
@@ -488,34 +493,36 @@ class Parser {
   Node _parseCharClass() {
     _cur.take(); // consume '['
     _cur.inClass++;
-    
+
     var neg = false;
     if (_cur.peek() == '^') {
       neg = true;
       _cur.take();
     }
-    
+
     final members = <Node>[];
 
     // Detect empty character class []
     if (_cur.peek() == ']') {
       throw STRlingParseError('Unterminated character class', _cur.i, src);
     }
-    
+
     while (!_cur.eof && _cur.peek() != ']') {
       if (_cur.peek() == '\\') {
         members.add(_parseClassEscape());
       } else {
         final ch = _cur.take();
-        
+
         if (_cur.peek() == '-' && _cur.peek(1) != ']') {
           _cur.take(); // consume '-'
           final endCh = _cur.take();
           // Validate ascending character range
           final sc = ch.codeUnitAt(0);
           final ec = endCh.codeUnitAt(0);
-          final bothDigits = RegExp(r'[0-9]').hasMatch(ch) && RegExp(r'[0-9]').hasMatch(endCh);
-          final bothLetters = RegExp(r'[A-Za-z]').hasMatch(ch) && RegExp(r'[A-Za-z]').hasMatch(endCh);
+          final bothDigits =
+              RegExp(r'[0-9]').hasMatch(ch) && RegExp(r'[0-9]').hasMatch(endCh);
+          final bothLetters = RegExp(r'[A-Za-z]').hasMatch(ch) &&
+              RegExp(r'[A-Za-z]').hasMatch(endCh);
           if ((bothDigits || bothLetters) && sc > ec) {
             throw STRlingParseError('Invalid character range', _cur.i, src);
           }
@@ -525,23 +532,23 @@ class Parser {
         }
       }
     }
-    
+
     if (_cur.eof) {
       throw STRlingParseError('Unterminated character class', _cur.i, src);
     }
-    
+
     _cur.take(); // consume ']'
     _cur.inClass--;
-    
+
     return CharacterClass(negated: neg, members: members);
   }
 
   Node _parseClassEscape() {
     final startPos = _cur.i;
     _cur.take(); // consume '\'
-    
+
     final nxt = _cur.peek();
-    
+
     if ('dDwWsS'.contains(nxt)) {
       final kind = switch (_cur.take()) {
         'd' => 'digit',
@@ -554,7 +561,7 @@ class Parser {
       };
       return Escape(kind);
     }
-    
+
     if (nxt == 'p' || nxt == 'P') {
       final tp = _cur.take();
       if (!_cur.match('{')) {
@@ -569,22 +576,22 @@ class Parser {
       }
       return UnicodeProperty(value: prop, negated: tp == 'P');
     }
-    
+
     if (_controlEscapes.containsKey(nxt)) {
       _cur.take();
       return Literal(_controlEscapes[nxt]!);
     }
-    
+
     if (nxt == 'b') {
       _cur.take();
       return Literal('\x08');
     }
-    
+
     if (nxt == '0') {
       _cur.take();
       return Literal('\x00');
     }
-    
+
     // Unknown escape in char class
     final ch = _cur.take();
     if (!RegExp(r'[a-zA-Z0-9]').hasMatch(ch)) {
@@ -596,20 +603,21 @@ class Parser {
   Node _parseEscapeAtom() {
     final startPos = _cur.i;
     _cur.take(); // consume '\'
-    
+
     final nxt = _cur.peek();
-    
+
     if (RegExp(r'\d').hasMatch(nxt) && nxt != '0') {
       var num = 0;
       while (RegExp(r'\d').hasMatch(_cur.peek())) {
         num = num * 10 + int.parse(_cur.take());
         if (num > _capCount) {
-          throw STRlingParseError('Backreference to undefined group \\$num', startPos, src);
+          throw STRlingParseError(
+              'Backreference to undefined group \\$num', startPos, src);
         }
       }
       return Backreference(index: num);
     }
-    
+
     if (nxt == 'b') {
       _cur.take();
       return Anchor('WordBoundary');
@@ -626,7 +634,7 @@ class Parser {
       _cur.take();
       return Anchor('EndBeforeFinalNewline');
     }
-    
+
     if (nxt == 'k') {
       _cur.take();
       if (!_cur.match('<')) {
@@ -640,11 +648,12 @@ class Parser {
         throw STRlingParseError('Unterminated named backref', startPos, src);
       }
       if (!_capNames.contains(name)) {
-        throw STRlingParseError('Backreference to undefined group <$name>', startPos, src);
+        throw STRlingParseError(
+            'Backreference to undefined group <$name>', startPos, src);
       }
       return Backreference(name: name);
     }
-    
+
     if ('dDwWsS'.contains(nxt)) {
       final kind = switch (_cur.take()) {
         'd' => 'digit',
@@ -657,7 +666,7 @@ class Parser {
       };
       return CharacterClass(negated: false, members: [Escape(kind)]);
     }
-    
+
     if (nxt == 'p' || nxt == 'P') {
       final tp = _cur.take();
       if (!_cur.match('{')) {
@@ -670,28 +679,30 @@ class Parser {
       if (!_cur.match('}')) {
         throw STRlingParseError('Unterminated \\p{...}', startPos, src);
       }
-      return CharacterClass(negated: false, members: [UnicodeProperty(value: prop, negated: tp == 'P')]);
+      return CharacterClass(
+          negated: false,
+          members: [UnicodeProperty(value: prop, negated: tp == 'P')]);
     }
-    
+
     if (_controlEscapes.containsKey(nxt)) {
       _cur.take();
       return Literal(_controlEscapes[nxt]!);
     }
-    
+
     if (nxt == 'x') {
       _cur.take();
       return Literal(_parseHexEscape(startPos));
     }
-    
+
     if (nxt == 'u' || nxt == 'U') {
       return Literal(_parseUnicodeEscape(startPos));
     }
-    
+
     if (nxt == '0') {
       _cur.take();
       return Literal('\x00');
     }
-    
+
     // Unknown escape in atom context
     final ech = _cur.take();
     if (!RegExp(r'[a-zA-Z0-9]').hasMatch(ech)) {
@@ -711,10 +722,11 @@ class Parser {
       }
       return String.fromCharCode(int.parse(hex.isEmpty ? '0' : hex, radix: 16));
     }
-    
+
     final h1 = _cur.take();
     final h2 = _cur.take();
-    if (!RegExp(r'[0-9A-Fa-f]').hasMatch(h1) || !RegExp(r'[0-9A-Fa-f]').hasMatch(h2)) {
+    if (!RegExp(r'[0-9A-Fa-f]').hasMatch(h1) ||
+        !RegExp(r'[0-9A-Fa-f]').hasMatch(h2)) {
       throw STRlingParseError('Invalid \\xHH escape', startPos, src);
     }
     return String.fromCharCode(int.parse(h1 + h2, radix: 16));
@@ -722,7 +734,7 @@ class Parser {
 
   String _parseUnicodeEscape(int startPos) {
     final tp = _cur.take();
-    
+
     if (tp == 'u' && _cur.match('{')) {
       var hex = '';
       while (RegExp(r'[0-9A-Fa-f]').hasMatch(_cur.peek())) {
@@ -733,7 +745,7 @@ class Parser {
       }
       return String.fromCharCode(int.parse(hex.isEmpty ? '0' : hex, radix: 16));
     }
-    
+
     if (tp == 'u') {
       var hex = '';
       for (var i = 0; i < 4; i++) {
@@ -744,7 +756,7 @@ class Parser {
       }
       return String.fromCharCode(int.parse(hex, radix: 16));
     }
-    
+
     if (tp == 'U') {
       var hex = '';
       for (var i = 0; i < 8; i++) {
@@ -755,7 +767,7 @@ class Parser {
       }
       return String.fromCharCode(int.parse(hex, radix: 16));
     }
-    
+
     throw STRlingParseError('Invalid unicode escape', startPos, src);
   }
 }

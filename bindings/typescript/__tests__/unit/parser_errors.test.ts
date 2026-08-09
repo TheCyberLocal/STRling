@@ -17,21 +17,21 @@ import { STRlingParseError } from "../../src/STRling/core/errors";
 describe("Rich Error Formatting", () => {
     test("unmatched closing paren shows visionary format", () => {
         expect(() => parse("(a|b))")).toThrow(STRlingParseError);
-        
+
         try {
             parse("(a|b))");
             fail("Expected STRlingParseError");
         } catch (error) {
             const err = error as STRlingParseError;
             const formatted = err.toString();
-            
+
             // Check all components of visionary format
             expect(formatted).toContain("STRling Parse Error:");
             expect(formatted).toContain("Unmatched ')'");
             expect(formatted).toContain("> 1 | (a|b))");
             expect(formatted).toContain("^");
             expect(formatted).toContain("Hint:");
-            expect(formatted).toContain("Did you mean to escape it");      
+            expect(formatted).toContain("Did you mean to escape it");
         }
     });
 
@@ -66,14 +66,15 @@ describe("Rich Error Formatting", () => {
         } catch (error) {
             const formatted = (error as STRlingParseError).toString();
             const lines = formatted.split("\n");
-            
+
             // Find the line with the caret
             for (const line of lines) {
                 if (line.startsWith(">   |")) {
                     const caretLine = line.substring(6); // Remove ">   | "
                     // Caret should be at position 3 (under ')')
                     expect(caretLine.trim()).toBe("^");
-                    const spaces = caretLine.length - caretLine.trimStart().length;
+                    const spaces =
+                        caretLine.length - caretLine.trimStart().length;
                     expect(spaces).toBe(3);
                 }
             }

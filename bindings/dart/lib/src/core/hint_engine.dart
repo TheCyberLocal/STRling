@@ -79,24 +79,20 @@ class HintEngine {
           String msg, String text, int pos) =>
       r"Named backreferences use the syntax \k<name>. Make sure to close the '<name>' with '>'.";
 
-  static String _hintUnterminatedGroupName(
-          String msg, String text, int pos) =>
+  static String _hintUnterminatedGroupName(String msg, String text, int pos) =>
       "Named groups use the syntax (?<name>...). Make sure to close the '<name>' with '>' before the group content.";
 
-  static String _hintUnterminatedLookahead(
-          String msg, String text, int pos) =>
+  static String _hintUnterminatedLookahead(String msg, String text, int pos) =>
       "This lookahead was opened with '(?=' or '(?!' but never closed. Add a matching ')' to close the lookahead.";
 
-  static String _hintUnterminatedLookbehind(
-          String msg, String text, int pos) =>
+  static String _hintUnterminatedLookbehind(String msg, String text, int pos) =>
       "This lookbehind was opened with '(?<=' or '(?<!' but never closed. Add a matching ')' to close the lookbehind.";
 
   static String _hintUnterminatedAtomicGroup(
           String msg, String text, int pos) =>
       "This atomic group was opened with '(?>' but never closed. Add a matching ')' to close the atomic group.";
 
-  static String _hintUnterminatedBraceQuant(
-          String msg, String text, int pos) =>
+  static String _hintUnterminatedBraceQuant(String msg, String text, int pos) =>
       "Brace quantifiers require a complete form: {n}, {m,n}, or {m,}. Make sure to close the quantifier with '}' and provide valid numbers.";
 
   static String _hintUnexpectedToken(String msg, String text, int pos) {
@@ -144,16 +140,13 @@ class HintEngine {
   static String _hintUnterminatedHexBrace(String msg, String text, int pos) =>
       "Variable-length hex escapes use the syntax \\x{...}. Make sure to close the escape with '}'.";
 
-
   static String _hintUnterminatedUnicodeBrace(
           String msg, String text, int pos) =>
       "Variable-length unicode escapes use the syntax \\u{...}. Make sure to close the escape with '}'.";
 
-
   static String _hintUnterminatedUnicodeProperty(
           String msg, String text, int pos) =>
       "Unicode property escapes use the syntax \\p{Property} or \\P{Property}. Make sure to close the property name with '}'.";
-
 
   static String _hintUnicodePropertyMissingBrace(
           String msg, String text, int pos) =>
@@ -166,19 +159,16 @@ class HintEngine {
   static String _hintInvalidGroupName(String msg, String text, int pos) =>
       "Named groups require identifiers: IDENTIFIER = letter or '_' followed by letters, digits or '_'. Choose a name that starts with a letter or underscore and contains only letters, digits, or underscores.";
 
-  static String _hintInvalidQuantifierRange(
-          String msg, String text, int pos) =>
+  static String _hintInvalidQuantifierRange(String msg, String text, int pos) =>
       "Quantifier ranges must have the minimum less than or equal to the maximum (m <= n). For example, use '{2,5}' or '{2,2}', not '{5,2}'.";
 
-  static String _hintInvalidCharacterRange(
-          String msg, String text, int pos) =>
+  static String _hintInvalidCharacterRange(String msg, String text, int pos) =>
       "Character ranges must be ascending, e.g., '[a-z]' or '[0-9]'. Reversed ranges like '[z-a]' are invalid.";
 
   static String _hintInvalidFlag(String msg, String text, int pos) =>
       'Unknown flag. Valid flags are: i (case-insensitive), m (multiline), s (dotAll), u (unicode), x (extended/free-spacing).';
 
-  static String _hintDirectiveAfterPattern(
-          String msg, String text, int pos) =>
+  static String _hintDirectiveAfterPattern(String msg, String text, int pos) =>
       "Directives such as '%flags' must appear at the start of the pattern (before any pattern content). Move the directive to the top of the input on its own line.";
 
   static String _hintMalformedDirective(String msg, String text, int pos) =>

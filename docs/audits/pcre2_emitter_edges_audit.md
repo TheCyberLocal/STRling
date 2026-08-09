@@ -50,10 +50,10 @@ Legend: ✅ explicit test • ⚠️ partial / schema-only • ❌ missing
 
 **Reality:**
 
-- The flag is **declared** in conformance fixtures ([`tests/conformance/expected/pcre2/simple-lookbehind.json#L36`](../../tests/conformance/expected/pcre2/simple-lookbehind.json#L36)) but never **asserted as a rejection vector**.
-- A planned validation test exists in design notes only: [`tests/_design/unit/test_errors.md#L41`](../../tests/_design/unit/test_errors.md#L41) ("Test that a variable-length lookbehind `(?<=a+)` raises a `ValidationError`") — **not implemented in any binding**.
-- Python and Java ship a docstring warning on `Lookarounds.behind()` but **no runtime detection**.
-- An AST containing `Lookbehind(Quantifier(Literal('a'), '+'))` will be silently emitted as `(?<=a+)` and crash inside `pcre2_compile()`. STRling will surface the raw native error — a violation of the **Signpost Pattern** ([`workflow.instructions.md#L13-L25`](../../.github/instructions/workflow.instructions.md#L13)).
+-   The flag is **declared** in conformance fixtures ([`tests/conformance/expected/pcre2/simple-lookbehind.json#L36`](../../tests/conformance/expected/pcre2/simple-lookbehind.json#L36)) but never **asserted as a rejection vector**.
+-   A planned validation test exists in design notes only: [`tests/_design/unit/test_errors.md#L41`](../../tests/_design/unit/test_errors.md#L41) ("Test that a variable-length lookbehind `(?<=a+)` raises a `ValidationError`") — **not implemented in any binding**.
+-   Python and Java ship a docstring warning on `Lookarounds.behind()` but **no runtime detection**.
+-   An AST containing `Lookbehind(Quantifier(Literal('a'), '+'))` will be silently emitted as `(?<=a+)` and crash inside `pcre2_compile()`. STRling will surface the raw native error — a violation of the **Signpost Pattern** ([`workflow.instructions.md#L13-L25`](../../.github/instructions/workflow.instructions.md#L13)).
 
 **Verdict:** ❌ **All 17 bindings fail this requirement.**
 
@@ -61,9 +61,9 @@ Legend: ✅ explicit test • ⚠️ partial / schema-only • ❌ missing
 
 A repo-wide regex search for `MAX_DEPTH | max_depth | maxDepth | DEPTH_LIMIT | depth.limit | recursion.limit | RecursionLimit` returns **zero matches**.
 
-- No `MAX_AST_DEPTH` constant in any compiler or emitter.
-- No test pumps a 1,000-deep `Group(Group(Group(...)))` AST through an emitter.
-- TypeScript has a single test ID `deeply_nested_quantifiers` in [e2e_combinatorial.test.ts](../../bindings/typescript/__tests__/e2e/e2e_combinatorial.test.ts) — but it tests _output correctness_, not _bounded recursion_.
+-   No `MAX_AST_DEPTH` constant in any compiler or emitter.
+-   No test pumps a 1,000-deep `Group(Group(Group(...)))` AST through an emitter.
+-   TypeScript has a single test ID `deeply_nested_quantifiers` in [e2e_combinatorial.test.ts](../../bindings/typescript/__tests__/e2e/e2e_combinatorial.test.ts) — but it tests _output correctness_, not _bounded recursion_.
 
 **Risk:** A pathological AST can exhaust the host stack during emission (especially in recursive emitters: C, Python, Swift, Rust) **before PCRE2 ever sees the pattern**. `MATCH_LIMIT` / `DEPTH_LIMIT` configuration of the PCRE2 runtime is also untested.
 
@@ -71,9 +71,9 @@ A repo-wide regex search for `MAX_DEPTH | max_depth | maxDepth | DEPTH_LIMIT | d
 
 ### 2.3 Unicode Property Edge Cases — **PARTIAL**
 
-- Basic `\p{L}` / `\p{Letter}` round-trips are covered by golden fixtures.
-- One single C test references high-surrogate range handling.
-- **Not covered anywhere:** newly added Unicode 16 scripts (e.g. `\p{Garay}`, `\p{Tulu_Tigalari}`), `\P{...}` negation edge cases, invalid property names rejection (must produce a `STRlingParseError`, not a `pcre2_compile` failure), `\p{Emoji}` mapping, surrogate-pair literal handling in non-UCS-2 bindings.
+-   Basic `\p{L}` / `\p{Letter}` round-trips are covered by golden fixtures.
+-   One single C test references high-surrogate range handling.
+-   **Not covered anywhere:** newly added Unicode 16 scripts (e.g. `\p{Garay}`, `\p{Tulu_Tigalari}`), `\P{...}` negation edge cases, invalid property names rejection (must produce a `STRlingParseError`, not a `pcre2_compile` failure), `\p{Emoji}` mapping, surrogate-pair literal handling in non-UCS-2 bindings.
 
 **Verdict:** ⚠️ **Property mapping is unverified beyond the smoke test.**
 
@@ -91,11 +91,11 @@ A repo-wide regex search for `MAX_DEPTH | max_depth | maxDepth | DEPTH_LIMIT | d
 
 ### 3.2 Reality
 
-- **No emitter implements `REDOS_RISK` detection.** Grep returns zero hits for the literal token `REDOS_RISK` in any `bindings/*/` source.
-- The only ReDoS-adjacent fixtures are `golden_redos_safe_atomic` and `golden_redos_safe_possessive` ([`test_pcre2_emitter.py#L230`](../../bindings/python/tests/e2e/test_pcre2_emitter.py#L230)). These prove the **safe form compiles**; they do **not** prove the **unsafe form is detected and warned**.
-- **Overlapping alternation** (e.g. `Alt("a", "a+")`, `Alt("a|a")`): no test in any binding asserts atomic-group rewriting or warning emission.
-- **Nested quantifiers** (`(a+)+`, `(a*)*`): no test asserts detection. AST allows construction; emitter emits verbatim.
-- **Possessive mapping** (`*+`, `++`, `?+`, `{n,m}+`): atomic & possessive emission is well-tested for the _positive_ path in 8 bindings (✅ above), but no test confirms the mapping for the **bounded** form `{n,m}+` or for `?+` specifically.
+-   **No emitter implements `REDOS_RISK` detection.** Grep returns zero hits for the literal token `REDOS_RISK` in any `bindings/*/` source.
+-   The only ReDoS-adjacent fixtures are `golden_redos_safe_atomic` and `golden_redos_safe_possessive` ([`test_pcre2_emitter.py#L230`](../../bindings/python/tests/e2e/test_pcre2_emitter.py#L230)). These prove the **safe form compiles**; they do **not** prove the **unsafe form is detected and warned**.
+-   **Overlapping alternation** (e.g. `Alt("a", "a+")`, `Alt("a|a")`): no test in any binding asserts atomic-group rewriting or warning emission.
+-   **Nested quantifiers** (`(a+)+`, `(a*)*`): no test asserts detection. AST allows construction; emitter emits verbatim.
+-   **Possessive mapping** (`*+`, `++`, `?+`, `{n,m}+`): atomic & possessive emission is well-tested for the _positive_ path in 8 bindings (✅ above), but no test confirms the mapping for the **bounded** form `{n,m}+` or for `?+` specifically.
 
 **Verdict:** ❌ **The emitter can produce known-ReDoS-vulnerable output without warning.** The `REDOS_RISK` warning channel exists in spec but is wired up nowhere.
 
@@ -107,15 +107,15 @@ A repo-wide regex search for `MAX_DEPTH | max_depth | maxDepth | DEPTH_LIMIT | d
 
 Repo-wide search for `hypothesis | proptest | quickcheck | jqwik | fuzz | fast-check`:
 
-- ❌ **Zero property-based or fuzz tests targeting any emitter** in any binding.
-- The Python test infra includes `pytest` but no `hypothesis` strategy for AST generation.
-- Rust crate has no `proptest` dependency.
+-   ❌ **Zero property-based or fuzz tests targeting any emitter** in any binding.
+-   The Python test infra includes `pytest` but no `hypothesis` strategy for AST generation.
+-   Rust crate has no `proptest` dependency.
 
 ### 4.2 Cross-Language Parity for Edge Cases
 
-- [`tooling/audit_omega.py`](../../tooling/audit_omega.py) verifies **conformance count and pass rate**, not edge-case coverage parity.
-- [`tooling/audit_hint_parity.py`](../../tooling/audit_hint_parity.py) verifies **parser hint** parity only — emitter warnings (`REDOS_RISK`, `vlb`) are out of scope.
-- **No tool exists** to assert that an edge-case test (e.g. "atomic group emission") that passes in C also passes in Swift. The audit matrix in §1 demonstrates the drift: 8 bindings have explicit atomic-group tests; 9 do not.
+-   [`tooling/audit_omega.py`](../../tooling/audit_omega.py) verifies **conformance count and pass rate**, not edge-case coverage parity.
+-   [`tooling/audit_hint_parity.py`](../../tooling/audit_hint_parity.py) verifies **parser hint** parity only — emitter warnings (`REDOS_RISK`, `vlb`) are out of scope.
+-   **No tool exists** to assert that an edge-case test (e.g. "atomic group emission") that passes in C also passes in Swift. The audit matrix in §1 demonstrates the drift: 8 bindings have explicit atomic-group tests; 9 do not.
 
 **Verdict:** ❌ **No fuzzing. No parity audit for emitter edges.**
 

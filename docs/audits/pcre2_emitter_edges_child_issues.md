@@ -12,8 +12,8 @@
 
 ### Target Vector
 
-- Reference: [`bindings/typescript/src/STRling/emitters/pcre2.ts`](../../bindings/typescript/src/STRling/emitters/pcre2.ts)
-- Then: every `bindings/<lang>/.../pcre2.{rs,py,swift,go,java,cs,cpp,rb,kt,lua,pl,php,r,dart,fs}` and `bindings/c/src/strling.c`.
+-   Reference: [`bindings/typescript/src/STRling/emitters/pcre2.ts`](../../bindings/typescript/src/STRling/emitters/pcre2.ts)
+-   Then: every `bindings/<lang>/.../pcre2.{rs,py,swift,go,java,cs,cpp,rb,kt,lua,pl,php,r,dart,fs}` and `bindings/c/src/strling.c`.
 
 ### Container
 
@@ -52,10 +52,10 @@ artifact:
 
 Add per-binding tests:
 
-- `bindings/typescript/__tests__/e2e/pcre2_emitter.test.ts` → `it("rejects variable-length lookbehind")`
-- `bindings/python/tests/e2e/test_pcre2_emitter.py` → `def test_rejects_variable_length_lookbehind`
-- `bindings/swift/Tests/STRlingE2ETests/E2EPCRE2EmitterTests.swift` → `func testRejectsVariableLengthLookbehind`
-- `bindings/c/tests/unit/emitter_edges_test.c` → `test_rejects_variable_length_lookbehind`
+-   `bindings/typescript/__tests__/e2e/pcre2_emitter.test.ts` → `it("rejects variable-length lookbehind")`
+-   `bindings/python/tests/e2e/test_pcre2_emitter.py` → `def test_rejects_variable_length_lookbehind`
+-   `bindings/swift/Tests/STRlingE2ETests/E2EPCRE2EmitterTests.swift` → `func testRejectsVariableLengthLookbehind`
+-   `bindings/c/tests/unit/emitter_edges_test.c` → `test_rejects_variable_length_lookbehind`
 
 ---
 
@@ -66,8 +66,8 @@ Add per-binding tests:
 
 ### Target Vector
 
-- New constant in [`spec/grammar/semantics.md`](../../spec/grammar/semantics.md): `MAX_AST_DEPTH = 256`.
-- Reference implementation in [`bindings/typescript/src/STRling/emitters/pcre2.ts`](../../bindings/typescript/src/STRling/emitters/pcre2.ts).
+-   New constant in [`spec/grammar/semantics.md`](../../spec/grammar/semantics.md): `MAX_AST_DEPTH = 256`.
+-   Reference implementation in [`bindings/typescript/src/STRling/emitters/pcre2.ts`](../../bindings/typescript/src/STRling/emitters/pcre2.ts).
 
 ### Container
 
@@ -142,9 +142,9 @@ Each warning payload follows the existing schema:
 
 Add fixtures:
 
-- `tests/conformance/inputs/redos-nested-plus.json` — `(a+)+`
-- `tests/conformance/inputs/redos-overlapping-alt.json` — `(a|a)+`
-- `tests/conformance/inputs/redos-safe-atomic.json` — already exists; ensures no false positive.
+-   `tests/conformance/inputs/redos-nested-plus.json` — `(a+)+`
+-   `tests/conformance/inputs/redos-overlapping-alt.json` — `(a|a)+`
+-   `tests/conformance/inputs/redos-safe-atomic.json` — already exists; ensures no false positive.
 
 Per-binding tests assert `artifact.warnings.some(w => w.code === 'REDOS_RISK')`.
 
@@ -243,19 +243,19 @@ exceptions. A failing seed must be auto-saved to
 
 ### Target Vector
 
-- `tests/conformance/inputs/unicode-properties-extended.json`
-- `tests/conformance/expected/pcre2/unicode-properties-extended.json`
+-   `tests/conformance/inputs/unicode-properties-extended.json`
+-   `tests/conformance/expected/pcre2/unicode-properties-extended.json`
 
 ### Container
 
 A single fixture exercising:
 
-- Unicode 16 scripts (`\p{Garay}`, `\p{Tulu_Tigalari}`, `\p{Kawi}`)
-- `\p{Emoji}` and `\p{Emoji_Presentation}`
-- Negated forms (`\P{L}`, `\P{Sc}`)
-- Invalid property name (`\p{NotAProperty}`) — must produce
-  `STRlingParseError`, **not** a PCRE2 compile error.
-- Surrogate-range literal handling (`\u{D800}` → must be rejected per spec).
+-   Unicode 16 scripts (`\p{Garay}`, `\p{Tulu_Tigalari}`, `\p{Kawi}`)
+-   `\p{Emoji}` and `\p{Emoji_Presentation}`
+-   Negated forms (`\P{L}`, `\P{Sc}`)
+-   Invalid property name (`\p{NotAProperty}`) — must produce
+    `STRlingParseError`, **not** a PCRE2 compile error.
+-   Surrogate-range literal handling (`\u{D800}` → must be rejected per spec).
 
 ### Logic Gap
 

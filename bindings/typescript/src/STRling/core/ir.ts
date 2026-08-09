@@ -354,7 +354,12 @@ export class IRGroup extends IROp {
      * @param name - Optional name for named capture groups.
      * @param atomic - Whether this is an atomic group (prevents backtracking).
      */
-    constructor(capturing: boolean, body: IROp, name: string | null = null, atomic: boolean | null = null) {
+    constructor(
+        capturing: boolean,
+        body: IROp,
+        name: string | null = null,
+        atomic: boolean | null = null,
+    ) {
         super();
         this.capturing = capturing;
         this.body = body;
@@ -395,7 +400,13 @@ export class IRBackref extends IROp {
      *                       or null.
      * @param byName - The name of the group to reference (if using positional arguments).
      */
-    constructor(byIndexOrObj: number | { byIndex?: number; byName?: string } | null = null, byName: string | null = null) {
+    constructor(
+        byIndexOrObj:
+            | number
+            | { byIndex?: number; byName?: string }
+            | null = null,
+        byName: string | null = null,
+    ) {
         super();
         // Handle both constructor styles: new IRBackref({byIndex: 1}) or new IRBackref(1, null)
         if (typeof byIndexOrObj === "object" && byIndexOrObj !== null) {

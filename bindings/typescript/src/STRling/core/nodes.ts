@@ -129,11 +129,11 @@ export class Node {
                 return new Lit(data.value);
             case "Sequence":
                 return new Seq(
-                    (data.parts || []).map((p: any) => Node.fromJSON(p))
+                    (data.parts || []).map((p: any) => Node.fromJSON(p)),
                 );
             case "Alternation":
                 return new Alt(
-                    (data.alternatives || []).map((b: any) => Node.fromJSON(b))
+                    (data.alternatives || []).map((b: any) => Node.fromJSON(b)),
                 );
             case "Dot":
                 return new Dot();
@@ -144,7 +144,7 @@ export class Node {
             case "CharacterClass":
                 return new CharClass(
                     !!data.negated,
-                    (data.members || []).map((m: any) => ClassItem.fromJSON(m))
+                    (data.members || []).map((m: any) => ClassItem.fromJSON(m)),
                 );
             case "Quantifier": {
                 let mode = "Greedy";
@@ -157,7 +157,7 @@ export class Node {
                     Node.fromJSON(data.target),
                     data.min,
                     max,
-                    mode
+                    mode,
                 );
             }
             case "Group":
@@ -165,7 +165,7 @@ export class Node {
                     !!data.capturing,
                     Node.fromJSON(data.body),
                     data.name || null,
-                    data.atomic || null
+                    data.atomic || null,
                 );
             case "Backreference":
                 return new Backref({ byIndex: data.index, byName: data.name });
@@ -409,7 +409,7 @@ export class Group extends Node {
         capturing: boolean,
         body: Node,
         name: string | null = null,
-        atomic: boolean | null = null
+        atomic: boolean | null = null,
     ) {
         super();
         this.capturing = capturing;
@@ -443,7 +443,7 @@ export class Backref extends Node {
             | number
             | { byIndex?: number; byName?: string }
             | null = null,
-        byName: string | null = null
+        byName: string | null = null,
     ) {
         super();
         // Handle both constructor styles: new Backref({byIndex: 1}) or new Backref(1, null)

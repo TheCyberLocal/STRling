@@ -104,21 +104,23 @@ test("digit parser edge case - zero count", () => {
 All bindings **must** include tests for these semantic violations:
 
 1. **Duplicate Capture Group Names:**
-   - **Violation:** Defining the same capture group name twice.
-   - **Required Behavior:** Must throw an error with a message containing "duplicate" and the group name.
-   - **Test Naming:** Must include one of: `duplicate_capture_group`, `semantic_duplicates`, `dup_names`, or `DupNames`.
-   - **Audit Detection:** The Omega Audit (`audit_omega.py`) scans test output for these test names to verify compliance.
+
+    - **Violation:** Defining the same capture group name twice.
+    - **Required Behavior:** Must throw an error with a message containing "duplicate" and the group name.
+    - **Test Naming:** Must include one of: `duplicate_capture_group`, `semantic_duplicates`, `dup_names`, or `DupNames`.
+    - **Audit Detection:** The Omega Audit (`audit_omega.py`) scans test output for these test names to verify compliance.
 
 2. **Invalid Ranges:**
-   - **Violation:** Quantifiers or ranges where min > max (e.g., `{5,3}`).
-   - **Required Behavior:** Must throw an error with a message about invalid range or min/max constraints.
-   - **Test Naming:** Must include one of: `semantic_ranges`, `invalid_range`, or `Ranges`.
-   - **Audit Detection:** The Omega Audit scans test output for these test names to verify compliance.
+
+    - **Violation:** Quantifiers or ranges where min > max (e.g., `{5,3}`).
+    - **Required Behavior:** Must throw an error with a message about invalid range or min/max constraints.
+    - **Test Naming:** Must include one of: `semantic_ranges`, `invalid_range`, or `Ranges`.
+    - **Audit Detection:** The Omega Audit scans test output for these test names to verify compliance.
 
 3. **Type Mismatches (Optional):**
-   - **Violation:** Using a string where a number is expected (if not caught by the language type system).
-   - **Required Behavior:** Type error or validation error before compilation.
-   - **Note:** Statically-typed languages may catch this at compile time rather than runtime.
+    - **Violation:** Using a string where a number is expected (if not caught by the language type system).
+    - **Required Behavior:** Type error or validation error before compilation.
+    - **Note:** Statically-typed languages may catch this at compile time rather than runtime.
 
 **Example Implementation:**
 
@@ -142,13 +144,15 @@ def test_semantic_ranges():
 
 ```javascript
 test("semantic duplicates - duplicate capture group", () => {
-    expect(() => compile("capture('foo', digit(3)) capture('foo', letter(2))"))
-        .toThrow(/Duplicate group name 'foo'/);
+    expect(() =>
+        compile("capture('foo', digit(3)) capture('foo', letter(2))"),
+    ).toThrow(/Duplicate group name 'foo'/);
 });
 
 test("semantic ranges - invalid min/max", () => {
-    expect(() => compile("repeat(min=5, max=3, pattern=digit())"))
-        .toThrow(/Invalid range/);
+    expect(() => compile("repeat(min=5, max=3, pattern=digit())")).toThrow(
+        /Invalid range/,
+    );
 });
 ```
 
@@ -171,6 +175,7 @@ fn test_semantic_ranges() {
 **Why This Matters:**
 
 The Omega Audit enforces that these semantic checks are present in every binding. This ensures:
+
 1. **Consistency:** All bindings reject the same invalid patterns.
 2. **Error Quality:** Users get helpful error messages, not cryptic regex failures.
 3. **Regression Protection:** If semantic validation breaks, the audit catches it immediately.

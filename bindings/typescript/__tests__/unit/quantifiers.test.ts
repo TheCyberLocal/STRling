@@ -61,24 +61,18 @@ describe("Category A: Positive Cases", () => {
     /**
      * Covers all positive cases for valid quantifier syntax and modes.
      */
-
 });
 
 describe("Category B: Negative Cases", () => {
     /**
      * Covers negative cases for malformed quantifier syntax.
      */
-
-
 });
 
 describe("Category C: Edge Cases", () => {
     /**
      * Covers edge cases for quantifiers.
      */
-
-
-
 });
 
 describe("Category D: Interaction Cases", () => {
@@ -86,10 +80,8 @@ describe("Category D: Interaction Cases", () => {
      * Covers the interaction of quantifiers with different atoms and sequences.
      */
 
-
     // Define a type for the constructor of Node subclasses for cleaner type hinting
     type NodeConstructor = new (...args: any[]) => Node;
-
 });
 
 // --- New Test Stubs for 3-Test Standard Compliance -----------------------------
@@ -100,11 +92,6 @@ describe("Category E: Nested and Redundant Quantifiers", () => {
      * These are edge cases that test the parser's ability to handle
      * syntactically valid but semantically unusual patterns.
      */
-
-
-
-
-
 });
 
 describe("Category F: Quantifier On Special Atoms", () => {
@@ -112,34 +99,25 @@ describe("Category F: Quantifier On Special Atoms", () => {
      * Tests for quantifiers applied to special atom types like backreferences
      * and anchors.
      */
-
-
 });
 
 describe("Category G: Multiple Quantified Sequences", () => {
     /**
      * Tests for patterns with multiple consecutive quantified atoms.
      */
-
-
-
 });
 
 describe("Category H: Brace Quantifier Edge Cases", () => {
     /**
      * Additional edge cases for brace quantifiers.
      */
-
-
-
-
 });
 
 describe("Category I: Quantifier Interaction With Flags", () => {
     /**
      * Tests for how quantifiers interact with DSL flags.
      */
-
-
 });
-test("Tests migrated to conformance suite", () => { expect(true).toBe(true); });
+test("Tests migrated to conformance suite", () => {
+    expect(true).toBe(true);
+});

@@ -19,9 +19,9 @@ Examples of common STRling pattern errors.
 The `errors/` subdirectory contains individual files, each demonstrating a single error type.
 These are useful for:
 
-- Testing the LSP server with specific error types
-- Understanding error messages in isolation
-- Verifying error hints are helpful
+-   Testing the LSP server with specific error types
+-   Understanding error messages in isolation
+-   Verifying error hints are helpful
 
 ## Using These Examples
 
@@ -48,18 +48,18 @@ python3 -c "from STRling.core.intelligence import analyze_file; import json; pri
 
 #### valid_patterns.strl
 
-- **No errors** - Green checkmark or no diagnostics shown
-- Verifies the LSP is working
+-   **No errors** - Green checkmark or no diagnostics shown
+-   Verifies the LSP is working
 
 #### invalid_patterns.strl
 
-- **One error** - "Unterminated group" on line with "(hello world"
-- Demonstrates "first error wins" behavior
+-   **One error** - "Unterminated group" on line with "(hello world"
+-   Demonstrates "first error wins" behavior
 
 #### errors/unterminated_group.strl
 
-- **One error** - "Unterminated group"
-- Shows instructional hint about adding ')'
+-   **One error** - "Unterminated group"
+-   Shows instructional hint about adding ')'
 
 ## Testing Workflow
 

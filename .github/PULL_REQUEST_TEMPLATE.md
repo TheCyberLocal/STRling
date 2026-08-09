@@ -40,7 +40,7 @@
     -   [ ] Python (`pytest`)
     -   [ ] Rust (`cargo test`)
     -   [ ] Go (`go test ./...`)
-    -   [ ] Java/Kotlin/C#/Others: ********\_********
+    -   [ ] Java/Kotlin/C#/Others: **\*\*\*\***\_**\*\*\*\***
 -   [ ] **Conformance:** I ran the conformance suite for the modified language(s) and confirmed ~594+ tests passed.
 
 ## ✅ Checklist

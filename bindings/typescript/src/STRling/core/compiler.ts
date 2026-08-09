@@ -42,7 +42,10 @@ export class Compiler {
      * @param rootNode - The root AST node to compile.
      * @returns An object containing the compiled IR and metadata about features used.
      */
-    compileWithMetadata(rootNode: N.Node): { ir: IR.IROp; metadata: { features_used: string[] } } {
+    compileWithMetadata(rootNode: N.Node): {
+        ir: IR.IROp;
+        metadata: { features_used: string[] };
+    } {
         let irRoot = this._lower(rootNode);
         irRoot = this._normalize(irRoot);
 
@@ -89,7 +92,10 @@ export class Compiler {
         if (node instanceof IR.IRCharClass) {
             // Check for Unicode property escapes in character class items
             for (const item of node.items) {
-                if (item instanceof IR.IRClassEscape && item.type === "UnicodeProperty") {
+                if (
+                    item instanceof IR.IRClassEscape &&
+                    item.type === "UnicodeProperty"
+                ) {
                     this.featuresUsed.add("unicode_property");
                 }
             }
@@ -141,12 +147,16 @@ export class Compiler {
      */
     _lower(node: N.Node): IR.IROp {
         const t = node.constructor.name;
-        
+
         if (t === "Seq") {
-            return new IR.IRSeq((node as N.Seq).parts.map((p) => this._lower(p)));
+            return new IR.IRSeq(
+                (node as N.Seq).parts.map((p) => this._lower(p)),
+            );
         }
         if (t === "Alt") {
-            return new IR.IRAlt((node as N.Alt).branches.map((b) => this._lower(b)));
+            return new IR.IRAlt(
+                (node as N.Alt).branches.map((b) => this._lower(b)),
+            );
         }
         if (t === "Lit") {
             return new IR.IRLit((node as N.Lit).value);
@@ -183,7 +193,7 @@ export class Compiler {
                 this._lower(quant.child),
                 quant.min,
                 quant.max,
-                quant.mode
+                quant.mode,
             );
         }
         if (t === "Group") {
@@ -192,7 +202,7 @@ export class Compiler {
                 group.capturing,
                 this._lower(group.body),
                 group.name,
-                group.atomic
+                group.atomic,
             );
         }
         if (t === "Backref") {
@@ -233,7 +243,7 @@ export class Compiler {
                     parts.push(pNorm);
                 }
             }
-            
+
             const fused: IR.IROp[] = [];
             let buf = "";
             for (const p of parts) {
@@ -252,7 +262,7 @@ export class Compiler {
             }
             return fused.length === 1 ? fused[0] : new IR.IRSeq(fused);
         }
-        
+
         if (node instanceof IR.IRAlt) {
             const branches: IR.IROp[] = [];
             for (const b of node.branches) {
@@ -265,25 +275,29 @@ export class Compiler {
             }
             return branches.length === 1 ? branches[0] : new IR.IRAlt(branches);
         }
-        
+
         if (node instanceof IR.IRQuant) {
             const child: IR.IROp = this._normalize(node.child);
             return new IR.IRQuant(child, node.min, node.max, node.mode);
         }
-        
+
         if (node instanceof IR.IRGroup) {
             return new IR.IRGroup(
                 node.capturing,
                 this._normalize(node.body),
                 node.name,
-                node.atomic
+                node.atomic,
             );
         }
-        
+
         if (node instanceof IR.IRLook) {
-            return new IR.IRLook(node.dir, node.neg, this._normalize(node.body));
+            return new IR.IRLook(
+                node.dir,
+                node.neg,
+                this._normalize(node.body),
+            );
         }
-        
+
         return node;
     }
 }

@@ -1,4 +1,4 @@
-import STRling from './dist/index.js';
+import STRling from "./dist/index.js";
 
 const s = STRling.simply;
 
@@ -10,7 +10,7 @@ const phone = s.merge(
     s.capture(s.digit(3)),
     s.may(s.inChars("-. ")),
     s.capture(s.digit(4)),
-    s.end()
+    s.end(),
 );
 
 const regex = s.toRegExp(phone);

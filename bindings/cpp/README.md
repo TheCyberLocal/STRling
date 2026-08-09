@@ -90,11 +90,11 @@ int main() {
 
 Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
 
-- **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
-- **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
-- **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods with full IDE discovery.
-- **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
-- **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
+-   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
+-   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
+-   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods with full IDE discovery.
+-   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
+-   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
 
 ## 🏗️ Architecture
 
@@ -106,10 +106,10 @@ STRling follows a strict compiler pipeline architecture to ensure consistency ac
 
 ## 📚 Documentation
 
-- [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
-- [**Project Hub**](../../README.md): The main STRling repository.
-- [**Specification**](../../spec/README.md): The core grammar and semantic specifications.
-- [**Ecosystem & Distribution Matrix**](../../docs/OFFICIAL_PUBLICATION_STEPS.md): Release and publication guidance across bindings.
+-   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
+-   [**Project Hub**](../../README.md): The main STRling repository.
+-   [**Specification**](../../spec/README.md): The core grammar and semantic specifications.
+-   [**Ecosystem & Distribution Matrix**](../../docs/OFFICIAL_PUBLICATION_STEPS.md): Release and publication guidance across bindings.
 
 ## 🌐 Connect
 

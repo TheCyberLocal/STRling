@@ -1,4 +1,4 @@
-import { specialChar } from './src/STRling/simply/static.js';
+import { specialChar } from "./src/STRling/simply/static.js";
 
 const pattern = specialChar();
 const regex = pattern.toString();

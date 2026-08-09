@@ -50,12 +50,7 @@ describe("Grouping & Lookaround Errors", () => {
             "unterminated_named_group",
         ],
         ["(?=abc", "Unterminated lookahead", 6, "unterminated_lookahead"],
-        [
-            "(?<=abc",
-            "Unterminated lookbehind",
-            7,
-            "unterminated_lookbehind",
-        ],
+        ["(?<=abc", "Unterminated lookbehind", 7, "unterminated_lookbehind"],
         ["(?i)abc", "Inline modifiers", 1, "unsupported_inline_modifier"],
     ])(
         'should fail for "%s" (ID: %s)',
@@ -70,7 +65,7 @@ describe("Grouping & Lookaround Errors", () => {
                 expect(err.message).toContain(errorPrefix);
                 expect(err.pos).toBe(errorPos);
             }
-        }
+        },
     );
 });
 
@@ -97,7 +92,12 @@ describe("Backreference & Naming Errors", () => {
             3,
             "nonexistent_reference_by_index",
         ],
-        [String.raw`\k<`, "Unterminated named backref", 0, "unterminated_named_backref"],
+        [
+            String.raw`\k<`,
+            "Unterminated named backref",
+            0,
+            "unterminated_named_backref",
+        ],
     ])(
         'should fail for "%s" (ID: %s)',
         (invalidDsl, errorPrefix, errorPos, id) => {
@@ -111,7 +111,7 @@ describe("Backreference & Naming Errors", () => {
                 expect(err.message).toContain(errorPrefix);
                 expect(err.pos).toBe(errorPos);
             }
-        }
+        },
     );
 
     test("duplicate group name raises error", () => {
@@ -120,7 +120,7 @@ describe("Backreference & Naming Errors", () => {
          */
         expect(() => parse("(?<name>a)(?<name>b)")).toThrow(ParseError);
         expect(() => parse("(?<name>a)(?<name>b)")).toThrow(
-            /Duplicate group name/
+            /Duplicate group name/,
         );
     });
 });
@@ -156,7 +156,7 @@ describe("Character Class Errors", () => {
                 expect(err.message).toContain(errorPrefix);
                 expect(err.pos).toBe(errorPos);
             }
-        }
+        },
     );
 });
 
@@ -192,7 +192,7 @@ describe("Escape & Codepoint Errors", () => {
                 expect(err.message).toContain(errorPrefix);
                 expect(err.pos).toBe(errorPos);
             }
-        }
+        },
     );
 });
 

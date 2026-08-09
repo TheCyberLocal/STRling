@@ -18,17 +18,17 @@ That pipeline is the core project contract. New features should fit into it rath
 
 ### Source of Truth Rules
 
-- The **TypeScript binding** is the logic reference implementation.
-- The **Python binding** (`bindings/python/pyproject.toml`) is the version source of truth.
-- Spec changes should keep grammar, semantics, schemas, and generated fixtures aligned.
+-   The **TypeScript binding** is the logic reference implementation.
+-   The **Python binding** (`bindings/python/pyproject.toml`) is the version source of truth.
+-   Spec changes should keep grammar, semantics, schemas, and generated fixtures aligned.
 
 ### Binding Responsibilities
 
-- **Specification** lives in `spec/`.
-- **Core compiler logic** lives in each binding's `src/core/` area.
-- **Emitters** are pure transformations from IR to target regex output.
-- **Bindings** provide language-specific APIs and convenience wrappers.
-- **Tests** verify syntax, semantics, conformance, and end-to-end behavior.
+-   **Specification** lives in `spec/`.
+-   **Core compiler logic** lives in each binding's `src/core/` area.
+-   **Emitters** are pure transformations from IR to target regex output.
+-   **Bindings** provide language-specific APIs and convenience wrappers.
+-   **Tests** verify syntax, semantics, conformance, and end-to-end behavior.
 
 ### Emitter Contract
 
@@ -78,9 +78,9 @@ This keeps final release decisions based on observable behavior instead of on as
 
 ## Related Documentation
 
-- [Architectural Principles](architecture.md)
-- [Testing Philosophy & Contribution Workflow](testing_workflow.md)
-- [Test Design Standard](testing_design.md)
-- [Releasing STRling](releasing.md)
-- [CI/CD Pipeline Setup Guide](ci_cd_setup.md)
-- [Contribution & Documentation Guidelines](guidelines.md)
+-   [Architectural Principles](architecture.md)
+-   [Testing Philosophy & Contribution Workflow](testing_workflow.md)
+-   [Test Design Standard](testing_design.md)
+-   [Releasing STRling](releasing.md)
+-   [CI/CD Pipeline Setup Guide](ci_cd_setup.md)
+-   [Contribution & Documentation Guidelines](guidelines.md)

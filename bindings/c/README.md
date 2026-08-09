@@ -25,8 +25,8 @@ Running `make` builds the default static library `libstrling.a`.
 
 Public headers live in `bindings/c/include`:
 
-- `strling.h`
-- `strling_simply.h`
+-   `strling.h`
+-   `strling_simply.h`
 
 Downstream consumers include those headers and link `libstrling.a`:
 
@@ -97,9 +97,9 @@ int main(void) {
 
 **Key Features:**
 
-- **Zero Boilerplate:** Simple, readable pattern construction with `sl_*` functions
-- **Memory Safety:** Single `sl_free(phone)` call cleans up entire pattern
-- **Fluent API:** Chain operations naturally with `sl_seq`, `sl_capture`, `sl_optional`, etc.
+-   **Zero Boilerplate:** Simple, readable pattern construction with `sl_*` functions
+-   **Memory Safety:** Single `sl_free(phone)` call cleans up entire pattern
+-   **Fluent API:** Chain operations naturally with `sl_seq`, `sl_capture`, `sl_optional`, etc.
 
 ### Low-Level API
 
@@ -213,9 +213,9 @@ corresponding free helpers like `strling_ast_node_free()` and
 
 ## 📚 Documentation
 
-- [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
-- [**Project Hub**](../../README.md): The main STRling repository.
-- [**Specification**](../../spec/README.md): The core grammar and semantic specifications.
+-   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
+-   [**Project Hub**](../../README.md): The main STRling repository.
+-   [**Specification**](../../spec/README.md): The core grammar and semantic specifications.
 
 ## 🌐 Connect
 

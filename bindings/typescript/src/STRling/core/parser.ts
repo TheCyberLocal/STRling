@@ -52,7 +52,7 @@ class Cursor {
         text: string,
         i: number = 0,
         extendedMode: boolean = false,
-        inClass: number = 0
+        inClass: number = 0,
     ) {
         this.text = text;
         this.i = i;
@@ -159,7 +159,7 @@ class Parser {
                 else acc.push("");
                 return acc;
             },
-            [""]
+            [""],
         );
 
         const patternLines: string[] = [];
@@ -204,13 +204,13 @@ class Parser {
                         const hint = getHint(
                             `Invalid flag '${ch}'`,
                             this._originalText,
-                            pos
+                            pos,
                         );
                         throw new STRlingParseError(
                             `Invalid flag '${ch}'`,
                             pos,
                             this._originalText,
-                            hint
+                            hint,
                         );
                     }
                 } else {
@@ -223,13 +223,13 @@ class Parser {
                             const hint = getHint(
                                 `Invalid flag '${ch}'`,
                                 this._originalText,
-                                pos
+                                pos,
                             );
                             throw new STRlingParseError(
                                 `Invalid flag '${ch}'`,
                                 pos,
                                 this._originalText,
-                                hint
+                                hint,
                             );
                         }
                     }
@@ -252,13 +252,13 @@ class Parser {
                 const hint = getHint(
                     "Malformed directive",
                     this._originalText,
-                    pos
+                    pos,
                 );
                 throw new STRlingParseError(
                     "Malformed directive",
                     pos,
                     this._originalText,
-                    hint
+                    hint,
                 );
             }
             // All other lines are pattern content. If a `%flags` directive
@@ -272,13 +272,13 @@ class Parser {
                 const hint = getHint(
                     "Directive after pattern",
                     this._originalText,
-                    pos
+                    pos,
                 );
                 throw new STRlingParseError(
                     "Directive after pattern",
                     pos,
                     this._originalText,
-                    hint
+                    hint,
                 );
             }
             inPattern = true;
@@ -299,13 +299,13 @@ class Parser {
                     "Unmatched ')'",
                     this.cur.i,
                     this.src,
-                    "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?"
+                    "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\)'?",
                 );
             }
             if (this.cur.peek() === "|") {
                 this._raiseError(
                     "Alternation lacks right-hand side",
-                    this.cur.i
+                    this.cur.i,
                 );
             } else {
                 this._raiseError("Unexpected trailing input", this.cur.i);
@@ -400,7 +400,7 @@ class Parser {
             if (shouldCoalesce) {
                 parts[parts.length - 1] = new Lit(
                     (parts[parts.length - 1] as Lit).value +
-                        quantifiedAtom.value
+                        quantifiedAtom.value,
                 );
             } else {
                 parts.push(quantifiedAtom);
@@ -478,7 +478,7 @@ class Parser {
                 child,
                 minVal,
                 maxVal !== null ? (maxVal as number | string) : "Inf",
-                mode
+                mode,
             ),
             hadFailedQuantParse,
         ];
@@ -513,7 +513,7 @@ class Parser {
                     const hint = getHint(
                         "Invalid brace quantifier content",
                         this.src,
-                        quantStart
+                        quantStart,
                     );
                     // Include a human-friendly prefix so tests that look for
                     // 'Brace quantifier' in the error message succeed while
@@ -522,7 +522,7 @@ class Parser {
                         "Brace quantifier: Invalid brace quantifier content",
                         quantStart,
                         this.src,
-                        hint
+                        hint,
                     );
                 }
             }
@@ -538,7 +538,7 @@ class Parser {
                     "Incomplete quantifier",
                     cur.i,
                     this.src,
-                    "Brace quantifiers use the syntax {m,n} or {n}. Make sure to close the quantifier with a closing '}'."
+                    "Brace quantifiers use the syntax {m,n} or {n}. Make sure to close the quantifier with a closing '}'.",
                 );
             }
             return [m, n !== null ? n : "Inf", "Greedy"];
@@ -550,7 +550,7 @@ class Parser {
                     "Incomplete quantifier",
                     cur.i,
                     this.src,
-                    "Brace quantifiers use the syntax {m,n} or {n}. Make sure to close the quantifier with a closing '}'."
+                    "Brace quantifiers use the syntax {m,n} or {n}. Make sure to close the quantifier with a closing '}'.",
                 );
             }
             return [m, m, "Greedy"];
@@ -599,7 +599,7 @@ class Parser {
                 "Unmatched ')'",
                 cur.i,
                 this.src,
-                "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\\\)'?"
+                "This ')' character does not have a matching opening '('. Did you mean to escape it with '\\\\)'?",
             );
         }
         if ("|".includes(ch)) {
@@ -649,7 +649,7 @@ class Parser {
             const num = this._readDecimal();
             this._raiseError(
                 `Backreference to undefined group \\${num}`,
-                startPos
+                startPos,
             );
         }
 
@@ -677,7 +677,7 @@ class Parser {
             if (!this._capNames.has(name)) {
                 this._raiseError(
                     `Backreference to undefined group <${name}>`,
-                    startPos
+                    startPos,
                 );
             }
             return new Backref(null, name);
@@ -907,7 +907,7 @@ class Parser {
                     "Unterminated character class",
                     startPos,
                     this.src,
-                    hint
+                    hint,
                 );
             }
 
@@ -1015,7 +1015,7 @@ class Parser {
         if (cur.peek() === "?" && "imsx".includes(cur.peek(1))) {
             this._raiseError(
                 "Inline modifiers `(?imsx)` are not supported",
-                cur.i
+                cur.i,
             );
         }
 
@@ -1069,7 +1069,7 @@ class Parser {
                     "Incomplete named capture group",
                     cur.i,
                     this.src,
-                    "Incomplete named capture group. Expected ')' to close the group."
+                    "Incomplete named capture group. Expected ')' to close the group.",
                 );
             }
             return new Group(true, body, name);

@@ -43,9 +43,9 @@ All bindings are validated against a shared set of JSON fixtures in `tests/spec/
 
 ### Conformance Test Contract
 
-- Parse `input_ast` → Compile → Assert IR matches `expected_ir`.
-- Error fixtures include `expected_error` and `expected_hint` fields validated against the fixture schema in `spec/schema/conformance-fixture.schema.json`.
-- Every binding must pass the **same** fixtures with **identical** output states. There is no tolerance for silent divergence.
+-   Parse `input_ast` → Compile → Assert IR matches `expected_ir`.
+-   Error fixtures include `expected_error` and `expected_hint` fields validated against the fixture schema in `spec/schema/conformance-fixture.schema.json`.
+-   Every binding must pass the **same** fixtures with **identical** output states. There is no tolerance for silent divergence.
 
 ---
 
@@ -112,17 +112,17 @@ python3 tooling/audit_hint_parity.py
 
 ## Debugging Conformance Failures
 
-- **IR Mismatch:** Compare `expected_ir` vs actual output using the binding's `compileWithMetadata()` method.
-- **Emitter Issues:** Check `_escapeLiteral()` and `_escapeClassChar()` in the PCRE2 emitter.
-- **Failure Logs:** Inspect `tooling/test_logs/` for per-binding results.
+-   **IR Mismatch:** Compare `expected_ir` vs actual output using the binding's `compileWithMetadata()` method.
+-   **Emitter Issues:** Check `_escapeLiteral()` and `_escapeClassChar()` in the PCRE2 emitter.
+-   **Failure Logs:** Inspect `tooling/test_logs/` for per-binding results.
 
 ---
 
 ## Anti-Regression Rules
 
-- **Do not** skip or ignore conformance tests. The Omega Audit enforces zero skips.
-- **Do not** modify golden master fixtures by hand. They are generated from TypeScript only.
-- **Do not** introduce flaky tests. Tests must pass consistently and execute quickly.
-- **Do not** merge a PR that reduces the conformance pass count below the current baseline (~594+ tests).
-- **Do not** add a feature to a non-TypeScript binding without first verifying that the corresponding spec fixtures exist.
-- **Do not** add a new error pattern to the TypeScript HintEngine without propagating it to all binding hint engines. Run `python3 tooling/audit_hint_parity.py` to verify.
+-   **Do not** skip or ignore conformance tests. The Omega Audit enforces zero skips.
+-   **Do not** modify golden master fixtures by hand. They are generated from TypeScript only.
+-   **Do not** introduce flaky tests. Tests must pass consistently and execute quickly.
+-   **Do not** merge a PR that reduces the conformance pass count below the current baseline (~594+ tests).
+-   **Do not** add a feature to a non-TypeScript binding without first verifying that the corresponding spec fixtures exist.
+-   **Do not** add a new error pattern to the TypeScript HintEngine without propagating it to all binding hint engines. Run `python3 tooling/audit_hint_parity.py` to verify.

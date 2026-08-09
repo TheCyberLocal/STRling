@@ -55,21 +55,18 @@ describe("Category A: Positive Cases", () => {
     /**
      * Covers all positive cases for valid character class syntax.
      */
-
 });
 
 describe("Category B: Negative Cases", () => {
     /**
      * Covers all negative cases for malformed character class syntax.
      */
-
 });
 
 describe("Category C: Edge Cases", () => {
     /**
      * Covers edge cases for character class parsing.
      */
-
 });
 
 describe("Category D: Interaction Cases", () => {
@@ -77,7 +74,6 @@ describe("Category D: Interaction Cases", () => {
      * Covers how character classes interact with other DSL features, specifically
      * the free-spacing mode flag.
      */
-
 });
 
 // --- New Test Stubs for 3-Test Standard Compliance -----------------------------
@@ -86,56 +82,37 @@ describe("Category E: Minimal Char Classes", () => {
     /**
      * Tests for character classes with minimal content.
      */
-
-
-
 });
 
 describe("Category F: Escaped Metachars In Classes", () => {
     /**
      * Tests for escaped metacharacters inside character classes.
      */
-
-
-
-
-
 });
 
 describe("Category G: Complex Range Combinations", () => {
     /**
      * Tests for character classes with complex range combinations.
      */
-
-
-
 });
 
 describe("Category H: Unicode Property Combinations", () => {
     /**
      * Tests for combinations of Unicode property escapes.
      */
-
-
-
-
 });
 
 describe("Category I: Negated Class Variations", () => {
     /**
      * Tests for negated character classes with various contents.
      */
-
-
-
 });
 
 describe("Category J: Char Class Error Cases", () => {
     /**
      * Additional error cases for character classes.
      */
-
-
-
 });
-test("Tests migrated to conformance suite", () => { expect(true).toBe(true); });
+test("Tests migrated to conformance suite", () => {
+    expect(true).toBe(true);
+});

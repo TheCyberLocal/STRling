@@ -31,7 +31,7 @@ export function between(
     start: string | number,
     end: string | number,
     minRep?: number,
-    maxRep?: number
+    maxRep?: number,
 ): Pattern {
     if (
         (typeof start !== "string" || typeof end !== "string") &&
@@ -146,7 +146,7 @@ export function notBetween(
     start: string | number,
     end: string | number,
     minRep?: number,
-    maxRep?: number
+    maxRep?: number,
 ): Pattern {
     if (
         (typeof start !== "string" || typeof end !== "string") &&
@@ -292,8 +292,8 @@ export function inChars(...patterns: (Pattern | string)[]): Pattern {
             // For literals, add each character as a ClassLiteral item
             items = items.concat(
                 Array.from((pattern.node as any).value).map(
-                    (c) => new nodes.ClassLiteral(c as string)
-                )
+                    (c) => new nodes.ClassLiteral(c as string),
+                ),
             );
         } else if (pattern.node.constructor.name === "CharClass") {
             // For character classes, add their items directly
@@ -338,7 +338,7 @@ export function notInChars(...patterns: (Pattern | string)[]): Pattern {
     const compositeNodeTypes = ["Seq", "Alt", "Group", "Quant", "Look"];
     if (
         cleanPatterns.some((p) =>
-            compositeNodeTypes.includes(p.node.constructor.name)
+            compositeNodeTypes.includes(p.node.constructor.name),
         )
     ) {
         const message = `
@@ -356,8 +356,8 @@ export function notInChars(...patterns: (Pattern | string)[]): Pattern {
             // For literals, add each character as a Char item
             items = items.concat(
                 Array.from((pattern.node as any).value).map(
-                    (c) => new nodes.ClassLiteral(c as string)
-                )
+                    (c) => new nodes.ClassLiteral(c as string),
+                ),
             );
         } else if (pattern.node.constructor.name === "CharClass") {
             // For character classes, add their items directly
