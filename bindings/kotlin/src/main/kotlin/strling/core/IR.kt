@@ -1,5 +1,6 @@
 package strling.core
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
@@ -15,10 +16,12 @@ import kotlinx.serialization.json.JsonElement
 // ---- Base IR operation ----
 
 @Serializable
+@OptIn(ExperimentalSerializationApi::class)
 @JsonClassDiscriminator("ir")
 sealed interface IROp
 
 @Serializable
+@OptIn(ExperimentalSerializationApi::class)
 @JsonClassDiscriminator("ir")
 sealed interface IRClassItem
 

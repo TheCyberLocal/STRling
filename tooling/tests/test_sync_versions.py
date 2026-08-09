@@ -1,5 +1,5 @@
-import pytest
 from pathlib import Path
+
 from tooling.sync_versions import (
     update_json,
     update_composer_json,

@@ -11,8 +11,6 @@ use strling::core::compiler::Compiler;
 use strling::core::nodes::*;
 use strling::core::nodes::MaxBound;
 use strling::core::ir::*;
-#[allow(unused_imports)]
-use strling::core::errors::STRlingParseError;
 use strling::emitters::pcre2::PCRE2Emitter;
 
 // ============================================================================
@@ -938,4 +936,3 @@ mod interaction_tests {
         assert!(result.contains("0-9"));
     }
 }
-

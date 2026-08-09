@@ -26,7 +26,7 @@ checkpoints:
             result: Policies parsed, the established check remained green with 963 TypeScript tests, and patch integrity passed.
       commit:
           subject: "docs(quality): define static analysis and warning policy"
-          sha: pending
+          sha: a2bd48f8ead42bd7d9dfe154e0074d7f3fda6f08
     - name: Canonical lint and static-analysis integration
       status: passed
       accomplishment:
@@ -45,7 +45,7 @@ checkpoints:
             result: Strict TypeScript checking passed with the repository-resolved 5.9.3 analyzer probe.
       commit:
           subject: "feat(quality): integrate canonical static analysis"
-          sha: pending
+          sha: 8602659a75d5a371e4b3ba14610cadf690b8b95a
     - name: Warning and suppression governance
       status: passed
       accomplishment:
@@ -69,9 +69,31 @@ checkpoints:
           - WVR-STATIC-SHELL-INTEROP-001 is a narrow permanent interoperability exception
       commit:
           subject: "feat(quality): govern warnings and analyzer suppressions"
-          sha: pending
+          sha: 5058bbdd20816d8827451f73978fc2e29a62044e
     - name: Behavior-neutral static-quality remediation
-      status: pending
+      status: passed
+      accomplishment:
+          - Removed three unused Python imports, two neutral Dart findings, and eight unused Ruby test-local assignments.
+          - Added four declaration-scoped Kotlin serialization opt-ins and enabled the already-configured fatal warning path without runtime changes.
+          - Removed one generated Rust import, four unused Rust imports, six obsolete allow attributes, and one private unreferenced cursor helper.
+          - Removed the project-owned CMake FetchContent timestamp warning while leaving the transitive dependency warning explicit.
+          - Reduced governed suppressions from 92 to 86 and retired WVR-STATIC-RUST-ALLOW-001.
+      verification:
+          - command: ./strling lint repository --json; ./strling lint python --json; ./strling lint dart --json; ./strling lint kotlin --json; BUNDLER_VERSION=2.4.20 ./strling lint ruby --json; ./strling typecheck rust --json
+            result: Every remediated analyzer passed; repository suppression audit reported 86 managed directives, three waivers, and zero findings.
+          - command: ./strling test python --json; ./strling test dart --json; ./strling test kotlin --json; BUNDLER_VERSION=2.4.20 ./strling test ruby --json; ./strling test rust --json
+            result: All affected canonical binding test commands passed.
+          - command: python3 -m unittest tooling.tests.test_quality tooling.tests.test_static_analysis; python3 -m pytest tooling/tests/test_sync_versions.py -q
+            result: 42 quality/suppression tests and six version-sync tests passed.
+          - command: CMAKE_COMPILE_WARNING_AS_ERROR=ON C++ configure and build
+            result: The project-owned CMake warning was eliminated and compilation passed; one explicitly recorded nlohmann/json deprecation warning remains transitive.
+          - command: committed and remediated bindings/ruby/test/interaction_test.rb
+            result: Both produced 32 runs, 24 assertions, four failures, and eight errors; the pre-existing behavioral defects are separately deferred.
+          - command: ./strling format --check; ./strling hygiene; git diff --check
+            result: Canonical formatting and hygiene passed; patch integrity passed.
+      commit:
+          subject: "refactor(types): remove behavior-neutral static analysis violations"
+          sha: pending
     - name: Hardgate integration and certification
       status: pending
 behavior_changed: No STRling language/compiler semantics intentionally changed.

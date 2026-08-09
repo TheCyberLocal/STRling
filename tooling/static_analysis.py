@@ -76,9 +76,7 @@ def _detectors(path: Path) -> list[tuple[str, re.Pattern[str]]]:
             )
         ]
     if suffix == ".rs":
-        return [
-            ("rust", re.compile(r"#(?:!)?\[allow\s*\(", re.IGNORECASE))
-        ]
+        return [("rust", re.compile(r"#(?:!)?\[allow\s*\(", re.IGNORECASE))]
     if suffix == ".cs":
         return [
             (
@@ -87,9 +85,7 @@ def _detectors(path: Path) -> list[tuple[str, re.Pattern[str]]]:
             )
         ]
     if suffix == ".java":
-        return [
-            ("java", re.compile(r"@SuppressWarnings\b|noinspection\b"))
-        ]
+        return [("java", re.compile(r"@SuppressWarnings\b|noinspection\b"))]
     if suffix in (".kt", ".kts"):
         return [("kotlin", re.compile(r"@Suppress\s*\(|noinspection\b"))]
     if suffix == ".go":
@@ -109,15 +105,11 @@ def _detectors(path: Path) -> list[tuple[str, re.Pattern[str]]]:
             )
         ]
     if suffix == ".lua":
-        return [
-            ("lua", re.compile(r"luacheck:\s*ignore\b", re.IGNORECASE))
-        ]
+        return [("lua", re.compile(r"luacheck:\s*ignore\b", re.IGNORECASE))]
     if suffix in (".pl", ".pm", ".t"):
         return [("perl", re.compile(r"perlcritic\b", re.IGNORECASE))]
     if suffix == ".swift":
-        return [
-            ("swift", re.compile(r"swiftlint:disable\b", re.IGNORECASE))
-        ]
+        return [("swift", re.compile(r"swiftlint:disable\b", re.IGNORECASE))]
     if suffix in (".c", ".h", ".cc", ".cpp", ".cxx", ".hh", ".hpp", ".hxx"):
         return [
             (
@@ -144,7 +136,9 @@ def detect_line(path: Path, line_number: int, content: str) -> list[Suppression]
     ]
 
 
-def tracked_suppressions(root: Path, governed_paths: Sequence[str]) -> list[Suppression]:
+def tracked_suppressions(
+    root: Path, governed_paths: Sequence[str]
+) -> list[Suppression]:
     completed = subprocess.run(
         ["git", "ls-files", "-z", "--", *governed_paths],
         cwd=root,

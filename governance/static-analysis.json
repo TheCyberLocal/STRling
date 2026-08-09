@@ -19,7 +19,7 @@
             "obsolete_removable",
             "suspected_product_defect"
         ],
-        "baseline_total": 92,
+        "baseline_total": 86,
         "baseline_sha": "bb334b0980327b8f3599cd6da0562022c365641a",
         "inventory_groups": [
             {
@@ -85,20 +85,6 @@
                 }
             },
             {
-                "kind": "rust",
-                "count": 6,
-                "classification": "obsolete_removable",
-                "reason": "Allow attributes cover unused imports and dead code and require individual review under strict rustc or Clippy.",
-                "retirement_condition": "Remove attributes proven unnecessary; separately govern any attribute whose removal exposes semantic work.",
-                "locations": {
-                    "bindings/rust/src/core/nodes.rs": [19],
-                    "bindings/rust/src/core/parser.rs": [18, 82],
-                    "bindings/rust/src/core/validator.rs": [7],
-                    "bindings/rust/tests/e2e_tests.rs": [10],
-                    "bindings/rust/tests/unit_tests.rs": [14]
-                }
-            },
-            {
                 "kind": "shell",
                 "count": 7,
                 "classification": "permanent_interoperability",
@@ -149,20 +135,6 @@
                 "retirement_condition": "Resolve the callable-Pattern contract as contained product work and remove or replace all three directives.",
                 "path_counts": {
                     "bindings/typescript/__tests__/unit/simply_api.test.ts": 3
-                }
-            },
-            {
-                "id": "WVR-STATIC-RUST-ALLOW-001",
-                "classification": "obsolete_removable",
-                "expires_on": "2026-12-31",
-                "reason": "Six allow attributes predate strict all-target rustc analysis and require individual removal review.",
-                "retirement_condition": "Remove every obsolete attribute and separately govern any remaining attribute whose removal exposes semantic work.",
-                "path_counts": {
-                    "bindings/rust/src/core/nodes.rs": 1,
-                    "bindings/rust/src/core/parser.rs": 2,
-                    "bindings/rust/src/core/validator.rs": 1,
-                    "bindings/rust/tests/e2e_tests.rs": 1,
-                    "bindings/rust/tests/unit_tests.rs": 1
                 }
             },
             {
@@ -280,7 +252,7 @@
             },
             "lint_strategy": ["ruff", "suppression-audit"],
             "type_strategy": "python-type",
-            "baseline": "Ruff reported one unused pytest import in tooling tests; suppression audit counted 92 governed directives.",
+            "baseline": "The Ruff import finding was removed; suppression audit passes with 86 governed directives and three exact-path waivers.",
             "retirement_condition": "Pin one Python type checker and baseline repository tooling without broad ignores."
         },
         {
@@ -322,8 +294,8 @@
             },
             "lint_strategy": "compiler-cpp",
             "type_strategy": "not_applicable",
-            "baseline": "The full target compiled with -Wall -Wextra -Wpedantic and CMAKE_COMPILE_WARNING_AS_ERROR=ON; CMake emitted one project configuration warning and one transitive dependency warning.",
-            "retirement_condition": "Declare the compiler family/version and a deterministic clang-tidy strategy; remove the project-owned CMake warning."
+            "baseline": "The full target compiled with -Wall -Wextra -Wpedantic and CMAKE_COMPILE_WARNING_AS_ERROR=ON; the project-owned FetchContent timestamp warning was removed while one transitive dependency warning remains.",
+            "retirement_condition": "Declare the compiler family/version and a deterministic clang-tidy strategy; resolve the transitive dependency warning without changing package versions."
         },
         {
             "id": "csharp",
@@ -344,13 +316,12 @@
                 "format": "enforced",
                 "lint": "configured",
                 "type_static_analysis": "configured",
-                "compiler_warnings": "not_yet_enforceable",
+                "compiler_warnings": "enforced",
                 "tests": "configured"
             },
             "lint_strategy": "dart-analyze",
             "type_strategy": "dart-analyze",
-            "baseline": "dart analyze reported one unnecessary non-null assertion warning and one unnecessary import info; the canonical command disabled fatal warnings.",
-            "retirement_condition": "Remove the two neutral findings and remove --no-fatal-warnings."
+            "baseline": "The redundant non-null assertion and unnecessary import were removed; canonical dart analyze is warning-fatal and clean."
         },
         {
             "id": "fsharp",
@@ -397,13 +368,12 @@
                 "format": "not_yet_enforceable",
                 "lint": "configured",
                 "type_static_analysis": "configured",
-                "compiler_warnings": "not_yet_enforceable",
+                "compiler_warnings": "enforced",
                 "tests": "configured"
             },
             "lint_strategy": "kotlin-compiler",
             "type_strategy": "kotlin-compiler",
-            "baseline": "The Kotlin compiler reported four ExperimentalSerializationApi opt-in warnings.",
-            "retirement_condition": "Add narrow opt-in annotations, prove tests, and enable allWarningsAsErrors."
+            "baseline": "Four ExperimentalSerializationApi findings were resolved with declaration-scoped opt-ins; allWarningsAsErrors is enabled and the compiler is clean."
         },
         {
             "id": "lua",
@@ -457,7 +427,7 @@
             },
             "lint_strategy": "ruff",
             "type_strategy": "python-type",
-            "baseline": "Ruff reported two unused test imports; pytest already treats runtime warnings as errors.",
+            "baseline": "Both unused test imports were removed; Ruff is clean and pytest already treats runtime warnings as errors.",
             "retirement_condition": "Pin a Python type checker and classify or retire the existing type-ignore debt."
         },
         {
@@ -480,13 +450,13 @@
                 "format": "not_yet_enforceable",
                 "lint": "configured",
                 "type_static_analysis": "not_applicable",
-                "compiler_warnings": "not_yet_enforceable",
+                "compiler_warnings": "enforced",
                 "tests": "configured"
             },
             "lint_strategy": ["ruby-warnings", "rubocop"],
             "type_strategy": "not_applicable",
-            "baseline": "ruby -wc reported eight unused test-local assignments; RuboCop is absent from Gemfile.lock.",
-            "retirement_condition": "Remove the neutral unused assignments and make native warnings fatal; lock RuboCop before broader analysis."
+            "baseline": "The eight unused test-local assignments were made intentionally ignored; native Ruby warnings are fatal and clean while RuboCop remains absent from Gemfile.lock.",
+            "retirement_condition": "Lock RuboCop before broader defect-focused analysis."
         },
         {
             "id": "rust",
@@ -494,13 +464,13 @@
                 "format": "not_yet_enforceable",
                 "lint": "unavailable",
                 "type_static_analysis": "configured",
-                "compiler_warnings": "not_yet_enforceable",
+                "compiler_warnings": "enforced",
                 "tests": "configured"
             },
             "lint_strategy": "clippy",
             "type_strategy": "rustc",
-            "baseline": "Clippy is unavailable; rustc -D warnings reported one generated unused import and six tracked allow attributes remain to classify.",
-            "retirement_condition": "Install the governed Clippy component, remove the generated warning, review allow attributes, and pass all-target analysis with warnings denied."
+            "baseline": "The generated unused import and all six obsolete allow attributes were removed; rustc all-target analysis denies warnings while Clippy remains unavailable.",
+            "retirement_condition": "Install the governed Clippy component and baseline defect-focused lint with warnings denied."
         },
         {
             "id": "swift",
@@ -547,6 +517,14 @@
             "locations": [73, 698, 707],
             "evidence": "Tests suppress type errors around treating Pattern values as callable.",
             "deferral_reason": "The correct callable public contract is behavioral and cannot be selected during hardgate remediation."
+        },
+        {
+            "id": "STATIC-RUBY-INTERACTION-BASELINE",
+            "analyzer": "Behavioral verification",
+            "component": "bindings/ruby/test/interaction_test.rb",
+            "locations": [26, 38, 48, 58, 68, 78, 88, 98, 112, 177, 230, 235],
+            "evidence": "The committed and remediated files each produce 32 runs, 24 assertions, four failures, and eight errors; canonical Ruby tests pass.",
+            "deferral_reason": "Correcting IR serialization assertions or emitted-regex expectations could change Ruby binding behavior and requires contained product work."
         }
     ]
 }

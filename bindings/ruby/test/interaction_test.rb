@@ -19,7 +19,7 @@ class InteractionTest < Minitest::Test
 
   def test_parser_compiler_simple_literal
     parser = Strling::Core::Parser.new("hello")
-    flags, ast = parser.parse
+    _flags, ast = parser.parse
 
     ir = Strling::Core::Compiler.compile(ast)
 
@@ -30,7 +30,7 @@ class InteractionTest < Minitest::Test
 
   def test_parser_compiler_quantifier
     parser = Strling::Core::Parser.new("a+")
-    flags, ast = parser.parse
+    _flags, ast = parser.parse
 
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
@@ -40,7 +40,7 @@ class InteractionTest < Minitest::Test
 
   def test_parser_compiler_character_class
     parser = Strling::Core::Parser.new("[abc]")
-    flags, ast = parser.parse
+    _flags, ast = parser.parse
 
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
@@ -50,7 +50,7 @@ class InteractionTest < Minitest::Test
 
   def test_parser_compiler_capturing_group
     parser = Strling::Core::Parser.new("(abc)")
-    flags, ast = parser.parse
+    _flags, ast = parser.parse
 
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
@@ -60,7 +60,7 @@ class InteractionTest < Minitest::Test
 
   def test_parser_compiler_alternation
     parser = Strling::Core::Parser.new("a|b")
-    flags, ast = parser.parse
+    _flags, ast = parser.parse
 
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
@@ -70,7 +70,7 @@ class InteractionTest < Minitest::Test
 
   def test_parser_compiler_named_group
     parser = Strling::Core::Parser.new("(?<name>abc)")
-    flags, ast = parser.parse
+    _flags, ast = parser.parse
 
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
@@ -80,7 +80,7 @@ class InteractionTest < Minitest::Test
 
   def test_parser_compiler_lookahead
     parser = Strling::Core::Parser.new("(?=abc)")
-    flags, ast = parser.parse
+    _flags, ast = parser.parse
 
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)
@@ -90,7 +90,7 @@ class InteractionTest < Minitest::Test
 
   def test_parser_compiler_lookbehind
     parser = Strling::Core::Parser.new("(?<=abc)")
-    flags, ast = parser.parse
+    _flags, ast = parser.parse
 
     ir = Strling::Core::Compiler.compile(ast)
     serialized = serialize(ir)

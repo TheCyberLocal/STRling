@@ -61,7 +61,9 @@ class SuppressionGovernanceTests(unittest.TestCase):
             Suppression("new.py", 2, "python", "# type: ignore"),
         ]
         errors = validate_suppressions(policy(), findings, date(2026, 8, 9))
-        self.assertTrue(any("unmanaged suppression: new.py:2" in item for item in errors))
+        self.assertTrue(
+            any("unmanaged suppression: new.py:2" in item for item in errors)
+        )
 
     def test_expired_waiver_fails(self) -> None:
         findings = [Suppression("fixture.py", 1, "python", "# noqa")]

@@ -16,8 +16,6 @@
 //! serialized to a dictionary representation for debugging or storage.
 
 use serde::{Deserialize, Serialize};
-#[allow(unused_imports)]
-use serde_json::Value;
 use std::collections::HashMap;
 
 // ---- Flags container ----

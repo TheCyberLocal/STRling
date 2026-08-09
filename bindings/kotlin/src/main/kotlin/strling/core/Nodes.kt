@@ -1,5 +1,6 @@
 package strling.core
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
@@ -55,10 +56,12 @@ data class Flags(
 // ---- Base node ----
 
 @Serializable
+@OptIn(ExperimentalSerializationApi::class)
 @JsonClassDiscriminator("type")
 sealed interface Node
 
 @Serializable
+@OptIn(ExperimentalSerializationApi::class)
 @JsonClassDiscriminator("type")
 sealed interface ClassItem
 

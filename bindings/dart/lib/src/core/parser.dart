@@ -355,7 +355,7 @@ class Parser {
       _cur.take();
 
       // Validate quantifier range
-      if (max != null && max is int && min! > max) {
+      if (max != null && max is int && min > max) {
         throw STRlingParseError('Invalid quantifier range', save, src);
       }
     } else {

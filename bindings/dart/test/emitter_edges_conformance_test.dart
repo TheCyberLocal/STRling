@@ -18,7 +18,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:test/test.dart';
 import 'package:strling/src/emitters/pcre2.dart';
-import 'package:strling/src/core/diagnostics.dart';
 
 String _findFixture() {
   var dir = Directory.current.path;

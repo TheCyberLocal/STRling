@@ -7,8 +7,6 @@
 use regex::Regex;
 use strling::core::parser::Parser;
 use strling::core::compiler::Compiler;
-#[allow(unused_imports)]
-use strling::core::nodes::Flags;
 use strling::emitters::pcre2::PCRE2Emitter;
 
 /// Helper function to compile DSL to regex and check if it matches

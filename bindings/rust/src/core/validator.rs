@@ -4,8 +4,6 @@
 //! JSON schema and semantic rules.
 
 use crate::core::nodes::Node;
-#[allow(unused_imports)]
-use serde_json::Value;
 
 /// Validate a parsed AST against the schema
 ///

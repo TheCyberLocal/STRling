@@ -14,7 +14,6 @@ fn main() {
     content.push_str("use strling::core::compiler::Compiler;\n");
     content.push_str("use strling::core::parser;\n");
     content.push_str("use serde::Deserialize;\n");
-    content.push_str("use serde_json::Value;\n");
     content.push_str("use std::fs;\n\n");
 
     content.push_str("#[derive(Deserialize)]\n");

@@ -15,7 +15,6 @@ struct Cursor {
     in_class: usize,
 }
 
-#[allow(dead_code)]
 impl Cursor {
     fn new(text: String, i: usize, extended_mode: bool, in_class: usize) -> Self {
         Self { text, i, extended_mode, in_class }
@@ -23,15 +22,6 @@ impl Cursor {
 
     fn eof(&self) -> bool {
         self.i >= self.text.len()
-    }
-
-    fn peek(&self, n: usize) -> String {
-        let j = self.i + n;
-        if j >= self.text.len() {
-            String::new()
-        } else {
-            self.text.chars().nth(j).map(|c| c.to_string()).unwrap_or_default()
-        }
     }
 
     fn peek_char(&self, n: usize) -> Option<char> {
@@ -79,7 +69,6 @@ impl Cursor {
     }
 }
 
-#[allow(dead_code)]
 pub struct Parser {
     original_text: String,
     flags: Flags,
