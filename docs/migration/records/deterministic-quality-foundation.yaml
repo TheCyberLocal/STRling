@@ -1,0 +1,85 @@
+record_version: 1.0.0
+title: Deterministic toolchain and quality-command foundation
+status: in_progress
+objective: Establish one version-governed, machine-readable root interface for repository quality operations without changing STRling product semantics.
+scope:
+  allowed_paths:
+    - toolchain.json
+    - strling
+    - tooling/quality.py
+    - tooling/tests/**
+    - .github/workflows/ci.yml
+    - README.md
+    - CONTRIBUTING.md
+    - docs/index.md
+    - docs/toolchains.md
+    - docs/migration/**
+  forbidden_paths:
+    - bindings/**
+    - spec/**
+    - tests/**
+    - .github/workflows/cd.yml
+    - package.json
+    - package-lock.json
+change_classification:
+  behavioral_change: behavior-preserving
+  public_api_change: none
+required_verification:
+  - name: Baseline ancestry
+    command: git merge-base architecture/v4 e6003d0cd5f299feaf74b53e5a2ce6a958f374bc
+    expected_result: The merge-base equals the recorded starting SHA.
+  - name: Configuration parsing
+    command: python3 -m json.tool toolchain.json
+    expected_result: The authoritative toolchain policy parses successfully.
+  - name: Root command tests
+    command: python3 -m unittest discover -s tooling/tests -p 'test_*.py'
+    expected_result: Routing, status, aggregate, and environment-validation tests pass.
+  - name: Root command discovery
+    command: ./strling help
+    expected_result: All canonical quality commands and existing compatible commands are discoverable.
+  - name: Behavioral baseline
+    command: ./strling test typescript
+    expected_result: The existing TypeScript baseline remains 19 suites and 963 passing tests.
+  - name: Aggregate quality
+    command: ./strling check && ./strling certify
+    expected_result: Configured checks pass and deferred capabilities are reported explicitly.
+  - name: Patch integrity
+    command: git diff --check
+    expected_result: No whitespace errors are present.
+checkpoints:
+  - name: Toolchain contract
+    status: passed
+    evidence:
+      - check: Clean starting repository
+        command: git status --short --branch; git rev-parse HEAD
+        result: passed
+        details: architecture/v4 was clean, matched origin/architecture/v4, and started at e6003d0cd5f299feaf74b53e5a2ce6a958f374bc.
+      - check: Existing behavioral baseline
+        command: ./strling test typescript
+        result: passed
+        details: 19 suites and 963 tests passed before any repository change.
+      - check: Toolchain and capability inventory
+        command: Machine-readable inventory validation over toolchain.json
+        result: passed
+        details: All 17 bindings plus the repository and language-server environments declare runtime references, dependency policy, relevant files, and six quality capability states; all required tool references resolve.
+      - check: Policy and record validation
+        command: python3 -m json.tool toolchain.json; Draft 2020-12 task-record validation
+        result: passed
+        details: The toolchain policy parsed, 19 environments and 26 governed tools passed consistency checks, and this record validated.
+      - check: Behavior preservation
+        command: ./strling test typescript; git diff --check
+        result: passed
+        details: The post-policy TypeScript baseline remained 19 suites and 963 tests, root help remained operational, and patch integrity passed.
+  - name: Root quality command framework
+    status: planned
+    evidence: []
+  - name: Environment enforcement
+    status: planned
+    evidence: []
+  - name: Quality-system integration
+    status: planned
+    evidence: []
+  - name: Completion and readiness
+    status: planned
+    evidence: []
+commits: []

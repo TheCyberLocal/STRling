@@ -1,8 +1,237 @@
 {
+    "schema_version": 1,
+    "policy": {
+        "authority": "toolchain.json",
+        "documentation": "docs/toolchains.md",
+        "resolution_models": [
+            "exact",
+            "constrained",
+            "repository_managed",
+            "deferred"
+        ],
+        "capability_statuses": [
+            "configured",
+            "not_applicable",
+            "not_yet_configured"
+        ],
+        "result_statuses": [
+            "passed",
+            "failed",
+            "not_applicable",
+            "not_yet_configured",
+            "unavailable"
+        ],
+        "aggregates": {
+            "check": ["format_check", "lint", "typecheck", "build", "test"],
+            "certify": ["format_check", "lint", "typecheck", "build", "test"]
+        }
+    },
+    "orchestration": {
+        "shell": "bash",
+        "runtime": "python3"
+    },
+    "tools": {
+        "bash": {
+            "resolution": {"model": "constrained", "version": ">=4.0,<6.0"},
+            "version_command": ["bash", "--version"],
+            "version_pattern": "version ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "python3": {
+            "resolution": {"model": "constrained", "version": ">=3.8,<4.0"},
+            "version_command": ["python3", "--version"],
+            "version_pattern": "Python ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "make": {
+            "resolution": {"model": "deferred", "reason": "No portable version floor is declared by the existing Makefiles or CI."},
+            "version_command": ["make", "--version"],
+            "version_pattern": "Make ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "gcc": {
+            "resolution": {"model": "deferred", "reason": "The C binding declares C11 but no compiler version floor."},
+            "version_command": ["gcc", "--version"],
+            "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "pkg-config": {
+            "resolution": {"model": "deferred", "reason": "System library discovery is intentionally environment-managed."},
+            "version_command": ["pkg-config", "--version"],
+            "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "curl": {
+            "resolution": {"model": "deferred", "reason": "The downloader is a setup capability; downloaded Parson sources are pinned by commit."},
+            "version_command": ["curl", "--version"],
+            "version_pattern": "curl ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "cmake": {
+            "resolution": {"model": "constrained", "version": ">=3.15,<4.0"},
+            "version_command": ["cmake", "--version"],
+            "version_pattern": "cmake version ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "c++": {
+            "resolution": {"model": "deferred", "reason": "The C++ binding declares C++17 but no compiler-family version floor."},
+            "version_command": ["c++", "--version"],
+            "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "dotnet": {
+            "resolution": {"model": "constrained", "version": ">=9.0,<10.0"},
+            "version_command": ["dotnet", "--version"],
+            "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "dart": {
+            "resolution": {"model": "constrained", "version": ">=3.0,<4.0"},
+            "version_command": ["dart", "--version"],
+            "version_pattern": "Dart SDK version: ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "go": {
+            "resolution": {"model": "constrained", "version": ">=1.22,<1.23"},
+            "version_command": ["go", "version"],
+            "version_pattern": "go([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "java": {
+            "resolution": {"model": "constrained", "version": ">=11,<22"},
+            "version_command": ["java", "-version"],
+            "version_pattern": "version \"([0-9]+(?:\\.[0-9]+){0,2})"
+        },
+        "mvn": {
+            "resolution": {"model": "deferred", "reason": "The Java binding has no Maven wrapper or declared Maven version."},
+            "version_command": ["mvn", "--version"],
+            "version_pattern": "Apache Maven ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "lua": {
+            "resolution": {"model": "constrained", "version": ">=5.1,<5.5"},
+            "version_command": ["lua", "-v"],
+            "version_pattern": "Lua ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "luarocks": {
+            "resolution": {"model": "deferred", "reason": "No LuaRocks version is declared and setup installs unconstrained test rocks."},
+            "version_command": ["luarocks", "--version"],
+            "version_pattern": "LuaRocks ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "perl": {
+            "resolution": {"model": "constrained", "version": ">=5.10,<6.0"},
+            "version_command": ["perl", "-e", "print $^V"],
+            "version_pattern": "v([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "php": {
+            "resolution": {"model": "constrained", "version": ">=8.2,<9.0"},
+            "version_command": ["php", "--version"],
+            "version_pattern": "PHP ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "composer": {
+            "resolution": {"model": "deferred", "reason": "composer.lock pins packages, but the Composer executable version is not declared."},
+            "version_command": ["composer", "--version"],
+            "version_pattern": "Composer version ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "Rscript": {
+            "resolution": {"model": "deferred", "reason": "The R package and CI do not declare an R runtime version."},
+            "version_command": ["Rscript", "--version"],
+            "version_pattern": "R scripting front-end version ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "ruby": {
+            "resolution": {"model": "constrained", "version": ">=3.0,<4.0"},
+            "version_command": ["ruby", "--version"],
+            "version_pattern": "ruby ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "bundle": {
+            "resolution": {"model": "repository_managed", "file": "bindings/ruby/Gemfile.lock"},
+            "version_command": ["bundle", "--version"],
+            "version_pattern": "Bundler version ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "cargo": {
+            "resolution": {"model": "constrained", "version": ">=1.70,<2.0"},
+            "version_command": ["cargo", "--version"],
+            "version_pattern": "cargo ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "rustc": {
+            "resolution": {"model": "constrained", "version": ">=1.70,<2.0"},
+            "version_command": ["rustc", "--version"],
+            "version_pattern": "rustc ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "swift": {
+            "resolution": {"model": "constrained", "version": ">=5.9,<7.0"},
+            "version_command": ["swift", "--version"],
+            "version_pattern": "Swift version ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "node": {
+            "resolution": {"model": "constrained", "version": ">=22,<23"},
+            "version_command": ["node", "--version"],
+            "version_pattern": "v([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "npm": {
+            "resolution": {"model": "deferred", "reason": "npm ci honors the repository lock, but no npm executable version is declared."},
+            "version_command": ["npm", "--version"],
+            "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
+        }
+    },
+    "components": {
+        "repository": {
+            "path": ".",
+            "language": "Repository tooling",
+            "runtime": "python3",
+            "required_bins": ["bash", "python3"],
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "The root package-lock.json governs Node-based development dependencies; Python governance scripts use the active Python environment."
+            },
+            "files": {
+                "manifests": ["package.json"],
+                "locks": ["package-lock.json"],
+                "configs": ["toolchain.json", "pytest.ini"]
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_applicable",
+                "test": "not_yet_configured"
+            }
+        },
+        "lsp": {
+            "path": "tooling/lsp-server",
+            "language": "TypeScript and Python",
+            "runtime": "python3",
+            "required_bins": ["python3", "node", "npm"],
+            "dependency_resolution": {
+                "model": "deferred",
+                "reason": "Node dependencies are locked, while Python LSP dependencies are unbounded and unlocked."
+            },
+            "files": {
+                "manifests": ["package.json", "requirements.txt"],
+                "locks": ["package-lock.json"],
+                "configs": []
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_yet_configured",
+                "test": "not_yet_configured"
+            }
+        }
+    },
     "bindings": {
         "c": {
             "path": "bindings/c",
-            "check_bin": "make",
+            "language": "C",
+            "runtime": "gcc",
+            "dependency_resolution": {
+                "model": "deferred",
+                "reason": "Parson is commit-pinned, while jansson, cmocka, and PCRE2 remain system-managed."
+            },
+            "files": {
+                "manifests": ["Makefile"],
+                "locks": [],
+                "configs": ["setup.sh"]
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_applicable",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["make", "gcc", "pkg-config", "curl"],
             "install": {
                 "apt": ["build-essential", "pkg-config", "curl"],
@@ -16,7 +245,25 @@
         },
         "cpp": {
             "path": "bindings/cpp",
-            "check_bin": "cmake",
+            "language": "C++",
+            "runtime": "c++",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "CMake declares an exact nlohmann/json release URL without a content hash."
+            },
+            "files": {
+                "manifests": ["CMakeLists.txt", "test/CMakeLists.txt"],
+                "locks": [],
+                "configs": []
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_applicable",
+                "build": "configured",
+                "test": "configured"
+            },
             "required_bins": ["cmake", "c++"],
             "install": {
                 "apt": ["cmake", "g++"],
@@ -38,7 +285,25 @@
         },
         "csharp": {
             "path": "bindings/csharp",
-            "check_bin": "dotnet",
+            "language": "C#",
+            "runtime": "dotnet",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "Project files declare the framework and package references; no package lock is present."
+            },
+            "files": {
+                "manifests": ["src/STRling/STRling.csproj", "tests/STRling.Tests/STRling.Tests.csproj"],
+                "locks": [],
+                "configs": ["STRling.sln"]
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["dotnet"],
             "install": {
                 "winget": ["Microsoft.DotNet.SDK.8"],
@@ -51,7 +316,25 @@
         },
         "dart": {
             "path": "bindings/dart",
-            "check_bin": "dart",
+            "language": "Dart",
+            "runtime": "dart",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "pubspec.lock is authoritative for resolved Dart packages."
+            },
+            "files": {
+                "manifests": ["pubspec.yaml"],
+                "locks": ["pubspec.lock"],
+                "configs": []
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_applicable",
+                "test": "configured"
+            },
             "required_bins": ["dart"],
             "install": {
                 "winget": ["Dart SDK"],
@@ -64,7 +347,25 @@
         },
         "fsharp": {
             "path": "bindings/fsharp",
-            "check_bin": "dotnet",
+            "language": "F#",
+            "runtime": "dotnet",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "Project files declare the framework and package references; no package lock is present."
+            },
+            "files": {
+                "manifests": ["src/STRling/STRling.fsproj", "tests/STRling.Tests/STRling.Tests.fsproj"],
+                "locks": [],
+                "configs": ["STRling.sln"]
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["dotnet"],
             "install": {
                 "winget": ["Microsoft.DotNet.SDK.8"],
@@ -77,7 +378,25 @@
         },
         "go": {
             "path": "bindings/go",
-            "check_bin": "go",
+            "language": "Go",
+            "runtime": "go",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "go.mod is authoritative; the binding currently declares no external modules."
+            },
+            "files": {
+                "manifests": ["go.mod"],
+                "locks": [],
+                "configs": []
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["go"],
             "install": {
                 "apt": ["golang-go"],
@@ -93,7 +412,25 @@
         },
         "java": {
             "path": "bindings/java",
-            "check_bin": "mvn",
+            "language": "Java",
+            "runtime": "java",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "pom.xml pins direct dependencies and plugins; Maven transitive resolution is not locked."
+            },
+            "files": {
+                "manifests": ["pom.xml"],
+                "locks": [],
+                "configs": []
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["java", "mvn"],
             "install": {
                 "apt": ["default-jdk", "maven"],
@@ -109,7 +446,25 @@
         },
         "kotlin": {
             "path": "bindings/kotlin",
-            "check_bin": "java",
+            "language": "Kotlin",
+            "runtime": "java",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "The Gradle wrapper pins Gradle 8.5 and build.gradle.kts pins direct plugin and dependency versions."
+            },
+            "files": {
+                "manifests": ["build.gradle.kts"],
+                "locks": [],
+                "configs": ["gradle/wrapper/gradle-wrapper.properties"]
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["java"],
             "install": {
                 "apt": ["default-jdk"],
@@ -125,8 +480,25 @@
         },
         "lua": {
             "path": "bindings/lua",
-            "check_bin": "luarocks",
-            "runtime": "Lua >= 5.1",
+            "language": "Lua",
+            "runtime": "lua",
+            "dependency_resolution": {
+                "model": "constrained",
+                "reason": "The rockspec constrains Lua, but setup installs busted and lrexlib-pcre2 without version bounds."
+            },
+            "files": {
+                "manifests": ["strling-template.rockspec"],
+                "locks": [],
+                "configs": ["setup.sh"]
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_applicable",
+                "build": "not_applicable",
+                "test": "configured"
+            },
             "required_bins": ["lua", "luarocks", "make", "gcc"],
             "install": {
                 "apt": ["lua5.4", "luarocks", "build-essential"],
@@ -144,7 +516,25 @@
         },
         "perl": {
             "path": "bindings/perl",
-            "check_bin": "perl",
+            "language": "Perl",
+            "runtime": "perl",
+            "dependency_resolution": {
+                "model": "constrained",
+                "reason": "Makefile.PL and dist.ini declare minimum dependency versions without a lock file."
+            },
+            "files": {
+                "manifests": ["Makefile.PL", "dist.ini"],
+                "locks": [],
+                "configs": ["setup.sh"]
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_applicable",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["perl"],
             "install": {
                 "apt": ["perl", "cpanminus"],
@@ -163,7 +553,25 @@
         },
         "php": {
             "path": "bindings/php",
-            "check_bin": "composer",
+            "language": "PHP",
+            "runtime": "php",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "composer.lock is authoritative for resolved PHP packages."
+            },
+            "files": {
+                "manifests": ["composer.json"],
+                "locks": ["composer.lock"],
+                "configs": ["phpunit.xml"]
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_applicable",
+                "test": "configured"
+            },
             "required_bins": ["php", "composer"],
             "install": {
                 "apt": ["php-cli", "composer"],
@@ -191,7 +599,25 @@
         },
         "python": {
             "path": "bindings/python",
-            "check_bin": "python3",
+            "language": "Python",
+            "runtime": "python3",
+            "dependency_resolution": {
+                "model": "deferred",
+                "reason": "requirements.txt names tools and dependencies without version constraints or a lock file."
+            },
+            "files": {
+                "manifests": ["pyproject.toml", "requirements.txt"],
+                "locks": [],
+                "configs": ["../../pytest.ini"]
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["python3"],
             "install": {
                 "apt": ["python3", "python3-venv", "python3-pip"],
@@ -207,7 +633,25 @@
         },
         "r": {
             "path": "bindings/r",
-            "check_bin": "Rscript",
+            "language": "R",
+            "runtime": "Rscript",
+            "dependency_resolution": {
+                "model": "deferred",
+                "reason": "DESCRIPTION names dependencies without version constraints and no renv lock is present."
+            },
+            "files": {
+                "manifests": ["DESCRIPTION"],
+                "locks": [],
+                "configs": ["setup.R"]
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_applicable",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["Rscript"],
             "install": {
                 "apt": ["r-base"],
@@ -223,7 +667,25 @@
         },
         "ruby": {
             "path": "bindings/ruby",
-            "check_bin": "bundle",
+            "language": "Ruby",
+            "runtime": "ruby",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "Gemfile.lock is authoritative for resolved Ruby dependencies and Bundler."
+            },
+            "files": {
+                "manifests": ["Gemfile", "strling.gemspec"],
+                "locks": ["Gemfile.lock"],
+                "configs": []
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_applicable",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["ruby", "bundle"],
             "install": {
                 "apt": ["ruby-full"],
@@ -243,7 +705,25 @@
         },
         "rust": {
             "path": "bindings/rust",
-            "check_bin": "cargo",
+            "language": "Rust",
+            "runtime": "rustc",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "Cargo.lock is authoritative for resolved Rust dependencies."
+            },
+            "files": {
+                "manifests": ["Cargo.toml"],
+                "locks": ["Cargo.lock"],
+                "configs": []
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["cargo", "rustc"],
             "install": {
                 "apt": ["cargo", "rustc"],
@@ -269,7 +749,25 @@
         },
         "swift": {
             "path": "bindings/swift",
-            "check_bin": "swift",
+            "language": "Swift",
+            "runtime": "swift",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "Package.swift declares no external package dependencies."
+            },
+            "files": {
+                "manifests": ["Package.swift"],
+                "locks": [],
+                "configs": []
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["swift"],
             "setup": [],
             "clean": ["swift", "package", "clean"],
@@ -284,7 +782,25 @@
         },
         "typescript": {
             "path": "bindings/typescript",
-            "check_bin": "npm",
+            "language": "TypeScript",
+            "runtime": "node",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "package-lock.json is authoritative for resolved TypeScript dependencies."
+            },
+            "files": {
+                "manifests": ["package.json"],
+                "locks": ["package-lock.json"],
+                "configs": ["tsconfig.json", "jest.config.mjs"]
+            },
+            "capabilities": {
+                "format": "not_yet_configured",
+                "format_check": "not_yet_configured",
+                "lint": "not_yet_configured",
+                "typecheck": "not_yet_configured",
+                "build": "not_yet_configured",
+                "test": "configured"
+            },
             "required_bins": ["node", "npm"],
             "install": {
                 "apt": ["nodejs", "npm"],
