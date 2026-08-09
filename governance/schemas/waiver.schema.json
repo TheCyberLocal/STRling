@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://strling.dev/governance/waiver.schema.json",
+  "title": "STRling governance waiver",
+  "description": "Foundational schema location for governed engineering exceptions.",
+  "type": "object"
+}

@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://strling.dev/governance/task-record.schema.json",
+  "title": "STRling governance task record",
+  "description": "Foundational schema location for contained engineering work records.",
+  "type": "object"
+}
