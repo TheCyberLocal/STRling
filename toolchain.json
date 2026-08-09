@@ -22,8 +22,14 @@
             "unavailable"
         ],
         "aggregates": {
-            "check": ["format_check", "lint", "typecheck", "build", "test"],
-            "certify": ["format_check", "lint", "typecheck", "build", "test"]
+            "check": {
+                "operations": ["format_check", "lint", "typecheck", "test"],
+                "default_targets": ["typescript"]
+            },
+            "certify": {
+                "operations": ["format_check", "lint", "typecheck", "build", "test"],
+                "default_targets": ["typescript"]
+            }
         }
     },
     "orchestration": {
@@ -126,6 +132,11 @@
             "version_command": ["Rscript", "--version"],
             "version_pattern": "R scripting front-end version ([0-9]+(?:\\.[0-9]+){1,2})"
         },
+        "R": {
+            "resolution": {"model": "deferred", "reason": "The R package and CI do not declare an R runtime version."},
+            "version_command": ["R", "--version"],
+            "version_pattern": "R version ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
         "ruby": {
             "resolution": {"model": "constrained", "version": ">=3.0,<4.0"},
             "version_command": ["ruby", "--version"],
@@ -135,6 +146,11 @@
             "resolution": {"model": "repository_managed", "file": "bindings/ruby/Gemfile.lock"},
             "version_command": ["bundle", "--version"],
             "version_pattern": "Bundler version ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "gem": {
+            "resolution": {"model": "constrained", "version": ">=3.0,<5.0"},
+            "version_command": ["gem", "--version"],
+            "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "cargo": {
             "resolution": {"model": "constrained", "version": ">=1.70,<2.0"},
@@ -229,7 +245,7 @@
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
                 "typecheck": "not_applicable",
-                "build": "not_yet_configured",
+                "build": "configured",
                 "test": "configured"
             },
             "required_bins": ["make", "gcc", "pkg-config", "curl"],
@@ -240,6 +256,7 @@
                 "brew": ["make", "pkg-config", "curl"]
             },
             "setup": ["./setup.sh"],
+            "build": ["make"],
             "clean": ["make", "clean"],
             "test": ["make", "tests"]
         },
@@ -300,10 +317,11 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
-                "build": "not_yet_configured",
+                "typecheck": "configured",
+                "build": "configured",
                 "test": "configured"
             },
+            "command_aliases": {"typecheck": "build"},
             "required_bins": ["dotnet"],
             "install": {
                 "winget": ["Microsoft.DotNet.SDK.8"],
@@ -311,6 +329,7 @@
                 "brew": ["dotnet-sdk"]
             },
             "setup": ["dotnet", "restore"],
+            "build": ["dotnet", "build", "--no-restore"],
             "clean": ["dotnet", "clean"],
             "test": ["dotnet", "test", "--verbosity", "normal"]
         },
@@ -330,11 +349,12 @@
             "capabilities": {
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
-                "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
+                "lint": "configured",
+                "typecheck": "configured",
                 "build": "not_applicable",
                 "test": "configured"
             },
+            "command_aliases": {"typecheck": "lint"},
             "required_bins": ["dart"],
             "install": {
                 "winget": ["Dart SDK"],
@@ -342,6 +362,7 @@
                 "brew": ["dart"]
             },
             "setup": ["dart", "pub", "get"],
+            "lint": ["dart", "analyze", "--no-fatal-warnings"],
             "clean": ["rm", "-rf", ".dart_tool", "pubspec.lock"],
             "test": ["dart", "test", "-r", "expanded"]
         },
@@ -362,10 +383,11 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
-                "build": "not_yet_configured",
+                "typecheck": "configured",
+                "build": "configured",
                 "test": "configured"
             },
+            "command_aliases": {"typecheck": "build"},
             "required_bins": ["dotnet"],
             "install": {
                 "winget": ["Microsoft.DotNet.SDK.8"],
@@ -373,6 +395,7 @@
                 "brew": ["dotnet-sdk"]
             },
             "setup": ["dotnet", "restore"],
+            "build": ["dotnet", "build", "--no-restore"],
             "clean": ["dotnet", "clean"],
             "test": ["dotnet", "test", "--verbosity", "normal"]
         },
@@ -393,10 +416,11 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
-                "build": "not_yet_configured",
+                "typecheck": "configured",
+                "build": "configured",
                 "test": "configured"
             },
+            "command_aliases": {"typecheck": "build"},
             "required_bins": ["go"],
             "install": {
                 "apt": ["golang-go"],
@@ -407,6 +431,7 @@
                 "choco": ["golang"]
             },
             "setup": ["go", "mod", "download"],
+            "build": ["go", "build", "./..."],
             "clean": ["go", "clean"],
             "test": ["go", "test", "-v", "./..."]
         },
@@ -427,10 +452,11 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
-                "build": "not_yet_configured",
+                "typecheck": "configured",
+                "build": "configured",
                 "test": "configured"
             },
+            "command_aliases": {"typecheck": "build"},
             "required_bins": ["java", "mvn"],
             "install": {
                 "apt": ["default-jdk", "maven"],
@@ -441,6 +467,7 @@
                 "choco": ["openjdk17", "maven"]
             },
             "setup": [],
+            "build": ["mvn", "compile"],
             "clean": ["mvn", "clean"],
             "test": ["mvn", "test"]
         },
@@ -461,10 +488,11 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
-                "build": "not_yet_configured",
+                "typecheck": "configured",
+                "build": "configured",
                 "test": "configured"
             },
+            "command_aliases": {"typecheck": "build"},
             "required_bins": ["java"],
             "install": {
                 "apt": ["default-jdk"],
@@ -475,6 +503,7 @@
                 "choco": ["openjdk17"]
             },
             "setup": [],
+            "build": ["./gradlew", "classes"],
             "clean": ["./gradlew", "clean"],
             "test": ["./gradlew", "test", "--info"]
         },
@@ -532,7 +561,7 @@
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
                 "typecheck": "not_applicable",
-                "build": "not_yet_configured",
+                "build": "configured",
                 "test": "configured"
             },
             "required_bins": ["perl"],
@@ -544,6 +573,7 @@
                 "choco": ["strawberryperl"]
             },
             "setup": ["./setup.sh"],
+            "build": ["make"],
             "clean": ["make", "clean"],
             "test": [
                 "bash",
@@ -615,7 +645,7 @@
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
                 "typecheck": "not_yet_configured",
-                "build": "not_yet_configured",
+                "build": "configured",
                 "test": "configured"
             },
             "required_bins": ["python3"],
@@ -628,6 +658,7 @@
                 "choco": ["python"]
             },
             "setup": ["pip", "install", "-r", "requirements.txt"],
+            "build": ["python", "-m", "build"],
             "clean": ["rm", "-rf", "build", "dist", "src/STRling.egg-info"],
             "test": ["pytest", "-v", "-W", "error"]
         },
@@ -649,10 +680,10 @@
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
                 "typecheck": "not_applicable",
-                "build": "not_yet_configured",
+                "build": "configured",
                 "test": "configured"
             },
-            "required_bins": ["Rscript"],
+            "required_bins": ["Rscript", "R"],
             "install": {
                 "apt": ["r-base"],
                 "dnf": ["R"],
@@ -662,6 +693,7 @@
                 "choco": ["r.project"]
             },
             "setup": ["Rscript", "setup.R"],
+            "build": ["R", "CMD", "build", "."],
             "clean": ["rm", "-f", "src/*.o", "src/*.so"],
             "test": ["Rscript", "run_tests.R"]
         },
@@ -683,10 +715,10 @@
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
                 "typecheck": "not_applicable",
-                "build": "not_yet_configured",
+                "build": "configured",
                 "test": "configured"
             },
-            "required_bins": ["ruby", "bundle"],
+            "required_bins": ["ruby", "bundle", "gem"],
             "install": {
                 "apt": ["ruby-full"],
                 "dnf": ["ruby", "rubygems"],
@@ -696,6 +728,7 @@
                 "choco": ["ruby"]
             },
             "setup": ["bash", "setup.sh"],
+            "build": ["gem", "build", "strling.gemspec"],
             "clean": ["rm", "-f", "*.gem"],
             "test": [
                 "bash",
@@ -720,8 +753,8 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
-                "build": "not_yet_configured",
+                "typecheck": "configured",
+                "build": "configured",
                 "test": "configured"
             },
             "required_bins": ["cargo", "rustc"],
@@ -734,7 +767,9 @@
                 "choco": ["rustup.install"]
             },
             "setup": [],
+            "build": ["cargo", "build"],
             "clean": ["cargo", "clean"],
+            "typecheck": ["cargo", "check"],
             "test": [
                 "cargo",
                 "test",
@@ -764,12 +799,14 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
-                "build": "not_yet_configured",
+                "typecheck": "configured",
+                "build": "configured",
                 "test": "configured"
             },
+            "command_aliases": {"typecheck": "build"},
             "required_bins": ["swift"],
             "setup": [],
+            "build": ["swift", "build", "--jobs", "1"],
             "clean": ["swift", "package", "clean"],
             "test": [
                 "swift",
@@ -797,8 +834,8 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
-                "build": "not_yet_configured",
+                "typecheck": "configured",
+                "build": "configured",
                 "test": "configured"
             },
             "required_bins": ["node", "npm"],
@@ -810,7 +847,9 @@
                 "winget": ["OpenJS.NodeJS.LTS"],
                 "choco": ["nodejs-lts"]
             },
-            "setup": ["npm", "ci"],
+            "setup": ["npm", "ci", "--no-audit", "--no-fund"],
+            "build": ["npm", "run", "build"],
+            "typecheck": ["./node_modules/.bin/tsc", "-p", "tsconfig.json", "--noEmit"],
             "clean": ["rm", "-rf", "dist", "coverage"],
             "test": ["npm", "test", "--", "--verbose"]
         }

@@ -91,9 +91,13 @@ targets fail the invocation.
 The present capability inventory records:
 
 - tests are configured for all 17 bindings;
-- the C++ build is the only build command currently declared at the root;
+- builds are configured for C, C++, C#, F#, Go, Java, Kotlin, Perl, Python, R,
+  Ruby, Rust, Swift, and TypeScript; Dart, Lua, and PHP builds are not
+  applicable;
+- compiler/static type analysis is configured for C#, Dart, F#, Go, Java,
+  Kotlin, Rust, Swift, and TypeScript;
+- Dart analysis is the only currently configured lint command;
 - no formatter or formatter-check command is yet configured at the root;
-- no general lint or typecheck command is yet configured at the root;
 - root and language-server quality capabilities are not yet configured; and
 - build applicability and configuration are stated per component rather than
   inferred from an absent command.
@@ -125,9 +129,13 @@ certification architecture. Aggregate membership is authoritative in the
 `policy.aggregates` section of `toolchain.json`.
 
 Existing setup, bootstrap, clean, audit, cache, lockfile, and list behavior
-remains supported. Component selection follows the existing binding names;
-`all` and an omitted component select the aggregate target set for quality
-commands.
+remains supported. Component selection follows the existing binding names and
+also recognizes `repository` and `lsp`. An omitted component on a leaf
+operation or an explicit `all` selects all inventoried environments. An
+omitted component on `check` or `certify` selects the policy's established
+TypeScript baseline; `./strling check all` and `./strling certify all` are
+the explicit full-inventory forms. This keeps the default aggregates reliable
+while later hardening makes additional environments eligible.
 
 ## Structured result contract
 
@@ -144,6 +152,18 @@ Aggregate results contain their ordered leaf results and an overall exit code.
 The default console presentation is human-readable. JSON output is the stable
 machine interface; automation must use result fields and exit codes rather than
 parse prose emitted by language tools.
+
+Append `--json` to any canonical quality command to receive one JSON object:
+
+```text
+./strling check --json
+./strling test typescript --json
+```
+
+The JSON object contains the requested operation, overall status and exit code,
+ordered leaf results, and the complete list of capabilities still marked
+`not_yet_configured` for aggregate commands. Language-tool output is retained
+for the human presentation but is not parsed to invent semantic results.
 
 ## Recorded transitional conditions
 

@@ -4,6 +4,7 @@ set -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 TOOLCHAIN="$DIR/toolchain.json"
 SELF="$DIR/strling"
+QUALITY_RUNNER="$DIR/tooling/quality.py"
 
 if ! command -v python3 >/dev/null 2>&1; then
     echo "Error: python3 is required to run this script."
@@ -390,12 +391,17 @@ run_all_bindings() {
 
 print_help() {
     print_banner
-    echo "Usage: ./strling <command> <language>"
+    echo "Usage: ./strling <command> [language|all] [options]"
     echo ""
     echo "Commands:"
+    echo "  format [--check] [lang|all]  Run or verify configured formatters"
+    echo "  lint [lang|all]              Run configured static analyzers"
+    echo "  typecheck [lang|all]         Run configured type/static analysis"
     echo "  setup <lang|all>      Install prerequisites and dependencies"
     echo "  build <lang|all>      Build a binding if it has a build step"
     echo "  test <lang|all>       Run tests for one binding or all bindings"
+    echo "  check [lang|all]      Run the fast quality aggregate"
+    echo "  certify [lang|all]    Run the current certification aggregate"
     echo "  bootstrap <lang|all>  Run setup, build, and test in sequence"
     echo "  clean <lang|all>      Clean artifacts"
     echo "  audit                 Run the final audit report generator"
@@ -405,6 +411,9 @@ print_help() {
     echo "  help                  Show this help message"
     echo ""
     echo "Examples:"
+    echo "  ./strling format --check"
+    echo "  ./strling check"
+    echo "  ./strling lint rust"
     echo "  ./strling bootstrap all"
     echo "  ./strling test python"
     echo "  ./strling setup rust"
@@ -419,6 +428,26 @@ LANG="$2"
 if [[ ! -f "$TOOLCHAIN" ]]; then
     echo "Error: toolchain.json not found at $TOOLCHAIN"
     exit 1
+fi
+
+if [[ "$COMMAND" == "_run-configured" ]]; then
+    ACTION="$LANG"
+    TARGET="$3"
+    if [[ -z "$ACTION" || -z "$TARGET" ]]; then
+        echo "Error: _run-configured requires an operation and language."
+        exit 2
+    fi
+    run_binding_action "$ACTION" "$TARGET"
+    exit $?
+fi
+
+if [[ "$COMMAND" == "format" || "$COMMAND" == "lint" || "$COMMAND" == "typecheck" || "$COMMAND" == "build" || "$COMMAND" == "test" || "$COMMAND" == "check" || "$COMMAND" == "certify" ]]; then
+    if [[ ! -f "$QUALITY_RUNNER" ]]; then
+        echo "Error: quality runner not found at $QUALITY_RUNNER"
+        exit 1
+    fi
+    python3 "$QUALITY_RUNNER" "$@"
+    exit $?
 fi
 
 if [[ -z "$COMMAND" || "$COMMAND" == "help" || "$COMMAND" == "-h" || "$COMMAND" == "--help" ]]; then
@@ -617,4 +646,3 @@ fi
 
 run_binding_action "$COMMAND" "$LANG"
 exit $?
-

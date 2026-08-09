@@ -71,10 +71,30 @@ checkpoints:
         result: passed
         details: The post-policy TypeScript baseline remained 19 suites and 963 tests, root help remained operational, and patch integrity passed.
   - name: Root quality command framework
-    status: planned
-    evidence: []
+    status: passed
+    evidence:
+      - check: Framework unit tests
+        command: python3 -m unittest discover -s tooling/tests -p 'test_*.py' -v
+        result: passed
+        details: 10 tests passed for valid and invalid selection, configured routing, command aliases, not-applicable and not-yet-configured states, failure propagation, aggregate ordering, malformed configuration, and option parsing.
+      - check: Root discovery and explicit capability states
+        command: ./strling help; ./strling lint python --json; ./strling build dart --json
+        result: passed
+        details: All canonical commands were discoverable; Python lint reported not_yet_configured and Dart build reported not_applicable without executing a command.
+      - check: Configured command execution
+        command: ./strling typecheck typescript --json; ./strling build typescript --json; ./strling test typescript --json
+        result: passed
+        details: TypeScript no-emit compiler analysis, build, and 19-suite 963-test baseline passed through the root coordinator with structured results.
+      - check: Aggregate and invalid target behavior
+        command: ./strling check --json; ./strling lint missing
+        result: passed
+        details: Check returned four ordered TypeScript results and 63 explicit incomplete capabilities; an invalid target failed with the available component set.
+      - check: Existing setup, build, and test compatibility
+        command: ./strling setup typescript; ./strling build typescript --json; ./strling test typescript --json
+        result: passed
+        details: Lockfile setup, build, and the 19-suite 963-test baseline passed. Setup now disables npm audit and funding network calls after the original command exposed an npm exit 139; lifecycle scripts and package-lock resolution remain enabled.
   - name: Environment enforcement
-    status: planned
+    status: in_progress
     evidence: []
   - name: Quality-system integration
     status: planned
@@ -82,4 +102,6 @@ checkpoints:
   - name: Completion and readiness
     status: planned
     evidence: []
-commits: []
+commits:
+  - sha: 62257da6ea7a561c13d8acc0c0f54585c42f98d3
+    subject: "docs(tooling): define deterministic toolchain policy"
