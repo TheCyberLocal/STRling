@@ -28,7 +28,24 @@ checkpoints:
           subject: "docs(quality): define static analysis and warning policy"
           sha: pending
     - name: Canonical lint and static-analysis integration
-      status: pending
+      status: passed
+      accomplishment:
+          - Extended capability states with enforced, not_yet_enforceable, and unavailable while preserving explicit legacy formatting transitions.
+          - Added canonical Ruff, .NET, Go vet, Java, Kotlin, Perl, PHP, Ruby, and LSP TypeScript commands with component scoping.
+          - Added repository-resolved TypeScript version probes for both the binding and LSP lock files.
+          - Added structured capability metadata and propagated analyzer exit status without discarding output.
+      verification:
+          - command: python3 -m unittest tooling.tests.test_quality
+            result: 35 tests passed, including lint/typecheck success and failure, unavailable analyzer, transitional capability, scoping, and aggregate propagation cases.
+          - command: ./strling lint lsp --json; ./strling typecheck lsp --json; ./strling lint go --json; ./strling lint perl --json; ./strling lint php --json
+            result: All representative positive commands passed and reported component, operation, result status, capability, command, environment, and reason.
+          - command: ./strling lint repository --json; ./strling lint python --json
+            result: Both known Ruff baselines returned nonzero structured failures; no diagnostics were discarded.
+          - command: ./strling typecheck typescript --json
+            result: Strict TypeScript checking passed with the repository-resolved 5.9.3 analyzer probe.
+      commit:
+          subject: "feat(quality): integrate canonical static analysis"
+          sha: pending
     - name: Warning and suppression governance
       status: pending
     - name: Behavior-neutral static-quality remediation

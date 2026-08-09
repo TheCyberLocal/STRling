@@ -13,15 +13,19 @@
             "deferred"
         ],
         "capability_statuses": [
+            "enforced",
             "configured",
             "not_applicable",
-            "not_yet_configured"
+            "not_yet_configured",
+            "not_yet_enforceable",
+            "unavailable"
         ],
         "result_statuses": [
             "passed",
             "failed",
             "not_applicable",
             "not_yet_configured",
+            "not_yet_enforceable",
             "unavailable"
         ],
         "environment_statuses": [
@@ -105,6 +109,30 @@
             "resolution": { "model": "exact", "version": "0.15.21" },
             "version_command": ["ruff", "--version"],
             "version_pattern": "ruff ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "typescript-binding": {
+            "resolution": {
+                "model": "repository_managed",
+                "file": "bindings/typescript/package-lock.json",
+                "file_pattern": "node_modules/typescript\"\\s*:\\s*\\{\\s*\"version\"\\s*:\\s*\"([0-9]+(?:\\.[0-9]+){1,2})"
+            },
+            "version_command": [
+                "bindings/typescript/node_modules/.bin/tsc",
+                "--version"
+            ],
+            "version_pattern": "Version ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "typescript-lsp": {
+            "resolution": {
+                "model": "repository_managed",
+                "file": "tooling/lsp-server/package-lock.json",
+                "file_pattern": "node_modules/typescript\"\\s*:\\s*\\{\\s*\"version\"\\s*:\\s*\"([0-9]+(?:\\.[0-9]+){1,2})"
+            },
+            "version_command": [
+                "tooling/lsp-server/node_modules/.bin/tsc",
+                "--version"
+            ],
+            "version_pattern": "Version ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "make": {
             "resolution": {
@@ -304,15 +332,22 @@
                 "format": "configured",
                 "format_check": "configured",
                 "hygiene": "configured",
-                "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
+                "lint": "configured",
+                "typecheck": "not_yet_enforceable",
                 "build": "not_applicable",
                 "test": "not_yet_configured"
+            },
+            "capability_details": {
+                "typecheck": {
+                    "reason": "No Python type checker is pinned for repository governance tooling.",
+                    "retirement_condition": "Pin one Python type checker and baseline tooling without broad ignores."
+                }
             },
             "formatters": ["Prettier 3.3.3", "Ruff 0.15.21"],
             "operation_tools": {
                 "format": ["prettier", "ruff"],
-                "format_check": ["prettier", "ruff"]
+                "format_check": ["prettier", "ruff"],
+                "lint": ["ruff"]
             },
             "format": ["python3", "tooling/formatting.py", "repository"],
             "format_check": [
@@ -321,7 +356,13 @@
                 "repository",
                 "--check"
             ],
-            "hygiene": ["python3", "tooling/hygiene.py"]
+            "hygiene": ["python3", "tooling/hygiene.py"],
+            "lint": [
+                "python3",
+                "tooling/static_analysis.py",
+                "ruff",
+                "repository"
+            ]
         },
         "lsp": {
             "path": "tooling/lsp-server",
@@ -341,18 +382,35 @@
                 "format": "configured",
                 "format_check": "configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
+                "lint": "configured",
+                "typecheck": "configured",
                 "build": "not_yet_configured",
                 "test": "not_yet_configured"
             },
             "formatters": ["Prettier 3.3.3", "Ruff 0.15.21"],
             "operation_tools": {
                 "format": ["prettier", "ruff"],
-                "format_check": ["prettier", "ruff"]
+                "format_check": ["prettier", "ruff"],
+                "lint": ["ruff"],
+                "typecheck": ["typescript-lsp"]
             },
             "format": ["python3", "../formatting.py", "lsp"],
-            "format_check": ["python3", "../formatting.py", "lsp", "--check"]
+            "format_check": ["python3", "../formatting.py", "lsp", "--check"],
+            "lint": ["python3", "../static_analysis.py", "ruff", "lsp"],
+            "typecheck": [
+                "./node_modules/.bin/tsc",
+                "--noEmit",
+                "--strict",
+                "--target",
+                "ES2020",
+                "--module",
+                "NodeNext",
+                "--moduleResolution",
+                "NodeNext",
+                "--types",
+                "node,vscode",
+                "client/extension.ts"
+            ]
         }
     },
     "bindings": {
@@ -373,10 +431,16 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "not_yet_enforceable",
                 "typecheck": "not_applicable",
                 "build": "configured",
                 "test": "configured"
+            },
+            "capability_details": {
+                "lint": {
+                    "reason": "Strict GCC warnings report four potentially semantic format-truncation findings in addition to neutral unused state, and the compiler version is deferred.",
+                    "retirement_condition": "Resolve the diagnostic truncation behavior in contained product work, remove neutral warnings, and declare a compiler floor."
+                }
             },
             "required_bins": ["make", "gcc", "pkg-config", "curl"],
             "install": {
@@ -407,10 +471,16 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "not_yet_enforceable",
                 "typecheck": "not_applicable",
                 "build": "configured",
                 "test": "configured"
+            },
+            "capability_details": {
+                "lint": {
+                    "reason": "Compiler warnings are enabled, but no governed compiler-family floor or deterministic clang-tidy strategy exists.",
+                    "retirement_condition": "Declare the compiler family/version and pin a defect-focused clang-tidy configuration."
+                }
             },
             "required_bins": ["cmake", "c++"],
             "install": {
@@ -451,7 +521,7 @@
                 "format": "configured",
                 "format_check": "configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "configured",
                 "typecheck": "configured",
                 "build": "configured",
                 "test": "configured"
@@ -465,6 +535,7 @@
                 "--check"
             ],
             "command_aliases": { "typecheck": "build" },
+            "lint": ["dotnet", "build", "--no-restore"],
             "required_bins": ["dotnet"],
             "install": {
                 "winget": ["Microsoft.DotNet.SDK.9"],
@@ -538,12 +609,13 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "configured",
                 "typecheck": "configured",
                 "build": "configured",
                 "test": "configured"
             },
             "command_aliases": { "typecheck": "build" },
+            "lint": ["dotnet", "build", "--no-restore"],
             "required_bins": ["dotnet"],
             "install": {
                 "winget": ["Microsoft.DotNet.SDK.9"],
@@ -572,7 +644,7 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "configured",
                 "typecheck": "configured",
                 "build": "configured",
                 "test": "configured"
@@ -588,6 +660,7 @@
                 "choco": ["golang"]
             },
             "setup": ["go", "mod", "download"],
+            "lint": ["go", "vet", "./..."],
             "build": ["go", "build", "./..."],
             "clean": ["go", "clean"],
             "test": ["go", "test", "-v", "./..."]
@@ -609,7 +682,7 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "configured",
                 "typecheck": "configured",
                 "build": "configured",
                 "test": "configured"
@@ -625,6 +698,7 @@
                 "choco": ["openjdk17", "maven"]
             },
             "setup": [],
+            "lint": ["mvn", "compile"],
             "build": ["mvn", "compile"],
             "clean": ["mvn", "clean"],
             "test": ["mvn", "test"]
@@ -646,7 +720,7 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "configured",
                 "typecheck": "configured",
                 "build": "configured",
                 "test": "configured"
@@ -662,6 +736,7 @@
                 "choco": ["openjdk17"]
             },
             "setup": [],
+            "lint": ["./gradlew", "classes"],
             "build": ["./gradlew", "classes"],
             "clean": ["./gradlew", "clean"],
             "test": ["./gradlew", "test", "--info"]
@@ -683,10 +758,16 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "not_yet_enforceable",
                 "typecheck": "not_applicable",
                 "build": "not_applicable",
                 "test": "configured"
+            },
+            "capability_details": {
+                "lint": {
+                    "reason": "Lua source parses with luac, but luacheck and its rule configuration are not repository-resolved.",
+                    "retirement_condition": "Pin luacheck, define defect-focused rules, and prove the Lua test baseline."
+                }
             },
             "required_bins": ["lua", "luarocks", "make", "gcc"],
             "install": {
@@ -720,7 +801,7 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "configured",
                 "typecheck": "not_applicable",
                 "build": "configured",
                 "test": "configured"
@@ -734,6 +815,12 @@
                 "choco": ["strawberryperl"]
             },
             "setup": ["./setup.sh"],
+            "lint": [
+                "python3",
+                "../../tooling/static_analysis.py",
+                "native",
+                "perl"
+            ],
             "build": ["make"],
             "clean": ["make", "clean"],
             "test": [
@@ -759,10 +846,16 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
+                "lint": "configured",
+                "typecheck": "not_yet_enforceable",
                 "build": "not_applicable",
                 "test": "configured"
+            },
+            "capability_details": {
+                "typecheck": {
+                    "reason": "PHPStan is absent from composer.lock and no static-analysis baseline exists.",
+                    "retirement_condition": "Lock PHPStan and baseline it without broad exclusions."
+                }
             },
             "required_bins": ["php", "composer"],
             "install": {
@@ -779,6 +872,12 @@
                 "composer",
                 "install",
                 "--no-interaction"
+            ],
+            "lint": [
+                "python3",
+                "../../tooling/static_analysis.py",
+                "native",
+                "php"
             ],
             "clean": ["rm", "-rf", "vendor"],
             "test": [
@@ -806,15 +905,22 @@
                 "format": "configured",
                 "format_check": "configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
-                "typecheck": "not_yet_configured",
+                "lint": "configured",
+                "typecheck": "not_yet_enforceable",
                 "build": "configured",
                 "test": "configured"
+            },
+            "capability_details": {
+                "typecheck": {
+                    "reason": "No Python type checker is pinned and broad historical type-ignore debt is not baselined.",
+                    "retirement_condition": "Pin one type checker, inventory its findings, and govern or retire each ignore."
+                }
             },
             "formatters": ["Ruff 0.15.21"],
             "operation_tools": {
                 "format": ["ruff"],
-                "format_check": ["ruff"]
+                "format_check": ["ruff"],
+                "lint": ["ruff"]
             },
             "format": ["python3", "../../tooling/formatting.py", "python"],
             "format_check": [
@@ -822,6 +928,12 @@
                 "../../tooling/formatting.py",
                 "python",
                 "--check"
+            ],
+            "lint": [
+                "python3",
+                "../../tooling/static_analysis.py",
+                "ruff",
+                "python"
             ],
             "required_bins": ["python3"],
             "install": {
@@ -854,10 +966,16 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "not_yet_enforceable",
                 "typecheck": "not_applicable",
                 "build": "configured",
                 "test": "configured"
+            },
+            "capability_details": {
+                "lint": {
+                    "reason": "R CMD check stops on package metadata and neither the R runtime nor lintr is locked.",
+                    "retirement_condition": "Repair metadata, lock R and lintr, and reach zero R CMD check errors and warnings."
+                }
             },
             "required_bins": ["Rscript", "R"],
             "install": {
@@ -890,7 +1008,7 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "configured",
                 "typecheck": "not_applicable",
                 "build": "configured",
                 "test": "configured"
@@ -905,6 +1023,12 @@
                 "choco": ["ruby"]
             },
             "setup": ["bash", "setup.sh"],
+            "lint": [
+                "python3",
+                "../../tooling/static_analysis.py",
+                "native",
+                "ruby"
+            ],
             "build": ["gem", "build", "strling.gemspec"],
             "clean": ["rm", "-f", "*.gem"],
             "test": [
@@ -930,10 +1054,15 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "unavailable",
                 "typecheck": "configured",
                 "build": "configured",
                 "test": "configured"
+            },
+            "capability_details": {
+                "lint": {
+                    "reason": "The governed Rust environment does not provide the Clippy component."
+                }
             },
             "required_bins": ["cargo", "rustc"],
             "install": {
@@ -977,10 +1106,16 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "not_yet_enforceable",
                 "typecheck": "configured",
                 "build": "configured",
                 "test": "configured"
+            },
+            "capability_details": {
+                "lint": {
+                    "reason": "SwiftLint is not pinned and the available swift-format lint profile includes semantic naming rules.",
+                    "retirement_condition": "Pin SwiftLint with defect-focused rules that exclude naming and formatting policy."
+                }
             },
             "command_aliases": { "typecheck": "build" },
             "required_bins": ["swift"],
@@ -1013,15 +1148,22 @@
                 "format": "configured",
                 "format_check": "configured",
                 "hygiene": "not_applicable",
-                "lint": "not_yet_configured",
+                "lint": "not_yet_enforceable",
                 "typecheck": "configured",
                 "build": "configured",
                 "test": "configured"
             },
+            "capability_details": {
+                "lint": {
+                    "reason": "ESLint is absent from the binding lock file and package changes are outside this task.",
+                    "retirement_condition": "Lock ESLint and a TypeScript-aware defect rule set in contained dependency work."
+                }
+            },
             "formatters": ["Prettier 3.3.3"],
             "operation_tools": {
                 "format": ["prettier"],
-                "format_check": ["prettier"]
+                "format_check": ["prettier"],
+                "typecheck": ["typescript-binding"]
             },
             "format": ["python3", "../../tooling/formatting.py", "typescript"],
             "format_check": [

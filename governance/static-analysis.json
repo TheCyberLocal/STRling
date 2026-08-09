@@ -28,27 +28,47 @@
                 "reason": "Import-order exceptions support explicit path bootstrapping or re-exports; type-checker directives predate a governed Python type checker and must not expand.",
                 "retirement_condition": "Keep only narrowly coded import/re-export exceptions and retire broad type ignores as a governed Python type checker is introduced.",
                 "locations": {
-                    "bindings/python/src/STRling/core/compiler.py": [105, 107, 109, 113, 116, 120, 122, 124, 127, 129, 137, 141, 144],
-                    "bindings/python/src/STRling/core/intelligence.py": [159, 624, 806],
+                    "bindings/python/src/STRling/core/compiler.py": [
+                        105, 107, 109, 113, 116, 120, 122, 124, 127, 129, 137,
+                        141, 144
+                    ],
+                    "bindings/python/src/STRling/core/intelligence.py": [
+                        159, 624, 806
+                    ],
                     "bindings/python/src/STRling/core/validator.py": [48, 52],
                     "bindings/python/src/STRling/simply/pattern.py": [311, 322],
-                    "bindings/python/tests/unit/test_conformance.py": [3, 4, 46],
-                    "tooling/audit_hints.py": [31, 36, 39, 40, 45, 56, 58, 64, 65, 90],
+                    "bindings/python/tests/unit/test_conformance.py": [
+                        3, 4, 46
+                    ],
+                    "tooling/audit_hints.py": [
+                        31, 36, 39, 40, 45, 56, 58, 64, 65, 90
+                    ],
                     "tooling/hygiene.py": [278, 282, 293, 448],
                     "tooling/lsp-server/island_extractor.py": [23],
                     "tooling/lsp-server/server.py": [104],
                     "tooling/lsp-server/server/island_extractor.py": [23],
                     "tooling/lsp-server/server/server.py": [120],
-                    "tooling/lsp-server/tests/test_code_actions.py": [26, 94, 103],
-                    "tooling/lsp-server/tests/test_diagnostics.py": [153, 163, 375],
+                    "tooling/lsp-server/tests/test_code_actions.py": [
+                        26, 94, 103
+                    ],
+                    "tooling/lsp-server/tests/test_diagnostics.py": [
+                        153, 163, 375
+                    ],
                     "tooling/lsp-server/tests/test_island_extractor.py": [15],
-                    "tooling/lsp-server/tests/test_navigation.py": [26, 140, 149, 168],
-                    "tooling/lsp-server/tests/test_parser_exhaustive.py": [68, 714],
+                    "tooling/lsp-server/tests/test_navigation.py": [
+                        26, 140, 149, 168
+                    ],
+                    "tooling/lsp-server/tests/test_parser_exhaustive.py": [
+                        68, 714
+                    ],
                     "tooling/parse_strl.py": [45, 46, 47],
                     "tooling/quality.py": [122, 126, 162, 216],
                     "tooling/tests/test_formatting.py": [11, 24],
                     "tooling/tests/test_hygiene.py": [13],
-                    "tooling/tests/test_quality.py": [11, 258, 259, 346, 348, 367, 368, 426, 427, 433, 434, 435]
+                    "tooling/tests/test_quality.py": [
+                        11, 258, 259, 346, 348, 367, 368, 426, 427, 433, 434,
+                        435
+                    ]
                 }
             },
             {
@@ -58,7 +78,9 @@
                 "reason": "Three @ts-ignore directives exercise assumptions that the public Pattern value is callable; changing the product contract is outside this hardgate task.",
                 "retirement_condition": "Resolve the callable-Pattern contract in contained product work, then replace or remove all three directives.",
                 "locations": {
-                    "bindings/typescript/__tests__/unit/simply_api.test.ts": [73, 698, 707]
+                    "bindings/typescript/__tests__/unit/simply_api.test.ts": [
+                        73, 698, 707
+                    ]
                 }
             },
             {
@@ -89,37 +111,106 @@
         ]
     },
     "strategies": {
-        "compiler-c": {"analyzer": "GCC warnings", "version_source": "toolchain.json:gcc"},
-        "compiler-cpp": {"analyzer": "C++ compiler warnings", "version_source": "toolchain.json:c++"},
-        "dotnet-csharp": {"analyzer": ".NET SDK C# compiler analyzers", "version_source": "toolchain.json:dotnet"},
-        "dotnet-fsharp": {"analyzer": ".NET SDK F# compiler", "version_source": "toolchain.json:dotnet"},
-        "dart-analyze": {"analyzer": "dart analyze", "version_source": "toolchain.json:dart and bindings/dart/pubspec.lock"},
-        "go-vet": {"analyzer": "go vet", "version_source": "toolchain.json:go"},
-        "javac-xlint": {"analyzer": "javac -Xlint:all through Maven Compiler Plugin", "version_source": "toolchain.json:java and bindings/java/pom.xml"},
-        "kotlin-compiler": {"analyzer": "Kotlin compiler warnings", "version_source": "bindings/kotlin/build.gradle.kts"},
-        "luacheck": {"analyzer": "luacheck", "version_source": "unresolved"},
-        "perl-compile": {"analyzer": "perl compile with fatal warnings", "version_source": "toolchain.json:perl"},
-        "php-syntax": {"analyzer": "php -l", "version_source": "toolchain.json:php"},
-        "phpstan": {"analyzer": "PHPStan", "version_source": "unresolved"},
-        "ruff": {"analyzer": "Ruff defect lint rules", "version_source": "toolchain.json:ruff and tooling/requirements-quality.txt"},
-        "python-type": {"analyzer": "Python type checker", "version_source": "unresolved"},
-        "r-cmd-check": {"analyzer": "R CMD check", "version_source": "toolchain.json:R"},
-        "lintr": {"analyzer": "lintr", "version_source": "unresolved"},
-        "ruby-warnings": {"analyzer": "ruby -wc", "version_source": "toolchain.json:ruby"},
-        "rubocop": {"analyzer": "RuboCop", "version_source": "unresolved"},
-        "rustc": {"analyzer": "rustc warnings via cargo check", "version_source": "toolchain.json:rustc and Cargo.lock"},
-        "clippy": {"analyzer": "Clippy", "version_source": "unavailable in the certification environment"},
-        "swiftc": {"analyzer": "Swift compiler warnings", "version_source": "toolchain.json:swift"},
-        "swiftlint": {"analyzer": "SwiftLint", "version_source": "unresolved"},
-        "typescript-binding": {"analyzer": "TypeScript compiler strict mode", "version_source": "bindings/typescript/package-lock.json"},
-        "typescript-lsp": {"analyzer": "TypeScript compiler strict mode", "version_source": "tooling/lsp-server/package-lock.json"},
-        "eslint": {"analyzer": "ESLint", "version_source": "unresolved"},
-        "suppression-audit": {"analyzer": "STRling suppression policy scanner", "version_source": "repository source"}
+        "compiler-c": {
+            "analyzer": "GCC warnings",
+            "version_source": "toolchain.json:gcc"
+        },
+        "compiler-cpp": {
+            "analyzer": "C++ compiler warnings",
+            "version_source": "toolchain.json:c++"
+        },
+        "dotnet-csharp": {
+            "analyzer": ".NET SDK C# compiler analyzers",
+            "version_source": "toolchain.json:dotnet"
+        },
+        "dotnet-fsharp": {
+            "analyzer": ".NET SDK F# compiler",
+            "version_source": "toolchain.json:dotnet"
+        },
+        "dart-analyze": {
+            "analyzer": "dart analyze",
+            "version_source": "toolchain.json:dart and bindings/dart/pubspec.lock"
+        },
+        "go-vet": {
+            "analyzer": "go vet",
+            "version_source": "toolchain.json:go"
+        },
+        "javac-xlint": {
+            "analyzer": "javac -Xlint:all through Maven Compiler Plugin",
+            "version_source": "toolchain.json:java and bindings/java/pom.xml"
+        },
+        "kotlin-compiler": {
+            "analyzer": "Kotlin compiler warnings",
+            "version_source": "bindings/kotlin/build.gradle.kts"
+        },
+        "luacheck": { "analyzer": "luacheck", "version_source": "unresolved" },
+        "perl-compile": {
+            "analyzer": "perl compile with fatal warnings",
+            "version_source": "toolchain.json:perl"
+        },
+        "php-syntax": {
+            "analyzer": "php -l",
+            "version_source": "toolchain.json:php"
+        },
+        "phpstan": { "analyzer": "PHPStan", "version_source": "unresolved" },
+        "ruff": {
+            "analyzer": "Ruff defect lint rules",
+            "version_source": "toolchain.json:ruff and tooling/requirements-quality.txt"
+        },
+        "python-type": {
+            "analyzer": "Python type checker",
+            "version_source": "unresolved"
+        },
+        "r-cmd-check": {
+            "analyzer": "R CMD check",
+            "version_source": "toolchain.json:R"
+        },
+        "lintr": { "analyzer": "lintr", "version_source": "unresolved" },
+        "ruby-warnings": {
+            "analyzer": "ruby -wc",
+            "version_source": "toolchain.json:ruby"
+        },
+        "rubocop": { "analyzer": "RuboCop", "version_source": "unresolved" },
+        "rustc": {
+            "analyzer": "rustc warnings via cargo check",
+            "version_source": "toolchain.json:rustc and Cargo.lock"
+        },
+        "clippy": {
+            "analyzer": "Clippy",
+            "version_source": "unavailable in the certification environment"
+        },
+        "swiftc": {
+            "analyzer": "Swift compiler warnings",
+            "version_source": "toolchain.json:swift"
+        },
+        "swiftlint": {
+            "analyzer": "SwiftLint",
+            "version_source": "unresolved"
+        },
+        "typescript-binding": {
+            "analyzer": "TypeScript compiler strict mode",
+            "version_source": "bindings/typescript/package-lock.json"
+        },
+        "typescript-lsp": {
+            "analyzer": "TypeScript compiler strict mode",
+            "version_source": "tooling/lsp-server/package-lock.json"
+        },
+        "eslint": { "analyzer": "ESLint", "version_source": "unresolved" },
+        "suppression-audit": {
+            "analyzer": "STRling suppression policy scanner",
+            "version_source": "repository source"
+        }
     },
     "ecosystems": [
         {
             "id": "repository",
-            "capabilities": {"format": "enforced", "lint": "configured", "type_static_analysis": "not_yet_enforceable", "compiler_warnings": "not_applicable", "tests": "configured"},
+            "capabilities": {
+                "format": "enforced",
+                "lint": "configured",
+                "type_static_analysis": "not_yet_enforceable",
+                "compiler_warnings": "not_applicable",
+                "tests": "configured"
+            },
             "lint_strategy": ["ruff", "suppression-audit"],
             "type_strategy": "python-type",
             "baseline": "Ruff reported one unused pytest import in tooling tests; suppression audit counted 92 governed directives.",
@@ -127,7 +218,13 @@
         },
         {
             "id": "lsp",
-            "capabilities": {"format": "enforced", "lint": "configured", "type_static_analysis": "configured", "compiler_warnings": "not_applicable", "tests": "not_yet_enforceable"},
+            "capabilities": {
+                "format": "enforced",
+                "lint": "configured",
+                "type_static_analysis": "configured",
+                "compiler_warnings": "not_applicable",
+                "tests": "not_yet_enforceable"
+            },
             "lint_strategy": ["ruff", "eslint"],
             "type_strategy": "typescript-lsp",
             "baseline": "Ruff default defect rules and strict TypeScript checking passed; ESLint is not locked and Python test dependencies are not lock-complete.",
@@ -135,7 +232,13 @@
         },
         {
             "id": "c",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "not_yet_enforceable", "type_static_analysis": "not_applicable", "compiler_warnings": "not_yet_enforceable", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "not_yet_enforceable",
+                "type_static_analysis": "not_applicable",
+                "compiler_warnings": "not_yet_enforceable",
+                "tests": "configured"
+            },
             "lint_strategy": "compiler-c",
             "type_strategy": "not_applicable",
             "baseline": "GCC -Wall -Wextra -Wpedantic -Werror reported eight unused-state findings and four format-truncation findings.",
@@ -143,7 +246,13 @@
         },
         {
             "id": "cpp",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "not_yet_enforceable", "type_static_analysis": "not_applicable", "compiler_warnings": "configured", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "not_yet_enforceable",
+                "type_static_analysis": "not_applicable",
+                "compiler_warnings": "configured",
+                "tests": "configured"
+            },
             "lint_strategy": "compiler-cpp",
             "type_strategy": "not_applicable",
             "baseline": "The full target compiled with -Wall -Wextra -Wpedantic and CMAKE_COMPILE_WARNING_AS_ERROR=ON; CMake emitted one project configuration warning and one transitive dependency warning.",
@@ -151,14 +260,26 @@
         },
         {
             "id": "csharp",
-            "capabilities": {"format": "enforced", "lint": "configured", "type_static_analysis": "configured", "compiler_warnings": "configured", "tests": "configured"},
+            "capabilities": {
+                "format": "enforced",
+                "lint": "configured",
+                "type_static_analysis": "configured",
+                "compiler_warnings": "configured",
+                "tests": "configured"
+            },
             "lint_strategy": "dotnet-csharp",
             "type_strategy": "dotnet-csharp",
             "baseline": "dotnet build -warnaserror completed with zero warnings and zero errors."
         },
         {
             "id": "dart",
-            "capabilities": {"format": "enforced", "lint": "configured", "type_static_analysis": "configured", "compiler_warnings": "not_yet_enforceable", "tests": "configured"},
+            "capabilities": {
+                "format": "enforced",
+                "lint": "configured",
+                "type_static_analysis": "configured",
+                "compiler_warnings": "not_yet_enforceable",
+                "tests": "configured"
+            },
             "lint_strategy": "dart-analyze",
             "type_strategy": "dart-analyze",
             "baseline": "dart analyze reported one unnecessary non-null assertion warning and one unnecessary import info; the canonical command disabled fatal warnings.",
@@ -166,28 +287,52 @@
         },
         {
             "id": "fsharp",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "configured", "type_static_analysis": "configured", "compiler_warnings": "configured", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "configured",
+                "type_static_analysis": "configured",
+                "compiler_warnings": "configured",
+                "tests": "configured"
+            },
             "lint_strategy": "dotnet-fsharp",
             "type_strategy": "dotnet-fsharp",
             "baseline": "dotnet build -warnaserror completed with zero warnings and zero errors."
         },
         {
             "id": "go",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "configured", "type_static_analysis": "configured", "compiler_warnings": "not_applicable", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "configured",
+                "type_static_analysis": "configured",
+                "compiler_warnings": "not_applicable",
+                "tests": "configured"
+            },
             "lint_strategy": "go-vet",
             "type_strategy": "go compiler",
             "baseline": "go vet ./... and go build ./... passed with no findings."
         },
         {
             "id": "java",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "configured", "type_static_analysis": "configured", "compiler_warnings": "configured", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "configured",
+                "type_static_analysis": "configured",
+                "compiler_warnings": "configured",
+                "tests": "configured"
+            },
             "lint_strategy": "javac-xlint",
             "type_strategy": "javac-xlint",
             "baseline": "Maven compilation with javac -Xlint:all completed without warnings; Maven executable resolution remains deferred."
         },
         {
             "id": "kotlin",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "configured", "type_static_analysis": "configured", "compiler_warnings": "not_yet_enforceable", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "configured",
+                "type_static_analysis": "configured",
+                "compiler_warnings": "not_yet_enforceable",
+                "tests": "configured"
+            },
             "lint_strategy": "kotlin-compiler",
             "type_strategy": "kotlin-compiler",
             "baseline": "The Kotlin compiler reported four ExperimentalSerializationApi opt-in warnings.",
@@ -195,7 +340,13 @@
         },
         {
             "id": "lua",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "not_yet_enforceable", "type_static_analysis": "not_applicable", "compiler_warnings": "not_applicable", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "not_yet_enforceable",
+                "type_static_analysis": "not_applicable",
+                "compiler_warnings": "not_applicable",
+                "tests": "configured"
+            },
             "lint_strategy": "luacheck",
             "type_strategy": "not_applicable",
             "baseline": "All tracked Lua source parsed with luac; luacheck is absent and unresolved.",
@@ -203,14 +354,26 @@
         },
         {
             "id": "perl",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "configured", "type_static_analysis": "not_applicable", "compiler_warnings": "configured", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "configured",
+                "type_static_analysis": "not_applicable",
+                "compiler_warnings": "configured",
+                "tests": "configured"
+            },
             "lint_strategy": "perl-compile",
             "type_strategy": "not_applicable",
             "baseline": "Every library module compiled cleanly; fatal-warning mode is ready for canonical integration."
         },
         {
             "id": "php",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "configured", "type_static_analysis": "not_yet_enforceable", "compiler_warnings": "not_applicable", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "configured",
+                "type_static_analysis": "not_yet_enforceable",
+                "compiler_warnings": "not_applicable",
+                "tests": "configured"
+            },
             "lint_strategy": "php-syntax",
             "type_strategy": "phpstan",
             "baseline": "All source and test files passed php -l; PHPStan is absent from composer.lock.",
@@ -218,7 +381,13 @@
         },
         {
             "id": "python",
-            "capabilities": {"format": "enforced", "lint": "configured", "type_static_analysis": "not_yet_enforceable", "compiler_warnings": "configured", "tests": "configured"},
+            "capabilities": {
+                "format": "enforced",
+                "lint": "configured",
+                "type_static_analysis": "not_yet_enforceable",
+                "compiler_warnings": "configured",
+                "tests": "configured"
+            },
             "lint_strategy": "ruff",
             "type_strategy": "python-type",
             "baseline": "Ruff reported two unused test imports; pytest already treats runtime warnings as errors.",
@@ -226,7 +395,13 @@
         },
         {
             "id": "r",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "not_yet_enforceable", "type_static_analysis": "not_applicable", "compiler_warnings": "not_yet_enforceable", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "not_yet_enforceable",
+                "type_static_analysis": "not_applicable",
+                "compiler_warnings": "not_yet_enforceable",
+                "tests": "configured"
+            },
             "lint_strategy": ["lintr", "r-cmd-check"],
             "type_strategy": "not_applicable",
             "baseline": "R CMD check stopped because DESCRIPTION did not yield required Author and Maintainer fields; lintr and a locked R environment are absent.",
@@ -234,7 +409,13 @@
         },
         {
             "id": "ruby",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "configured", "type_static_analysis": "not_applicable", "compiler_warnings": "not_yet_enforceable", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "configured",
+                "type_static_analysis": "not_applicable",
+                "compiler_warnings": "not_yet_enforceable",
+                "tests": "configured"
+            },
             "lint_strategy": ["ruby-warnings", "rubocop"],
             "type_strategy": "not_applicable",
             "baseline": "ruby -wc reported eight unused test-local assignments; RuboCop is absent from Gemfile.lock.",
@@ -242,7 +423,13 @@
         },
         {
             "id": "rust",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "unavailable", "type_static_analysis": "configured", "compiler_warnings": "not_yet_enforceable", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "unavailable",
+                "type_static_analysis": "configured",
+                "compiler_warnings": "not_yet_enforceable",
+                "tests": "configured"
+            },
             "lint_strategy": "clippy",
             "type_strategy": "rustc",
             "baseline": "Clippy is unavailable; rustc -D warnings reported one generated unused import and six tracked allow attributes remain to classify.",
@@ -250,7 +437,13 @@
         },
         {
             "id": "swift",
-            "capabilities": {"format": "not_yet_enforceable", "lint": "not_yet_enforceable", "type_static_analysis": "configured", "compiler_warnings": "configured", "tests": "configured"},
+            "capabilities": {
+                "format": "not_yet_enforceable",
+                "lint": "not_yet_enforceable",
+                "type_static_analysis": "configured",
+                "compiler_warnings": "configured",
+                "tests": "configured"
+            },
             "lint_strategy": "swiftlint",
             "type_strategy": "swiftc",
             "baseline": "swift build -Xswiftc -warnings-as-errors passed; SwiftLint is unresolved.",
@@ -258,7 +451,13 @@
         },
         {
             "id": "typescript",
-            "capabilities": {"format": "enforced", "lint": "not_yet_enforceable", "type_static_analysis": "enforced", "compiler_warnings": "not_applicable", "tests": "configured"},
+            "capabilities": {
+                "format": "enforced",
+                "lint": "not_yet_enforceable",
+                "type_static_analysis": "enforced",
+                "compiler_warnings": "not_applicable",
+                "tests": "configured"
+            },
             "lint_strategy": "eslint",
             "type_strategy": "typescript-binding",
             "baseline": "Strict TypeScript compilation passed; ESLint is absent and three excluded tests contain @ts-ignore directives tied to a potentially semantic callable-Pattern assumption.",

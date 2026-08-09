@@ -37,6 +37,7 @@ def target_config(
     aliases: dict[str, str] | None = None,
     formatters: list[str] | None = None,
     operation_tools: dict[str, list[str]] | None = None,
+    capability_details: dict[str, dict[str, str]] | None = None,
 ) -> dict[str, object]:
     capabilities = {operation: "not_yet_configured" for operation in OPERATIONS}
     capabilities.update(statuses or {})
@@ -57,6 +58,8 @@ def target_config(
         result["formatters"] = formatters
     if operation_tools:
         result["operation_tools"] = operation_tools
+    if capability_details:
+        result["capability_details"] = capability_details
     if aliases:
         result["command_aliases"] = aliases
     return result
@@ -159,6 +162,53 @@ class QualityRoutingTests(unittest.TestCase):
             [("alpha", "lint", ["fixture-lint", "--check"])],
             calls,
         )
+        self.assertEqual("configured", result.capability)
+        self.assertEqual("configured", result.as_dict()["capability"])
+
+    def test_enforced_lint_command_executes(self) -> None:
+        alpha = target_config(
+            {"lint": "enforced"},
+            {"lint": ["fixture-lint", "--strict"]},
+        )
+        result = QualityRunner(
+            Toolchain(policy(alpha=alpha), Path.cwd()),
+            lambda *_args: Execution(0),
+        ).run_operation("lint", "alpha")[0]
+        self.assertEqual("passed", result.status)
+        self.assertEqual("enforced", result.capability)
+
+    def test_lint_violation_preserves_command_and_exit(self) -> None:
+        alpha = target_config(
+            {"lint": "configured"},
+            {"lint": ["fixture-lint", "--check"]},
+        )
+        result = QualityRunner(
+            Toolchain(policy(alpha=alpha), Path.cwd()),
+            lambda *_args: Execution(9, stderr="fixture violation\n"),
+        ).run_operation("lint", "alpha")[0]
+        self.assertEqual("failed", result.status)
+        self.assertEqual(["fixture-lint", "--check"], result.command)
+        self.assertEqual(9, result.exit_code)
+        self.assertIn("status 9", result.reason or "")
+        self.assertEqual(9, _overall_exit([result], True))
+
+    def test_typecheck_success_and_failure_propagate(self) -> None:
+        alpha = target_config(
+            {"typecheck": "configured"},
+            {"typecheck": ["fixture-types", "--check"]},
+        )
+        toolchain = Toolchain(policy(alpha=alpha), Path.cwd())
+        passed = QualityRunner(
+            toolchain,
+            lambda *_args: Execution(0),
+        ).run_operation("typecheck", "alpha")[0]
+        failed = QualityRunner(
+            toolchain,
+            lambda *_args: Execution(4, stderr="type failure\n"),
+        ).run_operation("typecheck", "alpha")[0]
+        self.assertEqual("passed", passed.status)
+        self.assertEqual("failed", failed.status)
+        self.assertEqual(4, failed.exit_code)
 
     def test_configured_formatter_success_reports_formatter(self) -> None:
         alpha = target_config(
@@ -222,6 +272,31 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual("unavailable", result.status)
         self.assertIn("fixture-format", result.reason or "")
 
+    def test_unavailable_lint_analyzer_prevents_execution(self) -> None:
+        alpha = target_config(
+            {"lint": "configured"},
+            {"lint": ["fixture-format", "--lint"]},
+            operation_tools={"lint": ["fixture-format"]},
+        )
+        toolchain = Toolchain(policy(alpha=alpha), Path.cwd())
+        inspector = EnvironmentInspector(
+            toolchain,
+            probe=lambda _command: Execution(0, stdout="Python 3.12.4"),
+            which=lambda command: (
+                None if command == "fixture-format" else "/fixture/tool"
+            ),
+        )
+
+        def unexpected(*_args):
+            raise AssertionError("executor should not be called")
+
+        result = QualityRunner(toolchain, unexpected, inspector).run_operation(
+            "lint", "alpha"
+        )[0]
+        self.assertEqual("unavailable", result.status)
+        self.assertEqual("configured", result.capability)
+        self.assertIn("fixture-format", result.reason or "")
+
     def test_format_non_applicable_is_explicit(self) -> None:
         alpha = target_config({"format": "not_applicable"})
         result = QualityRunner(
@@ -246,6 +321,24 @@ class QualityRoutingTests(unittest.TestCase):
             toolchain,
             lambda target, *_args: calls.append(target.name) or Execution(0),
         ).run_operation("format", "beta")
+        self.assertEqual(["beta"], calls)
+
+    def test_lint_execution_is_scoped_to_selected_component(self) -> None:
+        def configured(name: str) -> dict[str, object]:
+            return target_config(
+                {"lint": "configured"},
+                {"lint": ["fixture-lint", name]},
+            )
+
+        toolchain = Toolchain(
+            policy(alpha=configured("alpha"), beta=configured("beta")),
+            Path.cwd(),
+        )
+        calls: list[str] = []
+        QualityRunner(
+            toolchain,
+            lambda target, *_args: calls.append(target.name) or Execution(0),
+        ).run_operation("lint", "beta")
         self.assertEqual(["beta"], calls)
 
     def test_aggregate_formatter_failure_propagates(self) -> None:
@@ -303,6 +396,35 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual("not_yet_configured", result.status)
         self.assertEqual(0, _overall_exit([result], True))
 
+    def test_not_yet_enforceable_is_explicit_and_non_failing(self) -> None:
+        alpha = target_config(
+            {"lint": "not_yet_enforceable"},
+            capability_details={
+                "lint": {
+                    "reason": "fixture debt",
+                    "retirement_condition": "remove fixture debt",
+                }
+            },
+        )
+        result = QualityRunner(
+            Toolchain(policy(alpha=alpha), Path.cwd())
+        ).run_operation("lint", "alpha")[0]
+        self.assertEqual("not_yet_enforceable", result.status)
+        self.assertEqual("fixture debt", result.reason)
+        self.assertEqual(0, _overall_exit([result], True))
+
+    def test_unavailable_capability_is_explicit_and_failing(self) -> None:
+        alpha = target_config(
+            {"lint": "unavailable"},
+            capability_details={"lint": {"reason": "fixture analyzer missing"}},
+        )
+        result = QualityRunner(
+            Toolchain(policy(alpha=alpha), Path.cwd())
+        ).run_operation("lint", "alpha")[0]
+        self.assertEqual("unavailable", result.status)
+        self.assertEqual("fixture analyzer missing", result.reason)
+        self.assertEqual(1, _overall_exit([result], True))
+
     def test_command_failure_propagates(self) -> None:
         alpha = target_config(
             {"test": "configured"},
@@ -332,6 +454,23 @@ class QualityRoutingTests(unittest.TestCase):
             [(result.component, result.operation, result.status) for result in results],
         )
         self.assertEqual(0, _overall_exit(results, False))
+
+    def test_aggregate_static_failure_propagates(self) -> None:
+        alpha = target_config(
+            {"lint": "configured", "typecheck": "configured"},
+            {
+                "lint": ["fixture-lint"],
+                "typecheck": ["fixture-types"],
+            },
+        )
+        results = QualityRunner(
+            Toolchain(policy(alpha=alpha), Path.cwd()),
+            lambda _target, operation, _command: Execution(
+                5 if operation == "typecheck" else 0
+            ),
+        ).run_aggregate("check", None)
+        self.assertEqual(["passed", "failed"], [result.status for result in results])
+        self.assertEqual(1, _overall_exit(results, False))
 
     def test_aggregate_uses_operation_specific_default_targets(self) -> None:
         alpha = target_config(
@@ -374,6 +513,14 @@ class QualityRoutingTests(unittest.TestCase):
     def test_malformed_configured_capability_is_rejected(self) -> None:
         alpha = target_config({"lint": "configured"})
         with self.assertRaisesRegex(ConfigurationError, "configured without a command"):
+            Toolchain(policy(alpha=alpha), Path.cwd())
+
+    def test_transitional_capability_requires_retirement_condition(self) -> None:
+        alpha = target_config(
+            {"lint": "not_yet_enforceable"},
+            capability_details={"lint": {"reason": "fixture debt"}},
+        )
+        with self.assertRaisesRegex(ConfigurationError, "retirement condition"):
             Toolchain(policy(alpha=alpha), Path.cwd())
 
     def test_format_check_and_json_options_parse_in_any_order(self) -> None:

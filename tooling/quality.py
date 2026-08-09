@@ -26,10 +26,14 @@ QUALITY_OPERATIONS = (
 AGGREGATE_OPERATIONS = ("check", "certify")
 ENVIRONMENT_OPERATION = "environment"
 CAPABILITY_STATUSES = (
+    "enforced",
     "configured",
     "not_applicable",
     "not_yet_configured",
+    "not_yet_enforceable",
+    "unavailable",
 )
+EXECUTABLE_CAPABILITY_STATUSES = ("configured", "enforced")
 
 
 class ConfigurationError(ValueError):
@@ -80,6 +84,7 @@ class OperationResult:
     command: list[str] | None
     exit_code: int | None
     reason: str | None
+    capability: str | None = None
     formatters: list[str] = field(default_factory=list)
     environment: list[ToolResult] = field(default_factory=list)
     stdout: str = field(default="", repr=False)
@@ -93,6 +98,7 @@ class OperationResult:
             "command": self.command,
             "exit_code": self.exit_code,
             "reason": self.reason,
+            "capability": self.capability,
             "formatters": self.formatters,
             "environment": [result.as_dict() for result in self.environment],
         }
@@ -229,15 +235,37 @@ class Toolchain:
         for name, target in sorted(self.targets.items()):
             for operation in QUALITY_OPERATIONS:
                 status = self.capability(target, operation)
-                if status == "not_yet_configured":
-                    incomplete.append(
-                        {
-                            "component": name,
-                            "operation": operation,
-                            "status": status,
-                        }
-                    )
+                if status in (
+                    "not_yet_configured",
+                    "not_yet_enforceable",
+                    "unavailable",
+                ):
+                    item = {
+                        "component": name,
+                        "operation": operation,
+                        "status": status,
+                    }
+                    details = self.capability_details(target, operation)
+                    reason = details.get("reason")
+                    if isinstance(reason, str):
+                        item["reason"] = reason
+                    incomplete.append(item)
         return incomplete
+
+    def capability_details(
+        self, target: Target, operation: str
+    ) -> Mapping[str, object]:
+        details = target.config.get("capability_details", {})
+        if not isinstance(details, dict):
+            raise ConfigurationError(
+                f"{target.name}.capability_details must be an object"
+            )
+        operation_details = details.get(operation, {})
+        if not isinstance(operation_details, dict):
+            raise ConfigurationError(
+                f"{target.name}.capability_details.{operation} must be an object"
+            )
+        return operation_details
 
     def _validate(self) -> None:
         if self.data.get("schema_version") != 1:
@@ -354,6 +382,11 @@ class Toolchain:
                     raise ConfigurationError(
                         f"{name}.capabilities must declare every quality operation"
                     )
+                capability_details = raw.get("capability_details", {})
+                if not isinstance(capability_details, dict):
+                    raise ConfigurationError(
+                        f"{name}.capability_details must be an object"
+                    )
                 operation_tools = raw.get("operation_tools", {})
                 if not isinstance(operation_tools, dict):
                     raise ConfigurationError(
@@ -401,8 +434,25 @@ class Toolchain:
                         raise ConfigurationError(
                             f"{name}.{operation} has invalid capability status '{status}'"
                         )
-                    if status == "configured":
+                    if status in EXECUTABLE_CAPABILITY_STATUSES:
                         self.resolve_command(target, operation)
+                    if status in ("not_yet_enforceable", "unavailable"):
+                        details = capability_details.get(operation)
+                        if not isinstance(details, dict):
+                            raise ConfigurationError(
+                                f"{name}.{operation} {status} requires capability_details"
+                            )
+                        reason = details.get("reason")
+                        if not isinstance(reason, str) or not reason:
+                            raise ConfigurationError(
+                                f"{name}.{operation} {status} requires a reason"
+                            )
+                        if status == "not_yet_enforceable":
+                            retirement = details.get("retirement_condition")
+                            if not isinstance(retirement, str) or not retirement:
+                                raise ConfigurationError(
+                                    f"{name}.{operation} not_yet_enforceable requires a retirement condition"
+                                )
         operation_defaults = policy.get("operation_defaults", {})
         if not isinstance(operation_defaults, dict):
             raise ConfigurationError("policy.operation_defaults must be an object")
@@ -707,15 +757,20 @@ class QualityRunner:
 
     def run_leaf(self, operation: str, target: Target) -> OperationResult:
         capability = self.toolchain.capability(target, operation)
-        if capability != "configured":
-            wording = capability.replace("_", " ")
+        if capability not in EXECUTABLE_CAPABILITY_STATUSES:
+            details = self.toolchain.capability_details(target, operation)
+            reason = details.get("reason")
+            if not isinstance(reason, str):
+                wording = capability.replace("_", " ")
+                reason = f"{operation.replace('_', ' ')} is {wording} for {target.name}"
             return OperationResult(
-                operation,
-                target.name,
-                capability,
-                None,
-                None,
-                f"{operation.replace('_', ' ')} is {wording} for {target.name}",
+                operation=operation,
+                component=target.name,
+                status=capability,
+                command=None,
+                exit_code=None,
+                reason=reason,
+                capability=capability,
             )
         resolved, command = self.toolchain.resolve_command(target, operation)
         formatters = self.toolchain.formatter_names(target, operation)
@@ -736,6 +791,7 @@ class QualityRunner:
                 command=None,
                 exit_code=None,
                 reason=details,
+                capability=capability,
                 formatters=formatters,
                 environment=environment,
             )
@@ -757,6 +813,7 @@ class QualityRunner:
             command=command,
             exit_code=execution.returncode,
             reason=reason,
+            capability=capability,
             formatters=formatters,
             environment=environment,
             stdout=execution.stdout,
@@ -819,6 +876,7 @@ class QualityRunner:
                     command=None,
                     exit_code=1 if blockers else 0,
                     reason="; ".join(notices) if notices else None,
+                    capability=None,
                     environment=environment,
                 )
             )
@@ -916,9 +974,11 @@ def _render_human(
         print("Incomplete capabilities:")
         grouped: dict[str, list[str]] = {}
         for item in incomplete:
-            grouped.setdefault(item["component"], []).append(item["operation"])
+            grouped.setdefault(item["component"], []).append(
+                f"{item['operation']} [{item['status']}]"
+            )
         for component, operations in grouped.items():
-            print(f"  {component}: {', '.join(operations)} [not_yet_configured]")
+            print(f"  {component}: {', '.join(operations)}")
 
 
 def _print_help() -> None:
