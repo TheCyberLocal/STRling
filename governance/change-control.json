@@ -15,24 +15,15 @@
         },
         {
             "classification": "schema_change",
-            "paths": [
-                "spec/schema/**",
-                "governance/schemas/**"
-            ]
+            "paths": ["spec/schema/**", "governance/schemas/**"]
         },
         {
             "classification": "diagnostic_change",
-            "paths": [
-                "bindings/**/hint_engine.*",
-                "bindings/**/diagnostics.*"
-            ]
+            "paths": ["bindings/**/hint_engine.*", "bindings/**/diagnostics.*"]
         },
         {
             "classification": "target_behavior_change",
-            "paths": [
-                "bindings/**/emitters/**",
-                "tests/conformance/**"
-            ]
+            "paths": ["bindings/**/emitters/**", "tests/conformance/**"]
         },
         {
             "classification": "public_api_change",
@@ -51,13 +42,6 @@
             ]
         }
     ],
-    "documentation_paths": [
-        "**/*.md",
-        "docs/**"
-    ],
-    "internal_implementation_paths": [
-        "tooling/**",
-        "strling",
-        "strling.ps1"
-    ]
+    "documentation_paths": ["**/*.md", "docs/**"],
+    "internal_implementation_paths": ["tooling/**", "strling", "strling.ps1"]
 }

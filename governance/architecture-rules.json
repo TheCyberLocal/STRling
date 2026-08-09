@@ -11,10 +11,7 @@
                     "tooling/generated_artifacts.py",
                     "tooling/governance.py"
                 ],
-                "forbidden_dependencies": [
-                    "bindings",
-                    "spec"
-                ]
+                "forbidden_dependencies": ["bindings", "spec"]
             }
         },
         {
@@ -31,10 +28,7 @@
                     "tooling/quality.py",
                     "tooling/static_analysis.py"
                 ],
-                "forbidden_dependencies": [
-                    "bindings",
-                    "spec"
-                ]
+                "forbidden_dependencies": ["bindings", "spec"]
             }
         },
         {
@@ -110,9 +104,7 @@
             "status": "future",
             "kind": "tracked-transition",
             "configuration": {
-                "tracked_paths": [
-                    "bindings/**"
-                ]
+                "tracked_paths": ["bindings/**"]
             },
             "rationale": "No canonical compiler core exists yet and final-state enforcement would reject every current binding.",
             "activation_condition": "Activate per binding only after canonical-core implementation, adapter migration, and behavior-preservation certification."

@@ -86,8 +86,9 @@ def update_file(
 ) -> bool:
     """Read a target file, run an updater func on its contents and write back.
 
-    Returns True if file was present and processed (even if no change),
-    False if file was missing or if an error occurred.
+    Returns True if the file already matched or was updated. In dry-run mode,
+    a required change returns False so callers can use the function as an exact
+    drift check. Missing files and processing errors also return False.
     """
     file_path: Path = ROOT_DIR / path
     if not file_path.exists():
@@ -105,8 +106,10 @@ def update_file(
             if not dry_run:
                 file_path.write_text(new_content, encoding="utf-8")
                 logger.info("Updated %s to %s", path, new_version)
+                return True
             else:
                 logger.info("Would update %s to %s", path, new_version)
+                return False
         else:
             logger.debug("No changes needed for %s", path)
 
@@ -405,24 +408,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         if not update_file(path, version, dry_run=not args.write, updater_func=updater):
             success = False
 
-    # Handle Lua rockspec separately (dynamic filename)
-    lua_dir = ROOT_DIR / "bindings" / "lua"
-    existing_rockspecs = list(lua_dir.glob("strling-*.rockspec"))
-    if existing_rockspecs:
-        rockspec_path = existing_rockspecs[0]
-        relative_path = str(rockspec_path.relative_to(ROOT_DIR))
-        if not update_file(
-            relative_path,
-            version,
-            dry_run=not args.write,
-            updater_func=update_lua_rockspec,
-        ):
-            success = False
-        # Rename the rockspec file to match the new version
-        if not rename_lua_rockspec(version, dry_run=not args.write):
-            success = False
-    else:
-        logger.warning("No Lua rockspec file found. Skipping.")
+    # The checked-in Lua file is a release template whose VERSION placeholders
+    # are materialized by the release workflow. It is governed separately and
+    # is deliberately not a version-synchronized repository output.
 
     if args.check and not success:
         logger.error("Version mismatch detected!")

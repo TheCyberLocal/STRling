@@ -25,9 +25,7 @@ def load_yaml(path: Path) -> object:
 class GovernanceContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.task_schema = load_json(
-            GOVERNANCE / "schemas/task-record.schema.json"
-        )
+        cls.task_schema = load_json(GOVERNANCE / "schemas/task-record.schema.json")
         cls.artifact_schema = load_json(
             GOVERNANCE / "schemas/generated-artifact-registry.schema.json"
         )
@@ -40,12 +38,8 @@ class GovernanceContractTests(unittest.TestCase):
 
         cls.task_validator = Draft202012Validator(cls.task_schema)
         cls.artifact_validator = Draft202012Validator(cls.artifact_schema)
-        cls.change_control_validator = Draft202012Validator(
-            cls.change_control_schema
-        )
-        cls.architecture_validator = Draft202012Validator(
-            cls.architecture_schema
-        )
+        cls.change_control_validator = Draft202012Validator(cls.change_control_schema)
+        cls.architecture_validator = Draft202012Validator(cls.architecture_schema)
 
     def test_schemas_are_valid_draft_2020_12(self) -> None:
         for schema in (
@@ -62,8 +56,7 @@ class GovernanceContractTests(unittest.TestCase):
         )
         self.task_validator.validate(
             load_yaml(
-                ROOT
-                / "docs/migration/records/generated-artifact-change-integrity.yaml"
+                ROOT / "docs/migration/records/generated-artifact-change-integrity.yaml"
             )
         )
         self.artifact_validator.validate(

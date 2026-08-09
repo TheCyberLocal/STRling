@@ -2,7 +2,9 @@ param (
     [Parameter(Mandatory = $true, Position = 0)]
     [string]$Command,
     [Parameter(Mandatory = $false, Position = 1)]
-    [string]$Language
+    [string]$Language,
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$Options
 )
 
 $ErrorActionPreference = "Stop"
@@ -289,6 +291,7 @@ function Show-Help {
     Write-Host "  test <lang|all>       Run tests for one binding or all bindings"
     Write-Host "  bootstrap <lang|all>  Run setup, build, and test in sequence"
     Write-Host "  clean <lang|all>      Clean artifacts"
+    Write-Host "  generate [--check]    Regenerate or verify registered artifacts"
     Write-Host "  audit                 Run the final audit report generator"
     Write-Host "  cache-dir <lang>      Print cache directory path"
     Write-Host "  lockfile <lang>       Print cache key lockfile"
@@ -306,6 +309,28 @@ switch ($Command) {
     "list" {
         Show-Bindings
         exit 0
+    }
+    "generate" {
+        $pythonCommand = Resolve-CommandName "python3"
+        if (-not $pythonCommand) {
+            Write-Error "Python is required to manage generated artifacts."
+            exit 1
+        }
+        $generateArguments = @()
+        if ($Language) {
+            $generateArguments += $Language
+        }
+        if ($Options) {
+            $generateArguments += $Options
+        }
+        Push-Location $PSScriptRoot
+        try {
+            & $pythonCommand "tooling/generated_artifacts.py" @generateArguments
+            exit $LASTEXITCODE
+        }
+        finally {
+            Pop-Location
+        }
     }
     "cache-dir" {
         if (-not $Language) { exit 1 }

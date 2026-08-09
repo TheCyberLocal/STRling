@@ -122,10 +122,30 @@ checkpoints:
             result: passed
             details: Canonical formatting and patch-integrity checks passed.
     - name: Generated-artifact reproduction hardgate
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Enforced reproduction
+            command: ./strling generate; ./strling generate --check
+            result: passed
+            details: Seventeen version-synchronized metadata outputs and 126 Swift compatibility fixture resources reproduced exactly; write followed by check left no generated diff.
+          - check: Structured artifact results
+            command: ./strling generate --check --json
+            result: passed
+            details: Structured output reported artifact identifier, command, status, exit code, and reason for all two enforced and eight transitional families.
+          - check: Controlled generation failures
+            command: python3 -m unittest tooling.tests.test_generated_artifacts tooling.tests.test_sync_fixture_projection
+            result: passed
+            details: Fourteen tests covered stale content, generator failure, missing authoritative source, missing expected output, malformed registry, check-mode mutation, self-referential input, exact copy, extra output, and deterministic write behavior.
+          - check: Version and contract tests
+            command: python3 -m pytest tooling/tests/test_sync_versions.py -q; python3 -m unittest tooling.tests.test_governance_contracts
+            result: passed
+            details: Eight version synchronization tests and eight schema/contract tests passed; version check now detects drift without writing and the Lua release template remains separately governed.
+          - check: Repository quality
+            command: ./strling format --check repository; ./strling lint repository; git diff --check
+            result: passed
+            details: Canonical repository formatting, lint, suppression governance, and patch integrity passed.
     - name: Task scope and architecture fitness enforcement
-      status: planned
+      status: in_progress
       evidence: []
     - name: Quality and CI integration certification
       status: planned
@@ -133,4 +153,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 30ff939c9d2dcef449c6088eeef1cf354245ab01
+      subject: "docs(governance): define artifact and change-control contracts"

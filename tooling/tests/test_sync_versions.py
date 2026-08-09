@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from tooling.sync_versions import (
+    update_file,
     update_json,
     update_composer_json,
     update_yaml_pubspec,
@@ -8,6 +9,7 @@ from tooling.sync_versions import (
     update_c_source,
     update_lua_rockspec,
 )
+import tooling.sync_versions as sync_versions
 
 
 def test_update_json_changes_version():
@@ -57,3 +59,30 @@ def test_update_lua_rockspec_revision():
     out2 = update_lua_rockspec(inp2, "3.0.0-2", Path("dummy"))
     # when a revision is provided in the source version, it is preserved
     assert 'version = "3.0.0-2"' in out2
+
+
+def test_update_file_dry_run_reports_drift(tmp_path, monkeypatch):
+    monkeypatch.setattr(sync_versions, "ROOT_DIR", tmp_path)
+    target = tmp_path / "package.json"
+    target.write_text('{"version": "1.0.0"}\n', encoding="utf-8")
+
+    assert not update_file(
+        "package.json",
+        "3.0.0",
+        dry_run=True,
+        updater_func=update_json,
+    )
+    assert target.read_text(encoding="utf-8") == '{"version": "1.0.0"}\n'
+
+
+def test_update_file_dry_run_accepts_exact_content(tmp_path, monkeypatch):
+    monkeypatch.setattr(sync_versions, "ROOT_DIR", tmp_path)
+    target = tmp_path / "package.json"
+    target.write_text('{"version": "3.0.0"}\n', encoding="utf-8")
+
+    assert update_file(
+        "package.json",
+        "3.0.0",
+        dry_run=True,
+        updater_func=update_json,
+    )

@@ -141,7 +141,10 @@
                     "then": {
                         "properties": {
                             "configuration": {
-                                "required": ["sources", "forbidden_dependencies"]
+                                "required": [
+                                    "sources",
+                                    "forbidden_dependencies"
+                                ]
                             }
                         }
                     }
