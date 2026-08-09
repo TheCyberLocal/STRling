@@ -125,4 +125,3 @@ The Bundler selector chooses the repository-locked Bundler already installed in
 the certification environment; it does not relax the version probe. Successful
 certification requires parseable structured output, no failed or unavailable
 operation, no repository mutation by check modes, and an empty final status.
-

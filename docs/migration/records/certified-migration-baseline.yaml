@@ -97,22 +97,22 @@ checkpoints:
     - name: Baseline identity and certification contract
       status: passed
       evidence:
-        - check: Starting repository identity
-          command: git status --short --branch; git rev-parse HEAD dev main; git merge-base and git rev-list comparisons
-          result: passed
-          details: architecture/v4 was clean at 95509d581cc47eba04ff38fa403b0c7f59901d51; dev was d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc and main was 664d08de53565929c8f62379b006cd29f93b239f; dev and main were ancestors of the governed branch.
-        - check: Pre-change complete certification
-          command: BUNDLER_VERSION=2.4.20 ./strling certify all --json
-          result: passed
-          details: All 63 enforced results passed across the repository and 17 bindings; 39 incomplete capabilities retained their governed non-failing classifications and no result failed or was unavailable.
-        - check: Evidence and classification contracts
-          command: python3 -m json.tool for five new schemas; task-record JSON Schema validation
-          result: passed
-          details: Manifest, registry, certification, donor inventory, and preservation schemas parse; the six donor dispositions are exclusive target choices independent of branch representation, and the four compatibility categories distinguish obligations from semantic authority.
-        - check: Required command contract
-          command: review governance/baseline-contract.md
-          result: passed
-          details: The contract names leaf, structured, aggregate, complete focused-suite, patch-integrity, and clean-state commands, including explicit repository-locked Bundler selection.
+          - check: Starting repository identity
+            command: git status --short --branch; git rev-parse HEAD dev main; git merge-base and git rev-list comparisons
+            result: passed
+            details: architecture/v4 was clean at 95509d581cc47eba04ff38fa403b0c7f59901d51; dev was d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc and main was 664d08de53565929c8f62379b006cd29f93b239f; dev and main were ancestors of the governed branch.
+          - check: Pre-change complete certification
+            command: BUNDLER_VERSION=2.4.20 ./strling certify all --json
+            result: passed
+            details: All 63 enforced results passed across the repository and 17 bindings; 39 incomplete capabilities retained their governed non-failing classifications and no result failed or was unavailable.
+          - check: Evidence and classification contracts
+            command: python3 -m json.tool for five new schemas; task-record JSON Schema validation
+            result: passed
+            details: Manifest, registry, certification, donor inventory, and preservation schemas parse; the six donor dispositions are exclusive target choices independent of branch representation, and the four compatibility categories distinguish obligations from semantic authority.
+          - check: Required command contract
+            command: review governance/baseline-contract.md
+            result: passed
+            details: The contract names leaf, structured, aggregate, complete focused-suite, patch-integrity, and clean-state commands, including explicit repository-locked Bundler selection.
     - name: Full committed-state baseline certification
       status: planned
       evidence: []

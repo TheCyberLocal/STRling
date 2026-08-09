@@ -41,7 +41,11 @@
                 "merge_bases": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["certified_donor", "certified_main", "donor_main"],
+                    "required": [
+                        "certified_donor",
+                        "certified_main",
+                        "donor_main"
+                    ],
                     "properties": {
                         "certified_donor": { "$ref": "#/$defs/sha" },
                         "certified_main": { "$ref": "#/$defs/sha" },
@@ -62,7 +66,11 @@
                     "version": { "type": "string", "minLength": 1 },
                     "path": { "$ref": "#/$defs/path" },
                     "authority": {
-                        "enum": ["normative", "versioned-contract", "transitional"]
+                        "enum": [
+                            "normative",
+                            "versioned-contract",
+                            "transitional"
+                        ]
                     }
                 }
             }
@@ -178,4 +186,3 @@
         }
     }
 }
-
