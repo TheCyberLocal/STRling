@@ -1,0 +1,167 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/donor-inventory.schema.json",
+    "title": "STRling donor capability inventory",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "schema_version",
+        "inventory_id",
+        "comparison",
+        "classification_vocabulary",
+        "capabilities",
+        "summary"
+    ],
+    "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "inventory_id": { "$ref": "#/$defs/id" },
+        "comparison": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "donor_commit",
+                "governed_commit",
+                "merge_base",
+                "donor_only_commits",
+                "governed_only_commits"
+            ],
+            "properties": {
+                "donor_commit": { "$ref": "#/$defs/sha" },
+                "governed_commit": { "$ref": "#/$defs/sha" },
+                "merge_base": { "$ref": "#/$defs/sha" },
+                "donor_only_commits": { "type": "integer", "minimum": 0 },
+                "governed_only_commits": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "classification_vocabulary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "preserve",
+                "port",
+                "rewrite",
+                "retire",
+                "evidence",
+                "discard"
+            ],
+            "properties": {
+                "preserve": { "type": "string", "minLength": 1 },
+                "port": { "type": "string", "minLength": 1 },
+                "rewrite": { "type": "string", "minLength": 1 },
+                "retire": { "type": "string", "minLength": 1 },
+                "evidence": { "type": "string", "minLength": 1 },
+                "discard": { "type": "string", "minLength": 1 }
+            }
+        },
+        "capabilities": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/capability" }
+        },
+        "summary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "preserve",
+                "port",
+                "rewrite",
+                "retire",
+                "evidence",
+                "discard"
+            ],
+            "properties": {
+                "preserve": { "type": "integer", "minimum": 0 },
+                "port": { "type": "integer", "minimum": 0 },
+                "rewrite": { "type": "integer", "minimum": 0 },
+                "retire": { "type": "integer", "minimum": 0 },
+                "evidence": { "type": "integer", "minimum": 0 },
+                "discard": { "type": "integer", "minimum": 0 }
+            }
+        }
+    },
+    "$defs": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{2,79}$"
+        },
+        "sha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+        },
+        "path": {
+            "type": "string",
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "capability": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "capability",
+                "donor_paths",
+                "architectural_role",
+                "representation",
+                "quality_evidence",
+                "disposition",
+                "rationale",
+                "future_destination",
+                "reuse_prerequisites",
+                "preserve_behavior"
+            ],
+            "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "capability": { "type": "string", "minLength": 1 },
+                "donor_paths": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/path" },
+                    "uniqueItems": true
+                },
+                "architectural_role": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "representation": {
+                    "enum": [
+                        "equivalent-in-governed",
+                        "modified-in-governed",
+                        "partially-superseded",
+                        "fully-superseded",
+                        "absent-from-governed"
+                    ]
+                },
+                "quality_evidence": {
+                    "enum": [
+                        "certified",
+                        "tested",
+                        "mixed",
+                        "documented",
+                        "unverified",
+                        "generated"
+                    ]
+                },
+                "disposition": {
+                    "enum": [
+                        "preserve",
+                        "port",
+                        "rewrite",
+                        "retire",
+                        "evidence",
+                        "discard"
+                    ]
+                },
+                "rationale": { "type": "string", "minLength": 1 },
+                "future_destination": {
+                    "type": ["string", "null"],
+                    "minLength": 1
+                },
+                "reuse_prerequisites": {
+                    "type": "array",
+                    "items": { "type": "string", "minLength": 1 }
+                },
+                "preserve_behavior": { "type": "boolean" }
+            }
+        }
+    }
+}
+

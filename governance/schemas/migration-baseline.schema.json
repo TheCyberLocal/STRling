@@ -1,0 +1,181 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/migration-baseline.schema.json",
+    "title": "STRling certified migration baseline",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "schema_version",
+        "baseline_id",
+        "authority",
+        "identity",
+        "specifications",
+        "fingerprints",
+        "active_waivers",
+        "active_transitions",
+        "certification",
+        "donor_inventory",
+        "preservation_matrix"
+    ],
+    "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "baseline_id": { "$ref": "#/$defs/id" },
+        "authority": {
+            "const": "Engineering and compatibility evidence subordinate to normative specifications and ratified versioned contracts."
+        },
+        "identity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "certified_commit",
+                "donor_commit",
+                "main_commit",
+                "certified_branch",
+                "merge_bases"
+            ],
+            "properties": {
+                "certified_commit": { "$ref": "#/$defs/sha" },
+                "donor_commit": { "$ref": "#/$defs/sha" },
+                "main_commit": { "$ref": "#/$defs/sha" },
+                "certified_branch": { "type": "string", "minLength": 1 },
+                "merge_bases": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["certified_donor", "certified_main", "donor_main"],
+                    "properties": {
+                        "certified_donor": { "$ref": "#/$defs/sha" },
+                        "certified_main": { "$ref": "#/$defs/sha" },
+                        "donor_main": { "$ref": "#/$defs/sha" }
+                    }
+                }
+            }
+        },
+        "specifications": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "version", "path", "authority"],
+                "properties": {
+                    "id": { "$ref": "#/$defs/id" },
+                    "version": { "type": "string", "minLength": 1 },
+                    "path": { "$ref": "#/$defs/path" },
+                    "authority": {
+                        "enum": ["normative", "versioned-contract", "transitional"]
+                    }
+                }
+            }
+        },
+        "fingerprints": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/fingerprint" }
+        },
+        "active_waivers": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/recordReference" }
+        },
+        "active_transitions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "id",
+                    "source",
+                    "category",
+                    "retirement_condition"
+                ],
+                "properties": {
+                    "id": { "type": "string", "minLength": 1 },
+                    "source": { "$ref": "#/$defs/path" },
+                    "category": {
+                        "enum": [
+                            "architecture-rule",
+                            "public-surface",
+                            "generated-artifact",
+                            "quality-capability"
+                        ]
+                    },
+                    "retirement_condition": { "type": "string", "minLength": 1 }
+                }
+            }
+        },
+        "certification": { "$ref": "#/$defs/evidenceReference" },
+        "donor_inventory": { "$ref": "#/$defs/evidenceReference" },
+        "preservation_matrix": { "$ref": "#/$defs/evidenceReference" }
+    },
+    "$defs": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{2,79}$"
+        },
+        "sha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+        },
+        "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        },
+        "path": {
+            "type": "string",
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "fingerprint": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "path", "sha256", "source", "role", "authority"],
+            "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "path": { "$ref": "#/$defs/path" },
+                "sha256": { "$ref": "#/$defs/sha256" },
+                "source": { "enum": ["certified-commit", "frozen-record"] },
+                "role": {
+                    "enum": [
+                        "public-surface-snapshot",
+                        "generated-artifact",
+                        "schema",
+                        "architecture-policy",
+                        "toolchain-policy",
+                        "quality-policy",
+                        "registry",
+                        "certification-evidence",
+                        "donor-inventory",
+                        "preservation-matrix"
+                    ]
+                },
+                "authority": {
+                    "enum": [
+                        "normative",
+                        "versioned-contract",
+                        "engineering-policy",
+                        "compatibility-evidence",
+                        "implementation-evidence",
+                        "migration-record"
+                    ]
+                }
+            }
+        },
+        "recordReference": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "source"],
+            "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "source": { "$ref": "#/$defs/path" }
+            }
+        },
+        "evidenceReference": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+                "path": { "$ref": "#/$defs/path" },
+                "sha256": { "$ref": "#/$defs/sha256" }
+            }
+        }
+    }
+}
+

@@ -1,0 +1,131 @@
+record_version: 2.0.0
+title: Certified migration baseline and donor capability inventory
+status: in_progress
+objective: Freeze a reproducible engineering and compatibility baseline for the governed architecture branch, classify valuable capabilities on the preserved dev donor line, protect the resulting evidence, and establish readiness for product/specification architecture work without changing STRling semantics.
+scope:
+    diff:
+        base: 95509d581cc47eba04ff38fa403b0c7f59901d51
+        head: working-tree
+    allowed_paths:
+        - docs/migration/**
+        - governance/**
+        - strling
+        - strling.ps1
+        - toolchain.json
+        - tooling/baseline.py
+        - tooling/index.md
+        - tooling/tests/**
+    forbidden_paths:
+        - bindings/**
+        - spec/**
+        - tests/spec/**
+        - tests/conformance/**
+        - package.json
+        - package-lock.json
+    expected_files:
+        - docs/migration/records/certified-migration-baseline.yaml
+        - governance/baseline-contract.md
+        - governance/change-control.json
+        - governance/schemas/certification-evidence.schema.json
+        - governance/schemas/compatibility-preservation.schema.json
+        - governance/schemas/donor-inventory.schema.json
+        - governance/schemas/frozen-baseline-registry.schema.json
+        - governance/schemas/migration-baseline.schema.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Governance-only schemas define frozen baseline, certification, donor inventory, registry, and preservation evidence; product schemas are unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Baseline validation adds engineering-evidence integrity without changing target architecture or claiming that transitional semantic duplication is complete.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Baseline contract parsing
+      command: python3 -m json.tool on every new governance schema and Python YAML parsing for the active task record
+      expected_result: All contracts parse and the task record validates under governance/schemas/task-record.schema.json.
+    - name: Canonical leaf hardgates
+      command: ./strling format --check all; ./strling hygiene; ./strling lint all; ./strling typecheck all; ./strling generate --check; ./strling contracts --check; ./strling governance
+      expected_result: Every enforced leaf hardgate passes and all transitions remain explicitly governed.
+    - name: Canonical aggregate hardgates
+      command: BUNDLER_VERSION=2.4.20 ./strling check all; BUNDLER_VERSION=2.4.20 ./strling certify all
+      expected_result: Human aggregate profiles pass for every binding with no failed or unavailable result.
+    - name: Structured hardgates
+      command: ./strling generate --check --json; ./strling contracts --check --json; ./strling governance --json; BUNDLER_VERSION=2.4.20 ./strling check all --json; BUNDLER_VERSION=2.4.20 ./strling certify all --json
+      expected_result: Every JSON report parses, reports passed overall status, and retains explicit transitional and future results.
+    - name: Governance and quality suites
+      command: python3 -m unittest discover -s tooling/tests -p 'test_*.py'
+      expected_result: The complete focused governance, quality, version synchronization, contract, generation, architecture, and baseline test suite passes.
+    - name: Frozen baseline validation
+      command: ./strling baseline --check; ./strling baseline --check --json
+      expected_result: Frozen identities, manifest digest, fingerprints, evidence schemas, inventory totals, and preservation records validate without using mutable branch names.
+    - name: Controlled baseline mutation
+      command: python3 -m unittest tooling.tests.test_baseline
+      expected_result: Controlled manifest identity, fingerprint, evidence, inventory, matrix, registry digest, missing-path, and certified-tree mutations fail closed.
+    - name: Repository integrity
+      command: git diff --check; git status --short
+      expected_result: Patch integrity passes and final committed state is clean.
+checkpoints:
+    - name: Baseline identity and certification contract
+      status: passed
+      evidence:
+        - check: Starting repository identity
+          command: git status --short --branch; git rev-parse HEAD dev main; git merge-base and git rev-list comparisons
+          result: passed
+          details: architecture/v4 was clean at 95509d581cc47eba04ff38fa403b0c7f59901d51; dev was d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc and main was 664d08de53565929c8f62379b006cd29f93b239f; dev and main were ancestors of the governed branch.
+        - check: Pre-change complete certification
+          command: BUNDLER_VERSION=2.4.20 ./strling certify all --json
+          result: passed
+          details: All 63 enforced results passed across the repository and 17 bindings; 39 incomplete capabilities retained their governed non-failing classifications and no result failed or was unavailable.
+        - check: Evidence and classification contracts
+          command: python3 -m json.tool for five new schemas; task-record JSON Schema validation
+          result: passed
+          details: Manifest, registry, certification, donor inventory, and preservation schemas parse; the six donor dispositions are exclusive target choices independent of branch representation, and the four compatibility categories distinguish obligations from semantic authority.
+        - check: Required command contract
+          command: review governance/baseline-contract.md
+          result: passed
+          details: The contract names leaf, structured, aggregate, complete focused-suite, patch-integrity, and clean-state commands, including explicit repository-locked Bundler selection.
+    - name: Full committed-state baseline certification
+      status: planned
+      evidence: []
+    - name: Donor-branch capability inventory
+      status: planned
+      evidence: []
+    - name: Frozen baseline and preservation matrix
+      status: planned
+      evidence: []
+    - name: Baseline protection and final certification
+      status: planned
+      evidence: []
+    - name: Completion and product-migration readiness
+      status: planned
+      evidence: []
+commits: []

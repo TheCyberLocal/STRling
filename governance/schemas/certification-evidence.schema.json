@@ -1,0 +1,180 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/certification-evidence.schema.json",
+    "title": "STRling baseline certification evidence",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "schema_version",
+        "baseline_id",
+        "certified_commit",
+        "commands",
+        "result_summary",
+        "hardgates",
+        "public_surfaces",
+        "generated_artifacts",
+        "architecture_rules",
+        "transitions",
+        "waivers",
+        "known_non_contractual_defects",
+        "repository_state"
+    ],
+    "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "baseline_id": { "$ref": "#/$defs/id" },
+        "certified_commit": { "$ref": "#/$defs/sha" },
+        "commands": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "command", "result", "exit_code", "summary"],
+                "properties": {
+                    "id": { "$ref": "#/$defs/id" },
+                    "command": { "type": "string", "minLength": 1 },
+                    "result": { "enum": ["passed", "failed"] },
+                    "exit_code": { "type": "integer", "minimum": 0 },
+                    "summary": { "type": "string", "minLength": 1 }
+                }
+            }
+        },
+        "result_summary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "status",
+                "passed",
+                "failed",
+                "unavailable",
+                "governed_incomplete"
+            ],
+            "properties": {
+                "status": { "enum": ["passed", "failed"] },
+                "passed": { "type": "integer", "minimum": 0 },
+                "failed": { "type": "integer", "minimum": 0 },
+                "unavailable": { "type": "integer", "minimum": 0 },
+                "governed_incomplete": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "hardgates": { "$ref": "#/$defs/statusRecords" },
+        "public_surfaces": { "$ref": "#/$defs/statusRecords" },
+        "generated_artifacts": { "$ref": "#/$defs/statusRecords" },
+        "architecture_rules": { "$ref": "#/$defs/statusRecords" },
+        "transitions": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/transition" }
+        },
+        "waivers": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/waiver" }
+        },
+        "known_non_contractual_defects": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "id",
+                    "description",
+                    "evidence",
+                    "contract_status"
+                ],
+                "properties": {
+                    "id": { "$ref": "#/$defs/id" },
+                    "description": { "type": "string", "minLength": 1 },
+                    "evidence": { "type": "string", "minLength": 1 },
+                    "contract_status": { "const": "excluded" }
+                }
+            }
+        },
+        "repository_state": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "before",
+                "after",
+                "check_modes_clean",
+                "hidden_state_required"
+            ],
+            "properties": {
+                "before": { "const": "clean" },
+                "after": { "const": "clean" },
+                "check_modes_clean": { "const": true },
+                "hidden_state_required": { "const": false }
+            }
+        }
+    },
+    "$defs": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{2,79}$"
+        },
+        "sha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+        },
+        "path": {
+            "type": "string",
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "statusRecord": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "status", "source"],
+            "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "status": {
+                    "enum": [
+                        "passed",
+                        "enforced",
+                        "transitional",
+                        "future",
+                        "not-applicable",
+                        "not-yet-configured",
+                        "not-yet-enforceable"
+                    ]
+                },
+                "source": { "$ref": "#/$defs/path" },
+                "detail": { "type": "string", "minLength": 1 }
+            }
+        },
+        "statusRecords": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/statusRecord" }
+        },
+        "transition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "category", "source", "retirement_condition"],
+            "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "category": {
+                    "enum": [
+                        "architecture-rule",
+                        "public-surface",
+                        "generated-artifact",
+                        "quality-capability"
+                    ]
+                },
+                "source": { "$ref": "#/$defs/path" },
+                "retirement_condition": { "type": "string", "minLength": 1 }
+            }
+        },
+        "waiver": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "source", "status", "retirement_condition"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]{2,63}$"
+                },
+                "source": { "$ref": "#/$defs/path" },
+                "status": { "enum": ["accepted", "active"] },
+                "retirement_condition": { "type": "string", "minLength": 1 }
+            }
+        }
+    }
+}
+

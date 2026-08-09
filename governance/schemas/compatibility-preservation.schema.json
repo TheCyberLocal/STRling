@@ -1,0 +1,56 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/compatibility-preservation.schema.json",
+    "title": "STRling compatibility preservation matrix",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "schema_version",
+        "baseline_id",
+        "authority",
+        "must_preserve",
+        "evidence_only",
+        "intentionally_replace",
+        "known_defect_non_contractual"
+    ],
+    "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "baseline_id": { "$ref": "#/$defs/id" },
+        "authority": {
+            "const": "Migration obligations only; normative specifications and ratified versioned contracts remain higher authority."
+        },
+        "must_preserve": { "$ref": "#/$defs/entries" },
+        "evidence_only": { "$ref": "#/$defs/entries" },
+        "intentionally_replace": { "$ref": "#/$defs/entries" },
+        "known_defect_non_contractual": { "$ref": "#/$defs/entries" }
+    },
+    "$defs": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{2,79}$"
+        },
+        "entry": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "obligation", "evidence", "future_handling"],
+            "properties": {
+                "id": { "$ref": "#/$defs/id" },
+                "obligation": { "type": "string", "minLength": 1 },
+                "evidence": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "string", "minLength": 1 }
+                },
+                "future_handling": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "entries": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/entry" }
+        }
+    }
+}
+
