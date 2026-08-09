@@ -1,0 +1,22 @@
+{
+    "format": "declarations",
+    "snapshot_version": 1,
+    "surface": "c-public-api",
+    "symbols": {
+        "#define STRling_OK 0": "#define STRling_OK 0",
+        "STRlingFlags* strling_flags_create(void);": "STRlingFlags* strling_flags_create(void);",
+        "STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags);": "STRlingResult* strling_compile(const char* json_str, const STRlingFlags* flags);",
+        "STRlingResult* strling_compile_ex(const char* json_str, const STRlingFlags* flags, int max_depth);": "STRlingResult* strling_compile_ex(const char* json_str, const STRlingFlags* flags, int max_depth);",
+        "const char* strling_version(void);": "const char* strling_version(void);",
+        "strling_result_t strling_compile_compat(const char* json_str, const STRlingFlags* flags);": "strling_result_t strling_compile_compat(const char* json_str, const STRlingFlags* flags);",
+        "strling_result_t strling_compile_compat_ex(const char* json_str, const STRlingFlags* flags, int max_depth);": "strling_result_t strling_compile_compat_ex(const char* json_str, const STRlingFlags* flags, int max_depth);",
+        "typedef struct STRlingError { char* message; int position; char* hint; } STRlingError;": "typedef struct STRlingError { char* message; int position; char* hint; } STRlingError;",
+        "typedef struct STRlingFlags { bool ignoreCase; bool multiline; bool dotAll; bool unicode; bool extended; } STRlingFlags;": "typedef struct STRlingFlags { bool ignoreCase; bool multiline; bool dotAll; bool unicode; bool extended; } STRlingFlags;",
+        "typedef struct STRlingResult { char* pattern; STRlingError* error; char** warnings; size_t nwarnings; } STRlingResult;": "typedef struct STRlingResult { char* pattern; STRlingError* error; char** warnings; size_t nwarnings; } STRlingResult;",
+        "typedef struct { int error_code; char* error_message; char* pcre2_pattern; int error_position; char** warnings; size_t nwarnings; } strling_result_t;": "typedef struct { int error_code; char* error_message; char* pcre2_pattern; int error_position; char** warnings; size_t nwarnings; } strling_result_t;",
+        "void strling_error_free(STRlingError* error);": "void strling_error_free(STRlingError* error);",
+        "void strling_flags_free(STRlingFlags* flags);": "void strling_flags_free(STRlingFlags* flags);",
+        "void strling_result_free_compat(strling_result_t* result);": "void strling_result_free_compat(strling_result_t* result);",
+        "void strling_result_free_ptr(STRlingResult* result);": "void strling_result_free_ptr(STRlingResult* result);"
+    }
+}

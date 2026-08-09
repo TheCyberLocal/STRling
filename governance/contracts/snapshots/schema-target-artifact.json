@@ -1,0 +1,564 @@
+{
+    "contract": {
+        "$defs": {
+            "Alt": {
+                "additionalProperties": false,
+                "properties": {
+                    "branches": {
+                        "items": {
+                            "$ref": "#/$defs/Node"
+                        },
+                        "minItems": 2,
+                        "type": "array"
+                    },
+                    "kind": {
+                        "const": "Alt"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "branches"
+                ],
+                "type": "object"
+            },
+            "Anchor": {
+                "additionalProperties": false,
+                "properties": {
+                    "at": {
+                        "enum": [
+                            "Start",
+                            "End",
+                            "WordBoundary",
+                            "NotWordBoundary",
+                            "AbsoluteStart",
+                            "EndBeforeFinalNewline",
+                            "AbsoluteEnd"
+                        ]
+                    },
+                    "kind": {
+                        "const": "Anchor"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "at"
+                ],
+                "type": "object"
+            },
+            "Backref": {
+                "additionalProperties": false,
+                "oneOf": [
+                    {
+                        "required": [
+                            "byIndex"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "byName"
+                        ]
+                    }
+                ],
+                "properties": {
+                    "byIndex": {
+                        "minimum": 1,
+                        "type": "integer"
+                    },
+                    "byName": {
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "kind": {
+                        "const": "Backref"
+                    }
+                },
+                "required": [
+                    "kind"
+                ],
+                "type": "object"
+            },
+            "CharClass": {
+                "additionalProperties": false,
+                "properties": {
+                    "items": {
+                        "items": {
+                            "oneOf": [
+                                {
+                                    "$ref": "#/$defs/ClassRange"
+                                },
+                                {
+                                    "$ref": "#/$defs/ClassLiteral"
+                                },
+                                {
+                                    "$ref": "#/$defs/ClassEscape"
+                                }
+                            ]
+                        },
+                        "type": "array"
+                    },
+                    "kind": {
+                        "const": "CharClass"
+                    },
+                    "negated": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "negated",
+                    "items"
+                ],
+                "type": "object"
+            },
+            "ClassEscape": {
+                "additionalProperties": false,
+                "allOf": [
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "enum": [
+                                        "p",
+                                        "P"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "property"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "type": {
+                                    "enum": [
+                                        "d",
+                                        "D",
+                                        "w",
+                                        "W",
+                                        "s",
+                                        "S"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
+                        },
+                        "then": {
+                            "not": {
+                                "required": [
+                                    "property"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "properties": {
+                    "kind": {
+                        "const": "Esc"
+                    },
+                    "property": {
+                        "description": "Unicode property name or name=value (e.g., L, Letter, Script=Greek) for p/P.",
+                        "type": "string"
+                    },
+                    "type": {
+                        "enum": [
+                            "d",
+                            "D",
+                            "w",
+                            "W",
+                            "s",
+                            "S",
+                            "p",
+                            "P"
+                        ]
+                    }
+                },
+                "required": [
+                    "kind",
+                    "type"
+                ],
+                "type": "object"
+            },
+            "ClassLiteral": {
+                "additionalProperties": false,
+                "properties": {
+                    "char": {
+                        "maxLength": 1,
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "kind": {
+                        "const": "Char"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "char"
+                ],
+                "type": "object"
+            },
+            "ClassRange": {
+                "additionalProperties": false,
+                "properties": {
+                    "from": {
+                        "maxLength": 1,
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "kind": {
+                        "const": "Range"
+                    },
+                    "to": {
+                        "maxLength": 1,
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "from",
+                    "to"
+                ],
+                "type": "object"
+            },
+            "Diagnostic": {
+                "additionalProperties": false,
+                "properties": {
+                    "code": {
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "hint": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "$ref": "#/$defs/SourceRange"
+                    },
+                    "message": {
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "severity": {
+                        "enum": [
+                            "error",
+                            "warning",
+                            "info"
+                        ]
+                    }
+                },
+                "required": [
+                    "code",
+                    "message",
+                    "location"
+                ],
+                "type": "object"
+            },
+            "Dot": {
+                "additionalProperties": false,
+                "properties": {
+                    "kind": {
+                        "const": "Dot"
+                    }
+                },
+                "required": [
+                    "kind"
+                ],
+                "type": "object"
+            },
+            "Group": {
+                "additionalProperties": false,
+                "allOf": [
+                    {
+                        "if": {
+                            "properties": {
+                                "capturing": {
+                                    "const": false
+                                }
+                            },
+                            "required": [
+                                "capturing"
+                            ]
+                        },
+                        "then": {
+                            "not": {
+                                "required": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "properties": {
+                    "atomic": {
+                        "description": "Atomic group (extension)",
+                        "type": "boolean"
+                    },
+                    "body": {
+                        "$ref": "#/$defs/Node"
+                    },
+                    "capturing": {
+                        "type": "boolean"
+                    },
+                    "kind": {
+                        "const": "Group"
+                    },
+                    "name": {
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "capturing",
+                    "body"
+                ],
+                "type": "object"
+            },
+            "Lit": {
+                "additionalProperties": false,
+                "properties": {
+                    "kind": {
+                        "const": "Lit"
+                    },
+                    "value": {
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "value"
+                ],
+                "type": "object"
+            },
+            "Look": {
+                "additionalProperties": false,
+                "properties": {
+                    "body": {
+                        "$ref": "#/$defs/Node"
+                    },
+                    "dir": {
+                        "enum": [
+                            "Ahead",
+                            "Behind"
+                        ]
+                    },
+                    "kind": {
+                        "const": "Look"
+                    },
+                    "neg": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "dir",
+                    "neg",
+                    "body"
+                ],
+                "type": "object"
+            },
+            "Node": {
+                "oneOf": [
+                    {
+                        "$ref": "#/$defs/Alt"
+                    },
+                    {
+                        "$ref": "#/$defs/Seq"
+                    },
+                    {
+                        "$ref": "#/$defs/Lit"
+                    },
+                    {
+                        "$ref": "#/$defs/Dot"
+                    },
+                    {
+                        "$ref": "#/$defs/Anchor"
+                    },
+                    {
+                        "$ref": "#/$defs/CharClass"
+                    },
+                    {
+                        "$ref": "#/$defs/Quant"
+                    },
+                    {
+                        "$ref": "#/$defs/Group"
+                    },
+                    {
+                        "$ref": "#/$defs/Backref"
+                    },
+                    {
+                        "$ref": "#/$defs/Look"
+                    }
+                ]
+            },
+            "Quant": {
+                "additionalProperties": false,
+                "properties": {
+                    "child": {
+                        "$ref": "#/$defs/Node"
+                    },
+                    "kind": {
+                        "const": "Quant"
+                    },
+                    "max": {
+                        "anyOf": [
+                            {
+                                "minimum": 0,
+                                "type": "integer"
+                            },
+                            {
+                                "const": "Inf"
+                            }
+                        ]
+                    },
+                    "min": {
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "mode": {
+                        "enum": [
+                            "Greedy",
+                            "Lazy",
+                            "Possessive"
+                        ]
+                    }
+                },
+                "required": [
+                    "kind",
+                    "child",
+                    "min",
+                    "max",
+                    "mode"
+                ],
+                "type": "object"
+            },
+            "Seq": {
+                "additionalProperties": false,
+                "properties": {
+                    "kind": {
+                        "const": "Seq"
+                    },
+                    "parts": {
+                        "items": {
+                            "$ref": "#/$defs/Node"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "kind",
+                    "parts"
+                ],
+                "type": "object"
+            },
+            "SourceRange": {
+                "additionalProperties": false,
+                "description": "Half-open range [start, end) in UTF-32 code-point indices.",
+                "properties": {
+                    "end": {
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "start": {
+                        "minimum": 0,
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "start",
+                    "end"
+                ],
+                "type": "object"
+            }
+        },
+        "$id": "https://strling.dev/schema/base.schema.json",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+            "compat": {
+                "additionalProperties": {
+                    "type": [
+                        "boolean",
+                        "string",
+                        "number",
+                        "object",
+                        "array",
+                        "null"
+                    ]
+                },
+                "description": "Engine feature gates / compatibility facts (engine-specific keys).",
+                "type": "object"
+            },
+            "emitter": {
+                "description": "Emitter identifier (engine name). Optional in base; required by engine-specific schemas.",
+                "type": "string"
+            },
+            "errors": {
+                "items": {
+                    "$ref": "#/$defs/Diagnostic"
+                },
+                "type": "array"
+            },
+            "flags": {
+                "additionalProperties": false,
+                "properties": {
+                    "dotAll": {
+                        "type": "boolean"
+                    },
+                    "extended": {
+                        "type": "boolean"
+                    },
+                    "ignoreCase": {
+                        "type": "boolean"
+                    },
+                    "multiline": {
+                        "type": "boolean"
+                    },
+                    "unicode": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "ignoreCase",
+                    "multiline",
+                    "dotAll",
+                    "unicode",
+                    "extended"
+                ],
+                "type": "object"
+            },
+            "root": {
+                "$ref": "#/$defs/Node"
+            },
+            "version": {
+                "const": "1.0.0",
+                "type": "string"
+            },
+            "warnings": {
+                "items": {
+                    "$ref": "#/$defs/Diagnostic"
+                },
+                "type": "array"
+            }
+        },
+        "required": [
+            "version",
+            "flags",
+            "root"
+        ],
+        "title": "STRling TargetArtifact (Base v1)",
+        "type": "object"
+    },
+    "format": "json-schema",
+    "snapshot_version": 1,
+    "surface": "schema-target-artifact"
+}

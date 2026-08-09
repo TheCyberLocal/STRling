@@ -1,0 +1,107 @@
+{
+    "contract": {
+        "$id": "https://strling.dev/schema/conformance-fixture.schema.json",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "allOf": [
+            {
+                "if": {
+                    "required": [
+                        "expected_error"
+                    ]
+                },
+                "then": {
+                    "required": [
+                        "expected_hint"
+                    ]
+                }
+            },
+            {
+                "if": {
+                    "required": [
+                        "input_ast"
+                    ]
+                },
+                "then": {
+                    "required": [
+                        "expected_ir"
+                    ]
+                }
+            }
+        ],
+        "description": "Schema for shared conformance test fixtures in tests/spec/. Covers both IR fixtures (input_ast + expected_ir) and error fixtures (expected_error + expected_hint).",
+        "properties": {
+            "description": {
+                "description": "Human-readable description of the fixture.",
+                "type": "string"
+            },
+            "expected_codegen": {
+                "description": "Expected code generation output (present for IR fixtures).",
+                "properties": {
+                    "error": {
+                        "type": "string"
+                    },
+                    "pcre": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "expected_error": {
+                "description": "Substring of the expected parser error message (present for error fixtures).",
+                "type": "string"
+            },
+            "expected_hint": {
+                "default": "Check the STRling documentation for help with this syntax.",
+                "description": "Exact pedagogical hint string for the error. Required for error fixtures. Must match the TypeScript HintEngine output exactly.",
+                "type": "string"
+            },
+            "expected_ir": {
+                "description": "Expected IR after compilation (present for IR fixtures).",
+                "type": "object"
+            },
+            "flags": {
+                "description": "Parsed flags from directives (present for IR fixtures).",
+                "type": "object"
+            },
+            "id": {
+                "description": "Unique fixture identifier, derived from the source filename.",
+                "type": "string"
+            },
+            "input_ast": {
+                "description": "Parsed AST node tree (present for IR fixtures).",
+                "type": "object"
+            },
+            "input_dsl": {
+                "description": "The DSL input string to parse.",
+                "type": "string"
+            },
+            "metadata_expectations": {
+                "description": "Additional metadata about the fixture.",
+                "properties": {
+                    "features_used": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "required": [
+            "id",
+            "input_dsl"
+        ],
+        "title": "STRling Conformance Fixture (v1)",
+        "type": "object"
+    },
+    "format": "json-schema",
+    "snapshot_version": 1,
+    "surface": "schema-conformance-fixture"
+}

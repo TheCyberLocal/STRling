@@ -35,7 +35,7 @@
             "snapshot_path": "governance/contracts/snapshots/c-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "declaration-set",
-            "enforcement": "planned",
+            "enforcement": "enforced",
             "activation_condition": "Activate after declaration parsing, normalization, stale-snapshot, symbol-addition, removal, and signature-change tests pass."
         },
         {
@@ -191,7 +191,7 @@
             "snapshot_path": "governance/contracts/snapshots/go-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "declaration-set",
-            "enforcement": "planned",
+            "enforcement": "enforced",
             "activation_condition": "Activate after pinned go doc output is reduced to exported declarations and controlled package, field, method, addition, removal, and signature tests pass."
         },
         {
@@ -377,7 +377,7 @@
             "snapshot_path": "governance/contracts/snapshots/python-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "planned",
+            "enforcement": "enforced",
             "activation_condition": "Activate after AST export resolution, class/method signatures, malformed __all__, addition, removal, signature, and no-import-execution tests pass."
         },
         {
@@ -410,7 +410,7 @@
             "snapshot_path": "governance/contracts/snapshots/r-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "symbol-signatures",
-            "enforcement": "planned",
+            "enforcement": "enforced",
             "activation_condition": "Activate after balanced-formal parsing, NAMESPACE resolution, S3 registration, missing-export, addition, removal, and signature tests pass."
         },
         {
@@ -526,7 +526,7 @@
             "snapshot_path": "governance/contracts/snapshots/typescript-package-entrypoints.json",
             "authority": "compatibility-baseline",
             "comparison": "package-entrypoints",
-            "enforcement": "planned",
+            "enforcement": "enforced",
             "activation_condition": "Activate after deterministic manifest selection and entrypoint addition, removal, retargeting, malformed-manifest, and ordering tests pass.",
             "known_gaps": [
                 "The advertised ./core, ./emitters/pcre2, and ./simply output paths do not correspond to current declaration build paths; this inconsistency is recorded and must be corrected only in separately authorized public API work."
@@ -564,7 +564,7 @@
             "snapshot_path": "governance/contracts/snapshots/typescript-public-api.json",
             "authority": "compatibility-baseline",
             "comparison": "declaration-set",
-            "enforcement": "planned",
+            "enforcement": "enforced",
             "activation_condition": "Activate after isolated declaration emission, reachability, normalization, extraction-failure, addition, removal, and signature-change tests pass."
         },
         {
@@ -594,7 +594,7 @@
             "snapshot_path": "governance/contracts/snapshots/root-cli.json",
             "authority": "compatibility-baseline",
             "comparison": "cli-command-set",
-            "enforcement": "planned",
+            "enforcement": "enforced",
             "activation_condition": "Activate after help-source parsing, command option, addition, removal, private-command, and malformed-help tests pass."
         },
         {
@@ -621,7 +621,7 @@
             "snapshot_path": "governance/contracts/snapshots/schema-conformance-fixture.json",
             "authority": "versioned-contract",
             "comparison": "json-schema-structure",
-            "enforcement": "planned",
+            "enforcement": "enforced",
             "activation_condition": "Activate after additive property/enum and breaking required/removal/constraint tests pass."
         },
         {
@@ -648,7 +648,7 @@
             "snapshot_path": "governance/contracts/snapshots/schema-pcre2-target.json",
             "authority": "versioned-contract",
             "comparison": "json-schema-structure",
-            "enforcement": "planned",
+            "enforcement": "enforced",
             "activation_condition": "Activate after reference preservation, capability addition/removal, required-property, and constraint tests pass."
         },
         {
@@ -675,7 +675,7 @@
             "snapshot_path": "governance/contracts/snapshots/schema-target-artifact.json",
             "authority": "versioned-contract",
             "comparison": "json-schema-structure",
-            "enforcement": "planned",
+            "enforcement": "enforced",
             "activation_condition": "Activate after optional-property, required-property, enum, alternative, property-removal, and tightening tests pass."
         }
     ]

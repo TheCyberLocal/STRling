@@ -1,0 +1,58 @@
+{
+    "contract": {
+        "$id": "https://strling.dev/schema/pcre2.v1.schema.json",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": true,
+        "allOf": [
+            {
+                "$ref": "./base.schema.json"
+            }
+        ],
+        "properties": {
+            "compat": {
+                "additionalProperties": false,
+                "properties": {
+                    "absoluteAnchors": {
+                        "const": true
+                    },
+                    "atomicGroups": {
+                        "const": true
+                    },
+                    "freeSpacing": {
+                        "const": true
+                    },
+                    "ucpShorthandUsesUnicode": {
+                        "const": true,
+                        "description": "With UCP, \\w/\\d/\\s use Unicode properties."
+                    },
+                    "unicodeProperties": {
+                        "const": true
+                    },
+                    "variableLengthLookbehind": {
+                        "const": false
+                    }
+                },
+                "required": [
+                    "variableLengthLookbehind",
+                    "atomicGroups",
+                    "unicodeProperties",
+                    "ucpShorthandUsesUnicode",
+                    "freeSpacing",
+                    "absoluteAnchors"
+                ],
+                "type": "object"
+            },
+            "emitter": {
+                "const": "pcre2"
+            }
+        },
+        "required": [
+            "emitter"
+        ],
+        "title": "STRling TargetArtifact → PCRE2 v1",
+        "type": "object"
+    },
+    "format": "json-schema",
+    "snapshot_version": 1,
+    "surface": "schema-pcre2-target"
+}

@@ -326,6 +326,7 @@
                         "tests/spec/*",
                         "bindings/c/tests/fixtures/*",
                         "bindings/swift/Tests/STRlingConformanceTests/Resources/*",
+                        "governance/contracts/snapshots/*",
                         "docs/generated/*",
                         "tooling/js_to_json_ast/out/*",
                         "tooling/lsp-server/dist/*",

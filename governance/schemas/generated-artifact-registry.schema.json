@@ -81,6 +81,7 @@
                         "spec-derived-fixture",
                         "binding-generated-asset",
                         "generated-documentation",
+                        "compatibility-snapshot",
                         "version-synchronized-metadata",
                         "package-manager-metadata",
                         "audit-certification-output",
@@ -138,6 +139,7 @@
                         "operational-projection",
                         "non-normative-projection",
                         "transitional-compatibility-evidence",
+                        "compatibility-baseline",
                         "certification-evidence"
                     ]
                 },

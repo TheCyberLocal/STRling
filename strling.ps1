@@ -293,6 +293,7 @@ function Show-Help {
     Write-Host "  clean <lang|all>      Clean artifacts"
     Write-Host "  generate [--check]    Regenerate or verify registered artifacts"
     Write-Host "  governance [--json]   Validate task scope and architecture rules"
+    Write-Host "  contracts [--check]   Regenerate or verify public contracts"
     Write-Host "  audit                 Run the final audit report generator"
     Write-Host "  cache-dir <lang>      Print cache directory path"
     Write-Host "  lockfile <lang>       Print cache key lockfile"
@@ -349,6 +350,28 @@ switch ($Command) {
         Push-Location $PSScriptRoot
         try {
             & $pythonCommand "tooling/governance.py" @governanceArguments
+            exit $LASTEXITCODE
+        }
+        finally {
+            Pop-Location
+        }
+    }
+    "contracts" {
+        $pythonCommand = Resolve-CommandName "python3"
+        if (-not $pythonCommand) {
+            Write-Error "Python is required to manage public contracts."
+            exit 1
+        }
+        $contractArguments = @()
+        if ($Language) {
+            $contractArguments += $Language
+        }
+        if ($Options) {
+            $contractArguments += $Options
+        }
+        Push-Location $PSScriptRoot
+        try {
+            & $pythonCommand "tooling/public_contracts.py" @contractArguments
             exit $LASTEXITCODE
         }
         finally {

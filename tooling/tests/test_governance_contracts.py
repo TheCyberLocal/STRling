@@ -155,11 +155,8 @@ class GovernanceContractTests(unittest.TestCase):
         registry = load_json(GOVERNANCE / "public-surfaces.json")
         assert isinstance(registry, dict)
         invalid = copy.deepcopy(registry)
-        planned = next(
-            surface
-            for surface in invalid["surfaces"]
-            if surface["enforcement"] == "planned"
-        )
+        planned = invalid["surfaces"][0]
+        planned["enforcement"] = "planned"
         del planned["activation_condition"]
         with self.assertRaises(ValidationError):
             self.public_surface_validator.validate(invalid)

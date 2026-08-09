@@ -1,0 +1,27 @@
+{
+    "format": "cli-commands",
+    "snapshot_version": 1,
+    "surface": "root-cli",
+    "symbols": {
+        "audit": "audit Run the final audit report generator",
+        "bootstrap": "bootstrap <lang|all> Run setup, build, and test in sequence",
+        "build": "build <lang|all> Build a binding if it has a build step",
+        "cache-dir": "cache-dir <lang> Print cache directory path (for CI)",
+        "certify": "certify [lang|all] Run the current certification aggregate",
+        "check": "check [lang|all] Run the fast quality aggregate",
+        "clean": "clean <lang|all> Clean artifacts",
+        "contracts": "contracts [--check] [--json] Regenerate or verify public contracts",
+        "environment": "environment [lang|all] Validate declared tool versions",
+        "format": "format [--check] [lang|all] Run or verify configured formatters",
+        "generate": "generate [--check] [--json] Regenerate or verify registered artifacts",
+        "governance": "governance [--json] Validate task scope and architecture rules",
+        "help": "help Show this help message",
+        "hygiene": "hygiene Validate tracked repository artifacts",
+        "lint": "lint [lang|all] Run configured static analyzers",
+        "list": "list List all bindings and tool status",
+        "lockfile": "lockfile <lang> Print lockfile name (for CI)",
+        "setup": "setup <lang|all> Install prerequisites and dependencies",
+        "test": "test <lang|all> Run tests for one binding or all bindings",
+        "typecheck": "typecheck [lang|all] Run configured type/static analysis"
+    }
+}

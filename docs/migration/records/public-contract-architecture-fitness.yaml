@@ -31,14 +31,19 @@ scope:
         - governance/architecture-rules.json
         - governance/architecture.md
         - governance/change-control.json
+        - governance/formatting.json
+        - governance/generated-artifacts.json
         - governance/public-contracts.md
         - governance/public-surfaces.json
         - governance/schemas/architecture-rules.schema.json
         - governance/schemas/change-control.schema.json
+        - governance/schemas/generated-artifact-registry.schema.json
         - governance/schemas/public-surface-registry.schema.json
         - governance/schemas/task-record.schema.json
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+    permitted_generated_changes:
+        - public-contract-snapshots
+    expected_generated_outputs:
+        - public-contract-snapshots
     required_verification_levels:
         - contract
         - unit
@@ -70,8 +75,9 @@ change_classification:
         evidence:
             - Architecture policy adds dependency, structured-reference, semantic-island placement, transition-reporting, and monotonic activation categories without changing product structure.
     generated_output_change:
-        level: none
-        evidence: []
+        level: additive
+        evidence:
+            - Ten checked-in compatibility snapshots are registered as deterministic, non-normative generated artifacts with exact reproduction checks.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -115,8 +121,28 @@ checkpoints:
             result: passed
             details: The established Bundler-pinned aggregate passed formatting, hygiene, lint, type analysis, generation, governance, and all 19 TypeScript suites with 963 tests; no product source or semantics changed.
     - name: Deterministic API and contract snapshots
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Deterministic extraction and exact regeneration
+            command: ./strling contracts; ./strling contracts --check
+            result: passed
+            details: Ten enforced snapshots reproduce exactly for C, Go, Python, R, TypeScript declarations, TypeScript entrypoints, the root CLI, and three stable specification schemas; write mode is explicit and check mode does not modify repository state.
+          - check: Structured contract status
+            command: ./strling contracts --check --json
+            result: passed
+            details: Structured output identifies every surface, status, compatibility classification, findings, and all twelve bounded transitions without timestamps or environment paths.
+          - check: Controlled drift and extraction failures
+            command: python3 -m unittest tooling.tests.test_public_contracts
+            result: passed
+            details: Tests reject removed and added symbols, signature drift, missing or stale snapshots, extractor failures, malformed or duplicate registries, and breaking or tightening schema mutations; compatible metadata and additive optional schema properties classify separately.
+          - check: Public-only normalization
+            command: Python, Go, TypeScript, C, and R extractor regression tests and snapshot review
+            result: passed
+            details: Python extraction is AST-only, Go prose is excluded, explicit TypeScript private members are excluded, C implementation-static symbols are excluded, R exports derive from NAMESPACE, and irrelevant ordering is normalized.
+          - check: Transition bounds
+            command: public-surface registry validation
+            result: passed
+            details: C++, C#, Dart, F#, Java, Kotlin, Lua, Perl, PHP, Ruby, Rust, and Swift remain non-enforced only with ecosystem-specific rationale and objective retirement conditions.
     - name: Change classification enforcement
       status: planned
       evidence: []
@@ -129,4 +155,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 66cecac811373c81876077a6dc07baba6394ee94
+      subject: "docs(governance): define public contract and architecture fitness policy"

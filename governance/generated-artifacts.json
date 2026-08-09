@@ -2,6 +2,63 @@
     "registry_version": 1,
     "artifacts": [
         {
+            "id": "public-contract-snapshots",
+            "category": "compatibility-snapshot",
+            "description": "Normalized compatibility baselines for enforceable public APIs, entrypoints, the root CLI, and stable structured schemas.",
+            "authoritative_sources": [
+                "governance/public-surfaces.json",
+                "bindings/c/include/strling.h",
+                "bindings/go/*.go",
+                "bindings/python/src/STRling/**",
+                "bindings/r/NAMESPACE",
+                "bindings/r/R/*.R",
+                "bindings/typescript/package.json",
+                "bindings/typescript/src/**",
+                "spec/schema/base.schema.json",
+                "spec/schema/conformance-fixture.schema.json",
+                "spec/schema/pcre2.v1.schema.json",
+                "strling"
+            ],
+            "generator_inputs": [
+                "governance/public-surfaces.json",
+                "tooling/public_contracts.py",
+                "bindings/c/include/strling.h",
+                "bindings/go/*.go",
+                "bindings/python/src/STRling/**",
+                "bindings/r/NAMESPACE",
+                "bindings/r/R/*.R",
+                "bindings/typescript/package.json",
+                "bindings/typescript/src/**",
+                "spec/schema/*.json",
+                "strling"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/public_contracts.py"],
+                "command": ["./strling", "contracts"],
+                "working_directory": "."
+            },
+            "outputs": [
+                "governance/contracts/snapshots/c-public-api.json",
+                "governance/contracts/snapshots/go-public-api.json",
+                "governance/contracts/snapshots/python-public-api.json",
+                "governance/contracts/snapshots/r-public-api.json",
+                "governance/contracts/snapshots/root-cli.json",
+                "governance/contracts/snapshots/schema-conformance-fixture.json",
+                "governance/contracts/snapshots/schema-pcre2-target.json",
+                "governance/contracts/snapshots/schema-target-artifact.json",
+                "governance/contracts/snapshots/typescript-package-entrypoints.json",
+                "governance/contracts/snapshots/typescript-public-api.json"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "compatibility-baseline",
+            "verification": {
+                "method": "command-check",
+                "command": ["./strling", "contracts", "--check"]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "version-synchronized-metadata",
             "category": "version-synchronized-metadata",
             "description": "Binding package and runtime version fields projected from the Python package version.",
