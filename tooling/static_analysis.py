@@ -70,7 +70,8 @@ def _detectors(path: Path) -> list[tuple[str, re.Pattern[str]]]:
             (
                 "typescript",
                 re.compile(
-                    r"@ts-(?:ignore|expect-error|nocheck)\b|eslint-disable\b",
+                    r"@ts-(?:ignore|expect-error|nocheck)\b|eslint-disable\b|"
+                    r"\bignoreCodes\s*:",
                     re.IGNORECASE,
                 ),
             )

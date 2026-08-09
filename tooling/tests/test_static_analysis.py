@@ -89,6 +89,15 @@ class SuppressionGovernanceTests(unittest.TestCase):
         self.assertEqual("typescript", typescript[0].kind)
         self.assertEqual("python", python[0].kind)
 
+    def test_detects_ts_jest_diagnostic_suppression(self) -> None:
+        typescript = detect_line(
+            Path("jest.config.mjs"),
+            1,
+            "diagnostics: { ignoreCodes: [151002] },",
+        )
+        self.assertEqual("typescript", typescript[0].kind)
+        self.assertEqual("ignoreCodes:", typescript[0].directive)
+
     def test_repository_suppression_baseline_is_governed(self) -> None:
         self.assertEqual(0, run_suppression_audit(today=date(2026, 8, 9)))
 

@@ -55,7 +55,33 @@
                         "python",
                         "typescript"
                     ],
-                    "hygiene": ["repository"]
+                    "hygiene": ["repository"],
+                    "lint": [
+                        "repository",
+                        "lsp",
+                        "csharp",
+                        "dart",
+                        "fsharp",
+                        "go",
+                        "java",
+                        "kotlin",
+                        "perl",
+                        "php",
+                        "python",
+                        "ruby"
+                    ],
+                    "typecheck": [
+                        "lsp",
+                        "csharp",
+                        "dart",
+                        "fsharp",
+                        "go",
+                        "java",
+                        "kotlin",
+                        "rust",
+                        "swift",
+                        "typescript"
+                    ]
                 }
             },
             "certify": {
@@ -77,7 +103,33 @@
                         "python",
                         "typescript"
                     ],
-                    "hygiene": ["repository"]
+                    "hygiene": ["repository"],
+                    "lint": [
+                        "repository",
+                        "lsp",
+                        "csharp",
+                        "dart",
+                        "fsharp",
+                        "go",
+                        "java",
+                        "kotlin",
+                        "perl",
+                        "php",
+                        "python",
+                        "ruby"
+                    ],
+                    "typecheck": [
+                        "lsp",
+                        "csharp",
+                        "dart",
+                        "fsharp",
+                        "go",
+                        "java",
+                        "kotlin",
+                        "rust",
+                        "swift",
+                        "typescript"
+                    ]
                 }
             }
         },
@@ -332,7 +384,7 @@
                 "format": "configured",
                 "format_check": "configured",
                 "hygiene": "configured",
-                "lint": "configured",
+                "lint": "enforced",
                 "typecheck": "not_yet_enforceable",
                 "build": "not_applicable",
                 "test": "not_yet_configured"
@@ -377,8 +429,8 @@
                 "format": "configured",
                 "format_check": "configured",
                 "hygiene": "not_applicable",
-                "lint": "configured",
-                "typecheck": "configured",
+                "lint": "enforced",
+                "typecheck": "enforced",
                 "build": "not_yet_configured",
                 "test": "not_yet_configured"
             },
@@ -516,8 +568,8 @@
                 "format": "configured",
                 "format_check": "configured",
                 "hygiene": "not_applicable",
-                "lint": "configured",
-                "typecheck": "configured",
+                "lint": "enforced",
+                "typecheck": "enforced",
                 "build": "configured",
                 "test": "configured"
             },
@@ -559,8 +611,8 @@
                 "format": "configured",
                 "format_check": "configured",
                 "hygiene": "not_applicable",
-                "lint": "configured",
-                "typecheck": "configured",
+                "lint": "enforced",
+                "typecheck": "enforced",
                 "build": "not_applicable",
                 "test": "configured"
             },
@@ -604,8 +656,8 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "configured",
-                "typecheck": "configured",
+                "lint": "enforced",
+                "typecheck": "enforced",
                 "build": "configured",
                 "test": "configured"
             },
@@ -639,8 +691,8 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "configured",
-                "typecheck": "configured",
+                "lint": "enforced",
+                "typecheck": "enforced",
                 "build": "configured",
                 "test": "configured"
             },
@@ -677,8 +729,8 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "configured",
-                "typecheck": "configured",
+                "lint": "enforced",
+                "typecheck": "enforced",
                 "build": "configured",
                 "test": "configured"
             },
@@ -715,8 +767,8 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "configured",
-                "typecheck": "configured",
+                "lint": "enforced",
+                "typecheck": "enforced",
                 "build": "configured",
                 "test": "configured"
             },
@@ -796,7 +848,7 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "configured",
+                "lint": "enforced",
                 "typecheck": "not_applicable",
                 "build": "configured",
                 "test": "configured"
@@ -841,7 +893,7 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "configured",
+                "lint": "enforced",
                 "typecheck": "not_yet_enforceable",
                 "build": "not_applicable",
                 "test": "configured"
@@ -900,7 +952,7 @@
                 "format": "configured",
                 "format_check": "configured",
                 "hygiene": "not_applicable",
-                "lint": "configured",
+                "lint": "enforced",
                 "typecheck": "not_yet_enforceable",
                 "build": "configured",
                 "test": "configured"
@@ -1003,7 +1055,7 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "configured",
+                "lint": "enforced",
                 "typecheck": "not_applicable",
                 "build": "configured",
                 "test": "configured"
@@ -1049,14 +1101,15 @@
                 "format": "not_yet_configured",
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
-                "lint": "unavailable",
-                "typecheck": "configured",
+                "lint": "not_yet_enforceable",
+                "typecheck": "enforced",
                 "build": "configured",
                 "test": "configured"
             },
             "capability_details": {
                 "lint": {
-                    "reason": "The governed Rust environment does not provide the Clippy component."
+                    "reason": "The governed Rust environment does not provide the Clippy component.",
+                    "retirement_condition": "Install the Clippy component for the governed Rust toolchain and baseline defect-focused lint with warnings denied."
                 }
             },
             "required_bins": ["cargo", "rustc"],
@@ -1108,7 +1161,7 @@
                 "format_check": "not_yet_configured",
                 "hygiene": "not_applicable",
                 "lint": "not_yet_enforceable",
-                "typecheck": "configured",
+                "typecheck": "enforced",
                 "build": "configured",
                 "test": "configured"
             },
@@ -1157,7 +1210,7 @@
                 "format_check": "configured",
                 "hygiene": "not_applicable",
                 "lint": "not_yet_enforceable",
-                "typecheck": "configured",
+                "typecheck": "enforced",
                 "build": "configured",
                 "test": "configured"
             },

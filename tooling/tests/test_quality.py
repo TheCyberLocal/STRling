@@ -177,6 +177,16 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual("passed", result.status)
         self.assertEqual("enforced", result.capability)
 
+    def test_enforced_capability_must_be_in_check(self) -> None:
+        beta = target_config(
+            {"lint": "enforced"},
+            {"lint": ["fixture-lint"]},
+        )
+        with self.assertRaisesRegex(
+            ConfigurationError, "beta.lint is enforced but omitted from check"
+        ):
+            Toolchain(policy(beta=beta), Path.cwd())
+
     def test_lint_violation_preserves_command_and_exit(self) -> None:
         alpha = target_config(
             {"lint": "configured"},

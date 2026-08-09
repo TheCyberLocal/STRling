@@ -19,7 +19,7 @@
             "obsolete_removable",
             "suspected_product_defect"
         ],
-        "baseline_total": 86,
+        "baseline_total": 87,
         "baseline_sha": "bb334b0980327b8f3599cd6da0562022c365641a",
         "inventory_groups": [
             {
@@ -85,6 +85,16 @@
                 }
             },
             {
+                "kind": "typescript-test-diagnostic",
+                "count": 1,
+                "classification": "bounded_transition",
+                "reason": "ts-jest diagnostic 151002 recommends isolatedModules for the NodeNext transform, but controlled adoption caused all 19 Jest suites to fail before execution while strict tsc remained clean.",
+                "retirement_condition": "Remove the exact-code waiver when the governed Jest/ts-jest ESM transform supports isolatedModules or stops emitting diagnostic 151002 after a separately authorized dependency/toolchain transition.",
+                "locations": {
+                    "bindings/typescript/jest.config.mjs": [16]
+                }
+            },
+            {
                 "kind": "shell",
                 "count": 7,
                 "classification": "permanent_interoperability",
@@ -135,6 +145,16 @@
                 "retirement_condition": "Resolve the callable-Pattern contract as contained product work and remove or replace all three directives.",
                 "path_counts": {
                     "bindings/typescript/__tests__/unit/simply_api.test.ts": 3
+                }
+            },
+            {
+                "id": "WVR-STATIC-TS-JEST-NODENEXT-001",
+                "classification": "bounded_transition",
+                "expires_on": "2027-02-01",
+                "reason": "The governed ts-jest 29.1.2 ESM transform emits diagnostic 151002 under NodeNext; enabling isolatedModules caused every TypeScript test suite to fail before executing, while the authoritative strict tsc check remains clean.",
+                "retirement_condition": "Re-evaluate during the separately authorized Node/Jest/ts-jest transition and remove this exact diagnostic-code waiver once isolatedModules is compatible with all 19 suites or the diagnostic is no longer emitted.",
+                "path_counts": {
+                    "bindings/typescript/jest.config.mjs": 1
                 }
             },
             {
@@ -245,7 +265,7 @@
             "id": "repository",
             "capabilities": {
                 "format": "enforced",
-                "lint": "configured",
+                "lint": "enforced",
                 "type_static_analysis": "not_yet_enforceable",
                 "compiler_warnings": "not_applicable",
                 "tests": "configured"
@@ -259,8 +279,8 @@
             "id": "lsp",
             "capabilities": {
                 "format": "enforced",
-                "lint": "configured",
-                "type_static_analysis": "configured",
+                "lint": "enforced",
+                "type_static_analysis": "enforced",
                 "compiler_warnings": "not_applicable",
                 "tests": "not_yet_enforceable"
             },
@@ -301,8 +321,8 @@
             "id": "csharp",
             "capabilities": {
                 "format": "enforced",
-                "lint": "configured",
-                "type_static_analysis": "configured",
+                "lint": "enforced",
+                "type_static_analysis": "enforced",
                 "compiler_warnings": "enforced",
                 "tests": "configured"
             },
@@ -314,8 +334,8 @@
             "id": "dart",
             "capabilities": {
                 "format": "enforced",
-                "lint": "configured",
-                "type_static_analysis": "configured",
+                "lint": "enforced",
+                "type_static_analysis": "enforced",
                 "compiler_warnings": "enforced",
                 "tests": "configured"
             },
@@ -327,8 +347,8 @@
             "id": "fsharp",
             "capabilities": {
                 "format": "not_yet_enforceable",
-                "lint": "configured",
-                "type_static_analysis": "configured",
+                "lint": "enforced",
+                "type_static_analysis": "enforced",
                 "compiler_warnings": "enforced",
                 "tests": "configured"
             },
@@ -340,8 +360,8 @@
             "id": "go",
             "capabilities": {
                 "format": "not_yet_enforceable",
-                "lint": "configured",
-                "type_static_analysis": "configured",
+                "lint": "enforced",
+                "type_static_analysis": "enforced",
                 "compiler_warnings": "not_applicable",
                 "tests": "configured"
             },
@@ -353,8 +373,8 @@
             "id": "java",
             "capabilities": {
                 "format": "not_yet_enforceable",
-                "lint": "configured",
-                "type_static_analysis": "configured",
+                "lint": "enforced",
+                "type_static_analysis": "enforced",
                 "compiler_warnings": "enforced",
                 "tests": "configured"
             },
@@ -366,8 +386,8 @@
             "id": "kotlin",
             "capabilities": {
                 "format": "not_yet_enforceable",
-                "lint": "configured",
-                "type_static_analysis": "configured",
+                "lint": "enforced",
+                "type_static_analysis": "enforced",
                 "compiler_warnings": "enforced",
                 "tests": "configured"
             },
@@ -393,7 +413,7 @@
             "id": "perl",
             "capabilities": {
                 "format": "not_yet_enforceable",
-                "lint": "configured",
+                "lint": "enforced",
                 "type_static_analysis": "not_applicable",
                 "compiler_warnings": "enforced",
                 "tests": "configured"
@@ -406,7 +426,7 @@
             "id": "php",
             "capabilities": {
                 "format": "not_yet_enforceable",
-                "lint": "configured",
+                "lint": "enforced",
                 "type_static_analysis": "not_yet_enforceable",
                 "compiler_warnings": "not_applicable",
                 "tests": "configured"
@@ -420,7 +440,7 @@
             "id": "python",
             "capabilities": {
                 "format": "enforced",
-                "lint": "configured",
+                "lint": "enforced",
                 "type_static_analysis": "not_yet_enforceable",
                 "compiler_warnings": "configured",
                 "tests": "configured"
@@ -448,7 +468,7 @@
             "id": "ruby",
             "capabilities": {
                 "format": "not_yet_enforceable",
-                "lint": "configured",
+                "lint": "enforced",
                 "type_static_analysis": "not_applicable",
                 "compiler_warnings": "enforced",
                 "tests": "configured"
@@ -462,8 +482,8 @@
             "id": "rust",
             "capabilities": {
                 "format": "not_yet_enforceable",
-                "lint": "unavailable",
-                "type_static_analysis": "configured",
+                "lint": "not_yet_enforceable",
+                "type_static_analysis": "enforced",
                 "compiler_warnings": "enforced",
                 "tests": "configured"
             },
@@ -477,7 +497,7 @@
             "capabilities": {
                 "format": "not_yet_enforceable",
                 "lint": "not_yet_enforceable",
-                "type_static_analysis": "configured",
+                "type_static_analysis": "enforced",
                 "compiler_warnings": "enforced",
                 "tests": "configured"
             },
@@ -497,8 +517,8 @@
             },
             "lint_strategy": "eslint",
             "type_strategy": "typescript-binding",
-            "baseline": "Strict TypeScript compilation passed; ESLint is absent and three excluded tests contain @ts-ignore directives tied to a potentially semantic callable-Pattern assumption.",
-            "retirement_condition": "Lock ESLint, govern test compilation separately, and resolve the callable-Pattern contract in contained product work."
+            "baseline": "Strict TypeScript compilation and all 19 Jest suites/963 tests passed; ESLint is absent, three excluded tests contain @ts-ignore directives tied to a potentially semantic callable-Pattern assumption, and ts-jest diagnostic 151002 has one exact-code waiver because enabling isolatedModules prevented every suite from executing.",
+            "retirement_condition": "Lock ESLint, resolve the callable-Pattern contract in contained product work, and remove the ts-jest exact-code waiver when the governed ESM transform supports isolatedModules or stops emitting diagnostic 151002."
         }
     ],
     "deferred_product_findings": [

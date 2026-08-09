@@ -32,6 +32,13 @@ jobs:
                   cache-dependency-path: |
                       package-lock.json
                       bindings/typescript/package-lock.json
+                      tooling/lsp-server/package-lock.json
+
+            - name: Install Go
+              uses: actions/setup-go@v6
+              with:
+                  cache: false
+                  go-version: "1.22"
 
             - name: Install .NET
               uses: actions/setup-dotnet@v5
@@ -43,12 +50,20 @@ jobs:
               with:
                   sdk: "3.10.1"
 
+            - name: Install Ruby and Bundler
+              uses: ruby/setup-ruby@v1
+              with:
+                  ruby-version: "3.2"
+                  bundler: "2.4.20"
+
             - name: Install quality dependencies
               run: |
                   npm ci --ignore-scripts --no-audit --no-fund
-                  npm ci --ignore-scripts --no-audit --no-fund --prefix bindings/typescript
+                  npm ci --ignore-scripts --no-audit --no-fund --prefix tooling/lsp-server
                   python -m pip install --requirement tooling/requirements-quality.txt
-                  dotnet restore bindings/csharp/STRling.sln
+                  for component in csharp dart fsharp go perl ruby typescript; do
+                    ./strling setup "$component"
+                  done
 
             - name: Enforce canonical quality hardgates
               run: ./strling check
@@ -180,6 +195,11 @@ jobs:
             - name: 📦 Install Dependencies (Setup)
               run: ./strling setup ${{ matrix.language }}
               continue-on-error: false
+
+            - name: 🔎 Enforce Static Quality
+              run: |
+                  ./strling lint ${{ matrix.language }}
+                  ./strling typecheck ${{ matrix.language }}
 
             - name: 🔨 Compile (Build)
               run: ./strling build ${{ matrix.language }}

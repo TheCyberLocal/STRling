@@ -93,8 +93,36 @@ checkpoints:
             result: Canonical formatting and hygiene passed; patch integrity passed.
       commit:
           subject: "refactor(types): remove behavior-neutral static analysis violations"
-          sha: pending
+          sha: 43ca9b52a80e921d73408ce38770e053d99c107d
     - name: Hardgate integration and certification
-      status: pending
+      status: passed
+      accomplishment:
+          - Promoted 12 canonical lint operations and 10 canonical type/static-analysis operations to enforced hardgates in both check and certify.
+          - Made policy validation reject any enforced capability omitted from the aggregate check path.
+          - Updated PR CI to provision the governed analyzer environments and invoke canonical root and scoped commands instead of duplicating analyzer logic.
+          - Added one bounded exact-code waiver for ts-jest diagnostic 151002 after the recommended isolatedModules setting caused all 19 suites to fail before test execution; strict tsc remains enforced.
+      verification:
+          - command: BUNDLER_VERSION=2.4.20 ./strling lint; BUNDLER_VERSION=2.4.20 ./strling typecheck
+            result: All 12 enforced lint and 10 enforced type/static-analysis operations passed; every non-enforced ecosystem remained explicit with its transition reason.
+          - command: ./strling typecheck typescript; ./strling test typescript
+            result: Strict TypeScript compilation passed and all 19 suites/963 tests passed without emitting the governed ts-jest diagnostic.
+          - command: python3 -m unittest tooling.tests.test_static_analysis tooling.tests.test_quality; python3 tooling/static_analysis.py suppressions
+            result: 44 tests passed, including controlled lint, static-analysis, warning, process, transition, scoping, aggregate, and suppression failures; 87 directives matched four waivers with zero findings.
+          - command: BUNDLER_VERSION=2.4.20 ./strling check; BUNDLER_VERSION=2.4.20 ./strling check --json
+            result: The canonical aggregate passed formatting, hygiene, every enforced lint/type operation, strict TypeScript analysis, and 19 suites/963 tests; structured output reported status passed and exit_code 0 with component, operation, capability, command, environment, and reason fields.
+          - command: BUNDLER_VERSION=2.4.20 ./strling lint --json; BUNDLER_VERSION=2.4.20 ./strling typecheck --json
+            result: Structured lint and type/static matrices matched human-mode status and preserved explicit transition reasons without incomplete executable capabilities.
+          - command: ./strling format --check; ./strling hygiene; Python safe_load of .github/workflows/ci.yml; git diff --check
+            result: Canonical format and hygiene, CI syntax, and patch integrity passed.
+          - command: Review modified quality and CI paths for swallowed exits, hidden diagnostics, blanket exclusions, and broad suppressions
+            result: No failure bypass was introduced; the existing explicit continue-on-error false remains non-bypassing.
+      active_waivers:
+          - WVR-STATIC-PYTHON-001 expires 2027-02-01
+          - WVR-STATIC-TYPESCRIPT-PATTERN-001 expires 2027-01-15 and records suspected product behavior
+          - WVR-STATIC-TS-JEST-NODENEXT-001 expires 2027-02-01 and covers only diagnostic code 151002
+          - WVR-STATIC-SHELL-INTEROP-001 is a narrow permanent interoperability exception
+      commit:
+          subject: "ci(quality): enforce static analysis hardgates"
+          sha: pending
 behavior_changed: No STRling language/compiler semantics intentionally changed.
 readiness: pending

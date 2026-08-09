@@ -348,6 +348,7 @@ class Toolchain:
                     f"orchestration.{field_name} references unknown tool '{tool_name}'"
                 )
         target_names: set[str] = set()
+        enforced_capabilities: list[tuple[str, str]] = []
         for section_name in ("components", "bindings"):
             section = self.data[section_name]
             assert isinstance(section, dict)
@@ -436,6 +437,8 @@ class Toolchain:
                         )
                     if status in EXECUTABLE_CAPABILITY_STATUSES:
                         self.resolve_command(target, operation)
+                    if status == "enforced":
+                        enforced_capabilities.append((name, operation))
                     if status in ("not_yet_enforceable", "unavailable"):
                         details = capability_details.get(operation)
                         if not isinstance(details, dict):
@@ -502,6 +505,21 @@ class Toolchain:
                     raise ConfigurationError(
                         f"{name}.operation_targets.{operation} contains an unknown target"
                     )
+
+        check = aggregates["check"]
+        assert isinstance(check, dict)
+        check_operations = check["operations"]
+        check_defaults = check["default_targets"]
+        check_targets = check.get("operation_targets", {})
+        assert isinstance(check_operations, list)
+        assert isinstance(check_defaults, list)
+        assert isinstance(check_targets, dict)
+        for target_name, operation in enforced_capabilities:
+            selected = check_targets.get(operation, check_defaults)
+            if operation not in check_operations or target_name not in selected:
+                raise ConfigurationError(
+                    f"{target_name}.{operation} is enforced but omitted from check"
+                )
 
 
 def _version_tuple(version: str) -> tuple[int, ...]:
