@@ -1,0 +1,39 @@
+schema_version: 1
+title: Static analysis, warning discipline, and suppression hardgates
+status: in_progress
+objective: Establish deterministic defect-focused lint, type/static analysis, fatal warning policy, and governed suppressions without changing STRling semantics or public contracts.
+starting_sha: bb334b0980327b8f3599cd6da0562022c365641a
+branch: architecture/v4
+policy:
+    static_analysis: governance/static-analysis.json
+    toolchain: toolchain.json
+checkpoints:
+    - name: Static-quality contract and baseline
+      status: passed
+      accomplishment:
+          - Assigned an explicit format, lint, type/static, warning, and test disposition to all 19 active targets.
+          - Selected canonical native or ecosystem-standard analyzers and recorded their version authority or exact unresolved transition.
+          - Inventoried 92 tracked functional suppression directives and separated transition debt from suspected product defects.
+          - Recorded reproducible pre-enforcement findings without changing product source.
+      verification:
+          - command: ./strling check
+            result: Passed canonical formatting, hygiene, TypeScript strict analysis, and 963 TypeScript tests.
+          - command: ./strling lint all --json; ./strling typecheck all --json
+            result: Existing configured capabilities passed; 18 targets executed no lint analyzer and remained explicit.
+          - command: Strict native analyzer baseline described in governance/static-analysis.json
+            result: Clean mature paths and bounded findings were reproduced across all active ecosystems; missing tools were recorded as unavailable or unresolved.
+          - command: python3 -m json.tool toolchain.json; python3 -m json.tool governance/static-analysis.json; ./strling check; git diff --check
+            result: Policies parsed, the established check remained green with 963 TypeScript tests, and patch integrity passed.
+      commit:
+          subject: "docs(quality): define static analysis and warning policy"
+          sha: pending
+    - name: Canonical lint and static-analysis integration
+      status: pending
+    - name: Warning and suppression governance
+      status: pending
+    - name: Behavior-neutral static-quality remediation
+      status: pending
+    - name: Hardgate integration and certification
+      status: pending
+behavior_changed: No STRling language/compiler semantics intentionally changed.
+readiness: pending

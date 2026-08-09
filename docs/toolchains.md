@@ -8,6 +8,11 @@ states, and relevant manifests, lock files, and configuration files. This
 document explains that machine-readable contract; it does not duplicate command
 arguments or version values as a second source of truth.
 
+`governance/static-analysis.json` is authoritative for analyzer selection,
+warning disposition, suppression inventory, and bounded transition conditions.
+Analyzer executable versions and canonical commands remain governed by
+`toolchain.json` or the lock/manifests named by that policy.
+
 The root `./strling` command is the canonical quality interface for developers,
 automation, continuous integration, and later release certification. Language
 tools remain responsible for formatting, analysis, compilation, and testing.

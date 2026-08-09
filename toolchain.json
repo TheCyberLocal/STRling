@@ -5,6 +5,7 @@
         "documentation": "docs/toolchains.md",
         "formatting_policy": "governance/formatting.json",
         "repository_hygiene_policy": "governance/repository-hygiene.json",
+        "static_analysis_policy": "governance/static-analysis.json",
         "resolution_models": [
             "exact",
             "constrained",
@@ -295,7 +296,8 @@
                     "toolchain.json",
                     "pytest.ini",
                     "governance/formatting.json",
-                    "governance/repository-hygiene.json"
+                    "governance/repository-hygiene.json",
+                    "governance/static-analysis.json"
                 ]
             },
             "capabilities": {
