@@ -11,27 +11,48 @@ on:
             - "feature/**"
         tags:
             - "v*"
-        paths:
-            - "bindings/**"
-            - "spec/**"
-            - "tests/**"
-            - "tooling/**"
-            - "strling"
-            - "toolchain.json"
-            - "docs/toolchains.md"
-            - ".github/workflows/**"
     pull_request:
-        paths:
-            - "bindings/**"
-            - "spec/**"
-            - "tests/**"
-            - "tooling/**"
-            - "strling"
-            - "toolchain.json"
-            - "docs/toolchains.md"
-            - ".github/workflows/**"
 
 jobs:
+    quality-hardgates:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+
+            - name: Install Python
+              uses: actions/setup-python@v6
+              with:
+                  python-version: "3.12"
+
+            - name: Install Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: "22"
+                  cache: npm
+                  cache-dependency-path: |
+                      package-lock.json
+                      bindings/typescript/package-lock.json
+
+            - name: Install .NET
+              uses: actions/setup-dotnet@v5
+              with:
+                  dotnet-version: "9.0.x"
+
+            - name: Install Dart SDK
+              uses: dart-lang/setup-dart@v1
+              with:
+                  sdk: "3.10.1"
+
+            - name: Install quality dependencies
+              run: |
+                  npm ci --ignore-scripts --no-audit --no-fund
+                  npm ci --ignore-scripts --no-audit --no-fund --prefix bindings/typescript
+                  python -m pip install --requirement tooling/requirements-quality.txt
+                  dotnet restore bindings/csharp/STRling.sln
+
+            - name: Enforce canonical quality hardgates
+              run: ./strling check
+
     # --- TEST JOBS (ALPHABETICALLY ORDERED) ---
     test-matrix:
         runs-on: ubuntu-latest

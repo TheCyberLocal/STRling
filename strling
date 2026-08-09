@@ -426,7 +426,7 @@ print_help() {
 }
 
 COMMAND="$1"
-LANG="$2"
+TARGET_ARG="$2"
 
 if [[ ! -f "$TOOLCHAIN" ]]; then
     echo "Error: toolchain.json not found at $TOOLCHAIN"
@@ -434,7 +434,7 @@ if [[ ! -f "$TOOLCHAIN" ]]; then
 fi
 
 if [[ "$COMMAND" == "_run-configured" ]]; then
-    ACTION="$LANG"
+    ACTION="$TARGET_ARG"
     TARGET="$3"
     if [[ -z "$ACTION" || -z "$TARGET" ]]; then
         echo "Error: _run-configured requires an operation and language."
@@ -471,11 +471,11 @@ if [[ "$COMMAND" == "audit" ]]; then
 fi
 
 if [[ "$COMMAND" == "cache-dir" ]]; then
-    if [[ -z "$LANG" ]]; then
+    if [[ -z "$TARGET_ARG" ]]; then
         echo ""
         exit 1
     fi
-    case "$LANG" in
+    case "$TARGET_ARG" in
         php)
             echo "${HOME}/.cache/composer"
             echo "bindings/php/vendor"
@@ -552,11 +552,11 @@ if [[ "$COMMAND" == "cache-dir" ]]; then
 fi
 
 if [[ "$COMMAND" == "lockfile" ]]; then
-    if [[ -z "$LANG" ]]; then
+    if [[ -z "$TARGET_ARG" ]]; then
         echo ""
         exit 1
     fi
-    case "$LANG" in
+    case "$TARGET_ARG" in
         php)
             echo "composer.lock"
             ;;
@@ -623,29 +623,29 @@ if [[ "$COMMAND" == "lockfile" ]]; then
     exit 0
 fi
 
-if [[ -z "$LANG" ]]; then
+if [[ -z "$TARGET_ARG" ]]; then
     echo "Error: Language argument is required for '$COMMAND'."
     echo "Usage: ./strling $COMMAND <language>"
     exit 1
 fi
 
-if [[ "$LANG" == "all" && ( "$COMMAND" == "setup" || "$COMMAND" == "build" || "$COMMAND" == "test" || "$COMMAND" == "bootstrap" || "$COMMAND" == "clean" ) ]]; then
+if [[ "$TARGET_ARG" == "all" && ( "$COMMAND" == "setup" || "$COMMAND" == "build" || "$COMMAND" == "test" || "$COMMAND" == "bootstrap" || "$COMMAND" == "clean" ) ]]; then
     run_all_bindings "$COMMAND"
     exit $?
 fi
 
 if [[ "$COMMAND" == "clean" ]]; then
-    binding_path=$(get_binding_scalar "$LANG" "path")
+    binding_path=$(get_binding_scalar "$TARGET_ARG" "path")
     if [[ -z "$binding_path" ]]; then
-        echo "Error: Language '$LANG' not found in toolchain.json"
+        echo "Error: Language '$TARGET_ARG' not found in toolchain.json"
         exit 1
     fi
 
     echo ">> Cleaning artifacts in $DIR/$binding_path..."
     find "$DIR/$binding_path" -type d \( -name "build" -o -name "target" -o -name "dist" -o -name "vendor" -o -name "__pycache__" -o -name ".venv" -o -name ".venv-*" \) -prune -exec rm -rf {} +
-    echo ">> Clean complete for $LANG."
+    echo ">> Clean complete for $TARGET_ARG."
     exit 0
 fi
 
-run_binding_action "$COMMAND" "$LANG"
+run_binding_action "$COMMAND" "$TARGET_ARG"
 exit $?

@@ -436,6 +436,23 @@ class Toolchain:
             if any(target not in target_names for target in defaults):
                 raise ConfigurationError(f"{name} contains an unknown default target")
 
+            operation_targets = aggregate.get("operation_targets", {})
+            if not isinstance(operation_targets, dict):
+                raise ConfigurationError(f"{name}.operation_targets must be an object")
+            for operation, selected_targets in operation_targets.items():
+                if operation not in operations:
+                    raise ConfigurationError(
+                        f"{name}.operation_targets contains an operation outside the aggregate"
+                    )
+                if not isinstance(selected_targets, list) or not selected_targets:
+                    raise ConfigurationError(
+                        f"{name}.operation_targets.{operation} must be a non-empty list"
+                    )
+                if any(target not in target_names for target in selected_targets):
+                    raise ConfigurationError(
+                        f"{name}.operation_targets.{operation} contains an unknown target"
+                    )
+
 
 def _version_tuple(version: str) -> tuple[int, ...]:
     parts = version.split(".")
@@ -760,12 +777,22 @@ class QualityRunner:
         operations = aggregate["operations"]
         defaults = aggregate["default_targets"]
         assert isinstance(operations, list)
+        operation_targets = aggregate.get("operation_targets", {})
         assert isinstance(defaults, list)
-        targets = self.toolchain.select(requested, defaults)
+        assert isinstance(operation_targets, dict)
+        if requested is not None:
+            targets = self.toolchain.select(requested, defaults)
+            return [
+                self.run_leaf(operation, target)
+                for target in targets
+                for operation in operations
+            ]
         return [
             self.run_leaf(operation, target)
-            for target in targets
             for operation in operations
+            for target in self.toolchain.select(
+                None, operation_targets.get(operation, defaults)
+            )
         ]
 
     def run_environment(self, requested: str | None) -> list[OperationResult]:

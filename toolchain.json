@@ -33,18 +33,47 @@
         ],
         "aggregates": {
             "check": {
-                "operations": ["format_check", "lint", "typecheck", "test"],
-                "default_targets": ["typescript"]
+                "operations": [
+                    "format_check",
+                    "hygiene",
+                    "lint",
+                    "typecheck",
+                    "test"
+                ],
+                "default_targets": ["typescript"],
+                "operation_targets": {
+                    "format_check": [
+                        "repository",
+                        "lsp",
+                        "csharp",
+                        "dart",
+                        "python",
+                        "typescript"
+                    ],
+                    "hygiene": ["repository"]
+                }
             },
             "certify": {
                 "operations": [
                     "format_check",
+                    "hygiene",
                     "lint",
                     "typecheck",
                     "build",
                     "test"
                 ],
-                "default_targets": ["typescript"]
+                "default_targets": ["typescript"],
+                "operation_targets": {
+                    "format_check": [
+                        "repository",
+                        "lsp",
+                        "csharp",
+                        "dart",
+                        "python",
+                        "typescript"
+                    ],
+                    "hygiene": ["repository"]
+                }
             }
         },
         "operation_defaults": {

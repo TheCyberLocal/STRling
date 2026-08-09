@@ -117,8 +117,13 @@ The present capability inventory records:
 -   compiler/static type analysis is configured for C#, Dart, F#, Go, Java,
     Kotlin, Rust, Swift, and TypeScript;
 -   Dart analysis is the only currently configured lint command;
--   no formatter or formatter-check command is yet configured at the root;
--   root and language-server quality capabilities are not yet configured; and
+-   formatting is configured for repository and language-server Python and
+    TypeScript/JavaScript, authored JSON/YAML/Markdown, C#, Dart, binding
+    Python, and binding TypeScript;
+-   repository hygiene validation is configured at the root, while its
+    component-level applicability is explicitly declared for every target;
+-   formatter dispositions that are not yet enforceable name a technical
+    reason and retirement condition in `governance/formatting.json`; and
 -   build applicability and configuration are stated per component rather than
     inferred from an absent command.
 
@@ -133,6 +138,7 @@ The permanent root vocabulary is:
 
 ```text
 ./strling format [--check] [component|all]
+./strling hygiene
 ./strling lint [component|all]
 ./strling typecheck [component|all]
 ./strling build [component|all]
@@ -143,26 +149,31 @@ The permanent root vocabulary is:
 
 `format` selects the declared formatter write command, while
 `format --check` selects the non-mutating formatter check command. `check`
-is the fast shared developer/checkpoint aggregate. `certify` establishes the
-broader aggregation contract without replacing Omega or the later release
-certification architecture. Aggregate membership is authoritative in the
-`policy.aggregates` section of `toolchain.json`.
+is the shared developer and pull-request hardgate. It runs every enforceable
+formatter check, the repository-hygiene scanner, and the established
+TypeScript analysis/test baseline. `certify` establishes the broader
+aggregation contract without replacing Omega or the later release
+certification architecture. Aggregate membership and per-operation target
+sets are authoritative in the `policy.aggregates` section of
+`toolchain.json`.
 
 Existing setup, bootstrap, clean, audit, cache, lockfile, and list behavior
 remains supported. Component selection follows the existing binding names and
 also recognizes `repository` and `lsp`. An omitted component on a leaf
-operation or an explicit `all` selects all inventoried environments. An
-omitted component on `check` or `certify` selects the policy's established
-TypeScript baseline; `./strling check all` and `./strling certify all` are
-the explicit full-inventory forms. This keeps the default aggregates reliable
-while later hardening makes additional environments eligible.
+operation selects all inventoried environments unless the policy declares an
+operation default; hygiene defaults narrowly to `repository`. The default
+`check` and `certify` aggregates select repository, LSP, C#, Dart, Python, and
+TypeScript for formatting; repository for hygiene; and TypeScript for the
+pre-existing analysis, build, and test operations. An explicit target scopes
+every aggregate member to that target, while `all` is the explicit
+full-inventory form.
 
-The GitHub Actions quality matrix uses the same `environment`, `build`, and
-`test` commands. Its Node, Go, .NET, and Bundler setup values are aligned with
-this policy, and a failed build is no longer converted into success. The
-TypeScript setup command uses `npm ci --no-audit --no-fund`: dependency
-lifecycle scripts and exact lock resolution remain enabled, while unrelated
-audit and funding network calls are excluded from setup.
+The GitHub Actions `quality-hardgates` job installs the declared formatter and
+TypeScript baseline dependencies, then invokes only `./strling check`; it does
+not reproduce formatter or hygiene policy in workflow shell. The binding
+quality matrix continues to use the same `environment`, `build`, and `test`
+commands. Its Node, Go, .NET, and Bundler setup values are aligned with this
+policy, and a failed build is never converted into success.
 
 ## Structured result contract
 

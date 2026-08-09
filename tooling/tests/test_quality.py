@@ -333,6 +333,44 @@ class QualityRoutingTests(unittest.TestCase):
         )
         self.assertEqual(0, _overall_exit(results, False))
 
+    def test_aggregate_uses_operation_specific_default_targets(self) -> None:
+        alpha = target_config(
+            {"lint": "configured"},
+            {"lint": ["fixture-lint"]},
+        )
+        beta = target_config(
+            {"hygiene": "configured"},
+            {"hygiene": ["fixture-hygiene"]},
+        )
+        data = policy(alpha=alpha, beta=beta)
+        check = data["policy"]["aggregates"]["check"]  # type: ignore[index]
+        check["operations"] = ["lint", "hygiene"]
+        check["operation_targets"] = {  # type: ignore[index]
+            "lint": ["alpha"],
+            "hygiene": ["beta"],
+        }
+        calls: list[tuple[str, str]] = []
+        results = QualityRunner(
+            Toolchain(data, Path.cwd()),
+            lambda target, operation, _command: (
+                calls.append((target.name, operation)) or Execution(0)
+            ),
+        ).run_aggregate("check", None)
+        self.assertEqual([("alpha", "lint"), ("beta", "hygiene")], calls)
+        self.assertEqual(
+            [("alpha", "lint"), ("beta", "hygiene")],
+            [(result.component, result.operation) for result in results],
+        )
+
+    def test_aggregate_rejects_operation_target_outside_membership(self) -> None:
+        data = policy()
+        check = data["policy"]["aggregates"]["check"]  # type: ignore[index]
+        check["operation_targets"] = {"test": ["alpha"]}  # type: ignore[index]
+        with self.assertRaisesRegex(
+            ConfigurationError, "operation outside the aggregate"
+        ):
+            Toolchain(data, Path.cwd())
+
     def test_malformed_configured_capability_is_rejected(self) -> None:
         alpha = target_config({"lint": "configured"})
         with self.assertRaisesRegex(ConfigurationError, "configured without a command"):
