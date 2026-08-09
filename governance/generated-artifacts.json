@@ -21,6 +21,7 @@
             ],
             "generator_inputs": [
                 "governance/public-surfaces.json",
+                "tooling/contract_declarations.py",
                 "tooling/public_contracts.py",
                 "bindings/c/include/strling.h",
                 "bindings/go/*.go",
@@ -33,7 +34,10 @@
                 "strling"
             ],
             "generator": {
-                "implementation_paths": ["tooling/public_contracts.py"],
+                "implementation_paths": [
+                    "tooling/contract_declarations.py",
+                    "tooling/public_contracts.py"
+                ],
                 "command": ["./strling", "contracts"],
                 "working_directory": "."
             },

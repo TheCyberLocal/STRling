@@ -14,6 +14,7 @@ scope:
         - strling
         - strling.ps1
         - toolchain.json
+        - tooling/contract_declarations.py
         - tooling/governance.py
         - tooling/index.md
         - tooling/public_contracts.py
@@ -82,7 +83,7 @@ change_classification:
     internal_implementation: true
 required_verification:
     - name: Public surface contract validation
-      command: python3 -m unittest tooling.tests.test_governance_contracts tooling.tests.test_public_contracts
+      command: python3 -m unittest tooling.tests.test_governance_contracts tooling.tests.test_public_contracts tooling.tests.test_contract_declarations
       expected_result: Registry, snapshots, classifiers, declarations, and controlled malformed or incompatible cases behave deterministically.
     - name: Public contract reproduction
       command: ./strling contracts --check
@@ -144,8 +145,24 @@ checkpoints:
             result: passed
             details: C++, C#, Dart, F#, Java, Kotlin, Lua, Perl, PHP, Ruby, Rust, and Swift remain non-enforced only with ecosystem-specific rationale and objective retirement conditions.
     - name: Change classification enforcement
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Base-relative detection and approval separation
+            command: ./strling contracts --check
+            result: passed
+            details: Exact source-to-snapshot reproduction runs first; committed snapshots are then compared with the active task Git base and validated separately against task declarations, so regeneration cannot authorize drift.
+          - check: Exact classification authorization
+            command: python3 -m unittest tooling.tests.test_contract_declarations
+            result: passed
+            details: Fourteen controlled tests cover Git-base comparison, unchanged and internal-compatible changes, additive and breaking API changes, undeclared drift, incompatible broad levels, mismatched surface identifiers, additive and breaking schemas, intentional corrections, enforcement downgrades, and malformed declarations.
+          - check: Component and surface containment
+            command: declaration validator unit cases
+            result: passed
+            details: Every detected surface identifier maps to its registry component and must be named exactly; missing and unrelated identifiers fail, so a broad breaking label cannot authorize unrelated changes.
+          - check: Monotonic public coverage
+            command: enforcement downgrade controlled case
+            result: passed
+            details: Removing or downgrading an enforced registry surface is classified as breaking architecture drift and requires a breaking architecture declaration naming that exact surface.
     - name: Dependency architecture fitness
       status: planned
       evidence: []
@@ -158,3 +175,5 @@ checkpoints:
 commits:
     - sha: 66cecac811373c81876077a6dc07baba6394ee94
       subject: "docs(governance): define public contract and architecture fitness policy"
+    - sha: ec5a250a178a75d43ddc4e5ca38e9e1f42adc581
+      subject: "feat(governance): verify public API and contract snapshots"

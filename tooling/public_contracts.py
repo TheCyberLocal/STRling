@@ -17,9 +17,25 @@ from typing import Callable, Iterable, Mapping, Sequence
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError, ValidationError
 
+try:
+    from contract_declarations import (
+        DeclarationError,
+        detect_base_changes,
+        load_active_task,
+        validate_change_declarations,
+    )
+except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
+    from tooling.contract_declarations import (
+        DeclarationError,
+        detect_base_changes,
+        load_active_task,
+        validate_change_declarations,
+    )
+
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REGISTRY = ROOT / "governance/public-surfaces.json"
+DEFAULT_CONTROL = ROOT / "governance/change-control.json"
 REGISTRY_SCHEMA = ROOT / "governance/schemas/public-surface-registry.schema.json"
 CLASSIFICATION_ORDER = {
     "unchanged": 0,
@@ -976,20 +992,28 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--json", action="store_true", dest="json_output")
     parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
+    parser.add_argument("--control", type=Path, default=DEFAULT_CONTROL)
     parser.add_argument("--surface", action="append", default=[])
     return parser.parse_args(argv)
 
 
-def render_human(results: Sequence[SurfaceResult]) -> None:
+def render_human(
+    results: Sequence[SurfaceResult], declaration_findings: Sequence[str]
+) -> None:
     for result in results:
         suffix = f" ({result.reason})" if result.reason else ""
         print(f"[{result.status}] {result.surface} [{result.classification}]{suffix}")
         for finding in result.findings:
             print(f"  - {finding}")
+    status = "failed" if declaration_findings else "passed"
+    print(f"[{status}] change-declarations")
+    for finding in declaration_findings:
+        print(f"  - {finding}")
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
+    declaration_findings: list[str] = []
     try:
         registry_path = args.registry.resolve()
         registry = load_registry(registry_path)
@@ -1009,7 +1033,36 @@ def main(argv: Sequence[str] | None = None) -> int:
             if isinstance(surface, dict)
             and (not selected or str(surface["id"]) in selected)
         ]
-    except ContractError as exc:
+        if (
+            args.check
+            and not selected
+            and registry_path == DEFAULT_REGISTRY.resolve()
+            and not any(result.status == "failed" for result in results)
+        ):
+            task, base = load_active_task(ROOT, args.control.resolve())
+            detected = detect_base_changes(
+                root=ROOT,
+                registry_path=registry_path,
+                registry=registry,
+                base=base,
+                compare=compare_snapshots,
+            )
+            result_by_surface = {result.surface: result for result in results}
+            for change in detected:
+                result = result_by_surface.get(change.surface)
+                if result is None:
+                    result = SurfaceResult(
+                        change.surface,
+                        change.component,
+                        "passed",
+                        snapshot_path=change.snapshot_path,
+                    )
+                    results.append(result)
+                    result_by_surface[change.surface] = result
+                result.classification = change.classification
+                result.findings.extend(change.findings)
+            declaration_findings = validate_change_declarations(task, detected)
+    except (ContractError, DeclarationError) as exc:
         if args.json_output:
             print(
                 json.dumps(
@@ -1027,7 +1080,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         else:
             print(f"Error: {exc}", file=sys.stderr)
         return 2
-    failed = any(result.status == "failed" for result in results)
+    failed = bool(declaration_findings) or any(
+        result.status == "failed" for result in results
+    )
     exit_code = 1 if failed else 0
     if args.json_output:
         print(
@@ -1037,12 +1092,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "status": "failed" if failed else "passed",
                     "exit_code": exit_code,
                     "results": [result.as_dict() for result in results],
+                    "change_declarations": {
+                        "status": "failed" if declaration_findings else "passed",
+                        "findings": declaration_findings,
+                    },
                 },
                 sort_keys=True,
             )
         )
     else:
-        render_human(results)
+        render_human(results, declaration_findings)
     return exit_code
 
 
