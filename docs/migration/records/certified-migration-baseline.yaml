@@ -114,8 +114,20 @@ checkpoints:
             result: passed
             details: The contract names leaf, structured, aggregate, complete focused-suite, patch-integrity, and clean-state commands, including explicit repository-locked Bundler selection.
     - name: Full committed-state baseline certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Complete committed-state hardgate stack
+            command: Leaf format, hygiene, lint, typecheck, generation, contracts, governance; focused tests; human and JSON check all and certify all
+            result: passed
+            details: SHA 77f6a81e6b0a63cc6052fdadb428c719b16c7c61 passed with 143 focused tests, 49 enforced check results, 63 enforced certify results, all 17 binding test baselines, and no failed or unavailable result.
+          - check: Reproduction and clean-state proof
+            command: ./strling generate --check --json; ./strling contracts --check --json; git diff --check; git status --short --branch
+            result: passed
+            details: Three enforced generated families and ten public snapshots reproduced; check modes left no tracked or untracked state and required no hidden files.
+          - check: Governed transition and waiver capture
+            command: Review governance public-surface, generated-artifact, architecture, static-analysis, and waiver registries
+            result: passed
+            details: Evidence records twelve public-extractor, eight generated-artifact, and three architecture transitions; one future rule; five active or accepted waiver identifiers; and three known defects excluded from contract status.
     - name: Donor-branch capability inventory
       status: planned
       evidence: []
@@ -128,4 +140,10 @@ checkpoints:
     - name: Completion and product-migration readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 6e03884a3567cefa706fe132077eaa8e20745c4f
+      subject: "docs(migration): define certified baseline and donor inventory contract"
+    - sha: c347bc3d57d4d2daaef5d850a89f6f285c7c4b9f
+      subject: "style(governance): format baseline contracts"
+    - sha: 77f6a81e6b0a63cc6052fdadb428c719b16c7c61
+      subject: "fix(governance): select locked Bundler for certification"

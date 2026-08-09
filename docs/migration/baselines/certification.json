@@ -1,0 +1,583 @@
+{
+    "schema_version": "1.0.0",
+    "baseline_id": "governed-architecture-foundation",
+    "certified_commit": "77f6a81e6b0a63cc6052fdadb428c719b16c7c61",
+    "commands": [
+        {
+            "id": "format-all",
+            "command": "./strling format --check all --json",
+            "result": "passed",
+            "exit_code": 0,
+            "summary": "Six configured formatter targets passed; thirteen targets remained explicitly not yet configured."
+        },
+        {
+            "id": "repository-hygiene",
+            "command": "./strling hygiene --json",
+            "result": "passed",
+            "exit_code": 0,
+            "summary": "Tracked-file hygiene passed with the accepted Perl case-collision waiver."
+        },
+        {
+            "id": "lint-all",
+            "command": "BUNDLER_VERSION=2.4.20 ./strling lint all --json",
+            "result": "passed",
+            "exit_code": 0,
+            "summary": "Twelve configured lint targets passed; seven targets remained explicitly not yet enforceable."
+        },
+        {
+            "id": "typecheck-all",
+            "command": "./strling typecheck all --json",
+            "result": "passed",
+            "exit_code": 0,
+            "summary": "Ten configured type/static targets passed; six were not applicable and three remained not yet enforceable."
+        },
+        {
+            "id": "generated-artifacts",
+            "command": "./strling generate --check; ./strling generate --check --json",
+            "result": "passed",
+            "exit_code": 0,
+            "summary": "Three enforced families reproduced or verified exactly; eight bounded transitions were reported."
+        },
+        {
+            "id": "public-contracts",
+            "command": "./strling contracts --check; ./strling contracts --check --json",
+            "result": "passed",
+            "exit_code": 0,
+            "summary": "Ten deterministic snapshots reproduced, twelve extractor transitions were reported, and change declarations had no findings."
+        },
+        {
+            "id": "governance-fitness",
+            "command": "./strling governance; ./strling governance --json",
+            "result": "passed",
+            "exit_code": 0,
+            "summary": "Task contracts, scope, declarations, and eight architecture rules passed; three transitions and one future rule were reported."
+        },
+        {
+            "id": "focused-governance-quality-tests",
+            "command": "python3 -m unittest discover -s tooling/tests -p 'test_*.py'",
+            "result": "passed",
+            "exit_code": 0,
+            "summary": "All 143 governance, quality, generation, contract, version, and architecture tests passed."
+        },
+        {
+            "id": "aggregate-check",
+            "command": "BUNDLER_VERSION=2.4.20 ./strling check all; BUNDLER_VERSION=2.4.20 ./strling check all --json",
+            "result": "passed",
+            "exit_code": 0,
+            "summary": "Both modes passed with 49 enforced results and 39 governed incomplete capability declarations."
+        },
+        {
+            "id": "aggregate-certify",
+            "command": "BUNDLER_VERSION=2.4.20 ./strling certify all; BUNDLER_VERSION=2.4.20 ./strling certify all --json",
+            "result": "passed",
+            "exit_code": 0,
+            "summary": "Both modes passed with 63 enforced results, including 14 builds and 17 binding test baselines."
+        },
+        {
+            "id": "repository-integrity",
+            "command": "git diff --check; git status --short --branch",
+            "result": "passed",
+            "exit_code": 0,
+            "summary": "Patch integrity passed and the committed certification subject remained clean."
+        }
+    ],
+    "result_summary": {
+        "status": "passed",
+        "passed": 63,
+        "failed": 0,
+        "unavailable": 0,
+        "governed_incomplete": 39
+    },
+    "hardgates": [
+        {
+            "id": "format-check",
+            "status": "passed",
+            "source": "toolchain.json"
+        },
+        {
+            "id": "repository-hygiene",
+            "status": "passed",
+            "source": "governance/repository-hygiene.json"
+        },
+        {
+            "id": "lint",
+            "status": "passed",
+            "source": "governance/static-analysis.json"
+        },
+        { "id": "typecheck", "status": "passed", "source": "toolchain.json" },
+        {
+            "id": "generated-artifact-integrity",
+            "status": "passed",
+            "source": "governance/generated-artifacts.json"
+        },
+        {
+            "id": "public-contract-integrity",
+            "status": "passed",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "task-change-governance",
+            "status": "passed",
+            "source": "governance/change-control.json"
+        },
+        {
+            "id": "architecture-fitness",
+            "status": "passed",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "aggregate-check",
+            "status": "passed",
+            "source": "toolchain.json"
+        },
+        {
+            "id": "aggregate-certify",
+            "status": "passed",
+            "source": "toolchain.json"
+        },
+        {
+            "id": "focused-governance-quality-tests",
+            "status": "passed",
+            "source": "tooling/tests"
+        }
+    ],
+    "public_surfaces": [
+        {
+            "id": "c-public-api",
+            "status": "enforced",
+            "source": "governance/public-surfaces.json",
+            "detail": "governance/contracts/snapshots/c-public-api.json"
+        },
+        {
+            "id": "cpp-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "csharp-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "dart-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "fsharp-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "go-public-api",
+            "status": "enforced",
+            "source": "governance/public-surfaces.json",
+            "detail": "governance/contracts/snapshots/go-public-api.json"
+        },
+        {
+            "id": "java-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "kotlin-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "lua-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "perl-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "php-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "python-public-api",
+            "status": "enforced",
+            "source": "governance/public-surfaces.json",
+            "detail": "governance/contracts/snapshots/python-public-api.json"
+        },
+        {
+            "id": "r-public-api",
+            "status": "enforced",
+            "source": "governance/public-surfaces.json",
+            "detail": "governance/contracts/snapshots/r-public-api.json"
+        },
+        {
+            "id": "ruby-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "rust-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "swift-public-api",
+            "status": "transitional",
+            "source": "governance/public-surfaces.json"
+        },
+        {
+            "id": "typescript-package-entrypoints",
+            "status": "enforced",
+            "source": "governance/public-surfaces.json",
+            "detail": "governance/contracts/snapshots/typescript-package-entrypoints.json"
+        },
+        {
+            "id": "typescript-public-api",
+            "status": "enforced",
+            "source": "governance/public-surfaces.json",
+            "detail": "governance/contracts/snapshots/typescript-public-api.json"
+        },
+        {
+            "id": "root-cli",
+            "status": "enforced",
+            "source": "governance/public-surfaces.json",
+            "detail": "governance/contracts/snapshots/root-cli.json"
+        },
+        {
+            "id": "schema-conformance-fixture",
+            "status": "enforced",
+            "source": "governance/public-surfaces.json",
+            "detail": "governance/contracts/snapshots/schema-conformance-fixture.json"
+        },
+        {
+            "id": "schema-pcre2-target",
+            "status": "enforced",
+            "source": "governance/public-surfaces.json",
+            "detail": "governance/contracts/snapshots/schema-pcre2-target.json"
+        },
+        {
+            "id": "schema-target-artifact",
+            "status": "enforced",
+            "source": "governance/public-surfaces.json",
+            "detail": "governance/contracts/snapshots/schema-target-artifact.json"
+        }
+    ],
+    "generated_artifacts": [
+        {
+            "id": "public-contract-snapshots",
+            "status": "enforced",
+            "source": "governance/generated-artifacts.json"
+        },
+        {
+            "id": "version-synchronized-metadata",
+            "status": "enforced",
+            "source": "governance/generated-artifacts.json"
+        },
+        {
+            "id": "shared-semantic-fixtures",
+            "status": "transitional",
+            "source": "governance/generated-artifacts.json"
+        },
+        {
+            "id": "c-compatibility-fixtures",
+            "status": "transitional",
+            "source": "governance/generated-artifacts.json"
+        },
+        {
+            "id": "swift-compatibility-fixture-projection",
+            "status": "enforced",
+            "source": "governance/generated-artifacts.json"
+        },
+        {
+            "id": "c-test-skeleton",
+            "status": "transitional",
+            "source": "governance/generated-artifacts.json"
+        },
+        {
+            "id": "final-audit-report",
+            "status": "transitional",
+            "source": "governance/generated-artifacts.json"
+        },
+        {
+            "id": "package-manager-lockfiles",
+            "status": "transitional",
+            "source": "governance/generated-artifacts.json"
+        },
+        {
+            "id": "lua-release-rockspec",
+            "status": "transitional",
+            "source": "governance/generated-artifacts.json"
+        },
+        {
+            "id": "lsp-extension-payload",
+            "status": "transitional",
+            "source": "governance/generated-artifacts.json"
+        },
+        {
+            "id": "rust-conformance-build-source",
+            "status": "transitional",
+            "source": "governance/generated-artifacts.json"
+        }
+    ],
+    "architecture_rules": [
+        {
+            "id": "governance-product-dependency-boundary",
+            "status": "enforced",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "quality-semantic-dependency-boundary",
+            "status": "enforced",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "generated-artifact-input-acyclicity",
+            "status": "enforced",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "implementation-derived-fixture-authority",
+            "status": "enforced",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "task-record-placement",
+            "status": "enforced",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "new-top-level-implementation-islands",
+            "status": "enforced",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "duplicated-binding-compilers",
+            "status": "transitional",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "implementation-derived-shared-fixtures",
+            "status": "transitional",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "lsp-python-binding-semantic-dependency",
+            "status": "transitional",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "specification-reference-authority-boundary",
+            "status": "enforced",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "new-tooling-semantic-islands",
+            "status": "enforced",
+            "source": "governance/architecture-rules.json"
+        },
+        {
+            "id": "binding-canonical-core-dependency",
+            "status": "future",
+            "source": "governance/architecture-rules.json"
+        }
+    ],
+    "transitions": [
+        {
+            "id": "cpp-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Pin a compiler-backed AST extraction command over the installed header set, define macro/standard flags, and pass overload, access-control, include-path, and normalization tests."
+        },
+        {
+            "id": "csharp-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Build to an isolated output directory with the pinned SDK, extract public metadata without loading product behavior, normalize compiler-generated members, and pass reproducibility tests."
+        },
+        {
+            "id": "dart-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Pin an analyzer API extractor that starts at lib/strling.dart, resolves show/hide/export chains, normalizes nullability and defaults, and reproduces in CI."
+        },
+        {
+            "id": "fsharp-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Select the shipped package assemblies, extract normalized public F# signatures for both projects with the pinned SDK, and prove repeatability without build-tree residue."
+        },
+        {
+            "id": "java-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Add a pinned Maven wrapper or direct pinned compiler path, build into temporary output, normalize javap output, and pass package/member compatibility tests."
+        },
+        {
+            "id": "kotlin-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Pin a Kotlin binary-compatibility or metadata extractor, isolate build output, normalize bridges/default methods, and certify source and binary compatibility cases."
+        },
+        {
+            "id": "lua-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Use a parser-backed Lua export walk over both installed modules, define treatment of metatables/dynamic keys, align the rockspec, and pass signature and module-path tests."
+        },
+        {
+            "id": "perl-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Define the supported export and method contract, add parser-backed export/prototype extraction plus declared arity metadata where prototypes are absent, and certify changes without loading compiler behavior."
+        },
+        {
+            "id": "php-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Implement token_get_all or another parser-backed, non-executing PSR-4 API extractor, normalize promoted/readonly properties and union types, and pass compatibility tests."
+        },
+        {
+            "id": "ruby-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Add a non-executing Ripper AST extractor for shipped files, normalize singleton/instance methods and keyword parameters, and pass visibility and metaprogramming-gap tests."
+        },
+        {
+            "id": "rust-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Pin an MSRV-compatible public API extractor or stabilized rustdoc metadata path, isolate target output, normalize blanket/derived items, and certify features and re-exports."
+        },
+        {
+            "id": "swift-public-api",
+            "category": "public-surface",
+            "source": "governance/public-surfaces.json",
+            "retirement_condition": "Pin symbolgraph extraction flags and Swift version, isolate build output, remove non-contract metadata, and pass overload, availability, Codable synthesis, and repeatability tests."
+        },
+        {
+            "id": "shared-semantic-fixtures",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Replace implementation-derived expectations with independently accepted specification-authored cases, define the complete output set, make missing generator components fatal, and prove clean exact reproduction."
+        },
+        {
+            "id": "c-compatibility-fixtures",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Trace every fixture to an accepted source case, restore or replace the exact deterministic producer, and certify the complete expected output set."
+        },
+        {
+            "id": "c-test-skeleton",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Reconcile the intended output path, validate the source fixture set, and prove byte-exact deterministic reproduction."
+        },
+        {
+            "id": "final-audit-report",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Separate deterministic certification data from presentation metadata, define stable inputs, and compare a normalized semantic report without hiding meaningful differences."
+        },
+        {
+            "id": "package-manager-lockfiles",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Split the family by package manager, pin each serializer, define offline inputs or trusted registry provenance, and prove exact reproduction without treating a lockfile as its own source."
+        },
+        {
+            "id": "lua-release-rockspec",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Assign one release generator, test template substitution and filename construction, and certify the packaged rockspec during release-artifact verification."
+        },
+        {
+            "id": "lsp-extension-payload",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Certify the extension package from pinned inputs in the release-artifact hardgate."
+        },
+        {
+            "id": "rust-conformance-build-source",
+            "category": "generated-artifact",
+            "source": "governance/generated-artifacts.json",
+            "retirement_condition": "Retire the implementation-derived fixture authority and certify the build output from accepted conformance contracts."
+        },
+        {
+            "id": "duplicated-binding-compilers",
+            "category": "architecture-rule",
+            "source": "governance/architecture-rules.json",
+            "retirement_condition": "Activate binding-to-canonical-core dependency rules after each binding is migrated and its legacy semantic implementation is removed under contained verification."
+        },
+        {
+            "id": "implementation-derived-shared-fixtures",
+            "category": "architecture-rule",
+            "source": "governance/architecture-rules.json",
+            "retirement_condition": "Replace implementation-derived expected behavior with independently accepted specification-authored conformance contracts and deterministic projections."
+        },
+        {
+            "id": "lsp-python-binding-semantic-dependency",
+            "category": "architecture-rule",
+            "source": "governance/architecture-rules.json",
+            "retirement_condition": "After the canonical compiler interface exists, route editor semantics through that interface, remove direct STRling binding imports from tooling, and promote the rule to enforced."
+        }
+    ],
+    "waivers": [
+        {
+            "id": "WVR-PERL-PARSER-CASE-001",
+            "source": "governance/waivers/WVR-PERL-PARSER-CASE-001.yaml",
+            "status": "accepted",
+            "retirement_condition": "Retire after a contained Perl compatibility task proves one canonical module path on case-sensitive and case-insensitive filesystems and passes the full Perl test baseline."
+        },
+        {
+            "id": "WVR-STATIC-PYTHON-001",
+            "source": "governance/static-analysis.json",
+            "status": "active",
+            "retirement_condition": "Retain only coded interop exceptions and retire broad type ignores as Python type analysis becomes enforceable."
+        },
+        {
+            "id": "WVR-STATIC-TYPESCRIPT-PATTERN-001",
+            "source": "governance/static-analysis.json",
+            "status": "active",
+            "retirement_condition": "Resolve the callable-Pattern contract as contained product work and remove or replace all three directives."
+        },
+        {
+            "id": "WVR-STATIC-TS-JEST-NODENEXT-001",
+            "source": "governance/static-analysis.json",
+            "status": "active",
+            "retirement_condition": "Re-evaluate during the separately authorized Node/Jest/ts-jest transition and remove this exact diagnostic-code waiver once isolatedModules is compatible with all 19 suites or the diagnostic is no longer emitted."
+        },
+        {
+            "id": "WVR-STATIC-SHELL-INTEROP-001",
+            "source": "governance/static-analysis.json",
+            "status": "active",
+            "retirement_condition": "Re-audit when package installation or the Gradle wrapper changes."
+        }
+    ],
+    "known_non_contractual_defects": [
+        {
+            "id": "typescript-callable-pattern-contract",
+            "description": "Three TypeScript Simply tests suppress type errors around the potentially semantic callable-Pattern public contract.",
+            "evidence": "governance/static-analysis.json#WVR-STATIC-TYPESCRIPT-PATTERN-001",
+            "contract_status": "excluded"
+        },
+        {
+            "id": "typescript-package-entrypoint-paths",
+            "description": "Advertised core, PCRE2 emitter, and Simply output paths do not correspond to the current declaration build paths.",
+            "evidence": "governance/public-surfaces.json#typescript-package-entrypoints.known_gaps",
+            "contract_status": "excluded"
+        },
+        {
+            "id": "perl-parser-case-collision",
+            "description": "Two tracked Perl parser modules differ only by filename case, creating unresolved case-insensitive filesystem behavior.",
+            "evidence": "governance/waivers/WVR-PERL-PARSER-CASE-001.yaml",
+            "contract_status": "excluded"
+        }
+    ],
+    "repository_state": {
+        "before": "clean",
+        "after": "clean",
+        "check_modes_clean": true,
+        "hidden_state_required": false
+    }
+}
