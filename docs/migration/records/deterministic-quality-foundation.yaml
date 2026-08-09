@@ -113,13 +113,35 @@ checkpoints:
         result: passed
         details: Deterministic lock setup, no-emit type analysis, build, and the 19-suite 963-test baseline passed while transition/deferred tool conditions remained machine-readable.
   - name: Quality-system integration
-    status: in_progress
-    evidence: []
+    status: passed
+    evidence:
+      - check: Developer and CI convergence
+        command: Review .github/workflows/ci.yml and developer documentation
+        result: passed
+        details: CI now uses root environment, build, and test commands; Node 22, Go 1.22, .NET 9, and Bundler 2.4.20 align with policy; contributor and documentation hubs point to the same interface.
+      - check: Root and CI integrity
+        command: Unit tests; JSON and YAML parsing; bash -n strling; ./strling help; targeted swallowed-failure search
+        result: passed
+        details: All 17 tests passed, configurations parsed, all commands were discoverable, and no inappropriate || true, continue-on-error true, or no-build success fallback exists in modified orchestration paths.
+      - check: Aggregate quality operations
+        command: ./strling check --json; ./strling certify --json
+        result: passed
+        details: Both aggregates passed the TypeScript baseline. Certify reported format_check and lint as not_yet_configured, passed typecheck/build/test, and returned all 63 incomplete capabilities.
+      - check: Final TypeScript baseline
+        command: ./strling build typescript --json; ./strling test typescript
+        result: passed
+        details: The build passed and the test baseline remained 19 suites and 963 tests with Node and npm transition state visible.
+      - check: Patch integrity
+        command: git diff --check
+        result: passed
+        details: No whitespace errors were present after CI and documentation integration.
   - name: Completion and readiness
-    status: planned
+    status: in_progress
     evidence: []
 commits:
   - sha: 62257da6ea7a561c13d8acc0c0f54585c42f98d3
     subject: "docs(tooling): define deterministic toolchain policy"
   - sha: 1486385a6c762021ef7cc4066eb8027ddbade86a
     subject: "feat(tooling): centralize repository quality commands"
+  - sha: 02d3184d5f1626d7181017d082a1fa31a7ff2b04
+    subject: "feat(tooling): enforce declared development toolchains"

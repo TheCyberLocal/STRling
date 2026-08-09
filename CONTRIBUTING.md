@@ -9,8 +9,15 @@ Thank you for contributing to STRling! This document covers the essentials for m
 ```bash
 ./strling bootstrap all   # Setup, build, and test every binding
 ./strling test all        # Re-run all binding test suites
+./strling check           # Run the established fast quality baseline
+./strling certify         # Run the current certification aggregate
 ./strling audit           # Run the strict final omega audit
 ```
+
+Use `./strling environment <binding>` to validate declared tool versions and
+append `--json` to a quality command for automation. The
+[toolchain and quality-command policy](docs/toolchains.md) defines capability
+states, aggregate scope, and transitional conditions.
 
 ## The Hint-Spec Requirement
 
@@ -39,4 +46,5 @@ Error fixtures are validated against `spec/schema/conformance-fixture.schema.jso
 - **[Developer Hub](docs/index.md)**: Architecture, philosophy, and contribution guides
 - **[Contribution Guidelines](docs/guidelines.md)**: Full development workflow, commit standards, and PR process
 - **[Test Suite Guide](tests/README.md)**: Testing strategy and directory structure
+- **[Toolchains and Quality Commands](docs/toolchains.md)**: Runtime policy, canonical commands, and structured results
 - **[Specification Hub](spec/README.md)**: Formal grammar and semantics

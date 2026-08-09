@@ -20,6 +20,7 @@ This is the **central landing page** for all STRling technical documentation. Us
 - **[Test Environment Setup](testing_setup.md)**: The "Golden Path" setup guide using `./strling`.
 - **[Testing Philosophy & Workflow](testing_workflow.md)**: Principles of Test Parity and contribution workflow.
 - **[Test Design Standard](testing_design.md)**: The 3-Test Standard and Golden Pattern Testing.
+- **[Toolchains and Quality Commands](toolchains.md)**: Deterministic runtime policy, root quality interface, capability states, and JSON results.
 - **[Releasing STRling](releasing.md)**: Release process and Omega Certification.
 - **[CI/CD Pipeline Setup](ci_cd_setup.md)**: GitHub Actions configuration and deployment.
 - **[Contribution & Documentation Guidelines](guidelines.md)**: Standards for code and documentation.
@@ -28,5 +29,5 @@ This is the **central landing page** for all STRling technical documentation. Us
 
 STRling provides a unified CLI and certification suite to streamline development.
 
-- **`./strling`**: The root CLI utility for setup, testing, and maintenance. Replaces manual `pip`/`npm` workflows.
+- **`./strling`**: The canonical setup, build, test, quality, environment-validation, and certification interface shared by developers and CI.
 - **`tooling/audit_omega.py`**: The unified Final Certification harness. Must return 100% Green before any release.

@@ -16,6 +16,9 @@ on:
             - "spec/**"
             - "tests/**"
             - "tooling/**"
+            - "strling"
+            - "toolchain.json"
+            - "docs/toolchains.md"
             - ".github/workflows/**"
     pull_request:
         paths:
@@ -23,6 +26,9 @@ on:
             - "spec/**"
             - "tests/**"
             - "tooling/**"
+            - "strling"
+            - "toolchain.json"
+            - "docs/toolchains.md"
             - ".github/workflows/**"
 
 jobs:
@@ -60,11 +66,31 @@ jobs:
               run: chmod +x strling
 
             # --- TOOLCHAIN INSTALLATION (for languages not pre-installed) ---
+            - name: 🔧 Install Node
+              if: matrix.language == 'typescript'
+              uses: actions/setup-node@v6
+              with:
+                  node-version: "22"
+
+            - name: 🔧 Install Go
+              if: matrix.language == 'go'
+              uses: actions/setup-go@v6
+              with:
+                  cache: false
+                  go-version: "1.22"
+
+            - name: 🔧 Install .NET
+              if: matrix.language == 'csharp' || matrix.language == 'fsharp'
+              uses: actions/setup-dotnet@v5
+              with:
+                  dotnet-version: "9.0.x"
+
             - name: 🔧 Install Ruby & Bundler
               if: matrix.language == 'ruby'
               uses: ruby/setup-ruby@v1
               with:
                   ruby-version: "3.2"
+                  bundler: "2.4.20"
 
             - name: 🔧 Install Lua & LuaRocks
               if: matrix.language == 'lua'
@@ -97,6 +123,9 @@ jobs:
               uses: dart-lang/setup-dart@v1
               with:
                   sdk: stable
+
+            - name: 🔎 Validate Toolchain
+              run: ./strling environment ${{ matrix.language }}
 
             # --- DYNAMIC CACHING ---
             - name: 📋 Resolve Cache Configuration
@@ -132,8 +161,7 @@ jobs:
               continue-on-error: false
 
             - name: 🔨 Compile (Build)
-              # Only runs if the language HAS a build step in toolchain.json
-              run: ./strling build ${{ matrix.language }} || echo "No build step required"
+              run: ./strling build ${{ matrix.language }}
 
             - name: 🧪 Execute Tests
               run: ./strling test ${{ matrix.language }}

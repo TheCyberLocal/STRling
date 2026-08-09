@@ -157,6 +157,13 @@ TypeScript baseline; `./strling check all` and `./strling certify all` are
 the explicit full-inventory forms. This keeps the default aggregates reliable
 while later hardening makes additional environments eligible.
 
+The GitHub Actions quality matrix uses the same `environment`, `build`, and
+`test` commands. Its Node, Go, .NET, and Bundler setup values are aligned with
+this policy, and a failed build is no longer converted into success. The
+TypeScript setup command uses `npm ci --no-audit --no-fund`: dependency
+lifecycle scripts and exact lock resolution remain enabled, while unrelated
+audit and funding network calls are excluded from setup.
+
 ## Structured result contract
 
 Every leaf operation produces an internal result with:
@@ -202,9 +209,6 @@ The following gaps are intentionally inventoried rather than broadly repaired:
   every TypeScript quality result; npm itself remains version-deferred.
 - the CI runner image and several setup actions or channels are floating,
   including Dart `stable`, Rust `stable`, and a Posit `latest` snapshot.
-- CI currently turns a failing root build command into success with an
-  unconditional fallback; canonical command integration must remove that
-  behavior.
 - release compilation invokes language tools directly. Those release-specific
   paths remain in place until replacement through the root interface is proven
   behaviorally equivalent.

@@ -47,9 +47,15 @@ Use the root CLI as the canonical setup and test entry point:
 
 # Re-run tests without reinstalling dependencies
 ./strling test all
+
+# Run the established quality and certification aggregates
+./strling check
+./strling certify
 ```
 
 The CLI will create the Python binding virtual environment automatically and will attempt best-effort prerequisite installation for missing language toolchains when the current package manager is supported.
+See [Toolchains and Quality Commands](docs/toolchains.md) for governed versions,
+component scoping, explicit incomplete capabilities, and JSON automation output.
 
 ## 📦 Distribution Channels
 
@@ -62,6 +68,7 @@ STRling supports multiple integration paths depending on the binding and ecosyst
 ## 📚 Documentation
 
 - [**Developer Documentation Hub**](docs/index.md): Architecture, testing standards, and contribution guidelines.
+- [**Toolchains and Quality Commands**](docs/toolchains.md): Canonical quality operations and deterministic environment policy.
 - [**Specification**](spec/README.md): The core grammar and semantic specifications.
 
 ## 🌐 Connect
