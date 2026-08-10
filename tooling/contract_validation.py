@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,7 @@ from jsonschema import Draft202012Validator, FormatChecker, RefResolver
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_ROOT = ROOT / "spec" / "contracts" / "1.0"
+PROFILE_ROOT = ROOT / "spec" / "targets" / "profiles"
 
 FAMILY_SCHEMAS = (
     ("source", "source.schema.json"),
@@ -22,6 +24,8 @@ FAMILY_SCHEMAS = (
     ("compile-request", "compile-request.schema.json"),
     ("compile-result", "compile-result.schema.json"),
     ("portability", "portability.schema.json"),
+    ("target-profile", "target-profile.schema.json"),
+    ("target-artifact", "target-artifact.schema.json"),
 )
 
 PHASE_ORDER = {
@@ -93,6 +97,20 @@ class ContractSuite:
             for name, schema in self.schemas.items()
         }
 
+        self.profile_documents = {
+            path: load_json(path) for path in sorted(PROFILE_ROOT.glob("*.json"))
+        }
+        self.profile_fingerprints: dict[tuple[str, str], str] = {}
+        for path, profile in self.profile_documents.items():
+            key = (profile["profile_id"], profile["profile_version"])
+            if key in self.profile_fingerprints:
+                raise ContractValidationError(
+                    f"{path}: duplicate target profile identity/revision {key}"
+                )
+            self.profile_fingerprints[key] = hashlib.sha256(
+                canonical_json(profile)
+            ).hexdigest()
+
     def validate(self, schema_name: str, value: Mapping[str, Any]) -> None:
         """Validate *value* against one schema and its cross-contract rules."""
         validator = self.validators[schema_name]
@@ -118,6 +136,10 @@ class ContractSuite:
             self._validate_compile_result(value)
         elif schema_name == "portability.schema.json":
             self._validate_portability(value)
+        elif schema_name == "target-profile.schema.json":
+            self._validate_target_profile(value)
+        elif schema_name == "target-artifact.schema.json":
+            self._validate_target_artifact(value)
 
     def validate_positive_examples(self) -> int:
         """Validate every authored positive source and Semantic IR example."""
@@ -128,6 +150,9 @@ class ContractSuite:
             ):
                 self.validate(schema_name, load_json(path))
                 count += 1
+        for profile in self.profile_documents.values():
+            self.validate("target-profile.schema.json", profile)
+            count += 1
         return count
 
     def validate_negative_examples(self) -> int:
@@ -286,6 +311,7 @@ class ContractSuite:
                 )
 
     def _validate_portability(self, portability: Mapping[str, Any]) -> None:
+        self._validate_profile_reference(portability["target_profile"])
         decisions = portability["decisions"]
         requirement_ids = [item["requirement_id"] for item in decisions]
         if requirement_ids != sorted(set(requirement_ids)):
@@ -307,6 +333,169 @@ class ContractSuite:
         if portability["status"] != expected:
             raise ContractValidationError(
                 "overall portability status must equal the least-supported decision"
+            )
+
+    def _validate_target_profile(self, profile: Mapping[str, Any]) -> None:
+        specification_versions = profile["compatible_specification_versions"]
+        if specification_versions != sorted(specification_versions):
+            raise ContractValidationError(
+                "compatible specification versions must be canonically sorted"
+            )
+
+        capabilities = profile["capabilities"]
+        capability_ids = [item["capability_id"] for item in capabilities]
+        if capability_ids != sorted(set(capability_ids)):
+            raise ContractValidationError(
+                "target capabilities must have unique sorted capability IDs"
+            )
+        option_ids = [item["option_id"] for item in profile["options"]]
+        if option_ids != sorted(set(option_ids)):
+            raise ContractValidationError(
+                "target profile options must have unique sorted option IDs"
+            )
+        option_id_set = set(option_ids)
+        for capability in capabilities:
+            constraints = capability["constraints"]
+            constraint_ids = [item["constraint_id"] for item in constraints]
+            if constraint_ids != sorted(set(constraint_ids)):
+                raise ContractValidationError(
+                    "capability constraints must have unique sorted constraint IDs"
+                )
+            for constraint in constraints:
+                if constraint["operator"] == "requires_option":
+                    value = constraint["value"]
+                    if not isinstance(value, str) or value not in option_id_set:
+                        raise ContractValidationError(
+                            "requires_option must name an option declared by the profile"
+                        )
+
+        evidence_ids = [item["evidence_id"] for item in profile["evidence"]]
+        if evidence_ids != sorted(set(evidence_ids)):
+            raise ContractValidationError(
+                "profile evidence must have unique sorted evidence IDs"
+            )
+
+    def _validate_profile_reference(
+        self, reference: Mapping[str, Any]
+    ) -> Mapping[str, Any]:
+        key = (reference["profile_id"], reference["profile_version"])
+        expected = self.profile_fingerprints.get(key)
+        if expected is None:
+            raise ContractValidationError(
+                f"target profile reference does not resolve: {key}"
+            )
+        if reference["sha256"] != expected:
+            raise ContractValidationError(
+                "target profile reference fingerprint does not match canonical JSON"
+            )
+        return next(
+            profile
+            for profile in self.profile_documents.values()
+            if (profile["profile_id"], profile["profile_version"]) == key
+        )
+
+    def _validate_target_artifact(self, artifact: Mapping[str, Any]) -> None:
+        profile = self._validate_profile_reference(artifact["target_profile"])
+        options = artifact["engine_options"]
+        option_keys = [(item["option_id"], item["stage"]) for item in options]
+        if option_keys != sorted(set(option_keys)):
+            raise ContractValidationError(
+                "artifact engine options must be unique and canonically sorted"
+            )
+        profile_options = {item["option_id"]: item for item in profile["options"]}
+        for option in options:
+            declared = profile_options.get(option["option_id"])
+            if declared is None:
+                raise ContractValidationError(
+                    f"artifact option is not declared by profile: {option['option_id']}"
+                )
+            if (option["stage"], option["value"]) != (
+                declared["stage"],
+                declared["value"],
+            ):
+                raise ContractValidationError(
+                    f"artifact option disagrees with profile: {option['option_id']}"
+                )
+        required_options = {
+            item["option_id"]
+            for item in profile["options"]
+            if item["selection"] == "required"
+        }
+        missing_options = required_options - {item["option_id"] for item in options}
+        if missing_options:
+            raise ContractValidationError(
+                "artifact omits required profile options: "
+                + ", ".join(sorted(missing_options))
+            )
+
+        requirements = artifact["requirements"]
+        requirement_ids = [item["requirement_id"] for item in requirements]
+        if requirement_ids != sorted(set(requirement_ids)):
+            raise ContractValidationError(
+                "artifact requirements must have unique sorted requirement IDs"
+            )
+        rank = {"native": 0, "equivalent_rewrite": 1}
+        expected_status = max(
+            (item["status"] for item in requirements),
+            key=rank.__getitem__,
+            default="native",
+        )
+        if artifact["portability_status"] != expected_status:
+            raise ContractValidationError(
+                "artifact status must equal its least-supported requirement"
+            )
+
+        generated_boundaries = self._utf8_boundaries(artifact["pattern"]["text"])
+        source_map = artifact["source_map"]
+        generated_keys = [
+            (item["generated_span"]["start"], item["generated_span"]["end"])
+            for item in source_map
+        ]
+        if generated_keys != sorted(set(generated_keys)):
+            raise ContractValidationError(
+                "source-map entries must have unique sorted generated spans"
+            )
+        for entry in source_map:
+            generated_span = entry["generated_span"]
+            if (
+                generated_span["start"] > generated_span["end"]
+                or generated_span["start"] not in generated_boundaries
+                or generated_span["end"] not in generated_boundaries
+            ):
+                raise ContractValidationError(
+                    "generated spans must use valid UTF-8 pattern boundaries"
+                )
+            node_ids = entry["node_ids"]
+            if node_ids != sorted(set(node_ids)):
+                raise ContractValidationError(
+                    "source-map node IDs must be unique and sorted"
+                )
+            source_spans = entry["source_spans"]
+            source_keys = [
+                (item["source_id"], item["start"], item["end"]) for item in source_spans
+            ]
+            if source_keys != sorted(set(source_keys)):
+                raise ContractValidationError(
+                    "source-map source spans must be unique and sorted"
+                )
+            for span in source_spans:
+                self._validate_span(span, None)
+
+        diagnostics = artifact["emission_diagnostics"]
+        if any(item["severity"] == "error" for item in diagnostics):
+            raise ContractValidationError(
+                "an emitted artifact cannot contain an error diagnostic"
+            )
+        if any(
+            item["phase"] not in {"target_lowering", "emission"} for item in diagnostics
+        ):
+            raise ContractValidationError(
+                "artifact diagnostics must belong to target lowering or emission"
+            )
+        keys = [_diagnostic_key(item) for item in diagnostics]
+        if keys != sorted(keys):
+            raise ContractValidationError(
+                "artifact diagnostics must use canonical result order"
             )
 
     def _validate_compile_request(self, request: Mapping[str, Any]) -> None:
@@ -332,6 +521,8 @@ class ContractSuite:
         outputs = request["requested_outputs"]
         if outputs != sorted(outputs, key=output_order.__getitem__):
             raise ContractValidationError("requested_outputs must use canonical order")
+        if "target_profile" in request:
+            self._validate_profile_reference(request["target_profile"])
 
     def _validate_compile_result(self, result: Mapping[str, Any]) -> None:
         diagnostics = result["diagnostics"]
@@ -382,8 +573,38 @@ class ContractSuite:
                 raise ContractValidationError(
                     "portability specification version must match result"
                 )
-        if "artifact" in result and has_error:
-            raise ContractValidationError("an error result cannot contain an artifact")
+        artifact = result.get("artifact")
+        if artifact is not None:
+            self._validate_target_artifact(artifact)
+            if has_error:
+                raise ContractValidationError(
+                    "an error result cannot contain an artifact"
+                )
+            if artifact["specification_version"] != specification_version:
+                raise ContractValidationError(
+                    "artifact specification version must match result"
+                )
+            if portability is not None:
+                if portability["status"] == "unsupported":
+                    raise ContractValidationError(
+                        "unsupported portability cannot produce an artifact"
+                    )
+                if artifact["target_profile"] != portability["target_profile"]:
+                    raise ContractValidationError(
+                        "artifact and portability profiles must match"
+                    )
+                if artifact["portability_status"] != portability["status"]:
+                    raise ContractValidationError(
+                        "artifact and portability statuses must match"
+                    )
+            result_diagnostics = {canonical_json(item) for item in diagnostics}
+            if any(
+                canonical_json(item) not in result_diagnostics
+                for item in artifact["emission_diagnostics"]
+            ):
+                raise ContractValidationError(
+                    "artifact emission diagnostics must also appear in result diagnostics"
+                )
 
     def validate_exchange(
         self,
@@ -509,6 +730,22 @@ class ContractSuite:
                         "portability refers to undeclared semantic node IDs: "
                         + ", ".join(sorted(missing))
                     )
+            artifact = result.get("artifact")
+            if artifact is not None:
+                referenced_node_ids = {
+                    node_id
+                    for entry in artifact["source_map"]
+                    for node_id in entry["node_ids"]
+                }
+                missing = referenced_node_ids - node_ids
+                if missing:
+                    raise ContractValidationError(
+                        "artifact source map refers to undeclared semantic node IDs: "
+                        + ", ".join(sorted(missing))
+                    )
+                for entry in artifact["source_map"]:
+                    for span in entry["source_spans"]:
+                        validate_attributed_span(span)
 
         portability = result.get("portability")
         if (
@@ -517,6 +754,14 @@ class ContractSuite:
         ):
             raise ContractValidationError(
                 "portability profile must equal the requested target profile"
+            )
+        artifact = result.get("artifact")
+        if (
+            artifact is not None
+            and request.get("target_profile") != artifact["target_profile"]
+        ):
+            raise ContractValidationError(
+                "artifact profile must equal the requested target profile"
             )
 
     def _validate_origin(

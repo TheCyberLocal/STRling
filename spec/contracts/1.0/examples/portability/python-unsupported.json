@@ -1,0 +1,19 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "target_profile": {
+        "profile_id": "profile:python-re/3.11",
+        "profile_version": "1.0.0",
+        "sha256": "75466587f6b7f27f1d697ac737eb87a2595f6d359fb7991a6d4865999ed28550"
+    },
+    "status": "unsupported",
+    "decisions": [
+        {
+            "requirement_id": "requirement:lookbehind.variable",
+            "capability_id": "assertions.lookbehind.variable_length",
+            "node_ids": ["node:target.lookbehind"],
+            "status": "unsupported",
+            "reason_code": "profile_capability_unavailable"
+        }
+    ]
+}

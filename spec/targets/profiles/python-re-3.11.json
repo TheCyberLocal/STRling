@@ -1,0 +1,73 @@
+{
+    "contract_version": "1.0.0",
+    "profile_id": "profile:python-re/3.11",
+    "profile_version": "1.0.0",
+    "engine": {
+        "id": "python_re",
+        "version": {
+            "scheme": "dotted_numeric",
+            "value": "3.11"
+        }
+    },
+    "runtime": {
+        "id": "cpython",
+        "version": {
+            "scheme": "dotted_numeric",
+            "value": "3.11"
+        }
+    },
+    "compatible_specification_versions": ["1.0-draft.1"],
+    "capability_scope": {
+        "kind": "enumerated",
+        "unlisted_capabilities": "unknown"
+    },
+    "capabilities": [
+        {
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "assertions.lookbehind.variable_length",
+            "availability": "unavailable",
+            "constraints": []
+        },
+        {
+            "capability_id": "character_properties.unicode",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "string_pattern",
+                    "operator": "requires_option",
+                    "value": "python.pattern_kind"
+                }
+            ]
+        },
+        {
+            "capability_id": "groups.atomic",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "repetition.possessive",
+            "availability": "available",
+            "constraints": []
+        }
+    ],
+    "options": [
+        {
+            "option_id": "python.pattern_kind",
+            "stage": "runtime",
+            "value": "str",
+            "selection": "required"
+        }
+    ],
+    "evidence": [
+        {
+            "evidence_id": "python_re",
+            "authority": "engine_documentation",
+            "url": "https://docs.python.org/3.11/library/re.html",
+            "locator": "Python 3.11 re syntax documents fixed-length lookbehind, atomic groups, and possessive quantifiers."
+        }
+    ]
+}

@@ -1,0 +1,75 @@
+{
+    "contract_version": "1.0.0",
+    "compiler": {
+        "id": "strling_kernel",
+        "version": "0.1.0"
+    },
+    "specification_version": "1.0-draft.1",
+    "outcome": "succeeded",
+    "semantic_result": {
+        "status": "complete",
+        "program": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "normalization": "canonical-v1",
+            "case_matching": "sensitive",
+            "root": {
+                "node_id": "node:target.literal",
+                "kind": "literal",
+                "text": "abc"
+            }
+        }
+    },
+    "portability": {
+        "contract_version": "1.0.0",
+        "specification_version": "1.0-draft.1",
+        "target_profile": {
+            "profile_id": "profile:pcre2/10.43",
+            "profile_version": "1.0.0",
+            "sha256": "6351e2238916cf012230f56c4134eb6e03fe82b51131b6cb1f79272d5b669c74"
+        },
+        "status": "native",
+        "decisions": []
+    },
+    "artifact": {
+        "contract_version": "1.0.0",
+        "specification_version": "1.0-draft.1",
+        "target_profile": {
+            "profile_id": "profile:pcre2/10.43",
+            "profile_version": "1.0.0",
+            "sha256": "6351e2238916cf012230f56c4134eb6e03fe82b51131b6cb1f79272d5b669c74"
+        },
+        "portability_status": "native",
+        "pattern": {
+            "syntax": "regex",
+            "encoding": "utf-8",
+            "text": "abc"
+        },
+        "engine_options": [
+            {
+                "option_id": "pcre2.ucp",
+                "stage": "compile",
+                "value": true
+            },
+            {
+                "option_id": "pcre2.utf",
+                "stage": "compile",
+                "value": true
+            }
+        ],
+        "requirements": [],
+        "source_map": [
+            {
+                "generated_span": {
+                    "coordinate_system": "utf8-bytes",
+                    "start": 0,
+                    "end": 3
+                },
+                "node_ids": ["node:target.literal"],
+                "source_spans": []
+            }
+        ],
+        "emission_diagnostics": []
+    },
+    "diagnostics": []
+}

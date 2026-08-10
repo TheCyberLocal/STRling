@@ -1,0 +1,163 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/contracts/1.0/target-artifact.schema.json",
+    "title": "STRling deterministic target artifact",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "contract_version",
+        "specification_version",
+        "target_profile",
+        "portability_status",
+        "pattern",
+        "engine_options",
+        "requirements",
+        "source_map",
+        "emission_diagnostics"
+    ],
+    "properties": {
+        "contract_version": {
+            "$ref": "source.schema.json#/$defs/ContractVersion"
+        },
+        "specification_version": {
+            "$ref": "source.schema.json#/$defs/SpecificationVersion"
+        },
+        "target_profile": {
+            "$ref": "portability.schema.json#/$defs/TargetProfileReference"
+        },
+        "portability_status": {
+            "enum": ["native", "equivalent_rewrite"]
+        },
+        "pattern": {
+            "$ref": "#/$defs/EmittedPattern"
+        },
+        "engine_options": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/EngineOption"
+            }
+        },
+        "requirements": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/ResolvedRequirement"
+            }
+        },
+        "source_map": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/SourceMapEntry"
+            }
+        },
+        "emission_diagnostics": {
+            "type": "array",
+            "items": {
+                "$ref": "diagnostic.schema.json"
+            }
+        }
+    },
+    "$defs": {
+        "Identifier": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "EmittedPattern": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["syntax", "encoding", "text"],
+            "properties": {
+                "syntax": {
+                    "const": "regex"
+                },
+                "encoding": {
+                    "const": "utf-8"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "EngineOption": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["option_id", "stage", "value"],
+            "properties": {
+                "option_id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "stage": {
+                    "enum": ["compile", "runtime"]
+                },
+                "value": {
+                    "type": ["string", "number", "boolean"]
+                }
+            }
+        },
+        "ResolvedRequirement": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "requirement_id",
+                "capability_id",
+                "status",
+                "resolution_code"
+            ],
+            "properties": {
+                "requirement_id": {
+                    "type": "string",
+                    "pattern": "^requirement:[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "capability_id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "status": {
+                    "enum": ["native", "equivalent_rewrite"]
+                },
+                "resolution_code": {
+                    "$ref": "#/$defs/Identifier"
+                }
+            }
+        },
+        "GeneratedSpan": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["coordinate_system", "start", "end"],
+            "properties": {
+                "coordinate_system": {
+                    "const": "utf8-bytes"
+                },
+                "start": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "end": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "SourceMapEntry": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["generated_span", "node_ids", "source_spans"],
+            "properties": {
+                "generated_span": {
+                    "$ref": "#/$defs/GeneratedSpan"
+                },
+                "node_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "source.schema.json#/$defs/NodeId"
+                    }
+                },
+                "source_spans": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "source.schema.json#/$defs/SourceSpan"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,66 @@
+{
+    "contract_version": "1.0.0",
+    "profile_id": "profile:ecmascript/2024",
+    "profile_version": "1.0.0",
+    "engine": {
+        "id": "ecmascript",
+        "version": {
+            "scheme": "edition",
+            "value": "2024"
+        }
+    },
+    "compatible_specification_versions": ["1.0-draft.1"],
+    "capability_scope": {
+        "kind": "enumerated",
+        "unlisted_capabilities": "unknown"
+    },
+    "capabilities": [
+        {
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "assertions.lookbehind.variable_length",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "character_properties.unicode",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "unicode_mode",
+                    "operator": "requires_option",
+                    "value": "ecmascript.unicode_mode"
+                }
+            ]
+        },
+        {
+            "capability_id": "groups.atomic",
+            "availability": "unavailable",
+            "constraints": []
+        },
+        {
+            "capability_id": "repetition.possessive",
+            "availability": "unavailable",
+            "constraints": []
+        }
+    ],
+    "options": [
+        {
+            "option_id": "ecmascript.unicode_mode",
+            "stage": "compile",
+            "value": "u",
+            "selection": "required"
+        }
+    ],
+    "evidence": [
+        {
+            "evidence_id": "ecmascript_regexp",
+            "authority": "normative_standard",
+            "url": "https://tc39.es/ecma262/2024/multipage/text-processing.html",
+            "locator": "ECMAScript 2024 clauses 22.2.1 and 22.2.2 define the RegExp grammar and matching semantics."
+        }
+    ]
+}

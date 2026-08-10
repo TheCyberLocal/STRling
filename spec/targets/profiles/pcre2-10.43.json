@@ -1,0 +1,96 @@
+{
+    "contract_version": "1.0.0",
+    "profile_id": "profile:pcre2/10.43",
+    "profile_version": "1.0.0",
+    "engine": {
+        "id": "pcre2",
+        "version": {
+            "scheme": "dotted_numeric",
+            "value": "10.43"
+        }
+    },
+    "compatible_specification_versions": ["1.0-draft.1"],
+    "capability_scope": {
+        "kind": "enumerated",
+        "unlisted_capabilities": "unknown"
+    },
+    "capabilities": [
+        {
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "assertions.lookbehind.variable_length",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "bounded_maximum",
+                    "operator": "at_most",
+                    "value": 255,
+                    "unit": "characters"
+                },
+                {
+                    "constraint_id": "matcher_api",
+                    "operator": "equals",
+                    "value": "pcre2_match"
+                }
+            ]
+        },
+        {
+            "capability_id": "character_properties.unicode",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "ucp_option",
+                    "operator": "requires_option",
+                    "value": "pcre2.ucp"
+                }
+            ]
+        },
+        {
+            "capability_id": "groups.atomic",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "repetition.possessive",
+            "availability": "available",
+            "constraints": []
+        }
+    ],
+    "options": [
+        {
+            "option_id": "pcre2.max_variable_lookbehind",
+            "stage": "compile",
+            "value": 255,
+            "selection": "profile_default"
+        },
+        {
+            "option_id": "pcre2.ucp",
+            "stage": "compile",
+            "value": true,
+            "selection": "required"
+        },
+        {
+            "option_id": "pcre2.utf",
+            "stage": "compile",
+            "value": true,
+            "selection": "required"
+        }
+    ],
+    "evidence": [
+        {
+            "evidence_id": "pcre2_pattern",
+            "authority": "engine_documentation",
+            "url": "https://pcre.org/current/doc/html/pcre2pattern.html",
+            "locator": "Lookbehind assertions: 10.43 adds bounded variable-length branches for pcre2_match."
+        },
+        {
+            "evidence_id": "pcre2_varlookbehind_limit",
+            "authority": "engine_documentation",
+            "url": "https://www.pcre.org/current/doc/html/pcre2_set_max_varlookbehind.html",
+            "locator": "The calling program selects the variable-lookbehind character limit; the ultimate default is 255."
+        }
+    ]
+}

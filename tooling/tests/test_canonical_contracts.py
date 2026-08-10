@@ -8,6 +8,7 @@ import unittest
 
 from tooling.contract_validation import (
     CONTRACT_ROOT,
+    PROFILE_ROOT,
     ContractValidationError,
     ContractSuite,
     canonical_json,
@@ -31,15 +32,17 @@ class CanonicalContractTests(unittest.TestCase):
                 "portability.schema.json",
                 "semantic-ir.schema.json",
                 "source.schema.json",
+                "target-artifact.schema.json",
+                "target-profile.schema.json",
             },
             set(self.suite.schemas),
         )
 
     def test_positive_examples_validate(self) -> None:
-        self.assertEqual(14, self.suite.validate_positive_examples())
+        self.assertEqual(24, self.suite.validate_positive_examples())
 
     def test_controlled_negative_examples_are_rejected(self) -> None:
-        self.assertEqual(17, self.suite.validate_negative_examples())
+        self.assertEqual(24, self.suite.validate_negative_examples())
 
     def test_all_semantic_node_categories_are_exercised(self) -> None:
         example = load_json(
@@ -132,6 +135,8 @@ class CanonicalContractTests(unittest.TestCase):
             "analysis",
             "compile-request",
             "compile-result",
+            "portability",
+            "target-artifact",
         ):
             for path in sorted((CONTRACT_ROOT / "examples" / family).glob("*.json")):
                 value = load_json(path)
@@ -141,6 +146,14 @@ class CanonicalContractTests(unittest.TestCase):
                     canonical_json(json.loads(first.decode("utf-8"))),
                     path,
                 )
+        for path in sorted(PROFILE_ROOT.glob("*.json")):
+            value = load_json(path)
+            first = canonical_json(value)
+            self.assertEqual(
+                first,
+                canonical_json(json.loads(first.decode("utf-8"))),
+                path,
+            )
 
     def test_diagnostic_attribution_must_resolve_to_exchange_source(self) -> None:
         request = load_json(
@@ -165,6 +178,62 @@ class CanonicalContractTests(unittest.TestCase):
         malformed["analysis"]["node_facts"][0]["node_id"] = "node:undeclared"
         with self.assertRaises(ContractValidationError):
             self.suite.validate_exchange(request, malformed)
+
+    def test_same_engine_versions_have_distinct_capabilities(self) -> None:
+        earlier = load_json(PROFILE_ROOT / "pcre2-10.42.json")
+        modern = load_json(PROFILE_ROOT / "pcre2-10.43.json")
+        earlier_capabilities = {
+            item["capability_id"]: item for item in earlier["capabilities"]
+        }
+        modern_capabilities = {
+            item["capability_id"]: item for item in modern["capabilities"]
+        }
+        capability = "assertions.lookbehind.variable_length"
+        self.assertEqual(
+            "unavailable", earlier_capabilities[capability]["availability"]
+        )
+        self.assertEqual("constrained", modern_capabilities[capability]["availability"])
+        self.assertNotEqual(
+            self.suite.profile_fingerprints[
+                (earlier["profile_id"], earlier["profile_version"])
+            ],
+            self.suite.profile_fingerprints[
+                (modern["profile_id"], modern["profile_version"])
+            ],
+        )
+
+    def test_target_artifact_keeps_options_out_of_pattern_text(self) -> None:
+        artifact = load_json(
+            CONTRACT_ROOT / "examples" / "target-artifact" / "pcre2-with-options.json"
+        )
+        self.suite.validate("target-artifact.schema.json", artifact)
+        self.assertNotIn("(*UTF)", artifact["pattern"]["text"])
+        self.assertNotIn("(*UCP)", artifact["pattern"]["text"])
+        self.assertEqual(
+            ["pcre2.ucp", "pcre2.utf"],
+            [item["option_id"] for item in artifact["engine_options"]],
+        )
+
+    def test_target_artifact_compile_exchange(self) -> None:
+        request = load_json(
+            CONTRACT_ROOT / "examples" / "compile-request" / "target-artifact.json"
+        )
+        result = load_json(
+            CONTRACT_ROOT / "examples" / "compile-result" / "target-artifact.json"
+        )
+        self.suite.validate_exchange(request, result)
+        self.assertEqual(
+            request["target_profile"], result["artifact"]["target_profile"]
+        )
+
+    def test_profile_reference_fingerprint_is_verified(self) -> None:
+        artifact = load_json(
+            CONTRACT_ROOT / "examples" / "target-artifact" / "pcre2-with-options.json"
+        )
+        malformed = copy.deepcopy(artifact)
+        malformed["target_profile"]["sha256"] = "0" * 64
+        with self.assertRaises(ContractValidationError):
+            self.suite.validate("target-artifact.schema.json", malformed)
 
 
 if __name__ == "__main__":

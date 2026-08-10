@@ -1,0 +1,27 @@
+{
+    "contract_version": "1.0.0",
+    "profile_id": "profile:invalid/version",
+    "profile_version": "1.0.0",
+    "engine": {
+        "id": "invalid",
+        "version": {
+            "scheme": "dotted_numeric",
+            "value": "10.x"
+        }
+    },
+    "compatible_specification_versions": ["1.0-draft.1"],
+    "capability_scope": {
+        "kind": "enumerated",
+        "unlisted_capabilities": "unknown"
+    },
+    "capabilities": [],
+    "options": [],
+    "evidence": [
+        {
+            "evidence_id": "invalid",
+            "authority": "engine_documentation",
+            "url": "https://example.invalid/profile",
+            "locator": "Controlled invalid fixture."
+        }
+    ]
+}

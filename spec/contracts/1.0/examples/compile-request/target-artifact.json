@@ -1,0 +1,30 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "input": {
+        "kind": "semantic",
+        "program": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "normalization": "canonical-v1",
+            "case_matching": "sensitive",
+            "root": {
+                "node_id": "node:target.literal",
+                "kind": "literal",
+                "text": "abc"
+            }
+        }
+    },
+    "target_profile": {
+        "profile_id": "profile:pcre2/10.43",
+        "profile_version": "1.0.0",
+        "sha256": "6351e2238916cf012230f56c4134eb6e03fe82b51131b6cb1f79272d5b669c74"
+    },
+    "requested_outputs": ["semantic", "portability", "target_artifact"],
+    "compiler_options": {
+        "partial_semantics": "forbid",
+        "diagnostic_policy": {
+            "minimum_severity": "hint"
+        }
+    }
+}

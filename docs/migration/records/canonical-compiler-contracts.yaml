@@ -143,8 +143,24 @@ checkpoints:
             result: passed
             details: Seven Draft 2020-12 schemas, fourteen positive objects, and seventeen controlled invalid objects passed their expected outcomes; thirteen tests covered success, diagnostic-only failure, partial recovery, unsupported frontend, deterministic diagnostic ordering, source attribution, node reference integrity, and canonical JSON round trips.
     - name: Target profile portability and artifact contracts
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Version-aware target profile model
+            command: spec/contracts/1.0/target-profile.schema.json; spec/targets/profiles
+            result: passed
+            details: Profiles independently identify immutable profile revision, engine and optional runtime versions, compatible specification versions, enumerated capability scope, typed availability constraints, selected compile/runtime options, and primary evidence; unlisted capabilities remain unknown.
+          - check: Authored PCRE2 ECMAScript and Python profiles
+            command: validate pcre2-10.42.json, pcre2-10.43.json, ecmascript-2024.json, and python-re-3.11.json
+            result: passed
+            details: The same PCRE2 engine has distinct 10.42 and 10.43 profiles for fixed versus bounded variable-length lookbehind; ECMAScript 2024 and Python re 3.11 prove edition and runtime-version representations without claiming a complete capability matrix.
+          - check: Portability and deterministic TargetArtifact
+            command: spec/contracts/1.0/portability.schema.json; spec/contracts/1.0/target-artifact.schema.json; spec/contracts/1.0/TARGETS.md
+            result: passed
+            details: Status is exactly native, equivalent_rewrite, or unsupported; unsupported plans cannot emit. Artifacts separate UTF-8 pattern text, options, immutable profile reference, resolved requirements, mappings, and emission diagnostics with deterministic ordering.
+          - check: Profile fingerprint constraints and artifact validation
+            command: python3 tooling/contract_validation.py; python3 -m unittest tooling.tests.test_canonical_contracts
+            result: passed
+            details: Nine Draft 2020-12 schemas, twenty-four positive objects, and twenty-four controlled invalid objects passed expected outcomes; seventeen tests covered engine-version distinctions, canonical profile fingerprints, required option separation, source maps, target compile exchange, malformed versions, unavailable/constrained capabilities, and deterministic round trips.
     - name: Specification-authored conformance contract
       status: planned
       evidence: []
@@ -159,3 +175,5 @@ commits:
       subject: "docs(spec): define canonical compiler contract invariants"
     - sha: 436ceaafaa4e33cf5a86aae2557fae2e3146c44a
       subject: "feat(spec): define canonical semantic representation"
+    - sha: 01e54ebc927f4c2a31476e2479b53cac797f00dd
+      subject: "feat(spec): define compiler protocol and diagnostic contracts"

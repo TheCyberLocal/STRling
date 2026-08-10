@@ -1,0 +1,309 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/contracts/1.0/target-profile.schema.json",
+    "title": "STRling version-aware target profile",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "contract_version",
+        "profile_id",
+        "profile_version",
+        "engine",
+        "compatible_specification_versions",
+        "capability_scope",
+        "capabilities",
+        "options",
+        "evidence"
+    ],
+    "properties": {
+        "contract_version": {
+            "$ref": "source.schema.json#/$defs/ContractVersion"
+        },
+        "profile_id": {
+            "$ref": "portability.schema.json#/$defs/TargetProfileReference/properties/profile_id"
+        },
+        "profile_version": {
+            "$ref": "portability.schema.json#/$defs/TargetProfileReference/properties/profile_version"
+        },
+        "engine": {
+            "$ref": "#/$defs/EngineIdentity"
+        },
+        "runtime": {
+            "$ref": "#/$defs/RuntimeIdentity"
+        },
+        "compatible_specification_versions": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "$ref": "source.schema.json#/$defs/SpecificationVersion"
+            }
+        },
+        "capability_scope": {
+            "$ref": "#/$defs/CapabilityScope"
+        },
+        "capabilities": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/Capability"
+            }
+        },
+        "options": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/ProfileOption"
+            }
+        },
+        "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/Evidence"
+            }
+        }
+    },
+    "$defs": {
+        "Identifier": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "Version": {
+            "oneOf": [
+                {
+                    "$ref": "#/$defs/SemanticVersion"
+                },
+                {
+                    "$ref": "#/$defs/DottedNumericVersion"
+                },
+                {
+                    "$ref": "#/$defs/EditionVersion"
+                },
+                {
+                    "$ref": "#/$defs/OpaqueVersion"
+                }
+            ]
+        },
+        "SemanticVersion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["scheme", "value"],
+            "properties": {
+                "scheme": {
+                    "const": "semver"
+                },
+                "value": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+                }
+            }
+        },
+        "DottedNumericVersion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["scheme", "value"],
+            "properties": {
+                "scheme": {
+                    "const": "dotted_numeric"
+                },
+                "value": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)(?:\\.(0|[1-9][0-9]*)){1,3}$"
+                }
+            }
+        },
+        "EditionVersion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["scheme", "value"],
+            "properties": {
+                "scheme": {
+                    "const": "edition"
+                },
+                "value": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]{3}$"
+                }
+            }
+        },
+        "OpaqueVersion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["scheme", "value"],
+            "properties": {
+                "scheme": {
+                    "const": "opaque"
+                },
+                "value": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                }
+            }
+        },
+        "EngineIdentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "version"],
+            "properties": {
+                "id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "version": {
+                    "$ref": "#/$defs/Version"
+                }
+            }
+        },
+        "RuntimeIdentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "version"],
+            "properties": {
+                "id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "version": {
+                    "$ref": "#/$defs/Version"
+                }
+            }
+        },
+        "CapabilityScope": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "unlisted_capabilities"],
+            "properties": {
+                "kind": {
+                    "const": "enumerated"
+                },
+                "unlisted_capabilities": {
+                    "const": "unknown"
+                }
+            }
+        },
+        "Capability": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["capability_id", "availability", "constraints"],
+            "properties": {
+                "capability_id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "availability": {
+                    "enum": ["available", "constrained", "unavailable"]
+                },
+                "constraints": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/CapabilityConstraint"
+                    }
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "availability": {
+                                "const": "constrained"
+                            }
+                        },
+                        "required": ["availability"]
+                    },
+                    "then": {
+                        "properties": {
+                            "constraints": {
+                                "minItems": 1
+                            }
+                        }
+                    },
+                    "else": {
+                        "properties": {
+                            "constraints": {
+                                "maxItems": 0
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CapabilityConstraint": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["constraint_id", "operator", "value"],
+            "properties": {
+                "constraint_id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "operator": {
+                    "enum": [
+                        "equals",
+                        "at_most",
+                        "at_least",
+                        "one_of",
+                        "requires_option"
+                    ]
+                },
+                "value": {
+                    "$ref": "#/$defs/ConstraintValue"
+                },
+                "unit": {
+                    "$ref": "#/$defs/Identifier"
+                }
+            }
+        },
+        "ConstraintValue": {
+            "oneOf": [
+                {
+                    "type": ["string", "number", "boolean"]
+                },
+                {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "type": ["string", "number", "boolean"]
+                    }
+                }
+            ]
+        },
+        "ProfileOption": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["option_id", "stage", "value", "selection"],
+            "properties": {
+                "option_id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "stage": {
+                    "enum": ["compile", "runtime"]
+                },
+                "value": {
+                    "type": ["string", "number", "boolean"]
+                },
+                "selection": {
+                    "enum": ["required", "profile_default"]
+                }
+            }
+        },
+        "Evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["evidence_id", "authority", "url", "locator"],
+            "properties": {
+                "evidence_id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "authority": {
+                    "enum": ["normative_standard", "engine_documentation"]
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https://"
+                },
+                "locator": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        }
+    }
+}

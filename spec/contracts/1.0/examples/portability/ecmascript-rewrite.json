@@ -1,0 +1,19 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "target_profile": {
+        "profile_id": "profile:ecmascript/2024",
+        "profile_version": "1.0.0",
+        "sha256": "180513005b078fcc34875b7cd5cf3369daa8e8bdacf184baea0f48b170238604"
+    },
+    "status": "equivalent_rewrite",
+    "decisions": [
+        {
+            "requirement_id": "requirement:atomic.literal",
+            "capability_id": "groups.atomic",
+            "node_ids": ["node:target.atomic"],
+            "status": "equivalent_rewrite",
+            "reason_code": "literal_atomicity_redundant"
+        }
+    ]
+}
