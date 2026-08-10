@@ -29,6 +29,7 @@ scope:
         - core/tests/structural_analysis.rs
         - core/tests/structural_length_progress.rs
         - core/tests/structural_overlap.rs
+        - core/tests/structural_analysis_properties.rs
         - docs/migration/structural-analysis.md
         - governance/change-control.json
     permitted_generated_changes: []
@@ -141,8 +142,22 @@ checkpoints:
             result: passed
             details: More than 4096 relationships returns RelationshipLimitExceeded; more than 4096 term comparisons returns ComparisonLimitExceeded uncertainty. Formatting, warnings-denied Clippy, and all 103 kernel tests passed.
     - name: Property and soundness certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Fixed-seed generated certification
+            command: cargo test --manifest-path core/Cargo.toml --test structural_analysis_properties
+            result: passed
+            details: Four reproducible seeds (0x5354525543545552, 0x9e3779b97f4a7c15, 0xd1b54a32d192ed03, 0x94d049bb133111eb) generated 384 valid normalized programs covering all 12 Semantic IR kinds with zero unexplained failures.
+          - check: Structural soundness properties
+            result: passed
+            details: Repeated analysis was equivalent; every reachable NodeId had one record; every fixed length n matched foundational minimum n and finite maximum n; every always-consuming repetition operand had positive minimum consumption; every Disjoint relationship passed an independently implemented exact scalar/interval proof model; Semantic IR and foundational facts remained unchanged.
+          - check: Controlled invalid-state certification
+            result: passed
+            details: Sixty-four malformed Semantic IR cases, an exact-program fact-store mismatch, and a specification-version mismatch returned deterministic structured errors without panics.
+          - check: Warnings-denied kernel regression
+            command: cargo fmt --manifest-path core/Cargo.toml --check && cargo clippy --manifest-path core/Cargo.toml --all-targets --all-features -- -D warnings && RUSTFLAGS=-Dwarnings cargo test --manifest-path core/Cargo.toml --all-targets
+            result: passed
+            details: Rust formatting, warnings-denied Clippy, the generated property suite, controlled obvious overlap cases, normalization and foundational-analysis regression suites, and all 105 kernel tests passed.
     - name: Pipeline and hardgate integration
       status: planned
       evidence: []
@@ -156,3 +171,5 @@ commits:
       subject: "feat(core): analyze leading semantic consumption"
     - sha: 3e4a45a41372ecc159e474a612693580d4014971
       subject: "feat(core): classify semantic length and progress"
+    - sha: e4293183fb87f1ef96804e1a9968c9804d8c4a62
+      subject: "feat(core): analyze structural consumption overlap"
