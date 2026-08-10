@@ -1,0 +1,109 @@
+record_version: 2.0.0
+title: Canonical semantic normalization
+status: in_progress
+objective: Implement deterministic, identity-preserving, source-faithful semantic normalization as the first executable transformation in the canonical Rust kernel without migrating frontends, analyses, targets, emitters, bindings, or tooling consumers.
+scope:
+    diff:
+        base: 350a1ab7bb76b4cd4546f4a8f129199eec4c31a9
+        head: working-tree
+    allowed_paths:
+        - core/**
+        - docs/migration/**
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_core_contracts.py
+    forbidden_paths:
+        - bindings/**
+        - package.json
+        - package-lock.json
+        - spec/**
+        - strling
+        - strling.ps1
+        - tests/spec/**
+    expected_files:
+        - docs/migration/semantic-normalization.md
+        - docs/migration/records/semantic-normalization.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - The canonical kernel gains its first pure executable compiler stage behind a dedicated module boundary.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Kernel normalization quality
+      command: cd core && cargo fmt --check && cargo clippy --all-targets -- -D warnings && RUSTFLAGS=-Dwarnings cargo check --all-targets && cargo test --all-targets
+      expected_result: The pure normalization API builds without warnings and all focused, generated, contract, and kernel tests pass.
+    - name: Canonical contract and architecture certification
+      command: python3 tooling/contract_validation.py && python3 tooling/core_contract_validation.py && python3 tooling/governance.py && python3 -m unittest tooling.tests.test_core_contracts tooling.tests.test_governance tooling.tests.test_quality
+      expected_result: Contract drift, target-specific normalization dependencies, prohibited kernel dependencies, and task-scope violations are rejected by controlled hardgate tests.
+    - name: Repository quality and certification
+      command: ./strling check all --json && ./strling certify all --json
+      expected_result: Formatting, hygiene, lint, typecheck, generation, contracts, governance, baseline validation, the TypeScript baseline, and every enforced repository component pass from committed state.
+    - name: Patch and clean-state integrity
+      command: git diff --check && git status --short --branch
+      expected_result: The final committed repository has no whitespace errors or uncommitted files.
+checkpoints:
+    - name: Normalization contract and rule inventory
+      status: passed
+      evidence:
+          - check: Clean committed starting state
+            command: git status --short --branch; git rev-parse HEAD; ./strling check core --json
+            result: passed
+            details: Work began from a clean architecture/v4 tree at 350a1ab7bb76b4cd4546f4a8f129199eec4c31a9, and the governed kernel baseline passed.
+          - check: Normative rule inventory
+            result: passed
+            details: Certified contracts, canonical fixtures and Rust types, and legacy TypeScript/Python evidence were separated; transformations, preserved structures, invalid states, identity, provenance, failure, and stage boundaries are recorded in docs/migration/semantic-normalization.md.
+          - check: Existing repository hardgates
+            command: PATH=/tmp/strling-pinned-tools:/root/.local/share/swiftly/bin:/snap/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin BUNDLER_VERSION=2.4.20 ./strling check all --json
+            result: passed
+            details: Canonical contracts, kernel contracts, governance, formatting, hygiene, lint, typecheck, generation, baseline validation, architecture fitness, all configured binding tests, and the TypeScript baseline passed with exit code zero.
+    - name: Recursive structural normalization
+      status: planned
+      evidence: []
+    - name: Identity and provenance preservation
+      status: planned
+      evidence: []
+    - name: Idempotence, determinism, and property certification
+      status: planned
+      evidence: []
+    - name: Legacy compatibility evidence comparison
+      status: planned
+      evidence: []
+    - name: Compiler-stage and hardgate integration
+      status: planned
+      evidence: []
+    - name: Completion and pipeline readiness
+      status: planned
+      evidence: []
+commits: []
