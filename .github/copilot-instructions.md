@@ -1,80 +1,64 @@
 # STRling AI Orchestration Matrix
 
-STRling is a polyglot regex DSL compiler with 17 language bindings. To maintain the hermetic context and architectural integrity of the STRling engine, you MUST load the specific instruction sets based on the active objective:
+STRling is a portable regex-intent compiler with multiple host-language bindings
+and target-engine outputs. Load the bounded instruction set that matches the
+task:
 
--   **For API Design & Fluent Interfaces:** Load `instructions/philosophy.instructions.md`
--   **For AST, Parsing, or Core Logic:** Load `instructions/architecture.instructions.md`
--   **For Validation & Parity Checks:** Load `instructions/testing.instructions.md`
--   **For Documentation, Inline Comments, & Pedagogy:** Load `instructions/documentation.instructions.md`
--   **For PRs & Error Handling:** Load `instructions/workflow.instructions.md`
+-   API and Simply design: `instructions/philosophy.instructions.md`
+-   compiler/specification architecture: `instructions/architecture.instructions.md`
+-   tests and compatibility evidence: `instructions/testing.instructions.md`
+-   documentation and pedagogy: `instructions/documentation.instructions.md`
+-   contributor workflow and diagnostics: `instructions/workflow.instructions.md`
 
-Do not execute implementation tasks without ingesting the appropriate bounded context.
+Load every applicable file when work crosses those boundaries.
 
----
+## Authority before implementation
 
-## Routing Rules
+Use this order when guidance conflicts:
 
-The following rules determine which instruction file(s) to load. When a task spans multiple domains, load all applicable files.
+1. ratified versioned specification;
+2. expressly normative versioned contracts;
+3. delegated specification-authored conformance cases;
+4. ratified architecture decisions;
+5. reference implementation;
+6. implementation tests and compatibility evidence; and
+7. explanatory documentation.
 
-### Philosophy (`instructions/philosophy.instructions.md`)
+There is no ratified Semantic STRling specification version yet.
+`spec/drafts/1.0/` is non-normative. Current TypeScript behavior and
+`tests/spec/*.json` are transitional compatibility evidence, not semantic
+authority.
 
-Load this context when the task involves:
+Do not begin parser, grammar, AST/IR, backend, adapter, or Simply redesign from
+the product-architecture documents alone. Those changes require contained,
+contract-first work.
 
--   Designing, extending, or renaming public API methods
--   Working on the Simply API or any fluent builder interface
--   Reviewing user-facing naming conventions
--   Evaluating whether a feature exposes raw regex to users
+## Routing notes
 
-### Architecture (`instructions/architecture.instructions.md`)
+Load architecture instructions for parser/compiler/emitter changes, canonical
+contract work, target profiles, grammar/semantics classification, or host/target
+boundary questions.
 
-Load this context when the task involves:
+Load testing instructions for conformance, fixture regeneration, parity
+failures, diagnostics compatibility, or certification.
 
--   Modifying the parser, compiler, or any emitter
--   Changing AST or IR node structures
--   Adding a new language binding or target engine
--   Updating the grammar (`dsl.ebnf`) or semantics specification
--   Working with version management or the TypeScript reference implementation
+Load philosophy instructions when evaluating semantic authoring, Simply naming,
+raw-regex import, or target-output exposure.
 
-### Testing (`instructions/testing.instructions.md`)
+## Quick reference
 
-Load this context when the task involves:
+| Resource                           | Path                             |
+| ---------------------------------- | -------------------------------- |
+| Product definition                 | `governance/product.md`          |
+| Architecture invariants            | `governance/architecture.md`     |
+| Authority hierarchy                | `governance/authority.md`        |
+| Canonical vocabulary               | `governance/terminology.md`      |
+| Specification hub                  | `spec/README.md`                 |
+| Specification versioning           | `spec/VERSIONING.md`             |
+| 1.0 draft scope                    | `spec/drafts/1.0/README.md`      |
+| Compatibility fixtures             | `tests/spec/*.json`              |
+| Root quality entry point           | `./strling`                      |
+| Operational package version source | `bindings/python/pyproject.toml` |
 
--   Writing or debugging conformance, unit, semantic, or E2E tests
--   Regenerating or validating golden master fixtures
--   Investigating cross-binding parity failures
--   Running the Omega Audit or interpreting its output
-
-### Documentation (`instructions/documentation.instructions.md`)
-
-Load this context when the task involves:
-
--   Writing or updating files under `docs/`
--   Adding or standardizing docstrings, JSDoc, XML docs, or rustdoc comments
--   Adding module-level pedagogy headers or inline architectural comments
--   Evaluating whether code changes require synchronous documentation updates
-
-### Workflow (`instructions/workflow.instructions.md`)
-
-Load this context when the task involves:
-
--   Preparing a Pull Request or responding to review feedback
--   Writing or improving error messages and parser hints
--   Creating contributor-facing Issues or task scaffolding
--   Modifying CLI tooling output or audit feedback messages
-
----
-
-## Quick Reference
-
-| Resource                 | Path                             |
-| ------------------------ | -------------------------------- |
-| Reference Implementation | `bindings/typescript/`           |
-| Golden Master Fixtures   | `tests/spec/*.json`              |
-| Grammar                  | `spec/grammar/dsl.ebnf`          |
-| Semantics                | `spec/grammar/semantics.md`      |
-| Documentation Hub        | `docs/index.md`                  |
-| Omega Audit              | `tooling/audit_omega.py`         |
-| Version SSOT             | `bindings/python/pyproject.toml` |
-| Version Sync             | `tooling/sync_versions.py`       |
-
-> All instruction file paths above are relative to `.github/`.
+The operational package-version source has no semantic authority. Binding count
+describes host-ecosystem coverage, not target-engine coverage.

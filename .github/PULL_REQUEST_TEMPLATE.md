@@ -1,53 +1,69 @@
-## 🚀 Description
+## Description
 
-## 📋 Type of Change
+## Change classification
 
--   [ ] 🐛 **Bug Fix** (Non-breaking change which fixes an issue)
--   [ ] ✨ **New Feature** (Non-breaking change which adds functionality)
--   [ ] 💥 **Breaking Change** (Fix or feature that would cause existing functionality to not work as expected)
--   [ ] 📝 **Documentation** (Update to README, API docs, or comments)
--   [ ] 🔧 **Chore/Tooling** (Build scripts, CI configuration, etc.)
+-   [ ] Semantic behavior
+-   [ ] Public API
+-   [ ] Schema/contract
+-   [ ] Diagnostics
+-   [ ] Target behavior/profile
+-   [ ] Architecture
+-   [ ] Generated output
+-   [ ] Documentation only
+-   [ ] Internal implementation
 
----
+## Authority and architecture
 
-## ⚠️ Architecture Safety Check
+-   [ ] I identified the controlling ratified specification, versioned contract,
+        architecture decision, or explicit compatibility decision.
+-   [ ] I did not treat a host binding, reference implementation, generated
+        fixture, snapshot, or historical output as semantic authority.
+-   [ ] I distinguished host-language adapters from target engines/profiles.
+-   [ ] New authoring behavior converges on the canonical semantic path.
+-   [ ] I did not introduce a new shadow parser/compiler/planner/emitter outside
+        an authorized transitional scope.
 
-**STRling enforces a strict "Single Source of Truth" (SSOT) architecture. Please confirm you have NOT violated these rules:**
+If the work is a draft semantic proposal, identify its draft version and confirm
+that it makes no implementation-conformance claim.
 
-### 1. Logic & Specs (The "Golden Master" Rule)
+## Generated and compatibility evidence
 
--   [ ] **I have NOT manually edited any JSON files in `tests/spec/`.**
-    -   _Rationale:_ These files are generated artifacts. Manual changes will be overwritten.
--   [ ] **If I modified core logic (grammar/parsing):**
-    -   [ ] I updated the source in `bindings/typescript`.
-    -   [ ] I ran `npm run build:specs` in `bindings/typescript` to regenerate the JSON specs.
-    -   [ ] I verified the new specs appear correctly in `tests/spec/`.
+-   [ ] I did not hand-edit registered generated outputs.
+-   [ ] Any fixture regeneration follows a controlling specification, contract,
+        or declared compatibility decision; generation itself is not approval.
+-   [ ] I reviewed preserved public surfaces and compatibility evidence affected
+        by the change.
+-   [ ] Known non-contractual defects were not promoted into requirements.
 
-### 2. Versioning (The "Python" Rule)
+## Operational package versions
 
--   [ ] **I have NOT manually bumped version numbers in `package.json`, `Cargo.toml`, etc.**
-    -   _Rationale:_ The versioning SSOT is `bindings/python/pyproject.toml`. The CI pipeline handles propagation.
--   [ ] **If this is a release preparation:**
-    -   [ ] I only updated `bindings/python/pyproject.toml`.
-    -   [ ] I ran `python3 tooling/sync_versions.py --write` to update the ecosystem.
+`bindings/python/pyproject.toml` is the current operational package-version
+source. It does not version the semantic specification.
 
----
+-   [ ] If preparing a package release, I changed only the authorized source and
+        ran `python3 tooling/sync_versions.py --write`.
+-   [ ] I did not infer specification or target-profile compatibility from
+        package version numbers.
 
-## 🧪 Testing & Verification
+## Verification
 
--   [ ] **Core Logic:** TypeScript (`npm test`)
--   [ ] **Target Binding(s):**
-    -   [ ] Python (`pytest`)
-    -   [ ] Rust (`cargo test`)
-    -   [ ] Go (`go test ./...`)
-    -   [ ] Java/Kotlin/C#/Others: **\*\*\*\***\_**\*\*\*\***
--   [ ] **Conformance:** I ran the conformance suite for the modified language(s) and confirmed ~594+ tests passed.
+-   [ ] `./strling format --check all`
+-   [ ] `./strling hygiene`
+-   [ ] `BUNDLER_VERSION=2.4.20 ./strling lint all`
+-   [ ] `./strling typecheck all`
+-   [ ] `./strling generate --check`
+-   [ ] `./strling contracts --check`
+-   [ ] `./strling governance`
+-   [ ] `BUNDLER_VERSION=2.4.20 ./strling check all`
+-   [ ] `BUNDLER_VERSION=2.4.20 ./strling certify all`
+-   [ ] Focused tests for every affected binding, target, contract, or tool
+-   [ ] Documentation links, structured files, and `git diff --check`
 
-## ✅ Checklist
+## Checklist
 
--   [ ] My code follows the style guidelines of this project.
--   [ ] I have performed a self-review of my own code.
--   [ ] I have commented my code, particularly in hard-to-understand areas.
--   [ ] I have made corresponding changes to the documentation (`docs/`).
--   [ ] My changes generate no new warnings.
--   [ ] New and existing unit tests pass locally with my changes.
+-   [ ] The change stays within its declared task scope.
+-   [ ] New and existing required tests pass without new warnings.
+-   [ ] Documentation describes permanent capability rather than a temporary
+        campaign.
+-   [ ] No runtime semantic change is claimed unless explicitly declared and
+        versioned.

@@ -1,33 +1,44 @@
-# STRling Developer Documentation Hub
+# STRling Developer Documentation
 
-[← Back to Project Overview](../README.md)
+## Start with authority
 
-This is the **central landing page** for all STRling technical documentation. Use this hub to navigate to architecture, testing standards, contribution guidelines, and formal specifications.
+-   [`Product Architecture`](../governance/product.md) — authoritative product
+    identity, authoring hierarchy, and host/target distinction.
+-   [`Engineering Authority`](../governance/authority.md) — precedence among
+    specifications, contracts, implementations, evidence, and documentation.
+-   [`Architecture Invariants`](../governance/architecture.md) — permanent
+    compiler, adapter, target, and tooling responsibilities.
+-   [`Canonical Terminology`](../governance/terminology.md) — stable vocabulary
+    for subsequent contract design.
+-   [`Specification Hub`](../spec/README.md) and
+    [`Versioning Policy`](../spec/VERSIONING.md) — current authority state,
+    draft/ratified rules, and material classification.
 
----
+## Architecture and strategy
 
-## Documentation Index
+-   [`Architecture Guide`](architecture.md) — contributor-facing explanation of
+    the ratified model.
+-   [`Project Architecture & Strategy`](project_architecture_strategy.md) —
+    contract-first delivery, reference compiler, adapter migration, tooling, and
+    target expansion.
+-   [`Formal Specification Links`](spec_links.md) — indexed current material
+    with authority labels.
+-   [`Migration Evidence`](migration/README.md) — frozen baseline, preservation,
+    donor, contradiction, and readiness records.
 
-### Core Concepts
+## Development
 
--   **[Architectural Principles](architecture.md)**: The `parse → compile → emit` pipeline and Iron Law of Emitters.
--   **[Project Architecture & Strategy](project_architecture_strategy.md)**: The durable binding SSOT rules, diagnostics flow, and release strategy model.
--   **[Formal Language Specification (Links)](spec_links.md)**: Index of grammar, semantics, and schemas.
+-   [`Contribution Guidelines`](guidelines.md)
+-   [`Toolchains and Quality Commands`](toolchains.md)
+-   [`Testing Philosophy & Workflow`](testing_workflow.md)
+-   [`Test Design Standard`](testing_design.md)
+-   [`Testing Setup`](testing_setup.md)
+-   [`CI/CD Setup`](ci_cd_setup.md)
+-   [`Releasing`](releasing.md)
 
-### Guides & Tutorials
+## Current-state reminder
 
--   **[Your First Contribution](tutorial/first_contribution.md)**: The "Zip Code" tutorial for new contributors.
--   **[Test Environment Setup](testing_setup.md)**: The "Golden Path" setup guide using `./strling`.
--   **[Testing Philosophy & Workflow](testing_workflow.md)**: Principles of Test Parity and contribution workflow.
--   **[Test Design Standard](testing_design.md)**: The 3-Test Standard and Golden Pattern Testing.
--   **[Toolchains and Quality Commands](toolchains.md)**: Deterministic runtime policy, root quality interface, capability states, and JSON results.
--   **[Releasing STRling](releasing.md)**: Release process and Omega Certification.
--   **[CI/CD Pipeline Setup](ci_cd_setup.md)**: GitHub Actions configuration and deployment.
--   **[Contribution & Documentation Guidelines](guidelines.md)**: Standards for code and documentation.
-
-### Tooling & Utilities
-
-STRling provides a unified CLI and certification suite to streamline development.
-
--   **`./strling`**: The canonical setup, build, test, quality, environment-validation, and certification interface shared by developers and CI.
--   **`tooling/audit_omega.py`**: The unified Final Certification harness. Must return 100% Green before any release.
+The regex-shaped source grammar, per-binding compilers, TypeScript-derived
+fixtures, shallow AST/IR, target limitations, and binding-coupled tooling remain
+transitional. Documentation about those paths describes compatibility workflow,
+not the permanent source of semantic authority.

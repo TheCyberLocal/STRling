@@ -1,60 +1,57 @@
-# STRling - {Language} Binding
+# STRling — {Language} Binding
 
-> Part of the [STRling Project](https://github.com/strling-lang/strling/blob/main/README.md)
+> Part of the [STRling Project](https://github.com/strling-lang/strling)
 
-<table>
-  <tr>
-    <td style="padding: 10px;"><img src="https://github.com/strling-lang/.github/blob/main/strling_silver_bell.png" alt="STRling Logo" width="100" /></td>
-    <td style="padding: 10px;">
-      <strong>The Universal Regular Expression Compiler.</strong><br><br>
-      STRling is a next-generation production-grade syntax designed to make Regex readable, maintainable, and robust. It abstracts the cryptic nature of raw regex strings into a clean, object-oriented, and strictly typed interface that compiles to standard PCRE2 (or native) patterns.
-    </td>
-  </tr>
-</table>
+STRling is a portable regex-intent compiler. This host-language binding exposes
+the shared compiler capability through idiomatic {Language} APIs; it is not a
+separate semantic authority or a regex target by itself.
 
-## 💿 Installation
+## Installation
 
 {Installation_Command}
 
-## 📦 Usage
-
-Here is how to match a US Phone number (e.g., `555-0199`) using STRling in **{Language}**:
+## Usage
 
 {Usage_Snippet}
 
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+State which authoring surface the example uses:
 
-## 🚀 Why STRling?
+-   **Simply** for idiomatic semantic construction;
+-   **Semantic STRling** only after its source version is ratified; or
+-   **regex frontend** for current regex-compatible import/source notation.
 
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
+If showing emitted regex, label the target engine/profile and present it as a
+TargetArtifact result rather than the source abstraction.
 
--   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
--   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
--   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
+## Architecture
 
-## 🏗️ Architecture
+```text
+Semantic STRling / Simply / regex frontend
+    -> canonical semantic compiler
+    -> analysis and portability planning
+    -> target lowering and emitter
+    -> versioned TargetArtifact
+```
 
-STRling follows a strict compiler pipeline architecture to ensure consistency across all ecosystems:
+This binding should ultimately be a thin adapter that owns {Language} types,
+conversion, packaging, interoperability, and host-specific error mapping without
+reimplementing STRling semantics.
 
-1.  **Parse**: `DSL -> AST` (Abstract Syntax Tree)
-    -   Converts the human-readable STRling syntax into a structured tree.
-2.  **Compile**: `AST -> IR` (Intermediate Representation)
-    -   Transforms the AST into a target-agnostic intermediate representation, optimizing structures like literal sequences.
-3.  **Emit**: `IR -> Target Regex`
-    -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
+Existing binding-local parsers, compilers, IRs, diagnostics, and emitters are
+transitional compatibility implementations until contained migration work
+replaces them.
 
-## 📚 Documentation
+## Host versus target
 
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
--   [**Project Hub**](https://github.com/strling-lang/strling/blob/main/README.md): The main STRling repository.
--   [**Specification**](https://github.com/strling-lang/strling/tree/main/spec): The core grammar and semantic specifications.
+{Language} is the host ecosystem. PCRE2, ECMAScript, Python `re`, and other
+regex runtimes are target engines. Do not imply that every emitted target is
+natively executable by {Language}, and do not use host-binding count as target
+count.
 
-## 🌐 Connect
+## Documentation
 
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/strling-lang)
-
-## 💖 Support
-
-If you find STRling useful, consider starring the repository and contributing!
+-   Binding API reference: `{API_Reference_Path}`
+-   [`Project Hub`](https://github.com/strling-lang/strling)
+-   [`Product Architecture`](https://github.com/strling-lang/strling/blob/main/governance/product.md)
+-   [`Specification Hub`](https://github.com/strling-lang/strling/tree/main/spec)
+-   [`Canonical Terminology`](https://github.com/strling-lang/strling/blob/main/governance/terminology.md)

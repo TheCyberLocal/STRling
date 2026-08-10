@@ -2,85 +2,89 @@
 
 [← Back to Developer Hub](index.md)
 
-This document consolidates the durable architecture and operating principles that used to live in the ecosystem status report. It keeps the long-lived design rules in permanent documentation and leaves time-sensitive audit notes out of the main docs.
+## Durable direction
 
----
+STRling develops as one semantic compiler platform with multiple authoring
+surfaces, host adapters, target profiles, and tooling consumers. The ratified
+[`product architecture`](../governance/product.md) and
+[`architecture invariants`](../governance/architecture.md) control this
+strategy.
 
-## Architecture Snapshot
+Work proceeds contract first:
 
-STRling is organized as a compiler pipeline:
+1. ratify semantic specifications or versioned contracts;
+2. author independent conformance evidence;
+3. implement the canonical compiler capability;
+4. verify behavior and compatibility;
+5. expose it through thin host adapters and shared tooling; and
+6. certify target-specific artifacts against versioned profiles.
 
-1. **Parse** the STRling DSL into an Abstract Syntax Tree (AST).
-2. **Compile** the AST into a target-agnostic Intermediate Representation (IR).
-3. **Emit** a target regex string from the IR.
+## Sources of authority
 
-That pipeline is the core project contract. New features should fit into it rather than bypass it.
+The ratified specification defines semantic behavior. Versioned formal contracts
+and delegated specification-authored conformance cases define their declared
+scopes. The reference implementation demonstrates conformance and cannot
+silently extend those sources.
 
-### Source of Truth Rules
+TypeScript is not the semantic source of truth. The current TypeScript
+implementation and its generated fixtures remain transitional compatibility
+evidence.
 
--   The **TypeScript binding** is the logic reference implementation.
--   The **Python binding** (`bindings/python/pyproject.toml`) is the version source of truth.
--   Spec changes should keep grammar, semantics, schemas, and generated fixtures aligned.
+`bindings/python/pyproject.toml` remains an **operational package-version
+source** for existing release synchronization. That role grants no semantic or
+specification authority.
 
-### Binding Responsibilities
+## Target compiler model
 
--   **Specification** lives in `spec/`.
--   **Core compiler logic** lives in each binding's `src/core/` area.
--   **Emitters** are pure transformations from IR to target regex output.
--   **Bindings** provide language-specific APIs and convenience wrappers.
--   **Tests** verify syntax, semantics, conformance, and end-to-end behavior.
+```text
+Semantic STRling / Simply / regex import
+    -> canonical semantic representation
+    -> analysis and portability planning
+    -> target lowering and emission
+    -> versioned target artifact
+```
 
-### Emitter Contract
+The target architecture contains one canonical implementation of semantic
+meaning. Bindings become adapters that retain idiomatic public APIs,
+interoperability, packaging, and error conversion without owning shadow
+compilers.
 
-Emitters must be deterministic and side-effect free. The same IR and flags should always produce the same output, and shared escaping or validation logic should live in common helpers instead of being duplicated in each emitter.
+Target engines are independent of host languages. New target support requires a
+version-sensitive target profile, deliberate planning/lowering behavior, and an
+emitter—not a new host binding.
 
-### Diagnostics Architecture
+## Transitional operating model
 
-Real-time diagnostics follow a binding-agnostic flow:
+Until the canonical compiler and contracts exist, the repository preserves
+current public APIs and differential behavior:
 
-**Editor -> LSP Server -> CLI Server -> Parser**
+-   duplicated binding compilers remain active but transitional;
+-   TypeScript-generated JSON remains non-normative compatibility evidence;
+-   current AST, IR, target schemas, and hint parity remain migration inputs;
+-   binding-coupled editor intelligence remains available; and
+-   existing target limitations remain recorded rather than normalized into
+    permanent product requirements.
 
-The parser remains authoritative. The CLI server normalizes parser output into a stable diagnostic contract, and the LSP server handles editor protocol concerns.
+Contained migration work may use the existing TypeScript fixture producer and
+cross-binding parity tests, but generation never authorizes behavior.
 
-### Simply API
+## Delivery stages
 
-The Simply API is the fluent, programmatic layer over the same IR model. It exists so developers can build patterns through chainable method calls instead of raw DSL strings, while still compiling through the same architecture.
+1. **Canonical semantic contracts:** define source, Semantic IR, diagnostics,
+   compiler request/result, target profile, and target artifact without importing
+   accidental choices from one binding.
+2. **Reference compiler:** implement ratified contracts in one canonical
+   compiler, potentially Rust, while keeping the specification authoritative.
+3. **Adapter migration:** move bindings to the stable boundary one at a time and
+   retire duplicated semantics only after behavior-preservation certification.
+4. **Tooling convergence:** route CLI, LSP, editors, and documentation tooling
+   through the same interface.
+5. **Target expansion:** add engine support through profiles, planning, lowering,
+   emitters, and conformance evidence.
 
----
+## Release readiness
 
-## Strategy System Design
-
-STRling's operating model is intentionally staged. The project is expected to move through these durable phases whenever a major capability is being introduced or stabilized:
-
-1. **Functional Remediation** - make the core feature work in the reference implementation first.
-2. **Pipeline Parity** - mirror that behavior across the other bindings.
-3. **Test Hardening** - add the unit, semantic, E2E, and conformance coverage required to keep the feature stable.
-4. **Documentation Standardization** - document the feature in junior-friendly, permanent docs so the behavior stays understandable.
-
-This model is useful because it keeps the work sequenced. The project does not treat implementation as complete until the behavior, tests, and documentation all line up.
-
-### Release Readiness Rule
-
-Certification should be treated as a gate, not a summary. The Omega Audit and related test suites are the mechanism that prove the system is ready for release.
-
-### Canary Strategy
-
-For registry or release validation, the preferred pattern is a sandbox canary:
-
-1. Publish the candidate version to a controlled test registry or sandbox.
-2. Install the exact published version in a separate validation environment.
-3. Compile a fixed corpus and compare emitted IR or regex snapshots against expected fixtures.
-4. Promote the release only if the sandbox run matches expectations.
-
-This keeps final release decisions based on observable behavior instead of on assumptions about the build.
-
----
-
-## Related Documentation
-
--   [Architectural Principles](architecture.md)
--   [Testing Philosophy & Contribution Workflow](testing_workflow.md)
--   [Test Design Standard](testing_design.md)
--   [Releasing STRling](releasing.md)
--   [CI/CD Pipeline Setup Guide](ci_cd_setup.md)
--   [Contribution & Documentation Guidelines](guidelines.md)
+The canonical `./strling check all` and `./strling certify all` aggregates are
+gates. Package publication must also verify installability and smoke behavior
+from the actual distribution channel. Compatibility evidence may block a
+migration decision, but it does not outrank the controlling specification.

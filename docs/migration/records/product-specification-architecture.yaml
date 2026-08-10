@@ -30,6 +30,26 @@ scope:
         - strling
         - strling.ps1
     expected_files:
+        - .github/PULL_REQUEST_TEMPLATE.md
+        - .github/copilot-instructions.md
+        - .github/instructions/architecture.instructions.md
+        - .github/instructions/philosophy.instructions.md
+        - .github/instructions/testing.instructions.md
+        - .github/instructions/workflow.instructions.md
+        - CONTRIBUTING.md
+        - README.md
+        - docs/architecture.md
+        - docs/ci_cd_setup.md
+        - docs/guidelines.md
+        - docs/index.md
+        - docs/project_architecture_strategy.md
+        - docs/spec_links.md
+        - docs/templates/binding_readme_template.md
+        - docs/testing_design.md
+        - docs/testing_workflow.md
+        - docs/tutorial/first_contribution.md
+        - governance/ENGINEERING_CONSTITUTION.md
+        - governance/README.md
         - docs/migration/product-specification-contradictions.md
         - docs/migration/records/product-specification-architecture.yaml
         - governance/authority.md
@@ -153,8 +173,28 @@ checkpoints:
             result: passed
             details: Formatting with pinned Ruff 0.15.21, hygiene, unchanged generated artifacts and public contracts, declarations, all current fitness rules, focused links, and patch integrity passed.
     - name: Reconcile authoritative documentation
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Product and architecture entry points
+            command: README.md; docs/architecture.md; docs/project_architecture_strategy.md; docs/index.md; docs/spec_links.md
+            result: passed
+            details: Root and primary guides now define one portable regex-intent compiler, distinguish all authoring surfaces and host/target roles, route authority correctly, and describe current duplicated implementations as transitions.
+          - check: Contributor and incorporated instructions
+            command: CONTRIBUTING.md; docs/guidelines.md; .github instruction set; pull-request template
+            result: passed
+            details: TypeScript-first semantic authority, generated Golden Master authority, independent binding compiler ownership, and parser-authoritative tooling guidance were replaced with specification-first contracts, compatibility evidence, canonical compiler boundaries, and current hardgates.
+          - check: Testing, tutorial, CI, and template reconciliation
+            command: docs/testing_design.md; docs/testing_workflow.md; docs/tutorial/first_contribution.md; docs/ci_cd_setup.md; docs/templates/binding_readme_template.md
+            result: passed
+            details: Current fixture generation remains documented as transitional compatibility workflow; binding templates identify adapters and targets separately; package-version SSOT language is explicitly operational only.
+          - check: Contradiction searches and deferred debt
+            command: targeted high-authority and repository-wide semantic-authority searches
+            result: passed
+            details: No high-authority current guidance positively designates TypeScript, a host binding, or generated fixtures as semantic authority; sixteen binding READMEs, implementation comments, the hint audit label, and historical/test-guide terminology remain classified lower-authority transition debt.
+          - check: Documentation checkpoint verification
+            command: ./strling format --check repository; ./strling hygiene; ./strling generate --check; ./strling contracts --check; ./strling governance; 29 changed-file Markdown link checks; JSON/YAML parsing; git diff --check
+            result: passed
+            details: Fail-fast formatting with pinned Ruff 0.15.21, hygiene, unchanged generation and contracts, task declarations, current architecture fitness, links, structured parsing, contradiction absence, and patch integrity passed.
     - name: Architecture consistency certification
       status: planned
       evidence: []
@@ -166,3 +206,5 @@ commits:
       subject: "docs(architecture): define STRling product identity"
     - sha: 6f593cc13021f65fcbc59c1b216f6a3d806884dd
       subject: "docs(spec): establish specification authority and versioning"
+    - sha: c89ac81d94dc98593f68072dfe791b30a16a6e6b
+      subject: "docs(architecture): define compiler and authoring responsibilities"

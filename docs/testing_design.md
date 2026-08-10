@@ -244,7 +244,7 @@ test("phone number pattern end-to-end", () => {
 
 ### 4. Shared Compatibility Fixture Suite
 
-**Purpose**: Ensure all bindings implement the exact same parsing and compilation logic as the reference implementation (JavaScript).
+**Purpose**: Preserve and compare current cross-binding parsing and compilation behavior while the canonical compiler is not yet available.
 
 **Characteristics:**
 

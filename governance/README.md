@@ -8,10 +8,17 @@ work; they do not define STRling language syntax or semantics.
 
 -   [`ENGINEERING_CONSTITUTION.md`](ENGINEERING_CONSTITUTION.md) contains the
     permanent normative engineering rules.
+-   [`product.md`](product.md) defines STRling's ratified product identity,
+    authoring hierarchy, and host-language/target-engine distinction.
 -   [`authority.md`](authority.md) defines precedence when project artifacts
     disagree.
 -   [`architecture.md`](architecture.md) defines target architectural invariants
     and distinguishes them from the transitional repository state.
+-   [`terminology.md`](terminology.md) defines stable vocabulary without
+    prejudging canonical data-contract fields.
+-   [`../spec/README.md`](../spec/README.md) classifies current specification
+    material, while [`../spec/VERSIONING.md`](../spec/VERSIONING.md) defines
+    independent semantic specification versioning.
 
 ## Machine-readable contracts
 

@@ -1,80 +1,104 @@
 # STRling
 
-<table>
-  <tr>
-    <td style="padding: 10px;"><img src="https://raw.githubusercontent.com/strling-lang/.github/refs/heads/main/strling_silver_bell.png" alt="STRling Logo" /></td>
-    <td style="padding: 10px;">
-      <strong>The Universal Regular Expression Compiler.</strong><br><br>
-      STRling is a next-generation production-grade syntax designed to make Regex readable, maintainable, and robust. It abstracts the cryptic nature of raw regex strings into a clean, object-oriented, and strictly typed interface that compiles to standard PCRE2 (or native) patterns.
-    </td>
-  </tr>
-</table>
+> **STRling is a portable regex-intent compiler: developers express what a
+> pattern means once, and STRling produces verified, explainable,
+> target-specific regular-expression artifacts while surfacing portability and
+> safety constraints before runtime.**
 
-## 🚀 Why STRling?
+STRling is a compiler platform built around semantic pattern intent. It is not a
+set of seventeen independent regex libraries, cosmetic syntax for raw regex, a
+PCRE2 wrapper, a TypeScript-centric builder, or an editor-only tool.
 
-Regular Expressions are powerful but notorious for being "write-only" code. STRling solves this by treating Regex as **Software**, not a string.
+## Why STRling
 
--   **🧩 Composability:** Regex strings are hard to merge. STRling lets you build reusable components (e.g., `ip_address`, `email`) and safely compose them into larger patterns without breaking operator precedence or capturing groups.
--   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
--   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
--   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
+-   **Semantic authoring:** Describe matching intent through Semantic STRling or
+    idiomatic Simply APIs.
+-   **Portability before runtime:** Compare intent with a versioned target
+    profile and report native support, safe rewrites, or unsupported behavior.
+-   **Safety and explanation:** Produce structured diagnostics and explanations
+    before an engine executes a pattern.
+-   **Target-aware output:** Lower one semantic program into deterministic
+    artifacts for selected regex-engine semantics.
+-   **Host-language reach:** Invoke the same compiler capability from multiple
+    programming ecosystems without reimplementing meaning.
 
-## 🏗️ Architecture
+## Authoring surfaces
 
-STRling follows a strict compiler pipeline architecture to ensure consistency across all ecosystems:
+**Semantic STRling** is the future flagship textual language. Its syntax will be
+designed against the canonical semantic model.
 
-1.  **Parse**: `DSL -> AST` (Abstract Syntax Tree)
-    -   Converts the human-readable STRling syntax into a structured tree.
-2.  **Compile**: `AST -> IR` (Intermediate Representation)
-    -   Transforms the AST into a target-agnostic intermediate representation, optimizing structures like literal sequences.
-3.  **Emit**: `IR -> Target Regex`
-    -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
+**Simply** is the first-class family of fluent, idiomatic semantic APIs. Simply
+does not define a separate compiler or emit target regex as its semantic
+implementation.
 
-## ⚙️ Quick Start
+The existing regex-shaped `.strl` notation is the **regex frontend**: a
+low-level compatibility and import source dialect. It remains useful and
+preserved, but it is not the final Semantic STRling DSL.
 
-Use the root CLI as the canonical setup and test entry point:
+## Conceptual architecture
 
-```bash
-# Discover available bindings and current tool availability
-./strling list
-
-# Bootstrap every binding end-to-end
-./strling bootstrap all
-
-# Or target a single binding
-./strling bootstrap python
-
-# Re-run tests without reinstalling dependencies
-./strling test all
-
-# Run the established quality and certification aggregates
-./strling check
-./strling certify
+```text
+Semantic STRling ─┐
+Simply APIs ──────┼─> canonical semantic representation
+Regex frontend ──┘       -> analysis and portability planning
+                           -> target lowering
+                           -> target-specific emitter
+                           -> versioned TargetArtifact
 ```
 
-The CLI will create the Python binding virtual environment automatically and will attempt best-effort prerequisite installation for missing language toolchains when the current package manager is supported.
-See [Toolchains and Quality Commands](docs/toolchains.md) for governed versions,
-component scoping, explicit incomplete capabilities, and JSON automation output.
+Host-language adapters and CLI/LSP/editor tooling expose or consume this same
+canonical compiler capability. They do not own independent STRling semantics.
 
-## 📦 Distribution Channels
+The exact source model, Semantic IR, diagnostic, compiler protocol,
+target-profile, and TargetArtifact contracts are the next architecture task;
+they are not defined by this overview.
 
-STRling supports multiple integration paths depending on the binding and ecosystem:
+## Host languages are not target engines
 
--   **Registry-Distributed:** Python on PyPI and TypeScript on npm.
--   **Git/Module-Delivered:** Go via `go get github.com/strling-lang/strling/bindings/go`.
--   **Source-Integrated / Manual Build:** C++, C, Rust, and Swift for teams integrating directly from repository source or binding-local build tooling.
+A host language answers “From which programming ecosystem can I invoke
+STRling?” Examples include Rust, TypeScript, Python, Java, and C#.
 
-## 📚 Documentation
+A target engine answers “For which regex/runtime semantics should STRling
+compile?” Examples include PCRE2, ECMAScript, and Python `re`.
 
--   [**Developer Documentation Hub**](docs/index.md): Architecture, testing standards, and contribution guidelines.
--   [**Toolchains and Quality Commands**](docs/toolchains.md): Canonical quality operations and deterministic environment policy.
--   [**Specification**](spec/README.md): The core grammar and semantic specifications.
+Binding count is therefore not target count. Target support is ultimately
+version/profile-sensitive, not a timeless boolean.
 
-## 🌐 Connect
+## Current transition
 
-[![GitHub](https://img.shields.io/badge/GitHub-black?logo=github&logoColor=white)](https://github.com/strling-lang)
+The repository still contains per-binding parsers, compilers, IRs, diagnostics,
+and emitters. TypeScript-derived fixtures and existing binding outputs remain
+valuable compatibility evidence. They are not semantic authority, and they will
+be replaced or migrated only through contained behavior-preserving work.
 
-## 💖 Support
+No parser, grammar, compiler, emitter, or runtime semantics changed when this
+product architecture was ratified.
 
-If you find STRling useful, consider starring the repository and contributing!
+## Developer quick start
+
+Use the root CLI as the canonical setup and verification entry point:
+
+```bash
+./strling list
+./strling bootstrap <binding>
+./strling test <binding>
+./strling check all
+./strling certify all
+```
+
+See [`Toolchains and Quality Commands`](docs/toolchains.md) for governed
+versions, capability states, and structured output.
+
+## Authority and documentation
+
+-   [`Product architecture`](governance/product.md)
+-   [`Architecture invariants`](governance/architecture.md)
+-   [`Engineering authority`](governance/authority.md)
+-   [`Specification hub`](spec/README.md)
+-   [`Specification versioning`](spec/VERSIONING.md)
+-   [`Canonical terminology`](governance/terminology.md)
+-   [`Developer documentation`](docs/index.md)
+
+The current versioned schemas keep their declared contract scopes. The
+[`STRling Semantic Specification 1.0 draft`](spec/drafts/1.0/README.md) is
+unratified and makes no current implementation-conformance claim.

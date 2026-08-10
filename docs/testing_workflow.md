@@ -38,8 +38,10 @@ This ensures:
 ## Transitional Test-Parity Workflow
 
 The TypeScript binding is the current fixture producer and compatibility
-reference. It is subordinate to the normative grammar, semantics, and versioned
-contracts under `spec/`.
+reference. It is subordinate to the engineering authority hierarchy and every
+expressly normative versioned contract. The current regex-frontend grammar and
+semantics remain transitional evidence; no ratified Semantic STRling version
+exists yet.
 
 ### What This Means
 

@@ -2,90 +2,75 @@
 
 [← Back to Developer Hub](index.md)
 
-This document outlines the guidelines for contributing to STRling and writing documentation.
+## Authority
 
----
+Contributors follow the
+[`Engineering Constitution`](../governance/ENGINEERING_CONSTITUTION.md) and
+[`authority hierarchy`](../governance/authority.md). A ratified specification
+or expressly normative versioned contract defines behavior. Reference
+implementations, tests, generated fixtures, and tutorials do not.
 
-## Contribution Guidelines
+TypeScript is transitional compatibility evidence, not the logic source of
+truth. `bindings/python/pyproject.toml` is the current operational source for
+package-version synchronization only.
 
-### The Golden Master Rule
+## Change workflow
 
--   **Logic SSOT (Single Source of Truth):** The **TypeScript** binding (`bindings/typescript`) is the reference implementation for all logic. If a behavior is undefined, the TypeScript implementation's behavior is the standard.
--   **Versioning SSOT:** The **Python** binding (`bindings/python/pyproject.toml`) is the source of truth for the project version. Do not manually bump versions in other manifests; the release process propagates the version from Python to all other bindings.
+1. Declare task scope and every affected semantic, public API, schema,
+   diagnostic, target, architecture, and generated surface.
+2. Identify the controlling specification, contract, architecture decision, or
+   explicit compatibility decision.
+3. Add independent conformance or regression evidence.
+4. Implement without creating a new semantic authority.
+5. Run focused tests and canonical hardgates.
+6. Record preserved behavior, transitions, and readiness.
 
-### The "Zero Friction" Promise
+Generated files are changed through their registered producers. A generated
+diff is evidence to review, not approval.
 
--   **Universal Interface:** All development tasks must be executable via the `./strling` CLI wrapper.
--   **No Manual Setup:** A developer should be able to clone the repo and run `./strling test <lang>` without manually installing language-specific toolchains (where reasonable) or configuring complex environments. The `setup` command should handle dependencies.
+## Verification
 
-### Commit Standards
+Before review, run the operations required by the active task, including:
 
-We enforce **Conventional Commits** to automate changelogs and versioning.
-
--   `feat:` A new feature
--   `fix:` A bug fix
--   `docs:` Documentation only changes
--   `chore:` Changes to the build process or auxiliary tools and libraries such as documentation generation
--   `refactor:` A code change that neither fixes a bug nor adds a feature
--   `test:` Adding missing tests or correcting existing tests
-
-### PR Process
-
--   **Mandatory Certification:** All Pull Requests **must** pass the **Omega Audit** (`audit_omega.py`) returning `🟢 CERTIFIED` status. This is a **non-negotiable requirement** for merge approval.
--   **What the Audit Validates:**
-    -   Directory structure and file naming conventions
-    -   Test conformance pass rates across all bindings
-    -   Zero test skips (no skipped or ignored tests)
-    -   Zero warnings in build/test output
-    -   Semantic verification (duplicate capture groups, invalid ranges)
--   **Status Check:** Look for the `🟢 CERTIFIED` badge in the audit output for **all 17 bindings** before requesting a review.
--   **Regression Policy:** If the audit shows any binding with a non-certified status, the PR must be revised until 100% certification is achieved.
-
-## Documentation Guidelines
-
-### Topology: Hub-and-Spoke
-
--   **Structure:** `docs/index.md` is the **Hub**. All other documentation files are **Spokes**.
--   **Rule:** Spokes should link back to the Hub, but should generally avoid lateral links to other spokes unless necessary for context. This prevents "spaghetti documentation" and ensures a clear hierarchy.
-
-### Standard Header
-
-Every documentation file must start with the following navigation link to ensure users can always find their way home:
-
-```markdown
-[← Back to Developer Hub](index.md)
+```bash
+./strling format --check all
+./strling hygiene
+BUNDLER_VERSION=2.4.20 ./strling lint all
+./strling typecheck all
+./strling generate --check
+./strling contracts --check
+./strling governance
+BUNDLER_VERSION=2.4.20 ./strling check all
+BUNDLER_VERSION=2.4.20 ./strling certify all
 ```
 
-### Voice: "Junior First"
+The aggregates cover host bindings and repository hardgates. Host-binding count
+does not represent regex-target support.
 
--   **Audience:** Write for a junior developer who is smart but unfamiliar with compiler theory.
--   **Jargon:** Define technical terms (AST, IR, Emitter, Tokenizer) upon their first use in a document.
--   **Tone:** Professional, encouraging, and instructional. Explain _why_ a decision was made, not just _what_ it is.
+## Commit standards
 
-## Task Architecture Standards
+Use meaningful Conventional Commit subjects such as `feat:`, `fix:`, `docs:`,
+`refactor:`, `test:`, or `chore:`. Permanent artifacts and commit subjects
+describe the capability, not a temporary campaign.
 
-### The "Fill-in-the-Blank" Imperative
+## Documentation
 
-To maximize accessibility for junior contributors, STRling enforces a **Cognitive Offloading** strategy for task definition. We do not ask contributors to "architect" a solution; we ask them to "implement" a logic unit within a pre-defined architecture.
+`docs/index.md` is the contributor hub. Product, authority, architecture,
+terminology, and specification entry documents should be linked rather than
+reinterpreted.
 
-**The Task Architect's Responsibility:**
-When creating a task (Issue) for a contributor, you must not simply describe the feature. You must provide the **Scaffolding**:
+Write for a capable developer unfamiliar with compiler theory. Define terms on
+first use, distinguish source dialects from target output, distinguish host
+adapters from target engines, and label historical/transitional material.
 
-1.  **Target Vector:** The exact file path(s) where changes must occur.
-2.  **The Container:** The class or function signature (e.g., `public uuid(): Pattern`).
-3.  **The Logic Gap:** A specific comment block indicating where the contributor's logic goes.
-4.  **The Verification:** A pre-written test case they can copy-paste to verify their work.
+Documentation explains normative sources; it cannot create behavior. Correct a
+conflict or mark it historical/transitional.
 
-**Rule:** _A task is only ready for a junior developer if the question is "How do I write this Regex?" and not "Where does this file go?"_
+## Task scaffolding and tooling feedback
 
-### Tooling Feedback Standards (The Signpost Pattern)
+A contained task provides exact scope, controlling authority, expected files,
+verification, and compatibility evidence without predetermining unratified
+design.
 
-STRling tooling must adhere to **Instructional Error Engineering**. When a high-level tool (like an audit or setup script) fails, it must not simply exit. It must act as a **Signpost** pointing to the specific remedy.
-
-**The Failure Contract:**
-
-1.  **State the Failure:** Clearly identify _what_ failed (e.g., "Golden Master Check Failed").
-2.  **Explain the Constraint:** Briefly explain _why_ it matters (e.g., "To prevent logic drift...").
-3.  **Direct the Action:** Explicitly print the command the user must run next to debug the issue (e.g., "Run `./strling test python` to see specific errors").
-
-_Example: "Do not dump a stack trace in the audit tool. Redirect the user to the test runner."_
+Tool failures should state the failure, explain the constraint, and direct the
+next action. Prefer semantic explanations to raw engine traces when available.

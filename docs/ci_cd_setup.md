@@ -359,7 +359,7 @@ STRling uses a **Single Source of Truth (SSOT)** approach for version management
 
 **Rule:** Never manually edit version numbers in non-Python manifests. Always use the SSOT + propagation workflow.
 
-**Note:** The TypeScript binding is the Logic SSOT (the reference implementation for all language behavior and features), but Python is the Versioning SSOT (the single source for version numbers). This separation ensures clarity of responsibility.
+**Authority note:** TypeScript behavior and generated fixtures are transitional compatibility evidence, not semantic authority. `bindings/python/pyproject.toml` is the current operational source for synchronized package versions only; it does not version the STRling Semantic Specification.
 
 ## Monitoring
 

@@ -1,62 +1,64 @@
-# STRling Philosophy — Fluent Abstraction Over Raw Regex
+# STRling Philosophy — Semantic Intent Over Target Syntax
 
-> **Scope:** This file governs API design, interface naming, and the semantic intent of every user-facing surface. It does NOT cover pipeline internals, test strategy, or contributor workflow.
+> **Scope:** Product-facing authoring principles, Simply naming, composition,
+> and deliberate raw-regex boundaries.
 
----
+## Prime directive
 
-## Prime Directive
+STRling lets developers express what a pattern means and receive portable,
+explainable, target-specific artifacts. User-facing semantic surfaces should be
+readable, composable, and discoverable without requiring target-regex expertise.
 
-STRling exists to **abstract the cryptic nature of raw regex into a readable, semantic, object-oriented interface**. Every design decision must serve this goal.
+Semantic intent—not a fluent API shape, host language, or target syntax—is the
+flagship abstraction.
 
-Raw regex is technical debt the moment it appears in application code. STRling treats regex as **software** — composable, type-safe, and self-documenting — not as an opaque string.
+## Authoring surfaces
 
----
+-   **Semantic STRling** will be the flagship textual semantic language.
+-   **Simply** is a first-class idiomatic semantic API family.
+-   **Regex frontend/importer** accepts the existing regex-shaped compatibility
+    dialect and future deliberately supported import dialects.
 
-## Non-Negotiable Constraints
+Raw regex is therefore not globally forbidden. It is necessary as importer
+input and target output. It must not become the semantic abstraction of Simply
+or Semantic STRling, and target fragments must not bypass analysis and
+portability planning.
 
-1. **No Raw Regex in the Public API.** Users must never be required to write, read, or debug native regex syntax to use STRling. The compiled output is an implementation detail, not a user-facing surface.
-2. **Fluent Readability Over Brevity.** Method names must describe **intent**, not regex mechanics. Prefer `simply.lookBehind(...)` over any shorthand that leaks engine notation like `(?<=...)`.
-3. **Intent-First Naming.** Every public method, class, and parameter name must be understandable to a developer who has never seen a regex character class. Names like `digit()`, `oneOrMore()`, `capture()`, and `anyOf()` are correct. Names that mirror regex tokens (`star()`, `qmark()`, `pipe()`) are forbidden.
-4. **Composition Over Concatenation.** Patterns are built from reusable, composable building blocks — not by string-gluing regex fragments. The Simply API's chainable `Pattern` objects enforce this structurally.
-5. **Type Safety as a Design Tool.** IDE autocomplete and compile-time checks must catch errors before runtime. The API surface should make invalid patterns unrepresentable where possible.
+## Simply design principles
 
----
+-   Names describe intent rather than target tokens: prefer
+    `lookBehind(...)` over `(?<=...)`-shaped APIs.
+-   Composition uses semantic pattern values rather than accidental string
+    concatenation.
+-   Equivalent operations in different hosts lower to the same canonical
+    semantic representation.
+-   Type systems and IDE discovery should prevent or explain invalid states
+    where practical.
+-   Builder operations do not directly emit target regex as their semantic
+    implementation.
+-   Explicit terminal compilation requests select a target profile and route
+    through the canonical compiler.
 
-## The Simply API Contract
+Current Simply public APIs, including raw/unsafe escape hatches and target
+convenience methods, are compatibility obligations. This philosophy guides
+future contained design; it does not silently remove or redesign them.
 
-The Simply API is the **primary fluent interface** for constructing patterns programmatically. It wraps AST nodes in chainable `Pattern` objects so developers compose intent without touching the IR or regex output directly.
+## Explanation principles
 
-### Design Rules
+Lead with semantic meaning, portability, and safety. Target regex may be shown as
+a resulting artifact or low-level import form, but it should be clearly labeled
+with its target engine/profile.
 
--   Every `Pattern` method maps to a meaningful pattern concept, not a regex syntax trick.
--   Method chains read as near-English descriptions of matching intent.
--   The compiled regex string is never the return type of a builder method; it is only produced by an explicit `compile()` or `emit()` terminal operation.
+When a semantic explanation is available, diagnostics should not require users
+to decode native engine traces.
 
-### Example: Phone Number
+## Review questions
 
-```typescript
-import { simply as s } from "@strling-lang/strling";
+Before accepting an authoring API change, ask:
 
-s.digit(3).then("-").then(s.digit(3)).then("-").then(s.digit(4));
-```
-
-This reads as intent. The equivalent raw regex `\d{3}-\d{3}-\d{4}` does not.
-
----
-
-## Anti-Regression Rules
-
--   **Do not** introduce public API methods whose names require knowledge of regex syntax to understand.
--   **Do not** accept raw regex strings as parameters in the fluent API unless explicitly gated behind an `unsafe` or `raw` escape hatch that is clearly documented as an advanced opt-in.
--   **Do not** surface compiled regex output in error messages when a semantic explanation is available. Users should see "Expected a digit quantifier" not "Expected \d{n}".
--   **Do not** document STRling features by showing the regex output first. Always lead with the fluent API form; show the compiled output only as a secondary reference.
-
----
-
-## Readability Litmus Test
-
-Before merging any public API change, apply this check:
-
-> _Can a junior developer who has never written a regex read this pattern chain and understand what it matches?_
-
-If the answer is no, the API surface needs revision.
+1. Can a developer understand the intent without knowing target syntax?
+2. Does the operation lower through the canonical semantic path?
+3. Are portability and unsupported outcomes explicit?
+4. Is any raw syntax clearly scoped as import/unsafe/target-specific?
+5. Does the change preserve existing public obligations or declare a versioned
+   migration?

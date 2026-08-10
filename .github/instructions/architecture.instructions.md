@@ -1,122 +1,95 @@
-# STRling Architecture — Pipeline, SSOT, and Structural Invariants
+# STRling Architecture — Authority and Responsibility Boundaries
 
-> **Scope:** This file governs the compiler pipeline, AST/IR structures, emitter contracts, grammar alignment, and the reference implementation. It does NOT cover fluent API philosophy, test strategy, or contributor workflow.
+> **Scope:** Compiler/specification architecture, authoring surfaces, target
+> planning, emitters, adapters, and structural change workflow.
 
----
+## Controlling model
 
-## The Compilation Pipeline
-
-STRling follows a strict three-stage compiler architecture:
-
-```
-DSL String → Parse → AST → Compile → IR → Emit → Target Regex (PCRE2/JS/Python)
-```
-
-Each binding implements the same pipeline in `bindings/<lang>/src/`:
-
--   **Parser** (`core/parser.*`): DSL text → AST nodes
--   **Compiler** (`core/compiler.*`): AST → target-agnostic Intermediate Representation (IR)
--   **Emitter** (`emitters/pcre2.*`): IR → serialized regex string for a specific engine
-
-### Separation Guarantees
-
--   **Portability:** New target engines are added by writing a new emitter — the parser and IR remain unchanged.
--   **Testability:** Each stage can be tested in isolation.
--   **Maintainability:** Changes to one stage do not cascade to others.
-
----
-
-## The Iron Law of Emitters
-
-Emitters are **pure functions** with the signature:
-
-```
-emit(ir, flags) → string
+```text
+Semantic STRling / Simply / regex frontend
+    -> canonical semantic representation
+    -> semantic analysis
+    -> portability planning against a versioned target profile
+    -> target lowering
+    -> target-specific emitter
+    -> versioned TargetArtifact
 ```
 
-### Requirements
+Host-language adapters expose this capability without reimplementing semantics.
+CLI, LSP, and editor tooling consume the same canonical compiler.
 
-1. No side effects. Emitters return strings or write to provided streams — nothing else.
-2. Deterministic output for a given IR model and configuration.
-3. Shared concerns (escaping, format helpers, validation) live in `core/` or `emitters/utils/` — never duplicated per emitter.
+This is conceptual responsibility, not current module layout or a ratified
+source/IR schema.
 
-### Structural Invariant
+## Authority
 
-If you modify an emitter and the same IR input produces different output without an intentional specification change, you have introduced a regression.
+The ratified specification and expressly normative versioned contracts define
+behavior. Delegated specification-authored conformance cases may define exact
+examples within their delegated scope. The reference implementation implements
+those sources and cannot silently extend them.
 
----
+TypeScript is not normative. Current TypeScript output, generated JSON fixtures,
+and duplicated binding agreement are compatibility evidence.
 
-## Reference Implementation: TypeScript
+There is no ratified Semantic STRling version yet. The current grammar and
+semantics documents describe the regex frontend as transitional compatibility
+material. `1.0-draft.1` is non-normative.
 
-The **TypeScript binding** (`bindings/typescript/`) is the normative reference implementation for all logic.
+## Authoring boundaries
 
-### What This Means
+-   **Semantic STRling:** future flagship textual semantic frontend.
+-   **Simply:** first-class idiomatic semantic APIs lowering through the same
+    canonical path.
+-   **Regex frontend:** existing regex-shaped compatibility/import source
+    dialect, not the final semantic DSL.
+-   **Target regex:** emitted output, distinct from every source dialect.
 
-1. **All features start in TypeScript.** A feature is not considered complete until the TypeScript binding implements it.
-2. **TypeScript generates the spec fixtures.** The JSON files in `tests/spec/` are produced by `cd bindings/typescript && npm run build:specs`. These fixtures are the golden master for all other bindings.
-3. **Other bindings mirror TypeScript logic exactly.** When implementing a feature, check `bindings/typescript/src/STRling/core/compiler.ts` for IR generation patterns and match them.
-4. **If behavior is undefined, TypeScript's behavior is the standard.**
+Raw regex is permitted for import and target output. It must not become the
+semantic public abstraction or bypass analysis and target planning.
 
----
+## Compiler boundaries
 
-## Grammar and Semantics Alignment
+-   Shared normalization, semantic analysis, portability planning, lowering, and
+    emission semantics have one canonical implementation.
+-   Target profiles are version-sensitive; capabilities are not timeless
+    booleans.
+-   Emitters serialize deliberate plans and do not invent semantic fallbacks.
+-   Current AST, IR, and TargetArtifact structures are not the final canonical
+    contracts by implication.
+-   A future Rust core may be the reference implementation but never the
+    specification.
 
-The EBNF grammar (`spec/grammar/dsl.ebnf`) and the semantics specification (`spec/grammar/semantics.md`) are **both normative** and must evolve in lockstep.
+## Host and target distinction
 
-### The Contract
+Rust, TypeScript, Python, Java, and C# are host ecosystems. PCRE2, ECMAScript,
+and Python `re` are target engines. A host binding is not a target backend, and
+binding count is not target count.
 
--   The **grammar** defines **syntax** (what is parsable).
--   The **semantics** define **behavior** (what parsed constructs mean).
--   Both are versioned together and are equally authoritative.
+## Transitional repository state
 
-### Any New Feature Must Include
+Per-binding parsers, compilers, validators, diagnostics, and emitters remain
+active for compatibility. The TypeScript fixture producer and direct
+LSP-to-Python semantic path also remain transitional. Do not remove or bypass
+them outside contained migration work with behavior-preservation evidence.
 
-1. Grammar update in `spec/grammar/dsl.ebnf`
-2. Semantics update in `spec/grammar/semantics.md` (including portability rules)
-3. Impact assessment on target artifact schemas in `spec/schema/`
+## Change workflow
 
----
+For semantic or canonical-contract work:
 
-## Version Management
+1. identify the controlling draft/specification/contract;
+2. declare semantic, schema, diagnostic, target, public API, and architecture
+   impact;
+3. author independent conformance evidence;
+4. implement only after reviewable contracts exist;
+5. compare with preserved compatibility evidence; and
+6. run the root hardgates.
 
-**Single Source of Truth for versions:** `bindings/python/pyproject.toml`
+Do not use “implement in TypeScript first” or generated fixture changes as
+semantic authorization.
 
-Never manually edit version fields in `package.json`, `Cargo.toml`, or other manifests. Use:
+## Operational version management
 
-```bash
-python3 tooling/sync_versions.py --write
-```
-
-This propagates the canonical version to all 17 bindings.
-
----
-
-## Key Files and Directories
-
-| Path                        | Purpose                                                 |
-| --------------------------- | ------------------------------------------------------- |
-| `bindings/typescript/`      | **Reference Implementation** — all features start here  |
-| `tests/spec/*.json`         | Golden master test fixtures (generated from TypeScript) |
-| `spec/grammar/dsl.ebnf`     | Canonical grammar definition                            |
-| `spec/grammar/semantics.md` | Normative semantics for all constructs                  |
-| `tooling/audit_omega.py`    | Final certification audit (validates all 17 bindings)   |
-| `tooling/sync_versions.py`  | Propagates version from Python SSOT                     |
-
----
-
-## Adding a New Feature (Structural Checklist)
-
-1. **Grammar First:** Update `spec/grammar/dsl.ebnf` and `spec/grammar/semantics.md`.
-2. **TypeScript Implementation:** Add to `bindings/typescript/src/STRling/`.
-3. **Generate Specs:** `cd bindings/typescript && npm run build:specs`.
-4. **Implement in Other Bindings:** Match the TypeScript logic exactly.
-5. **Verify Conformance:** `python3 tooling/audit_omega.py`.
-
----
-
-## Anti-Regression Rules
-
--   **Do not** bypass the pipeline stages. All regex output must flow through Parse → Compile → Emit.
--   **Do not** add engine-specific logic to the parser or compiler. Engine awareness belongs exclusively in emitters.
--   **Do not** modify the IR schema without updating the TypeScript reference implementation first and regenerating spec fixtures.
--   **Do not** introduce mutable state in emitters.
+`bindings/python/pyproject.toml` is the current operational package-version
+source for synchronization. Use `python3 tooling/sync_versions.py --write` for
+release metadata. This operational role does not version the semantic
+specification; see `spec/VERSIONING.md`.

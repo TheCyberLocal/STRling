@@ -5,7 +5,12 @@
 This constitution is normative for STRling engineering. It governs how the
 project defines, implements, verifies, and releases behavior; it does not itself
 define STRling language semantics. The artifact precedence in
-[`authority.md`](authority.md) resolves conflicting project guidance.
+[`authority.md`](authority.md) resolves conflicting project guidance. The
+ratified [product definition](product.md), [architecture invariants](architecture.md),
+and [canonical terminology](terminology.md) define permanent conceptual
+responsibilities without defining semantic data-contract fields. The
+[specification versioning policy](../spec/VERSIONING.md) governs draft and
+ratified semantic specifications.
 
 ## Permanent rules
 

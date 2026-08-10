@@ -2,54 +2,70 @@
 
 [← Back to Developer Hub](docs/index.md)
 
-Thank you for contributing to STRling! This document covers the essentials for making changes to the project. For the full development workflow, commit standards, PR process, and documentation guidelines, see [docs/guidelines.md](docs/guidelines.md).
+STRling is governed by the
+[`Engineering Constitution`](governance/ENGINEERING_CONSTITUTION.md),
+[`authority hierarchy`](governance/authority.md), and
+[`product architecture`](governance/product.md). Read the applicable
+specification and architecture material before changing semantic behavior.
 
-## Quick Start
+## Quick start
 
 ```bash
-./strling bootstrap all   # Setup, build, and test every binding
-./strling test all        # Re-run all binding test suites
-./strling check           # Run the established fast quality baseline
-./strling certify         # Run the current certification aggregate
-./strling audit           # Run the strict final omega audit
+./strling bootstrap <binding>
+./strling test <binding>
+./strling check all
+./strling certify all
 ```
 
-Use `./strling environment <binding>` to validate declared tool versions and
-append `--json` to a quality command for automation. The
-[toolchain and quality-command policy](docs/toolchains.md) defines capability
-states, aggregate scope, and transitional conditions.
+Use `./strling environment <component>` to validate declared tool versions and
+`--json` for automation. See
+[`Toolchains and Quality Commands`](docs/toolchains.md).
 
-## The Hint-Spec Requirement
+## Semantic and architecture changes
 
-STRling's **pedagogical hint system** is governed diagnostic behavior. Every
-parser error fixture in `tests/spec/` must include an `expected_hint` field
-for compatibility, but the generated TypeScript value does not supersede an
-accepted diagnostic contract.
+Semantic work starts with a ratified specification or reviewed draft/contract,
+then independent conformance evidence, implementation, and certification.
 
-### When Adding a New Error or Diagnostic
+There is no ratified Semantic STRling version yet. The current regex-shaped
+grammar is the compatibility/import frontend. Do not modify it, Simply, the
+canonical data model, targets, or adapters by inferring behavior from one
+binding.
 
-1. **TypeScript first**: Add or update the hint pattern in `bindings/typescript/src/STRling/core/hint_engine.ts`.
-2. **Regenerate fixtures**: Run `cd bindings/typescript && npm run build:specs`
-   to regenerate `tests/spec/*.json`. Review every changed hint against the
-   declared diagnostic contract; generation alone does not approve it.
-3. **Implement in other bindings**: Each binding's HintEngine must produce the **same exact string** for the same error. The conformance runners assert exact equality.
-4. **Verify**: Run the conformance suites for affected bindings to confirm `expected_hint` matches.
+TypeScript is not semantic authority. Its current compiler, HintEngine, tests,
+and generated `tests/spec/*.json` outputs are transitional compatibility
+evidence.
 
-### Fixture Schema
+## Current fixture and hint workflow
 
-Error fixtures are validated against `spec/schema/conformance-fixture.schema.json`. The schema enforces:
+Existing error fixtures require exact `expected_hint` values, and current
+bindings preserve those values. When a contained compatibility change must use
+the TypeScript producer:
 
--   If `expected_error` is present, `expected_hint` **must** also be present.
--   `expected_hint` is an exact-match contract value, not a substring or approximation.
+1. identify the controlling diagnostic contract or explicit compatibility
+   decision;
+2. declare semantic, diagnostic, schema, public, target, and generated changes;
+3. update the transitional producer;
+4. run `npm run build:specs` in `bindings/typescript`;
+5. review every output against the controlling decision; and
+6. verify every affected binding plus canonical hardgates.
 
-### Key Principle
+Generation does not approve behavior, and the TypeScript HintEngine is not the
+normative source of diagnostic meaning.
 
-> The TypeScript HintEngine is the **Single Source of Truth** for all hint text. Other bindings mirror these strings exactly. The shared spec fixtures enforce cross-binding consistency.
+## Host bindings and targets
 
-## Additional Resources
+A binding exposes STRling from a programming ecosystem. A target profile
+describes regex/runtime semantics such as PCRE2, ECMAScript, or Python `re`.
+Never use a host-binding count as a target count.
 
--   **[Developer Hub](docs/index.md)**: Architecture, philosophy, and contribution guides
--   **[Contribution Guidelines](docs/guidelines.md)**: Full development workflow, commit standards, and PR process
--   **[Test Suite Guide](tests/README.md)**: Testing strategy and directory structure
--   **[Toolchains and Quality Commands](docs/toolchains.md)**: Runtime policy, canonical commands, and structured results
--   **[Specification Hub](spec/README.md)**: Formal grammar and semantics
+Existing per-binding compilers remain transitional. New architecture work must
+converge on the canonical compiler rather than create another semantic island.
+
+## Resources
+
+-   [`Developer Hub`](docs/index.md)
+-   [`Contribution Guidelines`](docs/guidelines.md)
+-   [`Specification Hub`](spec/README.md)
+-   [`Specification Versioning`](spec/VERSIONING.md)
+-   [`Canonical Terminology`](governance/terminology.md)
+-   [`Test Suite Guide`](tests/README.md)

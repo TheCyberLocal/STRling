@@ -37,7 +37,10 @@ pattern = digit(5) + (("-" + digit(4)) | "")
 
 ## Step 2: Generate Specifications
 
-The TypeScript binding is the **Reference Implementation**. We use it to generate the "Golden Master" JSON spec that all other languages must match.
+The TypeScript binding is the **transitional compatibility-fixture producer**.
+The generated JSON records behavior that current bindings preserve; it is not a
+normative specification or a “Golden Master.” A behavior change must first
+identify its controlling specification, contract, or compatibility decision.
 
 1.  Setup the TypeScript environment (if not already done):
 
@@ -52,11 +55,13 @@ The TypeScript binding is the **Reference Implementation**. We use it to generat
     npm run build:specs
     ```
 
-    _Note: This command compiles the TypeScript binding and runs the spec generator, creating a corresponding `zip.json` in `tests/spec/`._
+    _Note: This command compiles the TypeScript binding and runs the fixture
+    generator, creating a corresponding `zip.json` in `tests/spec/`. Review the
+    generated value; generation itself does not approve behavior._
 
 ---
 
-## Step 3: Verify with Python
+## Step 3: Verify Compatibility with Python
 
 Now that the spec exists, we can verify that the Python binding correctly implements it.
 
@@ -78,7 +83,8 @@ Now that the spec exists, we can verify that the Python binding correctly implem
 
 ## Step 4: Verify with Other Languages
 
-If you have other language toolchains installed (e.g., Rust, Go), you can verify them too. The beauty of the Golden Master is that once the spec is generated, _all_ bindings can test against it immediately.
+If you have other host-language toolchains installed (e.g., Rust or Go), verify
+that they preserve the same transitional compatibility case.
 
 ```bash
 # Optional: Verify Rust
@@ -97,4 +103,5 @@ git add tests/conformance/cases/zip.strl tests/spec/zip.json
 git commit -m "feat: add US Zip Code conformance test"
 ```
 
-Congratulations! You've just added a portable, cross-language test case to STRling.
+Congratulations! You've added a cross-binding compatibility case. Normative
+Semantic STRling conformance cases follow the ratified specification process.

@@ -62,3 +62,31 @@ historical/transitional or listed as follow-up debt here. In particular:
 
 Before lower-authority material is promoted or reused for new design, it must be
 reconciled with the ratified vocabulary and authority model.
+
+## Reconciliation search result
+
+Targeted searches of the root README, specification entry points, governance
+policy, primary architecture/strategy documents, contributor guidance, testing
+design/workflow, templates, tutorials, and incorporated instructions found no
+remaining positive designation of TypeScript, a host binding, or generated
+fixtures as semantic authority. Remaining high-authority matches are explicit
+negative rules such as “TypeScript is not the semantic source of truth.”
+
+Repository-wide searches retain lower-authority debt deliberately:
+
+-   sixteen binding READMEs still contain the historical “one mental model, 17
+    languages” product copy;
+-   binding implementation comments still say they mirror the TypeScript
+    reference implementation;
+-   the hint-parity audit still labels its transitional TypeScript pattern list
+    a source of truth;
+-   the test-suite guide still uses “Golden Master” as a workflow label while
+    explicitly classifying fixtures as non-normative compatibility evidence;
+    and
+-   frozen migration records, generated reports, and historical audits retain
+    the vocabulary applicable when they were authored.
+
+These hits are transitional documentation or implementation descriptions, not
+competing authority. Update them when their owning binding, audit, or test-guide
+area is next changed; do not use them as input authority for canonical contract
+design.
