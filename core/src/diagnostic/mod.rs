@@ -114,7 +114,7 @@ impl DiagnosticOccurrence {
 }
 
 /// Diagnostic severity in normative ordering.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Severity {
     Error,
@@ -144,7 +144,7 @@ pub enum SeverityBasis {
 }
 
 /// Compiler phase in deterministic diagnostic order.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CompilerPhase {
     Protocol,
@@ -173,7 +173,7 @@ impl CompilerPhase {
 }
 
 /// Stable diagnostic category independent of presentation text.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DiagnosticCategory {
     MalformedRequest,

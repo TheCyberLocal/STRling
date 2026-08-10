@@ -1,0 +1,67 @@
+{
+    "mapping_version": "1.0.0",
+    "contract_suite": "1.0.0",
+    "schemas": [
+        {
+            "schema": "spec/contracts/1.0/analysis.schema.json",
+            "sha256": "0286061373d6eb9906b1d0c870abd35ae6a00be1e1a27c40fcdc89c6a644dcd6",
+            "rust_modules": ["protocol::analysis"]
+        },
+        {
+            "schema": "spec/contracts/1.0/compile-request.schema.json",
+            "sha256": "6aa9b80e2a2bd1e9c50652fd55f1af6474048307ea13ec577cc5d675f908ba57",
+            "rust_modules": ["protocol::request"]
+        },
+        {
+            "schema": "spec/contracts/1.0/compile-result.schema.json",
+            "sha256": "11dbd386760eb58c49805c68cea42a217a196c7032c15a5ec8c4f37d2fd1d385",
+            "rust_modules": ["protocol::exchange", "protocol::result"]
+        },
+        {
+            "schema": "spec/contracts/1.0/conformance-case.schema.json",
+            "sha256": "aa7779bcbe985b9c6bdb5766dde5babe97e84bc6b1d8b739db4907a52cc462b2",
+            "rust_modules": ["conformance"]
+        },
+        {
+            "schema": "spec/contracts/1.0/conformance-manifest.schema.json",
+            "sha256": "83153c048bbdb26a476d406bebc8c78d19997a4e7d6168fd8133873226296519",
+            "rust_modules": ["conformance"]
+        },
+        {
+            "schema": "spec/contracts/1.0/diagnostic.schema.json",
+            "sha256": "9c929e230110adf3fe5fac63e28314afa0142c331c50ded4dfdb3c97565ae8f5",
+            "rust_modules": ["diagnostic"]
+        },
+        {
+            "schema": "spec/contracts/1.0/portability.schema.json",
+            "sha256": "5f1ee813dc8c5c89dda72f7a9acd7fc7d016ed4caed5e47f4db092d9ce6f0f69",
+            "rust_modules": ["protocol::analysis", "target"]
+        },
+        {
+            "schema": "spec/contracts/1.0/semantic-ir.schema.json",
+            "sha256": "bf641bdf129dd5ced9d9f89d0170cefbb4dd976117d9e0c61000fd03041468db",
+            "rust_modules": ["semantic"]
+        },
+        {
+            "schema": "spec/contracts/1.0/source.schema.json",
+            "sha256": "66a519a57ff6ea32bb8758873b641d04a040ea1e000fcb1386fe2670f760a8f9",
+            "rust_modules": ["source"]
+        },
+        {
+            "schema": "spec/contracts/1.0/target-artifact.schema.json",
+            "sha256": "77b08d429584eafddd51fddc813b1eed89f5fb347f2b1751516a601b5b887c81",
+            "rust_modules": ["target"]
+        },
+        {
+            "schema": "spec/contracts/1.0/target-profile.schema.json",
+            "sha256": "3de1febbb3915123bad74edc71d686f2b2e863be92ff17f596e4e014dcc091c4",
+            "rust_modules": ["target::profile"]
+        }
+    ],
+    "fixture_roots": [
+        "spec/contracts/1.0/examples",
+        "spec/contracts/1.0/invalid",
+        "spec/conformance",
+        "spec/targets/profiles"
+    ]
+}

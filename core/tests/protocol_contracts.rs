@@ -3,11 +3,11 @@ use std::convert::TryFrom;
 use serde_json::Value;
 use strling_kernel::diagnostic::{Diagnostic, Severity};
 use strling_kernel::protocol::{
-    validate_exchange, AnalysisResult, CompileOutcome, CompileRequest, CompileResult,
-    SemanticResultStatus,
+    validate_exchange, validate_exchange_with_profiles, AnalysisResult, CompileOutcome,
+    CompileRequest, CompileResult, SemanticResultStatus,
 };
-use strling_kernel::source::FrontendId;
-use strling_kernel::target::{PortabilityPlan, TargetArtifact};
+use strling_kernel::source::{FrontendId, NodeId};
+use strling_kernel::target::{PortabilityPlan, TargetArtifact, TargetProfile, TargetProfileSet};
 use strling_kernel::validation::{from_json, to_json, ContractError, ValidationCode};
 
 const DIAGNOSTIC: &str =
@@ -59,6 +59,19 @@ const RESULTS: &[(&str, &str)] = &[
         include_str!("../../spec/contracts/1.0/examples/compile-result/target-artifact.json"),
     ),
 ];
+
+fn profiles() -> TargetProfileSet {
+    let profiles: Vec<TargetProfile> = [
+        include_str!("../../spec/targets/profiles/pcre2-10.42.json"),
+        include_str!("../../spec/targets/profiles/pcre2-10.43.json"),
+        include_str!("../../spec/targets/profiles/ecmascript-2024.json"),
+        include_str!("../../spec/targets/profiles/python-re-3.11.json"),
+    ]
+    .iter()
+    .map(|fixture| from_json(fixture).expect("authored profile"))
+    .collect();
+    TargetProfileSet::new(profiles).expect("profile set")
+}
 
 #[test]
 fn canonical_diagnostic_and_analysis_fixtures_validate() {
@@ -114,6 +127,42 @@ fn canonical_request_result_exchanges_validate() {
             )
         });
     }
+}
+
+#[test]
+fn target_exchange_resolves_immutable_profile_and_artifact_options() {
+    let request: CompileRequest = from_json(REQUESTS[4].1).expect("request");
+    let result: CompileResult = from_json(RESULTS[4].1).expect("result");
+    let supported = [
+        FrontendId::try_from("semantic_strling").expect("frontend"),
+        FrontendId::try_from("regex_frontend").expect("frontend"),
+    ];
+    validate_exchange_with_profiles(&request, &result, &supported, &profiles())
+        .expect("profile-aware exchange");
+}
+
+#[test]
+fn cross_phase_node_references_must_resolve_to_semantic_ir() {
+    let request: CompileRequest = from_json(REQUESTS[4].1).expect("request");
+    let mut result: CompileResult = from_json(RESULTS[4].1).expect("result");
+    result.artifact.as_mut().expect("artifact").source_map[0].node_ids[0] =
+        NodeId::try_from("node:not.declared").expect("node identity");
+    let supported = [
+        FrontendId::try_from("semantic_strling").expect("frontend"),
+        FrontendId::try_from("regex_frontend").expect("frontend"),
+    ];
+    let errors = validate_exchange(&request, &result, &supported)
+        .expect_err("undeclared artifact node must fail");
+    assert!(errors
+        .errors
+        .iter()
+        .any(|error| error.code == ValidationCode::UnresolvedReference));
+
+    let request: CompileRequest = from_json(REQUESTS[0].1).expect("request");
+    let mut result: CompileResult = from_json(RESULTS[0].1).expect("result");
+    result.analysis.as_mut().expect("analysis").node_facts[0].node_id =
+        NodeId::try_from("node:not.declared").expect("node identity");
+    assert!(validate_exchange(&request, &result, &supported).is_err());
 }
 
 #[test]

@@ -6,6 +6,7 @@
 //! structural validation; executable compiler phases are intentionally absent.
 #![forbid(unsafe_code)]
 
+pub mod conformance;
 pub mod diagnostic;
 pub mod protocol;
 pub mod semantic;

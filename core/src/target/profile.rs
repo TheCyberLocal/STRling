@@ -3,8 +3,6 @@
 use std::convert::TryFrom;
 
 use serde::{Deserialize, Deserializer, Serialize};
-use serde_json::{Map, Value};
-use sha2::{Digest, Sha256};
 
 use super::{
     scoped_lower_identifier, EngineOptionValue, OptionId, OptionStage, ProfileId, ProfileVersion,
@@ -12,8 +10,8 @@ use super::{
 };
 use crate::source::{ContractVersion, Sha256Digest, SpecificationVersion};
 use crate::validation::{
-    deserialize_optional_non_null, nonempty, Validate, ValidationCode, ValidationError,
-    ValidationErrors,
+    canonical_sha256, deserialize_optional_non_null, nonempty, Validate, ValidationCode,
+    ValidationError, ValidationErrors,
 };
 
 macro_rules! profile_identifier {
@@ -375,48 +373,18 @@ pub struct TargetProfile {
 impl TargetProfile {
     /// Compute the canonical JSON fingerprint used by immutable references.
     pub fn reference(&self) -> Result<TargetProfileReference, ValidationErrors> {
-        let mut value = serde_json::to_value(self).map_err(|error| {
-            ValidationErrors::single(ValidationError::new(
-                ValidationCode::NonCanonicalStructure,
-                "$",
-                format!("target profile could not be serialized: {error}"),
-            ))
-        })?;
-        canonicalize(&mut value);
-        let bytes = serde_json::to_vec(&value).map_err(|error| {
+        let digest = canonical_sha256(self).map_err(|error| {
             ValidationErrors::single(ValidationError::new(
                 ValidationCode::NonCanonicalStructure,
                 "$",
                 format!("target profile canonical JSON failed: {error}"),
             ))
         })?;
-        let digest: [u8; 32] = Sha256::digest(bytes).into();
         Ok(TargetProfileReference {
             profile_id: self.profile_id.clone(),
             profile_version: self.profile_version.clone(),
             sha256: Sha256Digest::from_bytes(digest),
         })
-    }
-}
-
-fn canonicalize(value: &mut Value) {
-    match value {
-        Value::Array(items) => {
-            for item in items {
-                canonicalize(item);
-            }
-        }
-        Value::Object(object) => {
-            let mut entries: Vec<_> = std::mem::take(object).into_iter().collect();
-            entries.sort_by(|left, right| left.0.cmp(&right.0));
-            let mut sorted = Map::new();
-            for (key, mut child) in entries {
-                canonicalize(&mut child);
-                sorted.insert(key, child);
-            }
-            *object = sorted;
-        }
-        _ => {}
     }
 }
 

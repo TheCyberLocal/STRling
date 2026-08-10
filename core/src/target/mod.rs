@@ -134,7 +134,7 @@ validated_string!(
 );
 
 /// Immutable target profile identity, schema revision, and canonical fingerprint.
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TargetProfileReference {
     pub profile_id: ProfileId,

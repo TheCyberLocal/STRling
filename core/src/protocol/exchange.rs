@@ -1,10 +1,11 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::{
     CompileInput, CompileOutcome, CompileRequest, CompileResult, PartialSemantics, RequestedOutput,
     SemanticResultStatus,
 };
-use crate::source::{FrontendId, SourceDocument, SourceId, SourceSpan};
+use crate::source::{FrontendId, NodeId, SourceDocument, SourceId, SourceSpan};
+use crate::target::TargetProfileSet;
 use crate::validation::{Validate, ValidationCode, ValidationError, ValidationErrors};
 
 pub fn validate_exchange(
@@ -90,6 +91,35 @@ pub fn validate_exchange(
     }
 
     validate_diagnostic_sources(request, result, &mut errors);
+    validate_semantic_references(result, &mut errors);
+    errors.finish()
+}
+
+pub fn validate_exchange_with_profiles(
+    request: &CompileRequest,
+    result: &CompileResult,
+    supported_frontends: &[FrontendId],
+    profiles: &TargetProfileSet,
+) -> Result<(), ValidationErrors> {
+    let mut errors = ValidationErrors::default();
+    if let Err(found) = validate_exchange(request, result, supported_frontends) {
+        errors.extend(found);
+    }
+    if let Some(reference) = &request.target_profile {
+        if let Err(found) = profiles.resolve(reference) {
+            errors.extend(found);
+        }
+    }
+    if let Some(artifact) = &result.artifact {
+        match profiles.resolve(&artifact.target_profile) {
+            Ok(profile) => {
+                if let Err(found) = artifact.validate_against_profile(profile) {
+                    errors.extend(found);
+                }
+            }
+            Err(found) => errors.extend(found),
+        }
+    }
     errors.finish()
 }
 
@@ -143,6 +173,84 @@ fn validate_diagnostic_sources(
                 }
             }
         }
+    }
+    if let Some(artifact) = &result.artifact {
+        for (entry_index, entry) in artifact.source_map.iter().enumerate() {
+            for (span_index, span) in entry.source_spans.iter().enumerate() {
+                validate_attributed_span(
+                    span,
+                    &sources,
+                    format!("$.artifact.source_map[{entry_index}].source_spans[{span_index}]"),
+                    errors,
+                );
+            }
+        }
+    }
+}
+
+fn validate_semantic_references(result: &CompileResult, errors: &mut ValidationErrors) {
+    let Some(semantic) = &result.semantic_result else {
+        return;
+    };
+    let node_ids = semantic.program.node_ids();
+    if let Some(analysis) = &result.analysis {
+        for (index, fact) in analysis.node_facts.iter().enumerate() {
+            require_node(
+                &fact.node_id,
+                &node_ids,
+                format!("$.analysis.node_facts[{index}].node_id"),
+                errors,
+            );
+        }
+        for (index, requirement) in analysis.feature_requirements.iter().enumerate() {
+            for (node_index, node_id) in requirement.node_ids.iter().enumerate() {
+                require_node(
+                    node_id,
+                    &node_ids,
+                    format!("$.analysis.feature_requirements[{index}].node_ids[{node_index}]"),
+                    errors,
+                );
+            }
+        }
+    }
+    if let Some(portability) = &result.portability {
+        for (index, decision) in portability.decisions.iter().enumerate() {
+            for (node_index, node_id) in decision.node_ids.iter().enumerate() {
+                require_node(
+                    node_id,
+                    &node_ids,
+                    format!("$.portability.decisions[{index}].node_ids[{node_index}]"),
+                    errors,
+                );
+            }
+        }
+    }
+    if let Some(artifact) = &result.artifact {
+        for (index, entry) in artifact.source_map.iter().enumerate() {
+            for (node_index, node_id) in entry.node_ids.iter().enumerate() {
+                require_node(
+                    node_id,
+                    &node_ids,
+                    format!("$.artifact.source_map[{index}].node_ids[{node_index}]"),
+                    errors,
+                );
+            }
+        }
+    }
+}
+
+fn require_node(
+    node_id: &NodeId,
+    declared: &BTreeSet<NodeId>,
+    path: String,
+    errors: &mut ValidationErrors,
+) {
+    if !declared.contains(node_id) {
+        errors.push(ValidationError::new(
+            ValidationCode::UnresolvedReference,
+            path,
+            "keyed cross-phase result refers to an undeclared semantic node",
+        ));
     }
 }
 

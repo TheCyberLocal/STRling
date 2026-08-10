@@ -114,18 +114,24 @@ pub enum CompileInput {
 }
 
 impl CompileInput {
-    pub(crate) fn specification_version(&self) -> &SpecificationVersion {
+    pub fn specification_version(&self) -> &SpecificationVersion {
         match self {
             Self::Source { document } => &document.specification_version,
             Self::Semantic { program } => &program.specification_version,
         }
     }
 
-    fn validate_input(&self) -> Result<(), ValidationErrors> {
+    pub(crate) fn validate_input(&self) -> Result<(), ValidationErrors> {
         match self {
             Self::Source { document } => document.validate(),
             Self::Semantic { program } => program.validate(),
         }
+    }
+}
+
+impl Validate for CompileInput {
+    fn validate(&self) -> Result<(), ValidationErrors> {
+        self.validate_input()
     }
 }
 

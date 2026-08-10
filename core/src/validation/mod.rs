@@ -5,6 +5,8 @@ use std::fmt;
 
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize};
+use serde_json::{Map, Value};
+use sha2::{Digest, Sha256};
 
 /// Stable categories for structural contract validation failures.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
@@ -140,6 +142,37 @@ where
     T: Serialize,
 {
     serde_json::to_string(value)
+}
+
+/// SHA-256 of compact JSON with recursively sorted object keys and UTF-8 text.
+pub fn canonical_sha256<T>(value: &T) -> Result<[u8; 32], serde_json::Error>
+where
+    T: Serialize,
+{
+    let mut value = serde_json::to_value(value)?;
+    canonicalize(&mut value);
+    Ok(Sha256::digest(serde_json::to_vec(&value)?).into())
+}
+
+fn canonicalize(value: &mut Value) {
+    match value {
+        Value::Array(items) => {
+            for item in items {
+                canonicalize(item);
+            }
+        }
+        Value::Object(object) => {
+            let mut entries: Vec<_> = std::mem::take(object).into_iter().collect();
+            entries.sort_by(|left, right| left.0.cmp(&right.0));
+            let mut sorted = Map::new();
+            for (key, mut child) in entries {
+                canonicalize(&mut child);
+                sorted.insert(key, child);
+            }
+            *object = sorted;
+        }
+        _ => {}
+    }
 }
 
 /// Optional schema fields reject explicit JSON null while accepting omission.

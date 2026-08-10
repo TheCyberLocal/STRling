@@ -182,10 +182,34 @@ checkpoints:
             result: passed
             details: The lockfile pins the sole added deterministic utility, sha2 0.10.9; all 31 kernel tests, warnings-denied lint/typecheck, structural round trips, repository contracts, governance, and patch integrity passed. The canonical target source directory is explicitly unignored so clean checkouts contain it.
     - name: Cross-domain validation and fixture certification
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Specification-authored conformance domain and corpus
+            command: cargo test --test conformance_contracts
+            result: passed
+            details: All four specification-authored seed cases and the draft ownership manifest deserialize into closed Rust types, reproduce exact canonical fingerprints, resolve only authored target profiles, and certify every and only manifest-owned case; all nine tests passed.
+          - check: Controlled conformance authority failures
+            command: cargo test --test conformance_contracts implementation_output_cannot_claim_specification_authorship invalid_case_combinations_are_rejected invalid_authority_states_and_case_fingerprints_fail
+            result: passed
+            details: Implementation-authored claims, duplicate targets, error-plus-match expectations, mismatched specifications, missing case IDs, invalid profile references, false delegation, missing delegation, wrong fingerprints, missing cases, and unowned cases fail structurally.
+          - check: Cross-phase identity and profile correlation
+            command: cargo test --test protocol_contracts target_exchange_resolves_immutable_profile_and_artifact_options cross_phase_node_references_must_resolve_to_semantic_ir
+            result: passed
+            details: Request, result, Semantic IR, analysis, portability, target profile, source attribution, and artifact references validate as one explicit flow; undeclared analysis/artifact node IDs and unresolved or mismatched profiles return structured errors.
+          - check: Complete schema and fixture mapping
+            command: python3 tooling/core_contract_validation.py
+            result: passed
+            details: The kernel mapping pins all 11 authoritative schema files and names their Rust modules; every one of the 62 positive, controlled-invalid, profile, case, and manifest JSON fixtures is referenced by kernel tests, while legacy tests/spec fixtures are forbidden as authority.
+          - check: Controlled mapping and architecture drift
+            command: python3 -m unittest tooling.tests.test_core_contracts
+            result: passed
+            details: Six focused tests prove rejection of schema-byte drift without a mapping update, missing or unknown mappings, extra runtime dependencies, filesystem/network/binding dependencies, target syntax in Semantic IR, and derived analysis embedded in the Node union.
+          - check: Whole kernel and repository contract verification
+            command: cargo fmt --check; cargo clippy --all-targets -- -D warnings; RUSTFLAGS=-Dwarnings cargo check --all-targets; cargo test --all-targets; python3 tooling/contract_validation.py; python3 tooling/governance.py; ./strling check core --json; git diff --check
+            result: passed
+            details: All 42 Rust tests, warnings-denied quality checks, 11 schemas, 29 positive contract objects, 33 controlled-invalid objects, architecture/task governance, kernel hardgate, and patch integrity passed.
     - name: Repository hardgate integration
-      status: planned
+      status: in_progress
       evidence: []
     - name: Completion and compiler-pipeline readiness
       status: planned
@@ -197,3 +221,5 @@ commits:
       subject: "feat(core): implement canonical semantic domain types"
     - sha: 582c46cd6f129f82839e577d16e02ffd80738f1a
       subject: "feat(core): implement compiler protocol domain types"
+    - sha: db9f00b532550f8775ae9e865bc6d1e08ff8b1cf
+      subject: "feat(core): implement target contract domain types"

@@ -666,6 +666,41 @@ pub struct SemanticProgram {
     pub root: Node,
 }
 
+impl SemanticProgram {
+    /// Stable semantic identities available for keyed cross-phase results.
+    #[must_use]
+    pub fn node_ids(&self) -> BTreeSet<NodeId> {
+        fn visit(node: &Node, ids: &mut BTreeSet<NodeId>) {
+            ids.insert(node.node_id().clone());
+            match node {
+                Node::Sequence { items, .. } => {
+                    for child in items {
+                        visit(child, ids);
+                    }
+                }
+                Node::Alternation { branches, .. } => {
+                    for child in branches {
+                        visit(child, ids);
+                    }
+                }
+                Node::Repeat { body, .. }
+                | Node::Capture { body, .. }
+                | Node::Lookaround { body, .. }
+                | Node::Atomic { body, .. } => visit(body, ids),
+                Node::Empty { .. }
+                | Node::Literal { .. }
+                | Node::Wildcard { .. }
+                | Node::CharacterSet { .. }
+                | Node::Position { .. }
+                | Node::Backreference { .. } => {}
+            }
+        }
+        let mut ids = BTreeSet::new();
+        visit(&self.root, &mut ids);
+        ids
+    }
+}
+
 impl Validate for SemanticProgram {
     fn validate(&self) -> Result<(), ValidationErrors> {
         let mut source_map = BTreeMap::new();
