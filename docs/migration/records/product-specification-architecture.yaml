@@ -32,8 +32,13 @@ scope:
     expected_files:
         - docs/migration/product-specification-contradictions.md
         - docs/migration/records/product-specification-architecture.yaml
+        - governance/authority.md
         - governance/product.md
         - governance/terminology.md
+        - spec/README.md
+        - spec/VERSIONING.md
+        - spec/drafts/1.0/README.md
+        - spec/grammar/semantics.md
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -105,8 +110,24 @@ checkpoints:
             result: passed
             details: Pinned formatting, hygiene, contract reproduction and declaration checks, current architecture rules, and patch integrity passed; only already-recorded transitional and future architecture findings remained.
     - name: Specification authority and versioning
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Permanent authority hierarchy
+            command: governance/authority.md; spec/README.md
+            result: passed
+            details: Ratified specifications, explicitly normative versioned contracts, delegated specification-authored cases, and ratified architecture decisions can define behavior; implementations, compatibility evidence, generated output, and explanatory documentation cannot silently extend it.
+          - check: Independent specification version model
+            command: spec/VERSIONING.md
+            result: passed
+            details: Ratified semantic specifications use MAJOR.MINOR, major denotes semantic incompatibility, minor denotes backward-compatible additions, non-semantic errata retain version with revision traceability, and compiler/package/profile versions remain independent and explicit.
+          - check: Draft and transitional identities
+            command: spec/drafts/1.0/README.md; spec/grammar/semantics.md; frozen baseline review
+            result: passed
+            details: The upcoming work is 1.0-draft.1 and non-normative with no implementation conformance claim; the frozen unversioned-transitional identity remains valid, and current regex semantics prose is classified as compatibility evidence without changing its described behavior.
+          - check: Specification checkpoint verification
+            command: ./strling format --check repository; ./strling hygiene; ./strling generate --check; ./strling contracts --check; ./strling governance; local Markdown links; JSON/YAML parsing; git diff --check
+            result: passed
+            details: Formatting with pinned Ruff 0.15.21, hygiene, unchanged generation and contract reproduction, declarations, architecture fitness, six changed-file link checks, structured parsing, and patch integrity passed.
     - name: Authoring surface and compiler responsibility architecture
       status: planned
       evidence: []
@@ -119,4 +140,6 @@ checkpoints:
     - name: Completion and canonical-contract readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 59805a8644947f6109291ea9fc3ebe95c8f635af
+      subject: "docs(architecture): define STRling product identity"

@@ -1,82 +1,106 @@
-# STRling Formal Specification
+# STRling Specification Hub
 
-This directory contains the **formal specification** for the STRling Domain-Specific Language (DSL). The specification is the authoritative source of truth for syntax and semantics.
+## Current authority state
 
-## Specification Components
+This directory is the entry point for STRling specification material. A file is
+normative only when a ratified specification or contract expressly designates
+it normative for a version and scope. Location under `spec/` does not grant
+authority by itself.
 
-### 1. Grammar
+The specification identity is **STRling Semantic Specification**. There is
+currently **no ratified semantic specification version**. The certified
+migration baseline records the prior formal specification state as
+`unversioned-transitional`; that frozen record remains valid historical
+evidence and is not retroactively relabeled.
 
-The formal grammar defines the syntax of the STRling DSL using Extended Backus-Naur Form (EBNF):
+The initial semantic specification work has the draft identity
+**STRling Semantic Specification 1.0-draft**. Its
+[`draft home`](drafts/1.0/README.md) is unratified and non-normative. No current
+compiler or binding is represented as conforming to it.
 
--   **[Grammar Specification](./grammar/dsl.ebnf)**: Complete EBNF definition of STRling syntax
+See [`VERSIONING.md`](VERSIONING.md) for the permanent version and ratification
+policy and [`governance/authority.md`](../governance/authority.md) for
+repository-wide precedence.
 
-### 2. Semantics
+## Authority model
 
-The semantics document defines the meaning and behavior of all STRling constructs:
+STRling behavior may be defined by, in descending order:
 
--   **[Semantics Specification](./grammar/semantics.md)**: Normative behavioral specification, portability rules, and emitter requirements
+1. a ratified, versioned specification;
+2. versioned formal schemas or contracts expressly designated normative for
+   their declared scope;
+3. accepted specification-authored conformance cases only where the controlling
+   specification delegates exact examples to them; and
+4. ratified architecture decisions governing semantic interpretation within
+   their scope.
 
-### 3. JSON Schemas
+The reference implementation implements these sources. It does not silently
+extend them. Behavior found only in an implementation remains implementation
+behavior until it is formally accepted through the authority and versioning
+process.
 
-JSON schemas define the structure of intermediate representations, target artifacts, and conformance fixtures:
+Historical binding behavior, implementation tests, generated fixtures, and
+legacy outputs remain compatibility evidence. Agreement among implementations
+does not make them normative. Tutorials and examples explain controlling
+sources; they do not create behavior and must be corrected when they conflict.
 
--   **[Base Schema](./schema/base.schema.json)**: Core schema definitions for STRling IR (TargetArtifact structure)
--   **[PCRE2 v1 Schema](./schema/pcre2.v1.schema.json)**: Target artifact schema for PCRE2 emitter
--   **[Conformance Fixture Schema](./schema/conformance-fixture.schema.json)**: Schema for shared test fixtures in `tests/spec/`, including `expected_hint` requirements for error fixtures
+## Current material
 
-### 4. Feature Registry
+| Path                                                                               | Current classification                                                                 | Permanent handling                                                                                                                         |
+| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`grammar/dsl.ebnf`](grammar/dsl.ebnf)                                             | Transitional regex-frontend grammar and compatibility evidence                         | Preserve accepted behavior until an explicit versioned decision revises it; do not treat it as the final Semantic STRling DSL.             |
+| [`grammar/semantics.md`](grammar/semantics.md)                                     | Transitional description of regex-frontend behavior and historical target expectations | Use for compatibility and specification input; its previous “STRling v3 normative” label is not a ratified semantic specification version. |
+| [`schema/base.schema.json`](schema/base.schema.json)                               | Versioned current TargetArtifact contract                                              | Preserve its declared compatibility scope; do not assume it is the final canonical target-artifact contract.                               |
+| [`schema/pcre2.v1.schema.json`](schema/pcre2.v1.schema.json)                       | Versioned current PCRE2 artifact contract                                              | Preserve its declared compatibility scope pending later target-profile and artifact design.                                                |
+| [`schema/conformance-fixture.schema.json`](schema/conformance-fixture.schema.json) | Versioned fixture-shape contract                                                       | Governs shape, not the semantic authority of implementation-derived fixture values.                                                        |
+| [`features.json`](features.json)                                                   | Transitional feature/status inventory                                                  | Evidence for design and migration; engine capabilities must ultimately be target-profile and version sensitive.                            |
+| [`stdlib/`](stdlib/)                                                               | Preserved capability data and compatibility evidence                                   | Ratify standard-library authority and semantics in later specification work.                                                               |
+| `tests/spec/*.json`                                                                | Implementation-derived shared compatibility evidence outside this directory            | Retain for differential migration; replace semantic-oracle use with independently accepted specification-authored cases.                   |
 
-The feature registry tracks all STRling features and their implementation status:
+## Source-language identities
 
--   **[Feature Registry](./features.json)**: Comprehensive list of features with metadata
+**Semantic STRling** is the future flagship textual authoring language designed
+against the canonical semantic representation.
 
-## Specification Principles
+The existing regex-shaped source notation, including current `.strl` inputs,
+is the **regex frontend** or **regex-compatible source dialect**. It remains a
+supported compatibility and import capability, but it does not define the
+semantic ceiling of STRling.
 
-### Grammar and Semantics Alignment
+Target regex is emitted output for a selected target engine/profile. It is
+neither Semantic STRling nor the regex frontend, even when surface spellings
+overlap.
 
-The **EBNF grammar** and **semantics document** are both normative and must evolve together:
+## Stable directory strategy
 
--   **Grammar** defines _what is parsable_ (syntax)
--   **Semantics** defines _what parsed constructs mean_ (behavior)
+The repository evolves toward this structure without mass relocation:
 
-Any new feature must include updates to both grammar and semantics. See the [Documentation Hub](../docs/index.md#architectural-principles) for details on this principle.
+```text
+spec/
+    README.md
+    VERSIONING.md
+    drafts/<major>.<minor>/
+    versions/<major>.<minor>/
+    grammar/          # current regex-frontend material; future dialect grammars
+    semantics/        # future versioned semantic material
+    schema/           # versioned formal contracts
+    conformance/      # specification-authored cases
+    targets/          # target-profile specifications
+    stdlib/           # standard-library specification material
+```
 
-### Versioning
+Directories are created when they have reviewed content. Existing grammar,
+schemas, fixtures, and tests are not moved merely to match the target layout.
 
-The specification is versioned as a cohesive unit. Changes to any component (grammar, semantics, or schemas) constitute a specification version change.
+## Change rules
 
-## Using This Specification
+A semantic proposal starts in a draft and follows
+[`VERSIONING.md`](VERSIONING.md). Ratification must identify every normative
+file and delegated conformance set. New behavior must not be authored by
+changing an implementation and then accepting its generated output as the
+specification.
 
-### For Language Designers
-
-When adding or modifying features:
-
-1. Update the [EBNF grammar](./grammar/dsl.ebnf) with new syntax rules
-2. Update the [semantics document](./grammar/semantics.md) with behavioral definitions
-3. Update or add JSON schemas if the change affects the IR or target artifacts
-4. Update the [feature registry](./features.json) to track the new feature
-
-### For Emitter Implementers
-
-Emitter implementations must conform to:
-
--   The **syntax rules** defined in the [grammar](./grammar/dsl.ebnf)
--   The **behavioral contracts** defined in the [semantics](./grammar/semantics.md)
--   The **schema constraints** defined in [schema files](./schema/)
-
-See the [Iron Law of Emitters](../docs/index.md#architectural-principles) in the Documentation Hub for emitter design principles.
-
-### For Binding Developers
-
-When implementing STRling bindings:
-
--   Parse according to the [grammar specification](./grammar/dsl.ebnf)
--   Implement behavior according to the [semantics specification](./grammar/semantics.md)
--   Generate output that conforms to the target [schema](./schema/)
--   Validate against the [feature registry](./features.json) for completeness
-
-## Related Documentation
-
--   **[Developer Hub](../docs/index.md)**: Architecture, philosophy, and contribution guides
--   **[Test Suite Guide](../tests/README.md)**: Testing strategy and directory structure
--   **[Contribution Guidelines](../docs/guidelines.md)**: Development workflow and documentation standards
+Compatibility evidence remains review input. A future specification may retain,
+clarify, deprecate, or deliberately reject historical behavior, but an
+incompatible decision requires the appropriate specification version change and
+explicit migration treatment.
