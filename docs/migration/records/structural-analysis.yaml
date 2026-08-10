@@ -22,6 +22,11 @@ scope:
         - tests/spec/**
     expected_files:
         - docs/migration/records/structural-analysis.yaml
+        - core/src/lib.rs
+        - core/src/semantic/mod.rs
+        - core/src/semantic_analysis.rs
+        - core/src/structural_analysis.rs
+        - core/tests/structural_analysis.rs
         - docs/migration/structural-analysis.md
         - governance/change-control.json
     permitted_generated_changes: []
@@ -92,8 +97,19 @@ checkpoints:
             result: passed
             details: Canonical check and certify passed with repository-certified Ruff 0.15.21, Bundler 2.4.20, system Python, and Swift 6.2.1; governance, formatting, architecture fitness, contracts, generation, baselines, kernel tests, and the 19-suite/963-test TypeScript baseline exited zero.
     - name: Leading-consumption analysis
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Complete symbolic leading analysis
+            command: cargo test --manifest-path core/Cargo.toml --test structural_analysis
+            result: passed
+            details: Nine focused tests cover all 12 reachable variants, equal and distinct literals, multibyte Unicode scalars, nullable prefixes, nested alternation, wildcard, finite literal/range predicates, lookaround separation, nullable and zero-maximum repetition, conservative backreferences, exact-program mismatch rejection, immutable inputs, and deterministic ordering.
+          - check: Certified foundational correspondence
+            result: passed
+            details: Foundational facts now carry a private deterministic exact-program fingerprint; structural analysis validates versions, fingerprint, reachable NodeId equality, and semantic node kinds before deriving facts, returning structured errors without invoking prior stages.
+          - check: Warnings-denied kernel regression
+            command: cargo fmt --manifest-path core/Cargo.toml --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && RUSTFLAGS=-Dwarnings cargo test --manifest-path core/Cargo.toml --all-targets
+            result: passed
+            details: Rust formatting, warnings-denied Clippy, and all 85 kernel tests passed, including normalization, foundational semantic analysis, canonical fixtures, and the new structural suite.
     - name: Length and progress classification
       status: planned
       evidence: []
@@ -109,4 +125,6 @@ checkpoints:
     - name: Completion and safety-analysis readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: efd7c7e7f6249f7c35ff529ba33e1c868999ea37
+      subject: "docs(core): define structural analysis invariants"

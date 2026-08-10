@@ -5,6 +5,7 @@ use std::error::Error;
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 use crate::semantic::{Node, SemanticProgram};
 use crate::source::{CaptureId, ContractVersion, NodeId, SpecificationVersion};
@@ -129,6 +130,9 @@ pub struct NodeFacts {
     pub backreference: Option<BackreferenceResolution>,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct SemanticProgramIdentity([u8; 32]);
+
 /// Complete deterministic fact store for one canonical semantic program.
 ///
 /// The internal `BTreeMap` makes identity order stable without treating
@@ -138,6 +142,7 @@ pub struct SemanticFacts {
     pub contract_version: ContractVersion,
     pub specification_version: SpecificationVersion,
     node_facts: BTreeMap<NodeId, NodeFacts>,
+    program_identity: SemanticProgramIdentity,
     capture_definitions: BTreeMap<CaptureId, CaptureDefinition>,
     backreferences: BTreeMap<NodeId, BackreferenceResolution>,
 }
@@ -187,6 +192,11 @@ impl SemanticFacts {
     pub fn is_empty(&self) -> bool {
         self.node_facts.is_empty()
     }
+
+    #[must_use]
+    pub(crate) fn program_identity(&self) -> SemanticProgramIdentity {
+        self.program_identity
+    }
 }
 
 /// Analyze one already-normalized target-neutral semantic program.
@@ -198,6 +208,14 @@ pub fn analyze(input: &SemanticProgram) -> Result<SemanticFacts, SemanticAnalysi
     input
         .validate()
         .map_err(SemanticAnalysisErrors::from_validation)?;
+
+    let program_identity = semantic_program_identity(input).map_err(|error| {
+        SemanticAnalysisErrors::single(SemanticAnalysisError::new(
+            SemanticAnalysisErrorCode::AnalysisInvariant,
+            "$",
+            format!("canonical semantic program identity could not be derived: {error}"),
+        ))
+    })?;
 
     let consumption_facts = consumption::analyze_consumption(input)?;
     let capture_analysis = capture::analyze_captures(input)?;
@@ -260,9 +278,19 @@ pub fn analyze(input: &SemanticProgram) -> Result<SemanticFacts, SemanticAnalysi
         contract_version: input.contract_version,
         specification_version: input.specification_version.clone(),
         node_facts,
+        program_identity,
         capture_definitions: capture_analysis.definitions,
         backreferences: capture_analysis.backreferences,
     })
+}
+
+pub(crate) fn semantic_program_identity(
+    input: &SemanticProgram,
+) -> Result<SemanticProgramIdentity, serde_json::Error> {
+    let canonical_bytes = serde_json::to_vec(input)?;
+    Ok(SemanticProgramIdentity(
+        Sha256::digest(canonical_bytes).into(),
+    ))
 }
 
 fn enforce_depth_limit(root: &Node) -> Result<(), SemanticAnalysisErrors> {

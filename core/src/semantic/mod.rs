@@ -34,6 +34,10 @@ pub enum CaseMatching {
 pub struct UnicodeScalar(char);
 
 impl UnicodeScalar {
+    pub(crate) const fn from_char(value: char) -> Self {
+        Self(value)
+    }
+
     #[must_use]
     pub fn get(self) -> char {
         self.0
@@ -72,7 +76,7 @@ impl<'de> Deserialize<'de> for UnicodeScalar {
 }
 
 /// Wildcard treatment of line terminators.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum LineTerminators {
     Exclude,
@@ -80,7 +84,7 @@ pub enum LineTerminators {
 }
 
 /// Built-in character class semantics.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BuiltinClassName {
     Digit,
@@ -99,7 +103,7 @@ impl BuiltinClassName {
 }
 
 /// ASCII or Unicode interpretation for a built-in class.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CharacterDomain {
     Ascii,
@@ -116,7 +120,7 @@ impl CharacterDomain {
 }
 
 /// Canonically ordered semantic members of a character set.
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum CharacterSetMember {
     Literal {

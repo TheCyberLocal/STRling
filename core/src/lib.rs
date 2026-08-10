@@ -15,5 +15,6 @@ pub mod protocol;
 pub mod semantic;
 pub mod semantic_analysis;
 pub mod source;
+pub mod structural_analysis;
 pub mod target;
 pub mod validation;
