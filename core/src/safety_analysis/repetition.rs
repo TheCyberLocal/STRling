@@ -1,4 +1,4 @@
-//! Repetition progress and transparent nested-repetition proofs.
+//! Repetition progress, nested partition, and certified competition proofs.
 
 use crate::semantic::{CharacterSetMember, RepetitionMode};
 use crate::structural_analysis::LeadingTerm;
@@ -7,9 +7,11 @@ use super::*;
 
 pub(super) fn analyze(
     root: &Node,
+    foundational: &SemanticFacts,
     structural: &StructuralFacts,
 ) -> Result<(SafetyAnalysis, usize), SafetyAnalysisErrors> {
     Analyzer {
+        foundational,
         structural,
         findings: Vec::new(),
         uncertainties: Vec::new(),
@@ -17,7 +19,15 @@ pub(super) fn analyze(
     .analyze(root)
 }
 
+#[derive(Clone)]
+struct RepeatedRegion {
+    repetition_node_id: NodeId,
+    minimum: u64,
+    maximum: RepetitionMaximum,
+}
+
 struct Analyzer<'a> {
+    foundational: &'a SemanticFacts,
     structural: &'a StructuralFacts,
     findings: Vec<SafetyFinding>,
     uncertainties: Vec<SafetyUncertainty>,
@@ -25,15 +35,30 @@ struct Analyzer<'a> {
 
 impl Analyzer<'_> {
     fn analyze(mut self, root: &Node) -> Result<(SafetyAnalysis, usize), SafetyAnalysisErrors> {
-        let mut pending = vec![root];
+        let mut pending = vec![(root, Vec::new())];
         let mut visited = 0_usize;
-        while let Some(node) = pending.pop() {
+        while let Some((node, repeated_regions)) = pending.pop() {
             visited += 1;
-            if matches!(node, Node::Repeat { .. }) {
-                self.repetition_progress(node)?;
-                self.nested_repetitions(node)?;
+            match node {
+                Node::Repeat { .. } => {
+                    self.repetition_progress(node)?;
+                    self.nested_repetitions(node)?;
+                }
+                Node::Alternation { .. } => {
+                    self.repeated_alternation(node, &repeated_regions)?;
+                }
+                Node::Sequence { .. } => self.repetition_followers(node)?,
+                Node::Empty { .. }
+                | Node::Literal { .. }
+                | Node::Wildcard { .. }
+                | Node::CharacterSet { .. }
+                | Node::Position { .. }
+                | Node::Capture { .. }
+                | Node::Backreference { .. }
+                | Node::Lookaround { .. }
+                | Node::Atomic { .. } => {}
             }
-            push_children(node, &mut pending);
+            push_children_with_regions(node, &repeated_regions, &mut pending);
         }
         Ok((
             SafetyAnalysis::from_parts(self.findings, self.uncertainties)?,
@@ -197,6 +222,191 @@ impl Analyzer<'_> {
         Ok(())
     }
 
+    fn repeated_alternation(
+        &mut self,
+        node: &Node,
+        repeated_regions: &[RepeatedRegion],
+    ) -> Result<(), SafetyAnalysisErrors> {
+        let Node::Alternation { node_id, .. } = node else {
+            return Ok(());
+        };
+        let relationships = &self
+            .structural
+            .get(node_id)
+            .ok_or_else(|| malformed("alternation lacks structural facts"))?
+            .alternation_branch_overlaps;
+        for region in repeated_regions {
+            for relationship in relationships {
+                let relationship_ref = StructuralRelationshipRef {
+                    kind: StructuralRelationshipKind::AlternationBranchOverlap,
+                    owner_node_id: node_id.clone(),
+                    left_node_id: relationship.left_node_id.clone(),
+                    right_node_id: relationship.right_node_id.clone(),
+                };
+                let evidence_node_ids = canonical_node_ids([
+                    &region.repetition_node_id,
+                    node_id,
+                    &relationship.left_node_id,
+                    &relationship.right_node_id,
+                ]);
+                match relationship.relation {
+                    OverlapRelation::Disjoint => {}
+                    OverlapRelation::Unknown(reason) => {
+                        self.push_uncertainty(SafetyUncertainty {
+                            code: SafetyUncertaintyCode::RepeatedAlternationNotProven,
+                            primary_node_id: node_id.clone(),
+                            evidence_node_ids,
+                            reason: SafetyUncertaintyReason::StructuralOverlap(reason),
+                            evidence: SafetyUncertaintyEvidence::RepeatedAlternation {
+                                repetition_node_id: region.repetition_node_id.clone(),
+                                alternation_node_id: node_id.clone(),
+                                relationship: relationship_ref,
+                            },
+                        })?;
+                    }
+                    OverlapRelation::Overlapping => {
+                        let left = self
+                            .foundational
+                            .get(&relationship.left_node_id)
+                            .ok_or_else(|| malformed("left branch lacks foundational facts"))?;
+                        let right = self
+                            .foundational
+                            .get(&relationship.right_node_id)
+                            .ok_or_else(|| malformed("right branch lacks foundational facts"))?;
+                        if left.minimum_consumption == 0 && right.minimum_consumption == 0 {
+                            self.push_uncertainty(SafetyUncertainty {
+                                code: SafetyUncertaintyCode::RepeatedAlternationNotProven,
+                                primary_node_id: node_id.clone(),
+                                evidence_node_ids,
+                                reason: SafetyUncertaintyReason::NullableOnlyOverlap,
+                                evidence: SafetyUncertaintyEvidence::RepeatedAlternation {
+                                    repetition_node_id: region.repetition_node_id.clone(),
+                                    alternation_node_id: node_id.clone(),
+                                    relationship: relationship_ref,
+                                },
+                            })?;
+                        } else {
+                            self.push_finding(SafetyFinding {
+                                code: SafetyFindingCode::RepeatedAlternationOverlap,
+                                category: SafetyFindingCategory::RepeatedAlternation,
+                                primary_node_id: node_id.clone(),
+                                evidence_node_ids,
+                                evidence: SafetyEvidence::RepeatedAlternation {
+                                    repetition_node_id: region.repetition_node_id.clone(),
+                                    alternation_node_id: node_id.clone(),
+                                    left_branch_index: relationship.left_branch_index,
+                                    right_branch_index: relationship.right_branch_index,
+                                    repetition_minimum: region.minimum,
+                                    repetition_maximum: region.maximum,
+                                    relationship: relationship_ref,
+                                    relation: relationship.relation,
+                                },
+                                proof: SafetyProofStatus::ProvenStructural,
+                            })?;
+                        }
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn repetition_followers(&mut self, node: &Node) -> Result<(), SafetyAnalysisErrors> {
+        let Node::Sequence { node_id, items, .. } = node else {
+            return Ok(());
+        };
+        let relationships = &self
+            .structural
+            .get(node_id)
+            .ok_or_else(|| malformed("sequence lacks structural facts"))?
+            .repetition_follow_overlaps;
+        for relationship in relationships {
+            let repetition_node = items
+                .get(relationship.repetition_index)
+                .ok_or_else(|| malformed("follower relationship repetition index is invalid"))?;
+            let Node::Repeat { min, max, mode, .. } = repetition_node else {
+                return Err(malformed(
+                    "follower relationship does not identify a repetition",
+                ));
+            };
+            if *mode == RepetitionMode::Possessive || !repetition_count_varies(*min, *max) {
+                continue;
+            }
+            let repetition = self
+                .structural
+                .get(&relationship.repetition_node_id)
+                .and_then(|facts| facts.repetition.as_ref())
+                .ok_or_else(|| malformed("follower repetition lacks structural facts"))?;
+            let relationship_ref = StructuralRelationshipRef {
+                kind: StructuralRelationshipKind::RepetitionFollowerOverlap,
+                owner_node_id: node_id.clone(),
+                left_node_id: relationship.operand_node_id.clone(),
+                right_node_id: relationship.following_node_id.clone(),
+            };
+            let evidence_node_ids = canonical_node_ids([
+                node_id,
+                &relationship.repetition_node_id,
+                &relationship.operand_node_id,
+                &relationship.following_node_id,
+            ]);
+            match relationship.relation {
+                OverlapRelation::Disjoint => {}
+                OverlapRelation::Unknown(reason) => {
+                    self.push_follower_uncertainty(
+                        node_id,
+                        &relationship.repetition_node_id,
+                        evidence_node_ids,
+                        relationship_ref,
+                        SafetyUncertaintyReason::StructuralOverlap(reason),
+                    )?;
+                }
+                OverlapRelation::Overlapping => match repetition.operand_progress {
+                    ProgressClassification::AlwaysConsuming => {
+                        self.push_finding(SafetyFinding {
+                            code: SafetyFindingCode::RepetitionFollowerOverlap,
+                            category: SafetyFindingCategory::RepetitionFollowerCompetition,
+                            primary_node_id: relationship.repetition_node_id.clone(),
+                            evidence_node_ids,
+                            evidence: SafetyEvidence::RepetitionFollower {
+                                sequence_node_id: node_id.clone(),
+                                repetition_node_id: relationship.repetition_node_id.clone(),
+                                operand_node_id: relationship.operand_node_id.clone(),
+                                follower_node_id: relationship.following_node_id.clone(),
+                                repetition_index: relationship.repetition_index,
+                                follower_index: relationship.following_index,
+                                repetition_minimum: *min,
+                                repetition_maximum: *max,
+                                extent: repetition.extent,
+                                relationship: relationship_ref,
+                                relation: relationship.relation,
+                            },
+                            proof: SafetyProofStatus::ProvenStructural,
+                        })?;
+                    }
+                    ProgressClassification::Indeterminate => {
+                        self.push_follower_uncertainty(
+                            node_id,
+                            &relationship.repetition_node_id,
+                            evidence_node_ids,
+                            relationship_ref,
+                            SafetyUncertaintyReason::IndeterminateProgress,
+                        )?;
+                    }
+                    ProgressClassification::PotentiallyZeroConsuming => {
+                        self.push_follower_uncertainty(
+                            node_id,
+                            &relationship.repetition_node_id,
+                            evidence_node_ids,
+                            relationship_ref,
+                            SafetyUncertaintyReason::NullableOnlyOverlap,
+                        )?;
+                    }
+                },
+            }
+        }
+        Ok(())
+    }
+
     fn push_nested_uncertainty(
         &mut self,
         outer_id: &NodeId,
@@ -213,6 +423,27 @@ impl Analyzer<'_> {
                 outer_repetition_node_id: outer_id.clone(),
                 inner_repetition_node_id: inner_id.clone(),
                 path,
+            },
+        })
+    }
+
+    fn push_follower_uncertainty(
+        &mut self,
+        sequence_id: &NodeId,
+        repetition_id: &NodeId,
+        evidence_node_ids: Vec<NodeId>,
+        relationship: StructuralRelationshipRef,
+        reason: SafetyUncertaintyReason,
+    ) -> Result<(), SafetyAnalysisErrors> {
+        self.push_uncertainty(SafetyUncertainty {
+            code: SafetyUncertaintyCode::RepetitionFollowerNotProven,
+            primary_node_id: repetition_id.clone(),
+            evidence_node_ids,
+            reason,
+            evidence: SafetyUncertaintyEvidence::RepetitionFollower {
+                sequence_node_id: sequence_id.clone(),
+                repetition_node_id: repetition_id.clone(),
+                relationship,
             },
         })
     }
@@ -242,6 +473,60 @@ impl Analyzer<'_> {
         }
         self.uncertainties.push(uncertainty);
         Ok(())
+    }
+}
+
+fn push_children_with_regions<'a>(
+    node: &'a Node,
+    repeated_regions: &[RepeatedRegion],
+    pending: &mut Vec<(&'a Node, Vec<RepeatedRegion>)>,
+) {
+    match node {
+        Node::Sequence { items, .. } => {
+            for child in items.iter().rev() {
+                pending.push((child, repeated_regions.to_vec()));
+            }
+        }
+        Node::Alternation { branches, .. } => {
+            for branch in branches.iter().rev() {
+                pending.push((branch, repeated_regions.to_vec()));
+            }
+        }
+        Node::Repeat {
+            node_id,
+            body,
+            min,
+            max,
+            mode,
+            ..
+        } => {
+            let mut body_regions = repeated_regions.to_vec();
+            if *mode != RepetitionMode::Possessive && repetition_executes_twice(*max) {
+                body_regions.push(RepeatedRegion {
+                    repetition_node_id: node_id.clone(),
+                    minimum: *min,
+                    maximum: *max,
+                });
+            }
+            pending.push((body, body_regions));
+        }
+        Node::Capture { body, .. } => pending.push((body, repeated_regions.to_vec())),
+        Node::Lookaround { body, .. } | Node::Atomic { body, .. } => {
+            pending.push((body, Vec::new()));
+        }
+        Node::Empty { .. }
+        | Node::Literal { .. }
+        | Node::Wildcard { .. }
+        | Node::CharacterSet { .. }
+        | Node::Position { .. }
+        | Node::Backreference { .. } => {}
+    }
+}
+
+fn repetition_executes_twice(maximum: RepetitionMaximum) -> bool {
+    match maximum {
+        RepetitionMaximum::Bounded(maximum) => maximum >= 2,
+        RepetitionMaximum::Unbounded => true,
     }
 }
 

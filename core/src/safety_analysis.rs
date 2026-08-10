@@ -336,7 +336,7 @@ pub fn analyze_safety(
     validate_foundational_correspondence(input, foundational)?;
     validate_structural_correspondence(input, structural)?;
 
-    let (analysis, visited) = repetition::analyze(&input.root, structural)?;
+    let (analysis, visited) = repetition::analyze(&input.root, foundational, structural)?;
     if visited != structural.len() || visited != foundational.len() {
         return Err(invariant(
             "$.root",
