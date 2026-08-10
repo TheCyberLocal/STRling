@@ -24,6 +24,7 @@ scope:
         - core/src/lib.rs
         - core/src/normalization.rs
         - core/tests/normalization.rs
+        - core/tests/normalization_properties.rs
         - docs/migration/semantic-normalization.md
         - docs/migration/records/semantic-normalization.yaml
         - governance/change-control.json
@@ -122,8 +123,20 @@ checkpoints:
             result: passed
             details: Source-less Simply-style input remains source-less while retaining derivation evidence; all 49 kernel tests, warnings-denied checks, canonical mapping, governance, and patch integrity passed.
     - name: Idempotence, determinism, and property certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Generated valid Semantic IR properties
+            command: cargo test --manifest-path core/Cargo.toml --test normalization_properties generated_valid_programs_certify_normalization_properties
+            result: passed
+            details: Four explicit 64-bit seeds generated 128 depth-bounded valid programs each (512 total) across all 12 node variants. Every case proved N(N(x)) == N(x), repeated structural and serialized determinism, canonical SemanticProgram validation, unchanged capture declarations/backreference order, and absence of target/analysis fields.
+          - check: Separate generated malformed corpus
+            command: cargo test --manifest-path core/Cargo.toml --test normalization_properties generated_malformed_programs_fail_with_stable_categories
+            result: passed
+            details: 256 deterministic malformed candidates independently exercised empty collections/literals, reversed repetition and set bounds, unresolved references, duplicate node IDs, and duplicate capture IDs; every case failed safely under the expected stable category.
+          - check: Property integration and regression
+            command: cargo fmt --manifest-path core/Cargo.toml -- --check; cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings; RUSTFLAGS=-Dwarnings cargo check --manifest-path core/Cargo.toml --all-targets; cargo test --manifest-path core/Cargo.toml --all-targets; python3 tooling/core_contract_validation.py; python3 tooling/governance.py; git diff --check
+            result: passed
+            details: The generated suite requires no new runtime or development dependency, completes in under one second locally, all 51 kernel tests pass, and no semantic normalization defect was discovered by the first certified corpus.
     - name: Legacy compatibility evidence comparison
       status: planned
       evidence: []
@@ -138,3 +151,5 @@ commits:
       subject: "docs(core): define semantic normalization invariants"
     - sha: 3842363bad75f9740b7b0386ec73819024396ac5
       subject: "feat(core): implement semantic normalization"
+    - sha: 902302d91a26327f7cfa0b73af4513ba132e4aee
+      subject: "feat(core): preserve semantic identity through normalization"
