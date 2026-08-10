@@ -11,6 +11,7 @@
 
 pub mod conformance;
 pub mod diagnostic;
+pub mod diagnostic_generation;
 pub mod normalization;
 pub mod protocol;
 pub mod safety_analysis;

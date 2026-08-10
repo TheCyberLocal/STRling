@@ -207,7 +207,7 @@ impl SafetyAnalysis {
         self.findings.is_empty() && self.uncertainties.is_empty()
     }
 
-    fn from_parts(
+    pub(crate) fn from_parts(
         mut findings: Vec<SafetyFinding>,
         mut uncertainties: Vec<SafetyUncertainty>,
     ) -> Result<Self, SafetyAnalysisErrors> {
@@ -348,7 +348,7 @@ pub fn analyze_safety(
     Ok(analysis)
 }
 
-fn validate_foundational_correspondence(
+pub(crate) fn validate_foundational_correspondence(
     input: &SemanticProgram,
     foundational: &SemanticFacts,
 ) -> Result<(), SafetyAnalysisErrors> {
@@ -410,7 +410,7 @@ fn validate_foundational_correspondence(
     Ok(())
 }
 
-fn validate_structural_correspondence(
+pub(crate) fn validate_structural_correspondence(
     input: &SemanticProgram,
     structural: &StructuralFacts,
 ) -> Result<(), SafetyAnalysisErrors> {
@@ -588,7 +588,7 @@ fn validate_structural_node(
     Ok(())
 }
 
-fn validate_analysis(
+pub(crate) fn validate_analysis(
     input: &SemanticProgram,
     structural: &StructuralFacts,
     analysis: &SafetyAnalysis,
@@ -729,7 +729,7 @@ fn validate_evidence_ids(
     Ok(())
 }
 
-fn enforce_resource_limits(root: &Node) -> Result<(), SafetyAnalysisErrors> {
+pub(crate) fn enforce_resource_limits(root: &Node) -> Result<(), SafetyAnalysisErrors> {
     let mut pending = vec![(root, 1_usize)];
     let mut nodes = 0_usize;
     while let Some((node, depth)) = pending.pop() {
