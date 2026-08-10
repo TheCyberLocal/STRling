@@ -18,6 +18,8 @@ use crate::structural_analysis::{
 };
 use crate::validation::{Validate, ValidationCode, ValidationErrors};
 
+mod repetition;
+
 /// Maximum semantic nodes accepted by one safety-analysis invocation.
 pub const MAX_SAFETY_NODES: usize = 65_536;
 
@@ -334,12 +336,7 @@ pub fn analyze_safety(
     validate_foundational_correspondence(input, foundational)?;
     validate_structural_correspondence(input, structural)?;
 
-    let mut pending = vec![&input.root];
-    let mut visited = 0_usize;
-    while let Some(node) = pending.pop() {
-        visited += 1;
-        push_children(node, &mut pending);
-    }
+    let (analysis, visited) = repetition::analyze(&input.root, structural)?;
     if visited != structural.len() || visited != foundational.len() {
         return Err(invariant(
             "$.root",
@@ -347,7 +344,6 @@ pub fn analyze_safety(
         ));
     }
 
-    let analysis = SafetyAnalysis::from_parts(Vec::new(), Vec::new())?;
     validate_analysis(input, structural, &analysis)?;
     Ok(analysis)
 }
