@@ -1,0 +1,122 @@
+record_version: 2.0.0
+title: Authoritative product and specification architecture
+status: in_progress
+objective: Establish one durable STRling product definition, authoring and compiler responsibility hierarchy, specification authority and versioning model, and canonical vocabulary without changing language or compiler runtime behavior.
+scope:
+    diff:
+        base: df75b88614ef7848856191df1fdf7f8f6b04e557
+        head: working-tree
+    allowed_paths:
+        - .github/PULL_REQUEST_TEMPLATE.md
+        - .github/copilot-instructions.md
+        - .github/instructions/**
+        - CONTRIBUTING.md
+        - README.md
+        - docs/**
+        - governance/*.md
+        - governance/change-control.json
+        - spec/**/*.md
+    forbidden_paths:
+        - bindings/**
+        - spec/features.json
+        - spec/grammar/dsl.ebnf
+        - spec/schema/**
+        - spec/stdlib/**
+        - tests/**
+        - tooling/**
+        - package.json
+        - package-lock.json
+        - toolchain.json
+        - strling
+        - strling.ps1
+    expected_files:
+        - docs/migration/product-specification-contradictions.md
+        - docs/migration/records/product-specification-architecture.yaml
+        - governance/product.md
+        - governance/terminology.md
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: intentional-correction
+        evidence:
+            - The status notice in spec/grammar/semantics.md is corrected from an unsupported normative-v3 claim to transitional regex-frontend compatibility evidence; no construct meaning or accepted behavior changes.
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Ratified product, authoring-surface, compiler-responsibility, specification-authority, and versioning decisions refine the already certified Engineering Constitution without changing implementation structure.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: false
+required_verification:
+    - name: Documentation and authority review
+      command: targeted Markdown link checks, contradiction searches, and specification-authority searches
+      expected_result: High-authority documents consistently identify semantic intent as the flagship abstraction and no host binding or generated fixture as semantic authority.
+    - name: Governance contracts
+      command: ./strling contracts --check; ./strling governance
+      expected_result: Existing public-contract and architecture rules pass with no generated or public-surface drift.
+    - name: Canonical quality and certification
+      command: BUNDLER_VERSION=2.4.20 ./strling check all; BUNDLER_VERSION=2.4.20 ./strling certify all
+      expected_result: All enforced hardgates and the complete TypeScript baseline pass from committed state.
+    - name: Structured document validation
+      command: parse changed JSON and YAML; validate Markdown links; git diff --check
+      expected_result: Authored records parse, local links resolve, and patch hygiene passes.
+checkpoints:
+    - name: Product identity and contradiction contract
+      status: passed
+      evidence:
+          - check: Clean committed starting state
+            command: git status --short --branch; git rev-parse HEAD
+            result: passed
+            details: The task started from a clean architecture/v4 tree at df75b88614ef7848856191df1fdf7f8f6b04e557, 36 commits ahead of origin.
+          - check: Certified baseline and donor obligations
+            command: Engineering Constitution, authority hierarchy, frozen baseline, preservation matrix, donor inventory, and transition review
+            result: passed
+            details: Public surfaces and accepted outcomes remain compatibility obligations; TypeScript oracle workflows and per-binding compilers remain intentionally replace; implementation fixtures remain evidence; known defects remain non-contractual.
+          - check: Product definition and contradiction contract
+            command: governance/product.md; governance/terminology.md; docs/migration/product-specification-contradictions.md
+            result: passed
+            details: The ratified model defines a portable regex-intent compiler, semantic intent as the flagship abstraction, the current regex-shaped syntax as a compatibility frontend, and separate host-language and target-engine concepts without selecting future contract fields.
+          - check: Checkpoint policy verification
+            command: PATH=/tmp/strling-ruff-0.15.21/bin:$PATH ./strling format --check repository; ./strling hygiene; ./strling contracts --check; ./strling governance; git diff --check
+            result: passed
+            details: Pinned formatting, hygiene, contract reproduction and declaration checks, current architecture rules, and patch integrity passed; only already-recorded transitional and future architecture findings remained.
+    - name: Specification authority and versioning
+      status: planned
+      evidence: []
+    - name: Authoring surface and compiler responsibility architecture
+      status: planned
+      evidence: []
+    - name: Reconcile authoritative documentation
+      status: planned
+      evidence: []
+    - name: Architecture consistency certification
+      status: planned
+      evidence: []
+    - name: Completion and canonical-contract readiness
+      status: planned
+      evidence: []
+commits: []
