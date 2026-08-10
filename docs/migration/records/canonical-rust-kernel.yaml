@@ -9,6 +9,7 @@ scope:
     allowed_paths:
         - core/**
         - docs/migration/**
+        - .gitignore
         - governance/architecture-rules.json
         - governance/change-control.json
         - governance/schemas/architecture-rules.schema.json
@@ -158,10 +159,30 @@ checkpoints:
             result: passed
             details: Eleven canonical schemas, 29 positive examples, 33 controlled invalid examples, kernel quality operations, governed dependency boundaries, task scope, and patch integrity all passed.
     - name: Target profile and artifact domain types
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Authored target profiles and immutable fingerprints
+            command: cargo test --test target_contracts authored_target_profiles_validate_and_fingerprint_exactly immutable_profile_references_resolve_only_exact_fingerprints
+            result: passed
+            details: PCRE2 10.42 and 10.43, ECMAScript 2024, and Python re 3.11 validate as closed typed profiles; Rust canonical JSON produces all four specification-certified SHA-256 values, and profile resolution rejects an altered fingerprint.
+          - check: Version-aware capability and constraint model
+            command: cargo test --test target_contracts engine_versions_select_distinct_capability_records constraints_preserve_typed_operators_values_and_units
+            result: passed
+            details: Tagged semver, dotted-numeric, edition, and opaque version representations prevent scheme guessing; the two PCRE2 releases retain different availability records and constrained capabilities preserve closed operators, scalar/list values, units, and declared-option references.
+          - check: TargetArtifact and profile-dependent invariants
+            command: cargo test --test target_contracts target_artifact_keeps_pattern_options_and_profile_separate profile_dependent_artifact_mismatches_are_structured
+            result: passed
+            details: Pattern text, compile/runtime options, profile identity, requirements, source maps, and emission diagnostics remain separate; missing required options, undeclared options, mismatched option values, incompatible specifications, and wrong profiles return structured validation errors.
+          - check: Controlled invalid profiles and portability vocabulary
+            command: cargo test --test target_contracts malformed_profile_fixtures_are_rejected_structurally portability_vocabulary_has_no_degraded_state
+            result: passed
+            details: Boolean capabilities, empty constrained entries, duplicate capabilities, malformed engine versions, unknown fields, and explicit-null runtime values are rejected; the only portability values are native, equivalent_rewrite, and unsupported.
+          - check: Deterministic dependency and serialization boundary
+            command: cargo clippy --all-targets -- -D warnings; RUSTFLAGS=-Dwarnings cargo check --all-targets; cargo test --all-targets; ./strling check core --json
+            result: passed
+            details: The lockfile pins the sole added deterministic utility, sha2 0.10.9; all 31 kernel tests, warnings-denied lint/typecheck, structural round trips, repository contracts, governance, and patch integrity passed. The canonical target source directory is explicitly unignored so clean checkouts contain it.
     - name: Cross-domain validation and fixture certification
-      status: planned
+      status: in_progress
       evidence: []
     - name: Repository hardgate integration
       status: planned
@@ -174,3 +195,5 @@ commits:
       subject: "feat(core): establish canonical compiler kernel"
     - sha: 3695415407605266eabd42d16b189ac0e32baad2
       subject: "feat(core): implement canonical semantic domain types"
+    - sha: 582c46cd6f129f82839e577d16e02ffd80738f1a
+      subject: "feat(core): implement compiler protocol domain types"

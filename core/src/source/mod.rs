@@ -199,6 +199,19 @@ opaque_string!(Sha256Digest, "SHA-256 digest", |value: &str| {
             .all(|character| character.is_ascii_digit() || matches!(character, 'a'..='f'))
 });
 
+impl Sha256Digest {
+    /// Construct a lowercase contract digest from an already-computed SHA-256 value.
+    #[must_use]
+    pub fn from_bytes(bytes: [u8; 32]) -> Self {
+        let mut value = String::with_capacity(64);
+        for byte in bytes {
+            use std::fmt::Write;
+            let _ = write!(value, "{byte:02x}");
+        }
+        Self(value)
+    }
+}
+
 /// Frontend identity does not expose the frontend's private syntax representation.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
