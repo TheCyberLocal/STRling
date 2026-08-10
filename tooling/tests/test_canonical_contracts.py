@@ -7,6 +7,7 @@ import json
 import unittest
 
 from tooling.contract_validation import (
+    CONFORMANCE_ROOT,
     CONTRACT_ROOT,
     PROFILE_ROOT,
     ContractValidationError,
@@ -28,6 +29,8 @@ class CanonicalContractTests(unittest.TestCase):
                 "analysis.schema.json",
                 "compile-request.schema.json",
                 "compile-result.schema.json",
+                "conformance-case.schema.json",
+                "conformance-manifest.schema.json",
                 "diagnostic.schema.json",
                 "portability.schema.json",
                 "semantic-ir.schema.json",
@@ -39,10 +42,10 @@ class CanonicalContractTests(unittest.TestCase):
         )
 
     def test_positive_examples_validate(self) -> None:
-        self.assertEqual(24, self.suite.validate_positive_examples())
+        self.assertEqual(29, self.suite.validate_positive_examples())
 
     def test_controlled_negative_examples_are_rejected(self) -> None:
-        self.assertEqual(24, self.suite.validate_negative_examples())
+        self.assertEqual(33, self.suite.validate_negative_examples())
 
     def test_all_semantic_node_categories_are_exercised(self) -> None:
         example = load_json(
@@ -154,6 +157,18 @@ class CanonicalContractTests(unittest.TestCase):
                 canonical_json(json.loads(first.decode("utf-8"))),
                 path,
             )
+        conformance_paths = [
+            CONFORMANCE_ROOT / "manifest.json",
+            *sorted((CONFORMANCE_ROOT / "cases").glob("*.json")),
+        ]
+        for path in conformance_paths:
+            value = load_json(path)
+            first = canonical_json(value)
+            self.assertEqual(
+                first,
+                canonical_json(json.loads(first.decode("utf-8"))),
+                path,
+            )
 
     def test_diagnostic_attribution_must_resolve_to_exchange_source(self) -> None:
         request = load_json(
@@ -234,6 +249,51 @@ class CanonicalContractTests(unittest.TestCase):
         malformed["target_profile"]["sha256"] = "0" * 64
         with self.assertRaises(ContractValidationError):
             self.suite.validate("target-artifact.schema.json", malformed)
+
+    def test_seed_manifest_is_draft_and_specification_owned(self) -> None:
+        manifest = load_json(CONFORMANCE_ROOT / "manifest.json")
+        self.suite.validate("conformance-manifest.schema.json", manifest)
+        self.assertEqual("draft", manifest["authority_status"])
+        self.assertNotIn("delegation", manifest)
+        for entry in manifest["cases"]:
+            case = load_json(CONTRACT_ROOT.parents[2] / entry["path"])
+            self.assertEqual("specification_authored", case["authorship"]["kind"])
+
+    def test_case_cannot_self_promote_or_claim_implementation_authorship(self) -> None:
+        case = load_json(CONFORMANCE_ROOT / "cases" / "semantic-literal.json")
+        self_promoted = copy.deepcopy(case)
+        self_promoted["authority_status"] = "delegated_normative"
+        with self.assertRaises(ContractValidationError):
+            self.suite.validate("conformance-case.schema.json", self_promoted)
+
+        implementation_generated = copy.deepcopy(case)
+        implementation_generated["authorship"]["kind"] = "implementation_generated"
+        with self.assertRaises(ContractValidationError):
+            self.suite.validate(
+                "conformance-case.schema.json", implementation_generated
+            )
+
+    def test_error_case_cannot_declare_execution_expectations(self) -> None:
+        malformed = load_json(
+            CONTRACT_ROOT / "invalid" / "conformance-case" / "error-with-matches.json"
+        )
+        with self.assertRaises(ContractValidationError):
+            self.suite.validate("conformance-case.schema.json", malformed)
+
+    def test_seed_cases_cover_independent_expectation_layers(self) -> None:
+        cases = [
+            load_json(path)
+            for path in sorted((CONFORMANCE_ROOT / "cases").glob("*.json"))
+        ]
+        layers = {layer for case in cases for layer in case["expectations"]}
+        self.assertEqual(
+            {"semantic", "diagnostics", "matches", "targets"},
+            layers,
+        )
+        lookbehind = next(
+            case for case in cases if case["case_id"].startswith("case:targets/")
+        )
+        self.suite.validate("conformance-case.schema.json", lookbehind)
 
 
 if __name__ == "__main__":

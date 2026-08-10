@@ -1,0 +1,14 @@
+{
+    "contract_version": "1.0.0",
+    "manifest_id": "manifest:invalid.normative",
+    "specification_version": "1.0-draft.1",
+    "ownership": "specification",
+    "authority_status": "delegated_normative",
+    "cases": [
+        {
+            "case_id": "case:semantic/literal",
+            "path": "spec/conformance/cases/semantic-literal.json",
+            "sha256": "a3ca1a49b8c77ca761b3801938fe01525b7307c6229f9abf63cace1e0d3f7772"
+        }
+    ]
+}

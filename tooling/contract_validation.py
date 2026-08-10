@@ -15,6 +15,7 @@ from jsonschema import Draft202012Validator, FormatChecker, RefResolver
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_ROOT = ROOT / "spec" / "contracts" / "1.0"
 PROFILE_ROOT = ROOT / "spec" / "targets" / "profiles"
+CONFORMANCE_ROOT = ROOT / "spec" / "conformance"
 
 FAMILY_SCHEMAS = (
     ("source", "source.schema.json"),
@@ -26,6 +27,8 @@ FAMILY_SCHEMAS = (
     ("portability", "portability.schema.json"),
     ("target-profile", "target-profile.schema.json"),
     ("target-artifact", "target-artifact.schema.json"),
+    ("conformance-case", "conformance-case.schema.json"),
+    ("conformance-manifest", "conformance-manifest.schema.json"),
 )
 
 PHASE_ORDER = {
@@ -140,6 +143,10 @@ class ContractSuite:
             self._validate_target_profile(value)
         elif schema_name == "target-artifact.schema.json":
             self._validate_target_artifact(value)
+        elif schema_name == "conformance-case.schema.json":
+            self._validate_conformance_case(value)
+        elif schema_name == "conformance-manifest.schema.json":
+            self._validate_conformance_manifest(value)
 
     def validate_positive_examples(self) -> int:
         """Validate every authored positive source and Semantic IR example."""
@@ -153,6 +160,14 @@ class ContractSuite:
         for profile in self.profile_documents.values():
             self.validate("target-profile.schema.json", profile)
             count += 1
+        for path in sorted((CONFORMANCE_ROOT / "cases").glob("*.json")):
+            self.validate("conformance-case.schema.json", load_json(path))
+            count += 1
+        self.validate(
+            "conformance-manifest.schema.json",
+            load_json(CONFORMANCE_ROOT / "manifest.json"),
+        )
+        count += 1
         return count
 
     def validate_negative_examples(self) -> int:
@@ -498,6 +513,262 @@ class ContractSuite:
                 "artifact diagnostics must use canonical result order"
             )
 
+    def _validate_conformance_case(self, case: Mapping[str, Any]) -> None:
+        specification_version = case["specification_version"]
+        input_value = case["input"]
+        sources: dict[str, Mapping[str, Any]] = {}
+        input_program: Mapping[str, Any] | None = None
+        if input_value["kind"] == "source":
+            source = input_value["document"]
+            self._validate_source(source)
+            sources[source["source_id"]] = source
+            input_specification = source["specification_version"]
+        else:
+            input_program = input_value["program"]
+            self._validate_semantic(input_program)
+            input_specification = input_program["specification_version"]
+            sources = {
+                source["source_id"]: source
+                for source in input_program.get("sources", [])
+            }
+        if input_specification != specification_version:
+            raise ContractValidationError(
+                "conformance input and case specification versions must match"
+            )
+
+        intent_path = (ROOT / case["authorship"]["intent_source"]).resolve()
+        specification_root = (ROOT / "spec").resolve()
+        if (
+            not intent_path.is_relative_to(specification_root)
+            or not intent_path.is_file()
+        ):
+            raise ContractValidationError(
+                "conformance intent_source must resolve to specification material"
+            )
+
+        expectations = case["expectations"]
+        semantic = expectations.get("semantic")
+        expected_program: Mapping[str, Any] | None = None
+        if semantic is not None:
+            expected_program = semantic.get("exact_program")
+            if expected_program is not None:
+                self._validate_semantic(expected_program)
+                if expected_program["specification_version"] != specification_version:
+                    raise ContractValidationError(
+                        "exact semantic expectation must use the case specification"
+                    )
+                if input_program is not None and expected_program != input_program:
+                    raise ContractValidationError(
+                        "normalized semantic input must be preserved by an exact expectation"
+                    )
+            fact_program = expected_program or input_program
+            facts = semantic.get("facts")
+            if facts is not None and fact_program is not None:
+                nodes = list(iter_nodes(fact_program["root"]))
+                if (
+                    "root_kind" in facts
+                    and facts["root_kind"] != fact_program["root"]["kind"]
+                ):
+                    raise ContractValidationError(
+                        "semantic root_kind fact contradicts the expected program"
+                    )
+                if "node_count" in facts and facts["node_count"] != len(nodes):
+                    raise ContractValidationError(
+                        "semantic node_count fact contradicts the expected program"
+                    )
+                captures = sorted(
+                    node["capture_id"] for node in nodes if node["kind"] == "capture"
+                )
+                if "capture_ids" in facts and facts["capture_ids"] != captures:
+                    raise ContractValidationError(
+                        "semantic capture_ids fact contradicts the expected program"
+                    )
+
+        diagnostics = expectations.get("diagnostics")
+        has_expected_error = False
+        if diagnostics is not None:
+            items = diagnostics["items"]
+            keys = [_diagnostic_expectation_key(item) for item in items]
+            if keys != sorted(set(keys)):
+                raise ContractValidationError(
+                    "diagnostic expectations must be unique and canonically sorted"
+                )
+            has_expected_error = any(item["severity"] == "error" for item in items)
+            for item in items:
+                location = item.get("primary_location")
+                if location is not None:
+                    source = sources.get(location["source_id"])
+                    if source is None:
+                        raise ContractValidationError(
+                            "diagnostic expectation refers to an undeclared source"
+                        )
+                    self._validate_span(location, source)
+
+        matches = expectations.get("matches")
+        targets = expectations.get("targets")
+        if has_expected_error and (matches is not None or targets is not None):
+            raise ContractValidationError(
+                "error-diagnostic cases cannot declare match or target expectations"
+            )
+
+        semantic_program = expected_program or input_program
+        declared_capture_ids: set[str] = set()
+        if semantic_program is not None:
+            declared_capture_ids = {
+                node["capture_id"]
+                for node in iter_nodes(semantic_program["root"])
+                if node["kind"] == "capture"
+            }
+        if matches is not None:
+            positive = matches["positive"]
+            negative = matches["negative"]
+            positive_ids = [item["match_id"] for item in positive]
+            negative_ids = [item["match_id"] for item in negative]
+            if positive_ids != sorted(set(positive_ids)):
+                raise ContractValidationError(
+                    "positive match IDs must be unique and sorted"
+                )
+            if negative_ids != sorted(set(negative_ids)):
+                raise ContractValidationError(
+                    "negative match IDs must be unique and sorted"
+                )
+            if set(positive_ids).intersection(negative_ids):
+                raise ContractValidationError(
+                    "match IDs must be unique across positive and negative cases"
+                )
+            for match in positive:
+                capture_ids = [item["capture_id"] for item in match["captures"]]
+                if capture_ids != sorted(set(capture_ids)):
+                    raise ContractValidationError(
+                        "capture expectations must have unique sorted logical IDs"
+                    )
+                missing = set(capture_ids) - declared_capture_ids
+                if missing:
+                    raise ContractValidationError(
+                        "capture expectations refer to undeclared logical IDs: "
+                        + ", ".join(sorted(missing))
+                    )
+                subject_bytes = match["subject"].encode("utf-8")
+                subject_boundaries = self._utf8_boundaries(match["subject"])
+                for capture in match["captures"]:
+                    if not capture["matched"]:
+                        continue
+                    span = capture["subject_span"]
+                    start = span["start"]
+                    end = span["end"]
+                    if (
+                        start > end
+                        or start not in subject_boundaries
+                        or end not in subject_boundaries
+                        or subject_bytes[start:end].decode("utf-8") != capture["text"]
+                    ):
+                        raise ContractValidationError(
+                            "capture text must equal its UTF-8 subject span"
+                        )
+
+        if targets is not None:
+            target_keys = [
+                (
+                    item["target_profile"]["profile_id"],
+                    item["target_profile"]["profile_version"],
+                    item["target_profile"]["sha256"],
+                )
+                for item in targets
+            ]
+            if target_keys != sorted(set(target_keys)):
+                raise ContractValidationError(
+                    "target expectations must be unique and canonically sorted"
+                )
+            for item in targets:
+                profile = self._validate_profile_reference(item["target_profile"])
+                if (
+                    specification_version
+                    not in profile["compatible_specification_versions"]
+                ):
+                    raise ContractValidationError(
+                        "target profile is not declared compatible with case specification"
+                    )
+                reason_codes = item.get("reason_codes", [])
+                if reason_codes != sorted(reason_codes):
+                    raise ContractValidationError(
+                        "target reason codes must be canonically sorted"
+                    )
+
+        evidence = case.get("compatibility_evidence", [])
+        evidence_keys = [(item["kind"], item["reference"]) for item in evidence]
+        if evidence_keys != sorted(set(evidence_keys)):
+            raise ContractValidationError(
+                "compatibility evidence must be unique and canonically sorted"
+            )
+        for item in evidence:
+            reference = item["reference"]
+            if reference.startswith(("tests/", "spec/", "docs/")):
+                if not (ROOT / reference).is_file():
+                    raise ContractValidationError(
+                        f"compatibility evidence does not resolve: {reference}"
+                    )
+        tags = case.get("tags", [])
+        if tags != sorted(tags):
+            raise ContractValidationError("conformance tags must be sorted")
+
+    def _validate_conformance_manifest(self, manifest: Mapping[str, Any]) -> None:
+        entries = manifest["cases"]
+        case_ids = [entry["case_id"] for entry in entries]
+        paths = [entry["path"] for entry in entries]
+        if case_ids != sorted(set(case_ids)):
+            raise ContractValidationError(
+                "manifest case entries must have unique sorted case IDs"
+            )
+        if len(paths) != len(set(paths)):
+            raise ContractValidationError("manifest case paths must be unique")
+
+        listed_paths: set[Path] = set()
+        cases_root = (CONFORMANCE_ROOT / "cases").resolve()
+        for entry in entries:
+            path = (ROOT / entry["path"]).resolve()
+            if not path.is_relative_to(cases_root) or not path.is_file():
+                raise ContractValidationError(
+                    f"manifest case path does not resolve under spec/conformance: {path}"
+                )
+            listed_paths.add(path)
+            case = load_json(path)
+            self.validate("conformance-case.schema.json", case)
+            if case["case_id"] != entry["case_id"]:
+                raise ContractValidationError(
+                    "manifest case ID does not match case document"
+                )
+            if case["specification_version"] != manifest["specification_version"]:
+                raise ContractValidationError(
+                    "manifest and case specification versions must match"
+                )
+            fingerprint = hashlib.sha256(canonical_json(case)).hexdigest()
+            if fingerprint != entry["sha256"]:
+                raise ContractValidationError(
+                    "manifest case fingerprint does not match canonical JSON"
+                )
+
+        actual_paths = {
+            path.resolve() for path in (CONFORMANCE_ROOT / "cases").glob("*.json")
+        }
+        if listed_paths != actual_paths:
+            raise ContractValidationError(
+                "manifest must list every and only specification-owned case file"
+            )
+
+        if manifest["authority_status"] == "delegated_normative":
+            delegation = manifest["delegation"]
+            normative_source = (ROOT / delegation["normative_source"]).resolve()
+            versions_root = (ROOT / "spec" / "versions").resolve()
+            if (
+                not normative_source.is_relative_to(versions_root)
+                or not normative_source.is_file()
+                or delegation["ratified_specification"]
+                != manifest["specification_version"]
+            ):
+                raise ContractValidationError(
+                    "normative manifest delegation must resolve to its ratified specification"
+                )
+
     def _validate_compile_request(self, request: Mapping[str, Any]) -> None:
         input_value = request["input"]
         if input_value["kind"] == "source":
@@ -835,6 +1106,28 @@ class ContractSuite:
                 raise ContractValidationError(
                     "character-set range start cannot exceed its end"
                 )
+
+
+def _diagnostic_expectation_key(
+    diagnostic: Mapping[str, Any],
+) -> tuple[Any, ...]:
+    location = diagnostic.get("primary_location")
+    if location is None:
+        location_key: tuple[Any, ...] = (1, "", 0, 0)
+    else:
+        location_key = (
+            0,
+            location["source_id"],
+            location["start"],
+            location["end"],
+        )
+    return (
+        *location_key,
+        PHASE_ORDER[diagnostic["phase"]],
+        SEVERITY_ORDER[diagnostic["severity"]],
+        diagnostic["category"],
+        diagnostic["code"],
+    )
 
 
 def _diagnostic_key(diagnostic: Mapping[str, Any]) -> tuple[Any, ...]:

@@ -1,0 +1,83 @@
+{
+    "contract_version": "1.0.0",
+    "case_id": "case:matching/logical-capture",
+    "specification_version": "1.0-draft.1",
+    "title": "Capture expectations use logical capture identity",
+    "authorship": {
+        "kind": "specification_authored",
+        "intent_source": "spec/drafts/1.0/README.md"
+    },
+    "input": {
+        "kind": "semantic",
+        "program": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "normalization": "canonical-v1",
+            "case_matching": "sensitive",
+            "root": {
+                "node_id": "node:case.capture",
+                "kind": "capture",
+                "capture_id": "capture:case.word",
+                "name": "word",
+                "body": {
+                    "node_id": "node:case.capture.body",
+                    "kind": "literal",
+                    "text": "ab"
+                }
+            }
+        }
+    },
+    "expectations": {
+        "semantic": {
+            "facts": {
+                "root_kind": "capture",
+                "node_count": 2,
+                "capture_ids": ["capture:case.word"]
+            }
+        },
+        "matches": {
+            "operation": "full_match",
+            "positive": [
+                {
+                    "match_id": "exact",
+                    "subject": "ab",
+                    "captures": [
+                        {
+                            "capture_id": "capture:case.word",
+                            "matched": true,
+                            "text": "ab",
+                            "subject_span": {
+                                "coordinate_system": "utf8-bytes",
+                                "start": 0,
+                                "end": 2
+                            }
+                        }
+                    ]
+                }
+            ],
+            "negative": [
+                {
+                    "match_id": "different_suffix",
+                    "subject": "ac"
+                }
+            ]
+        },
+        "targets": [
+            {
+                "target_profile": {
+                    "profile_id": "profile:pcre2/10.43",
+                    "profile_version": "1.0.0",
+                    "sha256": "6351e2238916cf012230f56c4134eb6e03fe82b51131b6cb1f79272d5b669c74"
+                },
+                "status": "native"
+            }
+        ]
+    },
+    "compatibility_evidence": [
+        {
+            "kind": "legacy_fixture",
+            "reference": "tests/spec/in_capturing_group.json"
+        }
+    ],
+    "tags": ["capture", "matching"]
+}

@@ -162,8 +162,24 @@ checkpoints:
             result: passed
             details: Nine Draft 2020-12 schemas, twenty-four positive objects, and twenty-four controlled invalid objects passed expected outcomes; seventeen tests covered engine-version distinctions, canonical profile fingerprints, required option separation, source maps, target compile exchange, malformed versions, unavailable/constrained capabilities, and deterministic round trips.
     - name: Specification-authored conformance contract
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Specification-owned case and authority-manifest contracts
+            command: spec/contracts/1.0/conformance-case.schema.json; spec/contracts/1.0/conformance-manifest.schema.json; spec/conformance/README.md
+            result: passed
+            details: Cases require stable IDs, explicit specification version, specification authorship, one source or semantic input, and only the expectation layers they exercise; cases cannot declare themselves normative, while content-addressed manifest status requires ratified delegation before becoming normative.
+          - check: Draft seed corpus
+            command: spec/conformance/cases; spec/conformance/manifest.json
+            result: passed
+            details: Four independently authored draft cases cover exact/factual semantics, structured parser diagnostics, abstract positive/negative matching with logical captures, and version-aware target support; the manifest pins every case ID, path, and canonical JSON fingerprint.
+          - check: Legacy evidence boundary
+            command: conformance compatibility_evidence fields; existing specification authority classification
+            result: passed
+            details: Historical tests/spec fixtures are cited only as transitional compatibility evidence and are absent from the specification authority manifest; implementation output cannot self-promote through schema conformance or case-local status.
+          - check: Ownership combination identity and target-reference validation
+            command: python3 tooling/contract_validation.py; python3 -m unittest tooling.tests.test_canonical_contracts
+            result: passed
+            details: Eleven Draft 2020-12 schemas, twenty-nine positive objects, and thirty-three controlled invalid objects passed expected outcomes; twenty-one tests cover manifest ownership, stable membership and fingerprints, non-self-promotion, invalid error/execution combinations, logical captures, target resolution, explicit specification association, layer independence, and deterministic round trips.
     - name: Cross-contract certification
       status: planned
       evidence: []
@@ -177,3 +193,5 @@ commits:
       subject: "feat(spec): define canonical semantic representation"
     - sha: 01e54ebc927f4c2a31476e2479b53cac797f00dd
       subject: "feat(spec): define compiler protocol and diagnostic contracts"
+    - sha: 01e0d901cb85f9324f8f823c6712dbcf5e65ca93
+      subject: "feat(spec): define target profile and artifact contracts"

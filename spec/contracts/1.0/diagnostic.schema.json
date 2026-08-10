@@ -19,40 +19,13 @@
             "$ref": "source.schema.json#/$defs/ContractVersion"
         },
         "occurrence": { "type": "integer", "minimum": 0 },
-        "code": {
-            "type": "string",
-            "pattern": "^STRL-[A-Z][A-Z0-9_]*-[0-9]{4}$"
-        },
-        "severity": { "enum": ["error", "warning", "info", "hint"] },
+        "code": { "$ref": "#/$defs/DiagnosticCode" },
+        "severity": { "$ref": "#/$defs/Severity" },
         "severity_basis": {
             "enum": ["normative", "target_profile", "compiler_policy"]
         },
-        "phase": {
-            "enum": [
-                "protocol",
-                "frontend_parse",
-                "semantic_lowering",
-                "normalization",
-                "semantic_analysis",
-                "portability",
-                "target_lowering",
-                "emission"
-            ]
-        },
-        "category": {
-            "enum": [
-                "malformed_request",
-                "unsupported_frontend",
-                "syntax",
-                "semantic_validity",
-                "normalization",
-                "resource_limit",
-                "portability",
-                "target_capability",
-                "safety",
-                "internal"
-            ]
-        },
+        "phase": { "$ref": "#/$defs/CompilerPhase" },
+        "category": { "$ref": "#/$defs/DiagnosticCategory" },
         "message": { "type": "string", "minLength": 1 },
         "primary_location": {
             "$ref": "source.schema.json#/$defs/SourceSpan"
@@ -71,6 +44,39 @@
         }
     },
     "$defs": {
+        "DiagnosticCode": {
+            "type": "string",
+            "pattern": "^STRL-[A-Z][A-Z0-9_]*-[0-9]{4}$"
+        },
+        "Severity": {
+            "enum": ["error", "warning", "info", "hint"]
+        },
+        "CompilerPhase": {
+            "enum": [
+                "protocol",
+                "frontend_parse",
+                "semantic_lowering",
+                "normalization",
+                "semantic_analysis",
+                "portability",
+                "target_lowering",
+                "emission"
+            ]
+        },
+        "DiagnosticCategory": {
+            "enum": [
+                "malformed_request",
+                "unsupported_frontend",
+                "syntax",
+                "semantic_validity",
+                "normalization",
+                "resource_limit",
+                "portability",
+                "target_capability",
+                "safety",
+                "internal"
+            ]
+        },
         "RelatedLocation": {
             "type": "object",
             "additionalProperties": false,

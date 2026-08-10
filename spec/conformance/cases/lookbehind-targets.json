@@ -1,0 +1,91 @@
+{
+    "contract_version": "1.0.0",
+    "case_id": "case:targets/variable-lookbehind",
+    "specification_version": "1.0-draft.1",
+    "title": "Variable-length lookbehind support is profile version dependent",
+    "authorship": {
+        "kind": "specification_authored",
+        "intent_source": "spec/drafts/1.0/README.md"
+    },
+    "input": {
+        "kind": "semantic",
+        "program": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "normalization": "canonical-v1",
+            "case_matching": "sensitive",
+            "root": {
+                "node_id": "node:case.lookbehind",
+                "kind": "lookaround",
+                "direction": "behind",
+                "polarity": "positive",
+                "body": {
+                    "node_id": "node:case.lookbehind.repeat",
+                    "kind": "repeat",
+                    "min": 1,
+                    "max": 3,
+                    "mode": "greedy",
+                    "body": {
+                        "node_id": "node:case.lookbehind.literal",
+                        "kind": "literal",
+                        "text": "a"
+                    }
+                }
+            }
+        }
+    },
+    "expectations": {
+        "semantic": {
+            "facts": {
+                "root_kind": "lookaround",
+                "node_count": 3,
+                "capture_ids": []
+            }
+        },
+        "targets": [
+            {
+                "target_profile": {
+                    "profile_id": "profile:ecmascript/2024",
+                    "profile_version": "1.0.0",
+                    "sha256": "180513005b078fcc34875b7cd5cf3369daa8e8bdacf184baea0f48b170238604"
+                },
+                "status": "native",
+                "reason_codes": ["profile_capability_available"]
+            },
+            {
+                "target_profile": {
+                    "profile_id": "profile:pcre2/10.42",
+                    "profile_version": "1.0.0",
+                    "sha256": "0c02900843a8ab51b1e7f5bac686d6dd682adb280eba52bd9331da4f4c0be71a"
+                },
+                "status": "unsupported",
+                "reason_codes": ["profile_capability_unavailable"]
+            },
+            {
+                "target_profile": {
+                    "profile_id": "profile:pcre2/10.43",
+                    "profile_version": "1.0.0",
+                    "sha256": "6351e2238916cf012230f56c4134eb6e03fe82b51131b6cb1f79272d5b669c74"
+                },
+                "status": "native",
+                "reason_codes": ["within_profile_limit"]
+            },
+            {
+                "target_profile": {
+                    "profile_id": "profile:python-re/3.11",
+                    "profile_version": "1.0.0",
+                    "sha256": "75466587f6b7f27f1d697ac737eb87a2595f6d359fb7991a6d4865999ed28550"
+                },
+                "status": "unsupported",
+                "reason_codes": ["profile_capability_unavailable"]
+            }
+        ]
+    },
+    "compatibility_evidence": [
+        {
+            "kind": "legacy_fixture",
+            "reference": "tests/spec/lookbehind_pos.json"
+        }
+    ],
+    "tags": ["lookbehind", "portability"]
+}

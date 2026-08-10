@@ -1,0 +1,58 @@
+{
+    "contract_version": "1.0.0",
+    "case_id": "case:diagnostic/unterminated-group",
+    "specification_version": "1.0-draft.1",
+    "title": "An unterminated group is a structured parser error",
+    "authorship": {
+        "kind": "specification_authored",
+        "intent_source": "spec/drafts/1.0/README.md"
+    },
+    "input": {
+        "kind": "source",
+        "document": {
+            "contract_version": "1.0.0",
+            "source_id": "src:case.unterminated-group",
+            "specification_version": "1.0-draft.1",
+            "frontend": {
+                "id": "regex_frontend",
+                "dialect_version": "transitional-v3"
+            },
+            "content": {
+                "kind": "inline",
+                "encoding": "utf-8",
+                "media_type": "text/strling",
+                "text": "("
+            },
+            "provenance": {
+                "kind": "authored"
+            }
+        }
+    },
+    "expectations": {
+        "diagnostics": {
+            "items": [
+                {
+                    "code": "STRL-PARSE-0001",
+                    "phase": "frontend_parse",
+                    "category": "syntax",
+                    "severity": "error",
+                    "primary_location": {
+                        "source_id": "src:case.unterminated-group",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 0,
+                        "end": 1
+                    },
+                    "count": 1
+                }
+            ],
+            "allow_additional": false
+        }
+    },
+    "compatibility_evidence": [
+        {
+            "kind": "legacy_fixture",
+            "reference": "tests/spec/unterminated_named_group.json"
+        }
+    ],
+    "tags": ["diagnostic", "regex_frontend"]
+}

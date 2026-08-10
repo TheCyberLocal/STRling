@@ -1,0 +1,29 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "authorship": {
+        "kind": "specification_authored",
+        "intent_source": "spec/drafts/1.0/README.md"
+    },
+    "input": {
+        "kind": "semantic",
+        "program": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "normalization": "canonical-v1",
+            "case_matching": "sensitive",
+            "root": {
+                "node_id": "node:invalid.missing-id",
+                "kind": "literal",
+                "text": "a"
+            }
+        }
+    },
+    "expectations": {
+        "semantic": {
+            "facts": {
+                "root_kind": "literal"
+            }
+        }
+    }
+}

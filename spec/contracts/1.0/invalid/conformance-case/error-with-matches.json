@@ -1,0 +1,54 @@
+{
+    "contract_version": "1.0.0",
+    "case_id": "case:invalid/error-with-matches",
+    "specification_version": "1.0-draft.1",
+    "authorship": {
+        "kind": "specification_authored",
+        "intent_source": "spec/drafts/1.0/README.md"
+    },
+    "input": {
+        "kind": "source",
+        "document": {
+            "contract_version": "1.0.0",
+            "source_id": "src:invalid.error-with-matches",
+            "specification_version": "1.0-draft.1",
+            "frontend": {
+                "id": "regex_frontend",
+                "dialect_version": "transitional-v3"
+            },
+            "content": {
+                "kind": "inline",
+                "encoding": "utf-8",
+                "media_type": "text/strling",
+                "text": "("
+            },
+            "provenance": {
+                "kind": "authored"
+            }
+        }
+    },
+    "expectations": {
+        "diagnostics": {
+            "items": [
+                {
+                    "code": "STRL-PARSE-0001",
+                    "phase": "frontend_parse",
+                    "category": "syntax",
+                    "severity": "error",
+                    "count": 1
+                }
+            ],
+            "allow_additional": false
+        },
+        "matches": {
+            "operation": "full_match",
+            "positive": [],
+            "negative": [
+                {
+                    "match_id": "invalid",
+                    "subject": "a"
+                }
+            ]
+        }
+    }
+}

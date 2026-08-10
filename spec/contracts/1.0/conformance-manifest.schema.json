@@ -1,0 +1,110 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/contracts/1.0/conformance-manifest.schema.json",
+    "title": "STRling specification conformance authority manifest",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "contract_version",
+        "manifest_id",
+        "specification_version",
+        "ownership",
+        "authority_status",
+        "cases"
+    ],
+    "properties": {
+        "contract_version": {
+            "$ref": "source.schema.json#/$defs/ContractVersion"
+        },
+        "manifest_id": {
+            "type": "string",
+            "pattern": "^manifest:[a-z][a-z0-9]*(?:[._/-][a-z0-9]+)*$"
+        },
+        "specification_version": {
+            "$ref": "source.schema.json#/$defs/SpecificationVersion"
+        },
+        "ownership": {
+            "const": "specification"
+        },
+        "authority_status": {
+            "enum": ["draft", "delegated_normative"]
+        },
+        "delegation": {
+            "$ref": "#/$defs/Delegation"
+        },
+        "cases": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/CaseEntry"
+            }
+        }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "authority_status": {
+                        "const": "delegated_normative"
+                    }
+                },
+                "required": ["authority_status"]
+            },
+            "then": {
+                "required": ["delegation"]
+            },
+            "else": {
+                "not": {
+                    "required": ["delegation"]
+                }
+            }
+        }
+    ],
+    "$defs": {
+        "Delegation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "ratified_specification",
+                "normative_source",
+                "section",
+                "approval_record"
+            ],
+            "properties": {
+                "ratified_specification": {
+                    "$ref": "source.schema.json#/$defs/SpecificationVersion"
+                },
+                "normative_source": {
+                    "type": "string",
+                    "pattern": "^spec/versions/[A-Za-z0-9._/-]+$"
+                },
+                "section": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "approval_record": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
+        "CaseEntry": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["case_id", "path", "sha256"],
+            "properties": {
+                "case_id": {
+                    "$ref": "conformance-case.schema.json#/$defs/CaseId"
+                },
+                "path": {
+                    "type": "string",
+                    "pattern": "^spec/conformance/cases/[A-Za-z0-9._/-]+\\.json$"
+                },
+                "sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                }
+            }
+        }
+    }
+}

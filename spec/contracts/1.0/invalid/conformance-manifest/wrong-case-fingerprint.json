@@ -1,0 +1,14 @@
+{
+    "contract_version": "1.0.0",
+    "manifest_id": "manifest:invalid.fingerprint",
+    "specification_version": "1.0-draft.1",
+    "ownership": "specification",
+    "authority_status": "draft",
+    "cases": [
+        {
+            "case_id": "case:semantic/literal",
+            "path": "spec/conformance/cases/semantic-literal.json",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+    ]
+}

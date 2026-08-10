@@ -1,0 +1,29 @@
+{
+    "contract_version": "1.0.0",
+    "manifest_id": "manifest:semantic-1.0-draft.seed",
+    "specification_version": "1.0-draft.1",
+    "ownership": "specification",
+    "authority_status": "draft",
+    "cases": [
+        {
+            "case_id": "case:diagnostic/unterminated-group",
+            "path": "spec/conformance/cases/parser-diagnostic.json",
+            "sha256": "94d6c18f9812868852883c39531f8e961614486f6ea06278f37b57632153d674"
+        },
+        {
+            "case_id": "case:matching/logical-capture",
+            "path": "spec/conformance/cases/capture-match.json",
+            "sha256": "4ea4147ce60020a56646485eb19507f81b1ee918902681ee09fe07202da41be4"
+        },
+        {
+            "case_id": "case:semantic/literal",
+            "path": "spec/conformance/cases/semantic-literal.json",
+            "sha256": "a3ca1a49b8c77ca761b3801938fe01525b7307c6229f9abf63cace1e0d3f7772"
+        },
+        {
+            "case_id": "case:targets/variable-lookbehind",
+            "path": "spec/conformance/cases/lookbehind-targets.json",
+            "sha256": "0408040707dfa93d17474fc0f247a43fef50e2e18a2eef4c1760671068b5617f"
+        }
+    ]
+}

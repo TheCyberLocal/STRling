@@ -1,0 +1,361 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/contracts/1.0/conformance-case.schema.json",
+    "title": "STRling specification-authored conformance case",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "contract_version",
+        "case_id",
+        "specification_version",
+        "authorship",
+        "input",
+        "expectations"
+    ],
+    "properties": {
+        "contract_version": {
+            "$ref": "source.schema.json#/$defs/ContractVersion"
+        },
+        "case_id": {
+            "$ref": "#/$defs/CaseId"
+        },
+        "specification_version": {
+            "$ref": "source.schema.json#/$defs/SpecificationVersion"
+        },
+        "title": {
+            "type": "string",
+            "minLength": 1
+        },
+        "authorship": {
+            "$ref": "#/$defs/Authorship"
+        },
+        "input": {
+            "$ref": "compile-request.schema.json#/$defs/CompileInput"
+        },
+        "expectations": {
+            "$ref": "#/$defs/Expectations"
+        },
+        "compatibility_evidence": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/CompatibilityEvidence"
+            }
+        },
+        "tags": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/$defs/Identifier"
+            }
+        }
+    },
+    "$defs": {
+        "Identifier": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+        },
+        "CaseId": {
+            "type": "string",
+            "pattern": "^case:[a-z][a-z0-9]*(?:[._/-][a-z0-9]+)*$"
+        },
+        "Authorship": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "intent_source"],
+            "properties": {
+                "kind": {
+                    "const": "specification_authored"
+                },
+                "intent_source": {
+                    "type": "string",
+                    "pattern": "^spec/[A-Za-z0-9._/-]+$"
+                }
+            }
+        },
+        "Expectations": {
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "properties": {
+                "semantic": {
+                    "$ref": "#/$defs/SemanticExpectation"
+                },
+                "diagnostics": {
+                    "$ref": "#/$defs/DiagnosticExpectations"
+                },
+                "matches": {
+                    "$ref": "#/$defs/MatchExpectations"
+                },
+                "targets": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/TargetExpectation"
+                    }
+                }
+            }
+        },
+        "SemanticExpectation": {
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "properties": {
+                "exact_program": {
+                    "$ref": "semantic-ir.schema.json"
+                },
+                "facts": {
+                    "$ref": "#/$defs/SemanticFacts"
+                }
+            }
+        },
+        "SemanticFacts": {
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "properties": {
+                "root_kind": {
+                    "enum": [
+                        "empty",
+                        "sequence",
+                        "alternation",
+                        "literal",
+                        "wildcard",
+                        "character_set",
+                        "repeat",
+                        "position",
+                        "capture",
+                        "backreference",
+                        "lookaround",
+                        "atomic"
+                    ]
+                },
+                "node_count": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "capture_ids": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "semantic-ir.schema.json#/$defs/CaptureId"
+                    }
+                }
+            }
+        },
+        "DiagnosticExpectations": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["items", "allow_additional"],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/DiagnosticExpectation"
+                    }
+                },
+                "allow_additional": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "DiagnosticExpectation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "phase", "category", "severity", "count"],
+            "properties": {
+                "code": {
+                    "$ref": "diagnostic.schema.json#/$defs/DiagnosticCode"
+                },
+                "phase": {
+                    "$ref": "diagnostic.schema.json#/$defs/CompilerPhase"
+                },
+                "category": {
+                    "$ref": "diagnostic.schema.json#/$defs/DiagnosticCategory"
+                },
+                "severity": {
+                    "$ref": "diagnostic.schema.json#/$defs/Severity"
+                },
+                "primary_location": {
+                    "$ref": "source.schema.json#/$defs/SourceSpan"
+                },
+                "count": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "MatchExpectations": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["operation", "positive", "negative"],
+            "properties": {
+                "operation": {
+                    "enum": ["full_match", "search"]
+                },
+                "positive": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/PositiveMatch"
+                    }
+                },
+                "negative": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/NegativeMatch"
+                    }
+                }
+            },
+            "anyOf": [
+                {
+                    "properties": {
+                        "positive": {
+                            "minItems": 1
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "negative": {
+                            "minItems": 1
+                        }
+                    }
+                }
+            ]
+        },
+        "PositiveMatch": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["match_id", "subject", "captures"],
+            "properties": {
+                "match_id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "captures": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/CaptureExpectation"
+                    }
+                }
+            }
+        },
+        "NegativeMatch": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["match_id", "subject"],
+            "properties": {
+                "match_id": {
+                    "$ref": "#/$defs/Identifier"
+                },
+                "subject": {
+                    "type": "string"
+                }
+            }
+        },
+        "CaptureExpectation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["capture_id", "matched"],
+            "properties": {
+                "capture_id": {
+                    "$ref": "semantic-ir.schema.json#/$defs/CaptureId"
+                },
+                "matched": {
+                    "type": "boolean"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "subject_span": {
+                    "$ref": "#/$defs/SubjectSpan"
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "matched": {
+                                "const": true
+                            }
+                        },
+                        "required": ["matched"]
+                    },
+                    "then": {
+                        "required": ["text", "subject_span"]
+                    },
+                    "else": {
+                        "not": {
+                            "anyOf": [
+                                {
+                                    "required": ["text"]
+                                },
+                                {
+                                    "required": ["subject_span"]
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "SubjectSpan": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["coordinate_system", "start", "end"],
+            "properties": {
+                "coordinate_system": {
+                    "const": "utf8-bytes"
+                },
+                "start": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "end": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
+        "TargetExpectation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["target_profile", "status"],
+            "properties": {
+                "target_profile": {
+                    "$ref": "portability.schema.json#/$defs/TargetProfileReference"
+                },
+                "status": {
+                    "$ref": "portability.schema.json#/$defs/PortabilityStatus"
+                },
+                "reason_codes": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "$ref": "#/$defs/Identifier"
+                    }
+                }
+            }
+        },
+        "CompatibilityEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "reference"],
+            "properties": {
+                "kind": {
+                    "enum": [
+                        "legacy_fixture",
+                        "implementation_test",
+                        "historical_output"
+                    ]
+                },
+                "reference": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        }
+    }
+}

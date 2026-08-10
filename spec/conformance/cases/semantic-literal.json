@@ -1,0 +1,51 @@
+{
+    "contract_version": "1.0.0",
+    "case_id": "case:semantic/literal",
+    "specification_version": "1.0-draft.1",
+    "title": "A constructed literal preserves canonical semantic identity",
+    "authorship": {
+        "kind": "specification_authored",
+        "intent_source": "spec/drafts/1.0/README.md"
+    },
+    "input": {
+        "kind": "semantic",
+        "program": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "normalization": "canonical-v1",
+            "case_matching": "sensitive",
+            "root": {
+                "node_id": "node:case.literal",
+                "kind": "literal",
+                "text": "a"
+            }
+        }
+    },
+    "expectations": {
+        "semantic": {
+            "exact_program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:case.literal",
+                    "kind": "literal",
+                    "text": "a"
+                }
+            },
+            "facts": {
+                "root_kind": "literal",
+                "node_count": 1,
+                "capture_ids": []
+            }
+        }
+    },
+    "compatibility_evidence": [
+        {
+            "kind": "legacy_fixture",
+            "reference": "tests/spec/plain_literal_letter.json"
+        }
+    ],
+    "tags": ["literal", "semantic"]
+}
