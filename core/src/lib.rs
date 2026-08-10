@@ -8,6 +8,7 @@
 
 pub mod conformance;
 pub mod diagnostic;
+pub mod normalization;
 pub mod protocol;
 pub mod semantic;
 pub mod source;

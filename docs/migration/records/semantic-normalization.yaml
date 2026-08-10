@@ -21,6 +21,9 @@ scope:
         - strling.ps1
         - tests/spec/**
     expected_files:
+        - core/src/lib.rs
+        - core/src/normalization.rs
+        - core/tests/normalization.rs
         - docs/migration/semantic-normalization.md
         - docs/migration/records/semantic-normalization.yaml
         - governance/change-control.json
@@ -89,8 +92,20 @@ checkpoints:
             result: passed
             details: Canonical contracts, kernel contracts, governance, formatting, hygiene, lint, typecheck, generation, baseline validation, architecture fitness, all configured binding tests, and the TypeScript baseline passed with exit code zero.
     - name: Recursive structural normalization
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Pure normalization API and structured failure model
+            command: cargo test --manifest-path core/Cargo.toml --test normalization invalid_normalization_input_returns_stable_structured_categories
+            result: passed
+            details: normalize borrows a SemanticProgram, returns a new canonical program, and classifies empty wrappers/literals, duplicate identities, missing references, reversed repetition bounds, malformed sets, provenance, postcondition failures, and unsupported contract state without panics.
+          - check: Recursive structural coverage
+            command: cargo test --manifest-path core/Cargo.toml --test normalization
+            result: passed
+            details: Six focused tests cover already canonical input, deeply nested sequences and alternations, adjacent literal coalescing, single-child removal, ordered duplicate alternatives, explicit empty nodes, character-set sorting/deduplication, repetition, positions, captures, backreferences, lookarounds, atomic nodes, and semantic-boundary preservation.
+          - check: Kernel quality and canonical postconditions
+            command: cargo fmt --manifest-path core/Cargo.toml -- --check; cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings; RUSTFLAGS=-Dwarnings cargo check --manifest-path core/Cargo.toml --all-targets; cargo test --manifest-path core/Cargo.toml --all-targets; python3 tooling/core_contract_validation.py; python3 tooling/governance.py; git diff --check
+            result: passed
+            details: All 48 kernel tests passed; normalized outputs validate through the existing canonical SemanticProgram invariants, warnings were denied, contract mapping and governed scope passed, and the patch has no whitespace errors.
     - name: Identity and provenance preservation
       status: planned
       evidence: []
@@ -106,4 +121,6 @@ checkpoints:
     - name: Completion and pipeline readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 023ce26a00b695ece2eb5d9cfc3457aaa0dd5695
+      subject: "docs(core): define semantic normalization invariants"
