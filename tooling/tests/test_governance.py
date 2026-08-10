@@ -220,6 +220,55 @@ class ArchitectureValidationTests(unittest.TestCase):
             artifact_registry=self.registry,
         )[0]
 
+    def test_rust_crate_boundary_rejects_binding_path_dependency(self) -> None:
+        (self.root / "core/src").mkdir(parents=True)
+        (self.root / "bindings/rust").mkdir(parents=True)
+        (self.root / "core/Cargo.toml").write_text(
+            '[dependencies]\nlegacy = { path = "../bindings/rust" }\n',
+            encoding="utf-8",
+        )
+        (self.root / "core/src/lib.rs").write_text("", encoding="utf-8")
+        result = self.evaluate(
+            {
+                "id": "kernel-boundary",
+                "status": "enforced",
+                "kind": "rust-crate-boundary",
+                "configuration": {
+                    "manifest": "core/Cargo.toml",
+                    "sources": ["core/src/**/*.rs"],
+                    "forbidden_repository_roots": ["bindings", "tooling"],
+                },
+            }
+        )
+        self.assertEqual("failed", result.status)
+        self.assertIn("bindings/rust", result.findings[0])
+
+    def test_rust_crate_boundary_rejects_tooling_source_inclusion(self) -> None:
+        (self.root / "core/src").mkdir(parents=True)
+        (self.root / "tooling").mkdir(exist_ok=True)
+        (self.root / "tooling/model.rs").write_text("", encoding="utf-8")
+        (self.root / "core/Cargo.toml").write_text(
+            '[dependencies]\nserde = "1"\n', encoding="utf-8"
+        )
+        (self.root / "core/src/lib.rs").write_text(
+            '#[path = "../../tooling/model.rs"]\nmod model;\n',
+            encoding="utf-8",
+        )
+        result = self.evaluate(
+            {
+                "id": "kernel-boundary",
+                "status": "enforced",
+                "kind": "rust-crate-boundary",
+                "configuration": {
+                    "manifest": "core/Cargo.toml",
+                    "sources": ["core/src/**/*.rs"],
+                    "forbidden_repository_roots": ["bindings", "tooling"],
+                },
+            }
+        )
+        self.assertEqual("failed", result.status)
+        self.assertIn("tooling/model.rs", result.findings[0])
+
     def test_forbidden_dependency_violation_fails(self) -> None:
         (self.root / "tooling/governance.py").write_text(
             "import bindings.python.compiler\n", encoding="utf-8"

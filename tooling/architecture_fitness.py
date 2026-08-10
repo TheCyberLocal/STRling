@@ -36,6 +36,77 @@ def relative_files(
     return sorted(files, key=lambda item: item[1])
 
 
+def rust_crate_boundary_findings(
+    root: Path,
+    configuration: Mapping[str, object],
+    matches_any: Match,
+) -> list[Finding]:
+    """Reject Rust path dependencies and source inclusions into forbidden roots."""
+
+    manifest_relative = configuration["manifest"]
+    sources = configuration["sources"]
+    forbidden_roots = configuration["forbidden_repository_roots"]
+    assert isinstance(manifest_relative, str)
+    assert isinstance(sources, list)
+    assert isinstance(forbidden_roots, list)
+    root_resolved = root.resolve()
+    findings: list[Finding] = []
+
+    def inspect_reference(owner: Path, owner_relative: str, reference: str) -> None:
+        resolved = (owner.parent / reference).resolve()
+        try:
+            repository_relative = resolved.relative_to(root_resolved).as_posix()
+        except ValueError:
+            findings.append(
+                (
+                    f"{owner_relative}: path dependency escapes repository: {reference}",
+                    owner_relative,
+                )
+            )
+            return
+        if any(
+            repository_relative == forbidden
+            or repository_relative.startswith(str(forbidden) + "/")
+            for forbidden in forbidden_roots
+        ):
+            findings.append(
+                (
+                    f"{owner_relative}: forbidden repository dependency "
+                    f"{repository_relative}",
+                    owner_relative,
+                )
+            )
+
+    manifest = root / manifest_relative
+    try:
+        manifest_text = manifest.read_text(encoding="utf-8")
+    except OSError as exc:
+        return [
+            (
+                f"{manifest_relative}: cannot inspect Rust manifest: {exc}",
+                manifest_relative,
+            )
+        ]
+    for reference in re.findall(r"\bpath\s*=\s*[\"']([^\"']+)[\"']", manifest_text):
+        inspect_reference(manifest, manifest_relative, reference)
+
+    source_reference = re.compile(
+        r"(?:#\s*\[\s*path\s*=|include(?:_str|_bytes)?!\s*\()"
+        r"\s*[\"']([^\"']+)[\"']"
+    )
+    for source, relative in relative_files(root, sources, matches_any, (".rs",)):
+        try:
+            source_text = source.read_text(encoding="utf-8")
+        except OSError as exc:
+            findings.append(
+                (f"{relative}: cannot inspect Rust source: {exc}", relative)
+            )
+            continue
+        for reference in source_reference.findall(source_text):
+            inspect_reference(source, relative, reference)
+    return findings
+
+
 def python_import_findings(
     root: Path,
     configuration: Mapping[str, object],
@@ -332,6 +403,8 @@ def evaluate_extended_rule(
     matches_any: Match,
     architecture_declared: bool,
 ) -> list[Finding] | None:
+    if kind == "rust-crate-boundary":
+        return rust_crate_boundary_findings(root, configuration, matches_any)
     if kind == "forbidden-import":
         return python_import_findings(root, configuration, matches_any)
     if kind == "schema-reference-boundary":

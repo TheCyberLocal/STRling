@@ -38,6 +38,12 @@
                 "sources": {
                     "$ref": "#/$defs/paths"
                 },
+                "manifest": {
+                    "$ref": "#/$defs/path"
+                },
+                "forbidden_repository_roots": {
+                    "$ref": "#/$defs/paths"
+                },
                 "forbidden_dependencies": {
                     "$ref": "#/$defs/paths"
                 },
@@ -97,6 +103,7 @@
                 },
                 "kind": {
                     "enum": [
+                        "rust-crate-boundary",
                         "forbidden-dependency",
                         "generated-input-cycle",
                         "task-record-placement",
@@ -125,6 +132,27 @@
                 }
             },
             "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "kind": {
+                                "const": "rust-crate-boundary"
+                            }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "manifest",
+                                    "sources",
+                                    "forbidden_repository_roots"
+                                ]
+                            }
+                        }
+                    }
+                },
                 {
                     "if": {
                         "properties": {

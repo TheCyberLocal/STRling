@@ -77,6 +77,7 @@
                     ".github",
                     ".vscode",
                     "bindings",
+                    "core",
                     "docs",
                     "governance",
                     "spec",
@@ -84,6 +85,17 @@
                     "tooling"
                 ],
                 "requires_declaration": "architecture_change"
+            }
+        },
+        {
+            "id": "canonical-kernel-dependency-boundary",
+            "description": "The canonical Rust kernel must not depend on host-language bindings or repository tooling implementations.",
+            "status": "enforced",
+            "kind": "rust-crate-boundary",
+            "configuration": {
+                "manifest": "core/Cargo.toml",
+                "sources": ["core/src/**/*.rs"],
+                "forbidden_repository_roots": ["bindings", "tooling"]
             }
         },
         {

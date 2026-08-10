@@ -90,6 +90,7 @@
                     "format_check": [
                         "repository",
                         "lsp",
+                        "core",
                         "csharp",
                         "dart",
                         "python",
@@ -99,6 +100,7 @@
                     "lint": [
                         "repository",
                         "lsp",
+                        "core",
                         "csharp",
                         "dart",
                         "fsharp",
@@ -112,6 +114,7 @@
                     ],
                     "typecheck": [
                         "lsp",
+                        "core",
                         "csharp",
                         "dart",
                         "fsharp",
@@ -121,7 +124,8 @@
                         "rust",
                         "swift",
                         "typescript"
-                    ]
+                    ],
+                    "test": ["core", "typescript"]
                 }
             },
             "certify": {
@@ -138,6 +142,7 @@
                     "format_check": [
                         "repository",
                         "lsp",
+                        "core",
                         "csharp",
                         "dart",
                         "python",
@@ -147,6 +152,7 @@
                     "lint": [
                         "repository",
                         "lsp",
+                        "core",
                         "csharp",
                         "dart",
                         "fsharp",
@@ -160,6 +166,7 @@
                     ],
                     "typecheck": [
                         "lsp",
+                        "core",
                         "csharp",
                         "dart",
                         "fsharp",
@@ -169,7 +176,9 @@
                         "rust",
                         "swift",
                         "typescript"
-                    ]
+                    ],
+                    "build": ["core", "typescript"],
+                    "test": ["core", "typescript"]
                 }
             }
         },
@@ -370,10 +379,23 @@
             "version_command": ["cargo", "--version"],
             "version_pattern": "cargo ([0-9]+(?:\\.[0-9]+){1,2})"
         },
+        "clippy": {
+            "resolution": {
+                "model": "constrained",
+                "version": ">=0.1.75,<0.2"
+            },
+            "version_command": ["cargo", "clippy", "--version"],
+            "version_pattern": "clippy ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
         "rustc": {
             "resolution": { "model": "constrained", "version": ">=1.70,<2.0" },
             "version_command": ["rustc", "--version"],
             "version_pattern": "rustc ([0-9]+(?:\\.[0-9]+){1,2})"
+        },
+        "rustfmt": {
+            "resolution": { "model": "constrained", "version": ">=1.7,<2.0" },
+            "version_command": ["rustfmt", "--version"],
+            "version_pattern": "rustfmt ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "swift": {
             "resolution": { "model": "constrained", "version": ">=5.9,<7.0" },
@@ -400,6 +422,58 @@
         }
     },
     "components": {
+        "core": {
+            "path": "core",
+            "language": "Rust",
+            "runtime": "rustc",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "core/Cargo.lock is authoritative for the canonical kernel's minimal serialization dependencies."
+            },
+            "files": {
+                "manifests": ["Cargo.toml"],
+                "locks": ["Cargo.lock"],
+                "configs": []
+            },
+            "capabilities": {
+                "format": "configured",
+                "format_check": "enforced",
+                "hygiene": "not_applicable",
+                "lint": "enforced",
+                "typecheck": "enforced",
+                "build": "configured",
+                "test": "enforced"
+            },
+            "formatters": ["rustfmt 1.7.0"],
+            "operation_tools": {
+                "format": ["rustfmt"],
+                "format_check": ["rustfmt"],
+                "lint": ["clippy"],
+                "typecheck": ["cargo", "rustc"],
+                "build": ["cargo", "rustc"],
+                "test": ["cargo", "rustc"]
+            },
+            "format": ["cargo", "fmt"],
+            "format_check": ["cargo", "fmt", "--", "--check"],
+            "lint": [
+                "cargo",
+                "clippy",
+                "--all-targets",
+                "--",
+                "-D",
+                "warnings"
+            ],
+            "typecheck": [
+                "env",
+                "RUSTFLAGS=-Dwarnings",
+                "cargo",
+                "check",
+                "--all-targets"
+            ],
+            "build": ["cargo", "build"],
+            "test": ["cargo", "test", "--all-targets"],
+            "required_bins": ["cargo", "rustc"]
+        },
         "repository": {
             "path": ".",
             "language": "Repository tooling",

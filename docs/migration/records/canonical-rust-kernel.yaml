@@ -1,0 +1,124 @@
+record_version: 2.0.0
+title: Canonical Rust kernel and schema-backed domain types
+status: in_progress
+objective: Establish the canonical Rust compiler-kernel foundation as a faithful, strongly typed implementation of contract suite 1.0.0 without implementing compiler behavior or migrating existing frontends, emitters, bindings, or tooling.
+scope:
+    diff:
+        base: 7131db85ee0434795669cc6d6a8032d606588c5a
+        head: working-tree
+    allowed_paths:
+        - core/**
+        - docs/migration/**
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/schemas/architecture-rules.schema.json
+        - toolchain.json
+        - tooling/architecture_fitness.py
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_governance.py
+    forbidden_paths:
+        - bindings/**
+        - package.json
+        - package-lock.json
+        - spec/**
+        - strling
+        - strling.ps1
+        - tests/spec/**
+    expected_files:
+        - core/Cargo.toml
+        - core/Cargo.lock
+        - core/src/lib.rs
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Architecture governance gains a Rust crate dependency-boundary rule kind without changing canonical product contracts.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - A top-level canonical Rust kernel becomes the permitted reference semantic island and is governed independently from host-language bindings.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Canonical kernel checks
+      command: cd core && cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo check --all-targets && cargo test --all-targets
+      expected_result: The kernel formats, lints, builds, and passes all structural and fixture-driven tests with warnings denied.
+    - name: Schema mapping and fixture certification
+      command: python3 tooling/core_contract_validation.py
+      expected_result: Every normative schema is mapped, positive fixtures are accepted, controlled invalid fixtures are rejected, and schema fingerprints match the Rust mapping declaration.
+    - name: Repository quality and certification
+      command: PATH=/tmp/strling-pinned-tools:$PATH BUNDLER_VERSION=2.4.20 ./strling check all; PATH=/tmp/strling-pinned-tools:$PATH BUNDLER_VERSION=2.4.20 ./strling certify all
+      expected_result: All enforced repository, kernel, and binding hardgates pass from committed state.
+    - name: Governance and patch integrity
+      command: python3 tooling/governance.py; python3 -m unittest tooling.tests.test_governance tooling.tests.test_core_contracts; git diff --check
+      expected_result: Kernel architecture boundaries, task scope, controlled drift failures, focused governance tests, and patch hygiene pass.
+checkpoints:
+    - name: Kernel boundary and dependency contract
+      status: passed
+      evidence:
+          - check: Clean committed starting state
+            command: git status --short --branch; git rev-parse HEAD
+            result: passed
+            details: Work began from a clean architecture/v4 tree at 7131db85ee0434795669cc6d6a8032d606588c5a.
+          - check: Canonical kernel scaffold and minimal dependency graph
+            command: cd core && cargo generate-lockfile --offline && cargo check --all-targets
+            result: passed
+            details: The standalone strling-kernel library builds on governed Rust 1.75 with only serde and serde_json runtime dependencies; its source, semantic, diagnostic, protocol, target, and validation modules contain no executable compiler phases.
+          - check: Enforced kernel quality component
+            command: ./strling environment core --json; ./strling check core --json
+            result: passed
+            details: Cargo, rustc, rustfmt, and Clippy resolve compatibly; kernel formatting, warnings-denied Clippy, warnings-denied typecheck, and tests are enforced in normal repository aggregates.
+          - check: Canonical dependency boundary
+            command: python3 -m unittest tooling.tests.test_governance; python3 tooling/governance.py
+            result: passed
+            details: All 28 focused governance tests passed, including controlled rejection of a binding path dependency and tooling source inclusion; the new top-level core island and declared task scope passed architecture fitness.
+          - check: Existing repository hardgates
+            command: ./strling check all --json; ./strling certify all --json
+            result: passed
+            details: Both all-component aggregates exited zero with the canonical kernel included; existing certified contracts, generation, public contracts, baseline, governance, bindings, and TypeScript behavior remained green.
+    - name: Source identity and Semantic IR domain types
+      status: in_progress
+      evidence: []
+    - name: Diagnostics and compiler protocol domain types
+      status: planned
+      evidence: []
+    - name: Target profile and artifact domain types
+      status: planned
+      evidence: []
+    - name: Cross-domain validation and fixture certification
+      status: planned
+      evidence: []
+    - name: Repository hardgate integration
+      status: planned
+      evidence: []
+    - name: Completion and compiler-pipeline readiness
+      status: planned
+      evidence: []
+commits: []
