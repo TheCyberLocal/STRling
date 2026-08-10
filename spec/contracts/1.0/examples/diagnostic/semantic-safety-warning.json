@@ -1,0 +1,38 @@
+{
+    "contract_version": "1.0.0",
+    "occurrence": 0,
+    "code": "STRL-SAFETY-0001",
+    "severity": "warning",
+    "severity_basis": "compiler_policy",
+    "phase": "semantic_analysis",
+    "category": "safety",
+    "message": "Unbounded repetition has an operand that can match without consuming input.",
+    "primary_location": {
+        "source_id": "src:diagnostic",
+        "coordinate_system": "utf8-bytes",
+        "start": 0,
+        "end": 2
+    },
+    "related_locations": [
+        {
+            "role": "cause",
+            "message": "This operand does not have guaranteed consuming progress.",
+            "location": {
+                "source_id": "src:diagnostic",
+                "coordinate_system": "utf8-bytes",
+                "start": 2,
+                "end": 6
+            }
+        }
+    ],
+    "advice": [
+        {
+            "kind": "note",
+            "message": "This proves a target-neutral non-progress structure, not universal runtime vulnerability."
+        },
+        {
+            "kind": "help",
+            "message": "Require the repeated operand to consume input before another unbounded iteration."
+        }
+    ]
+}
