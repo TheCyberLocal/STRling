@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical structural semantic analysis
-status: in_progress
+status: complete
 objective: Establish the next pure target-neutral semantic-analysis layer over canonical normalized Semantic IR and certified foundational facts, with deterministic leading-consumption, semantic length, repetition-progress, and conservative structural-overlap facts, without changing product execution or beginning safety verdicts, portability planning, rewriting, diagnostics, lowering, emission, frontend, binding, or tooling migrations.
 scope:
     diff:
@@ -21,6 +21,7 @@ scope:
         - strling.ps1
         - tests/spec/**
     expected_files:
+        - docs/migration/ledger.md
         - docs/migration/records/structural-analysis.yaml
         - core/README.md
         - core/contract-mapping.json
@@ -182,8 +183,14 @@ checkpoints:
             result: passed
             details: Repository formatting, hygiene, lint, all-language typecheck, generation, contracts, governance, frozen baseline, canonical check, certify, explicit TypeScript baseline, patch integrity, and clean-tree verification exited zero.
     - name: Completion and safety-analysis readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Structural capability and exclusions
+            result: passed
+            details: The final record and ledger enumerate the API, identity correspondence, external fact storage, leading-consumption abstraction, length and repetition classifications, relationship facts, conservative cases, resource bounds, proven properties, unchanged product behavior, and every explicitly excluded later compiler concern.
+          - check: Sound safety-analysis handoff
+            result: passed
+            details: The canonical kernel has a certified structural fact layer for the first principled semantic safety analysis; the next stage can consume immutable Semantic IR plus foundational and structural facts without raw-source regex heuristics.
 commits:
     - sha: efd7c7e7f6249f7c35ff529ba33e1c868999ea37
       subject: "docs(core): define structural analysis invariants"
@@ -195,3 +202,37 @@ commits:
       subject: "feat(core): analyze structural consumption overlap"
     - sha: c404360c1f8b21506cac76c871204349772a09f9
       subject: "test(core): certify structural analysis soundness"
+    - sha: e3f1892c826d79a6a8d1e6821f54e412ed11779b
+      subject: "ci(core): certify structural semantic analysis"
+completion:
+    accomplished:
+        - Added core::structural_analysis as a small pure stage exposing analyze_structure(&SemanticProgram, &SemanticFacts) -> Result<StructuralFacts, StructuralAnalysisErrors>, requiring normalized canonical input and matching certified foundational facts without invoking either prior stage.
+        - Added an external deterministic StructuralFacts store keyed by stable NodeId, with one NodeStructuralFacts record for every reachable node and exact program-version, fingerprint, identity-set, and node-kind correspondence validation.
+        - Implemented target-neutral leading consumption as ordered symbolic Empty, Scalar, CharacterSet, Wildcard, and Unknown terms across all 12 Semantic IR variants, composing sequences through certified nullable prefixes and keeping lookaround examination separate from enclosing consumption.
+        - Classified semantic consumption as Fixed(n), FiniteVariable, Unbounded, or Indeterminate from certified minimum and maximum facts, and recorded repetition extent plus AlwaysConsuming, PotentiallyZeroConsuming, or Indeterminate operand progress without producing a safety verdict.
+        - Implemented conservative Disjoint, Overlapping, or typed Unknown leading overlap, alternation branch-pair relationships, and repeated-operand/immediate-follower relationships with deterministic 4096-pair and 4096-comparison limits.
+        - Added focused, fixed-seed property, independent exact-overlap, controlled-invalid, architecture-fitness, contract-mapping, and full repository-hardgate certification.
+    verified:
+        - All 105 canonical kernel tests passed with rustfmt, warnings-denied Clippy, warnings-denied cargo check, build coverage, normalization and foundational-analysis regressions, canonical fixtures, and all structural focused and property suites.
+        - Four fixed 64-bit seeds generated 384 valid normalized programs spanning all 12 Semantic IR variants; 64 malformed programs plus exact-program and specification-version fact-store mismatches failed deterministically with structured errors and no panics.
+        - Determinism, complete reachable-node coverage, fixed-length consistency, guaranteed-progress consistency, independently checked disjointness soundness, and Semantic IR and foundational-fact immutability are certified with zero unexplained property failures.
+        - Canonical validation passed all 11 schema mappings and 62 fixtures; 13 controlled architecture tests prove forbidden target-profile, portability-planner, binding, frontend, editor, emitter, safety, portability, runtime-state, risk-severity, and ReDoS dependencies fail.
+        - Repository formatting, hygiene, lint, all-language typecheck, generation, contracts, governance, architecture fitness, frozen baseline validation, all configured component checks/builds/tests, human and structured check/certify, TypeScript's 19 suites and 963 tests, patch integrity, and clean committed state passed.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - The internal canonical Rust kernel now provides structural semantic fact analysis as the stage following foundational semantic analysis.
+        - Canonical contract and source-boundary hardgates now reject missing structural-analysis ownership and prohibited target, planner, binding, safety, portability, emitter, tooling, and runtime-state dependencies.
+    preserved_behavior:
+        - Grammar acceptance, parsers, existing compiler execution, safety and portability decisions, diagnostics, target decisions, regex output, bindings, Simply, LSP/editor tooling, public APIs, package versions, and published artifacts remain unchanged.
+        - Normalized Semantic IR and certified foundational facts remain immutable because structural results are stored externally and keyed by stable identity.
+    transitional_architecture:
+        - Existing frontends and binding compilers do not yet invoke the canonical kernel structural analyzer and remain separately governed compatibility evidence.
+        - Backreference leading consumption, unknown nullable prefixes, case-folded literals and sets, character categories and negated property algebra, wildcard line-terminator exclusions, doubly negated sets, term-limit saturation, and comparison-limit exhaustion remain conservative Unknown rather than guessed disjointness.
+        - Foundational indeterminate consumption remains Indeterminate for semantic length or repetition progress; relationship-count exhaustion is a structured analysis error rather than partial certainty.
+    deferred_work:
+        - ReDoS verdicts, risk severity, safety warnings, target capability evaluation, portability decisions, rewrite or optimization planning, user-facing diagnostics, lowering, emission, parser migration, binding migration, Simply migration, and LSP/editor migration are not implemented.
+        - Implement the first principled semantic safety analysis by consuming canonical structural facts without raw-source regex heuristics.
+readiness:
+    status: READY
+    next_task: Implement the first principled semantic safety analysis by consuming canonical structural facts without raw-source regex heuristics.
+    rationale: The canonical kernel now provides pure deterministic identity-validated leading, length, progress, and conservative overlap facts over every ratified node variant, with explicit uncertainty, bounded algorithms, fixed-seed soundness evidence, controlled invalid-state handling, and full repository certification. No known blocker remains for the first contained semantic safety-analysis stage.

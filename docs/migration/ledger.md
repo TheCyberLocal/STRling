@@ -1089,3 +1089,143 @@ backreference nullability, zero-to-unbounded cyclic-reference bounds, and the
 distinction between lookaround child examination length and outer consumed
 length. The next contained task is the semantic-analysis layer required for
 safety and portability reasoning on this certified foundation.
+
+## Canonical structural semantic analysis
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `d9af94674928ccae32ce9165fb366ee849c0e651`
+-   Kernel stage: `core::structural_analysis`
+-   API:
+    `analyze_structure(&SemanticProgram, &SemanticFacts) -> Result<StructuralFacts, StructuralAnalysisErrors>`
+-   Behavior change: No existing STRling runtime/compiler behavior
+    intentionally changed.
+-   Completion record:
+    [`structural-analysis.yaml`](records/structural-analysis.yaml)
+-   Readiness: `READY`
+
+### Checkpoint evidence
+
+| Checkpoint                                   | Result | Commit                                     | Accomplishment                                                                                                  |
+| -------------------------------------------- | ------ | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| Structural analysis contract                 | Passed | `efd7c7e7f6249f7c35ff529ba33e1c868999ea37` | Target-neutral facts, complete variant rules, conservative unknowns, overlap vocabulary, bounds, and exclusions |
+| Leading-consumption analysis                 | Passed | `bc81aae524dd84d0e0e47103a3804d3653ac973f` | Pure identity-validating API and symbolic first-consumption facts through nullable prefixes                     |
+| Length and progress classification           | Passed | `3e4a45a41372ecc159e474a612693580d4014971` | Fixed, finite-variable, unbounded, and indeterminate lengths plus repetition progress and extent                |
+| Structural overlap analysis                  | Passed | `e4293183fb87f1ef96804e1a9968c9804d8c4a62` | Conservative leading-set algebra, alternation branch pairs, repetition/follower relationships, resource limits  |
+| Property and soundness certification         | Passed | `c404360c1f8b21506cac76c871204349772a09f9` | Fixed-seed determinism, completeness, consistency, exact disjointness evidence, and immutable inputs            |
+| Pipeline and repository hardgate integration | Passed | `e3f1892c826d79a6a8d1e6821f54e412ed11779b` | Stage registration, controlled dependency failures, kernel regression, and full repository certification        |
+| Completion and safety-analysis readiness     | Passed | Recorded by the readiness commit           | Final API, facts, unknowns, properties, exclusions, unchanged behavior, carry-forward, and readiness            |
+
+### Structural-analysis architecture
+
+The canonical kernel exposes one small pure boundary: `analyze_structure`
+borrows an already-normalized `SemanticProgram` and its certified
+`SemanticFacts`, then returns `StructuralFacts` or ordered
+`StructuralAnalysisErrors`. It never normalizes or runs foundational analysis.
+Before deriving facts it validates the Semantic IR specification version, a
+private exact-program fingerprint, the complete reachable `NodeId` set, and
+each corresponding semantic node kind. Externally supplied mismatched or
+malformed state returns structured errors rather than panicking.
+
+Facts remain outside Semantic IR in a deterministic `BTreeMap` keyed by stable
+`NodeId`. Every reachable node receives one `NodeStructuralFacts` record.
+The analyzer borrows inputs immutably and needs no filesystem, environment,
+clock, randomness, binding, frontend, target profile, planner, diagnostic,
+lowering, emitter, or runtime state. Architecture fitness registers it after
+`semantic_analysis` and rejects dependencies on later safety and portability
+stages.
+
+### Implemented structural facts
+
+Leading consumption uses a target-neutral symbolic vocabulary: `Empty`,
+explicit Unicode `Scalar`, canonical `CharacterSet`, `Wildcard`, and typed
+`Unknown`. Sequences union possible first consumers through prefixes using
+certified nullability. Alternations retain branch contributions without
+reordering. Repetition, captures, and atomic groups compose from their bodies.
+Assertions and lookarounds are empty for enclosing consumption while their
+children keep independent examination facts. Backreferences remain
+conservative.
+
+Semantic length is classified from certified foundational minimum and maximum
+consumption as `Fixed(n)`, `FiniteVariable`, `Unbounded`, or
+`Indeterminate`; foundational bounds are referenced rather than duplicated in
+the structural record. Each repetition additionally records finite or
+unbounded extent and classifies its operand as `AlwaysConsuming`,
+`PotentiallyZeroConsuming`, or `Indeterminate`. Unbounded repetition over a
+potentially zero-consuming operand is therefore representable as a structural
+condition, never as a vulnerability verdict.
+
+Leading overlap is `Disjoint`, `Overlapping`, or typed `Unknown`.
+Case-sensitive scalars and finite literal/range sets support exact intersection;
+wildcards overlap known consuming sets when inclusion is semantically certain.
+Alternations record every deterministic branch-index pair. Sequences record a
+nonzero repeated operand against its immediate following expression. The
+analyzer never simulates engine backtracking and never converts relationships
+into warnings.
+
+Relationship generation is bounded at 4096 pairs and returns
+`RelationshipLimitExceeded` before partial results escape. Individual overlap
+proofs are bounded at 4096 symbolic term comparisons and return typed
+`ComparisonLimitExceeded` uncertainty. Leading sets saturate deterministically
+at 256 terms with an explicit unknown marker. Semantic nesting above the
+certified 128-level limit returns a structured error.
+
+### Soundness and controlled certification
+
+Four fixed 64-bit seeds - `0x5354525543545552`,
+`0x9e3779b97f4a7c15`, `0xd1b54a32d192ed03`, and
+`0x94d049bb133111eb` - generated 384 valid normalized programs spanning all 12
+Semantic IR variants. They proved repeated-analysis determinism, one complete
+record per reachable node, fixed-length consistency with foundational minimum
+and finite maximum, positive minimum for every guaranteed-consuming repetition
+operand, independently checked exact scalar/interval support for every
+`Disjoint` result, and immutability of Semantic IR and foundational facts.
+There were zero unexplained property failures.
+
+Sixty-four malformed normalized programs, an exact-program foundational-store
+mismatch, and a specification-version mismatch returned deterministic
+structured failures without panics. Focused suites independently cover equal
+and distinct literals, multibyte Unicode scalars, nullable prefixes, nested
+alternation, wildcard, finite sets and ranges, assertions and lookarounds,
+fixed and variable lengths, repetition progress, cyclic references, overlap
+proofs, deterministic ordering, and each configured limit.
+
+All 105 kernel tests passed with rustfmt, warnings-denied Clippy,
+warnings-denied cargo check, build coverage, normalization and foundational
+regressions, canonical fixtures, and structural suites. Canonical validation
+passed 11 schema mappings and 62 fixtures. Thirteen controlled architecture
+tests prove target-profile, portability-planner, binding, frontend, editor,
+emitter, safety, portability, runtime-state, risk-severity, and ReDoS
+dependencies fail. Repository formatting, hygiene, lint, all-language
+typecheck, generation, contracts, governance, architecture fitness, frozen
+baseline, `check all`, `certify all`, and the TypeScript baseline of 19 suites
+and 963 tests all passed.
+
+### Conservative cases, exclusions, and carry-forward
+
+Important intentional `Unknown` cases are backreference leading consumption,
+unknown nullable prefixes, case-folded literal/set algebra, character
+categories and negated Unicode-property algebra, wildcard exclusions of line
+terminators, doubly negated sets, leading-term saturation, and overlap
+comparison exhaustion. Foundational indeterminate consumption produces
+indeterminate semantic length or repetition progress. These outcomes are sound
+facts for later policy, not analysis failures. Relationship-count exhaustion is
+a structured whole-analysis error because a complete relationship store is
+required.
+
+No ReDoS verdict, risk severity, safety warning, target-capability evaluation,
+portability decision, rewrite or optimization plan, diagnostic generation,
+lowering, regex emission, parser or grammar change, binding migration, Simply
+migration, LSP/editor migration, public API change, package version change, or
+publishing was implemented.
+
+Existing parsers, runtime/compiler execution, targets, emitters, bindings,
+Simply, and editor tooling do not yet invoke this analyzer. No existing STRling
+runtime/compiler behavior intentionally changed. Normalized Semantic IR and
+foundational facts remain unchanged because the analyzer only borrows them and
+stores results externally.
+
+The next contained task is the first principled semantic safety analysis. It
+must consume these certified structural facts, preserve conservative unknowns,
+and avoid raw-source regex heuristics. No target profile, portability decision,
+or user-facing warning belongs in this structural layer.
