@@ -585,3 +585,91 @@ baseline commit.
 The hardgate foundation is complete enough to govern product migration. The
 repository is ready for the authoritative STRling product/specification
 architecture task with the recorded carry-forward above.
+
+## Authoritative product and specification architecture
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `df75b88614ef7848856191df1fdf7f8f6b04e557`
+-   Behavior change: No STRling language/compiler runtime semantics intentionally
+    changed.
+-   Completion record:
+    [`product-specification-architecture.yaml`](records/product-specification-architecture.yaml)
+-   Contradiction inventory:
+    [`product-specification-contradictions.md`](product-specification-contradictions.md)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                                       | Result | Commit                                     | Verification                                                                                                                   |
+| ------------------------------------------------ | ------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| Product identity and contradiction contract      | Passed | `59805a8644947f6109291ea9fc3ebe95c8f635af` | Certified obligations, product identity, conceptual hierarchy, terminology, formatting, hygiene, contracts, and governance     |
+| Specification authority and versioning           | Passed | `6f593cc13021f65fcbc59c1b216f6a3d806884dd` | Normative hierarchy, MAJOR.MINOR policy, draft/ratified states, unchanged generation, contracts, links, and structured parsing |
+| Authoring surfaces and compiler responsibilities | Passed | `c89ac81d94dc98593f68072dfe791b30a16a6e6b` | Semantic STRling, Simply, regex import, compiler stages, adapters, tooling, and explicit transitions                           |
+| Authoritative documentation reconciliation       | Passed | `4979a0a5ce4f5623a36d914915cde779a53c83ee` | Root/spec/architecture/contributor/testing guidance aligned; 29 Markdown files link-checked                                    |
+| Architecture consistency certification           | Passed | No commit required                         | 50 check and 64 certify passes, 150 focused tests, 963 TypeScript tests, baseline validation, and authority searches           |
+| Completion and canonical-contract readiness      | Passed | Recorded by the readiness commit           | Product, specification, authoring, compiler, transition, behavior-preservation, and next-task readiness recorded               |
+
+### Ratified product and authoring architecture
+
+STRling is a portable regex-intent compiler: developers express what a pattern
+means once, and STRling produces verified, explainable, target-specific
+regular-expression artifacts while surfacing portability and safety constraints
+before runtime. Semantic intent is the flagship abstraction. Semantic STRling
+is the future semantic textual frontend; Simply is a first-class idiomatic
+semantic frontend; and the current regex-shaped `.strl` syntax is retained as
+the low-level compatibility/import frontend. Target regex remains a necessary
+compiler output, not the semantic public abstraction.
+
+Host-language adapters identify the ecosystem from which the compiler is
+invoked. Target engines identify the regex/runtime semantics for which it
+compiles. Binding counts and target counts are not interchangeable, and adapters
+and CLI/LSP/editor tooling consume the same canonical compiler capability rather
+than defining independent semantics in the target architecture.
+
+### Specification and compiler authority
+
+Ratified versioned specifications, explicitly normative contracts,
+specification-delegated conformance cases, and ratified semantic architecture
+decisions can define behavior. The reference implementation implements that
+authority without silently extending it. Existing binding behavior, historical
+tests, generated fixtures, and legacy outputs remain compatibility evidence;
+tutorials and examples remain explanatory documentation.
+
+The STRling Semantic Specification uses independent `MAJOR.MINOR` versions.
+Major versions permit semantic incompatibility, minor versions add
+backward-compatible semantics or contracts, and non-semantic errata retain the
+same version with traceability. Compiler/package versions and target-profile
+versions are independent and declare their supported specification range. The
+next specification identity is `1.0-draft.1`; it is unratified and makes no
+current compiler-conformance claim.
+
+The conceptual compiler owns canonical semantic representation, semantic
+analysis, portability planning, target-profile interpretation, lowering,
+target-specific emission, and versioned `TargetArtifact` production. Exact AST,
+Semantic IR, request/result, diagnostic, target-profile, and artifact fields
+remain deliberately undefined for the next contained task.
+
+### Certification and carry-forward
+
+Committed-state leaf gates and human/structured aggregates passed using the
+repository-pinned Ruff 0.15.21, installed Swift 6.2.1, and Bundler 2.4.20. Full
+profiles reported 50 enforced check passes and 64 enforced certify passes with
+zero failures or unavailable capabilities. All 150 focused governance/quality
+tests and all 19 TypeScript suites / 963 tests passed; 901 tracked JSON and 15
+YAML files parsed; all local links in 29 changed Markdown files resolved; and
+high-authority searches found no positive TypeScript, binding, or generated
+fixture authority claim and no host/target conflation.
+
+Carry-forward is explicit: the regex-shaped frontend, per-binding compilers,
+TypeScript-derived compatibility evidence, current shallow AST/IR, target
+limitations, binding-coupled tooling, and 26 lower-authority historical or
+transitional wording hits remain for contained later migration. Existing
+architecture fitness rules already prevent new semantic islands and
+implementation-derived normative authority without prematurely invalidating
+those transitions, so no new enforcement or empty certification commit was
+created.
+
+The repository is ready to define the canonical source model, Semantic IR,
+diagnostics, compiler request/result, target profile, and target artifact
+contracts with the recorded carry-forward above.

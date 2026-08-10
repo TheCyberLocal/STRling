@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Authoritative product and specification architecture
-status: in_progress
+status: complete
 objective: Establish one durable STRling product definition, authoring and compiler responsibility hierarchy, specification authority and versioning model, and canonical vocabulary without changing language or compiler runtime behavior.
 scope:
     diff:
@@ -51,6 +51,8 @@ scope:
         - governance/ENGINEERING_CONSTITUTION.md
         - governance/README.md
         - docs/migration/product-specification-contradictions.md
+        - docs/migration/README.md
+        - docs/migration/ledger.md
         - docs/migration/records/product-specification-architecture.yaml
         - governance/authority.md
         - governance/architecture.md
@@ -196,11 +198,43 @@ checkpoints:
             result: passed
             details: Fail-fast formatting with pinned Ruff 0.15.21, hygiene, unchanged generation and contracts, task declarations, current architecture fitness, links, structured parsing, contradiction absence, and patch integrity passed.
     - name: Architecture consistency certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Independent leaf hardgates
+            command: ./strling format --check all; ./strling hygiene; ./strling lint all; ./strling typecheck all; ./strling generate --check; ./strling contracts --check; ./strling governance; ./strling baseline --check; structured variants
+            result: passed
+            details: All configured formatters, linters, and ten enforced typechecks passed with the repository-pinned Ruff 0.15.21 and installed Swift 6.2.1 toolchains; generation, public contracts, change declarations, architecture fitness, governance, and the frozen baseline reproduced in human and structured modes.
+          - check: Full committed-state aggregate certification
+            command: BUNDLER_VERSION=2.4.20 ./strling check all; ./strling check all --json; ./strling certify all; ./strling certify all --json
+            result: passed
+            details: Clean checkpoint commit 4979a0a5ce4f5623a36d914915cde779a53c83ee passed 50 enforced check results and 64 enforced certify results with zero failed or unavailable results; declared not-configured, not-applicable, and not-yet-enforceable capabilities remained governed.
+          - check: Focused governance, quality, and compatibility baselines
+            command: python3 -m unittest discover -s tooling/tests -p 'test_*.py'; ./strling test typescript
+            result: passed
+            details: All 150 focused governance and quality tests passed, and the explicit TypeScript compatibility baseline passed 19 suites and 963 tests without being promoted to semantic authority.
+          - check: Documentation and structured-data validation
+            command: parse all tracked JSON/YAML; validate 29 changed Markdown files; targeted authority searches; git diff --check; clean-tree verification
+            result: passed
+            details: All 901 tracked JSON and 15 YAML files parsed, all local links resolved, and high-authority searches found only six explicit TypeScript-authority negations, one fixture-authority prohibition, and zero host/target conflations; 26 lower-authority historical/transitional hits remain recorded debt.
+          - check: Architecture fitness enforcement decision
+            command: Existing implementation-derived-fixture-authority, specification-reference-authority-boundary, semantic-island, and transition rule review
+            result: passed
+            details: Existing rules already enforce the ratified authority model and prohibit new semantic islands while keeping current duplicated compilers and fixture dependencies transitional; no new enforcement change or empty checkpoint commit was justified.
     - name: Completion and canonical-contract readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Product, authoring, and compiler architecture
+            result: passed
+            details: STRling is ratified as a portable regex-intent compiler platform; Semantic STRling, Simply, and regex import are distinct frontends converging on one conceptual compiler responsibility chain through analysis, portability planning, target lowering, emitters, and versioned target artifacts.
+          - check: Specification authority and version identity
+            result: passed
+            details: Normative specification sources, reference implementation behavior, compatibility evidence, and explanatory documentation now have non-overlapping authority roles; the next specification is 1.0-draft.1 and unratified, while the frozen unversioned-transitional identity remains accurate historical evidence.
+          - check: Transitional architecture and preserved behavior
+            result: passed
+            details: The regex-shaped frontend, per-binding compilers, TypeScript-derived evidence, shallow AST/IR, target limitations, and binding-coupled tooling are recorded carry-forward. No parser, grammar, compiler, emitter, target, binding, package, or public Simply runtime behavior was intentionally changed.
+          - check: Canonical-contract readiness
+            result: passed
+            details: Authority, vocabulary, versioning, and conceptual responsibility boundaries are stable enough to design canonical source, Semantic IR, diagnostic, compiler request/result, target profile, and TargetArtifact contracts without implementation behavior silently defining them.
 commits:
     - sha: 59805a8644947f6109291ea9fc3ebe95c8f635af
       subject: "docs(architecture): define STRling product identity"
@@ -208,3 +242,45 @@ commits:
       subject: "docs(spec): establish specification authority and versioning"
     - sha: c89ac81d94dc98593f68072dfe791b30a16a6e6b
       subject: "docs(architecture): define compiler and authoring responsibilities"
+    - sha: 4979a0a5ce4f5623a36d914915cde779a53c83ee
+      subject: "docs: reconcile product and specification architecture"
+completion:
+    accomplished:
+        - "Ratified one durable product definition: STRling is a portable regex-intent compiler whose value is semantic authoring, portability analysis, explanation, safety feedback, and target-aware lowering."
+        - Established Semantic STRling, Simply, and the regex frontend/importer as distinct first-class or compatibility authoring surfaces converging on one canonical semantic compiler responsibility chain.
+        - Distinguished host-language adapters from regex-engine targets and made adapters and tooling consumers of the same canonical compiler rather than future independent semantic implementations.
+        - Established a permanent authority model separating normative specification sources, the reference implementation, compatibility evidence, generated fixtures, and explanatory documentation.
+        - Established independent MAJOR.MINOR semantic specification versioning, draft identities, compiler/package independence, and version-sensitive target-profile compatibility without falsely claiming current implementation conformance.
+        - Reconciled the root and high-authority architecture, strategy, contribution, testing, workflow, tutorial, specification, and governance entry points and created a canonical vocabulary and contradiction inventory.
+    verified:
+        - Formatting, hygiene, lint, typecheck, generation, contracts, governance, frozen-baseline validation, check, and certify passed from committed state in required human and structured modes.
+        - Full all-component aggregates reported 50 passing check results and 64 passing certify results with no failed or unavailable capabilities; the installed Swift 6.2.1 toolchain and repository-pinned Ruff 0.15.21 were used.
+        - All 150 focused governance and quality tests passed; the explicit TypeScript compatibility baseline passed all 19 suites and 963 tests.
+        - All 901 tracked JSON files and 15 tracked YAML files parsed, and all local links in the 29 Markdown files changed before final records resolved.
+        - Targeted high-authority searches found no positive TypeScript, binding, or generated-fixture semantic authority claim and no host-language/target-engine conflation.
+        - git diff --check passed and all committed-state hardgates left the repository clean.
+    behavior_changed: No STRling language/compiler runtime semantics intentionally changed.
+    intentional_behavior_changes:
+        - Authoritative documentation now classifies the current regex-shaped syntax as the regex compatibility/import frontend rather than proof of the final Semantic STRling language.
+        - Governance and specification documentation now define permanent product, responsibility, authority, vocabulary, and specification-versioning policy.
+    preserved_behavior:
+        - Existing parser and grammar acceptance, compiler and emitter output, diagnostics, target behavior, public Simply and binding APIs, package versions, and generated compatibility artifacts remain unchanged.
+        - Existing accepted behavior, historical tests, binding behavior, generated fixtures, and legacy outputs remain usable compatibility evidence under the certified preservation obligations.
+        - Known non-contractual defects remain excluded from product requirements, and no historical agreement among implementations was promoted to normative semantics.
+        - No canonical AST, Semantic IR, compiler protocol, target-profile schema, backend, Rust core, adapter migration, or semantic textual parser was designed or implemented.
+    transitional_architecture:
+        - The current regex-shaped textual frontend remains the low-level compatibility/import surface pending future Semantic STRling design against canonical contracts.
+        - Per-binding parser/compiler/emitter implementations remain transitional until adapters can delegate to a canonical compiler under contained compatibility migration.
+        - TypeScript-derived fixtures and implementation agreement remain compatibility evidence rather than normative semantic authority.
+        - The current shallow AST/IR remains implementation evidence and does not constrain the future canonical source model or Semantic IR.
+        - Current target limitations and emitter-owned decisions remain explicit evidence pending version-sensitive target profiles and portability planning.
+        - LSP/editor and other tooling remain partly binding-coupled pending migration to the canonical compiler capability.
+    deferred_work:
+        - Design the canonical source model, Semantic IR, diagnostics, compiler request/result, target profile, and TargetArtifact contracts under the new specification authority and versioning policy.
+        - Ratify Semantic Specification 1.0 only after its normative text, contracts, delegated conformance cases, review record, and implementation claims satisfy the ratification policy.
+        - Reconcile the 26 recorded lower-authority historical/transitional wording hits during contained binding-documentation, implementation-comment, test-guide, and tooling migrations.
+        - Design Semantic STRling syntax and Simply API evolution only after canonical semantic contracts exist; preserve current public compatibility until explicit migration work authorizes change.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Define the canonical source model, Semantic IR, diagnostics, compiler request/result, target profile, and target artifact contracts.
+    rationale: Product identity, authoring and compiler responsibilities, specification authority, versioning, and vocabulary are now coherent and certified. The regex frontend, duplicated binding implementations, TypeScript-derived evidence, shallow AST/IR, target limitations, binding-coupled tooling, and lower-authority documentation debt are explicit transitions that inform but do not block canonical semantic contract design.
