@@ -1,0 +1,27 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "input": {
+        "kind": "source",
+        "document": {
+            "contract_version": "1.0.0",
+            "source_id": "src:protocol.partial",
+            "specification_version": "1.0-draft.1",
+            "frontend": {
+                "id": "semantic_strling",
+                "dialect_version": "1.0-draft.1"
+            },
+            "content": {
+                "kind": "inline",
+                "encoding": "utf-8",
+                "text": "(abc?"
+            },
+            "provenance": { "kind": "authored" }
+        }
+    },
+    "requested_outputs": ["semantic"],
+    "compiler_options": {
+        "partial_semantics": "allow_for_diagnostics",
+        "diagnostic_policy": { "minimum_severity": "hint" }
+    }
+}

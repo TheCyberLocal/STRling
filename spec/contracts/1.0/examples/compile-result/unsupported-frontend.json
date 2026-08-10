@@ -1,0 +1,18 @@
+{
+    "contract_version": "1.0.0",
+    "compiler": { "id": "strling_kernel", "version": "0.1.0" },
+    "specification_version": "1.0-draft.1",
+    "outcome": "failed",
+    "diagnostics": [
+        {
+            "contract_version": "1.0.0",
+            "occurrence": 0,
+            "code": "STRL-PROTOCOL-0002",
+            "severity": "error",
+            "severity_basis": "normative",
+            "phase": "protocol",
+            "category": "unsupported_frontend",
+            "message": "The requested frontend is not supported by this compiler."
+        }
+    ]
+}

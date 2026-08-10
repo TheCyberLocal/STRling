@@ -124,8 +124,24 @@ checkpoints:
             result: passed
             details: Seven tests passed for schema validity, positive and negative corpora, every node category, source-less semantics, Unicode byte boundaries, and deterministic Unicode-preserving serialization; formatting, lint, and patch integrity passed.
     - name: Diagnostic and compiler protocol contracts
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Structured diagnostic contract
+            command: spec/contracts/1.0/diagnostic.schema.json; spec/contracts/1.0/PROTOCOL.md
+            result: passed
+            details: Stable code, occurrence, severity ownership, phase, category, optional UTF-8 attribution, related locations, advice, and non-overlapping deterministic text edits are independent of presentation prose.
+          - check: Deterministic request and structured result protocol
+            command: spec/contracts/1.0/compile-request.schema.json; spec/contracts/1.0/compile-result.schema.json
+            result: passed
+            details: Exactly one source or normalized Semantic IR input, explicit specification and target selection, narrow options, requested outputs, succeeded/failed outcomes, independent sections, structured unsupported-frontend failure, and error-suppressed artifacts are transport and filesystem independent.
+          - check: Partial results and derived analysis boundary
+            command: spec/contracts/1.0/analysis.schema.json; spec/contracts/1.0/portability.schema.json; request/result exchange validation
+            result: passed
+            details: Partial semantics require explicit diagnostic recovery mode and cannot feed downstream phases; node facts and requirements remain keyed results, profiles are immutable references, and overall portability is the least-supported decision.
+          - check: Positive negative ordering attribution and round-trip tests
+            command: python3 tooling/contract_validation.py; python3 -m unittest tooling.tests.test_canonical_contracts
+            result: passed
+            details: Seven Draft 2020-12 schemas, fourteen positive objects, and seventeen controlled invalid objects passed their expected outcomes; thirteen tests covered success, diagnostic-only failure, partial recovery, unsupported frontend, deterministic diagnostic ordering, source attribution, node reference integrity, and canonical JSON round trips.
     - name: Target profile portability and artifact contracts
       status: planned
       evidence: []
@@ -141,3 +157,5 @@ checkpoints:
 commits:
     - sha: cf021a11044d3af6e65378b80391772c333a6558
       subject: "docs(spec): define canonical compiler contract invariants"
+    - sha: 436ceaafaa4e33cf5a86aae2557fae2e3146c44a
+      subject: "feat(spec): define canonical semantic representation"

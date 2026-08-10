@@ -1,0 +1,27 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "input": {
+        "kind": "semantic",
+        "program": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "normalization": "canonical-v1",
+            "case_matching": "sensitive",
+            "root": {
+                "node_id": "node:protocol.semantic",
+                "kind": "literal",
+                "text": "already lowered"
+            }
+        }
+    },
+    "requested_outputs": ["analysis"],
+    "compiler_options": {
+        "partial_semantics": "forbid",
+        "diagnostic_policy": { "minimum_severity": "warning" },
+        "resource_limits": {
+            "max_semantic_nodes": 1000,
+            "max_diagnostics": 100
+        }
+    }
+}

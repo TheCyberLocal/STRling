@@ -1,0 +1,74 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/contracts/1.0/compile-result.schema.json",
+    "title": "STRling structured compile result",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "contract_version",
+        "compiler",
+        "specification_version",
+        "outcome",
+        "diagnostics"
+    ],
+    "properties": {
+        "contract_version": {
+            "$ref": "source.schema.json#/$defs/ContractVersion"
+        },
+        "compiler": { "$ref": "#/$defs/CompilerIdentity" },
+        "specification_version": {
+            "$ref": "source.schema.json#/$defs/SpecificationVersion"
+        },
+        "outcome": { "enum": ["succeeded", "failed"] },
+        "semantic_result": { "$ref": "#/$defs/SemanticResult" },
+        "analysis": { "$ref": "analysis.schema.json" },
+        "portability": { "$ref": "portability.schema.json" },
+        "artifact": { "$ref": "target-artifact.schema.json" },
+        "diagnostics": {
+            "type": "array",
+            "items": { "$ref": "diagnostic.schema.json" }
+        }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": { "outcome": { "const": "succeeded" } },
+                "required": ["outcome"]
+            },
+            "then": {
+                "properties": {
+                    "semantic_result": {
+                        "properties": { "status": { "const": "complete" } },
+                        "required": ["status"]
+                    }
+                }
+            }
+        }
+    ],
+    "$defs": {
+        "CompilerIdentity": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "version"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "version": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:[-+][0-9A-Za-z.-]+)?$"
+                }
+            }
+        },
+        "SemanticResult": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "program"],
+            "properties": {
+                "status": { "enum": ["complete", "partial"] },
+                "program": { "$ref": "semantic-ir.schema.json" }
+            }
+        }
+    }
+}

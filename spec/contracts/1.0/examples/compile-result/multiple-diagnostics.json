@@ -1,0 +1,50 @@
+{
+    "contract_version": "1.0.0",
+    "compiler": { "id": "strling_kernel", "version": "0.1.0" },
+    "specification_version": "1.0-draft.1",
+    "outcome": "failed",
+    "diagnostics": [
+        {
+            "contract_version": "1.0.0",
+            "occurrence": 0,
+            "code": "STRL-PARSE-0001",
+            "severity": "error",
+            "severity_basis": "normative",
+            "phase": "frontend_parse",
+            "category": "syntax",
+            "message": "The first error by source order.",
+            "primary_location": {
+                "source_id": "src:protocol.multiple",
+                "coordinate_system": "utf8-bytes",
+                "start": 0,
+                "end": 1
+            }
+        },
+        {
+            "contract_version": "1.0.0",
+            "occurrence": 1,
+            "code": "STRL-SAFETY-0001",
+            "severity": "warning",
+            "severity_basis": "compiler_policy",
+            "phase": "semantic_analysis",
+            "category": "safety",
+            "message": "A later advisory diagnostic.",
+            "primary_location": {
+                "source_id": "src:protocol.multiple",
+                "coordinate_system": "utf8-bytes",
+                "start": 1,
+                "end": 2
+            }
+        },
+        {
+            "contract_version": "1.0.0",
+            "occurrence": 2,
+            "code": "STRL-PROTOCOL-0003",
+            "severity": "info",
+            "severity_basis": "compiler_policy",
+            "phase": "protocol",
+            "category": "resource_limit",
+            "message": "A location-free diagnostic sorts after located diagnostics."
+        }
+    ]
+}

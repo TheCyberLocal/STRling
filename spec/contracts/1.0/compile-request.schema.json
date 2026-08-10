@@ -1,0 +1,112 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/contracts/1.0/compile-request.schema.json",
+    "title": "STRling deterministic compile request",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "contract_version",
+        "specification_version",
+        "input",
+        "requested_outputs",
+        "compiler_options"
+    ],
+    "properties": {
+        "contract_version": {
+            "$ref": "source.schema.json#/$defs/ContractVersion"
+        },
+        "specification_version": {
+            "$ref": "source.schema.json#/$defs/SpecificationVersion"
+        },
+        "input": { "$ref": "#/$defs/CompileInput" },
+        "target_profile": {
+            "$ref": "portability.schema.json#/$defs/TargetProfileReference"
+        },
+        "requested_outputs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "enum": [
+                    "semantic",
+                    "analysis",
+                    "portability",
+                    "target_artifact"
+                ]
+            }
+        },
+        "compiler_options": { "$ref": "#/$defs/CompilerOptions" }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "requested_outputs": {
+                        "contains": {
+                            "enum": ["portability", "target_artifact"]
+                        }
+                    }
+                },
+                "required": ["requested_outputs"]
+            },
+            "then": { "required": ["target_profile"] }
+        }
+    ],
+    "$defs": {
+        "CompileInput": {
+            "oneOf": [
+                { "$ref": "#/$defs/SourceInput" },
+                { "$ref": "#/$defs/SemanticInput" }
+            ]
+        },
+        "SourceInput": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "document"],
+            "properties": {
+                "kind": { "const": "source" },
+                "document": { "$ref": "source.schema.json" }
+            }
+        },
+        "SemanticInput": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "program"],
+            "properties": {
+                "kind": { "const": "semantic" },
+                "program": { "$ref": "semantic-ir.schema.json" }
+            }
+        },
+        "CompilerOptions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["partial_semantics", "diagnostic_policy"],
+            "properties": {
+                "partial_semantics": {
+                    "enum": ["forbid", "allow_for_diagnostics"]
+                },
+                "diagnostic_policy": { "$ref": "#/$defs/DiagnosticPolicy" },
+                "resource_limits": { "$ref": "#/$defs/ResourceLimits" }
+            }
+        },
+        "DiagnosticPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["minimum_severity"],
+            "properties": {
+                "minimum_severity": {
+                    "enum": ["error", "warning", "info", "hint"]
+                }
+            }
+        },
+        "ResourceLimits": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "max_semantic_nodes": { "type": "integer", "minimum": 1 },
+                "max_diagnostics": { "type": "integer", "minimum": 1 }
+            },
+            "minProperties": 1
+        }
+    }
+}

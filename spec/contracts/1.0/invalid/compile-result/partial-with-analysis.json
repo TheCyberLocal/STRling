@@ -1,0 +1,38 @@
+{
+    "contract_version": "1.0.0",
+    "compiler": { "id": "strling_kernel", "version": "0.1.0" },
+    "specification_version": "1.0-draft.1",
+    "outcome": "failed",
+    "semantic_result": {
+        "status": "partial",
+        "program": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "normalization": "canonical-v1",
+            "case_matching": "sensitive",
+            "root": {
+                "node_id": "node:partial",
+                "kind": "literal",
+                "text": "x"
+            }
+        }
+    },
+    "analysis": {
+        "contract_version": "1.0.0",
+        "specification_version": "1.0-draft.1",
+        "node_facts": [{ "node_id": "node:partial", "nullable": false }],
+        "feature_requirements": []
+    },
+    "diagnostics": [
+        {
+            "contract_version": "1.0.0",
+            "occurrence": 0,
+            "code": "STRL-PARSE-0001",
+            "severity": "error",
+            "severity_basis": "normative",
+            "phase": "frontend_parse",
+            "category": "syntax",
+            "message": "Partial results cannot feed analysis."
+        }
+    ]
+}

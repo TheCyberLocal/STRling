@@ -1,0 +1,7 @@
+{
+    "contract_version": "1.0.0",
+    "compiler": { "id": "strling_kernel", "version": "0.1.0" },
+    "specification_version": "1.0-draft.1",
+    "outcome": "failed",
+    "diagnostics": []
+}

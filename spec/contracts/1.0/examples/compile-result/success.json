@@ -1,0 +1,37 @@
+{
+    "contract_version": "1.0.0",
+    "compiler": { "id": "strling_kernel", "version": "0.1.0" },
+    "specification_version": "1.0-draft.1",
+    "outcome": "succeeded",
+    "semantic_result": {
+        "status": "complete",
+        "program": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "normalization": "canonical-v1",
+            "case_matching": "sensitive",
+            "root": {
+                "node_id": "node:protocol.success",
+                "kind": "literal",
+                "text": "abc"
+            }
+        }
+    },
+    "analysis": {
+        "contract_version": "1.0.0",
+        "specification_version": "1.0-draft.1",
+        "node_facts": [
+            {
+                "node_id": "node:protocol.success",
+                "nullable": false,
+                "length_bounds": {
+                    "min": 3,
+                    "max": 3,
+                    "unit": "unicode-scalar-values"
+                }
+            }
+        ],
+        "feature_requirements": []
+    },
+    "diagnostics": []
+}

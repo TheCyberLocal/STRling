@@ -14,6 +14,33 @@ from jsonschema import Draft202012Validator, FormatChecker, RefResolver
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_ROOT = ROOT / "spec" / "contracts" / "1.0"
 
+FAMILY_SCHEMAS = (
+    ("source", "source.schema.json"),
+    ("semantic-ir", "semantic-ir.schema.json"),
+    ("diagnostic", "diagnostic.schema.json"),
+    ("analysis", "analysis.schema.json"),
+    ("compile-request", "compile-request.schema.json"),
+    ("compile-result", "compile-result.schema.json"),
+    ("portability", "portability.schema.json"),
+)
+
+PHASE_ORDER = {
+    name: index
+    for index, name in enumerate(
+        (
+            "protocol",
+            "frontend_parse",
+            "semantic_lowering",
+            "normalization",
+            "semantic_analysis",
+            "portability",
+            "target_lowering",
+            "emission",
+        )
+    )
+}
+SEVERITY_ORDER = {"error": 0, "warning": 1, "info": 2, "hint": 3}
+
 
 class ContractValidationError(ValueError):
     """A schema or cross-contract invariant was violated."""
@@ -81,14 +108,21 @@ class ContractSuite:
             self._validate_source(value)
         elif schema_name == "semantic-ir.schema.json":
             self._validate_semantic(value)
+        elif schema_name == "diagnostic.schema.json":
+            self._validate_diagnostic(value)
+        elif schema_name == "analysis.schema.json":
+            self._validate_analysis(value)
+        elif schema_name == "compile-request.schema.json":
+            self._validate_compile_request(value)
+        elif schema_name == "compile-result.schema.json":
+            self._validate_compile_result(value)
+        elif schema_name == "portability.schema.json":
+            self._validate_portability(value)
 
     def validate_positive_examples(self) -> int:
         """Validate every authored positive source and Semantic IR example."""
         count = 0
-        for family, schema_name in (
-            ("source", "source.schema.json"),
-            ("semantic-ir", "semantic-ir.schema.json"),
-        ):
+        for family, schema_name in FAMILY_SCHEMAS:
             for path in sorted(
                 (self.contract_root / "examples" / family).glob("*.json")
             ):
@@ -99,10 +133,7 @@ class ContractSuite:
     def validate_negative_examples(self) -> int:
         """Prove every controlled malformed example is rejected."""
         count = 0
-        for family, schema_name in (
-            ("source", "source.schema.json"),
-            ("semantic-ir", "semantic-ir.schema.json"),
-        ):
+        for family, schema_name in FAMILY_SCHEMAS:
             for path in sorted(
                 (self.contract_root / "invalid" / family).glob("*.json")
             ):
@@ -202,6 +233,292 @@ class ContractSuite:
                     f"backreference resolves to missing capture_id {capture_id}"
                 )
 
+    def _validate_diagnostic(self, diagnostic: Mapping[str, Any]) -> None:
+        location = diagnostic.get("primary_location")
+        if location is not None:
+            self._validate_span(location, None)
+        for related in diagnostic.get("related_locations", []):
+            self._validate_span(related["location"], None)
+        for fix in diagnostic.get("fixes", []):
+            edits = fix["edits"]
+            edit_keys = [
+                (edit["span"]["source_id"], edit["span"]["start"], edit["span"]["end"])
+                for edit in edits
+            ]
+            if edit_keys != sorted(edit_keys):
+                raise ContractValidationError("fix edits must be canonically sorted")
+            previous: tuple[str, int] | None = None
+            for edit in edits:
+                span = edit["span"]
+                self._validate_span(span, None)
+                if previous is not None and previous[0] == span["source_id"]:
+                    if span["start"] < previous[1]:
+                        raise ContractValidationError("fix edits must not overlap")
+                previous = (span["source_id"], span["end"])
+
+    def _validate_analysis(self, analysis: Mapping[str, Any]) -> None:
+        facts = analysis["node_facts"]
+        fact_ids = [fact["node_id"] for fact in facts]
+        if fact_ids != sorted(set(fact_ids)):
+            raise ContractValidationError(
+                "analysis node_facts must have unique sorted node IDs"
+            )
+        for fact in facts:
+            bounds = fact.get("length_bounds")
+            if bounds is not None:
+                maximum = bounds["max"]
+                if maximum is not None and maximum < bounds["min"]:
+                    raise ContractValidationError(
+                        "analysis length maximum cannot be less than minimum"
+                    )
+
+        requirements = analysis["feature_requirements"]
+        requirement_ids = [item["requirement_id"] for item in requirements]
+        if requirement_ids != sorted(set(requirement_ids)):
+            raise ContractValidationError(
+                "feature requirements must have unique sorted IDs"
+            )
+        for requirement in requirements:
+            node_ids = requirement["node_ids"]
+            if node_ids != sorted(set(node_ids)):
+                raise ContractValidationError(
+                    "feature requirement node_ids must be unique and sorted"
+                )
+
+    def _validate_portability(self, portability: Mapping[str, Any]) -> None:
+        decisions = portability["decisions"]
+        requirement_ids = [item["requirement_id"] for item in decisions]
+        if requirement_ids != sorted(set(requirement_ids)):
+            raise ContractValidationError(
+                "portability decisions must have unique sorted requirement IDs"
+            )
+        for decision in decisions:
+            node_ids = decision["node_ids"]
+            if node_ids != sorted(set(node_ids)):
+                raise ContractValidationError(
+                    "portability decision node_ids must be unique and sorted"
+                )
+        rank = {"native": 0, "equivalent_rewrite": 1, "unsupported": 2}
+        expected = max(
+            (decision["status"] for decision in decisions),
+            key=rank.__getitem__,
+            default="native",
+        )
+        if portability["status"] != expected:
+            raise ContractValidationError(
+                "overall portability status must equal the least-supported decision"
+            )
+
+    def _validate_compile_request(self, request: Mapping[str, Any]) -> None:
+        input_value = request["input"]
+        if input_value["kind"] == "source":
+            source = input_value["document"]
+            self._validate_source(source)
+            input_specification = source["specification_version"]
+        else:
+            program = input_value["program"]
+            self._validate_semantic(program)
+            input_specification = program["specification_version"]
+        if input_specification != request["specification_version"]:
+            raise ContractValidationError(
+                "compile input and request specification versions must match"
+            )
+        output_order = {
+            "semantic": 0,
+            "analysis": 1,
+            "portability": 2,
+            "target_artifact": 3,
+        }
+        outputs = request["requested_outputs"]
+        if outputs != sorted(outputs, key=output_order.__getitem__):
+            raise ContractValidationError("requested_outputs must use canonical order")
+
+    def _validate_compile_result(self, result: Mapping[str, Any]) -> None:
+        diagnostics = result["diagnostics"]
+        for diagnostic in diagnostics:
+            self._validate_diagnostic(diagnostic)
+        occurrences = [diagnostic["occurrence"] for diagnostic in diagnostics]
+        if len(occurrences) != len(set(occurrences)):
+            raise ContractValidationError("diagnostic occurrence values must be unique")
+        keys = [_diagnostic_key(diagnostic) for diagnostic in diagnostics]
+        if keys != sorted(keys):
+            raise ContractValidationError("diagnostics must use canonical result order")
+
+        has_error = any(item["severity"] == "error" for item in diagnostics)
+        if result["outcome"] == "succeeded" and has_error:
+            raise ContractValidationError("successful result cannot contain errors")
+        if result["outcome"] == "failed" and not has_error:
+            raise ContractValidationError("failed result must contain an error")
+
+        specification_version = result["specification_version"]
+        semantic_result = result.get("semantic_result")
+        if semantic_result is not None:
+            program = semantic_result["program"]
+            self._validate_semantic(program)
+            if program["specification_version"] != specification_version:
+                raise ContractValidationError(
+                    "semantic result specification version must match result"
+                )
+            if semantic_result["status"] == "partial":
+                prohibited = {"analysis", "portability", "artifact"}.intersection(
+                    result
+                )
+                if prohibited:
+                    raise ContractValidationError(
+                        "partial semantics cannot feed analysis, planning, or emission"
+                    )
+
+        analysis = result.get("analysis")
+        if analysis is not None:
+            self._validate_analysis(analysis)
+            if analysis["specification_version"] != specification_version:
+                raise ContractValidationError(
+                    "analysis specification version must match result"
+                )
+        portability = result.get("portability")
+        if portability is not None:
+            self._validate_portability(portability)
+            if portability["specification_version"] != specification_version:
+                raise ContractValidationError(
+                    "portability specification version must match result"
+                )
+        if "artifact" in result and has_error:
+            raise ContractValidationError("an error result cannot contain an artifact")
+
+    def validate_exchange(
+        self,
+        request: Mapping[str, Any],
+        result: Mapping[str, Any],
+        supported_frontends: frozenset[str] = frozenset(
+            {"semantic_strling", "regex_frontend"}
+        ),
+    ) -> None:
+        """Validate request/result behavior that requires both protocol objects."""
+        self.validate("compile-request.schema.json", request)
+        self.validate("compile-result.schema.json", result)
+        if request["specification_version"] != result["specification_version"]:
+            raise ContractValidationError(
+                "request and result specification versions must match"
+            )
+
+        outputs = set(request["requested_outputs"])
+        if result["outcome"] == "succeeded":
+            required_sections = {
+                "semantic": "semantic_result",
+                "analysis": "analysis",
+                "portability": "portability",
+                "target_artifact": "artifact",
+            }
+            for output in outputs:
+                if required_sections[output] not in result:
+                    raise ContractValidationError(
+                        f"successful result omitted requested output {output}"
+                    )
+        semantic_result = result.get("semantic_result")
+        if semantic_result is not None and semantic_result["status"] == "partial":
+            if (
+                request["compiler_options"]["partial_semantics"]
+                != "allow_for_diagnostics"
+            ):
+                raise ContractValidationError(
+                    "partial semantics were not enabled by the request"
+                )
+
+        input_value = request["input"]
+        if input_value["kind"] == "source":
+            frontend = input_value["document"]["frontend"]["id"]
+            if frontend not in supported_frontends:
+                if result["outcome"] != "failed" or not any(
+                    diagnostic["code"] == "STRL-PROTOCOL-0002"
+                    for diagnostic in result["diagnostics"]
+                ):
+                    raise ContractValidationError(
+                        "unsupported frontend must produce a structured protocol failure"
+                    )
+
+        sources: dict[str, Mapping[str, Any]] = {}
+
+        def add_sources(program_sources: list[Mapping[str, Any]]) -> None:
+            for source in program_sources:
+                source_id = source["source_id"]
+                if source_id in sources and sources[source_id] != source:
+                    raise ContractValidationError(
+                        f"conflicting source declarations for {source_id}"
+                    )
+                sources[source_id] = source
+
+        if input_value["kind"] == "source":
+            document = input_value["document"]
+            sources[document["source_id"]] = document
+        else:
+            add_sources(input_value["program"].get("sources", []))
+        if semantic_result is not None:
+            add_sources(semantic_result["program"].get("sources", []))
+
+        def validate_attributed_span(span: Mapping[str, Any]) -> None:
+            source_id = span["source_id"]
+            if source_id not in sources:
+                raise ContractValidationError(
+                    f"diagnostic refers to undeclared source_id {source_id}"
+                )
+            self._validate_span(span, sources[source_id])
+
+        for diagnostic in result["diagnostics"]:
+            location = diagnostic.get("primary_location")
+            if location is not None:
+                validate_attributed_span(location)
+            for related in diagnostic.get("related_locations", []):
+                validate_attributed_span(related["location"])
+            for fix in diagnostic.get("fixes", []):
+                for edit in fix["edits"]:
+                    validate_attributed_span(edit["span"])
+
+        program: Mapping[str, Any] | None = None
+        if semantic_result is not None:
+            program = semantic_result["program"]
+        elif input_value["kind"] == "semantic":
+            program = input_value["program"]
+        if program is not None:
+            node_ids = {node["node_id"] for node in iter_nodes(program["root"])}
+            analysis = result.get("analysis")
+            if analysis is not None:
+                referenced_node_ids = {
+                    fact["node_id"] for fact in analysis["node_facts"]
+                }
+                referenced_node_ids.update(
+                    node_id
+                    for requirement in analysis["feature_requirements"]
+                    for node_id in requirement["node_ids"]
+                )
+                missing = referenced_node_ids - node_ids
+                if missing:
+                    raise ContractValidationError(
+                        "analysis refers to undeclared semantic node IDs: "
+                        + ", ".join(sorted(missing))
+                    )
+            portability = result.get("portability")
+            if portability is not None:
+                referenced_node_ids = {
+                    node_id
+                    for decision in portability["decisions"]
+                    for node_id in decision["node_ids"]
+                }
+                missing = referenced_node_ids - node_ids
+                if missing:
+                    raise ContractValidationError(
+                        "portability refers to undeclared semantic node IDs: "
+                        + ", ".join(sorted(missing))
+                    )
+
+        portability = result.get("portability")
+        if (
+            portability is not None
+            and request.get("target_profile") != portability["target_profile"]
+        ):
+            raise ContractValidationError(
+                "portability profile must equal the requested target profile"
+            )
+
     def _validate_origin(
         self,
         origin: Mapping[str, Any],
@@ -273,6 +590,26 @@ class ContractSuite:
                 raise ContractValidationError(
                     "character-set range start cannot exceed its end"
                 )
+
+
+def _diagnostic_key(diagnostic: Mapping[str, Any]) -> tuple[Any, ...]:
+    location = diagnostic.get("primary_location")
+    if location is None:
+        location_key: tuple[Any, ...] = (1, "", 0, 0)
+    else:
+        location_key = (
+            0,
+            location["source_id"],
+            location["start"],
+            location["end"],
+        )
+    return (
+        *location_key,
+        PHASE_ORDER[diagnostic["phase"]],
+        SEVERITY_ORDER[diagnostic["severity"]],
+        diagnostic["code"],
+        diagnostic["occurrence"],
+    )
 
 
 def _character_member_key(member: Mapping[str, Any]) -> tuple[Any, ...]:

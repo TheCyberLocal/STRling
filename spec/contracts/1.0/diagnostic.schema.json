@@ -1,0 +1,125 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/contracts/1.0/diagnostic.schema.json",
+    "title": "STRling structured diagnostic",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "contract_version",
+        "occurrence",
+        "code",
+        "severity",
+        "severity_basis",
+        "phase",
+        "category",
+        "message"
+    ],
+    "properties": {
+        "contract_version": {
+            "$ref": "source.schema.json#/$defs/ContractVersion"
+        },
+        "occurrence": { "type": "integer", "minimum": 0 },
+        "code": {
+            "type": "string",
+            "pattern": "^STRL-[A-Z][A-Z0-9_]*-[0-9]{4}$"
+        },
+        "severity": { "enum": ["error", "warning", "info", "hint"] },
+        "severity_basis": {
+            "enum": ["normative", "target_profile", "compiler_policy"]
+        },
+        "phase": {
+            "enum": [
+                "protocol",
+                "frontend_parse",
+                "semantic_lowering",
+                "normalization",
+                "semantic_analysis",
+                "portability",
+                "target_lowering",
+                "emission"
+            ]
+        },
+        "category": {
+            "enum": [
+                "malformed_request",
+                "unsupported_frontend",
+                "syntax",
+                "semantic_validity",
+                "normalization",
+                "resource_limit",
+                "portability",
+                "target_capability",
+                "safety",
+                "internal"
+            ]
+        },
+        "message": { "type": "string", "minLength": 1 },
+        "primary_location": {
+            "$ref": "source.schema.json#/$defs/SourceSpan"
+        },
+        "related_locations": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/RelatedLocation" }
+        },
+        "advice": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/Advice" }
+        },
+        "fixes": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/Fix" }
+        }
+    },
+    "$defs": {
+        "RelatedLocation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["role", "message", "location"],
+            "properties": {
+                "role": {
+                    "enum": ["cause", "definition", "reference", "context"]
+                },
+                "message": { "type": "string", "minLength": 1 },
+                "location": { "$ref": "source.schema.json#/$defs/SourceSpan" }
+            }
+        },
+        "Advice": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "message"],
+            "properties": {
+                "kind": { "enum": ["note", "help"] },
+                "message": { "type": "string", "minLength": 1 }
+            }
+        },
+        "Fix": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fix_id", "title", "applicability", "edits"],
+            "properties": {
+                "fix_id": {
+                    "type": "string",
+                    "pattern": "^fix:[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "title": { "type": "string", "minLength": 1 },
+                "applicability": {
+                    "enum": ["machine_applicable", "suggested"]
+                },
+                "edits": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/TextEdit" }
+                }
+            }
+        },
+        "TextEdit": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["span", "replacement"],
+            "properties": {
+                "span": { "$ref": "source.schema.json#/$defs/SourceSpan" },
+                "replacement": { "type": "string" }
+            }
+        }
+    }
+}

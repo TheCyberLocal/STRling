@@ -1,0 +1,18 @@
+{
+    "contract_version": "1.0.0",
+    "compiler": { "id": "strling_kernel", "version": "0.1.0" },
+    "specification_version": "1.0-draft.1",
+    "outcome": "succeeded",
+    "diagnostics": [
+        {
+            "contract_version": "1.0.0",
+            "occurrence": 0,
+            "code": "STRL-PARSE-0001",
+            "severity": "error",
+            "severity_basis": "normative",
+            "phase": "frontend_parse",
+            "category": "syntax",
+            "message": "An error cannot accompany success."
+        }
+    ]
+}

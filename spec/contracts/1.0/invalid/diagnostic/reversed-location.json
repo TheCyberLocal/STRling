@@ -1,0 +1,16 @@
+{
+    "contract_version": "1.0.0",
+    "occurrence": 0,
+    "code": "STRL-PARSE-0001",
+    "severity": "error",
+    "severity_basis": "normative",
+    "phase": "frontend_parse",
+    "category": "syntax",
+    "message": "Invalid reversed location.",
+    "primary_location": {
+        "source_id": "src:invalid.location",
+        "coordinate_system": "utf8-bytes",
+        "start": 5,
+        "end": 4
+    }
+}

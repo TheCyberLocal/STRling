@@ -1,0 +1,22 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "node_facts": [
+        {
+            "node_id": "node:protocol.success",
+            "nullable": false,
+            "length_bounds": {
+                "min": 3,
+                "max": 3,
+                "unit": "unicode-scalar-values"
+            }
+        }
+    ],
+    "feature_requirements": [
+        {
+            "requirement_id": "requirement:unicode.literal",
+            "feature_id": "unicode.literal",
+            "node_ids": ["node:protocol.success"]
+        }
+    ]
+}

@@ -1,0 +1,80 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/contracts/1.0/portability.schema.json",
+    "title": "STRling portability plan result",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "contract_version",
+        "specification_version",
+        "target_profile",
+        "status",
+        "decisions"
+    ],
+    "properties": {
+        "contract_version": {
+            "$ref": "source.schema.json#/$defs/ContractVersion"
+        },
+        "specification_version": {
+            "$ref": "source.schema.json#/$defs/SpecificationVersion"
+        },
+        "target_profile": { "$ref": "#/$defs/TargetProfileReference" },
+        "status": { "$ref": "#/$defs/PortabilityStatus" },
+        "decisions": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/PortabilityDecision" }
+        }
+    },
+    "$defs": {
+        "PortabilityStatus": {
+            "enum": ["native", "equivalent_rewrite", "unsupported"]
+        },
+        "TargetProfileReference": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["profile_id", "profile_version", "sha256"],
+            "properties": {
+                "profile_id": {
+                    "type": "string",
+                    "pattern": "^profile:[a-z0-9][a-z0-9._/-]{0,127}$"
+                },
+                "profile_version": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+                },
+                "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+            }
+        },
+        "PortabilityDecision": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "requirement_id",
+                "capability_id",
+                "node_ids",
+                "status",
+                "reason_code"
+            ],
+            "properties": {
+                "requirement_id": {
+                    "type": "string",
+                    "pattern": "^requirement:[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "capability_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "node_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "source.schema.json#/$defs/NodeId" }
+                },
+                "status": { "$ref": "#/$defs/PortabilityStatus" },
+                "reason_code": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                }
+            }
+        }
+    }
+}

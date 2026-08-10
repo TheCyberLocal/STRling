@@ -1,0 +1,23 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "input": {
+        "kind": "source",
+        "document": {
+            "contract_version": "1.0.0",
+            "source_id": "src:protocol.unsupported-frontend",
+            "specification_version": "1.0-draft.1",
+            "frontend": {
+                "id": "future_frontend",
+                "dialect_version": "1.0"
+            },
+            "content": { "kind": "inline", "encoding": "utf-8", "text": "x" },
+            "provenance": { "kind": "authored" }
+        }
+    },
+    "requested_outputs": ["semantic"],
+    "compiler_options": {
+        "partial_semantics": "forbid",
+        "diagnostic_policy": { "minimum_severity": "error" }
+    }
+}
