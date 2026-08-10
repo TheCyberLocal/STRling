@@ -1,117 +1,237 @@
 # Architectural Invariants
 
-## Status
+## Status and scope
 
-This document defines STRling's target architecture at the level required to
-govern migration. It does not prescribe a compiler language, deployment model,
-or detailed component layout. The current repository contains duplicated
-semantic implementations across bindings and other transitional paths; those
-paths are not yet compliant with the target invariants below.
+This is a ratified architecture decision. It assigns conceptual responsibility
+and dependency direction without prescribing contract fields, process
+boundaries, module layout, deployment, or implementation language.
 
-## Target dependency direction
+The [`product architecture`](product.md) defines STRling's identity and authoring
+hierarchy. The [`authority hierarchy`](authority.md) keeps the normative
+specification above every implementation. Current duplicated semantic paths are
+transitional, not examples of the desired architecture.
 
-The semantic compilation path MUST follow this conceptual direction:
+## Permanent conceptual architecture
 
 ```text
-authoring frontend -> semantic model -> analysis -> portability planning -> target lowering -> emitter
+AUTHORING SURFACES
+    Semantic STRling DSL
+    Simply APIs
+    Regex frontend / importer
+            |
+            v
+    Canonical semantic representation
+            |
+            v
+    Semantic analysis
+    Portability planning
+            |
+            v
+    Target lowering
+            |
+            v
+    Target-specific emitters
+            |
+            v
+    Versioned target artifacts
+
+HOST-LANGUAGE ADAPTERS
+    expose the same compiler capability
+    without reimplementing semantics
+
+TOOLING
+    CLI / LSP / editor integrations
+    consume the same canonical compiler
 ```
 
-Dependencies MUST flow toward stable contracts at each boundary. Later fitness
-gates MUST make prohibited reverse or cross-layer dependencies detectable.
+Every semantic path converges before analysis and target planning. Dependencies
+flow toward stable versioned contracts. Later fitness gates must detect
+prohibited reverse dependencies and new semantic implementation islands without
+falsely rejecting recorded transitional code.
 
-## Invariants
+## Authoring responsibilities
 
-### Convergent authoring surfaces
+### Semantic STRling DSL
 
-Textual DSL parsing, fluent builders, editor features, and other authoring
-surfaces MAY provide different input experiences, but their semantic input MUST
-converge on one canonical semantic model. An authoring surface MUST NOT define a
-parallel meaning for the same versioned construct.
+Semantic STRling is the flagship textual frontend for semantic pattern intent.
+It will parse its own versioned source dialect into the canonical semantic path.
+Its syntax and source contract are later specification work.
 
-### One semantic compiler authority
+Semantic STRling does not mean “whatever the current `.strl` parser accepts,”
+and it must not be designed by copying target regex spelling without semantic
+justification.
 
-Parsing, normalization, semantic analysis, portability planning, target
-lowering, and emission semantics MUST have one canonical implementation. A
-reference implementation is subordinate to the specification and contracts; it
-does not gain semantic authority merely by being executable.
+### Simply APIs
 
-### Explicit capability planning
+Simply is a first-class semantic frontend. Each host ecosystem may expose an
+idiomatic public API, but equivalent operations lower to the same canonical
+semantic representation and meaning.
 
-Target capability planning MUST be distinct from target serialization.
-Planning determines whether a construct has native support, requires a
-semantics-preserving rewrite, or is unsupported. An explicitly requested
-degraded mode MAY be added only under a versioned contract. Emitters MUST
-serialize a deliberate plan rather than silently invent portability behavior.
+Simply must not define independent behavior, use direct target-regex emission as
+its semantic implementation, contain a shadow compiler, or assume that PCRE2
+output executes in every host runtime. Current public Simply APIs remain
+compatibility obligations until a separately authorized migration changes them.
 
-### Thin host-language adapters
+### Regex frontend and importer
 
-Host-language bindings MUST eventually depend on a stable canonical compiler
-interface rather than compiler internals. Adapters MAY own idiomatic public APIs,
-data conversion, runtime integration, packaging, and host-specific error
-mapping. They MUST NOT own shadow parsers, analyzers, portability planners, or
-emitters for canonical STRling semantics.
+The existing regex-shaped grammar is the low-level **regex frontend** and a
+regex-compatible **source dialect**. It remains valuable for compatibility,
+migration, and import. Accepted behavior remains compatibility evidence until a
+versioned specification decision retains, revises, or rejects it.
 
-### Canonical tooling path
+This frontend is not the final Semantic STRling DSL and does not define the
+product's semantic ceiling. Target-like input must still enter the canonical
+semantic path. Raw regex is not prohibited internally: import and target output
+are necessary. The prohibition is treating raw target syntax as the semantic
+public abstraction.
 
-Language servers, editor integrations, CLIs, documentation tools, conformance
-tools, and other semantic consumers MUST use the canonical compiler interface.
-Tooling MUST NOT maintain a shadow compiler or silently reinterpret compiler
-results.
+## Canonical compiler responsibilities
 
-### Deterministic contracts
+### Frontend normalization
 
-Semantic boundaries MUST carry the versioned inputs needed for deterministic
-results, including compiler version, specification version, target profile, and
-compiler options. Diagnostics and target artifacts MUST remain traceable to
-those inputs.
+Each authoring surface owns source-specific parsing, source validation, and
+source mapping at its boundary. The canonical compiler authority owns shared
+normalization so equivalent inputs have one meaning. Frontend-specific syntax
+does not create parallel semantics.
 
-### Progressive enforcement
+### Canonical semantic representation
 
-Architecture fitness rules MUST tighten as transitional implementations are
-replaced. Each gate MUST state its current scope, allowed exceptions, and
-evidence. Transitional code MAY be temporarily outside a final-state rule only
-through recorded scope or a governed waiver; it MUST NOT be represented as
-already compliant.
+All authoring surfaces converge on one target-independent semantic
+representation consumed by shared analysis and planning. This decision defines
+no fields, serialization, ownership, or required split between a source model
+and Semantic IR. Current per-binding AST and IR structures are not the final
+canonical model.
 
-## Fitness rule categories
+### Semantic analysis
 
-Architecture policy distinguishes placement, dependency, authority, and
-transition rules. Placement rules govern where task records and new semantic
-components may appear. Dependency rules inspect language imports or structured
-references where a reliable parser is available. Authority rules prevent
-generated or implementation output from becoming specification input.
-Transition rules report current duplication or temporary dependencies without
-misrepresenting final-state compliance.
+Semantic analysis owns target-independent validity, diagnostics, safety
+findings, and explanations that can be established before target selection.
+Results remain traceable to semantic input and specification version.
 
-New dependency analyzers MUST resolve the syntax they govern (for example the
-Python AST or JSON Schema `$ref` values) and MUST fail closed on malformed
-source. Text search may support discovery but is not sufficient evidence for an
-enforced import boundary when a language-aware parser is reasonably available.
+### Portability planning
 
-Rules tighten monotonically. A transition records its exact retirement
-condition; activation changes only its status and does not require a new rule
-framework. Weakening an enforced boundary requires an explicit breaking
-architecture declaration, affected rule or surface identifiers, and evidence
-for the replacement or bounded exception.
+The portability planner compares analyzed requirements with a selected,
+versioned target profile and deliberately chooses native support, a
+semantics-preserving rewrite, or an unsupported result. Degraded output exists
+only under a versioned contract and explicit caller request. Silent semantic
+degradation is forbidden.
 
-## Certified current fitness boundaries
+### Target profiles
 
-Enforced rules now parse Python imports for governance and quality dependency
-boundaries, resolve JSON Schema references within specification-owned roots,
-bound implementation-derived fixture authority, and inspect newly added Python
-or JavaScript-family declarations for semantic implementation islands. These
-checks complement generated-input acyclicity and task or top-level placement
-rules. Malformed governed source fails closed.
+A target profile describes relevant semantics and capabilities of a target
+engine version, runtime edition, and material options. Capabilities are
+version/profile-sensitive facts, not timeless booleans. A profile is subordinate
+to the semantic specification and cannot redefine STRling meaning. Exact profile
+identity and schema are later contract work.
 
-Transitional rules are evaluated and report evidence without becoming false
-fatal violations. They currently cover duplicated binding parsers, compilers,
-and emitters; implementation-derived shared fixtures; and direct LSP imports of
-the Python binding. Their retirement conditions remain attached to the rule
-registry, so promotion requires only changing `transitional` to `enforced` once
-the stated migration evidence exists.
+### Target lowering
 
-The binding-to-canonical-core rule remains future-state because no canonical
-core exists. It must not block the current repository or be used to claim that
-per-binding semantic implementations are already violations. The future rule
-activates per binding only after core implementation, adapter migration, legacy
-implementation removal, and behavior-preservation certification.
+Target lowering turns an analyzed semantic program and portability plan into a
+target-specific emission plan. It owns deliberate target rewrites and must not
+depend on a host adapter's runtime implementation.
+
+### Emitters
+
+An emitter deterministically serializes an already selected target plan. It may
+own target escaping, syntax selection, and serialization mechanics. It must not
+invent meaning, portability policy, unsupported fallbacks, or safety decisions.
+
+### TargetArtifact
+
+Compilation produces a versioned TargetArtifact for the selected profile. It
+must ultimately be traceable to compiler version, specification version, target
+profile, options, semantic result, diagnostics, and emitted material as the
+future contract defines. Current schema fields are not ratified as the final
+artifact contract by this decision.
+
+## Host-language adapters
+
+A host-language adapter answers: “From which programming ecosystem can I invoke
+STRling?” Rust, TypeScript, Python, Java, and C# are host examples. A target
+engine answers: “For which regex/runtime semantics should STRling compile?”
+PCRE2, ECMAScript, and Python `re` are target examples.
+
+Adapters may own idiomatic Simply and compiler-call APIs, host type conversion,
+serialization, packaging, interoperability, host error conversion, and runtime
+helpers that explicitly identify executable artifacts. They must not own
+canonical parsing, normalization, semantic analysis, portability planning,
+target lowering, or emission semantics.
+
+The adapter count is never a target-engine count. A future canonical compiler
+may be written in Rust; Rust would be the reference implementation language, not
+the specification and not a target by implication.
+
+## Tooling
+
+The CLI, LSP, editors, documentation tools, and conformance tools consume the
+same canonical compiler interface. They may own transport, presentation,
+caching, source projection, and editor protocol behavior. They must not maintain
+shadow compilers or reinterpret canonical results. Binding-coupled tooling
+remains transitional until the canonical interface and source/diagnostic
+contracts exist.
+
+## Determinism and traceability
+
+Identical semantic input, compiler version, specification version, target
+profile, and compiler options must produce deterministic semantic results,
+diagnostics, plans, and artifacts. Permitted nondeterministic metadata must be
+specified and isolated.
+
+Compiler, specification, source-dialect, profile, artifact, host-package, and
+implementation versions have different responsibilities. Equal version numbers
+never imply compatibility.
+
+## Explicit decisions
+
+| Question                                                            | Decision                                                                                                |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| What is STRling?                                                    | A portable semantic regex compiler platform.                                                            |
+| What is the flagship abstraction?                                   | Semantic intent through multiple authoring surfaces.                                                    |
+| Is raw regex forbidden internally?                                  | No. Import and target output are required; raw target syntax is not the semantic public abstraction.    |
+| Is the current regex-shaped grammar the final Semantic STRling DSL? | No. It is the compatibility/import frontend unless ratified work reclassifies it.                       |
+| Is Simply normative?                                                | No. It is a first-class frontend conforming to the specification and canonical semantic representation. |
+| Is TypeScript authoritative?                                        | No. Historical behavior is compatibility evidence.                                                      |
+| Is Rust authoritative?                                              | No. A future Rust core may be the subordinate reference implementation.                                 |
+| Are bindings compiler implementations?                              | Not in the target architecture; current independent implementations are transitional.                   |
+| Are engine capabilities timeless booleans?                          | No. Support is version/profile-sensitive.                                                               |
+
+## Transitional architecture
+
+These current structures remain permitted but are not the desired architecture:
+
+-   the regex-shaped textual frontend;
+-   duplicated parsers, ASTs, IRs, validators, compilers, diagnostics, planners,
+    and emitters across bindings;
+-   TypeScript-derived fixtures and historical outputs;
+-   shallow AST/IR and artifact models predating canonical contracts;
+-   target limitations and feature tables not yet expressed by versioned
+    profiles; and
+-   tooling coupled to binding implementations.
+
+Their preservation, rewrite, or retirement follows the certified matrix, donor
+inventory, public contracts, and transition rules. A transition is not compliant
+until replacement and behavior-preservation evidence exists.
+
+## Progressive enforcement
+
+Fitness rules tighten monotonically as transitions are replaced. Each gate
+states scope, exceptions, and retirement or activation evidence. Current rules
+cover governance dependency direction, generated-input acyclicity,
+implementation-derived fixture authority, task placement, specification schema
+references, and new semantic islands.
+
+Transitional rules report duplicated binding compilers, implementation-derived
+fixtures, and direct LSP-to-Python coupling. The binding-to-canonical-core rule
+remains future-state until the interface and adapter migrations exist.
+
+Text search may support documentation discovery, but dependency enforcement uses
+structured or language-aware analysis where reasonably available. Weakening an
+enforced boundary requires a breaking architecture declaration and replacement
+evidence.
+
+## Deliberate non-decisions
+
+Later work decides canonical source, Semantic IR, diagnostics, compiler
+request/result, target profile, and TargetArtifact contracts. This document also
+does not select FFI, RPC, library, or process boundaries; define backends;
+redesign Simply; migrate bindings; or implement Semantic STRling parsing.

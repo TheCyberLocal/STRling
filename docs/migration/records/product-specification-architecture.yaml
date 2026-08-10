@@ -33,6 +33,7 @@ scope:
         - docs/migration/product-specification-contradictions.md
         - docs/migration/records/product-specification-architecture.yaml
         - governance/authority.md
+        - governance/architecture.md
         - governance/product.md
         - governance/terminology.md
         - spec/README.md
@@ -129,8 +130,28 @@ checkpoints:
             result: passed
             details: Formatting with pinned Ruff 0.15.21, hygiene, unchanged generation and contract reproduction, declarations, architecture fitness, six changed-file link checks, structured parsing, and patch integrity passed.
     - name: Authoring surface and compiler responsibility architecture
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Authoring surface responsibilities
+            command: governance/architecture.md authoring responsibilities
+            result: passed
+            details: Semantic STRling is the future flagship textual frontend, Simply is an idiomatic first-class semantic frontend, and the current regex-shaped syntax is the compatibility/import frontend; all converge before shared analysis.
+          - check: Canonical compiler responsibility boundaries
+            command: semantic representation, analysis, portability planning, profile, lowering, emitter, and TargetArtifact review
+            result: passed
+            details: The canonical compiler owns shared meaning and deliberate target decisions; emitters serialize plans, profiles are version-sensitive inputs, and no AST/IR/protocol fields or backend design were selected.
+          - check: Adapter and tooling boundaries
+            command: host-language adapter and canonical tooling review
+            result: passed
+            details: Adapters retain idiomatic APIs, conversion, packaging, interoperability, and error mapping while tooling consumes the same compiler; neither may retain shadow semantic implementations in the target architecture.
+          - check: Transition and compatibility review
+            command: donor inventory, preservation matrix, public API obligations, and architecture transition registry
+            result: passed
+            details: Existing Simply surfaces, regex input, per-binding compilers, shallow AST/IR, TypeScript fixtures, target limitations, and binding-coupled tooling remain recorded transitions rather than newly invalidated behavior.
+          - check: Architecture checkpoint verification
+            command: ./strling format --check repository; ./strling hygiene; ./strling generate --check; ./strling contracts --check; ./strling governance; local Markdown links; git diff --check
+            result: passed
+            details: Formatting with pinned Ruff 0.15.21, hygiene, unchanged generated artifacts and public contracts, declarations, all current fitness rules, focused links, and patch integrity passed.
     - name: Reconcile authoritative documentation
       status: planned
       evidence: []
@@ -143,3 +164,5 @@ checkpoints:
 commits:
     - sha: 59805a8644947f6109291ea9fc3ebe95c8f635af
       subject: "docs(architecture): define STRling product identity"
+    - sha: 6f593cc13021f65fcbc59c1b216f6a3d806884dd
+      subject: "docs(spec): establish specification authority and versioning"
