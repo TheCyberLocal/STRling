@@ -195,6 +195,16 @@
             "path": "bindings/rust/src/bin/strling-cli.rs",
             "rule": "compiler-and-build-output",
             "rationale": "This is the Rust CLI source location defined by Cargo conventions, not compiler output."
+        },
+        {
+            "path": "core/src/target/mod.rs",
+            "rule": "compiler-and-build-output",
+            "rationale": "This is the canonical kernel target-contract source module, not Cargo build output."
+        },
+        {
+            "path": "core/src/target/profile.rs",
+            "rule": "compiler-and-build-output",
+            "rationale": "This is the canonical kernel target-profile source module, not Cargo build output."
         }
     ],
     "generated_paths": [

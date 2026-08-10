@@ -12,4 +12,3 @@ to serialization support. Tests may read specification-authored fixtures.
 Current scope is deliberately structural: schema-backed domain types and
 validation only. Parsing, normalization, analysis, planning, lowering,
 emission, adapters, and tooling integrations belong to later contained tasks.
-

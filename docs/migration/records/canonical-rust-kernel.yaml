@@ -12,6 +12,7 @@ scope:
         - .gitignore
         - governance/architecture-rules.json
         - governance/change-control.json
+        - governance/repository-hygiene.json
         - governance/schemas/architecture-rules.schema.json
         - toolchain.json
         - tooling/architecture_fitness.py
