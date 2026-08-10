@@ -50,6 +50,12 @@
                 "aggregates": ["check", "certify"]
             },
             {
+                "operation": "core_contracts_check",
+                "component": "repository",
+                "command": ["python3", "tooling/core_contract_validation.py"],
+                "aggregates": ["check", "certify"]
+            },
+            {
                 "operation": "contracts_check",
                 "component": "repository",
                 "command": [

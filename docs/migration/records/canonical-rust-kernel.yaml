@@ -18,6 +18,7 @@ scope:
         - tooling/core_contract_validation.py
         - tooling/tests/test_core_contracts.py
         - tooling/tests/test_governance.py
+        - tooling/tests/test_quality.py
     forbidden_paths:
         - bindings/**
         - package.json
@@ -30,6 +31,11 @@ scope:
         - core/Cargo.toml
         - core/Cargo.lock
         - core/src/lib.rs
+        - core/contract-mapping.json
+        - core/src/conformance/mod.rs
+        - core/src/target/mod.rs
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_core_contracts.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
