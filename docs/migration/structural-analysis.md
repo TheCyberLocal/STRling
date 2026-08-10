@@ -87,20 +87,20 @@ under insensitive matching is `unknown`, never guessed disjoint.
 
 ### Composition rules
 
-| Semantic node    | Leading-consumption rule |
-| ---------------- | ------------------------ |
-| `empty`          | `empty` |
-| `literal`        | first Unicode scalar of the canonical nonempty text |
-| `wildcard`       | symbolic wildcard with its line-terminator policy |
-| `character_set`  | one symbolic canonical character predicate |
-| `sequence`       | union child leading sets through every foundationally nullable prefix; stop after a non-nullable child; continue conservatively and add an unknown reason after an unknown-nullability prefix |
-| `alternation`    | deterministic union of every branch leading set, retaining unknowns and branch identity |
-| `repeat`         | `empty` when zero repetitions may succeed plus the body leading set when at least one repetition may consume; preserve unknown body/nullability information |
-| `position`       | `empty` |
-| `capture`        | inherit the body leading set |
-| `backreference`  | `empty` only when foundational bounds prove zero consumption; otherwise conservative `unknown(backreference)` |
-| `lookaround`     | outer result is `empty`; analyze the body separately without promoting examined characters to outer consumption |
-| `atomic`         | inherit the body leading set |
+| Semantic node   | Leading-consumption rule                                                                                                                                                                      |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `empty`         | `empty`                                                                                                                                                                                       |
+| `literal`       | first Unicode scalar of the canonical nonempty text                                                                                                                                           |
+| `wildcard`      | symbolic wildcard with its line-terminator policy                                                                                                                                             |
+| `character_set` | one symbolic canonical character predicate                                                                                                                                                    |
+| `sequence`      | union child leading sets through every foundationally nullable prefix; stop after a non-nullable child; continue conservatively and add an unknown reason after an unknown-nullability prefix |
+| `alternation`   | deterministic union of every branch leading set, retaining unknowns and branch identity                                                                                                       |
+| `repeat`        | `empty` when zero repetitions may succeed plus the body leading set when at least one repetition may consume; preserve unknown body/nullability information                                   |
+| `position`      | `empty`                                                                                                                                                                                       |
+| `capture`       | inherit the body leading set                                                                                                                                                                  |
+| `backreference` | `empty` only when foundational bounds prove zero consumption; otherwise conservative `unknown(backreference)`                                                                                 |
+| `lookaround`    | outer result is `empty`; analyze the body separately without promoting examined characters to outer consumption                                                                               |
+| `atomic`        | inherit the body leading set                                                                                                                                                                  |
 
 If a sequence prefix has unknown nullability, following children may still be
 first consumers, but the result retains that uncertainty. Assertions and

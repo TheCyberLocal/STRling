@@ -27,6 +27,7 @@ scope:
         - core/src/semantic_analysis.rs
         - core/src/structural_analysis.rs
         - core/tests/structural_analysis.rs
+        - core/tests/structural_length_progress.rs
         - docs/migration/structural-analysis.md
         - governance/change-control.json
     permitted_generated_changes: []
@@ -111,8 +112,19 @@ checkpoints:
             result: passed
             details: Rust formatting, warnings-denied Clippy, and all 85 kernel tests passed, including normalization, foundational semantic analysis, canonical fixtures, and the new structural suite.
     - name: Length and progress classification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Semantic length classification
+            command: cargo test --manifest-path core/Cargo.toml --test structural_length_progress
+            result: passed
+            details: Seven focused tests prove fixed, finite-variable, unbounded, and indeterminate classification for literals, equal- and unequal-length alternation, assertions, lookarounds, exact and bounded repetitions, unbounded repetitions, and cyclic or unknown backreferences.
+          - check: Repetition extent and operand progress
+            result: passed
+            details: Repeat nodes separately record finite versus unbounded extent and always-consuming, potentially-zero-consuming, or indeterminate operand progress from certified minimum-consumption, nullability, and consumption facts; the structural condition is retained without a safety verdict.
+          - check: Foundational arithmetic ownership and kernel regression
+            command: cargo fmt --manifest-path core/Cargo.toml --check && cargo clippy --manifest-path core/Cargo.toml --all-targets --all-features -- -D warnings && RUSTFLAGS=-Dwarnings cargo test --manifest-path core/Cargo.toml --all-targets
+            result: passed
+            details: Checked-arithmetic overflow remains a structured foundational-analysis error. Rust formatting, warnings-denied Clippy, and all 92 kernel tests passed.
     - name: Structural overlap analysis
       status: planned
       evidence: []
@@ -128,3 +140,5 @@ checkpoints:
 commits:
     - sha: efd7c7e7f6249f7c35ff529ba33e1c868999ea37
       subject: "docs(core): define structural analysis invariants"
+    - sha: bc81aae524dd84d0e0e47103a3804d3653ac973f
+      subject: "feat(core): analyze leading semantic consumption"

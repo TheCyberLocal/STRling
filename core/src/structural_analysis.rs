@@ -11,8 +11,8 @@ use crate::semantic::{
     CharacterSetMember, LineTerminators, Node, RepetitionMaximum, SemanticProgram, UnicodeScalar,
 };
 use crate::semantic_analysis::{
-    semantic_program_identity, MaximumConsumption, Nullability, SemanticFacts, SemanticNodeKind,
-    MAX_ANALYSIS_DEPTH,
+    semantic_program_identity, Consumption, MaximumConsumption, NodeFacts, Nullability,
+    SemanticFacts, SemanticNodeKind, MAX_ANALYSIS_DEPTH,
 };
 use crate::source::{ContractVersion, NodeId, SpecificationVersion};
 use crate::validation::{Validate, ValidationCode, ValidationErrors};
@@ -191,10 +191,44 @@ impl LeadingConsumption {
     }
 }
 
+/// Semantic successful-consumption length derived from certified bounds.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum LengthClassification {
+    Fixed(u64),
+    FiniteVariable,
+    Unbounded,
+    Indeterminate,
+}
+
+/// Whether a repetition has a finite structural maximum.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum RepetitionExtent {
+    Finite,
+    Unbounded,
+}
+
+/// Whether a repetition operand proves progress on every successful match.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum ProgressClassification {
+    AlwaysConsuming,
+    PotentiallyZeroConsuming,
+    Indeterminate,
+}
+
+/// Repetition-only structural facts without a safety interpretation.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RepetitionStructuralFacts {
+    pub body_node_id: NodeId,
+    pub extent: RepetitionExtent,
+    pub operand_progress: ProgressClassification,
+}
+
 /// Structural facts associated with one reachable semantic node.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct NodeStructuralFacts {
     pub leading_consumption: LeadingConsumption,
+    pub length: LengthClassification,
+    pub repetition: Option<RepetitionStructuralFacts>,
 }
 
 /// Complete deterministic structural fact store for one canonical program.
@@ -367,12 +401,35 @@ impl StructureAnalyzer<'_> {
                 "structural analysis produced an empty leading-consumption union",
             ));
         }
+        let foundational_facts = self
+            .foundational
+            .get(node.node_id())
+            .ok_or_else(|| missing_fact(path, node.node_id(), "length classification"))?;
+        let length = classify_length(foundational_facts, path)?;
+        let repetition = match node {
+            Node::Repeat { body, max, .. } => {
+                let body_facts = self.foundational.get(body.node_id()).ok_or_else(|| {
+                    missing_fact(path, body.node_id(), "repetition operand progress")
+                })?;
+                Some(RepetitionStructuralFacts {
+                    body_node_id: body.node_id().clone(),
+                    extent: match max {
+                        RepetitionMaximum::Bounded(_) => RepetitionExtent::Finite,
+                        RepetitionMaximum::Unbounded => RepetitionExtent::Unbounded,
+                    },
+                    operand_progress: classify_progress(body_facts),
+                })
+            }
+            _ => None,
+        };
         if self
             .node_facts
             .insert(
                 node.node_id().clone(),
                 NodeStructuralFacts {
                     leading_consumption: leading.clone(),
+                    length,
+                    repetition,
                 },
             )
             .is_some()
@@ -436,6 +493,43 @@ impl StructureAnalyzer<'_> {
     }
 }
 
+fn classify_length(
+    facts: &NodeFacts,
+    path: &str,
+) -> Result<LengthClassification, StructuralAnalysisErrors> {
+    match facts.maximum_consumption {
+        MaximumConsumption::Finite(maximum) => match facts.minimum_consumption.cmp(&maximum) {
+            std::cmp::Ordering::Equal => Ok(LengthClassification::Fixed(maximum)),
+            std::cmp::Ordering::Less => Ok(LengthClassification::FiniteVariable),
+            std::cmp::Ordering::Greater => Err(invariant(
+                path,
+                "foundational minimum consumption exceeds finite maximum",
+            )),
+        },
+        MaximumConsumption::Unbounded => {
+            if facts.consumption == Consumption::Indeterminate {
+                Ok(LengthClassification::Indeterminate)
+            } else {
+                Ok(LengthClassification::Unbounded)
+            }
+        }
+    }
+}
+
+fn classify_progress(facts: &NodeFacts) -> ProgressClassification {
+    if facts.minimum_consumption > 0 {
+        ProgressClassification::AlwaysConsuming
+    } else if facts.nullability == Nullability::Nullable
+        || matches!(
+            facts.consumption,
+            Consumption::AlwaysZeroWidth | Consumption::Variable
+        )
+    {
+        ProgressClassification::PotentiallyZeroConsuming
+    } else {
+        ProgressClassification::Indeterminate
+    }
+}
 fn validate_foundational_correspondence(
     input: &SemanticProgram,
     foundational: &SemanticFacts,
