@@ -131,10 +131,34 @@ checkpoints:
             result: passed
             details: All 11 schemas, 29 positive objects, 33 controlled invalid objects, kernel quality operations, architecture boundaries, task scope, and patch integrity passed.
     - name: Diagnostics and compiler protocol domain types
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Structured diagnostic representation and ordering
+            command: cargo test --test protocol_contracts canonical_diagnostic_and_analysis_fixtures_validate
+            result: passed
+            details: Closed diagnostic values preserve stable codes and numeric occurrence identities independently of prose, validate source spans and non-overlapping fixes, and sort by the certified location, phase, severity, code, and occurrence keys.
+          - check: Compile request and result contract fixtures
+            command: cargo test --test protocol_contracts every_compile_request_fixture_validates every_compile_result_fixture_validates
+            result: passed
+            details: All five canonical request and five canonical result fixtures deserialize into tagged source or semantic inputs, requested outputs, structured outcomes, semantic states, analysis containers, portability envelopes, and optional artifacts.
+          - check: Protocol invariant rejection
+            command: cargo test --test protocol_contracts controlled_invalid_protocol_objects_are_rejected diagnostic_location_and_artifact_envelope_negatives_are_rejected
+            result: passed
+            details: Exactly-one tagged input, canonical output order, target-profile requirements, failure/error consistency, partial-result restrictions, diagnostic attribution, artifact portability, and emitted-span structure reject controlled malformed inputs without exceptions or prose parsing.
+          - check: Request/result exchange validation
+            command: cargo test --test protocol_contracts canonical_request_result_exchanges_validate undeclared_diagnostic_source_fails_exchange_validation
+            result: passed
+            details: Cross-envelope validation enforces requested successful outputs, partial-result policy, structured unsupported-frontend diagnostics, target-profile equality, and declared UTF-8-valid diagnostic sources.
+          - check: Deterministic round trips and governed quality
+            command: cargo fmt --check; cargo clippy --all-targets -- -D warnings; RUSTFLAGS=-Dwarnings cargo check --all-targets; cargo test --all-targets
+            result: passed
+            details: All 21 kernel tests passed with warnings denied; optional-null behavior and JSON-Rust-JSON structural stability are covered.
+          - check: Repository contract and architecture hardgates
+            command: python3 tooling/contract_validation.py; python3 tooling/governance.py; ./strling check core --json; git diff --check
+            result: passed
+            details: Eleven canonical schemas, 29 positive examples, 33 controlled invalid examples, kernel quality operations, governed dependency boundaries, task scope, and patch integrity all passed.
     - name: Target profile and artifact domain types
-      status: planned
+      status: in_progress
       evidence: []
     - name: Cross-domain validation and fixture certification
       status: planned
@@ -148,3 +172,5 @@ checkpoints:
 commits:
     - sha: 4eb0c4ec22b7ce750f8ac0caa09ea361ce9ac812
       subject: "feat(core): establish canonical compiler kernel"
+    - sha: 3695415407605266eabd42d16b189ac0e32baad2
+      subject: "feat(core): implement canonical semantic domain types"
