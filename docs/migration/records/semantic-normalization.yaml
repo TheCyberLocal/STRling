@@ -107,8 +107,20 @@ checkpoints:
             result: passed
             details: All 48 kernel tests passed; normalized outputs validate through the existing canonical SemanticProgram invariants, warnings were denied, contract mapping and governed scope passed, and the patch has no whitespace errors.
     - name: Identity and provenance preservation
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Stable node and logical capture identities
+            command: cargo test --manifest-path core/Cargo.toml --test normalization
+            result: passed
+            details: Surviving containers, captures, backreferences, and first literals retain their IDs; removed wrappers and absorbed literals are absent from the graph but recorded as derived origins; every removed input ID is accounted for, retained IDs remain a unique input subset, and no IDs are synthesized or renumbered.
+          - check: Exact provenance accumulation and UTF-8 integrity
+            command: cargo test --manifest-path core/Cargo.toml --test normalization
+            result: passed
+            details: Two-byte alpha and four-byte emoji spans remain exact half-open ranges, discontiguous/overlapping contributions are not widened, origin collections sort and deduplicate, repeated normalization preserves the same identity and provenance, and interior UTF-8 offsets fail with InvalidProvenance.
+          - check: Source-less construction and full kernel regression
+            command: cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings; RUSTFLAGS=-Dwarnings cargo check --manifest-path core/Cargo.toml --all-targets; cargo test --manifest-path core/Cargo.toml --all-targets; python3 tooling/core_contract_validation.py; python3 tooling/governance.py; git diff --check
+            result: passed
+            details: Source-less Simply-style input remains source-less while retaining derivation evidence; all 49 kernel tests, warnings-denied checks, canonical mapping, governance, and patch integrity passed.
     - name: Idempotence, determinism, and property certification
       status: planned
       evidence: []
@@ -124,3 +136,5 @@ checkpoints:
 commits:
     - sha: 023ce26a00b695ece2eb5d9cfc3457aaa0dd5695
       subject: "docs(core): define semantic normalization invariants"
+    - sha: 3842363bad75f9740b7b0386ec73819024396ac5
+      subject: "feat(core): implement semantic normalization"

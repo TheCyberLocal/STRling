@@ -532,31 +532,62 @@ fn normalize_node(node: &Node) -> Node {
 }
 
 fn normalize_sequence(node_id: &NodeId, origin: &Option<SourceOrigin>, items: &[Node]) -> Node {
+    let mut container_origin = normalize_origin(origin);
     let mut flattened = Vec::new();
     for child in items {
         match normalize_node(child) {
-            Node::Sequence { items, .. } => flattened.extend(items),
+            Node::Sequence {
+                node_id,
+                origin,
+                items,
+            } => {
+                accumulate_removed(&mut container_origin, origin, node_id);
+                flattened.extend(items);
+            }
             child => flattened.push(child),
         }
     }
 
     let mut coalesced: Vec<Node> = Vec::new();
     for child in flattened {
-        if let Node::Literal { text, .. } = &child {
-            if let Some(Node::Literal { text: previous, .. }) = coalesced.last_mut() {
-                previous.push_str(text);
-                continue;
+        match child {
+            Node::Literal {
+                node_id,
+                origin,
+                text,
+            } => {
+                if let Some(Node::Literal {
+                    origin: previous_origin,
+                    text: previous_text,
+                    ..
+                }) = coalesced.last_mut()
+                {
+                    previous_text.push_str(&text);
+                    accumulate_removed(previous_origin, origin, node_id);
+                } else {
+                    coalesced.push(Node::Literal {
+                        node_id,
+                        origin,
+                        text,
+                    });
+                }
             }
+            child => coalesced.push(child),
         }
-        coalesced.push(child);
     }
 
     if coalesced.len() == 1 {
-        coalesced.remove(0)
+        let mut child = coalesced.remove(0);
+        accumulate_removed(
+            node_origin_mut(&mut child),
+            container_origin,
+            node_id.clone(),
+        );
+        child
     } else {
         Node::Sequence {
             node_id: node_id.clone(),
-            origin: normalize_origin(origin),
+            origin: container_origin,
             items: coalesced,
         }
     }
@@ -567,20 +598,34 @@ fn normalize_alternation(
     origin: &Option<SourceOrigin>,
     branches: &[Node],
 ) -> Node {
+    let mut container_origin = normalize_origin(origin);
     let mut flattened = Vec::new();
     for branch in branches {
         match normalize_node(branch) {
-            Node::Alternation { branches, .. } => flattened.extend(branches),
+            Node::Alternation {
+                node_id,
+                origin,
+                branches,
+            } => {
+                accumulate_removed(&mut container_origin, origin, node_id);
+                flattened.extend(branches);
+            }
             branch => flattened.push(branch),
         }
     }
 
     if flattened.len() == 1 {
-        flattened.remove(0)
+        let mut branch = flattened.remove(0);
+        accumulate_removed(
+            node_origin_mut(&mut branch),
+            container_origin,
+            node_id.clone(),
+        );
+        branch
     } else {
         Node::Alternation {
             node_id: node_id.clone(),
-            origin: normalize_origin(origin),
+            origin: container_origin,
             branches: flattened,
         }
     }
@@ -588,21 +633,68 @@ fn normalize_alternation(
 
 fn normalize_origin(origin: &Option<SourceOrigin>) -> Option<SourceOrigin> {
     origin.as_ref().map(|origin| {
-        let mut source_spans = origin.source_spans.clone();
-        if let Some(spans) = &mut source_spans {
-            spans.sort();
-            spans.dedup();
-        }
-        let mut derived_from_node_ids = origin.derived_from_node_ids.clone();
-        if let Some(node_ids) = &mut derived_from_node_ids {
-            node_ids.sort();
-            node_ids.dedup();
-        }
-        SourceOrigin {
-            source_spans,
-            derived_from_node_ids,
-        }
+        let mut origin = origin.clone();
+        canonicalize_origin(&mut origin);
+        origin
     })
+}
+
+fn accumulate_removed(
+    target: &mut Option<SourceOrigin>,
+    removed_origin: Option<SourceOrigin>,
+    removed_node_id: NodeId,
+) {
+    let target = target.get_or_insert(SourceOrigin {
+        source_spans: None,
+        derived_from_node_ids: None,
+    });
+    if let Some(removed_origin) = removed_origin {
+        if let Some(spans) = removed_origin.source_spans {
+            target
+                .source_spans
+                .get_or_insert_with(Vec::new)
+                .extend(spans);
+        }
+        if let Some(node_ids) = removed_origin.derived_from_node_ids {
+            target
+                .derived_from_node_ids
+                .get_or_insert_with(Vec::new)
+                .extend(node_ids);
+        }
+    }
+    target
+        .derived_from_node_ids
+        .get_or_insert_with(Vec::new)
+        .push(removed_node_id);
+    canonicalize_origin(target);
+}
+
+fn canonicalize_origin(origin: &mut SourceOrigin) {
+    if let Some(spans) = &mut origin.source_spans {
+        spans.sort();
+        spans.dedup();
+    }
+    if let Some(node_ids) = &mut origin.derived_from_node_ids {
+        node_ids.sort();
+        node_ids.dedup();
+    }
+}
+
+fn node_origin_mut(node: &mut Node) -> &mut Option<SourceOrigin> {
+    match node {
+        Node::Empty { origin, .. }
+        | Node::Sequence { origin, .. }
+        | Node::Alternation { origin, .. }
+        | Node::Literal { origin, .. }
+        | Node::Wildcard { origin, .. }
+        | Node::CharacterSet { origin, .. }
+        | Node::Repeat { origin, .. }
+        | Node::Position { origin, .. }
+        | Node::Capture { origin, .. }
+        | Node::Backreference { origin, .. }
+        | Node::Lookaround { origin, .. }
+        | Node::Atomic { origin, .. } => origin,
+    }
 }
 
 fn character_set_key(member: &CharacterSetMember) -> (u8, String, String, bool) {
