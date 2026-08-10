@@ -21,6 +21,8 @@ scope:
         - strling.ps1
         - tests/spec/**
     expected_files:
+        - core/README.md
+        - core/contract-mapping.json
         - core/src/lib.rs
         - core/src/normalization.rs
         - core/tests/normalization.rs
@@ -30,6 +32,8 @@ scope:
         - docs/migration/semantic-normalization.md
         - docs/migration/records/semantic-normalization.yaml
         - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_core_contracts.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -155,8 +159,16 @@ checkpoints:
             result: passed
             details: The comparison invokes no parser, binding, target, or legacy runtime from the kernel; all 53 kernel tests and governed contract/architecture checks passed.
     - name: Compiler-stage and hardgate integration
-      status: planned
-      evidence: []
+      status: in_progress
+      evidence:
+          - check: Mapped canonical stage boundary
+            command: python3 tooling/core_contract_validation.py
+            result: passed
+            details: The Semantic IR schema mapping now names both semantic and normalization owners; the hardgate requires the pure public normalize boundary and still certifies all 11 schemas and 62 canonical fixtures.
+          - check: Controlled architecture and drift failures
+            command: python3 -m unittest tooling.tests.test_core_contracts
+            result: passed
+            details: Eight controlled tests pass, including rejection of removing normalization from the Semantic IR mapping, schema fingerprint drift, forbidden dependencies, target/protocol imports, environment/time access, target markers, and derived-analysis leakage.
     - name: Completion and pipeline readiness
       status: planned
       evidence: []
@@ -169,3 +181,5 @@ commits:
       subject: "feat(core): preserve semantic identity through normalization"
     - sha: 4d7c7a985b89eea20a918cff3e3f8102d458416b
       subject: "test(core): certify normalization determinism and idempotence"
+    - sha: ed8527eb6a5f112873d2a8311cf168bd07b3ca54
+      subject: "test(core): verify normalization compatibility evidence"

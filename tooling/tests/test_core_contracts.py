@@ -53,6 +53,18 @@ class CoreSchemaMappingTests(unittest.TestCase):
         with self.assertRaisesRegex(CoreContractError, "unknown or missing"):
             validate_mapping_document(unknown, ROOT)
 
+    def test_semantic_mapping_requires_normalization_stage(self) -> None:
+        mapping = load_mapping(ROOT / "core" / "contract-mapping.json")
+        changed = copy.deepcopy(mapping)
+        semantic = next(
+            entry
+            for entry in changed["schemas"]
+            if entry["schema"] == "spec/contracts/1.0/semantic-ir.schema.json"
+        )
+        semantic["rust_modules"] = ["semantic"]
+        with self.assertRaisesRegex(CoreContractError, "normalization stage"):
+            validate_mapping_document(changed, ROOT)
+
 
 class CoreArchitectureBoundaryTests(unittest.TestCase):
     def test_unapproved_runtime_dependency_fails(self) -> None:
@@ -87,6 +99,25 @@ class CoreArchitectureBoundaryTests(unittest.TestCase):
             with (
                 self.subTest(forbidden=forbidden),
                 self.assertRaises(CoreContractError),
+            ):
+                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_normalization_target_environment_and_analysis_dependencies_fail(
+        self,
+    ) -> None:
+        for forbidden in (
+            "use crate::target;",
+            "use crate::protocol;",
+            "std::env::var",
+            "std::time::SystemTime",
+            "target_profile",
+            "nullable",
+        ):
+            sources = source_texts()
+            sources["core/src/normalization.rs"] += f"\n// {forbidden}\n"
+            with (
+                self.subTest(forbidden=forbidden),
+                self.assertRaisesRegex(CoreContractError, "normalization"),
             ):
                 validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 

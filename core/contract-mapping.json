@@ -40,7 +40,7 @@
         {
             "schema": "spec/contracts/1.0/semantic-ir.schema.json",
             "sha256": "bf641bdf129dd5ced9d9f89d0170cefbb4dd976117d9e0c61000fd03041468db",
-            "rust_modules": ["semantic"]
+            "rust_modules": ["normalization", "semantic"]
         },
         {
             "schema": "spec/contracts/1.0/source.schema.json",

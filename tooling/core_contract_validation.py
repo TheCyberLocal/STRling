@@ -41,6 +41,7 @@ ALLOWED_RUNTIME_DEPENDENCIES = {"serde", "serde_json", "sha2"}
 MODULE_PATHS = {
     "conformance": "core/src/conformance/mod.rs",
     "diagnostic": "core/src/diagnostic/mod.rs",
+    "normalization": "core/src/normalization.rs",
     "protocol::analysis": "core/src/protocol/analysis.rs",
     "protocol::exchange": "core/src/protocol/exchange.rs",
     "protocol::request": "core/src/protocol/request.rs",
@@ -123,6 +124,13 @@ def validate_mapping_document(
                 raise CoreContractError(
                     f"{relative}: mapped Rust module does not resolve: {module}"
                 )
+        if relative == "spec/contracts/1.0/semantic-ir.schema.json" and modules != [
+            "normalization",
+            "semantic",
+        ]:
+            raise CoreContractError(
+                "Semantic IR mapping must include the canonical normalization stage"
+            )
 
     fixture_roots = mapping["fixture_roots"]
     if fixture_roots != list(EXPECTED_FIXTURE_ROOTS):
@@ -205,6 +213,42 @@ def validate_source_boundaries(
             raise CoreContractError(
                 f"Semantic IR node embeds derived analysis: {derived}"
             )
+
+    normalization = source_texts.get("core/src/normalization.rs", "").lower()
+    if "pub fn normalize(" not in normalization:
+        raise CoreContractError(
+            "canonical normalization stage boundary cannot be located"
+        )
+    for forbidden in (
+        "crate::target",
+        "crate::protocol",
+        "crate::diagnostic",
+        "crate::conformance",
+        "std::env",
+        "std::time",
+        "systemtime",
+        "thread_rng",
+        "target_profile",
+        "engine_options",
+        "emitted_pattern",
+        "pcre2",
+        "ecmascript",
+        "python_re",
+    ):
+        if forbidden in normalization:
+            raise CoreContractError(
+                "normalization violates pure target-neutral stage boundary: "
+                f"{forbidden}"
+            )
+    for derived in (
+        "nullable",
+        "length_bounds",
+        "feature_requirements",
+        "overlap",
+        "safety_analysis",
+    ):
+        if derived in normalization:
+            raise CoreContractError(f"normalization embeds derived analysis: {derived}")
 
 
 def canonical_fixture_paths(root: Path = ROOT) -> set[Path]:
