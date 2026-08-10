@@ -1,7 +1,7 @@
 //! Pure projection of certified semantic safety evidence into structured
 //! diagnostics.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::fmt;
 
@@ -16,13 +16,20 @@ use crate::safety_analysis::{
     enforce_resource_limits, validate_analysis, validate_foundational_correspondence,
     validate_structural_correspondence, SafetyAnalysis, SafetyAnalysisErrorCode,
     SafetyAnalysisErrors, SafetyEvidence, SafetyFinding, SafetyFindingCode,
-    StructuralRelationshipRef, MAX_SAFETY_FINDINGS,
+    StructuralRelationshipKind, StructuralRelationshipRef, MAX_SAFETY_FINDINGS,
 };
 use crate::semantic::{Node, SemanticProgram};
 use crate::semantic_analysis::SemanticFacts;
-use crate::source::{NodeId, SourceSpan};
+use crate::source::{NodeId, SourceOrigin, SourceSpan};
 use crate::structural_analysis::StructuralFacts;
 use crate::validation::{Validate, ValidationCode, ValidationErrors};
+
+/// Canonical source provenance retained for one semantic evidence node.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct DiagnosticNodeOrigin {
+    pub node_id: NodeId,
+    pub origin: SourceOrigin,
+}
 
 /// Stable external code for an unbounded nullable repetition.
 pub const SAFETY_UNBOUNDED_NULLABLE_REPETITION: &str = "STRL-SAFETY-0001";
@@ -45,6 +52,7 @@ pub struct DiagnosticProvenance {
     pub contributing_node_ids: Vec<NodeId>,
     pub relationship: Option<StructuralRelationshipRef>,
     pub safety_evidence: SafetyEvidence,
+    pub source_origins: Vec<DiagnosticNodeOrigin>,
 }
 
 /// One structured contract diagnostic and its generation-only provenance.
@@ -220,6 +228,7 @@ pub fn generate_diagnostics(
         .map_err(DiagnosticGenerationErrors::from_safety)?;
 
     let node_index = index_nodes(&input.root);
+    validate_projection_evidence(&node_index, structural, &canonical_safety)?;
     let mut records: Vec<_> = canonical_safety
         .findings()
         .map(|finding| build_record(input, &node_index, finding))
@@ -303,6 +312,7 @@ fn build_record(
             contributing_node_ids: finding.evidence_node_ids.clone(),
             relationship: relationship(&finding.evidence).cloned(),
             safety_evidence: finding.evidence.clone(),
+            source_origins: source_origins(nodes, primary_node_id, &finding.evidence_node_ids),
         },
     })
 }
@@ -393,6 +403,187 @@ fn index_nodes(root: &Node) -> BTreeMap<NodeId, &Node> {
         }
     }
     nodes
+}
+
+fn source_origins(
+    nodes: &BTreeMap<NodeId, &Node>,
+    primary_node_id: &NodeId,
+    contributing_node_ids: &[NodeId],
+) -> Vec<DiagnosticNodeOrigin> {
+    let mut node_ids: BTreeSet<_> = contributing_node_ids.iter().cloned().collect();
+    node_ids.insert(primary_node_id.clone());
+    node_ids
+        .into_iter()
+        .filter_map(|node_id| {
+            nodes
+                .get(&node_id)
+                .and_then(|node| node.origin())
+                .cloned()
+                .map(|origin| DiagnosticNodeOrigin { node_id, origin })
+        })
+        .collect()
+}
+
+fn validate_projection_evidence(
+    nodes: &BTreeMap<NodeId, &Node>,
+    structural: &StructuralFacts,
+    safety: &SafetyAnalysis,
+) -> Result<(), DiagnosticGenerationErrors> {
+    for finding in safety.findings() {
+        match &finding.evidence {
+            SafetyEvidence::RepetitionProgress { .. } => {}
+            SafetyEvidence::NestedRepetition {
+                outer_repetition_node_id,
+                inner_repetition_node_id,
+                inner_operand_node_id,
+                path,
+                outer_extent,
+                inner_length,
+                inner_minimum,
+                inner_maximum,
+            } => {
+                let Some(Node::Repeat { .. }) = nodes.get(outer_repetition_node_id).copied() else {
+                    return Err(projection_error("nested outer repetition does not resolve"));
+                };
+                let Some(Node::Repeat { body, min, max, .. }) =
+                    nodes.get(inner_repetition_node_id).copied()
+                else {
+                    return Err(projection_error("nested inner repetition does not resolve"));
+                };
+                if body.node_id() != inner_operand_node_id
+                    || min != inner_minimum
+                    || max != inner_maximum
+                    || path.first() != Some(outer_repetition_node_id)
+                    || path.last() != Some(inner_repetition_node_id)
+                    || path.windows(2).any(|pair| {
+                        nodes
+                            .get(&pair[0])
+                            .map_or(true, |parent| !is_direct_child(parent, &pair[1]))
+                    })
+                {
+                    return Err(projection_error(
+                        "nested repetition evidence path is malformed",
+                    ));
+                }
+                let outer_facts = structural
+                    .get(outer_repetition_node_id)
+                    .and_then(|facts| facts.repetition.as_ref());
+                let inner_facts = structural.get(inner_repetition_node_id);
+                if outer_facts.map_or(true, |facts| facts.extent != *outer_extent)
+                    || inner_facts.map_or(true, |facts| facts.length != *inner_length)
+                {
+                    return Err(projection_error(
+                        "nested repetition evidence contradicts structural facts",
+                    ));
+                }
+            }
+            SafetyEvidence::RepeatedAlternation {
+                repetition_node_id,
+                alternation_node_id,
+                left_branch_index,
+                right_branch_index,
+                relationship,
+                relation,
+                ..
+            } => {
+                if !matches!(nodes.get(repetition_node_id), Some(Node::Repeat { .. }))
+                    || !matches!(
+                        nodes.get(alternation_node_id),
+                        Some(Node::Alternation { .. })
+                    )
+                    || relationship.kind != StructuralRelationshipKind::AlternationBranchOverlap
+                    || relationship.owner_node_id != *alternation_node_id
+                {
+                    return Err(projection_error(
+                        "repeated alternation relationship owner is malformed",
+                    ));
+                }
+                let structural_relationship =
+                    structural.get(alternation_node_id).and_then(|facts| {
+                        facts.alternation_branch_overlaps.iter().find(|candidate| {
+                            candidate.left_branch_index == *left_branch_index
+                                && candidate.right_branch_index == *right_branch_index
+                        })
+                    });
+                if structural_relationship.map_or(true, |candidate| {
+                    candidate.left_node_id != relationship.left_node_id
+                        || candidate.right_node_id != relationship.right_node_id
+                        || candidate.relation != *relation
+                }) {
+                    return Err(projection_error(
+                        "repeated alternation relationship does not match structural facts",
+                    ));
+                }
+            }
+            SafetyEvidence::RepetitionFollower {
+                sequence_node_id,
+                repetition_node_id,
+                operand_node_id,
+                follower_node_id,
+                repetition_index,
+                follower_index,
+                relationship,
+                relation,
+                ..
+            } => {
+                if !matches!(nodes.get(sequence_node_id), Some(Node::Sequence { .. }))
+                    || !matches!(nodes.get(repetition_node_id), Some(Node::Repeat { .. }))
+                    || relationship.kind != StructuralRelationshipKind::RepetitionFollowerOverlap
+                    || relationship.owner_node_id != *sequence_node_id
+                    || relationship.left_node_id != *operand_node_id
+                    || relationship.right_node_id != *follower_node_id
+                {
+                    return Err(projection_error(
+                        "repetition/follower relationship owner is malformed",
+                    ));
+                }
+                let structural_relationship = structural.get(sequence_node_id).and_then(|facts| {
+                    facts.repetition_follow_overlaps.iter().find(|candidate| {
+                        candidate.repetition_index == *repetition_index
+                            && candidate.following_index == *follower_index
+                    })
+                });
+                if structural_relationship.map_or(true, |candidate| {
+                    candidate.repetition_node_id != *repetition_node_id
+                        || candidate.operand_node_id != *operand_node_id
+                        || candidate.following_node_id != *follower_node_id
+                        || candidate.relation != *relation
+                }) {
+                    return Err(projection_error(
+                        "repetition/follower relationship does not match structural facts",
+                    ));
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn is_direct_child(parent: &Node, child_node_id: &NodeId) -> bool {
+    match parent {
+        Node::Sequence { items, .. } => items.iter().any(|child| child.node_id() == child_node_id),
+        Node::Alternation { branches, .. } => branches
+            .iter()
+            .any(|child| child.node_id() == child_node_id),
+        Node::Repeat { body, .. }
+        | Node::Capture { body, .. }
+        | Node::Lookaround { body, .. }
+        | Node::Atomic { body, .. } => body.node_id() == child_node_id,
+        Node::Empty { .. }
+        | Node::Literal { .. }
+        | Node::Wildcard { .. }
+        | Node::CharacterSet { .. }
+        | Node::Position { .. }
+        | Node::Backreference { .. } => false,
+    }
+}
+
+fn projection_error(message: &str) -> DiagnosticGenerationErrors {
+    DiagnosticGenerationErrors::single(DiagnosticGenerationError::new(
+        DiagnosticGenerationErrorCode::MalformedEvidenceReference,
+        "$.safety.findings",
+        message,
+    ))
 }
 
 fn node_spans<'a>(nodes: &'a BTreeMap<NodeId, &Node>, node_id: &NodeId) -> &'a [SourceSpan] {
