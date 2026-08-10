@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Certified migration baseline and donor capability inventory
-status: in_progress
+status: complete
 objective: Freeze a reproducible engineering and compatibility baseline for the governed architecture branch, classify valuable capabilities on the preserved dev donor line, protect the resulting evidence, and establish readiness for product/specification architecture work without changing STRling semantics.
 scope:
     diff:
@@ -29,6 +29,7 @@ scope:
         - docs/migration/baselines/compatibility-preservation.md
         - docs/migration/baselines/donor-inventory.json
         - docs/migration/baselines/donor-inventory.md
+        - docs/migration/ledger.md
         - docs/migration/records/certified-migration-baseline.yaml
         - governance/baseline-contract.md
         - governance/baselines/migration-baseline.json
@@ -178,11 +179,46 @@ checkpoints:
             result: passed
             details: No working-directory path or mutable ref is required to reconstruct identity; the formal specification is explicitly recorded as unversioned-transitional, and all migration evidence remains subordinate to normative specifications and ratified contracts.
     - name: Baseline protection and final certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical baseline validation interface
+            command: ./strling baseline --check; ./strling baseline --check --json; PowerShell parser validation of strling.ps1
+            result: passed
+            details: POSIX and Windows dispatch route to the same read-only validator; human and structured reports validate one baseline, 27 fingerprints, 29 donor capabilities, 23 transitions, 5 waivers, and 21 preservation entries.
+          - check: Aggregate hardgate integration
+            command: BUNDLER_VERSION=2.4.20 ./strling check all --json
+            result: passed
+            details: Baseline, public-contract, generated-artifact, and governance validation execute first and cannot be scoped away; all four passed before component checks and the governed root CLI snapshot remained unchanged.
+          - check: Controlled integrity failures
+            command: python3 -m unittest tooling.tests.test_baseline tooling.tests.test_quality
+            result: passed
+            details: Registry digest, manifest identity, governed fingerprint, frozen evidence, transition drift, and hardgate propagation tests reject unauthorized changes, including explicitly re-pinned manifest mutations.
+          - check: Full committed-state certification
+            command: Leaf human/JSON hardgates; 150 focused tests; BUNDLER_VERSION=2.4.20 ./strling check all and certify all in human and JSON modes
+            result: passed
+            details: Clean committed SHA 97a4ff609ae93be829959022f2af74060ac4db29 passed 50 enforced check results and 64 enforced certify results, including all 17 binding test baselines, with zero failed or unavailable results and 39 explicit incomplete capabilities.
+          - check: Check purity and repository integrity
+            command: git diff --check; git status --short before and after canonical check and certify profiles
+            result: passed
+            details: All validation was non-mutating; generated artifacts and public snapshots reproduced without hidden state, patch integrity passed, and the committed integration state remained clean.
     - name: Completion and product-migration readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Certified baseline identity
+            result: passed
+            details: The authoritative baseline is commit 77f6a81e6b0a63cc6052fdadb428c719b16c7c61, with certification evidence in docs/migration/baselines/certification.json and the immutable manifest registered under governed-architecture-foundation.
+          - check: Donor identity and inventory
+            result: passed
+            details: Preserved donor commit d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc is the certified branch merge base; its 29 capabilities are classified as 6 preserve, 8 port, 7 rewrite, 3 retire, 4 evidence, and 1 discard family.
+          - check: Compatibility and non-contract review
+            result: passed
+            details: Twenty-one matrix entries separate seven must-preserve obligations, four evidence-only groups, six intentional replacements, and four known-defect or non-contractual behaviors; none elevates implementation evidence over normative specification authority.
+          - check: Product behavior and architecture review
+            result: passed
+            details: No STRling language/compiler semantics intentionally changed. Canonical compiler work has not begun; duplicated binding semantics, implementation-derived fixtures, and direct LSP-to-Python semantics remain explicitly transitional.
+          - check: Next-task readiness
+            result: passed
+            details: The hardgate foundation now governs product migration; the unversioned transitional formal specification and unresolved authority hierarchy are recorded carry-forward for the next contained product-definition task before canonical data-contract design.
 commits:
     - sha: 6e03884a3567cefa706fe132077eaa8e20745c4f
       subject: "docs(migration): define certified baseline and donor inventory contract"
@@ -196,3 +232,43 @@ commits:
       subject: "docs(architecture): classify legacy implementation donor assets"
     - sha: 6e87512d064f1c4cb095199cb530ff2559078c4c
       subject: "docs(architecture): freeze certified migration baseline"
+    - sha: 97a4ff609ae93be829959022f2af74060ac4db29
+      subject: "feat(governance): protect certified baseline evidence"
+completion:
+    accomplished:
+        - Exact certified, donor, and main identities plus reproducible merge bases are frozen by SHA rather than mutable branch reference.
+        - A machine-readable manifest records specification/version identifiers, 27 material fingerprints, active rules, 23 transitions, 5 waivers, and references to certification, donor, and preservation evidence.
+        - Human and machine-readable certification evidence records the active hardgates, accepted surfaces, generated families, architecture rules, known non-contractual defects, and clean-state result for the certified commit.
+        - A capability-level donor inventory classifies 29 meaningful assets without treating duplicated binding implementations or temporary files as independent future features.
+        - A compatibility-preservation matrix distinguishes seven must-preserve obligations, four evidence-only groups, six intentional replacements, and four known defects or non-contractual behaviors.
+        - A frozen registry, deterministic validator, controlled tamper tests, POSIX and Windows dispatch, and canonical aggregate integration protect the evidence while allowing current architecture to evolve.
+    verified:
+        - The registered manifest and all referenced JSON records validate against their schemas; all 27 governed path-set fingerprints reproduce from the certified Git tree or frozen evidence files.
+        - Controlled changes to manifest bytes, identity, fingerprint, transition, and frozen evidence fail validation, including mutations whose manifest digest is deliberately updated.
+        - Committed-state format, hygiene, lint, typecheck, generation, contracts, governance, baseline, check, structured check, certify, and structured certify operations passed.
+        - All 150 focused governance and quality tests passed; the complete certification profile passed all 17 binding test baselines.
+        - Post-integration structured results report 50 passing check results and 64 passing certify results, zero failed or unavailable results, and 39 explicitly incomplete capabilities.
+        - git diff --check passed and check operations left the committed integration state clean with no hidden untracked dependency.
+    behavior_changed: No STRling language/compiler semantics intentionally changed.
+    intentional_behavior_changes:
+        - Repository governance can now validate frozen baseline evidence in human and structured modes.
+        - Canonical check and certify profiles now fail before component operations if the registered baseline identity, fingerprints, or evidence are invalid.
+    preserved_behavior:
+        - Governed public API, package-entrypoint, CLI, and stable-schema shapes remain unchanged and retain their existing compatibility process.
+        - Accepted semantic cases remain implementation evidence pending intentional specification decisions; conformance inputs, editor capabilities, Essential functionality, and target-safety obligations remain traceable for reuse.
+        - Grammar, parser, compiler, emitter, AST, IR, diagnostics, targets, standard-library semantics, package versions, and dependency versions are unchanged.
+        - The dev donor branch and all legacy binding implementations remain preserved; no canonical compiler, binding, target-engine, Simply, or LSP migration has begun.
+    transitional_architecture:
+        - Twelve public-surface extractors and eight generated-artifact families remain declared transitions with exact retirement conditions in the frozen manifest.
+        - Duplicated binding compilers, implementation-derived shared fixtures, and direct LSP-to-Python-binding semantic dependencies remain evaluated architecture transitions.
+        - Binding-to-canonical-core dependency enforcement remains a future rule until a canonical core exists and each binding is migrated under behavior-preservation certification.
+        - Five active or accepted waiver identifiers remain exact and bounded; none was added or broadened by this task.
+    deferred_work:
+        - Establish the authoritative STRling product definition and reconcile the normative specification, versioned contract, architecture, compatibility-evidence, and implementation-evidence hierarchy.
+        - Decide and record the formal specification versioning model before canonical data-contract design; the current formal specification is intentionally recorded as unversioned-transitional.
+        - Resolve callable TypeScript Pattern behavior, advertised TypeScript entrypoint paths, the Perl case-collision, and cross-binding emitter-safety inconsistencies only through later contained product decisions; none is a permanent compatibility promise.
+        - Reuse donor capabilities according to inventory prerequisites, preserving valuable evidence before replacing TypeScript-oracle, per-binding semantic, emitter-owned planning, and legacy certification architectures.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Establish the authoritative STRling product definition and reconcile the normative specification/architecture hierarchy before canonical data-contract design begins.
+    rationale: The certified SHA, governed compatibility evidence, donor classifications, preservation obligations, and baseline-protection hardgate are complete. The unversioned transitional formal specification, 23 declared transitions, 5 bounded waivers, and known non-contractual defects are explicit carry-forward rather than blockers to the product/specification architecture task.

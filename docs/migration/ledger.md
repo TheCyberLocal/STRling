@@ -486,3 +486,102 @@ The repository is ready for the certified baseline freeze and donor-branch
 inventory that closes the hardgate foundation and establishes immutable starting
 evidence for product-architecture migration, with the recorded carry-forward
 above.
+
+## Certified migration baseline and donor capability inventory
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `95509d581cc47eba04ff38fa403b0c7f59901d51`
+-   Certified baseline: `77f6a81e6b0a63cc6052fdadb428c719b16c7c61`
+-   Preserved donor: `d41b0b73fea6c62f7bb32473f190cf4c8c9f14bc`
+-   Main reference: `664d08de53565929c8f62379b006cd29f93b239f`
+-   Behavior change: No STRling language/compiler semantics intentionally
+    changed.
+-   Completion record:
+    [`certified-migration-baseline.yaml`](records/certified-migration-baseline.yaml)
+-   Frozen manifest:
+    [`migration-baseline.json`](../../governance/baselines/migration-baseline.json)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                                  | Result | Commit                                     | Verification                                                                                                                                     |
+| ------------------------------------------- | ------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Baseline identity and evidence contract     | Passed | `6e03884a3567cefa706fe132077eaa8e20745c4f` | Clean ancestry, five schemas, six donor dispositions, four preservation categories, and the required command model validated                     |
+| Committed-state baseline certification      | Passed | `4abc8ec71b4466a13be19fb0b6435c7a6a6b6b13` | Baseline SHA passed 63 enforced certify results, 17 binding tests, 143 focused tests, exact generation/contracts, and clean-state checks         |
+| Donor capability inventory                  | Passed | `78e494198a37711aa639d7643ac79531c3e0dccf` | Twenty-nine capabilities classified as 6 preserve, 8 port, 7 rewrite, 3 retire, 4 evidence, and 1 discard                                        |
+| Frozen manifest and preservation matrix     | Passed | `6e87512d064f1c4cb095199cb530ff2559078c4c` | Twenty-seven fingerprints, 23 transitions, 5 waivers, 21 matrix entries, schema validation, and controlled tamper rejection passed               |
+| Baseline protection and final certification | Passed | `97a4ff609ae93be829959022f2af74060ac4db29` | Canonical baseline hardgate, POSIX/Windows routing, 150 focused tests, 50 check results, 64 certify results, and all 17 binding baselines passed |
+| Completion and next-task readiness          | Passed | Recorded by the readiness commit           | Exact identities, compatibility obligations, non-contractual defects, carry-forward, clean state, and next-task readiness are recorded           |
+
+The contract checkpoint also required the behavior-neutral formatter correction
+`c347bc3d57d4d2daaef5d850a89f6f285c7c4b9f` and the locked-Bundler selection
+`77f6a81e6b0a63cc6052fdadb428c719b16c7c61`; the latter is the exact certified
+baseline commit.
+
+### Certified baseline state
+
+-   The frozen registry pins manifest SHA-256
+    `990d3d8827d8cbfd03d7a2cd03076a2e5b68c883974880caddbaf552dc1f5f3a`.
+-   Twenty-seven path-set fingerprints cover enforced public snapshots,
+    version-synchronized metadata, Swift compatibility fixtures, the current
+    specification and Essential definition, relevant schemas, architecture and
+    authority policies, toolchain and quality policy, registries, and the three
+    frozen evidence records.
+-   Certification evidence records 10 enforced and 12 transitional public
+    surfaces; 3 enforced and 8 transitional generated families; 8 enforced, 3
+    transitional, and 1 future architecture rules; 23 active transitions; and 5
+    active or accepted waivers.
+-   The baseline remains compatibility and engineering evidence subordinate to
+    normative specifications and ratified versioned contracts. The formal
+    specification is recorded as `unversioned-transitional`, not silently
+    promoted to a new semantic authority.
+
+### Donor and compatibility state
+
+-   The donor SHA is an ancestor and merge base of the governed line. No donor
+    commit is absent from the governed history, but capability representation
+    ranges from equivalent or modified to superseded and intentionally removed.
+-   Highest-value future inputs include structured diagnostic/result contracts,
+    consolidated Python intelligence, embedded-language extraction, LSP
+    diagnostics/hover/tokens/navigation/actions, the Essential definition,
+    conformance contracts, emitter-edge inputs, and the VS Code client.
+-   TypeScript-as-oracle tooling, per-binding semantic compilers, emitter-owned
+    planning, direct LSP-to-binding semantics, vendored transport, and legacy
+    audit/package assumptions are intentionally ported, rewritten, or retired
+    according to the inventory rather than copied wholesale.
+-   The preservation matrix records 7 must-preserve obligations, 4 evidence-only
+    groups, 6 intentional replacements, and 4 known-defect/non-contractual
+    behaviors. Callable TypeScript Pattern behavior, advertised TypeScript
+    entrypoint paths, the Perl case-collision, and inconsistent emitter-safety
+    behavior are not permanent compatibility promises.
+
+### Hardgate and architecture state
+
+-   `./strling baseline --check` validates the frozen registry, Git commits and
+    merge bases, schemas, direct evidence hashes, certified-tree and frozen-file
+    fingerprints, donor totals, matrix integrity, and transition/waiver
+    consistency in human or structured mode.
+-   `check` and `certify` run baseline, public-contract, generated-artifact, and
+    governance validation before component operations. The final committed
+    integration state passed 50 and 64 enforced results respectively, with zero
+    failed or unavailable results and 39 declared incomplete capabilities.
+-   Canonical compiler work has not begun. Duplicated binding semantics,
+    implementation-derived shared fixtures, and direct LSP-to-Python semantics
+    remain explicitly transitional; binding-to-canonical-core enforcement
+    remains a future rule.
+
+### Carry-forward
+
+-   Establish the authoritative STRling product definition and reconcile the
+    normative specification, versioned-contract, architecture,
+    compatibility-evidence, and implementation-evidence hierarchy.
+-   Choose and record the formal specification versioning model before canonical
+    data-contract design.
+-   Preserve accepted evidence and donor traceability while resolving known
+    defects and replacing transitional semantic-oracle and per-binding
+    architectures through later contained product decisions.
+
+The hardgate foundation is complete enough to govern product migration. The
+repository is ready for the authoritative STRling product/specification
+architecture task with the recorded carry-forward above.
