@@ -11,6 +11,9 @@ to serialization and contract fingerprinting support. Tests may read
 specification-authored fixtures.
 
 Current executable scope is deliberately narrow: schema-backed domain types,
-validation, and pure canonical Semantic IR normalization through
-`normalization::normalize`. Parsing, semantic analysis, planning, lowering,
-emission, adapters, and tooling integrations belong to later contained tasks.
+validation, pure canonical Semantic IR normalization through
+`normalization::normalize`, foundational semantic facts through
+`semantic_analysis::analyze`, and structural facts through
+`structural_analysis::analyze_structure`. Parsing, safety verdicts,
+portability planning, lowering, emission, adapters, and tooling integrations
+belong to later contained tasks.

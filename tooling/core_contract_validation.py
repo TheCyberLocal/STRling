@@ -48,6 +48,7 @@ MODULE_PATHS = {
     "protocol::result": "core/src/protocol/result.rs",
     "semantic": "core/src/semantic/mod.rs",
     "semantic_analysis": "core/src/semantic_analysis.rs",
+    "structural_analysis": "core/src/structural_analysis.rs",
     "source": "core/src/source/mod.rs",
     "target": "core/src/target/mod.rs",
     "target::profile": "core/src/target/profile.rs",
@@ -128,17 +129,19 @@ def validate_mapping_document(
         if relative == "spec/contracts/1.0/analysis.schema.json" and modules != [
             "protocol::analysis",
             "semantic_analysis",
+            "structural_analysis",
         ]:
             raise CoreContractError(
-                "analysis mapping must include the executable semantic analysis stage"
+                "analysis mapping must include semantic analysis followed by structural analysis"
             )
         if relative == "spec/contracts/1.0/semantic-ir.schema.json" and modules != [
             "normalization",
             "semantic",
             "semantic_analysis",
+            "structural_analysis",
         ]:
             raise CoreContractError(
-                "Semantic IR mapping must include the canonical normalization stage followed by semantic analysis"
+                "Semantic IR mapping must register normalization, semantic analysis, and structural analysis in dependency order"
             )
 
     fixture_roots = mapping["fixture_roots"]
@@ -300,6 +303,62 @@ def validate_source_boundaries(
         if forbidden in analysis:
             raise CoreContractError(
                 "semantic analysis violates pure target-neutral stage boundary: "
+                f"{forbidden}"
+            )
+
+    structural = "\n".join(
+        text.lower()
+        for path, text in source_texts.items()
+        if path == "core/src/structural_analysis.rs"
+        or path.startswith("core/src/structural_analysis/")
+    )
+    if "pub fn analyze_structure(" not in structural:
+        raise CoreContractError(
+            "canonical structural analysis stage boundary cannot be located"
+        )
+    if "crate::semantic_analysis" not in structural:
+        raise CoreContractError(
+            "structural analysis must consume certified foundational semantic facts"
+        )
+    for forbidden in (
+        "crate::normalization",
+        "crate::target",
+        "crate::protocol",
+        "crate::diagnostic",
+        "crate::conformance",
+        "crate::emitter",
+        "crate::emitters",
+        "crate::bindings",
+        "crate::frontend",
+        "crate::lsp",
+        "crate::editor",
+        "crate::planner",
+        "crate::portability",
+        "crate::safety",
+        "bindings::",
+        "frontend::",
+        "emitters::",
+        "std::env",
+        "std::time",
+        "std::process",
+        "std::thread",
+        "systemtime",
+        "thread_rng",
+        "rand::",
+        "target_profile",
+        "engine_options",
+        "emitted_pattern",
+        "portability_plan",
+        "portability_decision",
+        "risk_severity",
+        "redos",
+        "pcre2",
+        "ecmascript",
+        "python_re",
+    ):
+        if forbidden in structural:
+            raise CoreContractError(
+                "structural analysis violates pure target-neutral stage boundary: "
                 f"{forbidden}"
             )
 

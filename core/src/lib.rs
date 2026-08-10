@@ -4,8 +4,8 @@
 //! crate is their reference implementation, not a source of specification
 //! truth. Its current boundary contains strongly typed contract data,
 //! structural validation, pure semantic normalization, and target-neutral
-//! foundational semantic analysis. Later compiler phases are intentionally
-//! absent.
+//! foundational and structural semantic analysis. Safety, portability,
+//! lowering, emission, and product integration remain intentionally absent.
 #![forbid(unsafe_code)]
 
 pub mod conformance;

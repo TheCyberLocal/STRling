@@ -42,6 +42,17 @@ structural analysis facts
         +---- later portability analysis
 ```
 
+## Canonical stage registration
+
+The kernel contract mapping registers `structural_analysis` after
+`semantic_analysis` for canonical Semantic IR and derived analysis. This
+records the only permitted upstream analysis dependency without composing the
+stages implicitly: callers normalize, derive foundational facts, and then pass
+both unchanged borrowed inputs to `analyze_structure`. Architecture fitness
+rejects dependencies from this stage to normalization, targets, safety,
+portability planning, emitters, bindings, frontends, editor tooling, or runtime
+state.
+
 ## Fact vocabulary
 
 Every reachable semantic node receives one structural record. The record

@@ -22,6 +22,8 @@ scope:
         - tests/spec/**
     expected_files:
         - docs/migration/records/structural-analysis.yaml
+        - core/README.md
+        - core/contract-mapping.json
         - core/src/lib.rs
         - core/src/semantic/mod.rs
         - core/src/semantic_analysis.rs
@@ -32,6 +34,8 @@ scope:
         - core/tests/structural_analysis_properties.rs
         - docs/migration/structural-analysis.md
         - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_core_contracts.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -159,8 +163,24 @@ checkpoints:
             result: passed
             details: Rust formatting, warnings-denied Clippy, the generated property suite, controlled obvious overlap cases, normalization and foundational-analysis regression suites, and all 105 kernel tests passed.
     - name: Pipeline and hardgate integration
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical stage registration
+            command: python3 tooling/core_contract_validation.py
+            result: passed
+            details: Contract mapping registers structural_analysis after semantic_analysis for canonical Semantic IR and derived analysis; all 11 schema mappings and 62 canonical fixtures pass.
+          - check: Controlled dependency failures
+            command: python3 -m unittest tooling.tests.test_core_contracts
+            result: passed
+            details: Thirteen controlled tests reject missing structural ownership or stage boundary, missing foundational-fact dependency, and forbidden normalization, target-profile, planner, binding, portability, safety, emitter, frontend, LSP/editor, environment, clock, process, randomness, risk-severity, and ReDoS dependencies.
+          - check: Kernel and focused governance quality
+            command: cargo fmt --manifest-path core/Cargo.toml --check && cargo clippy --manifest-path core/Cargo.toml --all-targets --all-features -- -D warnings && RUSTFLAGS=-Dwarnings cargo check --manifest-path core/Cargo.toml --all-targets && cargo build --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml --all-targets && python3 -m unittest tooling.tests.test_core_contracts tooling.tests.test_governance tooling.tests.test_quality
+            result: passed
+            details: Formatting, warnings-denied static analysis/check, kernel build, all 105 kernel tests, canonical fixtures, architecture fitness, and focused contract/governance/quality tests passed from committed state.
+          - check: Full repository hardgates
+            command: ./strling format --check all && ./strling hygiene && ./strling lint all && ./strling typecheck all && ./strling generate --check && ./strling contracts --check && ./strling governance && python3 tooling/baseline.py --check && ./strling check all --json && ./strling certify all --json
+            result: passed
+            details: Repository formatting, hygiene, lint, all-language typecheck, generation, contracts, governance, frozen baseline, canonical check, certify, explicit TypeScript baseline, patch integrity, and clean-tree verification exited zero.
     - name: Completion and safety-analysis readiness
       status: planned
       evidence: []
@@ -173,3 +193,5 @@ commits:
       subject: "feat(core): classify semantic length and progress"
     - sha: e4293183fb87f1ef96804e1a9968c9804d8c4a62
       subject: "feat(core): analyze structural consumption overlap"
+    - sha: c404360c1f8b21506cac76c871204349772a09f9
+      subject: "test(core): certify structural analysis soundness"
