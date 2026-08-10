@@ -10,6 +10,10 @@ use crate::semantic::{Node, SemanticProgram};
 use crate::source::{ContractVersion, NodeId, SpecificationVersion};
 use crate::validation::{Validate, ValidationCode, ValidationErrors};
 
+mod consumption;
+
+pub use consumption::{Consumption, MaximumConsumption, Nullability};
+
 /// Maximum accepted semantic nesting before recursive contract validation.
 ///
 /// The preflight walk itself is iterative, so externally supplied pathological
@@ -112,6 +116,10 @@ pub enum SemanticNodeKind {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct NodeFacts {
     pub kind: SemanticNodeKind,
+    pub nullability: Nullability,
+    pub minimum_consumption: u64,
+    pub maximum_consumption: MaximumConsumption,
+    pub consumption: Consumption,
 }
 
 /// Complete deterministic fact store for one canonical semantic program.
@@ -158,6 +166,7 @@ pub fn analyze(input: &SemanticProgram) -> Result<SemanticFacts, SemanticAnalysi
         .validate()
         .map_err(SemanticAnalysisErrors::from_validation)?;
 
+    let consumption_facts = consumption::analyze_consumption(input)?;
     let mut node_facts = BTreeMap::new();
     let mut pending = vec![&input.root];
     while let Some(node) = pending.pop() {
@@ -165,8 +174,21 @@ pub fn analyze(input: &SemanticProgram) -> Result<SemanticFacts, SemanticAnalysi
         if node_facts
             .insert(
                 node_id.clone(),
-                NodeFacts {
-                    kind: node_kind(node),
+                match consumption_facts.get(&node_id) {
+                    Some(consumption) => NodeFacts {
+                        kind: node_kind(node),
+                        nullability: consumption.nullability,
+                        minimum_consumption: consumption.minimum,
+                        maximum_consumption: consumption.maximum,
+                        consumption: consumption.consumption,
+                    },
+                    None => {
+                        return Err(SemanticAnalysisErrors::single(SemanticAnalysisError::new(
+                            SemanticAnalysisErrorCode::AnalysisInvariant,
+                            "$.root",
+                            format!("consumption analysis omitted reachable node: {node_id:?}"),
+                        )));
+                    }
                 },
             )
             .is_some()
