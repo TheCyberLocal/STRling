@@ -673,3 +673,116 @@ created.
 The repository is ready to define the canonical source model, Semantic IR,
 diagnostics, compiler request/result, target profile, and target artifact
 contracts with the recorded carry-forward above.
+
+## Canonical semantic and compiler data contracts
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `33f7a9ebe983029964be0a2ef9db96369f186282`
+-   Contract suite: `1.0.0`
+-   Behavior change: No STRling runtime/compiler semantics intentionally
+    changed.
+-   Completion record:
+    [`canonical-compiler-contracts.yaml`](records/canonical-compiler-contracts.yaml)
+-   Certification:
+    [`spec/contracts/CERTIFICATION.md`](../../spec/contracts/CERTIFICATION.md)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                                          | Result | Commit                                     | Accomplishment                                                                                         |
+| --------------------------------------------------- | ------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| Representation audit and contract invariants        | Passed | `cf021a11044d3af6e65378b80391772c333a6558` | Syntax/semantic/target boundaries, UTF-8 coordinates, identity, normalization, and versioning ratified |
+| Source and Semantic IR contracts                    | Passed | `436ceaafaa4e33cf5a86aae2557fae2e3146c44a` | Source/provenance and normalized target-neutral Semantic IR defined with positive/negative evidence    |
+| Diagnostic and compiler protocol contracts          | Passed | `01e54ebc927f4c2a31476e2479b53cac797f00dd` | Stable diagnostics, request/result, structured failure, partial semantics, and keyed analysis defined  |
+| Target profile, portability, and artifact contracts | Passed | `01e0d901cb85f9324f8f823c6712dbcf5e65ca93` | Version-aware capabilities, three portability statuses, and deterministic TargetArtifact defined       |
+| Specification-authored conformance contract         | Passed | `2c5ca95d5fae47fd93fbc6c034a20252c296a0c9` | Specification-owned cases, draft seed corpus, and content-addressed authority manifest established     |
+| Cross-contract certification                        | Passed | `83dd053de15168a145098d1976f598708dd6e99b` | Suite ownership, leakage, ordering, links, governance, and mandatory check/certify validation enforced |
+| Completion and kernel-implementation readiness      | Passed | Recorded by the readiness commit           | Canonical system, unchanged behavior, transitions, carry-forward, and next task recorded               |
+
+### Canonical contract system
+
+-   `SourceDocument` owns opaque source identity, frontend/dialect identity,
+    exact inline content or digest-pinned references, specification association,
+    provenance, and half-open UTF-8 byte spans. Semantic nodes may have zero or
+    more origins, so source-less Simply construction is valid and location does
+    not participate in semantic equality.
+-   Semantic IR is the single normalized, target-neutral representation for all
+    frontends. It defines explicit empty, sequence, alternation, literal,
+    wildcard, character set, repetition, anchor/boundary, capture,
+    backreference, lookahead, and lookbehind semantics. Stable opaque node IDs
+    and logical capture IDs are independent of target numbering and syntax.
+-   Derived nullability, length, feature, overlap, and safety facts remain
+    separate node-keyed analysis results. Target capability decisions remain
+    portability results, not Semantic IR mutation.
+-   Diagnostics use stable code, occurrence, severity ownership, phase,
+    category, UTF-8 attribution, related locations, advice, and structured text
+    edits. English message wording remains presentation unless a specification
+    deliberately makes it normative.
+-   Compile requests accept exactly one source or normalized semantic input and
+    explicit target selection. Results separate semantic output, diagnostics,
+    analysis, portability, artifact, support status, and structured failure;
+    partial semantics are recovery-only and cannot feed downstream emission.
+-   Immutable target-profile references identify profile revision and canonical
+    content fingerprint separately from engine and runtime versions.
+    Capabilities have enumerated scope and typed availability/constraints;
+    unlisted capabilities remain unknown.
+-   Portability status is exactly `native`, `equivalent_rewrite`, or
+    `unsupported`. TargetArtifact keeps emitted UTF-8 pattern text, engine and
+    runtime options, requirements, profile identity, mappings, portability, and
+    emission diagnostics separate and deterministically ordered.
+-   Specification-authored conformance cases can assert only the layers they
+    exercise. Cases cannot self-promote; content-addressed manifest membership
+    and ratified delegation own normative authority.
+
+### Versioning and compatibility
+
+Contract suite `1.0.0` is independent of Semantic Specification
+`1.0-draft.1`, compiler/package releases, frontend dialect versions,
+engine/runtime versions, target-profile revisions, and conformance-manifest
+authority. Unknown fields are rejected. Major contract versions carry
+incompatible shape, meaning, or ordering changes; minor versions add optional
+shape; patch versions clarify or enforce already-stated invalidity.
+
+All canonical arrays define deterministic ordering and uniqueness. Canonical
+JSON uses UTF-8, sorted object keys, no insignificant spaces, unescaped Unicode,
+and no non-finite values. Semantic equality excludes node IDs, source IDs,
+origins, and derived analyses while preserving semantic node content and graph
+relationships.
+
+### Certification
+
+The committed suite contains 11 Draft 2020-12 schemas, 29 authored positive
+objects, 33 controlled invalid objects, four target-profile examples, four
+specification-authored draft cases, and one content-addressed manifest. The
+focused validator checks nine linked authority documents and 22 unit tests cover
+schema validity, graph identity, UTF-8 boundaries, normalization, target
+neutrality, diagnostic/result ordering, profile fingerprints, artifacts,
+conformance authority, malformed combinations, and deterministic round trips.
+
+From clean checkpoint commit
+`83dd053de15168a145098d1976f598708dd6e99b`, both full all-component
+`check` and `certify` aggregates passed with zero failed or unavailable
+enforced results. Repository-pinned Ruff 0.15.21, formatting, hygiene, lint,
+typecheck, build, generation, public contracts, governance, architecture
+fitness, the frozen baseline, canonical validation, all binding checks, and the
+TypeScript compatibility baseline of 19 suites / 963 tests passed.
+
+### Transitional contracts and carry-forward
+
+-   Current shallow frontend and binding AST/IR types remain implementation and
+    compatibility evidence; they are not canonical Semantic IR.
+-   Legacy `spec/schema/base.schema.json` and
+    `spec/schema/pcre2.v1.schema.json` retain only their existing public
+    compatibility scopes.
+-   Implementation-generated `tests/spec` fixtures remain transitional
+    evidence outside the specification conformance authority manifest.
+-   Duplicated binding diagnostic/result/domain models and emitter capability
+    tables remain until contained migrations replace them.
+-   Existing parser acceptance, compiler and emitter output, diagnostics,
+    targets, bindings, LSP behavior, public APIs, and package versions remain
+    unchanged.
+
+The next task may establish the canonical Rust kernel skeleton and schema-backed
+domain types for contract suite `1.0.0`. It must not yet migrate Semantic
+STRling, Simply, regex import, target planning/emission, bindings, or tooling.
