@@ -1,0 +1,125 @@
+record_version: 2.0.0
+title: Canonical semantic and compiler data contracts
+status: in_progress
+objective: Define and certify stable source, Semantic IR, diagnostic, compiler protocol, target profile, target artifact, and specification-authored conformance contracts without implementing or migrating compiler semantics.
+scope:
+    diff:
+        base: 33f7a9ebe983029964be0a2ef9db96369f186282
+        head: working-tree
+    allowed_paths:
+        - docs/migration/**
+        - docs/spec_links.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - spec/README.md
+        - spec/conformance/**
+        - spec/contracts/**
+        - spec/targets/**
+        - toolchain.json
+        - tooling/contract_validation.py
+        - tooling/tests/test_canonical_contracts.py
+    forbidden_paths:
+        - bindings/**
+        - package.json
+        - package-lock.json
+        - spec/features.json
+        - spec/grammar/**
+        - spec/schema/**
+        - spec/stdlib/**
+        - strling
+        - strling.ps1
+        - tests/spec/**
+    expected_files: []
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - New canonical schemas are added under spec/contracts without changing legacy schema behavior.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - A future canonical diagnostic serialization contract is defined without changing current diagnostic output.
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Ratified conceptual boundaries are translated into canonical machine-readable data contracts and enforceable validation.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Canonical contract validation
+      command: python3 tooling/contract_validation.py
+      expected_result: Every canonical schema, authored example, target profile, and conformance case passes schema and cross-contract validation while controlled invalid cases are rejected.
+    - name: Repository quality and certification
+      command: PATH=/tmp/strling-ruff-0.15.21/bin:$PATH BUNDLER_VERSION=2.4.20 ./strling check all; PATH=/tmp/strling-ruff-0.15.21/bin:$PATH BUNDLER_VERSION=2.4.20 ./strling certify all
+      expected_result: All enforced repository and binding hardgates pass from committed state; governed transitional capabilities remain explicit.
+    - name: Contract-focused tests
+      command: python3 -m unittest tooling.tests.test_canonical_contracts
+      expected_result: Positive, negative, deterministic serialization, identity, source-coordinate, and cross-contract tests pass.
+    - name: Structured and documentation validation
+      command: parse changed JSON and YAML; validate local Markdown links; git diff --check
+      expected_result: Structured documents parse, links resolve, and patch hygiene passes.
+checkpoints:
+    - name: Existing representation audit and contract invariants
+      status: passed
+      evidence:
+          - check: Clean committed starting state
+            command: git status --short --branch; git rev-parse HEAD
+            result: passed
+            details: Work began from a clean architecture/v4 tree at 33f7a9ebe983029964be0a2ef9db96369f186282.
+          - check: Legacy representation audit
+            command: TypeScript and binding AST/IR/compiler/diagnostics review; legacy base, PCRE2, conformance, feature, LSP, and target evidence review
+            result: passed
+            details: Accepted construct and normalization behavior were retained as compatibility evidence while unstable capture references, absent provenance, universal-AST assumptions, implementation-authored expectations, and timeless target facts were rejected as canonical constraints.
+          - check: Cross-contract design decisions
+            command: spec/contracts/INVARIANTS.md
+            result: passed
+            details: Syntax/semantic/target boundaries, opaque node and logical capture identity, UTF-8 byte spans, normalized IR form, separate derived analyses, structured failure, three portability statuses, closed-world objects, and one independent contract-suite version were ratified.
+          - check: Existing integrity and quality hardgates
+            command: pinned Ruff 0.15.21; ./strling check all --json; ./strling certify all --json
+            result: passed
+            details: Both all-component aggregates exited zero after all enforced checks passed; only pre-existing governed incomplete, deferred, and transitional capabilities remained.
+          - check: Focused checkpoint verification
+            command: ./strling format --check repository; ./strling hygiene; ./strling generate --check; ./strling contracts --check; ./strling governance; python3 tooling/baseline.py --check; git diff --check
+            result: passed
+            details: Formatting, hygiene, unchanged generation/public contracts, active-task declarations, architecture fitness, frozen baseline reproduction, and patch integrity passed.
+    - name: Source and Semantic IR contracts
+      status: planned
+      evidence: []
+    - name: Diagnostic and compiler protocol contracts
+      status: planned
+      evidence: []
+    - name: Target profile portability and artifact contracts
+      status: planned
+      evidence: []
+    - name: Specification-authored conformance contract
+      status: planned
+      evidence: []
+    - name: Cross-contract certification
+      status: planned
+      evidence: []
+    - name: Completion and kernel-implementation readiness
+      status: planned
+      evidence: []
+commits: []
