@@ -487,16 +487,16 @@ class QualityRoutingTests(unittest.TestCase):
         toolchain = Toolchain.load(TOOLING_DIR.parent / "toolchain.json")
         gates = toolchain.integrity_hardgates("check")
         self.assertEqual(
-            ["contracts_check", "generate_check", "governance"],
+            ["baseline_check", "contracts_check", "generate_check", "governance"],
             [gate["operation"] for gate in gates],
         )
         self.assertEqual(
-            ["python3", "tooling/public_contracts.py", "--check"],
+            ["python3", "tooling/baseline.py", "--check"],
             gates[0]["command"],
         )
         self.assertEqual(
             ["python3", "tooling/governance.py"],
-            gates[2]["command"],
+            gates[3]["command"],
         )
         self.assertTrue(
             all(gate["aggregates"] == ["check", "certify"] for gate in gates)

@@ -378,6 +378,28 @@ switch ($Command) {
             Pop-Location
         }
     }
+    "baseline" {
+        $pythonCommand = Resolve-CommandName "python3"
+        if (-not $pythonCommand) {
+            Write-Error "Python is required to validate frozen baseline evidence."
+            exit 1
+        }
+        $baselineArguments = @()
+        if ($Language) {
+            $baselineArguments += $Language
+        }
+        if ($Options) {
+            $baselineArguments += $Options
+        }
+        Push-Location $PSScriptRoot
+        try {
+            & $pythonCommand "tooling/baseline.py" @baselineArguments
+            exit $LASTEXITCODE
+        }
+        finally {
+            Pop-Location
+        }
+    }
     "cache-dir" {
         if (-not $Language) { exit 1 }
         switch ($Language) {

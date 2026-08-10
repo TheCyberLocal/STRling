@@ -11,7 +11,7 @@ If you add or change tooling, please update this index so maintainers and CI con
 -   Audit & reporting: `audit_precision.py`, `audit_hints.py`, `audit_omega.py`, `audit_hint_parity.py`
 -   Release helpers: `sync_versions.py`, `check_version_exists.py`
 -   Fixture tooling: `js_to_json_ast/`
--   Governance hardgates: `public_contracts.py`, `contract_declarations.py`, `architecture_fitness.py`, `generated_artifacts.py`, `governance.py`, `sync_fixture_projection.py`
+-   Governance hardgates: `baseline.py`, `public_contracts.py`, `contract_declarations.py`, `architecture_fitness.py`, `generated_artifacts.py`, `governance.py`, `sync_fixture_projection.py`
 -   LSP & editor tooling: `lsp-server/`
 -   Utilities: `parse_strl.py`, `generate_c_asts.sh`
 -   CLI: `strling`
@@ -52,6 +52,7 @@ If you add or change tooling, please update this index so maintainers and CI con
 -   `contract_declarations.py` — Compares governed snapshots with the active task's Git base and requires compatible, additive, breaking, or intentional-correction declarations naming exact surface identifiers.
 
 -   `architecture_fitness.py` — Performs language-aware import, JSON Schema reference, generated-authority, transition, and new semantic-island checks for `governance.py`.
+-   `baseline.py` — Validates the frozen certified migration-baseline registry, Git identities and ancestry, governed path-set fingerprints, and cross-record evidence consistency. Exposed as `./strling baseline --check [--json]` and enforced by `check` and `certify`.
 
 -   `generate_c_asts.sh` — Helper script that builds/produces C AST artifacts from parser outputs. Used by C/C++ integration tasks and tests which rely on JSON AST artifacts.
 

@@ -38,6 +38,12 @@
         ],
         "integrity_hardgates": [
             {
+                "operation": "baseline_check",
+                "component": "repository",
+                "command": ["python3", "tooling/baseline.py", "--check"],
+                "aggregates": ["check", "certify"]
+            },
+            {
                 "operation": "contracts_check",
                 "component": "repository",
                 "command": [

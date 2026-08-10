@@ -39,8 +39,13 @@ scope:
         - governance/schemas/donor-inventory.schema.json
         - governance/schemas/frozen-baseline-registry.schema.json
         - governance/schemas/migration-baseline.schema.json
+        - strling
+        - strling.ps1
+        - toolchain.json
         - tooling/baseline.py
+        - tooling/index.md
         - tooling/tests/test_baseline.py
+        - tooling/tests/test_quality.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -189,3 +194,5 @@ commits:
       subject: "docs(certification): record governed architecture baseline"
     - sha: 78e494198a37711aa639d7643ac79531c3e0dccf
       subject: "docs(architecture): classify legacy implementation donor assets"
+    - sha: 6e87512d064f1c4cb095199cb530ff2559078c4c
+      subject: "docs(architecture): freeze certified migration baseline"
