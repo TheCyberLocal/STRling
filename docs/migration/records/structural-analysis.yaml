@@ -1,0 +1,112 @@
+record_version: 2.0.0
+title: Canonical structural semantic analysis
+status: in_progress
+objective: Establish the next pure target-neutral semantic-analysis layer over canonical normalized Semantic IR and certified foundational facts, with deterministic leading-consumption, semantic length, repetition-progress, and conservative structural-overlap facts, without changing product execution or beginning safety verdicts, portability planning, rewriting, diagnostics, lowering, emission, frontend, binding, or tooling migrations.
+scope:
+    diff:
+        base: d9af94674928ccae32ce9165fb366ee849c0e651
+        head: working-tree
+    allowed_paths:
+        - core/**
+        - docs/migration/**
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_core_contracts.py
+    forbidden_paths:
+        - bindings/**
+        - package.json
+        - package-lock.json
+        - spec/**
+        - strling
+        - strling.ps1
+        - tests/spec/**
+    expected_files:
+        - docs/migration/records/structural-analysis.yaml
+        - docs/migration/structural-analysis.md
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - The canonical kernel gains a second pure analysis stage after foundational semantic analysis and a separate stable-identity-keyed structural fact store.
+            - Canonical fitness will enforce foundational-fact dependency direction, exact program correspondence, target neutrality, purity, and prohibited safety, portability, target, binding, frontend, tooling, and emitter dependencies.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Kernel structural-analysis quality
+      command: cargo fmt --manifest-path core/Cargo.toml --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && RUSTFLAGS=-Dwarnings cargo check --manifest-path core/Cargo.toml --all-targets && cargo build --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml --all-targets
+      expected_result: The analyzer builds without warnings and all focused, generated-property, normalization, foundational-analysis, structural-analysis, contract, fixture, and kernel tests pass.
+    - name: Canonical contract and architecture certification
+      command: python3 tooling/core_contract_validation.py && python3 tooling/contract_validation.py && python3 tooling/governance.py && python3 -m unittest tooling.tests.test_core_contracts tooling.tests.test_governance tooling.tests.test_quality
+      expected_result: Contract drift, missing structural-analysis ownership, incorrect stage direction, target/planner/emitter/binding/frontend/tooling dependencies, runtime-state access, and task-scope violations are rejected by controlled hardgate tests.
+    - name: Repository quality and certification
+      command: ./strling check all --json && ./strling certify all --json
+      expected_result: Formatting, hygiene, lint, typecheck, generation, contracts, governance, baseline validation, configured cross-binding checks, and every enforced repository operation pass from committed state.
+    - name: TypeScript compatibility baseline
+      command: cd bindings/typescript && npm test -- --runInBand && ./node_modules/.bin/tsc -p tsconfig.json --noEmit
+      expected_result: All established TypeScript runtime/compiler behavior tests and the binding compiler check pass unchanged.
+    - name: Patch and clean-state integrity
+      command: git diff --check && git status --short --branch
+      expected_result: The final committed repository has no whitespace errors or uncommitted files.
+checkpoints:
+    - name: Structural analysis contract
+      status: passed
+      evidence:
+          - check: Target-neutral fact and rule inventory
+            result: passed
+            details: The stage API, typed fact vocabulary, conservative overlap model, length and progress classifications, all-variant composition rules, exact-program identity validation, deterministic resource bounds, and explicit exclusions are documented in docs/migration/structural-analysis.md.
+          - check: Foundational reuse and examination separation
+            result: passed
+            details: The contract consumes certified nullability and consumption bounds without duplicating them, and all 12 variants explicitly preserve lookaround examination versus enclosing consumption.
+          - check: Repository hardgates
+            command: ./strling check --json && ./strling certify --json
+            result: passed
+            details: Canonical check and certify passed with repository-certified Ruff 0.15.21, Bundler 2.4.20, system Python, and Swift 6.2.1; governance, formatting, architecture fitness, contracts, generation, baselines, kernel tests, and the 19-suite/963-test TypeScript baseline exited zero.
+    - name: Leading-consumption analysis
+      status: planned
+      evidence: []
+    - name: Length and progress classification
+      status: planned
+      evidence: []
+    - name: Structural overlap analysis
+      status: planned
+      evidence: []
+    - name: Property and soundness certification
+      status: planned
+      evidence: []
+    - name: Pipeline and hardgate integration
+      status: planned
+      evidence: []
+    - name: Completion and safety-analysis readiness
+      status: planned
+      evidence: []
+commits: []
