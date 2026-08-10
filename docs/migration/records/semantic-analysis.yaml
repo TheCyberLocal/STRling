@@ -1,0 +1,224 @@
+record_version: 2.0.0
+title: Canonical semantic fact analysis
+status: complete
+objective: Establish the first pure target-neutral semantic-analysis stage over canonical normalized Semantic IR, with deterministic identity-keyed foundational facts for nullability, semantic consumption bounds, zero-width behavior, and logical capture/reference relationships, without changing product execution or beginning later safety, portability, lowering, emission, frontend, binding, or tooling migrations.
+scope:
+    diff:
+        base: 986abcd394f16fca5cc24f721cd53fe2b391115c
+        head: working-tree
+    allowed_paths:
+        - core/**
+        - docs/migration/**
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_core_contracts.py
+    forbidden_paths:
+        - bindings/**
+        - package.json
+        - package-lock.json
+        - spec/**
+        - strling
+        - strling.ps1
+        - tests/spec/**
+    expected_files:
+        - core/contract-mapping.json
+        - core/src/lib.rs
+        - core/src/semantic_analysis.rs
+        - core/src/semantic_analysis/capture.rs
+        - core/src/semantic_analysis/consumption.rs
+        - core/tests/semantic_analysis.rs
+        - core/tests/semantic_analysis_properties.rs
+        - core/tests/semantic_captures.rs
+        - core/tests/semantic_consumption.rs
+        - docs/migration/ledger.md
+        - docs/migration/records/semantic-analysis.yaml
+        - docs/migration/semantic-analysis.md
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_core_contracts.py
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - The canonical kernel gains a pure executable semantic-analysis stage after normalization and an external identity-keyed fact store.
+            - Canonical contract fitness now enforces semantic-analysis ownership, stage presence, target neutrality, purity, and prohibited dependency boundaries.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Kernel semantic-analysis quality
+      command: cargo fmt --manifest-path core/Cargo.toml --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && RUSTFLAGS=-Dwarnings cargo check --manifest-path core/Cargo.toml --all-targets && cargo build --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml --all-targets
+      expected_result: The analyzer builds without warnings and all focused, generated-property, normalization, contract, fixture, and kernel tests pass.
+    - name: Canonical contract and architecture certification
+      command: python3 tooling/core_contract_validation.py && python3 tooling/contract_validation.py && python3 tooling/governance.py && python3 -m unittest tooling.tests.test_core_contracts tooling.tests.test_governance tooling.tests.test_quality
+      expected_result: Contract drift, missing analysis ownership, normalization coupling, target or binding dependencies, runtime-state access, and task-scope violations are rejected by controlled hardgate tests.
+    - name: Repository quality and certification
+      command: ./strling check all --json && ./strling certify all --json
+      expected_result: Formatting, hygiene, lint, typecheck, generation, contracts, governance, baseline validation, configured cross-binding checks, and every enforced repository operation pass from committed state.
+    - name: TypeScript compatibility baseline
+      command: cd bindings/typescript && npm test -- --runInBand && ./node_modules/.bin/tsc -p tsconfig.json --noEmit
+      expected_result: All established TypeScript runtime/compiler behavior tests and the binding compiler check pass unchanged.
+    - name: Patch and clean-state integrity
+      command: git diff --check && git status --short --branch
+      expected_result: The final committed repository has no whitespace errors or uncommitted files.
+checkpoints:
+    - name: Semantic fact contract and analysis rules
+      status: passed
+      evidence:
+          - check: Ratified variant and fact inventory
+            result: passed
+            details: All 12 canonical Semantic IR variants have explicit nullability, minimum and maximum consumption, zero-width/consumption, child-analysis, and capture/reference dispositions in docs/migration/semantic-analysis.md.
+          - check: Target-neutral semantic length decision
+            result: passed
+            details: Consumption is measured in Unicode scalar values, independently of half-open UTF-8 source byte spans and any target-engine code-unit representation; multibyte two-byte and four-byte examples are certified.
+          - check: Conservative and deferred facts
+            result: passed
+            details: Backreference nullability is Unknown when empty success cannot be proved, cyclic reference bounds are conservatively zero-to-unbounded, and ReDoS, overlap/first sets, target capabilities, portability, rewriting, diagnostics, lowering, emission, parsing, bindings, Simply, and editor work remain explicitly deferred.
+    - name: Analysis framework and fact store
+      status: passed
+      evidence:
+          - check: Pure stage API and external fact store
+            command: cargo test --manifest-path core/Cargo.toml --test semantic_analysis
+            result: passed
+            details: analyze borrows a canonical SemanticProgram and returns SemanticFacts or ordered SemanticAnalysisErrors; BTreeMap-backed NodeId lookup provides one externally stored NodeFacts record per reachable node without modifying Semantic IR.
+          - check: Preconditions, identity, traversal, and safety
+            command: cargo test --manifest-path core/Cargo.toml --test semantic_analysis
+            result: passed
+            details: Five focused tests prove non-normalized input rejection, duplicate and missing identity failures, deterministic key order, source-less input, complete traversal, and structured rejection above the 128-level nesting limit without panic.
+    - name: Nullability and consumption bounds
+      status: passed
+      evidence:
+          - check: Complete compositional consumption analysis
+            command: cargo test --manifest-path core/Cargo.toml --test semantic_consumption
+            result: passed
+            details: Seven focused tests cover empty, literals, wildcard, sets, sequence, alternation, repetition, capture, backreference, position assertions, lookarounds, atomic nodes, nullable unbounded bodies, Unicode scalars, and cyclic references with exact expected facts.
+          - check: Explicit bounds and checked arithmetic
+            result: passed
+            details: Minimum lengths use checked u64 arithmetic; MaximumConsumption distinguishes Finite from Unbounded without sentinels; addition and multiplication overflow return stable structured failures, and no target-engine limit creates an artificial semantic bound.
+          - check: Zero-width and consumption vocabulary
+            result: passed
+            details: Consumption is limited to AlwaysZeroWidth, AlwaysConsuming, Variable, and Indeterminate, separating intrinsic zero-width behavior from nullability while keeping assertion children independently analyzed.
+    - name: Capture and reference facts
+      status: passed
+      evidence:
+          - check: Logical capture and backreference relationships
+            command: cargo test --manifest-path core/Cargo.toml --test semantic_captures
+            result: passed
+            details: Four focused tests prove nested subtree definitions and references, multiple references, wrapper-crossing resolution, exact logical CaptureId preservation across unrelated normalization, deterministic ordering, and stable duplicate or unresolved failures.
+          - check: Target-neutral identity model
+            result: passed
+            details: Global capture definitions and reference resolutions plus per-node local and subtree relationships retain certified logical identities; no engine numbering, syntax, profile, or runtime captured text is introduced.
+    - name: Property and differential certification
+      status: passed
+      evidence:
+          - check: Fixed-seed valid generated corpus
+            command: cargo test --manifest-path core/Cargo.toml --test semantic_analysis_properties generated_normalized_programs_certify_foundational_analysis_properties
+            result: passed
+            details: Seeds 0x53454d414e544943, 0x9e3779b97f4a7c15, 0xd1b54a32d192ed03, and 0x94d049bb133111eb generated 128 cases each, totaling 512 normalized programs across all 12 variants and proving determinism, completeness, input immutability, finite min/max consistency, zero-width consistency, capture integrity, and target neutrality.
+          - check: Generated malformed corpus
+            command: cargo test --manifest-path core/Cargo.toml --test semantic_analysis_properties generated_malformed_programs_fail_deterministically_without_panics
+            result: passed
+            details: 256 deterministic malformed candidates exercised noncanonical structure, duplicate or missing identities, malformed capture relationships, overflow, and depth failures with stable ordered error categories and no panic.
+          - check: Independent bounded semantic evidence
+            command: cargo test --manifest-path core/Cargo.toml --test semantic_analysis_properties bounded_semantic_evidence_has_zero_unexplained_length_differences
+            result: passed
+            details: 128 independently enumerated bounded semantic cases agreed exactly with the analyzer's finite minimum and maximum lengths; zero unexplained compatibility differences remain.
+    - name: Compiler pipeline and hardgate integration
+      status: passed
+      evidence:
+          - check: Canonical stage registration
+            command: python3 tooling/core_contract_validation.py
+            result: passed
+            details: Contract mapping registers semantic_analysis after normalization for Semantic IR and as the executable derived-analysis producer; all 11 schema mappings and 62 canonical fixtures pass.
+          - check: Controlled dependency failures
+            command: python3 -m unittest tooling.tests.test_core_contracts
+            result: passed
+            details: Eleven controlled tests reject missing stage ownership, normalization-to-analysis coupling, analysis-to-normalization coupling, target, protocol, diagnostic, emitter, binding, frontend, LSP/editor, environment, clock, randomness, target-profile, and portability dependencies.
+          - check: Kernel and focused governance quality
+            command: cargo fmt --manifest-path core/Cargo.toml --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && RUSTFLAGS=-Dwarnings cargo check --manifest-path core/Cargo.toml --all-targets && cargo build --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml --all-targets && python3 -m unittest tooling.tests.test_core_contracts tooling.tests.test_governance tooling.tests.test_quality
+            result: passed
+            details: All 76 kernel tests and 79 focused contract, governance, and quality tests passed from committed checkpoint 4ba19798266c4b007d2a2878e1fcde9435e3c075 with warnings denied.
+          - check: Full repository hardgates
+            command: ./strling format --check all && ./strling hygiene && ./strling lint all && ./strling typecheck all && ./strling generate --check && ./strling contracts --check && ./strling governance && python3 tooling/baseline.py --check && ./strling check all --json && ./strling certify all --json
+            result: passed
+            details: Human and structured formatting, hygiene, lint, typecheck, generation, contracts, governance, baseline, check, and certify runs exited zero with pinned Ruff 0.15.21, Swift 6.2.1, and Bundler 2.4.20; the explicit TypeScript baseline passed all 19 suites and 963 tests.
+    - name: Completion and analysis-foundation readiness
+      status: passed
+      evidence:
+          - check: Analysis capability and exclusions
+            result: passed
+            details: The final record enumerates the API, external fact storage, semantic length unit, implemented facts, proven properties, conservative cases, unchanged product behavior, and every explicitly excluded later compiler concern.
+          - check: Next-layer readiness
+            result: passed
+            details: The canonical kernel has a certified target-neutral fact foundation for the next safety and portability semantic analyses while the normalized SemanticProgram remains unchanged and independently consumable.
+commits:
+    - sha: 1063c70bb357fea3129c123549a65913720ea8bd
+      subject: "docs(core): define semantic analysis invariants"
+    - sha: d35f4fe054984c3d0938d7f498752bbbcf6abf2a
+      subject: "feat(core): establish semantic fact analysis"
+    - sha: 4e1711deae54c91603742ced2811acbe731896c4
+      subject: "feat(core): analyze semantic consumption bounds"
+    - sha: deaa2c321c247ee43ab100d666849d83a03a2ef2
+      subject: "feat(core): analyze capture relationships"
+    - sha: 5cf7c973eca3c5241e0a30ff771d43b8f918a74d
+      subject: "test(core): certify semantic fact analysis"
+    - sha: 4ba19798266c4b007d2a2878e1fcde9435e3c075
+      subject: "ci(core): certify semantic analysis"
+completion:
+    accomplished:
+        - Added core::semantic_analysis as a small pure stage exposing analyze(&SemanticProgram) -> Result<SemanticFacts, SemanticAnalysisErrors> and requiring already-canonical normalized input without implicit repair or normalization.
+        - Added an external deterministic fact store keyed by stable NodeId, with complete per-node records and ordered global and subtree capture/reference relationships; no derived facts were added to Semantic IR nodes.
+        - Implemented target-neutral nullability, Unicode-scalar minimum consumption, explicit finite or unbounded maximum consumption, and four-way zero-width/consumption classification compositionally across all 12 ratified node variants with checked arithmetic and structured overflow/depth failures.
+        - Preserved exact logical CaptureId relationships from captures through resolved backreferences without engine numbering, target syntax, runtime captured values, or identity mutation.
+        - Added focused, generated-property, independent bounded-evidence, controlled-invalid, architecture-fitness, contract-mapping, and repository-hardgate certification.
+    verified:
+        - All 76 canonical kernel tests passed with rustfmt, warnings-denied Clippy, warnings-denied cargo check, build coverage, normalization regressions, canonical fixtures, and all semantic-analysis focused and property suites.
+        - Four fixed 64-bit seeds generated 512 valid normalized programs across every node variant; 256 malformed candidates failed deterministically; 128 independent bounded semantic cases produced zero unexplained length differences.
+        - Determinism, complete reachable-node coverage, normalized-program immutability, finite minimum-at-most-maximum consistency, always-zero-width bound consistency, exact capture identity resolution, and target neutrality are certified.
+        - Canonical validation passed all 11 schema mappings and 62 fixtures, comprising 29 positive and 33 controlled-invalid documents; controlled architecture tests prove forbidden target, binding, frontend, editor, runtime-state, normalization, and portability dependencies fail.
+        - Repository formatting, hygiene, lint, all-language typecheck, generation, contracts, governance, architecture fitness, frozen baseline validation, all configured component checks/builds/tests, human and structured check/certify, TypeScript's 19 suites and 963 tests, patch integrity, and clean committed state passed.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - The internal canonical Rust kernel now provides foundational semantic fact analysis as the stage following normalization.
+        - Canonical contract and source-boundary hardgates now reject missing semantic-analysis ownership and prohibited stage dependencies.
+    preserved_behavior:
+        - Grammar acceptance, parsers, existing compiler execution, diagnostics, target decisions, portability behavior, regex output, bindings, Simply, LSP/editor tooling, public APIs, package versions, and published artifacts remain unchanged.
+        - Normalized Semantic IR identity, capture relationships, provenance, source coordinates, and target-neutral meaning remain unchanged because facts are stored externally.
+    transitional_architecture:
+        - Existing frontends and binding compilers do not yet invoke the canonical kernel analyzer and remain separately governed compatibility evidence.
+        - Later safety and portability layers must treat Unknown backreference nullability and conservative cyclic-reference zero-to-unbounded bounds soundly rather than converting them into guessed finite facts.
+    deferred_work:
+        - ReDoS, progress/termination, overlap or first-set analysis, target capability evaluation, portability planning, optimization, semantic rewriting, user-facing diagnostics, lowering, emission, parser migration, binding migration, Simply migration, and LSP/editor migration are not implemented.
+        - Build the next semantic-analysis layer required by safety and portability reasoning using these certified foundational facts.
+readiness:
+    status: READY
+    next_task: Build the next semantic-analysis layer required by safety and portability reasoning using these certified foundational facts.
+    rationale: The canonical kernel now provides a pure, deterministic, complete, identity-keyed and target-neutral analysis foundation with explicit conservative states, checked arithmetic, complete ratified-variant coverage, capture integrity, fixed-seed property evidence, independent length evidence, and full repository certification. No known blocker remains for the next contained semantic-analysis layer.

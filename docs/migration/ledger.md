@@ -982,3 +982,110 @@ product behavior remains untouched.
 The next contained canonical compiler task is semantic fact analysis over
 normalized Semantic IR, beginning with foundational target-neutral facts needed
 by later safety and portability reasoning.
+
+## Canonical semantic fact analysis
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `986abcd394f16fca5cc24f721cd53fe2b391115c`
+-   Kernel stage: `core::semantic_analysis`
+-   API: `analyze(&SemanticProgram) -> Result<SemanticFacts, SemanticAnalysisErrors>`
+-   Behavior change: No existing STRling runtime/compiler behavior
+    intentionally changed.
+-   Completion record:
+    [`semantic-analysis.yaml`](records/semantic-analysis.yaml)
+-   Readiness: `READY`
+
+### Checkpoint evidence
+
+| Checkpoint                                   | Result | Commit                                     | Accomplishment                                                                                            |
+| -------------------------------------------- | ------ | ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| Semantic fact contract and analysis rules    | Passed | `1063c70bb357fea3129c123549a65913720ea8bd` | Target-neutral fact model, Unicode-scalar length unit, complete node rules, conservative cases, deferrals |
+| Analysis framework and fact store            | Passed | `d35f4fe054984c3d0938d7f498752bbbcf6abf2a` | Pure API, external NodeId-keyed store, deterministic traversal, structured input and depth failures       |
+| Nullability and consumption bounds           | Passed | `4e1711deae54c91603742ced2811acbe731896c4` | Compositional nullable, minimum, finite/unbounded maximum, and consumption facts across all variants      |
+| Capture and reference facts                  | Passed | `deaa2c321c247ee43ab100d666849d83a03a2ef2` | Logical definitions, subtree use sets, exact resolution, deterministic ordering, malformed failures       |
+| Property and differential certification      | Passed | `5cf7c973eca3c5241e0a30ff771d43b8f918a74d` | Fixed-seed determinism, completeness, consistency, capture integrity, and independent length evidence     |
+| Compiler pipeline and repository hardgate    | Passed | `4ba19798266c4b007d2a2878e1fcde9435e3c075` | Stage ownership, prohibited-dependency fitness, kernel and full repository certification                  |
+| Completion and analysis-foundation readiness | Passed | Recorded by the readiness commit           | Final facts, properties, exclusions, unchanged behavior, carry-forward, and next-layer readiness          |
+
+### Analysis architecture and foundational facts
+
+The canonical kernel exposes one small pure boundary: `analyze` borrows an
+already-normalized canonical `SemanticProgram` and returns `SemanticFacts` or
+ordered `SemanticAnalysisErrors`. It never normalizes or repairs input. It
+requires no filesystem, network, environment, clock, randomness, frontend,
+binding, target, diagnostic, lowering, or emitter information. The contract
+mapping registers analysis after normalization while keeping the stages
+separately callable.
+
+Facts remain external to Semantic IR in a deterministic `BTreeMap` keyed by
+stable `NodeId`. Every reachable node receives a `NodeFacts` record. The
+small foundational vocabulary is nullability (`Nullable`, `NonNullable`, or
+`Unknown`), minimum consumption, maximum consumption (`Finite(n)` or
+`Unbounded`), and consumption classification (`AlwaysZeroWidth`,
+`AlwaysConsuming`, `Variable`, or `Indeterminate`). Global and subtree
+capture/reference collections preserve logical `CaptureId` relationships and
+exact reference resolution without engine numbering or target syntax.
+
+Match-consumption lengths count Unicode scalar values. They do not count UTF-8
+source bytes or target-engine code units. Source spans remain half-open UTF-8
+byte coordinates. Focused two-byte and four-byte Unicode tests certify this
+separation.
+
+All 12 ratified Semantic IR variants compose deterministically. Sequence sums
+bounds; alternation selects the minimum and maximum branch bounds; repetition
+uses certified lower and upper counts with checked multiplication; captures
+inherit their body; assertions and lookarounds are outer zero-width while
+their children retain independent facts; atomic nodes inherit their body;
+backreferences use resolved capture-body bounds. Optional consuming nodes are
+nullable but not intrinsically zero-width. Unbounded repetition of a nullable
+body remains unbounded when that body can consume positively.
+
+Backreference nullability remains `Unknown` when canonical meaning cannot
+prove empty success. Cyclic capture-reference bounds are conservatively zero
+to unbounded. Checked arithmetic and a 128-level semantic nesting limit produce
+structured failures rather than panics.
+
+### Property, compatibility, and repository certification
+
+Four fixed 64-bit seeds generated 512 valid normalized programs across every
+node variant. They proved repeated-analysis determinism, one fact per reachable
+node, unchanged normalized input, finite `minimum <= maximum`, always-zero-width
+zero bounds, exact resolved capture identity, and target neutrality. A
+separate deterministic corpus of 256 malformed programs proved stable ordered
+failures. An independent bounded semantic enumerator compared 128 cases with
+zero unexplained minimum/maximum differences.
+
+All 76 kernel tests passed with rustfmt, warnings-denied Clippy, and
+warnings-denied cargo check, build coverage, normalization regression, canonical
+fixtures, and focused analysis suites. Contract validation certified all 11
+schema mappings and 62 fixtures. Controlled architecture tests prove analysis
+fails if it gains normalization, target, protocol, diagnostic, emitter,
+binding, frontend, editor, environment, clock, randomness, profile, or
+portability dependencies.
+
+Repository formatting, hygiene, lint, all-language typecheck, generation,
+public and canonical contracts, governance, architecture fitness, frozen
+baseline validation, and the human and structured `check all` and
+`certify all` aggregates passed from committed state. The explicit TypeScript baseline
+passed 19 suites and 963 tests. Pinned Ruff 0.15.21, Swift 6.2.1, and Bundler
+2.4.20 were used.
+
+### Explicit exclusions, unchanged behavior, and carry-forward
+
+No ReDoS, progress/termination, overlap or first-set analysis, target
+capability evaluation, portability planning, optimizer or semantic rewrite,
+user-facing diagnostic generation, lowering, emission, parser migration,
+binding migration, Simply migration, LSP/editor migration, public API change,
+package version change, or publishing was implemented.
+
+Existing parsers, runtime/compiler execution, targets, emitters, bindings,
+Simply, and editor tooling do not yet invoke this analyzer. No existing
+STRling runtime/compiler behavior intentionally changed.
+
+Subsequent safety and portability analyses can consume the immutable normalized
+program and these facts together. They must preserve conservative `Unknown`
+backreference nullability, zero-to-unbounded cyclic-reference bounds, and the
+distinction between lookaround child examination length and outer consumed
+length. The next contained task is the semantic-analysis layer required for
+safety and portability reasoning on this certified foundation.
