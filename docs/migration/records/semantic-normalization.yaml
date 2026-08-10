@@ -24,7 +24,9 @@ scope:
         - core/src/lib.rs
         - core/src/normalization.rs
         - core/tests/normalization.rs
+        - core/tests/normalization_compatibility.rs
         - core/tests/normalization_properties.rs
+        - docs/migration/semantic-normalization-compatibility.md
         - docs/migration/semantic-normalization.md
         - docs/migration/records/semantic-normalization.yaml
         - governance/change-control.json
@@ -138,8 +140,20 @@ checkpoints:
             result: passed
             details: The generated suite requires no new runtime or development dependency, completes in under one second locally, all 51 kernel tests pass, and no semantic normalization defect was discovered by the first certified corpus.
     - name: Legacy compatibility evidence comparison
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Parser-free shared structural corpus
+            command: cargo test --manifest-path core/Cargo.toml --test normalization_compatibility selected_legacy_structural_corpus_has_zero_unexplained_differences
+            result: passed
+            details: Nine representative cases compare the historical TypeScript/Python flatten, unwrap, coalesce, and recursive child behavior through a shared legacy-shape projection. Sequence, alternation, repetition, capture, lookaround, atomic, explicit empty, and capture/backreference outcomes have structural parity after erasing canonical-only IDs/origins.
+          - check: Bounded intentional differences
+            command: cargo test --manifest-path core/Cargo.toml --test normalization_compatibility canonical_contract_corrections_are_explicit_and_bounded
+            result: passed
+            details: Empty sequence/alternation wrappers and empty literals are intentional canonical-contract rejections; character-set sorting/deduplication is an intentional contract correction; stable IDs/origins and separated capture/atomic nodes are representational-only differences. No unresolved or unexplained difference remains.
+          - check: Compatibility regression integration
+            command: cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings; RUSTFLAGS=-Dwarnings cargo check --manifest-path core/Cargo.toml --all-targets; cargo test --manifest-path core/Cargo.toml --all-targets; python3 tooling/core_contract_validation.py; python3 tooling/governance.py; git diff --check
+            result: passed
+            details: The comparison invokes no parser, binding, target, or legacy runtime from the kernel; all 53 kernel tests and governed contract/architecture checks passed.
     - name: Compiler-stage and hardgate integration
       status: planned
       evidence: []
@@ -153,3 +167,5 @@ commits:
       subject: "feat(core): implement semantic normalization"
     - sha: 902302d91a26327f7cfa0b73af4513ba132e4aee
       subject: "feat(core): preserve semantic identity through normalization"
+    - sha: 4d7c7a985b89eea20a918cff3e3f8102d458416b
+      subject: "test(core): certify normalization determinism and idempotence"
