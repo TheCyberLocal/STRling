@@ -200,7 +200,8 @@ impl LeadingConsumption {
 }
 
 /// Semantic successful-consumption length derived from certified bounds.
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum LengthClassification {
     Fixed(u64),
     FiniteVariable,
@@ -209,14 +210,16 @@ pub enum LengthClassification {
 }
 
 /// Whether a repetition has a finite structural maximum.
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum RepetitionExtent {
     Finite,
     Unbounded,
 }
 
 /// Whether a repetition operand proves progress on every successful match.
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ProgressClassification {
     AlwaysConsuming,
     PotentiallyZeroConsuming,
@@ -232,7 +235,8 @@ pub struct RepetitionStructuralFacts {
 }
 
 /// Why exact leading-consumption overlap could not be decided.
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum OverlapUnknownReason {
     LeadingUnknown,
     CaseFolding,
@@ -242,7 +246,8 @@ pub enum OverlapUnknownReason {
 }
 
 /// Conservative relation between two symbolic leading-consumption sets.
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum OverlapRelation {
     Disjoint,
     Overlapping,
@@ -286,6 +291,7 @@ pub struct StructuralFacts {
     pub contract_version: ContractVersion,
     pub specification_version: SpecificationVersion,
     node_facts: BTreeMap<NodeId, NodeStructuralFacts>,
+    program_identity: crate::semantic_analysis::SemanticProgramIdentity,
 }
 
 impl StructuralFacts {
@@ -307,6 +313,16 @@ impl StructuralFacts {
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.node_facts.is_empty()
+    }
+
+    #[must_use]
+    pub(crate) fn program_identity(&self) -> crate::semantic_analysis::SemanticProgramIdentity {
+        self.program_identity
+    }
+
+    #[cfg(test)]
+    pub(crate) fn remove_node_for_test(&mut self, node_id: &NodeId) {
+        self.node_facts.remove(node_id);
     }
 }
 
@@ -345,6 +361,7 @@ pub fn analyze_structure(
         contract_version: input.contract_version,
         specification_version: input.specification_version.clone(),
         node_facts,
+        program_identity: foundational.program_identity(),
     })
 }
 

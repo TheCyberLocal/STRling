@@ -198,7 +198,7 @@ impl CharacterSetMember {
 }
 
 /// Finite or unbounded repetition maximum. JSON null alone means unbounded.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum RepetitionMaximum {
     Bounded(u64),
     Unbounded,
@@ -257,7 +257,7 @@ impl<'de> Deserialize<'de> for RepetitionMaximum {
 }
 
 /// Backtracking behavior for repetition.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RepetitionMode {
     Greedy,

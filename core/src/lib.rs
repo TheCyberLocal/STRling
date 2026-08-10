@@ -4,14 +4,16 @@
 //! crate is their reference implementation, not a source of specification
 //! truth. Its current boundary contains strongly typed contract data,
 //! structural validation, pure semantic normalization, and target-neutral
-//! foundational and structural semantic analysis. Safety, portability,
-//! lowering, emission, and product integration remain intentionally absent.
+//! foundational and structural semantic analysis, and structured semantic
+//! safety evidence. Portability, lowering, emission, and product integration
+//! remain intentionally absent.
 #![forbid(unsafe_code)]
 
 pub mod conformance;
 pub mod diagnostic;
 pub mod normalization;
 pub mod protocol;
+pub mod safety_analysis;
 pub mod semantic;
 pub mod semantic_analysis;
 pub mod source;
