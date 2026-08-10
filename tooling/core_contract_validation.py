@@ -48,6 +48,7 @@ MODULE_PATHS = {
     "protocol::result": "core/src/protocol/result.rs",
     "semantic": "core/src/semantic/mod.rs",
     "semantic_analysis": "core/src/semantic_analysis.rs",
+    "safety_analysis": "core/src/safety_analysis.rs",
     "structural_analysis": "core/src/structural_analysis.rs",
     "source": "core/src/source/mod.rs",
     "target": "core/src/target/mod.rs",
@@ -115,10 +116,10 @@ def validate_mapping_document(
         if (
             not isinstance(modules, list)
             or not modules
-            or modules != sorted(set(modules))
+            or len(modules) != len(set(modules))
         ):
             raise CoreContractError(
-                f"{relative}: Rust modules must be a nonempty unique sorted array"
+                f"{relative}: Rust modules must be a nonempty unique array"
             )
         for module in modules:
             module_path = MODULE_PATHS.get(module)
@@ -130,18 +131,20 @@ def validate_mapping_document(
             "protocol::analysis",
             "semantic_analysis",
             "structural_analysis",
+            "safety_analysis",
         ]:
             raise CoreContractError(
-                "analysis mapping must include semantic analysis followed by structural analysis"
+                "analysis mapping must register semantic analysis, structural analysis, and semantic safety analysis in dependency order"
             )
         if relative == "spec/contracts/1.0/semantic-ir.schema.json" and modules != [
             "normalization",
             "semantic",
             "semantic_analysis",
             "structural_analysis",
+            "safety_analysis",
         ]:
             raise CoreContractError(
-                "Semantic IR mapping must register normalization, semantic analysis, and structural analysis in dependency order"
+                "Semantic IR mapping must register normalization, semantic analysis, structural analysis, and semantic safety analysis in dependency order"
             )
 
     fixture_roots = mapping["fixture_roots"]
@@ -359,6 +362,72 @@ def validate_source_boundaries(
         if forbidden in structural:
             raise CoreContractError(
                 "structural analysis violates pure target-neutral stage boundary: "
+                f"{forbidden}"
+            )
+
+    safety_entry = source_texts.get("core/src/safety_analysis.rs", "").lower()
+    safety = "\n".join(
+        text.lower()
+        for path, text in source_texts.items()
+        if path == "core/src/safety_analysis.rs"
+        or path.startswith("core/src/safety_analysis/")
+    )
+    if "pub fn analyze_safety(" not in safety_entry:
+        raise CoreContractError(
+            "canonical semantic safety analysis stage boundary cannot be located"
+        )
+    if "crate::semantic_analysis" not in safety_entry:
+        raise CoreContractError(
+            "semantic safety analysis must consume certified foundational semantic facts"
+        )
+    if "crate::structural_analysis" not in safety_entry:
+        raise CoreContractError(
+            "semantic safety analysis must consume certified structural analysis facts"
+        )
+    for forbidden in (
+        "crate::normalization",
+        "crate::target",
+        "crate::protocol",
+        "crate::diagnostic",
+        "crate::conformance",
+        "crate::emitter",
+        "crate::emitters",
+        "crate::bindings",
+        "crate::frontend",
+        "crate::lsp",
+        "crate::editor",
+        "crate::planner",
+        "crate::portability",
+        "crate::parser",
+        "bindings::",
+        "frontend::",
+        "emitters::",
+        "std::env",
+        "std::time",
+        "std::process",
+        "std::thread",
+        "systemtime",
+        "thread_rng",
+        "rand::",
+        "target_profile",
+        "engine_options",
+        "emitted_pattern",
+        "portability_plan",
+        "portability_decision",
+        "risk_severity",
+        "raw_source",
+        "source_text",
+        "regex_source",
+        "parse_regex",
+        "scan_regex",
+        "redos",
+        "pcre2",
+        "ecmascript",
+        "python_re",
+    ):
+        if forbidden in safety:
+            raise CoreContractError(
+                "semantic safety analysis violates pure target-neutral stage boundary: "
                 f"{forbidden}"
             )
 

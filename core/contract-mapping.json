@@ -8,7 +8,8 @@
             "rust_modules": [
                 "protocol::analysis",
                 "semantic_analysis",
-                "structural_analysis"
+                "structural_analysis",
+                "safety_analysis"
             ]
         },
         {
@@ -48,7 +49,8 @@
                 "normalization",
                 "semantic",
                 "semantic_analysis",
-                "structural_analysis"
+                "structural_analysis",
+                "safety_analysis"
             ]
         },
         {

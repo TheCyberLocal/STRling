@@ -13,7 +13,9 @@ specification-authored fixtures.
 Current executable scope is deliberately narrow: schema-backed domain types,
 validation, pure canonical Semantic IR normalization through
 `normalization::normalize`, foundational semantic facts through
-`semantic_analysis::analyze`, and structural facts through
-`structural_analysis::analyze_structure`. Parsing, safety verdicts,
-portability planning, lowering, emission, adapters, and tooling integrations
-belong to later contained tasks.
+`semantic_analysis::analyze`, structural facts through
+`structural_analysis::analyze_structure`, and structured target-neutral safety
+evidence through `safety_analysis::analyze_safety`. Parsing, user-facing safety
+diagnostics, exploitability or target-runtime verdicts, portability planning,
+lowering, emission, adapters, and tooling integrations belong to later
+contained tasks.

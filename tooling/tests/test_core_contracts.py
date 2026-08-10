@@ -74,7 +74,7 @@ class CoreSchemaMappingTests(unittest.TestCase):
             if entry["schema"] == "spec/contracts/1.0/analysis.schema.json"
         )
         analysis["rust_modules"] = ["protocol::analysis"]
-        with self.assertRaisesRegex(CoreContractError, "structural analysis"):
+        with self.assertRaisesRegex(CoreContractError, "semantic safety analysis"):
             validate_mapping_document(changed, ROOT)
 
 
@@ -215,6 +215,68 @@ class CoreArchitectureBoundaryTests(unittest.TestCase):
             with (
                 self.subTest(forbidden=forbidden),
                 self.assertRaisesRegex(CoreContractError, "structural analysis"),
+            ):
+                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_safety_analysis_boundary_and_prerequisites_are_required(self) -> None:
+        sources = source_texts()
+        sources["core/src/safety_analysis.rs"] = sources[
+            "core/src/safety_analysis.rs"
+        ].replace("pub fn analyze_safety(", "fn analyze_safety(")
+        with self.assertRaisesRegex(
+            CoreContractError, "semantic safety analysis stage boundary"
+        ):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+        sources = source_texts()
+        sources["core/src/safety_analysis.rs"] = sources[
+            "core/src/safety_analysis.rs"
+        ].replace("crate::semantic_analysis", "crate::missing_foundational_analysis")
+        with self.assertRaisesRegex(CoreContractError, "foundational semantic facts"):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+        sources = source_texts()
+        sources["core/src/safety_analysis.rs"] = sources[
+            "core/src/safety_analysis.rs"
+        ].replace("crate::structural_analysis", "crate::missing_structural_analysis")
+        with self.assertRaisesRegex(CoreContractError, "structural analysis facts"):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_safety_analysis_forbidden_dependencies_fail(self) -> None:
+        for forbidden in (
+            "use crate::normalization;",
+            "use crate::target::profile;",
+            "use crate::planner;",
+            "use crate::bindings;",
+            "use crate::portability;",
+            "use crate::emitter;",
+            "use crate::diagnostic;",
+            "use crate::protocol;",
+            "use crate::parser;",
+            "use crate::frontend;",
+            "use crate::lsp;",
+            "use crate::editor;",
+            "std::env::var",
+            "std::time::SystemTime",
+            "std::process::id",
+            "std::thread::current",
+            "thread_rng",
+            "target_profile",
+            "portability_plan",
+            "risk_severity",
+            "raw_source",
+            "source_text",
+            "regex_source",
+            "parse_regex",
+            "scan_regex",
+            "redos",
+            "pcre2",
+        ):
+            sources = source_texts()
+            sources["core/src/safety_analysis.rs"] += f"\n// {forbidden}\n"
+            with (
+                self.subTest(forbidden=forbidden),
+                self.assertRaisesRegex(CoreContractError, "semantic safety analysis"),
             ):
                 validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 
