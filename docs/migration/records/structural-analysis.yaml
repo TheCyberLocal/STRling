@@ -28,6 +28,7 @@ scope:
         - core/src/structural_analysis.rs
         - core/tests/structural_analysis.rs
         - core/tests/structural_length_progress.rs
+        - core/tests/structural_overlap.rs
         - docs/migration/structural-analysis.md
         - governance/change-control.json
     permitted_generated_changes: []
@@ -126,8 +127,19 @@ checkpoints:
             result: passed
             details: Checked-arithmetic overflow remains a structured foundational-analysis error. Rust formatting, warnings-denied Clippy, and all 92 kernel tests passed.
     - name: Structural overlap analysis
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Conservative symbolic overlap algebra
+            command: cargo test --manifest-path core/Cargo.toml --test structural_overlap
+            result: passed
+            details: Eleven focused tests cover equal and distinct literals, multibyte-safe scalar handling, intersecting and disjoint finite sets and ranges, positive and negative literal/set relations, wildcard inclusion, category and line-terminator uncertainty, nullable branches, nested wrappers, case-folding uncertainty, repetition/follow relationships, deterministic pair ordering, and configured complexity and depth limits.
+          - check: Relationship fact derivation
+            result: passed
+            details: Alternation nodes record every canonical branch-index pair; sequence nodes record nonzero repetitions against their immediate following expressions. Exact case-sensitive scalar and finite-range proofs produce Overlapping or Disjoint, while unsupported category, case-folding, line-terminator, and symbolic-leading semantics remain typed Unknown.
+          - check: Bounded algorithm and kernel regression
+            command: cargo fmt --manifest-path core/Cargo.toml --check && cargo clippy --manifest-path core/Cargo.toml --all-targets --all-features -- -D warnings && RUSTFLAGS=-Dwarnings cargo test --manifest-path core/Cargo.toml --all-targets
+            result: passed
+            details: More than 4096 relationships returns RelationshipLimitExceeded; more than 4096 term comparisons returns ComparisonLimitExceeded uncertainty. Formatting, warnings-denied Clippy, and all 103 kernel tests passed.
     - name: Property and soundness certification
       status: planned
       evidence: []
@@ -142,3 +154,5 @@ commits:
       subject: "docs(core): define structural analysis invariants"
     - sha: bc81aae524dd84d0e0e47103a3804d3653ac973f
       subject: "feat(core): analyze leading semantic consumption"
+    - sha: 3e4a45a41372ecc159e474a612693580d4014971
+      subject: "feat(core): classify semantic length and progress"

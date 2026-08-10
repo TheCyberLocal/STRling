@@ -8,7 +8,8 @@ use std::fmt;
 use serde::{Deserialize, Serialize};
 
 use crate::semantic::{
-    CharacterSetMember, LineTerminators, Node, RepetitionMaximum, SemanticProgram, UnicodeScalar,
+    CaseMatching, CharacterSetMember, LineTerminators, Node, RepetitionMaximum, SemanticProgram,
+    UnicodeScalar,
 };
 use crate::semantic_analysis::{
     semantic_program_identity, Consumption, MaximumConsumption, NodeFacts, Nullability,
@@ -26,6 +27,12 @@ pub const MAX_STRUCTURE_DEPTH: usize = MAX_ANALYSIS_DEPTH;
 /// crosses this deterministic bound.
 pub const MAX_LEADING_TERMS: usize = 256;
 
+/// Maximum pair relationships materialized for one structural node.
+pub const MAX_RELATIONSHIP_PAIRS: usize = 4_096;
+
+/// Maximum symbolic term comparisons used for one overlap decision.
+pub const MAX_OVERLAP_COMPARISONS: usize = 4_096;
+
 /// Stable categories for structural-analysis failures.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -38,6 +45,7 @@ pub enum StructuralAnalysisErrorCode {
     MissingFoundationalFact,
     UnexpectedFoundationalFact,
     FoundationalKindMismatch,
+    RelationshipLimitExceeded,
     AnalysisInvariant,
 }
 
@@ -223,12 +231,53 @@ pub struct RepetitionStructuralFacts {
     pub operand_progress: ProgressClassification,
 }
 
+/// Why exact leading-consumption overlap could not be decided.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum OverlapUnknownReason {
+    LeadingUnknown,
+    CaseFolding,
+    CharacterCategory,
+    LineTerminatorExclusion,
+    ComparisonLimitExceeded,
+}
+
+/// Conservative relation between two symbolic leading-consumption sets.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum OverlapRelation {
+    Disjoint,
+    Overlapping,
+    Unknown(OverlapUnknownReason),
+}
+
+/// One canonical pair of alternatives and their leading-consumption relation.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct AlternationBranchOverlap {
+    pub left_branch_index: usize,
+    pub left_node_id: NodeId,
+    pub right_branch_index: usize,
+    pub right_node_id: NodeId,
+    pub relation: OverlapRelation,
+}
+
+/// One repeated operand and its immediately following sequence expression.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RepetitionFollowOverlap {
+    pub repetition_index: usize,
+    pub repetition_node_id: NodeId,
+    pub operand_node_id: NodeId,
+    pub following_index: usize,
+    pub following_node_id: NodeId,
+    pub relation: OverlapRelation,
+}
+
 /// Structural facts associated with one reachable semantic node.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct NodeStructuralFacts {
     pub leading_consumption: LeadingConsumption,
     pub length: LengthClassification,
     pub repetition: Option<RepetitionStructuralFacts>,
+    pub alternation_branch_overlaps: Vec<AlternationBranchOverlap>,
+    pub repetition_follow_overlaps: Vec<RepetitionFollowOverlap>,
 }
 
 /// Complete deterministic structural fact store for one canonical program.
@@ -277,6 +326,7 @@ pub fn analyze_structure(
 
     let node_facts = StructureAnalyzer {
         foundational,
+        case_matching: input.case_matching,
         node_facts: BTreeMap::new(),
     }
     .analyze(&input.root)?;
@@ -300,6 +350,7 @@ pub fn analyze_structure(
 
 struct StructureAnalyzer<'a> {
     foundational: &'a SemanticFacts,
+    case_matching: CaseMatching,
     node_facts: BTreeMap<NodeId, NodeStructuralFacts>,
 }
 
@@ -422,6 +473,14 @@ impl StructureAnalyzer<'_> {
             }
             _ => None,
         };
+        let alternation_branch_overlaps = match node {
+            Node::Alternation { branches, .. } => self.alternation_relationships(branches, path)?,
+            _ => Vec::new(),
+        };
+        let repetition_follow_overlaps = match node {
+            Node::Sequence { items, .. } => self.repetition_follow_relationships(items, path)?,
+            _ => Vec::new(),
+        };
         if self
             .node_facts
             .insert(
@@ -430,6 +489,8 @@ impl StructureAnalyzer<'_> {
                     leading_consumption: leading.clone(),
                     length,
                     repetition,
+                    alternation_branch_overlaps,
+                    repetition_follow_overlaps,
                 },
             )
             .is_some()
@@ -443,6 +504,98 @@ impl StructureAnalyzer<'_> {
             ));
         }
         Ok(leading)
+    }
+
+    fn alternation_relationships(
+        &self,
+        branches: &[Node],
+        path: &str,
+    ) -> Result<Vec<AlternationBranchOverlap>, StructuralAnalysisErrors> {
+        ensure_pair_limit(branches.len(), path, "alternation branch")?;
+        let mut relationships = Vec::new();
+        for left_index in 0..branches.len() {
+            for right_index in (left_index + 1)..branches.len() {
+                let left = &branches[left_index];
+                let right = &branches[right_index];
+                let left_facts = self
+                    .node_facts
+                    .get(left.node_id())
+                    .ok_or_else(|| invariant(path, "alternation child lacks structural facts"))?;
+                let right_facts = self
+                    .node_facts
+                    .get(right.node_id())
+                    .ok_or_else(|| invariant(path, "alternation child lacks structural facts"))?;
+                relationships.push(AlternationBranchOverlap {
+                    left_branch_index: left_index,
+                    left_node_id: left.node_id().clone(),
+                    right_branch_index: right_index,
+                    right_node_id: right.node_id().clone(),
+                    relation: leading_overlap(
+                        &left_facts.leading_consumption,
+                        &right_facts.leading_consumption,
+                        self.case_matching,
+                    ),
+                });
+            }
+        }
+        Ok(relationships)
+    }
+
+    fn repetition_follow_relationships(
+        &self,
+        items: &[Node],
+        path: &str,
+    ) -> Result<Vec<RepetitionFollowOverlap>, StructuralAnalysisErrors> {
+        let relationship_count = items
+            .windows(2)
+            .filter(|pair| {
+                matches!(
+                    &pair[0],
+                    Node::Repeat {
+                        max,
+                        ..
+                    } if *max != RepetitionMaximum::Bounded(0)
+                )
+            })
+            .count();
+        if relationship_count > MAX_RELATIONSHIP_PAIRS {
+            return Err(relationship_limit(path, "repetition/follow"));
+        }
+
+        let mut relationships = Vec::with_capacity(relationship_count);
+        for (repetition_index, pair) in items.windows(2).enumerate() {
+            let Node::Repeat {
+                node_id, body, max, ..
+            } = &pair[0]
+            else {
+                continue;
+            };
+            if *max == RepetitionMaximum::Bounded(0) {
+                continue;
+            }
+            let following = &pair[1];
+            let operand_facts = self
+                .node_facts
+                .get(body.node_id())
+                .ok_or_else(|| invariant(path, "repetition operand lacks structural facts"))?;
+            let following_facts = self
+                .node_facts
+                .get(following.node_id())
+                .ok_or_else(|| invariant(path, "following expression lacks structural facts"))?;
+            relationships.push(RepetitionFollowOverlap {
+                repetition_index,
+                repetition_node_id: node_id.clone(),
+                operand_node_id: body.node_id().clone(),
+                following_index: repetition_index + 1,
+                following_node_id: following.node_id().clone(),
+                relation: leading_overlap(
+                    &operand_facts.leading_consumption,
+                    &following_facts.leading_consumption,
+                    self.case_matching,
+                ),
+            });
+        }
+        Ok(relationships)
     }
 
     fn sequence(
@@ -491,6 +644,290 @@ impl StructureAnalyzer<'_> {
         }
         Ok(())
     }
+}
+
+/// Compare two symbolic leading-consumption unions conservatively.
+///
+/// `Disjoint` is returned only when every represented pair is provably
+/// disjoint under the canonical program's case-matching semantics.
+#[must_use]
+pub fn leading_overlap(
+    left: &LeadingConsumption,
+    right: &LeadingConsumption,
+    case_matching: CaseMatching,
+) -> OverlapRelation {
+    let mut comparisons = 0_usize;
+    let mut unknown: Option<OverlapUnknownReason> = None;
+    for left_term in left.iter() {
+        for right_term in right.iter() {
+            comparisons = comparisons.saturating_add(1);
+            if comparisons > MAX_OVERLAP_COMPARISONS {
+                return OverlapRelation::Unknown(OverlapUnknownReason::ComparisonLimitExceeded);
+            }
+            match term_overlap(left_term, right_term, case_matching) {
+                OverlapRelation::Overlapping => return OverlapRelation::Overlapping,
+                OverlapRelation::Unknown(reason) => {
+                    unknown = Some(unknown.map_or(reason, |current| current.min(reason)));
+                }
+                OverlapRelation::Disjoint => {}
+            }
+        }
+    }
+    unknown.map_or(OverlapRelation::Disjoint, OverlapRelation::Unknown)
+}
+
+fn term_overlap(
+    left: &LeadingTerm,
+    right: &LeadingTerm,
+    case_matching: CaseMatching,
+) -> OverlapRelation {
+    match (left, right) {
+        (LeadingTerm::Empty, LeadingTerm::Empty) => OverlapRelation::Overlapping,
+        (LeadingTerm::Unknown(_), _) | (_, LeadingTerm::Unknown(_)) => {
+            OverlapRelation::Unknown(OverlapUnknownReason::LeadingUnknown)
+        }
+        (LeadingTerm::Empty, _) | (_, LeadingTerm::Empty) => OverlapRelation::Disjoint,
+        (LeadingTerm::Scalar(left), LeadingTerm::Scalar(right)) => {
+            if left == right {
+                OverlapRelation::Overlapping
+            } else if case_matching == CaseMatching::Sensitive {
+                OverlapRelation::Disjoint
+            } else {
+                OverlapRelation::Unknown(OverlapUnknownReason::CaseFolding)
+            }
+        }
+        (LeadingTerm::Scalar(value), LeadingTerm::CharacterSet { negated, members })
+        | (LeadingTerm::CharacterSet { negated, members }, LeadingTerm::Scalar(value)) => {
+            scalar_set_overlap(*value, *negated, members, case_matching)
+        }
+        (
+            LeadingTerm::CharacterSet {
+                negated: left_negated,
+                members: left_members,
+            },
+            LeadingTerm::CharacterSet {
+                negated: right_negated,
+                members: right_members,
+            },
+        ) => set_overlap(
+            *left_negated,
+            left_members,
+            *right_negated,
+            right_members,
+            case_matching,
+        ),
+        (LeadingTerm::Wildcard { .. }, LeadingTerm::Wildcard { .. }) => {
+            OverlapRelation::Overlapping
+        }
+        (LeadingTerm::Wildcard { line_terminators }, LeadingTerm::Scalar(_))
+        | (LeadingTerm::Scalar(_), LeadingTerm::Wildcard { line_terminators }) => {
+            if *line_terminators == LineTerminators::Include {
+                OverlapRelation::Overlapping
+            } else {
+                OverlapRelation::Unknown(OverlapUnknownReason::LineTerminatorExclusion)
+            }
+        }
+        (
+            LeadingTerm::Wildcard { line_terminators },
+            LeadingTerm::CharacterSet { negated, members },
+        )
+        | (
+            LeadingTerm::CharacterSet { negated, members },
+            LeadingTerm::Wildcard { line_terminators },
+        ) => wildcard_set_overlap(*line_terminators, *negated, members),
+    }
+}
+
+#[derive(Debug)]
+struct CharacterSetModel {
+    intervals: Vec<(u32, u32)>,
+    has_symbolic_members: bool,
+}
+
+fn scalar_set_overlap(
+    value: UnicodeScalar,
+    negated: bool,
+    members: &[CharacterSetMember],
+    case_matching: CaseMatching,
+) -> OverlapRelation {
+    let model = character_set_model(members);
+    let contained = interval_contains(&model.intervals, u32::from(value.get()));
+    if !negated && contained || negated && !contained && !model.has_symbolic_members {
+        if contained || case_matching == CaseMatching::Sensitive {
+            OverlapRelation::Overlapping
+        } else {
+            OverlapRelation::Unknown(OverlapUnknownReason::CaseFolding)
+        }
+    } else if negated && contained {
+        OverlapRelation::Disjoint
+    } else if model.has_symbolic_members {
+        OverlapRelation::Unknown(OverlapUnknownReason::CharacterCategory)
+    } else if case_matching == CaseMatching::Sensitive {
+        OverlapRelation::Disjoint
+    } else {
+        OverlapRelation::Unknown(OverlapUnknownReason::CaseFolding)
+    }
+}
+
+fn wildcard_set_overlap(
+    line_terminators: LineTerminators,
+    negated: bool,
+    members: &[CharacterSetMember],
+) -> OverlapRelation {
+    if line_terminators == LineTerminators::Exclude {
+        return OverlapRelation::Unknown(OverlapUnknownReason::LineTerminatorExclusion);
+    }
+    let model = character_set_model(members);
+    if !negated && !model.intervals.is_empty() {
+        OverlapRelation::Overlapping
+    } else {
+        OverlapRelation::Unknown(OverlapUnknownReason::CharacterCategory)
+    }
+}
+
+fn set_overlap(
+    left_negated: bool,
+    left_members: &[CharacterSetMember],
+    right_negated: bool,
+    right_members: &[CharacterSetMember],
+    case_matching: CaseMatching,
+) -> OverlapRelation {
+    let left = character_set_model(left_members);
+    let right = character_set_model(right_members);
+    match (left_negated, right_negated) {
+        (false, false) => {
+            if intervals_intersect(&left.intervals, &right.intervals) {
+                OverlapRelation::Overlapping
+            } else if left.has_symbolic_members || right.has_symbolic_members {
+                OverlapRelation::Unknown(OverlapUnknownReason::CharacterCategory)
+            } else if case_matching == CaseMatching::Sensitive {
+                OverlapRelation::Disjoint
+            } else {
+                OverlapRelation::Unknown(OverlapUnknownReason::CaseFolding)
+            }
+        }
+        (false, true) => positive_negative_overlap(&left, &right, case_matching),
+        (true, false) => positive_negative_overlap(&right, &left, case_matching),
+        (true, true) => OverlapRelation::Unknown(OverlapUnknownReason::CharacterCategory),
+    }
+}
+
+fn positive_negative_overlap(
+    positive: &CharacterSetModel,
+    excluded: &CharacterSetModel,
+    case_matching: CaseMatching,
+) -> OverlapRelation {
+    if !excluded.has_symbolic_members && !intervals_subset(&positive.intervals, &excluded.intervals)
+    {
+        if case_matching == CaseMatching::Sensitive {
+            return OverlapRelation::Overlapping;
+        }
+        return OverlapRelation::Unknown(OverlapUnknownReason::CaseFolding);
+    }
+    if !positive.has_symbolic_members && intervals_subset(&positive.intervals, &excluded.intervals)
+    {
+        return OverlapRelation::Disjoint;
+    }
+    OverlapRelation::Unknown(OverlapUnknownReason::CharacterCategory)
+}
+
+fn character_set_model(members: &[CharacterSetMember]) -> CharacterSetModel {
+    let mut intervals = Vec::new();
+    let mut has_symbolic_members = false;
+    for member in members {
+        match member {
+            CharacterSetMember::Literal { value } => {
+                let value = u32::from(value.get());
+                intervals.push((value, value));
+            }
+            CharacterSetMember::Range { start, end } => {
+                intervals.push((u32::from(start.get()), u32::from(end.get())));
+            }
+            CharacterSetMember::Builtin { .. } | CharacterSetMember::UnicodeProperty { .. } => {
+                has_symbolic_members = true;
+            }
+        }
+    }
+    intervals.sort_unstable();
+    let mut merged: Vec<(u32, u32)> = Vec::with_capacity(intervals.len());
+    for (start, end) in intervals {
+        match merged.last_mut() {
+            Some((_, previous_end)) if start <= previous_end.saturating_add(1) => {
+                *previous_end = (*previous_end).max(end);
+            }
+            _ => merged.push((start, end)),
+        }
+    }
+    CharacterSetModel {
+        intervals: merged,
+        has_symbolic_members,
+    }
+}
+
+fn interval_contains(intervals: &[(u32, u32)], value: u32) -> bool {
+    intervals
+        .iter()
+        .any(|(start, end)| *start <= value && value <= *end)
+}
+
+fn intervals_intersect(left: &[(u32, u32)], right: &[(u32, u32)]) -> bool {
+    let mut left_index = 0;
+    let mut right_index = 0;
+    while left_index < left.len() && right_index < right.len() {
+        let left_interval = left[left_index];
+        let right_interval = right[right_index];
+        if left_interval.0 <= right_interval.1 && right_interval.0 <= left_interval.1 {
+            return true;
+        }
+        if left_interval.1 < right_interval.1 {
+            left_index += 1;
+        } else {
+            right_index += 1;
+        }
+    }
+    false
+}
+
+fn intervals_subset(subset: &[(u32, u32)], superset: &[(u32, u32)]) -> bool {
+    let mut superset_index = 0;
+    for (subset_start, subset_end) in subset {
+        while superset_index < superset.len() && superset[superset_index].1 < *subset_start {
+            superset_index += 1;
+        }
+        if superset_index == superset.len()
+            || superset[superset_index].0 > *subset_start
+            || superset[superset_index].1 < *subset_end
+        {
+            return false;
+        }
+    }
+    true
+}
+
+fn ensure_pair_limit(
+    item_count: usize,
+    path: &str,
+    relationship: &str,
+) -> Result<(), StructuralAnalysisErrors> {
+    let pair_count = item_count
+        .checked_mul(item_count.saturating_sub(1))
+        .map(|value| value / 2)
+        .ok_or_else(|| relationship_limit(path, relationship))?;
+    if pair_count > MAX_RELATIONSHIP_PAIRS {
+        Err(relationship_limit(path, relationship))
+    } else {
+        Ok(())
+    }
+}
+
+fn relationship_limit(path: &str, relationship: &str) -> StructuralAnalysisErrors {
+    StructuralAnalysisErrors::single(StructuralAnalysisError::new(
+        StructuralAnalysisErrorCode::RelationshipLimitExceeded,
+        path,
+        format!(
+            "{relationship} relationship count exceeds deterministic limit {MAX_RELATIONSHIP_PAIRS}"
+        ),
+    ))
 }
 
 fn classify_length(
