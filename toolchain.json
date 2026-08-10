@@ -44,6 +44,12 @@
                 "aggregates": ["check", "certify"]
             },
             {
+                "operation": "canonical_contracts_check",
+                "component": "repository",
+                "command": ["python3", "tooling/contract_validation.py"],
+                "aggregates": ["check", "certify"]
+            },
+            {
                 "operation": "contracts_check",
                 "component": "repository",
                 "command": [

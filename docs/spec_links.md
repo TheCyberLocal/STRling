@@ -15,6 +15,15 @@ ratification rules.
 
 ## Current material
 
+-   [`Canonical compiler contracts`](../spec/contracts/README.md) — normative
+    serialized shapes and cross-contract invariants for source, Semantic IR,
+    diagnostics, compiler protocol, profiles, artifacts, and conformance.
+-   [`Contract certification`](../spec/contracts/CERTIFICATION.md) —
+    cross-family identity, ordering, versioning, and boundary certification.
+-   [`Specification-authored conformance`](../spec/conformance/README.md) —
+    draft seed cases and content-addressed authority manifest.
+-   [`Target profiles`](../spec/targets/profiles/) — version-aware,
+    enumerated-scope engine capability facts.
 -   [`Regex frontend grammar`](../spec/grammar/dsl.ebnf) — transitional
     compatibility/import syntax, not the final Semantic STRling DSL.
 -   [`Regex frontend semantics`](../spec/grammar/semantics.md) — transitional

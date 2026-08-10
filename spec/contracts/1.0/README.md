@@ -101,3 +101,23 @@ references. [`examples/semantic-ir/`](examples/semantic-ir/) proves every node
 kind, position kind, lookaround combination, logical capture, UTF-8 attribution,
 and source-less construction. [`invalid/`](invalid/) contains controlled test
 inputs, not conformance cases or language behavior definitions.
+
+## Protocol, targets, and conformance
+
+[`PROTOCOL.md`](PROTOCOL.md) governs diagnostics, keyed analysis, portability,
+and deterministic compile request/result behavior. [`TARGETS.md`](TARGETS.md)
+governs version-aware profiles, the three portability statuses, separate engine
+options, source maps, and TargetArtifact. The
+[`specification-authored conformance model`](../../conformance/README.md)
+governs case ownership and content-addressed authority.
+
+All eleven schemas use the same contract version. Source dialect, semantic
+specification, compiler, engine/runtime, profile revision, and manifest
+authority identities remain separate and explicit. Unknown fields are rejected;
+a producer must not emit a newer contract version to a consumer that has not
+declared support for it.
+
+Authored positive and controlled invalid objects cover every family. The
+repository hardgate additionally verifies canonical JSON fingerprints, graph
+references, diagnostic and array ordering, UTF-8 boundaries, profile references,
+compile exchanges, and conformance-manifest membership.

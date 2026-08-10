@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
-import json
 import hashlib
+import json
+import re
 from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from typing import Any
@@ -147,6 +148,93 @@ class ContractSuite:
             self._validate_conformance_case(value)
         elif schema_name == "conformance-manifest.schema.json":
             self._validate_conformance_manifest(value)
+
+    def validate_suite_structure(self) -> int:
+        """Certify suite-wide ownership, boundary, version, and link invariants."""
+        schema_ids = [schema["$id"] for schema in self.schemas.values()]
+        if len(schema_ids) != len(set(schema_ids)):
+            raise ContractValidationError("canonical schema IDs must be unique")
+        for name, schema in self.schemas.items():
+            expected_id = f"https://strling.dev/contracts/1.0/{name}"
+            if schema["$id"] != expected_id:
+                raise ContractValidationError(
+                    f"{name}: schema ID must be {expected_id}"
+                )
+            if schema.get("additionalProperties") is not False:
+                raise ContractValidationError(
+                    f"{name}: canonical root objects must reject unknown fields"
+                )
+
+        source_contract_version = self.schemas["source.schema.json"]["$defs"][
+            "ContractVersion"
+        ]
+        if source_contract_version != {
+            "type": "string",
+            "const": "1.0.0",
+        }:
+            raise ContractValidationError(
+                "source schema must own the suite contract version"
+            )
+        contract_version_reference = "source.schema.json#/$defs/ContractVersion"
+        for name, schema in self.schemas.items():
+            if name == "source.schema.json":
+                continue
+            if contract_version_reference not in json.dumps(schema, sort_keys=True):
+                raise ContractValidationError(
+                    f"{name}: contract_version must reuse the source definition"
+                )
+
+        semantic_text = json.dumps(
+            self.schemas["semantic-ir.schema.json"], sort_keys=True
+        ).lower()
+        for forbidden in (
+            "pcre2",
+            "ecmascript",
+            "python_re",
+            "target_profile",
+            "engine_options",
+            "emitted_pattern",
+        ):
+            if forbidden in semantic_text:
+                raise ContractValidationError(
+                    f"Semantic IR contains target-specific marker {forbidden}"
+                )
+        target_text = json.dumps(
+            {
+                "profile": self.schemas["target-profile.schema.json"],
+                "artifact": self.schemas["target-artifact.schema.json"],
+            },
+            sort_keys=True,
+        ).lower()
+        for forbidden in ("frontendidentity", "dialect_version", "parse_ast"):
+            if forbidden in target_text:
+                raise ContractValidationError(
+                    f"target contracts contain frontend marker {forbidden}"
+                )
+
+        documents = {
+            ROOT / "spec" / "README.md",
+            ROOT / "docs" / "spec_links.md",
+            ROOT / "spec" / "conformance" / "README.md",
+            *sorted((ROOT / "spec" / "contracts").glob("*.md")),
+            *sorted(CONTRACT_ROOT.glob("*.md")),
+        }
+        link_pattern = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+        for document in sorted(documents):
+            text = document.read_text(encoding="utf-8")
+            for raw_target in link_pattern.findall(text):
+                target = raw_target.strip().strip("<>")
+                if target.startswith(("http://", "https://", "mailto:", "#")):
+                    continue
+                relative_target = target.split("#", 1)[0]
+                if not relative_target:
+                    continue
+                resolved = (document.parent / relative_target).resolve()
+                if not resolved.exists():
+                    raise ContractValidationError(
+                        f"{document.relative_to(ROOT)}: unresolved link {target}"
+                    )
+        return len(documents)
 
     def validate_positive_examples(self) -> int:
         """Validate every authored positive source and Semantic IR example."""
@@ -1182,11 +1270,13 @@ def iter_nodes(root: Mapping[str, Any]) -> Iterator[Mapping[str, Any]]:
 
 def main() -> int:
     suite = ContractSuite()
+    document_count = suite.validate_suite_structure()
     positive_count = suite.validate_positive_examples()
     negative_count = suite.validate_negative_examples()
     print(
         "CANONICAL_CONTRACTS status=passed "
-        f"schemas={len(suite.schemas)} positive={positive_count} negative={negative_count}"
+        f"schemas={len(suite.schemas)} positive={positive_count} "
+        f"negative={negative_count} documents={document_count}"
     )
     return 0
 

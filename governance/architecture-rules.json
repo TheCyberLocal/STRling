@@ -26,6 +26,7 @@
                 "sources": [
                     "tooling/architecture_fitness.py",
                     "tooling/contract_declarations.py",
+                    "tooling/contract_validation.py",
                     "tooling/formatting.py",
                     "tooling/generated_artifacts.py",
                     "tooling/governance.py",
@@ -138,8 +139,11 @@
             "status": "enforced",
             "kind": "schema-reference-boundary",
             "configuration": {
-                "sources": ["spec/schema/*.json"],
-                "allowed_reference_roots": ["spec/schema"]
+                "sources": [
+                    "spec/schema/*.json",
+                    "spec/contracts/**/*.schema.json"
+                ],
+                "allowed_reference_roots": ["spec/schema", "spec/contracts"]
             }
         },
         {

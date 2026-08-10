@@ -23,6 +23,9 @@ class CanonicalContractTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.suite = ContractSuite()
 
+    def test_suite_structure_and_local_links(self) -> None:
+        self.assertEqual(9, self.suite.validate_suite_structure())
+
     def test_all_schemas_are_valid_draft_2020_12(self) -> None:
         self.assertEqual(
             {

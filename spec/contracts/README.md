@@ -9,7 +9,8 @@ shape and cross-contract invariants. They do not ratify language semantics or
 make the unratified Semantic Specification 1.0 draft normative.
 
 The first contract suite has schema version `1.0.0`. Its schemas live under
-[`1.0/`](1.0/) as they are established. Semantic specification versions,
+[`1.0/`](1.0/) and are certified together by
+[`CERTIFICATION.md`](CERTIFICATION.md). Semantic specification versions,
 compiler releases, source-dialect versions, target-profile versions, and this
 schema version are independent identities.
 
@@ -41,16 +42,25 @@ analysis, planning, lowering, or emission.
 
 ## Contract families
 
-The suite defines these families without selecting an RPC, FFI, WASM, network,
-or in-process transport:
+The suite defines these machine-readable families without selecting an RPC, FFI,
+WASM, network, or in-process transport:
 
--   source identity, provenance, and spans;
--   target-neutral Semantic IR and derived-analysis attachment;
--   structured diagnostics;
--   compile request and result;
--   version-aware target profiles and portability decisions;
--   deterministic target artifacts; and
--   specification-authored conformance cases.
+| Family                                     | Canonical schema                                                                                                                               |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source identity, provenance, and spans     | [`source.schema.json`](1.0/source.schema.json)                                                                                                 |
+| Target-neutral Semantic IR                 | [`semantic-ir.schema.json`](1.0/semantic-ir.schema.json)                                                                                       |
+| Derived target-neutral analysis            | [`analysis.schema.json`](1.0/analysis.schema.json)                                                                                             |
+| Structured diagnostics                     | [`diagnostic.schema.json`](1.0/diagnostic.schema.json)                                                                                         |
+| Compile request/result                     | [`compile-request.schema.json`](1.0/compile-request.schema.json), [`compile-result.schema.json`](1.0/compile-result.schema.json)               |
+| Portability decisions                      | [`portability.schema.json`](1.0/portability.schema.json)                                                                                       |
+| Version-aware target profiles              | [`target-profile.schema.json`](1.0/target-profile.schema.json)                                                                                 |
+| Deterministic target artifacts             | [`target-artifact.schema.json`](1.0/target-artifact.schema.json)                                                                               |
+| Specification-authored cases and authority | [`conformance-case.schema.json`](1.0/conformance-case.schema.json), [`conformance-manifest.schema.json`](1.0/conformance-manifest.schema.json) |
+
+Run `python3 tooling/contract_validation.py` for schema, authored example,
+profile, conformance, deterministic serialization, cross-reference, and
+controlled-negative validation. This command is a mandatory `check` and
+`certify` integrity hardgate.
 
 Legacy schemas under [`../schema/`](../schema/) retain only their existing
 compatibility scopes. They are not aliases for these canonical contracts.
