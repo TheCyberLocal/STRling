@@ -1,24 +1,26 @@
 //! Foundational target-neutral facts derived from canonical Semantic IR.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
 use crate::semantic::{Node, SemanticProgram};
-use crate::source::{ContractVersion, NodeId, SpecificationVersion};
+use crate::source::{CaptureId, ContractVersion, NodeId, SpecificationVersion};
 use crate::validation::{Validate, ValidationCode, ValidationErrors};
 
+mod capture;
 mod consumption;
 
+pub use capture::{BackreferenceResolution, CaptureDefinition};
 pub use consumption::{Consumption, MaximumConsumption, Nullability};
 
 /// Maximum accepted semantic nesting before recursive contract validation.
 ///
 /// The preflight walk itself is iterative, so externally supplied pathological
 /// structures fail predictably rather than exhausting the process stack.
-pub const MAX_ANALYSIS_DEPTH: usize = 256;
+pub const MAX_ANALYSIS_DEPTH: usize = 128;
 
 /// Stable categories for semantic-analysis failures.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
@@ -120,6 +122,11 @@ pub struct NodeFacts {
     pub minimum_consumption: u64,
     pub maximum_consumption: MaximumConsumption,
     pub consumption: Consumption,
+    pub captures_defined: BTreeSet<CaptureId>,
+    pub captures_referenced: BTreeSet<CaptureId>,
+    pub backreferences_used: BTreeSet<NodeId>,
+    pub capture: Option<CaptureDefinition>,
+    pub backreference: Option<BackreferenceResolution>,
 }
 
 /// Complete deterministic fact store for one canonical semantic program.
@@ -131,6 +138,8 @@ pub struct SemanticFacts {
     pub contract_version: ContractVersion,
     pub specification_version: SpecificationVersion,
     node_facts: BTreeMap<NodeId, NodeFacts>,
+    capture_definitions: BTreeMap<CaptureId, CaptureDefinition>,
+    backreferences: BTreeMap<NodeId, BackreferenceResolution>,
 }
 
 impl SemanticFacts {
@@ -143,6 +152,30 @@ impl SemanticFacts {
     /// Iterate in canonical node-identity order.
     pub fn iter(&self) -> impl ExactSizeIterator<Item = (&NodeId, &NodeFacts)> {
         self.node_facts.iter()
+    }
+
+    #[must_use]
+    pub fn capture_definition(&self, capture_id: &CaptureId) -> Option<&CaptureDefinition> {
+        self.capture_definitions.get(capture_id)
+    }
+
+    /// Iterate logical capture declarations in canonical identity order.
+    pub fn capture_definitions(
+        &self,
+    ) -> impl ExactSizeIterator<Item = (&CaptureId, &CaptureDefinition)> {
+        self.capture_definitions.iter()
+    }
+
+    #[must_use]
+    pub fn backreference(&self, node_id: &NodeId) -> Option<&BackreferenceResolution> {
+        self.backreferences.get(node_id)
+    }
+
+    /// Iterate resolved backreferences in canonical node-identity order.
+    pub fn backreferences(
+        &self,
+    ) -> impl ExactSizeIterator<Item = (&NodeId, &BackreferenceResolution)> {
+        self.backreferences.iter()
     }
 
     #[must_use]
@@ -167,10 +200,18 @@ pub fn analyze(input: &SemanticProgram) -> Result<SemanticFacts, SemanticAnalysi
         .map_err(SemanticAnalysisErrors::from_validation)?;
 
     let consumption_facts = consumption::analyze_consumption(input)?;
+    let capture_analysis = capture::analyze_captures(input)?;
     let mut node_facts = BTreeMap::new();
     let mut pending = vec![&input.root];
     while let Some(node) = pending.pop() {
         let node_id = node.node_id().clone();
+        let capture = capture_analysis.node_facts.get(&node_id).ok_or_else(|| {
+            SemanticAnalysisErrors::single(SemanticAnalysisError::new(
+                SemanticAnalysisErrorCode::AnalysisInvariant,
+                "$.root",
+                format!("capture analysis omitted reachable node: {node_id:?}"),
+            ))
+        })?;
         if node_facts
             .insert(
                 node_id.clone(),
@@ -181,6 +222,11 @@ pub fn analyze(input: &SemanticProgram) -> Result<SemanticFacts, SemanticAnalysi
                         minimum_consumption: consumption.minimum,
                         maximum_consumption: consumption.maximum,
                         consumption: consumption.consumption,
+                        captures_defined: capture.captures_defined.clone(),
+                        captures_referenced: capture.captures_referenced.clone(),
+                        backreferences_used: capture.backreferences_used.clone(),
+                        capture: capture.capture.clone(),
+                        backreference: capture.backreference.clone(),
                     },
                     None => {
                         return Err(SemanticAnalysisErrors::single(SemanticAnalysisError::new(
@@ -214,6 +260,8 @@ pub fn analyze(input: &SemanticProgram) -> Result<SemanticFacts, SemanticAnalysi
         contract_version: input.contract_version,
         specification_version: input.specification_version.clone(),
         node_facts,
+        capture_definitions: capture_analysis.definitions,
+        backreferences: capture_analysis.backreferences,
     })
 }
 
