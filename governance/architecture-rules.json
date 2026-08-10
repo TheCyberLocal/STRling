@@ -183,8 +183,8 @@
             "configuration": {
                 "tracked_paths": ["bindings/**"]
             },
-            "rationale": "No canonical compiler core exists yet and final-state enforcement would reject every current binding.",
-            "activation_condition": "Activate per binding only after canonical-core implementation, adapter migration, and behavior-preservation certification."
+            "rationale": "The canonical kernel domain now exists, but no binding has migrated to an executable canonical compiler pipeline; final-state enforcement would reject every current binding.",
+            "activation_condition": "Activate per binding only after an executable canonical pipeline, adapter migration, and behavior-preservation certification."
         }
     ]
 }

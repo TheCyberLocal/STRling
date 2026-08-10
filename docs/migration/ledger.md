@@ -786,3 +786,107 @@ TypeScript compatibility baseline of 19 suites / 963 tests passed.
 The next task may establish the canonical Rust kernel skeleton and schema-backed
 domain types for contract suite `1.0.0`. It must not yet migrate Semantic
 STRling, Simply, regex import, target planning/emission, bindings, or tooling.
+
+## Canonical Rust kernel and schema-backed domain types
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `7131db85ee0434795669cc6d6a8032d606588c5a`
+-   Contract suite: `1.0.0`
+-   Kernel crate: `core/` (`strling-kernel`)
+-   Behavior change: No existing STRling runtime/compiler semantics
+    intentionally changed.
+-   Completion record:
+    [`canonical-rust-kernel.yaml`](records/canonical-rust-kernel.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                                        | Result | Commit                                                                                 | Accomplishment                                                                                         |
+| ------------------------------------------------- | ------ | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Kernel boundary and dependency contract           | Passed | `4eb0c4ec22b7ce750f8ac0caa09ea361ce9ac812`                                             | Standalone canonical kernel, minimal dependencies, governed quality component, and architecture rule   |
+| Source, identity, and semantic domain types       | Passed | `3695415407605266eabd42d16b189ac0e32baad2`                                             | UTF-8 provenance, opaque identities, complete target-neutral Semantic IR, and structural validation    |
+| Diagnostics and compiler protocol types           | Passed | `582c46cd6f129f82839e577d16e02ffd80738f1a`                                             | Structured diagnostics, deterministic requests/results, partial-result rules, and exchange validation  |
+| Target profile and artifact domain types          | Passed | `db9f00b532550f8775ae9e865bc6d1e08ff8b1cf`                                             | Version-aware typed capabilities, immutable profiles, exact portability, and separated TargetArtifact  |
+| Cross-domain validation and fixture certification | Passed | `6e0edd1546e98f082e9b8d204520d7f3a2e8ffa0`                                             | Conformance ownership, all 62 fixture references, exact schema mapping, and controlled drift rejection |
+| Repository hardgate integration                   | Passed | `c99f1f8243a605db79be477593a577ffba75e509`, `81394827952b6951e6488ca5cb6552f4e13f3524` | Mandatory mapping guard, kernel quality gates, source hygiene exception, full check and certify passes |
+| Completion and compiler-pipeline readiness        | Passed | Recorded by the readiness commit                                                       | Architecture, domains, invariants, unchanged behavior, transitions, and contained next task recorded   |
+
+### Kernel architecture
+
+`core/` is a standalone non-published Rust library and the reference
+implementation of the certified contracts, never their authority. Its public
+boundary exposes only typed domain and validation modules:
+
+-   `source` owns identities, contract/specification associations, frontend and
+    dialect identity, exact inline or digest-pinned content, provenance,
+    source origins, and half-open UTF-8 byte spans.
+-   `semantic` owns the target-neutral Semantic IR graph, opaque node and
+    logical capture identities, character/repetition/assertion semantics, and
+    normalized-form precondition validation without a normalization algorithm.
+-   `diagnostic` owns stable diagnostic values, locations, advice, fixes, and
+    contract-defined ordering independently of English message identity.
+-   `protocol` owns compiler request/result, output selection, structured
+    failure, partial semantics, keyed analysis results, and cross-envelope
+    validation without executing compiler phases.
+-   `target` owns engine/runtime versions, immutable profiles, typed capability
+    constraints, the exact portability vocabulary, requirements, mappings, and
+    deterministic TargetArtifact values without planning or emission.
+-   `conformance` owns specification-authored case and manifest types; and
+    `validation` owns structured, non-panicking external validation errors.
+
+Runtime dependencies are limited to Serde/serde_json for contract
+serialization and SHA-256 for exact canonical fingerprints. Architecture
+fitness and mapping checks prohibit dependencies on bindings, CLI/editor
+tooling, filesystem/network semantics, or implementation-generated fixtures.
+
+### Domain and contract certification
+
+The kernel preserves all required-versus-optional fields, closed objects,
+tagged unions, enum spellings, nullable semantics, deterministic ordering, and
+unknown-field rejection from contract suite `1.0.0`. External values validate
+explicitly rather than being repaired or causing panics. Logical captures never
+use target capture numbering, semantic locations remain attribution rather than
+semantic equality, and target syntax and derived analyses cannot enter the
+Semantic IR node union.
+
+All 42 Rust tests passed. They cover every ratified semantic node, source-less
+construction, multibyte Unicode byte boundaries, duplicate or unresolved
+identities, malformed repetition bounds, diagnostic ordering, request/result
+state combinations, partial results, multiple versions of the same engine,
+typed constraints, exact profile fingerprints, pattern/options separation,
+profile-aware artifacts, conformance ownership, and both JSON-to-Rust-to-JSON
+and Rust-to-JSON-to-Rust structural equivalence.
+
+The mandatory mapping guard pins all 11 normative schemas and accounts for all
+62 canonical fixture objects: 29 positive and 33 controlled-invalid. Six
+focused controlled tests prove incompatible schema drift, missing mappings,
+dependency expansion, filesystem/network/binding leakage, target syntax in
+Semantic IR, and embedded derived analysis fail before the kernel can be
+silently declared current.
+
+From committed checkpoint
+`81394827952b6951e6488ca5cb6552f4e13f3524`, full all-component `check` and
+`certify` aggregates exited zero. Kernel formatting, Clippy, warnings-denied
+checking, build and tests; repository formatting, hygiene, lint, generation,
+public contracts, governance, baseline and architecture fitness; canonical
+schema/fixture validation; TypeScript typecheck/build/tests; and every other
+configured binding baseline passed.
+
+### Explicitly absent and carry-forward
+
+No parser, semantic normalization algorithm, diagnostic generation, semantic
+analysis, portability planner, target lowering, regex emitter, binding adapter,
+Simply migration, LSP/editor integration, package API change, or runtime
+semantic migration was implemented.
+
+Existing binding compilers, shallow AST/IR types, duplicated diagnostic/result
+models, emitter capability tables, legacy base/PCRE2 schemas, and
+implementation-generated `tests/spec` fixtures remain transitional
+compatibility evidence. Existing frontends and tooling do not yet consume
+`strling-kernel`; their migration remains separately governed work.
+
+The repository is ready for the first executable canonical compiler stage:
+semantic normalization and invariant-preserving transformation over the
+certified Rust domain model, without yet migrating frontends or target
+emitters.

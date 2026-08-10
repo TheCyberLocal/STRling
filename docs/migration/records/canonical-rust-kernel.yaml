@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical Rust kernel and schema-backed domain types
-status: in_progress
+status: complete
 objective: Establish the canonical Rust compiler-kernel foundation as a faithful, strongly typed implementation of contract suite 1.0.0 without implementing compiler behavior or migrating existing frontends, emitters, bindings, or tooling.
 scope:
     diff:
@@ -216,11 +216,40 @@ checkpoints:
             result: passed
             details: All 42 Rust tests, warnings-denied quality checks, 11 schemas, 29 positive contract objects, 33 controlled-invalid objects, architecture/task governance, kernel hardgate, and patch integrity passed.
     - name: Repository hardgate integration
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Mandatory schema-to-Rust drift hardgate
+            command: python3 tooling/core_contract_validation.py; python3 -m unittest tooling.tests.test_core_contracts
+            result: passed
+            details: Both check and certify run the kernel contract mapper after canonical schema validation; exact fingerprints for all 11 schemas, all 62 fixture references, the three-dependency allowlist, module ownership, and semantic-boundary source scans passed, while six controlled tests proved incompatible drift is rejected.
+          - check: Governed kernel quality component
+            command: ./strling check core --json; ./strling certify core --json
+            result: passed
+            details: The normal quality system enforces rustfmt, warnings-denied Clippy, warnings-denied cargo check, cargo build, and all 42 tests for the canonical kernel; Cargo 1.75, rustc 1.75, rustfmt 1.7, and Clippy 0.1.75 resolved through the declared toolchain contract.
+          - check: Canonical source-island hygiene
+            command: python3 tooling/hygiene.py; python3 -m unittest tooling.tests.test_hygiene tooling.tests.test_governance tooling.tests.test_quality
+            result: passed
+            details: Repository hygiene explicitly classifies core/src/target/mod.rs and profile.rs as source rather than Cargo output; formatting, the exact allowlist, task scope, architecture rules, hardgate order, and 77 focused hygiene/governance/quality tests passed.
+          - check: Full committed-state check
+            command: PATH=/tmp/strling-pinned-tools:$PATH BUNDLER_VERSION=2.4.20 ./strling check all --json
+            result: passed
+            details: Commit 81394827952b6951e6488ca5cb6552f4e13f3524 completed the all-component check with exit code zero; kernel, canonical contracts, generation, public contracts, governance, architecture fitness, repository formatting/hygiene/lint, TypeScript typecheck/tests, and all other configured binding baselines passed.
+          - check: Full committed-state certification
+            command: PATH=/tmp/strling-pinned-tools:$PATH BUNDLER_VERSION=2.4.20 ./strling certify all --json
+            result: passed
+            details: Commit 81394827952b6951e6488ca5cb6552f4e13f3524 completed the all-component certify aggregate with exit code zero; kernel build/test and every enforced repository and binding result passed, while pre-existing governed incomplete capabilities remained explicit rather than being silently certified.
     - name: Completion and compiler-pipeline readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Kernel architecture and domain boundary
+            result: passed
+            details: The standalone non-published strling-kernel crate exposes only source, semantic, diagnostic, protocol, target, conformance, and validation domains; it has no parser, compiler phase, filesystem/network behavior, binding dependency, CLI, LSP, or target emitter.
+          - check: Certified domain representation
+            result: passed
+            details: Source/provenance, UTF-8 spans, opaque identities, normalized-form Semantic IR, structured diagnostics, compiler request/result envelopes, analysis containers, version-aware target profiles, exact portability states, TargetArtifact, and conformance ownership map faithfully to contract suite 1.0.0.
+          - check: Preserved behavior and contained next task
+            result: passed
+            details: No existing parser, compiler, emitter, target, binding, package, tooling, or public API behavior was migrated or intentionally changed; the next contained kernel task may implement semantic normalization and invariant-preserving transformation over these certified types.
 commits:
     - sha: 4eb0c4ec22b7ce750f8ac0caa09ea361ce9ac812
       subject: "feat(core): establish canonical compiler kernel"
@@ -230,3 +259,42 @@ commits:
       subject: "feat(core): implement compiler protocol domain types"
     - sha: db9f00b532550f8775ae9e865bc6d1e08ff8b1cf
       subject: "feat(core): implement target contract domain types"
+    - sha: 6e0edd1546e98f082e9b8d204520d7f3a2e8ffa0
+      subject: "test(core): certify schema-backed domain invariants"
+    - sha: c99f1f8243a605db79be477593a577ffba75e509
+      subject: "ci(core): certify canonical kernel contracts"
+    - sha: 81394827952b6951e6488ca5cb6552f4e13f3524
+      subject: "ci(core): distinguish target source from build output"
+completion:
+    accomplished:
+        - Established core/ as the standalone, non-published canonical Rust compiler kernel with explicit source, semantic, diagnostic, protocol, target, conformance, and validation module boundaries.
+        - Implemented closed schema-backed types for source identity and provenance, half-open UTF-8 byte spans, opaque source/node/capture/diagnostic/profile identities, and every ratified target-neutral Semantic IR node.
+        - Implemented structured diagnostics, deterministic compiler request/result and exchange validation, keyed analysis containers, partial-result restrictions, and structured external validation failures.
+        - Implemented version-aware engine/runtime profiles, typed capability constraints, immutable profile fingerprints, exact portability vocabulary, resolved requirements, source mappings, and TargetArtifact with pattern text and runtime/compiler options separated.
+        - Implemented the specification-authored conformance case and authority-manifest representation so the kernel can validate normative ownership without generating semantic authority.
+        - Integrated exact schema fingerprints, complete canonical fixture references, dependency/source-boundary checks, controlled drift tests, and the kernel quality component into normal check and certify aggregates.
+    verified:
+        - All 42 Rust tests passed, covering every Semantic IR variant, source-less construction, multibyte UTF-8 spans, malformed references and bounds, request/result state rules, diagnostic ordering, target versions and constraints, artifact separation, conformance authority, and deterministic structural round trips.
+        - The mapping hardgate certified all 11 normative schemas and all 62 canonical fixtures, comprising 29 positive contract objects and 33 controlled-invalid objects. Four target profiles, four specification-authored cases, and the content-addressed manifest deserialize and validate with exact fingerprints.
+        - Controlled tests reject schema changes without mapping updates, missing and unknown mappings, prohibited dependencies, filesystem/network/binding references, target syntax or derived analysis in Semantic IR, invalid cross-phase identities, malformed profiles, and false conformance authorship.
+        - Full all-component check and certify aggregates passed from clean committed checkpoint 81394827952b6951e6488ca5cb6552f4e13f3524 with exit code zero; formatting, hygiene, lint, typecheck, build, tests, generation, contracts, governance, baseline validation, architecture fitness, and TypeScript baseline all passed.
+    behavior_changed: No existing STRling runtime/compiler semantics intentionally changed.
+    intentional_behavior_changes:
+        - The new internal canonical kernel crate and its schema-fidelity validation are now governed build surfaces for future compiler implementation.
+        - Changes to mapped normative contract bytes, fixture coverage, dependency boundaries, or prohibited semantic leakage now fail both check and certify until the Rust mapping is deliberately reconciled.
+    preserved_behavior:
+        - Existing parser acceptance, normalization behavior, compiler algorithms, diagnostics generation, emitted regex, target behavior, bindings, LSP/editor tooling, public package APIs, and package versions remain unchanged.
+        - The transitional Rust binding remains a host-language implementation and was neither copied into nor redirected through the canonical kernel.
+    transitional_architecture:
+        - Existing per-binding compiler, AST/IR, diagnostic/result, and emitter capability models remain transitional compatibility evidence outside core/.
+        - Legacy spec/schema/base.schema.json and spec/schema/pcre2.v1.schema.json retain their existing public compatibility scopes; core maps only the certified spec/contracts/1.0 suite.
+        - Implementation-generated tests/spec fixtures remain compatibility evidence and are forbidden as normative kernel-test authority.
+        - Existing frontends, Simply, bindings, LSP/editor tooling, and target emitters do not yet consume the kernel.
+    deferred_work:
+        - Implement semantic normalization and invariant-preserving transformation as the first executable canonical compiler stage over the certified Rust types.
+        - Define phase-owned diagnostic production and derived semantic analysis only in later contained tasks.
+        - Add portability planning, target lowering/emission, frontend lowering, adapters, and tooling migrations only through separately authorized compatibility work.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Implement semantic normalization and invariant-preserving transformation over the certified Rust domain model without migrating frontends or emitters.
+    rationale: The canonical kernel is a deterministic, schema-faithful, strongly typed semantic island with explicit validation, fixture certification, dependency governance, and repository hardgate coverage. Transitional binding compilers and consumers remain isolated compatibility evidence, so they do not block the first contained canonical transformation stage.
