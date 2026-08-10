@@ -1,0 +1,40 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "normalization": "canonical-v1",
+    "case_matching": "sensitive",
+    "sources": [
+        {
+            "contract_version": "1.0.0",
+            "source_id": "src:invalid.utf8",
+            "specification_version": "1.0-draft.1",
+            "frontend": {
+                "id": "semantic_strling",
+                "dialect_version": "1.0-draft.1"
+            },
+            "content": {
+                "kind": "inline",
+                "encoding": "utf-8",
+                "text": "a😀b"
+            },
+            "provenance": {
+                "kind": "authored"
+            }
+        }
+    ],
+    "root": {
+        "node_id": "node:invalid.span",
+        "kind": "literal",
+        "origin": {
+            "source_spans": [
+                {
+                    "source_id": "src:invalid.utf8",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 2,
+                    "end": 4
+                }
+            ]
+        },
+        "text": "😀"
+    }
+}

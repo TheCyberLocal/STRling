@@ -1,0 +1,12 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "normalization": "canonical-v1",
+    "case_matching": "sensitive",
+    "root": {
+        "node_id": "node:target.leak",
+        "kind": "literal",
+        "text": "x",
+        "pcre2_fragment": "\\Qx\\E"
+    }
+}

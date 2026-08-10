@@ -1,0 +1,280 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/contracts/1.0/semantic-ir.schema.json",
+    "title": "STRling canonical Semantic IR",
+    "description": "Normalized target-neutral regex intent. Identity and origin metadata are excluded from semantic equality.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "contract_version",
+        "specification_version",
+        "normalization",
+        "case_matching",
+        "root"
+    ],
+    "properties": {
+        "contract_version": {
+            "$ref": "source.schema.json#/$defs/ContractVersion"
+        },
+        "specification_version": {
+            "$ref": "source.schema.json#/$defs/SpecificationVersion"
+        },
+        "normalization": { "const": "canonical-v1" },
+        "case_matching": { "enum": ["sensitive", "insensitive"] },
+        "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "source.schema.json" }
+        },
+        "root": { "$ref": "#/$defs/Node" }
+    },
+    "$defs": {
+        "NodeId": {
+            "$ref": "source.schema.json#/$defs/NodeId"
+        },
+        "CaptureId": {
+            "type": "string",
+            "pattern": "^capture:[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$"
+        },
+        "Origin": {
+            "$ref": "source.schema.json#/$defs/SourceOrigin"
+        },
+        "UnicodeScalar": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1,
+            "pattern": "^[^\\uD800-\\uDFFF]$"
+        },
+        "Node": {
+            "oneOf": [
+                { "$ref": "#/$defs/Empty" },
+                { "$ref": "#/$defs/Sequence" },
+                { "$ref": "#/$defs/Alternation" },
+                { "$ref": "#/$defs/Literal" },
+                { "$ref": "#/$defs/Wildcard" },
+                { "$ref": "#/$defs/CharacterSet" },
+                { "$ref": "#/$defs/Repeat" },
+                { "$ref": "#/$defs/Position" },
+                { "$ref": "#/$defs/Capture" },
+                { "$ref": "#/$defs/Backreference" },
+                { "$ref": "#/$defs/Lookaround" },
+                { "$ref": "#/$defs/Atomic" }
+            ]
+        },
+        "Empty": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "empty" },
+                "origin": { "$ref": "#/$defs/Origin" }
+            }
+        },
+        "Sequence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind", "items"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "sequence" },
+                "origin": { "$ref": "#/$defs/Origin" },
+                "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": { "$ref": "#/$defs/Node" }
+                }
+            }
+        },
+        "Alternation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind", "branches"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "alternation" },
+                "origin": { "$ref": "#/$defs/Origin" },
+                "branches": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": { "$ref": "#/$defs/Node" }
+                }
+            }
+        },
+        "Literal": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind", "text"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "literal" },
+                "origin": { "$ref": "#/$defs/Origin" },
+                "text": { "type": "string", "minLength": 1 }
+            }
+        },
+        "Wildcard": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind", "line_terminators"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "wildcard" },
+                "origin": { "$ref": "#/$defs/Origin" },
+                "line_terminators": { "enum": ["exclude", "include"] }
+            }
+        },
+        "CharacterSet": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind", "negated", "members"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "character_set" },
+                "origin": { "$ref": "#/$defs/Origin" },
+                "negated": { "type": "boolean" },
+                "members": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/CharacterSetMember" }
+                }
+            }
+        },
+        "CharacterSetMember": {
+            "oneOf": [
+                { "$ref": "#/$defs/SetLiteral" },
+                { "$ref": "#/$defs/SetRange" },
+                { "$ref": "#/$defs/BuiltinClass" },
+                { "$ref": "#/$defs/UnicodeProperty" }
+            ]
+        },
+        "SetLiteral": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "value"],
+            "properties": {
+                "kind": { "const": "literal" },
+                "value": { "$ref": "#/$defs/UnicodeScalar" }
+            }
+        },
+        "SetRange": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "start", "end"],
+            "properties": {
+                "kind": { "const": "range" },
+                "start": { "$ref": "#/$defs/UnicodeScalar" },
+                "end": { "$ref": "#/$defs/UnicodeScalar" }
+            }
+        },
+        "BuiltinClass": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "name", "domain", "negated"],
+            "properties": {
+                "kind": { "const": "builtin" },
+                "name": { "enum": ["digit", "word", "whitespace"] },
+                "domain": { "enum": ["ascii", "unicode"] },
+                "negated": { "type": "boolean" }
+            }
+        },
+        "UnicodeProperty": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "property", "negated"],
+            "properties": {
+                "kind": { "const": "unicode_property" },
+                "property": { "type": "string", "minLength": 1 },
+                "value": { "type": "string", "minLength": 1 },
+                "negated": { "type": "boolean" }
+            }
+        },
+        "Repeat": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind", "body", "min", "max", "mode"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "repeat" },
+                "origin": { "$ref": "#/$defs/Origin" },
+                "body": { "$ref": "#/$defs/Node" },
+                "min": { "type": "integer", "minimum": 0 },
+                "max": {
+                    "oneOf": [
+                        { "type": "integer", "minimum": 0 },
+                        { "type": "null" }
+                    ]
+                },
+                "mode": { "enum": ["greedy", "lazy", "possessive"] }
+            }
+        },
+        "Position": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind", "position"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "position" },
+                "origin": { "$ref": "#/$defs/Origin" },
+                "position": {
+                    "enum": [
+                        "input_start",
+                        "input_end",
+                        "line_start",
+                        "line_end",
+                        "word_boundary",
+                        "not_word_boundary",
+                        "end_before_final_line_terminator"
+                    ]
+                }
+            }
+        },
+        "Capture": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind", "capture_id", "body"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "capture" },
+                "origin": { "$ref": "#/$defs/Origin" },
+                "capture_id": { "$ref": "#/$defs/CaptureId" },
+                "name": { "type": "string", "minLength": 1 },
+                "body": { "$ref": "#/$defs/Node" }
+            }
+        },
+        "Backreference": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind", "capture_id"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "backreference" },
+                "origin": { "$ref": "#/$defs/Origin" },
+                "capture_id": { "$ref": "#/$defs/CaptureId" }
+            }
+        },
+        "Lookaround": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind", "direction", "polarity", "body"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "lookaround" },
+                "origin": { "$ref": "#/$defs/Origin" },
+                "direction": { "enum": ["ahead", "behind"] },
+                "polarity": { "enum": ["positive", "negative"] },
+                "body": { "$ref": "#/$defs/Node" }
+            }
+        },
+        "Atomic": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "kind", "body"],
+            "properties": {
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "kind": { "const": "atomic" },
+                "origin": { "$ref": "#/$defs/Origin" },
+                "body": { "$ref": "#/$defs/Node" }
+            }
+        }
+    }
+}

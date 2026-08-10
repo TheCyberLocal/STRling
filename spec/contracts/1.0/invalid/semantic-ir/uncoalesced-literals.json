@@ -1,0 +1,14 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "normalization": "canonical-v1",
+    "case_matching": "sensitive",
+    "root": {
+        "node_id": "node:uncoalesced",
+        "kind": "sequence",
+        "items": [
+            { "node_id": "node:literal.one", "kind": "literal", "text": "a" },
+            { "node_id": "node:literal.two", "kind": "literal", "text": "b" }
+        ]
+    }
+}

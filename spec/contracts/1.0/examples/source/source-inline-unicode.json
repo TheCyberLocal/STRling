@@ -1,0 +1,19 @@
+{
+    "contract_version": "1.0.0",
+    "source_id": "src:example.unicode",
+    "specification_version": "1.0-draft.1",
+    "frontend": {
+        "id": "semantic_strling",
+        "dialect_version": "1.0-draft.1"
+    },
+    "display_name": "Unicode coordinate example",
+    "content": {
+        "kind": "inline",
+        "encoding": "utf-8",
+        "media_type": "text/strling",
+        "text": "α😀beta"
+    },
+    "provenance": {
+        "kind": "authored"
+    }
+}

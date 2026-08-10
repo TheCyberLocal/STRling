@@ -1,0 +1,28 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "normalization": "canonical-v1",
+    "case_matching": "sensitive",
+    "root": {
+        "node_id": "node:constructed.root",
+        "kind": "sequence",
+        "items": [
+            {
+                "node_id": "node:constructed.capture",
+                "kind": "capture",
+                "capture_id": "capture:constructed.value",
+                "name": "value",
+                "body": {
+                    "node_id": "node:constructed.capture.body",
+                    "kind": "literal",
+                    "text": "built"
+                }
+            },
+            {
+                "node_id": "node:constructed.backreference",
+                "kind": "backreference",
+                "capture_id": "capture:constructed.value"
+            }
+        ]
+    }
+}

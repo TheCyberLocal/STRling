@@ -1,0 +1,251 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "normalization": "canonical-v1",
+    "case_matching": "insensitive",
+    "sources": [
+        {
+            "contract_version": "1.0.0",
+            "source_id": "src:example.unicode",
+            "specification_version": "1.0-draft.1",
+            "frontend": {
+                "id": "semantic_strling",
+                "dialect_version": "1.0-draft.1"
+            },
+            "display_name": "Unicode coordinate example",
+            "content": {
+                "kind": "inline",
+                "encoding": "utf-8",
+                "media_type": "text/strling",
+                "text": "α😀beta"
+            },
+            "provenance": {
+                "kind": "authored"
+            }
+        }
+    ],
+    "root": {
+        "node_id": "node:all.root",
+        "kind": "sequence",
+        "origin": {
+            "source_spans": [
+                {
+                    "source_id": "src:example.unicode",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 0,
+                    "end": 10
+                }
+            ]
+        },
+        "items": [
+            {
+                "node_id": "node:position.input_start",
+                "kind": "position",
+                "position": "input_start"
+            },
+            {
+                "node_id": "node:literal.alpha",
+                "kind": "literal",
+                "origin": {
+                    "source_spans": [
+                        {
+                            "source_id": "src:example.unicode",
+                            "coordinate_system": "utf8-bytes",
+                            "start": 0,
+                            "end": 2
+                        }
+                    ]
+                },
+                "text": "α"
+            },
+            {
+                "node_id": "node:alternation",
+                "kind": "alternation",
+                "branches": [
+                    {
+                        "node_id": "node:empty",
+                        "kind": "empty"
+                    },
+                    {
+                        "node_id": "node:alternation.literal",
+                        "kind": "literal",
+                        "text": "alt"
+                    }
+                ]
+            },
+            {
+                "node_id": "node:wildcard",
+                "kind": "wildcard",
+                "origin": {
+                    "source_spans": [
+                        {
+                            "source_id": "src:example.unicode",
+                            "coordinate_system": "utf8-bytes",
+                            "start": 2,
+                            "end": 6
+                        }
+                    ]
+                },
+                "line_terminators": "exclude"
+            },
+            {
+                "node_id": "node:character_set",
+                "kind": "character_set",
+                "negated": false,
+                "members": [
+                    {
+                        "kind": "literal",
+                        "value": "_"
+                    },
+                    {
+                        "kind": "range",
+                        "start": "A",
+                        "end": "Z"
+                    },
+                    {
+                        "kind": "builtin",
+                        "name": "digit",
+                        "domain": "ascii",
+                        "negated": false
+                    },
+                    {
+                        "kind": "builtin",
+                        "name": "word",
+                        "domain": "unicode",
+                        "negated": true
+                    },
+                    {
+                        "kind": "unicode_property",
+                        "property": "General_Category",
+                        "value": "Letter",
+                        "negated": false
+                    }
+                ]
+            },
+            {
+                "node_id": "node:repeat",
+                "kind": "repeat",
+                "body": {
+                    "node_id": "node:repeat.body",
+                    "kind": "literal",
+                    "text": "r"
+                },
+                "min": 1,
+                "max": null,
+                "mode": "possessive"
+            },
+            {
+                "node_id": "node:capture",
+                "kind": "capture",
+                "capture_id": "capture:word",
+                "name": "word",
+                "origin": {
+                    "source_spans": [
+                        {
+                            "source_id": "src:example.unicode",
+                            "coordinate_system": "utf8-bytes",
+                            "start": 6,
+                            "end": 10
+                        }
+                    ]
+                },
+                "body": {
+                    "node_id": "node:capture.body",
+                    "kind": "literal",
+                    "text": "beta"
+                }
+            },
+            {
+                "node_id": "node:backreference",
+                "kind": "backreference",
+                "capture_id": "capture:word"
+            },
+            {
+                "node_id": "node:look.ahead.positive",
+                "kind": "lookaround",
+                "direction": "ahead",
+                "polarity": "positive",
+                "body": {
+                    "node_id": "node:look.ahead.positive.body",
+                    "kind": "literal",
+                    "text": "a"
+                }
+            },
+            {
+                "node_id": "node:look.ahead.negative",
+                "kind": "lookaround",
+                "direction": "ahead",
+                "polarity": "negative",
+                "body": {
+                    "node_id": "node:look.ahead.negative.body",
+                    "kind": "literal",
+                    "text": "b"
+                }
+            },
+            {
+                "node_id": "node:look.behind.positive",
+                "kind": "lookaround",
+                "direction": "behind",
+                "polarity": "positive",
+                "body": {
+                    "node_id": "node:look.behind.positive.body",
+                    "kind": "literal",
+                    "text": "c"
+                }
+            },
+            {
+                "node_id": "node:look.behind.negative",
+                "kind": "lookaround",
+                "direction": "behind",
+                "polarity": "negative",
+                "body": {
+                    "node_id": "node:look.behind.negative.body",
+                    "kind": "literal",
+                    "text": "d"
+                }
+            },
+            {
+                "node_id": "node:atomic",
+                "kind": "atomic",
+                "origin": {
+                    "derived_from_node_ids": ["node:frontend.atomic-group"]
+                },
+                "body": {
+                    "node_id": "node:atomic.body",
+                    "kind": "literal",
+                    "text": "atomic"
+                }
+            },
+            {
+                "node_id": "node:position.input_end",
+                "kind": "position",
+                "position": "input_end"
+            },
+            {
+                "node_id": "node:position.line_start",
+                "kind": "position",
+                "position": "line_start"
+            },
+            {
+                "node_id": "node:position.line_end",
+                "kind": "position",
+                "position": "line_end"
+            },
+            {
+                "node_id": "node:position.word_boundary",
+                "kind": "position",
+                "position": "word_boundary"
+            },
+            {
+                "node_id": "node:position.not_word_boundary",
+                "kind": "position",
+                "position": "not_word_boundary"
+            },
+            {
+                "node_id": "node:position.end_before_final_line_terminator",
+                "kind": "position",
+                "position": "end_before_final_line_terminator"
+            }
+        ]
+    }
+}

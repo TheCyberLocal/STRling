@@ -1,0 +1,18 @@
+{
+    "contract_version": "1.0.0",
+    "source_id": "src:invalid.mixed",
+    "specification_version": "1.0-draft.1",
+    "frontend": {
+        "id": "regex_frontend",
+        "dialect_version": "unversioned-transitional"
+    },
+    "content": {
+        "kind": "inline",
+        "encoding": "utf-8",
+        "text": "abc",
+        "uri": "file:///tmp/abc.strl"
+    },
+    "provenance": {
+        "kind": "authored"
+    }
+}

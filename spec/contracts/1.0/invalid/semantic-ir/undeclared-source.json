@@ -1,0 +1,21 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "normalization": "canonical-v1",
+    "case_matching": "sensitive",
+    "root": {
+        "node_id": "node:undeclared.source",
+        "kind": "literal",
+        "origin": {
+            "source_spans": [
+                {
+                    "source_id": "src:not-embedded",
+                    "coordinate_system": "utf8-bytes",
+                    "start": 0,
+                    "end": 1
+                }
+            ]
+        },
+        "text": "x"
+    }
+}

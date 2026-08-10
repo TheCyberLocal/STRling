@@ -1,0 +1,20 @@
+{
+    "contract_version": "1.0.0",
+    "source_id": "src:example.referenced",
+    "specification_version": "1.0-draft.1",
+    "frontend": {
+        "id": "regex_frontend",
+        "dialect_version": "unversioned-transitional"
+    },
+    "content": {
+        "kind": "reference",
+        "encoding": "utf-8",
+        "media_type": "text/strling-regex",
+        "uri": "https://example.invalid/pattern.strl",
+        "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    },
+    "provenance": {
+        "kind": "imported",
+        "description": "Immutable content reference example"
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "normalization": "canonical-v1",
+    "case_matching": "sensitive",
+    "root": {
+        "node_id": "node:duplicate",
+        "kind": "sequence",
+        "items": [
+            {
+                "node_id": "node:duplicate",
+                "kind": "literal",
+                "text": "a"
+            },
+            {
+                "node_id": "node:other",
+                "kind": "wildcard",
+                "line_terminators": "include"
+            }
+        ]
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "normalization": "canonical-v1",
+    "case_matching": "sensitive",
+    "root": {
+        "node_id": "node:captures",
+        "kind": "sequence",
+        "items": [
+            {
+                "node_id": "node:capture.one",
+                "kind": "capture",
+                "capture_id": "capture:duplicate",
+                "body": { "node_id": "node:capture.one.body", "kind": "empty" }
+            },
+            {
+                "node_id": "node:capture.two",
+                "kind": "capture",
+                "capture_id": "capture:duplicate",
+                "body": { "node_id": "node:capture.two.body", "kind": "empty" }
+            }
+        ]
+    }
+}

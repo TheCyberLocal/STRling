@@ -1,0 +1,33 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "normalization": "canonical-v1",
+    "case_matching": "sensitive",
+    "root": {
+        "node_id": "node:outer",
+        "kind": "sequence",
+        "items": [
+            {
+                "node_id": "node:inner",
+                "kind": "sequence",
+                "items": [
+                    {
+                        "node_id": "node:a",
+                        "kind": "literal",
+                        "text": "a"
+                    },
+                    {
+                        "node_id": "node:b",
+                        "kind": "wildcard",
+                        "line_terminators": "exclude"
+                    }
+                ]
+            },
+            {
+                "node_id": "node:c",
+                "kind": "position",
+                "position": "input_end"
+            }
+        ]
+    }
+}

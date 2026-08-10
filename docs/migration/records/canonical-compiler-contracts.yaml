@@ -105,8 +105,24 @@ checkpoints:
             result: passed
             details: Formatting, hygiene, unchanged generation/public contracts, active-task declarations, architecture fitness, frozen baseline reproduction, and patch integrity passed.
     - name: Source and Semantic IR contracts
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Source identity provenance and coordinates
+            command: spec/contracts/1.0/source.schema.json; Unicode and immutable-reference examples
+            result: passed
+            details: SourceDocument separates opaque identity, frontend/dialect, exact inline or digest-pinned referenced content, specification version, and provenance; spans are explicit half-open UTF-8 byte offsets and legacy UTF-32 values require conversion.
+          - check: Canonical target-neutral Semantic IR
+            command: spec/contracts/1.0/semantic-ir.schema.json; spec/contracts/1.0/examples/semantic-ir
+            result: passed
+            details: Twelve semantic node kinds, logical captures, explicit wildcard/class/assertion intent, atomicity, repetition, optional source origins, and source-less construction are represented without target fragments, host values, or syntax-only grouping.
+          - check: Normalization identity and negative contracts
+            command: python3 tooling/contract_validation.py
+            result: passed
+            details: Two Draft 2020-12 schemas and four positive examples passed; ten controlled malformed examples were rejected for schema shape, duplicate node/capture identity, unresolved capture, invalid UTF-8 attribution, undeclared source, nested sequence, uncoalesced literals, reversed bounds, and target leakage.
+          - check: Focused schema and invariant tests
+            command: ruff format/check tooling contract files; python3 -m unittest tooling.tests.test_canonical_contracts; git diff --check
+            result: passed
+            details: Seven tests passed for schema validity, positive and negative corpora, every node category, source-less semantics, Unicode byte boundaries, and deterministic Unicode-preserving serialization; formatting, lint, and patch integrity passed.
     - name: Diagnostic and compiler protocol contracts
       status: planned
       evidence: []
@@ -122,4 +138,6 @@ checkpoints:
     - name: Completion and kernel-implementation readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: cf021a11044d3af6e65378b80391772c333a6558
+      subject: "docs(spec): define canonical compiler contract invariants"
