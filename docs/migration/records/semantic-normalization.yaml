@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical semantic normalization
-status: in_progress
+status: complete
 objective: Implement deterministic, identity-preserving, source-faithful semantic normalization as the first executable transformation in the canonical Rust kernel without migrating frontends, analyses, targets, emitters, bindings, or tooling consumers.
 scope:
     diff:
@@ -159,7 +159,7 @@ checkpoints:
             result: passed
             details: The comparison invokes no parser, binding, target, or legacy runtime from the kernel; all 53 kernel tests and governed contract/architecture checks passed.
     - name: Compiler-stage and hardgate integration
-      status: in_progress
+      status: passed
       evidence:
           - check: Mapped canonical stage boundary
             command: python3 tooling/core_contract_validation.py
@@ -169,9 +169,26 @@ checkpoints:
             command: python3 -m unittest tooling.tests.test_core_contracts
             result: passed
             details: Eight controlled tests pass, including rejection of removing normalization from the Semantic IR mapping, schema fingerprint drift, forbidden dependencies, target/protocol imports, environment/time access, target markers, and derived-analysis leakage.
+          - check: Kernel and focused governance quality
+            command: cargo fmt --manifest-path core/Cargo.toml -- --check; cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings; RUSTFLAGS=-Dwarnings cargo check --manifest-path core/Cargo.toml --all-targets; cargo build --manifest-path core/Cargo.toml --all-targets; cargo test --manifest-path core/Cargo.toml --all-targets; python3 -m unittest tooling.tests.test_core_contracts tooling.tests.test_governance tooling.tests.test_quality
+            result: passed
+            details: All 53 kernel tests and 76 focused contract, governance, and quality tests passed from committed checkpoint 6fd2ad674150e519e3ac054f62c222aac883e837 with warnings denied.
+          - check: Repository hardgate coverage
+            command: PATH=/tmp/strling-pinned-tools:/root/.local/share/swiftly/bin:/snap/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin BUNDLER_VERSION=2.4.20 ./strling format --check all; ./strling hygiene all; ./strling lint all; ./strling typecheck all; ./strling generate --check all; ./strling contracts --check all; ./strling governance all; ./strling baseline check; ./strling test typescript; git diff --check
+            result: passed
+            details: Repository formatting, hygiene, lint, typecheck, generation, canonical and public contracts, governance, architecture fitness, frozen baseline validation, all configured binding surfaces, and the TypeScript baseline of 19 suites and 963 tests passed from committed state.
     - name: Completion and pipeline readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical normalization stage boundary
+            result: passed
+            details: The public kernel API is a pure normalize function over borrowed canonical SemanticProgram input with owned canonical output and structured NormalizationError; it has no filesystem, environment, network, target, binding, frontend, or tooling context.
+          - check: Complete rule, identity, and provenance record
+            result: passed
+            details: Implemented and preserved forms, invalid inputs, stable surviving IDs, removed-node derivation, logical capture/backreference preservation, exact source-origin accumulation, source-less handling, and half-open UTF-8 guarantees are recorded durably.
+          - check: Preserved product behavior and contained next task
+            result: passed
+            details: No existing parser, compiler, emitter, diagnostic, target, binding, package, Simply, LSP, or tooling behavior was migrated or intentionally changed; the next contained task is canonical semantic fact analysis over normalized Semantic IR.
 commits:
     - sha: 023ce26a00b695ece2eb5d9cfc3457aaa0dd5695
       subject: "docs(core): define semantic normalization invariants"
@@ -183,3 +200,35 @@ commits:
       subject: "test(core): certify normalization determinism and idempotence"
     - sha: ed8527eb6a5f112873d2a8311cf168bd07b3ca54
       subject: "test(core): verify normalization compatibility evidence"
+    - sha: 6fd2ad674150e519e3ac054f62c222aac883e837
+      subject: "ci(core): certify semantic normalization"
+completion:
+    accomplished:
+        - Added core::normalization as the first executable canonical compiler transformation, exposing a small pure normalize API and stable structured normalization failures.
+        - Recursively normalized all 12 ratified Semantic IR node variants, flattening nested sequences and alternations, removing single-child structural wrappers, coalescing adjacent literals, and sorting/deduplicating character-set members and provenance collections where the certified contract requires canonical order.
+        - Preserved semantic boundaries, alternative and sequence order, explicit empty nodes, repeat semantics, assertions, lookarounds, captures, atomic nodes, exact Unicode text, and target neutrality without attaching derived analyses.
+        - Defined deterministic identity and provenance handling without randomized or traversal-derived identifiers by retaining surviving node IDs, retaining the first literal ID for merges, recording removed IDs as derivation evidence, preserving logical captures/backreferences, and accumulating exact UTF-8 source spans without fabricated widening.
+        - Added focused, generated-property, compatibility, controlled-invalid, and hardgate tests and integrated normalization ownership into canonical schema mapping and repository certification.
+    verified:
+        - All 53 kernel tests passed with rustfmt, warnings-denied Clippy, warnings-denied cargo check, and build coverage; every Semantic IR variant and normalization rule has exact focused coverage.
+        - Four fixed 64-bit seeds generated 512 valid depth-bounded programs covering all 12 variants and proved idempotence, repeated and serialized determinism, structural validity, capture integrity, and target neutrality; a separate deterministic corpus of 256 malformed programs proved stable structured failure categories.
+        - Nine parser-free historical structural cases produced zero unexplained differences. Identity/origin and separated semantic wrappers are representational differences; invalid empty wrappers/literals and deterministic character-set ordering are documented canonical-contract corrections.
+        - The mapping hardgate certified all 11 normative schemas and all 62 canonical fixtures, comprising 29 positive and 33 controlled-invalid objects. Eight controlled tests reject normalization ownership drift, schema drift, prohibited dependencies, environment/time access, target concepts, and derived-analysis leakage.
+        - Repository formatting, hygiene, lint, typecheck, generation, contracts, governance, architecture fitness, frozen baseline validation, configured binding checks, the TypeScript baseline of 19 suites and 963 tests, patch integrity, and clean committed state passed.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - The internal canonical Rust kernel now provides semantic normalization as its first executable compiler stage.
+        - Semantic IR contract mapping and source hardgates now fail check and certify when normalization ownership, target neutrality, analysis separation, determinism boundaries, or prohibited dependency rules drift.
+    preserved_behavior:
+        - Existing parser acceptance, legacy compiler normalization, diagnostics generation, semantic analyses, emitted regex, target decisions, bindings, Simply, LSP/editor tooling, public package APIs, and package versions remain unchanged.
+        - Alternative and item order, logical capture identities, backreference relationships, repetition and assertion semantics, exact Unicode strings, and semantic boundaries are preserved.
+    transitional_architecture:
+        - Existing frontends and binding compilers do not yet invoke core::normalization; they remain compatibility evidence outside the canonical kernel.
+        - Existing shallow binding AST/IR models, duplicated diagnostic/result models, emitter capability tables, legacy schemas, and implementation-generated fixtures remain outside canonical normalization authority.
+    deferred_work:
+        - Implement canonical semantic fact analysis over normalized Semantic IR, beginning with foundational facts required by later safety and portability reasoning.
+        - Define phase-owned diagnostic production, portability planning, target lowering/emission, frontend lowering, adapters, and tooling migrations only in later separately governed tasks.
+readiness:
+    status: READY
+    next_task: Implement canonical semantic fact analysis over normalized Semantic IR, beginning with foundational facts required by later safety and portability reasoning.
+    rationale: The canonical kernel now has a pure, deterministic, idempotent, schema-certified normalization stage with complete variant coverage, stable identities, faithful provenance, structured invalid-input handling, property evidence, focused legacy compatibility evidence, and repository hardgate enforcement. No known blocker remains for contained target-neutral semantic analysis.

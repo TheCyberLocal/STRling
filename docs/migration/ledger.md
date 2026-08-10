@@ -890,3 +890,95 @@ The repository is ready for the first executable canonical compiler stage:
 semantic normalization and invariant-preserving transformation over the
 certified Rust domain model, without yet migrating frontends or target
 emitters.
+
+## Canonical semantic normalization
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `350a1ab7bb76b4cd4546f4a8f129199eec4c31a9`
+-   Contract suite: `1.0.0`
+-   Kernel stage: `core::normalization`
+-   Behavior change: No existing STRling runtime/compiler behavior
+    intentionally changed.
+-   Completion record:
+    [`semantic-normalization.yaml`](records/semantic-normalization.yaml)
+-   Readiness: `READY`
+
+### Checkpoint evidence
+
+| Checkpoint                                 | Result | Commit                                     | Accomplishment                                                                                        |
+| ------------------------------------------ | ------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| Normalization contract and rule inventory  | Passed | `023ce26a00b695ece2eb5d9cfc3457aaa0dd5695` | Normative transformations, preserved forms, invalid states, identity, provenance, and failure policy  |
+| Recursive structural normalization         | Passed | `3842363bad75f9740b7b0386ec73819024396ac5` | Pure recursive normalization across all ratified Semantic IR variants with structured failures        |
+| Identity and provenance preservation       | Passed | `902302d91a26327f7cfa0b73af4513ba132e4aee` | Stable surviving IDs, logical capture integrity, derivation evidence, and exact UTF-8 source origins  |
+| Idempotence, determinism, and properties   | Passed | `4d7c7a985b89eea20a918cff3e3f8102d458416b` | Fixed-seed generated certification of canonical normalization invariants                              |
+| Legacy compatibility evidence              | Passed | `ed8527eb6a5f112873d2a8311cf168bd07b3ca54` | Nine parser-free structural comparisons with zero unexplained differences                             |
+| Compiler-stage and repository hardgate     | Passed | `6fd2ad674150e519e3ac054f62c222aac883e837` | Canonical schema ownership, source-boundary guards, controlled failures, and repository certification |
+| Completion and semantic-analysis readiness | Passed | Recorded by the readiness commit           | Final API, behavior, evidence, explicit exclusions, carry-forward, and readiness recorded             |
+
+### Normalization architecture and canonical rules
+
+The canonical kernel exposes one small public stage boundary: `normalize`
+borrows a canonical `SemanticProgram` and returns a new canonical program or a
+structured `NormalizationError`. The traversal remains private, requires no
+filesystem, environment, clock, random source, network, frontend, binding, or
+target profile, and validates both external input invariants and its normalized
+postcondition.
+
+Normalization recursively covers all 12 ratified node variants. It flattens
+nested sequences and alternations, removes single-child sequence and
+alternation wrappers, coalesces adjacent literals, and orders/deduplicates
+character-set members and provenance collections by their contract keys.
+Sequence items and alternative branches retain their original order. Empty
+sequence/alternation wrappers and empty literal strings fail as invalid input;
+the explicit `empty` semantic node remains unchanged.
+
+The stage deliberately does not reorder or deduplicate alternatives, factor
+common prefixes, rewrite repetitions, normalize Unicode, eliminate assertions,
+cross captures, lookarounds, atomic nodes, or repetition operands, expand
+Unicode categories, infer target support, or attach nullability, length,
+overlap, safety, portability, or target facts.
+
+### Identity, provenance, and property certification
+
+Every surviving semantic node retains its input node ID. Removed wrapper IDs
+remain deterministic derivation evidence on the retaining node. A merged
+literal keeps the first literal's ID and records subsequent literal and wrapper
+IDs as derivations. No node ID is randomized, regenerated, synthesized from
+traversal position, or allowed to collide. Logical capture IDs and
+backreference relationships are preserved without target capture numbering.
+
+Unchanged nodes retain their origins. Merged or unwrapped structures accumulate
+the exact contributing source spans, sort and deduplicate spans and derivation
+IDs, and never widen discontiguous material into a fabricated span. Source-less
+input remains source-less. All retained spans continue to use half-open UTF-8
+byte boundaries, including tested two-byte and four-byte scalar boundaries.
+
+Four fixed 64-bit seeds generated 512 valid depth-bounded programs spanning
+every node variant. Each proved `N(N(x)) == N(x)`, repeated structural and JSON
+determinism, canonical output validation, capture/backreference integrity, and
+target neutrality. A separate deterministic corpus of 256 malformed programs
+proved stable structured failures for semantic structure, identities,
+references, repetition bounds, character sets, and provenance.
+
+### Compatibility, unchanged behavior, and carry-forward
+
+Nine representative parser-free structural cases matched historical
+TypeScript/Python flattening, unwrapping, coalescing, and recursive-child
+outcomes after erasing canonical-only identity and provenance data. There are
+zero unexplained differences. Canonical stable IDs/origins and separated
+capture/atomic representation are representational-only differences; rejecting
+empty wrappers/literals and deterministically ordering/deduplicating character
+sets are intentional certified-contract corrections rather than legacy product
+changes.
+
+No parser migration, grammar change, user-facing diagnostic generation,
+semantic fact or ReDoS analysis, portability planning, target capability
+resolution, lowering, regex emission, binding migration, Simply migration,
+LSP/editor migration, package change, or publishing was implemented. Existing
+runtime/compiler execution does not yet invoke the kernel normalizer, so public
+product behavior remains untouched.
+
+The next contained canonical compiler task is semantic fact analysis over
+normalized Semantic IR, beginning with foundational target-neutral facts needed
+by later safety and portability reasoning.
