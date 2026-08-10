@@ -1,0 +1,219 @@
+record_version: 2.0.0
+title: Canonical semantic safety analysis
+status: complete
+objective: Establish a pure deterministic target-neutral safety-analysis stage over normalized Semantic IR, certified foundational semantic facts, and certified structural facts, producing structured proof-backed safety findings and typed uncertainty without changing product execution or beginning diagnostics, target modeling, rewriting, portability, lowering, emission, parser, binding, Simply, or editor migrations.
+scope:
+    diff:
+        base: 081f2b3dfd6b4f25f5e26c3a66698eb20da9cd90
+        head: working-tree
+    allowed_paths:
+        - core/**
+        - docs/migration/**
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_core_contracts.py
+    forbidden_paths:
+        - bindings/**
+        - package.json
+        - package-lock.json
+        - spec/**
+        - strling
+        - strling.ps1
+        - tests/spec/**
+    expected_files:
+        - core/README.md
+        - core/contract-mapping.json
+        - core/src/lib.rs
+        - core/src/safety_analysis.rs
+        - core/src/safety_analysis/repetition.rs
+        - core/src/semantic/mod.rs
+        - core/src/structural_analysis.rs
+        - core/tests/safety_analysis.rs
+        - core/tests/safety_analysis_properties.rs
+        - core/tests/safety_competition.rs
+        - core/tests/safety_repetition.rs
+        - docs/migration/ledger.md
+        - docs/migration/records/semantic-safety-analysis.yaml
+        - docs/migration/semantic-safety-analysis.md
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_core_contracts.py
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - The internal canonical kernel gains a third pure analysis stage after foundational and structural facts, returning external structured safety evidence keyed by stable Semantic IR identity.
+            - Canonical fitness now enforces the stage boundary, both prerequisite fact dependencies, target neutrality, purity, and prohibited parser, raw-source heuristic, target, planner, portability, binding, frontend, diagnostic, emitter, and runtime-state dependencies.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Kernel safety-analysis quality
+      command: cargo fmt --manifest-path core/Cargo.toml --all -- --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && RUSTFLAGS=-Dwarnings cargo check --manifest-path core/Cargo.toml --all-targets && cargo build --manifest-path core/Cargo.toml && cargo test --manifest-path core/Cargo.toml --all-targets
+      expected_result: The analyzer builds without warnings and all normalization, foundational, structural, safety, property, contract, fixture, and kernel regression tests pass.
+    - name: Canonical contract and controlled architecture certification
+      command: python3 tooling/core_contract_validation.py && python3 tooling/contract_validation.py && python3 -m pytest -q tooling/tests/test_core_contracts.py tooling/tests/test_governance.py tooling/tests/test_quality.py
+      expected_result: Stage registration passes and controlled source-heuristic, parser, target, planner, portability, binding, frontend, diagnostic, emitter, runtime-state, and engine-marker dependencies fail.
+    - name: Repository quality and certification
+      command: ./strling format --check repository && ./strling hygiene && ./strling lint all && ./strling typecheck all && ./strling generate --check --json && ./strling contracts --check --json && ./strling governance --json && python3 tooling/baseline.py --check && ./strling check --json && ./strling certify --json
+      expected_result: Formatting, hygiene, lint, typecheck, generation, contracts, governance, baseline validation, and every enforced repository check and certification operation pass from committed state.
+    - name: TypeScript compatibility baseline
+      command: ./strling build typescript && ./strling test typescript && ./strling typecheck typescript
+      expected_result: Existing TypeScript runtime and compiler behavior remains unchanged with all 19 suites and 963 tests passing.
+    - name: Patch and clean-state integrity
+      command: git diff --check && git status --short --branch
+      expected_result: The final committed repository has no whitespace errors or uncommitted files.
+checkpoints:
+    - name: Safety contract and threat model
+      status: passed
+      evidence:
+          - check: Proof and non-proof contract
+            result: passed
+            details: docs/migration/semantic-safety-analysis.md defines the pure three-input API, five stable codes, exact positive proof conditions, evidence identities, typed uncertainty, deterministic bounds, and explicit non-proofs including universal vulnerability, runtime complexity, exploitability, severity, diagnostics, rewrites, portability, and target behavior.
+          - check: Contract hardgates
+            command: cargo test --manifest-path core/Cargo.toml --all-targets && python3 tooling/core_contract_validation.py && ./strling governance
+            result: passed
+            details: Every planned positive finding is grounded only in certified semantic or structural facts, unknown cannot satisfy a positive proof, and no raw-source parsing or target dependency was introduced.
+    - name: Safety analysis framework
+      status: passed
+      evidence:
+          - check: Pure API and typed model
+            command: cargo test --manifest-path core/Cargo.toml --test safety_analysis
+            result: passed
+            details: The kernel exposes analyze_safety(&SemanticProgram, &SemanticFacts, &StructuralFacts) -> Result<SafetyAnalysis, SafetyAnalysisErrors> with stable codes, categories, primary and contributing NodeIds, typed evidence, proof status, uncertainty, relationship references, deterministic ordering, and no input mutation.
+          - check: Correspondence, evidence, and bounds
+            result: passed
+            details: Structured validation rejects mismatched foundational or structural program identity, incomplete node coverage, malformed structural relationships, malformed evidence references, excessive semantic depth, more than 65536 nodes, more than 4096 findings, or more than 4096 uncertainty records without exposing partial results.
+    - name: Repetition progress and nested repetition findings
+      status: passed
+      evidence:
+          - check: Progress and nested detectors
+            command: cargo test --manifest-path core/Cargo.toml --test safety_repetition
+            result: passed
+            details: Eight focused tests cover guaranteed-consuming literals, nullable and indeterminate operands, exact and bounded repetitions, fixed inner counts, overlapping variable nested repetitions, captures, assertions, atomic and possessive barriers, and conservative unknowns.
+          - check: False-positive protections
+            result: passed
+            details: Always-consuming operands receive no zero-progress finding; bounded outer or fixed inner counts, possessive modes, atomic barriers, sequence barriers, potentially-zero-consuming inner operands, and unknown-only leading evidence do not become nested-amplification positives.
+    - name: Ambiguity and follower competition findings
+      status: passed
+      evidence:
+          - check: Certified relationship consumption
+            command: cargo test --manifest-path core/Cargo.toml --test safety_competition
+            result: passed
+            details: Nine focused tests cover disjoint, overlapping, identical-prefix, Unicode-property, wildcard, nullable-only, bounded, exact-count, possessive, nullable-follower, direct-follower, and deterministic evidence-order cases using structural relationships without recomputing set overlap.
+          - check: Unknown and branch identity preservation
+            result: passed
+            details: Only certified Overlapping relationships can produce positive competition findings; Disjoint is silent, Unknown remains typed uncertainty, nullable-only branch overlap is not promoted, and branch, operand, follower, sequence, repetition, and relationship identities remain explicit evidence.
+    - name: Property soundness and legacy evidence certification
+      status: passed
+      evidence:
+          - check: Fixed-seed generated certification
+            command: cargo test --manifest-path core/Cargo.toml --test safety_analysis_properties
+            result: passed
+            details: Four reproducible seeds (0x5341464554595f31, 0x9e3779b97f4a7c15, 0xd1b54a32d192ed03, 0x94d049bb133111eb) generated 384 normalized programs spanning all 12 Semantic IR variants; six deterministic witnesses cover all five finding codes and unknown preservation.
+          - check: Soundness properties
+            result: passed
+            details: Repeated analysis is identical; all evidence NodeIds and relationship facts resolve; no Disjoint or Unknown relationship produces a positive overlap finding; guaranteed-consuming unbounded repetition receives no zero-progress finding; and Semantic IR plus both prerequisite stores remain unchanged.
+          - check: Legacy detector comparison
+            result: passed
+            details: Six representative cases produce zero unexplained differences across agreement, canonical semantic improvement, legacy false positive, legacy false negative candidate, and unsupported historical heuristic classifications. Canonical behavior was not changed to imitate the source-text detector.
+    - name: Pipeline and hardgate integration
+      status: passed
+      evidence:
+          - check: Canonical stage registration
+            command: python3 tooling/core_contract_validation.py
+            result: passed
+            details: Contract mapping registers safety_analysis after semantic_analysis and structural_analysis for analysis and Semantic IR ownership; all 11 schema mappings and 62 canonical fixtures pass.
+          - check: Controlled dependency failures
+            command: python3 -m pytest -q tooling/tests/test_core_contracts.py
+            result: passed
+            details: Fifteen controlled tests include rejection of missing safety ownership, API boundary, foundational dependency, or structural dependency and injected normalization, parser, raw-source scan, target, planner, portability, binding, frontend, diagnostics, emitter, environment, clock, process, thread, randomness, severity, ReDoS, and engine-specific markers.
+          - check: Committed repository hardgates
+            command: ./strling check --json && ./strling certify --json
+            result: passed
+            details: From committed state the governed check returned 40 passing results and certify returned 42 passing results, including all six integrity hardgates, canonical kernel quality, TypeScript compatibility, and required build coverage.
+    - name: Completion and diagnostic-safety readiness
+      status: passed
+      evidence:
+          - check: Capability, uncertainty, evidence, and exclusions
+            result: passed
+            details: This record and the ledger enumerate the API, all five proof conditions, unknown behavior, stable evidence guarantees, complexity limits, certified soundness properties, legacy heuristic disposition, unchanged product behavior, and every explicitly excluded later compiler concern.
+          - check: Structured diagnostic handoff
+            result: passed
+            details: The next stage can convert certified semantic and safety evidence into structured compiler diagnostics and remediation metadata while target-specific behavior remains outside semantic safety analysis.
+commits:
+    - sha: 67f8d788a3243014da707f4989241a8a71bd3dcf
+      subject: "docs(core): define semantic safety analysis contract"
+    - sha: c08936dedeb4076b4cd48ba77aaba1b71049f8bb
+      subject: "feat(core): establish semantic safety analysis"
+    - sha: 949b9bee150cd7f98a6b20202723b385c7cae21c
+      subject: "feat(core): detect repetition safety hazards"
+    - sha: 44c5cb871eaad2384c22a6bf33fc5a65ee0a18ff
+      subject: "feat(core): detect semantic backtracking competition"
+    - sha: bca35c9931686f17bd18d2bf6c9237bcbc130e56
+      subject: "test(core): certify semantic safety analysis"
+    - sha: a7836af0614998bbd6de97b26438fe01c155c030
+      subject: "ci(core): certify semantic safety analysis"
+completion:
+    accomplished:
+        - Added core::safety_analysis as a pure stage exposing analyze_safety(&SemanticProgram, &SemanticFacts, &StructuralFacts) -> Result<SafetyAnalysis, SafetyAnalysisErrors> after exact-program, fact-store completeness, relationship-shape, resource, and evidence validation.
+        - Added a deterministic typed result model with stable finding codes and categories, primary and contributing NodeIds, proof-backed evidence variants, structural relationship references, sorted output, typed uncertainty reasons, and structured whole-stage errors.
+        - The unbounded_nullable_repetition code requires unbounded extent and certified PotentiallyZeroConsuming operand progress; unbounded_indeterminate_progress requires unbounded extent and certified Indeterminate operand progress.
+        - The nested_repetition_overlap code requires an unbounded non-possessive outer repetition, a variable-count non-possessive inner repetition, an AlwaysConsuming inner operand with concrete consuming leading evidence, and a capture or selected-alternation path without sequence, lookaround, or atomic barriers.
+        - The repeated_alternation_overlap code requires an enclosing non-possessive repeated region able to execute at least twice, no atomic or lookaround barrier, a certified Overlapping branch-pair relationship, and mandatory consumption by at least one branch so empty-only ambiguity is excluded.
+        - The repetition_follower_overlap code requires a certified immediate repetition/follower relationship, variable-count non-possessive repetition, AlwaysConsuming repeated operand, and a certified Overlapping relation.
+        - Added deterministic node, finding, uncertainty, relationship, and traversal bounds; positive findings are never truncated, and applicable unknown structural or progress facts remain typed uncertainty rather than guessed safety or risk.
+        - Added focused detectors, correspondence and malformed-evidence tests, fixed-seed property and legacy comparison certification, contract-stage registration, controlled architecture failures, and full repository hardgate integration.
+    verified:
+        - All 133 canonical kernel tests passed with rustfmt, warnings-denied Clippy, warnings-denied cargo check, build coverage, normalization, foundational and structural regressions, canonical fixtures, and every safety focused and property suite.
+        - Four fixed 64-bit seeds generated 384 normalized programs spanning all 12 Semantic IR variants; six additional proof witnesses cover every finding code plus unknown preservation with zero soundness failures.
+        - Determinism, evidence integrity, disjointness protection, progress protection, unknown preservation, and immutability of Semantic IR, SemanticFacts, and StructuralFacts are certified.
+        - Six legacy evidence cases have zero unexplained differences. The source-text heuristic is superseded as canonical semantic authority, retained only as historical compatibility evidence, and remains temporarily untouched in existing noncanonical donor surfaces.
+        - Canonical validation passed all 11 schema mappings and 62 fixtures; 15 controlled architecture tests prove prohibited source heuristic, parser, target, planner, portability, binding, frontend, diagnostic, emitter, runtime-state, severity, ReDoS, and engine-specific dependencies fail.
+        - Repository formatting, hygiene, lint, all-language typecheck, generation, contracts, governance, architecture fitness, baseline validation, governed check with 40 results, certify with 42 results, TypeScript build/typecheck and 19 suites with 963 tests, patch integrity, and clean committed state passed.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - The internal canonical Rust kernel now exposes certified semantic safety evidence after foundational and structural analysis.
+        - Canonical contract and architecture hardgates now reject missing safety-stage ownership or prerequisites and prohibited source-scan, parser, target, planner, portability, binding, frontend, diagnostic, emitter, runtime-state, severity, ReDoS, and engine dependencies.
+    preserved_behavior:
+        - Grammar and parser behavior, existing compilers and runtimes, diagnostics and severity policy, target decisions, portability planning, rewrites, lowering, regex emission, bindings, Simply, LSP/editor tooling, public APIs, package versions, and published artifacts remain unchanged.
+        - SemanticProgram, SemanticFacts, and StructuralFacts remain immutable; the new result is external and evidence is keyed only by stable canonical semantic identity and certified structural relationships.
+    transitional_architecture:
+        - Existing frontends, bindings, donor emitters, Simply, and editor tooling do not invoke the canonical safety analyzer and remain separately governed compatibility evidence.
+        - Unknown backreference leading consumption, unsupported Unicode/property algebra, wildcard exclusions, case-folding uncertainty, saturated leading sets, comparison exhaustion, and foundationally indeterminate progress remain explicit uncertainty rather than positive findings or proof of safety.
+        - Historical source-text ReDoS logic is superseded as semantic authority and retained only as comparison evidence; it remains temporarily present outside the canonical kernel because migrating donor product behavior is out of scope.
+    deferred_work:
+        - User-facing safety diagnostics, diagnostic severity policy, remediation prose or metadata, automatic possessive or atomic rewrites, target-specific risk or exploitability modeling, portability planning, lowering, emission, parser or grammar migration, binding migration, Simply migration, and LSP/editor migration are not implemented.
+        - Convert certified semantic and safety evidence into structured compiler diagnostics and remediation metadata without embedding target-specific behavior into the safety layer.
+readiness:
+    status: READY
+    next_task: Convert certified safety and semantic evidence into structured compiler diagnostics and remediation metadata without embedding target-specific behavior into the safety layer.
+    rationale: The canonical kernel now provides pure deterministic exact-program-validated semantic safety evidence for provable repetition progress hazards and backtracking competition structures, with stable identity evidence, typed uncertainty, bounded algorithms, fixed-seed soundness certification, controlled invalid-state handling, architecture fitness, and full repository certification. No known blocker remains for contained structured diagnostic generation.

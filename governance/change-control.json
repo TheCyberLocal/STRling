@@ -1,6 +1,6 @@
 {
     "configuration_version": 1,
-    "active_task": "docs/migration/records/structural-analysis.yaml",
+    "active_task": "docs/migration/records/semantic-safety-analysis.yaml",
     "generated_artifact_registry": "governance/generated-artifacts.json",
     "public_surface_registry": "governance/public-surfaces.json",
     "architecture_rule_registry": "governance/architecture-rules.json",

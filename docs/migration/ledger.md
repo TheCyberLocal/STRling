@@ -1229,3 +1229,154 @@ The next contained task is the first principled semantic safety analysis. It
 must consume these certified structural facts, preserve conservative unknowns,
 and avoid raw-source regex heuristics. No target profile, portability decision,
 or user-facing warning belongs in this structural layer.
+
+## Canonical semantic safety analysis
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `081f2b3dfd6b4f25f5e26c3a66698eb20da9cd90`
+-   Kernel stage: `core::safety_analysis`
+-   API:
+    `analyze_safety(&SemanticProgram, &SemanticFacts, &StructuralFacts) -> Result<SafetyAnalysis, SafetyAnalysisErrors>`
+-   Behavior change: No existing STRling runtime/compiler behavior
+    intentionally changed.
+-   Completion record:
+    [`semantic-safety-analysis.yaml`](records/semantic-safety-analysis.yaml)
+-   Readiness: `READY`
+
+### Checkpoint evidence
+
+| Checkpoint                                   | Result | Commit                                     | Accomplishment                                                                                               |
+| -------------------------------------------- | ------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Safety contract and threat model             | Passed | `67f8d788a3243014da707f4989241a8a71bd3dcf` | Pure API, five stable proof codes, typed uncertainty, identity evidence, bounds, explicit non-proofs         |
+| Safety analysis framework                    | Passed | `c08936dedeb4076b4cd48ba77aaba1b71049f8bb` | Typed model, correspondence and completeness validation, deterministic ordering, evidence and limits         |
+| Repetition progress and nested findings      | Passed | `949b9bee150cd7f98a6b20202723b385c7cae21c` | Nullable and indeterminate unbounded progress plus narrowly proved nested repetition amplification           |
+| Ambiguity and follower competition           | Passed | `44c5cb871eaad2384c22a6bf33fc5a65ee0a18ff` | Certified repeated-alternation and repeated-operand/follower overlap with stable contributing identities     |
+| Property and legacy evidence certification   | Passed | `bca35c9931686f17bd18d2bf6c9237bcbc130e56` | Fixed-seed soundness, immutable inputs, unknown preservation, and zero unexplained legacy corpus differences |
+| Pipeline and repository hardgate integration | Passed | `a7836af0614998bbd6de97b26438fe01c155c030` | Stage registration, controlled dependency failures, check/certify, and unchanged TypeScript baseline         |
+| Completion and diagnostic-safety readiness   | Passed | Recorded by the readiness commit           | Final API, findings, unknowns, evidence, properties, exclusions, legacy disposition, and readiness           |
+
+### Safety architecture and evidence model
+
+The canonical kernel exposes one pure target-neutral boundary. `analyze_safety`
+borrows one already-normalized `SemanticProgram`, its complete certified
+`SemanticFacts`, and its complete certified `StructuralFacts`. It validates
+contract and specification versions, a private exact-program identity, complete
+reachable `NodeId` coverage, structural record and relationship shapes, every
+returned evidence reference, and resource limits. It never invokes
+normalization, foundational analysis, or structural analysis and never mutates
+any input.
+
+`SafetyAnalysis` contains deterministic positive `SafetyFinding` and applicable
+`SafetyUncertainty` collections. A positive finding carries a stable
+machine-readable code and category, primary node identity, sorted contributing
+node identities, typed proof evidence, and any exact structural relationship
+reference. Nested evidence retains the stable-node path from outer to inner
+repetition. Alternation evidence retains both branch identities and branch
+indexes. Follower evidence retains the sequence, repetition, operand, immediate
+follower, and sequence indexes. English prose, traversal allocation order, raw
+source text, target syntax, and diagnostic severity are not finding identity.
+
+The stage performs one deterministic semantic traversal and consumes already
+bounded structural relationships without recomputing character-set overlap.
+Semantic input is limited to 65,536 nodes and the result to 4,096 findings and
+4,096 uncertainty records. Shared semantic depth and structural relationship
+and comparison limits remain effective. Exhaustion is a structured whole-stage
+error where complete positive output cannot be exposed safely; findings are
+never silently truncated.
+
+### Implemented findings and proof conditions
+
+| Stable code                        | Exact positive proof requirement                                                                                                                                                                                                                                      |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `unbounded_nullable_repetition`    | The repetition extent is certified `Unbounded` and operand progress is certified `PotentiallyZeroConsuming`. `AlwaysConsuming` and `Indeterminate` do not satisfy this proof.                                                                                         |
+| `unbounded_indeterminate_progress` | The repetition extent is certified `Unbounded` and operand progress is certified `Indeterminate`. This records missing progress proof separately from proved zero consumption.                                                                                        |
+| `nested_repetition_overlap`        | The outer repetition is unbounded and non-possessive; the inner repetition is variable-count and non-possessive; the inner operand is `AlwaysConsuming` with a concrete consuming leading self-witness; and the path crosses only captures or one alternation branch. |
+| `repeated_alternation_overlap`     | An enclosing non-possessive repeated region can execute at least twice; no atomic or lookaround barrier intervenes; the certified branch-pair relationship is `Overlapping`; and at least one branch has mandatory consumption so empty-only ambiguity is excluded.   |
+| `repetition_follower_overlap`      | A certified immediate sequence relationship exists; the repetition has more than one possible count and is non-possessive; the operand is `AlwaysConsuming`; and the certified operand/follower relation is `Overlapping`.                                            |
+
+These findings prove only the recorded structural facts and risk-enabling
+relationships. They do not prove universal vulnerability, denial-of-service
+exploitability, catastrophic or other runtime complexity, attacker control,
+rejecting input suffixes, resource exhaustion, or behavior of PCRE2,
+ECMAScript, Python, or another target engine.
+
+### Unknown preservation and evidence guarantees
+
+`Unknown` is neither safe nor unsafe and is never converted to `Overlapping` or
+`Disjoint`. Applicable uncertainty is retained for indeterminate backreference
+progress or leading consumption, unsupported Unicode-property or category
+algebra, wildcard exclusions, case-folding uncertainty, saturated leading
+sets, overlap comparison exhaustion, unknown branch or follower relationships,
+unknown-only nested leading evidence, and branch overlap that may be empty-only.
+Unknown relationships never produce positive competition findings, and this
+stage does not produce a user-facing warning merely because uncertainty exists.
+
+Every positive reference resolves to the same normalized program. Progress
+evidence resolves to the repetition and its certified operand fact. Nested
+paths consist entirely of directly connected stable semantic identities.
+Alternation and follower relationship references resolve to the exact
+`Overlapping` record in `StructuralFacts`. Malformed, incomplete, or mismatched
+stores and evidence are structured errors rather than partially exposed
+analysis.
+
+### Soundness and legacy evidence certification
+
+Four fixed 64-bit seeds - `0x5341464554595f31`,
+`0x9e3779b97f4a7c15`, `0xd1b54a32d192ed03`, and
+`0x94d049bb133111eb` - generated 384 normalized programs spanning all 12
+Semantic IR variants. Six deterministic proof witnesses cover every positive
+finding code and unknown preservation. The property suite certifies repeated
+analysis determinism, complete evidence integrity, disjointness protection,
+progress protection, unknown preservation, and immutability of
+`SemanticProgram`, `SemanticFacts`, and `StructuralFacts` with zero soundness
+failures.
+
+A six-case comparison with the historical source-text/nested-quantifier
+detector has zero unexplained differences. It records one direct agreement, a
+canonical semantic improvement for bounded inner partition competition, a
+legacy false positive for possessive protection, legacy false-negative
+candidates for repeated alternation and follower competition, and an
+unsupported historical Unicode/property relationship left unknown. Canonical
+behavior was not altered to match the donor heuristic.
+
+The historical raw-source ReDoS logic is superseded as canonical semantic
+authority. It is retained only as compatibility evidence and remains
+temporarily present in existing donor product surfaces because changing or
+migrating those surfaces is outside this task.
+
+All 133 canonical kernel tests passed with rustfmt, warnings-denied Clippy,
+warnings-denied cargo check, build coverage, normalization, foundational and
+structural regressions, canonical fixtures, and all safety suites. Canonical
+validation passed 11 schema mappings and 62 fixtures. Fifteen controlled
+architecture tests reject missing prerequisites and injected raw-source scan,
+parser, target, planner, portability, binding, frontend, diagnostics, emitter,
+runtime-state, severity, ReDoS, and target-engine dependencies.
+
+From committed state the governed repository `check` returned 40 passing
+results and `certify` returned 42 passing results. Repository formatting,
+hygiene, lint, all-language typecheck, generation, contracts, governance,
+architecture fitness, frozen baseline validation, focused quality/governance
+tests, patch integrity, and clean-tree verification passed. The unchanged
+TypeScript baseline built, typechecked, and passed all 19 suites and 963 tests.
+
+### Explicitly unchanged behavior, exclusions, and carry-forward
+
+No existing STRling runtime/compiler behavior intentionally changed. The new
+capability is internal to the canonical Rust kernel. Existing parsers,
+compilers, runtimes, targets, emitters, bindings, Simply, and editor tooling do
+not invoke it. Grammar acceptance, diagnostics, severity, target decisions,
+regex output, public APIs, package versions, and published artifacts remain
+unchanged.
+
+No user-facing safety diagnostic or prose, severity policy, remediation
+metadata, automatic possessive or atomic rewrite, target-specific risk or
+exploitability model, portability plan, target lowering, emission, grammar or
+parser change, binding migration, Simply migration, or LSP/editor migration was
+implemented.
+
+The only carry-forward is the next contained compiler layer. It should convert
+certified semantic and safety evidence into structured compiler diagnostics and
+remediation metadata, preserve stable identity paths and uncertainty, and keep
+target-specific behavior outside semantic safety analysis. The canonical
+safety stage is `READY` for that work.
