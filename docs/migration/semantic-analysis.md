@@ -19,6 +19,17 @@ frontend, binding, diagnostic, protocol-result, target-profile, portability,
 lowering, or emitter context. Identical canonical programs therefore produce
 equivalent, canonically ordered facts.
 
+## Canonical stage registration
+
+The kernel contract mapping registers `semantic_analysis` after
+`normalization` as an owner of canonical Semantic IR and as the executable
+producer for the derived-analysis contract family. This records dependency
+direction without composing the stages implicitly: callers normalize first and
+then pass the resulting borrowed `SemanticProgram` to `analyze`.
+
+Later stages consume `SemanticFacts` alongside the unchanged normalized
+program. They do not receive an analysis-mutated Semantic IR.
+
 ## Fact model
 
 Each reachable semantic node has one `NodeFacts` record. The store uses an
@@ -71,20 +82,20 @@ child. Finite maxima use checked arithmetic. Subtree capture/reference sets are
 the ordered union of the node's own relationship, when any, and all child
 relationships.
 
-| Semantic node | Nullability | Minimum consumption | Maximum consumption | Consumption disposition |
-| --- | --- | --- | --- | --- |
-| `empty` | nullable | 0 | finite(0) | always zero-width |
-| nonempty `literal` | non-nullable | Unicode scalar count | same finite count | always consuming |
-| `wildcard` | non-nullable | 1 | finite(1) | always consuming |
-| nonempty `character_set` | non-nullable | 1 | finite(1) | always consuming |
-| `sequence` | nullable iff every child is nullable; non-nullable if any child is non-nullable; otherwise unknown | checked sum of child minima | unbounded if any child is unbounded, otherwise checked finite sum | derived from bounds and nullability |
-| `alternation` | nullable if any branch is nullable; non-nullable if every branch is non-nullable; otherwise unknown | minimum branch minimum | unbounded if any branch is unbounded, otherwise maximum finite branch maximum | derived from bounds and nullability |
-| `repeat` | nullable when `min` is zero; otherwise inherits body nullability | checked body minimum times `min` | finite(0) when the certified maximum is zero or the body maximum is finite(0); unbounded for an unbounded repetition whose body can consume positively; otherwise checked body maximum times the finite repetition maximum | derived from bounds and nullability; mode does not affect consumption |
-| `position` | nullable | 0 | finite(0) | always zero-width |
-| `capture` | inherits body | inherits body | inherits body | inherits body; also defines its logical capture ID |
-| `backreference` | non-nullable when the referenced capture body has positive minimum; otherwise unknown | referenced capture-body minimum | referenced capture-body maximum | always consuming when minimum is positive; otherwise indeterminate unless the referenced body is proven always zero-width |
-| `lookaround` | nullable | 0 | finite(0) | always zero-width; the body is analyzed independently but its examined length is not outer consumption |
-| `atomic` | inherits body | inherits body | inherits body | inherits body; atomicity changes backtracking, not accepted consumption lengths |
+| Semantic node            | Nullability                                                                                         | Minimum consumption              | Maximum consumption                                                                                                                                                                                                        | Consumption disposition                                                                                                   |
+| ------------------------ | --------------------------------------------------------------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `empty`                  | nullable                                                                                            | 0                                | finite(0)                                                                                                                                                                                                                  | always zero-width                                                                                                         |
+| nonempty `literal`       | non-nullable                                                                                        | Unicode scalar count             | same finite count                                                                                                                                                                                                          | always consuming                                                                                                          |
+| `wildcard`               | non-nullable                                                                                        | 1                                | finite(1)                                                                                                                                                                                                                  | always consuming                                                                                                          |
+| nonempty `character_set` | non-nullable                                                                                        | 1                                | finite(1)                                                                                                                                                                                                                  | always consuming                                                                                                          |
+| `sequence`               | nullable iff every child is nullable; non-nullable if any child is non-nullable; otherwise unknown  | checked sum of child minima      | unbounded if any child is unbounded, otherwise checked finite sum                                                                                                                                                          | derived from bounds and nullability                                                                                       |
+| `alternation`            | nullable if any branch is nullable; non-nullable if every branch is non-nullable; otherwise unknown | minimum branch minimum           | unbounded if any branch is unbounded, otherwise maximum finite branch maximum                                                                                                                                              | derived from bounds and nullability                                                                                       |
+| `repeat`                 | nullable when `min` is zero; otherwise inherits body nullability                                    | checked body minimum times `min` | finite(0) when the certified maximum is zero or the body maximum is finite(0); unbounded for an unbounded repetition whose body can consume positively; otherwise checked body maximum times the finite repetition maximum | derived from bounds and nullability; mode does not affect consumption                                                     |
+| `position`               | nullable                                                                                            | 0                                | finite(0)                                                                                                                                                                                                                  | always zero-width                                                                                                         |
+| `capture`                | inherits body                                                                                       | inherits body                    | inherits body                                                                                                                                                                                                              | inherits body; also defines its logical capture ID                                                                        |
+| `backreference`          | non-nullable when the referenced capture body has positive minimum; otherwise unknown               | referenced capture-body minimum  | referenced capture-body maximum                                                                                                                                                                                            | always consuming when minimum is positive; otherwise indeterminate unless the referenced body is proven always zero-width |
+| `lookaround`             | nullable                                                                                            | 0                                | finite(0)                                                                                                                                                                                                                  | always zero-width; the body is analyzed independently but its examined length is not outer consumption                    |
+| `atomic`                 | inherits body                                                                                       | inherits body                    | inherits body                                                                                                                                                                                                              | inherits body; atomicity changes backtracking, not accepted consumption lengths                                           |
 
 Assertions are treated as nullable foundational expressions because successful
 assertion matches consume zero; this stage does not attempt satisfiability or

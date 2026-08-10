@@ -65,6 +65,18 @@ class CoreSchemaMappingTests(unittest.TestCase):
         with self.assertRaisesRegex(CoreContractError, "normalization stage"):
             validate_mapping_document(changed, ROOT)
 
+    def test_analysis_mapping_requires_executable_stage(self) -> None:
+        mapping = load_mapping(ROOT / "core" / "contract-mapping.json")
+        changed = copy.deepcopy(mapping)
+        analysis = next(
+            entry
+            for entry in changed["schemas"]
+            if entry["schema"] == "spec/contracts/1.0/analysis.schema.json"
+        )
+        analysis["rust_modules"] = ["protocol::analysis"]
+        with self.assertRaisesRegex(CoreContractError, "semantic analysis stage"):
+            validate_mapping_document(changed, ROOT)
+
 
 class CoreArchitectureBoundaryTests(unittest.TestCase):
     def test_unapproved_runtime_dependency_fails(self) -> None:
@@ -108,6 +120,7 @@ class CoreArchitectureBoundaryTests(unittest.TestCase):
         for forbidden in (
             "use crate::target;",
             "use crate::protocol;",
+            "use crate::semantic_analysis;",
             "std::env::var",
             "std::time::SystemTime",
             "target_profile",
@@ -120,6 +133,43 @@ class CoreArchitectureBoundaryTests(unittest.TestCase):
                 self.assertRaisesRegex(CoreContractError, "normalization"),
             ):
                 validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_semantic_analysis_boundary_is_required(self) -> None:
+        sources = source_texts()
+        sources["core/src/semantic_analysis.rs"] = sources[
+            "core/src/semantic_analysis.rs"
+        ].replace("pub fn analyze(", "fn analyze(")
+        with self.assertRaisesRegex(CoreContractError, "analysis stage boundary"):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_semantic_analysis_forbidden_dependencies_fail(self) -> None:
+        for forbidden in (
+            "use crate::normalization;",
+            "use crate::target;",
+            "use crate::protocol;",
+            "use crate::diagnostic;",
+            "use crate::emitter;",
+            "use crate::frontend;",
+            "use crate::lsp;",
+            "use crate::editor;",
+            "std::env::var",
+            "std::time::SystemTime",
+            "thread_rng",
+            "target_profile",
+            "portability_plan",
+        ):
+            sources = source_texts()
+            sources["core/src/semantic_analysis.rs"] += f"\n// {forbidden}\n"
+            with (
+                self.subTest(forbidden=forbidden),
+                self.assertRaisesRegex(CoreContractError, "semantic analysis"),
+            ):
+                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+        sources = source_texts()
+        sources["core/src/semantic_analysis.rs"] += "\n// bindings::python\n"
+        with self.assertRaises(CoreContractError):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 
 
 if __name__ == "__main__":

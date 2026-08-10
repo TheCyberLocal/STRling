@@ -5,7 +5,7 @@
         {
             "schema": "spec/contracts/1.0/analysis.schema.json",
             "sha256": "0286061373d6eb9906b1d0c870abd35ae6a00be1e1a27c40fcdc89c6a644dcd6",
-            "rust_modules": ["protocol::analysis"]
+            "rust_modules": ["protocol::analysis", "semantic_analysis"]
         },
         {
             "schema": "spec/contracts/1.0/compile-request.schema.json",
@@ -40,7 +40,7 @@
         {
             "schema": "spec/contracts/1.0/semantic-ir.schema.json",
             "sha256": "bf641bdf129dd5ced9d9f89d0170cefbb4dd976117d9e0c61000fd03041468db",
-            "rust_modules": ["normalization", "semantic"]
+            "rust_modules": ["normalization", "semantic", "semantic_analysis"]
         },
         {
             "schema": "spec/contracts/1.0/source.schema.json",

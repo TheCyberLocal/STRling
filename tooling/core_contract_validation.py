@@ -47,6 +47,7 @@ MODULE_PATHS = {
     "protocol::request": "core/src/protocol/request.rs",
     "protocol::result": "core/src/protocol/result.rs",
     "semantic": "core/src/semantic/mod.rs",
+    "semantic_analysis": "core/src/semantic_analysis.rs",
     "source": "core/src/source/mod.rs",
     "target": "core/src/target/mod.rs",
     "target::profile": "core/src/target/profile.rs",
@@ -124,12 +125,20 @@ def validate_mapping_document(
                 raise CoreContractError(
                     f"{relative}: mapped Rust module does not resolve: {module}"
                 )
+        if relative == "spec/contracts/1.0/analysis.schema.json" and modules != [
+            "protocol::analysis",
+            "semantic_analysis",
+        ]:
+            raise CoreContractError(
+                "analysis mapping must include the executable semantic analysis stage"
+            )
         if relative == "spec/contracts/1.0/semantic-ir.schema.json" and modules != [
             "normalization",
             "semantic",
+            "semantic_analysis",
         ]:
             raise CoreContractError(
-                "Semantic IR mapping must include the canonical normalization stage"
+                "Semantic IR mapping must include the canonical normalization stage followed by semantic analysis"
             )
 
     fixture_roots = mapping["fixture_roots"]
@@ -222,6 +231,7 @@ def validate_source_boundaries(
     for forbidden in (
         "crate::target",
         "crate::protocol",
+        "crate::semantic_analysis",
         "crate::diagnostic",
         "crate::conformance",
         "std::env",
@@ -249,6 +259,49 @@ def validate_source_boundaries(
     ):
         if derived in normalization:
             raise CoreContractError(f"normalization embeds derived analysis: {derived}")
+
+    analysis = "\n".join(
+        text.lower()
+        for path, text in source_texts.items()
+        if path == "core/src/semantic_analysis.rs"
+        or path.startswith("core/src/semantic_analysis/")
+    )
+    if "pub fn analyze(" not in analysis:
+        raise CoreContractError(
+            "canonical semantic analysis stage boundary cannot be located"
+        )
+    for forbidden in (
+        "crate::normalization",
+        "crate::target",
+        "crate::protocol",
+        "crate::diagnostic",
+        "crate::conformance",
+        "crate::emitter",
+        "crate::emitters",
+        "crate::bindings",
+        "crate::frontend",
+        "crate::lsp",
+        "crate::editor",
+        "bindings::",
+        "frontend::",
+        "emitters::",
+        "std::env",
+        "std::time",
+        "systemtime",
+        "thread_rng",
+        "target_profile",
+        "engine_options",
+        "emitted_pattern",
+        "portability_plan",
+        "pcre2",
+        "ecmascript",
+        "python_re",
+    ):
+        if forbidden in analysis:
+            raise CoreContractError(
+                "semantic analysis violates pure target-neutral stage boundary: "
+                f"{forbidden}"
+            )
 
 
 def canonical_fixture_paths(root: Path = ROOT) -> set[Path]:
