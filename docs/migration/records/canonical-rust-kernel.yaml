@@ -104,10 +104,34 @@ checkpoints:
             result: passed
             details: Both all-component aggregates exited zero with the canonical kernel included; existing certified contracts, generation, public contracts, baseline, governance, bindings, and TypeScript behavior remained green.
     - name: Source identity and Semantic IR domain types
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Schema-backed source and provenance model
+            command: core source module; canonical source fixtures
+            result: passed
+            details: Dedicated source, node, capture, frontend, producer, dialect, specification, and digest types preserve serialized identities; closed source documents distinguish exact inline UTF-8 from digest-pinned references and validate provenance relationships without filesystem assumptions.
+          - check: UTF-8 byte coordinate invariants
+            command: cargo test --test source_semantic_contracts utf8_spans_use_half_open_byte_boundaries reversed_span_returns_structured_validation_error
+            result: passed
+            details: Half-open byte spans accept the 2-byte alpha and 4-byte emoji boundaries, reject interior UTF-8 bytes and reversed ranges through structured validation errors, and contain no UTF-16 or LSP coordinate type.
+          - check: Complete target-neutral Semantic IR mapping
+            command: cargo test --test source_semantic_contracts every_ratified_semantic_variant_fixture_validates source_less_constructed_semantics_validate
+            result: passed
+            details: The all-node fixture exercises empty, sequence, alternation, literal, wildcard, character sets, repetition, all positions, captures, backreferences, all lookaround combinations, and atomic nodes; source-less construction remains valid and target fragments are structurally rejected.
+          - check: Canonical graph and normalization preconditions
+            command: cargo test --test source_semantic_contracts all_controlled_invalid_semantics_are_rejected
+            result: passed
+            details: Duplicate node/capture identities, unresolved backreferences, undeclared sources, invalid UTF-8 attribution, nested sequences, uncoalesced literals, reversed repeat bounds, and target syntax leakage are all rejected without performing normalization.
+          - check: Closed-world serialization fidelity
+            command: cargo test --test source_semantic_contracts; cargo clippy --all-targets -- -D warnings; cargo check --all-targets
+            result: passed
+            details: All 10 focused tests passed, including positive and controlled-invalid fixtures, explicit-null rejection for optional fields, required-nullable maximum handling, unknown-field rejection, deterministic JSON round trips, and warnings-denied lint/typecheck.
+          - check: Certified contracts and kernel hardgate
+            command: python3 tooling/contract_validation.py; ./strling check core --json; python3 tooling/governance.py; git diff --check
+            result: passed
+            details: All 11 schemas, 29 positive objects, 33 controlled invalid objects, kernel quality operations, architecture boundaries, task scope, and patch integrity passed.
     - name: Diagnostics and compiler protocol domain types
-      status: planned
+      status: in_progress
       evidence: []
     - name: Target profile and artifact domain types
       status: planned
@@ -121,4 +145,6 @@ checkpoints:
     - name: Completion and compiler-pipeline readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 4eb0c4ec22b7ce750f8ac0caa09ea361ce9ac812
+      subject: "feat(core): establish canonical compiler kernel"
