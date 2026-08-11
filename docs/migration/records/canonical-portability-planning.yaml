@@ -29,6 +29,10 @@ scope:
         - strling.ps1
         - tests/spec/**
     expected_files:
+        - core/src/capability_evaluation.rs
+        - core/src/lib.rs
+        - core/src/portability_planning.rs
+        - core/tests/portability_planning.rs
         - docs/migration/records/canonical-portability-planning.yaml
         - docs/portability-planning.md
         - governance/change-control.json
@@ -98,8 +102,12 @@ checkpoints:
             result: failed
             details: Every configured formatter passed, including Rust and Prettier, but the repository command retained its governed nonzero disposition because local Ruff 0.16.2 does not match the pinned 0.15.21.
     - name: Planning framework and native decisions
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Pure framework, correspondence, native, and unresolved behavior
+            command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && cargo check --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml
+            result: passed
+            details: Nine focused planning tests and all 178 kernel tests pass; empty, native, multiple-native, unknown, mixed native/unknown, mismatched result, exact program/profile mismatch, determinism, and five-input immutability are certified with complete native capability evidence and Unknown retained outside final status.
     - name: Equivalent rewrite registry and proof evaluation
       status: planned
       evidence: []

@@ -14,14 +14,14 @@ use crate::semantic::{
 use crate::semantic_analysis::{
     semantic_program_identity, MaximumConsumption, SemanticFacts, SemanticNodeKind,
 };
-use crate::source::{CaptureId, ContractVersion, NodeId, SpecificationVersion};
+use crate::source::{CaptureId, ContractVersion, NodeId, Sha256Digest, SpecificationVersion};
 use crate::structural_analysis::{LengthClassification, StructuralFacts};
 use crate::target::{
     Capability, CapabilityAvailability, CapabilityConstraint, CapabilityId, ConstraintId,
     ConstraintOperator, ConstraintScalar, ConstraintUnit, ConstraintValue, EngineIdentity,
     ProfileOption, RuntimeIdentity, TargetProfile, TargetProfileReference, TargetProfileSet,
 };
-use crate::validation::{Validate, ValidationCode};
+use crate::validation::{canonical_sha256, Validate, ValidationCode};
 
 const LOOKAHEAD: &str = "assertions.lookahead";
 const FIXED_LOOKBEHIND: &str = "assertions.lookbehind.fixed_length";
@@ -278,6 +278,7 @@ pub struct CapabilityResult {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CapabilityEvaluation {
     pub contract_version: ContractVersion,
+    pub semantic_program: Sha256Digest,
     pub specification_version: SpecificationVersion,
     pub target_profile: TargetProfileReference,
     pub target_engine: EngineIdentity,
@@ -346,6 +347,7 @@ pub fn evaluate_capabilities(
     structural: &StructuralFacts,
     target: &TargetProfile,
 ) -> Result<CapabilityEvaluation, CapabilityEvaluationErrors> {
+    let semantic_program = semantic_program_fingerprint(input)?;
     let requirements = extract_requirements(input, foundational, structural)?;
     validate_target_profile(input, target)?;
     let target_reference = target.reference().map_err(|errors| {
@@ -359,6 +361,7 @@ pub fn evaluate_capabilities(
 
     Ok(CapabilityEvaluation {
         contract_version: input.contract_version,
+        semantic_program,
         specification_version: input.specification_version.clone(),
         target_profile: target_reference,
         target_engine: target.engine.clone(),
@@ -1161,7 +1164,21 @@ fn lookbehind_length(
     }
 }
 
-fn validate_prerequisites(
+fn semantic_program_fingerprint(
+    input: &SemanticProgram,
+) -> Result<Sha256Digest, CapabilityEvaluationErrors> {
+    canonical_sha256(input)
+        .map(Sha256Digest::from_bytes)
+        .map_err(|error| {
+            CapabilityEvaluationErrors::single(CapabilityEvaluationError::new(
+                CapabilityEvaluationErrorCode::FactInvariant,
+                "$",
+                format!("semantic program fingerprint could not be derived: {error}"),
+            ))
+        })
+}
+
+pub(crate) fn validate_prerequisites(
     input: &SemanticProgram,
     foundational: &SemanticFacts,
     structural: &StructuralFacts,
