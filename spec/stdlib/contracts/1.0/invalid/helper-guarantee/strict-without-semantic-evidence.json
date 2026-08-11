@@ -4,7 +4,7 @@
     "base_fixture": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json",
     "mutation": {
         "operation": "replace",
-        "pointer": "/evidence/references/3/kind",
+        "pointer": "/evidence/references/5/kind",
         "value": "boundary_corpus"
     },
     "expected_rule": "semantic.evidence.required"

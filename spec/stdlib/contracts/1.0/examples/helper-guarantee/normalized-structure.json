@@ -117,6 +117,16 @@
                 "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/normalized-structure.json#/validator_pipeline"
             },
             {
+                "evidence_id": "fixture.evidence.decimal_triplet.acceptance",
+                "kind": "acceptance_corpus",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/normalized-structure.json#/validation_definition"
+            },
+            {
+                "evidence_id": "fixture.evidence.decimal_triplet.rejection",
+                "kind": "rejection_corpus",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/normalized-structure.json#/excluded_cases"
+            },
+            {
                 "evidence_id": "fixture.evidence.decimal_triplet.boundaries",
                 "kind": "boundary_corpus",
                 "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/normalized-structure.json#/validation_definition"
@@ -131,15 +141,19 @@
             {
                 "check_id": "fixture.check.decimal_triplet.shape",
                 "evidence_ids": [
+                    "fixture.evidence.decimal_triplet.acceptance",
                     "fixture.evidence.decimal_triplet.boundaries",
-                    "fixture.evidence.decimal_triplet.implementation"
+                    "fixture.evidence.decimal_triplet.implementation",
+                    "fixture.evidence.decimal_triplet.rejection"
                 ]
             },
             {
                 "check_id": "fixture.check.decimal_triplet.range",
                 "evidence_ids": [
+                    "fixture.evidence.decimal_triplet.acceptance",
                     "fixture.evidence.decimal_triplet.boundaries",
                     "fixture.evidence.decimal_triplet.implementation",
+                    "fixture.evidence.decimal_triplet.rejection",
                     "fixture.evidence.decimal_triplet.standard"
                 ]
             }

@@ -13,6 +13,10 @@
 -   [`Specification Hub`](../spec/README.md) and
     [`Versioning Policy`](../spec/VERSIONING.md) — current authority state,
     draft/ratified rules, and material classification.
+-   [`Validation Guarantees`](../spec/stdlib/VALIDATION_GUARANTEES.md) and
+    [`Compiler Boundaries`](../spec/stdlib/COMPILER_BOUNDARIES.md) — normative
+    helper-claim levels, standards scope, and independence from safety,
+    diagnostics, portability, and rewrites.
 
 ## Architecture and strategy
 

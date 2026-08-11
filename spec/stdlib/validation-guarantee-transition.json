@@ -1,0 +1,128 @@
+{
+    "kind": "strling.stdlib-guarantee-transition-inventory",
+    "contract_version": "1.0.0",
+    "inventory_version": "1.0.0",
+    "classification": "transitional_unclassified",
+    "entries": [
+        {
+            "helper_id": "stdlib.date_time",
+            "registry_name": "dateTime",
+            "classification": "transitional_unclassified",
+            "guarantee_status": "not_ratified",
+            "strongest_permitted_claim": "no_validation_guarantee",
+            "source_references": [
+                "spec/stdlib/essential_5.json#/patterns/dateTime",
+                "spec/stdlib/registry.json#/patterns/4"
+            ],
+            "known_claim_risks": [
+                "citation_without_scope",
+                "fixtures_as_conformance",
+                "shape_as_validity",
+                "subset_as_standard"
+            ],
+            "required_later_work": [
+                "assign_guarantee_metadata",
+                "audit_semantic_false_positives",
+                "certify_cross_target_behavior",
+                "expose_generated_contract",
+                "verify_standard_scope"
+            ]
+        },
+        {
+            "helper_id": "stdlib.email",
+            "registry_name": "email",
+            "classification": "transitional_unclassified",
+            "guarantee_status": "not_ratified",
+            "strongest_permitted_claim": "no_validation_guarantee",
+            "source_references": [
+                "spec/stdlib/essential_5.json#/patterns/email",
+                "spec/stdlib/registry.json#/patterns/0"
+            ],
+            "known_claim_risks": [
+                "citation_without_scope",
+                "fixtures_as_conformance",
+                "shape_as_validity",
+                "subset_as_standard"
+            ],
+            "required_later_work": [
+                "assign_guarantee_metadata",
+                "audit_semantic_false_positives",
+                "certify_cross_target_behavior",
+                "expose_generated_contract",
+                "verify_standard_scope"
+            ]
+        },
+        {
+            "helper_id": "stdlib.ip",
+            "registry_name": "ip",
+            "classification": "transitional_unclassified",
+            "guarantee_status": "not_ratified",
+            "strongest_permitted_claim": "no_validation_guarantee",
+            "source_references": [
+                "spec/stdlib/essential_5.json#/patterns/ip",
+                "spec/stdlib/registry.json#/patterns/3"
+            ],
+            "known_claim_risks": [
+                "citation_without_scope",
+                "fixtures_as_conformance",
+                "shape_as_validity",
+                "subset_as_standard"
+            ],
+            "required_later_work": [
+                "assign_guarantee_metadata",
+                "audit_semantic_false_positives",
+                "certify_cross_target_behavior",
+                "expose_generated_contract",
+                "verify_standard_scope"
+            ]
+        },
+        {
+            "helper_id": "stdlib.url",
+            "registry_name": "url",
+            "classification": "transitional_unclassified",
+            "guarantee_status": "not_ratified",
+            "strongest_permitted_claim": "no_validation_guarantee",
+            "source_references": [
+                "spec/stdlib/essential_5.json#/patterns/url",
+                "spec/stdlib/registry.json#/patterns/1"
+            ],
+            "known_claim_risks": [
+                "citation_without_scope",
+                "fixtures_as_conformance",
+                "shape_as_validity",
+                "subset_as_standard"
+            ],
+            "required_later_work": [
+                "assign_guarantee_metadata",
+                "audit_semantic_false_positives",
+                "certify_cross_target_behavior",
+                "expose_generated_contract",
+                "verify_standard_scope"
+            ]
+        },
+        {
+            "helper_id": "stdlib.uuid",
+            "registry_name": "uuid",
+            "classification": "transitional_unclassified",
+            "guarantee_status": "not_ratified",
+            "strongest_permitted_claim": "no_validation_guarantee",
+            "source_references": [
+                "spec/stdlib/essential_5.json#/patterns/uuid",
+                "spec/stdlib/registry.json#/patterns/2"
+            ],
+            "known_claim_risks": [
+                "citation_without_scope",
+                "fixtures_as_conformance",
+                "shape_as_validity",
+                "subset_as_standard"
+            ],
+            "required_later_work": [
+                "assign_guarantee_metadata",
+                "audit_semantic_false_positives",
+                "certify_cross_target_behavior",
+                "expose_generated_contract",
+                "verify_standard_scope"
+            ]
+        }
+    ]
+}

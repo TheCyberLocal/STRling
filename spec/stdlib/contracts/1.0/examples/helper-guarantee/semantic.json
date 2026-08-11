@@ -148,6 +148,16 @@
                 "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/validator_pipeline"
             },
             {
+                "evidence_id": "fixture.evidence.profile_calendar_day.acceptance",
+                "kind": "acceptance_corpus",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/validation_definition"
+            },
+            {
+                "evidence_id": "fixture.evidence.profile_calendar_day.rejection",
+                "kind": "rejection_corpus",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/excluded_cases"
+            },
+            {
                 "evidence_id": "fixture.evidence.profile_calendar_day.boundaries",
                 "kind": "boundary_corpus",
                 "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/validation_definition"
@@ -172,23 +182,29 @@
             {
                 "check_id": "fixture.check.profile_calendar_day.shape",
                 "evidence_ids": [
+                    "fixture.evidence.profile_calendar_day.acceptance",
                     "fixture.evidence.profile_calendar_day.boundaries",
-                    "fixture.evidence.profile_calendar_day.implementation"
+                    "fixture.evidence.profile_calendar_day.implementation",
+                    "fixture.evidence.profile_calendar_day.rejection"
                 ]
             },
             {
                 "check_id": "fixture.check.profile_calendar_day.components",
                 "evidence_ids": [
+                    "fixture.evidence.profile_calendar_day.acceptance",
                     "fixture.evidence.profile_calendar_day.boundaries",
-                    "fixture.evidence.profile_calendar_day.implementation"
+                    "fixture.evidence.profile_calendar_day.implementation",
+                    "fixture.evidence.profile_calendar_day.rejection"
                 ]
             },
             {
                 "check_id": "fixture.check.profile_calendar_day.calendar",
                 "evidence_ids": [
+                    "fixture.evidence.profile_calendar_day.acceptance",
                     "fixture.evidence.profile_calendar_day.boundaries",
                     "fixture.evidence.profile_calendar_day.implementation",
                     "fixture.evidence.profile_calendar_day.interactions",
+                    "fixture.evidence.profile_calendar_day.rejection",
                     "fixture.evidence.profile_calendar_day.semantic",
                     "fixture.evidence.profile_calendar_day.standard"
                 ]

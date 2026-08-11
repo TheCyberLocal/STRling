@@ -1,0 +1,107 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/spec/stdlib/contracts/1.0/transition-inventory.schema.json",
+    "title": "STRling standard-library validation-guarantee transition inventory",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "kind",
+        "contract_version",
+        "inventory_version",
+        "classification",
+        "entries"
+    ],
+    "properties": {
+        "kind": {
+            "const": "strling.stdlib-guarantee-transition-inventory"
+        },
+        "contract_version": {
+            "const": "1.0.0"
+        },
+        "inventory_version": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+        },
+        "classification": {
+            "const": "transitional_unclassified"
+        },
+        "entries": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/entry"
+            }
+        }
+    },
+    "$defs": {
+        "entry": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "helper_id",
+                "registry_name",
+                "classification",
+                "guarantee_status",
+                "strongest_permitted_claim",
+                "source_references",
+                "known_claim_risks",
+                "required_later_work"
+            ],
+            "properties": {
+                "helper_id": {
+                    "type": "string",
+                    "pattern": "^stdlib\\.[a-z][a-z0-9_]*$"
+                },
+                "registry_name": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9]*$"
+                },
+                "classification": {
+                    "const": "transitional_unclassified"
+                },
+                "guarantee_status": {
+                    "const": "not_ratified"
+                },
+                "strongest_permitted_claim": {
+                    "const": "no_validation_guarantee"
+                },
+                "source_references": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                        "type": "string",
+                        "pattern": "^spec/stdlib/(?:registry|essential_5)\\.json#[A-Za-z0-9_./-]+$"
+                    },
+                    "uniqueItems": true
+                },
+                "known_claim_risks": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "enum": [
+                            "shape_as_validity",
+                            "citation_without_scope",
+                            "subset_as_standard",
+                            "fixtures_as_conformance"
+                        ]
+                    },
+                    "uniqueItems": true
+                },
+                "required_later_work": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "enum": [
+                            "assign_guarantee_metadata",
+                            "audit_semantic_false_positives",
+                            "verify_standard_scope",
+                            "certify_cross_target_behavior",
+                            "expose_generated_contract"
+                        ]
+                    },
+                    "uniqueItems": true
+                }
+            }
+        }
+    }
+}

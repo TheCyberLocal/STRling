@@ -1,10 +1,10 @@
 {
     "title": "STRling Essential 5 — Standard Library Patterns",
-    "description": "Normative AST + regex specification for the five canonical Simply patterns. Every binding's Simply module MUST expose these helpers and produce the regex output recorded here. Test fixtures provide cross-binding parity validation against the cited RFCs.",
+    "description": "Historical compatibility AST + regex manifest for the five canonical Simply patterns. Every binding's Simply module currently exposes these helpers and produces the recorded regex output. Fixtures provide cross-binding parity evidence only; they do not establish a validation guarantee or conformance to a cited standard.",
     "patterns": {
         "email": {
             "name": "email",
-            "summary": "Matches the canonical structure of an email address.",
+            "summary": "Matches the helper's declared addr-spec-like lexical shape; complete email-standard conformance is not claimed.",
             "rfc": "RFC 5322 (basic structure: addr-spec without quoted/comment forms)",
             "regex": "[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}",
             "ast": {
@@ -34,15 +34,33 @@
                                     "from": "0",
                                     "to": "9"
                                 },
-                                { "type": "ClassLiteral", "value": "." },
-                                { "type": "ClassLiteral", "value": "_" },
-                                { "type": "ClassLiteral", "value": "%" },
-                                { "type": "ClassLiteral", "value": "+" },
-                                { "type": "ClassLiteral", "value": "-" }
+                                {
+                                    "type": "ClassLiteral",
+                                    "value": "."
+                                },
+                                {
+                                    "type": "ClassLiteral",
+                                    "value": "_"
+                                },
+                                {
+                                    "type": "ClassLiteral",
+                                    "value": "%"
+                                },
+                                {
+                                    "type": "ClassLiteral",
+                                    "value": "+"
+                                },
+                                {
+                                    "type": "ClassLiteral",
+                                    "value": "-"
+                                }
                             ]
                         }
                     },
-                    { "type": "Lit", "value": "@" },
+                    {
+                        "type": "Lit",
+                        "value": "@"
+                    },
                     {
                         "type": "Quant",
                         "min": 1,
@@ -67,12 +85,21 @@
                                     "from": "0",
                                     "to": "9"
                                 },
-                                { "type": "ClassLiteral", "value": "." },
-                                { "type": "ClassLiteral", "value": "-" }
+                                {
+                                    "type": "ClassLiteral",
+                                    "value": "."
+                                },
+                                {
+                                    "type": "ClassLiteral",
+                                    "value": "-"
+                                }
                             ]
                         }
                     },
-                    { "type": "Lit", "value": "." },
+                    {
+                        "type": "Lit",
+                        "value": "."
+                    },
                     {
                         "type": "Quant",
                         "min": 2,
@@ -87,7 +114,11 @@
                                     "from": "A",
                                     "to": "Z"
                                 },
-                                { "type": "ClassRange", "from": "a", "to": "z" }
+                                {
+                                    "type": "ClassRange",
+                                    "from": "a",
+                                    "to": "z"
+                                }
                             ]
                         }
                     }
@@ -112,7 +143,7 @@
         },
         "url": {
             "name": "url",
-            "summary": "Matches an http(s) URL with scheme, authority, optional path, query, and fragment.",
+            "summary": "Matches the helper's declared http(s) URL-like textual shape; complete URI-standard conformance is not claimed.",
             "rfc": "RFC 3986 (Uniform Resource Identifier — Generic Syntax)",
             "regex": "https?:\\/\\/[A-Za-z0-9.\\-]+(?::[0-9]+)?(?:\\/[^\\s?#]*)?(?:\\?[^\\s#]*)?(?:#[^\\s]*)?",
             "components": [
@@ -142,7 +173,7 @@
         },
         "uuid": {
             "name": "uuid",
-            "summary": "Matches a UUID in standard 8-4-4-4-12 hex format. Optional version=4 enables RFC 4122 v4 validation.",
+            "summary": "Matches the declared 8-4-4-4-12 hexadecimal shape; version=4 also constrains version and variant nibbles without claiming complete standard conformance.",
             "rfc": "RFC 4122 (A Universally Unique IDentifier URN Namespace)",
             "regex_default": "[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}",
             "regex_v4": "[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-4[0-9A-Fa-f]{3}-[89ABab][0-9A-Fa-f]{3}-[0-9A-Fa-f]{12}",
@@ -174,12 +205,12 @@
         },
         "ip": {
             "name": "ip",
-            "summary": "Matches an IP address. Default accepts both IPv4 and IPv6. Optional version=4 or version=6 restricts to a single family.",
+            "summary": "Matches the declared IPv4-like or full uncompressed IPv6-like textual shape; numeric IPv4 ranges and complete address-standard conformance are not claimed.",
             "rfc": "RFC 791 (IPv4) and RFC 4291 (IPv6 Addressing Architecture)",
             "regex_v4": "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}",
             "regex_v6": "[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}",
             "regex_default": "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}",
-            "notes": "IPv4 uses dot-decimal notation (four 1-3 digit octets). IPv6 uses the full eight colon-separated hex groups; compressed forms (::) are out of scope for the basic helper.",
+            "notes": "IPv4 uses four 1-3 digit decimal components but does not check the 0-255 component range. IPv6 uses exactly eight colon-separated hex groups; compressed forms (::) and complete RFC conformance are out of scope for this compatibility helper.",
             "fixtures": {
                 "valid_v4": [
                     "192.168.1.1",
@@ -202,7 +233,7 @@
         },
         "dateTime": {
             "name": "dateTime",
-            "summary": "Matches an ISO 8601 datetime: YYYY-MM-DDTHH:MM:SS with optional fractional seconds and timezone designator.",
+            "summary": "Matches the declared YYYY-MM-DDTHH:MM:SS timestamp-like textual shape with optional fraction and offset; calendar, time, and offset ranges are not checked.",
             "rfc": "ISO 8601 / RFC 3339 (Date and Time on the Internet: Timestamps)",
             "regex": "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]+)?(?:Z|[+\\-][0-9]{2}:[0-9]{2})?",
             "fixtures": {

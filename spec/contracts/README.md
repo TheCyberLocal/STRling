@@ -62,5 +62,11 @@ profile, conformance, deterministic serialization, cross-reference, and
 controlled-negative validation. This command is a mandatory `check` and
 `certify` integrity hardgate.
 
+The same canonical command validates the separately versioned
+[`standard-library helper claim contracts`](../stdlib/contracts/README.md),
+their evidence correspondence, explicit transition inventory, and controlled
+overclaim fixtures. Those claims remain outside compiler protocol and do not
+alter any compiler-contract family above.
+
 Legacy schemas under [`../schema/`](../schema/) retain only their existing
 compatibility scopes. They are not aliases for these canonical contracts.
