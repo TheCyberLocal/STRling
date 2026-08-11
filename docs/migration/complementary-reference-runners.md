@@ -209,3 +209,60 @@ historical contribution.
 Later runtime-engine testing will cover target-engine acceptance, flag support,
 portability, and execution behavior. Those checks serve target/runtime
 validation and must not be relabeled as historical semantic authority.
+
+## Cross-runner corpus certification
+
+Cross-runner case identity uses only the stable case identifier, conceptual
+operation, input, and options. Runner-owned surfaces, provenance text, and
+observation payloads are excluded. A case is shared only when both selected
+corpora contain that exact semantic tuple; a reused identifier with different
+input remains runner-specific in both corpora.
+
+The 12 shared cases are `parser-literal`, `parser-escape-class`,
+`parser-groups-alternation-lookaround`, `parser-extended-directive`,
+`parser-malformed-group`, `parser-artifact-repetition`,
+`compiler-literal-normalization`, `compiler-directive-flags`,
+`emitter-redos-warning`, `emitter-variable-lookbehind`,
+`simply-literal-escaping`, and `simply-literal-empty`. TypeScript retains 12
+runner-specific cases; Python retains eight. Inputs were not rewritten to
+increase the shared count.
+
+| Conceptual operation                  | TypeScript cases | Python cases |
+| ------------------------------------- | ---------------: | -----------: |
+| `parser.parse`                        |                5 |            5 |
+| `parser.parse_to_artifact`            |                1 |            1 |
+| `compiler.compile`                    |                3 |            3 |
+| `compiler.compile_with_metadata`      |                1 |            1 |
+| `emitter.pcre2.emit`                  |                4 |            3 |
+| `emitter.pcre2.emit_with_diagnostics` |                2 |            1 |
+| `api.root.parse`                      |                1 |            1 |
+| `api.root.parse_to_artifact`          |                1 |            1 |
+| `api.simply.literal_to_string`        |                2 |            2 |
+| `api.simply.compile_node`             |                2 |            1 |
+| `api.simply.to_regexp`                |                2 |            1 |
+
+The combined certification records 44 runner cases, 12 shared case identities,
+20 runner-specific case identities, and 24 shared runner-case executions. Each
+runner executed three times: 72 TypeScript and 60 Python canonical observations,
+132 total within-runner comparisons, four malformed cases, zero repeat
+mismatches, and zero unexplained runner failures. Both corpora and both governed
+implementation snapshots remained unchanged.
+
+Certified identities are:
+
+-   TypeScript on Node 24.4.1: implementation
+    `sha256:43cd3efde7b6afd11b1230ea26355f65255b5a79e7c0fcd7f54f6da2632b83a4`;
+    corpus
+    `sha256:744a4d0e029fbb2890e98e25d20402044f5b551a7642255a57c80f5dec48d30a`.
+-   Python on Python 3.13.5: implementation
+    `sha256:0748ef7994a2bf143cb71efc149f0e8929905533d05b4fa1c2365f596ba88bc5`;
+    corpus
+    `sha256:f3114a423da9928ab12ff7afe5c2ce0eba97c2f57c3599cdc98b2105a5ef914d`.
+-   Cross-corpus manifest:
+    `sha256:844f9abee4870ac74fe986a7aa623ea0033d5b69bedaa89026c1970a8beeedb6`.
+
+Changing either implementation fingerprint leaves the unrelated runner record
+unchanged; the cross-corpus identity derives from case partitions and runner
+corpus identities, not implementation outputs. The emitted certification has no
+semantic-disposition fields and performs no cross-runner observation comparison.
+A raw TypeScript/Python difference is therefore outside repeat-mismatch counts.

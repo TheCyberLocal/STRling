@@ -146,8 +146,25 @@ checkpoints:
             result: passed
             details: No third runner was justified. Partially independent translated bindings lacked an established unique historical path proportionate to a new maintained runner; package facades, generated tests, packaged Python copies, and the retired TypeScript oracle were redundant. Later target/runtime-engine testing retains responsibility for engine acceptance, flag support, portability, and execution behavior without promoting those checks into legacy authority.
     - name: Cross-runner corpus and determinism certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Cross-runner case partition and identity tests
+            command: python -m ruff check --no-cache tooling/legacy_reference/cross_reference.py tooling/legacy_reference/tests/test_cross_reference.py; python -m unittest tooling.legacy_reference.tests.test_cross_reference
+            result: passed
+            details: >-
+                Ruff passed and seven focused tests proved exact semantic-tuple
+                sharing, stable runner-specific partitions, canonical serialization,
+                input immutability, independent implementation identity sensitivity,
+                certification validation, and absence of semantic-disposition fields.
+          - check: Actual TypeScript and Python cross-runner certification
+            command: Build TypeScript with launch.py --certify, run python_reference.py --certify, then compose with cross_reference.certify_selected_runners.
+            result: passed
+            details: >-
+                Two runners, 44 runner cases, 12 shared cases, 20 runner-specific
+                cases, six repeat runs, 132 canonical within-runner observations,
+                four malformed cases, zero repeat mismatches, and zero unexplained
+                failures passed with immutable corpus and implementation inputs.
+                Cross-corpus fingerprint sha256:844f9abee4870ac74fe986a7aa623ea0033d5b69bedaa89026c1970a8beeedb6.
     - name: Tooling integration and authority hardgates
       status: planned
       evidence: []
