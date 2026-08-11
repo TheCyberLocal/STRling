@@ -10,6 +10,17 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+try:
+    from core_stage_boundaries import (
+        compiler_pipeline_boundary_violation,
+        diagnostic_generation_boundary_violation,
+    )
+except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
+    from tooling.core_stage_boundaries import (
+        compiler_pipeline_boundary_violation,
+        diagnostic_generation_boundary_violation,
+    )
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MAPPING_PATH = ROOT / "core" / "contract-mapping.json"
@@ -39,8 +50,10 @@ EXPECTED_FIXTURE_ROOTS = (
 )
 ALLOWED_RUNTIME_DEPENDENCIES = {"serde", "serde_json", "sha2"}
 MODULE_PATHS = {
+    "compiler_pipeline": "core/src/compiler_pipeline.rs",
     "conformance": "core/src/conformance/mod.rs",
     "diagnostic": "core/src/diagnostic/mod.rs",
+    "diagnostic_generation": "core/src/diagnostic_generation.rs",
     "normalization": "core/src/normalization.rs",
     "protocol::analysis": "core/src/protocol/analysis.rs",
     "protocol::exchange": "core/src/protocol/exchange.rs",
@@ -132,9 +145,25 @@ def validate_mapping_document(
             "semantic_analysis",
             "structural_analysis",
             "safety_analysis",
+            "diagnostic_generation",
         ]:
             raise CoreContractError(
-                "analysis mapping must register semantic analysis, structural analysis, and semantic safety analysis in dependency order"
+                "analysis mapping must register semantic analysis, structural analysis, semantic safety analysis, and diagnostic generation in dependency order"
+            )
+        if relative == "spec/contracts/1.0/compile-result.schema.json" and modules != [
+            "protocol::exchange",
+            "protocol::result",
+            "compiler_pipeline",
+        ]:
+            raise CoreContractError(
+                "compile result mapping must register target-neutral compiler pipeline integration"
+            )
+        if relative == "spec/contracts/1.0/diagnostic.schema.json" and modules != [
+            "diagnostic",
+            "diagnostic_generation",
+        ]:
+            raise CoreContractError(
+                "diagnostic mapping must register canonical diagnostic generation"
             )
         if relative == "spec/contracts/1.0/semantic-ir.schema.json" and modules != [
             "normalization",
@@ -142,9 +171,10 @@ def validate_mapping_document(
             "semantic_analysis",
             "structural_analysis",
             "safety_analysis",
+            "diagnostic_generation",
         ]:
             raise CoreContractError(
-                "Semantic IR mapping must register normalization, semantic analysis, structural analysis, and semantic safety analysis in dependency order"
+                "Semantic IR mapping must register normalization, semantic analysis, structural analysis, semantic safety analysis, and diagnostic generation in dependency order"
             )
 
     fixture_roots = mapping["fixture_roots"]
@@ -430,6 +460,14 @@ def validate_source_boundaries(
                 "semantic safety analysis violates pure target-neutral stage boundary: "
                 f"{forbidden}"
             )
+
+    for boundary_check in (
+        diagnostic_generation_boundary_violation,
+        compiler_pipeline_boundary_violation,
+    ):
+        violation = boundary_check(source_texts)
+        if violation is not None:
+            raise CoreContractError(violation)
 
 
 def canonical_fixture_paths(root: Path = ROOT) -> set[Path]:

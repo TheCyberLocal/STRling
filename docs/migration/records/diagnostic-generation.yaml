@@ -1,0 +1,161 @@
+record_version: 2.0.0
+title: Canonical structured diagnostic generation
+status: in_progress
+objective: Convert certified normalized Semantic IR, foundational facts, structural facts, and semantic safety evidence into deterministic target-neutral structured compiler diagnostics without changing Semantic IR, applying rewrites, or beginning target, portability, emission, parser, binding, Simply, or editor migrations.
+scope:
+    diff:
+        base: 8362f7f5120ac829fc3a293de30a4fed9ab0ae8d
+        head: working-tree
+    allowed_paths:
+        - core/**
+        - docs/migration/**
+        - governance/change-control.json
+        - spec/contracts/1.0/examples/diagnostic/semantic-safety-warning.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_canonical_contracts.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_diagnostic_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - package.json
+        - package-lock.json
+        - spec/features.json
+        - spec/grammar/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - strling
+        - strling.ps1
+        - tests/spec/**
+    expected_files:
+        - core/README.md
+        - core/contract-mapping.json
+        - core/src/compiler_pipeline.rs
+        - core/src/diagnostic_generation.rs
+        - core/src/lib.rs
+        - core/src/safety_analysis.rs
+        - core/tests/diagnostic_contract_fixture.rs
+        - core/tests/diagnostic_evidence.rs
+        - core/tests/diagnostic_generation.rs
+        - core/tests/diagnostic_generation_properties.rs
+        - core/tests/diagnostic_safety_mapping.rs
+        - docs/migration/diagnostic-generation.md
+        - docs/migration/records/diagnostic-generation.yaml
+        - governance/change-control.json
+        - spec/contracts/1.0/examples/diagnostic/semantic-safety-warning.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_canonical_contracts.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_diagnostic_architecture.py
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - The canonical kernel gains the first executable producer of certified structured Diagnostic documents for existing target-neutral safety findings.
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - A pure diagnostic-generation stage now follows semantic safety analysis, and a crate-private compiler pipeline projects its diagnostics into CompileResult without portability or target artifacts.
+            - Architecture fitness rejects target, planner, portability, emitter, binding, frontend, editor, runtime-state, raw-source, and engine-specific dependencies in diagnostic generation.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Kernel diagnostic quality
+      command: cargo fmt --manifest-path core/Cargo.toml -- --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && cargo check --manifest-path core/Cargo.toml --all-targets && cargo build --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml --all-targets
+      expected_result: The kernel builds without warnings and all diagnostic, property, contract, pipeline, and regression tests pass.
+    - name: Contract and controlled architecture certification
+      command: python3 tooling/core_contract_validation.py && python3 tooling/contract_validation.py && python3 -m unittest tooling.tests.test_core_contracts tooling.tests.test_diagnostic_architecture
+      expected_result: All canonical diagnostic documents validate and controlled target, planner, binding, and editor dependencies fail.
+    - name: Repository quality and certification
+      command: ./strling format --check && ./strling hygiene && ./strling lint all && ./strling typecheck all && ./strling generate --check && ./strling contracts --check && ./strling governance && python3 tooling/baseline.py --check && ./strling check --json && ./strling certify --json
+      expected_result: Every enforced repository quality, contract, governance, baseline, check, and certification operation passes from committed state.
+    - name: TypeScript compatibility baseline
+      command: ./strling build typescript && ./strling test typescript && ./strling typecheck typescript
+      expected_result: Existing TypeScript runtime and compiler behavior remains unchanged with all 19 suites and 963 tests passing.
+    - name: Patch and clean-state integrity
+      command: git diff --check && git status --short --branch
+      expected_result: The final committed repository has no whitespace errors or uncommitted files.
+checkpoints:
+    - name: Diagnostic policy and mapping contract
+      status: passed
+      evidence:
+          - check: Target-neutral identity, severity, source, remediation, and uncertainty policy
+            command: cargo test --manifest-path core/Cargo.toml --all-targets && python3 tooling/core_contract_validation.py
+            result: passed
+            details: The policy defines five durable STRL-SAFETY codes, warning or informational canonical severity, honest UTF-8 provenance projection, descriptive advice without rewrites, and no automatic promotion of uncertainty.
+    - name: Diagnostic generation framework
+      status: passed
+      evidence:
+          - check: Pure API, validation, identity, ordering, and deduplication
+            command: cargo test --manifest-path core/Cargo.toml --test diagnostic_generation
+            result: passed
+            details: generate_diagnostics validates exact prerequisite correspondence and evidence identities, deduplicates equivalent evidence, assigns stable sorted occurrence ordinals, and supports source-less programs.
+    - name: Safety diagnostic mapping
+      status: passed
+      evidence:
+          - check: Complete five-finding mapping
+            command: cargo test --manifest-path core/Cargo.toml --test diagnostic_safety_mapping
+            result: passed
+            details: Every certified safety finding maps exactly once to its stable code, deterministic target-neutral message, canonical severity, evidence, location projection, and advice.
+    - name: Remediation metadata and source evidence
+      status: passed
+      evidence:
+          - check: Honest provenance and descriptive remediation
+            command: cargo test --manifest-path core/Cargo.toml --test diagnostic_evidence
+            result: passed
+            details: Outer and inner repetitions, alternation branches, and follower relationships retain exact evidence and ordered related locations without merging discontiguous spans or emitting rewrite edits or target syntax.
+    - name: Property and contract certification
+      status: passed
+      evidence:
+          - check: Fixed-seed properties and schema fixture
+            command: cargo test --manifest-path core/Cargo.toml --test diagnostic_generation_properties --test diagnostic_contract_fixture
+            result: passed
+            details: Four reproducible seeds generated 256 programs and 189 diagnostics with zero failures across determinism, evidence integrity, finding correspondence, uncertainty preservation, source honesty, and input immutability; the canonical document validates against the normative schema.
+    - name: Compiler protocol and hardgate integration
+      status: in_progress
+      evidence:
+          - check: Target-neutral private pipeline and architecture fitness
+            command: cargo test --manifest-path core/Cargo.toml compiler_pipeline && python3 -m unittest tooling.tests.test_core_contracts tooling.tests.test_diagnostic_architecture
+            result: passed
+            details: The crate-private pipeline returns validated CompileResult diagnostics without portability or artifacts, and controlled target, planner, binding, editor, and missing-prerequisite mutations fail.
+    - name: Completion and target-aware diagnostic readiness
+      status: planned
+      evidence: []
+commits:
+    - sha: 890bd71e95f028e18bd5f3cf4a3255b94b810667
+      subject: "docs(core): define canonical diagnostic generation policy"
+    - sha: cdfe354d61cf05e666615e16fc6750f0b53cc50d
+      subject: "feat(core): establish structured diagnostic generation"
+    - sha: dcec559b764e6642adf5d57f98c19ad00331fc42
+      subject: "feat(core): generate semantic safety diagnostics"
+    - sha: 080010b9007709e8e26f8cdbf51ae5460debd577
+      subject: "feat(core): attach diagnostic evidence and remediation guidance"
+    - sha: 71e0e247fce90934631ea56a4b9743603ea05b84
+      subject: "test(core): certify structured diagnostic generation"

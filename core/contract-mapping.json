@@ -9,7 +9,8 @@
                 "protocol::analysis",
                 "semantic_analysis",
                 "structural_analysis",
-                "safety_analysis"
+                "safety_analysis",
+                "diagnostic_generation"
             ]
         },
         {
@@ -20,7 +21,11 @@
         {
             "schema": "spec/contracts/1.0/compile-result.schema.json",
             "sha256": "11dbd386760eb58c49805c68cea42a217a196c7032c15a5ec8c4f37d2fd1d385",
-            "rust_modules": ["protocol::exchange", "protocol::result"]
+            "rust_modules": [
+                "protocol::exchange",
+                "protocol::result",
+                "compiler_pipeline"
+            ]
         },
         {
             "schema": "spec/contracts/1.0/conformance-case.schema.json",
@@ -35,7 +40,7 @@
         {
             "schema": "spec/contracts/1.0/diagnostic.schema.json",
             "sha256": "9c929e230110adf3fe5fac63e28314afa0142c331c50ded4dfdb3c97565ae8f5",
-            "rust_modules": ["diagnostic"]
+            "rust_modules": ["diagnostic", "diagnostic_generation"]
         },
         {
             "schema": "spec/contracts/1.0/portability.schema.json",
@@ -50,7 +55,8 @@
                 "semantic",
                 "semantic_analysis",
                 "structural_analysis",
-                "safety_analysis"
+                "safety_analysis",
+                "diagnostic_generation"
             ]
         },
         {

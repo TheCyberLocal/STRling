@@ -27,8 +27,8 @@ def source_texts() -> dict[str, str]:
 
 class CoreSchemaMappingTests(unittest.TestCase):
     def test_current_mapping_and_fixture_corpus_pass(self) -> None:
-        self.assertEqual((11, 62), validate_repository(ROOT))
-        self.assertEqual(62, validate_fixture_coverage(ROOT))
+        self.assertEqual((11, 63), validate_repository(ROOT))
+        self.assertEqual(63, validate_fixture_coverage(ROOT))
 
     def test_changed_schema_without_mapping_update_fails(self) -> None:
         mapping = load_mapping(ROOT / "core" / "contract-mapping.json")

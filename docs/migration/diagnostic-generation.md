@@ -89,13 +89,13 @@ defined below. Exact duplicate spans in the same explanatory role are removed.
 
 Every currently certified positive safety finding has exactly one mapping:
 
-| Safety finding                         | Diagnostic code       | Severity  |
-| -------------------------------------- | --------------------- | --------- |
-| `unbounded_nullable_repetition`        | `STRL-SAFETY-0001`    | `warning` |
-| `unbounded_indeterminate_progress`     | `STRL-SAFETY-0002`    | `info`    |
-| `nested_repetition_overlap`            | `STRL-SAFETY-0003`    | `warning` |
-| `repeated_alternation_overlap`         | `STRL-SAFETY-0004`    | `warning` |
-| `repetition_follower_overlap`          | `STRL-SAFETY-0005`    | `warning` |
+| Safety finding                     | Diagnostic code    | Severity  |
+| ---------------------------------- | ------------------ | --------- |
+| `unbounded_nullable_repetition`    | `STRL-SAFETY-0001` | `warning` |
+| `unbounded_indeterminate_progress` | `STRL-SAFETY-0002` | `info`    |
+| `nested_repetition_overlap`        | `STRL-SAFETY-0003` | `warning` |
+| `repeated_alternation_overlap`     | `STRL-SAFETY-0004` | `warning` |
+| `repetition_follower_overlap`      | `STRL-SAFETY-0005` | `warning` |
 
 All five diagnostics use phase `semantic_analysis`, category `safety`, and
 severity basis `compiler_policy`. The namespace and numeric allocation are

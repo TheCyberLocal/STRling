@@ -126,7 +126,7 @@ fn occurrence_ordinals_are_stable_for_multiple_occurrences() {
 fn duplicate_finding_input_produces_one_diagnostic() {
     let semantic = program(nullable_repeat("node:repeat"));
     let (foundational, structural, safety) = prerequisites(&semantic);
-    let mut value = serde_json::to_value(&safety).expect("safety must serialize");
+    let mut value = serde_json::to_value(safety).expect("safety must serialize");
     let duplicate = value["findings"][0].clone();
     value["findings"]
         .as_array_mut()
@@ -169,7 +169,7 @@ fn mismatched_prerequisite_stores_are_structured_errors() {
 fn malformed_safety_evidence_reference_is_a_structured_error() {
     let semantic = program(nullable_repeat("node:repeat"));
     let (foundational, structural, safety) = prerequisites(&semantic);
-    let mut value = serde_json::to_value(&safety).expect("safety must serialize");
+    let mut value = serde_json::to_value(safety).expect("safety must serialize");
     value["findings"][0]["primary_node_id"] = json!("node:missing");
     let malformed: SafetyAnalysis =
         serde_json::from_value(value).expect("malformed reference shape deserializes");

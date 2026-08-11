@@ -3,12 +3,17 @@
 //! The certified contracts under `spec/contracts/1.0` are authoritative. This
 //! crate is their reference implementation, not a source of specification
 //! truth. Its current boundary contains strongly typed contract data,
-//! structural validation, pure semantic normalization, and target-neutral
-//! foundational and structural semantic analysis, and structured semantic
-//! safety evidence. Portability, lowering, emission, and product integration
+//! structural validation, pure semantic normalization, target-neutral semantic
+//! and safety analyses, structured diagnostic generation, and crate-private
+//! projection into `CompileResult`. Target capability policy, portability,
+//! lowering, emission, bindings, editor presentation, and product integration
 //! remain intentionally absent.
 #![forbid(unsafe_code)]
 
+// The executable pipeline remains crate-internal until a product API migration
+// is separately authorized; unit and architecture tests exercise this module.
+#[allow(dead_code)]
+mod compiler_pipeline;
 pub mod conformance;
 pub mod diagnostic;
 pub mod diagnostic_generation;

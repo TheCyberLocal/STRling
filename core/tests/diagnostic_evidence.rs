@@ -185,7 +185,7 @@ fn malformed_relationship_identity_cannot_drive_source_projection() {
     let foundational = analyze(&semantic).expect("foundational analysis");
     let structural = analyze_structure(&semantic, &foundational).expect("structural analysis");
     let safety = analyze_safety(&semantic, &foundational, &structural).expect("safety analysis");
-    let mut value = serde_json::to_value(&safety).expect("safety must serialize");
+    let mut value = serde_json::to_value(safety).expect("safety must serialize");
     value["findings"][0]["evidence"]["relationship"]["right_node_id"] =
         json!("node:alternation.left");
     let malformed: SafetyAnalysis =
