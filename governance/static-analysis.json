@@ -19,12 +19,12 @@
             "obsolete_removable",
             "suspected_product_defect"
         ],
-        "baseline_total": 87,
+        "baseline_total": 80,
         "baseline_sha": "bb334b0980327b8f3599cd6da0562022c365641a",
         "inventory_groups": [
             {
                 "kind": "python",
-                "count": 76,
+                "count": 69,
                 "classification": "bounded_transition",
                 "reason": "Import-order exceptions support explicit path bootstrapping or re-exports; type-checker directives predate a governed Python type checker and must not expand.",
                 "retirement_condition": "Keep only narrowly coded import/re-export exceptions and retire broad type ignores as a governed Python type checker is introduced.",
@@ -63,12 +63,11 @@
                         68, 714
                     ],
                     "tooling/parse_strl.py": [45, 46, 47],
-                    "tooling/quality.py": [122, 126, 162, 216],
+                    "tooling/quality.py": [148, 152, 188],
                     "tooling/tests/test_formatting.py": [11, 24],
                     "tooling/tests/test_hygiene.py": [13],
                     "tooling/tests/test_quality.py": [
-                        11, 258, 259, 346, 348, 367, 368, 426, 427, 433, 434,
-                        435
+                        13, 965, 966, 972, 973, 974
                     ]
                 }
             },
@@ -131,10 +130,10 @@
                     "tooling/lsp-server/tests/test_navigation.py": 4,
                     "tooling/lsp-server/tests/test_parser_exhaustive.py": 2,
                     "tooling/parse_strl.py": 3,
-                    "tooling/quality.py": 4,
+                    "tooling/quality.py": 3,
                     "tooling/tests/test_formatting.py": 2,
                     "tooling/tests/test_hygiene.py": 1,
-                    "tooling/tests/test_quality.py": 12
+                    "tooling/tests/test_quality.py": 6
                 }
             },
             {
@@ -272,7 +271,7 @@
             },
             "lint_strategy": ["ruff", "suppression-audit"],
             "type_strategy": "python-type",
-            "baseline": "The Ruff import finding was removed; suppression audit passes with 86 governed directives and three exact-path waivers.",
+            "baseline": "The Ruff import finding was removed; suppression audit passes with 80 governed directives and three exact-path waivers.",
             "retirement_condition": "Pin one Python type checker and baseline repository tooling without broad ignores."
         },
         {

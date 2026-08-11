@@ -13,6 +13,7 @@ scope:
         - docs/toolchains.md
         - governance/README.md
         - governance/certification-profiles.md
+        - governance/static-analysis.json
         - governance/change-control.json
         - governance/public-surfaces.json
         - governance/contracts/snapshots/root-cli.json
@@ -34,8 +35,10 @@ scope:
     expected_files:
         - docs/migration/records/structured-certification-profiles.yaml
         - governance/certification-profiles.md
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+    permitted_generated_changes:
+        - public-contract-snapshots
+    expected_generated_outputs:
+        - public-contract-snapshots
     required_verification_levels:
         - contract
         - unit
@@ -50,9 +53,11 @@ change_classification:
         level: none
         evidence: []
     public_api_change:
-        level: none
-        evidence: []
-        affected_surfaces: []
+        level: additive
+        evidence:
+            - Adds stable engineering-only certification profile selection to the root quality CLI without changing package APIs.
+        affected_surfaces:
+            - root-cli
     schema_change:
         level: additive
         evidence:
@@ -69,8 +74,9 @@ change_classification:
         evidence:
             - Centralizes canonical operation identity, profile membership, deterministic execution, artifact ownership, and CI routing in the existing root quality architecture.
     generated_output_change:
-        level: none
-        evidence: []
+        level: additive
+        evidence:
+            - Regenerates the additive root CLI contract snapshot from the canonical profile selection surface.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -115,8 +121,29 @@ checkpoints:
             result: passed
             details: All 42 existing routing, environment, hardgate, unavailable, incomplete, and structured-security result tests passed.
     - name: Canonical profile selection and execution
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical registry and membership
+            result: passed
+            details: Centralized all component and repository operations in policy.operation_registry and defined ordered, versioned local, pull-request, full, and release profiles; check resolves to pull-request and certify resolves to full.
+          - check: Deterministic execution and component scope
+            result: passed
+            details: The single profile executor preserves declared operation and target order, validates compatibility, scopes component operations only, and always runs mandatory repository operations once.
+          - check: Focused profile tests
+            command: python3 -m unittest tooling.tests.test_quality -v
+            result: passed
+            details: All 47 routing, profile identity, membership, ordering, component scope, hardgate, network, security-result, environment, and aggregation tests passed.
+          - check: Controlled profile negatives
+            result: passed
+            details: Unknown profiles, unknown members, offline network membership, unavailable tools, failed repository gates, and failed/incomplete/unavailable precedence all produced truthful non-passing behavior.
+          - check: Canonical local profile
+            command: ./strling profile local --json
+            result: passed
+            details: The actual offline local profile completed with 21 passed operations and zero failed, waived, unavailable, or incomplete selected operations.
+          - check: Formatting, lint, governance, contracts, and architecture
+            command: ./strling format --check repository --json; ./strling lint repository --json; python3 tooling/governance.py --json; ./strling contracts --check --json; python3 tooling/architecture_fitness.py
+            result: passed
+            details: Canonical formatting and static analysis, contained-change declarations, additive root CLI contract reproduction, and all enforced architecture rules passed.
     - name: Structured certification artifact
       status: planned
       evidence: []

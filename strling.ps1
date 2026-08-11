@@ -291,6 +291,10 @@ function Show-Help {
     Write-Host "  test <lang|all>       Run tests for one binding or all bindings"
     Write-Host "  bootstrap <lang|all>  Run setup, build, and test in sequence"
     Write-Host "  clean <lang|all>      Clean artifacts"
+    Write-Host "  format, hygiene, lint, typecheck, build, test [lang|all]"
+    Write-Host "  check, certify [lang|all]"
+    Write-Host "  profile <local|pull-request|full|release> [lang|all]"
+    Write-Host "  environment [lang|all]"
     Write-Host "  generate [--check]    Regenerate or verify registered artifacts"
     Write-Host "  governance [--json]   Validate task scope and architecture rules"
     Write-Host "  contracts [--check]   Regenerate or verify public contracts"
@@ -301,6 +305,41 @@ function Show-Help {
     Write-Host "  help                  Show this help text"
     Write-Host ""
     Show-Bindings
+}
+
+$QualityCommands = @(
+    "format",
+    "hygiene",
+    "lint",
+    "typecheck",
+    "build",
+    "test",
+    "check",
+    "certify",
+    "profile",
+    "environment"
+)
+if ($QualityCommands -contains $Command) {
+    $pythonCommand = Resolve-CommandName "python3"
+    if (-not $pythonCommand) {
+        Write-Error "Python is required to run canonical quality operations."
+        exit 1
+    }
+    $qualityArguments = @($Command)
+    if ($Language) {
+        $qualityArguments += $Language
+    }
+    if ($Options) {
+        $qualityArguments += $Options
+    }
+    Push-Location $PSScriptRoot
+    try {
+        & $pythonCommand "tooling/quality.py" @qualityArguments
+        exit $LASTEXITCODE
+    }
+    finally {
+        Pop-Location
+    }
 }
 
 switch ($Command) {

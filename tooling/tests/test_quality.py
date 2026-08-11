@@ -14,10 +14,12 @@ from quality import (  # noqa: E402
     ConfigurationError,
     EnvironmentInspector,
     Execution,
+    OperationResult,
     QualityRunner,
     Toolchain,
     _overall_exit,
-    _overall_status,
+    _profile_exit,
+    _profile_status,
     _parse_cli,
     version_satisfies,
 )
@@ -72,6 +74,34 @@ def policy(
     alpha: dict[str, object] | None = None,
     beta: dict[str, object] | None = None,
 ) -> dict[str, object]:
+    operation_registry = {
+        operation: {
+            "kind": "component",
+            "capability": operation,
+            "network": "offline",
+        }
+        for operation in OPERATIONS
+    }
+    pull_request = [
+        {"operation": "lint", "targets": ["alpha"]},
+        {"operation": "typecheck", "targets": ["alpha"]},
+    ]
+    full = [
+        *pull_request,
+        {"operation": "build", "targets": ["alpha"]},
+        {"operation": "test", "targets": ["alpha"]},
+    ]
+
+    def copy_members(
+        members: list[dict[str, object]],
+    ) -> list[dict[str, object]]:
+        copied = [dict(member) for member in members]
+        for member in copied:
+            targets = member.get("targets")
+            if isinstance(targets, list):
+                member["targets"] = list(targets)
+        return copied
+
     return {
         "schema_version": 1,
         "policy": {
@@ -81,15 +111,36 @@ def policy(
                 "repository_managed",
                 "deferred",
             ],
-            "aggregates": {
-                "check": {
-                    "operations": ["lint", "typecheck"],
-                    "default_targets": ["alpha"],
+            "operation_registry": operation_registry,
+            "profiles": {
+                "local": {
+                    "definition_version": "1.0.0",
+                    "purpose": "fixture local",
+                    "network_policy": "offline",
+                    "operations": copy_members(pull_request),
                 },
-                "certify": {
-                    "operations": ["build", "test"],
-                    "default_targets": ["alpha"],
+                "pull-request": {
+                    "definition_version": "1.0.0",
+                    "purpose": "fixture pull request",
+                    "network_policy": "offline",
+                    "operations": copy_members(pull_request),
                 },
+                "full": {
+                    "definition_version": "1.0.0",
+                    "purpose": "fixture full",
+                    "network_policy": "allowed",
+                    "operations": copy_members(full),
+                },
+                "release": {
+                    "definition_version": "1.0.0",
+                    "purpose": "fixture release",
+                    "network_policy": "allowed",
+                    "operations": copy_members(full),
+                },
+            },
+            "aggregate_profiles": {
+                "check": "pull-request",
+                "certify": "full",
             },
             "operation_defaults": {
                 "hygiene": ["alpha"],
@@ -186,7 +237,7 @@ class QualityRoutingTests(unittest.TestCase):
             {"lint": ["fixture-lint"]},
         )
         with self.assertRaisesRegex(
-            ConfigurationError, "beta.lint is enforced but omitted from check"
+            ConfigurationError, "beta.lint is enforced but omitted from pull-request"
         ):
             Toolchain(policy(beta=beta), Path.cwd())
 
@@ -361,15 +412,19 @@ class QualityRoutingTests(unittest.TestCase):
             formatters=["Fixture Format 1.2.3"],
         )
         data = policy(alpha=alpha)
-        aggregates = data["policy"]["aggregates"]  # type: ignore[index]
-        aggregates["check"]["operations"] = ["format_check"]  # type: ignore[index]
+        member = {"operation": "format_check", "targets": ["alpha"]}
+        policy_data = cast(dict[str, object], data["policy"])
+        profiles = cast(dict[str, object], policy_data["profiles"])
+        for raw_profile in profiles.values():
+            profile = cast(dict[str, object], raw_profile)
+            profile["operations"] = [member]
         toolchain = Toolchain(data, Path.cwd())
         results = QualityRunner(
             toolchain,
             lambda *_args: Execution(23),
         ).run_aggregate("check", None)
         self.assertEqual("failed", results[0].status)
-        self.assertEqual(1, _overall_exit(results, False))
+        self.assertEqual(1, _profile_exit(results))
 
     def test_command_alias_uses_authoritative_command(self) -> None:
         alpha = target_config(
@@ -485,9 +540,10 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual(["passed", "failed"], [result.status for result in results])
         self.assertEqual(1, _overall_exit(results, False))
 
-    def test_repository_contract_and_architecture_hardgates_are_canonical(self) -> None:
+    def test_repository_operations_and_profile_membership_are_canonical(self) -> None:
         toolchain = Toolchain.load(TOOLING_DIR.parent / "toolchain.json")
-        gates = toolchain.integrity_hardgates("check")
+        local_members = toolchain.profile("local")["operations"]
+        assert isinstance(local_members, list)
         self.assertEqual(
             [
                 "security_dependency_integrity",
@@ -499,43 +555,41 @@ class QualityRoutingTests(unittest.TestCase):
                 "generate_check",
                 "governance",
             ],
-            [gate["operation"] for gate in gates],
+            [member["operation"] for member in local_members[:8]],
         )
         self.assertEqual(
             ["python3", "tooling/security.py", "integrity", "--json"],
-            gates[0]["command"],
+            toolchain.operation("security_dependency_integrity")["command"],
         )
         self.assertEqual(
             ["python3", "tooling/core_contract_validation.py"],
-            gates[4]["command"],
+            toolchain.operation("core_contracts_check")["command"],
         )
         self.assertEqual(
             ["python3", "tooling/governance.py"],
-            gates[7]["command"],
+            toolchain.operation("governance")["command"],
         )
-        self.assertTrue(
-            all(gate["aggregates"] == ["check", "certify"] for gate in gates)
-        )
-        certify_operations = [
-            gate["operation"] for gate in toolchain.integrity_hardgates("certify")
-        ]
-        self.assertIn("security_dependency_risk", certify_operations)
+        full_members = toolchain.profile("full")["operations"]
+        assert isinstance(full_members, list)
+        full_ids = [member["operation"] for member in full_members]
+        self.assertIn("security_dependency_risk", full_ids)
         self.assertNotIn(
-            "security_dependency_risk", [gate["operation"] for gate in gates]
+            "security_dependency_risk",
+            [member["operation"] for member in local_members],
         )
+        self.assertEqual("pull-request", toolchain.aggregate_profile("check"))
+        self.assertEqual("full", toolchain.aggregate_profile("certify"))
 
-    def test_structured_security_hardgate_preserves_non_pass_status(self) -> None:
+    def test_structured_security_operation_preserves_non_pass_status(self) -> None:
         data = policy()
-        policy_data = cast(dict[str, object], data["policy"])
-        gate = {
-            "operation": "security_fixture",
+        definition = {
+            "kind": "repository",
             "component": "alpha",
             "command": ["fixture-security", "--json"],
-            "aggregates": ["certify"],
+            "network": "offline",
             "result_contract": "security-result-v1",
             "result_operation_id": "security.fixture",
         }
-        policy_data["integrity_hardgates"] = [gate]
         payload = {
             "operation_id": "security.fixture",
             "status": "unavailable",
@@ -545,34 +599,32 @@ class QualityRoutingTests(unittest.TestCase):
         result = QualityRunner(
             Toolchain(data, Path.cwd()),
             hardgate_executor=lambda *_args: Execution(2, stdout=json.dumps(payload)),
-        ).run_integrity_hardgate(gate)
+        ).run_repository_operation("security_fixture", definition)
         self.assertEqual("unavailable", result.status)
         self.assertEqual(payload, result.as_dict()["structured_result"])
-        self.assertEqual(1, _overall_exit([result], False))
-        self.assertEqual("unavailable", _overall_status([result]))
+        self.assertEqual(1, _profile_exit([result]))
+        self.assertEqual("unavailable", _profile_status([result]))
 
     def test_structured_security_false_pass_is_incomplete(self) -> None:
         data = policy()
-        policy_data = cast(dict[str, object], data["policy"])
-        gate = {
-            "operation": "security_fixture",
+        definition = {
+            "kind": "repository",
             "component": "alpha",
             "command": ["fixture-security", "--json"],
-            "aggregates": ["check"],
+            "network": "offline",
             "result_contract": "security-result-v1",
             "result_operation_id": "security.fixture",
         }
-        policy_data["integrity_hardgates"] = [gate]
         payload = {"operation_id": "security.fixture", "status": "passed"}
         result = QualityRunner(
             Toolchain(data, Path.cwd()),
             hardgate_executor=lambda *_args: Execution(2, stdout=json.dumps(payload)),
-        ).run_integrity_hardgate(gate)
+        ).run_repository_operation("security_fixture", definition)
         self.assertEqual("incomplete", result.status)
         self.assertIsNone(result.structured_result)
-        self.assertEqual(1, _overall_exit([result], False))
+        self.assertEqual(1, _profile_exit([result]))
 
-    def test_integrity_hardgates_precede_aggregate_and_cannot_be_scoped_away(
+    def test_repository_operation_precedes_profile_and_cannot_be_scoped_away(
         self,
     ) -> None:
         alpha = target_config(
@@ -581,14 +633,19 @@ class QualityRoutingTests(unittest.TestCase):
         )
         data = policy(alpha=alpha)
         policy_data = cast(dict[str, object], data["policy"])
-        policy_data["integrity_hardgates"] = [
-            {
-                "operation": "fixture_integrity",
-                "component": "alpha",
-                "command": ["fixture-integrity", "--check"],
-                "aggregates": ["check", "certify"],
-            }
-        ]
+        registry = cast(dict[str, object], policy_data["operation_registry"])
+        definition = {
+            "kind": "repository",
+            "component": "alpha",
+            "command": ["fixture-integrity", "--check"],
+            "network": "offline",
+        }
+        registry["fixture_integrity"] = definition
+        profiles = cast(dict[str, object], policy_data["profiles"])
+        for raw_profile in profiles.values():
+            profile = cast(dict[str, object], raw_profile)
+            operations = cast(list[object], profile["operations"])
+            operations.insert(0, {"operation": "fixture_integrity"})
         calls: list[tuple[str, list[str]]] = []
         results = QualityRunner(
             Toolchain(data, Path.cwd()),
@@ -610,17 +667,20 @@ class QualityRoutingTests(unittest.TestCase):
             calls,
         )
 
-    def test_integrity_hardgate_failure_propagates(self) -> None:
+    def test_repository_operation_failure_propagates(self) -> None:
         data = policy()
         policy_data = cast(dict[str, object], data["policy"])
-        policy_data["integrity_hardgates"] = [
-            {
-                "operation": "fixture_integrity",
-                "component": "alpha",
-                "command": ["fixture-integrity", "--check"],
-                "aggregates": ["check"],
-            }
-        ]
+        registry = cast(dict[str, object], policy_data["operation_registry"])
+        registry["fixture_integrity"] = {
+            "kind": "repository",
+            "component": "alpha",
+            "command": ["fixture-integrity", "--check"],
+            "network": "offline",
+        }
+        profiles = cast(dict[str, object], policy_data["profiles"])
+        for raw_profile in profiles.values():
+            operations = cast(dict[str, object], raw_profile)["operations"]
+            cast(list[object], operations).insert(0, {"operation": "fixture_integrity"})
         results = QualityRunner(
             Toolchain(data, Path.cwd()),
             hardgate_executor=lambda *_args: Execution(31, stderr="stale\n"),
@@ -628,45 +688,67 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual("failed", results[0].status)
         self.assertEqual(31, results[0].exit_code)
         self.assertEqual("stale\n", results[0].stderr)
-        self.assertEqual(1, _overall_exit(results, False))
+        self.assertEqual(1, _profile_exit(results))
 
-    def test_integrity_hardgate_configuration_is_validated(self) -> None:
+    def test_canonical_operation_configuration_is_validated(self) -> None:
         malformed_entries = [
-            {
-                "operation": "fixture_integrity",
-                "component": "repository",
-                "command": [],
-                "aggregates": ["check"],
-            },
-            {
-                "operation": "fixture_integrity",
-                "component": "missing",
-                "command": ["fixture-integrity"],
-                "aggregates": ["check"],
-            },
-            {
-                "operation": "lint",
-                "component": "alpha",
-                "command": ["fixture-integrity"],
-                "aggregates": ["check"],
-            },
-            {
-                "operation": "fixture_integrity",
-                "component": "alpha",
-                "command": ["fixture-integrity", "--json"],
-                "aggregates": ["check"],
-                "result_contract": "security-result-v1",
-            },
+            (
+                "fixture_integrity",
+                {
+                    "kind": "repository",
+                    "component": "alpha",
+                    "command": [],
+                    "network": "offline",
+                },
+            ),
+            (
+                "fixture_integrity",
+                {
+                    "kind": "repository",
+                    "component": "missing",
+                    "command": ["fixture-integrity"],
+                    "network": "offline",
+                },
+            ),
+            (
+                "fixture_integrity",
+                {
+                    "kind": "repository",
+                    "component": "alpha",
+                    "command": ["fixture-integrity"],
+                    "network": "sometimes",
+                },
+            ),
+            (
+                "lint",
+                {
+                    "kind": "repository",
+                    "component": "alpha",
+                    "command": ["fixture-integrity"],
+                    "network": "offline",
+                },
+            ),
+            (
+                "security_fixture",
+                {
+                    "kind": "repository",
+                    "component": "alpha",
+                    "command": ["fixture-integrity", "--json"],
+                    "network": "offline",
+                    "result_contract": "security-result-v1",
+                },
+            ),
         ]
-        for entry in malformed_entries:
-            with self.subTest(entry=entry):
+        for operation, definition in malformed_entries:
+            with self.subTest(operation=operation, definition=definition):
                 data = policy()
                 policy_data = cast(dict[str, object], data["policy"])
-                policy_data["integrity_hardgates"] = [entry]
+                registry = cast(dict[str, object], policy_data["operation_registry"])
+                registry[operation] = definition
                 with self.assertRaises(ConfigurationError):
                     Toolchain(data, Path.cwd())
 
-    def test_aggregate_uses_operation_specific_default_targets(self) -> None:
+    def test_profile_uses_operation_specific_default_targets(self) -> None:
         alpha = target_config(
             {"lint": "configured"},
             {"lint": ["fixture-lint"]},
@@ -676,12 +758,15 @@ class QualityRoutingTests(unittest.TestCase):
             {"hygiene": ["fixture-hygiene"]},
         )
         data = policy(alpha=alpha, beta=beta)
-        check = data["policy"]["aggregates"]["check"]  # type: ignore[index]
-        check["operations"] = ["lint", "hygiene"]
-        check["operation_targets"] = {  # type: ignore[index]
-            "lint": ["alpha"],
-            "hygiene": ["beta"],
-        }
+        members = [
+            {"operation": "lint", "targets": ["alpha"]},
+            {"operation": "hygiene", "targets": ["beta"]},
+        ]
+        policy_data = cast(dict[str, object], data["policy"])
+        profiles = cast(dict[str, object], policy_data["profiles"])
+        for raw_profile in profiles.values():
+            profile = cast(dict[str, object], raw_profile)
+            profile["operations"] = members
         calls: list[tuple[str, str]] = []
         results = QualityRunner(
             Toolchain(data, Path.cwd()),
@@ -695,14 +780,119 @@ class QualityRoutingTests(unittest.TestCase):
             [(result.component, result.operation) for result in results],
         )
 
-    def test_aggregate_rejects_operation_target_outside_membership(self) -> None:
+    def test_profile_rejects_unknown_operation_membership(self) -> None:
         data = policy()
-        check = data["policy"]["aggregates"]["check"]  # type: ignore[index]
-        check["operation_targets"] = {"test": ["alpha"]}  # type: ignore[index]
+        policy_data = cast(dict[str, object], data["policy"])
+        profiles = cast(dict[str, object], policy_data["profiles"])
+        pull_request = cast(dict[str, object], profiles["pull-request"])
+        operations = cast(list[object], pull_request["operations"])
+        operations.append({"operation": "unknown", "targets": ["alpha"]})
+        with self.assertRaisesRegex(ConfigurationError, "unknown operation"):
+            Toolchain(data, Path.cwd())
+
+    def test_all_profile_identities_and_unknown_profile(self) -> None:
+        toolchain = Toolchain(policy(), Path.cwd())
+        self.assertEqual(
+            ["local", "pull-request", "full", "release"],
+            [
+                name
+                for name in ("local", "pull-request", "full", "release")
+                if toolchain.profile(name)
+            ],
+        )
         with self.assertRaisesRegex(
-            ConfigurationError, "operation outside the aggregate"
+            ConfigurationError, "unknown certification profile 'unknown'"
+        ):
+            toolchain.profile("unknown")
+
+    def test_offline_profile_rejects_network_operation(self) -> None:
+        data = policy()
+        policy_data = cast(dict[str, object], data["policy"])
+        registry = cast(dict[str, object], policy_data["operation_registry"])
+        registry["network_fixture"] = {
+            "kind": "repository",
+            "component": "alpha",
+            "command": ["fixture-network"],
+            "network": "network",
+        }
+        profiles = cast(dict[str, object], policy_data["profiles"])
+        local = cast(dict[str, object], profiles["local"])
+        cast(list[object], local["operations"]).insert(
+            0, {"operation": "network_fixture"}
+        )
+        with self.assertRaisesRegex(
+            ConfigurationError, "local forbids network operation"
         ):
             Toolchain(data, Path.cwd())
+
+    def test_unavailable_profile_operation_is_not_a_pass(self) -> None:
+        alpha = target_config(
+            {"lint": "unavailable"},
+            capability_details={"lint": {"reason": "fixture analyzer missing"}},
+        )
+        data = policy(alpha=alpha)
+        member = [{"operation": "lint", "targets": ["alpha"]}]
+        policy_data = cast(dict[str, object], data["policy"])
+        profiles = cast(dict[str, object], policy_data["profiles"])
+        for raw_profile in profiles.values():
+            profile = cast(dict[str, object], raw_profile)
+            profile["operations"] = member
+        results = QualityRunner(Toolchain(data, Path.cwd())).run_profile("local", None)
+        self.assertEqual(["unavailable"], [result.status for result in results])
+        self.assertEqual("unavailable", _profile_status(results))
+        self.assertEqual(1, _profile_exit(results))
+
+    def test_each_profile_executes_declared_order_deterministically(self) -> None:
+        toolchain = Toolchain(policy(), Path.cwd())
+        runner = QualityRunner(toolchain)
+        expected = {
+            "local": ["lint", "typecheck"],
+            "pull-request": ["lint", "typecheck"],
+            "full": ["lint", "typecheck", "build", "test"],
+            "release": ["lint", "typecheck", "build", "test"],
+        }
+        for profile, operations in expected.items():
+            with self.subTest(profile=profile):
+                first = runner.run_profile(profile, None)
+                second = runner.run_profile(profile, None)
+                self.assertEqual(operations, [result.operation for result in first])
+                self.assertEqual(
+                    [result.as_dict() for result in first],
+                    [result.as_dict() for result in second],
+                )
+
+    def test_profile_aggregate_status_precedence(self) -> None:
+        def result(status: str) -> OperationResult:
+            return OperationResult("fixture", "alpha", status, None, None, None)
+
+        self.assertEqual(
+            "failed",
+            _profile_status(
+                [
+                    result("waived"),
+                    result("unavailable"),
+                    result("incomplete"),
+                    result("failed"),
+                ]
+            ),
+        )
+        self.assertEqual(
+            "incomplete",
+            _profile_status([result("unavailable"), result("incomplete")]),
+        )
+        self.assertEqual("incomplete", _profile_status([result("not_yet_configured")]))
+        self.assertEqual(
+            "unavailable",
+            _profile_status([result("waived"), result("unavailable")]),
+        )
+        self.assertEqual(
+            "waived", _profile_status([result("passed"), result("waived")])
+        )
+        self.assertEqual(
+            "passed", _profile_status([result("passed"), result("not_applicable")])
+        )
+        self.assertEqual(0, _profile_exit([result("waived")]))
+        self.assertEqual(1, _profile_exit([result("not_yet_enforceable")]))
 
     def test_malformed_configured_capability_is_rejected(self) -> None:
         alpha = target_config({"lint": "configured"})
@@ -719,13 +909,21 @@ class QualityRoutingTests(unittest.TestCase):
 
     def test_format_check_and_json_options_parse_in_any_order(self) -> None:
         self.assertEqual(
-            ("format_check", "alpha", True),
+            ("format_check", "alpha", True, None),
             _parse_cli(["format", "alpha", "--check", "--json"]),
         )
         self.assertEqual(
-            ("format_check", "alpha", True),
+            ("format_check", "alpha", True, None),
             _parse_cli(["format", "--json", "--check", "alpha"]),
         )
+        self.assertEqual(
+            ("profile", "alpha", True, "pull-request"),
+            _parse_cli(["profile", "pull-request", "alpha", "--json"]),
+        )
+        with self.assertRaisesRegex(
+            ConfigurationError, "profile requires a profile identity"
+        ):
+            _parse_cli(["profile"])
 
 
 class EnvironmentValidationTests(unittest.TestCase):

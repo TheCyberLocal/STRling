@@ -137,7 +137,7 @@ may invoke analyses such as `dart analyze`. Those facts are inventory evidence,
 not a canonical quality capability until the command is declared and routed
 through `./strling`.
 
-## Canonical command contract
+## Canonical operation and profile contract
 
 The permanent root vocabulary is:
 
@@ -152,44 +152,68 @@ The permanent root vocabulary is:
 ./strling contracts [--check] [--json]
 ./strling governance [--json]
 ./strling check [component|all]
+./strling profile <local|pull-request|full|release> [component|all]
 ./strling certify [component|all]
 ```
 
-`format` selects the declared formatter write command, while
-`format --check` selects the non-mutating formatter check command. `check`
-is the shared developer and pull-request hardgate. It runs every enforceable
-formatter check, the repository-hygiene scanner, and the established
-TypeScript analysis/test baseline. Before component checks, both aggregates
-run public contract reproduction and declaration validation, generated-artifact
-reproduction, and contained-change plus architecture-fitness hardgates. The
-contract gate runs before generation and governance, propagates extraction
-failures, and never rewrites snapshots. These checks still run when a component
-is selected, so component selection cannot bypass repository integrity.
-`certify` establishes the broader aggregation contract without replacing Omega
-or the later release certification architecture. Aggregate membership and per-operation target sets
-are authoritative in the `policy.aggregates` section of `toolchain.json`;
-repository-wide prerequisites are authoritative in
-`policy.integrity_hardgates`.
+The `policy.operation_registry` object in `toolchain.json` is the only
+canonical operation registry. Each entry identifies either a component
+capability or one repository-wide command, declares whether it may use the
+network, and, where applicable, names its structured result contract. Profile
+membership never reimplements an operation.
 
-Existing setup, bootstrap, clean, audit, cache, lockfile, and list behavior
-remains supported. Component selection follows the existing binding names and
-also recognizes `repository` and `lsp`. An omitted component on a leaf
-operation selects all inventoried environments unless the policy declares an
-operation default; hygiene defaults narrowly to `repository`. The default
-`check` and `certify` aggregates select repository, LSP, C#, Dart, Python, and
-TypeScript for formatting; repository for hygiene; and TypeScript for the
-pre-existing analysis, build, and test operations. An explicit target scopes
-every aggregate member to that target, while `all` is the explicit
-full-inventory form.
+The ordered `policy.profiles` definitions are execution policies over that
+registry:
 
-The GitHub Actions `quality-hardgates` job installs the declared formatter and
-TypeScript baseline dependencies, then invokes only `./strling check`; it does
-not reproduce formatter, hygiene, snapshot comparison, generation, scope, or
-architecture policy in workflow shell. Full Git history is checked out because the active contained
-task declares a commit-based diff range. The binding
-quality matrix continues to use the same `environment`, `build`, and `test`
-commands. Its Node, Go, .NET, and Bundler setup values are aligned with this
-policy, and a failed build is never converted into success.
+-   `local` is the fast, offline developer baseline.
+-   `pull-request` preserves the local guarantees and adds deterministic merge
+    gates.
+-   `full` is the broad repository envelope and may contain network-backed or
+    environment-sensitive operations.
+-   `release` is the stable pre-release envelope. Its existence is not a
+    release-readiness claim; later work may ratchet its governed membership.
+
+Each profile has a semantic definition version, a purpose, a network policy,
+and an ordered member list. Validation requires pull-request to preserve local
+membership and targets, full to preserve pull-request, and release to preserve
+full. Offline profiles cannot contain network operations. Adding a member or
+target advances the profile definition without changing executor semantics.
+
+`check` is a compatibility alias for `pull-request`; `certify` is a
+compatibility alias for `full`. Both resolve through the same profile
+executor as the explicit `profile` command. `format --check` selects the
+non-mutating formatter check command, while `format` selects its write
+command.
+
+An omitted component uses each profile member's ordered target set. An explicit
+component replaces only those component target sets, and `all` selects the
+canonical sorted component inventory. Repository operations always execute
+once in their declared profile position. Therefore component selection cannot
+bypass security, contract, generated-state, governance, architecture, or other
+mandatory repository gates.
+
+A profile's aggregate status uses the governed precedence `failed`, then
+`incomplete`, then `unavailable`, then `waived`, then `passed`.
+Component capability states `not_yet_configured` and
+`not_yet_enforceable` make a selected profile incomplete.
+`not_applicable` remains visible and neutral. A required unavailable
+operation blocks the profile exit status; a waived result remains distinct
+from passed. Direct leaf invocations retain their existing diagnostic
+semantics.
+
+Existing setup, bootstrap, clean, audit, cache, lockfile, list, and
+environment behavior remains supported. Component identities follow the
+existing binding names and also include `repository` and `lsp`. The
+operation registry, profile definitions, compatibility aliases, and leaf
+operation defaults are centralized under `policy` in `toolchain.json`.
+
+The current GitHub Actions quality hardgate invokes only `./strling check`,
+which resolves to the canonical pull-request profile. It does not reproduce
+formatting, hygiene, snapshot comparison, generation, scope, architecture, or
+security policy in workflow shell. Full Git history is checked out because the
+active contained task declares a commit-based diff range. The binding quality
+matrix continues to use canonical leaf `environment`, `build`, and `test`
+commands pending the dedicated CI-routing checkpoint.
 
 ## Structured result contract
 
@@ -203,7 +227,7 @@ result with:
 -   `exit_code`, or null when nothing executes; and
 -   `reason`, or null when no explanation is needed.
 
-Aggregate results contain their ordered leaf results and an overall exit code.
+Profile results contain their ordered operation results and an overall exit code.
 The default console presentation is human-readable. JSON output is the stable
 machine interface; automation must use result fields and exit codes rather than
 parse prose emitted by language tools.
@@ -212,13 +236,15 @@ Append `--json` to any canonical quality command to receive one JSON object:
 
 ```text
 ./strling check --json
+./strling profile local --json
 ./strling test typescript --json
 ```
 
-The JSON object contains the requested operation, overall status and exit code,
-ordered leaf results, and the complete list of capabilities still marked
-`not_yet_configured` for aggregate commands. Language-tool output is retained
-for the human presentation but is not parsed to invent semantic results. Each
+The JSON object contains the requested operation, selected profile where
+applicable, overall status and exit code, ordered operation results, and the
+complete list of capabilities still marked `not_yet_configured` for profile
+commands. Language-tool output is retained for the human presentation but is
+not parsed to invent semantic results. Each
 leaf also contains its executable version-probe results.
 
 ## Recorded transitional conditions

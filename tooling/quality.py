@@ -25,6 +25,8 @@ QUALITY_OPERATIONS = (
 )
 AGGREGATE_OPERATIONS = ("check", "certify")
 ENVIRONMENT_OPERATION = "environment"
+PROFILE_OPERATION = "profile"
+PROFILE_NAMES = ("local", "pull-request", "full", "release")
 CAPABILITY_STATUSES = (
     "enforced",
     "configured",
@@ -234,17 +236,31 @@ class Toolchain:
             )
         return resolved, list(command)
 
-    def aggregate(self, name: str) -> Mapping[str, object]:
-        aggregates = self.policy["aggregates"]
-        assert isinstance(aggregates, dict)
-        return aggregates[name]  # type: ignore[return-value]
+    def operation(self, name: str) -> Mapping[str, object]:
+        registry = self.policy["operation_registry"]
+        assert isinstance(registry, dict)
+        operation = registry.get(name)
+        if not isinstance(operation, dict):
+            raise ConfigurationError(f"unknown canonical operation '{name}'")
+        return operation
 
-    def integrity_hardgates(self, aggregate: str) -> list[Mapping[str, object]]:
-        configured = self.policy.get("integrity_hardgates", [])
-        assert isinstance(configured, list)
-        return [
-            hardgate for hardgate in configured if aggregate in hardgate["aggregates"]
-        ]
+    def profile(self, name: str) -> Mapping[str, object]:
+        profiles = self.policy["profiles"]
+        assert isinstance(profiles, dict)
+        profile = profiles.get(name)
+        if not isinstance(profile, dict):
+            available = ", ".join(PROFILE_NAMES)
+            raise ConfigurationError(
+                f"unknown certification profile '{name}'; available profiles: {available}"
+            )
+        return profile
+
+    def aggregate_profile(self, name: str) -> str:
+        aliases = self.policy["aggregate_profiles"]
+        assert isinstance(aliases, dict)
+        profile = aliases[name]
+        assert isinstance(profile, str)
+        return profile
 
     def operation_defaults(self, operation: str) -> list[str] | None:
         defaults = self.policy.get("operation_defaults", {})
@@ -300,78 +316,84 @@ class Toolchain:
                 raise ConfigurationError(f"{key} must be an object")
         policy = self.data["policy"]
         assert isinstance(policy, dict)
-        aggregates = policy.get("aggregates")
-        if not isinstance(aggregates, dict):
-            raise ConfigurationError("policy.aggregates must be an object")
-        hardgates = policy.get("integrity_hardgates", [])
-        if not isinstance(hardgates, list):
-            raise ConfigurationError("policy.integrity_hardgates must be a list")
-        hardgate_operations: set[str] = set()
-        hardgate_components: list[tuple[str, str]] = []
-        for hardgate in hardgates:
-            if not isinstance(hardgate, dict):
-                raise ConfigurationError(
-                    "policy.integrity_hardgates entries must be objects"
-                )
-            operation = hardgate.get("operation")
-            component = hardgate.get("component")
-            command = hardgate.get("command")
-            memberships = hardgate.get("aggregates")
-            if not isinstance(operation, str) or not operation:
-                raise ConfigurationError(
-                    "integrity hardgate operation must be a non-empty string"
-                )
-            if operation in hardgate_operations:
-                raise ConfigurationError(
-                    f"duplicate integrity hardgate operation '{operation}'"
-                )
-            if operation in (
-                *QUALITY_OPERATIONS,
-                *AGGREGATE_OPERATIONS,
-                ENVIRONMENT_OPERATION,
+        registry = policy.get("operation_registry")
+        profiles = policy.get("profiles")
+        aggregate_profiles = policy.get("aggregate_profiles")
+        if not isinstance(registry, dict) or not registry:
+            raise ConfigurationError("policy.operation_registry must be an object")
+        if not isinstance(profiles, dict) or set(profiles) != set(PROFILE_NAMES):
+            raise ConfigurationError(
+                "policy.profiles must declare local, pull-request, full, and release"
+            )
+        if (
+            not isinstance(aggregate_profiles, dict)
+            or set(aggregate_profiles) != set(AGGREGATE_OPERATIONS)
+            or any(
+                aggregate_profiles[name] not in PROFILE_NAMES
+                for name in AGGREGATE_OPERATIONS
+            )
+        ):
+            raise ConfigurationError(
+                "policy.aggregate_profiles must map check and certify to known profiles"
+            )
+        if any(operation not in registry for operation in QUALITY_OPERATIONS):
+            raise ConfigurationError(
+                "policy.operation_registry must declare every quality operation"
+            )
+        repository_components: list[tuple[str, str]] = []
+        for operation, definition in registry.items():
+            if (
+                not isinstance(operation, str)
+                or re.fullmatch(r"[a-z][a-z0-9_]*", operation) is None
+                or not isinstance(definition, dict)
             ):
                 raise ConfigurationError(
-                    f"integrity hardgate operation '{operation}' is reserved"
+                    "canonical operations require stable snake-case object identities"
                 )
-            hardgate_operations.add(operation)
+            kind = definition.get("kind")
+            network = definition.get("network")
+            if network not in ("offline", "network"):
+                raise ConfigurationError(
+                    f"canonical operation {operation} has invalid network policy"
+                )
+            if kind == "component":
+                if (
+                    definition.get("capability") != operation
+                    or operation not in QUALITY_OPERATIONS
+                ):
+                    raise ConfigurationError(
+                        f"component operation {operation} must reference its canonical capability"
+                    )
+                continue
+            if kind != "repository":
+                raise ConfigurationError(
+                    f"canonical operation {operation} has unknown kind '{kind}'"
+                )
+            component = definition.get("component")
+            command = definition.get("command")
             if not isinstance(component, str) or not component:
                 raise ConfigurationError(
-                    f"integrity hardgate {operation} must declare a component"
+                    f"repository operation {operation} must declare a component"
                 )
-            hardgate_components.append((operation, component))
+            repository_components.append((operation, component))
             if (
                 not isinstance(command, list)
                 or not command
                 or not all(isinstance(item, str) and item for item in command)
             ):
                 raise ConfigurationError(
-                    f"integrity hardgate {operation} must declare a command"
+                    f"repository operation {operation} must declare a command"
                 )
-            if (
-                not isinstance(memberships, list)
-                or not memberships
-                or not all(
-                    isinstance(name, str) and name in AGGREGATE_OPERATIONS
-                    for name in memberships
-                )
-            ):
-                raise ConfigurationError(
-                    f"integrity hardgate {operation} must select known aggregates"
-                )
-            if len(set(memberships)) != len(memberships):
-                raise ConfigurationError(
-                    f"integrity hardgate {operation} repeats an aggregate"
-                )
-            result_contract = hardgate.get("result_contract")
-            result_operation_id = hardgate.get("result_operation_id")
+            result_contract = definition.get("result_contract")
+            result_operation_id = definition.get("result_operation_id")
             if result_contract is None:
                 if result_operation_id is not None:
                     raise ConfigurationError(
-                        f"integrity hardgate {operation} declares a result operation without a contract"
+                        f"repository operation {operation} declares a result operation without a contract"
                     )
             elif result_contract != "security-result-v1":
                 raise ConfigurationError(
-                    f"integrity hardgate {operation} has unsupported result contract"
+                    f"repository operation {operation} has unsupported result contract"
                 )
             elif (
                 not isinstance(result_operation_id, str)
@@ -379,7 +401,7 @@ class Toolchain:
                 or "--json" not in command
             ):
                 raise ConfigurationError(
-                    f"integrity hardgate {operation} security result requires an operation ID and JSON command"
+                    f"repository operation {operation} security result requires an operation ID and JSON command"
                 )
         tools = self.data["tools"]
         assert isinstance(tools, dict)
@@ -560,10 +582,10 @@ class Toolchain:
                                     f"{name}.{operation} not_yet_enforceable requires a retirement condition"
                                 )
         operation_defaults = policy.get("operation_defaults", {})
-        for operation, component in hardgate_components:
+        for operation, component in repository_components:
             if component not in target_names:
                 raise ConfigurationError(
-                    f"integrity hardgate {operation} references unknown component "
+                    f"repository operation {operation} references unknown component "
                     f"'{component}'"
                 )
         if not isinstance(operation_defaults, dict):
@@ -581,53 +603,127 @@ class Toolchain:
                 raise ConfigurationError(
                     f"policy.operation_defaults.{operation} contains an unknown target"
                 )
-        for name in AGGREGATE_OPERATIONS:
-            aggregate = aggregates.get(name)
-            if not isinstance(aggregate, dict):
-                raise ConfigurationError(f"policy.aggregates.{name} must be an object")
-            operations = aggregate.get("operations")
-            defaults = aggregate.get("default_targets")
-            if not isinstance(operations, list) or not operations:
-                raise ConfigurationError(f"{name}.operations must be a non-empty list")
-            if any(operation not in QUALITY_OPERATIONS for operation in operations):
-                raise ConfigurationError(f"{name} contains an unknown operation")
-            if not isinstance(defaults, list) or not defaults:
+
+        profile_memberships: dict[str, list[Mapping[str, object]]] = {}
+        for profile_name in PROFILE_NAMES:
+            definition = profiles[profile_name]
+            if not isinstance(definition, dict):
                 raise ConfigurationError(
-                    f"{name}.default_targets must be a non-empty list"
+                    f"policy.profiles.{profile_name} must be an object"
                 )
-            if any(target not in target_names for target in defaults):
-                raise ConfigurationError(f"{name} contains an unknown default target")
-
-            operation_targets = aggregate.get("operation_targets", {})
-            if not isinstance(operation_targets, dict):
-                raise ConfigurationError(f"{name}.operation_targets must be an object")
-            for operation, selected_targets in operation_targets.items():
-                if operation not in operations:
-                    raise ConfigurationError(
-                        f"{name}.operation_targets contains an operation outside the aggregate"
-                    )
-                if not isinstance(selected_targets, list) or not selected_targets:
-                    raise ConfigurationError(
-                        f"{name}.operation_targets.{operation} must be a non-empty list"
-                    )
-                if any(target not in target_names for target in selected_targets):
-                    raise ConfigurationError(
-                        f"{name}.operation_targets.{operation} contains an unknown target"
-                    )
-
-        check = aggregates["check"]
-        assert isinstance(check, dict)
-        check_operations = check["operations"]
-        check_defaults = check["default_targets"]
-        check_targets = check.get("operation_targets", {})
-        assert isinstance(check_operations, list)
-        assert isinstance(check_defaults, list)
-        assert isinstance(check_targets, dict)
-        for target_name, operation in enforced_capabilities:
-            selected = check_targets.get(operation, check_defaults)
-            if operation not in check_operations or target_name not in selected:
+            version = definition.get("definition_version")
+            purpose = definition.get("purpose")
+            network_policy = definition.get("network_policy")
+            members = definition.get("operations")
+            if (
+                not isinstance(version, str)
+                or re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version) is None
+            ):
                 raise ConfigurationError(
-                    f"{target_name}.{operation} is enforced but omitted from check"
+                    f"profile {profile_name} requires a semantic definition version"
+                )
+            if not isinstance(purpose, str) or not purpose:
+                raise ConfigurationError(f"profile {profile_name} requires a purpose")
+            if network_policy not in ("offline", "allowed"):
+                raise ConfigurationError(
+                    f"profile {profile_name} has invalid network policy"
+                )
+            if not isinstance(members, list) or not members:
+                raise ConfigurationError(
+                    f"profile {profile_name} must declare ordered operations"
+                )
+            seen: set[str] = set()
+            validated: list[Mapping[str, object]] = []
+            for member in members:
+                if not isinstance(member, dict):
+                    raise ConfigurationError(
+                        f"profile {profile_name} members must be objects"
+                    )
+                operation = member.get("operation")
+                if not isinstance(operation, str) or operation not in registry:
+                    raise ConfigurationError(
+                        f"profile {profile_name} references an unknown operation"
+                    )
+                if operation in seen:
+                    raise ConfigurationError(
+                        f"profile {profile_name} repeats operation '{operation}'"
+                    )
+                seen.add(operation)
+                canonical = registry[operation]
+                assert isinstance(canonical, dict)
+                if network_policy == "offline" and canonical["network"] == "network":
+                    raise ConfigurationError(
+                        f"profile {profile_name} forbids network operation '{operation}'"
+                    )
+                if canonical["kind"] == "repository":
+                    if set(member) != {"operation"}:
+                        raise ConfigurationError(
+                            f"repository operation {operation} cannot declare profile targets"
+                        )
+                else:
+                    targets = member.get("targets")
+                    if (
+                        set(member) != {"operation", "targets"}
+                        or not isinstance(targets, list)
+                        or not targets
+                        or not all(isinstance(target, str) for target in targets)
+                    ):
+                        raise ConfigurationError(
+                            f"component operation {operation} requires ordered targets"
+                        )
+                    if len(set(targets)) != len(targets):
+                        raise ConfigurationError(
+                            f"profile {profile_name} repeats a target for {operation}"
+                        )
+                    if any(target not in target_names for target in targets):
+                        raise ConfigurationError(
+                            f"profile {profile_name} {operation} contains an unknown target"
+                        )
+                validated.append(member)
+            profile_memberships[profile_name] = validated
+
+        def require_profile_superset(base: str, expanded: str) -> None:
+            expanded_members = profile_memberships[expanded]
+            positions = {
+                member["operation"]: index
+                for index, member in enumerate(expanded_members)
+            }
+            previous = -1
+            for member in profile_memberships[base]:
+                operation = member["operation"]
+                assert isinstance(operation, str)
+                position = positions.get(operation)
+                if position is None or position <= previous:
+                    raise ConfigurationError(
+                        f"profile {expanded} must preserve ordered {base} guarantees"
+                    )
+                previous = position
+                canonical = registry[operation]
+                assert isinstance(canonical, dict)
+                if canonical["kind"] == "component":
+                    base_targets = member["targets"]
+                    expanded_targets = expanded_members[position]["targets"]
+                    assert isinstance(base_targets, list)
+                    assert isinstance(expanded_targets, list)
+                    if not set(base_targets).issubset(expanded_targets):
+                        raise ConfigurationError(
+                            f"profile {expanded} must preserve {base} targets for {operation}"
+                        )
+
+        require_profile_superset("local", "pull-request")
+        require_profile_superset("pull-request", "full")
+        require_profile_superset("full", "release")
+
+        pull_request = {
+            member["operation"]: member
+            for member in profile_memberships["pull-request"]
+        }
+        for target_name, operation in enforced_capabilities:
+            member = pull_request.get(operation)
+            targets = member.get("targets") if member is not None else None
+            if not isinstance(targets, list) or target_name not in targets:
+                raise ConfigurationError(
+                    f"{target_name}.{operation} is enforced but omitted from pull-request"
                 )
 
 
@@ -960,45 +1056,42 @@ class QualityRunner:
         ]
 
     def run_aggregate(self, name: str, requested: str | None) -> list[OperationResult]:
-        aggregate = self.toolchain.aggregate(name)
-        operations = aggregate["operations"]
-        defaults = aggregate["default_targets"]
-        assert isinstance(operations, list)
-        operation_targets = aggregate.get("operation_targets", {})
-        assert isinstance(defaults, list)
-        assert isinstance(operation_targets, dict)
-        hardgates = [
-            self.run_integrity_hardgate(hardgate)
-            for hardgate in self.toolchain.integrity_hardgates(name)
-        ]
-        if requested is not None:
-            targets = self.toolchain.select(requested, defaults)
-            return hardgates + [
-                self.run_leaf(operation, target)
-                for target in targets
-                for operation in operations
-            ]
-        return hardgates + [
-            self.run_leaf(operation, target)
-            for operation in operations
-            for target in self.toolchain.select(
-                None, operation_targets.get(operation, defaults)
-            )
-        ]
+        return self.run_profile(self.toolchain.aggregate_profile(name), requested)
 
-    def run_integrity_hardgate(self, hardgate: Mapping[str, object]) -> OperationResult:
-        operation = hardgate["operation"]
-        component = hardgate["component"]
-        command = hardgate["command"]
-        assert isinstance(operation, str)
+    def run_profile(self, name: str, requested: str | None) -> list[OperationResult]:
+        profile = self.toolchain.profile(name)
+        members = profile["operations"]
+        assert isinstance(members, list)
+        results: list[OperationResult] = []
+        for member in members:
+            assert isinstance(member, dict)
+            operation = member["operation"]
+            assert isinstance(operation, str)
+            canonical = self.toolchain.operation(operation)
+            if canonical["kind"] == "repository":
+                results.append(self.run_repository_operation(operation, canonical))
+                continue
+            configured_targets = member["targets"]
+            assert isinstance(configured_targets, list)
+            targets = self.toolchain.select(
+                requested, configured_targets if requested is None else None
+            )
+            results.extend(self.run_leaf(operation, target) for target in targets)
+        return results
+
+    def run_repository_operation(
+        self, operation: str, definition: Mapping[str, object]
+    ) -> OperationResult:
+        component = definition["component"]
+        command = definition["command"]
         assert isinstance(component, str)
         assert isinstance(command, list)
         assert all(isinstance(item, str) for item in command)
         invocation = list(command)
         execution = self.hardgate_executor(operation, invocation)
         structured_result: dict[str, object] | None = None
-        if hardgate.get("result_contract") == "security-result-v1":
-            expected_operation = hardgate["result_operation_id"]
+        if definition.get("result_contract") == "security-result-v1":
+            expected_operation = definition["result_operation_id"]
             assert isinstance(expected_operation, str)
             try:
                 parsed = json.loads(execution.stdout)
@@ -1122,20 +1215,28 @@ class QualityRunner:
         return Execution(completed.returncode, completed.stdout, completed.stderr)
 
 
-def _parse_cli(argv: Sequence[str]) -> tuple[str, str | None, bool]:
+def _parse_cli(
+    argv: Sequence[str],
+) -> tuple[str, str | None, bool, str | None]:
     args = list(argv)
     json_output = False
     if "--json" in args:
         args.remove("--json")
         json_output = True
     if not args or args[0] in ("help", "-h", "--help"):
-        return "help", None, json_output
+        return "help", None, json_output, None
     operation = args.pop(0)
+    profile_name: str | None = None
+    if operation == PROFILE_OPERATION:
+        if not args or args[0].startswith("-"):
+            raise ConfigurationError("profile requires a profile identity")
+        profile_name = args.pop(0)
     if operation == "format" and "--check" in args:
         args.remove("--check")
         operation = "format_check"
     if operation not in QUALITY_OPERATIONS + AGGREGATE_OPERATIONS + (
         ENVIRONMENT_OPERATION,
+        PROFILE_OPERATION,
     ):
         raise ConfigurationError(f"unknown quality operation '{operation}'")
     if any(argument.startswith("-") for argument in args):
@@ -1143,7 +1244,7 @@ def _parse_cli(argv: Sequence[str]) -> tuple[str, str | None, bool]:
         raise ConfigurationError(f"unknown option '{option}'")
     if len(args) > 1:
         raise ConfigurationError("at most one component may be selected")
-    return operation, args[0] if args else None, json_output
+    return operation, args[0] if args else None, json_output, profile_name
 
 
 def _overall_exit(results: Iterable[OperationResult], single: bool) -> int:
@@ -1162,6 +1263,31 @@ def _overall_exit(results: Iterable[OperationResult], single: bool) -> int:
 def _overall_status(results: Iterable[OperationResult]) -> str:
     statuses = {result.status for result in results}
     for status in ("failed", "unavailable", "incomplete", "waived"):
+        if status in statuses:
+            return status
+    return "passed"
+
+
+def _profile_exit(results: Iterable[OperationResult]) -> int:
+    blocking = {
+        "failed",
+        "incomplete",
+        "unavailable",
+        "not_yet_configured",
+        "not_yet_enforceable",
+    }
+    return 1 if any(result.status in blocking for result in results) else 0
+
+
+def _profile_status(results: Iterable[OperationResult]) -> str:
+    statuses = {result.status for result in results}
+    if "failed" in statuses:
+        return "failed"
+    if statuses.intersection(
+        {"incomplete", "not_yet_configured", "not_yet_enforceable"}
+    ):
+        return "incomplete"
+    for status in ("unavailable", "waived"):
         if status in statuses:
             return status
     return "passed"
@@ -1235,7 +1361,7 @@ def _render_human(
                 expected = f", expected {tool.expected}" if tool.expected else ""
                 actual = tool.actual or "unavailable"
                 print(f"  {tool.tool}: {tool.status} ({actual}{expected})")
-    if operation in AGGREGATE_OPERATIONS and incomplete:
+    if operation in (*AGGREGATE_OPERATIONS, PROFILE_OPERATION) and incomplete:
         print("Incomplete capabilities:")
         grouped: dict[str, list[str]] = {}
         for item in incomplete:
@@ -1249,24 +1375,35 @@ def _render_human(
 def _print_help() -> None:
     print("Usage: ./strling <quality-command> [component|all] [--json]")
     print("       ./strling format [--check] [component|all] [--json]")
+    print(
+        "       ./strling profile <local|pull-request|full|release> [component|all] [--json]"
+    )
     print("")
     print(
-        "Quality commands: format, hygiene, lint, typecheck, build, test, check, certify, environment"
+        "Quality commands: format, hygiene, lint, typecheck, build, test, "
+        "check, certify, profile, environment"
     )
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     try:
-        operation, requested, json_output = _parse_cli(argv)
+        operation, requested, json_output, requested_profile = _parse_cli(argv)
         if operation == "help":
             _print_help()
             return 0
         root = Path(__file__).resolve().parent.parent
         toolchain = Toolchain.load(root / "toolchain.json")
         runner = QualityRunner(toolchain)
+        selected_profile: str | None = None
         if operation in AGGREGATE_OPERATIONS:
-            results = runner.run_aggregate(operation, requested)
+            selected_profile = toolchain.aggregate_profile(operation)
+            results = runner.run_profile(selected_profile, requested)
+            incomplete = toolchain.incomplete_capabilities()
+        elif operation == PROFILE_OPERATION:
+            assert requested_profile is not None
+            selected_profile = requested_profile
+            results = runner.run_profile(selected_profile, requested)
             incomplete = toolchain.incomplete_capabilities()
         elif operation == ENVIRONMENT_OPERATION:
             results = runner.run_environment(requested)
@@ -1274,21 +1411,23 @@ def main(argv: Sequence[str] | None = None) -> int:
         else:
             results = runner.run_operation(operation, requested)
             incomplete = []
-        exit_code = _overall_exit(results, len(results) == 1)
-        status = _overall_status(results)
+        if selected_profile is not None:
+            exit_code = _profile_exit(results)
+            status = _profile_status(results)
+        else:
+            exit_code = _overall_exit(results, len(results) == 1)
+            status = _overall_status(results)
         if json_output:
-            print(
-                json.dumps(
-                    {
-                        "operation": operation,
-                        "status": status,
-                        "exit_code": exit_code,
-                        "results": [result.as_dict() for result in results],
-                        "incomplete_capabilities": incomplete,
-                    },
-                    sort_keys=True,
-                )
-            )
+            payload: dict[str, object] = {
+                "operation": operation,
+                "status": status,
+                "exit_code": exit_code,
+                "results": [result.as_dict() for result in results],
+                "incomplete_capabilities": incomplete,
+            }
+            if selected_profile is not None:
+                payload["profile"] = selected_profile
+            print(json.dumps(payload, sort_keys=True))
         else:
             _render_human(operation, results, incomplete)
         return exit_code

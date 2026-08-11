@@ -38,9 +38,47 @@
             "unknown",
             "unavailable"
         ],
-        "integrity_hardgates": [
-            {
-                "operation": "security_dependency_integrity",
+        "operation_defaults": {
+            "hygiene": ["repository"]
+        },
+        "operation_registry": {
+            "format": {
+                "kind": "component",
+                "capability": "format",
+                "network": "offline"
+            },
+            "format_check": {
+                "kind": "component",
+                "capability": "format_check",
+                "network": "offline"
+            },
+            "hygiene": {
+                "kind": "component",
+                "capability": "hygiene",
+                "network": "offline"
+            },
+            "lint": {
+                "kind": "component",
+                "capability": "lint",
+                "network": "offline"
+            },
+            "typecheck": {
+                "kind": "component",
+                "capability": "typecheck",
+                "network": "offline"
+            },
+            "build": {
+                "kind": "component",
+                "capability": "build",
+                "network": "offline"
+            },
+            "test": {
+                "kind": "component",
+                "capability": "test",
+                "network": "offline"
+            },
+            "security_dependency_integrity": {
+                "kind": "repository",
                 "component": "repository",
                 "command": [
                     "python3",
@@ -48,12 +86,12 @@
                     "integrity",
                     "--json"
                 ],
-                "aggregates": ["check", "certify"],
+                "network": "offline",
                 "result_contract": "security-result-v1",
                 "result_operation_id": "security.dependency-integrity"
             },
-            {
-                "operation": "security_content_workflows",
+            "security_content_workflows": {
+                "kind": "repository",
                 "component": "repository",
                 "command": [
                     "python3",
@@ -61,171 +99,460 @@
                     "content",
                     "--json"
                 ],
-                "aggregates": ["check", "certify"],
+                "network": "offline",
                 "result_contract": "security-result-v1",
                 "result_operation_id": "security.content-and-workflows"
             },
-            {
-                "operation": "security_dependency_risk",
+            "security_dependency_risk": {
+                "kind": "repository",
                 "component": "repository",
                 "command": ["python3", "tooling/security.py", "risk", "--json"],
-                "aggregates": ["certify"],
+                "network": "network",
                 "result_contract": "security-result-v1",
                 "result_operation_id": "security.dependency-risk"
             },
-            {
-                "operation": "baseline_check",
+            "baseline_check": {
+                "kind": "repository",
                 "component": "repository",
                 "command": ["python3", "tooling/baseline.py", "--check"],
-                "aggregates": ["check", "certify"]
+                "network": "offline"
             },
-            {
-                "operation": "canonical_contracts_check",
+            "canonical_contracts_check": {
+                "kind": "repository",
                 "component": "repository",
                 "command": ["python3", "tooling/contract_validation.py"],
-                "aggregates": ["check", "certify"]
+                "network": "offline"
             },
-            {
-                "operation": "core_contracts_check",
+            "core_contracts_check": {
+                "kind": "repository",
                 "component": "repository",
                 "command": ["python3", "tooling/core_contract_validation.py"],
-                "aggregates": ["check", "certify"]
+                "network": "offline"
             },
-            {
-                "operation": "contracts_check",
+            "contracts_check": {
+                "kind": "repository",
                 "component": "repository",
                 "command": [
                     "python3",
                     "tooling/public_contracts.py",
                     "--check"
                 ],
-                "aggregates": ["check", "certify"]
+                "network": "offline"
             },
-            {
-                "operation": "generate_check",
+            "generate_check": {
+                "kind": "repository",
                 "component": "repository",
                 "command": [
                     "python3",
                     "tooling/generated_artifacts.py",
                     "--check"
                 ],
-                "aggregates": ["check", "certify"]
+                "network": "offline"
             },
-            {
-                "operation": "governance",
+            "governance": {
+                "kind": "repository",
                 "component": "repository",
                 "command": ["python3", "tooling/governance.py"],
-                "aggregates": ["check", "certify"]
-            }
-        ],
-        "aggregates": {
-            "check": {
-                "operations": [
-                    "format_check",
-                    "hygiene",
-                    "lint",
-                    "typecheck",
-                    "test"
-                ],
-                "default_targets": ["typescript"],
-                "operation_targets": {
-                    "format_check": [
-                        "repository",
-                        "lsp",
-                        "core",
-                        "csharp",
-                        "dart",
-                        "python",
-                        "typescript"
-                    ],
-                    "hygiene": ["repository"],
-                    "lint": [
-                        "repository",
-                        "lsp",
-                        "core",
-                        "csharp",
-                        "dart",
-                        "fsharp",
-                        "go",
-                        "java",
-                        "kotlin",
-                        "perl",
-                        "php",
-                        "python",
-                        "ruby"
-                    ],
-                    "typecheck": [
-                        "lsp",
-                        "core",
-                        "csharp",
-                        "dart",
-                        "fsharp",
-                        "go",
-                        "java",
-                        "kotlin",
-                        "rust",
-                        "swift",
-                        "typescript"
-                    ],
-                    "test": ["core", "typescript"]
-                }
-            },
-            "certify": {
-                "operations": [
-                    "format_check",
-                    "hygiene",
-                    "lint",
-                    "typecheck",
-                    "build",
-                    "test"
-                ],
-                "default_targets": ["typescript"],
-                "operation_targets": {
-                    "format_check": [
-                        "repository",
-                        "lsp",
-                        "core",
-                        "csharp",
-                        "dart",
-                        "python",
-                        "typescript"
-                    ],
-                    "hygiene": ["repository"],
-                    "lint": [
-                        "repository",
-                        "lsp",
-                        "core",
-                        "csharp",
-                        "dart",
-                        "fsharp",
-                        "go",
-                        "java",
-                        "kotlin",
-                        "perl",
-                        "php",
-                        "python",
-                        "ruby"
-                    ],
-                    "typecheck": [
-                        "lsp",
-                        "core",
-                        "csharp",
-                        "dart",
-                        "fsharp",
-                        "go",
-                        "java",
-                        "kotlin",
-                        "rust",
-                        "swift",
-                        "typescript"
-                    ],
-                    "build": ["core", "typescript"],
-                    "test": ["core", "typescript"]
-                }
+                "network": "offline"
             }
         },
-        "operation_defaults": {
-            "hygiene": ["repository"]
+        "profiles": {
+            "local": {
+                "definition_version": "1.0.0",
+                "purpose": "Fast deterministic developer feedback.",
+                "network_policy": "offline",
+                "operations": [
+                    {
+                        "operation": "security_dependency_integrity"
+                    },
+                    {
+                        "operation": "security_content_workflows"
+                    },
+                    {
+                        "operation": "baseline_check"
+                    },
+                    {
+                        "operation": "canonical_contracts_check"
+                    },
+                    {
+                        "operation": "core_contracts_check"
+                    },
+                    {
+                        "operation": "contracts_check"
+                    },
+                    {
+                        "operation": "generate_check"
+                    },
+                    {
+                        "operation": "governance"
+                    },
+                    {
+                        "operation": "format_check",
+                        "targets": [
+                            "repository",
+                            "lsp",
+                            "core",
+                            "python",
+                            "typescript"
+                        ]
+                    },
+                    {
+                        "operation": "hygiene",
+                        "targets": ["repository"]
+                    },
+                    {
+                        "operation": "lint",
+                        "targets": ["repository", "lsp", "core", "python"]
+                    },
+                    {
+                        "operation": "typecheck",
+                        "targets": ["lsp", "core", "typescript"]
+                    }
+                ]
+            },
+            "pull-request": {
+                "definition_version": "1.0.0",
+                "purpose": "Deterministic merge confidence.",
+                "network_policy": "offline",
+                "operations": [
+                    {
+                        "operation": "security_dependency_integrity"
+                    },
+                    {
+                        "operation": "security_content_workflows"
+                    },
+                    {
+                        "operation": "baseline_check"
+                    },
+                    {
+                        "operation": "canonical_contracts_check"
+                    },
+                    {
+                        "operation": "core_contracts_check"
+                    },
+                    {
+                        "operation": "contracts_check"
+                    },
+                    {
+                        "operation": "generate_check"
+                    },
+                    {
+                        "operation": "governance"
+                    },
+                    {
+                        "operation": "format_check",
+                        "targets": [
+                            "repository",
+                            "lsp",
+                            "core",
+                            "csharp",
+                            "dart",
+                            "python",
+                            "typescript"
+                        ]
+                    },
+                    {
+                        "operation": "hygiene",
+                        "targets": ["repository"]
+                    },
+                    {
+                        "operation": "lint",
+                        "targets": [
+                            "repository",
+                            "lsp",
+                            "core",
+                            "csharp",
+                            "dart",
+                            "fsharp",
+                            "go",
+                            "java",
+                            "kotlin",
+                            "perl",
+                            "php",
+                            "python",
+                            "ruby"
+                        ]
+                    },
+                    {
+                        "operation": "typecheck",
+                        "targets": [
+                            "lsp",
+                            "core",
+                            "csharp",
+                            "dart",
+                            "fsharp",
+                            "go",
+                            "java",
+                            "kotlin",
+                            "rust",
+                            "swift",
+                            "typescript"
+                        ]
+                    },
+                    {
+                        "operation": "test",
+                        "targets": ["core", "typescript"]
+                    }
+                ]
+            },
+            "full": {
+                "definition_version": "1.0.0",
+                "purpose": "Broad repository certification.",
+                "network_policy": "allowed",
+                "operations": [
+                    {
+                        "operation": "security_dependency_integrity"
+                    },
+                    {
+                        "operation": "security_content_workflows"
+                    },
+                    {
+                        "operation": "security_dependency_risk"
+                    },
+                    {
+                        "operation": "baseline_check"
+                    },
+                    {
+                        "operation": "canonical_contracts_check"
+                    },
+                    {
+                        "operation": "core_contracts_check"
+                    },
+                    {
+                        "operation": "contracts_check"
+                    },
+                    {
+                        "operation": "generate_check"
+                    },
+                    {
+                        "operation": "governance"
+                    },
+                    {
+                        "operation": "format_check",
+                        "targets": [
+                            "repository",
+                            "lsp",
+                            "core",
+                            "csharp",
+                            "dart",
+                            "python",
+                            "typescript"
+                        ]
+                    },
+                    {
+                        "operation": "hygiene",
+                        "targets": ["repository"]
+                    },
+                    {
+                        "operation": "lint",
+                        "targets": [
+                            "repository",
+                            "lsp",
+                            "core",
+                            "csharp",
+                            "dart",
+                            "fsharp",
+                            "go",
+                            "java",
+                            "kotlin",
+                            "perl",
+                            "php",
+                            "python",
+                            "ruby"
+                        ]
+                    },
+                    {
+                        "operation": "typecheck",
+                        "targets": [
+                            "lsp",
+                            "core",
+                            "csharp",
+                            "dart",
+                            "fsharp",
+                            "go",
+                            "java",
+                            "kotlin",
+                            "rust",
+                            "swift",
+                            "typescript"
+                        ]
+                    },
+                    {
+                        "operation": "build",
+                        "targets": [
+                            "core",
+                            "c",
+                            "cpp",
+                            "csharp",
+                            "fsharp",
+                            "go",
+                            "java",
+                            "kotlin",
+                            "perl",
+                            "python",
+                            "r",
+                            "ruby",
+                            "rust",
+                            "swift",
+                            "typescript"
+                        ]
+                    },
+                    {
+                        "operation": "test",
+                        "targets": [
+                            "core",
+                            "c",
+                            "cpp",
+                            "csharp",
+                            "dart",
+                            "fsharp",
+                            "go",
+                            "java",
+                            "kotlin",
+                            "lua",
+                            "perl",
+                            "php",
+                            "python",
+                            "r",
+                            "ruby",
+                            "rust",
+                            "swift",
+                            "typescript"
+                        ]
+                    }
+                ]
+            },
+            "release": {
+                "definition_version": "1.0.0",
+                "purpose": "Highest currently implemented pre-release envelope.",
+                "network_policy": "allowed",
+                "operations": [
+                    {
+                        "operation": "security_dependency_integrity"
+                    },
+                    {
+                        "operation": "security_content_workflows"
+                    },
+                    {
+                        "operation": "security_dependency_risk"
+                    },
+                    {
+                        "operation": "baseline_check"
+                    },
+                    {
+                        "operation": "canonical_contracts_check"
+                    },
+                    {
+                        "operation": "core_contracts_check"
+                    },
+                    {
+                        "operation": "contracts_check"
+                    },
+                    {
+                        "operation": "generate_check"
+                    },
+                    {
+                        "operation": "governance"
+                    },
+                    {
+                        "operation": "format_check",
+                        "targets": [
+                            "repository",
+                            "lsp",
+                            "core",
+                            "csharp",
+                            "dart",
+                            "python",
+                            "typescript"
+                        ]
+                    },
+                    {
+                        "operation": "hygiene",
+                        "targets": ["repository"]
+                    },
+                    {
+                        "operation": "lint",
+                        "targets": [
+                            "repository",
+                            "lsp",
+                            "core",
+                            "csharp",
+                            "dart",
+                            "fsharp",
+                            "go",
+                            "java",
+                            "kotlin",
+                            "perl",
+                            "php",
+                            "python",
+                            "ruby"
+                        ]
+                    },
+                    {
+                        "operation": "typecheck",
+                        "targets": [
+                            "lsp",
+                            "core",
+                            "csharp",
+                            "dart",
+                            "fsharp",
+                            "go",
+                            "java",
+                            "kotlin",
+                            "rust",
+                            "swift",
+                            "typescript"
+                        ]
+                    },
+                    {
+                        "operation": "build",
+                        "targets": [
+                            "core",
+                            "c",
+                            "cpp",
+                            "csharp",
+                            "fsharp",
+                            "go",
+                            "java",
+                            "kotlin",
+                            "perl",
+                            "python",
+                            "r",
+                            "ruby",
+                            "rust",
+                            "swift",
+                            "typescript"
+                        ]
+                    },
+                    {
+                        "operation": "test",
+                        "targets": [
+                            "core",
+                            "c",
+                            "cpp",
+                            "csharp",
+                            "dart",
+                            "fsharp",
+                            "go",
+                            "java",
+                            "kotlin",
+                            "lua",
+                            "perl",
+                            "php",
+                            "python",
+                            "r",
+                            "ruby",
+                            "rust",
+                            "swift",
+                            "typescript"
+                        ]
+                    }
+                ]
+            }
+        },
+        "aggregate_profiles": {
+            "check": "pull-request",
+            "certify": "full"
         }
     },
     "orchestration": {
@@ -234,22 +561,34 @@
     },
     "tools": {
         "bash": {
-            "resolution": { "model": "constrained", "version": ">=4.0,<6.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=4.0,<6.0"
+            },
             "version_command": ["bash", "--version"],
             "version_pattern": "version ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "python3": {
-            "resolution": { "model": "constrained", "version": ">=3.8,<4.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=3.8,<4.0"
+            },
             "version_command": ["python3", "--version"],
             "version_pattern": "Python ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "prettier": {
-            "resolution": { "model": "exact", "version": "3.3.3" },
+            "resolution": {
+                "model": "exact",
+                "version": "3.3.3"
+            },
             "version_command": ["node_modules/.bin/prettier", "--version"],
             "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "ruff": {
-            "resolution": { "model": "exact", "version": "0.15.21" },
+            "resolution": {
+                "model": "exact",
+                "version": "0.15.21"
+            },
             "version_command": ["ruff", "--version"],
             "version_pattern": "ruff ([0-9]+(?:\\.[0-9]+){1,2})"
         },
@@ -310,7 +649,10 @@
             "version_pattern": "curl ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "cmake": {
-            "resolution": { "model": "constrained", "version": ">=3.15,<4.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=3.15,<4.0"
+            },
             "version_command": ["cmake", "--version"],
             "version_pattern": "cmake version ([0-9]+(?:\\.[0-9]+){1,2})"
         },
@@ -323,22 +665,34 @@
             "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "dotnet": {
-            "resolution": { "model": "constrained", "version": ">=9.0,<10.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=9.0,<10.0"
+            },
             "version_command": ["dotnet", "--version"],
             "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "dart": {
-            "resolution": { "model": "constrained", "version": ">=3.0,<4.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=3.0,<4.0"
+            },
             "version_command": ["dart", "--version"],
             "version_pattern": "Dart SDK version: ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "go": {
-            "resolution": { "model": "constrained", "version": ">=1.22,<1.23" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=1.22,<1.23"
+            },
             "version_command": ["go", "version"],
             "version_pattern": "go([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "java": {
-            "resolution": { "model": "constrained", "version": ">=11,<22" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=11,<22"
+            },
             "version_command": ["java", "-version"],
             "version_pattern": "version \"([0-9]+(?:\\.[0-9]+){0,2})"
         },
@@ -351,7 +705,10 @@
             "version_pattern": "Apache Maven ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "lua": {
-            "resolution": { "model": "constrained", "version": ">=5.1,<5.5" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=5.1,<5.5"
+            },
             "version_command": ["lua", "-v"],
             "version_pattern": "Lua ([0-9]+(?:\\.[0-9]+){1,2})"
         },
@@ -364,12 +721,18 @@
             "version_pattern": "LuaRocks ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "perl": {
-            "resolution": { "model": "constrained", "version": ">=5.10,<6.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=5.10,<6.0"
+            },
             "version_command": ["perl", "-e", "print $^V"],
             "version_pattern": "v([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "php": {
-            "resolution": { "model": "constrained", "version": ">=8.2,<9.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=8.2,<9.0"
+            },
             "version_command": ["php", "--version"],
             "version_pattern": "PHP ([0-9]+(?:\\.[0-9]+){1,2})"
         },
@@ -398,7 +761,10 @@
             "version_pattern": "R version ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "ruby": {
-            "resolution": { "model": "constrained", "version": ">=3.0,<4.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=3.0,<4.0"
+            },
             "version_command": ["ruby", "--version"],
             "version_pattern": "ruby ([0-9]+(?:\\.[0-9]+){1,2})"
         },
@@ -412,12 +778,18 @@
             "version_pattern": "Bundler version ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "gem": {
-            "resolution": { "model": "constrained", "version": ">=3.0,<5.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=3.0,<5.0"
+            },
             "version_command": ["gem", "--version"],
             "version_pattern": "([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "cargo": {
-            "resolution": { "model": "constrained", "version": ">=1.70,<2.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=1.70,<2.0"
+            },
             "version_command": ["cargo", "--version"],
             "version_pattern": "cargo ([0-9]+(?:\\.[0-9]+){1,2})"
         },
@@ -430,17 +802,26 @@
             "version_pattern": "clippy ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "rustc": {
-            "resolution": { "model": "constrained", "version": ">=1.70,<2.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=1.70,<2.0"
+            },
             "version_command": ["rustc", "--version"],
             "version_pattern": "rustc ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "rustfmt": {
-            "resolution": { "model": "constrained", "version": ">=1.7,<2.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=1.7,<2.0"
+            },
             "version_command": ["rustfmt", "--version"],
             "version_pattern": "rustfmt ([0-9]+(?:\\.[0-9]+){1,2})"
         },
         "swift": {
-            "resolution": { "model": "constrained", "version": ">=5.9,<7.0" },
+            "resolution": {
+                "model": "constrained",
+                "version": ">=5.9,<7.0"
+            },
             "version_command": ["swift", "--version"],
             "version_pattern": "Swift version ([0-9]+(?:\\.[0-9]+){1,2})"
         },
@@ -746,7 +1127,9 @@
                 "csharp",
                 "--check"
             ],
-            "command_aliases": { "typecheck": "lint" },
+            "command_aliases": {
+                "typecheck": "lint"
+            },
             "lint": ["dotnet", "build", "--no-restore", "-warnaserror"],
             "required_bins": ["dotnet"],
             "install": {
@@ -789,7 +1172,9 @@
                 "dart",
                 "--check"
             ],
-            "command_aliases": { "typecheck": "lint" },
+            "command_aliases": {
+                "typecheck": "lint"
+            },
             "required_bins": ["dart"],
             "install": {
                 "winget": ["Dart SDK"],
@@ -826,7 +1211,9 @@
                 "build": "configured",
                 "test": "configured"
             },
-            "command_aliases": { "typecheck": "lint" },
+            "command_aliases": {
+                "typecheck": "lint"
+            },
             "lint": ["dotnet", "build", "--no-restore", "-warnaserror"],
             "required_bins": ["dotnet"],
             "install": {
@@ -861,7 +1248,9 @@
                 "build": "configured",
                 "test": "configured"
             },
-            "command_aliases": { "typecheck": "build" },
+            "command_aliases": {
+                "typecheck": "build"
+            },
             "required_bins": ["go"],
             "install": {
                 "apt": ["golang-go"],
@@ -899,7 +1288,9 @@
                 "build": "configured",
                 "test": "configured"
             },
-            "command_aliases": { "typecheck": "lint" },
+            "command_aliases": {
+                "typecheck": "lint"
+            },
             "required_bins": ["java", "mvn"],
             "install": {
                 "apt": ["default-jdk", "maven"],
@@ -937,7 +1328,9 @@
                 "build": "configured",
                 "test": "configured"
             },
-            "command_aliases": { "typecheck": "lint" },
+            "command_aliases": {
+                "typecheck": "lint"
+            },
             "required_bins": ["java"],
             "install": {
                 "apt": ["default-jdk"],

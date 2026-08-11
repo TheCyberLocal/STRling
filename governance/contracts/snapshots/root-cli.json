@@ -20,6 +20,7 @@
         "lint": "lint [lang|all] Run configured static analyzers",
         "list": "list List all bindings and tool status",
         "lockfile": "lockfile <lang> Print lockfile name (for CI)",
+        "profile": "profile <local|pull-request|full|release> [lang|all] Run a certification profile",
         "setup": "setup <lang|all> Install prerequisites and dependencies",
         "test": "test <lang|all> Run tests for one binding or all bindings",
         "typecheck": "typecheck [lang|all] Run configured type/static analysis"
