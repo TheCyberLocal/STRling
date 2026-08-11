@@ -92,6 +92,14 @@ projections call the existing `toDict()` methods. Exact emitted strings and
 legacy messages are retained. The projection may omit prototypes, functions,
 symbols, and stack traces, but it cannot rename nodes, classify behavior, or
 normalize a semantic difference.
+Compiler observations invoke the legacy parser first, retain the parser's flag
+object as input flags, and serialize only the compiler's existing toDict() IR
+plus the existing metadata object. Emitter observations use that same
+parser/compiler pipeline, preserve the emitted PCRE2 string byte-for-byte as a
+JSON string, retain the legacy flag projection and warning order, and project
+warnings only to their existing code and message fields. Failures are
+attributed to the surface that threw: parser, compiler, emitter, or public API.
+The runner does not turn compiler or emitter output into canonical artifacts.
 
 ## Contract and failure semantics
 

@@ -114,8 +114,16 @@ checkpoints:
             result: passed
             details: Focused tests, Prettier, Ruff format, TypeScript typecheck/build and all 19 suites with 963 tests, canonical/core/public contracts, generated state, documentation, governance, architecture fitness, source/fixture immutability, and patch integrity passed.
     - name: Compiler and emitter observation
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Direct legacy compiler and emitter observation
+            command: python3 tooling/legacy_reference/launch.py --check
+            result: passed
+            details: Thirty-two focused tests passed, including ten compiler/emitter tests for normalized IR, sorted metadata, exact PCRE2 and flag text, parser-stage containment, diagnostic warnings, variable-length lookbehind failure, depth failure, distinct surface routing, and CLI containment.
+          - check: Compiler/emitter checkpoint quality gates
+            command: npx prettier --check tooling/legacy_reference docs/migration/legacy-reference-runner.md docs/migration/records/legacy-reference-runner.yaml && ruff format --check tooling/legacy_reference/launch.py && ./strling typecheck typescript && python3 tooling/core_contract_validation.py && python3 tooling/documentation_integrity.py --json && python3 tooling/architecture_fitness.py && git diff --check
+            result: passed
+            details: Focused tests, Prettier, Ruff format, isolated TypeScript build, TypeScript typecheck, core contracts, documentation integrity for 124 documents, architecture fitness, and patch integrity passed. The observed metadata projection was retained exactly, including the historical feature set returned for the combined case. WSL-only wrapper checks remained unavailable after the host service reported Wsl/Service/0x80072747; their last committed-state results were green at the parser/API checkpoint and the complete required profiles remain scheduled for checkpoint 6.
     - name: Determinism and reference corpus certification
       status: planned
       evidence: []
@@ -130,3 +138,5 @@ commits:
       subject: "docs(migration): define legacy reference runner contract"
     - sha: 210008566c90533556c30dd8722c7b6b59681ab3
       subject: "feat(migration): establish legacy reference protocol"
+    - sha: cfdc09a9ff8e48fa0bc7d951bb5d4d670ffd0b2e
+      subject: "feat(migration): capture legacy parser evidence"

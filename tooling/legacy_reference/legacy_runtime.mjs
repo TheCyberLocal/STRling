@@ -1,18 +1,10 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { OPERATION_SPECS } from "./constants.mjs";
+import { OPERATION_IDS, OPERATION_SPECS } from "./constants.mjs";
 import { legacySurfaceFailure, ProtocolError } from "./protocol.mjs";
 
-export const PARSER_API_OPERATION_IDS = Object.freeze([
-    "parser.parse",
-    "parser.parse_to_artifact",
-    "api.root.parse",
-    "api.root.parse_to_artifact",
-    "api.simply.literal_to_string",
-    "api.simply.compile_node",
-    "api.simply.to_regexp",
-]);
+export const SUPPORTED_OPERATION_IDS = OPERATION_IDS;
 
 async function loadModule(distRoot, relative) {
     const absolute = path.join(distRoot, ...relative.split("/"));
@@ -28,6 +20,44 @@ function parseProjection(parse, source) {
     };
 }
 
+function parseForPipeline(parse, source) {
+    try {
+        return parse(source);
+    } catch (error) {
+        throw legacySurfaceFailure("parser", error);
+    }
+}
+
+function compileForPipeline(Compiler, root, withMetadata = false) {
+    try {
+        const compiler = new Compiler();
+        return withMetadata
+            ? compiler.compileWithMetadata(root)
+            : compiler.compile(root);
+    } catch (error) {
+        throw legacySurfaceFailure("compiler", error);
+    }
+}
+
+function emitterOptions(options) {
+    const result = {};
+    if (Object.hasOwn(options, "max_depth")) {
+        result.maxDepth = options.max_depth;
+    }
+    return result;
+}
+
+function projectWarnings(warnings) {
+    return warnings.map((warning) => ({
+        code: warning.code,
+        message: warning.message,
+    }));
+}
+
+function flagsProjection(flags) {
+    return flags.toDict();
+}
+
 function simplyPattern(rootModule, literal) {
     return rootModule.simply.lit(literal);
 }
@@ -41,11 +71,16 @@ function simplyOptions(options) {
 export async function createLegacyInvoker(distRoot) {
     let parserModule;
     let rootModule;
+    let compilerModule;
+    let emitterModule;
     try {
-        [parserModule, rootModule] = await Promise.all([
-            loadModule(distRoot, "STRling/core/parser.js"),
-            loadModule(distRoot, "index.js"),
-        ]);
+        [parserModule, rootModule, compilerModule, emitterModule] =
+            await Promise.all([
+                loadModule(distRoot, "STRling/core/parser.js"),
+                loadModule(distRoot, "index.js"),
+                loadModule(distRoot, "STRling/core/compiler.js"),
+                loadModule(distRoot, "STRling/emitters/pcre2.js"),
+            ]);
     } catch {
         throw new ProtocolError(
             "LEGACY_LOAD_FAILURE",
@@ -55,7 +90,7 @@ export async function createLegacyInvoker(distRoot) {
 
     return async function invokeLegacy(request) {
         const { input, operation, options } = request;
-        if (!PARSER_API_OPERATION_IDS.includes(operation)) {
+        if (!SUPPORTED_OPERATION_IDS.includes(operation)) {
             throw new ProtocolError(
                 "OPERATION_NOT_AVAILABLE",
                 `operation '${operation}' is not available in this runner checkpoint`,
@@ -70,6 +105,73 @@ export async function createLegacyInvoker(distRoot) {
                 artifact: parserModule.parseToArtifact(input.source),
                 return_shape: "object",
             };
+        }
+        if (operation === "compiler.compile") {
+            const [flags, root] = parseForPipeline(
+                parserModule.parse,
+                input.source,
+            );
+            const ir = compileForPipeline(compilerModule.Compiler, root);
+            return {
+                input_flags: flagsProjection(flags),
+                ir: ir.toDict(),
+                return_shape: "IROp",
+            };
+        }
+        if (operation === "compiler.compile_with_metadata") {
+            const [flags, root] = parseForPipeline(
+                parserModule.parse,
+                input.source,
+            );
+            const result = compileForPipeline(
+                compilerModule.Compiler,
+                root,
+                true,
+            );
+            return {
+                input_flags: flagsProjection(flags),
+                ir: result.ir.toDict(),
+                metadata: result.metadata,
+                return_shape: "object",
+            };
+        }
+        if (
+            operation === "emitter.pcre2.emit" ||
+            operation === "emitter.pcre2.emit_with_diagnostics"
+        ) {
+            const [flags, root] = parseForPipeline(
+                parserModule.parse,
+                input.source,
+            );
+            const ir = compileForPipeline(compilerModule.Compiler, root);
+            try {
+                if (operation === "emitter.pcre2.emit") {
+                    return {
+                        emitted_flags: flagsProjection(flags),
+                        emitted_pattern: emitterModule.emit(
+                            ir,
+                            flags,
+                            emitterOptions(options),
+                        ),
+                        return_shape: "string",
+                        target: "pcre2",
+                    };
+                }
+                const result = emitterModule.emitWithDiagnostics(
+                    ir,
+                    flags,
+                    emitterOptions(options),
+                );
+                return {
+                    emitted_flags: flagsProjection(flags),
+                    emitted_pattern: result.pattern,
+                    return_shape: "object",
+                    target: "pcre2",
+                    warnings: projectWarnings(result.warnings),
+                };
+            } catch (error) {
+                throw legacySurfaceFailure("emitter", error);
+            }
         }
         if (operation === "api.root.parse") {
             return parseProjection(rootModule.parse, input.source);

@@ -4,11 +4,10 @@ import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
-import { canonicalLine } from "./canonical.mjs";
 import { createImplementationIdentity } from "./identity.mjs";
 import {
     createLegacyInvoker,
-    PARSER_API_OPERATION_IDS,
+    SUPPORTED_OPERATION_IDS,
 } from "./legacy_runtime.mjs";
 import {
     observeRequest,
@@ -43,7 +42,7 @@ async function main() {
     }
 
     const request = validateRequest(rawRequest);
-    if (!PARSER_API_OPERATION_IDS.includes(request.operation)) {
+    if (!SUPPORTED_OPERATION_IDS.includes(request.operation)) {
         throw new ProtocolError(
             "OPERATION_NOT_AVAILABLE",
             `operation '${request.operation}' is not yet available`,
@@ -77,7 +76,3 @@ main().catch((error) => {
     process.stderr.write(serializeProtocolFailure(failure));
     process.exitCode = 2;
 });
-
-export function canonicalProtocolFailureForTest(error) {
-    return canonicalLine(error);
-}

@@ -16,7 +16,7 @@ from typing import Sequence
 ROOT = Path(__file__).resolve().parents[2]
 TOOL_ROOT = ROOT / "tooling" / "legacy_reference"
 TYPESCRIPT_ROOT = ROOT / "bindings" / "typescript"
-TSC = TYPESCRIPT_ROOT / "node_modules" / ".bin" / "tsc"
+TSC = TYPESCRIPT_ROOT / "node_modules" / "typescript" / "bin" / "tsc"
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
@@ -38,6 +38,7 @@ def build_legacy_typescript(output: Path) -> int:
         return 3
     completed = subprocess.run(
         [
+            "node",
             str(TSC),
             "-p",
             str(TYPESCRIPT_ROOT / "tsconfig.json"),
