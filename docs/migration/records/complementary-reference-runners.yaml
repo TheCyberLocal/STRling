@@ -139,8 +139,12 @@ checkpoints:
                 fingerprint sha256:0748ef7994a2bf143cb71efc149f0e8929905533d05b4fa1c2365f596ba88bc5;
                 corpus fingerprint sha256:f3114a423da9928ab12ff7afe5c2ce0eba97c2f57c3599cdc98b2105a5ef914d.
     - name: Additional runtime or binding reference paths
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Certified complementary candidate conclusion
+            command: Inspect every binding implementation and generated/runtime-only candidate against the documented independent-logic, shipped-history, overlap, determinism, relevance, and maintenance criteria.
+            result: passed
+            details: No third runner was justified. Partially independent translated bindings lacked an established unique historical path proportionate to a new maintained runner; package facades, generated tests, packaged Python copies, and the retired TypeScript oracle were redundant. Later target/runtime-engine testing retains responsibility for engine acceptance, flag support, portability, and execution behavior without promoting those checks into legacy authority.
     - name: Cross-runner corpus and determinism certification
       status: planned
       evidence: []

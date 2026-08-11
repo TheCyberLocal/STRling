@@ -181,3 +181,31 @@ The certified implementation fingerprint is
 `sha256:0748ef7994a2bf143cb71efc149f0e8929905533d05b4fa1c2365f596ba88bc5`;
 the corpus fingerprint is
 `sha256:f3114a423da9928ab12ff7afe5c2ce0eba97c2f57c3599cdc98b2105a5ef914d`.
+
+## Additional path certified conclusion
+
+No implementation beyond TypeScript and Python currently warrants an
+independent runner. The review covered every binding implementation, package
+facade, generated conformance artifact, the retired TypeScript-oracle path, and
+the packaged Python copies identified in the inventory.
+
+-   The C, C++, C#, Dart, F#, Go, Java, Kotlin, Lua, Perl, PHP, R, Ruby, legacy
+    Rust, and Swift packages contain translated or partially independent local
+    compiler logic, but current governed evidence does not identify a uniquely
+    important historical surface absent from both selected runners.
+-   Package facades and generated Rust conformance tests do not own separate
+    semantics from their implementation or source fixture.
+-   The retired JavaScript-to-JSON oracle invokes the same TypeScript source that
+    the existing TypeScript runner already observes.
+-   Packaged Python copies are distribution artifacts of the selected Python
+    implementation, not separately maintained semantic paths.
+
+Adding any of those paths now would increase protocol, runtime, dependency, and
+corpus maintenance without established new migration evidence. This conclusion
+does not imply agreement with either selected runner and does not prevent a
+later narrowly scoped runner when repository evidence demonstrates a unique
+historical contribution.
+
+Later runtime-engine testing will cover target-engine acceptance, flag support,
+portability, and execution behavior. Those checks serve target/runtime
+validation and must not be relabeled as historical semantic authority.
