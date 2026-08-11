@@ -324,10 +324,34 @@
         ],
         "unknown_is_blocking": true
     },
+    "secret_policy": {
+        "credential_marker_policy": "governance/repository-hygiene.json"
+    },
     "workflow_policy": {
-        "default_permissions": "contents-read",
+        "default_permissions": { "contents": "read" },
         "immutable_action_references": true,
         "validation_secrets_prohibited": true,
-        "shell_secret_interpolation_prohibited": true
+        "shell_secret_interpolation_prohibited": true,
+        "privileged_jobs": {
+            ".github/workflows/cd.yml": {
+                "publish-go": ["contents"],
+                "publish-php": ["contents"],
+                "publish-r": ["contents"],
+                "publish-swift": ["contents"],
+                "publish-dart": ["id-token"],
+                "publish-python": ["id-token"],
+                "publish-ruby": ["id-token"],
+                "publish-rust": ["id-token"],
+                "publish-typescript": ["id-token"]
+            }
+        },
+        "credential_persistence_jobs": {
+            ".github/workflows/cd.yml": [
+                "publish-go",
+                "publish-php",
+                "publish-r",
+                "publish-swift"
+            ]
+        }
     }
 }

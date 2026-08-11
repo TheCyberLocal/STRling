@@ -40,6 +40,44 @@ STATUS_PRECEDENCE = {
     "unavailable": 3,
     "failed": 4,
 }
+SECRET_PATTERNS = (
+    (
+        "SEC-SECRET-PRIVATE-KEY",
+        "private key material is tracked",
+        re.compile(r"-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----"),
+    ),
+    (
+        "SEC-SECRET-GITHUB-TOKEN",
+        "GitHub access token is tracked",
+        re.compile(r"\bgh[pousr]_[A-Za-z0-9]{36,}\b"),
+    ),
+    (
+        "SEC-SECRET-CLOUD-ACCESS-KEY",
+        "cloud access-key identifier is tracked",
+        re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"),
+    ),
+    (
+        "SEC-SECRET-NPM-TOKEN",
+        "npm access token is tracked",
+        re.compile(r"\bnpm_[A-Za-z0-9]{36,}\b"),
+    ),
+    (
+        "SEC-SECRET-API-TOKEN",
+        "high-confidence API token is tracked",
+        re.compile(
+            r"\b(?:sk-(?:proj-)?[A-Za-z0-9_-]{32,}|xox[baprs]-[A-Za-z0-9-]{24,})\b"
+        ),
+    ),
+    (
+        "SEC-SECRET-REPOSITORY-CREDENTIAL",
+        "repository URL contains embedded credentials",
+        re.compile(r"https?://[^\s/:@]+:[^\s/@]+@[^\s]+"),
+    ),
+)
+GENERIC_CREDENTIAL_PATTERN = re.compile(
+    r"""(?ix)\b(?:api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|password)\b
+    \s*[:=]\s*["']([A-Za-z0-9+/_.=-]{16,})["']"""
+)
 
 
 class SecurityConfigurationError(ValueError):
@@ -275,6 +313,414 @@ class SecurityEngine:
             )
         return SecurityOperation("security.dependency-integrity", "local", checks)
 
+    def run_content(self) -> SecurityOperation:
+        workflows = sorted(
+            path
+            for path in self._tracked_files
+            if path.startswith(".github/workflows/")
+            and Path(path).suffix in (".yml", ".yaml")
+        )
+        checks = [self._check_tracked_secrets()]
+        if workflows:
+            checks.extend(self._check_workflow(path) for path in workflows)
+        else:
+            checks.append(
+                SecurityCheck(
+                    "security.workflows",
+                    "workflow",
+                    "passed",
+                    [],
+                    scanner={"name": ENGINE_NAME, "version": self.engine_version},
+                )
+            )
+        return SecurityOperation("security.content-and-workflows", "local", checks)
+
+    def _secret_marker_exclusions(
+        self,
+    ) -> tuple[dict[str, set[str]], list[Finding]]:
+        secret_policy = self.policy.get("secret_policy")
+        if secret_policy is None:
+            return {}, []
+        if not isinstance(secret_policy, dict):
+            return {}, [
+                Finding(
+                    "SEC-SECRET-POLICY-MALFORMED",
+                    "secret_policy must be a mapping",
+                    path="governance/security-policy.json",
+                )
+            ]
+        policy_path = secret_policy.get("credential_marker_policy")
+        if not isinstance(policy_path, str):
+            return {}, [
+                Finding(
+                    "SEC-SECRET-POLICY-MALFORMED",
+                    "credential_marker_policy must be a repository path",
+                    path="governance/security-policy.json",
+                )
+            ]
+        try:
+            marker_policy = load_json(self.root / policy_path)
+        except SecurityConfigurationError as exc:
+            return {}, [
+                Finding(
+                    "SEC-SECRET-POLICY-MALFORMED",
+                    str(exc),
+                    path=policy_path,
+                )
+            ]
+        if not isinstance(marker_policy, dict):
+            return {}, [
+                Finding(
+                    "SEC-SECRET-POLICY-MALFORMED",
+                    "credential marker policy must be a mapping",
+                    path=policy_path,
+                )
+            ]
+        markers = marker_policy.get("private_key_markers")
+        entries = marker_policy.get("credential_marker_exclusions")
+        if not isinstance(markers, list) or not isinstance(entries, list):
+            return {}, [
+                Finding(
+                    "SEC-SECRET-POLICY-MALFORMED",
+                    "credential marker policy requires marker and exclusion lists",
+                    path=policy_path,
+                )
+            ]
+        exclusions: dict[str, set[str]] = {}
+        errors: list[Finding] = []
+        for entry in entries:
+            if (
+                not isinstance(entry, dict)
+                or not isinstance(entry.get("path"), str)
+                or not isinstance(entry.get("rationale"), str)
+                or not entry["rationale"].strip()
+            ):
+                errors.append(
+                    Finding(
+                        "SEC-SECRET-POLICY-MALFORMED",
+                        "credential marker exclusions require exact path and rationale",
+                        path=policy_path,
+                    )
+                )
+                continue
+            exclusions[entry["path"]] = {
+                marker for marker in markers if isinstance(marker, str)
+            }
+        return exclusions, errors
+
+    def _check_tracked_secrets(self) -> SecurityCheck:
+        marker_exclusions, policy_errors = self._secret_marker_exclusions()
+        findings: list[Finding] = []
+        incomplete: list[Finding] = []
+        for relative_path in self._tracked_files:
+            path = self.root / relative_path
+            if not path.is_file():
+                incomplete.append(
+                    Finding(
+                        "SEC-SECRET-SCAN-INCOMPLETE",
+                        "tracked path could not be read as a regular file",
+                        path=relative_path,
+                    )
+                )
+                continue
+            try:
+                content = path.read_bytes().decode("utf-8", errors="replace")
+            except OSError as exc:
+                incomplete.append(
+                    Finding(
+                        "SEC-SECRET-SCAN-INCOMPLETE",
+                        f"tracked path could not be read: {exc}",
+                        path=relative_path,
+                    )
+                )
+                continue
+            for code, message, pattern in SECRET_PATTERNS:
+                for match in pattern.finditer(content):
+                    if code == "SEC-SECRET-PRIVATE-KEY" and match.group(
+                        0
+                    ) in marker_exclusions.get(relative_path, set()):
+                        continue
+                    findings.append(
+                        Finding(
+                            code,
+                            message,
+                            path=relative_path,
+                            line=content.count("\n", 0, match.start()) + 1,
+                        )
+                    )
+            findings.extend(
+                Finding(
+                    "SEC-SECRET-OBVIOUS-CREDENTIAL",
+                    "obvious credential assignment is tracked",
+                    path=relative_path,
+                    line=content.count("\n", 0, match.start()) + 1,
+                )
+                for match in GENERIC_CREDENTIAL_PATTERN.finditer(content)
+            )
+        if incomplete or policy_errors:
+            return SecurityCheck(
+                "security.tracked-secrets",
+                "secret",
+                "incomplete",
+                list(self._tracked_files),
+                findings=[*findings, *incomplete, *policy_errors],
+                scanner={"name": ENGINE_NAME, "version": self.engine_version},
+            )
+        return self._finding_check(
+            "security.tracked-secrets",
+            "secret",
+            list(self._tracked_files),
+            findings,
+            scanner={"name": ENGINE_NAME, "version": self.engine_version},
+        )
+
+    def _check_workflow(self, relative_path: str) -> SecurityCheck:
+        try:
+            content = (self.root / relative_path).read_text(encoding="utf-8")
+            loaded = yaml.safe_load(content)
+        except (OSError, yaml.YAMLError) as exc:
+            return SecurityCheck(
+                f"security.workflow.{Path(relative_path).stem}",
+                "workflow",
+                "incomplete",
+                [relative_path],
+                findings=[
+                    Finding(
+                        "SEC-WORKFLOW-MALFORMED",
+                        f"workflow could not be parsed: {exc}",
+                        path=relative_path,
+                    )
+                ],
+                scanner={"name": ENGINE_NAME, "version": self.engine_version},
+            )
+        if not isinstance(loaded, dict):
+            return SecurityCheck(
+                f"security.workflow.{Path(relative_path).stem}",
+                "workflow",
+                "incomplete",
+                [relative_path],
+                findings=[
+                    Finding(
+                        "SEC-WORKFLOW-MALFORMED",
+                        "workflow root must be a mapping",
+                        path=relative_path,
+                    )
+                ],
+                scanner={"name": ENGINE_NAME, "version": self.engine_version},
+            )
+
+        findings: list[Finding] = []
+        workflow_policy = self.policy.get("workflow_policy")
+        if not isinstance(workflow_policy, dict):
+            return SecurityCheck(
+                f"security.workflow.{Path(relative_path).stem}",
+                "workflow",
+                "incomplete",
+                [relative_path],
+                findings=[
+                    Finding(
+                        "SEC-WORKFLOW-POLICY-MALFORMED",
+                        "workflow_policy must be a mapping",
+                        path="governance/security-policy.json",
+                    )
+                ],
+                scanner={"name": ENGINE_NAME, "version": self.engine_version},
+            )
+
+        expected_permissions = workflow_policy.get("default_permissions")
+        if loaded.get("permissions") != expected_permissions:
+            findings.append(
+                Finding(
+                    "SEC-WORKFLOW-DEFAULT-PERMISSIONS",
+                    "workflow must declare the exact read-only default permissions",
+                    path=relative_path,
+                    line=self._line_for(content, "permissions:"),
+                )
+            )
+
+        jobs = loaded.get("jobs")
+        if not isinstance(jobs, dict):
+            findings.append(
+                Finding(
+                    "SEC-WORKFLOW-MALFORMED",
+                    "workflow jobs must be a mapping",
+                    path=relative_path,
+                )
+            )
+            jobs = {}
+
+        privileged_jobs = self._workflow_job_policy(
+            workflow_policy, "privileged_jobs", relative_path
+        )
+        persistence_jobs = set(
+            self._workflow_path_list(
+                workflow_policy, "credential_persistence_jobs", relative_path
+            )
+        )
+        for job_id, raw_job in sorted(jobs.items()):
+            if not isinstance(raw_job, dict):
+                findings.append(
+                    Finding(
+                        "SEC-WORKFLOW-MALFORMED",
+                        f"job {job_id} must be a mapping",
+                        path=relative_path,
+                    )
+                )
+                continue
+            permissions = raw_job.get("permissions", {})
+            if not isinstance(permissions, dict):
+                findings.append(
+                    Finding(
+                        "SEC-WORKFLOW-JOB-PERMISSIONS",
+                        f"job {job_id} permissions must be a mapping",
+                        path=relative_path,
+                    )
+                )
+                permissions = {}
+            allowed_write_scopes = set(privileged_jobs.get(str(job_id), []))
+            for scope, access in permissions.items():
+                if access == "write" and scope not in allowed_write_scopes:
+                    findings.append(
+                        Finding(
+                            "SEC-WORKFLOW-JOB-PERMISSIONS",
+                            f"job {job_id} has ungoverned {scope}: write permission",
+                            path=relative_path,
+                            line=self._line_for(content, f"{scope}: write"),
+                        )
+                    )
+
+            if (
+                workflow_policy.get("validation_secrets_prohibited")
+                and relative_path.endswith("/ci.yml")
+                and "${{ secrets." in json.dumps(raw_job)
+            ):
+                findings.append(
+                    Finding(
+                        "SEC-WORKFLOW-VALIDATION-SECRET",
+                        f"validation job {job_id} references a repository secret",
+                        path=relative_path,
+                    )
+                )
+
+            steps = raw_job.get("steps", [])
+            if not isinstance(steps, list):
+                findings.append(
+                    Finding(
+                        "SEC-WORKFLOW-MALFORMED",
+                        f"job {job_id} steps must be a list",
+                        path=relative_path,
+                    )
+                )
+                continue
+            for step in steps:
+                if not isinstance(step, dict):
+                    continue
+                uses = step.get("uses")
+                if isinstance(uses, str):
+                    findings.extend(
+                        self._action_reference_findings(
+                            relative_path, content, str(job_id), uses
+                        )
+                    )
+                    if uses.startswith("actions/checkout@"):
+                        settings = step.get("with", {})
+                        if not isinstance(settings, dict):
+                            settings = {}
+                        actual = settings.get("persist-credentials")
+                        expected = str(job_id) in persistence_jobs
+                        if actual is not expected:
+                            findings.append(
+                                Finding(
+                                    "SEC-WORKFLOW-CREDENTIAL-PERSISTENCE",
+                                    f"checkout in job {job_id} must set persist-credentials to {str(expected).lower()}",
+                                    path=relative_path,
+                                    line=self._line_for(content, uses),
+                                )
+                            )
+                run = step.get("run")
+                if (
+                    workflow_policy.get("shell_secret_interpolation_prohibited")
+                    and isinstance(run, str)
+                    and "${{ secrets." in run
+                ):
+                    findings.append(
+                        Finding(
+                            "SEC-WORKFLOW-SHELL-SECRET",
+                            f"job {job_id} interpolates a secret directly into shell command text",
+                            path=relative_path,
+                            line=self._line_for(content, "${{ secrets."),
+                        )
+                    )
+
+        return self._finding_check(
+            f"security.workflow.{Path(relative_path).stem}",
+            "workflow",
+            [relative_path],
+            findings,
+            scanner={"name": ENGINE_NAME, "version": self.engine_version},
+        )
+
+    def _action_reference_findings(
+        self, path: str, content: str, job_id: str, uses: str
+    ) -> list[Finding]:
+        if uses.startswith(("./", "docker://")):
+            return []
+        if "@" not in uses:
+            return [
+                Finding(
+                    "SEC-WORKFLOW-ACTION-UNPINNED",
+                    f"job {job_id} action reference has no revision",
+                    path=path,
+                    line=self._line_for(content, uses),
+                )
+            ]
+        revision = uses.rsplit("@", 1)[1]
+        if not re.fullmatch(r"[0-9a-f]{40}", revision):
+            return [
+                Finding(
+                    "SEC-WORKFLOW-ACTION-UNPINNED",
+                    f"job {job_id} action reference must use a full immutable commit",
+                    path=path,
+                    line=self._line_for(content, uses),
+                )
+            ]
+        return []
+
+    @staticmethod
+    def _workflow_job_policy(
+        policy: Mapping[str, object], field_name: str, path: str
+    ) -> dict[str, list[str]]:
+        configured = policy.get(field_name, {})
+        if not isinstance(configured, dict):
+            return {}
+        selected = configured.get(path, {})
+        if not isinstance(selected, dict):
+            return {}
+        return {
+            str(job): [str(scope) for scope in scopes]
+            for job, scopes in selected.items()
+            if isinstance(scopes, list)
+        }
+
+    @staticmethod
+    def _workflow_path_list(
+        policy: Mapping[str, object], field_name: str, path: str
+    ) -> list[str]:
+        configured = policy.get(field_name, {})
+        if not isinstance(configured, dict):
+            return []
+        selected = configured.get(path, [])
+        if not isinstance(selected, list):
+            return []
+        return [str(item) for item in selected]
+
+    @staticmethod
+    def _line_for(content: str, needle: str) -> int | None:
+        for line_number, line in enumerate(content.splitlines(), start=1):
+            if needle in line:
+                return line_number
+        return None
+
     def _check_engine_pin(self) -> SecurityCheck:
         configured = self.policy.get("engine")
         expected = configured.get("version") if isinstance(configured, dict) else None
@@ -502,9 +948,7 @@ class SecurityEngine:
     def _validate_cargo(self, raw: Mapping[str, object]) -> list[Finding]:
         manifest_path = self._string_list(raw.get("manifests"))[0]
         lock_path = self._string_list(raw.get("locks"))[0]
-        manifest = self._read_toml_object(
-            manifest_path, "SEC-DEP-MANIFEST-MALFORMED"
-        )
+        manifest = self._read_toml_object(manifest_path, "SEC-DEP-MANIFEST-MALFORMED")
         lock = self._read_toml_object(lock_path, "SEC-DEP-LOCK-MALFORMED")
         findings = [*manifest[1], *lock[1]]
         if findings:
@@ -530,9 +974,7 @@ class SecurityEngine:
                 )
             ]
         locked_names = {
-            package.get("name")
-            for package in packages
-            if isinstance(package, dict)
+            package.get("name") for package in packages if isinstance(package, dict)
         }
         for section in ("dependencies", "dev-dependencies", "build-dependencies"):
             dependencies = manifest_data.get(section, {})
@@ -568,9 +1010,7 @@ class SecurityEngine:
                     )
         return findings
 
-    def _validate_presence_and_parse(
-        self, raw: Mapping[str, object]
-    ) -> list[Finding]:
+    def _validate_presence_and_parse(self, raw: Mapping[str, object]) -> list[Finding]:
         ecosystem = raw.get("ecosystem")
         manifests = self._string_list(raw.get("manifests"))
         locks = self._string_list(raw.get("locks"))
@@ -578,7 +1018,9 @@ class SecurityEngine:
         if ecosystem == "dart-pub":
             for path in manifests + locks:
                 try:
-                    value = yaml.safe_load((self.root / path).read_text(encoding="utf-8"))
+                    value = yaml.safe_load(
+                        (self.root / path).read_text(encoding="utf-8")
+                    )
                 except (OSError, yaml.YAMLError) as exc:
                     findings.append(
                         Finding(
@@ -675,9 +1117,7 @@ class SecurityEngine:
             ]
         ecosystem = raw.get("ecosystem")
         if ecosystem == "go":
-            has_external = bool(
-                re.search(r"(?m)^\s*require\s*(?:\(|\S)", content)
-            )
+            has_external = bool(re.search(r"(?m)^\s*require\s*(?:\(|\S)", content))
         elif ecosystem == "swiftpm":
             has_external = ".package(" in content
         else:
@@ -790,9 +1230,7 @@ class SecurityEngine:
                 )
         return findings
 
-    def _validate_exact_requirements(
-        self, raw: Mapping[str, object]
-    ) -> list[Finding]:
+    def _validate_exact_requirements(self, raw: Mapping[str, object]) -> list[Finding]:
         findings: list[Finding] = []
         for path in self._string_list(raw.get("manifests")):
             try:
@@ -840,10 +1278,9 @@ class SecurityEngine:
                         version=specifier,
                     )
                 )
-            if (
-                specifier.startswith(("git+", "github:", "http://", "https://"))
-                and not re.search(r"(?:#|@)[0-9a-f]{40}$", specifier)
-            ):
+            if specifier.startswith(
+                ("git+", "github:", "http://", "https://")
+            ) and not re.search(r"(?:#|@)[0-9a-f]{40}$", specifier):
                 findings.append(
                     Finding(
                         "SEC-DEP-UNPINNED-SOURCE",
@@ -876,7 +1313,9 @@ class SecurityEngine:
         try:
             value = json.loads((self.root / path).read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            return None, [Finding(code, f"cannot parse JSON dependency file: {exc}", path)]
+            return None, [
+                Finding(code, f"cannot parse JSON dependency file: {exc}", path)
+            ]
         if not isinstance(value, dict):
             return None, [Finding(code, "JSON dependency file must be an object", path)]
         return value, []
@@ -887,7 +1326,9 @@ class SecurityEngine:
         try:
             value = tomllib.loads((self.root / path).read_text(encoding="utf-8"))
         except (OSError, tomllib.TOMLDecodeError) as exc:
-            return None, [Finding(code, f"cannot parse TOML dependency file: {exc}", path)]
+            return None, [
+                Finding(code, f"cannot parse TOML dependency file: {exc}", path)
+            ]
         if not isinstance(value, dict):
             return None, [Finding(code, "TOML dependency file must be an object", path)]
         return value, []
@@ -943,7 +1384,7 @@ def render_human(operation: SecurityOperation) -> None:
 
 def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("operation", choices=("integrity",))
+    parser.add_argument("operation", choices=("integrity", "content"))
     parser.add_argument("--json", action="store_true", dest="json_output")
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--policy", type=Path, default=POLICY_PATH)
@@ -956,9 +1397,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         policy = load_policy(args.policy, args.policy_schema)
         engine = SecurityEngine(args.root, policy)
-        operation = engine.run_integrity()
+        operation = (
+            engine.run_integrity()
+            if args.operation == "integrity"
+            else engine.run_content()
+        )
     except SecurityConfigurationError as exc:
-        operation = incomplete_operation("security.dependency-integrity", str(exc))
+        operation_id = (
+            "security.dependency-integrity"
+            if args.operation == "integrity"
+            else "security.content-and-workflows"
+        )
+        operation = incomplete_operation(operation_id, str(exc))
     if args.json_output:
         print(json.dumps(operation.as_dict(), sort_keys=True))
     else:

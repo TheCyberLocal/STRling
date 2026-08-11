@@ -141,8 +141,28 @@ checkpoints:
             result: passed
             details: The 24-check result validated against the structured schema; transitional lockfile generation remained visible; governance, contracts, Prettier, Ruff, suppression policy, and patch integrity passed.
     - name: Secret and workflow security
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Tracked-content secret scan
+            command: python3 tooling/security.py content --json
+            result: passed
+            details: Every Git-tracked regular file was scanned for private keys, high-confidence service tokens, embedded repository credentials, and obvious credential assignments; the only literal private-key strings are the exact, rationale-bearing marker-policy entries already governed by repository hygiene.
+          - check: Workflow least privilege
+            command: python3 tooling/security.py content --json
+            result: passed
+            details: Both workflows declare contents read by default; only four tag-push jobs receive contents write and five trusted-publisher jobs receive id-token write; checkout credentials persist only in the exact tag-push jobs that require git push.
+          - check: Third-party action integrity
+            command: Workflow action inventory and upstream git ref resolution
+            result: passed
+            details: All 16 unique GitHub Action references are pinned to verified full 40-character commits while retaining their prior human-readable ref in comments.
+          - check: Credential exposure remediation
+            command: Structured workflow inspection
+            result: passed
+            details: Two NuGet publication steps now receive the key through step environment scope and quoted shell expansion; ordinary CI jobs reference no repository secrets.
+          - check: Controlled workflow and secret mutations
+            command: python3 -m unittest tooling.tests.test_security -v
+            result: passed
+            details: Four focused content tests reject synthetic nonfunctional private-key/token markers, mutable actions, absent checkout persistence controls, missing default permissions, ungoverned writes, validation secrets, and direct shell secret interpolation; the positive fixture passes.
     - name: Vulnerability and license policy
       status: planned
       evidence: []
@@ -158,3 +178,5 @@ checkpoints:
 commits:
     - sha: 11fc5c737183b3ed25799c6fccf89360f48ac74a
       subject: "docs(security): define baseline repository security policy"
+    - sha: 1c305bd9f41579f2a7e0d1f2011c0dd316168622
+      subject: "feat(security): enforce dependency and lock integrity"

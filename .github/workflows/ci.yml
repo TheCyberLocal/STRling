@@ -13,21 +13,25 @@ on:
             - "v*"
     pull_request:
 
+permissions:
+    contents: read
+
 jobs:
     quality-hardgates:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
+                  persist-credentials: false
                   fetch-depth: 0
 
             - name: Install Python
-              uses: actions/setup-python@v6
+              uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
               with:
                   python-version: "3.12"
 
             - name: Install Node
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
               with:
                   node-version: "22"
                   cache: npm
@@ -37,23 +41,23 @@ jobs:
                       tooling/lsp-server/package-lock.json
 
             - name: Install Go
-              uses: actions/setup-go@v6
+              uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
               with:
                   cache: false
                   go-version: "1.22"
 
             - name: Install .NET
-              uses: actions/setup-dotnet@v5
+              uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with:
                   dotnet-version: "9.0.x"
 
             - name: Install Dart SDK
-              uses: dart-lang/setup-dart@v1
+              uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1
               with:
                   sdk: "3.10.1"
 
             - name: Install Ruby and Bundler
-              uses: ruby/setup-ruby@v1
+              uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1
               with:
                   ruby-version: "3.2"
                   bundler: "2.4.20"
@@ -98,7 +102,9 @@ jobs:
                     ]
 
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  persist-credentials: false
 
             - name: 🔧 Universal Setup
               run: chmod +x strling
@@ -106,39 +112,39 @@ jobs:
             # --- TOOLCHAIN INSTALLATION (for languages not pre-installed) ---
             - name: 🔧 Install Node
               if: matrix.language == 'typescript'
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
               with:
                   node-version: "22"
 
             - name: 🔧 Install Go
               if: matrix.language == 'go'
-              uses: actions/setup-go@v6
+              uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
               with:
                   cache: false
                   go-version: "1.22"
 
             - name: 🔧 Install .NET
               if: matrix.language == 'csharp' || matrix.language == 'fsharp'
-              uses: actions/setup-dotnet@v5
+              uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with:
                   dotnet-version: "9.0.x"
 
             - name: 🔧 Install Ruby & Bundler
               if: matrix.language == 'ruby'
-              uses: ruby/setup-ruby@v1
+              uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1
               with:
                   ruby-version: "3.2"
                   bundler: "2.4.20"
 
             - name: 🔧 Install Lua & LuaRocks
               if: matrix.language == 'lua'
-              uses: leafo/gh-actions-lua@v12
+              uses: leafo/gh-actions-lua@8c9e175e7a3d77e21f809eefbee34a19b858641b # v12
               with:
                   luaVersion: "5.4"
 
             - name: 🔧 Install LuaRocks
               if: matrix.language == 'lua'
-              uses: leafo/gh-actions-luarocks@v6
+              uses: leafo/gh-actions-luarocks@35d062def313a7699a0d513e996bcf4352f05389 # v6
 
             - name: 🔧 Install R
               if: matrix.language == 'r'
@@ -158,7 +164,7 @@ jobs:
 
             - name: 🔧 Install Dart SDK
               if: matrix.language == 'dart'
-              uses: dart-lang/setup-dart@v1
+              uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1
               with:
                   sdk: stable
 
@@ -186,7 +192,7 @@ jobs:
 
             - name: 💾 Restore Dependency Cache
               if: steps.cache-config.outputs.path != ''
-              uses: actions/cache@v5
+              uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
               with:
                   path: ${{ steps.cache-config.outputs.path }}
                   # Hardcode the version prefix (e.g., 'v1-') directly into the key

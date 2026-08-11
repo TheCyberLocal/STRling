@@ -17,6 +17,7 @@
         "dependency_rules",
         "vulnerability_policy",
         "license_policy",
+        "secret_policy",
         "workflow_policy"
     ],
     "properties": {
@@ -63,6 +64,7 @@
         "dependency_rules": { "type": "object" },
         "vulnerability_policy": { "type": "object" },
         "license_policy": { "type": "object" },
+        "secret_policy": { "type": "object" },
         "workflow_policy": { "type": "object" }
     },
     "$defs": {

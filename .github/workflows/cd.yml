@@ -21,6 +21,9 @@ on:
                 required: false
                 default: ""
 
+permissions:
+    contents: read
+
 jobs:
     # ==========================================
     # TIER 1: GLOBAL PREFLIGHT GATE
@@ -37,13 +40,14 @@ jobs:
             release_ref: ${{ steps.release_state.outputs.release_ref }}
         steps:
             - name: Checkout triggering commit
-              uses: actions/checkout@v5
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
+                  persist-credentials: false
                   ref: ${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.workflow_run.head_sha }}
                   fetch-depth: 0
 
             - name: Setup Python 3.11
-              uses: actions/setup-python@v6
+              uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
               with:
                   python-version: "3.11"
 
@@ -161,8 +165,12 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
             - name: Install Dependencies
               run: sudo apt-get update && sudo apt-get install -y libjansson-dev
             - run: make
@@ -173,8 +181,12 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
             - run: cmake . && make
               working-directory: bindings/cpp
 
@@ -183,9 +195,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-dotnet@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with: { dotnet-version: "9.0" }
             - run: dotnet build -c Release
               working-directory: bindings/csharp
@@ -195,9 +211,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: dart-lang/setup-dart@v1
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1
             - run: dart pub get
               working-directory: bindings/dart
             - run: dart analyze --no-fatal-warnings
@@ -208,9 +228,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-dotnet@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with: { dotnet-version: "9.0" }
             - run: dotnet build src/STRling/STRling.fsproj -c Release
               working-directory: bindings/fsharp
@@ -220,9 +244,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-go@v6
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
               with:
                   cache: false
                   go-version: "1.22"
@@ -234,9 +262,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-java@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
               with: { distribution: "temurin", java-version: "11" }
             - run: mvn -B -DskipTests compile
               working-directory: bindings/java
@@ -246,9 +278,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-java@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
               with: { distribution: "temurin", java-version: "11" }
             - run: ./gradlew classes
               working-directory: bindings/kotlin
@@ -258,10 +294,14 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: leafo/gh-actions-lua@v12
-            - uses: leafo/gh-actions-luarocks@v6
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: leafo/gh-actions-lua@8c9e175e7a3d77e21f809eefbee34a19b858641b # v12
+            - uses: leafo/gh-actions-luarocks@35d062def313a7699a0d513e996bcf4352f05389 # v6
             - working-directory: bindings/lua
               run: |
                   VERSION="${{ needs.verify-release.outputs.version }}"
@@ -274,9 +314,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: shogo82148/actions-setup-perl@v1
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: shogo82148/actions-setup-perl@c3e9892cade8a01db1a8498b756f48d6ca98b678 # v1
             - run: perl Makefile.PL && make
               working-directory: bindings/perl
 
@@ -285,8 +329,12 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
             - run: composer validate --no-check-publish --no-check-lock
               working-directory: bindings/php
 
@@ -295,9 +343,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-python@v6
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
               with: { python-version: "3.10" }
             - run: pip install build && python -m build
               working-directory: bindings/python
@@ -307,9 +359,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: r-lib/actions/setup-r@v2
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
             - run: R CMD build .
               working-directory: bindings/r
 
@@ -318,9 +374,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: ruby/setup-ruby@v1
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1
               with: { ruby-version: "3.2" }
             - working-directory: bindings/ruby
               run: |
@@ -333,9 +393,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: dtolnay/rust-toolchain@stable
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
             - run: cargo check
               working-directory: bindings/rust
 
@@ -344,8 +408,12 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
             - run: swift build
               working-directory: bindings/swift
 
@@ -354,9 +422,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-node@v6
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
               with: { node-version: "22" }
             - run: npm ci && npm run build
               working-directory: bindings/typescript
@@ -371,8 +443,12 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
             - run: |
                   TAG="${{ needs.verify-release.outputs.tag_version }}"
                   FILE=$(grep 'return "' bindings/c/src/strling.c | cut -d '"' -f 2)
@@ -384,9 +460,10 @@ jobs:
         runs-on: ubuntu-latest
         permissions: { contents: write }
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
                   {
+                      persist-credentials: true,
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       fetch-depth: 0,
                   }
@@ -403,9 +480,10 @@ jobs:
         runs-on: ubuntu-latest
         permissions: { contents: write }
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
                   {
+                      persist-credentials: true,
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       fetch-depth: 0,
                   }
@@ -422,9 +500,10 @@ jobs:
         runs-on: ubuntu-latest
         permissions: { contents: write }
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
                   {
+                      persist-credentials: true,
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       fetch-depth: 0,
                   }
@@ -441,9 +520,10 @@ jobs:
         runs-on: ubuntu-latest
         permissions: { contents: write }
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
               with:
                   {
+                      persist-credentials: true,
                       ref: "${{ needs.verify-release.outputs.release_ref }}",
                       fetch-depth: 0,
                   }
@@ -460,8 +540,12 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
             - run: pip install conan
             - working-directory: bindings/cpp
               env:
@@ -486,17 +570,23 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-dotnet@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with: { dotnet-version: "9.0" }
             - working-directory: bindings/csharp
+              env:
+                  NUGET_KEY: ${{ secrets.NUGET_KEY }}
               run: |
                   VER=$(grep "<Version>" src/STRling/STRling.csproj | sed -e 's/.*<Version>\(.*\)<\/Version>.*/\1/')
                   if python3 ../../tooling/check_version_exists.py --registry nuget --package "STRling" --version "$VER"; then exit 0; fi
                   dotnet pack -c Release
                   [[ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]] && exit 0
-                  dotnet nuget push src/STRling/bin/Release/*.nupkg -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+                  dotnet nuget push src/STRling/bin/Release/*.nupkg -k "$NUGET_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
 
     publish-dart:
         needs: [verify-release, compile-dart]
@@ -506,9 +596,13 @@ jobs:
             id-token: write
             contents: read
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: dart-lang/setup-dart@v1
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1
             - name: Sync Metadata and Publish
               working-directory: bindings/dart
               run: |
@@ -542,26 +636,36 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-dotnet@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
               with: { dotnet-version: "9.0" }
             - working-directory: bindings/fsharp
+              env:
+                  NUGET_KEY: ${{ secrets.NUGET_KEY }}
               run: |
                   VER=$(grep "<Version>" src/STRling/STRling.fsproj | sed -e 's/.*<Version>\(.*\)<\/Version>.*/\1/')
                   if python3 ../../tooling/check_version_exists.py --registry nuget --package "STRling.FSharp" --version "$VER"; then exit 0; fi
                   dotnet pack src/STRling/STRling.fsproj -c Release
                   [[ "${{ needs.verify-release.outputs.is_dry_run }}" == "true" ]] && exit 0
-                  dotnet nuget push src/STRling/bin/Release/*.nupkg -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+                  dotnet nuget push src/STRling/bin/Release/*.nupkg -k "$NUGET_KEY" -s https://api.nuget.org/v3/index.json --skip-duplicate
 
     publish-java:
         needs: [verify-release, compile-java]
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-java@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
               with: { distribution: "temurin", java-version: "11" }
             - name: 🔑 Import GPG Private Key
               env:
@@ -589,9 +693,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-java@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
               with: { distribution: "temurin", java-version: "11" }
             - working-directory: bindings/kotlin
               env:
@@ -617,10 +725,14 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: leafo/gh-actions-lua@v12
-            - uses: leafo/gh-actions-luarocks@v6
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: leafo/gh-actions-lua@8c9e175e7a3d77e21f809eefbee34a19b858641b # v12
+            - uses: leafo/gh-actions-luarocks@35d062def313a7699a0d513e996bcf4352f05389 # v6
             - working-directory: bindings/lua
               env:
                   LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
@@ -647,9 +759,13 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: shogo82148/actions-setup-perl@v1
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: shogo82148/actions-setup-perl@c3e9892cade8a01db1a8498b756f48d6ca98b678 # v1
             - name: Build and Publish
               working-directory: bindings/perl
               env:
@@ -673,9 +789,13 @@ jobs:
         runs-on: ubuntu-latest
         permissions: { id-token: write, contents: read }
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-python@v6
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
               with: { python-version: "3.10" }
             - working-directory: bindings/python
               id: prepare
@@ -698,7 +818,7 @@ jobs:
 
                   echo "publish=true" >> $GITHUB_OUTPUT
             - if: steps.prepare.outputs.publish == 'true'
-              uses: pypa/gh-action-pypi-publish@release/v1
+              uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
               with: { packages-dir: bindings/python/dist/ }
 
     publish-ruby:
@@ -709,16 +829,20 @@ jobs:
             id-token: write
             contents: read
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
             - name: 💎 Setup Ruby
-              uses: ruby/setup-ruby@v1
+              uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1
               with:
                   ruby-version: "3.2"
                   rubygems: latest
 
             - name: 🔑 Configure RubyGems OIDC
-              uses: rubygems/configure-rubygems-credentials@main
+              uses: rubygems/configure-rubygems-credentials@abfabee9aa68f1c2c95a6f58c91d826e5fac33da # main
 
             - name: 🚀 Build and Publish Gem
               working-directory: bindings/ruby
@@ -752,9 +876,13 @@ jobs:
         runs-on: ubuntu-latest
         permissions: { id-token: write, contents: read }
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: dtolnay/rust-toolchain@stable
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
             - working-directory: bindings/rust
               run: |
                   VER=$(grep "^version" Cargo.toml | head -n 1 | cut -d '"' -f 2)
@@ -771,9 +899,13 @@ jobs:
         runs-on: ubuntu-latest
         permissions: { id-token: write, contents: read }
         steps:
-            - uses: actions/checkout@v5
-              with: { ref: "${{ needs.verify-release.outputs.release_ref }}" }
-            - uses: actions/setup-node@v6
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  {
+                      ref: "${{ needs.verify-release.outputs.release_ref }}",
+                      persist-credentials: false,
+                  }
+            - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
               with:
                   {
                       node-version: "22",
@@ -799,7 +931,7 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false' && needs.publish-perl.result == 'success' && needs.publish-typescript.result == 'success'
         runs-on: ubuntu-latest
         steps:
-            - uses: shogo82148/actions-setup-perl@v1
+            - uses: shogo82148/actions-setup-perl@c3e9892cade8a01db1a8498b756f48d6ca98b678 # v1
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
@@ -818,7 +950,7 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false' && needs.publish-rust.result == 'success' && needs.publish-typescript.result == 'success'
         runs-on: ubuntu-latest
         steps:
-            - uses: dtolnay/rust-toolchain@stable
+            - uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
@@ -841,7 +973,7 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false' && needs.publish-ruby.result == 'success' && needs.publish-typescript.result == 'success'
         runs-on: ubuntu-latest
         steps:
-            - uses: ruby/setup-ruby@v1
+            - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1
               with: { ruby-version: "3.2" }
             - shell: bash
               run: |
@@ -860,8 +992,8 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false' && needs.publish-lua.result == 'success' && needs.publish-typescript.result == 'success'
         runs-on: ubuntu-latest
         steps:
-            - uses: leafo/gh-actions-lua@v12
-            - uses: leafo/gh-actions-luarocks@v6
+            - uses: leafo/gh-actions-lua@8c9e175e7a3d77e21f809eefbee34a19b858641b # v12
+            - uses: leafo/gh-actions-luarocks@35d062def313a7699a0d513e996bcf4352f05389 # v6
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
@@ -926,7 +1058,7 @@ jobs:
         if: needs.verify-release.outputs.is_release == 'true' && needs.verify-release.outputs.is_dry_run == 'false' && needs.publish-dart.result == 'success' && needs.publish-typescript.result == 'success'
         runs-on: ubuntu-latest
         steps:
-            - uses: dart-lang/setup-dart@v1
+            - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1
             - shell: bash
               run: |
                   EXPECTED="${{ needs.verify-release.outputs.tag_version }}"
