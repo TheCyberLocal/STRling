@@ -12,13 +12,19 @@ from typing import Any
 
 try:
     from core_stage_boundaries import (
+        capability_evaluation_boundary_violation,
+        capability_pipeline_boundary_violation,
         compiler_pipeline_boundary_violation,
         diagnostic_generation_boundary_violation,
+        target_neutral_reverse_dependency_violation,
     )
 except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
     from tooling.core_stage_boundaries import (
+        capability_evaluation_boundary_violation,
+        capability_pipeline_boundary_violation,
         compiler_pipeline_boundary_violation,
         diagnostic_generation_boundary_violation,
+        target_neutral_reverse_dependency_violation,
     )
 
 
@@ -50,6 +56,8 @@ EXPECTED_FIXTURE_ROOTS = (
 )
 ALLOWED_RUNTIME_DEPENDENCIES = {"serde", "serde_json", "sha2"}
 MODULE_PATHS = {
+    "capability_evaluation": "core/src/capability_evaluation.rs",
+    "capability_pipeline": "core/src/capability_pipeline.rs",
     "compiler_pipeline": "core/src/compiler_pipeline.rs",
     "conformance": "core/src/conformance/mod.rs",
     "diagnostic": "core/src/diagnostic/mod.rs",
@@ -172,9 +180,17 @@ def validate_mapping_document(
             "structural_analysis",
             "safety_analysis",
             "diagnostic_generation",
+            "capability_evaluation",
         ]:
             raise CoreContractError(
-                "Semantic IR mapping must register normalization, semantic analysis, structural analysis, semantic safety analysis, and diagnostic generation in dependency order"
+                "Semantic IR mapping must register target-neutral stages and capability requirement extraction in dependency order"
+            )
+        if relative == "spec/contracts/1.0/target-profile.schema.json" and modules != [
+            "target::profile",
+            "capability_evaluation",
+        ]:
+            raise CoreContractError(
+                "target profile mapping must register factual capability evaluation"
             )
 
     fixture_roots = mapping["fixture_roots"]
@@ -462,8 +478,11 @@ def validate_source_boundaries(
             )
 
     for boundary_check in (
+        target_neutral_reverse_dependency_violation,
         diagnostic_generation_boundary_violation,
         compiler_pipeline_boundary_violation,
+        capability_evaluation_boundary_violation,
+        capability_pipeline_boundary_violation,
     ):
         violation = boundary_check(source_texts)
         if violation is not None:

@@ -16,10 +16,13 @@ validation, pure canonical Semantic IR normalization through
 `semantic_analysis::analyze`, structural facts through
 `structural_analysis::analyze_structure`, structured target-neutral safety
 evidence through `safety_analysis::analyze_safety`, and canonical contract
-diagnostics through `diagnostic_generation::generate_diagnostics`. A
-crate-private pipeline certifies the ordering of those stages and projects
-diagnostics into `CompileResult` without requiring portability or an artifact.
-Parsing, target capability and portability diagnostics, exploitability or
-target-runtime verdicts, automatic rewrites, lowering, emission, bindings,
-editor presentation, adapters, and product integrations remain deferred to
-separately contained tasks.
+diagnostics through `diagnostic_generation::generate_diagnostics`. Pure
+semantic requirements and factual profile support are available through
+`capability_evaluation::extract_requirements` and
+`capability_evaluation::evaluate_capabilities`. Crate-private pipelines certify
+that capability evaluation follows target-neutral diagnostics while the
+existing `CompileResult` projection remains target-neutral and produces no
+portability plan or artifact. Parsing, portability planning and diagnostics,
+exploitability or target-runtime verdicts, automatic rewrites, lowering,
+emission, bindings, editor presentation, adapters, and product integrations
+remain deferred to separately contained tasks.

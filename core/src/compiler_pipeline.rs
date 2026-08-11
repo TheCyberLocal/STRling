@@ -4,6 +4,7 @@
 use std::error::Error;
 use std::fmt;
 
+use crate::diagnostic::Diagnostic;
 use crate::diagnostic_generation::{generate_diagnostics, DiagnosticGenerationErrors};
 use crate::normalization::{normalize, NormalizationErrors};
 use crate::protocol::{
@@ -15,7 +16,7 @@ use crate::semantic::SemanticProgram;
 use crate::semantic_analysis::{
     analyze, MaximumConsumption, Nullability, SemanticAnalysisErrors, SemanticFacts,
 };
-use crate::structural_analysis::{analyze_structure, StructuralAnalysisErrors};
+use crate::structural_analysis::{analyze_structure, StructuralAnalysisErrors, StructuralFacts};
 use crate::validation::{Validate, ValidationErrors};
 
 /// A whole-pipeline failure attributed to its owning target-neutral stage.
@@ -65,6 +66,41 @@ pub fn compile_semantic_diagnostics(
     input: &SemanticProgram,
     compiler: &CompilerIdentity,
 ) -> Result<CompileResult, CompilerPipelineErrors> {
+    let stages = run_target_neutral_stages(input)?;
+
+    let result = CompileResult {
+        contract_version: stages.normalized.contract_version,
+        compiler: compiler.clone(),
+        specification_version: stages.normalized.specification_version.clone(),
+        outcome: CompileOutcome::Succeeded,
+        semantic_result: Some(SemanticResult {
+            status: SemanticResultStatus::Complete,
+            program: stages.normalized,
+        }),
+        analysis: Some(protocol_analysis(&stages.foundational)),
+        portability: None,
+        artifact: None,
+        diagnostics: stages.diagnostics,
+    };
+    result
+        .validate()
+        .map_err(CompilerPipelineErrors::ResultValidation)?;
+    Ok(result)
+}
+
+pub(crate) struct TargetNeutralStages {
+    pub(crate) normalized: SemanticProgram,
+    pub(crate) foundational: SemanticFacts,
+    pub(crate) structural: StructuralFacts,
+    pub(crate) diagnostics: Vec<Diagnostic>,
+}
+
+/// Execute every target-neutral stage exactly once in certified dependency
+/// order. Target-aware consumers may borrow this completed bundle but
+/// target-neutral stages never depend on those consumers.
+pub(crate) fn run_target_neutral_stages(
+    input: &SemanticProgram,
+) -> Result<TargetNeutralStages, CompilerPipelineErrors> {
     let normalized = normalize(input).map_err(CompilerPipelineErrors::Normalization)?;
     let foundational =
         analyze(&normalized).map_err(CompilerPipelineErrors::FoundationalAnalysis)?;
@@ -75,25 +111,12 @@ pub fn compile_semantic_diagnostics(
     let diagnostics = generate_diagnostics(&normalized, &foundational, &structural, &safety)
         .map_err(CompilerPipelineErrors::DiagnosticGeneration)?
         .into_diagnostics();
-
-    let result = CompileResult {
-        contract_version: normalized.contract_version,
-        compiler: compiler.clone(),
-        specification_version: normalized.specification_version.clone(),
-        outcome: CompileOutcome::Succeeded,
-        semantic_result: Some(SemanticResult {
-            status: SemanticResultStatus::Complete,
-            program: normalized,
-        }),
-        analysis: Some(protocol_analysis(&foundational)),
-        portability: None,
-        artifact: None,
+    Ok(TargetNeutralStages {
+        normalized,
+        foundational,
+        structural,
         diagnostics,
-    };
-    result
-        .validate()
-        .map_err(CompilerPipelineErrors::ResultValidation)?;
-    Ok(result)
+    })
 }
 
 fn protocol_analysis(foundational: &SemanticFacts) -> AnalysisResult {

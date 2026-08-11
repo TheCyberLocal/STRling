@@ -56,7 +56,8 @@
                 "semantic_analysis",
                 "structural_analysis",
                 "safety_analysis",
-                "diagnostic_generation"
+                "diagnostic_generation",
+                "capability_evaluation"
             ]
         },
         {
@@ -72,7 +73,7 @@
         {
             "schema": "spec/contracts/1.0/target-profile.schema.json",
             "sha256": "3de1febbb3915123bad74edc71d686f2b2e863be92ff17f596e4e014dcc091c4",
-            "rust_modules": ["target::profile"]
+            "rust_modules": ["target::profile", "capability_evaluation"]
         }
     ],
     "fixture_roots": [
