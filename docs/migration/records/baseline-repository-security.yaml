@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Baseline repository security hardgates
-status: in_progress
+status: complete
 objective: Establish deterministic repository security and supply-chain hardgates for dependency integrity, dependency risk, tracked secrets, workflow least privilege, and bounded security exceptions without changing STRling product behavior.
 scope:
     diff:
@@ -49,7 +49,9 @@ scope:
         - integration
         - quality
         - certification
-    bounded_exemptions: []
+    bounded_exemptions:
+        - WVR-SEC-NPM-TOOLING-001
+        - WVR-SEC-VSCE-LICENSE-001
 change_classification:
     semantic_change:
         level: none
@@ -245,8 +247,28 @@ checkpoints:
             result: failed
             details: The security hardgates pass. The aggregate remains failed locally because the repository-managed Bundler version differs and Swift is unavailable; these pre-existing environmental limitations are reported by their existing canonical capability states.
     - name: Security baseline readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Security coverage and exception inventory
+            command: Normative security-policy inventory, live structured operations, and governance/waiver validation
+            result: passed
+            details: Twenty-two dependency roots are inventoried; deterministic integrity covers all governed manifest and lock models; npm and Cargo have authoritative risk implementations; Go and Swift prove no external dependencies; tracked secrets and both workflows are checked. Two exact accepted waivers are active and both expire 2026-09-10.
+          - check: Structured result semantics
+            command: Security-result schema validation plus root structured-result adapter tests
+            result: passed
+            details: PASS means completed with no blocking finding; FAIL means an unwaived finding or malformed governed input; WAIVED identifies every exact accepted match; UNAVAILABLE identifies scanner, advisory, cache, or governed ecosystem absence; INCOMPLETE identifies unusable or contradictory evidence. Root JSON and exit behavior preserve all five states.
+          - check: Committed checkpoint-six verification matrix
+            command: Formatting; hygiene; lint all; typecheck all; TypeScript typecheck/build/test; Rust fmt/clippy/check/test; generation; contracts; governance; architecture; baseline; security operations; controlled negatives; check --json; certify --json; git diff --check
+            result: failed
+            details: Formatting, hygiene, generation, contracts, governance, architecture, frozen baseline, 230 tooling tests, 19 TypeScript suites/963 tests, and 194 Rust kernel tests pass. All-language lint is UNAVAILABLE only for the local Bundler mismatch; all-language typecheck is UNAVAILABLE only for missing Swift. Security integrity/content pass; dependency risk and certify remain UNAVAILABLE with 32 explicit checks. The aggregate is not described as passing.
+          - check: Explicitly unchanged behavior
+            command: Complete diff review against cb5c92c975d1820c50234babecbe0b3e08a7fee0 and public-contract validation
+            result: passed
+            details: No existing STRling runtime/compiler behavior intentionally changed. No semantic, target, parser, adapter, package-version, public API, release artifact, or publication behavior changed.
+          - check: Carry-forward readiness
+            command: Completion record and migration-ledger review
+            result: passed
+            details: SBOM, provenance, attestation, signing, release credentials, publication, unavailable ecosystem scanners, local cargo-audit installation, remediation of the two short-lived waivers, and a fully available structured CI/certification profile remain explicit next work. Baseline hardgates are fail-closed and ready with these recorded limitations.
 commits:
     - sha: 11fc5c737183b3ed25799c6fccf89360f48ac74a
       subject: "docs(security): define baseline repository security policy"
@@ -258,3 +280,35 @@ commits:
       subject: "feat(security): enforce dependency risk policy"
     - sha: ce3f29dc0e986f3fdedb9fb513108b507f37b0f6
       subject: "test(security): certify baseline security policy"
+    - sha: 10f612e332a07a80bb6eb143c03d0ee323970aed
+      subject: "ci(security): enforce baseline security hardgates"
+completion:
+    accomplished:
+        - Established a normative 22-root dependency inventory with ecosystem classification, manifest/lock policy, deterministic integrity mode, advisory mode, exact security-engine identity, and explicit coverage gaps.
+        - Enforced non-mutating dependency integrity, tracked-secret detection, GitHub Actions least privilege, immutable third-party action references, credential-persistence controls, authoritative npm/Cargo vulnerability adapters, and machine-readable license classification.
+        - Extended the shared governance waiver record with exact security finding identity, owner, subsystem, creation/review context, mandatory expiry, and replacement work. WVR-SEC-NPM-TOOLING-001 covers 53 exact advisory bindings and WVR-SEC-VSCE-LICENSE-001 covers ten exact unknown-license bindings; both expire 2026-09-10.
+        - Integrated deterministic security operations into ./strling check and network-backed dependency risk into ./strling certify, preserving nested five-state evidence and rejecting identity/status/exit disagreement as INCOMPLETE. CI calls the same root implementations and pins cargo-audit 0.22.2.
+    verified:
+        - Twenty-three focused security tests certify positive and controlled-negative integrity, secret, workflow, advisory, license, determinism, no-false-pass, waiver containment, expiry, unknown IDs, fixture safety, and input immutability properties. Forty-two quality-routing tests certify root structured status propagation; the complete tooling suite passes 230 tests.
+        - The committed local integrity operation passes 25 checks and content/workflow operation passes four checks. Live dependency risk contains zero failed or incomplete checks, four waived checks, nine passed checks, and 32 unavailable checks; all 63 waived findings retain their exact waiver IDs.
+        - Repository formatting, hygiene, generation, public contracts, governance, architecture fitness, and frozen baseline validation pass. TypeScript typecheck/build and all 19 suites with 963 tests pass; Rust formatting, warnings-denied Clippy, cargo check, and all 194 kernel tests pass.
+        - Structured check executes both fast security hardgates successfully but remains non-passing for the existing local Bundler mismatch and missing Swift capability. Structured certify preserves dependency risk as UNAVAILABLE; all non-security operations in the selected TypeScript certification pass or are non-applicable.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - Repository engineering tooling and CI now enforce fail-closed security operations and expose five-state structured evidence.
+        - GitHub Actions now use explicit read-only defaults, exact privileged job permissions, immutable action commits, and narrowly governed checkout credential persistence.
+    preserved_behavior:
+        - STRling language semantics, parsers, compilers, runtime behavior, Semantic IR, safety analysis, target selection, lowering, regex emission, bindings/adapters, public APIs, package versions, and release artifacts remain unchanged.
+        - No dependency was upgraded to satisfy a scanner, no package version changed, and no release credential or functional credential fixture was added.
+    transitional_architecture:
+        - Fifteen configured dependency roots without an authoritative repository vulnerability/license scanner retain 30 explicit UNAVAILABLE checks. Go and Swift pass only because their integrity checks prove no external dependencies.
+        - cargo-audit is exactly pinned and installed in CI but absent locally, so both local Cargo vulnerability checks remain UNAVAILABLE; local Bundler mismatch and missing Swift also retain their existing non-pass capability states.
+    deferred_work:
+        - Add authoritative governed vulnerability and license adapters for the currently unavailable ecosystems without weakening no-false-pass semantics.
+        - Remediate or retire both active security waivers before 2026-09-10 through contained dependency/license review work rather than broad modernization.
+        - Complete the remaining structured CI/certification-profile work so a fully provisioned profile can reach a non-UNAVAILABLE result while preserving exact status evidence.
+        - SBOM generation, provenance/attestation, signing, registry and release credentials, release publication, and final production supply-chain certification remain later work.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Complete the remaining structured CI/certification-profile work by governing unavailable ecosystem scanners, resolving the two expiring waivers, and proving a fully provisioned profile can complete without weakening fail-closed security semantics.
+    rationale: Deterministic local gates, authoritative configured risk adapters, exact expiring waivers, five-state no-false-pass evidence, canonical root/CI integration, architecture isolation, controlled negative certification, and unchanged product behavior establish the baseline. Explicit unavailable ecosystem and local-tool coverage prevents an unqualified READY result but does not invalidate the fail-closed hardgate architecture.

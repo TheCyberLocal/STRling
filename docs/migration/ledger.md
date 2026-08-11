@@ -1706,3 +1706,101 @@ and binding/Simply/LSP migration were not implemented.
 The next contained task is target-aware lowering of certified portability plans
 into target-neutral lowering structures before actual emitter serialization.
 Readiness is `READY`.
+
+## Baseline repository security hardgates
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `cb5c92c975d1820c50234babecbe0b3e08a7fee0`
+-   Behavior change: Repository engineering tooling and CI only; no STRling
+    runtime/compiler behavior intentionally changed
+-   Completion record:
+    [`baseline-repository-security.yaml`](records/baseline-repository-security.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                                    | Result        | Commit                                     | Verification                                                                                                                                                                                                                          |
+| --------------------------------------------- | ------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Security contract and repository inventory    | Passed        | `11fc5c737183b3ed25799c6fccf89360f48ac74a` | Twenty-two dependency roots, two workflows, 16 action references, existing credential handling, waiver schema, structured operations, and tool pins inventoried; normative policy and result schemas validated                        |
+| Dependency and lock integrity                 | Passed        | `1c305bd9f41579f2a7e0d1f2011c0dd316168622` | Twenty-four initial repository checks passed; controlled missing-lock, inconsistency, malformed-lock, unmanaged-manifest, and tool-drift cases failed without modifying dependency state                                              |
+| Secret and workflow safeguards                | Passed        | `2068c731b721da8915ba03a8bb62dc6920fead47` | Tracked content passed high-confidence secret detection; both workflows use read-only defaults, exact privilege elevation, immutable action commits, and bounded checkout credential persistence                                      |
+| Vulnerability and license policy              | Failed closed | `51ad419cb924e70a7b1c91abd35bf7153d932a49` | Live npm evidence exposed 53 blocking high/critical bindings and ten unknown VSCE licenses; missing Cargo and 30 legacy ecosystem checks remained UNAVAILABLE; no dependency was silently upgraded or finding hidden                  |
+| Security waivers and certification properties | Passed        | `ce3f29dc0e986f3fdedb9fb513108b507f37b0f6` | Two exact accepted waivers bind all 63 reviewed findings through 2026-09-10; 23 security tests certify determinism, no false pass, containment, expiry, fixture safety, unknown-ID failure, and input immutability                    |
+| Root command, CI, and hardgate integration    | Passed        | `10f612e332a07a80bb6eb143c03d0ee323970aed` | Fast gates run under `check`; network risk runs under `certify`; root JSON preserves nested five-state results; CI invokes the same implementations and installs the exact cargo-audit 0.22.2 pin; semantic dependency fitness passes |
+| Completion and readiness                      | Passed        | Recorded by the readiness commit           | Coverage, exceptions, structured semantics, environmental limits, unchanged behavior, production supply-chain exclusions, and next-task readiness recorded                                                                            |
+
+### Security coverage
+
+-   The normative inventory covers npm, Cargo, Dart Pub, Composer, Bundler, Go,
+    SwiftPM, NuGet, Maven, Gradle, Python, LuaRocks, CPAN, R, and C/C++
+    dependency/build metadata across 22 roots.
+-   Deterministic local checks enforce governed manifest discovery, required
+    locks, parseability, manifest/lock correspondence, integrity/checksum
+    metadata, exact quality pins, prohibited floating declarations, tracked
+    secret patterns, and workflow least privilege.
+-   Live vulnerability evidence uses `npm audit` for three lockfiles and the
+    exact `cargo-audit` 0.22.2 adapter for two Cargo locks. License evidence uses
+    npm lockfile v3 metadata and offline locked Cargo metadata. Go and Swift
+    certify only their current no-external-dependency state.
+-   CI actions use full immutable commits; validation retains read-only default
+    permissions and no release secrets; only exact publication/tag jobs elevate
+    permissions or preserve checkout credentials.
+
+### Active exceptions
+
+| Waiver                     | Exact scope                                                                                                           | Expiry       |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `WVR-SEC-NPM-TOOLING-001`  | 53 enumerated high/critical npm advisory/package/version/severity bindings in development or packaging chains         | `2026-09-10` |
+| `WVR-SEC-VSCE-LICENSE-001` | Ten enumerated VSCE signing package/version bindings whose metadata is `SEE LICENSE IN LICENSE.txt` and stays unknown | `2026-09-10` |
+
+Every match retains its waiver ID in structured evidence. New, stale,
+overlapping, expired, unknown, path-mismatched, or unaccepted scope fails.
+
+### Structured security semantics
+
+-   `PASS`: configured evidence completed and contains no blocking finding.
+-   `FAIL`: an unwaived blocking finding or malformed governed input exists.
+-   `WAIVED`: every otherwise-blocking finding is covered by an exact accepted,
+    unexpired record and remains visible.
+-   `UNAVAILABLE`: a required scanner, advisory source, dependency cache, or
+    configured ecosystem implementation cannot produce evidence.
+-   `INCOMPLETE`: configured coverage or structured evidence cannot support a
+    pass/fail decision, including root identity/status/exit disagreement.
+
+`FAIL`, `UNAVAILABLE`, and `INCOMPLETE` fail root aggregates. Generated evidence
+does not amend policy or exceptions.
+
+### Verification and carry-forward
+
+The complete tooling suite passes 230 tests, including 23 focused security tests
+and 42 root quality-routing tests. Repository formatting, hygiene, generation,
+contracts, governance, architecture fitness, and frozen baseline validation
+pass. TypeScript typecheck/build and all 19 suites with 963 tests pass. Rust
+formatting, warnings-denied Clippy, cargo check, and all 194 kernel tests pass.
+
+Local all-language lint is `UNAVAILABLE` only for the existing Bundler mismatch;
+all-language typecheck is `UNAVAILABLE` only for missing Swift. Security
+integrity and content/workflow operations pass. Dependency risk contains four
+`WAIVED`, nine `PASSED`, and 32 `UNAVAILABLE` checks, so structured `certify`
+truthfully remains `UNAVAILABLE`. Thirty of those checks are the explicitly
+configured ecosystems without authoritative repository scanners; two are the
+locally absent Cargo scanner that CI installs at its exact pin.
+
+SBOM generation, provenance/attestation, signing, release credentials,
+publication, unavailable ecosystem adapters, remediation of both expiring
+waivers, and a fully available structured CI/certification profile remain
+recorded next work.
+
+### Explicitly unchanged behavior and readiness
+
+No existing STRling runtime/compiler behavior intentionally changed. Language
+semantics, parsers, Semantic IR, safety analysis, target selection, lowering,
+regex emission, adapters/bindings, public APIs, package versions, and release
+artifacts remain unchanged. No dependency was upgraded merely to satisfy a
+scanner and no functional credential was added.
+
+The baseline is `READY WITH RECORDED CARRY-FORWARD` for the remaining structured
+CI/certification-profile task. The carry-forward prevents an unqualified
+`READY` and a passing certification claim; it does not weaken the implemented
+fail-closed hardgates.
