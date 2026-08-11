@@ -10,6 +10,7 @@
 //! remain intentionally absent.
 #![forbid(unsafe_code)]
 
+pub mod capability_evaluation;
 // The executable pipeline remains crate-internal until a product API migration
 // is separately authorized; unit and architecture tests exercise this module.
 #[allow(dead_code)]
