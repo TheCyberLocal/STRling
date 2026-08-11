@@ -29,6 +29,8 @@ specification work deliberately extends or reclassifies it.
 authoring frontend
     -> canonical semantic representation
     -> semantic analysis
+    -> semantic requirement extraction
+    -> factual capability evaluation against a versioned target profile
     -> portability planning against a versioned target profile
     -> target lowering
     -> target-specific emitter
@@ -40,6 +42,13 @@ and Semantic IR contracts have not yet been designed.
 
 **Semantic analysis** owns target-independent validity, diagnostics, safety
 findings, and explanation.
+
+**Semantic requirement extraction** describes which target capabilities the
+normalized program demands. **Capability evaluation** compares those
+requirements with one exact immutable profile and reports only factual native
+support, explicit unavailability, constraint violations, or unknown data. Its
+[contract](capability-evaluation.md) preserves missing profile information as
+unknown and does not choose rewrites.
 
 **Portability planning** compares required meaning with a selected profile and
 chooses native support, a semantics-preserving rewrite, or an unsupported
