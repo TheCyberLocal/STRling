@@ -1,0 +1,111 @@
+record_version: 2.0.0
+title: Controlled legacy TypeScript reference runner
+status: in_progress
+objective: Build deterministic isolated migration tooling that records the existing TypeScript parser, compiler, emitter, and relevant API behavior as independently versioned historical evidence without changing or governing product semantics.
+scope:
+    diff:
+        base: 1619772f2aabe75182a26c9636ea5e219a7f948f
+        head: working-tree
+    allowed_paths:
+        - docs/migration/legacy-reference-runner.md
+        - docs/migration/ledger.md
+        - docs/migration/records/legacy-reference-runner.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - strling
+        - toolchain.json
+        - tooling/index.md
+        - tooling/legacy_reference/**
+        - tooling/tests/test_legacy_reference_architecture.py
+    forbidden_paths:
+        - bindings/typescript/package.json
+        - bindings/typescript/src/**
+        - core/**
+        - spec/**
+    expected_files:
+        - docs/migration/legacy-reference-runner.md
+        - docs/migration/records/legacy-reference-runner.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+    schema_change:
+        level: none
+        evidence: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: none
+        evidence: []
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Legacy reference focused tests
+      command: python3 tooling/legacy_reference/launch.py --check
+      expected_result: All protocol, operation, corpus, determinism, containment, and immutability tests pass.
+    - name: TypeScript baseline
+      command: ./strling typecheck typescript && ./strling build typescript && ./strling test typescript
+      expected_result: The existing TypeScript implementation typechecks, builds, and retains its complete test baseline.
+    - name: Canonical Rust kernel baseline
+      command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && cargo test --manifest-path core/Cargo.toml
+      expected_result: The canonical kernel remains formatted, warning-free, and fully passing without a legacy-runner dependency.
+    - name: Repository contracts and governance
+      command: python3 tooling/contract_validation.py && python3 tooling/core_contract_validation.py && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/documentation_integrity.py --json && python3 tooling/governance.py && python3 tooling/architecture_fitness.py
+      expected_result: Contracts, generated state, documentation, declared task scope, and architecture boundaries pass.
+    - name: Security and profiles
+      command: python3 tooling/security.py integrity --json && python3 tooling/security.py content --json && ./strling profile local && ./strling profile pull-request && ./strling profile full
+      expected_result: Enforceable security and profile operations pass while governed unavailable results remain explicit.
+    - name: Patch and repository integrity
+      command: git diff --check && git status --short --branch
+      expected_result: The patch is whitespace-clean and final committed state is clean.
+checkpoints:
+    - name: Reference contract and legacy surface inventory
+      status: passed
+      evidence:
+          - check: Repository and legacy TypeScript inventory
+            command: Read package, parser, compiler, emitter, Simply API, tests, fixtures, migration baselines, public snapshots, and tooling governance.
+            result: passed
+            details: Identified the exact parser, compiler, PCRE2 emitter, diagnostic, directive, package-root, and Simply surfaces plus the existing package-entrypoint defect and TypeScript-oracle transition evidence.
+          - check: Evidentiary contract and authority boundary
+            command: npx prettier --check docs/migration/legacy-reference-runner.md docs/migration/records/legacy-reference-runner.yaml governance/change-control.json && python3 tooling/documentation_integrity.py --json && python3 tooling/governance.py && git diff --check
+            result: passed
+            details: Prettier, documentation integrity for 123 documents, task scope, change declarations, all enforced architecture rules, and patch integrity passed.
+    - name: Deterministic runner protocol and serialization
+      status: planned
+      evidence: []
+    - name: Parser and public API observation
+      status: planned
+      evidence: []
+    - name: Compiler and emitter observation
+      status: planned
+      evidence: []
+    - name: Determinism and reference corpus certification
+      status: planned
+      evidence: []
+    - name: Tooling integration and architecture hardgates
+      status: planned
+      evidence: []
+    - name: Reference runner readiness
+      status: planned
+      evidence: []
+commits: []
