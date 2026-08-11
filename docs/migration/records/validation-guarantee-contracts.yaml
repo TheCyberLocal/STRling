@@ -1,0 +1,122 @@
+record_version: 2.0.0
+title: Validation guarantee and standard-library claim contracts
+status: in_progress
+objective: Ratify the smallest truthful validation-guarantee taxonomy and a versioned, machine-enforceable standard-library helper claim contract without changing existing helper, runtime, compiler, safety, portability, rewrite, parser, binding, or target behavior.
+scope:
+    diff:
+        base: f3803225581099c24308ae0d1478bb839769c290
+        head: working-tree
+    allowed_paths:
+        - docs/index.md
+        - docs/migration/**
+        - governance/change-control.json
+        - spec/README.md
+        - spec/contracts/README.md
+        - spec/stdlib/**
+        - tooling/contract_validation.py
+        - tooling/tests/test_canonical_contracts.py
+    forbidden_paths:
+        - .github/**
+        - bindings/**
+        - core/**
+        - package.json
+        - package-lock.json
+        - spec/features.json
+        - spec/grammar/**
+        - spec/targets/**
+        - strling
+        - strling.ps1
+        - tests/**
+    expected_files:
+        - docs/migration/records/validation-guarantee-contracts.yaml
+        - docs/migration/validation-guarantee-claims-audit.md
+        - spec/stdlib/VALIDATION_GUARANTEES.md
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions:
+        - WVR-SEC-NPM-TOOLING-001
+        - WVR-SEC-VSCE-LICENSE-001
+change_classification:
+    semantic_change:
+        level: additive
+        evidence:
+            - Ratifies vocabulary and eligibility rules for future governed helper claims while explicitly withholding ratified guarantee status from existing transitional helpers.
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Adds a versioned standard-library helper guarantee schema and controlled fixtures without modifying compiler protocol or legacy artifact schemas.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Establishes a specification-owned standard-library claim boundary and routes its validation through the existing canonical contract quality operation.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Validation guarantee contracts
+      command: python3 tooling/contract_validation.py and python3 -m unittest tooling.tests.test_canonical_contracts -v
+      expected_result: The taxonomy, schema, positive examples, transitional inventory, and every controlled contradictory or overstated definition validate or fail deterministically as declared.
+    - name: Repository quality profiles
+      command: ./strling profile local and ./strling profile pull-request and ./strling profile full
+      expected_result: Canonical profiles execute the same contract operation and preserve established fail-closed unavailable results without a parallel runner.
+    - name: Canonical governance and integrity
+      command: ./strling format --check and ./strling hygiene and ./strling generate --check and ./strling contracts --check and ./strling governance and git diff --check
+      expected_result: Formatting, hygiene, generated state, contracts, governed scope, architecture fitness, and patch integrity pass.
+    - name: Product preservation baselines
+      command: ./strling typecheck typescript and ./strling build typescript and ./strling test typescript and cargo fmt --manifest-path core/Cargo.toml --all --check and cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings and cargo check --manifest-path core/Cargo.toml --all-targets and cargo test --manifest-path core/Cargo.toml
+      expected_result: The relevant TypeScript and canonical Rust kernel baselines remain unchanged and pass.
+    - name: Clean committed state
+      command: git status --short --branch
+      expected_result: Final certification is run from committed state and leaves no tracked or untracked task changes.
+checkpoints:
+    - name: Existing guarantee claim audit
+      status: passed
+      evidence:
+          - check: Claim classes, ambiguity patterns, certified boundaries, and scope lock
+            command: npx prettier --check docs/migration/validation-guarantee-claims-audit.md and python3 tooling/documentation_integrity.py and python3 tooling/contract_validation.py and python3 tooling/governance.py and python3 tooling/architecture_fitness.py and git diff --check
+            result: passed
+            details: Classified precise, descriptive, ambiguous, overstrong, implementation-specific, and historical claims; preserved certified safety, diagnostic, portability, and rewrite ownership; locked later work out of scope.
+    - name: Validation guarantee taxonomy
+      status: passed
+      evidence:
+          - check: Normative levels, evidence, exclusions, unknown handling, and independent standards scope
+            command: npx prettier --check spec/stdlib/VALIDATION_GUARANTEES.md and python3 tooling/documentation_integrity.py and python3 tooling/contract_validation.py and python3 tooling/governance.py and python3 tooling/architecture_fitness.py and git diff --check
+            result: passed
+            details: Ratified lexical_shape, normalized_structure, and semantic with finite proof conditions, runtime-stage requirements, conservative unknown and unsupported handling, independent target availability, external-standard scope, and prohibited implications.
+    - name: Standard-library claim contract
+      status: planned
+      evidence: []
+    - name: Compiler guarantee reconciliation
+      status: planned
+      evidence: []
+    - name: Fixtures and documentation reconciliation
+      status: planned
+      evidence: []
+    - name: Canonical hardgate certification
+      status: planned
+      evidence: []
+    - name: Completion and readiness
+      status: planned
+      evidence: []
+commits:
+    - sha: e8b0e234bc9524df05439392e12b3fb641a30dbf
+      subject: "docs(spec): audit validation guarantee claims"

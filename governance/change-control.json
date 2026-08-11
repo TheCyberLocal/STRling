@@ -1,6 +1,6 @@
 {
     "configuration_version": 1,
-    "active_task": "docs/migration/records/structured-certification-profiles.yaml",
+    "active_task": "docs/migration/records/validation-guarantee-contracts.yaml",
     "generated_artifact_registry": "governance/generated-artifacts.json",
     "public_surface_registry": "governance/public-surfaces.json",
     "architecture_rule_registry": "governance/architecture-rules.json",
