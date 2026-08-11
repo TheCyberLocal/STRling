@@ -141,6 +141,22 @@ Every exhaustion is deterministic and whole-request: return a structured failed
 result, do not truncate silently, do not retry with weaker limits, and do not
 return partial success.
 
+## Boundary invariant certification
+
+Fixed-seed generated tests exercise the public facade and validated contract path
+without adding a runtime random dependency:
+
+-   256 source-less canonical semantic requests across four seeds;
+-   64 exact-profile sensitivity cases from seed `0x50524f46494c4501`;
+-   256 malformed typed requests from seed `0x4d414c464f524d01`;
+-   32 deterministic caller-limit exhaustion cases from seed `0x5245534f55524301`;
+-   512 serialized mutation/fuzz-smoke cases across four seeds: 64 valid and 448 malformed.
+
+Every compile or deserialize/compile path is contained with `catch_unwind`, inputs
+and supplied profiles are compared after execution, and every returned result is
+validated. Static architecture mutation tests separately reject host-state and
+global-mutable-state dependencies. The corpus records zero unexplained failures.
+
 ## Explicit exclusions
 
 This boundary performs no filesystem, environment, engine, package-manager,
@@ -149,4 +165,5 @@ implement a legacy regex parser, Semantic DSL, Simply, target lowering, regex
 emission, capture numbering, runtime options, `TargetArtifact`, runtime regex
 execution, package APIs, package-version changes, or publication.
 
-No existing STRling runtime/compiler behavior is intentionally changed. The
+No existing STRling runtime/compiler behavior is intentionally changed.
+The facade is not wired into any legacy product execution path.
