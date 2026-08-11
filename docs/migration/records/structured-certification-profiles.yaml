@@ -234,8 +234,45 @@ checkpoints:
             result: passed
             details: 41 operations passed and two were unavailable; the governed local Bundler mismatch blocked ruby lint and missing Swift blocked swift typecheck. Exit status remained nonzero and stdout exactly matched the retained artifact.
     - name: Profile certification and hardgates
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Explicit certification properties
+            command: python3 -m unittest tooling.tests.test_profile_certification -v
+            result: passed
+            details: All eight focused properties passed, proving deterministic ordered execution, canonical-only membership, mandatory repository-gate no-bypass, blocking-state precedence, waiver distinction, exact artifact and summary fidelity, input immutability, and executor/schema-independent profile ratcheting.
+          - check: Complete tooling and controlled-negative suite
+            command: python3 -m unittest discover -s tooling/tests -t . -v
+            result: passed
+            details: All 267 tooling tests passed, including artifact schema fixtures, profile selection and compatibility negatives, result tamper and aggregate mismatch rejection, documentation breakage fixtures, CI substitution failures, and security fail-closed regressions.
+          - check: Canonical repository hardgates
+            command: ./strling format --check repository --json; ./strling hygiene --json; ./strling lint repository --json; ./strling generate --check --json; ./strling contracts --check --json; ./strling governance --json; python3 tooling/architecture_fitness.py; python3 tooling/documentation_integrity.py --json; python3 tooling/security.py integrity --json; python3 tooling/security.py content --json
+            result: passed
+            details: Formatting, hygiene, static analysis, generation integrity, public contracts and snapshots, scope governance, architecture fitness, documentation and examples, dependency integrity, and content/workflow security all passed.
+          - check: TypeScript and Rust/kernel baselines
+            command: ./strling environment, typecheck, build, and test for typescript, core, and rust; plus core format and lint
+            result: passed
+            details: TypeScript typecheck/build and all 19 suites with 963 tests passed; kernel rustfmt, warnings-denied Clippy, typecheck/build and all 194 tests passed; the Rust binding typecheck/build and all 638 tests passed. Node 18 remains transitional and the npm executable version remains deferred evidence.
+          - check: Local profile
+            command: ./strling profile local --json --artifact /tmp/strling-cp6-pre/profiles-governed/local.json
+            result: passed
+            details: All 22 operations passed with zero failed, incomplete, unavailable, waived, or transitional capability states; stdout and the retained artifact were semantically identical.
+          - check: Pull-request profile and check compatibility alias
+            command: ./strling profile pull-request and ./strling check with JSON artifacts
+            result: passed
+            details: Both executions produced identical profile identity and counts of 41 passed and two unavailable operations. The governed local Bundler mismatch blocked ruby lint and missing Swift blocked swift typecheck; both artifacts and process exits remained non-passing.
+          - check: Full, release, and certify compatibility alias
+            command: ./strling profile full; ./strling profile release; ./strling certify with JSON artifacts
+            result: passed
+            details: Full, release, and certify each recorded 68 passed and seven unavailable operations. Required dependency risk, ruby lint/build/test, and swift typecheck/build/test remained unavailable; each artifact exactly preserved the result set and exit status.
+          - check: Nested dependency-risk evidence
+            result: passed
+            details: The full and release security operation retained nine passed, four waived, and 32 unavailable checks, including both exact expiring waiver references and governed ecosystem-scanner gaps; operation aggregation did not convert this evidence to success.
+          - check: Governed toolchain drift negative
+            result: passed
+            details: A controlled ambient Ruff 0.16.2 run produced unavailable format/lint evidence against the exact 0.15.21 declaration; rerunning with the governed PATH passed those operations, demonstrating deterministic version enforcement without installation or silent fallback.
+          - check: Artifact and repository integrity
+            result: passed
+            details: Every governed profile stdout document was semantically equal to its retained artifact, profile and artifact exit status agreed, the certification property proved repository input immutability, and no forbidden product path changed.
     - name: Completion and phase readiness
       status: planned
       evidence: []
