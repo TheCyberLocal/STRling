@@ -1,0 +1,120 @@
+record_version: 2.0.0
+title: Embeddable canonical compiler-kernel boundary
+status: in_progress
+objective: Expose one deterministic, contract-validating, resource-bounded, panic-resistant Rust facade from CompileRequest plus explicit immutable target-profile evidence to CompileResult by reusing the certified canonical orchestration and projection stages without adding a frontend, lowering, emission, binding, or product integration.
+scope:
+    diff:
+        base: 2012dc2cedf24eae891ca126b83a829d1188c368
+        head: working-tree
+    allowed_paths:
+        - core/**
+        - docs/architecture.md
+        - docs/migration/compiler-kernel-boundary.md
+        - docs/migration/ledger.md
+        - docs/migration/records/compiler-kernel-boundary.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_compiler_boundary_architecture.py
+        - tooling/tests/test_diagnostic_architecture.py
+        - tooling/tests/test_portability_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - package.json
+        - package-lock.json
+        - spec/contracts/**
+        - spec/features.json
+        - spec/grammar/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - strling
+        - strling.ps1
+        - tests/spec/**
+    expected_files:
+        - docs/migration/compiler-kernel-boundary.md
+        - docs/migration/records/compiler-kernel-boundary.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: additive
+        evidence:
+            - The non-published canonical Rust kernel crate gains its first stable public executable facade; no published language package changes.
+        affected_surfaces:
+            - strling-kernel
+    schema_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - The facade returns structured protocol/resource/portability diagnostics for valid requests that cannot complete; canonical diagnostic shape and ordering are unchanged.
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Future adapters gain one inward dependency boundary over the existing certified kernel stages.
+            - Mechanical fitness rejects filesystem, environment, network, runtime probing, frontend, emitter, binding, CLI, LSP, editor, and adapter dependencies from the facade.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Kernel facade quality and tests
+      command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && cargo check --manifest-path core/Cargo.toml --all-targets && cargo build --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml
+      expected_result: The public facade and every prior kernel suite format, lint, build, and pass with warnings denied.
+    - name: Boundary properties and architecture
+      command: cargo test --manifest-path core/Cargo.toml --test compiler_boundary --test compiler_boundary_properties && python3 tooling/core_contract_validation.py && python3 -m unittest tooling.tests.test_compiler_boundary_architecture tooling.tests.test_portability_architecture tooling.tests.test_diagnostic_architecture && python3 tooling/architecture_fitness.py
+      expected_result: Determinism, purity, immutability, result validity, malformed-input containment, resource containment, profile sensitivity, source independence, panic smoke, exact stage order, and controlled dependency mutations pass.
+    - name: Repository certification profiles
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full
+      expected_result: Every available operation passes and every unavailable or incomplete operation remains explicit without weakened aggregation.
+    - name: Product compatibility baselines
+      command: ./strling typecheck typescript && ./strling build typescript && ./strling test typescript && ./strling typecheck rust && ./strling build rust && ./strling test rust
+      expected_result: TypeScript and Rust-binding behavior baselines remain unchanged and pass where applicable.
+    - name: Patch and clean-state integrity
+      command: git diff --check && git status --short --branch
+      expected_result: The final committed repository has no whitespace errors or uncommitted files.
+checkpoints:
+    - name: Boundary contract lock
+      status: passed
+      evidence:
+          - check: Contract audit, supported domain, failure taxonomy, resources, and exclusions
+            command: npx prettier --check docs/migration/compiler-kernel-boundary.md docs/migration/records/compiler-kernel-boundary.yaml governance/change-control.json && python3 tooling/governance.py && python3 tooling/core_contract_validation.py && git diff --check
+            result: passed
+            details: Contract suite 1.0.0, exact explicit target-profile evidence, supported semantic/analysis/portability modes, deferred source and artifact modes, malformed/typed/result failure ownership, certified hard ceilings, caller limits, deterministic exclusions, and unchanged product paths are locked without a schema change.
+    - name: Public kernel facade
+      status: planned
+      evidence: []
+    - name: Canonical orchestration and result projection
+      status: planned
+      evidence: []
+    - name: Deterministic identity and resource bounds
+      status: planned
+      evidence: []
+    - name: Property and fuzz-smoke certification
+      status: planned
+      evidence: []
+    - name: Integration and hardgate certification
+      status: planned
+      evidence: []
+    - name: Completion and readiness
+      status: planned
+      evidence: []
+commits: []
