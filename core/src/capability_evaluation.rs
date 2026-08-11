@@ -42,6 +42,9 @@ const WORD_BOUNDARY: &str = "boundaries.word";
 const END_BEFORE_FINAL_LINE_TERMINATOR: &str = "anchors.end_before_final_line_terminator";
 const CASE_INSENSITIVE: &str = "matching.case_insensitive";
 
+/// Maximum target requirements extracted for one canonical request.
+pub const MAX_CAPABILITY_REQUIREMENTS: usize = 4_096;
+
 /// Stable error categories for requirement extraction and capability evaluation.
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum CapabilityEvaluationErrorCode {
@@ -56,6 +59,7 @@ pub enum CapabilityEvaluationErrorCode {
     InvalidTargetProfile,
     IncompatibleTargetProfile,
     TargetProfileResolution,
+    RequirementLimitExceeded,
 }
 
 /// One structured stage error.
@@ -322,12 +326,14 @@ pub fn extract_requirements(
             CASE_INSENSITIVE,
             RequirementKind::CaseInsensitive,
         ));
+        enforce_requirement_limit(requirements.len())?;
     }
 
     let mut pending = vec![&input.root];
     while let Some(node) = pending.pop() {
         extract_node_requirements(node, foundational, structural, &mut requirements)?;
         push_children(node, &mut pending);
+        enforce_requirement_limit(requirements.len())?;
     }
 
     requirements.sort();
@@ -339,6 +345,20 @@ pub fn extract_requirements(
     })
 }
 
+fn enforce_requirement_limit(count: usize) -> Result<(), CapabilityEvaluationErrors> {
+    if count > MAX_CAPABILITY_REQUIREMENTS {
+        return Err(CapabilityEvaluationErrors::single(
+            CapabilityEvaluationError::new(
+                CapabilityEvaluationErrorCode::RequirementLimitExceeded,
+                "$.requirements",
+                format!(
+                    "capability requirement count exceeds deterministic limit {MAX_CAPABILITY_REQUIREMENTS}"
+                ),
+            ),
+        ));
+    }
+    Ok(())
+}
 /// Evaluate extracted semantic requirements against one supplied immutable
 /// target profile.
 pub fn evaluate_capabilities(

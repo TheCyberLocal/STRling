@@ -3,9 +3,15 @@
 use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt;
+use std::io::{self, Write};
+
+use serde::Serialize;
 
 use crate::capability_pipeline::compile_semantic_portability;
-use crate::compiler_pipeline::{compile_semantic_diagnostics, project_target_neutral_stages};
+use crate::compiler_pipeline::{
+    compile_semantic_diagnostics, project_target_neutral_stages, MAX_PIPELINE_DIAGNOSTICS,
+    MAX_PIPELINE_SEMANTIC_DEPTH, MAX_PIPELINE_SEMANTIC_NODES,
+};
 use crate::diagnostic::{
     compare_diagnostics, CompilerPhase, Diagnostic, DiagnosticCategory, DiagnosticCode,
     DiagnosticOccurrence, Severity, SeverityBasis,
@@ -17,6 +23,7 @@ use crate::protocol::{
     validate_exchange, CompileInput, CompileOutcome, CompileRequest, CompileResult, CompilerId,
     CompilerIdentity, CompilerVersion, RequestedOutput,
 };
+use crate::semantic::{Node, SemanticProgram};
 use crate::source::ContractVersion;
 use crate::target::{
     PortabilityDecision, PortabilityPlan, PortabilityStatus, ReasonCode, RequirementId,
@@ -30,6 +37,20 @@ pub const KERNEL_COMPILER_ID: &str = "strling_kernel";
 pub const KERNEL_COMPILER_VERSION: &str = "0.1.0";
 /// The exact semantic specification revision implemented by this kernel.
 pub const SUPPORTED_SPECIFICATION_VERSION: &str = "1.0-draft.1";
+
+/// Maximum canonical JSON bytes accepted for one request contract.
+pub const MAX_REQUEST_CONTRACT_BYTES: usize = 8_388_608;
+/// Maximum canonical JSON bytes accepted for supplied target-profile evidence.
+pub const MAX_TARGET_PROFILE_BYTES: usize = 1_048_576;
+/// Maximum semantic nesting accepted before recursive contract work.
+pub const MAX_KERNEL_SEMANTIC_DEPTH: usize = MAX_PIPELINE_SEMANTIC_DEPTH;
+/// Maximum semantic nodes accepted before canonical stage work.
+pub const MAX_KERNEL_SEMANTIC_NODES: usize = MAX_PIPELINE_SEMANTIC_NODES;
+/// Maximum diagnostics admitted to a completed result.
+pub const MAX_KERNEL_DIAGNOSTICS: usize = MAX_PIPELINE_DIAGNOSTICS;
+
+/// Stable diagnostic for deterministic kernel resource exhaustion.
+pub const RESOURCE_EXHAUSTED_DIAGNOSTIC: &str = "STRL-PROTOCOL-0003";
 
 /// Stable diagnostic for a valid request whose source frontend is unavailable.
 pub const UNSUPPORTED_FRONTEND_DIAGNOSTIC: &str = "STRL-PROTOCOL-0002";
@@ -135,6 +156,10 @@ pub fn compile(
     request: &CompileRequest,
     target_profile: Option<&TargetProfile>,
 ) -> Result<CompileResult, KernelCompileError> {
+    let compiler = compiler_identity()?;
+    if let Some(exhaustion) = preflight_request_resources(request)? {
+        return preflight_resource_result(request, compiler, exhaustion);
+    }
     request
         .validate()
         .map_err(KernelCompileError::InvalidRequest)?;
@@ -143,8 +168,6 @@ pub fn compile(
             request.contract_version,
         ));
     }
-
-    let compiler = compiler_identity()?;
     if request.specification_version.as_str() != SUPPORTED_SPECIFICATION_VERSION {
         return failed_result(
             request,
@@ -179,19 +202,40 @@ pub fn compile(
 
 fn compile_semantic_request(
     request: &CompileRequest,
-    program: &crate::semantic::SemanticProgram,
+    program: &SemanticProgram,
     target_profile: Option<&TargetProfile>,
     compiler: &CompilerIdentity,
 ) -> Result<CompileResult, KernelCompileError> {
+    if requests_target_work(request) {
+        if let Some(profile) = target_profile {
+            if !serialized_within_limit(profile, MAX_TARGET_PROFILE_BYTES)? {
+                return resource_failed_result(
+                    request,
+                    compiler.clone(),
+                    ResourceExhaustion::at_least("target profile bytes", MAX_TARGET_PROFILE_BYTES),
+                );
+            }
+        }
+    }
     let target_profile = validate_target_profile_evidence(request, target_profile)?;
     let (mut result, portability) = match target_profile {
         Some(target) => {
-            let output = compile_semantic_portability(program, target).map_err(|error| {
-                KernelCompileError::StageFailure {
-                    stage: KernelStage::TargetAwarePipeline,
-                    message: error.to_string(),
+            let output = match compile_semantic_portability(program, target) {
+                Ok(output) => output,
+                Err(error) if error.is_resource_exhaustion() => {
+                    return resource_failed_result(
+                        request,
+                        compiler.clone(),
+                        ResourceExhaustion::stage("target-aware pipeline"),
+                    );
                 }
-            })?;
+                Err(error) => {
+                    return Err(KernelCompileError::StageFailure {
+                        stage: KernelStage::TargetAwarePipeline,
+                        message: error.to_string(),
+                    });
+                }
+            };
             let result =
                 project_target_neutral_stages(output.stages, compiler).map_err(|error| {
                     KernelCompileError::StageFailure {
@@ -202,12 +246,22 @@ fn compile_semantic_request(
             (result, Some(output.plan))
         }
         None => {
-            let result = compile_semantic_diagnostics(program, compiler).map_err(|error| {
-                KernelCompileError::StageFailure {
-                    stage: KernelStage::CanonicalSemanticPipeline,
-                    message: error.to_string(),
+            let result = match compile_semantic_diagnostics(program, compiler) {
+                Ok(result) => result,
+                Err(error) if error.is_resource_exhaustion() => {
+                    return resource_failed_result(
+                        request,
+                        compiler.clone(),
+                        ResourceExhaustion::stage("target-neutral pipeline"),
+                    );
                 }
-            })?;
+                Err(error) => {
+                    return Err(KernelCompileError::StageFailure {
+                        stage: KernelStage::CanonicalSemanticPipeline,
+                        message: error.to_string(),
+                    });
+                }
+            };
             (result, None)
         }
     };
@@ -243,6 +297,147 @@ fn compile_semantic_request(
     finish_result(request, result)
 }
 
+#[derive(Debug)]
+struct ResourceExhaustion {
+    message: String,
+}
+
+impl ResourceExhaustion {
+    fn observed(resource: &str, limit: usize, actual: usize) -> Self {
+        Self {
+            message: format!(
+                "Kernel resource limit exceeded: {resource} limit {limit}, observed {actual}."
+            ),
+        }
+    }
+
+    fn at_least(resource: &str, limit: usize) -> Self {
+        Self {
+            message: format!(
+                "Kernel resource limit exceeded: {resource} limit {limit}, observed at least {}.",
+                limit.saturating_add(1)
+            ),
+        }
+    }
+
+    fn stage(stage: &str) -> Self {
+        Self {
+            message: format!("Kernel resource limit exceeded during the certified {stage}."),
+        }
+    }
+}
+
+fn preflight_request_resources(
+    request: &CompileRequest,
+) -> Result<Option<ResourceExhaustion>, KernelCompileError> {
+    if let CompileInput::Semantic { program } = &request.input {
+        if let Some(exhaustion) = preflight_semantic_resources(request, program) {
+            return Ok(Some(exhaustion));
+        }
+    }
+    if !serialized_within_limit(request, MAX_REQUEST_CONTRACT_BYTES)? {
+        return Ok(Some(ResourceExhaustion::at_least(
+            "request contract bytes",
+            MAX_REQUEST_CONTRACT_BYTES,
+        )));
+    }
+    Ok(None)
+}
+
+fn preflight_semantic_resources(
+    request: &CompileRequest,
+    program: &SemanticProgram,
+) -> Option<ResourceExhaustion> {
+    let caller_limit = request
+        .compiler_options
+        .resource_limits
+        .as_ref()
+        .and_then(|limits| limits.max_semantic_nodes)
+        .filter(|limit| *limit > 0)
+        .map(|limit| usize::try_from(limit).unwrap_or(usize::MAX));
+    let node_limit = caller_limit
+        .unwrap_or(MAX_KERNEL_SEMANTIC_NODES)
+        .min(MAX_KERNEL_SEMANTIC_NODES);
+    let mut pending = vec![(&program.root, 1_usize)];
+    let mut nodes = 0_usize;
+    while let Some((node, depth)) = pending.pop() {
+        if depth > MAX_KERNEL_SEMANTIC_DEPTH {
+            return Some(ResourceExhaustion::observed(
+                "semantic nesting depth",
+                MAX_KERNEL_SEMANTIC_DEPTH,
+                depth,
+            ));
+        }
+        nodes = nodes.saturating_add(1);
+        if nodes > node_limit {
+            return Some(ResourceExhaustion::observed(
+                "semantic nodes",
+                node_limit,
+                nodes,
+            ));
+        }
+        let child_depth = depth.saturating_add(1);
+        match node {
+            Node::Sequence { items, .. } => {
+                pending.extend(items.iter().rev().map(|child| (child, child_depth)));
+            }
+            Node::Alternation { branches, .. } => {
+                pending.extend(branches.iter().rev().map(|child| (child, child_depth)));
+            }
+            Node::Repeat { body, .. }
+            | Node::Capture { body, .. }
+            | Node::Lookaround { body, .. }
+            | Node::Atomic { body, .. } => pending.push((body, child_depth)),
+            Node::Empty { .. }
+            | Node::Literal { .. }
+            | Node::Wildcard { .. }
+            | Node::CharacterSet { .. }
+            | Node::Position { .. }
+            | Node::Backreference { .. } => {}
+        }
+    }
+    None
+}
+
+fn serialized_within_limit<T: Serialize + ?Sized>(
+    value: &T,
+    limit: usize,
+) -> Result<bool, KernelCompileError> {
+    let mut writer = BoundedWriter {
+        bytes: 0,
+        limit,
+        exceeded: false,
+    };
+    match serde_json::to_writer(&mut writer, value) {
+        Ok(()) => Ok(true),
+        Err(_) if writer.exceeded => Ok(false),
+        Err(error) => Err(KernelCompileError::StageFailure {
+            stage: KernelStage::ContractValidation,
+            message: format!("contract size accounting failed: {error}"),
+        }),
+    }
+}
+
+struct BoundedWriter {
+    bytes: usize,
+    limit: usize,
+    exceeded: bool,
+}
+
+impl Write for BoundedWriter {
+    fn write(&mut self, buffer: &[u8]) -> io::Result<usize> {
+        if buffer.len() > self.limit.saturating_sub(self.bytes) {
+            self.exceeded = true;
+            return Err(io::Error::other("contract byte limit exceeded"));
+        }
+        self.bytes += buffer.len();
+        Ok(buffer.len())
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
 fn validate_target_profile_evidence<'a>(
     request: &CompileRequest,
     supplied: Option<&'a TargetProfile>,
@@ -375,6 +570,56 @@ fn filter_advisory_diagnostics(request: &CompileRequest, diagnostics: &mut Vec<D
     diagnostics.retain(|item| item.is_error() || item.severity <= minimum);
 }
 
+fn resource_failed_result(
+    request: &CompileRequest,
+    compiler: CompilerIdentity,
+    exhaustion: ResourceExhaustion,
+) -> Result<CompileResult, KernelCompileError> {
+    failed_result(
+        request,
+        compiler,
+        resource_diagnostic(request.contract_version, &exhaustion.message)?,
+    )
+}
+
+fn preflight_resource_result(
+    request: &CompileRequest,
+    compiler: CompilerIdentity,
+    exhaustion: ResourceExhaustion,
+) -> Result<CompileResult, KernelCompileError> {
+    let mut result = CompileResult {
+        contract_version: request.contract_version,
+        compiler,
+        specification_version: request.specification_version.clone(),
+        outcome: CompileOutcome::Failed,
+        semantic_result: None,
+        analysis: None,
+        portability: None,
+        artifact: None,
+        diagnostics: vec![resource_diagnostic(
+            request.contract_version,
+            &exhaustion.message,
+        )?],
+    };
+    canonicalize_diagnostics(&mut result.diagnostics)?;
+    result
+        .validate()
+        .map_err(KernelCompileError::InvalidResult)?;
+    Ok(result)
+}
+
+fn resource_diagnostic(
+    contract_version: ContractVersion,
+    message: &str,
+) -> Result<Diagnostic, KernelCompileError> {
+    diagnostic(
+        contract_version,
+        RESOURCE_EXHAUSTED_DIAGNOSTIC,
+        CompilerPhase::Protocol,
+        DiagnosticCategory::ResourceLimit,
+        message,
+    )
+}
 fn failed_result(
     request: &CompileRequest,
     compiler: CompilerIdentity,
@@ -400,6 +645,22 @@ fn finish_result(
     request: &CompileRequest,
     mut result: CompileResult,
 ) -> Result<CompileResult, KernelCompileError> {
+    let caller_limit = request
+        .compiler_options
+        .resource_limits
+        .as_ref()
+        .and_then(|limits| limits.max_diagnostics)
+        .map(|limit| usize::try_from(limit).unwrap_or(usize::MAX));
+    let diagnostic_limit = caller_limit
+        .unwrap_or(MAX_KERNEL_DIAGNOSTICS)
+        .min(MAX_KERNEL_DIAGNOSTICS);
+    if result.diagnostics.len() > diagnostic_limit {
+        return resource_failed_result(
+            request,
+            result.compiler,
+            ResourceExhaustion::observed("diagnostics", diagnostic_limit, result.diagnostics.len()),
+        );
+    }
     canonicalize_diagnostics(&mut result.diagnostics)?;
     result.outcome = if result.diagnostics.iter().any(Diagnostic::is_error) {
         CompileOutcome::Failed

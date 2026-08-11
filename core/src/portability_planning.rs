@@ -13,6 +13,7 @@ use validation::{aggregate_status, collect_rewrite_dependencies};
 use crate::capability_evaluation::{
     validate_prerequisites, CapabilityDisposition, CapabilityEvaluation,
     CapabilityEvaluationErrors, CapabilityResult, RequirementKind, SemanticRequirement,
+    MAX_CAPABILITY_REQUIREMENTS,
 };
 use crate::semantic::{Node, SemanticProgram};
 use crate::semantic_analysis::{SemanticFacts, SemanticNodeKind};
@@ -22,6 +23,12 @@ use crate::target::{
     CapabilityAvailability, CapabilityId, PortabilityStatus, TargetProfile, TargetProfileReference,
 };
 use crate::validation::{canonical_sha256, Validate};
+
+/// Maximum final or unresolved requirement decisions in one plan.
+pub const MAX_PORTABILITY_DECISIONS: usize = MAX_CAPABILITY_REQUIREMENTS;
+
+/// Maximum canonical dependencies among rewrite decisions in one plan.
+pub const MAX_REWRITE_DEPENDENCIES: usize = 4_096;
 
 /// Stable error categories for portability-planning correspondence failures.
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
@@ -39,6 +46,7 @@ pub enum PortabilityPlanningErrorCode {
     MalformedRewritePlan,
     RewriteDependencyMissing,
     RewriteDependencyCycle,
+    ResourceLimitExceeded,
     AggregateStatusMismatch,
 }
 
@@ -287,6 +295,11 @@ pub fn plan_portability(
     let semantic_program =
         validate_correspondence(input, foundational, structural, target, evaluation)?;
 
+    enforce_planning_limit(
+        evaluation.results.len(),
+        MAX_PORTABILITY_DECISIONS,
+        "portability decision",
+    )?;
     let mut decisions = Vec::with_capacity(evaluation.results.len());
     let mut unresolved_requirements = Vec::new();
     for (index, result) in evaluation.results.iter().enumerate() {
@@ -351,6 +364,11 @@ pub fn plan_portability(
     }
 
     let rewrite_dependencies = collect_rewrite_dependencies(&decisions);
+    enforce_planning_limit(
+        rewrite_dependencies.len(),
+        MAX_REWRITE_DEPENDENCIES,
+        "rewrite dependency",
+    )?;
     let status = aggregate_status(&decisions);
     let plan = PortabilityPlan {
         contract_version: input.contract_version,
@@ -366,6 +384,22 @@ pub fn plan_portability(
     Ok(plan)
 }
 
+fn enforce_planning_limit(
+    count: usize,
+    limit: usize,
+    resource: &str,
+) -> Result<(), PortabilityPlanningErrors> {
+    if count > limit {
+        return Err(PortabilityPlanningErrors::single(
+            PortabilityPlanningError::new(
+                PortabilityPlanningErrorCode::ResourceLimitExceeded,
+                "$.decisions",
+                format!("{resource} count exceeds deterministic limit {limit}"),
+            ),
+        ));
+    }
+    Ok(())
+}
 enum RewriteRegistryResolution {
     Equivalent(Box<SemanticRewritePlan>),
     Incomplete {

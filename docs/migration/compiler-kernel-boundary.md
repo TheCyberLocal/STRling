@@ -117,6 +117,8 @@ iteration.
 
 Existing certified hard ceilings remain authoritative:
 
+-   serialized request contract: 8,388,608 bytes;
+-   serialized supplied target profile: 1,048,576 bytes;
 -   semantic nesting depth: 128;
 -   semantic nodes: 65,536;
 -   leading-consumption terms: 256, with explicit conservative unknown evidence;
@@ -124,13 +126,16 @@ Existing certified hard ceilings remain authoritative:
 -   overlap comparisons: 4,096, with explicit conservative unknown evidence;
 -   safety findings: 4,096;
 -   safety uncertainties: 4,096;
--   generated diagnostics: 4,096.
+-   generated diagnostics: 4,096;
+-   capability requirements: 4,096;
+-   portability decisions: 4,096;
+-   rewrite dependencies: 4,096.
 
-The facade applies caller bounds without weakening those ceilings. Capability
-requirements, portability decisions, and rewrite dependencies are also checked
-against deterministic boundary ceilings before result projection. Contract and
-profile value size is bounded in memory before semantic execution; this is an
-implementation safeguard and does not extend the serialized request schema.
+The facade applies caller semantic-node and diagnostic bounds without weakening
+those ceilings. Contract and profile value size is counted through a bounded
+discarding serializer before semantic execution or profile fingerprinting; this
+is an implementation safeguard and does not extend the serialized request
+schema.
 
 Every exhaustion is deterministic and whole-request: return a structured failed
 result, do not truncate silently, do not retry with weaker limits, and do not

@@ -5,19 +5,31 @@ use std::error::Error;
 use std::fmt;
 
 use crate::diagnostic::Diagnostic;
-use crate::diagnostic_generation::{generate_diagnostics, DiagnosticGenerationErrors};
+use crate::diagnostic_generation::{
+    generate_diagnostics, DiagnosticGenerationErrorCode, DiagnosticGenerationErrors,
+    MAX_GENERATED_DIAGNOSTICS,
+};
 use crate::normalization::{normalize, NormalizationErrors};
 use crate::protocol::{
     AnalysisResult, CompileOutcome, CompileResult, CompilerIdentity, LengthBounds, LengthMaximum,
     LengthUnit, NodeFacts as ProtocolNodeFacts, SemanticResult, SemanticResultStatus,
 };
-use crate::safety_analysis::{analyze_safety, SafetyAnalysisErrors};
+use crate::safety_analysis::{
+    analyze_safety, SafetyAnalysisErrorCode, SafetyAnalysisErrors, MAX_SAFETY_NODES,
+};
 use crate::semantic::SemanticProgram;
 use crate::semantic_analysis::{
-    analyze, MaximumConsumption, Nullability, SemanticAnalysisErrors, SemanticFacts,
+    analyze, MaximumConsumption, Nullability, SemanticAnalysisErrorCode, SemanticAnalysisErrors,
+    SemanticFacts, MAX_ANALYSIS_DEPTH,
 };
-use crate::structural_analysis::{analyze_structure, StructuralAnalysisErrors, StructuralFacts};
+use crate::structural_analysis::{
+    analyze_structure, StructuralAnalysisErrorCode, StructuralAnalysisErrors, StructuralFacts,
+};
 use crate::validation::{Validate, ValidationErrors};
+
+pub(crate) const MAX_PIPELINE_SEMANTIC_DEPTH: usize = MAX_ANALYSIS_DEPTH;
+pub(crate) const MAX_PIPELINE_SEMANTIC_NODES: usize = MAX_SAFETY_NODES;
+pub(crate) const MAX_PIPELINE_DIAGNOSTICS: usize = MAX_GENERATED_DIAGNOSTICS;
 
 /// A whole-pipeline failure attributed to its owning target-neutral stage.
 #[derive(Debug)]
@@ -30,6 +42,41 @@ pub enum CompilerPipelineErrors {
     ResultValidation(ValidationErrors),
 }
 
+impl CompilerPipelineErrors {
+    pub(crate) fn is_resource_exhaustion(&self) -> bool {
+        match self {
+            Self::FoundationalAnalysis(errors) => errors
+                .errors
+                .iter()
+                .any(|error| error.code == SemanticAnalysisErrorCode::DepthLimitExceeded),
+            Self::StructuralAnalysis(errors) => errors.errors.iter().any(|error| {
+                matches!(
+                    error.code,
+                    StructuralAnalysisErrorCode::DepthLimitExceeded
+                        | StructuralAnalysisErrorCode::RelationshipLimitExceeded
+                )
+            }),
+            Self::SafetyAnalysis(errors) => errors.errors.iter().any(|error| {
+                matches!(
+                    error.code,
+                    SafetyAnalysisErrorCode::DepthLimitExceeded
+                        | SafetyAnalysisErrorCode::NodeLimitExceeded
+                        | SafetyAnalysisErrorCode::FindingLimitExceeded
+                        | SafetyAnalysisErrorCode::UncertaintyLimitExceeded
+                )
+            }),
+            Self::DiagnosticGeneration(errors) => errors.errors.iter().any(|error| {
+                matches!(
+                    error.code,
+                    DiagnosticGenerationErrorCode::DepthLimitExceeded
+                        | DiagnosticGenerationErrorCode::NodeLimitExceeded
+                        | DiagnosticGenerationErrorCode::DiagnosticLimitExceeded
+                )
+            }),
+            Self::Normalization(_) | Self::ResultValidation(_) => false,
+        }
+    }
+}
 impl fmt::Display for CompilerPipelineErrors {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {

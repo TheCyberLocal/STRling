@@ -4,12 +4,15 @@ use std::error::Error;
 use std::fmt;
 
 use crate::capability_evaluation::{
-    evaluate_capabilities, CapabilityEvaluation, CapabilityEvaluationErrors,
+    evaluate_capabilities, CapabilityEvaluation, CapabilityEvaluationErrorCode,
+    CapabilityEvaluationErrors,
 };
 use crate::compiler_pipeline::{
     run_target_neutral_stages, CompilerPipelineErrors, TargetNeutralStages,
 };
-use crate::portability_planning::{plan_portability, PortabilityPlan, PortabilityPlanningErrors};
+use crate::portability_planning::{
+    plan_portability, PortabilityPlan, PortabilityPlanningErrorCode, PortabilityPlanningErrors,
+};
 use crate::semantic::SemanticProgram;
 use crate::target::TargetProfile;
 
@@ -20,6 +23,21 @@ pub enum PortabilityPipelineErrors {
     PortabilityPlanning(PortabilityPlanningErrors),
 }
 
+impl PortabilityPipelineErrors {
+    pub(crate) fn is_resource_exhaustion(&self) -> bool {
+        match self {
+            Self::TargetNeutral(error) => error.is_resource_exhaustion(),
+            Self::CapabilityEvaluation(errors) => errors
+                .errors
+                .iter()
+                .any(|error| error.code == CapabilityEvaluationErrorCode::RequirementLimitExceeded),
+            Self::PortabilityPlanning(errors) => errors
+                .errors
+                .iter()
+                .any(|error| error.code == PortabilityPlanningErrorCode::ResourceLimitExceeded),
+        }
+    }
+}
 impl fmt::Display for PortabilityPipelineErrors {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {

@@ -33,12 +33,15 @@ scope:
         - tests/spec/**
     expected_files:
         - core/contract-mapping.json
+        - core/src/capability_evaluation.rs
         - core/src/capability_pipeline.rs
         - core/src/compiler_pipeline.rs
         - core/src/kernel.rs
         - core/src/lib.rs
+        - core/src/portability_planning.rs
         - core/tests/compiler_boundary.rs
         - core/tests/compiler_boundary_orchestration.rs
+        - core/tests/compiler_boundary_resources.rs
         - docs/migration/compiler-kernel-boundary.md
         - docs/migration/records/compiler-kernel-boundary.yaml
         - governance/change-control.json
@@ -124,8 +127,12 @@ checkpoints:
             result: passed
             details: The facade invokes exactly one existing orchestration path per semantic request. Target-aware compilation reuses the completed target-neutral bundle before exact-profile capability evaluation and portability planning; public projection emits only requested SemanticResult, AnalysisResult, and final PortabilityPlan evidence. Five end-to-end tests cover native, certified equivalent-rewrite, unsupported, incomplete-evidence, and target-neutral-with-unused-reference paths; five mutation tests prohibit alternate public pipelines, stage recomputation, and host/frontend/emitter/binding dependencies.
     - name: Deterministic identity and resource bounds
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Deterministic identity, hard ceilings, caller limits, and whole-result exhaustion
+            command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo check --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml --test compiler_boundary_resources -- --test-threads=1 && cargo test --manifest-path core/Cargo.toml && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && python3 tooling/core_contract_validation.py && python3 -m unittest tooling.tests.test_compiler_boundary_architecture && git diff --check
+            result: passed
+            details: Identity continues to derive only from canonical contract version, normalized semantic program, and exact canonical target-profile evidence. Iterative preflight enforces 8,388,608 request bytes, 1,048,576 profile bytes, depth 128, and 65,536 semantic nodes before recursive validation; certified stages enforce 4,096 relationships, findings, uncertainties, diagnostics, capability requirements, portability decisions, and rewrite dependencies. Nine boundary tests cover exact and one-over request, profile, caller-node, hard-depth, hard-node, diagnostic, capability, and structural limits plus malformed zero-limit precedence. Exhaustion returns one deterministic STRL-PROTOCOL-0003 failed result with no partial evidence or silent truncation.
     - name: Property and fuzz-smoke certification
       status: planned
       evidence: []
