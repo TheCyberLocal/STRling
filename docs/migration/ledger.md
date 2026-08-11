@@ -1597,3 +1597,112 @@ engine probing, and parser/binding/Simply/LSP migration were not implemented.
 The next contained task is canonical portability planning: transform factual
 capability results into `native`, `equivalent_rewrite`, or `unsupported`
 decisions without emitting target syntax. Readiness is `READY`.
+
+## Canonical portability planning
+
+The canonical Rust kernel now owns a pure representation-strategy stage after
+factual, version-sensitive capability evaluation:
+
+```text
+SemanticProgram
+  -> normalize
+  -> analyze
+  -> analyze_structure
+  -> analyze_safety
+  -> generate_diagnostics
+  -> extract_requirements
+  -> evaluate_capabilities(TargetProfile)
+  -> plan_portability
+```
+
+`portability_planning::plan_portability(&SemanticProgram, &SemanticFacts,
+&StructuralFacts, &TargetProfile, &CapabilityEvaluation)` validates exact
+correspondence among the normalized program, certified facts, extracted
+requirements, evaluation fingerprint, and immutable profile. It consumes the
+supplied factual results without recomputing capabilities and produces a
+deterministic `PortabilityPlan`. The stage has no filesystem, environment,
+network, runtime probe, clock, randomness, frontend, binding, editor, emitter,
+or target-syntax dependency and mutates none of its inputs.
+
+### Decision and aggregation semantics
+
+Every capability result receives exactly one independently ordered decision,
+including when several requirements belong to one semantic node.
+
+| Planning disposition | Certified meaning                                                                                                                                                                                                 |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `native`             | The exact supplied profile produced `Supported`; the plan retains the complete capability and constraint evidence.                                                                                                |
+| `equivalent_rewrite` | Native support is negative, a registered target-neutral strategy applies, every semantic proof precondition is satisfied, and every replacement requirement is supported by the same supplied evaluation/profile. |
+| `unsupported`        | Native support is explicitly unavailable or constraint-violating and the complete certified registry establishes that no available equivalent rewrite applies.                                                    |
+| unresolved evidence  | Capability data is `Unknown`, a rewrite proof prerequisite is indeterminate, or replacement support is unknown. This is planning evidence outside the final status enum.                                          |
+
+Aggregation is completeness-first. Any unresolved requirement suppresses the
+program-level final status, even alongside explicit negative evidence. With
+complete evidence, `unsupported` takes precedence over
+`equivalent_rewrite`, which takes precedence over `native`; a requirement-free
+program is natively portable. This preserves the normative final vocabulary
+exactly and prevents factual `Unknown` from becoming negative evidence.
+
+Rewrite dependencies are stable requirement-identity edges. They must connect
+distinct rewrite decisions, are deterministically ordered, and must be
+acyclic. No optimizer or commutativity assumption is present.
+
+### Certified rewrite registry and proof boundary
+
+The initial closed registry contains one strategy:
+`rewrite.atomic_literal.elide.v1`. It may remove atomic semantics around a
+literal because certified foundational facts prove the original node is
+`Atomic`, Semantic IR proves its direct body relationship, and foundational
+facts prove that body is `Literal`. The strategy introduces no replacement
+semantic requirements and stores no engine spelling or regex fragment.
+
+Variable-length lookbehind transformations, arbitrary atomic or possessive
+elimination, safety-motivated atomic or possessive changes, capture numbering,
+flag spelling, and other engine-specific forms are not registered. They require
+additional semantic proof or belong to later target lowering. Failed proof
+preconditions make a strategy unavailable; indeterminate proof or replacement
+support remains unresolved.
+
+### Property, pipeline, and hardgate certification
+
+Four reproducible seeds - `0x504f525441424c45`, `0x9e3779b97f4a7c15`,
+`0xd1b54a32d192ed03`, and `0x94d049bb133111eb` - generated 256
+normalized programs across four authored profiles. The harness performed 1,024
+capability evaluations and 2,048 repeat planner invocations, producing exactly
+64 rewrite plans, 695 unresolved decisions, and 160 semantic plan
+differentials caused only by profile changes. Sixteen malformed correspondence
+cases were reproducibly rejected. Determinism, completeness, native soundness,
+rewrite proof soundness, unsupported soundness, Unknown preservation, profile
+sensitivity, self-validation, and five-input immutability passed with zero
+unexplained failures.
+
+All 194 kernel tests passed with rustfmt, warnings-denied Clippy and cargo
+check, 11 schema mappings, and 63 fixtures. Sixteen controlled architecture
+tests reject capability recomputation, reverse dependencies, emitters, target
+artifacts, runtime probing, bindings, frontends, editors, and incorrect stage
+ordering. One hundred eight focused governance and quality tests passed.
+
+From committed checkpoint-six state, hygiene, all-language typecheck,
+generation, contracts, governance, architecture fitness, frozen-baseline
+validation, patch integrity, and clean-tree verification passed. Structured
+`check` and `certify` completed and retained their governed nonzero disposition
+only for declared incomplete or unavailable repository capabilities, including
+the local Ruff and Bundler version mismatches; no enforceable operation relevant
+to this work failed. The unchanged TypeScript baseline built, typechecked, and
+passed all 19 suites and 963 tests.
+
+### Explicitly unchanged behavior, exclusions, and readiness
+
+No existing STRling runtime/compiler behavior intentionally changed. Only the
+internal canonical kernel gained portability planning. Existing parser and
+grammar behavior, runtimes, safety analysis and diagnostics, target selection,
+regex output, public APIs, package versions, bindings, Simply, LSP/editor
+behavior, and published artifacts remain unchanged.
+
+Rewrite application, target-specific diagnostics, capture numbering, target
+lowering, regex emission, `TargetArtifact` production, runtime engine probing,
+and binding/Simply/LSP migration were not implemented.
+
+The next contained task is target-aware lowering of certified portability plans
+into target-neutral lowering structures before actual emitter serialization.
+Readiness is `READY`.

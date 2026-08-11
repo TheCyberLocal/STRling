@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical portability planning
-status: in_progress
+status: complete
 objective: Convert certified semantic requirements and factual version-sensitive capability evaluation into deterministic, evidence-backed native, equivalent-rewrite, unsupported, or unresolved planning decisions without mutating Semantic IR, applying rewrites, lowering captures, producing target syntax, or changing product behavior.
 scope:
     diff:
@@ -40,6 +40,7 @@ scope:
         - core/tests/portability_planning.rs
         - core/tests/portability_planning_properties.rs
         - docs/architecture.md
+        - docs/migration/ledger.md
         - docs/migration/records/canonical-portability-planning.yaml
         - docs/portability-planning.md
         - governance/change-control.json
@@ -141,11 +142,23 @@ checkpoints:
             result: passed
             details: Four fixed seeds (0x504f525441424c45, 0x9e3779b97f4a7c15, 0xd1b54a32d192ed03, 0x94d049bb133111eb) generate 256 normalized programs across four authored profiles, 1,024 capability evaluations, and 2,048 repeat planner invocations. All 193 kernel tests pass with exact completeness, determinism, native/rewrite/unsupported soundness, Unknown preservation, input immutability, 64 registered rewrite plans, 695 unresolved decisions, 160 semantic decision differentials caused only by profile changes, 16 rejected malformed cases, and zero unexplained failures. Canonical contracts retain 11 schema mappings and 63 fixtures.
     - name: Pipeline and hardgate integration
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical target-aware pipeline and controlled dependency fitness
+            command: cargo test --manifest-path core/Cargo.toml && python3 -m unittest tooling.tests.test_portability_architecture tooling.tests.test_capability_architecture tooling.tests.test_diagnostic_architecture && python3 tooling/core_contract_validation.py && python3 tooling/architecture_fitness.py
+            result: passed
+            details: The crate-private pipeline now runs target-neutral stages, factual capability evaluation, and portability planning in strict order; it returns diagnostics, the untouched factual evaluation, and a certified plan with no TargetArtifact. All 194 kernel tests and 16 controlled architecture mutations pass, including explicit rejection of emitter, runtime, binding, frontend, target-artifact, prerequisite-recomputation, reverse-dependency, and malformed-order injections.
+          - check: Committed repository hardgate matrix
+            command: ./strling format --check; ./strling hygiene; ./strling lint all; ./strling typecheck all; ./strling generate --check; ./strling contracts --check; ./strling governance; python3 tooling/baseline.py --check; ./strling check --json; ./strling certify --json; ./strling build typescript; ./strling test typescript; ./strling typecheck typescript; git diff --check
+            result: passed
+            details: From committed checkpoint-six state, rustfmt, warnings-denied Clippy and cargo check, all 194 kernel tests, 22 focused portability/property tests, 11 schema mappings, 63 fixtures, 16 controlled architecture tests, 108 focused governance/quality tests, hygiene, all-language typecheck, generation, contracts, governance, frozen baseline, patch integrity, and the unchanged 19-suite/963-test TypeScript baseline pass. Structured check and certify execute fully and retain their governed nonzero disposition only for declared incomplete or unavailable repository capabilities, including local Ruff 0.16.2 versus pinned 0.15.21 and the incompatible local Bundler; no enforceable operation relevant to this change fails.
     - name: Completion and target-lowering readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Completion record, ledger, and bounded carry-forward
+            command: ./strling governance && python3 tooling/core_contract_validation.py && git diff --check
+            result: passed
+            details: The record and ledger document API ownership, final and unresolved decisions, the certified registry and proof boundary, completeness-first aggregation, generated properties, explicit exclusions, unchanged product behavior, and readiness for target-aware lowering.
 commits:
     - sha: dfdc0d498c729bbc773a95c0351f13bacaf2a75d
       subject: "docs(core): define canonical portability planning"
@@ -157,3 +170,38 @@ commits:
       subject: "feat(core): resolve canonical portability decisions"
     - sha: f15a0cdb4d71d9fbc412723919485b833979aae8
       subject: "test(core): certify canonical portability planning"
+    - sha: 027614157228026d83ecd15509a861686e023acb
+      subject: "ci(core): certify canonical portability planning"
+completion:
+    accomplished:
+        - Added portability_planning::plan_portability(&SemanticProgram, &SemanticFacts, &StructuralFacts, &TargetProfile, &CapabilityEvaluation) as a pure borrowed-input stage that requires canonical normalization and exact program, facts, requirement, evaluation, and profile correspondence. It never recomputes capabilities, mutates inputs, probes runtime state, applies rewrites, lowers captures, emits target syntax, or constructs a TargetArtifact.
+        - Every capability result receives exactly one canonically ordered PlannedRequirement keyed by stable ordinal, NodeId, and CapabilityId. Native retains the exact Supported capability result; Unknown remains an UnresolvedDecision outside the final PortabilityStatus vocabulary; explicit unavailability or constraint violation can become Unsupported only after the complete certified registry proves no equivalent strategy applies.
+        - Defined target-neutral SemanticRewritePlan evidence with stable strategy identity, affected semantic nodes, original and replacement requirements, structural proof preconditions and evidence, exact replacement capability support, exact target profile reference, and explicit dependencies. Plans contain no emitted fragments or engine spellings.
+        - Registered only rewrite.atomic_literal.elide.v1. Its proof requires the original node to be Atomic, its direct body relationship to be present in Semantic IR, and the body to be a certified Literal; elimination adds no replacement semantic requirements. Variable lookbehind, arbitrary atomic or possessive elimination, safety-oriented atomic or possessive changes, capture numbering, flags, and engine spelling remain unavailable or deferred because their semantic proof or ownership is insufficient.
+        - "Aggregate status is completeness-first: any unresolved requirement makes program status absent; otherwise any Unsupported decision yields unsupported, then any EquivalentRewrite yields equivalent_rewrite, and only an all-native or requirement-free plan yields native. Multiple requirements on one node remain independent."
+        - Rewrite dependencies are deterministically collected, require existing distinct rewrite endpoints, and are validated as acyclic. Plan self-validation rechecks native, rewrite, unsupported, unresolved, dependency, ordering, exact-profile, and aggregate evidence.
+        - Integrated planning after factual capability evaluation in the crate-private target-aware pipeline while preserving target-neutral safety diagnostics and the existing target-neutral CompileResult behavior.
+    verified:
+        - Four fixed seeds (0x504f525441424c45, 0x9e3779b97f4a7c15, 0xd1b54a32d192ed03, and 0x94d049bb133111eb) generated 256 normalized programs across four authored profiles, 1,024 capability evaluations, and 2,048 repeat planner invocations. Exact counts include 64 rewrite plans, 695 unresolved decisions, 160 semantic plan differentials caused only by profile changes, and 16 reproducibly rejected malformed cases.
+        - Determinism, requirement completeness, native soundness, rewrite registration and proof soundness, unsupported soundness, strict Unknown preservation, profile sensitivity, plan self-validation, and immutability of all five inputs pass with zero unexplained property failures.
+        - All 194 canonical kernel tests pass with rustfmt, warnings-denied Clippy, warnings-denied cargo check, capability and portability fixtures, property certification, pipeline integration, and all prior regressions. Canonical validation retains 11 schema mappings and 63 fixtures.
+        - Sixteen controlled portability/capability/diagnostic architecture tests reject missing prerequisites, capability recomputation, reverse target dependencies, emitters, target artifacts, runtime/filesystem/environment probing, bindings, frontends, editors, raw source, and incorrect pipeline ordering. One hundred eight focused governance and quality tests pass.
+        - Repository hygiene, all-language typecheck, generation, contracts, governance, architecture fitness, frozen baseline validation, TypeScript build/typecheck and all 19 suites with 963 tests, patch integrity, and committed clean-tree verification pass. Structured check and certify executed fully and retained their established nonzero disposition solely for declared incomplete or unavailable repository capabilities; all enforceable operations relevant to this task passed.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - Only the internal canonical Rust kernel gains deterministic portability-planning capability and crate-private pipeline integration.
+        - Canonical contract mapping and architecture fitness now register planning ownership and enforce one-way dependencies after factual capability evaluation.
+    preserved_behavior:
+        - Existing grammar/parser behavior, runtime compilers, safety findings and diagnostics, target selection, regex output, public package APIs, package versions, bindings, Simply, LSP/editor behavior, and published artifacts remain unchanged.
+        - SemanticProgram, SemanticFacts, StructuralFacts, TargetProfile, and CapabilityEvaluation remain immutable; factual Unknown is never converted to Unsupported.
+    transitional_architecture:
+        - The integrated target-aware pipeline remains crate-private because exposing or migrating a product compiler API is separately governed work.
+        - PortabilityPlan is an internal certified strategy description for a later lowering stage; it is not a serialized target artifact and does not alter the existing CompileResult projection.
+    deferred_work:
+        - Rewrite application, target-specific diagnostics, capture numbering, target-aware lowering, regex emission, TargetArtifact production, runtime engine probing, grammar/parser changes, binding migration, Simply migration, LSP/editor migration, package changes, version changes, and publication are not implemented.
+        - Candidate rewrites other than atomic-literal elision require additional semantic analysis or belong to target lowering and remain unavailable to equivalent_rewrite decisions.
+        - The next task is target-aware lowering of certified portability plans into target-neutral lowering structures before actual emitter serialization.
+readiness:
+    status: READY
+    next_task: Implement target-aware lowering of certified portability plans into target-neutral lowering structures before actual emitter serialization.
+    rationale: Exact correspondence, complete per-requirement planning, conservative unresolved evidence, a closed proof-backed rewrite registry, negative unsupported evidence, deterministic dependency validation, property and profile-differential certification, one-way pipeline fitness, and unchanged product behavior leave no known blocker for the next contained lowering stage.
