@@ -1491,3 +1491,109 @@ The only carry-forward is target-aware semantic capability modeling and
 portability reasoning. That work must preserve the target-neutral safety and
 diagnostic layers, add target policy outside them, and keep remediation
 non-executable until semantic preservation is proven. Readiness is `READY`.
+
+## Canonical target capability evaluation
+
+The canonical Rust kernel now owns the first target-aware factual stage after
+all target-neutral semantic, structural, safety, and diagnostic work:
+
+```text
+SemanticProgram
+  -> normalize
+  -> analyze
+  -> analyze_structure
+  -> analyze_safety
+  -> generate_diagnostics
+  -> extract_requirements
+  -> evaluate_capabilities(TargetProfile)
+```
+
+`capability_evaluation::extract_requirements` validates that normalized
+`SemanticProgram`, `SemanticFacts`, and `StructuralFacts` describe the exact
+same immutable program, then produces canonical requirement occurrences keyed
+by stable `NodeId`. `capability_evaluation::evaluate_capabilities` validates
+the supplied profile, exact compatible specification, profile revision, and
+canonical fingerprint before binary-searching its enumerated capability table.
+The profile is the complete target authority; no installed engine, filesystem,
+environment, network, clock, randomness, frontend, binding, editor, or emitter
+state is consulted.
+
+### Requirements and factual outcomes
+
+Typed requirements cover lookahead; fixed and variable lookbehind; named
+logical captures and backreferences; Unicode properties, built-in classes, and
+non-ASCII scalar data; atomic semantics; lazy and possessive repetition;
+anchors and word boundaries; and insensitive matching. Evidence retains exact
+capture/reference resolution, assertion polarity, structural lookbehind body
+and length, position kind, Unicode member data, and repetition mode. It never
+contains target spelling, emitted flags, final capture numbers, or rewrite
+instructions.
+
+Base composition constructs, ASCII-only literal/set semantics, wildcard,
+greedy repetition, and unnamed capture add no special target requirement by
+themselves. Child requirements remain independently visible.
+
+| Disposition           | Meaning                                                                  |
+| --------------------- | ------------------------------------------------------------------------ |
+| `Supported`           | The exact profile proves native support and every constraint is met.     |
+| `Unsupported`         | The exact profile explicitly declares native capability unavailable.     |
+| `ConstraintViolation` | The capability exists, but certified semantic facts exceed a constraint. |
+| `Unknown`             | Capability data or comparable constraint evidence is absent.             |
+
+Missing profile data always remains `Unknown`; absence never implies false.
+These outcomes are factual native-support evidence, not the later portability
+vocabulary. In particular, `Unsupported` does not rule out an independently
+proved equivalent rewrite.
+
+Typed `equals`, `at_most`, `at_least`, `one_of`, and `requires_option`
+constraints compare exact scalar values and units. Fixed, finite-variable,
+unbounded, and indeterminate lookbehind classifications come only from
+certified foundational and structural facts. Any proved violation wins;
+otherwise missing or incomparable evidence stays unknown, and only
+all-satisfied constraints establish support.
+
+### Version, profile, and property certification
+
+The same requirement set produces different factual results across authored
+profiles without hard-coded engine assumptions. PCRE2 10.42 explicitly lacks
+variable-length lookbehind. PCRE2 10.43 evaluates its certified maximum but
+keeps the overall result unknown when matcher-API context is unavailable.
+ECMAScript 2024 and Python `re` 3.11 independently demonstrate available,
+unavailable, constrained, option-dependent, and absent information. Every
+result records profile identity/revision/fingerprint and engine/runtime version
+alongside the requirement, exact capability record or absence, constraint
+facts, constraint evaluations, and disposition.
+
+Four fixed seeds - `0x4341504142494c49`, `0x9e3779b97f4a7c15`,
+`0xd1b54a32d192ed03`, and `0x94d049bb133111eb` - generated 256
+normalized programs and 2,048 repeated evaluations across the four authored
+profiles. Determinism, exactly-one-result completeness, unknown preservation,
+profile sensitivity, constraint-violation evidence, and immutability of all
+inputs passed. Sixteen controlled malformed profiles were rejected with zero
+unexplained failures.
+
+All 169 kernel tests passed with rustfmt, warnings-denied Clippy and cargo
+check, authored target-profile fixtures, focused capability suites, pipeline
+tests, and prior regressions. Canonical validation retained 11 schema mappings
+and 63 fixtures. Controlled architecture tests reject target-neutral reverse
+dependencies, prerequisite re-execution, runtime or filesystem probing,
+emitters, planners, portability policy, bindings, frontends, editors, and
+engine-specific assumptions. Governed repository quality, generation,
+contracts, governance, baseline, check, certify, patch integrity, clean-tree
+verification, and the unchanged 19-suite/963-test TypeScript baseline passed.
+
+### Unchanged behavior, exclusions, and readiness
+
+No existing STRling runtime/compiler behavior intentionally changed. Only the
+canonical kernel gained target-capability evaluation. Existing grammar and
+parsers, compilers and runtimes, target selection, portability policy,
+diagnostics, lowering, regex emission, public APIs, package versions, bindings,
+Simply, LSP/editor integrations, and published packages remain unchanged.
+
+Equivalent rewrite planning, final portability states, target-specific
+diagnostics, target lowering, regex emission, automatic remediation, runtime
+engine probing, and parser/binding/Simply/LSP migration were not implemented.
+
+The next contained task is canonical portability planning: transform factual
+capability results into `native`, `equivalent_rewrite`, or `unsupported`
+decisions without emitting target syntax. Readiness is `READY`.

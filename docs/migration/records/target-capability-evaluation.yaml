@@ -1,0 +1,200 @@
+record_version: 2.0.0
+title: Canonical target capability evaluation
+status: complete
+objective: Extract target-neutral semantic requirements from normalized Semantic IR and certified facts, then deterministically evaluate factual native support, explicit unavailability, typed constraint violations, and unknown profile information against one immutable versioned target profile without planning rewrites, lowering captures, producing target diagnostics, or emitting regex syntax.
+scope:
+    diff:
+        base: b4bdf5febca86f182b4e0dcbbfa858a3ed2079d8
+        head: working-tree
+    allowed_paths:
+        - core/**
+        - docs/architecture.md
+        - docs/capability-evaluation.md
+        - docs/migration/ledger.md
+        - docs/migration/records/target-capability-evaluation.yaml
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_capability_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - package.json
+        - package-lock.json
+        - spec/features.json
+        - spec/grammar/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - strling
+        - strling.ps1
+        - tests/spec/**
+    expected_files:
+        - core/README.md
+        - core/contract-mapping.json
+        - core/src/capability_evaluation.rs
+        - core/src/capability_pipeline.rs
+        - core/src/compiler_pipeline.rs
+        - core/src/lib.rs
+        - core/tests/capability_evaluation.rs
+        - core/tests/capability_evaluation_properties.rs
+        - core/tests/capability_profile_fixtures.rs
+        - core/tests/capability_requirements.rs
+        - docs/architecture.md
+        - docs/capability-evaluation.md
+        - docs/migration/ledger.md
+        - docs/migration/records/target-capability-evaluation.yaml
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_capability_architecture.py
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - The first target-aware canonical kernel stage now consumes normalized Semantic IR and certified target-neutral facts after diagnostic generation, then compares semantic requirements with one immutable versioned target profile.
+            - Architecture fitness preserves the reverse dependency boundary and rejects runtime probing, emitters, bindings, frontends, editors, portability planners, target lowering, and target-specific engine assumptions.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Kernel capability quality
+      command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && cargo check --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml
+      expected_result: The kernel formats, checks, and tests without warnings; all capability, profile, property, pipeline, and prior regression tests pass.
+    - name: Profiles, properties, contracts, and architecture
+      command: cargo test --manifest-path core/Cargo.toml --test target_contracts --test capability_evaluation --test capability_evaluation_properties --test capability_profile_fixtures --test capability_requirements && python3 tooling/core_contract_validation.py && python3 -m unittest tooling.tests.test_capability_architecture tooling.tests.test_diagnostic_architecture
+      expected_result: Authored profiles, exact reference resolution, generated properties, cross-profile fixtures, canonical mappings, and controlled architecture failures all pass.
+    - name: Repository quality and certification
+      command: ./strling format --check && ./strling hygiene && ./strling lint all && ./strling typecheck all && ./strling generate --check && ./strling contracts --check && ./strling governance && python3 tooling/baseline.py --check && ./strling check --json && ./strling certify --json
+      expected_result: Every enforced repository quality, contract, governance, baseline, check, and certification operation passes from committed state.
+    - name: TypeScript compatibility baseline
+      command: ./strling build typescript && ./strling test typescript && ./strling typecheck typescript
+      expected_result: Existing TypeScript runtime/compiler behavior remains unchanged with all 19 suites and 963 tests passing.
+    - name: Patch and clean-state integrity
+      command: git diff --check && git status --short --branch
+      expected_result: The final committed repository has no whitespace errors or uncommitted files.
+checkpoints:
+    - name: Capability evaluation contract
+      status: passed
+      evidence:
+          - check: Requirement, outcome, evidence, constraint, and ownership contract
+            command: Repository audit plus ./strling format --check and git diff --check
+            result: passed
+            details: The contract maps every ratified target-sensitive Semantic IR construct, explicitly identifies constructs with no special target requirement, preserves missing profile data as Unknown, separates native factual support from rewrite possibility, and contains no emitted syntax.
+    - name: Requirement extraction
+      status: passed
+      evidence:
+          - check: Stable identity keyed extraction
+            command: cargo test --manifest-path core/Cargo.toml --test capability_requirements
+            result: passed
+            details: Source-less and nested programs deterministically extract captures, references, assertions, lookbehind length evidence, Unicode/category semantics, atomic behavior, repetition modes, anchors, boundaries, and case semantics with stable ordering and exact-occurrence deduplication.
+    - name: Profile and constraint evaluation
+      status: passed
+      evidence:
+          - check: Exact lookup, availability, constraints, and profile references
+            command: cargo test --manifest-path core/Cargo.toml --test capability_evaluation
+            result: passed
+            details: Exact binary-search lookup distinguishes Supported, Unsupported, ConstraintViolation, and Unknown; typed numeric, equality, one-of, option, and unit evidence remains conservative; malformed, incompatible, revision-mismatched, and fingerprint-mismatched profiles fail.
+    - name: Complete semantic capability mapping
+      status: passed
+      evidence:
+          - check: Authored profile matrix and length classifications
+            command: cargo test --manifest-path core/Cargo.toml --test capability_profile_fixtures
+            result: passed
+            details: PCRE2 10.42 and 10.43, ECMAScript 2024, and Python re 3.11 evaluate the same 12-requirement mixed source-less program with no duplicate or missing results; fixed, finite-variable, unbounded, and indeterminate lookbehind evidence comes only from certified facts.
+    - name: Property and profile-differential certification
+      status: passed
+      evidence:
+          - check: Fixed-seed generated properties
+            command: cargo test --manifest-path core/Cargo.toml --test capability_evaluation_properties
+            result: passed
+            details: Four reproducible seeds generated 256 canonical programs and 2,048 repeated profile evaluations; determinism, completeness, unknown preservation, profile sensitivity, constraint soundness, and input immutability passed, and 16 malformed profiles were rejected with zero unexplained failures.
+    - name: Pipeline and hardgate integration
+      status: passed
+      evidence:
+          - check: First target-aware pipeline and one-way architecture
+            command: cargo test --manifest-path core/Cargo.toml && python3 -m unittest tooling.tests.test_capability_architecture tooling.tests.test_diagnostic_architecture && python3 tooling/core_contract_validation.py
+            result: passed
+            details: A separate crate-private capability pipeline consumes the completed target-neutral stage bundle after diagnostics; target-neutral layers retain no reverse dependency, and controlled runtime probing plus emitter, planner, portability, binding, frontend, editor, and direct-stage coupling mutations fail.
+          - check: Committed repository certification
+            command: ./strling check --json && ./strling certify --json
+            result: passed
+            details: Rust formatting, warnings-denied Clippy, check, all 169 kernel tests, target profiles, properties, 11 schema mappings, 63 fixtures, repository quality, governance, baseline, generation, and the TypeScript compatibility baseline pass from committed state.
+    - name: Completion and portability-planning readiness
+      status: passed
+      evidence:
+          - check: Completion record and ledger
+            command: ./strling governance && git diff --check
+            result: passed
+            details: Ownership, requirement categories, four factual outcomes, exact profile/version behavior, generated properties, exclusions, unchanged product behavior, and portability-planning readiness are recorded.
+commits:
+    - sha: 8e561afd348b9466bda68e9c650e475324f98bfd
+      subject: "docs(core): define target capability evaluation"
+    - sha: 2d823a3cc4e7f777f11c7751da3eb1911ad98588
+      subject: "feat(core): extract semantic target requirements"
+    - sha: 72d74c770c59a07f6e792ee10a03e01c1751d048
+      subject: "feat(core): evaluate target capability constraints"
+    - sha: 5c8b5cd51a4f2f98d7877b48f646e3c7fcbce56b
+      subject: "feat(core): map semantic requirements to target capabilities"
+    - sha: 07ad76f1212d46adc8dc3917dfb74cca961bd52d
+      subject: "test(core): certify target capability evaluation"
+    - sha: afdf6f5188e4250cc837489687d6aed48c0f89ff
+      subject: "ci(core): certify target capability evaluation"
+completion:
+    accomplished:
+        - Added capability_evaluation::extract_requirements(&SemanticProgram, &SemanticFacts, &StructuralFacts) and capability_evaluation::evaluate_capabilities(&SemanticProgram, &SemanticFacts, &StructuralFacts, &TargetProfile) as pure borrowed-input APIs. Exact-reference evaluation resolves TargetProfileReference through a caller-supplied TargetProfileSet and verifies profile identity, revision, and canonical fingerprint.
+        - Requirement occurrences retain stable NodeId identity, canonical CapabilityId, typed semantic kind, certified capture/reference resolution, structural lookbehind length and bounds, Unicode/category data, assertion polarity, repetition mode, position kind, and case semantics. Requirements contain no target syntax, final capture indices, rewrite instructions, or source traversal identity.
+        - Supported requirement categories cover lookahead; fixed and variable lookbehind; named logical captures; backreferences; Unicode properties, classes, and non-ASCII scalar semantics; atomic groups; lazy and possessive repetition; anchors and word boundaries; and insensitive matching. Empty/structural composition, ASCII-only base matching, wildcard, greedy repetition, and unnamed capture add no special target requirement by themselves.
+        - CapabilityDisposition is exactly Supported, Unsupported, ConstraintViolation, or Unknown. Missing capability records and insufficient or incomparable constraint facts remain Unknown; explicit unavailable records alone become Unsupported; factual native unavailability is not a portability decision and does not preclude a later equivalent rewrite.
+        - Typed equals, at-most, at-least, one-of, and requires-option constraints evaluate exact scalars and units. Lookbehind constraints consume certified fixed, finite-variable, unbounded, or indeterminate length evidence without recomputation. Any proved violation wins, otherwise any unknown constraint remains Unknown, and only all-satisfied constraints produce Supported.
+        - Every result contains the complete requirement, semantic node, immutable target profile reference, engine/runtime version identity, exact capability record or explicit absence, typed constraint facts/evaluations, and factual disposition in deterministic requirement order.
+        - The same semantic requirements evaluated against authored PCRE2 10.42 and 10.43 profiles produce version-sensitive results without engine-name assumptions. PCRE2 10.42 explicitly rejects variable lookbehind; 10.43 evaluates its bound and conservatively retains Unknown when matcher API context is absent. ECMAScript 2024 and Python re 3.11 provide independent native, unavailable, constrained, and unknown evidence.
+        - Added a crate-private first target-aware pipeline after normalization, semantic analysis, structural analysis, safety analysis, and target-neutral diagnostics. It returns diagnostics plus factual capability evaluation only; existing CompileResult behavior remains target-neutral with no portability plan or target artifact.
+    verified:
+        - Four fixed seeds (0x4341504142494c49, 0x9e3779b97f4a7c15, 0xd1b54a32d192ed03, and 0x94d049bb133111eb) generated 256 normalized programs and 2,048 repeated evaluations across four authored profiles. Determinism, completeness, unknown preservation, profile sensitivity, constraint soundness, and input immutability passed; 16 malformed profiles were rejected.
+        - All 169 canonical kernel tests passed with rustfmt, warnings-denied Clippy, warnings-denied cargo check, target-profile fixtures, cross-profile capability fixtures, property certification, pipeline tests, and all prior kernel regressions.
+        - Canonical validation passed 11 schema mappings and 63 fixtures. Controlled architecture tests reject reverse target dependencies, runtime/filesystem/environment probing, direct prerequisite re-execution, emitters, planners, portability policy, bindings, frontends, editors, and engine-specific assumptions.
+        - Repository formatting, hygiene, lint, governed typecheck dispositions, generation, contracts, governance, architecture fitness, frozen baseline validation, aggregate check and certify, TypeScript build/typecheck and all 19 suites with 963 tests, patch integrity, and committed clean-tree verification passed.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - Only the internal canonical Rust kernel gains semantic requirement extraction and factual versioned target capability evaluation.
+        - Canonical contract mapping and architecture fitness now register the stage and enforce the one-way target-neutral-to-target-aware boundary.
+    preserved_behavior:
+        - Existing grammar/parser behavior, runtimes, compilers, target selection, portability decisions, target lowering, regex output, diagnostics, public package APIs, package versions, bindings, Simply, LSP/editor behavior, and published artifacts remain unchanged.
+        - SemanticProgram, SemanticFacts, StructuralFacts, and TargetProfile remain immutable inputs; the stage neither probes installed engines nor mutates prerequisite analysis.
+    transitional_architecture:
+        - The integrated capability pipeline remains crate-private because exposing or migrating a product compiler API is separately governed work.
+        - Existing authored profiles intentionally enumerate incomplete capability information, so unlisted ratified requirements remain explicit Unknown evidence.
+    deferred_work:
+        - Equivalent rewrite planning, portability status decisions, target-specific diagnostics, target lowering, regex emission, automatic remediation, runtime engine probing, parser/binding/Simply/LSP migration, package changes, and publication are not implemented.
+        - The next task is canonical portability planning that transforms factual capability evaluations into native, equivalent_rewrite, or unsupported decisions without emitting target syntax.
+readiness:
+    status: READY
+    next_task: Implement canonical portability planning that transforms factual capability evaluations into native, equivalent_rewrite, or unsupported decisions without yet emitting target syntax.
+    rationale: Stable semantic requirement identity, exact versioned profile authority, complete one-to-one factual results, conservative unknown preservation, typed constraint evidence, deterministic and differential property certification, one-way pipeline integration, and unchanged product behavior leave no known blocker for canonical portability planning.
