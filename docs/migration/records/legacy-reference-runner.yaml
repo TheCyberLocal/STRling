@@ -103,8 +103,16 @@ checkpoints:
             result: passed
             details: Focused tests, Prettier, TypeScript typecheck, canonical/core/public contracts, generated state, documentation integrity for 124 documents, governance, architecture fitness, and patch integrity passed.
     - name: Parser and public API observation
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Direct legacy parser and public API observation
+            command: python3 tooling/legacy_reference/launch.py --check
+            result: passed
+            details: Twenty-two total focused tests passed, including 13 parser/API tests for literals, escapes, character classes, named captures, alternation, repetition, lookaround, directives, malformed syntax, package-root shapes, Simply exact text, unsupported target failure, request immutability, repeatability, and CLI containment.
+          - check: Parser/API checkpoint quality gates
+            command: npx prettier --check tooling/legacy_reference && ruff format --check tooling/legacy_reference/launch.py && ./strling typecheck typescript && ./strling build typescript && ./strling test typescript && python3 tooling/governance.py && python3 tooling/architecture_fitness.py && git diff --check
+            result: passed
+            details: Focused tests, Prettier, Ruff format, TypeScript typecheck/build and all 19 suites with 963 tests, canonical/core/public contracts, generated state, documentation, governance, architecture fitness, source/fixture immutability, and patch integrity passed.
     - name: Compiler and emitter observation
       status: planned
       evidence: []
@@ -120,3 +128,5 @@ checkpoints:
 commits:
     - sha: 4d69585f357157af6464787f20c3986472e3765f
       subject: "docs(migration): define legacy reference runner contract"
+    - sha: 210008566c90533556c30dd8722c7b6b59681ab3
+      subject: "feat(migration): establish legacy reference protocol"
