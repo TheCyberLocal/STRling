@@ -8,6 +8,7 @@ QUALITY_RUNNER="$DIR/tooling/quality.py"
 GENERATED_ARTIFACT_RUNNER="$DIR/tooling/generated_artifacts.py"
 GOVERNANCE_RUNNER="$DIR/tooling/governance.py"
 CONTRACT_RUNNER="$DIR/tooling/public_contracts.py"
+LEGACY_REFERENCE_RUNNER="$DIR/tooling/legacy_reference/launch.py"
 BASELINE_RUNNER="$DIR/tooling/baseline.py"
 
 if ! command -v python3 >/dev/null 2>&1; then
@@ -404,6 +405,7 @@ print_help() {
     echo "  generate [--check] [--json]  Regenerate or verify registered artifacts"
     echo "  governance [--json]          Validate task scope and architecture rules"
     echo "  contracts [--check] [--json] Regenerate or verify public contracts"
+    echo "  legacy-reference [options]   Run isolated historical TypeScript observations"
     echo "  typecheck [lang|all]         Run configured type/static analysis"
     echo "  setup <lang|all>      Install prerequisites and dependencies"
     echo "  build <lang|all>      Build a binding if it has a build step"
@@ -425,6 +427,7 @@ print_help() {
     echo "  ./strling generate --check"
     echo "  ./strling governance"
     echo "  ./strling contracts --check"
+    echo "  ./strling legacy-reference --certify"
     echo "  ./strling check"
     echo "  ./strling profile local"
     echo "  ./strling environment typescript"
@@ -493,6 +496,16 @@ if [[ "$COMMAND" == "baseline" ]]; then
     fi
     cd "$DIR" || exit 1
     python3 "$BASELINE_RUNNER" "${@:2}"
+    exit $?
+fi
+
+if [[ "$COMMAND" == "legacy-reference" ]]; then
+    if [[ ! -f "$LEGACY_REFERENCE_RUNNER" ]]; then
+        echo "Error: legacy-reference runner not found at $LEGACY_REFERENCE_RUNNER"
+        exit 1
+    fi
+    cd "$DIR" || exit 1
+    python3 "$LEGACY_REFERENCE_RUNNER" "${@:2}"
     exit $?
 fi
 

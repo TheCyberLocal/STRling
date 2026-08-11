@@ -555,8 +555,9 @@ class QualityRoutingTests(unittest.TestCase):
                 "generate_check",
                 "documentation_integrity",
                 "governance",
+                "legacy_reference_check",
             ],
-            [member["operation"] for member in local_members[:9]],
+            [member["operation"] for member in local_members[:10]],
         )
         self.assertEqual(
             ["python3", "tooling/security.py", "integrity", "--json"],
@@ -566,7 +567,7 @@ class QualityRoutingTests(unittest.TestCase):
             member for member in local_members if member["operation"] == "test"
         )
         self.assertEqual(["core"], local_test["targets"])
-        self.assertEqual("1.2.0", toolchain.profile("local")["definition_version"])
+        self.assertEqual("1.3.0", toolchain.profile("local")["definition_version"])
 
         self.assertEqual(
             ["python3", "tooling/core_contract_validation.py"],
@@ -576,6 +577,23 @@ class QualityRoutingTests(unittest.TestCase):
             ["python3", "tooling/governance.py"],
             toolchain.operation("governance")["command"],
         )
+        self.assertEqual(
+            [
+                "python3",
+                "tooling/legacy_reference/launch.py",
+                "--check",
+            ],
+            toolchain.operation("legacy_reference_check")["command"],
+        )
+        for profile_id in ["local", "pull-request", "full", "release"]:
+            members = toolchain.profile(profile_id)["operations"]
+            self.assertEqual(
+                1,
+                sum(
+                    member["operation"] == "legacy_reference_check"
+                    for member in members
+                ),
+            )
         full_members = toolchain.profile("full")["operations"]
         assert isinstance(full_members, list)
         full_ids = [member["operation"] for member in full_members]

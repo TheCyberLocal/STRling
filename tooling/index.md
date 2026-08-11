@@ -11,6 +11,7 @@ If you add or change tooling, please update this index so maintainers and CI con
 -   Audit & reporting: `audit_precision.py`, `audit_hints.py`, `audit_omega.py`, `audit_hint_parity.py`
 -   Release helpers: `sync_versions.py`, `check_version_exists.py`
 -   Fixture tooling: `js_to_json_ast/`
+-   Historical evidence: legacy_reference/
 -   Governance hardgates: `baseline.py`, `public_contracts.py`, `contract_declarations.py`, `architecture_fitness.py`, `generated_artifacts.py`, `governance.py`, `sync_fixture_projection.py`
 -   LSP & editor tooling: `lsp-server/`
 -   Utilities: `parse_strl.py`, `generate_c_asts.sh`
@@ -55,6 +56,16 @@ If you add or change tooling, please update this index so maintainers and CI con
 -   `baseline.py` — Validates the frozen certified migration-baseline registry, Git identities and ancestry, governed path-set fingerprints, and cross-record evidence consistency. Exposed as `./strling baseline --check [--json]` and enforced by `check` and `certify`.
 
 -   `generate_c_asts.sh` — Helper script that builds/produces C AST artifacts from parser outputs. Used by C/C++ integration tasks and tests which rely on JSON AST artifacts.
+-   `legacy_reference/` - **Controlled Legacy TypeScript Reference Runner**.
+    Builds the governed TypeScript sources into a temporary directory, invokes
+    parser/compiler/emitter/public API surfaces without changing them, and
+    emits canonical JSON historical observations. It is migration tooling only;
+    its output is non-normative and cannot define compiler or target behavior.
+
+    -   python3 tooling/legacy_reference/launch.py --request request.json
+    -   python3 tooling/legacy_reference/launch.py --corpus
+    -   python3 tooling/legacy_reference/launch.py --certify
+    -   ./strling legacy-reference --check
 
 -   `generated_artifacts.py` — Validates the generated-artifact registry and either regenerates governed outputs or certifies exact committed reproduction without mutating the working tree. Exposed as `./strling generate [--check]`.
 

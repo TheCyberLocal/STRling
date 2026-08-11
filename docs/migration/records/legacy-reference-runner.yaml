@@ -11,12 +11,15 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/legacy-reference-runner.yaml
         - governance/architecture-rules.json
+        - governance/schemas/architecture-rules.schema.json
         - governance/change-control.json
         - strling
         - toolchain.json
         - tooling/index.md
+        - tooling/architecture_fitness.py
         - tooling/legacy_reference/**
         - tooling/tests/test_legacy_reference_architecture.py
+        - tooling/tests/test_quality.py
     forbidden_paths:
         - bindings/typescript/package.json
         - bindings/typescript/src/**
@@ -24,7 +27,15 @@ scope:
         - spec/**
     expected_files:
         - docs/migration/legacy-reference-runner.md
+        - governance/architecture-rules.json
+        - governance/schemas/architecture-rules.schema.json
+        - strling
+        - toolchain.json
+        - tooling/architecture_fitness.py
+        - tooling/index.md
+        - tooling/tests/test_legacy_reference_architecture.py
         - docs/migration/records/legacy-reference-runner.yaml
+        - tooling/tests/test_quality.py
         - governance/change-control.json
         - tooling/legacy_reference/**
     permitted_generated_changes: []
@@ -41,11 +52,16 @@ change_classification:
         level: none
         evidence: []
     public_api_change:
-        level: none
-        evidence: []
+        level: additive
+        evidence:
+            - Adds the engineering-only legacy-reference command to the root tooling CLI without changing package APIs.
+        affected_surfaces:
+            - root-cli
     schema_change:
-        level: none
-        evidence: []
+        level: additive
+        evidence:
+            - Adds the legacy-reference-boundary architecture-rule kind and required configuration without changing product schemas.
+        affected_surfaces: []
     diagnostic_change:
         level: none
         evidence: []
@@ -53,8 +69,9 @@ change_classification:
         level: none
         evidence: []
     architecture_change:
-        level: none
-        evidence: []
+        level: additive
+        evidence:
+            - Adds an offline tooling operation and a mutation-tested boundary preventing normative or product dependency on legacy evidence.
     generated_output_change:
         level: none
         evidence: []
@@ -140,8 +157,20 @@ checkpoints:
             result: passed
             details: Tests prove separate protocol, observation, corpus, batch, and certification version fields; implementation-fingerprint sensitivity to governed input mutation; stable unique case identities; structured malformed containment; and absence of comparison disposition fields or labels.
     - name: Tooling integration and architecture hardgates
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical tooling integration
+            command: python3 tooling/legacy_reference/launch.py --check && python3 -m unittest tooling.tests.test_quality.QualityRoutingTests.test_repository_operations_and_profile_membership_are_canonical -v
+            result: passed
+            details: The offline legacy_reference_check operation is registered exactly once in every governed profile, the root legacy-reference command routes to the same launcher, and the 41 focused tests certify 24 cases, 72 repeated canonical comparisons, and zero mismatches.
+          - check: Architecture authority boundary
+            command: python3 -m unittest tooling.tests.test_legacy_reference_architecture -v && python3 -m unittest tooling.tests.test_governance_contracts -v
+            result: passed
+            details: Five live and controlled-mutation hardgate tests and 11 governance-schema contract tests passed. The rule rejects core or binding dependency on the harness, normative specification dependency on legacy evidence, normative generated outputs sourced from legacy evidence, runner residency under core or spec, and legacy target-capability authority tokens.
+          - check: Affected certification and environment-preserved unavailable gates
+            command: ./strling typecheck typescript; python3 tooling/contract_validation.py; python3 tooling/core_contract_validation.py; python3 tooling/documentation_integrity.py --json; python3 tooling/baseline.py --check; python3 tooling/security.py integrity --json; python3 tooling/security.py content --json
+            result: passed
+            details: Governed Node 22 TypeScript typecheck, canonical and core contracts, documentation integrity for 124 documents, baseline integrity, and both security hardgates passed. The native WSL service then returned Wsl/Service/0x80072747, so the Rust baseline, generated/public contract checks, complete Jest rerun, and local, pull-request, and full profiles are recorded as UNAVAILABLE rather than bypassed or weakened; the last complete TypeScript baseline in this task remains 19 suites and 963 tests at checkpoint 3.
     - name: Reference runner readiness
       status: planned
       evidence: []
@@ -154,3 +183,5 @@ commits:
       subject: "feat(migration): capture legacy parser evidence"
     - sha: 755be2f62f2a2d3c8496ebef9edd1f7c625b560c
       subject: "feat(migration): capture legacy compiler evidence"
+    - sha: 06039a9c5ac3dacfcb82bd4d2de23519703472bc
+      subject: "test(migration): certify legacy reference evidence"

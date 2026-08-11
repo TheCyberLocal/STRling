@@ -536,6 +536,208 @@ def ci_profile_routing_findings(
     return findings
 
 
+def legacy_reference_boundary_findings(
+    root: Path,
+    configuration: Mapping[str, object],
+    artifact_registry: Mapping[str, object],
+    matches_any: Match,
+) -> list[Finding]:
+    """Keep legacy observations outside product and normative authority."""
+
+    consumer_sources = configuration["consumer_sources"]
+    normative_sources = configuration["normative_sources"]
+    runner_sources = configuration["runner_sources"]
+    evidence_markers = configuration["forbidden_evidence_markers"]
+    runner_forbidden_roots = configuration["runner_forbidden_roots"]
+    runner_authority_tokens = configuration["runner_forbidden_authority_tokens"]
+    normative_output_roots = configuration["normative_output_roots"]
+    assert isinstance(consumer_sources, list)
+    assert isinstance(normative_sources, list)
+    assert isinstance(runner_sources, list)
+    assert isinstance(evidence_markers, list)
+    assert isinstance(runner_forbidden_roots, list)
+    assert isinstance(runner_authority_tokens, list)
+    assert isinstance(normative_output_roots, list)
+
+    text_suffixes = (
+        ".c",
+        ".cc",
+        ".cpp",
+        ".cs",
+        ".dart",
+        ".fs",
+        ".go",
+        ".h",
+        ".hpp",
+        ".java",
+        ".js",
+        ".json",
+        ".kt",
+        ".kts",
+        ".lua",
+        ".md",
+        ".mjs",
+        ".php",
+        ".pl",
+        ".pm",
+        ".py",
+        ".r",
+        ".rb",
+        ".rs",
+        ".swift",
+        ".toml",
+        ".ts",
+        ".tsx",
+        ".xml",
+        ".yaml",
+        ".yml",
+    )
+    findings: list[Finding] = []
+    completed = subprocess.run(
+        [
+            "git",
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+        ],
+        cwd=root,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode == 0:
+        candidate_paths = sorted(
+            item.decode("utf-8") for item in completed.stdout.split(b"\0") if item
+        )
+    else:
+        candidate_paths = sorted(
+            path.relative_to(root).as_posix()
+            for path in root.rglob("*")
+            if path.is_file()
+        )
+
+    def selected_files(
+        patterns: Sequence[str], suffixes: tuple[str, ...]
+    ) -> list[tuple[Path, str]]:
+        return [
+            (root / relative, relative)
+            for relative in candidate_paths
+            if Path(relative).suffix.lower() in suffixes
+            and matches_any(relative, patterns)
+        ]
+
+    def read_text(path: Path, relative: str) -> str | None:
+        try:
+            return path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            findings.append(
+                (f"{relative}: cannot inspect authority references: {exc}", relative)
+            )
+            return None
+
+    protected_patterns = [*consumer_sources, *normative_sources]
+    for path, relative in selected_files(protected_patterns, text_suffixes):
+        text = read_text(path, relative)
+        if text is None:
+            continue
+        folded = text.casefold()
+        for marker in evidence_markers:
+            if str(marker).casefold() in folded:
+                findings.append(
+                    (
+                        f"{relative}: product or normative source references "
+                        f"legacy evidence marker {marker}",
+                        relative,
+                    )
+                )
+                break
+
+    root_resolved = root.resolve()
+    string_literal = re.compile(r"""["']([^"'\\]*(?:\\.[^"'\\]*)*)["']""")
+    for path, relative in selected_files(
+        runner_sources, (".cjs", ".js", ".json", ".mjs", ".py")
+    ):
+        text = read_text(path, relative)
+        if text is None:
+            continue
+        folded = text.casefold()
+        for token in runner_authority_tokens:
+            if str(token).casefold() in folded:
+                findings.append(
+                    (
+                        f"{relative}: legacy runner contains forbidden authority "
+                        f"token {token}",
+                        relative,
+                    )
+                )
+        for reference in string_literal.findall(text):
+            normalized = reference.replace("\\\\", "/")
+            for forbidden_root in runner_forbidden_roots:
+                forbidden = str(forbidden_root)
+                direct = normalized == forbidden or normalized.startswith(
+                    forbidden + "/"
+                )
+                resolved_under_forbidden = False
+                if normalized.startswith("."):
+                    resolved = (path.parent / normalized).resolve()
+                    try:
+                        repository_relative = resolved.relative_to(
+                            root_resolved
+                        ).as_posix()
+                    except ValueError:
+                        repository_relative = ""
+                    resolved_under_forbidden = (
+                        repository_relative == forbidden
+                        or repository_relative.startswith(forbidden + "/")
+                    )
+                if direct or resolved_under_forbidden:
+                    findings.append(
+                        (
+                            f"{relative}: legacy runner references forbidden "
+                            f"authority root {forbidden}",
+                            relative,
+                        )
+                    )
+
+    artifacts = artifact_registry.get("artifacts")
+    assert isinstance(artifacts, list)
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            continue
+        outputs = artifact.get("outputs", [])
+        if not isinstance(outputs, list) or not any(
+            isinstance(output, str)
+            and any(
+                output == str(output_root) or output.startswith(str(output_root) + "/")
+                for output_root in normative_output_roots
+            )
+            for output in outputs
+        ):
+            continue
+        relationship = json.dumps(
+            {
+                "authoritative_sources": artifact.get("authoritative_sources", []),
+                "generator": artifact.get("generator", {}),
+                "generator_inputs": artifact.get("generator_inputs", []),
+            },
+            sort_keys=True,
+        ).casefold()
+        for marker in evidence_markers:
+            if str(marker).casefold() in relationship:
+                identifier = artifact.get("id", "<unknown>")
+                findings.append(
+                    (
+                        f"generated artifact {identifier}: normative output depends "
+                        f"on legacy evidence marker {marker}",
+                        None,
+                    )
+                )
+                break
+    return findings
+
+
 def evaluate_extended_rule(
     kind: str,
     *,
@@ -548,6 +750,13 @@ def evaluate_extended_rule(
 ) -> list[Finding] | None:
     if kind == "rust-crate-boundary":
         return rust_crate_boundary_findings(root, configuration, matches_any)
+    if kind == "legacy-reference-boundary":
+        return legacy_reference_boundary_findings(
+            root,
+            configuration,
+            artifact_registry,
+            matches_any,
+        )
     if kind == "forbidden-import":
         return python_import_findings(root, configuration, matches_any)
     if kind == "schema-reference-boundary":

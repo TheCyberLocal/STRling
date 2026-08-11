@@ -153,6 +153,27 @@ compiler contract, and any future comparison schema evolve independently. A
 breaking request or observation change requires a new protocol/schema version;
 a legacy implementation change changes only its implementation fingerprint.
 
+## Tooling integration and architecture hardgates
+
+The root tooling command is ./strling legacy-reference. It delegates directly
+to the isolated Python launcher; it does not add a package entrypoint or
+product dependency. The offline legacy_reference_check operation is registered
+exactly once in the local, pull-request, full, and release profiles. A captured
+legacy failure remains successful runner evidence, while malformed protocol,
+build, load, or certification failure exits nonzero.
+
+The enforced legacy-reference-authority-boundary rule scans tracked and
+untracked repository sources and generated-artifact relationships. It rejects:
+
+-   core or published-binding references to runner paths or observation kinds;
+-   normative-source references to runner paths or observation kinds;
+-   generated normative outputs that depend on runner code or observations;
+-   runner references into the canonical core or normative specification; and
+-   target-artifact, portability-planner, target-profile, or capability
+    authority tokens inside the runner.
+
+Controlled mutation tests cover every branch and the live repository.
+
 ## Reference corpus and certification
 
 The source-authored corpus contains 24 stable cases drawn from existing

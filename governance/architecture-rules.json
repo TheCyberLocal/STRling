@@ -141,6 +141,32 @@
             "retirement_condition": "Replace implementation-derived expected behavior with independently accepted specification-authored conformance contracts and deterministic projections."
         },
         {
+            "id": "legacy-reference-authority-boundary",
+            "description": "Legacy TypeScript observations remain isolated historical evidence and cannot become product, normative, kernel, binding, or target-capability authority.",
+            "status": "enforced",
+            "kind": "legacy-reference-boundary",
+            "configuration": {
+                "consumer_sources": ["core/**", "bindings/**"],
+                "normative_sources": ["spec/**"],
+                "runner_sources": ["tooling/legacy_reference/**"],
+                "forbidden_evidence_markers": [
+                    "tooling/legacy_reference",
+                    "legacy_reference",
+                    "strling.legacy-reference"
+                ],
+                "runner_forbidden_roots": ["core", "spec"],
+                "runner_forbidden_authority_tokens": [
+                    "TargetArtifact",
+                    "PortabilityPlanner",
+                    "portability_planner",
+                    "TargetProfile",
+                    "target_profiles",
+                    "capability_evaluation"
+                ],
+                "normative_output_roots": ["spec"]
+            }
+        },
+        {
             "id": "lsp-python-binding-semantic-dependency",
             "description": "The editor tooling currently reaches STRling semantics through the Python binding and must migrate to the future canonical compiler interface.",
             "status": "transitional",

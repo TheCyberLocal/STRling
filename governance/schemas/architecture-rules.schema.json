@@ -76,6 +76,27 @@
                 },
                 "allowed_authorities": {
                     "$ref": "#/$defs/paths"
+                },
+                "consumer_sources": {
+                    "$ref": "#/$defs/paths"
+                },
+                "normative_sources": {
+                    "$ref": "#/$defs/paths"
+                },
+                "runner_sources": {
+                    "$ref": "#/$defs/paths"
+                },
+                "forbidden_evidence_markers": {
+                    "$ref": "#/$defs/paths"
+                },
+                "runner_forbidden_roots": {
+                    "$ref": "#/$defs/paths"
+                },
+                "runner_forbidden_authority_tokens": {
+                    "$ref": "#/$defs/paths"
+                },
+                "normative_output_roots": {
+                    "$ref": "#/$defs/paths"
                 }
             }
         },
@@ -113,6 +134,7 @@
                         "semantic-island-placement",
                         "artifact-authority-boundary",
                         "ci-profile-routing",
+                        "legacy-reference-boundary",
                         "tracked-transition"
                     ]
                 },
@@ -337,6 +359,31 @@
                         "properties": {
                             "configuration": {
                                 "required": ["tracked_paths"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": {
+                                "const": "legacy-reference-boundary"
+                            }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "consumer_sources",
+                                    "normative_sources",
+                                    "runner_sources",
+                                    "forbidden_evidence_markers",
+                                    "runner_forbidden_roots",
+                                    "runner_forbidden_authority_tokens",
+                                    "normative_output_roots"
+                                ]
                             }
                         }
                     }
