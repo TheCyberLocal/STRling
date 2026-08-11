@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Validation guarantee and standard-library claim contracts
-status: in_progress
+status: complete
 objective: Ratify the smallest truthful validation-guarantee taxonomy and a versioned, machine-enforceable standard-library helper claim contract without changing existing helper, runtime, compiler, safety, portability, rewrite, parser, binding, or target behavior.
 scope:
     diff:
@@ -131,11 +131,19 @@ checkpoints:
             result: passed
             details: Eleven focused tests and seven declared-rule negatives enforce level ceilings, complete evidence correspondence, subset honesty, safety and portability independence, deterministic validation and mutation, duplicate rejection, exact five-helper transitional coverage, and no implicit grandfathering; manifest and index prose now use the ratified vocabulary without changing helper definitions.
     - name: Canonical hardgate certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical profile integration and clean committed-state certification
+            command: ./strling profile local --artifact /tmp/strling-validation-local.json; ./strling profile pull-request --artifact /tmp/strling-validation-pr.json; ./strling profile full --artifact /tmp/strling-validation-full.json; complete formatting, hygiene, lint/static-analysis, typecheck, build, generation, documentation, schema, contract, governance, architecture, public-contract, security, TypeScript, kernel, Rust-binding, controlled-invalid, patch-integrity, and clean-tree matrix
+            result: passed
+            details: At clean checkpoint f9a990b5f6fdc5932bf52b13deacd834f83c35f6, all canonical contract operations passed with 11 schemas, 30 positive fixtures, 33 negative fixtures, nine documents, three standard-library schemas, four standard-library positives, and seven controlled invalid guarantees. All 279 tooling tests, 963 TypeScript tests, 194 kernel tests, and 638 Rust-binding tests passed. Local recorded 16 passed and six unavailable operations; pull-request recorded 36 passed and seven unavailable; full recorded 65 passed and ten unavailable. Every unavailable result retained its existing environment or tooling reason, every artifact recorded the exact clean commit with dirty false, and no aggregate was weakened to PASS.
     - name: Completion and readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Migration record, ledger, carry-forward, unchanged behavior, and source-of-truth handoff
+            command: npx prettier --check docs/migration/ledger.md and python3 tooling/documentation_integrity.py and python3 tooling/contract_validation.py and python3 tooling/governance.py and python3 tooling/architecture_fitness.py and git diff --check and git status --short --branch
+            result: passed
+            details: Recorded the exact taxonomy, structured metadata and standards rules, certified boundary ownership, fixtures and negative cases, clean-state profile evidence, five-helper transition inventory, explicit product preservation, qualified readiness, and the next incomplete Notion task P06-T05.
 commits:
     - sha: e8b0e234bc9524df05439392e12b3fb641a30dbf
       subject: "docs(spec): audit validation guarantee claims"
@@ -145,3 +153,37 @@ commits:
       subject: "feat(spec): define standard library guarantee contracts"
     - sha: 95c675e9ee11078b9803cb9ab57f7b06071ffac0
       subject: "docs(spec): reconcile validation and compiler guarantees"
+    - sha: 2900178593c124f03c5e96ad9c9fc6e77541dc95
+      subject: "test(spec): certify validation guarantee contracts"
+    - sha: f9a990b5f6fdc5932bf52b13deacd834f83c35f6
+      subject: "ci(spec): certify validation guarantee hardgates"
+completion:
+    accomplished:
+        - Ratified the complete validation vocabulary as lexical_shape, normalized_structure, and semantic, with finite claim meaning, required evidence, permissible and prohibited language, explicit runtime-stage requirements, conservative unknown and unsupported handling, and independent standards scope.
+        - Added versioned helper-guarantee and transition-inventory schemas with structured identity, semantic domain, validation definition, stages, external-standard scope, exclusions, performed and omitted checks, target limitations, evidence bindings, documentation claim class, and explicit non-claims for safety and rewrite equivalence.
+        - Reconciled value validation with the existing safety, diagnostic, target capability, portability, and rewrite-proof owners without adding or changing any product semantic decision.
+        - Integrated three positive examples, seven isolated controlled-invalid definitions, the exact five-helper transitional inventory, and focused honesty/determinism tests into the existing canonical contract operation and all canonical certification profiles.
+    verified:
+        - From clean committed checkpoint f9a990b5f6fdc5932bf52b13deacd834f83c35f6, formatting, hygiene, documentation and examples, generation integrity, canonical/core/public contracts, governance, architecture fitness, frozen baseline, security integrity and content/workflow, controlled invalid fixtures, and git diff --check passed; certification left the tree clean.
+        - All 279 tooling tests passed. TypeScript typecheck/build and all 19 suites with 963 tests passed; kernel rustfmt, warnings-denied Clippy, typecheck/build, and all 194 tests passed; Rust-binding typecheck/build and all 638 tests passed.
+        - The local profile recorded 16 passed and six unavailable operations, pull-request recorded 36 passed and seven unavailable, and full recorded 65 passed and ten unavailable. Unavailability remained exact for the current Ruff pin mismatch, Ruby operations, and dependency-risk evidence; both existing security waivers remained explicit.
+        - Canonical contracts passed with 11 schemas, 30 positive fixtures, 33 negative fixtures, nine documents, three standard-library schemas, four standard-library positives including the transition inventory, and seven standard-library negative fixtures. Identical definitions and controlled mutations validated deterministically.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - Normative specification and canonical contract validation now reject unsupported, contradictory, or overstrong standard-library helper guarantee claims.
+        - The existing canonical contract operation now validates the standard-library guarantee schemas, examples, controlled invalid definitions, and transition inventory; no parallel quality runner was added.
+    preserved_behavior:
+        - Pattern matching semantics, the compiler pipeline, Semantic IR, safety detection, portability planning, rewrites, target emission, parser behavior, bindings, public package APIs, package versions, and publication remain unchanged.
+        - Existing helper regexes, ASTs, fixtures, runtime execution, exposed APIs, and target behavior remain unchanged; documentation prose was qualified without auditing or reclassifying helper correctness.
+    transitional_architecture:
+        - The current dateTime, email, ip, url, and uuid helpers are explicitly transitional_unclassified and not_ratified, with no validation guarantee until individual review supplies complete metadata and evidence.
+        - Current environment and tooling limitations remain visible; installed Ruff 0.16.2 differs from required 0.15.21, Ruby operations remain unavailable where recorded, dependency-risk evidence retains unavailable ecosystems and the exact WVR-SEC-NPM-TOOLING-001 and WVR-SEC-VSCE-LICENSE-001 waivers, Node 18 remains transitional, and npm executable governance remains deferred.
+    deferred_work:
+        - Audit every Essential 5 and standard-library helper individually, correct actual semantic false positives, and assign only evidence-backed guarantee metadata.
+        - Implement a canonical standard-library registry if the later architecture requires one, then expose generated binding and frontend metadata without duplicating authority.
+        - Certify cross-target standard-library conformance and any semantics-preserving rewrites through the existing target capability, portability, and rewrite-proof contracts.
+        - Resolve existing environment and security carry-forward through its owning quality and security tasks without weakening profile aggregation.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Complete P06-T05, Expose the pure CompileRequest to CompileResult kernel boundary, by providing the stable embeddable API/protocol, deterministic fingerprints where needed, resource-limit hooks, and property/fuzz smoke tests.
+    rationale: The validation taxonomy, structured claim contract, standards scope, evidence rules, compiler-boundary reconciliation, canonical fixtures, transition inventory, and hardgate integration are complete and no product behavior changed. The five current helpers remain deliberately unratified pending the later helper-by-helper audit, and current tooling and security unavailability remains explicit, so those facts prevent an unqualified READY result without blocking the next incomplete Notion task.

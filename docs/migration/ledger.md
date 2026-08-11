@@ -1942,3 +1942,170 @@ the Notion source of truth is
 currently `Partial`; its recorded remaining work is full ratification of
 standard-library validation guarantees without claiming stronger validation or
 safety than STRling can prove.
+
+## Validation guarantee and standard-library claim contracts
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `f3803225581099c24308ae0d1478bb839769c290`
+-   Behavior change: Normative specification and canonical contract validation only; no existing STRling runtime/compiler behavior intentionally changed
+-   Completion record:
+    [`validation-guarantee-contracts.yaml`](records/validation-guarantee-contracts.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                          | Result | Commit                                     | Verification                                                                                                                                                                                                                                                   |
+| ----------------------------------- | ------ | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Existing guarantee claim audit      | Passed | `e8b0e234bc9524df05439392e12b3fb641a30dbf` | Classified precise, descriptive, ambiguous, overstrong, implementation-specific, and historical claims; documented ambiguity patterns, controlling safety/diagnostic/portability/rewrite contracts, scope lock, later audit ownership, and explicit non-goals  |
+| Validation guarantee taxonomy       | Passed | `a67658b9bd31e7421671389542309fd3c4180ec6` | Ratified three finite guarantee levels, evidence and runtime-stage rules, permissible and prohibited claims, conservative unknown/unsupported behavior, independent target availability, standards scope, and versioning                                       |
+| Standard-library claim contract     | Passed | `ac939201ca5a0b2dcc973dbf4512889496556e0a` | Added schema 1.0.0, three positive examples, and seven isolated invalid mutations covering missing levels, unsupported strict claims, undefined standards scope, contradictory completeness, embedded portability, safety claims, and malformed evidence       |
+| Compiler guarantee reconciliation   | Passed | `95c675e9ee11078b9803cb9ab57f7b06071ffac0` | Kept helper-definition, helper-argument, value-rejection, compiler-semantic, safety, and portability identities separate; preserved certified safety, uncertainty, target, portability, and rewrite-proof ownership                                            |
+| Contract fixtures and documentation | Passed | `2900178593c124f03c5e96ad9c9fc6e77541dc95` | Added the exact five-helper transition inventory, focused honesty/scope/evidence/independence/determinism/soundness tests, canonical contract integration, and qualified stdlib prose without changing helper behavior                                         |
+| Canonical hardgate certification    | Passed | `f9a990b5f6fdc5932bf52b13deacd834f83c35f6` | Proved the standard-library contract suite runs only through the canonical contract operation in all four profiles; completed clean-state repository, contract, security, TypeScript, kernel, Rust-binding, artifact-fidelity, and controlled-invalid evidence |
+| Completion and readiness            | Passed | Recorded by the readiness commit           | Recorded exact taxonomy, metadata and standards rules, guarantee boundaries, mechanical evidence, profile results, carry-forward inventory, unchanged behavior, and the next incomplete Notion task                                                            |
+
+### Guarantee taxonomy
+
+The normative validation-guarantee vocabulary is version `1.0.0` and contains
+exactly three levels:
+
+-   `lexical_shape` proves only that the whole textual input satisfies its
+    declared character, token, delimiter, width, branch, encoding, and
+    anchoring conditions. It does not inherently prove ranges, calendar
+    validity, cross-field relationships, normalization, domain semantics, or
+    external-standard completeness.
+-   `normalized_structure` proves deterministic decomposition into a declared
+    component model plus every listed structural constraint and canonicalization
+    rule. It may prove explicit ranges or relationships, but it does not imply
+    unlisted environmental, business, or domain semantics.
+-   `semantic` proves every and only the semantic conditions enumerated in its
+    versioned definition. Every condition requires an executable deterministic
+    stage and condition-to-evidence correspondence. `strict` is allowed only as
+    the `strict_semantic` documentation class for a claim-eligible semantic
+    definition and adds no conditions by itself.
+
+A regex is sufficient only when it proves every declared condition under the
+exact execution semantics. Parsing, arithmetic, lookup, normalization, or
+cross-field conditions require another deterministic stage when regex execution
+cannot prove them. A required indeterminate stage or missing proof yields
+`unknown` or `unsupported`; it never becomes acceptance, rejection, or an
+implicit weaker guarantee.
+
+No level implies deliverability, existence, authorization, business validity,
+universal correctness, external-standard conformance, ReDoS safety, complexity,
+security, target support, portability, or rewrite equivalence.
+
+### Standard-library claim contract
+
+A governed definition requires structured `kind`, `contract_version`, `status`,
+`helper_id`, `guarantee_id`, `guarantee_version`, `guarantee_level`,
+`accepted_domain`, `validation_definition`, `validator_pipeline`, `standards`,
+`excluded_cases`, `checks`, `target_support`, `safety`, `rewrite_equivalence`,
+`evidence`, `documentation_claim`, and `known_limitations` fields. Cross-field
+validation enforces unique identities, exact condition/check/category coverage,
+resolved stage/check/evidence references, one evidence binding per performed
+check, semantic evidence for semantic checks, standards evidence where required,
+and existing repository-relative evidence targets.
+
+External-standard scope is independent of validation level and is exactly one
+of `none`, `inspired`, `subset`, `profile`, or `complete`. `inspired` claims no
+conformance. `subset` records included and excluded provisions and cannot be
+described as complete. `profile` names its identity, edition, and deviations.
+`complete` requires all applicable requirements of the identified edition and
+conformance target plus complete evidence, and cannot coexist with subset
+exclusions. A citation without structured scope authorizes no conformance claim.
+
+Guarantee definitions are independently versioned. Strengthening a helper from
+shape to structure or semantics, or changing a condition, stage, standard scope,
+exclusion, or omitted check, is an explicit guarantee-contract change rather
+than a silent behavior-strengthening claim.
+
+### Safety, diagnostic, portability, and rewrite boundaries
+
+Validation metadata fixes safety and rewrite-equivalence claims to
+`not_claimed`. It cannot prove universal ReDoS immunity, bounded complexity,
+exploitability, engine-independent security, or safety by stdlib provenance.
+Canonical safety findings and uncertainty remain authoritative and neither
+suppress nor are suppressed by a value-validation result.
+
+Invalid helper metadata, an invalid invocation argument, a runtime input rejected
+by a validator, a compiler semantic error, a safety warning, and a portability
+failure are distinct events with distinct owners and identities. Input rejection
+is ordinarily a helper/runtime result, not a compiler diagnostic. English words
+such as “invalid,” “safe,” and “portable” never merge their structured evidence.
+
+Validation success does not imply target support. Every required validator stage
+must be separately supported for the exact target profile; unsupported stages
+make that exact guarantee unavailable rather than silently weakening it. Only
+the closed rewrite registry and certified portability-planning proof obligations
+may produce `equivalent_rewrite`, and a guarantee survives only when the existing
+proof covers every affected stage and condition.
+
+### Mechanical evidence and clean-state certification
+
+The contract directory contains the helper-guarantee schema, controlled-invalid
+schema, transition-inventory schema, three positive level examples, seven
+single-rule negative definitions, and the exact five-helper transition inventory.
+The canonical contract operation reports 11 schemas, 30 positive fixtures, 33
+negative fixtures, nine documents, three standard-library schemas, four
+standard-library positive documents, and seven standard-library negatives.
+Twelve focused standard-library tests prove guarantee honesty, standards scope,
+strict evidence, safety and portability independence, determinism, schema
+soundness, explicit historical classification, sole-runner ownership, and profile
+membership.
+
+From clean committed checkpoint
+`f9a990b5f6fdc5932bf52b13deacd834f83c35f6`:
+
+| Execution      | Aggregate     | Passed | Unavailable | Failed/incomplete/waived | Exit |
+| -------------- | ------------- | -----: | ----------: | -----------------------: | ---: |
+| `local`        | `UNAVAILABLE` |     16 |           6 |                        0 |    1 |
+| `pull-request` | `UNAVAILABLE` |     36 |           7 |                        0 |    1 |
+| `full`         | `UNAVAILABLE` |     65 |          10 |                        0 |    1 |
+
+All three artifacts recorded that exact commit with `dirty: false`; their stdout
+and retained artifacts were semantically identical, and the canonical contract
+operation passed in each. The six shared unavailable operations are the current
+installed Ruff `0.16.2` versus repository-required `0.15.21` mismatch across
+repository/LSP/Python formatting and linting. Pull-request additionally retains
+Ruby lint as unavailable. Full additionally retains Ruby build/test and
+dependency risk. Nested dependency risk recorded nine passed, four waived, and
+32 unavailable checks, retaining exact waivers `WVR-SEC-NPM-TOOLING-001` and
+`WVR-SEC-VSCE-LICENSE-001`. No aggregate was weakened to force PASS.
+
+All 279 tooling tests passed. TypeScript typecheck/build and all 19 suites with
+963 tests passed. Kernel rustfmt, warnings-denied Clippy, typecheck/build, and all
+194 tests passed. Rust-binding typecheck/build and all 638 tests passed.
+Formatting, hygiene, documentation/examples, generation integrity, canonical,
+core, and public contracts, governance, architecture fitness, frozen baseline,
+security integrity/content, controlled invalid fixtures, and patch integrity
+passed.
+
+### Carry-forward, unchanged behavior, and readiness
+
+The current `dateTime`, `email`, `ip`, `url`, and `uuid` helpers remain
+`transitional_unclassified`, `not_ratified`, and entitled to
+`no_validation_guarantee`. Later work must audit each Essential 5/stdlib helper,
+correct real semantic false positives, implement a canonical registry if still
+needed, expose generated binding/frontend metadata, and certify cross-target
+stdlib conformance. None is silently grandfathered by historical behavior.
+
+Current Ruff and Ruby limitations, unavailable dependency scanners, the two exact
+security waivers, transitional Node 18, and deferred npm executable governance
+remain owned carry-forward. They were not broadened, hidden, or reported as
+passing.
+
+No existing STRling runtime/compiler behavior intentionally changed. Pattern
+matching semantics, the compiler pipeline, Semantic IR, safety detection,
+portability planning, rewrites, target emission, parser behavior, bindings,
+public package APIs, package versions, and publication remain unchanged. Existing
+helper regexes, ASTs, fixtures, runtime execution, and exposed APIs are also
+unchanged.
+
+The result is `READY WITH RECORDED CARRY-FORWARD`. The next incomplete task in
+the Notion source of truth is
+[P06-T05 — Expose the pure CompileRequest to CompileResult kernel boundary](https://app.notion.com/p/3b97d94064758100a198f3d195459a6b),
+currently `Partial`; the remaining work is a stable embeddable boundary,
+deterministic fingerprints where needed, resource-limit hooks, and property/fuzz
+smoke tests.
