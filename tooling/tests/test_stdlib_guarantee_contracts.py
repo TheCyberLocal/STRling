@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import ast
 import copy
 import unittest
 
 from tooling.stdlib_guarantee_contracts import (
+    ROOT,
     STDLIB_EXAMPLE_ROOT,
     STDLIB_INVALID_ROOT,
     STDLIB_TRANSITION_INVENTORY,
@@ -106,6 +108,40 @@ class StandardLibraryGuaranteeContractTests(unittest.TestCase):
     def test_authored_evidence_fingerprint_is_stable_within_a_run(self) -> None:
         self.assertEqual(
             self.suite.evidence_fingerprint(), self.suite.evidence_fingerprint()
+        )
+
+    def test_canonical_quality_operation_owns_all_guarantee_checks(self) -> None:
+        toolchain = load_json(ROOT / "toolchain.json")
+        policy = toolchain["policy"]
+        operation = policy["operation_registry"]["canonical_contracts_check"]
+        self.assertEqual(
+            ["python3", "tooling/contract_validation.py"], operation["command"]
+        )
+        for profile_name in ("local", "pull-request", "full", "release"):
+            operations = {
+                member["operation"]
+                for member in policy["profiles"][profile_name]["operations"]
+            }
+            self.assertIn("canonical_contracts_check", operations)
+
+        tree = ast.parse(
+            (ROOT / "tooling" / "contract_validation.py").read_text(encoding="utf-8")
+        )
+        calls = {
+            node.func.attr
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "stdlib_suite"
+        }
+        self.assertEqual(
+            {
+                "validate_negative_examples",
+                "validate_positive_examples",
+                "validate_suite_structure",
+            },
+            calls,
         )
 
 
