@@ -102,6 +102,35 @@ locked TypeScript toolchain in a temporary directory. Shared orchestration may
 launch both runners, but neither runner may read the other's observations or
 define the other's expected output.
 
++## Shared multi-runner evidence contract
+
+Request protocol `1.0.0` remains unchanged: every request carries the protocol
+version, conceptual operation identifier, operation-owned input and options, and
+the exact historical surface expected for the selected runner. Operation
+validation is now parameterized by a runner-owned surface map. The TypeScript
+map remains the default for backward compatibility; another runner must supply
+its own map and cannot borrow TypeScript's expected surface.
+
+Observation schema, batch schema, and certification schema advance independently
+to `1.1.0` because each envelope now carries a validated runner identity with
+exact `id`, `kind`, `language`, and runner `version` fields. TypeScript runner
+identity is `typescript@1.0.0`. Runner identity is distinct from implementation
+identity: changing shared orchestration changes neither implementation
+fingerprint, while changing governed implementation inputs changes only that
+implementation's fingerprint.
+
+The common observation fields retain the same meaning across runners:
+implementation identity, runner identity, operation and request identity,
+surface, protocol/schema versions, and deterministic outcome. Outcomes may be
+`success`, `legacy_failure`, or `unsupported`. Unsupported means the selected
+historical runner does not expose a faithful operation; it is not an adapter,
+semantic judgment, protocol failure, or claim about another runner. Malformed
+requests and invalid runner identities remain protocol failures.
+
+Runner-specific evidence remains inside the success evidence object. Shared
+fields are not renamed to imitate another language's return shape, and neither
+runner reads another runner's observations or expected results.
+
 ## Checkpoint 1 conclusion
 
 Selected runners are the completed historical TypeScript path and the new

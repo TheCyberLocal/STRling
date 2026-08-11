@@ -110,8 +110,16 @@ checkpoints:
             result: passed
             details: Host Node 24 formatting, documentation integrity across 124 files, architecture fitness, 11 canonical schemas with 30 positive and 33 negative fixtures, and patch integrity passed. Native governance and the WSL command aggregate were unavailable because WSL returned Wsl/Service/0x80072747; the Windows governance attempt reached a known POSIX-path assumption and did not weaken the requirement.
     - name: Shared multi-runner evidence contract
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Runner-parameterized protocol and schema compatibility
+            command: node --test tooling/legacy_reference/tests/protocol.test.mjs
+            result: passed
+            details: Eleven protocol tests passed for the existing request contract, canonical serialization, independent implementation identity, structured failures, explicit TypeScript/Python runner identities, runner-owned operation maps, equal shared observation fields, malformed identity rejection, and unsupported/not-exposed outcomes. Nine isolated TypeScript corpus tests also passed all 24 unchanged cases with three-run determinism under the 1.1.0 envelopes.
+          - check: Contract versioning and available quality gates
+            command: Prettier check; node --check shared modules; architecture_fitness.py; contract_validation.py; git diff --check.
+            result: passed
+            details: Request protocol and TypeScript corpus remain 1.0.0; observation, batch, and certification schemas advance to 1.1.0 for runner provenance. Host formatting, syntax, architecture, canonical contracts, and patch integrity passed; WSL-native aggregation remains unavailable with Wsl/Service/0x80072747.
     - name: Python legacy reference runner
       status: planned
       evidence: []

@@ -2,6 +2,8 @@ import {
     OBSERVATION_KIND,
     OBSERVATION_SCHEMA_VERSION,
     OPERATION_SPECS,
+    RUNNER_KIND,
+    TYPESCRIPT_RUNNER,
     PROTOCOL_FAILURE_KIND,
     PROTOCOL_VERSION,
     REQUEST_KIND,
@@ -35,6 +37,19 @@ export class LegacySurfaceFailure {
 
 export function legacySurfaceFailure(stage, error) {
     return new LegacySurfaceFailure(stage, error);
+}
+
+export class UnsupportedOperation extends Error {
+    constructor(reason) {
+        super(reason);
+        this.name = "LegacyReferenceUnsupportedOperation";
+        this.reason = reason;
+        Object.setPrototypeOf(this, UnsupportedOperation.prototype);
+    }
+}
+
+export function unsupportedOperation(reason) {
+    return new UnsupportedOperation(reason);
 }
 
 function isObject(value) {
@@ -73,6 +88,31 @@ function copyJsonValue(value) {
         return result;
     }
     return value;
+}
+
+export function validateRunnerIdentity(value) {
+    if (!isObject(value)) {
+        throw new ProtocolError(
+            "INVALID_RUNNER_IDENTITY",
+            "runner identity must be an object",
+        );
+    }
+    exactKeys(value, ["id", "kind", "language", "version"], "runner");
+    if (value.kind !== RUNNER_KIND) {
+        throw new ProtocolError(
+            "INVALID_RUNNER_IDENTITY",
+            `runner.kind must be '${RUNNER_KIND}'`,
+        );
+    }
+    for (const field of ["id", "language", "version"]) {
+        if (typeof value[field] !== "string" || value[field].length === 0) {
+            throw new ProtocolError(
+                "INVALID_RUNNER_IDENTITY",
+                `runner.${field} must be a non-empty string`,
+            );
+        }
+    }
+    return copyJsonValue(value);
 }
 
 function validateFlags(value) {
@@ -142,7 +182,7 @@ function validateOptions(options, spec) {
     return normalized;
 }
 
-export function validateRequest(value) {
+export function validateRequest(value, operationSpecs = OPERATION_SPECS) {
     if (!isObject(value)) {
         throw new ProtocolError("INVALID_REQUEST", "request must be an object");
     }
@@ -166,7 +206,7 @@ export function validateRequest(value) {
             "operation must be a string",
         );
     }
-    const spec = OPERATION_SPECS[value.operation];
+    const spec = operationSpecs[value.operation];
     if (spec === undefined) {
         throw new ProtocolError(
             "UNKNOWN_OPERATION",
@@ -254,23 +294,36 @@ export function projectLegacyFailure(error, stage) {
     return failure;
 }
 
-export async function observeRequest(rawRequest, implementation, invoke) {
-    const request = validateRequest(rawRequest);
-    const spec = OPERATION_SPECS[request.operation];
+export async function observeRequest(
+    rawRequest,
+    implementation,
+    invoke,
+    { operationSpecs = OPERATION_SPECS, runner = TYPESCRIPT_RUNNER } = {},
+) {
+    const request = validateRequest(rawRequest, operationSpecs);
+    const spec = operationSpecs[request.operation];
     const requestFingerprint = canonicalFingerprint(request);
+    const validatedRunner = validateRunnerIdentity(runner);
     let outcome;
     try {
         const evidence = await invoke(request);
         outcome = { evidence: copyJsonValue(evidence), status: "success" };
     } catch (caught) {
-        const wrapped =
-            caught instanceof LegacySurfaceFailure
-                ? caught
-                : new LegacySurfaceFailure(spec.stage, caught);
-        outcome = {
-            failure: projectLegacyFailure(wrapped.error, wrapped.stage),
-            status: "legacy_failure",
-        };
+        if (caught instanceof UnsupportedOperation) {
+            outcome = {
+                reason: caught.reason,
+                status: "unsupported",
+            };
+        } else {
+            const wrapped =
+                caught instanceof LegacySurfaceFailure
+                    ? caught
+                    : new LegacySurfaceFailure(spec.stage, caught);
+            outcome = {
+                failure: projectLegacyFailure(wrapped.error, wrapped.stage),
+                status: "legacy_failure",
+            };
+        }
     }
     return {
         implementation,
@@ -284,6 +337,7 @@ export async function observeRequest(rawRequest, implementation, invoke) {
             fingerprint: requestFingerprint,
             value: request,
         },
+        runner: validatedRunner,
         surface: request.expected_legacy_surface,
     };
 }

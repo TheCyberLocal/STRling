@@ -19,9 +19,9 @@ import { observeRequest, ProtocolError, validateRequest } from "./protocol.mjs";
 export const CORPUS_KIND = "strling.legacy-reference-corpus";
 export const CORPUS_VERSION = "1.0.0";
 export const BATCH_KIND = "strling.legacy-reference-batch";
-export const BATCH_SCHEMA_VERSION = "1.0.0";
+export const BATCH_SCHEMA_VERSION = "1.1.0";
 export const CERTIFICATION_KIND = "strling.legacy-reference-certification";
-export const CERTIFICATION_SCHEMA_VERSION = "1.0.0";
+export const CERTIFICATION_SCHEMA_VERSION = "1.1.0";
 export const DEFAULT_CORPUS_PATH = fileURLToPath(
     new URL("./corpus.json", import.meta.url),
 );
@@ -246,6 +246,7 @@ export async function executeCorpus({ corpus, implementation, invoke }) {
         observation_schema_version: OBSERVATION_SCHEMA_VERSION,
         observations,
         protocol_version: PROTOCOL_VERSION,
+        runner: observations[0].observation.runner,
     };
 }
 
@@ -310,11 +311,11 @@ export async function certifyCorpus({
     }
 
     const first = batches[0];
-    const outcomeCounts = { legacy_failure: 0, success: 0 };
+    const outcomeCounts = {};
     const operationCounts = {};
     for (const entry of first.observations) {
         const status = entry.observation.outcome.status;
-        outcomeCounts[status] += 1;
+        outcomeCounts[status] = (outcomeCounts[status] ?? 0) + 1;
         const operation = entry.observation.operation;
         operationCounts[operation] = (operationCounts[operation] ?? 0) + 1;
     }
@@ -344,6 +345,7 @@ export async function certifyCorpus({
         operation_counts: operationCounts,
         outcome_counts: outcomeCounts,
         protocol_version: PROTOCOL_VERSION,
+        runner: first.runner,
         repeatability: {
             canonical_batches_compared: repeatRuns,
             canonical_observations_compared:

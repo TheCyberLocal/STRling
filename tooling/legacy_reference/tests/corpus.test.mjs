@@ -18,6 +18,7 @@ import {
     OBSERVATION_SCHEMA_VERSION,
     OPERATION_IDS,
     PROTOCOL_VERSION,
+    TYPESCRIPT_RUNNER,
 } from "../constants.mjs";
 
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
@@ -51,10 +52,10 @@ test("focused corpus has 24 stable cases and covers every operation class", () =
 
 test("protocol, observations, corpus, batch, and certification version independently", () => {
     assert.equal(PROTOCOL_VERSION, "1.0.0");
-    assert.equal(OBSERVATION_SCHEMA_VERSION, "1.0.0");
+    assert.equal(OBSERVATION_SCHEMA_VERSION, "1.1.0");
     assert.equal(CORPUS_VERSION, "1.0.0");
-    assert.equal(BATCH_SCHEMA_VERSION, "1.0.0");
-    assert.equal(CERTIFICATION_SCHEMA_VERSION, "1.0.0");
+    assert.equal(BATCH_SCHEMA_VERSION, "1.1.0");
+    assert.equal(CERTIFICATION_SCHEMA_VERSION, "1.1.0");
     assert.equal(certification.protocol_version, PROTOCOL_VERSION);
     assert.equal(
         certification.observation_schema_version,
@@ -80,6 +81,8 @@ test("three full runs produce equivalent canonical observations", () => {
 test("batch execution itself is byte-identical", () => {
     assert.equal(serializeBatch(firstBatch), serializeBatch(secondBatch));
     assert.equal(firstBatch.observations.length, 24);
+    assert.deepEqual(firstBatch.runner, TYPESCRIPT_RUNNER);
+    assert.deepEqual(certification.runner, TYPESCRIPT_RUNNER);
 });
 
 test("each case identity and observation fingerprint is unique", () => {

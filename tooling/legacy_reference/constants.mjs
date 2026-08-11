@@ -1,9 +1,17 @@
 export const PROTOCOL_VERSION = "1.0.0";
-export const OBSERVATION_SCHEMA_VERSION = "1.0.0";
+export const OBSERVATION_SCHEMA_VERSION = "1.1.0";
 export const REQUEST_KIND = "strling.legacy-reference-request";
 export const OBSERVATION_KIND = "strling.legacy-reference-observation";
 export const PROTOCOL_FAILURE_KIND =
     "strling.legacy-reference-protocol-failure";
+
+export const RUNNER_KIND = "strling.legacy-reference-runner";
+export const TYPESCRIPT_RUNNER = Object.freeze({
+    id: "typescript",
+    kind: RUNNER_KIND,
+    language: "typescript",
+    version: "1.0.0",
+});
 
 export const OPERATION_SPECS = Object.freeze({
     "parser.parse": Object.freeze({

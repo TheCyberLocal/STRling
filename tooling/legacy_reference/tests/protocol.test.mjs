@@ -7,6 +7,7 @@ import {
     OPERATION_SPECS,
     PROTOCOL_VERSION,
     REQUEST_KIND,
+    TYPESCRIPT_RUNNER,
 } from "../constants.mjs";
 import {
     createImplementationIdentity,
@@ -16,11 +17,27 @@ import {
     observeRequest,
     ProtocolError,
     serializeObservation,
+    unsupportedOperation,
+    validateRunnerIdentity,
     validateRequest,
 } from "../protocol.mjs";
 
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 
+const PYTHON_RUNNER = Object.freeze({
+    id: "python",
+    kind: TYPESCRIPT_RUNNER.kind,
+    language: "python",
+    version: "1.0.0",
+});
+const PYTHON_OPERATION_SPECS = Object.freeze({
+    "parser.parse": Object.freeze({
+        input: "source",
+        options: Object.freeze([]),
+        stage: "parser",
+        surface: "python.core.parser.parse",
+    }),
+});
 function request(overrides = {}) {
     return {
         expected_legacy_surface: OPERATION_SPECS["parser.parse"].surface,
@@ -177,4 +194,70 @@ test("legacy failure is structured and stack-free", async () => {
         stage: "parser",
     });
     assert.equal(Object.hasOwn(observation.outcome.failure, "stack"), false);
+});
+
+test("runner identity and operation maps are independently validated", async () => {
+    const pythonRequest = request({
+        expected_legacy_surface: PYTHON_OPERATION_SPECS["parser.parse"].surface,
+    });
+    assert.deepEqual(
+        validateRequest(pythonRequest, PYTHON_OPERATION_SPECS),
+        pythonRequest,
+    );
+    assert.throws(
+        () => validateRequest(pythonRequest),
+        (error) =>
+            error instanceof ProtocolError && error.code === "SURFACE_MISMATCH",
+    );
+    assert.deepEqual(validateRunnerIdentity(PYTHON_RUNNER), PYTHON_RUNNER);
+    assert.throws(
+        () => validateRunnerIdentity({ ...PYTHON_RUNNER, authority: true }),
+        (error) =>
+            error instanceof ProtocolError && error.code === "INVALID_SHAPE",
+    );
+
+    const implementation = { fingerprint: "sha256:" + "2".repeat(64) };
+    const typescriptObservation = await observeRequest(
+        request(),
+        implementation,
+        () => ({ runtime: "typescript" }),
+    );
+    const pythonObservation = await observeRequest(
+        pythonRequest,
+        implementation,
+        () => ({ runtime: "python" }),
+        {
+            operationSpecs: PYTHON_OPERATION_SPECS,
+            runner: PYTHON_RUNNER,
+        },
+    );
+    assert.deepEqual(
+        Object.keys(pythonObservation).sort(),
+        Object.keys(typescriptObservation).sort(),
+    );
+    assert.deepEqual(typescriptObservation.runner, TYPESCRIPT_RUNNER);
+    assert.deepEqual(pythonObservation.runner, PYTHON_RUNNER);
+});
+
+test("not-exposed operations are observations rather than fabricated calls", async () => {
+    const observation = await observeRequest(
+        request({
+            expected_legacy_surface:
+                PYTHON_OPERATION_SPECS["parser.parse"].surface,
+        }),
+        { fingerprint: "sha256:" + "3".repeat(64) },
+        () => {
+            throw unsupportedOperation(
+                "the historical Python package root does not expose parse",
+            );
+        },
+        {
+            operationSpecs: PYTHON_OPERATION_SPECS,
+            runner: PYTHON_RUNNER,
+        },
+    );
+    assert.deepEqual(observation.outcome, {
+        reason: "the historical Python package root does not expose parse",
+        status: "unsupported",
+    });
 });
