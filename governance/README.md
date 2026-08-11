@@ -19,6 +19,9 @@ work; they do not define STRling language syntax or semantics.
 -   [`../spec/README.md`](../spec/README.md) classifies current specification
     material, while [`../spec/VERSIONING.md`](../spec/VERSIONING.md) defines
     independent semantic specification versioning.
+-   [`certification-profiles.md`](certification-profiles.md) defines stable
+    repository certification identities, aggregation, evidence ownership, and
+    profile-evolution rules.
 
 ## Machine-readable contracts
 

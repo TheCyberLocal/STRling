@@ -1,0 +1,154 @@
+# Certification profile architecture
+
+## Authority and scope
+
+This document defines STRling's stable repository certification profiles and
+their evidence contract. It governs engineering validation and does not define
+STRling language, compiler, runtime, target, or package behavior.
+
+`toolchain.json` is the machine-readable authority for the canonical operation
+registry and ordered profile definitions. `tooling/quality.py` is the single
+executor and result aggregator. The certification artifact schema governs the
+durable machine-readable projection of an execution. Human output is a view of
+that same structured evidence, never an independent certification authority.
+
+The existing `check` and `certify` commands remain compatibility entry points.
+They resolve to governed profiles rather than maintaining separate aggregate
+implementations. GitHub Actions must use the same profile selection path.
+
+## Canonical operation identity
+
+A canonical operation has one stable registry ID, one implementation kind, one
+network classification, and one structured-result policy. Component-capable
+operations delegate to the existing per-component capability and command in
+`toolchain.json`. Repository operations declare their command directly in the
+registry. Neither a profile nor a workflow may redefine an operation command or
+interpret its stdout as certification evidence.
+
+An executed result is identified by the canonical operation ID and component.
+The pair is unique within one profile execution. Ordering is significant and is
+resolved only from the requested profile's ordered membership followed by each
+member's declared target order. Repository operations produce one repository
+result. Component operations produce one result per resolved target.
+
+## Stable profiles
+
+The following identities and purposes are permanent even as their governed
+operation sets ratchet forward:
+
+| Profile        | Purpose                                                                                                                                                        | Network policy                                                                                                                    |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `local`        | Fast, deterministic developer feedback from offline-capable baseline operations.                                                                               | Network-backed operations are forbidden.                                                                                          |
+| `pull-request` | Merge confidence, including every local guarantee plus applicable tests, generated-state checks, and documentation/example integrity.                          | Network-backed operations are forbidden unless a later explicit policy revision can make them deterministic and least-privileged. |
+| `full`         | Broad repository certification across the currently governed component and environment envelope.                                                               | Governed network operations are permitted and remain unavailable when their authoritative environment is absent.                  |
+| `release`      | The highest currently implemented pre-release envelope and the stable destination for later packaging, real-engine, provenance, adapter, and clean-room gates. | Governed network operations are permitted; release publication is outside this profile.                                           |
+
+The release identity does not assert release readiness. A defined but
+unimplemented or unavailable required member makes the result incomplete or
+unavailable. Until a release-only capability exists, `release` may share the
+same operation envelope as `full` while retaining a distinct identity and
+fingerprint.
+
+## Membership and ordering
+
+Profile membership is declared only in the central profile definitions. A
+profile entry references a canonical operation and, for component operations,
+an ordered default target set. Duplicate operation entries, unknown operations,
+duplicate targets, targets outside the component inventory, or a network member
+forbidden by the profile are configuration errors.
+
+Profiles do not contain commands or semantic result logic. Membership means the
+canonical operation executes with its canonical result contract. Every selected
+member is required unless a future contract explicitly introduces and names a
+different requirement class. `not_applicable` is an explicit completed result,
+not an omitted member.
+
+The declared array order is the execution and artifact order. Filesystem,
+mapping, set, locale, completion-time, and workflow-matrix ordering must not
+affect it.
+
+## Component scope and mandatory gates
+
+An omitted component uses the profile member's declared target list. An
+explicit component selects that target for each compatible component operation.
+`all` selects the complete canonical target inventory in deterministic order.
+
+Repository-scoped operations are mandatory global gates. They execute once in
+their profile position regardless of component selection. Component selection
+cannot remove, replace, or reinterpret them. An unknown component or an
+incompatible profile/operation selection is a configuration error rather than
+a partial execution.
+
+## Result states and aggregation
+
+Operation results preserve the existing governed states:
+
+-   `passed`: the operation completed without a blocking finding;
+-   `failed`: execution or governed evidence found a blocking failure;
+-   `waived`: every otherwise-blocking finding is covered by an exact active
+    waiver, with waiver identity retained;
+-   `unavailable`: a required tool, environment, scanner, advisory source, or
+    other authoritative capability could not execute;
+-   `incomplete`: evidence is malformed, contradictory, or insufficient for the
+    operation contract;
+-   `not_applicable`: the operation deliberately has no meaningful action for the
+    selected component;
+-   `not_yet_configured` and `not_yet_enforceable`: the declared capability does
+    not yet provide certifying evidence.
+
+Aggregate precedence is:
+
+```text
+failed > incomplete > unavailable > waived > passed
+```
+
+`not_yet_configured` and `not_yet_enforceable` contribute `incomplete` to a
+profile aggregate. `not_applicable` is neutral but remains visible in evidence.
+An aggregate is `passed` only when every applicable required member passed.
+`waived` is successful for process-exit purposes but remains distinct from
+`passed`. `failed`, `incomplete`, and required `unavailable` are nonzero and
+can never be converted to success by a profile, component selection, summary,
+artifact upload, or workflow setting.
+
+## Certification artifact ownership
+
+The executor constructs the certification artifact directly from the exact
+ordered `OperationResult` sequence used to compute aggregate status and process
+exit. The artifact records repository commit and dirty state, profile identity
+and definition fingerprint, component scope, operation identities and results,
+tool/environment evidence, findings, waiver references, unavailable/incomplete
+reasons, counts, and aggregate status.
+
+Deterministic evidence is isolated from execution-instance metadata such as a
+timestamp or machine description. A deterministic fingerprint covers only the
+canonical deterministic evidence projection. Timestamps and local paths must
+not change profile identity or evidence fingerprints.
+
+Artifact generation does not scan stdout. An operation with a nested structured
+contract, including security, must validate that contract, operation identity,
+status, and exit code before its evidence is accepted. Artifact schema
+validation is mechanical.
+
+## Human-summary ownership
+
+The human-readable summary is rendered from the completed certification
+artifact/result model. It reports profile, repository state, aggregate result,
+passed and failed operations, waived findings, unavailable or incomplete
+operations, and the relevant next action. There is no second result-counting or
+status-derivation path.
+
+## Profile evolution
+
+Future work adds a canonical operation to the registry, tests its result
+contract, and appends its ID to the appropriate ordered profiles. It does not
+change the executor, aggregate precedence, artifact contract, component bypass
+rules, or stable profile meanings.
+
+Profile definitions carry a version and deterministic fingerprint. Membership,
+ordering, target scope, requirement, or network-policy changes advance the
+definition version and fingerprint. Implementation refactoring that preserves
+those fields does not. Later phases may ratchet a profile only toward its stated
+purpose: local remains bounded and offline-capable; pull-request retains local
+guarantees; full remains broad; release remains the highest pre-release
+envelope. Removing a gate requires an explicit governed policy change and may
+not be hidden in CI.

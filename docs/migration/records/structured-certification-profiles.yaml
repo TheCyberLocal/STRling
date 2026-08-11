@@ -1,0 +1,135 @@
+record_version: 2.0.0
+title: Structured certification profiles
+status: in_progress
+objective: Establish stable local, pull-request, full, and release execution policies over STRling's canonical quality operations, with deterministic structured certification artifacts and CI routing that preserve fail-closed result semantics without changing product behavior.
+scope:
+    diff:
+        base: 77d9a9b2b54dbbc66369cc16186ea36f0fad78c3
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/**
+        - docs/ci_cd_setup.md
+        - docs/migration/**
+        - docs/toolchains.md
+        - governance/README.md
+        - governance/certification-profiles.md
+        - governance/change-control.json
+        - governance/public-surfaces.json
+        - governance/contracts/snapshots/root-cli.json
+        - governance/schemas/**
+        - strling
+        - strling.ps1
+        - toolchain.json
+        - tooling/documentation_integrity.py
+        - tooling/quality.py
+        - tooling/tests/**
+    forbidden_paths:
+        - bindings/**
+        - core/src/**
+        - core/tests/**
+        - package.json
+        - package-lock.json
+        - spec/**
+        - tests/**
+    expected_files:
+        - docs/migration/records/structured-certification-profiles.yaml
+        - governance/certification-profiles.md
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions:
+        - WVR-SEC-NPM-TOOLING-001
+        - WVR-SEC-VSCE-LICENSE-001
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Adds a machine-readable certification artifact schema without changing product schemas.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Centralizes canonical operation identity, profile membership, deterministic execution, artifact ownership, and CI routing in the existing root quality architecture.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Profile and artifact contracts
+      command: python3 -m unittest tooling.tests.test_quality tooling.tests.test_documentation_integrity -v
+      expected_result: Profile selection, ordering, aggregation, artifact fidelity, schemas, fixtures, summaries, documentation integrity, controlled negatives, and immutability pass.
+    - name: Canonical repository quality
+      command: ./strling profile local and ./strling profile pull-request
+      expected_result: Offline developer and merge profiles execute the same canonical operations with truthful structured results.
+    - name: Broad certification
+      command: ./strling profile full and ./strling profile release
+      expected_result: Broad and release envelopes execute completely where supported and retain unavailable or incomplete required evidence as non-passing.
+    - name: Existing compatibility commands
+      command: ./strling check and ./strling certify
+      expected_result: Existing commands resolve through the governed profile executor and preserve fail-closed behavior.
+    - name: Product preservation
+      command: git diff 77d9a9b2b54dbbc66369cc16186ea36f0fad78c3...HEAD -- bindings core/src core/tests spec tests package.json package-lock.json
+      expected_result: No product implementation, language contract, package version, or publication artifact changes.
+    - name: Repository integrity
+      command: python3 tooling/governance.py and git diff --check
+      expected_result: Declared scope, contracts, architecture rules, and patch integrity pass.
+checkpoints:
+    - name: Profile and certification contract
+      status: passed
+      evidence:
+          - check: Profile architecture contract
+            result: passed
+            details: Defined canonical operation identity, four stable profile purposes, centralized membership and ordering, component scope with mandatory global gates, offline and network policy, result ownership, deterministic evidence boundaries, and ratchet rules without implementing execution.
+          - check: Result aggregation contract
+            result: passed
+            details: Preserved passed, failed, waived, unavailable, incomplete, not-applicable, not-yet-configured, and not-yet-enforceable evidence; defined failed then incomplete then unavailable then waived then passed precedence and prohibited false success for required unavailable evidence.
+          - check: Formatting and patch integrity
+            command: ./strling format --check repository --json and git diff --check
+            result: passed
+            details: Canonical Prettier 3.3.3 and Ruff 0.15.21 checks passed and the patch contains no whitespace errors.
+          - check: Governance, contracts, and architecture fitness
+            command: python3 tooling/governance.py --json; ./strling contracts --check --json; python3 tooling/architecture_fitness.py
+            result: passed
+            details: Task scope, declarations, public contracts, and all enforced architecture rules passed; recorded transitional and future architecture findings remain explicit.
+          - check: Structured result baseline
+            command: python3 -m unittest tooling.tests.test_quality -v
+            result: passed
+            details: All 42 existing routing, environment, hardgate, unavailable, incomplete, and structured-security result tests passed.
+    - name: Canonical profile selection and execution
+      status: planned
+      evidence: []
+    - name: Structured certification artifact
+      status: planned
+      evidence: []
+    - name: Documentation and example integrity
+      status: planned
+      evidence: []
+    - name: CI profile routing
+      status: planned
+      evidence: []
+    - name: Profile certification and hardgates
+      status: planned
+      evidence: []
+    - name: Completion and phase readiness
+      status: planned
+      evidence: []
+commits: []
