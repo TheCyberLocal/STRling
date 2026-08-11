@@ -1,0 +1,71 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/security-result.schema.json",
+    "title": "STRling repository security operation result",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema_version", "operation_id", "status", "engine", "network_mode", "checks", "summary"],
+    "properties": {
+        "schema_version": {"const": "1.0.0"},
+        "operation_id": {"type": "string", "pattern": "^security\\.[a-z0-9_.-]+$"},
+        "status": {"$ref": "#/$defs/status"},
+        "engine": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "version"],
+            "properties": {"name": {"type": "string"}, "version": {"type": "string"}}
+        },
+        "network_mode": {"enum": ["local", "network"]},
+        "checks": {"type": "array", "items": {"$ref": "#/$defs/check"}},
+        "summary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["passed", "failed", "waived", "unavailable", "incomplete"],
+            "properties": {
+                "passed": {"type": "integer", "minimum": 0},
+                "failed": {"type": "integer", "minimum": 0},
+                "waived": {"type": "integer", "minimum": 0},
+                "unavailable": {"type": "integer", "minimum": 0},
+                "incomplete": {"type": "integer", "minimum": 0}
+            }
+        },
+        "advisory_metadata": {"type": "object"}
+    },
+    "$defs": {
+        "status": {"enum": ["passed", "failed", "waived", "unavailable", "incomplete"]},
+        "pathList": {"type": "array", "items": {"type": "string"}},
+        "finding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "message"],
+            "properties": {
+                "code": {"type": "string", "pattern": "^SEC-[A-Z0-9-]+$"},
+                "message": {"type": "string", "minLength": 1},
+                "path": {"type": "string"},
+                "line": {"type": "integer", "minimum": 1},
+                "package": {"type": "string"},
+                "version": {"type": "string"},
+                "advisory": {"type": "string"},
+                "severity": {"type": "string"},
+                "license": {"type": "string"},
+                "waiver_id": {"type": "string", "pattern": "^WVR-[A-Z0-9][A-Z0-9._-]{2,63}$"}
+            }
+        },
+        "check": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["check_id", "category", "status", "inputs", "finding_codes", "findings"],
+            "properties": {
+                "check_id": {"type": "string", "pattern": "^security\\.[a-z0-9_.-]+$"},
+                "category": {"enum": ["dependency_integrity", "secret", "workflow", "vulnerability", "license", "waiver"]},
+                "ecosystem": {"type": "string"},
+                "status": {"$ref": "#/$defs/status"},
+                "inputs": {"$ref": "#/$defs/pathList"},
+                "finding_codes": {"type": "array", "items": {"type": "string", "pattern": "^SEC-[A-Z0-9-]+$"}, "uniqueItems": true},
+                "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+                "unavailable_reason": {"type": "string"},
+                "scanner": {"type": "object"}
+            }
+        }
+    }
+}

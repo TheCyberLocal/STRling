@@ -1,0 +1,138 @@
+record_version: 2.0.0
+title: Baseline repository security hardgates
+status: in_progress
+objective: Establish deterministic repository security and supply-chain hardgates for dependency integrity, dependency risk, tracked secrets, workflow least privilege, and bounded security exceptions without changing STRling product behavior.
+scope:
+    diff:
+        base: cb5c92c975d1820c50234babecbe0b3e08a7fee0
+        head: working-tree
+    allowed_paths:
+        - .github/workflows/**
+        - docs/migration/**
+        - docs/security.md
+        - governance/README.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/security-policy.json
+        - governance/security.md
+        - governance/schemas/**
+        - governance/templates/**
+        - governance/waivers/**
+        - strling
+        - strling.ps1
+        - toolchain.json
+        - tooling/quality.py
+        - tooling/security.py
+        - tooling/tests/**
+    forbidden_paths:
+        - bindings/**
+        - core/src/**
+        - core/tests/**
+        - package.json
+        - package-lock.json
+        - spec/**
+        - tests/**
+    expected_files:
+        - docs/migration/records/baseline-repository-security.yaml
+        - governance/security-policy.json
+        - governance/security.md
+        - governance/schemas/security-policy.schema.json
+        - governance/schemas/security-result.schema.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Adds repository-security policy and operation-result schemas without changing product schemas.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Extends the canonical quality hardgate architecture with repository-security operations and a semantic dependency boundary.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Security contract validation
+      command: python3 -m json.tool governance/security-policy.json and Draft 2020-12 schema validation
+      expected_result: Normative policy and structured-result contracts validate.
+    - name: Focused security certification
+      command: python3 -m unittest tooling.tests.test_security -v
+      expected_result: Positive, controlled-negative, determinism, no-false-pass, waiver, fixture-safety, and immutability properties pass.
+    - name: Canonical quality integration
+      command: ./strling check --json and ./strling certify --json
+      expected_result: Local and CI paths invoke the same security implementations and preserve exact non-pass states.
+    - name: Repository governance
+      command: python3 tooling/governance.py
+      expected_result: Declared scope, schemas, and architecture rules pass.
+    - name: Product preservation
+      command: git diff cb5c92c975d1820c50234babecbe0b3e08a7fee0...HEAD -- bindings core/src core/tests spec tests package.json package-lock.json
+      expected_result: No product implementation, product contract, package-version, or release artifact changed.
+    - name: Patch integrity
+      command: git diff --check
+      expected_result: No whitespace errors are present.
+checkpoints:
+    - name: Security contract and repository inventory
+      status: passed
+      evidence:
+          - check: Repository security inventory
+            command: Tracked manifest, lockfile, workflow, action, permission, secret-use, waiver, toolchain, and quality-contract inspection
+            result: passed
+            details: Inventoried 22 dependency roots across npm, Cargo, Dart Pub, Composer, Bundler, Go, SwiftPM, NuGet, Maven, Gradle, Python, LuaRocks, CPAN, R, C, and C++; classified runtime and tooling-only use, lock policy, integrity mode, and advisory mode; inspected two workflows and 16 unique action references.
+          - check: Security contract validation
+            command: Draft 2020-12 validation of governance/security-policy.json and both new security schemas
+            result: passed
+            details: The normative inventory, pinned repository security engine identity, five result states, blocking semantics, dependency risk policy, license classifications, workflow rules, and structured-result contract validated.
+          - check: Canonical architecture fit
+            command: python3 tooling/governance.py --json; ./strling contracts --check --json
+            result: passed
+            details: Task scope, change declarations, existing architecture rules, and public contracts passed; the design delegates through existing root hardgates and has no product-semantic dependency.
+          - check: Formatting and patch integrity
+            command: ./strling format --check repository --json; git diff --check
+            result: passed
+            details: Prettier 3.3.3 and Ruff 0.15.21 passed through the governed virtual environment, and no whitespace errors remained. An initial shell lacking Ruff correctly reported unavailable and was not represented as a pass.
+          - check: Coverage boundaries
+            result: passed
+            details: Lock-complete roots, transitional unlocked ecosystems, network-dependent advisory evidence, missing local cargo-audit, and non-goals for SBOM, provenance, signing, publication credentials, and release delivery are explicit rather than certified.
+    - name: Dependency and lock integrity
+      status: planned
+      evidence: []
+    - name: Secret and workflow security
+      status: planned
+      evidence: []
+    - name: Vulnerability and license policy
+      status: planned
+      evidence: []
+    - name: Security waivers and certification properties
+      status: planned
+      evidence: []
+    - name: Root command CI and hardgate integration
+      status: planned
+      evidence: []
+    - name: Security baseline readiness
+      status: planned
+      evidence: []
+commits: []

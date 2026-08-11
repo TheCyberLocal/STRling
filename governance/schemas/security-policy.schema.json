@@ -1,0 +1,54 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/security-policy.schema.json",
+    "title": "STRling baseline repository security policy",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["policy_version", "engine", "result_schema", "waiver_schema", "statuses", "blocking_statuses", "dependency_roots", "manifest_names", "manifest_suffixes", "dependency_rules", "vulnerability_policy", "license_policy", "workflow_policy"],
+    "properties": {
+        "policy_version": {"const": 1},
+        "engine": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "version"],
+            "properties": {
+                "name": {"const": "strling-repository-security"},
+                "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"}
+            }
+        },
+        "result_schema": {"const": "governance/schemas/security-result.schema.json"},
+        "waiver_schema": {"const": "governance/schemas/waiver.schema.json"},
+        "statuses": {"type": "array", "const": ["passed", "failed", "waived", "unavailable", "incomplete"]},
+        "blocking_statuses": {"type": "array", "const": ["failed", "unavailable", "incomplete"]},
+        "dependency_roots": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"$ref": "#/$defs/dependencyRoot"}
+        },
+        "manifest_names": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "manifest_suffixes": {"type": "array", "items": {"type": "string", "pattern": "^\\."}, "uniqueItems": true},
+        "dependency_rules": {"type": "object"},
+        "vulnerability_policy": {"type": "object"},
+        "license_policy": {"type": "object"},
+        "workflow_policy": {"type": "object"}
+    },
+    "$defs": {
+        "pathList": {"type": "array", "items": {"type": "string", "pattern": "^(?!/)(?!.*\\\\).+$"}, "uniqueItems": true},
+        "dependencyRoot": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "ecosystem", "classification", "usage", "manifests", "locks", "lock_policy", "integrity_mode", "risk_mode"],
+            "properties": {
+                "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]+$"},
+                "ecosystem": {"type": "string", "minLength": 1},
+                "classification": {"enum": ["actively_governed", "transitional", "unavailable"]},
+                "usage": {"enum": ["runtime", "tooling_only"]},
+                "manifests": {"$ref": "#/$defs/pathList"},
+                "locks": {"$ref": "#/$defs/pathList"},
+                "lock_policy": {"type": "string", "minLength": 1},
+                "integrity_mode": {"type": "string", "minLength": 1},
+                "risk_mode": {"type": "string", "minLength": 1}
+            }
+        }
+    }
+}
