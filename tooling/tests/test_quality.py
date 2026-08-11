@@ -553,9 +553,10 @@ class QualityRoutingTests(unittest.TestCase):
                 "core_contracts_check",
                 "contracts_check",
                 "generate_check",
+                "documentation_integrity",
                 "governance",
             ],
-            [member["operation"] for member in local_members[:8]],
+            [member["operation"] for member in local_members[:9]],
         )
         self.assertEqual(
             ["python3", "tooling/security.py", "integrity", "--json"],
@@ -623,6 +624,30 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual("incomplete", result.status)
         self.assertIsNone(result.structured_result)
         self.assertEqual(1, _profile_exit([result]))
+
+    def test_structured_documentation_operation_preserves_result(self) -> None:
+        data = policy()
+        definition = {
+            "kind": "repository",
+            "component": "alpha",
+            "command": ["fixture-documentation", "--json"],
+            "network": "offline",
+            "result_contract": "documentation-result-v1",
+            "result_operation_id": "documentation.integrity",
+        }
+        payload = {
+            "operation_id": "documentation.integrity",
+            "status": "passed",
+            "summary": {"passed": 2},
+            "checks": [],
+        }
+        result = QualityRunner(
+            Toolchain(data, Path.cwd()),
+            hardgate_executor=lambda *_args: Execution(0, stdout=json.dumps(payload)),
+        ).run_repository_operation("documentation_integrity", definition)
+        self.assertEqual("passed", result.status)
+        self.assertEqual(payload, result.structured_result)
+        self.assertEqual(0, _profile_exit([result]))
 
     def test_repository_operation_precedes_profile_and_cannot_be_scoped_away(
         self,

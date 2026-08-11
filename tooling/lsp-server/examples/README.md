@@ -29,13 +29,10 @@ These are useful for:
 
 ```bash
 # Check a file for errors (parse-only; exit code 2 on parse failure)
-python3 tooling/parse_strl.py examples/valid_patterns.strl
+python3 tooling/parse_strl.py tooling/lsp-server/examples/valid_patterns.strl
 
 # Check via stdin
-cat examples/valid_patterns.strl | python3 tooling/parse_strl.py -
-
-# Or call the unified intelligence core directly
-python3 -c "from STRling.core.intelligence import analyze_file; import json; print(json.dumps(analyze_file('examples/valid_patterns.strl'), indent=2))"
+python3 tooling/parse_strl.py - < tooling/lsp-server/examples/valid_patterns.strl
 ```
 
 ### With the LSP Server

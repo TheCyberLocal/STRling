@@ -60,13 +60,7 @@
             ]
         },
         "aggregateStatus": {
-            "enum": [
-                "passed",
-                "failed",
-                "waived",
-                "unavailable",
-                "incomplete"
-            ]
+            "enum": ["passed", "failed", "waived", "unavailable", "incomplete"]
         },
         "nullableCommand": {
             "oneOf": [
@@ -312,12 +306,7 @@
                     ],
                     "properties": {
                         "id": {
-                            "enum": [
-                                "local",
-                                "pull-request",
-                                "full",
-                                "release"
-                            ]
+                            "enum": ["local", "pull-request", "full", "release"]
                         },
                         "definition_version": {
                             "type": "string",

@@ -109,7 +109,7 @@ STRling follows a strict compiler pipeline architecture to ensure consistency ac
 -   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
 -   [**Project Hub**](../../README.md): The main STRling repository.
 -   [**Specification**](../../spec/README.md): The core grammar and semantic specifications.
--   [**Ecosystem & Distribution Matrix**](../../docs/OFFICIAL_PUBLICATION_STEPS.md): Release and publication guidance across bindings.
+-   [**Release Process**](../../docs/releasing.md): Release and publication guidance across bindings.
 
 ## 🌐 Connect
 

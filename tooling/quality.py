@@ -45,14 +45,14 @@ CAPABILITY_STATUSES = (
     "unavailable",
 )
 EXECUTABLE_CAPABILITY_STATUSES = ("configured", "enforced")
-STRUCTURED_SECURITY_STATUSES = (
+STRUCTURED_RESULT_STATUSES = (
     "passed",
     "failed",
     "waived",
     "unavailable",
     "incomplete",
 )
-STRUCTURED_SECURITY_EXIT_CODES = {
+STRUCTURED_RESULT_EXIT_CODES = {
     "passed": 0,
     "waived": 0,
     "failed": 1,
@@ -400,18 +400,27 @@ class Toolchain:
                     raise ConfigurationError(
                         f"repository operation {operation} declares a result operation without a contract"
                     )
-            elif result_contract != "security-result-v1":
+            elif result_contract not in (
+                "security-result-v1",
+                "documentation-result-v1",
+            ):
                 raise ConfigurationError(
                     f"repository operation {operation} has unsupported result contract"
                 )
-            elif (
-                not isinstance(result_operation_id, str)
-                or not result_operation_id.startswith("security.")
-                or "--json" not in command
-            ):
-                raise ConfigurationError(
-                    f"repository operation {operation} security result requires an operation ID and JSON command"
+            else:
+                expected_prefix = (
+                    "security."
+                    if result_contract == "security-result-v1"
+                    else "documentation."
                 )
+                if (
+                    not isinstance(result_operation_id, str)
+                    or not result_operation_id.startswith(expected_prefix)
+                    or "--json" not in command
+                ):
+                    raise ConfigurationError(
+                        f"repository operation {operation} structured result requires a matching operation ID and JSON command"
+                    )
         tools = self.data["tools"]
         assert isinstance(tools, dict)
         declared_models = policy.get("resolution_models")
@@ -1099,32 +1108,31 @@ class QualityRunner:
         invocation = list(command)
         execution = self.hardgate_executor(operation, invocation)
         structured_result: dict[str, object] | None = None
-        if definition.get("result_contract") == "security-result-v1":
+        result_contract = definition.get("result_contract")
+        if result_contract in ("security-result-v1", "documentation-result-v1"):
             expected_operation = definition["result_operation_id"]
             assert isinstance(expected_operation, str)
             try:
                 parsed = json.loads(execution.stdout)
             except json.JSONDecodeError as exc:
                 status = "incomplete"
-                reason = f"structured security result is malformed: {exc}"
+                reason = f"structured operation result is malformed: {exc}"
             else:
                 if not isinstance(parsed, dict):
                     status = "incomplete"
-                    reason = "structured security result must be an object"
+                    reason = "structured operation result must be an object"
                 else:
                     parsed_status = parsed.get("status")
                     parsed_operation = parsed.get("operation_id")
-                    expected_exit = STRUCTURED_SECURITY_EXIT_CODES.get(
-                        str(parsed_status)
-                    )
+                    expected_exit = STRUCTURED_RESULT_EXIT_CODES.get(str(parsed_status))
                     if (
-                        parsed_status not in STRUCTURED_SECURITY_STATUSES
+                        parsed_status not in STRUCTURED_RESULT_STATUSES
                         or parsed_operation != expected_operation
                         or execution.returncode != expected_exit
                     ):
                         status = "incomplete"
                         reason = (
-                            "structured security result identity, status, and exit code "
+                            "structured operation result identity, status, and exit code "
                             "must agree"
                         )
                     else:
@@ -1132,7 +1140,7 @@ class QualityRunner:
                         reason = (
                             None
                             if status in ("passed", "waived")
-                            else f"structured security operation reported {status}"
+                            else f"structured operation reported {status}"
                         )
                         structured_result = parsed
         else:
@@ -1310,15 +1318,15 @@ def _profile_status(results: Iterable[OperationResult]) -> str:
     return aggregate_profile_status(result.status for result in results)
 
 
-def _render_structured_security(result: OperationResult) -> None:
+def _render_structured_result(result: OperationResult) -> None:
     assert result.structured_result is not None
     summary = result.structured_result.get("summary")
     if isinstance(summary, dict):
         details = ", ".join(
             f"{status}={summary.get(status, 0)}"
-            for status in STRUCTURED_SECURITY_STATUSES
+            for status in STRUCTURED_RESULT_STATUSES
         )
-        print(f"  security summary: {details}")
+        print(f"  structured summary: {details}")
     checks = result.structured_result.get("checks")
     if not isinstance(checks, list):
         return
@@ -1356,7 +1364,7 @@ def _render_human(
 ) -> None:
     for result in results:
         if result.structured_result is not None:
-            _render_structured_security(result)
+            _render_structured_result(result)
         elif result.stdout:
             print(result.stdout, end="" if result.stdout.endswith("\n") else "\n")
         if result.stderr:

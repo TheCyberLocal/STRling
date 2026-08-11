@@ -78,8 +78,7 @@ class CertificationArtifactTests(unittest.TestCase):
     def test_schema_and_positive_fixture_validate(self) -> None:
         schema = json.loads(
             (
-                ROOT
-                / "governance/schemas/profile-certification-artifact.schema.json"
+                ROOT / "governance/schemas/profile-certification-artifact.schema.json"
             ).read_text(encoding="utf-8")
         )
         Draft202012Validator.check_schema(schema)
@@ -141,9 +140,7 @@ class CertificationArtifactTests(unittest.TestCase):
         self.assertEqual(
             first["deterministic_evidence"], second["deterministic_evidence"]
         )
-        self.assertEqual(
-            first["evidence_fingerprint"], second["evidence_fingerprint"]
-        )
+        self.assertEqual(first["evidence_fingerprint"], second["evidence_fingerprint"])
 
     def test_tampered_deterministic_evidence_is_rejected(self) -> None:
         artifact = build([result()], "passed", 0)

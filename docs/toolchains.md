@@ -162,6 +162,16 @@ capability or one repository-wide command, declares whether it may use the
 network, and, where applicable, names its structured result contract. Profile
 membership never reimplements an operation.
 
+`documentation_integrity` is an offline repository operation in every profile.
+It validates tracked Markdown local references, executes the governed LSP
+parser examples with their expected exit semantics, and checks that their
+documented commands remain runnable from the repository root. Canonical
+contract examples remain owned by `canonical_contracts_check`, while generated
+documentation consistency remains owned by `generate_check`. Destination-
+relative templates, external link reachability, Markdown anchors, and the
+explicitly transitional generated audit are recorded exclusions or limitations
+instead of shallow pass-producing checks.
+
 The ordered `policy.profiles` definitions are execution policies over that
 registry:
 

@@ -106,7 +106,7 @@ STRling follows a strict compiler pipeline architecture to ensure consistency ac
 
 ## 📚 Documentation
 
--   [**API Reference**](./docs/api_reference.md): Detailed documentation for this binding.
+-   [**API Reference**](./doc/api_reference.md): Detailed documentation for this binding.
 -   [**Project Hub**](https://github.com/strling-lang/strling/blob/main/README.md): The main STRling repository.
 -   [**Specification**](https://github.com/strling-lang/strling/tree/main/spec): The core grammar and semantic specifications.
 

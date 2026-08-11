@@ -18,15 +18,16 @@ scope:
         - governance/public-surfaces.json
         - governance/contracts/snapshots/root-cli.json
         - governance/schemas/**
+        - bindings/*/README.md
         - strling
         - strling.ps1
         - toolchain.json
         - tooling/documentation_integrity.py
+        - tooling/lsp-server/examples/README.md
         - tooling/quality.py
         - tooling/tests/**
         - tooling/certification.py
     forbidden_paths:
-        - bindings/**
         - core/src/**
         - core/tests/**
         - package.json
@@ -170,8 +171,33 @@ checkpoints:
             result: passed
             details: Canonical formatting and static analysis, contained-change declarations, enforced architecture rules, and whitespace integrity passed without new suppression directives.
     - name: Documentation and example integrity
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical structured documentation operation
+            command: python3 tooling/documentation_integrity.py --json
+            result: passed
+            details: The offline documentation.integrity operation validated 118 tracked Markdown files and seven governed parser examples through the shared structured operation-result boundary, with two passed checks and zero other states.
+          - check: Documentation and example coverage
+            result: passed
+            details: Enforced local inline, reference-style, and HTML documentation targets; canonical root-relative example commands; expected parser exit semantics; and delegated existing contract-example and generated-state authority without mutating tracked files.
+          - check: Deliberate exclusions and limitations
+            result: passed
+            details: Destination-relative templates are explicitly excluded; external reachability, Markdown anchors without a pinned GFM slugger, and the transitional non-reproducible final audit remain recorded limitations rather than manufactured passes.
+          - check: Controlled documentation negatives
+            result: passed
+            details: Broken local targets, undefined references, stale example exits, and aggregate tampering each produced deterministic failed evidence; the initial repository run truthfully exposed and then repaired two broken links and two stale documented commands.
+          - check: Focused profile, artifact, and documentation tests
+            command: python3 -m unittest tooling.tests.test_documentation_integrity tooling.tests.test_quality tooling.tests.test_certification -v
+            result: passed
+            details: All 65 tests passed, including eight documentation integrity tests and preservation of structured evidence through profile aggregation and artifact generation.
+          - check: Actual local profile artifact
+            command: ./strling profile local --json --artifact /tmp/strling-checkpoint4-local.json
+            result: passed
+            details: Profile definition 1.1.0 passed all 22 selected operations, retained the complete documentation result as structured evidence, and produced semantically identical stdout and file artifacts.
+          - check: Formatting, lint, governance, contracts, architecture, and patch integrity
+            command: ./strling format --check repository --json; ./strling lint repository --json; python3 tooling/governance.py --json; ./strling contracts --check --json; python3 tooling/architecture_fitness.py; git diff --check
+            result: passed
+            details: All canonical hardgates passed; no new static-analysis suppression directive was introduced.
     - name: CI profile routing
       status: planned
       evidence: []

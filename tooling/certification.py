@@ -104,7 +104,9 @@ def repository_state(root: Path) -> dict[str, object]:
             f"cannot resolve repository commit: {commit.stderr.strip() or 'git failed'}"
         )
     identity = commit.stdout.strip()
-    if len(identity) != 40 or any(character not in "0123456789abcdef" for character in identity):
+    if len(identity) != 40 or any(
+        character not in "0123456789abcdef" for character in identity
+    ):
         raise CertificationError("repository commit identity is not a lowercase SHA-1")
 
     status = subprocess.run(
@@ -144,7 +146,9 @@ def _operation_evidence(result: Mapping[str, object]) -> dict[str, object]:
     operation = result.get("operation")
     component = result.get("component")
     if not isinstance(operation, str) or not isinstance(component, str):
-        raise CertificationError("operation results require operation and component IDs")
+        raise CertificationError(
+            "operation results require operation and component IDs"
+        )
     evidence: dict[str, object] = {
         "operation_id": operation,
         "result_id": f"{operation}@{component}",
@@ -216,7 +220,9 @@ def build_certification_artifact(
         isinstance(value, str)
         for value in (definition_version, purpose, network_policy)
     ):
-        raise CertificationError("profile definition is missing artifact identity fields")
+        raise CertificationError(
+            "profile definition is missing artifact identity fields"
+        )
 
     counts = Counter(statuses)
     aggregate_counts = {status: counts.get(status, 0) for status in RESULT_STATUSES}
@@ -258,9 +264,7 @@ def build_certification_artifact(
     return artifact
 
 
-def validate_certification_artifact(
-    root: Path, artifact: Mapping[str, object]
-) -> None:
+def validate_certification_artifact(root: Path, artifact: Mapping[str, object]) -> None:
     """Validate schema and deterministic evidence integrity."""
 
     schema_path = root / "governance/schemas/profile-certification-artifact.schema.json"
@@ -306,7 +310,10 @@ def validate_certification_artifact(
     assert isinstance(counts, dict)
     if (
         aggregate["operation_count"] != len(operations)
-        or any(counts[status] != expected_counts.get(status, 0) for status in RESULT_STATUSES)
+        or any(
+            counts[status] != expected_counts.get(status, 0)
+            for status in RESULT_STATUSES
+        )
         or aggregate["status"] != aggregate_profile_status(statuses)
         or aggregate["exit_code"] != aggregate_profile_exit(statuses)
     ):
@@ -325,7 +332,9 @@ def write_certification_artifact(path: Path, artifact: Mapping[str, object]) -> 
             encoding="utf-8",
         )
     except OSError as exc:
-        raise CertificationError(f"cannot write certification artifact {path}: {exc}") from exc
+        raise CertificationError(
+            f"cannot write certification artifact {path}: {exc}"
+        ) from exc
 
 
 def render_certification_summary(artifact: Mapping[str, object]) -> str:
@@ -351,9 +360,7 @@ def render_certification_summary(artifact: Mapping[str, object]) -> str:
     counts = aggregate["counts"]
     assert isinstance(counts, dict)
     count_text = ", ".join(
-        f"{status}={counts[status]}"
-        for status in RESULT_STATUSES
-        if counts[status]
+        f"{status}={counts[status]}" for status in RESULT_STATUSES if counts[status]
     )
 
     def describe(statuses: set[str]) -> str:
@@ -364,11 +371,7 @@ def render_certification_summary(artifact: Mapping[str, object]) -> str:
                 continue
             reason = operation.get("reason")
             suffix = ""
-            if (
-                operation["status"] != "passed"
-                and isinstance(reason, str)
-                and reason
-            ):
+            if operation["status"] != "passed" and isinstance(reason, str) and reason:
                 suffix = f" - {reason}"
             selected.append(f"{operation['result_id']}{suffix}")
         return ", ".join(selected) if selected else "none"
@@ -398,9 +401,7 @@ def render_certification_summary(artifact: Mapping[str, object]) -> str:
                         if not isinstance(waiver, str):
                             continue
                         code = finding.get("code", "finding")
-                        waived.append(
-                            f"{operation['result_id']}:{code} [{waiver}]"
-                        )
+                        waived.append(f"{operation['result_id']}:{code} [{waiver}]")
                         recorded_finding = True
         if not recorded_finding:
             waived.append(
