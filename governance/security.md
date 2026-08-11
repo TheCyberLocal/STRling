@@ -121,8 +121,19 @@ governance/waivers/. A security waiver must be accepted, name the exact rule or
 finding code, enumerate exact paths and dependency/advisory scope as applicable,
 identify an owner and review context, justify the risk, specify creation and
 expiry dates, and state planned remediation. Expired, unknown, malformed,
-over-broad, or mismatched waivers fail. No active security waiver exists when
-this baseline contract is introduced.
+over-broad, or mismatched waivers fail. A match is a Cartesian set of exact
+finding fields; every declared combination must exist, every matched check input
+must equal the declared path scope, and overlapping matches fail.
+
+Two security waivers are active as of 2026-08-11 and both expire on 2026-09-10:
+
+-   `WVR-SEC-NPM-TOOLING-001` covers only the 53 enumerated high/critical npm
+    advisory bindings reached through development or packaging chains.
+-   `WVR-SEC-VSCE-LICENSE-001` covers only ten enumerated VSCE signing
+    package/version bindings whose metadata remains `SEE LICENSE IN LICENSE.txt`.
+
+The records retain exact scope, owner, review context, rationale, expiry, and
+replacement work. They do not classify the unknown license as permitted.
 
 ## Initial environment limitations
 

@@ -1,0 +1,42 @@
+record_version: 1.0.0
+waiver_id: WVR-SEC-VSCE-LICENSE-001
+status: accepted
+rule: SEC-LICENSE-UNKNOWN
+scope:
+    description: Exact VSCE signing packages whose npm lock metadata names a bundled license file rather than a classified expression.
+    paths:
+        - tooling/lsp-server/package.json
+        - tooling/lsp-server/package-lock.json
+rationale: >-
+    These packages are development-only inputs to VS Code extension packaging, not STRling runtime dependencies. Their lock metadata value remains unknown under repository policy and is not treated as permitted. The exact package/version/value bindings are accepted for thirty days while the dependency license files are reviewed or the packaging chain is isolated; any package, version, or license-metadata change remains blocking.
+security:
+    operation_id: security.dependency-risk
+    finding_code: SEC-LICENSE-UNKNOWN
+    owner: STRling maintainers
+    subsystem: vscode-extension-packaging
+    created_on: "2026-08-11"
+    review_context: Baseline repository security hardgate review of npm lockfile license metadata on 2026-08-11; no legal conclusion is asserted beyond the observed unclassified metadata.
+    matches:
+        - check_id: security.license.lsp-npm
+          packages: ["@vscode/vsce-sign"]
+          versions: [2.0.9]
+          licenses: [SEE LICENSE IN LICENSE.txt]
+        - check_id: security.license.lsp-npm
+          packages:
+              - "@vscode/vsce-sign-alpine-arm64"
+              - "@vscode/vsce-sign-alpine-x64"
+              - "@vscode/vsce-sign-darwin-arm64"
+              - "@vscode/vsce-sign-darwin-x64"
+              - "@vscode/vsce-sign-linux-arm"
+              - "@vscode/vsce-sign-linux-arm64"
+              - "@vscode/vsce-sign-linux-x64"
+              - "@vscode/vsce-sign-win32-arm64"
+              - "@vscode/vsce-sign-win32-x64"
+          versions: [2.0.6]
+          licenses: [SEE LICENSE IN LICENSE.txt]
+retirement:
+    condition: Retire after the exact package license files are classified under reviewed repository policy or the VSCE signing dependency chain no longer contains these package/version bindings.
+    expires_on: "2026-09-10"
+    replacement_work:
+        - Review the bundled license files without converting metadata ambiguity into an unsupported legal conclusion.
+        - Remove each exact match after classification or a compatibility-preserving packaging dependency change.

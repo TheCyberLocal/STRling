@@ -13,6 +13,7 @@
     },
     "result_schema": "governance/schemas/security-result.schema.json",
     "waiver_schema": "governance/schemas/waiver.schema.json",
+    "security_waivers": ["WVR-SEC-NPM-TOOLING-001", "WVR-SEC-VSCE-LICENSE-001"],
     "statuses": ["passed", "failed", "waived", "unavailable", "incomplete"],
     "blocking_statuses": ["failed", "unavailable", "incomplete"],
     "dependency_roots": [

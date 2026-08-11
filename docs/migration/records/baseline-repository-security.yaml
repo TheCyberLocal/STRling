@@ -187,8 +187,36 @@ checkpoints:
             result: passed
             details: Fifteen focused tests pass, including synthetic blocking advisory identity, unavailable advisory retrieval, unknown-license blocking, and cargo-audit version drift. Production results use live authoritative advisory data, never fixture advisories.
     - name: Security waivers and certification properties
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Existing waiver architecture extension
+            command: Draft 2020-12 validation of governance/waivers/*.yaml against governance/schemas/waiver.schema.json
+            result: passed
+            details: Security-specific fields extend the shared waiver record with exact operation, finding, owner, subsystem, creation, review, and match identities; security records require an expiry and non-empty replacement work without changing legacy waiver validity.
+          - check: Exact vulnerability waiver containment
+            command: Live security.dependency-risk operation plus controlled unrelated-advisory mutation
+            result: passed
+            details: WVR-SEC-NPM-TOOLING-001 binds exactly 53 current high/critical npm advisory/package/version/severity findings and expires 2026-09-10. A synthetic second advisory remains unwaived and fails the operation.
+          - check: Exact unknown-license waiver containment
+            command: Live npm lockfile license classification
+            result: passed
+            details: WVR-SEC-VSCE-LICENSE-001 binds exactly ten VSCE signing package/version/metadata findings and expires 2026-09-10; the license remains unknown rather than being reclassified as permitted.
+          - check: No-false-pass and expiry properties
+            command: python3 -m unittest tooling.tests.test_security -v
+            result: passed
+            details: Twenty-three focused tests pass. Missing scanners stay UNAVAILABLE, malformed risk inventories stay INCOMPLETE, expired and unknown waivers FAIL, and an exact waiver produces a visible WAIVED result.
+          - check: Determinism and input immutability
+            command: python3 -m unittest tooling.tests.test_security.SecurityWaiverCertificationTests -v
+            result: passed
+            details: Repeated fixed-input risk operations are structurally identical; integrity, content, and risk operations leave manifests, locks, and workflows byte-for-byte unchanged.
+          - check: Secret-fixture safety
+            command: Tracked-content scan and explicit source-pattern certification
+            result: passed
+            details: No functional credential-shaped value is stored in the security tests; controlled secret markers are assembled from nonfunctional fragments at runtime and remain rejected by the scanner.
+          - check: Live structured result
+            command: python3 tooling/security.py risk --json and security-result schema validation
+            result: passed
+            details: Live risk evidence contains 4 WAIVED checks, 9 PASSED checks, and 32 UNAVAILABLE checks with 63 exact waiver references; aggregate status remains UNAVAILABLE and is not reported as pass.
     - name: Root command CI and hardgate integration
       status: planned
       evidence: []
@@ -202,3 +230,5 @@ commits:
       subject: "feat(security): enforce dependency and lock integrity"
     - sha: 2068c731b721da8915ba03a8bb62dc6920fead47
       subject: "feat(security): enforce secret and workflow safeguards"
+    - sha: 51ad419cb924e70a7b1c91abd35bf7153d932a49
+      subject: "feat(security): enforce dependency risk policy"

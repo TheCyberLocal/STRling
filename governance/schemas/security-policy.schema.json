@@ -10,6 +10,7 @@
         "security_tools",
         "result_schema",
         "waiver_schema",
+        "security_waivers",
         "statuses",
         "blocking_statuses",
         "dependency_roots",
@@ -40,6 +41,14 @@
             "const": "governance/schemas/security-result.schema.json"
         },
         "waiver_schema": { "const": "governance/schemas/waiver.schema.json" },
+        "security_waivers": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "pattern": "^WVR-SEC-[A-Z0-9][A-Z0-9._-]{2,63}$"
+            },
+            "uniqueItems": true
+        },
         "statuses": {
             "type": "array",
             "const": ["passed", "failed", "waived", "unavailable", "incomplete"]

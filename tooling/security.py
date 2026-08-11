@@ -10,7 +10,8 @@ import subprocess
 import sys
 import tomllib
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
+from datetime import date
 from pathlib import Path
 from typing import Callable, Iterable, Mapping, Sequence
 
@@ -276,6 +277,7 @@ class SecurityEngine:
         tracked_file_probe: TrackedFileProbe = git_tracked_files,
         engine_version: str = ENGINE_VERSION,
         command_runner: CommandRunner = run_security_command,
+        today: date | None = None,
     ) -> None:
         self.root = root
         self.policy = policy
@@ -286,28 +288,31 @@ class SecurityEngine:
         )
         self.engine_version = engine_version
         self._command_runner = command_runner
+        self.today = today or date.today()
 
     def run_integrity(self) -> SecurityOperation:
         checks = [self._check_engine_pin(), self._check_dependency_inventory()]
         roots = self.policy.get("dependency_roots")
         if not isinstance(roots, list):
-            return SecurityOperation(
-                "security.dependency-integrity",
-                "local",
-                [
-                    SecurityCheck(
-                        "security.dependency-policy",
-                        "dependency_integrity",
-                        "incomplete",
-                        [],
-                        findings=[
-                            Finding(
-                                "SEC-DEP-POLICY-MALFORMED",
-                                "dependency_roots is not a list",
-                            )
-                        ],
-                    )
-                ],
+            return self._apply_security_waivers(
+                SecurityOperation(
+                    "security.dependency-integrity",
+                    "local",
+                    [
+                        SecurityCheck(
+                            "security.dependency-policy",
+                            "dependency_integrity",
+                            "incomplete",
+                            [],
+                            findings=[
+                                Finding(
+                                    "SEC-DEP-POLICY-MALFORMED",
+                                    "dependency_roots is not a list",
+                                )
+                            ],
+                        )
+                    ],
+                )
             )
         checks.extend(
             self._check_dependency_root(root)
@@ -329,7 +334,9 @@ class SecurityEngine:
                     ],
                 )
             )
-        return SecurityOperation("security.dependency-integrity", "local", checks)
+        return self._apply_security_waivers(
+            SecurityOperation("security.dependency-integrity", "local", checks)
+        )
 
     def run_content(self) -> SecurityOperation:
         workflows = sorted(
@@ -351,28 +358,32 @@ class SecurityEngine:
                     scanner={"name": ENGINE_NAME, "version": self.engine_version},
                 )
             )
-        return SecurityOperation("security.content-and-workflows", "local", checks)
+        return self._apply_security_waivers(
+            SecurityOperation("security.content-and-workflows", "local", checks)
+        )
 
     def run_risk(self) -> SecurityOperation:
         roots = self.policy.get("dependency_roots")
         if not isinstance(roots, list):
-            return SecurityOperation(
-                "security.dependency-risk",
-                "network",
-                [
-                    SecurityCheck(
-                        "security.dependency-risk.policy",
-                        "vulnerability",
-                        "incomplete",
-                        [],
-                        findings=[
-                            Finding(
-                                "SEC-RISK-POLICY-MALFORMED",
-                                "dependency_roots is not a list",
-                            )
-                        ],
-                    )
-                ],
+            return self._apply_security_waivers(
+                SecurityOperation(
+                    "security.dependency-risk",
+                    "network",
+                    [
+                        SecurityCheck(
+                            "security.dependency-risk.policy",
+                            "vulnerability",
+                            "incomplete",
+                            [],
+                            findings=[
+                                Finding(
+                                    "SEC-RISK-POLICY-MALFORMED",
+                                    "dependency_roots is not a list",
+                                )
+                            ],
+                        )
+                    ],
+                )
             )
 
         checks: list[SecurityCheck] = []
@@ -492,12 +503,292 @@ class SecurityEngine:
                 coverage_gaps, key=lambda item: str(item["root_id"])
             ),
         }
-        return SecurityOperation(
-            "security.dependency-risk",
-            "network",
-            checks,
-            advisory_metadata=metadata,
+        return self._apply_security_waivers(
+            SecurityOperation(
+                "security.dependency-risk",
+                "network",
+                checks,
+                advisory_metadata=metadata,
+            )
         )
+
+    def _apply_security_waivers(
+        self, operation: SecurityOperation
+    ) -> SecurityOperation:
+        configured = self.policy.get("security_waivers", [])
+        if not configured:
+            return operation
+        waiver_inputs: list[str] = []
+        errors: list[Finding] = []
+        if not isinstance(configured, list) or any(
+            not isinstance(item, str) for item in configured
+        ):
+            errors.append(
+                Finding(
+                    "SEC-WAIVER-POLICY-MALFORMED",
+                    "security_waivers must be a list of stable waiver IDs",
+                    path="governance/security-policy.json",
+                )
+            )
+            configured = []
+        elif len(configured) != len(set(configured)):
+            errors.append(
+                Finding(
+                    "SEC-WAIVER-POLICY-MALFORMED",
+                    "security_waivers contains a duplicate waiver ID",
+                    path="governance/security-policy.json",
+                )
+            )
+
+        schema_path = self.policy.get("waiver_schema")
+        schema: object | None = None
+        if isinstance(schema_path, str):
+            try:
+                schema = load_json(self.root / schema_path)
+                Draft202012Validator.check_schema(schema)
+            except (SecurityConfigurationError, SchemaError) as exc:
+                errors.append(
+                    Finding(
+                        "SEC-WAIVER-SCHEMA-MALFORMED",
+                        f"security waiver schema is unavailable: {exc}",
+                        path=schema_path,
+                    )
+                )
+        else:
+            errors.append(
+                Finding(
+                    "SEC-WAIVER-POLICY-MALFORMED",
+                    "waiver_schema must be a repository path",
+                    path="governance/security-policy.json",
+                )
+            )
+
+        records: dict[str, Mapping[str, object]] = {}
+        waiver_directory = self.root / "governance" / "waivers"
+        if schema is not None:
+            for waiver_path in sorted(waiver_directory.glob("*.yaml")):
+                relative_path = waiver_path.relative_to(self.root).as_posix()
+                try:
+                    loaded = yaml.safe_load(waiver_path.read_text(encoding="utf-8"))
+                    Draft202012Validator(schema).validate(loaded)
+                except (OSError, yaml.YAMLError, ValidationError) as exc:
+                    errors.append(
+                        Finding(
+                            "SEC-WAIVER-RECORD-MALFORMED",
+                            f"waiver record is malformed: {exc}",
+                            path=relative_path,
+                        )
+                    )
+                    continue
+                if not isinstance(loaded, dict):
+                    continue
+                waiver_id = str(loaded.get("waiver_id", ""))
+                if waiver_id in records:
+                    errors.append(
+                        Finding(
+                            "SEC-WAIVER-ID-DUPLICATE",
+                            f"waiver ID {waiver_id} is declared more than once",
+                            path=relative_path,
+                        )
+                    )
+                    continue
+                records[waiver_id] = loaded
+
+        relevant: list[tuple[str, Mapping[str, object], str]] = []
+        for waiver_id in configured:
+            if not isinstance(waiver_id, str):
+                continue
+            record_path = f"governance/waivers/{waiver_id}.yaml"
+            waiver_inputs.append(record_path)
+            record = records.get(waiver_id)
+            if record is None:
+                errors.append(
+                    Finding(
+                        "SEC-WAIVER-UNKNOWN",
+                        f"configured security waiver {waiver_id} was not found",
+                        path=record_path,
+                    )
+                )
+                continue
+            security = record.get("security")
+            if not isinstance(security, dict):
+                errors.append(
+                    Finding(
+                        "SEC-WAIVER-RECORD-MALFORMED",
+                        f"configured waiver {waiver_id} has no security scope",
+                        path=record_path,
+                    )
+                )
+                continue
+            retirement = record.get("retirement")
+            expires_on = (
+                retirement.get("expires_on") if isinstance(retirement, dict) else None
+            )
+            created_on = security.get("created_on")
+            try:
+                expiry = date.fromisoformat(str(expires_on))
+                created = date.fromisoformat(str(created_on))
+            except ValueError:
+                errors.append(
+                    Finding(
+                        "SEC-WAIVER-RECORD-MALFORMED",
+                        f"security waiver {waiver_id} has no valid creation date or expiry",
+                        path=record_path,
+                    )
+                )
+                continue
+            if record.get("status") != "accepted":
+                errors.append(
+                    Finding(
+                        "SEC-WAIVER-NOT-ACCEPTED",
+                        f"security waiver {waiver_id} is not accepted",
+                        path=record_path,
+                    )
+                )
+                continue
+            if created > self.today or expiry < created:
+                errors.append(
+                    Finding(
+                        "SEC-WAIVER-DATE-INVALID",
+                        f"security waiver {waiver_id} has an invalid creation/expiry interval",
+                        path=record_path,
+                    )
+                )
+                continue
+            if expiry < self.today:
+                errors.append(
+                    Finding(
+                        "SEC-WAIVER-EXPIRED",
+                        f"security waiver {waiver_id} expired on {expiry.isoformat()}",
+                        path=record_path,
+                    )
+                )
+                continue
+            if security.get("operation_id") == operation.operation_id:
+                relevant.append((waiver_id, record, record_path))
+
+        assignments: dict[tuple[str, int], str] = {}
+        for waiver_id, record, record_path in relevant:
+            security = record["security"]
+            assert isinstance(security, dict)
+            finding_code = str(security["finding_code"])
+            matches = security["matches"]
+            scope = record["scope"]
+            assert isinstance(matches, list) and isinstance(scope, dict)
+            declared_paths = set(self._string_list(scope.get("paths")))
+            covered_inputs: set[str] = set()
+            for raw_match in matches:
+                assert isinstance(raw_match, dict)
+                check_id = str(raw_match["check_id"])
+                candidates: list[tuple[SecurityCheck, int]] = []
+                for check in operation.checks:
+                    if check.check_id != check_id:
+                        continue
+                    for index, finding in enumerate(check.findings):
+                        if finding.code != finding_code:
+                            continue
+                        if self._waiver_match_finding(raw_match, finding):
+                            candidates.append((check, index))
+                expected = 1
+                for value in raw_match.values():
+                    if isinstance(value, list):
+                        expected *= len(value)
+                if len(candidates) != expected:
+                    errors.append(
+                        Finding(
+                            "SEC-WAIVER-SCOPE-STALE",
+                            f"waiver {waiver_id} match resolved to {len(candidates)} findings, expected {expected}",
+                            path=record_path,
+                        )
+                    )
+                    continue
+                for check, index in candidates:
+                    key = (check.check_id, index)
+                    if key in assignments:
+                        errors.append(
+                            Finding(
+                                "SEC-WAIVER-SCOPE-OVERLAP",
+                                f"finding is covered by both {assignments[key]} and {waiver_id}",
+                                path=record_path,
+                            )
+                        )
+                        continue
+                    assignments[key] = waiver_id
+                    covered_inputs.update(check.inputs)
+            if covered_inputs != declared_paths:
+                errors.append(
+                    Finding(
+                        "SEC-WAIVER-PATH-SCOPE-MISMATCH",
+                        f"waiver {waiver_id} paths do not exactly equal matched check inputs",
+                        path=record_path,
+                    )
+                )
+
+        if errors:
+            operation.checks.append(
+                SecurityCheck(
+                    "security.waivers",
+                    "waiver",
+                    "failed",
+                    sorted(set(waiver_inputs)),
+                    findings=errors,
+                    scanner={"name": ENGINE_NAME, "version": self.engine_version},
+                )
+            )
+            return operation
+
+        for check in operation.checks:
+            check.findings = [
+                replace(
+                    finding,
+                    waiver_id=assignments.get((check.check_id, index)),
+                )
+                if (check.check_id, index) in assignments
+                else finding
+                for index, finding in enumerate(check.findings)
+            ]
+            blocking = [
+                finding
+                for finding in check.findings
+                if finding.code != "SEC-VULN-NONBLOCKING"
+            ]
+            if (
+                check.status == "failed"
+                and blocking
+                and all(finding.waiver_id for finding in blocking)
+            ):
+                check.status = "waived"
+        operation.checks.append(
+            SecurityCheck(
+                "security.waivers",
+                "waiver",
+                "passed",
+                sorted(set(waiver_inputs)),
+                scanner={"name": ENGINE_NAME, "version": self.engine_version},
+            )
+        )
+        return operation
+
+    @staticmethod
+    def _waiver_match_finding(
+        raw_match: Mapping[str, object], finding: Finding
+    ) -> bool:
+        fields = {
+            "paths": "path",
+            "packages": "package",
+            "versions": "version",
+            "advisories": "advisory",
+            "severities": "severity",
+            "licenses": "license",
+        }
+        for match_name, finding_name in fields.items():
+            values = raw_match.get(match_name)
+            if (
+                isinstance(values, list)
+                and getattr(finding, finding_name) not in values
+            ):
+                return False
+        return True
 
     def _secret_marker_exclusions(
         self,

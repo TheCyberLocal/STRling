@@ -3,11 +3,19 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from datetime import date
 from pathlib import Path
 from subprocess import CompletedProcess
 from typing import cast
 
-from tooling.security import ENGINE_VERSION, SecurityEngine
+from tooling.security import (
+    ENGINE_VERSION,
+    GENERIC_CREDENTIAL_PATTERN,
+    SECRET_PATTERNS,
+    SecurityEngine,
+)
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 
 def policy(root: dict[str, object]) -> dict[str, object]:
@@ -21,6 +29,8 @@ def policy(root: dict[str, object]) -> dict[str, object]:
                 "version": "0.22.2",
             }
         },
+        "waiver_schema": "governance/schemas/waiver.schema.json",
+        "security_waivers": [],
         "vulnerability_policy": {
             "blocking_severities": ["high", "critical"],
             "advisory_sources": {"npm": "npm-registry", "cargo": "rustsec"},
@@ -98,6 +108,94 @@ def write_npm_fixture(
     (root / "package.json").write_text(json.dumps(manifest), encoding="utf-8")
     (root / "package-lock.json").write_text(json.dumps(lock), encoding="utf-8")
     return ["package-lock.json", "package.json"]
+
+
+def npm_runner(payload: dict[str, object]):
+    def runner(args: object, cwd: Path) -> CompletedProcess[str]:
+        command = list(cast(list[str], args))
+        if command == ["npm", "--version"]:
+            return CompletedProcess(command, 0, "10.0.0\n", "")
+        return CompletedProcess(command, 1, json.dumps(payload), "")
+
+    return runner
+
+
+def blocking_advisory(
+    url: str = "https://advisories.invalid/GHSA-fixture",
+) -> dict[str, object]:
+    return {
+        "vulnerabilities": {
+            "fixture-package": {
+                "severity": "high",
+                "nodes": ["node_modules/fixture-package"],
+                "via": [
+                    {
+                        "url": url,
+                        "severity": "high",
+                        "title": "synthetic advisory",
+                    }
+                ],
+            }
+        }
+    }
+
+
+def write_security_waiver(
+    root: Path,
+    configured_policy: dict[str, object],
+    *,
+    waiver_id: str = "WVR-SEC-TEST-001",
+    expires_on: str = "2099-01-01",
+    matches: list[dict[str, object]] | None = None,
+) -> None:
+    schema_target = root / "governance" / "schemas" / "waiver.schema.json"
+    schema_target.parent.mkdir(parents=True)
+    schema_target.write_text(
+        (REPOSITORY_ROOT / "governance/schemas/waiver.schema.json").read_text(
+            encoding="utf-8"
+        ),
+        encoding="utf-8",
+    )
+    waiver_directory = root / "governance" / "waivers"
+    waiver_directory.mkdir(parents=True)
+    record = {
+        "record_version": "1.0.0",
+        "waiver_id": waiver_id,
+        "status": "accepted",
+        "rule": "SEC-VULN-BLOCKING",
+        "scope": {
+            "description": "exact synthetic fixture advisory",
+            "paths": ["package.json", "package-lock.json"],
+        },
+        "rationale": "controlled nonfunctional certification fixture",
+        "security": {
+            "operation_id": "security.dependency-risk",
+            "finding_code": "SEC-VULN-BLOCKING",
+            "owner": "security test owner",
+            "subsystem": "security-certification",
+            "created_on": "2026-08-11",
+            "review_context": "controlled waiver containment certification",
+            "matches": matches
+            or [
+                {
+                    "check_id": "security.vulnerability.fixture-npm",
+                    "packages": ["fixture-package"],
+                    "versions": ["1.2.3"],
+                    "advisories": ["https://advisories.invalid/GHSA-fixture"],
+                    "severities": ["high"],
+                }
+            ],
+        },
+        "retirement": {
+            "condition": "synthetic test completes",
+            "expires_on": expires_on,
+            "replacement_work": ["remove the synthetic fixture waiver"],
+        },
+    }
+    (waiver_directory / f"{waiver_id}.yaml").write_text(
+        json.dumps(record), encoding="utf-8"
+    )
+    configured_policy["security_waivers"] = [waiver_id]
 
 
 class DependencyIntegrityTests(unittest.TestCase):
@@ -335,33 +433,11 @@ class DependencyRiskTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             tracked = write_npm_fixture(root)
-            payload = {
-                "vulnerabilities": {
-                    "fixture-package": {
-                        "severity": "high",
-                        "nodes": ["node_modules/fixture-package"],
-                        "via": [
-                            {
-                                "url": "https://advisories.invalid/GHSA-fixture",
-                                "severity": "high",
-                                "title": "synthetic advisory",
-                            }
-                        ],
-                    }
-                }
-            }
-
-            def runner(args: object, cwd: Path) -> CompletedProcess[str]:
-                command = list(cast(list[str], args))
-                if command == ["npm", "--version"]:
-                    return CompletedProcess(command, 0, "10.0.0\n", "")
-                return CompletedProcess(command, 1, json.dumps(payload), "")
-
             result = SecurityEngine(
                 root,
                 policy(npm_root()),
                 tracked_files=tracked,
-                command_runner=runner,
+                command_runner=npm_runner(blocking_advisory()),
             ).run_risk()
             vulnerability = next(
                 check for check in result.checks if check.category == "vulnerability"
@@ -469,6 +545,163 @@ class DependencyRiskTests(unittest.TestCase):
             )
             self.assertEqual("failed", vulnerability.status)
             self.assertEqual("SEC-TOOL-VERSION-DRIFT", vulnerability.findings[0].code)
+
+    def test_malformed_risk_inventory_is_incomplete_not_pass(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = write_npm_fixture(root)
+            (root / "package-lock.json").write_text("{", encoding="utf-8")
+            result = SecurityEngine(
+                root,
+                policy(npm_root()),
+                tracked_files=tracked,
+                command_runner=npm_runner({"vulnerabilities": {}}),
+            ).run_risk()
+            self.assertEqual("incomplete", result.status)
+            self.assertNotEqual("passed", result.checks[0].status)
+
+
+class SecurityWaiverCertificationTests(unittest.TestCase):
+    def test_exact_accepted_waiver_produces_waived_result(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = write_npm_fixture(root)
+            configured = policy(npm_root())
+            write_security_waiver(root, configured)
+            result = SecurityEngine(
+                root,
+                configured,
+                tracked_files=tracked,
+                command_runner=npm_runner(blocking_advisory()),
+                today=date(2026, 8, 11),
+            ).run_risk()
+            vulnerability = next(
+                check for check in result.checks if check.category == "vulnerability"
+            )
+            self.assertEqual("waived", result.status)
+            self.assertEqual("waived", vulnerability.status)
+            self.assertEqual("WVR-SEC-TEST-001", vulnerability.findings[0].waiver_id)
+
+    def test_waiver_does_not_suppress_unrelated_finding(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = write_npm_fixture(root)
+            configured = policy(npm_root())
+            write_security_waiver(root, configured)
+            payload = blocking_advisory()
+            vulnerabilities = cast(dict[str, object], payload["vulnerabilities"])
+            fixture = cast(dict[str, object], vulnerabilities["fixture-package"])
+            vias = cast(list[object], fixture["via"])
+            vias.append(
+                {
+                    "url": "https://advisories.invalid/GHSA-unrelated",
+                    "severity": "critical",
+                    "title": "second synthetic advisory",
+                }
+            )
+            result = SecurityEngine(
+                root,
+                configured,
+                tracked_files=tracked,
+                command_runner=npm_runner(payload),
+                today=date(2026, 8, 11),
+            ).run_risk()
+            vulnerability = next(
+                check for check in result.checks if check.category == "vulnerability"
+            )
+            self.assertEqual("failed", result.status)
+            self.assertEqual(
+                [None, "WVR-SEC-TEST-001"],
+                sorted(
+                    (finding.waiver_id for finding in vulnerability.findings),
+                    key=lambda item: item or "",
+                ),
+            )
+
+    def test_expired_waiver_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = write_npm_fixture(root)
+            configured = policy(npm_root())
+            write_security_waiver(root, configured, expires_on="2026-08-11")
+            result = SecurityEngine(
+                root,
+                configured,
+                tracked_files=tracked,
+                command_runner=npm_runner(blocking_advisory()),
+                today=date(2026, 8, 12),
+            ).run_risk()
+            waiver_check = next(
+                check for check in result.checks if check.category == "waiver"
+            )
+            self.assertEqual("failed", result.status)
+            self.assertEqual("SEC-WAIVER-EXPIRED", waiver_check.findings[0].code)
+
+    def test_unknown_waiver_id_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = write_npm_fixture(root)
+            configured = policy(npm_root())
+            configured["security_waivers"] = ["WVR-SEC-MISSING-001"]
+            schema = root / "governance" / "schemas" / "waiver.schema.json"
+            schema.parent.mkdir(parents=True)
+            schema.write_text(
+                (REPOSITORY_ROOT / "governance/schemas/waiver.schema.json").read_text(
+                    encoding="utf-8"
+                ),
+                encoding="utf-8",
+            )
+            result = SecurityEngine(
+                root,
+                configured,
+                tracked_files=tracked,
+                command_runner=npm_runner(blocking_advisory()),
+                today=date(2026, 8, 11),
+            ).run_risk()
+            waiver_check = next(
+                check for check in result.checks if check.category == "waiver"
+            )
+            self.assertEqual("failed", result.status)
+            self.assertEqual("SEC-WAIVER-UNKNOWN", waiver_check.findings[0].code)
+
+    def test_waived_risk_result_is_structurally_deterministic(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = write_npm_fixture(root)
+            configured = policy(npm_root())
+            write_security_waiver(root, configured)
+            engine = SecurityEngine(
+                root,
+                configured,
+                tracked_files=tracked,
+                command_runner=npm_runner(blocking_advisory()),
+                today=date(2026, 8, 11),
+            )
+            self.assertEqual(engine.run_risk().as_dict(), engine.run_risk().as_dict())
+
+    def test_security_operations_leave_inputs_immutable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = write_npm_fixture(root)
+            tracked.extend(write_workflow(root, workflow_text()))
+            before = {path: (root / path).read_bytes() for path in tracked}
+            engine = SecurityEngine(
+                root,
+                policy(npm_root()),
+                tracked_files=tracked,
+                command_runner=npm_runner({"vulnerabilities": {}}),
+            )
+            engine.run_integrity()
+            engine.run_content()
+            engine.run_risk()
+            after = {path: (root / path).read_bytes() for path in tracked}
+            self.assertEqual(before, after)
+
+    def test_test_source_contains_no_functional_credential_fixture(self) -> None:
+        source = Path(__file__).read_text(encoding="utf-8")
+        for _, _, pattern in SECRET_PATTERNS:
+            self.assertIsNone(pattern.search(source))
+        self.assertIsNone(GENERIC_CREDENTIAL_PATTERN.search(source))
 
 
 if __name__ == "__main__":

@@ -14,6 +14,21 @@
         "rationale",
         "retirement"
     ],
+    "allOf": [
+        {
+            "if": { "required": ["security"] },
+            "then": {
+                "properties": {
+                    "retirement": {
+                        "required": ["expires_on"],
+                        "properties": {
+                            "replacement_work": { "minItems": 1 }
+                        }
+                    }
+                }
+            }
+        }
+    ],
     "properties": {
         "record_version": {
             "const": "1.0.0"
@@ -54,6 +69,61 @@
             "type": "string",
             "minLength": 1
         },
+        "security": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "operation_id",
+                "finding_code",
+                "owner",
+                "subsystem",
+                "created_on",
+                "review_context",
+                "matches"
+            ],
+            "properties": {
+                "operation_id": {
+                    "type": "string",
+                    "pattern": "^security\\.[a-z0-9.-]+$"
+                },
+                "finding_code": {
+                    "type": "string",
+                    "pattern": "^SEC-[A-Z0-9-]+$"
+                },
+                "owner": { "type": "string", "minLength": 1 },
+                "subsystem": { "type": "string", "minLength": 1 },
+                "created_on": { "type": "string", "format": "date" },
+                "review_context": { "type": "string", "minLength": 1 },
+                "matches": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["check_id"],
+                        "anyOf": [
+                            { "required": ["paths"] },
+                            { "required": ["packages"] },
+                            { "required": ["advisories"] },
+                            { "required": ["licenses"] }
+                        ],
+                        "properties": {
+                            "check_id": {
+                                "type": "string",
+                                "pattern": "^security\\.[a-z0-9.-]+$"
+                            },
+                            "paths": { "$ref": "#/$defs/nonEmptyStrings" },
+                            "packages": { "$ref": "#/$defs/nonEmptyStrings" },
+                            "versions": { "$ref": "#/$defs/nonEmptyStrings" },
+                            "advisories": { "$ref": "#/$defs/nonEmptyStrings" },
+                            "severities": { "$ref": "#/$defs/nonEmptyStrings" },
+                            "licenses": { "$ref": "#/$defs/nonEmptyStrings" }
+                        }
+                    }
+                }
+            }
+        },
         "retirement": {
             "type": "object",
             "additionalProperties": false,
@@ -74,6 +144,17 @@
                         "minLength": 1
                     }
                 }
+            }
+        }
+    },
+    "$defs": {
+        "nonEmptyStrings": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "type": "string",
+                "minLength": 1
             }
         }
     }
