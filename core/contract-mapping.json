@@ -16,7 +16,7 @@
         {
             "schema": "spec/contracts/1.0/compile-request.schema.json",
             "sha256": "6aa9b80e2a2bd1e9c50652fd55f1af6474048307ea13ec577cc5d675f908ba57",
-            "rust_modules": ["protocol::request"]
+            "rust_modules": ["kernel", "protocol::request"]
         },
         {
             "schema": "spec/contracts/1.0/compile-result.schema.json",
@@ -24,7 +24,8 @@
             "rust_modules": [
                 "protocol::exchange",
                 "protocol::result",
-                "compiler_pipeline"
+                "compiler_pipeline",
+                "kernel"
             ]
         },
         {

@@ -32,9 +32,14 @@ scope:
         - strling.ps1
         - tests/spec/**
     expected_files:
+        - core/contract-mapping.json
+        - core/src/kernel.rs
+        - core/src/lib.rs
+        - core/tests/compiler_boundary.rs
         - docs/migration/compiler-kernel-boundary.md
         - docs/migration/records/compiler-kernel-boundary.yaml
         - governance/change-control.json
+        - tooling/core_contract_validation.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -100,8 +105,12 @@ checkpoints:
             result: passed
             details: Contract suite 1.0.0, exact explicit target-profile evidence, supported semantic/analysis/portability modes, deferred source and artifact modes, malformed/typed/result failure ownership, certified hard ceilings, caller limits, deterministic exclusions, and unchanged product paths are locked without a schema change.
     - name: Public kernel facade
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Public API, strict validation, typed failures, and facade behavior
+            command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo check --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml --test compiler_boundary && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && python3 tooling/core_contract_validation.py && git diff --check
+            result: passed
+            details: Public compile(&CompileRequest, Option<&TargetProfile>) returns CompileResult or typed KernelCompileError without mutating inputs. Thirteen tests cover minimal and representative canonical semantics, source-less analysis, malformed typed input, unsupported contract/specification/future modes, exact profile requirements and mismatch, unsupported source and artifact modes, repeat equality, request immutability, compiler identity, and result validation.
     - name: Canonical orchestration and result projection
       status: planned
       evidence: []

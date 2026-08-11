@@ -11,6 +11,7 @@
 #![forbid(unsafe_code)]
 
 pub mod capability_evaluation;
+pub mod kernel;
 // The executable pipeline remains crate-internal until a product API migration
 // is separately authorized; unit and architecture tests exercise this module.
 #[allow(dead_code)]
@@ -30,3 +31,5 @@ pub mod source;
 pub mod structural_analysis;
 pub mod target;
 pub mod validation;
+
+pub use kernel::{compile, KernelCompileError, KernelStage};

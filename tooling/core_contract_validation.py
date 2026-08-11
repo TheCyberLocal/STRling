@@ -61,6 +61,7 @@ MODULE_PATHS = {
     "capability_evaluation": "core/src/capability_evaluation.rs",
     "capability_pipeline": "core/src/capability_pipeline.rs",
     "compiler_pipeline": "core/src/compiler_pipeline.rs",
+    "kernel": "core/src/kernel.rs",
     "conformance": "core/src/conformance/mod.rs",
     "diagnostic": "core/src/diagnostic/mod.rs",
     "diagnostic_generation": "core/src/diagnostic_generation.rs",
@@ -151,6 +152,13 @@ def validate_mapping_document(
                 raise CoreContractError(
                     f"{relative}: mapped Rust module does not resolve: {module}"
                 )
+        if relative == "spec/contracts/1.0/compile-request.schema.json" and modules != [
+            "kernel",
+            "protocol::request",
+        ]:
+            raise CoreContractError(
+                "compile request mapping must register the public kernel facade"
+            )
         if relative == "spec/contracts/1.0/analysis.schema.json" and modules != [
             "protocol::analysis",
             "semantic_analysis",
@@ -165,9 +173,10 @@ def validate_mapping_document(
             "protocol::exchange",
             "protocol::result",
             "compiler_pipeline",
+            "kernel",
         ]:
             raise CoreContractError(
-                "compile result mapping must register target-neutral compiler pipeline integration"
+                "compile result mapping must register the compiler pipeline and public facade"
             )
         if relative == "spec/contracts/1.0/diagnostic.schema.json" and modules != [
             "diagnostic",
