@@ -25,11 +25,88 @@ permissions:
     contents: read
 
 jobs:
+    release-certification:
+        name: Certify Release Envelope
+        runs-on: ubuntu-latest
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
+        steps:
+            - name: Checkout release candidate
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+              with:
+                  persist-credentials: false
+                  ref: ${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.workflow_run.head_sha }}
+                  fetch-depth: 0
+
+            - name: Install Python
+              uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+              with:
+                  python-version: "3.12"
+
+            - name: Install Node
+              uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+              with:
+                  node-version: "22"
+                  cache: npm
+                  cache-dependency-path: |
+                      package-lock.json
+                      bindings/typescript/package-lock.json
+                      tooling/lsp-server/package-lock.json
+
+            - name: Install Go
+              uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+              with:
+                  cache: false
+                  go-version: "1.22"
+
+            - name: Install .NET
+              uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+              with:
+                  dotnet-version: "9.0.x"
+
+            - name: Install Dart SDK
+              uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # v1
+              with:
+                  sdk: "3.10.1"
+
+            - name: Install Ruby and Bundler
+              uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1
+              with:
+                  ruby-version: "3.2"
+                  bundler: "2.4.20"
+
+            - name: Install certification dependencies
+              run: |
+                  npm ci --ignore-scripts --no-audit --no-fund
+                  npm ci --ignore-scripts --no-audit --no-fund --prefix tooling/lsp-server
+                  python -m pip install --requirement tooling/requirements-quality.txt
+                  for component in csharp dart fsharp go perl ruby typescript; do
+                    ./strling setup "$component"
+                  done
+                  cargo install cargo-audit --version 0.22.2 --locked
+
+            - name: Run canonical release certification profile
+              env:
+                  ARTIFACT_PATH: artifacts/certification-release.json
+              run: |
+                  mkdir -p artifacts
+                  ./strling profile release --artifact "$ARTIFACT_PATH"
+
+            - name: Retain release certification evidence
+              if: ${{ always() }}
+              continue-on-error: true
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+              with:
+                  name: certification-release-${{ github.run_id }}
+                  path: artifacts/certification-release.json
+                  if-no-files-found: warn
+                  retention-days: 90
+
     # ==========================================
     # TIER 1: GLOBAL PREFLIGHT GATE
     # ==========================================
     verify-release:
         name: Verify Release Conditions
+        needs: release-certification
         runs-on: ubuntu-latest
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
         outputs:

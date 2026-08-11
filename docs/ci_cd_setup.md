@@ -4,15 +4,40 @@
 
 ## Overview
 
-The STRling project uses an automated CI/CD pipeline defined in `.github/workflows/ci.yml` that handles both continuous integration (testing) and continuous deployment (publishing to PyPI and NPM).
+STRling separates continuous integration in `.github/workflows/ci.yml` from
+delivery in `.github/workflows/cd.yml`. Canonical certification profiles are the
+quality authority; the language matrix supplies additional isolated binding
+feedback, and delivery remains gated behind release certification.
 
 ## Pipeline Architecture
 
-STRling employs a **Matrix-Driven CI/CD Strategy** that validates all 17 language bindings in parallel before any deployment occurs.
+STRling uses one profile-driven certification job plus a supplemental matrix
+that validates all 17 language bindings in parallel before delivery.
+
+### Canonical Certification Profiles
+
+The `quality-hardgates` job invokes `./strling profile` exactly as a developer
+does locally. Its event mapping is deterministic:
+
+| Context              | Profile                         |
+| -------------------- | ------------------------------- |
+| Manual dispatch      | selected input, default `local` |
+| Pull request         | `pull-request`                  |
+| Branch push          | `pull-request`                  |
+| Weekly scheduled run | `full`                          |
+| `v*` tag             | `release`                       |
+| Delivery preflight   | `release`                       |
+
+Each invocation writes the versioned certification artifact directly through
+`--artifact`. The artifact is uploaded even after a non-passing profile so the
+evidence remains inspectable; missing upload input is only a warning and cannot
+redefine the profile exit status. `FAILED`, `INCOMPLETE`, and required
+`UNAVAILABLE` evidence still block certification.
 
 ### CI Strategy: The Test Matrix
 
-The `test-matrix` job is the core validation engine that runs on every push and pull request to `main`, `dev`, and `feature/**` branches.
+The `test-matrix` job is supplemental component feedback. It uses only
+canonical root leaf commands and runs across CI events.
 
 **Matrix Configuration:**
 
@@ -34,34 +59,15 @@ The `test-matrix` job is the core validation engine that runs on every push and 
 -   **Full Coverage:** Every binding is tested on every commit
 -   **Isolation:** Language-specific failures don't block other languages from completing
 
-### Certification: The Omega Audit
-
-The `audit_omega.py` script is the **final certification harness** for the entire STRling ecosystem.
-
--   **Purpose:** Validates conformance test coverage across all 17 language bindings
--   **Script:** `python3 tooling/audit_omega.py`
--   **Output:** Generates `FINAL_AUDIT_REPORT.md` with detailed certification status
--   **Requirements:**
-    -   All bindings must achieve `🟢 CERTIFIED` status
-    -   Zero test skips (no `SKIPPED` or `ignored` tests)
-    -   Zero warnings in build/test output
-    -   Semantic verification tests must pass (duplicate groups, invalid ranges)
-    -   Test counts must be explicit integers (not "Unknown")
-
-**Usage:** Run the Omega Audit locally before submitting PRs to ensure full compliance:
-
-```bash
-python3 tooling/audit_omega.py
-```
-
 ### CD Strategy: All-or-Nothing Deployment
 
 Deployment jobs execute **only** when all quality gates pass:
 
 **Trigger Conditions:**
 
-1. A git tag matching `v*` pattern is pushed (e.g., `v3.0.0`)
-2. The `test-matrix` job completes successfully for all 17 bindings
+1. `STRling CI` completes successfully on `main`, or delivery is manually dispatched.
+2. The canonical `release` profile passes for the exact candidate commit.
+3. Version/source-of-truth preflight and the applicable compile job pass.
 
 **Deployment Jobs:** Each binding has its own deployment job that:
 

@@ -217,13 +217,21 @@ existing binding names and also include `repository` and `lsp`. The
 operation registry, profile definitions, compatibility aliases, and leaf
 operation defaults are centralized under `policy` in `toolchain.json`.
 
-The current GitHub Actions quality hardgate invokes only `./strling check`,
-which resolves to the canonical pull-request profile. It does not reproduce
-formatting, hygiene, snapshot comparison, generation, scope, architecture, or
-security policy in workflow shell. Full Git history is checked out because the
-active contained task declares a commit-based diff range. The binding quality
-matrix continues to use canonical leaf `environment`, `build`, and `test`
-commands pending the dedicated CI-routing checkpoint.
+GitHub Actions selects the same explicit profile command used locally. Pull
+requests and branch pushes use `pull-request`; the weekly scheduled run uses
+`full`; `v*` tags and the delivery preflight use `release`; manual CI dispatch
+may select any profile and defaults to `local`. Every authoritative workflow
+invocation supplies `--artifact`, and an always-run upload step retains that
+file without changing the profile command's exit status. Full Git history is
+checked out because the active contained task declares a commit-based diff
+range. The binding matrix remains supplemental and uses canonical leaf
+`environment`, `lint`, `typecheck`, `build`, and `test` commands.
+
+The enforced `canonical-ci-profile-routing` architecture rule rejects workflow
+use of compatibility aliases, direct quality implementation scripts, missing
+artifact output, mutable artifact actions, or a delivery preflight that does
+not depend on `release` certification. Workflows therefore cannot silently
+substitute another certification authority.
 
 ## Structured certification artifact
 

@@ -12,6 +12,20 @@ on:
         tags:
             - "v*"
     pull_request:
+    schedule:
+        - cron: "17 4 * * 1"
+    workflow_dispatch:
+        inputs:
+            certification_profile:
+                description: "Canonical certification profile"
+                required: true
+                default: local
+                type: choice
+                options:
+                    - local
+                    - pull-request
+                    - full
+                    - release
 
 permissions:
     contents: read
@@ -74,11 +88,50 @@ jobs:
             - name: Install pinned security scanner
               run: cargo install cargo-audit --version 0.22.2 --locked
 
-            - name: Enforce canonical contract, architecture, and quality hardgates
-              run: ./strling check
+            - name: Resolve canonical certification profile
+              id: certification_profile
+              env:
+                  EVENT_NAME: ${{ github.event_name }}
+                  GIT_REF: ${{ github.ref }}
+                  REQUESTED_PROFILE: ${{ inputs.certification_profile }}
+              run: |
+                  case "$EVENT_NAME" in
+                    workflow_dispatch) profile="$REQUESTED_PROFILE" ;;
+                    pull_request) profile="pull-request" ;;
+                    schedule) profile="full" ;;
+                    push)
+                      if [[ "$GIT_REF" == refs/tags/v* ]]; then
+                        profile="release"
+                      else
+                        profile="pull-request"
+                      fi
+                      ;;
+                    *) exit 2 ;;
+                  esac
+                  case "$profile" in
+                    local|pull-request|full|release) ;;
+                    *) exit 2 ;;
+                  esac
+                  echo "profile=$profile" >> "$GITHUB_OUTPUT"
+                  echo "artifact_path=artifacts/certification-$profile.json" >> "$GITHUB_OUTPUT"
 
-            - name: Enforce network-backed security certification
-              run: ./strling certify typescript
+            - name: Run canonical certification profile
+              env:
+                  ARTIFACT_PATH: ${{ steps.certification_profile.outputs.artifact_path }}
+                  PROFILE: ${{ steps.certification_profile.outputs.profile }}
+              run: |
+                  mkdir -p artifacts
+                  ./strling profile "$PROFILE" --artifact "$ARTIFACT_PATH"
+
+            - name: Retain certification evidence
+              if: ${{ always() }}
+              continue-on-error: true
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+              with:
+                  name: certification-${{ steps.certification_profile.outputs.profile }}-${{ github.run_id }}
+                  path: ${{ steps.certification_profile.outputs.artifact_path }}
+                  if-no-files-found: warn
+                  retention-days: 30
 
     # --- TEST JOBS (ALPHABETICALLY ORDERED) ---
     test-matrix:

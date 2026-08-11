@@ -220,6 +220,115 @@ class ArchitectureValidationTests(unittest.TestCase):
             artifact_registry=self.registry,
         )[0]
 
+    def write_profile_workflows(
+        self,
+        *,
+        ci_invocation: str = './strling profile "$PROFILE" --artifact "$ARTIFACT_PATH"',
+        cd_invocation: str = './strling profile release --artifact "$ARTIFACT_PATH"',
+        upload_action: str = "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+        schedule_profile: str = "full",
+        upload_non_authoritative: bool = True,
+    ) -> None:
+        workflows = self.root / ".github/workflows"
+        workflows.mkdir(parents=True)
+        continue_line = (
+            "        continue-on-error: true\n" if upload_non_authoritative else ""
+        )
+        (workflows / "ci.yml").write_text(
+            "name: CI\n"
+            "# selectable profiles: local pull-request full release\n"
+            "jobs:\n"
+            "  quality-hardgates:\n"
+            "    steps:\n"
+            "      - run: |\n"
+            '          workflow_dispatch) profile="$REQUESTED_PROFILE" ;;\n'
+            '          pull_request) profile="pull-request" ;;\n'
+            f'          schedule) profile="{schedule_profile}" ;;\n'
+            '          profile="release"\n'
+            '          profile="pull-request"\n'
+            f"          {ci_invocation}\n"
+            "      - if: ${{ always() }}\n"
+            f"{continue_line}"
+            f"        uses: {upload_action}\n"
+            "        with:\n"
+            "          if-no-files-found: warn\n",
+            encoding="utf-8",
+        )
+        (workflows / "cd.yml").write_text(
+            "name: CD\n"
+            "jobs:\n"
+            "  release-certification:\n"
+            "    steps:\n"
+            "      - run: |\n"
+            f"          {cd_invocation}\n"
+            "      - if: ${{ always() }}\n"
+            f"{continue_line}"
+            f"        uses: {upload_action}\n"
+            "        with:\n"
+            "          if-no-files-found: warn\n"
+            "  verify-release:\n"
+            "    needs: release-certification\n",
+            encoding="utf-8",
+        )
+
+    @staticmethod
+    def ci_profile_rule() -> dict[str, object]:
+        return {
+            "id": "canonical-ci-profile-routing",
+            "status": "enforced",
+            "kind": "ci-profile-routing",
+            "configuration": {
+                "sources": [
+                    ".github/workflows/ci.yml",
+                    ".github/workflows/cd.yml",
+                ]
+            },
+        }
+
+    def test_canonical_ci_profile_routing_passes(self) -> None:
+        self.write_profile_workflows()
+        self.assertEqual("passed", self.evaluate(self.ci_profile_rule()).status)
+
+    def test_ci_profile_routing_rejects_direct_quality_implementation(self) -> None:
+        self.write_profile_workflows(
+            ci_invocation='python3 tooling/quality.py profile "$PROFILE" --artifact "$ARTIFACT_PATH"'
+        )
+        result = self.evaluate(self.ci_profile_rule())
+        self.assertEqual("failed", result.status)
+        self.assertTrue(any("directly" in finding for finding in result.findings))
+
+    def test_ci_profile_routing_rejects_compatibility_alias_substitution(self) -> None:
+        self.write_profile_workflows(ci_invocation="./strling check")
+        result = self.evaluate(self.ci_profile_rule())
+        self.assertEqual("failed", result.status)
+        self.assertTrue(
+            any("compatibility aliases" in finding for finding in result.findings)
+        )
+
+    def test_ci_profile_routing_rejects_mutable_artifact_action(self) -> None:
+        self.write_profile_workflows(upload_action="actions/upload-artifact@v7")
+        result = self.evaluate(self.ci_profile_rule())
+        self.assertEqual("failed", result.status)
+        self.assertTrue(
+            any("immutable action" in finding for finding in result.findings)
+        )
+
+    def test_ci_profile_routing_rejects_wrong_event_mapping(self) -> None:
+        self.write_profile_workflows(schedule_profile="pull-request")
+        result = self.evaluate(self.ci_profile_rule())
+        self.assertEqual("failed", result.status)
+        self.assertTrue(
+            any("routing fragment" in finding for finding in result.findings)
+        )
+
+    def test_ci_profile_routing_rejects_authoritative_artifact_upload(self) -> None:
+        self.write_profile_workflows(upload_non_authoritative=False)
+        result = self.evaluate(self.ci_profile_rule())
+        self.assertEqual("failed", result.status)
+        self.assertTrue(
+            any("non-authoritative" in finding for finding in result.findings)
+        )
+
     def test_rust_crate_boundary_rejects_binding_path_dependency(self) -> None:
         (self.root / "core/src").mkdir(parents=True)
         (self.root / "bindings/rust").mkdir(parents=True)

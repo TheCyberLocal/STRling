@@ -12,17 +12,20 @@ scope:
         - docs/migration/**
         - docs/toolchains.md
         - governance/README.md
+        - governance/architecture-rules.json
         - governance/certification-profiles.md
         - governance/static-analysis.json
         - governance/change-control.json
         - governance/public-surfaces.json
         - governance/contracts/snapshots/root-cli.json
         - governance/schemas/**
+        - governance/security.md
         - bindings/*/README.md
         - strling
         - strling.ps1
         - toolchain.json
         - tooling/documentation_integrity.py
+        - tooling/architecture_fitness.py
         - tooling/lsp-server/examples/README.md
         - tooling/quality.py
         - tooling/tests/**
@@ -199,8 +202,37 @@ checkpoints:
             result: passed
             details: All canonical hardgates passed; no new static-analysis suppression directive was introduced.
     - name: CI profile routing
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Deterministic workflow mapping
+            result: passed
+            details: CI manual dispatch selects an explicit profile and defaults to local; pull requests and branch pushes select pull-request; the weekly schedule selects full; v-prefixed tags and the delivery preflight select release.
+          - check: Canonical profile authority
+            result: passed
+            details: The quality and release-certification jobs invoke only ./strling profile with --artifact. The per-binding matrix remains supplemental on canonical leaf commands; the former split check plus certify-typescript authority was removed.
+          - check: Structured artifact retention
+            result: passed
+            details: Both authoritative jobs retain the profile-produced artifact with the immutable actions/upload-artifact v7.0.1 commit; always-run upload uses warning-only missing-file behavior and cannot redefine the profile process exit.
+          - check: Security and least privilege
+            command: python3 tooling/security.py content --json
+            result: passed
+            details: Both workflows retain read-only default permissions, non-persisted credentials in validation jobs, immutable action references, no validation secrets, and no duplicated scanner or waiver logic. Network-backed risk remains selectable only by full and release profile policy.
+          - check: Enforced no-substitution architecture rule
+            command: python3 tooling/architecture_fitness.py
+            result: passed
+            details: canonical-ci-profile-routing enforces exact event mapping, canonical profile invocation, structured artifact output, pinned upload behavior, and release-preflight dependency while rejecting direct quality scripts and check or certify aliases.
+          - check: Controlled workflow negatives and security regression tests
+            command: python3 -m unittest tooling.tests.test_governance tooling.tests.test_governance_contracts tooling.tests.test_security -v
+            result: passed
+            details: All 68 tests passed, including controlled direct-script, compatibility-alias, mutable-action, authoritative-upload, and wrong-event-mapping failures plus architecture-schema and existing workflow-security coverage.
+          - check: Actual local profile
+            command: ./strling profile local --json --artifact /tmp/strling-checkpoint5-local.json
+            result: passed
+            details: All 22 operations passed and stdout exactly matched the retained artifact.
+          - check: Actual pull-request profile
+            command: ./strling profile pull-request --json --artifact /tmp/strling-checkpoint5-pr.json
+            result: passed
+            details: 41 operations passed and two were unavailable; the governed local Bundler mismatch blocked ruby lint and missing Swift blocked swift typecheck. Exit status remained nonzero and stdout exactly matched the retained artifact.
     - name: Profile certification and hardgates
       status: planned
       evidence: []

@@ -112,6 +112,7 @@
                         "schema-reference-boundary",
                         "semantic-island-placement",
                         "artifact-authority-boundary",
+                        "ci-profile-routing",
                         "tracked-transition"
                     ]
                 },
@@ -132,6 +133,21 @@
                 }
             },
             "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "kind": { "const": "ci-profile-routing" }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": ["sources"]
+                            }
+                        }
+                    }
+                },
                 {
                     "if": {
                         "properties": {

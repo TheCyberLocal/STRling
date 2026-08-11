@@ -53,10 +53,12 @@ contradictory result becomes `INCOMPLETE`; `WAIVED` remains visible and
 successful, while `FAILED`, `UNAVAILABLE`, and `INCOMPLETE` fail the aggregate.
 The root aggregate status preserves those distinctions.
 
-GitHub Actions invokes `./strling check` and `./strling certify typescript` after
-installing the exact `cargo-audit` 0.22.2 pin. CI contains no separate scanner
-logic or suppression behavior. Current legacy `UNAVAILABLE` coverage therefore
-remains a real certification failure rather than being hidden in workflow code.
+GitHub Actions invokes the selected canonical profile after installing the
+exact `cargo-audit` 0.22.2 pin. Pull-request routing remains offline; only
+`full` and `release` can select the network-backed risk operation. CI contains
+no separate scanner logic or suppression behavior. Current legacy
+`UNAVAILABLE` coverage therefore remains a real certification failure rather
+than being hidden in workflow code or artifact upload behavior.
 
 ## Dependency inventory
 

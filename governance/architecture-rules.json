@@ -100,6 +100,18 @@
             }
         },
         {
+            "id": "canonical-ci-profile-routing",
+            "description": "CI and release workflows must use canonical profiles as certification authority and retain their structured artifacts without redefining pass or fail.",
+            "status": "enforced",
+            "kind": "ci-profile-routing",
+            "configuration": {
+                "sources": [
+                    ".github/workflows/ci.yml",
+                    ".github/workflows/cd.yml"
+                ]
+            }
+        },
+        {
             "id": "duplicated-binding-compilers",
             "description": "Independent parser, compiler, and emitter implementations remain present across language bindings.",
             "status": "transitional",

@@ -393,6 +393,149 @@ def artifact_authority_findings(
     return findings
 
 
+def ci_profile_routing_findings(
+    root: Path, configuration: Mapping[str, object]
+) -> list[Finding]:
+    """Require CI certification authority to remain on canonical profiles."""
+
+    sources = configuration["sources"]
+    assert isinstance(sources, list)
+    expected = {
+        ".github/workflows/ci.yml": {
+            "profiles": ("local", "pull-request", "full", "release"),
+            "invocation": './strling profile "$PROFILE" --artifact "$ARTIFACT_PATH"',
+            "routing": (
+                'workflow_dispatch) profile="$REQUESTED_PROFILE" ;;',
+                'pull_request) profile="pull-request" ;;',
+                'schedule) profile="full" ;;',
+                'profile="release"',
+                'profile="pull-request"',
+            ),
+        },
+        ".github/workflows/cd.yml": {
+            "profiles": ("release",),
+            "invocation": './strling profile release --artifact "$ARTIFACT_PATH"',
+        },
+    }
+    findings: list[Finding] = []
+    if set(sources) != set(expected):
+        findings.append(
+            (
+                "CI profile routing must govern both ci.yml and cd.yml",
+                None,
+            )
+        )
+
+    upload_action = "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
+    direct_authorities = (
+        "architecture_fitness.py",
+        "baseline.py",
+        "contract_validation.py",
+        "core_contract_validation.py",
+        "documentation_integrity.py",
+        "formatting.py",
+        "generated_artifacts.py",
+        "governance.py",
+        "public_contracts.py",
+        "quality.py",
+        "security.py",
+        "static_analysis.py",
+    )
+    direct_pattern = re.compile(
+        r"\bpython3?\s+(?:\./)?tooling/(?:"
+        + "|".join(re.escape(name) for name in direct_authorities)
+        + r")\b"
+    )
+
+    for relative, requirements in expected.items():
+        path = root / relative
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            findings.append(
+                (f"{relative}: cannot inspect CI profile routing: {exc}", relative)
+            )
+            continue
+
+        profiles = requirements["profiles"]
+        assert isinstance(profiles, tuple)
+        for profile in profiles:
+            if profile not in text:
+                findings.append(
+                    (
+                        f"{relative}: missing canonical {profile} profile mapping",
+                        relative,
+                    )
+                )
+
+        invocation = requirements["invocation"]
+        assert isinstance(invocation, str)
+        actual_invocations = [
+            line.strip() for line in text.splitlines() if "./strling profile" in line
+        ]
+        if actual_invocations != [invocation]:
+            findings.append(
+                (
+                    f"{relative}: canonical profile invocation must be exactly {invocation}",
+                    relative,
+                )
+            )
+        routing = requirements.get("routing", ())
+        assert isinstance(routing, tuple)
+        for fragment in routing:
+            if fragment not in text:
+                findings.append(
+                    (
+                        f"{relative}: missing deterministic routing fragment {fragment}",
+                        relative,
+                    )
+                )
+        if re.search(r"\./strling\s+(?:check|certify)\b", text):
+            findings.append(
+                (
+                    f"{relative}: compatibility aliases cannot be CI certification authority",
+                    relative,
+                )
+            )
+        if direct_pattern.search(text):
+            findings.append(
+                (
+                    f"{relative}: workflow cannot invoke a quality implementation directly",
+                    relative,
+                )
+            )
+        if text.count(upload_action) != 1:
+            findings.append(
+                (
+                    f"{relative}: certification artifact upload must use the governed immutable action",
+                    relative,
+                )
+            )
+        if (
+            "if: ${{ always() }}" not in text
+            or "if-no-files-found: warn" not in text
+            or text.count("continue-on-error: true") != 1
+        ):
+            findings.append(
+                (
+                    f"{relative}: artifact retention must be unconditional and non-authoritative",
+                    relative,
+                )
+            )
+
+    cd_path = root / ".github/workflows/cd.yml"
+    if cd_path.is_file() and "needs: release-certification" not in cd_path.read_text(
+        encoding="utf-8"
+    ):
+        findings.append(
+            (
+                ".github/workflows/cd.yml: release preflight must depend on release certification",
+                ".github/workflows/cd.yml",
+            )
+        )
+    return findings
+
+
 def evaluate_extended_rule(
     kind: str,
     *,
@@ -421,4 +564,6 @@ def evaluate_extended_rule(
         return tracked_transition_findings(root, configuration, matches_any)
     if kind == "artifact-authority-boundary":
         return artifact_authority_findings(configuration, artifact_registry)
+    if kind == "ci-profile-routing":
+        return ci_profile_routing_findings(root, configuration)
     return None
