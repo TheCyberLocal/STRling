@@ -34,6 +34,7 @@ scope:
         - core/src/portability_planning.rs
         - core/src/portability_planning/validation.rs
         - core/tests/portability_planning.rs
+        - core/tests/portability_planning_properties.rs
         - docs/migration/records/canonical-portability-planning.yaml
         - docs/portability-planning.md
         - governance/change-control.json
@@ -124,8 +125,12 @@ checkpoints:
             result: passed
             details: Nineteen focused planning tests and all 190 kernel tests pass. Explicit unavailability and constraint violations become unsupported only after the complete registry yields no applicable or indeterminate rewrite; unresolved evidence suppresses aggregate status before unsupported, then unsupported precedes rewrite and native. Same-node requirements remain independent, and plan self-validation rejects missing dependency evidence, malformed endpoints, and cycles.
     - name: Property and profile-differential certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Generated decision properties and authored profile differentials
+            command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && cargo check --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml && python3 tooling/core_contract_validation.py && git diff --check
+            result: passed
+            details: Four fixed seeds (0x504f525441424c45, 0x9e3779b97f4a7c15, 0xd1b54a32d192ed03, 0x94d049bb133111eb) generate 256 normalized programs across four authored profiles, 1,024 capability evaluations, and 2,048 repeat planner invocations. All 193 kernel tests pass with exact completeness, determinism, native/rewrite/unsupported soundness, Unknown preservation, input immutability, 64 registered rewrite plans, 695 unresolved decisions, 160 semantic decision differentials caused only by profile changes, 16 rejected malformed cases, and zero unexplained failures. Canonical contracts retain 11 schema mappings and 63 fixtures.
     - name: Pipeline and hardgate integration
       status: planned
       evidence: []
@@ -139,3 +144,5 @@ commits:
       subject: "feat(core): establish portability planning"
     - sha: 5fd1f78449c0c33c44cd3f0f108836348b06c386
       subject: "feat(core): plan semantics-preserving portability rewrites"
+    - sha: 5db74817c5e379309fadc0839b0a9591884020f3
+      subject: "feat(core): resolve canonical portability decisions"
