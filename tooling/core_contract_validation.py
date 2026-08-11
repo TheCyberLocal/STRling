@@ -13,17 +13,19 @@ from typing import Any
 try:
     from core_stage_boundaries import (
         capability_evaluation_boundary_violation,
-        capability_pipeline_boundary_violation,
         compiler_pipeline_boundary_violation,
         diagnostic_generation_boundary_violation,
+        portability_pipeline_boundary_violation,
+        portability_planning_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
     from tooling.core_stage_boundaries import (
         capability_evaluation_boundary_violation,
-        capability_pipeline_boundary_violation,
         compiler_pipeline_boundary_violation,
         diagnostic_generation_boundary_violation,
+        portability_pipeline_boundary_violation,
+        portability_planning_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 
@@ -63,6 +65,7 @@ MODULE_PATHS = {
     "diagnostic": "core/src/diagnostic/mod.rs",
     "diagnostic_generation": "core/src/diagnostic_generation.rs",
     "normalization": "core/src/normalization.rs",
+    "portability_planning": "core/src/portability_planning.rs",
     "protocol::analysis": "core/src/protocol/analysis.rs",
     "protocol::exchange": "core/src/protocol/exchange.rs",
     "protocol::request": "core/src/protocol/request.rs",
@@ -173,6 +176,14 @@ def validate_mapping_document(
             raise CoreContractError(
                 "diagnostic mapping must register canonical diagnostic generation"
             )
+        if relative == "spec/contracts/1.0/portability.schema.json" and modules != [
+            "protocol::analysis",
+            "target",
+            "portability_planning",
+        ]:
+            raise CoreContractError(
+                "portability mapping must register canonical portability planning"
+            )
         if relative == "spec/contracts/1.0/semantic-ir.schema.json" and modules != [
             "normalization",
             "semantic",
@@ -181,16 +192,18 @@ def validate_mapping_document(
             "safety_analysis",
             "diagnostic_generation",
             "capability_evaluation",
+            "portability_planning",
         ]:
             raise CoreContractError(
-                "Semantic IR mapping must register target-neutral stages and capability requirement extraction in dependency order"
+                "Semantic IR mapping must register target-neutral stages, capability requirement extraction, and portability planning in dependency order"
             )
         if relative == "spec/contracts/1.0/target-profile.schema.json" and modules != [
             "target::profile",
             "capability_evaluation",
+            "portability_planning",
         ]:
             raise CoreContractError(
-                "target profile mapping must register factual capability evaluation"
+                "target profile mapping must register factual capability evaluation and portability planning"
             )
 
     fixture_roots = mapping["fixture_roots"]
@@ -482,7 +495,8 @@ def validate_source_boundaries(
         diagnostic_generation_boundary_violation,
         compiler_pipeline_boundary_violation,
         capability_evaluation_boundary_violation,
-        capability_pipeline_boundary_violation,
+        portability_planning_boundary_violation,
+        portability_pipeline_boundary_violation,
     ):
         violation = boundary_check(source_texts)
         if violation is not None:

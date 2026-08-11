@@ -16,6 +16,7 @@ scope:
         - governance/change-control.json
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
+        - tooling/tests/test_capability_architecture.py
         - tooling/tests/test_portability_architecture.py
     forbidden_paths:
         - bindings/**
@@ -29,15 +30,23 @@ scope:
         - strling.ps1
         - tests/spec/**
     expected_files:
+        - core/README.md
+        - core/contract-mapping.json
         - core/src/capability_evaluation.rs
+        - core/src/capability_pipeline.rs
         - core/src/lib.rs
         - core/src/portability_planning.rs
         - core/src/portability_planning/validation.rs
         - core/tests/portability_planning.rs
         - core/tests/portability_planning_properties.rs
+        - docs/architecture.md
         - docs/migration/records/canonical-portability-planning.yaml
         - docs/portability-planning.md
         - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_capability_architecture.py
+        - tooling/tests/test_portability_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -146,3 +155,5 @@ commits:
       subject: "feat(core): plan semantics-preserving portability rewrites"
     - sha: 5db74817c5e379309fadc0839b0a9591884020f3
       subject: "feat(core): resolve canonical portability decisions"
+    - sha: f15a0cdb4d71d9fbc412723919485b833979aae8
+      subject: "test(core): certify canonical portability planning"

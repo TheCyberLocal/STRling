@@ -95,49 +95,20 @@ class CapabilityStageBoundaryTests(unittest.TestCase):
             "core/src/safety_analysis.rs",
             "core/src/diagnostic_generation.rs",
         ):
-            sources = source_texts()
-            sources[path] += "\nuse crate::capability_evaluation;\n"
-            with (
-                self.subTest(path=path),
-                self.assertRaisesRegex(CoreContractError, "reverse target dependency"),
+            for forbidden in (
+                "use crate::capability_evaluation;",
+                "use crate::portability_planning;",
             ):
-                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
-
-
-class CapabilityPipelineBoundaryTests(unittest.TestCase):
-    def test_target_neutral_stages_must_precede_capability_evaluation(self) -> None:
-        sources = source_texts()
-        sources["core/src/capability_pipeline.rs"] = sources[
-            "core/src/capability_pipeline.rs"
-        ].replace(
-            "run_target_neutral_stages(input)",
-            "run_target_neutral_stages_after_capability(input)",
-            1,
-        )
-        with self.assertRaisesRegex(CoreContractError, "diagnostics before"):
-            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
-
-    def test_runtime_probe_and_later_target_stage_dependencies_fail(self) -> None:
-        for forbidden in (
-            "std::env::var",
-            "std::process::Command",
-            "use crate::emitter;",
-            "use crate::planner;",
-            "use crate::portability;",
-            "use crate::protocol;",
-        ):
-            sources = source_texts()
-            pipeline = sources["core/src/capability_pipeline.rs"]
-            test_marker = pipeline.find("\n#[cfg(test)]")
-            self.assertGreater(test_marker, 0)
-            sources["core/src/capability_pipeline.rs"] = (
-                pipeline[:test_marker] + f"\n// {forbidden}\n" + pipeline[test_marker:]
-            )
-            with (
-                self.subTest(forbidden=forbidden),
-                self.assertRaisesRegex(CoreContractError, "capability pipeline"),
-            ):
-                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+                sources = source_texts()
+                sources[path] += f"\n{forbidden}\n"
+                with (
+                    self.subTest(path=path, forbidden=forbidden),
+                    self.assertRaisesRegex(
+                        CoreContractError,
+                        "reverse target dependency|target-neutral stage boundary",
+                    ),
+                ):
+                    validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 
 
 if __name__ == "__main__":

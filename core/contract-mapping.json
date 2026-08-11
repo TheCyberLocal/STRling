@@ -45,7 +45,11 @@
         {
             "schema": "spec/contracts/1.0/portability.schema.json",
             "sha256": "5f1ee813dc8c5c89dda72f7a9acd7fc7d016ed4caed5e47f4db092d9ce6f0f69",
-            "rust_modules": ["protocol::analysis", "target"]
+            "rust_modules": [
+                "protocol::analysis",
+                "target",
+                "portability_planning"
+            ]
         },
         {
             "schema": "spec/contracts/1.0/semantic-ir.schema.json",
@@ -57,7 +61,8 @@
                 "structural_analysis",
                 "safety_analysis",
                 "diagnostic_generation",
-                "capability_evaluation"
+                "capability_evaluation",
+                "portability_planning"
             ]
         },
         {
@@ -73,7 +78,11 @@
         {
             "schema": "spec/contracts/1.0/target-profile.schema.json",
             "sha256": "3de1febbb3915123bad74edc71d686f2b2e863be92ff17f596e4e014dcc091c4",
-            "rust_modules": ["target::profile", "capability_evaluation"]
+            "rust_modules": [
+                "target::profile",
+                "capability_evaluation",
+                "portability_planning"
+            ]
         }
     ],
     "fixture_roots": [

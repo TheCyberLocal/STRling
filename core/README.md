@@ -19,10 +19,14 @@ evidence through `safety_analysis::analyze_safety`, and canonical contract
 diagnostics through `diagnostic_generation::generate_diagnostics`. Pure
 semantic requirements and factual profile support are available through
 `capability_evaluation::extract_requirements` and
-`capability_evaluation::evaluate_capabilities`. Crate-private pipelines certify
-that capability evaluation follows target-neutral diagnostics while the
-existing `CompileResult` projection remains target-neutral and produces no
-portability plan or artifact. Parsing, portability planning and diagnostics,
-exploitability or target-runtime verdicts, automatic rewrites, lowering,
+`capability_evaluation::evaluate_capabilities`. Representation decisions are
+available through `portability_planning::plan_portability`, whose certified
+plans preserve exact capability and proof evidence without changing Semantic
+IR. The crate-private target-aware pipeline certifies that planning follows
+capability evaluation, while the existing `CompileResult` projection remains
+target-neutral and produces no portability plan or artifact.
+
+Parsing, rewrite application, target-specific portability diagnostics,
+exploitability or target-runtime verdicts, capture numbering, lowering,
 emission, bindings, editor presentation, adapters, and product integrations
 remain deferred to separately contained tasks.

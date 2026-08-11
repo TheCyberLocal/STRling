@@ -222,32 +222,113 @@ def capability_evaluation_boundary_violation(
     return None
 
 
-def capability_pipeline_boundary_violation(
+def portability_planning_boundary_violation(
     source_texts: Mapping[str, str],
 ) -> str | None:
-    """Return the first target-aware pipeline architecture violation."""
+    """Return the first pure portability-planning architecture violation."""
+
+    source = source_texts.get("core/src/portability_planning.rs", "").lower()
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub fn plan_portability(" not in source:
+        return "canonical portability planning stage boundary cannot be located"
+
+    prerequisites = (
+        ("crate::capability_evaluation::{", "factual capability evaluation"),
+        ("crate::semantic::{", "normalized semantic IR"),
+        ("crate::semantic_analysis::{", "certified foundational semantic facts"),
+        ("crate::structural_analysis::", "certified structural facts"),
+        ("crate::target::{", "immutable target profiles"),
+    )
+    for marker, description in prerequisites:
+        if marker not in source:
+            return f"portability planning must consume {description}"
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "evaluate_capabilities(",
+            "extract_requirements(",
+            "crate::normalization",
+            "crate::safety_analysis",
+            "crate::diagnostic",
+            "crate::diagnostic_generation",
+            "crate::protocol",
+            "crate::conformance",
+            "crate::capability_pipeline",
+            "crate::emitter",
+            "crate::emitters",
+            "crate::bindings",
+            "crate::frontend",
+            "crate::lsp",
+            "crate::editor",
+            "crate::parser",
+            "bindings::",
+            "frontend::",
+            "emitters::",
+            "std::env",
+            "std::fs",
+            "std::net",
+            "std::path",
+            "std::process",
+            "std::thread",
+            "std::time",
+            "systemtime",
+            "thread_rng",
+            "rand::",
+            "raw_source",
+            "source_text",
+            "regex_source",
+            "parse_regex",
+            "scan_regex",
+            "runtime_probe",
+            "engine_options",
+            "emitted_pattern",
+            "target_artifact",
+            "capture_numbering",
+            "pcre2",
+            "ecmascript",
+            "python_re",
+        ),
+    )
+    if forbidden is not None:
+        return f"portability planning violates pure stage boundary: {forbidden}"
+    return None
+
+
+def portability_pipeline_boundary_violation(
+    source_texts: Mapping[str, str],
+) -> str | None:
+    """Return the first target-aware planning-pipeline violation."""
 
     source = source_texts.get("core/src/capability_pipeline.rs", "").lower()
     source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
-    if "pub fn compile_semantic_capabilities(" not in source:
-        return "canonical capability pipeline boundary cannot be located"
+    if "pub fn compile_semantic_portability(" not in source:
+        return "canonical portability pipeline boundary cannot be located"
 
     prerequisites = (
         ("crate::compiler_pipeline", "completed target-neutral stages"),
         ("crate::capability_evaluation", "factual capability evaluation"),
+        ("crate::portability_planning", "certified portability planning"),
         ("crate::semantic", "normalized semantic input contract"),
         ("crate::target", "immutable target profile contract"),
     )
     for marker, description in prerequisites:
         if marker not in source:
-            return f"capability pipeline must consume {description}"
+            return f"portability pipeline must consume {description}"
 
     neutral = source.find("run_target_neutral_stages(input)")
     capability = source.find("evaluate_capabilities(")
-    if neutral < 0 or capability < 0 or neutral >= capability:
+    planning = source.find("plan_portability(")
+    if (
+        neutral < 0
+        or capability < 0
+        or planning < 0
+        or neutral >= capability
+        or capability >= planning
+    ):
         return (
-            "capability pipeline must run target-neutral diagnostics before "
-            "capability evaluation"
+            "portability pipeline must run target-neutral diagnostics, factual "
+            "capability evaluation, and planning in dependency order"
         )
 
     forbidden = _first_forbidden(
@@ -267,7 +348,6 @@ def capability_pipeline_boundary_violation(
             "crate::lsp",
             "crate::editor",
             "crate::planner",
-            "crate::portability",
             "crate::parser",
             "bindings::",
             "frontend::",
@@ -284,15 +364,14 @@ def capability_pipeline_boundary_violation(
             "rand::",
             "engine_options",
             "emitted_pattern",
-            "portability_plan",
-            "portability_decision",
+            "target_artifact",
             "pcre2",
             "ecmascript",
             "python_re",
         ),
     )
     if forbidden is not None:
-        return f"capability pipeline violates dependency boundary: {forbidden}"
+        return f"portability pipeline violates dependency boundary: {forbidden}"
     return None
 
 
@@ -321,7 +400,11 @@ def target_neutral_reverse_dependency_violation(
         source = text.lower()
         forbidden = _first_forbidden(
             source,
-            ("crate::capability_evaluation", "crate::capability_pipeline"),
+            (
+                "crate::capability_evaluation",
+                "crate::portability_planning",
+                "crate::capability_pipeline",
+            ),
         )
         if forbidden is not None:
             return (

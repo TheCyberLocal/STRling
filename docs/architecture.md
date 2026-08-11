@@ -50,9 +50,12 @@ support, explicit unavailability, constraint violations, or unknown data. Its
 [contract](capability-evaluation.md) preserves missing profile information as
 unknown and does not choose rewrites.
 
-**Portability planning** compares required meaning with a selected profile and
-chooses native support, a semantics-preserving rewrite, or an unsupported
-result. Engine capabilities are version/profile-sensitive.
+**Portability planning** consumes that exact evaluation and chooses native
+support, a proven semantics-preserving rewrite plan, or an unsupported result.
+Its [canonical contract](portability-planning.md) preserves incomplete evidence
+as unresolved outside the final portability vocabulary. Engine capabilities
+are version/profile-sensitive, and planning neither applies rewrites nor emits
+target syntax.
 
 **Lowering** selects deliberate target-specific forms. **Emitters**
 deterministically serialize those plans; they do not invent semantic or
