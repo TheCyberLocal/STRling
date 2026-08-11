@@ -26,6 +26,7 @@ scope:
         - docs/migration/legacy-reference-runner.md
         - docs/migration/records/legacy-reference-runner.yaml
         - governance/change-control.json
+        - tooling/legacy_reference/**
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -91,8 +92,16 @@ checkpoints:
             result: passed
             details: Prettier, documentation integrity for 123 documents, task scope, change declarations, all enforced architecture rules, and patch integrity passed.
     - name: Deterministic runner protocol and serialization
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Protocol validation, serialization, and identity
+            command: node --test tooling/legacy_reference/tests/protocol.test.mjs
+            result: passed
+            details: Nine tests passed for valid and malformed requests, unknown operations, exact surface routing, recursive canonical JSON, stable and sensitive implementation identity, byte-identical repeat observation, and structured stack-free legacy failure.
+          - check: Checkpoint quality gates
+            command: npx prettier --check tooling/legacy_reference docs/migration/records/legacy-reference-runner.yaml && ./strling typecheck typescript && python3 tooling/governance.py && python3 tooling/architecture_fitness.py && git diff --check
+            result: passed
+            details: Focused tests, Prettier, TypeScript typecheck, canonical/core/public contracts, generated state, documentation integrity for 124 documents, governance, architecture fitness, and patch integrity passed.
     - name: Parser and public API observation
       status: planned
       evidence: []
@@ -108,4 +117,6 @@ checkpoints:
     - name: Reference runner readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 4d69585f357157af6464787f20c3986472e3765f
+      subject: "docs(migration): define legacy reference runner contract"
