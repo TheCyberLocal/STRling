@@ -125,8 +125,20 @@ checkpoints:
             result: passed
             details: Focused tests, Prettier, Ruff format, isolated TypeScript build, TypeScript typecheck, core contracts, documentation integrity for 124 documents, architecture fitness, and patch integrity passed. The observed metadata projection was retained exactly, including the historical feature set returned for the combined case. WSL-only wrapper checks remained unavailable after the host service reported Wsl/Service/0x80072747; their last committed-state results were green at the parser/API checkpoint and the complete required profiles remain scheduled for checkpoint 6.
     - name: Determinism and reference corpus certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Focused reference corpus certification
+            command: python3 tooling/legacy_reference/launch.py --check
+            result: passed
+            details: Forty-one focused tests passed. The 24-case corpus covers all 11 operation classes and produced 17 success plus 7 legacy-failure observations, including 2 malformed-input cases. Three complete runs compared 72 canonical observations with zero mismatches or unexplained failures.
+          - check: Governed Node certification identity
+            command: python3 tooling/legacy_reference/launch.py --certify
+            result: passed
+            details: Node 22.23.2 produced corpus fingerprint sha256:744a4d0e029fbb2890e98e25d20402044f5b551a7642255a57c80f5dec48d30a and implementation fingerprint sha256:520b1a43a8c8aac5c8a4c455017b6dfa6c0112baf8b18cb68606dc5d7ccebb22. The corpus and governed TypeScript implementation inputs remained byte-identical.
+          - check: Independent versioning, sensitivity, and non-interpretation
+            command: node --test tooling/legacy_reference/tests/protocol.test.mjs tooling/legacy_reference/tests/corpus.test.mjs
+            result: passed
+            details: Tests prove separate protocol, observation, corpus, batch, and certification version fields; implementation-fingerprint sensitivity to governed input mutation; stable unique case identities; structured malformed containment; and absence of comparison disposition fields or labels.
     - name: Tooling integration and architecture hardgates
       status: planned
       evidence: []
@@ -140,3 +152,5 @@ commits:
       subject: "feat(migration): establish legacy reference protocol"
     - sha: cfdc09a9ff8e48fa0bc7d951bb5d4d670ffd0b2e
       subject: "feat(migration): capture legacy parser evidence"
+    - sha: 755be2f62f2a2d3c8496ebef9edd1f7c625b560c
+      subject: "feat(migration): capture legacy compiler evidence"

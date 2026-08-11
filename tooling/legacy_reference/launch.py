@@ -23,8 +23,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run the controlled legacy TypeScript reference harness."
     )
-    parser.add_argument("--check", action="store_true")
-    parser.add_argument("--request", type=Path)
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--check", action="store_true")
+    modes.add_argument("--request", type=Path)
+    modes.add_argument("--corpus", action="store_true")
+    modes.add_argument("--certify", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -71,10 +74,6 @@ def run_node(output: Path, arguments: Sequence[str]) -> int:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
-    if args.check and args.request is not None:
-        print("--check and --request are mutually exclusive", file=sys.stderr)
-        return 2
-
     with tempfile.TemporaryDirectory(prefix="strling-legacy-reference-") as temporary:
         output = Path(temporary) / "dist"
         build_exit = build_legacy_typescript(output)
@@ -86,7 +85,17 @@ def main(argv: Sequence[str] | None = None) -> int:
                 str(path.relative_to(ROOT))
                 for path in (TOOL_ROOT / "tests").glob("*.test.mjs")
             )
-            return run_node(output, ["--test", *tests])
+            test_exit = run_node(output, ["--test", *tests])
+            if test_exit != 0:
+                return test_exit
+            return run_node(
+                output,
+                [str(TOOL_ROOT / "corpus_cli.mjs"), "--certify"],
+            )
+
+        if args.corpus or args.certify:
+            mode = "--observations" if args.corpus else "--certify"
+            return run_node(output, [str(TOOL_ROOT / "corpus_cli.mjs"), mode])
 
         command = [str(TOOL_ROOT / "cli.mjs")]
         if args.request is not None:

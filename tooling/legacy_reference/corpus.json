@@ -1,0 +1,377 @@
+{
+    "cases": [
+        {
+            "behavior_family": "literal",
+            "id": "parser-literal",
+            "provenance": "bindings/typescript/__tests__/unit/parser.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.core.parser.parse",
+                "input": {
+                    "source": "plain text"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "escape-and-character-class",
+            "id": "parser-escape-class",
+            "provenance": "bindings/typescript/__tests__/unit/char_classes.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.core.parser.parse",
+                "input": {
+                    "source": "[a-z\\d_]+"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "groups-captures-alternation-repetition-lookaround",
+            "id": "parser-groups-alternation-lookaround",
+            "provenance": "bindings/typescript/__tests__/unit/groups_backrefs_lookarounds.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.core.parser.parse",
+                "input": {
+                    "source": "(?<word>[a-z]+)(?=\\d)|x{2,3}"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "directive-and-preprocessing",
+            "id": "parser-extended-directive",
+            "provenance": "bindings/typescript/__tests__/unit/free_spacing.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.core.parser.parse",
+                "input": {
+                    "source": "%flags x\na # comment\n[\\d_]"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "malformed-input",
+            "id": "parser-malformed-group",
+            "provenance": "bindings/typescript/__tests__/unit/errors.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.core.parser.parse",
+                "input": {
+                    "source": "(abc"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "artifact-shape",
+            "id": "parser-artifact-repetition",
+            "provenance": "bindings/typescript/__tests__/unit/schema_validation.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.core.parser.parseToArtifact",
+                "input": {
+                    "source": "(?:ab){2,4}?"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse_to_artifact",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "ir-normalization",
+            "id": "compiler-literal-normalization",
+            "provenance": "bindings/typescript/src/STRling/core/compiler.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.core.Compiler.compile",
+                "input": {
+                    "source": "abc"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "compiler.compile",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "compiler-input-flags",
+            "id": "compiler-directive-flags",
+            "provenance": "bindings/typescript/__tests__/e2e/pcre2_emitter.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.core.Compiler.compile",
+                "input": {
+                    "source": "%flags im\nab"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "compiler.compile",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "malformed-input",
+            "id": "compiler-malformed-group",
+            "provenance": "bindings/typescript/__tests__/unit/errors.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.core.Compiler.compile",
+                "input": {
+                    "source": "(abc"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "compiler.compile",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "compiler-metadata",
+            "id": "compiler-feature-metadata",
+            "provenance": "bindings/typescript/src/STRling/core/compiler.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.core.Compiler.compileWithMetadata",
+                "input": {
+                    "source": "(?<tag>\\p{L}++)(?<=x)\\k<tag>(?>a)"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "compiler.compile_with_metadata",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "exact-emitted-text",
+            "id": "emitter-phone-golden",
+            "provenance": "bindings/typescript/__tests__/e2e/pcre2_emitter.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.emitters.pcre2.emit",
+                "input": {
+                    "source": "%flags x\n(?<area>\\d{3}) - (?<exchange>\\d{3}) - (?<line>\\d{4})"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "emitter.pcre2.emit",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "target-and-flags",
+            "id": "emitter-unicode-flags",
+            "provenance": "bindings/typescript/__tests__/e2e/pcre2_emitter.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.emitters.pcre2.emit",
+                "input": {
+                    "source": "%flags u\n\\p{L}+"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "emitter.pcre2.emit",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "legacy-emitter-failure",
+            "id": "emitter-variable-lookbehind",
+            "provenance": "tests/conformance/inputs/emitter_edges/pathological.json",
+            "request": {
+                "expected_legacy_surface": "typescript.emitters.pcre2.emit",
+                "input": {
+                    "source": "(?<=a+)b"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "emitter.pcre2.emit",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "legacy-emitter-option-failure",
+            "id": "emitter-depth-guard",
+            "provenance": "tests/conformance/inputs/emitter_edges/pathological.json",
+            "request": {
+                "expected_legacy_surface": "typescript.emitters.pcre2.emit",
+                "input": {
+                    "source": "((a))"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "emitter.pcre2.emit",
+                "options": {
+                    "max_depth": 2
+                },
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "legacy-emitter-warning",
+            "id": "emitter-redos-warning",
+            "provenance": "tests/conformance/inputs/emitter_edges/pathological.json",
+            "request": {
+                "expected_legacy_surface": "typescript.emitters.pcre2.emitWithDiagnostics",
+                "input": {
+                    "source": "(a+)+"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "emitter.pcre2.emit_with_diagnostics",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "diagnostic-return-shape",
+            "id": "emitter-diagnostics-clean",
+            "provenance": "bindings/typescript/__tests__/unit/emitter_edges.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.emitters.pcre2.emitWithDiagnostics",
+                "input": {
+                    "source": "a{2,3}"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "emitter.pcre2.emit_with_diagnostics",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "package-root-parse",
+            "id": "root-parse-named-capture",
+            "provenance": "bindings/typescript/__tests__/unit/groups_backrefs_lookarounds.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.package-root.parse",
+                "input": {
+                    "source": "(?<name>\\w+)"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.root.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "package-root-artifact",
+            "id": "root-artifact-alternation",
+            "provenance": "bindings/typescript/__tests__/unit/schema_validation.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.package-root.parseToArtifact",
+                "input": {
+                    "source": "a|b"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.root.parse_to_artifact",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "simply-exact-text",
+            "id": "simply-literal-escaping",
+            "provenance": "bindings/typescript/__tests__/unit/simply_api.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.simply.Pattern.toString",
+                "input": {
+                    "literal": "a.b"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.simply.literal_to_string",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "simply-empty-literal",
+            "id": "simply-literal-empty",
+            "provenance": "bindings/typescript/__tests__/unit/simply_api.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.simply.Pattern.toString",
+                "input": {
+                    "literal": ""
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.simply.literal_to_string",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "simply-target",
+            "id": "simply-compile-pcre2",
+            "provenance": "bindings/typescript/__tests__/unit/simply_api.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.simply.compileNode",
+                "input": {
+                    "literal": "a.b"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.simply.compile_node",
+                "options": {
+                    "target": "pcre2"
+                },
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "legacy-target-rejection",
+            "id": "simply-compile-unknown-target",
+            "provenance": "bindings/typescript/__tests__/unit/simply_api.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.simply.compileNode",
+                "input": {
+                    "literal": "a"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.simply.compile_node",
+                "options": {
+                    "target": "javascript"
+                },
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "regexp-return-shape",
+            "id": "simply-regexp-flags",
+            "provenance": "bindings/typescript/__tests__/unit/simply_api.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.simply.toRegExp",
+                "input": {
+                    "literal": "a.b"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.simply.to_regexp",
+                "options": {
+                    "flags": "im"
+                },
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "regexp-target-rejection",
+            "id": "simply-regexp-unknown-target",
+            "provenance": "bindings/typescript/__tests__/unit/simply_api.test.ts",
+            "request": {
+                "expected_legacy_surface": "typescript.simply.toRegExp",
+                "input": {
+                    "literal": "a"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.simply.to_regexp",
+                "options": {
+                    "target": "javascript"
+                },
+                "protocol_version": "1.0.0"
+            }
+        }
+    ],
+    "corpus_kind": "strling.legacy-reference-corpus",
+    "corpus_version": "1.0.0",
+    "description": "Focused source-authored requests for deterministic historical TypeScript observation."
+}

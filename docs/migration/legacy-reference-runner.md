@@ -153,6 +153,39 @@ compiler contract, and any future comparison schema evolve independently. A
 breaking request or observation change requires a new protocol/schema version;
 a legacy implementation change changes only its implementation fingerprint.
 
+## Reference corpus and certification
+
+The source-authored corpus contains 24 stable cases drawn from existing
+TypeScript unit/end-to-end tests, the focused pathological emitter fixture, and
+the implementation surface itself. It covers every one of the 11 operation
+identifiers and the literal, escape, class, group, capture, alternation,
+repetition, lookaround, directive, preprocessing, compilation, metadata,
+emission, warning, option, malformed-input, package-root, and Simply API
+families.
+
+The certification executes the complete corpus three times in one isolated
+legacy build and compares the full canonical batch bytes. It also fingerprints
+each case and observation, hashes the corpus before and after execution, and
+recomputes the governed implementation identity afterward. A protocol or
+runner failure exits nonzero; a captured legacy failure remains a valid
+observation.
+
+The certified Node 22.23.2 run recorded:
+
+-   corpus fingerprint
+    sha256:744a4d0e029fbb2890e98e25d20402044f5b551a7642255a57c80f5dec48d30a;
+-   implementation fingerprint
+    sha256:520b1a43a8c8aac5c8a4c455017b6dfa6c0112baf8b18cb68606dc5d7ccebb22;
+-   24 cases, 17 success observations, and 7 legacy-failure observations;
+-   2 malformed-input cases;
+-   3 batch runs and 72 canonical observation comparisons; and
+-   zero mismatches, zero unexplained failures, and unchanged corpus and
+    governed implementation inputs.
+
+The launcher exposes single-request, complete observation-batch, certification,
+and focused-check modes through --request, --corpus, --certify, and --check.
+Batch and certification outputs are canonical JSON with one trailing LF.
+
 ## Evidence lifecycle and later comparison
 
 The focused reference corpus is source-authored migration input, not a semantic
