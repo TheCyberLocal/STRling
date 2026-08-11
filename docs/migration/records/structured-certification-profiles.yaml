@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Structured certification profiles
-status: in_progress
+status: complete
 objective: Establish stable local, pull-request, full, and release execution policies over STRling's canonical quality operations, with deterministic structured certification artifacts and CI routing that preserve fail-closed result semantics without changing product behavior.
 scope:
     diff:
@@ -274,6 +274,70 @@ checkpoints:
             result: passed
             details: Every governed profile stdout document was semantically equal to its retained artifact, profile and artifact exit status agreed, the certification property proved repository input immutability, and no forbidden product path changed.
     - name: Completion and phase readiness
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: Stable profile architecture
+            result: passed
+            details: Local, pull-request, full, and release retain definition version 1.1.0 as execution policies over the single canonical operation registry. Declared membership and target order are deterministic; component scope affects only component operations; mandatory repository gates always run; local and pull-request are offline, while only full and release permit network operations.
+          - check: Aggregate and artifact contract
+            result: passed
+            details: Failed, incomplete, unavailable, waived, and passed precedence remains fail-closed, with deliberate not-applicable, not-yet-configured, and not-yet-enforceable evidence preserved. Artifact schema 1.0.0 owns the exact ordered result set, profile fingerprint, repository identity/state, structured findings, waiver references, unavailable/incomplete reasons, environment evidence, aggregate, and deterministic evidence fingerprint; execution metadata is non-semantic and the human summary is artifact-derived.
+          - check: CI workflow mapping
+            result: passed
+            details: CI manual dispatch defaults to local and accepts an explicit profile; pull requests and branch pushes use pull-request; weekly scheduling uses full; v-prefixed tags and the delivery release preflight use release. Both profile jobs retain structured artifacts without giving upload authority over pass/fail, and the release job depends on release certification.
+          - check: Clean committed-state profile certification
+            command: ./strling profile local; ./strling profile pull-request; ./strling profile full; ./strling profile release; ./strling check; ./strling certify with JSON artifacts from committed 731af34a7a5b394a24d9e7e0fefda4ecc7c4ecee
+            result: passed
+            details: Local passed all 22 operations. Pull-request and check each recorded 41 passed and two unavailable. Full, release, and certify each recorded 68 passed and seven unavailable. Every process exit agreed with its artifact, stdout was semantically identical to the retained artifact, repository dirty state was false, git diff --check passed, and the tree remained clean.
+          - check: Carry-forward preservation
+            result: passed
+            details: WVR-SEC-NPM-TOOLING-001 and WVR-SEC-VSCE-LICENSE-001 still expire 2026-09-10; dependency risk remains nine passed, four waived, and 32 unavailable nested checks; the local Bundler mismatch and missing Swift remain explicit. Release packaging, real-engine matrices, adapters, provenance, signing, clean-room release checks, and publication remain later work and were not manufactured as completed operations.
+          - check: Explicitly unchanged behavior
+            result: passed
+            details: No existing STRling runtime/compiler behavior intentionally changed. Language semantics, Semantic IR, parser behavior, portability, target lowering/emission, bindings, public package APIs, package versions, and publication remain unchanged.
+          - check: Notion source-of-truth handoff
+            result: passed
+            details: The next incomplete campaign task is P04-T04, Define safety, diagnostics, standard-library, and validation guarantees. Its status is Partial and its recorded remaining work is full ratification of standard-library validation guarantees; this completed engineering architecture is ready to hand off with recorded environmental and security carry-forward.
+commits:
+    - sha: e6294e485c0ef3443354aac0681a148ac5e98b6c
+      subject: "docs(ci): define certification profile architecture"
+    - sha: ea91b06555511cc688cfdc41cca5e7c65d8eb33e
+      subject: "feat(ci): implement canonical certification profiles"
+    - sha: 0d03fc099e2bcb221701f1e0e266a728d7f72839
+      subject: "feat(ci): generate structured certification artifacts"
+    - sha: a60bbd2bcd440b7ad059b06e5b8f0bec69eadba4
+      subject: "feat(ci): enforce documentation and example integrity"
+    - sha: f9aba576568b70ecbeb73da4d37b6722b2469fdb
+      subject: "ci: route quality gates through certification profiles"
+    - sha: 731af34a7a5b394a24d9e7e0fefda4ecc7c4ecee
+      subject: "test(ci): certify profile and artifact integrity"
+completion:
+    accomplished:
+        - Centralized canonical repository and component operations, stable profile identities, versioned deterministic membership, target ordering, network policy, component scoping, aggregate semantics, compatibility aliases, and profile ratcheting in the existing root quality framework.
+        - Added certification artifact schema 1.0.0, positive and invalid fixtures, exact result-to-exit fidelity, deterministic profile and evidence fingerprints, separate execution metadata, atomic artifact writing, mechanical validation, and artifact-derived human summaries.
+        - Made documentation and parser-example integrity a non-mutating structured operation and routed GitHub Actions event classes and release preflight through the same developer profile executor with immutable artifact retention and enforced no-substitution architecture checks.
+        - Added explicit property coverage for determinism, membership integrity, mandatory-gate no-bypass, no false pass, waiver integrity, artifact/summary fidelity, input immutability, and executor-independent profile ratcheting.
+    verified:
+        - From clean committed checkpoint 731af34a7a5b394a24d9e7e0fefda4ecc7c4ecee, formatting, hygiene, repository static analysis, generation integrity, contracts/public snapshots, governance, architecture fitness, documentation/examples, security integrity/content, and git diff --check passed; certification left the tree clean.
+        - All 267 tooling tests passed, including eight focused certification properties and controlled negatives for schemas, profile selection, aggregate tampering, documentation breakage, CI substitution, immutable actions, tool drift, and security fail-closed behavior.
+        - TypeScript environment/typecheck/build/test passed all 19 suites and 963 tests; kernel rustfmt, warnings-denied Clippy, typecheck/build and all 194 tests passed; Rust binding typecheck/build and all 638 tests passed.
+        - Local recorded 22 passed operations. Pull-request and check each recorded 41 passed and two unavailable. Full, release, and certify each recorded 68 passed and seven unavailable. Every artifact was semantically identical to stdout and retained exact nonzero exits where required evidence was unavailable.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - The engineering-only root CLI now exposes stable certification profiles and emits validated machine-readable certification artifacts with summaries derived from the same evidence.
+        - GitHub Actions now selects those canonical profiles by event and retains their artifacts; no publication path was added.
+    preserved_behavior:
+        - STRling language semantics, Semantic IR, parser and grammar behavior, portability analysis, target lowering/emission, runtime behavior, bindings/adapters, public package APIs, package versions, and publication remain unchanged.
+        - No product dependency was installed or upgraded, no security waiver was broadened, no release credential was added, and no package was published.
+    transitional_architecture:
+        - The release profile currently has the same operation membership as full but retains its distinct stable identity and purpose so packaging, real-engine matrices, adapters, provenance, signing, and clean-room release checks can ratchet into it later without executor or artifact redefinition.
+        - External documentation reachability and anchor validation without a pinned GFM slugger remain explicit documentation limitations; transitional generated-artifact and public-surface declarations retain their existing retirement conditions.
+        - Required ecosystem scanners remain unavailable locally, Node 18 remains transitional, the npm executable version remains deferred, local Bundler differs from the repository-managed version, and Swift is absent from the governed PATH.
+    deferred_work:
+        - Add authoritative governed vulnerability and license scanners for currently unavailable ecosystems and retire or remediate both accepted security waivers before 2026-09-10.
+        - Ratchet packaging, real-engine matrices, adapters, SBOM/provenance/attestation, signing, and clean-room release certification into the stable release identity through contained later tasks; publication remains separately authorized work.
+        - Add reliable external-link and Markdown-anchor documentation validation only after deterministic, pinned implementations exist.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Complete P04-T04, Define safety, diagnostics, standard-library, and validation guarantees, by fully ratifying the remaining standard-library validation guarantees without overstating what STRling can prove.
+    rationale: The canonical profile hierarchy, structured artifact and summary path, documentation integrity, CI routing, property hardgates, clean committed-state certification, and unchanged product behavior are complete. Required external scanner coverage, the two expiring waivers, local Bundler mismatch, and missing Swift remain visible non-passing evidence, so they prevent an unqualified READY result without blocking the next contained specification task.

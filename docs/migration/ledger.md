@@ -1804,3 +1804,141 @@ The baseline is `READY WITH RECORDED CARRY-FORWARD` for the remaining structured
 CI/certification-profile task. The carry-forward prevents an unqualified
 `READY` and a passing certification claim; it does not weaken the implemented
 fail-closed hardgates.
+
+## Structured CI profiles and certification artifacts
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `77d9a9b2b54dbbc66369cc16186ea36f0fad78c3`
+-   Behavior change: Repository engineering tooling and CI only; no STRling
+    runtime/compiler behavior intentionally changed
+-   Completion record:
+    [`structured-certification-profiles.yaml`](records/structured-certification-profiles.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                                | Result | Commit                                     | Verification                                                                                                                                                                                                                         |
+| ----------------------------------------- | ------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Profile and certification contract        | Passed | `e6294e485c0ef3443354aac0681a148ac5e98b6c` | Defined stable identities, canonical operation ownership, centralized membership/order, network and component scope, fail-closed aggregation, artifact/summary ownership, and profile evolution rules                                |
+| Canonical profile selection and execution | Passed | `ea91b06555511cc688cfdc41cca5e7c65d8eb33e` | Implemented one profile executor and selection surface; 47 focused tests covered every profile, unknown inputs, deterministic membership/order, global gates, network policy, unavailable tooling, and status precedence             |
+| Structured certification artifact         | Passed | `0d03fc099e2bcb221701f1e0e266a728d7f72839` | Added schema 1.0.0, deterministic fingerprints, exact result/exit fidelity, positive and invalid fixtures, atomic writing, and artifact-derived summaries; 56 profile/artifact tests passed                                          |
+| Documentation and example integrity       | Passed | `a60bbd2bcd440b7ad059b06e5b8f0bec69eadba4` | Added non-mutating structured documentation validation for 118 Markdown files and seven parser examples; controlled broken-link/reference/example/aggregate negatives passed; local became 22 passing operations                     |
+| CI profile routing                        | Passed | `f9aba576568b70ecbeb73da4d37b6722b2469fdb` | Routed event classes and release preflight through canonical profiles, retained structured artifacts with an immutable action, preserved least privilege, and enforced no CI substitution with architecture and controlled negatives |
+| Profile certification and hardgates       | Passed | `731af34a7a5b394a24d9e7e0fefda4ecc7c4ecee` | Eight explicit properties and all 267 tooling tests passed; clean committed-state repository, TypeScript, kernel, Rust-binding, profile, alias, artifact-fidelity, patch-integrity, and input-immutability checks completed          |
+| Completion and phase readiness            | Passed | Recorded by the readiness commit           | Architecture, artifact contract, workflow mapping, exact clean-state results, carry-forward, unchanged product behavior, and the Notion source-of-truth handoff recorded                                                             |
+
+### Profile architecture
+
+All profiles are version 1.1.0 ordered policies over
+`policy.operation_registry`; operations contain no reverse profile-membership
+metadata. Repository operations execute once regardless of component selection,
+while target-bearing operations preserve declared target order and may be
+narrowed only where the profile permits. `check` resolves to `pull-request` and
+`certify` resolves to `full` through the same executor.
+
+The profiles share dependency-integrity, content/workflow security, frozen
+baseline, canonical/core/public contracts, generated-state, documentation,
+governance, formatting, hygiene, lint, and typecheck operations at their
+declared target breadth.
+
+-   `local` is offline and selects 13 ordered memberships expanding to 22
+    operations. It keeps formatting, hygiene, lint, and typecheck to the fast
+    repository/LSP/kernel/Python/TypeScript baseline.
+-   `pull-request` is offline and selects 14 memberships expanding to 43
+    operations. It broadens deterministic format/lint/typecheck coverage and
+    runs kernel and TypeScript tests for merge confidence.
+-   `full` permits network operations and selects 16 memberships expanding to
+    75 operations. It adds dependency risk and broad configured builds/tests.
+-   `release` is a distinct stable pre-release identity, also network-permitted,
+    and currently selects the same 16 memberships/75 operations as full. This
+    does not claim release readiness; later packaging, engine matrices,
+    adapters, provenance, signing, and clean-room gates may ratchet into this
+    identity without changing executor or artifact semantics.
+
+Aggregate precedence is `FAILED`, `INCOMPLETE`, `UNAVAILABLE`, `WAIVED`, then
+`PASSED`. Deliberate `NOT_APPLICABLE`, `NOT_YET_CONFIGURED`, and
+`NOT_YET_ENFORCEABLE` capability evidence is retained rather than renamed.
+Failed, incomplete, and required unavailable evidence produces a nonzero exit;
+waived evidence never becomes passed.
+
+### Certification artifact and summary
+
+Artifact kind `strling.profile-certification` uses schema version 1.0.0. Its
+deterministic evidence contains repository commit and dirty state, profile
+identity/version/purpose/network policy/fingerprint, requested and resolved
+component scope, the exact ordered operation-result projection, operation and
+result IDs, commands and environment/tool evidence, status/reason/findings,
+waiver references, aggregate counts/status/exit, and a deterministic evidence
+fingerprint. Execution-instance timestamp and machine-local metadata are kept
+separate and do not define semantic identity.
+
+Schema validation rejects malformed fixtures, duplicate results, aggregate
+disagreement, and fingerprint tampering. The human summary consumes only the
+validated artifact model and reports profile/repository state, aggregate and
+counts, passed/failed/waived/unavailable/incomplete evidence, and the applicable
+next action. There is no stdout-scanning or second summary authority.
+
+### CI mapping
+
+-   Manual CI dispatch selects the requested profile and defaults to `local`.
+-   Pull requests and branch pushes select `pull-request`.
+-   The weekly scheduled certification selects `full`.
+-   Version tags and the delivery workflow's release preflight select `release`.
+
+Profile jobs invoke `./strling profile ... --artifact`; supplemental binding
+jobs use canonical leaf commands and are not certification substitutes. Artifact
+upload runs even after a failed profile, is pinned immutably, has warning-only
+missing-file behavior, and cannot change the profile exit. Delivery depends on
+successful release certification; no publication behavior was added.
+
+### Clean committed-state certification
+
+From committed checkpoint `731af34a7a5b394a24d9e7e0fefda4ecc7c4ecee`:
+
+| Execution      | Aggregate     | Passed | Unavailable | Other governed states | Exit |
+| -------------- | ------------- | -----: | ----------: | --------------------: | ---: |
+| `local`        | `PASSED`      |     22 |           0 |                     0 |    0 |
+| `pull-request` | `UNAVAILABLE` |     41 |           2 |                     0 |    1 |
+| `full`         | `UNAVAILABLE` |     68 |           7 |                     0 |    1 |
+| `release`      | `UNAVAILABLE` |     68 |           7 |                     0 |    1 |
+
+`check` reproduced the pull-request identity, counts, and exit; `certify`
+reproduced full. Every JSON stdout document was semantically identical to its
+retained artifact, repository state was clean in every artifact, `git diff
+--check` passed, and certification left the tree clean.
+
+The two pull-request limitations are the repository-managed Bundler mismatch
+for Ruby lint and missing Swift for typecheck. Full/release additionally retain
+Ruby build/test, Swift build/test, and dependency risk as unavailable. Nested
+dependency risk contains nine `PASSED`, four `WAIVED`, and 32 `UNAVAILABLE`
+checks, with both exact waiver references retained.
+
+All 267 tooling tests passed, including eight explicit certification properties
+and controlled schema/profile/documentation/CI/security negatives. TypeScript
+typecheck/build and 19 suites with 963 tests passed. Kernel rustfmt,
+warnings-denied Clippy, typecheck/build, and 194 tests passed. Rust binding
+typecheck/build and 638 tests passed. Repository formatting, hygiene, static
+analysis, generation, public snapshots, governance, architecture, documentation,
+local security hardgates, and patch integrity passed.
+
+### Carry-forward, unchanged behavior, and readiness
+
+`WVR-SEC-NPM-TOOLING-001` and `WVR-SEC-VSCE-LICENSE-001` remain exact and
+expire 2026-09-10. Unavailable ecosystem scanners, the local Bundler mismatch,
+missing Swift, transitional Node 18, deferred npm executable governance,
+external-link/anchor validation, packaging, real-engine matrices, adapters,
+SBOM/provenance/attestation, signing, clean-room release checks, and publication
+remain explicit later work. None was broadened or reported as passed.
+
+No existing STRling runtime/compiler behavior intentionally changed. Language
+semantics, Semantic IR, parser behavior, portability, target lowering/emission,
+runtime behavior, bindings/adapters, public package APIs, package versions, and
+publication remain unchanged. No product dependency was installed or upgraded.
+
+The result is `READY WITH RECORDED CARRY-FORWARD`. The next incomplete task in
+the Notion source of truth is
+[P04-T04 — Define safety, diagnostics, standard-library, and validation guarantees](https://app.notion.com/p/3b97d940647581c6a592fa3ae8dec08f),
+currently `Partial`; its recorded remaining work is full ratification of
+standard-library validation guarantees without claiming stronger validation or
+safety than STRling can prove.
