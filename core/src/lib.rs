@@ -12,8 +12,8 @@
 
 pub mod capability_evaluation;
 pub mod kernel;
-// The executable pipeline remains crate-internal until a product API migration
-// is separately authorized; unit and architecture tests exercise this module.
+// Certified stage orchestration stays crate-private; external embedders enter
+// through `kernel::compile`.
 #[allow(dead_code)]
 mod capability_pipeline;
 #[allow(dead_code)]

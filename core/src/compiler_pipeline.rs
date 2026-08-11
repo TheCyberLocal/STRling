@@ -67,7 +67,15 @@ pub fn compile_semantic_diagnostics(
     compiler: &CompilerIdentity,
 ) -> Result<CompileResult, CompilerPipelineErrors> {
     let stages = run_target_neutral_stages(input)?;
+    project_target_neutral_stages(stages, compiler)
+}
 
+/// Project one already-completed target-neutral stage bundle into the existing
+/// compile-result contract without rerunning or reconstructing any stage.
+pub(crate) fn project_target_neutral_stages(
+    stages: TargetNeutralStages,
+    compiler: &CompilerIdentity,
+) -> Result<CompileResult, CompilerPipelineErrors> {
     let result = CompileResult {
         contract_version: stages.normalized.contract_version,
         compiler: compiler.clone(),

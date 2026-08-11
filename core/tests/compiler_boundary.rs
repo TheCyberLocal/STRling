@@ -217,7 +217,7 @@ fn artifact_mode_fails_without_fabricating_output() {
 
     assert_eq!(result.outcome, CompileOutcome::Failed);
     assert!(result.semantic_result.is_some());
-    assert!(result.portability.is_none());
+    assert!(result.portability.is_some());
     assert!(result.artifact.is_none());
     assert!(result
         .diagnostics

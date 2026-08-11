@@ -6,8 +6,9 @@ use std::fmt;
 use crate::capability_evaluation::{
     evaluate_capabilities, CapabilityEvaluation, CapabilityEvaluationErrors,
 };
-use crate::compiler_pipeline::{run_target_neutral_stages, CompilerPipelineErrors};
-use crate::diagnostic::Diagnostic;
+use crate::compiler_pipeline::{
+    run_target_neutral_stages, CompilerPipelineErrors, TargetNeutralStages,
+};
 use crate::portability_planning::{plan_portability, PortabilityPlan, PortabilityPlanningErrors};
 use crate::semantic::SemanticProgram;
 use crate::target::TargetProfile;
@@ -42,7 +43,7 @@ impl Error for PortabilityPipelineErrors {
 /// Target-neutral diagnostics, factual support, and representation decisions
 /// produced without applying rewrites, lowering, emission, or an artifact.
 pub struct PortabilityPipelineOutput {
-    pub diagnostics: Vec<Diagnostic>,
+    pub stages: TargetNeutralStages,
     pub evaluation: CapabilityEvaluation,
     pub plan: PortabilityPlan,
 }
@@ -71,7 +72,7 @@ pub fn compile_semantic_portability(
     )
     .map_err(PortabilityPipelineErrors::PortabilityPlanning)?;
     Ok(PortabilityPipelineOutput {
-        diagnostics: stages.diagnostics,
+        stages,
         evaluation,
         plan,
     })
@@ -119,7 +120,7 @@ mod tests {
         let output =
             compile_semantic_portability(&semantic, &target).expect("pipeline must complete");
 
-        assert!(output.diagnostics.iter().any(|diagnostic| {
+        assert!(output.stages.diagnostics.iter().any(|diagnostic| {
             diagnostic.code.as_str() == SAFETY_UNBOUNDED_NULLABLE_REPETITION
         }));
         assert_eq!(output.evaluation.results.len(), 1);

@@ -33,13 +33,18 @@ scope:
         - tests/spec/**
     expected_files:
         - core/contract-mapping.json
+        - core/src/capability_pipeline.rs
+        - core/src/compiler_pipeline.rs
         - core/src/kernel.rs
         - core/src/lib.rs
         - core/tests/compiler_boundary.rs
+        - core/tests/compiler_boundary_orchestration.rs
         - docs/migration/compiler-kernel-boundary.md
         - docs/migration/records/compiler-kernel-boundary.yaml
         - governance/change-control.json
         - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_compiler_boundary_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -112,8 +117,12 @@ checkpoints:
             result: passed
             details: Public compile(&CompileRequest, Option<&TargetProfile>) returns CompileResult or typed KernelCompileError without mutating inputs. Thirteen tests cover minimal and representative canonical semantics, source-less analysis, malformed typed input, unsupported contract/specification/future modes, exact profile requirements and mismatch, unsupported source and artifact modes, repeat equality, request immutability, compiler identity, and result validation.
     - name: Canonical orchestration and result projection
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Single canonical stage flow, correspondence-preserving projection, and architecture fitness
+            command: cargo test --manifest-path core/Cargo.toml && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && python3 tooling/core_contract_validation.py && python3 -m unittest tooling.tests.test_compiler_boundary_architecture && python3 tooling/governance.py && git diff --check
+            result: passed
+            details: The facade invokes exactly one existing orchestration path per semantic request. Target-aware compilation reuses the completed target-neutral bundle before exact-profile capability evaluation and portability planning; public projection emits only requested SemanticResult, AnalysisResult, and final PortabilityPlan evidence. Five end-to-end tests cover native, certified equivalent-rewrite, unsupported, incomplete-evidence, and target-neutral-with-unused-reference paths; five mutation tests prohibit alternate public pipelines, stage recomputation, and host/frontend/emitter/binding dependencies.
     - name: Deterministic identity and resource bounds
       status: planned
       evidence: []

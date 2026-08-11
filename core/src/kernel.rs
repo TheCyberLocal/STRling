@@ -4,17 +4,24 @@ use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt;
 
-use crate::compiler_pipeline::compile_semantic_diagnostics;
+use crate::capability_pipeline::compile_semantic_portability;
+use crate::compiler_pipeline::{compile_semantic_diagnostics, project_target_neutral_stages};
 use crate::diagnostic::{
     compare_diagnostics, CompilerPhase, Diagnostic, DiagnosticCategory, DiagnosticCode,
     DiagnosticOccurrence, Severity, SeverityBasis,
+};
+use crate::portability_planning::{
+    PortabilityPlan as PlannedPortability, RequirementPlanningDisposition,
 };
 use crate::protocol::{
     validate_exchange, CompileInput, CompileOutcome, CompileRequest, CompileResult, CompilerId,
     CompilerIdentity, CompilerVersion, RequestedOutput,
 };
 use crate::source::ContractVersion;
-use crate::target::{TargetProfile, TargetProfileReference};
+use crate::target::{
+    PortabilityDecision, PortabilityPlan, PortabilityStatus, ReasonCode, RequirementId,
+    TargetProfile, TargetProfileReference,
+};
 use crate::validation::{Validate, ValidationErrors};
 
 /// Stable compiler identity emitted by the canonical kernel facade.
@@ -40,6 +47,7 @@ pub enum KernelStage {
     TargetProfileEvidence,
     CompilerIdentity,
     CanonicalSemanticPipeline,
+    TargetAwarePipeline,
     ResultProjection,
 }
 
@@ -175,25 +183,52 @@ fn compile_semantic_request(
     target_profile: Option<&TargetProfile>,
     compiler: &CompilerIdentity,
 ) -> Result<CompileResult, KernelCompileError> {
-    validate_target_profile_evidence(request, target_profile)?;
-
-    let mut result = compile_semantic_diagnostics(program, compiler).map_err(|error| {
-        KernelCompileError::StageFailure {
-            stage: KernelStage::CanonicalSemanticPipeline,
-            message: error.to_string(),
+    let target_profile = validate_target_profile_evidence(request, target_profile)?;
+    let (mut result, portability) = match target_profile {
+        Some(target) => {
+            let output = compile_semantic_portability(program, target).map_err(|error| {
+                KernelCompileError::StageFailure {
+                    stage: KernelStage::TargetAwarePipeline,
+                    message: error.to_string(),
+                }
+            })?;
+            let result =
+                project_target_neutral_stages(output.stages, compiler).map_err(|error| {
+                    KernelCompileError::StageFailure {
+                        stage: KernelStage::ResultProjection,
+                        message: error.to_string(),
+                    }
+                })?;
+            (result, Some(output.plan))
         }
-    })?;
+        None => {
+            let result = compile_semantic_diagnostics(program, compiler).map_err(|error| {
+                KernelCompileError::StageFailure {
+                    stage: KernelStage::CanonicalSemanticPipeline,
+                    message: error.to_string(),
+                }
+            })?;
+            (result, None)
+        }
+    };
     project_requested_target_neutral_outputs(request, &mut result);
     filter_advisory_diagnostics(request, &mut result.diagnostics);
 
-    if requests_output(request, RequestedOutput::Portability) {
-        result.diagnostics.push(diagnostic(
-            request.contract_version,
-            PORTABILITY_INCOMPLETE_DIAGNOSTIC,
-            CompilerPhase::Portability,
-            DiagnosticCategory::Portability,
-            "Canonical portability result projection is not yet configured.",
-        )?);
+    if let Some(plan) = portability {
+        match project_portability(&plan)? {
+            Some(portability) => {
+                if requests_output(request, RequestedOutput::Portability) {
+                    result.portability = Some(portability);
+                }
+            }
+            None => result.diagnostics.push(diagnostic(
+                request.contract_version,
+                PORTABILITY_INCOMPLETE_DIAGNOSTIC,
+                CompilerPhase::Portability,
+                DiagnosticCategory::Portability,
+                "The supplied target profile does not provide complete portability evidence.",
+            )?),
+        }
     }
     if requests_output(request, RequestedOutput::TargetArtifact) {
         result.diagnostics.push(diagnostic(
@@ -208,15 +243,15 @@ fn compile_semantic_request(
     finish_result(request, result)
 }
 
-fn validate_target_profile_evidence(
+fn validate_target_profile_evidence<'a>(
     request: &CompileRequest,
-    supplied: Option<&TargetProfile>,
-) -> Result<(), KernelCompileError> {
+    supplied: Option<&'a TargetProfile>,
+) -> Result<Option<&'a TargetProfile>, KernelCompileError> {
     if !requests_target_work(request) {
         if supplied.is_some() {
             return Err(KernelCompileError::UnexpectedTargetProfile);
         }
-        return Ok(());
+        return Ok(None);
     }
 
     let expected =
@@ -242,7 +277,86 @@ fn validate_target_profile_evidence(
             actual: Box::new(actual),
         });
     }
-    Ok(())
+    Ok(Some(supplied))
+}
+
+fn project_portability(
+    planned: &PlannedPortability,
+) -> Result<Option<PortabilityPlan>, KernelCompileError> {
+    let Some(status) = planned.status else {
+        return Ok(None);
+    };
+    let mut decisions = Vec::with_capacity(planned.decisions.len());
+    for planned_decision in &planned.decisions {
+        let requirement_id_value = format!(
+            "requirement:semantic.{:010}",
+            planned_decision.identity.ordinal
+        );
+        let requirement_id =
+            RequirementId::try_from(requirement_id_value.as_str()).map_err(|message| {
+                KernelCompileError::StageFailure {
+                    stage: KernelStage::ResultProjection,
+                    message,
+                }
+            })?;
+        let (decision_status, reason) = match &planned_decision.disposition {
+            RequirementPlanningDisposition::Native(native) => {
+                let reason = if native.capability_result.constraint_evaluations.is_empty() {
+                    "profile_capability_available"
+                } else {
+                    "within_profile_limit"
+                };
+                (PortabilityStatus::Native, reason)
+            }
+            RequirementPlanningDisposition::EquivalentRewrite(rewrite) => {
+                let reason = match rewrite.rewrite_plan.strategy_id.as_str() {
+                    "rewrite.atomic_literal.elide.v1" => "literal_atomicity_redundant",
+                    strategy => {
+                        return Err(KernelCompileError::StageFailure {
+                            stage: KernelStage::ResultProjection,
+                            message: format!(
+                                "no contract reason code is defined for rewrite strategy {strategy}"
+                            ),
+                        });
+                    }
+                };
+                (PortabilityStatus::EquivalentRewrite, reason)
+            }
+            RequirementPlanningDisposition::Unsupported(_) => (
+                PortabilityStatus::Unsupported,
+                "profile_capability_unavailable",
+            ),
+            RequirementPlanningDisposition::Unresolved(_) => {
+                return Err(KernelCompileError::StageFailure {
+                    stage: KernelStage::ResultProjection,
+                    message: "final portability plan contains unresolved evidence".to_owned(),
+                });
+            }
+        };
+        let reason_code =
+            ReasonCode::try_from(reason).map_err(|message| KernelCompileError::StageFailure {
+                stage: KernelStage::ResultProjection,
+                message,
+            })?;
+        decisions.push(PortabilityDecision {
+            requirement_id,
+            capability_id: planned_decision.requirement.capability_id.clone(),
+            node_ids: vec![planned_decision.requirement.node_id.clone()],
+            status: decision_status,
+            reason_code,
+        });
+    }
+    let portability = PortabilityPlan {
+        contract_version: planned.contract_version,
+        specification_version: planned.specification_version.clone(),
+        target_profile: planned.target_profile.clone(),
+        status,
+        decisions,
+    };
+    portability
+        .validate()
+        .map_err(KernelCompileError::InvalidResult)?;
+    Ok(Some(portability))
 }
 
 fn project_requested_target_neutral_outputs(request: &CompileRequest, result: &mut CompileResult) {

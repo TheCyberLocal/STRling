@@ -375,6 +375,92 @@ def portability_pipeline_boundary_violation(
     return None
 
 
+def kernel_boundary_violation(source_texts: Mapping[str, str]) -> str | None:
+    """Return the first public compiler-facade architecture violation."""
+
+    source = source_texts.get("core/src/kernel.rs", "").lower()
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub fn compile(" not in source:
+        return "canonical public kernel facade cannot be located"
+
+    prerequisites = (
+        ("crate::protocol", "canonical request and result contracts"),
+        ("crate::compiler_pipeline", "canonical target-neutral orchestration"),
+        ("crate::capability_pipeline", "canonical target-aware orchestration"),
+        ("crate::target", "immutable target-profile contracts"),
+        ("crate::validation", "canonical contract validation"),
+    )
+    for marker, description in prerequisites:
+        if marker not in source:
+            return f"kernel facade must consume {description}"
+
+    for call, description in (
+        (
+            "compile_semantic_diagnostics(",
+            "canonical target-neutral orchestration",
+        ),
+        (
+            "compile_semantic_portability(",
+            "canonical target-aware orchestration",
+        ),
+    ):
+        if call not in source:
+            return f"kernel facade must invoke {description}"
+
+    lib = source_texts.get("core/src/lib.rs", "").lower()
+    for internal_module in (
+        "pub mod compiler_pipeline;",
+        "pub mod capability_pipeline;",
+    ):
+        if internal_module in lib:
+            return (
+                "crate-private orchestration cannot be exposed beside the "
+                f"authoritative kernel facade: {internal_module}"
+            )
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "crate::normalization",
+            "crate::semantic_analysis",
+            "crate::structural_analysis",
+            "crate::safety_analysis",
+            "crate::diagnostic_generation",
+            "evaluate_capabilities(",
+            "plan_portability(",
+            "crate::conformance",
+            "crate::emitter",
+            "crate::emitters",
+            "crate::bindings",
+            "crate::frontend",
+            "crate::lsp",
+            "crate::editor",
+            "crate::parser",
+            "bindings::",
+            "frontend::",
+            "emitters::",
+            "std::env",
+            "std::fs",
+            "std::net",
+            "std::path",
+            "std::process",
+            "std::thread",
+            "std::time",
+            "systemtime",
+            "thread_rng",
+            "rand::",
+            "runtime_probe",
+            "engine_probe",
+            "package_manager",
+            "parse_regex",
+            "scan_regex",
+        ),
+    )
+    if forbidden is not None:
+        return f"kernel facade violates embeddable boundary: {forbidden}"
+    return None
+
+
 def target_neutral_reverse_dependency_violation(
     source_texts: Mapping[str, str],
 ) -> str | None:
