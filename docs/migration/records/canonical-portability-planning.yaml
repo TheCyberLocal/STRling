@@ -109,8 +109,12 @@ checkpoints:
             result: passed
             details: Nine focused planning tests and all 178 kernel tests pass; empty, native, multiple-native, unknown, mixed native/unknown, mismatched result, exact program/profile mismatch, determinism, and five-input immutability are certified with complete native capability evidence and Unknown retained outside final status.
     - name: Equivalent rewrite registry and proof evaluation
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed registry, structural proof, and stable rewrite evidence
+            command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && cargo check --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml
+            result: passed
+            details: Twelve focused integration tests, two internal proof tests, and all 183 kernel tests pass. The normative atomic-literal strategy proves exact atomic and literal node kinds plus their child relationship, produces no replacement target syntax, preserves the exact profile, and is rejected on failed or indeterminate proof. Generic replacement support rejects Unsupported, ConstraintViolation, and Unknown; speculative possessive and other unregistered candidates remain unavailable.
     - name: Unsupported and aggregate portability decisions
       status: planned
       evidence: []
@@ -123,4 +127,8 @@ checkpoints:
     - name: Completion and target-lowering readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: dfdc0d498c729bbc773a95c0351f13bacaf2a75d
+      subject: "docs(core): define canonical portability planning"
+    - sha: 85d36f1c3d71b0c205581e9f47dd6f7a7ce35385
+      subject: "feat(core): establish portability planning"

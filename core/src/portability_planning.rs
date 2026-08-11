@@ -8,9 +8,9 @@ use std::fmt;
 
 use crate::capability_evaluation::{
     validate_prerequisites, CapabilityDisposition, CapabilityEvaluation,
-    CapabilityEvaluationErrors, CapabilityResult, SemanticRequirement,
+    CapabilityEvaluationErrors, CapabilityResult, RequirementKind, SemanticRequirement,
 };
-use crate::semantic::SemanticProgram;
+use crate::semantic::{Node, SemanticProgram};
 use crate::semantic_analysis::{SemanticFacts, SemanticNodeKind};
 use crate::source::{ContractVersion, NodeId, Sha256Digest, SpecificationVersion};
 use crate::structural_analysis::StructuralFacts;
@@ -269,11 +269,7 @@ pub struct PortabilityPlan {
     pub status: Option<PortabilityStatus>,
 }
 
-/// Plan native and unresolved requirements from one exact certified evaluation.
-///
-/// Non-native strategy selection is completed by the certified registry in the
-/// next planning layer; until then explicit negative native results are retained
-/// as incomplete planning evidence rather than overclaimed as unsupported.
+/// Plan representation decisions from one exact certified evaluation.
 pub fn plan_portability(
     input: &SemanticProgram,
     foundational: &SemanticFacts,
@@ -314,12 +310,32 @@ pub fn plan_portability(
                 }))
             }
             CapabilityDisposition::Unsupported | CapabilityDisposition::ConstraintViolation => {
-                unresolved_requirements.push(identity.clone());
-                RequirementPlanningDisposition::Unresolved(Box::new(UnresolvedDecision {
-                    capability_result: result.clone(),
-                    reason: UnresolvedPlanningReason::RewriteStrategyEvaluationPending,
-                    rewrite_attempts: Vec::new(),
-                }))
+                match evaluate_rewrite_registry(input, foundational, evaluation, result) {
+                    RewriteRegistryResolution::Equivalent(rewrite_plan) => {
+                        RequirementPlanningDisposition::EquivalentRewrite(Box::new(
+                            EquivalentRewriteDecision {
+                                capability_result: result.clone(),
+                                rewrite_plan: *rewrite_plan,
+                            },
+                        ))
+                    }
+                    RewriteRegistryResolution::Incomplete { reason, attempts } => {
+                        unresolved_requirements.push(identity.clone());
+                        RequirementPlanningDisposition::Unresolved(Box::new(UnresolvedDecision {
+                            capability_result: result.clone(),
+                            reason,
+                            rewrite_attempts: attempts,
+                        }))
+                    }
+                    RewriteRegistryResolution::NoEquivalent(attempts) => {
+                        unresolved_requirements.push(identity.clone());
+                        RequirementPlanningDisposition::Unresolved(Box::new(UnresolvedDecision {
+                            capability_result: result.clone(),
+                            reason: UnresolvedPlanningReason::RewriteStrategyEvaluationPending,
+                            rewrite_attempts: attempts,
+                        }))
+                    }
+                }
             }
         };
         decisions.push(PlannedRequirement {
@@ -329,10 +345,17 @@ pub fn plan_portability(
         });
     }
 
-    let status = if unresolved_requirements.is_empty() {
-        Some(PortabilityStatus::Native)
-    } else {
+    let status = if !unresolved_requirements.is_empty() {
         None
+    } else if decisions.iter().any(|decision| {
+        matches!(
+            decision.disposition,
+            RequirementPlanningDisposition::EquivalentRewrite(_)
+        )
+    }) {
+        Some(PortabilityStatus::EquivalentRewrite)
+    } else {
+        Some(PortabilityStatus::Native)
     };
     Ok(PortabilityPlan {
         contract_version: input.contract_version,
@@ -344,6 +367,326 @@ pub fn plan_portability(
         unresolved_requirements,
         status,
     })
+}
+
+enum RewriteRegistryResolution {
+    Equivalent(Box<SemanticRewritePlan>),
+    Incomplete {
+        reason: UnresolvedPlanningReason,
+        attempts: Vec<RewriteAttempt>,
+    },
+    NoEquivalent(Vec<RewriteAttempt>),
+}
+
+struct StrategyEvaluation {
+    attempt: RewriteAttempt,
+    plan: Option<SemanticRewritePlan>,
+}
+
+enum ReplacementSupportOutcome {
+    Supported(Vec<ReplacementCapabilityEvidence>),
+    Unsupported(Vec<ReplacementCapabilityEvidence>),
+    Unknown(Vec<ReplacementCapabilityEvidence>),
+}
+
+const CERTIFIED_REWRITE_REGISTRY: [RewriteStrategyId; 1] =
+    [RewriteStrategyId::ElideAtomicLiteralV1];
+
+fn evaluate_rewrite_registry(
+    input: &SemanticProgram,
+    foundational: &SemanticFacts,
+    evaluation: &CapabilityEvaluation,
+    capability_result: &CapabilityResult,
+) -> RewriteRegistryResolution {
+    let mut attempts = Vec::with_capacity(CERTIFIED_REWRITE_REGISTRY.len());
+    let mut selected = None;
+    for strategy_id in CERTIFIED_REWRITE_REGISTRY {
+        let evaluated = match strategy_id {
+            RewriteStrategyId::ElideAtomicLiteralV1 => {
+                evaluate_atomic_literal_elision(input, foundational, evaluation, capability_result)
+            }
+        };
+        if selected.is_none() {
+            selected = evaluated.plan;
+        }
+        attempts.push(evaluated.attempt);
+    }
+
+    if let Some(plan) = selected {
+        return RewriteRegistryResolution::Equivalent(Box::new(plan));
+    }
+    if attempts
+        .iter()
+        .any(|attempt| attempt.disposition == RewriteAttemptDisposition::ProofIndeterminate)
+    {
+        return RewriteRegistryResolution::Incomplete {
+            reason: UnresolvedPlanningReason::RewriteProofIndeterminate,
+            attempts,
+        };
+    }
+    if attempts
+        .iter()
+        .any(|attempt| attempt.disposition == RewriteAttemptDisposition::ReplacementUnknown)
+    {
+        return RewriteRegistryResolution::Incomplete {
+            reason: UnresolvedPlanningReason::ReplacementCapabilityUnknown,
+            attempts,
+        };
+    }
+    RewriteRegistryResolution::NoEquivalent(attempts)
+}
+
+fn evaluate_atomic_literal_elision(
+    input: &SemanticProgram,
+    foundational: &SemanticFacts,
+    evaluation: &CapabilityEvaluation,
+    capability_result: &CapabilityResult,
+) -> StrategyEvaluation {
+    if !matches!(capability_result.requirement.kind, RequirementKind::Atomic) {
+        return StrategyEvaluation {
+            attempt: RewriteAttempt {
+                strategy_id: RewriteStrategyId::ElideAtomicLiteralV1,
+                disposition: RewriteAttemptDisposition::NotApplicable,
+                proof: Vec::new(),
+                replacement_requirements: Vec::new(),
+                replacement_support: Vec::new(),
+            },
+            plan: None,
+        };
+    }
+
+    let original_node_id = capability_result.requirement.node_id.clone();
+    let original_kind = foundational.get(&original_node_id).map(|facts| facts.kind);
+    let mut proof = vec![node_kind_proof(
+        original_node_id.clone(),
+        SemanticNodeKind::Atomic,
+        original_kind,
+    )];
+
+    let Some(Node::Atomic { body, .. }) = find_node(&input.root, &original_node_id) else {
+        let disposition = proof_attempt_disposition(&proof);
+        return StrategyEvaluation {
+            attempt: RewriteAttempt {
+                strategy_id: RewriteStrategyId::ElideAtomicLiteralV1,
+                disposition,
+                proof,
+                replacement_requirements: Vec::new(),
+                replacement_support: Vec::new(),
+            },
+            plan: None,
+        };
+    };
+
+    let body_node_id = body.node_id().clone();
+    proof.push(RewriteProofEvaluation {
+        precondition: RewriteProofPrecondition::AtomicBodyNode {
+            atomic_node_id: original_node_id.clone(),
+            body_node_id: body_node_id.clone(),
+        },
+        evidence: RewriteProofEvidence::SemanticChildRelationship {
+            parent_node_id: original_node_id.clone(),
+            child_node_id: body_node_id.clone(),
+        },
+        disposition: RewriteProofDisposition::Satisfied,
+    });
+    proof.push(node_kind_proof(
+        body_node_id.clone(),
+        SemanticNodeKind::Literal,
+        foundational.get(&body_node_id).map(|facts| facts.kind),
+    ));
+
+    let replacement_requirements = Vec::new();
+    let replacement_support =
+        match resolve_replacement_support(&replacement_requirements, evaluation) {
+            ReplacementSupportOutcome::Supported(evidence) => evidence,
+            ReplacementSupportOutcome::Unsupported(evidence) => {
+                return StrategyEvaluation {
+                    attempt: RewriteAttempt {
+                        strategy_id: RewriteStrategyId::ElideAtomicLiteralV1,
+                        disposition: RewriteAttemptDisposition::ReplacementUnsupported,
+                        proof,
+                        replacement_requirements,
+                        replacement_support: evidence,
+                    },
+                    plan: None,
+                };
+            }
+            ReplacementSupportOutcome::Unknown(evidence) => {
+                return StrategyEvaluation {
+                    attempt: RewriteAttempt {
+                        strategy_id: RewriteStrategyId::ElideAtomicLiteralV1,
+                        disposition: RewriteAttemptDisposition::ReplacementUnknown,
+                        proof,
+                        replacement_requirements,
+                        replacement_support: evidence,
+                    },
+                    plan: None,
+                };
+            }
+        };
+
+    let disposition = proof_attempt_disposition(&proof);
+    if disposition != RewriteAttemptDisposition::Applicable {
+        return StrategyEvaluation {
+            attempt: RewriteAttempt {
+                strategy_id: RewriteStrategyId::ElideAtomicLiteralV1,
+                disposition,
+                proof,
+                replacement_requirements,
+                replacement_support,
+            },
+            plan: None,
+        };
+    }
+
+    let mut affected_node_ids = vec![original_node_id, body_node_id];
+    affected_node_ids.sort();
+    affected_node_ids.dedup();
+    let plan = SemanticRewritePlan {
+        strategy_id: RewriteStrategyId::ElideAtomicLiteralV1,
+        affected_node_ids,
+        original_requirement: capability_result.requirement.clone(),
+        replacement_requirements: replacement_requirements.clone(),
+        proof: proof.clone(),
+        replacement_support: replacement_support.clone(),
+        target_profile: evaluation.target_profile.clone(),
+        dependencies: Vec::new(),
+    };
+    StrategyEvaluation {
+        attempt: RewriteAttempt {
+            strategy_id: RewriteStrategyId::ElideAtomicLiteralV1,
+            disposition: RewriteAttemptDisposition::Applicable,
+            proof,
+            replacement_requirements,
+            replacement_support,
+        },
+        plan: Some(plan),
+    }
+}
+
+fn node_kind_proof(
+    node_id: NodeId,
+    expected: SemanticNodeKind,
+    actual: Option<SemanticNodeKind>,
+) -> RewriteProofEvaluation {
+    match actual {
+        Some(actual) => RewriteProofEvaluation {
+            precondition: if expected == SemanticNodeKind::Atomic {
+                RewriteProofPrecondition::OriginalNodeKind {
+                    node_id: node_id.clone(),
+                    expected,
+                }
+            } else {
+                RewriteProofPrecondition::BodyNodeKind {
+                    node_id: node_id.clone(),
+                    expected,
+                }
+            },
+            evidence: RewriteProofEvidence::FoundationalNodeKind { node_id, actual },
+            disposition: if actual == expected {
+                RewriteProofDisposition::Satisfied
+            } else {
+                RewriteProofDisposition::Failed
+            },
+        },
+        None => RewriteProofEvaluation {
+            precondition: if expected == SemanticNodeKind::Atomic {
+                RewriteProofPrecondition::OriginalNodeKind {
+                    node_id: node_id.clone(),
+                    expected,
+                }
+            } else {
+                RewriteProofPrecondition::BodyNodeKind {
+                    node_id: node_id.clone(),
+                    expected,
+                }
+            },
+            evidence: RewriteProofEvidence::MissingCertifiedFact { node_id },
+            disposition: RewriteProofDisposition::Indeterminate,
+        },
+    }
+}
+
+fn proof_attempt_disposition(proof: &[RewriteProofEvaluation]) -> RewriteAttemptDisposition {
+    if proof
+        .iter()
+        .any(|evaluation| evaluation.disposition == RewriteProofDisposition::Indeterminate)
+    {
+        RewriteAttemptDisposition::ProofIndeterminate
+    } else if proof
+        .iter()
+        .any(|evaluation| evaluation.disposition == RewriteProofDisposition::Failed)
+    {
+        RewriteAttemptDisposition::ProofFailed
+    } else {
+        RewriteAttemptDisposition::Applicable
+    }
+}
+
+fn resolve_replacement_support(
+    requirements: &[SemanticRequirement],
+    evaluation: &CapabilityEvaluation,
+) -> ReplacementSupportOutcome {
+    let mut evidence = Vec::with_capacity(requirements.len());
+    for requirement in requirements {
+        let Some(result) = evaluation
+            .results
+            .iter()
+            .find(|result| result.requirement == *requirement)
+            .cloned()
+        else {
+            return ReplacementSupportOutcome::Unknown(evidence);
+        };
+        let disposition = result.disposition;
+        evidence.push(ReplacementCapabilityEvidence {
+            requirement: requirement.clone(),
+            capability_result: result,
+        });
+        match replacement_failure(disposition) {
+            Some(RewriteAttemptDisposition::ReplacementUnsupported) => {
+                return ReplacementSupportOutcome::Unsupported(evidence);
+            }
+            Some(RewriteAttemptDisposition::ReplacementUnknown) => {
+                return ReplacementSupportOutcome::Unknown(evidence);
+            }
+            Some(_) | None => {}
+        }
+    }
+    ReplacementSupportOutcome::Supported(evidence)
+}
+
+fn replacement_failure(disposition: CapabilityDisposition) -> Option<RewriteAttemptDisposition> {
+    match disposition {
+        CapabilityDisposition::Supported => None,
+        CapabilityDisposition::Unsupported | CapabilityDisposition::ConstraintViolation => {
+            Some(RewriteAttemptDisposition::ReplacementUnsupported)
+        }
+        CapabilityDisposition::Unknown => Some(RewriteAttemptDisposition::ReplacementUnknown),
+    }
+}
+
+fn find_node<'a>(root: &'a Node, node_id: &NodeId) -> Option<&'a Node> {
+    let mut pending = vec![root];
+    while let Some(node) = pending.pop() {
+        if node.node_id() == node_id {
+            return Some(node);
+        }
+        match node {
+            Node::Sequence { items, .. } => pending.extend(items.iter().rev()),
+            Node::Alternation { branches, .. } => pending.extend(branches.iter().rev()),
+            Node::Repeat { body, .. }
+            | Node::Capture { body, .. }
+            | Node::Lookaround { body, .. }
+            | Node::Atomic { body, .. } => pending.push(body),
+            Node::Empty { .. }
+            | Node::Literal { .. }
+            | Node::Wildcard { .. }
+            | Node::CharacterSet { .. }
+            | Node::Position { .. }
+            | Node::Backreference { .. } => {}
+        }
+    }
+    None
 }
 
 fn validate_correspondence(
@@ -532,5 +875,53 @@ fn map_prerequisite_errors(errors: CapabilityEvaluationErrors) -> PortabilityPla
                 )
             })
             .collect(),
+    }
+}
+
+#[cfg(test)]
+mod rewrite_proof_tests {
+    use super::*;
+
+    fn node_id(value: &str) -> NodeId {
+        NodeId::try_from(value).expect("test node identity")
+    }
+
+    #[test]
+    fn missing_certified_node_kind_is_indeterminate_proof() {
+        let evaluation = node_kind_proof(
+            node_id("node:proof.missing"),
+            SemanticNodeKind::Literal,
+            None,
+        );
+
+        assert_eq!(
+            evaluation.disposition,
+            RewriteProofDisposition::Indeterminate
+        );
+        assert!(matches!(
+            evaluation.evidence,
+            RewriteProofEvidence::MissingCertifiedFact { .. }
+        ));
+        assert_eq!(
+            proof_attempt_disposition(&[evaluation]),
+            RewriteAttemptDisposition::ProofIndeterminate
+        );
+    }
+
+    #[test]
+    fn replacement_support_classifier_rejects_negative_and_unknown_results() {
+        assert_eq!(
+            replacement_failure(CapabilityDisposition::Unsupported),
+            Some(RewriteAttemptDisposition::ReplacementUnsupported)
+        );
+        assert_eq!(
+            replacement_failure(CapabilityDisposition::ConstraintViolation),
+            Some(RewriteAttemptDisposition::ReplacementUnsupported)
+        );
+        assert_eq!(
+            replacement_failure(CapabilityDisposition::Unknown),
+            Some(RewriteAttemptDisposition::ReplacementUnknown)
+        );
+        assert_eq!(replacement_failure(CapabilityDisposition::Supported), None);
     }
 }

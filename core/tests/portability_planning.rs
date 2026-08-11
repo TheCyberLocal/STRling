@@ -4,6 +4,7 @@ use strling_kernel::capability_evaluation::{
 };
 use strling_kernel::portability_planning::{
     plan_portability, PortabilityPlanningErrorCode, RequirementPlanningDisposition,
+    RewriteAttemptDisposition, RewriteProofDisposition, RewriteStrategyId,
     UnresolvedPlanningReason,
 };
 use strling_kernel::semantic::SemanticProgram;
@@ -301,4 +302,138 @@ fn repeated_planning_is_deterministic_and_inputs_are_immutable() {
     assert_eq!(structural, structural_before);
     assert_eq!(target, target_before);
     assert_eq!(evaluation, evaluation_before);
+}
+
+#[test]
+fn unsupported_atomic_literal_selects_the_certified_equivalent_rewrite() {
+    let semantic = program(atomic("node:atomic", "node:atomic.body", "a"));
+    let target = profile(ECMASCRIPT);
+    let (foundational, structural) = prerequisites(&semantic);
+    let evaluation = evaluate(&semantic, &foundational, &structural, &target);
+    assert_eq!(
+        evaluation.results[0].disposition,
+        CapabilityDisposition::Unsupported
+    );
+    let semantic_before = semantic.clone();
+
+    let plan = plan_portability(&semantic, &foundational, &structural, &target, &evaluation)
+        .expect("certified atomic-literal rewrite must plan");
+
+    assert_eq!(plan.status, Some(PortabilityStatus::EquivalentRewrite));
+    assert!(plan.unresolved_requirements.is_empty());
+    match &plan.decisions[0].disposition {
+        RequirementPlanningDisposition::EquivalentRewrite(decision) => {
+            let rewrite = &decision.rewrite_plan;
+            assert_eq!(rewrite.strategy_id, RewriteStrategyId::ElideAtomicLiteralV1);
+            assert_eq!(
+                rewrite.strategy_id.as_str(),
+                "rewrite.atomic_literal.elide.v1"
+            );
+            assert_eq!(
+                rewrite.original_requirement,
+                evaluation.results[0].requirement
+            );
+            assert!(rewrite.replacement_requirements.is_empty());
+            assert!(rewrite.replacement_support.is_empty());
+            assert!(rewrite.dependencies.is_empty());
+            assert_eq!(rewrite.proof.len(), 3);
+            assert!(rewrite
+                .proof
+                .iter()
+                .all(|condition| { condition.disposition == RewriteProofDisposition::Satisfied }));
+            assert_eq!(
+                rewrite.target_profile,
+                target.reference().expect("profile reference")
+            );
+            assert_eq!(rewrite.affected_node_ids.len(), 2);
+            assert!(rewrite
+                .affected_node_ids
+                .windows(2)
+                .all(|pair| pair[0] < pair[1]));
+        }
+        disposition => panic!("expected equivalent rewrite, got {disposition:?}"),
+    }
+    assert_eq!(
+        semantic, semantic_before,
+        "rewrite plans must not mutate IR"
+    );
+}
+
+#[test]
+fn failed_literal_body_precondition_keeps_the_rewrite_unavailable() {
+    let semantic = program(json!({
+        "node_id": "node:atomic",
+        "kind": "atomic",
+        "body": {
+            "node_id": "node:atomic.body",
+            "kind": "alternation",
+            "branches": [
+                literal("node:atomic.left", "a"),
+                literal("node:atomic.right", "b")
+            ]
+        }
+    }));
+    let target = profile(ECMASCRIPT);
+    let (foundational, structural) = prerequisites(&semantic);
+    let evaluation = evaluate(&semantic, &foundational, &structural, &target);
+
+    let plan = plan_portability(&semantic, &foundational, &structural, &target, &evaluation)
+        .expect("failed proof remains structured planning evidence");
+
+    assert_eq!(plan.status, None);
+    match &plan.decisions[0].disposition {
+        RequirementPlanningDisposition::Unresolved(decision) => {
+            assert_eq!(
+                decision.reason,
+                UnresolvedPlanningReason::RewriteStrategyEvaluationPending
+            );
+            assert_eq!(decision.rewrite_attempts.len(), 1);
+            assert_eq!(
+                decision.rewrite_attempts[0].strategy_id,
+                RewriteStrategyId::ElideAtomicLiteralV1
+            );
+            assert_eq!(
+                decision.rewrite_attempts[0].disposition,
+                RewriteAttemptDisposition::ProofFailed
+            );
+            assert!(decision.rewrite_attempts[0]
+                .proof
+                .iter()
+                .any(|condition| { condition.disposition == RewriteProofDisposition::Failed }));
+        }
+        disposition => panic!("expected unavailable rewrite evidence, got {disposition:?}"),
+    }
+}
+
+#[test]
+fn unproven_possessive_rewrite_candidate_is_not_in_the_registry() {
+    let semantic = program(json!({
+        "node_id": "node:possessive",
+        "kind": "repeat",
+        "body": literal("node:possessive.body", "a"),
+        "min": 1,
+        "max": null,
+        "mode": "possessive"
+    }));
+    let target = profile(ECMASCRIPT);
+    let (foundational, structural) = prerequisites(&semantic);
+    let evaluation = evaluate(&semantic, &foundational, &structural, &target);
+
+    let first = plan_portability(&semantic, &foundational, &structural, &target, &evaluation)
+        .expect("unproven candidate remains structured");
+    let second = plan_portability(&semantic, &foundational, &structural, &target, &evaluation)
+        .expect("selection must be deterministic");
+
+    assert_eq!(first, second);
+    match &first.decisions[0].disposition {
+        RequirementPlanningDisposition::Unresolved(decision) => {
+            assert_eq!(decision.rewrite_attempts.len(), 1);
+            assert_eq!(
+                decision.rewrite_attempts[0].disposition,
+                RewriteAttemptDisposition::NotApplicable
+            );
+            assert!(decision.rewrite_attempts[0].proof.is_empty());
+        }
+        disposition => panic!("unproven rewrite must stay unavailable: {disposition:?}"),
+    }
 }
