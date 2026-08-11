@@ -32,6 +32,7 @@
                     "tooling/governance.py",
                     "tooling/hygiene.py",
                     "tooling/quality.py",
+                    "tooling/security.py",
                     "tooling/static_analysis.py",
                     "tooling/public_contracts.py"
                 ],

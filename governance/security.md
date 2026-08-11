@@ -38,6 +38,26 @@ failed, unavailable, and incomplete are hardgate failures. A mixed operation
 uses the most severe state in that order. waived is successful only for the
 exact governed scope and stays visible in structured output.
 
+## Root command and CI integration
+
+`toolchain.json` registers all security operations as canonical repository
+hardgates. `./strling check` runs the deterministic, network-free dependency
+integrity and tracked-content/workflow operations. `./strling certify` runs
+those same implementations and adds the network-backed dependency-risk
+operation. Selecting an individual component cannot bypass these hardgates.
+
+Security hardgates emit the security-result contract as nested
+`structured_result` evidence in root JSON output. The root adapter verifies that
+the operation ID, five-state status, and process exit code agree. A malformed or
+contradictory result becomes `INCOMPLETE`; `WAIVED` remains visible and
+successful, while `FAILED`, `UNAVAILABLE`, and `INCOMPLETE` fail the aggregate.
+The root aggregate status preserves those distinctions.
+
+GitHub Actions invokes `./strling check` and `./strling certify typescript` after
+installing the exact `cargo-audit` 0.22.2 pin. CI contains no separate scanner
+logic or suppression behavior. Current legacy `UNAVAILABLE` coverage therefore
+remains a real certification failure rather than being hidden in workflow code.
+
 ## Dependency inventory
 
 The repository contains npm, Cargo, Dart Pub, Composer, Bundler, Go modules,

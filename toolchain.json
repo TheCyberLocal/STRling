@@ -23,6 +23,8 @@
         "result_statuses": [
             "passed",
             "failed",
+            "waived",
+            "incomplete",
             "not_applicable",
             "not_yet_configured",
             "not_yet_enforceable",
@@ -37,6 +39,40 @@
             "unavailable"
         ],
         "integrity_hardgates": [
+            {
+                "operation": "security_dependency_integrity",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "tooling/security.py",
+                    "integrity",
+                    "--json"
+                ],
+                "aggregates": ["check", "certify"],
+                "result_contract": "security-result-v1",
+                "result_operation_id": "security.dependency-integrity"
+            },
+            {
+                "operation": "security_content_workflows",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "tooling/security.py",
+                    "content",
+                    "--json"
+                ],
+                "aggregates": ["check", "certify"],
+                "result_contract": "security-result-v1",
+                "result_operation_id": "security.content-and-workflows"
+            },
+            {
+                "operation": "security_dependency_risk",
+                "component": "repository",
+                "command": ["python3", "tooling/security.py", "risk", "--json"],
+                "aggregates": ["certify"],
+                "result_contract": "security-result-v1",
+                "result_operation_id": "security.dependency-risk"
+            },
             {
                 "operation": "baseline_check",
                 "component": "repository",

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -16,6 +17,7 @@ from quality import (  # noqa: E402
     QualityRunner,
     Toolchain,
     _overall_exit,
+    _overall_status,
     _parse_cli,
     version_satisfies,
 )
@@ -488,6 +490,8 @@ class QualityRoutingTests(unittest.TestCase):
         gates = toolchain.integrity_hardgates("check")
         self.assertEqual(
             [
+                "security_dependency_integrity",
+                "security_content_workflows",
                 "baseline_check",
                 "canonical_contracts_check",
                 "core_contracts_check",
@@ -498,20 +502,75 @@ class QualityRoutingTests(unittest.TestCase):
             [gate["operation"] for gate in gates],
         )
         self.assertEqual(
-            ["python3", "tooling/baseline.py", "--check"],
+            ["python3", "tooling/security.py", "integrity", "--json"],
             gates[0]["command"],
         )
         self.assertEqual(
             ["python3", "tooling/core_contract_validation.py"],
-            gates[2]["command"],
+            gates[4]["command"],
         )
         self.assertEqual(
             ["python3", "tooling/governance.py"],
-            gates[5]["command"],
+            gates[7]["command"],
         )
         self.assertTrue(
             all(gate["aggregates"] == ["check", "certify"] for gate in gates)
         )
+        certify_operations = [
+            gate["operation"] for gate in toolchain.integrity_hardgates("certify")
+        ]
+        self.assertIn("security_dependency_risk", certify_operations)
+        self.assertNotIn(
+            "security_dependency_risk", [gate["operation"] for gate in gates]
+        )
+
+    def test_structured_security_hardgate_preserves_non_pass_status(self) -> None:
+        data = policy()
+        policy_data = cast(dict[str, object], data["policy"])
+        gate = {
+            "operation": "security_fixture",
+            "component": "alpha",
+            "command": ["fixture-security", "--json"],
+            "aggregates": ["certify"],
+            "result_contract": "security-result-v1",
+            "result_operation_id": "security.fixture",
+        }
+        policy_data["integrity_hardgates"] = [gate]
+        payload = {
+            "operation_id": "security.fixture",
+            "status": "unavailable",
+            "summary": {"unavailable": 1},
+            "checks": [],
+        }
+        result = QualityRunner(
+            Toolchain(data, Path.cwd()),
+            hardgate_executor=lambda *_args: Execution(2, stdout=json.dumps(payload)),
+        ).run_integrity_hardgate(gate)
+        self.assertEqual("unavailable", result.status)
+        self.assertEqual(payload, result.as_dict()["structured_result"])
+        self.assertEqual(1, _overall_exit([result], False))
+        self.assertEqual("unavailable", _overall_status([result]))
+
+    def test_structured_security_false_pass_is_incomplete(self) -> None:
+        data = policy()
+        policy_data = cast(dict[str, object], data["policy"])
+        gate = {
+            "operation": "security_fixture",
+            "component": "alpha",
+            "command": ["fixture-security", "--json"],
+            "aggregates": ["check"],
+            "result_contract": "security-result-v1",
+            "result_operation_id": "security.fixture",
+        }
+        policy_data["integrity_hardgates"] = [gate]
+        payload = {"operation_id": "security.fixture", "status": "passed"}
+        result = QualityRunner(
+            Toolchain(data, Path.cwd()),
+            hardgate_executor=lambda *_args: Execution(2, stdout=json.dumps(payload)),
+        ).run_integrity_hardgate(gate)
+        self.assertEqual("incomplete", result.status)
+        self.assertIsNone(result.structured_result)
+        self.assertEqual(1, _overall_exit([result], False))
 
     def test_integrity_hardgates_precede_aggregate_and_cannot_be_scoped_away(
         self,
@@ -590,6 +649,13 @@ class QualityRoutingTests(unittest.TestCase):
                 "component": "alpha",
                 "command": ["fixture-integrity"],
                 "aggregates": ["check"],
+            },
+            {
+                "operation": "fixture_integrity",
+                "component": "alpha",
+                "command": ["fixture-integrity", "--json"],
+                "aggregates": ["check"],
+                "result_contract": "security-result-v1",
             },
         ]
         for entry in malformed_entries:

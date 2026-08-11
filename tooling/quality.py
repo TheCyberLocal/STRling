@@ -34,6 +34,20 @@ CAPABILITY_STATUSES = (
     "unavailable",
 )
 EXECUTABLE_CAPABILITY_STATUSES = ("configured", "enforced")
+STRUCTURED_SECURITY_STATUSES = (
+    "passed",
+    "failed",
+    "waived",
+    "unavailable",
+    "incomplete",
+)
+STRUCTURED_SECURITY_EXIT_CODES = {
+    "passed": 0,
+    "waived": 0,
+    "failed": 1,
+    "unavailable": 2,
+    "incomplete": 3,
+}
 
 
 class ConfigurationError(ValueError):
@@ -87,11 +101,12 @@ class OperationResult:
     capability: str | None = None
     formatters: list[str] = field(default_factory=list)
     environment: list[ToolResult] = field(default_factory=list)
+    structured_result: dict[str, object] | None = None
     stdout: str = field(default="", repr=False)
     stderr: str = field(default="", repr=False)
 
     def as_dict(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "operation": self.operation,
             "component": self.component,
             "status": self.status,
@@ -102,6 +117,9 @@ class OperationResult:
             "formatters": self.formatters,
             "environment": [result.as_dict() for result in self.environment],
         }
+        if self.structured_result is not None:
+            result["structured_result"] = self.structured_result
+        return result
 
 
 class Toolchain:
@@ -343,6 +361,25 @@ class Toolchain:
             if len(set(memberships)) != len(memberships):
                 raise ConfigurationError(
                     f"integrity hardgate {operation} repeats an aggregate"
+                )
+            result_contract = hardgate.get("result_contract")
+            result_operation_id = hardgate.get("result_operation_id")
+            if result_contract is None:
+                if result_operation_id is not None:
+                    raise ConfigurationError(
+                        f"integrity hardgate {operation} declares a result operation without a contract"
+                    )
+            elif result_contract != "security-result-v1":
+                raise ConfigurationError(
+                    f"integrity hardgate {operation} has unsupported result contract"
+                )
+            elif (
+                not isinstance(result_operation_id, str)
+                or not result_operation_id.startswith("security.")
+                or "--json" not in command
+            ):
+                raise ConfigurationError(
+                    f"integrity hardgate {operation} security result requires an operation ID and JSON command"
                 )
         tools = self.data["tools"]
         assert isinstance(tools, dict)
@@ -959,12 +996,50 @@ class QualityRunner:
         assert all(isinstance(item, str) for item in command)
         invocation = list(command)
         execution = self.hardgate_executor(operation, invocation)
-        status = "passed" if execution.returncode == 0 else "failed"
-        reason = (
-            None
-            if execution.returncode == 0
-            else f"command exited with status {execution.returncode}"
-        )
+        structured_result: dict[str, object] | None = None
+        if hardgate.get("result_contract") == "security-result-v1":
+            expected_operation = hardgate["result_operation_id"]
+            assert isinstance(expected_operation, str)
+            try:
+                parsed = json.loads(execution.stdout)
+            except json.JSONDecodeError as exc:
+                status = "incomplete"
+                reason = f"structured security result is malformed: {exc}"
+            else:
+                if not isinstance(parsed, dict):
+                    status = "incomplete"
+                    reason = "structured security result must be an object"
+                else:
+                    parsed_status = parsed.get("status")
+                    parsed_operation = parsed.get("operation_id")
+                    expected_exit = STRUCTURED_SECURITY_EXIT_CODES.get(
+                        str(parsed_status)
+                    )
+                    if (
+                        parsed_status not in STRUCTURED_SECURITY_STATUSES
+                        or parsed_operation != expected_operation
+                        or execution.returncode != expected_exit
+                    ):
+                        status = "incomplete"
+                        reason = (
+                            "structured security result identity, status, and exit code "
+                            "must agree"
+                        )
+                    else:
+                        status = str(parsed_status)
+                        reason = (
+                            None
+                            if status in ("passed", "waived")
+                            else f"structured security operation reported {status}"
+                        )
+                        structured_result = parsed
+        else:
+            status = "passed" if execution.returncode == 0 else "failed"
+            reason = (
+                None
+                if execution.returncode == 0
+                else f"command exited with status {execution.returncode}"
+            )
         return OperationResult(
             operation=operation,
             component=component,
@@ -972,6 +1047,7 @@ class QualityRunner:
             command=invocation,
             exit_code=execution.returncode,
             reason=reason,
+            structured_result=structured_result,
             stdout=execution.stdout,
             stderr=execution.stderr,
         )
@@ -1072,7 +1148,9 @@ def _parse_cli(argv: Sequence[str]) -> tuple[str, str | None, bool]:
 
 def _overall_exit(results: Iterable[OperationResult], single: bool) -> int:
     failures = [
-        result for result in results if result.status in ("failed", "unavailable")
+        result
+        for result in results
+        if result.status in ("failed", "unavailable", "incomplete")
     ]
     if not failures:
         return 0
@@ -1081,13 +1159,62 @@ def _overall_exit(results: Iterable[OperationResult], single: bool) -> int:
     return 1
 
 
+def _overall_status(results: Iterable[OperationResult]) -> str:
+    statuses = {result.status for result in results}
+    for status in ("failed", "unavailable", "incomplete", "waived"):
+        if status in statuses:
+            return status
+    return "passed"
+
+
+def _render_structured_security(result: OperationResult) -> None:
+    assert result.structured_result is not None
+    summary = result.structured_result.get("summary")
+    if isinstance(summary, dict):
+        details = ", ".join(
+            f"{status}={summary.get(status, 0)}"
+            for status in STRUCTURED_SECURITY_STATUSES
+        )
+        print(f"  security summary: {details}")
+    checks = result.structured_result.get("checks")
+    if not isinstance(checks, list):
+        return
+    for check in checks:
+        if not isinstance(check, dict) or check.get("status") == "passed":
+            continue
+        print(f"  [{check.get('status')}] {check.get('check_id')}")
+        unavailable_reason = check.get("unavailable_reason")
+        if isinstance(unavailable_reason, str):
+            print(f"    unavailable: {unavailable_reason}")
+        findings = check.get("findings")
+        if not isinstance(findings, list):
+            continue
+        for finding in findings:
+            if not isinstance(finding, dict):
+                continue
+            identity = ":".join(
+                str(finding[field])
+                for field in ("package", "version", "advisory", "license")
+                if field in finding
+            )
+            identity_suffix = f" ({identity})" if identity else ""
+            waiver = finding.get("waiver_id")
+            waiver_suffix = f" [{waiver}]" if waiver else ""
+            print(
+                f"    {finding.get('code')}{identity_suffix}{waiver_suffix}: "
+                f"{finding.get('message')}"
+            )
+
+
 def _render_human(
     operation: str,
     results: Sequence[OperationResult],
     incomplete: Sequence[Mapping[str, str]],
 ) -> None:
     for result in results:
-        if result.stdout:
+        if result.structured_result is not None:
+            _render_structured_security(result)
+        elif result.stdout:
             print(result.stdout, end="" if result.stdout.endswith("\n") else "\n")
         if result.stderr:
             print(
@@ -1148,7 +1275,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             results = runner.run_operation(operation, requested)
             incomplete = []
         exit_code = _overall_exit(results, len(results) == 1)
-        status = "passed" if exit_code == 0 else "failed"
+        status = _overall_status(results)
         if json_output:
             print(
                 json.dumps(

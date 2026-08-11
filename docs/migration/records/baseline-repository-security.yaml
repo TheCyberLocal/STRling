@@ -218,8 +218,32 @@ checkpoints:
             result: passed
             details: Live risk evidence contains 4 WAIVED checks, 9 PASSED checks, and 32 UNAVAILABLE checks with 63 exact waiver references; aggregate status remains UNAVAILABLE and is not reported as pass.
     - name: Root command CI and hardgate integration
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical fast security hardgates
+            command: ./strling check --json
+            result: failed
+            details: security_dependency_integrity and security_content_workflows execute before component operations, cannot be scoped away, and preserve nested security-result evidence. Both operations pass with 25 and 4 passed checks respectively, while unrelated pre-existing local environment limitations keep the aggregate non-passing.
+          - check: Canonical network certification hardgate
+            command: ./strling certify typescript --json
+            result: failed
+            details: The risk hardgate preserves 4 WAIVED, 9 PASSED, and 32 UNAVAILABLE checks and makes the aggregate status UNAVAILABLE. All non-security operations in this selected certification run passed or were non-applicable; unavailable scanner and ecosystem coverage was not converted to success.
+          - check: Structured no-false-pass adapter
+            command: python3 -m unittest tooling.tests.test_quality tooling.tests.test_security -v
+            result: passed
+            details: Sixty-five focused routing and security tests pass. A structured operation ID/status/exit disagreement is certified as INCOMPLETE and aggregate-failing; a valid UNAVAILABLE status is retained with its nested evidence.
+          - check: CI canonical implementation
+            command: Structured inspection of .github/workflows/ci.yml and python3 tooling/security.py content --json
+            result: passed
+            details: CI installs cargo-audit 0.22.2 with --locked, invokes ./strling check and ./strling certify typescript, and contains no parallel audit/suppression implementation. Workflow least-privilege and immutable-action checks continue to pass.
+          - check: Security architecture dependency boundary
+            command: python3 tooling/governance.py --json
+            result: passed
+            details: tooling/security.py is now an explicit source in the enforced quality-semantic-dependency-boundary and imports no binding, specification, or compiler-semantic layer.
+          - check: Local aggregate environment limitations
+            command: ./strling check --json with pinned Ruff and installed security Python dependencies
+            result: failed
+            details: The security hardgates pass. The aggregate remains failed locally because the repository-managed Bundler version differs and Swift is unavailable; these pre-existing environmental limitations are reported by their existing canonical capability states.
     - name: Security baseline readiness
       status: planned
       evidence: []
@@ -232,3 +256,5 @@ commits:
       subject: "feat(security): enforce secret and workflow safeguards"
     - sha: 51ad419cb924e70a7b1c91abd35bf7153d932a49
       subject: "feat(security): enforce dependency risk policy"
+    - sha: ce3f29dc0e986f3fdedb9fb513108b507f37b0f6
+      subject: "test(security): certify baseline security policy"

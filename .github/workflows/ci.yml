@@ -71,8 +71,14 @@ jobs:
                     ./strling setup "$component"
                   done
 
+            - name: Install pinned security scanner
+              run: cargo install cargo-audit --version 0.22.2 --locked
+
             - name: Enforce canonical contract, architecture, and quality hardgates
               run: ./strling check
+
+            - name: Enforce network-backed security certification
+              run: ./strling certify typescript
 
     # --- TEST JOBS (ALPHABETICALLY ORDERED) ---
     test-matrix:
