@@ -1,0 +1,118 @@
+record_version: 2.0.0
+title: Canonical portability planning
+status: in_progress
+objective: Convert certified semantic requirements and factual version-sensitive capability evaluation into deterministic, evidence-backed native, equivalent-rewrite, unsupported, or unresolved planning decisions without mutating Semantic IR, applying rewrites, lowering captures, producing target syntax, or changing product behavior.
+scope:
+    diff:
+        base: dd06a5f395bf0f7da5bbf4889325c17e0d9aea92
+        head: working-tree
+    allowed_paths:
+        - core/**
+        - docs/architecture.md
+        - docs/migration/ledger.md
+        - docs/migration/records/canonical-portability-planning.yaml
+        - docs/portability-planning.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_portability_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - package.json
+        - package-lock.json
+        - spec/features.json
+        - spec/grammar/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - strling
+        - strling.ps1
+        - tests/spec/**
+    expected_files:
+        - docs/migration/records/canonical-portability-planning.yaml
+        - docs/portability-planning.md
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - The canonical kernel gains a pure portability-planning stage after factual capability evaluation with no reverse dependency from target-neutral analysis.
+            - Architecture fitness will reject emitters, target syntax serializers, bindings, frontends, editors, and runtime-state dependencies from portability planning.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Kernel portability quality
+      command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && cargo check --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml
+      expected_result: The kernel formats, checks, and tests without warnings; all portability, capability, property, pipeline, and prior regression tests pass.
+    - name: Portability properties, contracts, and architecture
+      command: cargo test --manifest-path core/Cargo.toml --test portability_planning --test portability_planning_properties && python3 tooling/core_contract_validation.py && python3 -m unittest tooling.tests.test_portability_architecture tooling.tests.test_capability_architecture tooling.tests.test_diagnostic_architecture
+      expected_result: Determinism, completeness, decision soundness, unknown preservation, profile sensitivity, immutability, canonical mappings, and controlled architecture failures pass.
+    - name: Repository quality and certification
+      command: ./strling format --check && ./strling hygiene && ./strling lint all && ./strling typecheck all && ./strling generate --check && ./strling contracts --check && ./strling governance && python3 tooling/baseline.py --check && ./strling check --json && ./strling certify --json
+      expected_result: Every configured repository quality, contract, governance, baseline, check, and certification operation passes; governed incomplete or locally unavailable tools remain explicit.
+    - name: TypeScript compatibility baseline
+      command: ./strling build typescript && ./strling test typescript && ./strling typecheck typescript
+      expected_result: Existing TypeScript runtime/compiler behavior remains unchanged with all established suites and tests passing.
+    - name: Patch and clean-state integrity
+      command: git diff --check && git status --short --branch
+      expected_result: The final committed repository has no whitespace errors or uncommitted files.
+checkpoints:
+    - name: Portability planning contract
+      status: passed
+      evidence:
+          - check: Decision, aggregation, rewrite, proof, and ownership contract
+            command: npx prettier --check docs/portability-planning.md && python3 tooling/core_contract_validation.py && python3 tooling/architecture_fitness.py && ./strling governance && git diff --check
+            result: passed
+            details: The contract preserves the three-value final vocabulary, keeps Unknown as unresolved evidence, defines completeness-first aggregation, inventories rewrite candidates, admits only literal atomicity elimination, contains no target syntax, and preserves one-way target-neutral dependencies.
+          - check: Repository formatting environment
+            command: ./strling format --check
+            result: failed
+            details: Every configured formatter passed, including Rust and Prettier, but the repository command retained its governed nonzero disposition because local Ruff 0.16.2 does not match the pinned 0.15.21.
+    - name: Planning framework and native decisions
+      status: planned
+      evidence: []
+    - name: Equivalent rewrite registry and proof evaluation
+      status: planned
+      evidence: []
+    - name: Unsupported and aggregate portability decisions
+      status: planned
+      evidence: []
+    - name: Property and profile-differential certification
+      status: planned
+      evidence: []
+    - name: Pipeline and hardgate integration
+      status: planned
+      evidence: []
+    - name: Completion and target-lowering readiness
+      status: planned
+      evidence: []
+commits: []
