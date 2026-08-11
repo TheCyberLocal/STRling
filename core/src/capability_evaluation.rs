@@ -16,7 +16,11 @@ use crate::semantic_analysis::{
 };
 use crate::source::{CaptureId, ContractVersion, NodeId, SpecificationVersion};
 use crate::structural_analysis::{LengthClassification, StructuralFacts};
-use crate::target::CapabilityId;
+use crate::target::{
+    Capability, CapabilityAvailability, CapabilityConstraint, CapabilityId, ConstraintId,
+    ConstraintOperator, ConstraintScalar, ConstraintUnit, ConstraintValue, EngineIdentity,
+    ProfileOption, RuntimeIdentity, TargetProfile, TargetProfileReference, TargetProfileSet,
+};
 use crate::validation::{Validate, ValidationCode};
 
 const LOOKAHEAD: &str = "assertions.lookahead";
@@ -48,6 +52,9 @@ pub enum CapabilityEvaluationErrorCode {
     MissingStructuralFact,
     UnexpectedStructuralFact,
     FactInvariant,
+    InvalidTargetProfile,
+    IncompatibleTargetProfile,
+    TargetProfileResolution,
 }
 
 /// One structured stage error.
@@ -187,6 +194,90 @@ pub struct SemanticRequirements {
     pub requirements: Vec<SemanticRequirement>,
 }
 
+/// A scalar or conservative non-finite fact available to typed constraints.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ConstraintFactValue {
+    Scalar(ConstraintScalar),
+    Unbounded,
+    Indeterminate,
+}
+
+/// Provenance for a fact without source text or target syntax.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ConstraintFactSource {
+    SemanticRequirement { node_id: NodeId },
+    StructuralLength { body_node_id: NodeId },
+}
+
+/// One typed fact offered to a profile constraint with exact units.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RequirementConstraintFact {
+    pub constraint_id: ConstraintId,
+    pub value: ConstraintFactValue,
+    pub unit: Option<ConstraintUnit>,
+    pub source: ConstraintFactSource,
+}
+
+/// Factual support result, deliberately distinct from portability status.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum CapabilityDisposition {
+    Supported,
+    Unsupported,
+    ConstraintViolation,
+    Unknown,
+}
+
+/// Result of evaluating one certified profile constraint.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum ConstraintDisposition {
+    Satisfied,
+    Violated,
+    Unknown,
+}
+
+/// Exact evidence used for a constraint result.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum ConstraintEvidence {
+    RequirementFact(RequirementConstraintFact),
+    ProfileOption(ProfileOption),
+    MissingRequirementFact { constraint_id: ConstraintId },
+}
+
+/// One typed constraint comparison.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ConstraintEvaluation {
+    pub constraint: CapabilityConstraint,
+    pub evidence: ConstraintEvidence,
+    pub disposition: ConstraintDisposition,
+}
+
+/// One requirement-to-profile factual result.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CapabilityResult {
+    pub node_id: NodeId,
+    pub requirement: SemanticRequirement,
+    pub target_profile: TargetProfileReference,
+    pub target_engine: EngineIdentity,
+    pub target_runtime: Option<RuntimeIdentity>,
+    pub evaluated_capability: CapabilityId,
+    pub profile_capability: Option<Capability>,
+    pub constraint_facts: Vec<RequirementConstraintFact>,
+    pub constraint_evaluations: Vec<ConstraintEvaluation>,
+    pub disposition: CapabilityDisposition,
+}
+
+/// Complete deterministic comparison for one program and exact target profile.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CapabilityEvaluation {
+    pub contract_version: ContractVersion,
+    pub specification_version: SpecificationVersion,
+    pub target_profile: TargetProfileReference,
+    pub target_engine: EngineIdentity,
+    pub target_runtime: Option<RuntimeIdentity>,
+    pub requirements: SemanticRequirements,
+    pub results: Vec<CapabilityResult>,
+}
+
 impl SemanticRequirements {
     #[must_use]
     pub fn is_empty(&self) -> bool {
@@ -237,6 +328,562 @@ pub fn extract_requirements(
         specification_version: input.specification_version.clone(),
         requirements,
     })
+}
+
+/// Evaluate extracted semantic requirements against one supplied immutable
+/// target profile.
+pub fn evaluate_capabilities(
+    input: &SemanticProgram,
+    foundational: &SemanticFacts,
+    structural: &StructuralFacts,
+    target: &TargetProfile,
+) -> Result<CapabilityEvaluation, CapabilityEvaluationErrors> {
+    let requirements = extract_requirements(input, foundational, structural)?;
+    validate_target_profile(input, target)?;
+    let target_reference = target.reference().map_err(|errors| {
+        map_profile_errors(CapabilityEvaluationErrorCode::InvalidTargetProfile, errors)
+    })?;
+
+    let results = requirements
+        .iter()
+        .map(|requirement| evaluate_requirement(requirement, target, &target_reference))
+        .collect();
+
+    Ok(CapabilityEvaluation {
+        contract_version: input.contract_version,
+        specification_version: input.specification_version.clone(),
+        target_profile: target_reference,
+        target_engine: target.engine.clone(),
+        target_runtime: target.runtime.clone(),
+        requirements,
+        results,
+    })
+}
+
+/// Resolve an immutable target reference from a caller-supplied profile set,
+/// including exact revision and canonical fingerprint verification.
+pub fn evaluate_capabilities_for_reference(
+    input: &SemanticProgram,
+    foundational: &SemanticFacts,
+    structural: &StructuralFacts,
+    reference: &TargetProfileReference,
+    profiles: &TargetProfileSet,
+) -> Result<CapabilityEvaluation, CapabilityEvaluationErrors> {
+    let target = profiles.resolve(reference).map_err(|errors| {
+        map_profile_errors(
+            CapabilityEvaluationErrorCode::TargetProfileResolution,
+            errors,
+        )
+    })?;
+    evaluate_capabilities(input, foundational, structural, target)
+}
+
+fn evaluate_requirement(
+    requirement: &SemanticRequirement,
+    target: &TargetProfile,
+    target_reference: &TargetProfileReference,
+) -> CapabilityResult {
+    let constraint_facts = requirement_constraint_facts(requirement);
+    let profile_capability = lookup_capability(target, &requirement.capability_id).cloned();
+    let (constraint_evaluations, disposition) = match &profile_capability {
+        None => (Vec::new(), CapabilityDisposition::Unknown),
+        Some(capability) => match capability.availability {
+            CapabilityAvailability::Available => (Vec::new(), CapabilityDisposition::Supported),
+            CapabilityAvailability::Unavailable => (Vec::new(), CapabilityDisposition::Unsupported),
+            CapabilityAvailability::Constrained => {
+                let evaluations: Vec<_> = capability
+                    .constraints
+                    .iter()
+                    .map(|constraint| evaluate_constraint(constraint, &constraint_facts, target))
+                    .collect();
+                let disposition = if evaluations
+                    .iter()
+                    .any(|result| result.disposition == ConstraintDisposition::Violated)
+                {
+                    CapabilityDisposition::ConstraintViolation
+                } else if evaluations
+                    .iter()
+                    .any(|result| result.disposition == ConstraintDisposition::Unknown)
+                {
+                    CapabilityDisposition::Unknown
+                } else {
+                    CapabilityDisposition::Supported
+                };
+                (evaluations, disposition)
+            }
+        },
+    };
+
+    CapabilityResult {
+        node_id: requirement.node_id.clone(),
+        requirement: requirement.clone(),
+        target_profile: target_reference.clone(),
+        target_engine: target.engine.clone(),
+        target_runtime: target.runtime.clone(),
+        evaluated_capability: requirement.capability_id.clone(),
+        profile_capability,
+        constraint_facts,
+        constraint_evaluations,
+        disposition,
+    }
+}
+
+fn lookup_capability<'a>(
+    target: &'a TargetProfile,
+    capability_id: &CapabilityId,
+) -> Option<&'a Capability> {
+    target
+        .capabilities
+        .binary_search_by(|candidate| candidate.capability_id.cmp(capability_id))
+        .ok()
+        .map(|index| &target.capabilities[index])
+}
+
+fn evaluate_constraint(
+    constraint: &CapabilityConstraint,
+    facts: &[RequirementConstraintFact],
+    target: &TargetProfile,
+) -> ConstraintEvaluation {
+    if constraint.operator == ConstraintOperator::RequiresOption {
+        return evaluate_required_option(constraint, target);
+    }
+
+    let Some(fact) = facts
+        .iter()
+        .find(|fact| fact.constraint_id == constraint.constraint_id)
+        .cloned()
+    else {
+        return ConstraintEvaluation {
+            constraint: constraint.clone(),
+            evidence: ConstraintEvidence::MissingRequirementFact {
+                constraint_id: constraint.constraint_id.clone(),
+            },
+            disposition: ConstraintDisposition::Unknown,
+        };
+    };
+
+    let disposition = if units_are_equal(constraint.unit.as_ref(), fact.unit.as_ref()) {
+        compare_constraint(constraint.operator, &constraint.value, &fact.value)
+    } else if constraint.unit.is_some() && fact.unit.is_some() {
+        ConstraintDisposition::Violated
+    } else {
+        ConstraintDisposition::Unknown
+    };
+    ConstraintEvaluation {
+        constraint: constraint.clone(),
+        evidence: ConstraintEvidence::RequirementFact(fact),
+        disposition,
+    }
+}
+
+fn evaluate_required_option(
+    constraint: &CapabilityConstraint,
+    target: &TargetProfile,
+) -> ConstraintEvaluation {
+    let option = match &constraint.value {
+        ConstraintValue::Scalar(ConstraintScalar::String(option_id)) => target
+            .options
+            .binary_search_by(|candidate| candidate.option_id.as_str().cmp(option_id))
+            .ok()
+            .map(|index| target.options[index].clone()),
+        ConstraintValue::Scalar(ConstraintScalar::Number(_))
+        | ConstraintValue::Scalar(ConstraintScalar::Boolean(_))
+        | ConstraintValue::OneOf(_) => None,
+    };
+
+    match option {
+        Some(option) => ConstraintEvaluation {
+            constraint: constraint.clone(),
+            evidence: ConstraintEvidence::ProfileOption(option),
+            disposition: ConstraintDisposition::Satisfied,
+        },
+        None => ConstraintEvaluation {
+            constraint: constraint.clone(),
+            evidence: ConstraintEvidence::MissingRequirementFact {
+                constraint_id: constraint.constraint_id.clone(),
+            },
+            disposition: ConstraintDisposition::Unknown,
+        },
+    }
+}
+
+fn compare_constraint(
+    operator: ConstraintOperator,
+    expected: &ConstraintValue,
+    actual: &ConstraintFactValue,
+) -> ConstraintDisposition {
+    match (operator, expected, actual) {
+        (
+            ConstraintOperator::Equals,
+            ConstraintValue::Scalar(expected),
+            ConstraintFactValue::Scalar(actual),
+        ) => compare_equal_scalars(actual, expected),
+        (
+            ConstraintOperator::OneOf,
+            ConstraintValue::OneOf(expected),
+            ConstraintFactValue::Scalar(actual),
+        ) => compare_one_of(actual, expected),
+        (
+            ConstraintOperator::AtMost,
+            ConstraintValue::Scalar(ConstraintScalar::Number(expected)),
+            ConstraintFactValue::Scalar(ConstraintScalar::Number(actual)),
+        ) => compare_integer_numbers(actual, expected).map_or(
+            ConstraintDisposition::Unknown,
+            |ordering| {
+                if ordering.is_le() {
+                    ConstraintDisposition::Satisfied
+                } else {
+                    ConstraintDisposition::Violated
+                }
+            },
+        ),
+        (
+            ConstraintOperator::AtLeast,
+            ConstraintValue::Scalar(ConstraintScalar::Number(expected)),
+            ConstraintFactValue::Scalar(ConstraintScalar::Number(actual)),
+        ) => compare_integer_numbers(actual, expected).map_or(
+            ConstraintDisposition::Unknown,
+            |ordering| {
+                if ordering.is_ge() {
+                    ConstraintDisposition::Satisfied
+                } else {
+                    ConstraintDisposition::Violated
+                }
+            },
+        ),
+        (
+            ConstraintOperator::AtMost,
+            ConstraintValue::Scalar(ConstraintScalar::Number(_)),
+            ConstraintFactValue::Unbounded,
+        ) => ConstraintDisposition::Violated,
+        (
+            ConstraintOperator::AtLeast,
+            ConstraintValue::Scalar(ConstraintScalar::Number(_)),
+            ConstraintFactValue::Unbounded,
+        ) => ConstraintDisposition::Satisfied,
+        (_, _, ConstraintFactValue::Indeterminate)
+        | (_, _, ConstraintFactValue::Unbounded)
+        | (ConstraintOperator::RequiresOption, _, _)
+        | (_, ConstraintValue::OneOf(_), _)
+        | (_, ConstraintValue::Scalar(_), _) => ConstraintDisposition::Unknown,
+    }
+}
+
+fn compare_equal_scalars(
+    actual: &ConstraintScalar,
+    expected: &ConstraintScalar,
+) -> ConstraintDisposition {
+    match (actual, expected) {
+        (ConstraintScalar::String(actual), ConstraintScalar::String(expected)) => {
+            bool_disposition(actual == expected)
+        }
+        (ConstraintScalar::Number(actual), ConstraintScalar::Number(expected)) => {
+            compare_integer_numbers(actual, expected)
+                .map_or(ConstraintDisposition::Unknown, |ordering| {
+                    bool_disposition(ordering.is_eq())
+                })
+        }
+        (ConstraintScalar::Boolean(actual), ConstraintScalar::Boolean(expected)) => {
+            bool_disposition(actual == expected)
+        }
+        (ConstraintScalar::String(_), _)
+        | (ConstraintScalar::Number(_), _)
+        | (ConstraintScalar::Boolean(_), _) => ConstraintDisposition::Unknown,
+    }
+}
+
+fn compare_one_of(
+    actual: &ConstraintScalar,
+    expected: &[ConstraintScalar],
+) -> ConstraintDisposition {
+    let comparable: Vec<_> = expected
+        .iter()
+        .filter(|candidate| same_scalar_type(actual, candidate))
+        .collect();
+    if comparable.is_empty() {
+        ConstraintDisposition::Unknown
+    } else {
+        bool_disposition(comparable.into_iter().any(|candidate| {
+            compare_equal_scalars(actual, candidate) == ConstraintDisposition::Satisfied
+        }))
+    }
+}
+
+fn same_scalar_type(left: &ConstraintScalar, right: &ConstraintScalar) -> bool {
+    matches!(
+        (left, right),
+        (ConstraintScalar::String(_), ConstraintScalar::String(_))
+            | (ConstraintScalar::Number(_), ConstraintScalar::Number(_))
+            | (ConstraintScalar::Boolean(_), ConstraintScalar::Boolean(_))
+    )
+}
+
+fn compare_integer_numbers(
+    left: &serde_json::Number,
+    right: &serde_json::Number,
+) -> Option<std::cmp::Ordering> {
+    match (left.as_i64(), right.as_i64()) {
+        (Some(left), Some(right)) => Some(left.cmp(&right)),
+        _ => match (left.as_u64(), right.as_u64()) {
+            (Some(left), Some(right)) => Some(left.cmp(&right)),
+            _ => None,
+        },
+    }
+}
+
+fn bool_disposition(value: bool) -> ConstraintDisposition {
+    if value {
+        ConstraintDisposition::Satisfied
+    } else {
+        ConstraintDisposition::Violated
+    }
+}
+
+fn units_are_equal(left: Option<&ConstraintUnit>, right: Option<&ConstraintUnit>) -> bool {
+    match (left, right) {
+        (None, None) => true,
+        (Some(left), Some(right)) => left == right,
+        (None, Some(_)) | (Some(_), None) => false,
+    }
+}
+
+fn requirement_constraint_facts(
+    requirement: &SemanticRequirement,
+) -> Vec<RequirementConstraintFact> {
+    let mut facts = Vec::new();
+    let semantic_source = ConstraintFactSource::SemanticRequirement {
+        node_id: requirement.node_id.clone(),
+    };
+    match &requirement.kind {
+        RequirementKind::Lookahead { polarity } => facts.push(scalar_fact(
+            "polarity",
+            ConstraintScalar::String(polarity_name(*polarity).to_owned()),
+            None,
+            semantic_source,
+        )),
+        RequirementKind::Lookbehind {
+            body_node_id,
+            polarity,
+            length,
+        } => {
+            facts.push(scalar_fact(
+                "polarity",
+                ConstraintScalar::String(polarity_name(*polarity).to_owned()),
+                None,
+                semantic_source,
+            ));
+            let source = ConstraintFactSource::StructuralLength {
+                body_node_id: body_node_id.clone(),
+            };
+            match length {
+                LookbehindLength::Fixed { length } => {
+                    facts.push(numeric_fact("fixed_length", *length, source.clone()));
+                    facts.push(numeric_fact("bounded_minimum", *length, source.clone()));
+                    facts.push(numeric_fact("bounded_maximum", *length, source));
+                }
+                LookbehindLength::FiniteVariable { minimum, maximum } => {
+                    facts.push(numeric_fact("bounded_minimum", *minimum, source.clone()));
+                    facts.push(numeric_fact("bounded_maximum", *maximum, source));
+                }
+                LookbehindLength::Unbounded { minimum } => {
+                    facts.push(numeric_fact("bounded_minimum", *minimum, source.clone()));
+                    facts.push(nonfinite_fact(
+                        "bounded_maximum",
+                        ConstraintFactValue::Unbounded,
+                        source,
+                    ));
+                }
+                LookbehindLength::Indeterminate { minimum } => {
+                    facts.push(numeric_fact("bounded_minimum", *minimum, source.clone()));
+                    facts.push(nonfinite_fact(
+                        "bounded_maximum",
+                        ConstraintFactValue::Indeterminate,
+                        source,
+                    ));
+                }
+            }
+        }
+        RequirementKind::UnicodeProperty {
+            property,
+            value,
+            negated,
+        } => {
+            facts.push(scalar_fact(
+                "property",
+                ConstraintScalar::String(property.clone()),
+                None,
+                semantic_source.clone(),
+            ));
+            if let Some(value) = value {
+                facts.push(scalar_fact(
+                    "property_value",
+                    ConstraintScalar::String(value.clone()),
+                    None,
+                    semantic_source.clone(),
+                ));
+            }
+            facts.push(scalar_fact(
+                "negated",
+                ConstraintScalar::Boolean(*negated),
+                None,
+                semantic_source,
+            ));
+        }
+        RequirementKind::UnicodeCharacterClass { name, negated } => {
+            facts.push(scalar_fact(
+                "class",
+                ConstraintScalar::String(builtin_class_name(*name).to_owned()),
+                None,
+                semantic_source.clone(),
+            ));
+            facts.push(scalar_fact(
+                "negated",
+                ConstraintScalar::Boolean(*negated),
+                None,
+                semantic_source,
+            ));
+        }
+        RequirementKind::Position { position } => facts.push(scalar_fact(
+            "position",
+            ConstraintScalar::String(position_name(*position).to_owned()),
+            None,
+            semantic_source,
+        )),
+        RequirementKind::NamedCapture { .. }
+        | RequirementKind::Backreference { .. }
+        | RequirementKind::Atomic
+        | RequirementKind::PossessiveRepetition
+        | RequirementKind::LazyRepetition
+        | RequirementKind::CaseInsensitive => {}
+    }
+    facts.sort_by(|left, right| left.constraint_id.cmp(&right.constraint_id));
+    facts
+}
+
+fn scalar_fact(
+    constraint_id: &'static str,
+    value: ConstraintScalar,
+    unit: Option<ConstraintUnit>,
+    source: ConstraintFactSource,
+) -> RequirementConstraintFact {
+    RequirementConstraintFact {
+        constraint_id: ConstraintId::try_from(constraint_id)
+            .expect("canonical requirement constraint identifier must be valid"),
+        value: ConstraintFactValue::Scalar(value),
+        unit,
+        source,
+    }
+}
+
+fn numeric_fact(
+    constraint_id: &'static str,
+    value: u64,
+    source: ConstraintFactSource,
+) -> RequirementConstraintFact {
+    scalar_fact(
+        constraint_id,
+        ConstraintScalar::Number(serde_json::Number::from(value)),
+        Some(
+            ConstraintUnit::try_from("characters")
+                .expect("canonical requirement constraint unit must be valid"),
+        ),
+        source,
+    )
+}
+
+fn nonfinite_fact(
+    constraint_id: &'static str,
+    value: ConstraintFactValue,
+    source: ConstraintFactSource,
+) -> RequirementConstraintFact {
+    RequirementConstraintFact {
+        constraint_id: ConstraintId::try_from(constraint_id)
+            .expect("canonical requirement constraint identifier must be valid"),
+        value,
+        unit: Some(
+            ConstraintUnit::try_from("characters")
+                .expect("canonical requirement constraint unit must be valid"),
+        ),
+        source,
+    }
+}
+
+fn polarity_name(polarity: RequirementPolarity) -> &'static str {
+    match polarity {
+        RequirementPolarity::Positive => "positive",
+        RequirementPolarity::Negative => "negative",
+    }
+}
+
+fn builtin_class_name(name: BuiltinClassName) -> &'static str {
+    match name {
+        BuiltinClassName::Digit => "digit",
+        BuiltinClassName::Word => "word",
+        BuiltinClassName::Whitespace => "whitespace",
+    }
+}
+
+fn position_name(position: PositionRequirement) -> &'static str {
+    match position {
+        PositionRequirement::InputStart => "input_start",
+        PositionRequirement::InputEnd => "input_end",
+        PositionRequirement::LineStart => "line_start",
+        PositionRequirement::LineEnd => "line_end",
+        PositionRequirement::WordBoundary => "word_boundary",
+        PositionRequirement::NotWordBoundary => "not_word_boundary",
+        PositionRequirement::EndBeforeFinalLineTerminator => "end_before_final_line_terminator",
+    }
+}
+
+fn validate_target_profile(
+    input: &SemanticProgram,
+    target: &TargetProfile,
+) -> Result<(), CapabilityEvaluationErrors> {
+    target.validate().map_err(|errors| {
+        map_profile_errors(CapabilityEvaluationErrorCode::InvalidTargetProfile, errors)
+    })?;
+    if target.contract_version != input.contract_version {
+        return Err(CapabilityEvaluationErrors::single(
+            CapabilityEvaluationError::new(
+                CapabilityEvaluationErrorCode::IncompatibleTargetProfile,
+                "$.target_profile.contract_version",
+                "target profile contract version does not match the semantic program",
+            ),
+        ));
+    }
+    if target
+        .compatible_specification_versions
+        .binary_search(&input.specification_version)
+        .is_err()
+    {
+        return Err(CapabilityEvaluationErrors::single(
+            CapabilityEvaluationError::new(
+                CapabilityEvaluationErrorCode::IncompatibleTargetProfile,
+                "$.target_profile.compatible_specification_versions",
+                "target profile does not certify the semantic program specification version",
+            ),
+        ));
+    }
+    Ok(())
+}
+
+fn map_profile_errors(
+    code: CapabilityEvaluationErrorCode,
+    errors: crate::validation::ValidationErrors,
+) -> CapabilityEvaluationErrors {
+    CapabilityEvaluationErrors {
+        errors: errors
+            .errors
+            .into_iter()
+            .map(|error| {
+                CapabilityEvaluationError::new(
+                    code,
+                    format!("$.target_profile{}", error.path.trim_start_matches('$')),
+                    error.message,
+                )
+            })
+            .collect(),
+    }
 }
 
 fn extract_node_requirements(
