@@ -103,8 +103,12 @@ checkpoints:
             result: passed
             details: Ratified lexical_shape, normalized_structure, and semantic with finite proof conditions, runtime-stage requirements, conservative unknown and unsupported handling, independent target availability, external-standard scope, and prohibited implications.
     - name: Standard-library claim contract
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Versioned metadata schemas and controlled fixtures
+            command: python3 -m jsonschema against all three helper-guarantee examples and all seven controlled-invalid definitions; python3 tooling/documentation_integrity.py; python3 tooling/governance.py; python3 tooling/architecture_fitness.py; git diff --check
+            result: passed
+            details: Added structured identity, level, domain, definition, validator pipeline, standards scope, exclusions, performed and omitted checks, target limitations, safety and rewrite non-claims, evidence bindings, documentation claims, versioning, three level examples, and seven isolated negative mutations.
     - name: Compiler guarantee reconciliation
       status: planned
       evidence: []
@@ -120,3 +124,5 @@ checkpoints:
 commits:
     - sha: e8b0e234bc9524df05439392e12b3fb641a30dbf
       subject: "docs(spec): audit validation guarantee claims"
+    - sha: a67658b9bd31e7421671389542309fd3c4180ec6
+      subject: "docs(spec): define validation guarantee levels"

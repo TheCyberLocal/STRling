@@ -1,0 +1,11 @@
+{
+    "kind": "strling.controlled-invalid-helper-guarantee",
+    "case_id": "invalid.semantic.evidence_missing",
+    "base_fixture": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json",
+    "mutation": {
+        "operation": "replace",
+        "pointer": "/evidence/references/3/kind",
+        "value": "boundary_corpus"
+    },
+    "expected_rule": "semantic.evidence.required"
+}

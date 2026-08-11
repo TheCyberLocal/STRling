@@ -1,0 +1,11 @@
+{
+    "kind": "strling.controlled-invalid-helper-guarantee",
+    "case_id": "invalid.validation.safety_overclaim",
+    "base_fixture": "spec/stdlib/contracts/1.0/examples/helper-guarantee/lexical-shape.json",
+    "mutation": {
+        "operation": "replace",
+        "pointer": "/safety/claim",
+        "value": "universally_safe"
+    },
+    "expected_rule": "validation.safety_claim_forbidden"
+}

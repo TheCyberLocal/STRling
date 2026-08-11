@@ -1,0 +1,75 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/spec/stdlib/contracts/1.0/controlled-invalid-guarantee.schema.json",
+    "title": "Controlled invalid STRling helper-guarantee case",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "kind",
+        "case_id",
+        "base_fixture",
+        "mutation",
+        "expected_rule"
+    ],
+    "properties": {
+        "kind": {
+            "const": "strling.controlled-invalid-helper-guarantee"
+        },
+        "case_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)+$"
+        },
+        "base_fixture": {
+            "type": "string",
+            "pattern": "^spec/stdlib/contracts/1\\.0/examples/helper-guarantee/[a-z0-9-]+\\.json$"
+        },
+        "mutation": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["operation", "pointer"],
+                    "properties": {
+                        "operation": {
+                            "const": "remove"
+                        },
+                        "pointer": {
+                            "$ref": "#/$defs/jsonPointer"
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["operation", "pointer", "value"],
+                    "properties": {
+                        "operation": {
+                            "enum": ["add", "replace"]
+                        },
+                        "pointer": {
+                            "$ref": "#/$defs/jsonPointer"
+                        },
+                        "value": true
+                    }
+                }
+            ]
+        },
+        "expected_rule": {
+            "enum": [
+                "guarantee_level.required",
+                "semantic.evidence.required",
+                "standard.scope.required",
+                "standard.complete.exclusions_forbidden",
+                "validation.portability_forbidden",
+                "validation.safety_claim_forbidden",
+                "evidence.reference.malformed"
+            ]
+        }
+    },
+    "$defs": {
+        "jsonPointer": {
+            "type": "string",
+            "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"
+        }
+    }
+}

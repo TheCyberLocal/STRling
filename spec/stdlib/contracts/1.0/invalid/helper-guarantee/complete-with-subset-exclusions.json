@@ -1,0 +1,11 @@
+{
+    "kind": "strling.controlled-invalid-helper-guarantee",
+    "case_id": "invalid.standard.complete_with_exclusions",
+    "base_fixture": "spec/stdlib/contracts/1.0/examples/helper-guarantee/normalized-structure.json",
+    "mutation": {
+        "operation": "replace",
+        "pointer": "/standards/scope",
+        "value": "complete"
+    },
+    "expected_rule": "standard.complete.exclusions_forbidden"
+}

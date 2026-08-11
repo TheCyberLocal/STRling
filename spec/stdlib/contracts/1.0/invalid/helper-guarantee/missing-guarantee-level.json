@@ -1,0 +1,10 @@
+{
+    "kind": "strling.controlled-invalid-helper-guarantee",
+    "case_id": "invalid.guarantee_level.missing",
+    "base_fixture": "spec/stdlib/contracts/1.0/examples/helper-guarantee/lexical-shape.json",
+    "mutation": {
+        "operation": "remove",
+        "pointer": "/guarantee_level"
+    },
+    "expected_rule": "guarantee_level.required"
+}

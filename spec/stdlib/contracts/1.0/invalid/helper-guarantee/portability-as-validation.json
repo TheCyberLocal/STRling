@@ -1,0 +1,11 @@
+{
+    "kind": "strling.controlled-invalid-helper-guarantee",
+    "case_id": "invalid.validation.portability_embedded",
+    "base_fixture": "spec/stdlib/contracts/1.0/examples/helper-guarantee/lexical-shape.json",
+    "mutation": {
+        "operation": "replace",
+        "pointer": "/checks/performed/0/category",
+        "value": "portability"
+    },
+    "expected_rule": "validation.portability_forbidden"
+}

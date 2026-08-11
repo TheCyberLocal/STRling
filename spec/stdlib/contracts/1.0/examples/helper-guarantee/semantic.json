@@ -1,0 +1,205 @@
+{
+    "kind": "strling.stdlib-helper-guarantee",
+    "contract_version": "1.0.0",
+    "status": "example",
+    "helper_id": "fixture.profile_calendar_day",
+    "guarantee_id": "fixture.profile_calendar_day.semantic.v1",
+    "guarantee_version": "1.0.0",
+    "guarantee_level": "semantic",
+    "accepted_domain": {
+        "domain_id": "fixture.domain.profile_calendar_day_text",
+        "name": "Fixture Profile calendar-day text",
+        "definition": "An ASCII YYYY-MM-DD value satisfying the Fixture Profile's declared year, month, day, and leap-year conditions.",
+        "input_kind": "text",
+        "text_model": "ascii"
+    },
+    "validation_definition": {
+        "definition_id": "fixture.definition.profile_calendar_day_semantic",
+        "summary": "Parse a calendar-day value and apply every date rule enumerated by the named Fixture Calendar Profile.",
+        "match_scope": "whole_value",
+        "conditions": [
+            {
+                "condition_id": "fixture.condition.profile_calendar_day.shape",
+                "category": "lexical",
+                "statement": "The value uses the exact ASCII YYYY-MM-DD representation."
+            },
+            {
+                "condition_id": "fixture.condition.profile_calendar_day.components",
+                "category": "structural",
+                "statement": "Year, month, and day components parse in their declared ranges."
+            },
+            {
+                "condition_id": "fixture.condition.profile_calendar_day.calendar",
+                "category": "semantic",
+                "statement": "The day exists in the parsed month and year under the profile's leap-year rule."
+            }
+        ]
+    },
+    "validator_pipeline": [
+        {
+            "stage_id": "fixture.stage.profile_calendar_day.scanner",
+            "kind": "scanner",
+            "deterministic": true,
+            "implementation_reference": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/validation_definition",
+            "proves_conditions": [
+                "fixture.condition.profile_calendar_day.shape"
+            ]
+        },
+        {
+            "stage_id": "fixture.stage.profile_calendar_day.parser",
+            "kind": "parser",
+            "deterministic": true,
+            "implementation_reference": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/validation_definition",
+            "proves_conditions": [
+                "fixture.condition.profile_calendar_day.components"
+            ]
+        },
+        {
+            "stage_id": "fixture.stage.profile_calendar_day.semantic",
+            "kind": "deterministic_validator",
+            "deterministic": true,
+            "implementation_reference": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/validation_definition",
+            "proves_conditions": [
+                "fixture.condition.profile_calendar_day.calendar"
+            ]
+        }
+    ],
+    "standards": {
+        "scope": "profile",
+        "references": [
+            {
+                "authority_id": "fixture.authority.example_calendar",
+                "title": "Fixture Example Calendar",
+                "edition": "2026",
+                "uri": "https://example.invalid/fixture-example-calendar-2026"
+            }
+        ],
+        "profile_name": "Fixture Calendar Profile 2026",
+        "included_provisions": [
+            "Four-digit years from 0001 through 9999, Gregorian month lengths, and the profile's leap-year rule."
+        ],
+        "excluded_provisions": [
+            "Expanded years, time values, time zones, and non-Gregorian calendars."
+        ]
+    },
+    "excluded_cases": [
+        {
+            "case_id": "fixture.exclusion.profile_calendar_day.expanded_year",
+            "description": "Expanded and signed years are outside the named profile."
+        }
+    ],
+    "checks": {
+        "performed": [
+            {
+                "check_id": "fixture.check.profile_calendar_day.shape",
+                "category": "lexical",
+                "condition_id": "fixture.condition.profile_calendar_day.shape",
+                "stage_ids": ["fixture.stage.profile_calendar_day.scanner"]
+            },
+            {
+                "check_id": "fixture.check.profile_calendar_day.components",
+                "category": "structural",
+                "condition_id": "fixture.condition.profile_calendar_day.components",
+                "stage_ids": ["fixture.stage.profile_calendar_day.parser"]
+            },
+            {
+                "check_id": "fixture.check.profile_calendar_day.calendar",
+                "category": "semantic",
+                "condition_id": "fixture.condition.profile_calendar_day.calendar",
+                "stage_ids": ["fixture.stage.profile_calendar_day.semantic"]
+            }
+        ],
+        "not_performed": [
+            {
+                "check_id": "fixture.omission.profile_calendar_day.timezone",
+                "category": "semantic",
+                "description": "Time-of-day and time-zone semantics are not part of this calendar-day domain.",
+                "reason": "not_applicable"
+            },
+            {
+                "check_id": "fixture.omission.profile_calendar_day.event_exists",
+                "category": "environmental",
+                "description": "The validator does not establish that an event occurred on the date.",
+                "reason": "out_of_scope"
+            }
+        ]
+    },
+    "target_support": {
+        "claim": "not_claimed",
+        "portability_contract_reference": "spec/contracts/1.0/portability.schema.json",
+        "target_profile_references": [],
+        "limitations": [
+            "The complete scanner, parser, and semantic validator pipeline requires separately established target availability."
+        ]
+    },
+    "safety": {
+        "claim": "not_claimed",
+        "analysis_contract_reference": "docs/migration/semantic-safety-analysis.md"
+    },
+    "rewrite_equivalence": {
+        "claim": "not_claimed",
+        "planning_contract_reference": "docs/portability-planning.md"
+    },
+    "evidence": {
+        "references": [
+            {
+                "evidence_id": "fixture.evidence.profile_calendar_day.implementation",
+                "kind": "validator_implementation",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/validator_pipeline"
+            },
+            {
+                "evidence_id": "fixture.evidence.profile_calendar_day.boundaries",
+                "kind": "boundary_corpus",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/validation_definition"
+            },
+            {
+                "evidence_id": "fixture.evidence.profile_calendar_day.interactions",
+                "kind": "interaction_corpus",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/checks"
+            },
+            {
+                "evidence_id": "fixture.evidence.profile_calendar_day.semantic",
+                "kind": "semantic_condition",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/validation_definition/conditions/2"
+            },
+            {
+                "evidence_id": "fixture.evidence.profile_calendar_day.standard",
+                "kind": "standard_conformance",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/semantic.json#/standards"
+            }
+        ],
+        "condition_bindings": [
+            {
+                "check_id": "fixture.check.profile_calendar_day.shape",
+                "evidence_ids": [
+                    "fixture.evidence.profile_calendar_day.boundaries",
+                    "fixture.evidence.profile_calendar_day.implementation"
+                ]
+            },
+            {
+                "check_id": "fixture.check.profile_calendar_day.components",
+                "evidence_ids": [
+                    "fixture.evidence.profile_calendar_day.boundaries",
+                    "fixture.evidence.profile_calendar_day.implementation"
+                ]
+            },
+            {
+                "check_id": "fixture.check.profile_calendar_day.calendar",
+                "evidence_ids": [
+                    "fixture.evidence.profile_calendar_day.boundaries",
+                    "fixture.evidence.profile_calendar_day.implementation",
+                    "fixture.evidence.profile_calendar_day.interactions",
+                    "fixture.evidence.profile_calendar_day.semantic",
+                    "fixture.evidence.profile_calendar_day.standard"
+                ]
+            }
+        ]
+    },
+    "documentation_claim": {
+        "claim_class": "strict_semantic",
+        "text": "Strictly validates every calendar-day condition enumerated by Fixture Calendar Profile 2026; excluded calendar and environmental cases are not claimed."
+    },
+    "known_limitations": [
+        "This fixture demonstrates semantic evidence and named-profile scope and is not a ratified standard-library helper."
+    ]
+}

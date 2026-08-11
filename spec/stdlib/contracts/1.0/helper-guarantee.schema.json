@@ -1,0 +1,781 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/spec/stdlib/contracts/1.0/helper-guarantee.schema.json",
+    "title": "STRling standard-library helper guarantee",
+    "description": "Versioned, claim-bounded validation metadata for one governed standard-library helper.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "kind",
+        "contract_version",
+        "status",
+        "helper_id",
+        "guarantee_id",
+        "guarantee_version",
+        "guarantee_level",
+        "accepted_domain",
+        "validation_definition",
+        "validator_pipeline",
+        "standards",
+        "excluded_cases",
+        "checks",
+        "target_support",
+        "safety",
+        "rewrite_equivalence",
+        "evidence",
+        "documentation_claim",
+        "known_limitations"
+    ],
+    "properties": {
+        "kind": {
+            "const": "strling.stdlib-helper-guarantee"
+        },
+        "contract_version": {
+            "const": "1.0.0"
+        },
+        "status": {
+            "enum": ["ratified", "example"]
+        },
+        "helper_id": {
+            "$ref": "#/$defs/stableId"
+        },
+        "guarantee_id": {
+            "$ref": "#/$defs/stableId"
+        },
+        "guarantee_version": {
+            "$ref": "#/$defs/semanticVersion"
+        },
+        "guarantee_level": {
+            "enum": ["lexical_shape", "normalized_structure", "semantic"]
+        },
+        "accepted_domain": {
+            "$ref": "#/$defs/acceptedDomain"
+        },
+        "validation_definition": {
+            "$ref": "#/$defs/validationDefinition"
+        },
+        "validator_pipeline": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/validatorStage"
+            }
+        },
+        "standards": {
+            "$ref": "#/$defs/standardsClaim"
+        },
+        "excluded_cases": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/excludedCase"
+            }
+        },
+        "checks": {
+            "$ref": "#/$defs/checkSet"
+        },
+        "target_support": {
+            "$ref": "#/$defs/targetSupport"
+        },
+        "safety": {
+            "$ref": "#/$defs/safetyBoundary"
+        },
+        "rewrite_equivalence": {
+            "$ref": "#/$defs/rewriteBoundary"
+        },
+        "evidence": {
+            "$ref": "#/$defs/evidenceSet"
+        },
+        "documentation_claim": {
+            "$ref": "#/$defs/documentationClaim"
+        },
+        "known_limitations": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/nonEmptyString"
+            }
+        }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "guarantee_level": {
+                        "const": "lexical_shape"
+                    }
+                },
+                "required": ["guarantee_level"]
+            },
+            "then": {
+                "properties": {
+                    "checks": {
+                        "properties": {
+                            "performed": {
+                                "contains": {
+                                    "properties": {
+                                        "category": {
+                                            "const": "lexical"
+                                        }
+                                    },
+                                    "required": ["category"]
+                                }
+                            }
+                        }
+                    },
+                    "documentation_claim": {
+                        "properties": {
+                            "claim_class": {
+                                "const": "shape_match"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "guarantee_level": {
+                        "const": "normalized_structure"
+                    }
+                },
+                "required": ["guarantee_level"]
+            },
+            "then": {
+                "properties": {
+                    "checks": {
+                        "properties": {
+                            "performed": {
+                                "contains": {
+                                    "properties": {
+                                        "category": {
+                                            "const": "structural"
+                                        }
+                                    },
+                                    "required": ["category"]
+                                }
+                            }
+                        }
+                    },
+                    "documentation_claim": {
+                        "properties": {
+                            "claim_class": {
+                                "const": "structural_validity"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "guarantee_level": {
+                        "const": "semantic"
+                    }
+                },
+                "required": ["guarantee_level"]
+            },
+            "then": {
+                "properties": {
+                    "checks": {
+                        "properties": {
+                            "performed": {
+                                "contains": {
+                                    "properties": {
+                                        "category": {
+                                            "const": "semantic"
+                                        }
+                                    },
+                                    "required": ["category"]
+                                }
+                            }
+                        }
+                    },
+                    "evidence": {
+                        "properties": {
+                            "references": {
+                                "contains": {
+                                    "properties": {
+                                        "kind": {
+                                            "const": "semantic_condition"
+                                        }
+                                    },
+                                    "required": ["kind"]
+                                }
+                            }
+                        }
+                    },
+                    "documentation_claim": {
+                        "properties": {
+                            "claim_class": {
+                                "enum": ["semantic_validity", "strict_semantic"]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "$defs": {
+        "nonEmptyString": {
+            "type": "string",
+            "minLength": 1
+        },
+        "stableId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)+$"
+        },
+        "semanticVersion": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"
+        },
+        "repositoryReference": {
+            "type": "string",
+            "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$))(?:[A-Za-z0-9._-]+/)+[A-Za-z0-9._-]+(?:#[A-Za-z0-9._~:/-]+)?$"
+        },
+        "acceptedDomain": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "domain_id",
+                "name",
+                "definition",
+                "input_kind",
+                "text_model"
+            ],
+            "properties": {
+                "domain_id": {
+                    "$ref": "#/$defs/stableId"
+                },
+                "name": {
+                    "$ref": "#/$defs/nonEmptyString"
+                },
+                "definition": {
+                    "$ref": "#/$defs/nonEmptyString"
+                },
+                "input_kind": {
+                    "const": "text"
+                },
+                "text_model": {
+                    "enum": ["ascii", "unicode_scalar_values", "bytes"]
+                }
+            }
+        },
+        "validationDefinition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "definition_id",
+                "summary",
+                "match_scope",
+                "conditions"
+            ],
+            "properties": {
+                "definition_id": {
+                    "$ref": "#/$defs/stableId"
+                },
+                "summary": {
+                    "$ref": "#/$defs/nonEmptyString"
+                },
+                "match_scope": {
+                    "enum": ["whole_value", "token", "substring"]
+                },
+                "conditions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/condition"
+                    }
+                }
+            }
+        },
+        "condition": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["condition_id", "category", "statement"],
+            "properties": {
+                "condition_id": {
+                    "$ref": "#/$defs/stableId"
+                },
+                "category": {
+                    "enum": ["lexical", "structural", "semantic"]
+                },
+                "statement": {
+                    "$ref": "#/$defs/nonEmptyString"
+                }
+            }
+        },
+        "validatorStage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "stage_id",
+                "kind",
+                "deterministic",
+                "implementation_reference",
+                "proves_conditions"
+            ],
+            "properties": {
+                "stage_id": {
+                    "$ref": "#/$defs/stableId"
+                },
+                "kind": {
+                    "enum": [
+                        "regex",
+                        "scanner",
+                        "parser",
+                        "normalizer",
+                        "deterministic_validator"
+                    ]
+                },
+                "deterministic": {
+                    "const": true
+                },
+                "implementation_reference": {
+                    "$ref": "#/$defs/repositoryReference"
+                },
+                "proves_conditions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/stableId"
+                    },
+                    "uniqueItems": true
+                }
+            }
+        },
+        "standardReference": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["authority_id", "title", "edition", "uri"],
+            "properties": {
+                "authority_id": {
+                    "$ref": "#/$defs/stableId"
+                },
+                "title": {
+                    "$ref": "#/$defs/nonEmptyString"
+                },
+                "edition": {
+                    "$ref": "#/$defs/nonEmptyString"
+                },
+                "uri": {
+                    "type": "string",
+                    "format": "uri"
+                }
+            }
+        },
+        "standardsClaim": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["scope", "references"],
+                    "properties": {
+                        "scope": {
+                            "const": "none"
+                        },
+                        "references": {
+                            "type": "array",
+                            "maxItems": 0
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["scope", "references", "inspired_elements"],
+                    "properties": {
+                        "scope": {
+                            "const": "inspired"
+                        },
+                        "references": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/standardReference"
+                            }
+                        },
+                        "inspired_elements": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/nonEmptyString"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "scope",
+                        "references",
+                        "included_provisions",
+                        "excluded_provisions"
+                    ],
+                    "properties": {
+                        "scope": {
+                            "const": "subset"
+                        },
+                        "references": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/standardReference"
+                            }
+                        },
+                        "included_provisions": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/nonEmptyString"
+                            }
+                        },
+                        "excluded_provisions": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/nonEmptyString"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "scope",
+                        "references",
+                        "profile_name",
+                        "included_provisions",
+                        "excluded_provisions"
+                    ],
+                    "properties": {
+                        "scope": {
+                            "const": "profile"
+                        },
+                        "references": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/standardReference"
+                            }
+                        },
+                        "profile_name": {
+                            "$ref": "#/$defs/nonEmptyString"
+                        },
+                        "included_provisions": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/nonEmptyString"
+                            }
+                        },
+                        "excluded_provisions": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/nonEmptyString"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "scope",
+                        "references",
+                        "conformance_target",
+                        "included_provisions",
+                        "excluded_provisions"
+                    ],
+                    "properties": {
+                        "scope": {
+                            "const": "complete"
+                        },
+                        "references": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/standardReference"
+                            }
+                        },
+                        "conformance_target": {
+                            "$ref": "#/$defs/nonEmptyString"
+                        },
+                        "included_provisions": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/nonEmptyString"
+                            }
+                        },
+                        "excluded_provisions": {
+                            "type": "array",
+                            "maxItems": 0
+                        }
+                    }
+                }
+            ]
+        },
+        "excludedCase": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["case_id", "description"],
+            "properties": {
+                "case_id": {
+                    "$ref": "#/$defs/stableId"
+                },
+                "description": {
+                    "$ref": "#/$defs/nonEmptyString"
+                }
+            }
+        },
+        "performedCheck": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["check_id", "category", "condition_id", "stage_ids"],
+            "properties": {
+                "check_id": {
+                    "$ref": "#/$defs/stableId"
+                },
+                "category": {
+                    "enum": ["lexical", "structural", "semantic"]
+                },
+                "condition_id": {
+                    "$ref": "#/$defs/stableId"
+                },
+                "stage_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/stableId"
+                    },
+                    "uniqueItems": true
+                }
+            }
+        },
+        "omittedCheck": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["check_id", "category", "description", "reason"],
+            "properties": {
+                "check_id": {
+                    "$ref": "#/$defs/stableId"
+                },
+                "category": {
+                    "enum": [
+                        "lexical",
+                        "structural",
+                        "semantic",
+                        "environmental",
+                        "business"
+                    ]
+                },
+                "description": {
+                    "$ref": "#/$defs/nonEmptyString"
+                },
+                "reason": {
+                    "enum": [
+                        "out_of_scope",
+                        "unsupported",
+                        "unknown",
+                        "not_applicable"
+                    ]
+                }
+            }
+        },
+        "checkSet": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["performed", "not_performed"],
+            "properties": {
+                "performed": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/performedCheck"
+                    }
+                },
+                "not_performed": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/omittedCheck"
+                    }
+                }
+            }
+        },
+        "targetSupport": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "claim",
+                        "portability_contract_reference",
+                        "target_profile_references",
+                        "limitations"
+                    ],
+                    "properties": {
+                        "claim": {
+                            "const": "not_claimed"
+                        },
+                        "portability_contract_reference": {
+                            "const": "spec/contracts/1.0/portability.schema.json"
+                        },
+                        "target_profile_references": {
+                            "type": "array",
+                            "maxItems": 0
+                        },
+                        "limitations": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/nonEmptyString"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "claim",
+                        "portability_contract_reference",
+                        "target_profile_references",
+                        "limitations"
+                    ],
+                    "properties": {
+                        "claim": {
+                            "const": "profile_limited"
+                        },
+                        "portability_contract_reference": {
+                            "const": "spec/contracts/1.0/portability.schema.json"
+                        },
+                        "target_profile_references": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/repositoryReference"
+                            }
+                        },
+                        "limitations": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/$defs/nonEmptyString"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "safetyBoundary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["claim", "analysis_contract_reference"],
+            "properties": {
+                "claim": {
+                    "const": "not_claimed"
+                },
+                "analysis_contract_reference": {
+                    "const": "docs/migration/semantic-safety-analysis.md"
+                }
+            }
+        },
+        "rewriteBoundary": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["claim", "planning_contract_reference"],
+            "properties": {
+                "claim": {
+                    "const": "not_claimed"
+                },
+                "planning_contract_reference": {
+                    "const": "docs/portability-planning.md"
+                }
+            }
+        },
+        "evidenceReference": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["evidence_id", "kind", "path"],
+            "properties": {
+                "evidence_id": {
+                    "$ref": "#/$defs/stableId"
+                },
+                "kind": {
+                    "enum": [
+                        "validator_implementation",
+                        "acceptance_corpus",
+                        "rejection_corpus",
+                        "boundary_corpus",
+                        "interaction_corpus",
+                        "semantic_condition",
+                        "standard_conformance",
+                        "contract_test"
+                    ]
+                },
+                "path": {
+                    "$ref": "#/$defs/repositoryReference"
+                }
+            }
+        },
+        "conditionEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["check_id", "evidence_ids"],
+            "properties": {
+                "check_id": {
+                    "$ref": "#/$defs/stableId"
+                },
+                "evidence_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/stableId"
+                    },
+                    "uniqueItems": true
+                }
+            }
+        },
+        "evidenceSet": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["references", "condition_bindings"],
+            "properties": {
+                "references": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/evidenceReference"
+                    }
+                },
+                "condition_bindings": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/conditionEvidence"
+                    }
+                }
+            }
+        },
+        "documentationClaim": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["claim_class", "text"],
+            "properties": {
+                "claim_class": {
+                    "enum": [
+                        "shape_match",
+                        "structural_validity",
+                        "semantic_validity",
+                        "strict_semantic"
+                    ]
+                },
+                "text": {
+                    "$ref": "#/$defs/nonEmptyString"
+                }
+            }
+        }
+    }
+}

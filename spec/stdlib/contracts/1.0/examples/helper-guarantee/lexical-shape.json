@@ -1,0 +1,139 @@
+{
+    "kind": "strling.stdlib-helper-guarantee",
+    "contract_version": "1.0.0",
+    "status": "example",
+    "helper_id": "fixture.hex_triplet",
+    "guarantee_id": "fixture.hex_triplet.shape.v1",
+    "guarantee_version": "1.0.0",
+    "guarantee_level": "lexical_shape",
+    "accepted_domain": {
+        "domain_id": "fixture.domain.hex_triplet_text",
+        "name": "three-character hexadecimal text",
+        "definition": "An ASCII text value containing exactly three hexadecimal characters.",
+        "input_kind": "text",
+        "text_model": "ascii"
+    },
+    "validation_definition": {
+        "definition_id": "fixture.definition.hex_triplet_shape",
+        "summary": "Accept exactly three ASCII hexadecimal characters as a whole value.",
+        "match_scope": "whole_value",
+        "conditions": [
+            {
+                "condition_id": "fixture.condition.hex_triplet.width",
+                "category": "lexical",
+                "statement": "The value contains exactly three characters."
+            },
+            {
+                "condition_id": "fixture.condition.hex_triplet.alphabet",
+                "category": "lexical",
+                "statement": "Every character is an ASCII hexadecimal digit."
+            }
+        ]
+    },
+    "validator_pipeline": [
+        {
+            "stage_id": "fixture.stage.hex_triplet.regex",
+            "kind": "regex",
+            "deterministic": true,
+            "implementation_reference": "spec/stdlib/contracts/1.0/examples/helper-guarantee/lexical-shape.json#/validation_definition",
+            "proves_conditions": [
+                "fixture.condition.hex_triplet.alphabet",
+                "fixture.condition.hex_triplet.width"
+            ]
+        }
+    ],
+    "standards": {
+        "scope": "none",
+        "references": []
+    },
+    "excluded_cases": [
+        {
+            "case_id": "fixture.exclusion.hex_triplet.prefix",
+            "description": "A 0x prefix is outside this textual shape."
+        }
+    ],
+    "checks": {
+        "performed": [
+            {
+                "check_id": "fixture.check.hex_triplet.width",
+                "category": "lexical",
+                "condition_id": "fixture.condition.hex_triplet.width",
+                "stage_ids": ["fixture.stage.hex_triplet.regex"]
+            },
+            {
+                "check_id": "fixture.check.hex_triplet.alphabet",
+                "category": "lexical",
+                "condition_id": "fixture.condition.hex_triplet.alphabet",
+                "stage_ids": ["fixture.stage.hex_triplet.regex"]
+            }
+        ],
+        "not_performed": [
+            {
+                "check_id": "fixture.omission.hex_triplet.numeric_meaning",
+                "category": "semantic",
+                "description": "No numeric interpretation or application-specific range is checked.",
+                "reason": "out_of_scope"
+            }
+        ]
+    },
+    "target_support": {
+        "claim": "not_claimed",
+        "portability_contract_reference": "spec/contracts/1.0/portability.schema.json",
+        "target_profile_references": [],
+        "limitations": [
+            "Availability depends on separately evaluated target support for the declared regex stage."
+        ]
+    },
+    "safety": {
+        "claim": "not_claimed",
+        "analysis_contract_reference": "docs/migration/semantic-safety-analysis.md"
+    },
+    "rewrite_equivalence": {
+        "claim": "not_claimed",
+        "planning_contract_reference": "docs/portability-planning.md"
+    },
+    "evidence": {
+        "references": [
+            {
+                "evidence_id": "fixture.evidence.hex_triplet.implementation",
+                "kind": "validator_implementation",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/lexical-shape.json#/validator_pipeline"
+            },
+            {
+                "evidence_id": "fixture.evidence.hex_triplet.acceptance",
+                "kind": "acceptance_corpus",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/lexical-shape.json#/validation_definition"
+            },
+            {
+                "evidence_id": "fixture.evidence.hex_triplet.rejection",
+                "kind": "rejection_corpus",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/lexical-shape.json#/excluded_cases"
+            }
+        ],
+        "condition_bindings": [
+            {
+                "check_id": "fixture.check.hex_triplet.width",
+                "evidence_ids": [
+                    "fixture.evidence.hex_triplet.acceptance",
+                    "fixture.evidence.hex_triplet.implementation",
+                    "fixture.evidence.hex_triplet.rejection"
+                ]
+            },
+            {
+                "check_id": "fixture.check.hex_triplet.alphabet",
+                "evidence_ids": [
+                    "fixture.evidence.hex_triplet.acceptance",
+                    "fixture.evidence.hex_triplet.implementation",
+                    "fixture.evidence.hex_triplet.rejection"
+                ]
+            }
+        ]
+    },
+    "documentation_claim": {
+        "claim_class": "shape_match",
+        "text": "Matches exactly three ASCII hexadecimal characters; it does not assign numeric or domain meaning."
+    },
+    "known_limitations": [
+        "This fixture demonstrates contract shape and is not a ratified standard-library helper."
+    ]
+}

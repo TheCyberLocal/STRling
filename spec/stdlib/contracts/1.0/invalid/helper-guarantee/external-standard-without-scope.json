@@ -1,0 +1,10 @@
+{
+    "kind": "strling.controlled-invalid-helper-guarantee",
+    "case_id": "invalid.standard.scope_missing",
+    "base_fixture": "spec/stdlib/contracts/1.0/examples/helper-guarantee/normalized-structure.json",
+    "mutation": {
+        "operation": "remove",
+        "pointer": "/standards/scope"
+    },
+    "expected_rule": "standard.scope.required"
+}

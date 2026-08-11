@@ -1,0 +1,11 @@
+{
+    "kind": "strling.controlled-invalid-helper-guarantee",
+    "case_id": "invalid.evidence.reference_malformed",
+    "base_fixture": "spec/stdlib/contracts/1.0/examples/helper-guarantee/lexical-shape.json",
+    "mutation": {
+        "operation": "replace",
+        "pointer": "/evidence/references/0/path",
+        "value": "/absolute/evidence.json"
+    },
+    "expected_rule": "evidence.reference.malformed"
+}

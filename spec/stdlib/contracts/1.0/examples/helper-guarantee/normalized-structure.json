@@ -1,0 +1,155 @@
+{
+    "kind": "strling.stdlib-helper-guarantee",
+    "contract_version": "1.0.0",
+    "status": "example",
+    "helper_id": "fixture.decimal_triplet",
+    "guarantee_id": "fixture.decimal_triplet.structure.v1",
+    "guarantee_version": "1.0.0",
+    "guarantee_level": "normalized_structure",
+    "accepted_domain": {
+        "domain_id": "fixture.domain.decimal_triplet_text",
+        "name": "bounded decimal triplet text",
+        "definition": "Three dot-separated ASCII decimal components whose parsed values are each between zero and 255.",
+        "input_kind": "text",
+        "text_model": "ascii"
+    },
+    "validation_definition": {
+        "definition_id": "fixture.definition.decimal_triplet_structure",
+        "summary": "Parse exactly three decimal components, normalize each to an integer, and enforce the declared range.",
+        "match_scope": "whole_value",
+        "conditions": [
+            {
+                "condition_id": "fixture.condition.decimal_triplet.shape",
+                "category": "lexical",
+                "statement": "The value has exactly three nonempty dot-separated ASCII digit components."
+            },
+            {
+                "condition_id": "fixture.condition.decimal_triplet.range",
+                "category": "structural",
+                "statement": "Every parsed decimal component is in the inclusive range zero through 255."
+            }
+        ]
+    },
+    "validator_pipeline": [
+        {
+            "stage_id": "fixture.stage.decimal_triplet.scanner",
+            "kind": "scanner",
+            "deterministic": true,
+            "implementation_reference": "spec/stdlib/contracts/1.0/examples/helper-guarantee/normalized-structure.json#/validation_definition",
+            "proves_conditions": ["fixture.condition.decimal_triplet.shape"]
+        },
+        {
+            "stage_id": "fixture.stage.decimal_triplet.parser",
+            "kind": "parser",
+            "deterministic": true,
+            "implementation_reference": "spec/stdlib/contracts/1.0/examples/helper-guarantee/normalized-structure.json#/validation_definition",
+            "proves_conditions": ["fixture.condition.decimal_triplet.range"]
+        }
+    ],
+    "standards": {
+        "scope": "subset",
+        "references": [
+            {
+                "authority_id": "fixture.authority.example_format",
+                "title": "Fixture Example Format",
+                "edition": "2026",
+                "uri": "https://example.invalid/fixture-example-format-2026"
+            }
+        ],
+        "included_provisions": [
+            "Three-component decimal representation and component range."
+        ],
+        "excluded_provisions": [
+            "The authority's optional fourth component and prefix representation."
+        ]
+    },
+    "excluded_cases": [
+        {
+            "case_id": "fixture.exclusion.decimal_triplet.leading_sign",
+            "description": "Signed components are outside the declared component model."
+        }
+    ],
+    "checks": {
+        "performed": [
+            {
+                "check_id": "fixture.check.decimal_triplet.shape",
+                "category": "lexical",
+                "condition_id": "fixture.condition.decimal_triplet.shape",
+                "stage_ids": ["fixture.stage.decimal_triplet.scanner"]
+            },
+            {
+                "check_id": "fixture.check.decimal_triplet.range",
+                "category": "structural",
+                "condition_id": "fixture.condition.decimal_triplet.range",
+                "stage_ids": ["fixture.stage.decimal_triplet.parser"]
+            }
+        ],
+        "not_performed": [
+            {
+                "check_id": "fixture.omission.decimal_triplet.network_meaning",
+                "category": "environmental",
+                "description": "The value is not interpreted as or checked against a network address.",
+                "reason": "out_of_scope"
+            }
+        ]
+    },
+    "target_support": {
+        "claim": "profile_limited",
+        "portability_contract_reference": "spec/contracts/1.0/portability.schema.json",
+        "target_profile_references": ["spec/targets/profiles/pcre2-10.43.json"],
+        "limitations": [
+            "This example records a target limitation only; the exact target profile and portability plan remain authoritative."
+        ]
+    },
+    "safety": {
+        "claim": "not_claimed",
+        "analysis_contract_reference": "docs/migration/semantic-safety-analysis.md"
+    },
+    "rewrite_equivalence": {
+        "claim": "not_claimed",
+        "planning_contract_reference": "docs/portability-planning.md"
+    },
+    "evidence": {
+        "references": [
+            {
+                "evidence_id": "fixture.evidence.decimal_triplet.implementation",
+                "kind": "validator_implementation",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/normalized-structure.json#/validator_pipeline"
+            },
+            {
+                "evidence_id": "fixture.evidence.decimal_triplet.boundaries",
+                "kind": "boundary_corpus",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/normalized-structure.json#/validation_definition"
+            },
+            {
+                "evidence_id": "fixture.evidence.decimal_triplet.standard",
+                "kind": "standard_conformance",
+                "path": "spec/stdlib/contracts/1.0/examples/helper-guarantee/normalized-structure.json#/standards"
+            }
+        ],
+        "condition_bindings": [
+            {
+                "check_id": "fixture.check.decimal_triplet.shape",
+                "evidence_ids": [
+                    "fixture.evidence.decimal_triplet.boundaries",
+                    "fixture.evidence.decimal_triplet.implementation"
+                ]
+            },
+            {
+                "check_id": "fixture.check.decimal_triplet.range",
+                "evidence_ids": [
+                    "fixture.evidence.decimal_triplet.boundaries",
+                    "fixture.evidence.decimal_triplet.implementation",
+                    "fixture.evidence.decimal_triplet.standard"
+                ]
+            }
+        ]
+    },
+    "documentation_claim": {
+        "claim_class": "structural_validity",
+        "text": "Parses three dot-separated decimal components and proves that each is between 0 and 255; it does not claim network-address validity."
+    },
+    "known_limitations": [
+        "This fixture demonstrates a documented subset and is not a ratified standard-library helper."
+    ]
+}
