@@ -1,5 +1,9 @@
 # Architecture Migration Records
 
+The complementary historical reference-runner strategy and inventory are
+recorded in
+[`complementary-reference-runners.md`](complementary-reference-runners.md).
+
 This directory contains migration-control records and verification evidence for
 the architectural initiative. It is not product documentation and MUST NOT
 become a second source of STRling language semantics.

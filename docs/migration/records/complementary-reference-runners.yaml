@@ -1,0 +1,130 @@
+record_version: 2.0.0
+title: Complementary historical reference runners
+status: in_progress
+objective: Capture deterministic independently fingerprinted Python and TypeScript historical observations as non-normative migration evidence without changing or classifying legacy behavior.
+scope:
+    diff:
+        base: c3cc4b41262b79c891259db80e917f24634fa936
+        head: working-tree
+    allowed_paths:
+        - docs/migration/complementary-reference-runners.md
+        - docs/migration/ledger.md
+        - docs/migration/README.md
+        - docs/migration/records/complementary-reference-runners.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - strling
+        - strling.ps1
+        - toolchain.json
+        - tooling/index.md
+        - tooling/legacy_reference/**
+        - tooling/tests/test_legacy_reference_architecture.py
+        - tooling/tests/test_quality.py
+    forbidden_paths:
+        - bindings/**
+        - core/**
+        - spec/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/complementary-reference-runners.md
+        - docs/migration/ledger.md
+        - docs/migration/README.md
+        - docs/migration/records/complementary-reference-runners.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - strling
+        - strling.ps1
+        - toolchain.json
+        - tooling/index.md
+        - tooling/legacy_reference/**
+        - tooling/tests/test_legacy_reference_architecture.py
+        - tooling/tests/test_quality.py
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: additive
+        evidence:
+            - Extends the engineering-only legacy-reference command with runner selection and multi-runner machine-readable evidence; package APIs are unchanged.
+        affected_surfaces:
+            - root-cli
+    schema_change:
+        level: additive
+        evidence:
+            - Adds explicit runner provenance and multi-runner certification fields to migration-only observation records.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Generalizes the isolated historical-evidence tooling boundary from TypeScript to independently fingerprinted runners.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Complementary reference checks
+      command: python3 tooling/legacy_reference/launch.py --check
+      expected_result: Shared protocol, TypeScript, Python, corpus, determinism, containment, and immutability checks pass.
+    - name: Binding baselines
+      command: ./strling typecheck typescript && ./strling build typescript && ./strling test typescript && ./strling format --check python && ./strling lint python && ./strling test python
+      expected_result: Existing TypeScript and Python implementations retain their governed quality and test baselines.
+    - name: Canonical kernel and contracts
+      command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && cargo test --manifest-path core/Cargo.toml && python3 tooling/contract_validation.py && python3 tooling/core_contract_validation.py && python3 tooling/public_contracts.py --check
+      expected_result: Canonical Rust and public contracts remain unchanged and passing.
+    - name: Governance and architecture
+      command: python3 tooling/generated_artifacts.py --check && python3 tooling/documentation_integrity.py --json && python3 tooling/governance.py && python3 tooling/architecture_fitness.py
+      expected_result: Generated state, documentation, declared scope, and authority boundaries pass.
+    - name: Security and profiles
+      command: python3 tooling/security.py integrity --json && python3 tooling/security.py content --json && ./strling profile local && ./strling profile pull-request && ./strling profile full
+      expected_result: Enforceable security and profile operations pass, with unavailable platform results recorded rather than weakened.
+    - name: Patch and repository integrity
+      command: git diff --check && git status --short --branch
+      expected_result: Every checkpoint patch is whitespace-clean and final committed state is clean.
+checkpoints:
+    - name: Complementary reference strategy and evidence inventory
+      status: passed
+      evidence:
+          - check: Candidate implementation and dependency inventory
+            command: Inspect all binding parser/compiler/emitter trees, Python package/tests/history, migration donor evidence, generated markers, and toolchain requirements.
+            result: passed
+            details: Selected the completed TypeScript runner and independent Python implementation; classified other binding compilers as partially independent but currently duplicative, wrappers/generated artifacts as non-independent, and the retired TypeScript oracle as a redundant runtime-only path.
+          - check: Strategy documentation and available integrity checks
+            command: Prettier check; documentation_integrity.py --json; architecture_fitness.py; contract_validation.py; git diff --check.
+            result: passed
+            details: Host Node 24 formatting, documentation integrity across 124 files, architecture fitness, 11 canonical schemas with 30 positive and 33 negative fixtures, and patch integrity passed. Native governance and the WSL command aggregate were unavailable because WSL returned Wsl/Service/0x80072747; the Windows governance attempt reached a known POSIX-path assumption and did not weaken the requirement.
+    - name: Shared multi-runner evidence contract
+      status: planned
+      evidence: []
+    - name: Python legacy reference runner
+      status: planned
+      evidence: []
+    - name: Additional runtime or binding reference paths
+      status: planned
+      evidence: []
+    - name: Cross-runner corpus and determinism certification
+      status: planned
+      evidence: []
+    - name: Tooling integration and authority hardgates
+      status: planned
+      evidence: []
+    - name: Complementary reference readiness
+      status: planned
+      evidence: []
+commits: []
