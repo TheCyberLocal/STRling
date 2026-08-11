@@ -221,3 +221,58 @@ A later comparison system may consume observations and apply its own separately
 versioned normalization and discrepancy taxonomy. This runner never labels a
 legacy outcome correct, incorrect, equivalent, preserved, intentionally
 corrected, or unsupported by the canonical compiler.
+
+## Final readiness
+
+**Legacy TypeScript observations are historical evidence only and are
+non-normative.** They do not establish required semantics, target capabilities,
+compatibility obligations, or discrepancy dispositions.
+
+The supported surface is exactly the 11 operations in the table above. Each
+request carries protocol version, operation, operation-owned input and options,
+and the exact expected legacy surface. Each observation carries schema and
+protocol version 1.0.0, implementation and request identities, operation and
+surface, and exactly one success or structured legacy-failure outcome. Canonical
+JSON recursively sorts object keys, preserves array and semantic text order,
+uses UTF-8 with one trailing LF, and excludes only process-local paths, clocks,
+durations, process IDs, temporary directories, and stacks.
+
+Implementation identity covers every tracked `bindings/typescript/src/**/*.ts`
+file, the TypeScript package manifest and lock file, tsconfig, and the actual
+Node runtime version. The certified Node 22.23.2 fingerprint is
+sha256:520b1a43a8c8aac5c8a4c455017b6dfa6c0112baf8b18cb68606dc5d7ccebb22.
+The 24-case corpus fingerprint is
+sha256:744a4d0e029fbb2890e98e25d20402044f5b551a7642255a57c80f5dec48d30a.
+
+From committed integration checkpoint
+3ed93f8325d7cddc9f310b5c141fd6b4893729fe, 41 focused runner tests, all 24
+cases, three runs, 72 canonical comparisons, five architecture tests, 11
+governance-contract tests, the profile-routing contract, TypeScript typecheck,
+canonical/core contracts, baseline, documentation, and both security hardgates
+passed. The corpus produced 17 success and seven captured legacy-failure
+observations, including two malformed cases, with zero mismatches or unexplained
+failures.
+
+The local, pull-request, and full profile attempts were UNAVAILABLE before
+operation dispatch because the WSL host returned Wsl/Service/0x80072747. The
+same host condition prevented the final native Rust baseline, generated/public
+contract checks, governance wrapper, and complete Jest rerun. No rule, profile,
+security policy, or aggregate was weakened. The last complete TypeScript run in
+this task remains 19 suites and 963 tests at the parser/API checkpoint.
+
+No existing STRling runtime/compiler behavior intentionally changed. The legacy
+parser/compiler/emitter, diagnostics, directives, preprocessing, targets,
+options, package-root and Simply APIs, canonical Rust kernel, Semantic IR,
+diagnostics, safety, portability, target authority, public APIs, package
+versions, generated product artifacts, and publication remain unchanged.
+
+Carry-forward is limited to complementary legacy/reference runners, separately
+versioned comparison normalization and discrepancy taxonomy, complete
+cross-implementation migration-corpus execution, and the recorded final
+certification-host availability gap. It does not include any unfinished
+TypeScript runner behavior.
+
+The result is `READY WITH RECORDED CARRY-FORWARD`. The next ordered incomplete
+Notion task is
+[P07-T02 - Build complementary legacy/reference runners](https://app.notion.com/p/3b97d9406475815eba6ed6bb8f41f146?pvs=204),
+currently `Not Started`.

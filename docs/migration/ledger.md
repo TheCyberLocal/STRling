@@ -2215,3 +2215,100 @@ next ordered incomplete task in the Notion source of truth is
 currently `Not Started`. Its objective is to isolate TypeScript parser/compiler/
 emitter/API history behind deterministic, independently versioned evidence
 without granting it normative authority.
+
+## Controlled legacy TypeScript reference runner
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `1619772f2aabe75182a26c9636ea5e219a7f948f`
+-   Behavior change: Additive migration tooling and architecture hardgates only;
+    no existing STRling runtime/compiler behavior intentionally changed
+-   Completion record:
+    [`legacy-reference-runner.yaml`](records/legacy-reference-runner.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                                      | Result | Commit                                     | Verification                                                                                                                                                                                                                                                                 |
+| ----------------------------------------------- | ------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Reference contract and legacy surface inventory | Passed | `4d69585f357157af6464787f20c3986472e3765f` | Inventoried the actual parser, compiler, PCRE2 emitter, diagnostics, directives/preprocessing, target/options, package-root, and Simply surfaces; locked the historical-evidence-only contract, stable projection rules, and source-derived identity model                   |
+| Deterministic runner protocol and serialization | Passed | `210008566c90533556c30dd8722c7b6b59681ab3` | Established protocol/observation schema 1.0.0, exact surface validation, recursive canonical JSON, independent request/implementation identities, and structured stack-free failure evidence with nine focused tests                                                         |
+| Parser and public API observation               | Passed | `cfdc09a9ff8e48fa0bc7d951bb5d4d670ffd0b2e` | Captured parser, package-root, and Simply projections for grammar/directive/malformed/API cases without changing source inputs or legacy behavior; 22 focused tests and the complete 19-suite/963-test TypeScript baseline passed                                            |
+| Compiler and emitter observation                | Passed | `755be2f62f2a2d3c8496ebef9edd1f7c625b560c` | Added distinct compile, metadata, exact PCRE2 emission, diagnostic, option, target, depth, lookbehind, and stage-attributed failure observations; 32 focused tests passed                                                                                                    |
+| Determinism and reference corpus certification  | Passed | `06039a9c5ac3dacfcb82bd4d2de23519703472bc` | Certified 24 stable cases over all 11 operations, three complete runs, 72 canonical comparisons, two malformed cases, fixture/source immutability, implementation sensitivity, independent versioning, and zero mismatches or unexplained failures                           |
+| Tooling integration and architecture hardgates  | Passed | `3ed93f8325d7cddc9f310b5c141fd6b4893729fe` | Added one offline operation to every canonical profile and the root CLI; five mutation/live architecture tests, 11 governance-contract tests, profile routing, Node 22 typecheck, contracts, baseline, documentation, security, formatting, lint, and patch integrity passed |
+| Reference runner readiness                      | Passed | Recorded by the readiness commit           | Recorded exact operations, protocol, fingerprints, corpus evidence, architecture boundary, unchanged product behavior, truthful platform availability, carry-forward, and the next ordered Notion task                                                                       |
+
+### Runner architecture and observation protocol
+
+The migration-only Python launcher builds the governed TypeScript implementation
+in an isolated temporary directory and invokes the Node protocol worker. It
+supports single request, complete corpus, certification, and focused-check
+modes, plus the root `./strling legacy-reference` route. No core crate,
+published binding, package entrypoint, or Rust planning stage depends on it.
+
+The 11 exact operations are parser `parse` and `parseToArtifact`; compiler
+`compile` and `compileWithMetadata`; PCRE2 `emit` and
+`emitWithDiagnostics`; package-root `parse` and `parseToArtifact`; and
+Simply `Pattern.toString`, `compileNode`, and `toRegExp`. Parser, compiler,
+emitter, and API evidence remain independently addressable.
+
+Protocol and observation schema version 1.0.0 require the operation-owned input
+and options plus the exact expected legacy surface. Observations include
+implementation and request identities, operation/surface, and exactly one
+success or structured legacy-failure outcome. Malformed protocol or runner
+failure exits nonzero; faithfully captured legacy exceptions are valid
+observations. Canonical JSON sorts object keys recursively, preserves arrays and
+meaningful text exactly, writes UTF-8 with one trailing LF, and excludes only
+process-local paths, clocks, durations, IDs, temporary locations, and stacks.
+
+Implementation identity hashes every tracked TypeScript source, package manifest
+and lock file, tsconfig, and the actual Node runtime version. Node 22.23.2
+produced
+`sha256:520b1a43a8c8aac5c8a4c455017b6dfa6c0112baf8b18cb68606dc5d7ccebb22`;
+the corpus produced
+`sha256:744a4d0e029fbb2890e98e25d20402044f5b551a7642255a57c80f5dec48d30a`.
+
+### Corpus, certification, and authority boundary
+
+The source-authored corpus has 24 cases: 17 success and seven captured
+legacy-failure observations, including two malformed requests. It covers
+literal, escape, class, group, capture, alternation, repetition, lookaround,
+directive/preprocessing, option/target, compiler metadata, exact emission,
+warnings/failures, package-root, and Simply families. Three runs compared 72
+canonical observations with zero mismatches or unexplained failures; corpus and
+governed implementation inputs remained unchanged. Observations remain
+ephemeral because generated-artifact governance has no legacy-oracle authority
+class.
+
+The enforced authority rule rejects product or normative consumption, normative
+generation from legacy evidence, runner dependency on core/specification
+authority, and target-artifact, portability, target-profile, or capability
+authority inside the runner.
+
+**Legacy TypeScript observations are historical evidence only and are
+non-normative.**
+
+From committed checkpoint
+`3ed93f8325d7cddc9f310b5c141fd6b4893729fe`, every available runner,
+architecture, governance-contract, profile-routing, TypeScript typecheck,
+canonical/core contract, baseline, documentation, security, formatting, lint,
+syntax, and patch check passed. Local, pull-request, and full attempts were
+`UNAVAILABLE` before dispatch because WSL returned
+`Wsl/Service/0x80072747`; the same host failure prevented final native Rust,
+generated/public-contract, governance-wrapper, and complete Jest reruns. The
+last complete TypeScript run remains 19 suites and 963 tests. No gate was
+weakened or reported as passing.
+
+No existing STRling runtime/compiler behavior intentionally changed. Legacy
+parser/compiler/emitter behavior, diagnostics, directives, preprocessing,
+targets/options, package-root/Simply APIs, Rust-kernel semantics, Semantic IR,
+safety, portability, target authority, public APIs, package versions, generated
+product artifacts, and publication remain unchanged.
+
+The result is `READY WITH RECORDED CARRY-FORWARD`. Carry-forward is limited to
+the recorded host availability gap and later complementary runners, canonical
+comparison normalization/discrepancy taxonomy, and complete migration-corpus
+execution. The next ordered incomplete Notion task is
+[P07-T02 - Build complementary legacy/reference runners](https://app.notion.com/p/3b97d9406475815eba6ed6bb8f41f146?pvs=204),
+currently `Not Started`.

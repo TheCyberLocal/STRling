@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Controlled legacy TypeScript reference runner
-status: in_progress
+status: complete
 objective: Build deterministic isolated migration tooling that records the existing TypeScript parser, compiler, emitter, and relevant API behavior as independently versioned historical evidence without changing or governing product semantics.
 scope:
     diff:
@@ -172,8 +172,22 @@ checkpoints:
             result: passed
             details: Governed Node 22 TypeScript typecheck, canonical and core contracts, documentation integrity for 124 documents, baseline integrity, and both security hardgates passed. The native WSL service then returned Wsl/Service/0x80072747, so the Rust baseline, generated/public contract checks, complete Jest rerun, and local, pull-request, and full profiles are recorded as UNAVAILABLE rather than bypassed or weakened; the last complete TypeScript baseline in this task remains 19 suites and 963 tests at checkpoint 3.
     - name: Reference runner readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Stable historical-evidence readiness record
+            result: passed
+            details: The exact 11 parser, compiler, emitter, and public API operations; protocol and observation schema 1.0.0; structured failure ownership; canonical serialization; implementation identity inputs; 24-case corpus; architecture boundary; unchanged product behavior; and later comparison ownership are recorded durably.
+          - check: Available committed-state certification
+            command: python3 tooling/legacy_reference/launch.py --check; python3 -m unittest tooling.tests.test_legacy_reference_architecture tooling.tests.test_governance_contracts tooling.tests.test_quality.QualityRoutingTests.test_repository_operations_and_profile_membership_are_canonical; ./strling typecheck typescript; python3 tooling/contract_validation.py; python3 tooling/core_contract_validation.py; python3 tooling/baseline.py --check; python3 tooling/documentation_integrity.py --json; python3 tooling/security.py integrity --json; python3 tooling/security.py content --json
+            result: passed
+            details: From committed checkpoint 3ed93f8325d7cddc9f310b5c141fd6b4893729fe, all 41 runner tests, 24 corpus cases, 72 repeated comparisons, 17 focused architecture/governance/profile tests, governed Node 22 TypeScript typecheck, canonical/core contracts, baseline, documentation, and both security checks passed with zero runner mismatches or unexplained failures.
+          - check: Native profiles and platform-dependent hardgates
+            command: ./strling profile local; ./strling profile pull-request; ./strling profile full
+            result: not_run
+            details: All three committed-state profile attempts were UNAVAILABLE before operation dispatch because the WSL service returned Wsl/Service/0x80072747. That same host failure prevented a final native Rust baseline and native generated/public-contract, governance-wrapper, and complete Jest rerun; policy and aggregation were not bypassed or weakened. The last complete TypeScript run in this task remains 19 suites and 963 tests at checkpoint 3.
+          - check: Next ordered Notion task
+            result: passed
+            details: The Notion campaign identifies P07-T02, Build complementary legacy/reference runners, as Not Started and the next ordered incomplete task. It adds Python and narrowly necessary runtime/reference paths to expose historical divergence without treating implementations as normative.
 commits:
     - sha: 4d69585f357157af6464787f20c3986472e3765f
       subject: "docs(migration): define legacy reference runner contract"
@@ -185,3 +199,37 @@ commits:
       subject: "feat(migration): capture legacy compiler evidence"
     - sha: 06039a9c5ac3dacfcb82bd4d2de23519703472bc
       subject: "test(migration): certify legacy reference evidence"
+    - sha: 3ed93f8325d7cddc9f310b5c141fd6b4893729fe
+      subject: "ci(migration): certify legacy reference runner"
+completion:
+    accomplished:
+        - Exposed exactly 11 isolated tooling operations over the existing TypeScript parser.parse, parser.parseToArtifact, Compiler.compile, Compiler.compileWithMetadata, PCRE2 emit, PCRE2 emitWithDiagnostics, package-root parse, package-root parseToArtifact, Simply Pattern.toString, Simply compileNode, and Simply toRegExp surfaces.
+        - Established protocol and observation schema 1.0.0 with validated exact-surface requests, distinct parser/compiler/emitter/API operations, canonical JSON, request identity, success versus captured legacy-failure outcomes, and nonzero runner/protocol failure exits.
+        - Derived the legacy implementation fingerprint from every tracked TypeScript source, package manifest and lock file, tsconfig, and actual Node runtime version without repository state, timestamps, absolute paths, or temporary locations.
+        - Certified a source-authored 24-case corpus across all operation classes and relevant grammar, preprocessing, option, target, diagnostic, malformed, package-root, and Simply behavior families while keeping generated observations ephemeral.
+        - Integrated the runner into the existing root CLI and every canonical profile and enforced mutation-tested boundaries preventing product, normative, generated-specification, canonical-core, portability, or target-capability authority from flowing through legacy evidence.
+    verified:
+        - Governed Node 22.23.2 produced implementation fingerprint sha256:520b1a43a8c8aac5c8a4c455017b6dfa6c0112baf8b18cb68606dc5d7ccebb22 and corpus fingerprint sha256:744a4d0e029fbb2890e98e25d20402044f5b551a7642255a57c80f5dec48d30a.
+        - Forty-one focused tests and three complete corpus runs produced 17 success and 7 captured legacy-failure observations, including 2 malformed cases, across 72 canonical observation comparisons with zero mismatches or unexplained failures and unchanged corpus and implementation inputs.
+        - Five live/controlled architecture tests, 11 governance-contract tests, and the canonical profile-routing contract passed; the hardgate rejects all governed authority-boundary mutations.
+        - From committed checkpoint 3ed93f8325d7cddc9f310b5c141fd6b4893729fe, TypeScript typecheck, canonical/core contracts, baseline, documentation integrity for 124 documents, security integrity/content, formatting, lint, JSON and shell syntax, and patch integrity passed.
+        - The complete TypeScript baseline passed earlier in the task with 19 suites and 963 tests before the WSL host became unavailable. Final local, pull-request, full, Rust, generated/public-contract, native governance-wrapper, and complete Jest attempts remain truthfully unavailable because Wsl/Service/0x80072747 prevented native operation dispatch.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - The engineering-only root tooling CLI and canonical profiles now expose the isolated legacy-reference check without adding a package entrypoint or product dependency.
+        - Architecture fitness now fails when legacy-runner evidence is imported by product or normative sources, generates normative specification, reaches canonical/target authority, or becomes a target-capability source.
+    preserved_behavior:
+        - Legacy parser, compiler, emitter, diagnostics, options, preprocessing, directives, public package entrypoints, and Simply semantics remain unchanged; the runner only invokes and projects them.
+        - Canonical Rust-kernel semantics, Semantic IR, diagnostics, safety, portability, target capability and lowering authority, and public contracts remain unchanged and do not depend on the runner.
+        - Package APIs, package versions, generated product artifacts, runtime behavior, and publication remain unchanged.
+    transitional_architecture:
+        - Canonical observations are intentionally ephemeral because existing generated-artifact governance has no historical-oracle authority class; deterministic certification regenerates and compares them by explicit implementation and corpus fingerprints.
+        - The final native certification environment remained unavailable because WSL failed with service error 0x80072747. No security, profile, governance, or aggregate policy was weakened to report those checks as passing.
+    deferred_work:
+        - Build P07-T02 complementary Python and narrowly necessary runtime/reference runners without assuming implementation consensus or granting them normative authority.
+        - Implement P07-T03 separately versioned canonical comparison normalization and discrepancy taxonomy.
+        - Execute the complete cross-implementation migration corpus only in its later governed task.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Build P07-T02, the complementary legacy/reference runners, to expose Python and narrowly necessary runtime/reference divergence without making implementation consensus normative.
+    rationale: The TypeScript runner deterministically captures every scoped historical surface with independent versioning, stable implementation identity, structured containment, full operation coverage, zero repeatability mismatches, and enforced non-normative dependency boundaries. All available committed-state checks passed. The only current evidence gap is the recorded WSL host outage affecting native profile and platform-dependent reruns; later complementary runners, comparison semantics, and full-corpus work remain correctly outside this task.
