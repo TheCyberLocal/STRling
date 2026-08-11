@@ -121,8 +121,23 @@ checkpoints:
             result: passed
             details: Request protocol and TypeScript corpus remain 1.0.0; observation, batch, and certification schemas advance to 1.1.0 for runner provenance. Host formatting, syntax, architecture, canonical contracts, and patch integrity passed; WSL-native aggregation remains unavailable with Wsl/Service/0x80072747.
     - name: Python legacy reference runner
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Python implementation fidelity and focused runner tests
+            command: python -m ruff check --no-cache tooling/legacy_reference/python_reference.py tooling/legacy_reference/tests/test_python_reference.py; python -m unittest tooling.legacy_reference.tests.test_python_reference; python -m pytest -q bindings/python/tests
+            result: passed
+            details: Ruff passed, all 15 runner tests passed, and all 789 unchanged historical Python package tests passed. The runner directly invoked parser, artifact, compiler, metadata, emitter, diagnostics, and Simply surfaces while retaining four explicit not-exposed outcomes.
+          - check: Python corpus repeatability, immutability, and containment
+            command: python tooling/legacy_reference/python_reference.py --certify
+            result: passed
+            details: >-
+                Python 3.13.5 certified 20 cases across 11 mapped operations over
+                three repetitions: 12 successes, four contained legacy failures,
+                four unsupported outcomes, 60 canonical comparisons, two malformed
+                requests, zero repeat mismatches, zero unexplained failures, and
+                unchanged corpus and implementation snapshots. Implementation
+                fingerprint sha256:0748ef7994a2bf143cb71efc149f0e8929905533d05b4fa1c2365f596ba88bc5;
+                corpus fingerprint sha256:f3114a423da9928ab12ff7afe5c2ce0eba97c2f57c3599cdc98b2105a5ef914d.
     - name: Additional runtime or binding reference paths
       status: planned
       evidence: []

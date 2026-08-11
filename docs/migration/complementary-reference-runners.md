@@ -83,9 +83,8 @@ the TypeScript package-root parse operations, `simply.compileNode`, or
 operations as not exposed instead of fabricating adapters.
 
 The Python fingerprint will be limited to `bindings/python/src/STRling/**/*.py`,
-`bindings/python/pyproject.toml`, `bindings/python/requirements.txt`, the root
-`pytest.ini` that materially configures package tests, and the actual Python
-runtime version. There is no Python lock file, so the unhashed environment is
+`bindings/python/pyproject.toml`, `bindings/python/requirements.txt`, and the
+actual Python runtime version. There is no Python lock file, so the environment is
 not represented as locked; exact declared dependency specifications are.
 
 ## Execution and dependency constraints
@@ -102,7 +101,7 @@ locked TypeScript toolchain in a temporary directory. Shared orchestration may
 launch both runners, but neither runner may read the other's observations or
 define the other's expected output.
 
-+## Shared multi-runner evidence contract
+## Shared multi-runner evidence contract
 
 Request protocol `1.0.0` remains unchanged: every request carries the protocol
 version, conceptual operation identifier, operation-owned input and options, and
@@ -138,3 +137,47 @@ historical Python path. No additional runtime or binding runner is justified by
 the current inventory. This is an evidentiary selection, not a semantic vote:
 legacy consensus is evidence only; disagreement has no built-in disposition;
 and missing runner coverage has no implied value.
+
+## Python historical reference runner
+
+The Python runner imports the checked-in `bindings/python/src/STRling` package
+directly and invokes that implementation without porting TypeScript behavior or
+modifying the Python package. It exposes seven implemented operations:
+
+-   `parser.parse` and `parser.parse_to_artifact`;
+-   `compiler.compile` and `compiler.compile_with_metadata`;
+-   `emitter.emit` and `emitter.emit_with_diagnostics`;
+-   `simply.pattern_to_string` through Python's `Pattern.__str__` pipeline.
+
+Four conceptual operations are intentionally represented as `unsupported` with
+reason `not_exposed`: package-root parse and artifact APIs, plus TypeScript's
+`simply.compileNode` and `simply.toRegExp` surfaces. Their presence documents
+operation mapping without inventing Python adapters.
+
+Success evidence preserves Python-owned AST, artifact, metadata, diagnostic,
+emitter, and Simply return shapes. Historical exceptions become structured
+`legacy_failure` evidence with stable class, message, stage, and available
+position information; stack traces, process identifiers, timestamps, and
+absolute paths are excluded. Invalid requests remain runner failures.
+
+The implementation identity hashes the sorted bytes and relative names of all
+`bindings/python/src/STRling/**/*.py` files, package metadata, declared
+requirements, and the exact Python runtime version. It excludes tests, the
+runner, corpus, TypeScript implementation, unrelated repository files, and
+environment-installed dependency contents. This keeps
+Python identity independently sensitive while accurately recording the
+unlocked dependency boundary.
+
+The source-authored Python corpus contains 20 stable cases across all 11 mapped
+operations: 12 successes, four contained historical failures, and four
+unsupported operations. Its cases cover parser structures and failures,
+artifact stages, compiler metadata, flag directives, emitter diagnostics and
+limits, Simply escaping, public API omissions, and two malformed protocol
+requests. On Python 3.13.5, three repetitions produced 60 byte-equivalent
+canonical observations with zero mismatches or unexplained failures. Fixture
+and governed implementation snapshots remained unchanged.
+
+The certified implementation fingerprint is
+`sha256:0748ef7994a2bf143cb71efc149f0e8929905533d05b4fa1c2365f596ba88bc5`;
+the corpus fingerprint is
+`sha256:f3114a423da9928ab12ff7afe5c2ce0eba97c2f57c3599cdc98b2105a5ef914d`.

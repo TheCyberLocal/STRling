@@ -1,0 +1,313 @@
+{
+    "cases": [
+        {
+            "behavior_family": "literal",
+            "id": "parser-literal",
+            "provenance": "bindings/python/tests/unit/test_conformance.py",
+            "request": {
+                "expected_legacy_surface": "python.core.parser.parse",
+                "input": {
+                    "source": "plain text"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "escape-and-character-class",
+            "id": "parser-escape-class",
+            "provenance": "bindings/python/tests/unit/test_conformance.py",
+            "request": {
+                "expected_legacy_surface": "python.core.parser.parse",
+                "input": {
+                    "source": "[a-z\\d_]+"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "groups-captures-alternation-repetition-lookaround",
+            "id": "parser-groups-alternation-lookaround",
+            "provenance": "bindings/python/tests/e2e/test_pcre2_emitter.py",
+            "request": {
+                "expected_legacy_surface": "python.core.parser.parse",
+                "input": {
+                    "source": "(?<word>[a-z]+)(?=\\d)|x{2,3}"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "directive-and-preprocessing",
+            "id": "parser-extended-directive",
+            "provenance": "bindings/python/tests/e2e/test_pcre2_emitter.py",
+            "request": {
+                "expected_legacy_surface": "python.core.parser.parse",
+                "input": {
+                    "source": "%flags x\na # comment\n[\\d_]"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "malformed-input",
+            "id": "parser-malformed-group",
+            "provenance": "bindings/python/tests/e2e/test_pcre2_emitter.py",
+            "request": {
+                "expected_legacy_surface": "python.core.parser.parse",
+                "input": {
+                    "source": "(abc"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "artifact-shape",
+            "id": "parser-artifact-repetition",
+            "provenance": "bindings/python/src/STRling/core/parser.py",
+            "request": {
+                "expected_legacy_surface": "python.core.parser.parse_to_artifact",
+                "input": {
+                    "source": "(?:ab){2,4}?"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "parser.parse_to_artifact",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "ir-normalization",
+            "id": "compiler-literal-normalization",
+            "provenance": "bindings/python/src/STRling/core/compiler.py",
+            "request": {
+                "expected_legacy_surface": "python.core.Compiler.compile",
+                "input": {
+                    "source": "abc"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "compiler.compile",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "compiler-input-flags",
+            "id": "compiler-directive-flags",
+            "provenance": "bindings/python/tests/e2e/test_pcre2_emitter.py",
+            "request": {
+                "expected_legacy_surface": "python.core.Compiler.compile",
+                "input": {
+                    "source": "%flags im\nab"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "compiler.compile",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "malformed-input",
+            "id": "compiler-malformed-group",
+            "provenance": "bindings/python/tests/e2e/test_pcre2_emitter.py",
+            "request": {
+                "expected_legacy_surface": "python.core.Compiler.compile",
+                "input": {
+                    "source": "a(b"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "compiler.compile",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "compiler-metadata",
+            "id": "compiler-feature-metadata",
+            "provenance": "bindings/python/src/STRling/core/compiler.py",
+            "request": {
+                "expected_legacy_surface": "python.core.Compiler.compile_with_metadata",
+                "input": {
+                    "source": "(?<name>a)(?<=b)c++\\k<name>"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "compiler.compile_with_metadata",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "emission-and-flags",
+            "id": "emitter-inline-flags",
+            "provenance": "bindings/python/tests/e2e/test_pcre2_emitter.py",
+            "request": {
+                "expected_legacy_surface": "python.emitters.pcre2.emit",
+                "input": {
+                    "source": "%flags im\n(?<word>\\w+)"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "emitter.pcre2.emit",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "emitter-diagnostics",
+            "id": "emitter-redos-warning",
+            "provenance": "bindings/python/tests/unit/test_emitter_edges_conformance.py",
+            "request": {
+                "expected_legacy_surface": "python.emitters.pcre2.emit_with_diagnostics",
+                "input": {
+                    "source": "(a+)+"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "emitter.pcre2.emit_with_diagnostics",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "emitter-failure",
+            "id": "emitter-variable-lookbehind",
+            "provenance": "bindings/python/tests/unit/test_emitter_edges_conformance.py",
+            "request": {
+                "expected_legacy_surface": "python.emitters.pcre2.emit",
+                "input": {
+                    "source": "(?<=a+)b"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "emitter.pcre2.emit",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "emitter-option",
+            "id": "emitter-depth-limit",
+            "provenance": "bindings/python/tests/unit/test_emitter_edges_conformance.py",
+            "request": {
+                "expected_legacy_surface": "python.emitters.pcre2.emit",
+                "input": {
+                    "source": "((((((a))))))"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "emitter.pcre2.emit",
+                "options": {
+                    "max_depth": 3
+                },
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "simply-exact-text",
+            "id": "simply-literal-escaping",
+            "provenance": "bindings/python/src/STRling/simply/pattern.py",
+            "request": {
+                "expected_legacy_surface": "python.simply.Pattern.__str__",
+                "input": {
+                    "literal": "a.b"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.simply.literal_to_string",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "simply-empty-literal",
+            "id": "simply-literal-empty",
+            "provenance": "bindings/python/src/STRling/simply/pattern.py",
+            "request": {
+                "expected_legacy_surface": "python.simply.Pattern.__str__",
+                "input": {
+                    "literal": ""
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.simply.literal_to_string",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "not-exposed-package-root",
+            "id": "root-parse-not-exposed",
+            "provenance": "bindings/python/src/STRling/__init__.py",
+            "request": {
+                "expected_legacy_surface": "python.package-root.parse",
+                "input": {
+                    "source": "a"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.root.parse",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "not-exposed-package-root",
+            "id": "root-artifact-not-exposed",
+            "provenance": "bindings/python/src/STRling/__init__.py",
+            "request": {
+                "expected_legacy_surface": "python.package-root.parse_to_artifact",
+                "input": {
+                    "source": "a|b"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.root.parse_to_artifact",
+                "options": {},
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "not-exposed-simply",
+            "id": "simply-compile-node-not-exposed",
+            "provenance": "bindings/python/src/STRling/simply/__init__.py",
+            "request": {
+                "expected_legacy_surface": "python.simply.compile_node",
+                "input": {
+                    "literal": "a.b"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.simply.compile_node",
+                "options": {
+                    "target": "pcre2"
+                },
+                "protocol_version": "1.0.0"
+            }
+        },
+        {
+            "behavior_family": "not-exposed-simply",
+            "id": "simply-regexp-not-exposed",
+            "provenance": "bindings/python/src/STRling/simply/__init__.py",
+            "request": {
+                "expected_legacy_surface": "python.simply.to_regexp",
+                "input": {
+                    "literal": "a.b"
+                },
+                "kind": "strling.legacy-reference-request",
+                "operation": "api.simply.to_regexp",
+                "options": {
+                    "flags": "im"
+                },
+                "protocol_version": "1.0.0"
+            }
+        }
+    ],
+    "corpus_kind": "strling.legacy-reference-corpus",
+    "corpus_version": "1.0.0",
+    "description": "Focused source-authored requests for deterministic historical Python observation."
+}
