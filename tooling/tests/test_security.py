@@ -4,6 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from subprocess import CompletedProcess
 from typing import cast
 
 from tooling.security import ENGINE_VERSION, SecurityEngine
@@ -14,6 +15,21 @@ def policy(root: dict[str, object]) -> dict[str, object]:
         "engine": {
             "name": "strling-repository-security",
             "version": ENGINE_VERSION,
+        },
+        "security_tools": {
+            "cargo-audit": {
+                "version": "0.22.2",
+            }
+        },
+        "vulnerability_policy": {
+            "blocking_severities": ["high", "critical"],
+            "advisory_sources": {"npm": "npm-registry", "cargo": "rustsec"},
+        },
+        "license_policy": {
+            "permitted": ["MIT", "Apache-2.0"],
+            "prohibited": ["AGPL-3.0-only"],
+            "metadata_overrides": [],
+            "unknown_is_blocking": True,
         },
         "dependency_roots": [root],
         "manifest_names": [
@@ -312,6 +328,147 @@ class ContentSecurityTests(unittest.TestCase):
             self.assertIn("SEC-WORKFLOW-JOB-PERMISSIONS", codes)
             self.assertIn("SEC-WORKFLOW-VALIDATION-SECRET", codes)
             self.assertIn("SEC-WORKFLOW-SHELL-SECRET", codes)
+
+
+class DependencyRiskTests(unittest.TestCase):
+    def test_blocking_npm_advisory_carries_required_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = write_npm_fixture(root)
+            payload = {
+                "vulnerabilities": {
+                    "fixture-package": {
+                        "severity": "high",
+                        "nodes": ["node_modules/fixture-package"],
+                        "via": [
+                            {
+                                "url": "https://advisories.invalid/GHSA-fixture",
+                                "severity": "high",
+                                "title": "synthetic advisory",
+                            }
+                        ],
+                    }
+                }
+            }
+
+            def runner(args: object, cwd: Path) -> CompletedProcess[str]:
+                command = list(cast(list[str], args))
+                if command == ["npm", "--version"]:
+                    return CompletedProcess(command, 0, "10.0.0\n", "")
+                return CompletedProcess(command, 1, json.dumps(payload), "")
+
+            result = SecurityEngine(
+                root,
+                policy(npm_root()),
+                tracked_files=tracked,
+                command_runner=runner,
+            ).run_risk()
+            vulnerability = next(
+                check for check in result.checks if check.category == "vulnerability"
+            )
+            finding = vulnerability.findings[0]
+            self.assertEqual("failed", result.status)
+            self.assertEqual("SEC-VULN-BLOCKING", finding.code)
+            self.assertEqual("fixture-package", finding.package)
+            self.assertEqual("1.2.3", finding.version)
+            self.assertEqual(
+                "https://advisories.invalid/GHSA-fixture", finding.advisory
+            )
+            self.assertEqual("high", finding.severity)
+
+    def test_unavailable_advisory_scanner_is_not_pass(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = write_npm_fixture(root)
+
+            def runner(args: object, cwd: Path) -> CompletedProcess[str]:
+                raise FileNotFoundError("synthetic npm absence")
+
+            result = SecurityEngine(
+                root,
+                policy(npm_root()),
+                tracked_files=tracked,
+                command_runner=runner,
+            ).run_risk()
+            vulnerability = next(
+                check for check in result.checks if check.category == "vulnerability"
+            )
+            self.assertEqual("unavailable", result.status)
+            self.assertEqual("unavailable", vulnerability.status)
+            self.assertIn(
+                "synthetic npm absence", vulnerability.unavailable_reason or ""
+            )
+
+    def test_unknown_license_is_visible_and_blocking(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = write_npm_fixture(root)
+            lock_path = root / "package-lock.json"
+            lock = json.loads(lock_path.read_text(encoding="utf-8"))
+            lock["packages"]["node_modules/fixture-package"]["license"] = (
+                "Fixture-Unknown"
+            )
+            lock_path.write_text(json.dumps(lock), encoding="utf-8")
+
+            def runner(args: object, cwd: Path) -> CompletedProcess[str]:
+                command = list(cast(list[str], args))
+                if command == ["npm", "--version"]:
+                    return CompletedProcess(command, 0, "10.0.0\n", "")
+                return CompletedProcess(
+                    command, 0, json.dumps({"vulnerabilities": {}}), ""
+                )
+
+            result = SecurityEngine(
+                root,
+                policy(npm_root()),
+                tracked_files=tracked,
+                command_runner=runner,
+            ).run_risk()
+            license_check = next(
+                check for check in result.checks if check.category == "license"
+            )
+            self.assertEqual("failed", license_check.status)
+            self.assertEqual("SEC-LICENSE-UNKNOWN", license_check.findings[0].code)
+            self.assertEqual("Fixture-Unknown", license_check.findings[0].license)
+
+    def test_cargo_audit_version_drift_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "Cargo.toml").write_text(
+                '[package]\nname = "fixture"\nversion = "0.1.0"\n',
+                encoding="utf-8",
+            )
+            (root / "Cargo.lock").write_text("version = 4\n", encoding="utf-8")
+            cargo_root = {
+                "id": "fixture-cargo",
+                "ecosystem": "cargo",
+                "classification": "actively_governed",
+                "usage": "runtime",
+                "manifests": ["Cargo.toml"],
+                "locks": ["Cargo.lock"],
+                "lock_policy": "required",
+                "integrity_mode": "cargo_lock",
+                "risk_mode": "cargo_audit",
+            }
+
+            def runner(args: object, cwd: Path) -> CompletedProcess[str]:
+                command = list(cast(list[str], args))
+                if command[:3] == ["cargo", "audit", "--version"]:
+                    return CompletedProcess(command, 0, "cargo-audit 0.22.1\n", "")
+                metadata = {"packages": []}
+                return CompletedProcess(command, 0, json.dumps(metadata), "")
+
+            result = SecurityEngine(
+                root,
+                policy(cargo_root),
+                tracked_files=["Cargo.lock", "Cargo.toml"],
+                command_runner=runner,
+            ).run_risk()
+            vulnerability = next(
+                check for check in result.checks if check.category == "vulnerability"
+            )
+            self.assertEqual("failed", vulnerability.status)
+            self.assertEqual("SEC-TOOL-VERSION-DRIFT", vulnerability.findings[0].code)
 
 
 if __name__ == "__main__":

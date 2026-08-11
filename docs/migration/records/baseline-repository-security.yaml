@@ -164,8 +164,28 @@ checkpoints:
             result: passed
             details: Four focused content tests reject synthetic nonfunctional private-key/token markers, mutable actions, absent checkout persistence controls, missing default permissions, ungoverned writes, validation secrets, and direct shell secret interpolation; the positive fixture passes.
     - name: Vulnerability and license policy
-      status: planned
-      evidence: []
+      status: failed
+      evidence:
+          - check: Authoritative advisory retrieval
+            command: python3 tooling/security.py risk --json
+            result: failed
+            details: npm audit completed for all three npm locks and returned blocking high or critical findings in development/tooling dependency chains. The operation preserved package, version, advisory URL, and supplied severity and did not modify dependency state.
+          - check: Cargo advisory availability
+            command: cargo audit --version; security dependency-risk operation
+            result: failed
+            details: cargo-audit is pinned to 0.22.2 but is not installed in the local environment. Both Cargo vulnerability checks returned UNAVAILABLE rather than PASS.
+          - check: License classification
+            command: npm lockfile v3 classification and cargo metadata --locked --offline
+            result: failed
+            details: 1,148 npm package entries and 98 Cargo package entries were classified by exact policy expressions. Ten VSCE signing packages report SEE LICENSE IN LICENSE.txt and remain unknown/blocking; all other evaluated entries were permitted, with one exact legacy metadata correction for exit@0.1.2.
+          - check: Legacy ecosystem coverage
+            command: Structured risk coverage inventory
+            result: failed
+            details: Fifteen configured ecosystem roots without authoritative repository scanners emit 30 explicit UNAVAILABLE vulnerability/license checks. Go and Swift emit passed checks only because integrity proves no external dependencies.
+          - check: Controlled dependency-risk fixtures
+            command: python3 -m unittest tooling.tests.test_security -v
+            result: passed
+            details: Fifteen focused tests pass, including synthetic blocking advisory identity, unavailable advisory retrieval, unknown-license blocking, and cargo-audit version drift. Production results use live authoritative advisory data, never fixture advisories.
     - name: Security waivers and certification properties
       status: planned
       evidence: []
@@ -180,3 +200,5 @@ commits:
       subject: "docs(security): define baseline repository security policy"
     - sha: 1c305bd9f41579f2a7e0d1f2011c0dd316168622
       subject: "feat(security): enforce dependency and lock integrity"
+    - sha: 2068c731b721da8915ba03a8bb62dc6920fead47
+      subject: "feat(security): enforce secret and workflow safeguards"

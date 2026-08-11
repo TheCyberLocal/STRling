@@ -4,6 +4,13 @@
         "name": "strling-repository-security",
         "version": "1.0.0"
     },
+    "security_tools": {
+        "cargo-audit": {
+            "version": "0.22.2",
+            "install_command": "cargo install cargo-audit --version 0.22.2 --locked",
+            "advisory_source": "rustsec"
+        }
+    },
     "result_schema": "governance/schemas/security-result.schema.json",
     "waiver_schema": "governance/schemas/waiver.schema.json",
     "statuses": ["passed", "failed", "waived", "unavailable", "incomplete"],
@@ -303,16 +310,31 @@
     },
     "license_policy": {
         "permitted": [
+            "(BSD-2-Clause OR MIT OR Apache-2.0)",
+            "(MIT OR Apache-2.0) AND Unicode-3.0",
+            "(MIT OR CC0-1.0)",
+            "(MIT OR WTFPL)",
             "0BSD",
             "Apache-2.0",
+            "Apache-2.0 OR BSL-1.0",
+            "Apache-2.0 OR MIT",
+            "Artistic-2.0",
             "BSD-2-Clause",
             "BSD-3-Clause",
+            "BlueOak-1.0.0",
+            "CC-BY-3.0",
+            "CC-BY-4.0",
             "CC0-1.0",
             "ISC",
             "MIT",
+            "MIT OR Apache-2.0",
+            "MIT/Apache-2.0",
             "MPL-2.0",
             "Python-2.0",
             "Unlicense",
+            "Unlicense OR MIT",
+            "Unlicense/MIT",
+            "WTFPL",
             "Zlib"
         ],
         "prohibited": [
@@ -321,6 +343,15 @@
             "AGPL-3.0-only",
             "AGPL-3.0-or-later",
             "SSPL-1.0"
+        ],
+        "metadata_overrides": [
+            {
+                "ecosystem": "npm",
+                "package": "exit",
+                "version": "0.1.2",
+                "license": "MIT",
+                "evidence": "The exact published package manifest uses its legacy licenses field to identify MIT while package-lock v3 omits that field."
+            }
         ],
         "unknown_is_blocking": true
     },

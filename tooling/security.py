@@ -221,6 +221,22 @@ def load_policy(
 
 
 TrackedFileProbe = Callable[[Path], list[str]]
+CommandRunner = Callable[
+    [Sequence[str], Path],
+    subprocess.CompletedProcess[str],
+]
+
+
+def run_security_command(
+    args: Sequence[str], cwd: Path
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        list(args),
+        cwd=cwd,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
 
 
 def git_tracked_files(root: Path) -> list[str]:
@@ -259,6 +275,7 @@ class SecurityEngine:
         tracked_files: Sequence[str] | None = None,
         tracked_file_probe: TrackedFileProbe = git_tracked_files,
         engine_version: str = ENGINE_VERSION,
+        command_runner: CommandRunner = run_security_command,
     ) -> None:
         self.root = root
         self.policy = policy
@@ -268,6 +285,7 @@ class SecurityEngine:
             else tracked_file_probe(root)
         )
         self.engine_version = engine_version
+        self._command_runner = command_runner
 
     def run_integrity(self) -> SecurityOperation:
         checks = [self._check_engine_pin(), self._check_dependency_inventory()]
@@ -334,6 +352,152 @@ class SecurityEngine:
                 )
             )
         return SecurityOperation("security.content-and-workflows", "local", checks)
+
+    def run_risk(self) -> SecurityOperation:
+        roots = self.policy.get("dependency_roots")
+        if not isinstance(roots, list):
+            return SecurityOperation(
+                "security.dependency-risk",
+                "network",
+                [
+                    SecurityCheck(
+                        "security.dependency-risk.policy",
+                        "vulnerability",
+                        "incomplete",
+                        [],
+                        findings=[
+                            Finding(
+                                "SEC-RISK-POLICY-MALFORMED",
+                                "dependency_roots is not a list",
+                            )
+                        ],
+                    )
+                ],
+            )
+
+        checks: list[SecurityCheck] = []
+        coverage_gaps: list[dict[str, object]] = []
+        for raw in roots:
+            if not isinstance(raw, dict):
+                checks.append(
+                    SecurityCheck(
+                        "security.dependency-risk.policy",
+                        "vulnerability",
+                        "incomplete",
+                        [],
+                        findings=[
+                            Finding(
+                                "SEC-RISK-POLICY-MALFORMED",
+                                "dependency root is not an object",
+                            )
+                        ],
+                    )
+                )
+                continue
+            root_id = str(raw.get("id", "unknown"))
+            mode = raw.get("risk_mode")
+            inputs = [
+                *self._string_list(raw.get("manifests")),
+                *self._string_list(raw.get("locks")),
+            ]
+            if mode == "npm_audit":
+                checks.append(self._audit_npm(root_id, raw))
+                checks.append(self._license_npm(root_id, raw))
+            elif mode == "cargo_audit":
+                checks.append(self._audit_cargo(root_id, raw))
+                checks.append(self._license_cargo(root_id, raw))
+            elif mode == "no_dependencies":
+                scanner = {"name": ENGINE_NAME, "version": self.engine_version}
+                checks.extend(
+                    [
+                        SecurityCheck(
+                            f"security.vulnerability.{root_id}",
+                            "vulnerability",
+                            "passed",
+                            inputs,
+                            ecosystem=str(raw.get("ecosystem", "unknown")),
+                            scanner=scanner,
+                        ),
+                        SecurityCheck(
+                            f"security.license.{root_id}",
+                            "license",
+                            "passed",
+                            inputs,
+                            ecosystem=str(raw.get("ecosystem", "unknown")),
+                            scanner=scanner,
+                        ),
+                    ]
+                )
+            elif mode == "unavailable":
+                reason = "no authoritative repository scanner is configured for this ecosystem"
+                coverage_gaps.append(
+                    {
+                        "root_id": root_id,
+                        "ecosystem": str(raw.get("ecosystem", "unknown")),
+                        "reason": reason,
+                    }
+                )
+                scanner = {"name": ENGINE_NAME, "version": self.engine_version}
+                checks.extend(
+                    [
+                        self._risk_unavailable(
+                            root_id,
+                            "vulnerability",
+                            str(raw.get("ecosystem", "unknown")),
+                            inputs,
+                            reason,
+                            scanner,
+                        ),
+                        self._risk_unavailable(
+                            root_id,
+                            "license",
+                            str(raw.get("ecosystem", "unknown")),
+                            inputs,
+                            reason,
+                            scanner,
+                        ),
+                    ]
+                )
+            else:
+                checks.append(
+                    SecurityCheck(
+                        f"security.vulnerability.{root_id}",
+                        "vulnerability",
+                        "incomplete",
+                        inputs,
+                        ecosystem=str(raw.get("ecosystem", "unknown")),
+                        findings=[
+                            Finding(
+                                "SEC-RISK-MODE-UNKNOWN",
+                                f"unsupported risk mode: {mode!r}",
+                            )
+                        ],
+                    )
+                )
+
+        vulnerability_policy = self.policy.get("vulnerability_policy")
+        sources = (
+            vulnerability_policy.get("advisory_sources", {})
+            if isinstance(vulnerability_policy, dict)
+            else {}
+        )
+        metadata = {
+            "sources": sources,
+            "retrieval_status": {
+                check.check_id: check.status
+                for check in checks
+                if check.category == "vulnerability"
+            },
+            "coverage_gaps": sorted(
+                coverage_gaps, key=lambda item: str(item["root_id"])
+            ),
+        }
+        return SecurityOperation(
+            "security.dependency-risk",
+            "network",
+            checks,
+            advisory_metadata=metadata,
+        )
 
     def _secret_marker_exclusions(
         self,
@@ -720,6 +884,796 @@ class SecurityEngine:
             if needle in line:
                 return line_number
         return None
+
+    def _invoke(
+        self, args: Sequence[str], cwd: Path
+    ) -> tuple[subprocess.CompletedProcess[str] | None, str | None]:
+        try:
+            return self._command_runner(args, cwd), None
+        except OSError as exc:
+            return None, str(exc)
+
+    def _audit_npm(self, root_id: str, raw: Mapping[str, object]) -> SecurityCheck:
+        manifests = self._string_list(raw.get("manifests"))
+        locks = self._string_list(raw.get("locks"))
+        inputs = [*manifests, *locks]
+        ecosystem = str(raw.get("ecosystem", "npm"))
+        if len(manifests) != 1 or len(locks) != 1:
+            return SecurityCheck(
+                f"security.vulnerability.{root_id}",
+                "vulnerability",
+                "incomplete",
+                inputs,
+                ecosystem=ecosystem,
+                findings=[
+                    Finding(
+                        "SEC-VULN-INVENTORY-INCOMPLETE",
+                        "npm audit requires exactly one manifest and lockfile",
+                    )
+                ],
+            )
+        lock, lock_findings = self._read_json_object(
+            locks[0], "SEC-VULN-INVENTORY-INCOMPLETE"
+        )
+        if lock is None:
+            return SecurityCheck(
+                f"security.vulnerability.{root_id}",
+                "vulnerability",
+                "incomplete",
+                inputs,
+                ecosystem=ecosystem,
+                findings=lock_findings,
+            )
+        cwd = (self.root / manifests[0]).parent
+        version_result, version_error = self._invoke(["npm", "--version"], cwd)
+        if version_result is None or version_result.returncode != 0:
+            reason = version_error or version_result.stderr.strip() or "npm unavailable"
+            return self._risk_unavailable(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                reason,
+                {"name": "npm audit", "source": "npm-registry"},
+            )
+        npm_version = version_result.stdout.strip()
+        scanner = {
+            "name": "npm audit",
+            "version": npm_version,
+            "source": "npm-registry",
+        }
+        audit_result, audit_error = self._invoke(
+            ["npm", "audit", "--json", "--package-lock-only"], cwd
+        )
+        if audit_result is None:
+            return self._risk_unavailable(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                audit_error or "npm audit unavailable",
+                scanner,
+            )
+        try:
+            payload = json.loads(audit_result.stdout)
+        except json.JSONDecodeError as exc:
+            reason = audit_result.stderr.strip()
+            if audit_result.returncode != 0 and reason:
+                return self._risk_unavailable(
+                    root_id,
+                    "vulnerability",
+                    ecosystem,
+                    inputs,
+                    reason,
+                    scanner,
+                )
+            return SecurityCheck(
+                f"security.vulnerability.{root_id}",
+                "vulnerability",
+                "incomplete",
+                inputs,
+                ecosystem=ecosystem,
+                findings=[
+                    Finding(
+                        "SEC-VULN-EVIDENCE-INCOMPLETE",
+                        f"npm audit did not return JSON: {exc}",
+                    )
+                ],
+                scanner=scanner,
+            )
+        if not isinstance(payload, dict):
+            return self._risk_incomplete(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                "npm audit result must be an object",
+                scanner,
+            )
+        error = payload.get("error")
+        if error:
+            reason = json.dumps(error, sort_keys=True)
+            return self._risk_unavailable(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                reason,
+                scanner,
+            )
+        vulnerabilities = payload.get("vulnerabilities")
+        if not isinstance(vulnerabilities, dict):
+            return self._risk_incomplete(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                "npm audit result omitted vulnerability inventory",
+                scanner,
+            )
+        packages = lock.get("packages")
+        if not isinstance(packages, dict):
+            return self._risk_incomplete(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                "npm lockfile omitted package inventory",
+                scanner,
+            )
+        findings: list[Finding] = []
+        incomplete = False
+        seen: set[tuple[str, str, str, str]] = set()
+        blocking_severities = self._blocking_severities()
+        for package_name, raw_vulnerability in sorted(vulnerabilities.items()):
+            if not isinstance(raw_vulnerability, dict):
+                incomplete = True
+                continue
+            nodes = raw_vulnerability.get("nodes", [])
+            versions = sorted(
+                {
+                    str(packages[node].get("version"))
+                    for node in nodes
+                    if isinstance(node, str)
+                    and isinstance(packages.get(node), dict)
+                    and packages[node].get("version")
+                }
+            )
+            if not versions:
+                incomplete = True
+                continue
+            vias = raw_vulnerability.get("via", [])
+            direct_advisories = [via for via in vias if isinstance(via, dict)]
+            for advisory in direct_advisories:
+                identifier = advisory.get("url") or advisory.get("source")
+                if identifier is None:
+                    incomplete = True
+                    continue
+                severity = str(
+                    advisory.get("severity")
+                    or raw_vulnerability.get("severity")
+                    or "unknown"
+                ).lower()
+                title = str(advisory.get("title") or advisory.get("name") or "")
+                for version in versions:
+                    advisory_range = advisory.get("range")
+                    applies = (
+                        self._npm_range_contains(version, advisory_range)
+                        if isinstance(advisory_range, str)
+                        else True
+                    )
+                    if applies is None:
+                        incomplete = True
+                        continue
+                    if not applies:
+                        continue
+                    key = (str(package_name), version, str(identifier), severity)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    blocking = severity in blocking_severities or severity == "unknown"
+                    findings.append(
+                        Finding(
+                            "SEC-VULN-BLOCKING" if blocking else "SEC-VULN-NONBLOCKING",
+                            title or "npm advisory affects locked dependency",
+                            package=str(package_name),
+                            version=version,
+                            advisory=str(identifier),
+                            severity=severity,
+                        )
+                    )
+        if incomplete:
+            findings.append(
+                Finding(
+                    "SEC-VULN-EVIDENCE-INCOMPLETE",
+                    "npm audit evidence could not be bound to every package/version/advisory",
+                )
+            )
+            return SecurityCheck(
+                f"security.vulnerability.{root_id}",
+                "vulnerability",
+                "incomplete",
+                inputs,
+                ecosystem=ecosystem,
+                findings=findings,
+                scanner=scanner,
+            )
+        status = (
+            "failed"
+            if any(finding.code == "SEC-VULN-BLOCKING" for finding in findings)
+            else "passed"
+        )
+        return SecurityCheck(
+            f"security.vulnerability.{root_id}",
+            "vulnerability",
+            status,
+            inputs,
+            ecosystem=ecosystem,
+            findings=findings,
+            scanner={**scanner, "retrieval": "completed"},
+        )
+
+    def _audit_cargo(self, root_id: str, raw: Mapping[str, object]) -> SecurityCheck:
+        manifests = self._string_list(raw.get("manifests"))
+        locks = self._string_list(raw.get("locks"))
+        inputs = [*manifests, *locks]
+        ecosystem = str(raw.get("ecosystem", "cargo"))
+        expected_version = self._security_tool_version("cargo-audit")
+        if len(manifests) != 1 or len(locks) != 1 or expected_version is None:
+            return self._risk_incomplete(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                "cargo audit requires one manifest, one lockfile, and a pinned scanner",
+                {"name": "cargo-audit"},
+            )
+        cwd = (self.root / manifests[0]).parent
+        version_result, version_error = self._invoke(
+            ["cargo", "audit", "--version"], cwd
+        )
+        if version_result is None or version_result.returncode != 0:
+            reason = (
+                version_error
+                or version_result.stderr.strip()
+                or "cargo-audit unavailable"
+            )
+            return self._risk_unavailable(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                reason,
+                {"name": "cargo-audit", "version": expected_version},
+            )
+        match = re.search(r"(\d+\.\d+\.\d+)", version_result.stdout)
+        actual_version = match.group(1) if match else "unknown"
+        scanner = {
+            "name": "cargo-audit",
+            "version": actual_version,
+            "expected_version": expected_version,
+            "source": "rustsec",
+        }
+        if actual_version != expected_version:
+            return SecurityCheck(
+                f"security.vulnerability.{root_id}",
+                "vulnerability",
+                "failed",
+                inputs,
+                ecosystem=ecosystem,
+                findings=[
+                    Finding(
+                        "SEC-TOOL-VERSION-DRIFT",
+                        f"cargo-audit {actual_version} does not match {expected_version}",
+                    )
+                ],
+                scanner=scanner,
+            )
+        audit_result, audit_error = self._invoke(
+            ["cargo", "audit", "--json", "--file", locks[0]], self.root
+        )
+        if audit_result is None:
+            return self._risk_unavailable(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                audit_error or "cargo-audit unavailable",
+                scanner,
+            )
+        try:
+            payload = json.loads(audit_result.stdout)
+        except json.JSONDecodeError as exc:
+            reason = audit_result.stderr.strip()
+            unavailable_markers = ("network", "fetch", "resolve host", "database")
+            if audit_result.returncode != 0 and any(
+                marker in reason.lower() for marker in unavailable_markers
+            ):
+                return self._risk_unavailable(
+                    root_id,
+                    "vulnerability",
+                    ecosystem,
+                    inputs,
+                    reason,
+                    scanner,
+                )
+            return self._risk_incomplete(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                f"cargo-audit did not return JSON: {exc}",
+                scanner,
+            )
+        if not isinstance(payload, dict):
+            return self._risk_incomplete(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                "cargo-audit result must be an object",
+                scanner,
+            )
+        vulnerability_data = payload.get("vulnerabilities")
+        if not isinstance(vulnerability_data, dict) or not isinstance(
+            vulnerability_data.get("list"), list
+        ):
+            return self._risk_incomplete(
+                root_id,
+                "vulnerability",
+                ecosystem,
+                inputs,
+                "cargo-audit result omitted vulnerability inventory",
+                scanner,
+            )
+        findings: list[Finding] = []
+        incomplete = False
+        blocking_severities = self._blocking_severities()
+        for entry in vulnerability_data["list"]:
+            if not isinstance(entry, dict):
+                incomplete = True
+                continue
+            package = entry.get("package")
+            advisory = entry.get("advisory")
+            if not isinstance(package, dict) or not isinstance(advisory, dict):
+                incomplete = True
+                continue
+            name = package.get("name")
+            version = package.get("version")
+            identifier = advisory.get("id")
+            if not all(
+                isinstance(value, str) and value
+                for value in (name, version, identifier)
+            ):
+                incomplete = True
+                continue
+            severity = str(advisory.get("severity") or "unknown").lower()
+            blocking = severity in blocking_severities or severity == "unknown"
+            findings.append(
+                Finding(
+                    "SEC-VULN-BLOCKING" if blocking else "SEC-VULN-NONBLOCKING",
+                    str(
+                        advisory.get("title")
+                        or "RustSec advisory affects locked dependency"
+                    ),
+                    package=name,
+                    version=version,
+                    advisory=identifier,
+                    severity=severity,
+                )
+            )
+        if incomplete:
+            findings.append(
+                Finding(
+                    "SEC-VULN-EVIDENCE-INCOMPLETE",
+                    "cargo-audit evidence omitted required package/version/advisory fields",
+                )
+            )
+            return SecurityCheck(
+                f"security.vulnerability.{root_id}",
+                "vulnerability",
+                "incomplete",
+                inputs,
+                ecosystem=ecosystem,
+                findings=findings,
+                scanner=scanner,
+            )
+        status = (
+            "failed"
+            if any(finding.code == "SEC-VULN-BLOCKING" for finding in findings)
+            else "passed"
+        )
+        return SecurityCheck(
+            f"security.vulnerability.{root_id}",
+            "vulnerability",
+            status,
+            inputs,
+            ecosystem=ecosystem,
+            findings=findings,
+            scanner={**scanner, "retrieval": "completed"},
+        )
+
+    def _license_npm(self, root_id: str, raw: Mapping[str, object]) -> SecurityCheck:
+        manifests = self._string_list(raw.get("manifests"))
+        locks = self._string_list(raw.get("locks"))
+        inputs = [*manifests, *locks]
+        ecosystem = str(raw.get("ecosystem", "npm"))
+        if len(locks) != 1:
+            return self._risk_incomplete(
+                root_id,
+                "license",
+                ecosystem,
+                inputs,
+                "npm license check requires exactly one lockfile",
+                {"name": ENGINE_NAME, "version": self.engine_version},
+            )
+        lock, lock_findings = self._read_json_object(
+            locks[0], "SEC-LICENSE-INVENTORY-INCOMPLETE"
+        )
+        packages = lock.get("packages") if lock else None
+        if not isinstance(packages, dict):
+            return SecurityCheck(
+                f"security.license.{root_id}",
+                "license",
+                "incomplete",
+                inputs,
+                ecosystem=ecosystem,
+                findings=lock_findings
+                or [
+                    Finding(
+                        "SEC-LICENSE-INVENTORY-INCOMPLETE",
+                        "npm lockfile omitted package inventory",
+                    )
+                ],
+            )
+        findings: list[Finding] = []
+        counts = {"permitted": 0, "prohibited": 0, "unknown": 0, "overridden": 0}
+        evaluated = 0
+        incomplete = False
+        for package_path, package_data in sorted(packages.items()):
+            if not package_path or not isinstance(package_data, dict):
+                continue
+            if package_data.get("link") is True:
+                continue
+            package_name = self._npm_package_name(str(package_path))
+            version = package_data.get("version")
+            if package_name is None:
+                continue
+            if not isinstance(version, str):
+                incomplete = True
+                continue
+            evaluated += 1
+            expression = package_data.get("license")
+            override = self._license_override(ecosystem, package_name, version)
+            if not isinstance(expression, str) and override is not None:
+                expression = override
+                counts["overridden"] += 1
+            classification = self._license_classification(expression)
+            counts[classification] += 1
+            if classification == "prohibited":
+                findings.append(
+                    Finding(
+                        "SEC-LICENSE-PROHIBITED",
+                        "dependency license is prohibited by repository policy",
+                        package=package_name,
+                        version=version,
+                        license=str(expression),
+                    )
+                )
+            elif classification == "unknown":
+                findings.append(
+                    Finding(
+                        "SEC-LICENSE-UNKNOWN",
+                        "dependency license is unknown or unclassified",
+                        package=package_name,
+                        version=version,
+                        license=str(expression or "unknown"),
+                    )
+                )
+        scanner = {
+            "name": ENGINE_NAME,
+            "version": self.engine_version,
+            "packages_evaluated": evaluated,
+            "classifications": counts,
+        }
+        if incomplete:
+            findings.append(
+                Finding(
+                    "SEC-LICENSE-INVENTORY-INCOMPLETE",
+                    "npm package identity or version was incomplete",
+                )
+            )
+            status = "incomplete"
+        else:
+            status = "failed" if findings else "passed"
+        return SecurityCheck(
+            f"security.license.{root_id}",
+            "license",
+            status,
+            inputs,
+            ecosystem=ecosystem,
+            findings=findings,
+            scanner=scanner,
+        )
+
+    def _license_cargo(self, root_id: str, raw: Mapping[str, object]) -> SecurityCheck:
+        manifests = self._string_list(raw.get("manifests"))
+        locks = self._string_list(raw.get("locks"))
+        inputs = [*manifests, *locks]
+        ecosystem = str(raw.get("ecosystem", "cargo"))
+        if len(manifests) != 1 or len(locks) != 1:
+            return self._risk_incomplete(
+                root_id,
+                "license",
+                ecosystem,
+                inputs,
+                "Cargo license check requires one manifest and one lockfile",
+                {"name": "cargo metadata"},
+            )
+        result, error = self._invoke(
+            [
+                "cargo",
+                "metadata",
+                "--locked",
+                "--offline",
+                "--format-version=1",
+                "--manifest-path",
+                manifests[0],
+            ],
+            self.root,
+        )
+        scanner = {"name": "cargo metadata", "network": "offline"}
+        if result is None or result.returncode != 0:
+            reason = error or result.stderr.strip() or "cargo metadata unavailable"
+            return self._risk_unavailable(
+                root_id, "license", ecosystem, inputs, reason, scanner
+            )
+        try:
+            payload = json.loads(result.stdout)
+        except json.JSONDecodeError as exc:
+            return self._risk_incomplete(
+                root_id,
+                "license",
+                ecosystem,
+                inputs,
+                f"cargo metadata did not return JSON: {exc}",
+                scanner,
+            )
+        packages = payload.get("packages") if isinstance(payload, dict) else None
+        if not isinstance(packages, list):
+            return self._risk_incomplete(
+                root_id,
+                "license",
+                ecosystem,
+                inputs,
+                "cargo metadata omitted package inventory",
+                scanner,
+            )
+        findings: list[Finding] = []
+        counts = {"permitted": 0, "prohibited": 0, "unknown": 0, "overridden": 0}
+        evaluated = 0
+        incomplete = False
+        for package in packages:
+            if not isinstance(package, dict) or package.get("source") is None:
+                continue
+            name = package.get("name")
+            version = package.get("version")
+            if not isinstance(name, str) or not isinstance(version, str):
+                incomplete = True
+                continue
+            evaluated += 1
+            expression = package.get("license")
+            override = self._license_override(ecosystem, name, version)
+            if not isinstance(expression, str) and override is not None:
+                expression = override
+                counts["overridden"] += 1
+            classification = self._license_classification(expression)
+            counts[classification] += 1
+            if classification == "prohibited":
+                findings.append(
+                    Finding(
+                        "SEC-LICENSE-PROHIBITED",
+                        "dependency license is prohibited by repository policy",
+                        package=name,
+                        version=version,
+                        license=str(expression),
+                    )
+                )
+            elif classification == "unknown":
+                findings.append(
+                    Finding(
+                        "SEC-LICENSE-UNKNOWN",
+                        "dependency license is unknown or unclassified",
+                        package=name,
+                        version=version,
+                        license=str(expression or "unknown"),
+                    )
+                )
+        scanner = {
+            **scanner,
+            "packages_evaluated": evaluated,
+            "classifications": counts,
+        }
+        if incomplete:
+            findings.append(
+                Finding(
+                    "SEC-LICENSE-INVENTORY-INCOMPLETE",
+                    "Cargo package identity or version was incomplete",
+                )
+            )
+            status = "incomplete"
+        else:
+            status = "failed" if findings else "passed"
+        return SecurityCheck(
+            f"security.license.{root_id}",
+            "license",
+            status,
+            inputs,
+            ecosystem=ecosystem,
+            findings=findings,
+            scanner=scanner,
+        )
+
+    def _risk_unavailable(
+        self,
+        root_id: str,
+        category: str,
+        ecosystem: str,
+        inputs: list[str],
+        reason: str,
+        scanner: dict[str, object],
+    ) -> SecurityCheck:
+        return SecurityCheck(
+            f"security.{category}.{root_id}",
+            category,
+            "unavailable",
+            inputs,
+            ecosystem=ecosystem,
+            unavailable_reason=reason,
+            scanner=scanner,
+        )
+
+    def _risk_incomplete(
+        self,
+        root_id: str,
+        category: str,
+        ecosystem: str,
+        inputs: list[str],
+        message: str,
+        scanner: dict[str, object],
+    ) -> SecurityCheck:
+        code = (
+            "SEC-VULN-EVIDENCE-INCOMPLETE"
+            if category == "vulnerability"
+            else "SEC-LICENSE-INVENTORY-INCOMPLETE"
+        )
+        return SecurityCheck(
+            f"security.{category}.{root_id}",
+            category,
+            "incomplete",
+            inputs,
+            ecosystem=ecosystem,
+            findings=[Finding(code, message)],
+            scanner=scanner,
+        )
+
+    def _blocking_severities(self) -> set[str]:
+        policy = self.policy.get("vulnerability_policy")
+        if not isinstance(policy, dict):
+            return set()
+        return {
+            str(value).lower()
+            for value in self._string_list(policy.get("blocking_severities"))
+        }
+
+    def _security_tool_version(self, name: str) -> str | None:
+        tools = self.policy.get("security_tools")
+        if not isinstance(tools, dict):
+            return None
+        tool = tools.get(name)
+        if not isinstance(tool, dict):
+            return None
+        version = tool.get("version")
+        return version if isinstance(version, str) else None
+
+    def _license_classification(self, expression: object) -> str:
+        if not isinstance(expression, str) or not expression.strip():
+            return "unknown"
+        policy = self.policy.get("license_policy")
+        if not isinstance(policy, dict):
+            return "unknown"
+        if expression in self._string_list(policy.get("prohibited")):
+            return "prohibited"
+        if expression in self._string_list(policy.get("permitted")):
+            return "permitted"
+        return "unknown"
+
+    def _license_override(
+        self, ecosystem: str, package: str, version: str
+    ) -> str | None:
+        policy = self.policy.get("license_policy")
+        if not isinstance(policy, dict):
+            return None
+        overrides = policy.get("metadata_overrides", [])
+        if not isinstance(overrides, list):
+            return None
+        for override in overrides:
+            if not isinstance(override, dict):
+                continue
+            if (
+                override.get("ecosystem") == ecosystem
+                and override.get("package") == package
+                and override.get("version") == version
+                and isinstance(override.get("license"), str)
+            ):
+                return str(override["license"])
+        return None
+
+    @staticmethod
+    def _npm_range_contains(version: str, expression: str) -> bool | None:
+        parsed_version = SecurityEngine._npm_semver(version)
+        if parsed_version is None:
+            return None
+        for alternative in expression.split("||"):
+            candidate = alternative.strip()
+            if candidate in ("", "*"):
+                return True
+            hyphen = re.fullmatch(r"(\S+)\s+-\s+(\S+)", candidate)
+            if hyphen:
+                lower = SecurityEngine._npm_semver(hyphen.group(1))
+                upper = SecurityEngine._npm_semver(hyphen.group(2))
+                if lower is None or upper is None:
+                    return None
+                if lower <= parsed_version <= upper:
+                    return True
+                continue
+            tokens = candidate.split()
+            if not tokens:
+                return None
+            matched = True
+            for token in tokens:
+                match = re.fullmatch(r"(<=|>=|<|>|=)?(.+)", token)
+                if not match:
+                    return None
+                operator = match.group(1) or "="
+                boundary = SecurityEngine._npm_semver(match.group(2))
+                if boundary is None:
+                    return None
+                comparisons = {
+                    "<": parsed_version < boundary,
+                    "<=": parsed_version <= boundary,
+                    ">": parsed_version > boundary,
+                    ">=": parsed_version >= boundary,
+                    "=": parsed_version == boundary,
+                }
+                matched = matched and comparisons[operator]
+            if matched:
+                return True
+        return False
+
+    @staticmethod
+    def _npm_semver(value: str) -> tuple[int, int, int, int, str] | None:
+        match = re.fullmatch(
+            r"v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?",
+            value.strip(),
+        )
+        if not match:
+            return None
+        prerelease = match.group(4)
+        return (
+            int(match.group(1)),
+            int(match.group(2)),
+            int(match.group(3)),
+            1 if prerelease is None else 0,
+            prerelease or "",
+        )
+
+    @staticmethod
+    def _npm_package_name(package_path: str) -> str | None:
+        marker = "node_modules/"
+        if marker not in package_path:
+            return None
+        return package_path.rsplit(marker, 1)[1]
 
     def _check_engine_pin(self) -> SecurityCheck:
         configured = self.policy.get("engine")
@@ -1355,14 +2309,20 @@ class SecurityEngine:
         )
 
 
-def incomplete_operation(operation_id: str, message: str) -> SecurityOperation:
+def incomplete_operation(
+    operation_id: str,
+    message: str,
+    *,
+    network_mode: str = "local",
+    category: str = "dependency_integrity",
+) -> SecurityOperation:
     return SecurityOperation(
         operation_id,
-        "local",
+        network_mode,
         [
             SecurityCheck(
                 f"{operation_id}.configuration",
-                "dependency_integrity",
+                category,
                 "incomplete",
                 [],
                 findings=[Finding("SEC-CONFIG-INCOMPLETE", message)],
@@ -1384,7 +2344,7 @@ def render_human(operation: SecurityOperation) -> None:
 
 def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("operation", choices=("integrity", "content"))
+    parser.add_argument("operation", choices=("integrity", "content", "risk"))
     parser.add_argument("--json", action="store_true", dest="json_output")
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--policy", type=Path, default=POLICY_PATH)
@@ -1397,18 +2357,26 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         policy = load_policy(args.policy, args.policy_schema)
         engine = SecurityEngine(args.root, policy)
-        operation = (
-            engine.run_integrity()
-            if args.operation == "integrity"
-            else engine.run_content()
-        )
+        if args.operation == "integrity":
+            operation = engine.run_integrity()
+        elif args.operation == "content":
+            operation = engine.run_content()
+        else:
+            operation = engine.run_risk()
     except SecurityConfigurationError as exc:
-        operation_id = (
-            "security.dependency-integrity"
-            if args.operation == "integrity"
-            else "security.content-and-workflows"
+        operation_ids = {
+            "integrity": "security.dependency-integrity",
+            "content": "security.content-and-workflows",
+            "risk": "security.dependency-risk",
+        }
+        operation = incomplete_operation(
+            operation_ids[args.operation],
+            str(exc),
+            network_mode="network" if args.operation == "risk" else "local",
+            category="vulnerability"
+            if args.operation == "risk"
+            else "dependency_integrity",
         )
-        operation = incomplete_operation(operation_id, str(exc))
     if args.json_output:
         print(json.dumps(operation.as_dict(), sort_keys=True))
     else:

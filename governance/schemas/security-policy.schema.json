@@ -7,6 +7,7 @@
     "required": [
         "policy_version",
         "engine",
+        "security_tools",
         "result_schema",
         "waiver_schema",
         "statuses",
@@ -34,6 +35,7 @@
                 }
             }
         },
+        "security_tools": { "type": "object" },
         "result_schema": {
             "const": "governance/schemas/security-result.schema.json"
         },
