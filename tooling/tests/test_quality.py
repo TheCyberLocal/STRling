@@ -909,21 +909,40 @@ class QualityRoutingTests(unittest.TestCase):
 
     def test_format_check_and_json_options_parse_in_any_order(self) -> None:
         self.assertEqual(
-            ("format_check", "alpha", True, None),
+            ("format_check", "alpha", True, None, None),
             _parse_cli(["format", "alpha", "--check", "--json"]),
         )
         self.assertEqual(
-            ("format_check", "alpha", True, None),
+            ("format_check", "alpha", True, None, None),
             _parse_cli(["format", "--json", "--check", "alpha"]),
         )
         self.assertEqual(
-            ("profile", "alpha", True, "pull-request"),
-            _parse_cli(["profile", "pull-request", "alpha", "--json"]),
+            (
+                "profile",
+                "alpha",
+                True,
+                "pull-request",
+                "/tmp/certification.json",
+            ),
+            _parse_cli(
+                [
+                    "profile",
+                    "pull-request",
+                    "alpha",
+                    "--artifact",
+                    "/tmp/certification.json",
+                    "--json",
+                ]
+            ),
         )
         with self.assertRaisesRegex(
             ConfigurationError, "profile requires a profile identity"
         ):
             _parse_cli(["profile"])
+        with self.assertRaisesRegex(ConfigurationError, "only for profile"):
+            _parse_cli(["lint", "--artifact", "certification.json"])
+        with self.assertRaisesRegex(ConfigurationError, "requires an output path"):
+            _parse_cli(["check", "--artifact"])
 
 
 class EnvironmentValidationTests(unittest.TestCase):

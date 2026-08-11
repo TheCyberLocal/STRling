@@ -11,6 +11,15 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+from certification import (
+    CertificationError,
+    aggregate_profile_exit,
+    aggregate_profile_status,
+    build_certification_artifact,
+    render_certification_summary,
+    write_certification_artifact,
+)
+
 from typing import Callable, Iterable, Mapping, Sequence
 
 
@@ -1217,14 +1226,28 @@ class QualityRunner:
 
 def _parse_cli(
     argv: Sequence[str],
-) -> tuple[str, str | None, bool, str | None]:
+) -> tuple[str, str | None, bool, str | None, str | None]:
     args = list(argv)
     json_output = False
     if "--json" in args:
         args.remove("--json")
         json_output = True
+
+    artifact_output: str | None = None
+    artifact_options = [
+        index for index, argument in enumerate(args) if argument == "--artifact"
+    ]
+    if len(artifact_options) > 1:
+        raise ConfigurationError("--artifact may be specified only once")
+    if artifact_options:
+        index = artifact_options[0]
+        if index + 1 >= len(args) or args[index + 1].startswith("-"):
+            raise ConfigurationError("--artifact requires an output path")
+        artifact_output = args[index + 1]
+        del args[index : index + 2]
+
     if not args or args[0] in ("help", "-h", "--help"):
-        return "help", None, json_output, None
+        return "help", None, json_output, None, artifact_output
     operation = args.pop(0)
     profile_name: str | None = None
     if operation == PROFILE_OPERATION:
@@ -1239,12 +1262,23 @@ def _parse_cli(
         PROFILE_OPERATION,
     ):
         raise ConfigurationError(f"unknown quality operation '{operation}'")
+    if artifact_output is not None and operation not in (
+        *AGGREGATE_OPERATIONS,
+        PROFILE_OPERATION,
+    ):
+        raise ConfigurationError("--artifact is supported only for profile executions")
     if any(argument.startswith("-") for argument in args):
         option = next(argument for argument in args if argument.startswith("-"))
         raise ConfigurationError(f"unknown option '{option}'")
     if len(args) > 1:
         raise ConfigurationError("at most one component may be selected")
-    return operation, args[0] if args else None, json_output, profile_name
+    return (
+        operation,
+        args[0] if args else None,
+        json_output,
+        profile_name,
+        artifact_output,
+    )
 
 
 def _overall_exit(results: Iterable[OperationResult], single: bool) -> int:
@@ -1269,28 +1303,11 @@ def _overall_status(results: Iterable[OperationResult]) -> str:
 
 
 def _profile_exit(results: Iterable[OperationResult]) -> int:
-    blocking = {
-        "failed",
-        "incomplete",
-        "unavailable",
-        "not_yet_configured",
-        "not_yet_enforceable",
-    }
-    return 1 if any(result.status in blocking for result in results) else 0
+    return aggregate_profile_exit(result.status for result in results)
 
 
 def _profile_status(results: Iterable[OperationResult]) -> str:
-    statuses = {result.status for result in results}
-    if "failed" in statuses:
-        return "failed"
-    if statuses.intersection(
-        {"incomplete", "not_yet_configured", "not_yet_enforceable"}
-    ):
-        return "incomplete"
-    for status in ("unavailable", "waived"):
-        if status in statuses:
-            return status
-    return "passed"
+    return aggregate_profile_status(result.status for result in results)
 
 
 def _render_structured_security(result: OperationResult) -> None:
@@ -1376,7 +1393,8 @@ def _print_help() -> None:
     print("Usage: ./strling <quality-command> [component|all] [--json]")
     print("       ./strling format [--check] [component|all] [--json]")
     print(
-        "       ./strling profile <local|pull-request|full|release> [component|all] [--json]"
+        "       ./strling profile <local|pull-request|full|release> "
+        "[component|all] [--json] [--artifact PATH]"
     )
     print("")
     print(
@@ -1388,7 +1406,13 @@ def _print_help() -> None:
 def main(argv: Sequence[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     try:
-        operation, requested, json_output, requested_profile = _parse_cli(argv)
+        (
+            operation,
+            requested,
+            json_output,
+            requested_profile,
+            artifact_output,
+        ) = _parse_cli(argv)
         if operation == "help":
             _print_help()
             return 0
@@ -1399,39 +1423,50 @@ def main(argv: Sequence[str] | None = None) -> int:
         if operation in AGGREGATE_OPERATIONS:
             selected_profile = toolchain.aggregate_profile(operation)
             results = runner.run_profile(selected_profile, requested)
-            incomplete = toolchain.incomplete_capabilities()
         elif operation == PROFILE_OPERATION:
             assert requested_profile is not None
             selected_profile = requested_profile
             results = runner.run_profile(selected_profile, requested)
-            incomplete = toolchain.incomplete_capabilities()
         elif operation == ENVIRONMENT_OPERATION:
             results = runner.run_environment(requested)
-            incomplete = []
         else:
             results = runner.run_operation(operation, requested)
-            incomplete = []
+
         if selected_profile is not None:
             exit_code = _profile_exit(results)
             status = _profile_status(results)
-        else:
-            exit_code = _overall_exit(results, len(results) == 1)
-            status = _overall_status(results)
+            artifact = build_certification_artifact(
+                root=root,
+                profile_id=selected_profile,
+                profile_definition=toolchain.profile(selected_profile),
+                requested_component=requested,
+                results=[result.as_dict() for result in results],
+                aggregate_status=status,
+                exit_code=exit_code,
+            )
+            if artifact_output is not None:
+                write_certification_artifact(Path(artifact_output), artifact)
+            if json_output:
+                print(json.dumps(artifact, sort_keys=True))
+            else:
+                print(render_certification_summary(artifact))
+            return exit_code
+
+        exit_code = _overall_exit(results, len(results) == 1)
+        status = _overall_status(results)
         if json_output:
             payload: dict[str, object] = {
                 "operation": operation,
                 "status": status,
                 "exit_code": exit_code,
                 "results": [result.as_dict() for result in results],
-                "incomplete_capabilities": incomplete,
+                "incomplete_capabilities": [],
             }
-            if selected_profile is not None:
-                payload["profile"] = selected_profile
             print(json.dumps(payload, sort_keys=True))
         else:
-            _render_human(operation, results, incomplete)
+            _render_human(operation, results, [])
         return exit_code
-    except ConfigurationError as exc:
+    except (CertificationError, ConfigurationError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 2
 

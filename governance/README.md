@@ -44,6 +44,10 @@ work; they do not define STRling language syntax or semantics.
     extractor or bounded transition. Its schema is
     `schemas/public-surface-registry.schema.json`; compatibility and authority
     rules are documented in `public-contracts.md`.
+-   `schemas/profile-certification-artifact.schema.json` defines the durable
+    machine-readable evidence produced by canonical profile executions,
+    including deterministic profile and operation evidence, aggregate status,
+    execution metadata, and evidence fingerprints.
 -   `schemas/waiver.schema.json` defines bounded exceptions with a stable ID,
     explicit rule and scope, rationale, and retirement condition.
 -   `templates/waiver.yaml` is a validating starting point for an exception

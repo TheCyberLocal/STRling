@@ -1,0 +1,57 @@
+{
+  "artifact_kind": "strling-profile-certification",
+  "deterministic_evidence": {
+    "aggregate": {
+      "counts": {
+        "failed": 0,
+        "incomplete": 0,
+        "not_applicable": 0,
+        "not_yet_configured": 0,
+        "not_yet_enforceable": 0,
+        "passed": 1,
+        "unavailable": 0,
+        "waived": 0
+      },
+      "exit_code": 0,
+      "operation_count": 1,
+      "status": "success"
+    },
+    "component_scope": {
+      "mode": "profile-default"
+    },
+    "operations": [
+      {
+        "capability": "enforced",
+        "command": [
+          "fixture-lint",
+          "--check"
+        ],
+        "component": "repository",
+        "environment": [],
+        "exit_code": 0,
+        "formatters": [],
+        "operation_id": "lint",
+        "reason": null,
+        "result_id": "lint@repository",
+        "status": "passed",
+        "waiver_references": []
+      }
+    ],
+    "profile": {
+      "definition_fingerprint": "e90f2987611ef1a1a6331eb0376f7957e1aea3aefc1dc99c188d4f5a75c4c13f",
+      "definition_version": "1.0.0",
+      "id": "local",
+      "network_policy": "offline",
+      "purpose": "Fast fixture certification."
+    },
+    "repository": {
+      "commit": "0000000000000000000000000000000000000000",
+      "dirty": false
+    }
+  },
+  "evidence_fingerprint": "03ea5498f1e2570898ce99764322fb29392b7cfefb5cdecdbedbff276d361a0a",
+  "execution_metadata": {
+    "generated_at": "2026-08-11T12:00:00Z"
+  },
+  "schema_version": "1.0.0"
+}

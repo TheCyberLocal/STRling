@@ -24,6 +24,7 @@ scope:
         - tooling/documentation_integrity.py
         - tooling/quality.py
         - tooling/tests/**
+        - tooling/certification.py
     forbidden_paths:
         - bindings/**
         - core/src/**
@@ -145,8 +146,29 @@ checkpoints:
             result: passed
             details: Canonical formatting and static analysis, contained-change declarations, additive root CLI contract reproduction, and all enforced architecture rules passed.
     - name: Structured certification artifact
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Versioned artifact schema and identity
+            result: passed
+            details: Added the draft-2020-12 profile-certification-artifact schema version 1.0.0 with repository state, profile definition identity and fingerprint, component scope, ordered operation evidence, aggregate counts, deterministic evidence fingerprint, and isolated execution metadata.
+          - check: Result and exit-status fidelity
+            result: passed
+            details: Artifact construction consumes the exact ordered OperationResult projection, shares canonical status and exit aggregation, rejects aggregate mismatches and duplicate result IDs, preserves tool evidence and structured findings, and extracts exact waiver references.
+          - check: Artifact-derived human summary
+            result: passed
+            details: Human profile output is rendered only from the validated artifact and reports repository/profile scope, aggregate status and counts, passed and failed operations, waived findings, unavailable or incomplete operations, and a status-specific next action.
+          - check: Schema fixtures and focused tests
+            command: python3 -m unittest tooling.tests.test_quality tooling.tests.test_certification -v
+            result: passed
+            details: All 56 profile and artifact tests passed, including positive and invalid fixtures, schema validation, deterministic identity, tamper detection, metadata isolation, aggregate mismatch, summary fidelity, and write round-trip coverage.
+          - check: Actual artifact output
+            command: ./strling profile local --json --artifact /tmp/strling-checkpoint3-local.json
+            result: passed
+            details: The actual local profile produced semantically identical stdout and file artifacts with 21 passed operations, zero other result states, a valid evidence fingerprint, and dirty repository state accurately recorded for the pre-commit execution.
+          - check: Formatting, lint, governance, and patch integrity
+            command: ./strling format --check repository --json; ./strling lint repository --json; python3 tooling/governance.py --json; git diff --check
+            result: passed
+            details: Canonical formatting and static analysis, contained-change declarations, enforced architecture rules, and whitespace integrity passed without new suppression directives.
     - name: Documentation and example integrity
       status: planned
       evidence: []

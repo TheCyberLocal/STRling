@@ -151,9 +151,9 @@ The permanent root vocabulary is:
 ./strling generate [--check] [--json]
 ./strling contracts [--check] [--json]
 ./strling governance [--json]
-./strling check [component|all]
-./strling profile <local|pull-request|full|release> [component|all]
-./strling certify [component|all]
+./strling check [component|all] [--json] [--artifact path]
+./strling profile <local|pull-request|full|release> [component|all] [--json] [--artifact path]
+./strling certify [component|all] [--json] [--artifact path]
 ```
 
 The `policy.operation_registry` object in `toolchain.json` is the only
@@ -215,37 +215,50 @@ active contained task declares a commit-based diff range. The binding quality
 matrix continues to use canonical leaf `environment`, `build`, and `test`
 commands pending the dedicated CI-routing checkpoint.
 
-## Structured result contract
+## Structured certification artifact
 
-Every leaf operation and repository integrity hardgate produces an internal
-result with:
+Every leaf or repository operation produces one internal result containing its
+canonical operation ID, component, status, command and exit evidence, reason,
+capability state, formatter identity, tool/environment probes, and any nested
+validated structured evidence. Language-tool stdout is never scanned to invent
+a result state.
 
--   `operation`;
--   `component`;
--   `status`;
--   `command`, or null when nothing is configured;
--   `exit_code`, or null when nothing executes; and
--   `reason`, or null when no explanation is needed.
+A profile execution projects the exact ordered result sequence used for
+aggregation into a
+`governance/schemas/profile-certification-artifact.schema.json` version
+`1.0.0` artifact. Its `deterministic_evidence` contains:
 
-Profile results contain their ordered operation results and an overall exit code.
-The default console presentation is human-readable. JSON output is the stable
-machine interface; automation must use result fields and exit codes rather than
-parse prose emitted by language tools.
+-   repository commit identity and dirty state;
+-   profile ID, definition version, definition fingerprint, purpose, and network
+    policy;
+-   selected component scope;
+-   ordered operation and result IDs, status, command, tool evidence, structured
+    findings, waiver references, and unavailable or incomplete reasons; and
+-   aggregate status, exit code, operation count, and exact result-state counts.
 
-Append `--json` to any canonical quality command to receive one JSON object:
+The top-level `evidence_fingerprint` is the SHA-256 of canonical JSON for only
+that deterministic evidence. `execution_metadata.generated_at` identifies the
+execution instance but cannot change profile or evidence identity. Artifact
+construction validates the aggregate against the same result statuses used for
+process exit, validates the schema, and verifies the evidence fingerprint.
+
+For profile executions, `--json` writes this artifact to stdout.
+`--artifact path` writes the same validated object to the requested path and
+may be combined with JSON or human output. CI should use a path outside the
+tracked repository. Direct leaf-operation JSON retains the ordered operation
+result wrapper.
 
 ```text
-./strling check --json
 ./strling profile local --json
+./strling check --artifact /tmp/strling-pull-request.json
 ./strling test typescript --json
 ```
 
-The JSON object contains the requested operation, selected profile where
-applicable, overall status and exit code, ordered operation results, and the
-complete list of capabilities still marked `not_yet_configured` for profile
-commands. Language-tool output is retained for the human presentation but is
-not parsed to invent semantic results. Each
-leaf also contains its executable version-probe results.
+Without `--json`, profile output is a human summary rendered only from the
+completed artifact. It reports the profile, repository and component scope,
+aggregate result and counts, passed and failed operations, waived findings,
+unavailable or incomplete operations, and the status-specific next action.
+There is no independent summary aggregation path.
 
 ## Recorded transitional conditions
 
