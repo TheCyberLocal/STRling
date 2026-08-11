@@ -19,6 +19,7 @@ scope:
         - governance/templates/**
         - governance/waivers/**
         - strling
+        - tooling/lsp-server/package-lock.json
         - strling.ps1
         - toolchain.json
         - tooling/quality.py
@@ -38,8 +39,10 @@ scope:
         - governance/security.md
         - governance/schemas/security-policy.schema.json
         - governance/schemas/security-result.schema.json
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+    permitted_generated_changes:
+        - package-manager-lockfiles
+    expected_generated_outputs:
+        - package-manager-lockfiles
     required_verification_levels:
         - contract
         - unit
@@ -71,8 +74,9 @@ change_classification:
         evidence:
             - Extends the canonical quality hardgate architecture with repository-security operations and a semantic dependency boundary.
     generated_output_change:
-        level: none
-        evidence: []
+        level: compatible
+        evidence:
+            - Normalizes existing LSP lock metadata to the unchanged manifest dependency classification without changing any dependency or package version.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -118,8 +122,24 @@ checkpoints:
             result: passed
             details: Lock-complete roots, transitional unlocked ecosystems, network-dependent advisory evidence, missing local cargo-audit, and non-goals for SBOM, provenance, signing, publication credentials, and release delivery are explicit rather than certified.
     - name: Dependency and lock integrity
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Actual repository dependency integrity
+            command: python3 tooling/security.py integrity --json
+            result: passed
+            details: The deterministic local operation returned security.dependency-integrity with 24 passed checks, zero findings, an exact 1.0.0 engine identity, and explicit ecosystem, manifest, lock, and finding fields.
+          - check: Controlled dependency mutations
+            command: python3 -m unittest tooling.tests.test_security -v
+            result: passed
+            details: Seven tests passed, including valid npm state and rejection of a missing lock, manifest/lock mismatch, unmanaged manifest, malformed lock, and security-engine version drift, plus structural determinism.
+          - check: Existing lock inconsistency remediation
+            command: npm install --package-lock-only --ignore-scripts --offline in bounded temporary LSP state
+            result: passed
+            details: Native npm verification exposed stale LSP dependency classification; the lock now classifies vscode-languageclient and its transitive packages as development-only without changing any dependency or package version. Package identity metadata is outside dependency-integrity comparison and remained unchanged as required.
+          - check: Integrity contract and repository hardgates
+            command: Security-result schema validation; generated-artifact check; governance; contracts; formatting; static analysis; git diff --check
+            result: passed
+            details: The 24-check result validated against the structured schema; transitional lockfile generation remained visible; governance, contracts, Prettier, Ruff, suppression policy, and patch integrity passed.
     - name: Secret and workflow security
       status: planned
       evidence: []
@@ -135,4 +155,6 @@ checkpoints:
     - name: Security baseline readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 11fc5c737183b3ed25799c6fccf89360f48ac74a
+      subject: "docs(security): define baseline repository security policy"

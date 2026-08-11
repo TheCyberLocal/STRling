@@ -9,30 +9,287 @@
     "statuses": ["passed", "failed", "waived", "unavailable", "incomplete"],
     "blocking_statuses": ["failed", "unavailable", "incomplete"],
     "dependency_roots": [
-        {"id": "repository-npm", "ecosystem": "npm", "classification": "actively_governed", "usage": "tooling_only", "manifests": ["package.json"], "locks": ["package-lock.json"], "lock_policy": "required", "integrity_mode": "npm_lock_v3", "risk_mode": "npm_audit"},
-        {"id": "lsp-npm", "ecosystem": "npm", "classification": "actively_governed", "usage": "tooling_only", "manifests": ["tooling/lsp-server/package.json"], "locks": ["tooling/lsp-server/package-lock.json"], "lock_policy": "required", "integrity_mode": "npm_lock_v3", "risk_mode": "npm_audit"},
-        {"id": "typescript-npm", "ecosystem": "npm", "classification": "actively_governed", "usage": "runtime", "manifests": ["bindings/typescript/package.json"], "locks": ["bindings/typescript/package-lock.json"], "lock_policy": "required", "integrity_mode": "npm_lock_v3", "risk_mode": "npm_audit"},
-        {"id": "core-cargo", "ecosystem": "cargo", "classification": "actively_governed", "usage": "runtime", "manifests": ["core/Cargo.toml"], "locks": ["core/Cargo.lock"], "lock_policy": "required", "integrity_mode": "cargo_lock", "risk_mode": "cargo_audit"},
-        {"id": "rust-binding-cargo", "ecosystem": "cargo", "classification": "actively_governed", "usage": "runtime", "manifests": ["bindings/rust/Cargo.toml"], "locks": ["bindings/rust/Cargo.lock"], "lock_policy": "required", "integrity_mode": "cargo_lock", "risk_mode": "cargo_audit"},
-        {"id": "dart-pub", "ecosystem": "dart-pub", "classification": "actively_governed", "usage": "runtime", "manifests": ["bindings/dart/pubspec.yaml"], "locks": ["bindings/dart/pubspec.lock"], "lock_policy": "required", "integrity_mode": "presence_and_parse", "risk_mode": "unavailable"},
-        {"id": "php-composer", "ecosystem": "composer", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/php/composer.json"], "locks": ["bindings/php/composer.lock"], "lock_policy": "required", "integrity_mode": "composer_lock", "risk_mode": "unavailable"},
-        {"id": "ruby-bundler", "ecosystem": "bundler", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/ruby/Gemfile", "bindings/ruby/strling.gemspec"], "locks": ["bindings/ruby/Gemfile.lock"], "lock_policy": "required", "integrity_mode": "presence_and_parse", "risk_mode": "unavailable"},
-        {"id": "go-binding", "ecosystem": "go", "classification": "actively_governed", "usage": "runtime", "manifests": ["bindings/go/go.mod"], "locks": [], "lock_policy": "not_used_no_external_dependencies", "integrity_mode": "no_external_dependencies", "risk_mode": "no_dependencies"},
-        {"id": "swift-binding", "ecosystem": "swiftpm", "classification": "actively_governed", "usage": "runtime", "manifests": ["bindings/swift/Package.swift"], "locks": [], "lock_policy": "not_used_no_external_dependencies", "integrity_mode": "no_external_dependencies", "risk_mode": "no_dependencies"},
-        {"id": "c-system", "ecosystem": "system-c", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/c/Makefile"], "locks": [], "lock_policy": "not_supported", "integrity_mode": "inventory_only", "risk_mode": "unavailable"},
-        {"id": "cpp-cmake", "ecosystem": "cmake", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/cpp/CMakeLists.txt", "bindings/cpp/test/CMakeLists.txt"], "locks": [], "lock_policy": "not_supported", "integrity_mode": "inventory_only", "risk_mode": "unavailable"},
-        {"id": "csharp-nuget", "ecosystem": "nuget", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/csharp/src/STRling/STRling.csproj", "bindings/csharp/src/STRling.Cli/STRling.Cli.csproj", "bindings/csharp/tests/STRling.Tests/STRling.Tests.csproj"], "locks": [], "lock_policy": "transitional_missing", "integrity_mode": "inventory_only", "risk_mode": "unavailable"},
-        {"id": "fsharp-nuget", "ecosystem": "nuget", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/fsharp/src/STRling/STRling.fsproj", "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj", "bindings/fsharp/tests/STRling.Tests/STRling.Tests.fsproj", "bindings/fsharp/test/STRling.FSharp.Tests/STRling.FSharp.Tests.fsproj"], "locks": [], "lock_policy": "transitional_missing", "integrity_mode": "inventory_only", "risk_mode": "unavailable"},
-        {"id": "java-maven", "ecosystem": "maven", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/java/pom.xml"], "locks": [], "lock_policy": "transitional_no_transitive_lock", "integrity_mode": "direct_pins", "risk_mode": "unavailable"},
-        {"id": "kotlin-gradle", "ecosystem": "gradle", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/kotlin/build.gradle.kts"], "locks": [], "lock_policy": "transitional_no_dependency_lock", "integrity_mode": "direct_pins", "risk_mode": "unavailable"},
-        {"id": "python-binding", "ecosystem": "python", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/python/pyproject.toml", "bindings/python/requirements.txt"], "locks": [], "lock_policy": "transitional_missing", "integrity_mode": "inventory_only", "risk_mode": "unavailable"},
-        {"id": "lsp-python", "ecosystem": "python", "classification": "transitional", "usage": "tooling_only", "manifests": ["tooling/lsp-server/requirements.txt"], "locks": [], "lock_policy": "transitional_missing", "integrity_mode": "inventory_only", "risk_mode": "unavailable"},
-        {"id": "quality-python", "ecosystem": "python", "classification": "transitional", "usage": "tooling_only", "manifests": ["tooling/requirements-quality.txt"], "locks": [], "lock_policy": "transitional_exact_without_hashes", "integrity_mode": "exact_requirements", "risk_mode": "unavailable"},
-        {"id": "lua-luarocks", "ecosystem": "luarocks", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/lua/strling-template.rockspec"], "locks": [], "lock_policy": "not_supported", "integrity_mode": "inventory_only", "risk_mode": "unavailable"},
-        {"id": "perl-cpan", "ecosystem": "cpan", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/perl/Makefile.PL", "bindings/perl/dist.ini"], "locks": [], "lock_policy": "not_supported", "integrity_mode": "inventory_only", "risk_mode": "unavailable"},
-        {"id": "r-package", "ecosystem": "r", "classification": "transitional", "usage": "runtime", "manifests": ["bindings/r/DESCRIPTION"], "locks": [], "lock_policy": "transitional_missing", "integrity_mode": "inventory_only", "risk_mode": "unavailable"}
+        {
+            "id": "repository-npm",
+            "ecosystem": "npm",
+            "classification": "actively_governed",
+            "usage": "tooling_only",
+            "manifests": ["package.json"],
+            "locks": ["package-lock.json"],
+            "lock_policy": "required",
+            "integrity_mode": "npm_lock_v3",
+            "risk_mode": "npm_audit"
+        },
+        {
+            "id": "lsp-npm",
+            "ecosystem": "npm",
+            "classification": "actively_governed",
+            "usage": "tooling_only",
+            "manifests": ["tooling/lsp-server/package.json"],
+            "locks": ["tooling/lsp-server/package-lock.json"],
+            "lock_policy": "required",
+            "integrity_mode": "npm_lock_v3",
+            "risk_mode": "npm_audit"
+        },
+        {
+            "id": "typescript-npm",
+            "ecosystem": "npm",
+            "classification": "actively_governed",
+            "usage": "runtime",
+            "manifests": ["bindings/typescript/package.json"],
+            "locks": ["bindings/typescript/package-lock.json"],
+            "lock_policy": "required",
+            "integrity_mode": "npm_lock_v3",
+            "risk_mode": "npm_audit"
+        },
+        {
+            "id": "core-cargo",
+            "ecosystem": "cargo",
+            "classification": "actively_governed",
+            "usage": "runtime",
+            "manifests": ["core/Cargo.toml"],
+            "locks": ["core/Cargo.lock"],
+            "lock_policy": "required",
+            "integrity_mode": "cargo_lock",
+            "risk_mode": "cargo_audit"
+        },
+        {
+            "id": "rust-binding-cargo",
+            "ecosystem": "cargo",
+            "classification": "actively_governed",
+            "usage": "runtime",
+            "manifests": ["bindings/rust/Cargo.toml"],
+            "locks": ["bindings/rust/Cargo.lock"],
+            "lock_policy": "required",
+            "integrity_mode": "cargo_lock",
+            "risk_mode": "cargo_audit"
+        },
+        {
+            "id": "dart-pub",
+            "ecosystem": "dart-pub",
+            "classification": "actively_governed",
+            "usage": "runtime",
+            "manifests": ["bindings/dart/pubspec.yaml"],
+            "locks": ["bindings/dart/pubspec.lock"],
+            "lock_policy": "required",
+            "integrity_mode": "presence_and_parse",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "php-composer",
+            "ecosystem": "composer",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": ["bindings/php/composer.json"],
+            "locks": ["bindings/php/composer.lock"],
+            "lock_policy": "required",
+            "integrity_mode": "composer_lock",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "ruby-bundler",
+            "ecosystem": "bundler",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": [
+                "bindings/ruby/Gemfile",
+                "bindings/ruby/strling.gemspec"
+            ],
+            "locks": ["bindings/ruby/Gemfile.lock"],
+            "lock_policy": "required",
+            "integrity_mode": "presence_and_parse",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "go-binding",
+            "ecosystem": "go",
+            "classification": "actively_governed",
+            "usage": "runtime",
+            "manifests": ["bindings/go/go.mod"],
+            "locks": [],
+            "lock_policy": "not_used_no_external_dependencies",
+            "integrity_mode": "no_external_dependencies",
+            "risk_mode": "no_dependencies"
+        },
+        {
+            "id": "swift-binding",
+            "ecosystem": "swiftpm",
+            "classification": "actively_governed",
+            "usage": "runtime",
+            "manifests": ["bindings/swift/Package.swift"],
+            "locks": [],
+            "lock_policy": "not_used_no_external_dependencies",
+            "integrity_mode": "no_external_dependencies",
+            "risk_mode": "no_dependencies"
+        },
+        {
+            "id": "c-system",
+            "ecosystem": "system-c",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": ["bindings/c/Makefile"],
+            "locks": [],
+            "lock_policy": "not_supported",
+            "integrity_mode": "inventory_only",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "cpp-cmake",
+            "ecosystem": "cmake",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": [
+                "bindings/cpp/CMakeLists.txt",
+                "bindings/cpp/test/CMakeLists.txt"
+            ],
+            "locks": [],
+            "lock_policy": "not_supported",
+            "integrity_mode": "inventory_only",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "csharp-nuget",
+            "ecosystem": "nuget",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": [
+                "bindings/csharp/src/STRling/STRling.csproj",
+                "bindings/csharp/src/STRling.Cli/STRling.Cli.csproj",
+                "bindings/csharp/tests/STRling.Tests/STRling.Tests.csproj"
+            ],
+            "locks": [],
+            "lock_policy": "transitional_missing",
+            "integrity_mode": "inventory_only",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "fsharp-nuget",
+            "ecosystem": "nuget",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": [
+                "bindings/fsharp/src/STRling/STRling.fsproj",
+                "bindings/fsharp/src/STRling.FSharp/STRling.FSharp.fsproj",
+                "bindings/fsharp/tests/STRling.Tests/STRling.Tests.fsproj",
+                "bindings/fsharp/test/STRling.FSharp.Tests/STRling.FSharp.Tests.fsproj"
+            ],
+            "locks": [],
+            "lock_policy": "transitional_missing",
+            "integrity_mode": "inventory_only",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "java-maven",
+            "ecosystem": "maven",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": ["bindings/java/pom.xml"],
+            "locks": [],
+            "lock_policy": "transitional_no_transitive_lock",
+            "integrity_mode": "direct_pins",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "kotlin-gradle",
+            "ecosystem": "gradle",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": ["bindings/kotlin/build.gradle.kts"],
+            "locks": [],
+            "lock_policy": "transitional_no_dependency_lock",
+            "integrity_mode": "direct_pins",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "python-binding",
+            "ecosystem": "python",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": [
+                "bindings/python/pyproject.toml",
+                "bindings/python/requirements.txt"
+            ],
+            "locks": [],
+            "lock_policy": "transitional_missing",
+            "integrity_mode": "inventory_only",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "lsp-python",
+            "ecosystem": "python",
+            "classification": "transitional",
+            "usage": "tooling_only",
+            "manifests": ["tooling/lsp-server/requirements.txt"],
+            "locks": [],
+            "lock_policy": "transitional_missing",
+            "integrity_mode": "inventory_only",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "quality-python",
+            "ecosystem": "python",
+            "classification": "transitional",
+            "usage": "tooling_only",
+            "manifests": ["tooling/requirements-quality.txt"],
+            "locks": [],
+            "lock_policy": "transitional_exact_without_hashes",
+            "integrity_mode": "exact_requirements",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "lua-luarocks",
+            "ecosystem": "luarocks",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": ["bindings/lua/strling-template.rockspec"],
+            "locks": [],
+            "lock_policy": "not_supported",
+            "integrity_mode": "inventory_only",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "perl-cpan",
+            "ecosystem": "cpan",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": [
+                "bindings/perl/Makefile.PL",
+                "bindings/perl/dist.ini"
+            ],
+            "locks": [],
+            "lock_policy": "not_supported",
+            "integrity_mode": "inventory_only",
+            "risk_mode": "unavailable"
+        },
+        {
+            "id": "r-package",
+            "ecosystem": "r",
+            "classification": "transitional",
+            "usage": "runtime",
+            "manifests": ["bindings/r/DESCRIPTION"],
+            "locks": [],
+            "lock_policy": "transitional_missing",
+            "integrity_mode": "inventory_only",
+            "risk_mode": "unavailable"
+        }
     ],
-    "manifest_names": ["package.json", "Cargo.toml", "go.mod", "pom.xml", "build.gradle", "build.gradle.kts", "pyproject.toml", "requirements.txt", "composer.json", "pubspec.yaml", "Gemfile", "Makefile.PL", "dist.ini", "DESCRIPTION", "Package.swift"],
+    "manifest_names": [
+        "package.json",
+        "Cargo.toml",
+        "go.mod",
+        "pom.xml",
+        "build.gradle",
+        "build.gradle.kts",
+        "pyproject.toml",
+        "requirements.txt",
+        "composer.json",
+        "pubspec.yaml",
+        "Gemfile",
+        "Makefile.PL",
+        "dist.ini",
+        "DESCRIPTION",
+        "Package.swift"
+    ],
     "manifest_suffixes": [".csproj", ".fsproj", ".gemspec", ".rockspec"],
     "dependency_rules": {
         "prohibited_specifiers": ["*", "latest", "main", "master", "stable"],
@@ -42,11 +299,29 @@
     "vulnerability_policy": {
         "network_mode": "certification_only",
         "blocking_severities": ["high", "critical"],
-        "advisory_sources": {"npm": "npm-registry", "cargo": "rustsec"}
+        "advisory_sources": { "npm": "npm-registry", "cargo": "rustsec" }
     },
     "license_policy": {
-        "permitted": ["0BSD", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "CC0-1.0", "ISC", "MIT", "MPL-2.0", "Python-2.0", "Unlicense", "Zlib"],
-        "prohibited": ["AGPL-1.0-only", "AGPL-1.0-or-later", "AGPL-3.0-only", "AGPL-3.0-or-later", "SSPL-1.0"],
+        "permitted": [
+            "0BSD",
+            "Apache-2.0",
+            "BSD-2-Clause",
+            "BSD-3-Clause",
+            "CC0-1.0",
+            "ISC",
+            "MIT",
+            "MPL-2.0",
+            "Python-2.0",
+            "Unlicense",
+            "Zlib"
+        ],
+        "prohibited": [
+            "AGPL-1.0-only",
+            "AGPL-1.0-or-later",
+            "AGPL-3.0-only",
+            "AGPL-3.0-or-later",
+            "SSPL-1.0"
+        ],
         "unknown_is_blocking": true
     },
     "workflow_policy": {

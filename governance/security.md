@@ -22,17 +22,17 @@ time-varying evidence and are excluded from structural determinism comparisons.
 
 The result states are:
 
-- passed: every configured check completed, its evidence was usable, and it
-  produced no blocking finding.
-- failed: at least one unwaived blocking finding or malformed governed input
-  exists.
-- waived: the only otherwise-blocking findings are covered by exact, accepted,
-  unexpired governance waivers.
-- unavailable: a required scanner, package manager, advisory service, or local
-  dependency inventory could not be reached or executed.
-- incomplete: configured coverage did not finish or could not produce the
-  evidence required to decide pass or fail. Malformed scanner output is
-  incomplete, never passed.
+-   passed: every configured check completed, its evidence was usable, and it
+    produced no blocking finding.
+-   failed: at least one unwaived blocking finding or malformed governed input
+    exists.
+-   waived: the only otherwise-blocking findings are covered by exact, accepted,
+    unexpired governance waivers.
+-   unavailable: a required scanner, package manager, advisory service, or local
+    dependency inventory could not be reached or executed.
+-   incomplete: configured coverage did not finish or could not produce the
+    evidence required to decide pass or fail. Malformed scanner output is
+    incomplete, never passed.
 
 failed, unavailable, and incomplete are hardgate failures. A mixed operation
 uses the most severe state in that order. waived is successful only for the
