@@ -11,6 +11,7 @@ from tooling.public_contracts import (
     compare_schema_value,
     declaration_units,
     extract_c_header,
+    extract_rust_source_boundary,
     load_registry,
     parse_go_doc,
     process_surface,
@@ -32,6 +33,18 @@ def c_surface() -> dict[str, object]:
     }
 
 
+def rust_kernel_surface() -> dict[str, object]:
+    return {
+        "id": "test-kernel-api",
+        "component": "core",
+        "source_locations": ["core/src/lib.rs", "core/src/kernel.rs"],
+        "snapshot_path": "snapshots/kernel.json",
+        "comparison": "symbol-signatures",
+        "enforcement": "enforced",
+        "extraction": {"mechanism": "rust-source-boundary"},
+    }
+
+
 class PublicContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
@@ -43,6 +56,26 @@ class PublicContractTests(unittest.TestCase):
 
     def write_header(self, text: str) -> None:
         (self.root / "include/api.h").write_text(text, encoding="utf-8")
+
+    def write_kernel(self, profile_type: str = "Option<&TargetProfile>") -> None:
+        source = self.root / "core/src"
+        source.mkdir(parents=True, exist_ok=True)
+        (source / "lib.rs").write_text(
+            "pub mod kernel;\n"
+            "pub use kernel::{compile, KernelCompileError, KernelStage};\n",
+            encoding="utf-8",
+        )
+        (source / "kernel.rs").write_text(
+            'pub const KERNEL_COMPILER_ID: &str = \\"test\\";\n'
+            "pub enum KernelStage { ContractValidation }\n"
+            "pub enum KernelCompileError { InvalidRequest }\n"
+            "pub fn compile(\n"
+            "    request: &CompileRequest,\n"
+            f"    target_profile: {profile_type},\n"
+            ") -> Result<CompileResult, KernelCompileError> { unimplemented!() }\n"
+            "fn private_helper() {}\n",
+            encoding="utf-8",
+        )
 
     def test_positive_regeneration_is_exact_and_check_is_non_mutating(self) -> None:
         self.write_header("int strling_parse(const char* text);\n")
@@ -234,6 +267,38 @@ type Flags struct {
             {"type": "string", "description": "new"},
         )
         self.assertEqual(comparison.classification, "compatible")
+
+    def test_rust_kernel_source_boundary_is_exact_and_excludes_private_code(
+        self,
+    ) -> None:
+        self.write_kernel()
+        snapshot = extract_rust_source_boundary(rust_kernel_surface(), self.root)
+        symbols = snapshot["symbols"]
+        self.assertIsInstance(symbols, dict)
+        self.assertEqual(
+            {
+                "const:KERNEL_COMPILER_ID",
+                "enum:KernelCompileError",
+                "enum:KernelStage",
+                "fn:compile",
+                "module:kernel",
+                "reexport:kernel",
+            },
+            set(symbols),
+        )
+        self.assertFalse(any("private_helper" in key for key in symbols))
+
+    def test_rust_kernel_signature_drift_fails_as_breaking(self) -> None:
+        self.write_kernel()
+        surface = rust_kernel_surface()
+        self.assertEqual(
+            "passed", process_surface(surface, root=self.root, check=False).status
+        )
+        self.write_kernel("&TargetProfile")
+        result = process_surface(surface, root=self.root, check=True)
+        self.assertEqual("failed", result.status)
+        self.assertEqual("breaking", result.classification)
+        self.assertIn("changed fn:compile", result.findings)
 
 
 if __name__ == "__main__":

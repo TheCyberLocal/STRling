@@ -170,6 +170,68 @@ def extract_c_header(surface: Mapping[str, object], root: Path) -> dict[str, obj
     return snapshot(str(surface["id"]), "declarations", symbols)
 
 
+def _balanced_rust_block(text: str, opening: int, description: str) -> int:
+    depth = 0
+    for index in range(opening, len(text)):
+        character = text[index]
+        if character == "{":
+            depth += 1
+        elif character == "}":
+            depth -= 1
+            if depth == 0:
+                return index + 1
+    raise ContractError(f"unbalanced Rust {description}")
+
+
+def extract_rust_source_boundary(
+    surface: Mapping[str, object], root: Path
+) -> dict[str, object]:
+    locations = surface["source_locations"]
+    assert isinstance(locations, list) and len(locations) == 2
+    try:
+        lib = (root / str(locations[0])).read_text(encoding="utf-8")
+        kernel = (root / str(locations[1])).read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ContractError(f"cannot read Rust kernel boundary source: {exc}") from exc
+
+    symbols: dict[str, str] = {}
+    if re.search(r"(?m)^pub mod kernel;\s*$", lib):
+        symbols["module:kernel"] = "pub mod kernel;"
+    reexport = re.search(r"pub use kernel::\{([^}]+)\};", lib, re.DOTALL)
+    if reexport is not None:
+        symbols["reexport:kernel"] = canonical_space(reexport.group(0))
+
+    for match in re.finditer(
+        r"(?m)^pub const ([A-Z][A-Z0-9_]*):\s*([^;]+);\s*$", kernel
+    ):
+        symbols[f"const:{match.group(1)}"] = canonical_space(match.group(0))
+
+    for match in re.finditer(r"(?m)^pub enum ([A-Za-z_][A-Za-z0-9_]*)\s*\{", kernel):
+        opening = kernel.find("{", match.start())
+        end = _balanced_rust_block(kernel, opening, f"enum {match.group(1)}")
+        symbols[f"enum:{match.group(1)}"] = canonical_space(kernel[match.start() : end])
+
+    for match in re.finditer(r"(?m)^pub fn ([A-Za-z_][A-Za-z0-9_]*)\s*\(", kernel):
+        opening = kernel.find("{", match.end())
+        if opening < 0:
+            raise ContractError(f"Rust public function {match.group(1)} has no body")
+        symbols[f"fn:{match.group(1)}"] = canonical_space(
+            kernel[match.start() : opening]
+        )
+
+    required = {
+        "module:kernel",
+        "reexport:kernel",
+        "enum:KernelCompileError",
+        "enum:KernelStage",
+        "fn:compile",
+    }
+    missing = sorted(required - set(symbols))
+    if missing:
+        raise ContractError(f"Rust kernel boundary is missing {missing}")
+    return snapshot(str(surface["id"]), "rust-source-boundary", symbols)
+
+
 def shell_function(text: str, name: str) -> str:
     match = re.search(rf"(?m)^{re.escape(name)}\(\)\s*\{{\s*$", text)
     if not match:
@@ -650,6 +712,8 @@ def extract_surface(
     mechanism = str(extraction["mechanism"])
     if mechanism == "c-header-declarations":
         return extract_c_header(surface, root)
+    if mechanism == "rust-source-boundary":
+        return extract_rust_source_boundary(surface, root)
     if mechanism == "cli-help-parser":
         return extract_cli(surface, root)
     if mechanism == "go-doc-declarations":

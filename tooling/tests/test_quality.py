@@ -562,6 +562,12 @@ class QualityRoutingTests(unittest.TestCase):
             ["python3", "tooling/security.py", "integrity", "--json"],
             toolchain.operation("security_dependency_integrity")["command"],
         )
+        local_test = next(
+            member for member in local_members if member["operation"] == "test"
+        )
+        self.assertEqual(["core"], local_test["targets"])
+        self.assertEqual("1.2.0", toolchain.profile("local")["definition_version"])
+
         self.assertEqual(
             ["python3", "tooling/core_contract_validation.py"],
             toolchain.operation("core_contracts_check")["command"],

@@ -443,6 +443,38 @@
             "retirement_condition": "Add a non-executing Ripper AST extractor for shipped files, normalize singleton/instance methods and keyword parameters, and pass visibility and metaprogramming-gap tests."
         },
         {
+            "id": "strling-kernel",
+            "ecosystem": "Rust (embeddable kernel)",
+            "component": "core",
+            "kind": "host-api",
+            "source_locations": ["core/src/lib.rs", "core/src/kernel.rs"],
+            "extraction": {
+                "mechanism": "rust-source-boundary",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "strling-kernel"
+                ],
+                "normalization": [
+                    "extract explicit kernel module and root re-export",
+                    "extract public facade constants, enums, and function signatures",
+                    "collapse declaration whitespace and sort symbol identities"
+                ],
+                "exclusions": [
+                    "public domain and certified-stage modules outside core/src/kernel.rs",
+                    "crate-private compiler and capability orchestration",
+                    "function bodies and implementation-only helpers",
+                    "published binding and package APIs"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/strling-kernel.json",
+            "authority": "compatibility-baseline",
+            "comparison": "symbol-signatures",
+            "enforcement": "enforced",
+            "activation_condition": "Active after source extraction, private-item exclusion, signature-drift, deterministic regeneration, and facade architecture tests pass."
+        },
+        {
             "id": "rust-public-api",
             "ecosystem": "Rust",
             "component": "rust",

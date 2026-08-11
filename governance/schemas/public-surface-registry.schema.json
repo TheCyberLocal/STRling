@@ -68,6 +68,7 @@
                         "r-namespace-exports",
                         "ruby-ast-api",
                         "rust-public-api",
+                        "rust-source-boundary",
                         "swift-symbolgraph",
                         "typescript-declarations",
                         "typescript-package-entrypoints"

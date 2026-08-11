@@ -175,7 +175,8 @@ instead of shallow pass-producing checks.
 The ordered `policy.profiles` definitions are execution policies over that
 registry:
 
--   `local` is the fast, offline developer baseline.
+-   `local` is the fast, offline developer baseline and runs the enforced
+    canonical Rust-kernel test suite.
 -   `pull-request` preserves the local guarantees and adds deterministic merge
     gates.
 -   `full` is the broad repository envelope and may contain network-backed or

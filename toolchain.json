@@ -170,7 +170,7 @@
         },
         "profiles": {
             "local": {
-                "definition_version": "1.1.0",
+                "definition_version": "1.2.0",
                 "purpose": "Fast deterministic developer feedback.",
                 "network_policy": "offline",
                 "operations": [
@@ -222,6 +222,10 @@
                     {
                         "operation": "typecheck",
                         "targets": ["lsp", "core", "typescript"]
+                    },
+                    {
+                        "operation": "test",
+                        "targets": ["core"]
                     }
                 ]
             },

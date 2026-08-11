@@ -9,16 +9,25 @@ scope:
     allowed_paths:
         - core/**
         - docs/architecture.md
+        - docs/toolchains.md
         - docs/migration/compiler-kernel-boundary.md
         - docs/migration/ledger.md
         - docs/migration/records/compiler-kernel-boundary.yaml
         - governance/architecture-rules.json
         - governance/change-control.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - governance/schemas/public-surface-registry.schema.json
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
         - tooling/tests/test_compiler_boundary_architecture.py
+        - tooling/public_contracts.py
         - tooling/tests/test_diagnostic_architecture.py
         - tooling/tests/test_portability_architecture.py
+        - tooling/tests/test_public_contracts.py
+        - toolchain.json
+        - tooling/tests/test_quality.py
     forbidden_paths:
         - bindings/**
         - package.json
@@ -42,15 +51,26 @@ scope:
         - core/tests/compiler_boundary.rs
         - core/tests/compiler_boundary_orchestration.rs
         - core/tests/compiler_boundary_resources.rs
+        - docs/toolchains.md
         - core/tests/compiler_boundary_properties.rs
         - docs/migration/compiler-kernel-boundary.md
         - docs/migration/records/compiler-kernel-boundary.yaml
         - governance/change-control.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - governance/schemas/public-surface-registry.schema.json
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
+        - tooling/public_contracts.py
+        - toolchain.json
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_public_contracts.py
         - tooling/tests/test_compiler_boundary_architecture.py
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+    permitted_generated_changes:
+        - public-contract-snapshots
+    expected_generated_outputs:
+        - public-contract-snapshots
     required_verification_levels:
         - contract
         - unit
@@ -69,8 +89,9 @@ change_classification:
         affected_surfaces:
             - strling-kernel
     schema_change:
-        level: none
-        evidence: []
+        level: additive
+        evidence:
+            - The governance-only public-surface registry schema admits the deterministic rust-source-boundary extractor mechanism; canonical compiler protocol schemas are unchanged.
         affected_surfaces: []
     diagnostic_change:
         level: additive
@@ -85,8 +106,9 @@ change_classification:
             - Future adapters gain one inward dependency boundary over the existing certified kernel stages.
             - Mechanical fitness rejects filesystem, environment, network, runtime probing, frontend, emitter, binding, CLI, LSP, editor, and adapter dependencies from the facade.
     generated_output_change:
-        level: none
-        evidence: []
+        level: additive
+        evidence:
+            - The authoritative public-contract generator adds the enforced strling-kernel facade snapshot.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -142,8 +164,16 @@ checkpoints:
             result: passed
             details: Four valid-generation seeds produced 256 deterministic source-less requests; profile seed 0x50524f46494c4501 produced 64 target-profile differential cases with invariant target-neutral evidence; malformed seed 0x4d414c464f524d01 produced 256 typed rejections; resource seed 0x5245534f55524301 produced 32 whole-result exhaustion cases; four fuzz seeds produced 512 serialized mutation cases, of which 64 validated and compiled and 448 returned ContractError. All public calls were panic-contained, requests and profiles remained equal to clones, all results self-validated, the facade/global-state mutation denylist covered 22 markers, and unexplained failures were zero.
     - name: Integration and hardgate certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical profile routing, enforced facade contract, and architecture hardgates
+            command: python3 -m unittest tooling.tests.test_quality tooling.tests.test_profile_certification tooling.tests.test_governance tooling.tests.test_public_contracts tooling.tests.test_compiler_boundary_architecture && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/core_contract_validation.py && python3 tooling/architecture_fitness.py && python3 tooling/governance.py && git diff --check
+            result: passed
+            details: Local profile definition 1.2.0 adds the existing enforced test operation for core; pull-request, full, and release already include that same operation, so every canonical profile now executes all facade, orchestration, resource, property, and fuzz-smoke tests without a parallel runner. The enforced non-published strling-kernel source snapshot locks the root re-export, facade signature, typed errors/stages, diagnostic identities, and hard limits; seventeen public-contract unit tests include private-code exclusion and breaking signature mutation.
+          - check: Truthful local profile aggregation
+            command: ./strling profile local
+            result: passed
+            details: The profile executed 23 operations, of which 17 passed, zero failed, and six were reported UNAVAILABLE because installed Ruff 0.16.2 does not satisfy governed 0.15.21. test@core, security integrity/content, contracts, generated integrity, governance, documentation, Rust formatting/lint/typecheck, LSP/TypeScript typecheck, and TypeScript formatting passed. No profile or security semantics were weakened.
     - name: Completion and readiness
       status: planned
       evidence: []

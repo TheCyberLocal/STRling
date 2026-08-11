@@ -1,0 +1,25 @@
+{
+    "format": "rust-source-boundary",
+    "snapshot_version": 1,
+    "surface": "strling-kernel",
+    "symbols": {
+        "const:KERNEL_COMPILER_ID": "pub const KERNEL_COMPILER_ID: &str = \"strling_kernel\";",
+        "const:KERNEL_COMPILER_VERSION": "pub const KERNEL_COMPILER_VERSION: &str = \"0.1.0\";",
+        "const:MAX_KERNEL_DIAGNOSTICS": "pub const MAX_KERNEL_DIAGNOSTICS: usize = MAX_PIPELINE_DIAGNOSTICS;",
+        "const:MAX_KERNEL_SEMANTIC_DEPTH": "pub const MAX_KERNEL_SEMANTIC_DEPTH: usize = MAX_PIPELINE_SEMANTIC_DEPTH;",
+        "const:MAX_KERNEL_SEMANTIC_NODES": "pub const MAX_KERNEL_SEMANTIC_NODES: usize = MAX_PIPELINE_SEMANTIC_NODES;",
+        "const:MAX_REQUEST_CONTRACT_BYTES": "pub const MAX_REQUEST_CONTRACT_BYTES: usize = 8_388_608;",
+        "const:MAX_TARGET_PROFILE_BYTES": "pub const MAX_TARGET_PROFILE_BYTES: usize = 1_048_576;",
+        "const:PORTABILITY_INCOMPLETE_DIAGNOSTIC": "pub const PORTABILITY_INCOMPLETE_DIAGNOSTIC: &str = \"STRL-PORTABILITY-0001\";",
+        "const:RESOURCE_EXHAUSTED_DIAGNOSTIC": "pub const RESOURCE_EXHAUSTED_DIAGNOSTIC: &str = \"STRL-PROTOCOL-0003\";",
+        "const:SUPPORTED_SPECIFICATION_VERSION": "pub const SUPPORTED_SPECIFICATION_VERSION: &str = \"1.0-draft.1\";",
+        "const:TARGET_ARTIFACT_UNAVAILABLE_DIAGNOSTIC": "pub const TARGET_ARTIFACT_UNAVAILABLE_DIAGNOSTIC: &str = \"STRL-PROTOCOL-0005\";",
+        "const:UNSUPPORTED_FRONTEND_DIAGNOSTIC": "pub const UNSUPPORTED_FRONTEND_DIAGNOSTIC: &str = \"STRL-PROTOCOL-0002\";",
+        "const:UNSUPPORTED_SPECIFICATION_DIAGNOSTIC": "pub const UNSUPPORTED_SPECIFICATION_DIAGNOSTIC: &str = \"STRL-PROTOCOL-0004\";",
+        "enum:KernelCompileError": "pub enum KernelCompileError { InvalidRequest(ValidationErrors), UnsupportedContractVersion(ContractVersion), TargetProfileRequired { expected: Box<TargetProfileReference>, }, UnexpectedTargetProfile, InvalidTargetProfile(ValidationErrors), TargetProfileMismatch { expected: Box<TargetProfileReference>, actual: Box<TargetProfileReference>, }, StageFailure { stage: KernelStage, message: String, }, InvalidResult(ValidationErrors), }",
+        "enum:KernelStage": "pub enum KernelStage { ContractValidation, TargetProfileEvidence, CompilerIdentity, CanonicalSemanticPipeline, TargetAwarePipeline, ResultProjection, }",
+        "fn:compile": "pub fn compile( request: &CompileRequest, target_profile: Option<&TargetProfile>, ) -> Result<CompileResult, KernelCompileError>",
+        "module:kernel": "pub mod kernel;",
+        "reexport:kernel": "pub use kernel::{compile, KernelCompileError, KernelStage};"
+    }
+}
