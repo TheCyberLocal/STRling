@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical structured diagnostic generation
-status: in_progress
+status: complete
 objective: Convert certified normalized Semantic IR, foundational facts, structural facts, and semantic safety evidence into deterministic target-neutral structured compiler diagnostics without changing Semantic IR, applying rewrites, or beginning target, portability, emission, parser, binding, Simply, or editor migrations.
 scope:
     diff:
@@ -40,6 +40,7 @@ scope:
         - core/tests/diagnostic_generation_properties.rs
         - core/tests/diagnostic_safety_mapping.rs
         - docs/migration/diagnostic-generation.md
+        - docs/migration/ledger.md
         - docs/migration/records/diagnostic-generation.yaml
         - governance/change-control.json
         - spec/contracts/1.0/examples/diagnostic/semantic-safety-warning.json
@@ -139,15 +140,23 @@ checkpoints:
             result: passed
             details: Four reproducible seeds generated 256 programs and 189 diagnostics with zero failures across determinism, evidence integrity, finding correspondence, uncertainty preservation, source honesty, and input immutability; the canonical document validates against the normative schema.
     - name: Compiler protocol and hardgate integration
-      status: in_progress
+      status: passed
       evidence:
           - check: Target-neutral private pipeline and architecture fitness
             command: cargo test --manifest-path core/Cargo.toml compiler_pipeline && python3 -m unittest tooling.tests.test_core_contracts tooling.tests.test_diagnostic_architecture
             result: passed
             details: The crate-private pipeline returns validated CompileResult diagnostics without portability or artifacts, and controlled target, planner, binding, editor, and missing-prerequisite mutations fail.
+          - check: Committed repository certification
+            command: ./strling check --json && ./strling certify --json
+            result: passed
+            details: From committed checkpoint-six state, check returned 40 passing results and certify returned 42; rustfmt, warnings-denied Clippy, check, build, all 153 kernel tests, 11 schema mappings, 63 fixtures, 89 focused governance and quality tests, and the 19-suite/963-test TypeScript baseline passed.
     - name: Completion and target-aware diagnostic readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Completion record and bounded carry-forward
+            command: ./strling governance && git diff --check
+            result: passed
+            details: The completion record and ledger document stage ownership, five mappings, severity and uncertainty policy, evidence and source guarantees, descriptive remediation, proven properties, unchanged product behavior, explicit exclusions, and target-aware readiness.
 commits:
     - sha: 890bd71e95f028e18bd5f3cf4a3255b94b810667
       subject: "docs(core): define canonical diagnostic generation policy"
@@ -159,3 +168,38 @@ commits:
       subject: "feat(core): attach diagnostic evidence and remediation guidance"
     - sha: 71e0e247fce90934631ea56a4b9743603ea05b84
       subject: "test(core): certify structured diagnostic generation"
+    - sha: 107c612c1317bfa47aebc1a59f08750ddf967bf1
+      subject: "ci(core): certify canonical diagnostics"
+completion:
+    accomplished:
+        - Added diagnostic_generation::generate_diagnostics(&SemanticProgram, &SemanticFacts, &StructuralFacts, &SafetyAnalysis) as the pure owner of target-neutral compiler communication after certified safety evidence, with structured generation errors and no mutation or rediscovery of safety conditions.
+        - Added stable mappings STRL-SAFETY-0001 from unbounded_nullable_repetition, STRL-SAFETY-0002 from unbounded_indeterminate_progress, STRL-SAFETY-0003 from nested_repetition_overlap, STRL-SAFETY-0004 from repeated_alternation_overlap, and STRL-SAFETY-0005 from repetition_follower_overlap.
+        - Defined canonical compiler-policy severity as Warning for codes 0001, 0003, 0004, and 0005 and Info for indeterminate-progress code 0002. Severity communicates target-neutral actionability; it is independent of finding identity and evidence confidence and does not claim exploitability, runtime complexity, universal vulnerability, or target-engine impact.
+        - Retained primary and contributing NodeIds, structural relationship identity, typed SafetyEvidence, and canonical SourceOrigin provenance beside every generated contract diagnostic. Source projection selects the smallest honest half-open UTF-8 byte span, uses outer repetition or repeated region as primary, orders inner repetitions, branches, and followers as related evidence, and never merges discontiguous origins.
+        - Added deterministic messages plus Note and Help advice for requiring progress, making progress explicit or bounding repetition, removing ambiguous nested partitions, narrowing overlapping alternatives, and separating repeated content from competing follower input. Fixes and text edits remain absent; no atomic or possessive target syntax is recommended.
+        - Added canonical sorting, equivalent-evidence deduplication, and stable zero-based occurrence ordinals assigned only after sorting by durable diagnostic and semantic evidence identity. Identical inputs and evidence produce identical diagnostics and occurrence IDs without randomness, clocks, or traversal counters.
+        - Typed safety uncertainty produces no positive safety diagnostic and no informational noise at this stage. Unknown overlap, unsupported Unicode or property algebra, wildcard exclusions, case-folding uncertainty, saturated comparison evidence, and other SafetyUncertainty records remain preserved in SafetyAnalysis.
+        - Added a crate-private compiler pipeline that executes normalization, foundational analysis, structural analysis, safety analysis, and diagnostic generation, then returns a validated successful CompileResult with complete semantics and analysis but no portability plan or target artifact.
+    verified:
+        - All 153 canonical kernel tests passed with rustfmt, warnings-denied Clippy, warnings-denied cargo check, all-target build coverage, diagnostic fixtures, evidence tests, pipeline tests, and all prior kernel regressions.
+        - Four reproducible seeds (0x444941475f505231, 0x9e3779b97f4a7c15, 0xd1b54a32d192ed03, and 0x94d049bb133111eb) generated 256 programs and 189 diagnostics, including 34 uncertainty-only programs, with zero failures across determinism, occurrence stability, evidence integrity, finding correspondence, no false promotion, source honesty, and input immutability.
+        - Canonical contract validation passed 11 schemas, 30 positive fixtures, 33 negative fixtures, 9 diagnostic documents, and 63 mapped kernel fixtures; exact structured output covers source-backed, source-less, multibyte, discontiguous, duplicate, related-location, and independent-occurrence cases.
+        - Twenty-one controlled diagnostic architecture tests and 89 focused governance and quality tests passed. Injected target, planner, binding, editor, portability, emitter, frontend, runtime-state, raw-source, engine-specific, and missing-prerequisite dependencies fail.
+        - Repository formatting, hygiene, lint, all-language typecheck, generation, contracts, governance, architecture fitness, frozen baseline validation, check with 40 results, certify with 42 results, TypeScript build/typecheck and all 19 suites with 963 tests, patch integrity, and committed clean-tree verification passed.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - The internal canonical Rust kernel now generates certified structured target-neutral safety diagnostics and can project them into CompileResult without target emission.
+        - Canonical contract mapping and architecture fitness now require diagnostic-stage and pipeline ownership and reject prohibited dependencies.
+    preserved_behavior:
+        - Grammar and parser behavior, existing compilers and runtimes, target capability and portability decisions, target lowering and regex emission, public package APIs, package versions, bindings, Simply, LSP/editor presentation, and published artifacts remain unchanged.
+        - SemanticProgram, SemanticFacts, StructuralFacts, and SafetyAnalysis remain immutable inputs; diagnostic generation proposes no edits and applies no rewrites.
+    transitional_architecture:
+        - The compiler pipeline remains crate-private because exposing a product compilation API or migrating callers is separately governed work.
+        - Target-aware severity, capability diagnostics, portability decisions, and target-specific remediation remain outside this target-neutral stage.
+    deferred_work:
+        - Target capability diagnostics, portability diagnostics and decisions, automatic rewrites, target-specific remediation, target lowering, emission, parser migration, binding migration, Simply migration, and LSP/editor presentation migration are not implemented.
+        - Begin target-aware semantic capability modeling and portability reasoning while preserving the target-neutral safety and diagnostic layers.
+readiness:
+    status: READY
+    next_task: Begin target-aware semantic capability modeling and portability reasoning while preserving the target-neutral safety and diagnostic layers.
+    rationale: Stable diagnostic identity, canonical severity, exact semantic evidence, honest source projection, descriptive remediation, deterministic occurrence identity, typed uncertainty preservation, CompileResult projection, property certification, contract validation, architecture fitness, and unchanged product behavior leave no known blocker for the next contained target-aware modeling task.

@@ -1380,3 +1380,114 @@ certified semantic and safety evidence into structured compiler diagnostics and
 remediation metadata, preserve stable identity paths and uncertainty, and keep
 target-specific behavior outside semantic safety analysis. The canonical
 safety stage is `READY` for that work.
+
+## Canonical structured diagnostic generation
+
+The canonical Rust kernel now owns a dedicated target-neutral communication
+stage after semantic safety analysis:
+
+```text
+SemanticProgram
+  -> normalize
+  -> analyze
+  -> analyze_structure
+  -> analyze_safety
+  -> generate_diagnostics
+  -> CompileResult diagnostics
+```
+
+`diagnostic_generation::generate_diagnostics(&SemanticProgram,
+&SemanticFacts, &StructuralFacts, &SafetyAnalysis)` is pure and validates that
+all four inputs describe the same exact normalized program before producing a
+canonically ordered `DiagnosticGeneration`. The generation records retain
+contract `Diagnostic` values alongside stable semantic provenance. A
+crate-private compiler pipeline proves the full stage ordering and projects
+diagnostics into a successful validated `CompileResult` with complete semantics
+and analysis, no portability plan, and no target artifact.
+
+Diagnostic generation communicates certified evidence. It does not rediscover
+safety conditions, parse source regex text, modify Semantic IR, invoke emitters,
+consult target profiles, plan portability, or apply fixes.
+
+### Stable mappings and canonical severity
+
+| Diagnostic code    | Certified safety finding           | Severity | Primary evidence | Related evidence                  | Descriptive remediation                                                                  |
+| ------------------ | ---------------------------------- | -------- | ---------------- | --------------------------------- | ---------------------------------------------------------------------------------------- |
+| `STRL-SAFETY-0001` | `unbounded_nullable_repetition`    | warning  | repetition       | operand when source-backed        | Require progress before another unbounded iteration.                                     |
+| `STRL-SAFETY-0002` | `unbounded_indeterminate_progress` | info     | repetition       | operand when source-backed        | Make progress explicit or bound repetition when progress cannot be established.          |
+| `STRL-SAFETY-0003` | `nested_repetition_overlap`        | warning  | outer repetition | inner repetition and operand path | Remove the ambiguous nested partition or make repetitions consume distinct regions.      |
+| `STRL-SAFETY-0004` | `repeated_alternation_overlap`     | warning  | repeated region  | exact overlapping branches        | Narrow branches so repeated input selects a distinct alternative.                        |
+| `STRL-SAFETY-0005` | `repetition_follower_overlap`      | warning  | repetition       | operand and immediate follower    | Separate repeated content from follower input competing for the same leading characters. |
+
+Finding identity, evidence confidence, diagnostic severity, and later
+target-specific policy are independent. These severities use
+`compiler_policy` and communicate target-neutral structural actionability.
+They do not assert exploitability, catastrophic runtime complexity, universal
+vulnerability, attacker control, or behavior of any target engine. Messages and
+advice make that limitation explicit. `fixes` is always absent, and advice
+contains no atomic-group or possessive-quantifier target syntax.
+
+### Identity, evidence, source projection, and uncertainty
+
+Every generation record retains the primary `NodeId`, sorted contributing
+`NodeId` values, applicable `StructuralRelationshipRef`, exact typed
+`SafetyEvidence`, and available canonical `SourceOrigin` values. Diagnostics
+remain valid without source text. When provenance exists, projection selects
+the smallest honest half-open UTF-8 byte span. Outer repetitions or repeated
+regions are primary; inner repetitions, overlapping branches, operands, and
+followers are separately ordered related locations. Discontiguous origins are
+never merged into a fabricated range, and UTF-16/LSP conversion remains outside
+the kernel.
+
+Equivalent evidence is deduplicated before output. Stable zero-based
+`DiagnosticOccurrence` ordinals are assigned only after sorting by durable
+diagnostic code, primary semantic identity, contributing identities, and typed
+evidence identity, followed by canonical contract ordering. Identical semantic
+input and evidence therefore produce identical diagnostics and occurrence IDs
+without randomness, time, or traversal-order counters.
+
+Typed `SafetyUncertainty` records do not become positive warnings or
+informational noise. Unknown overlap, unsupported Unicode-property algebra,
+wildcard or case-folding limits, comparison exhaustion, and other uncertainty
+remain preserved in `SafetyAnalysis` for later policy.
+
+### Property, contract, pipeline, and hardgate certification
+
+Four reproducible seeds - `0x444941475f505231`, `0x9e3779b97f4a7c15`,
+`0xd1b54a32d192ed03`, and `0x94d049bb133111eb` - generated 256 programs
+and 189 diagnostics, including 34 uncertainty-only programs. The suites certify
+determinism, stable occurrence identity, evidence integrity, exactly-once
+finding correspondence, no uncertainty promotion, honest provenance, and
+immutability of Semantic IR and all prerequisite analyses.
+
+All 153 kernel tests passed. Contract validation passed 11 schemas, 30 positive
+fixtures, 33 negative fixtures, 9 diagnostic documents, and 63 mapped kernel
+fixtures. Twenty-one controlled diagnostic architecture tests reject missing
+prerequisites and injected target, planner, portability, emitter, binding,
+frontend, editor, runtime-state, raw-source, and engine-specific dependencies.
+Eighty-nine focused governance and quality tests passed.
+
+From committed checkpoint-six state, governed `check` returned 40 passing
+results and `certify` returned 42. Formatting, hygiene, lint, all-language
+typecheck, generation, contracts, governance, architecture fitness, frozen
+baseline validation, patch integrity, and clean-tree verification passed. The
+unchanged TypeScript baseline built, typechecked, and passed 19 suites and 963
+tests.
+
+### Unchanged behavior, exclusions, and readiness
+
+No existing STRling runtime/compiler behavior intentionally changed. Only the
+canonical kernel gained structured diagnostic-generation capability. Grammar
+and parser behavior, target decisions, regex output, public package APIs,
+package versions, bindings, Simply, LSP/editor presentation, and published
+artifacts remain unchanged.
+
+Target capability diagnostics, portability diagnostics and decisions, automatic
+rewrites, target-specific remediation, target lowering, emission, parser
+migration, binding migration, Simply migration, and LSP/editor presentation
+migration were not implemented.
+
+The only carry-forward is target-aware semantic capability modeling and
+portability reasoning. That work must preserve the target-neutral safety and
+diagnostic layers, add target policy outside them, and keep remediation
+non-executable until semantic preservation is proven. Readiness is `READY`.
