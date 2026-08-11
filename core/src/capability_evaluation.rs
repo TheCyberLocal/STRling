@@ -30,6 +30,7 @@ const NAMED_CAPTURE: &str = "groups.named_capture";
 const BACKREFERENCE: &str = "references.backreference";
 const UNICODE_PROPERTY: &str = "character_properties.unicode";
 const UNICODE_CHARACTER_CLASS: &str = "character_classes.unicode";
+const UNICODE_SCALAR_SEMANTICS: &str = "character_semantics.unicode_scalar";
 const ATOMIC_GROUP: &str = "groups.atomic";
 const POSSESSIVE_REPETITION: &str = "repetition.possessive";
 const LAZY_REPETITION: &str = "repetition.lazy";
@@ -168,6 +169,13 @@ pub enum RequirementKind {
     UnicodeCharacterClass {
         name: BuiltinClassName,
         negated: bool,
+    },
+    UnicodeScalarLiteral {
+        scalars: Vec<char>,
+    },
+    UnicodeScalarSetMember {
+        start: char,
+        end: char,
     },
     Atomic,
     PossessiveRepetition,
@@ -743,6 +751,8 @@ fn requirement_constraint_facts(
                 semantic_source,
             ));
         }
+        RequirementKind::UnicodeScalarLiteral { .. }
+        | RequirementKind::UnicodeScalarSetMember { .. } => {}
         RequirementKind::Position { position } => facts.push(scalar_fact(
             "position",
             ConstraintScalar::String(position_name(*position).to_owned()),
@@ -893,11 +903,43 @@ fn extract_node_requirements(
     requirements: &mut Vec<SemanticRequirement>,
 ) -> Result<(), CapabilityEvaluationErrors> {
     match node {
+        Node::Literal { node_id, text, .. } => {
+            let scalars: Vec<_> = text.chars().filter(|scalar| !scalar.is_ascii()).collect();
+            if !scalars.is_empty() {
+                requirements.push(requirement(
+                    node_id.clone(),
+                    UNICODE_SCALAR_SEMANTICS,
+                    RequirementKind::UnicodeScalarLiteral { scalars },
+                ));
+            }
+        }
         Node::CharacterSet {
             node_id, members, ..
         } => {
             for member in members {
                 match member {
+                    CharacterSetMember::Literal { value } if !value.get().is_ascii() => {
+                        requirements.push(requirement(
+                            node_id.clone(),
+                            UNICODE_SCALAR_SEMANTICS,
+                            RequirementKind::UnicodeScalarSetMember {
+                                start: value.get(),
+                                end: value.get(),
+                            },
+                        ));
+                    }
+                    CharacterSetMember::Range { start, end }
+                        if !start.get().is_ascii() || !end.get().is_ascii() =>
+                    {
+                        requirements.push(requirement(
+                            node_id.clone(),
+                            UNICODE_SCALAR_SEMANTICS,
+                            RequirementKind::UnicodeScalarSetMember {
+                                start: start.get(),
+                                end: end.get(),
+                            },
+                        ));
+                    }
                     CharacterSetMember::Builtin {
                         name,
                         domain: CharacterDomain::Unicode,
@@ -1046,7 +1088,6 @@ fn extract_node_requirements(
         Node::Empty { .. }
         | Node::Sequence { .. }
         | Node::Alternation { .. }
-        | Node::Literal { .. }
         | Node::Wildcard { .. }
         | Node::Capture { .. } => {}
     }

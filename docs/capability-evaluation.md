@@ -87,6 +87,7 @@ profiles evaluate them as `Unknown` until profile data is certified.
 | any `Backreference`                                               | `references.backreference`                                                                                                          | resolved logical capture identity                                    |
 | Unicode property member                                           | `character_properties.unicode`                                                                                                      | property, optional value, negation                                   |
 | Unicode-domain built-in member                                    | `character_classes.unicode`                                                                                                         | class and negation                                                   |
+| non-ASCII literal or set member/range                             | `character_semantics.unicode_scalar`                                                                                                | exact Unicode scalar data                                            |
 | `Atomic`                                                          | `groups.atomic`                                                                                                                     | none                                                                 |
 | possessive `Repeat`                                               | `repetition.possessive`                                                                                                             | none                                                                 |
 | lazy `Repeat`                                                     | `repetition.lazy`                                                                                                                   | none                                                                 |
@@ -95,11 +96,12 @@ profiles evaluate them as `Unknown` until profile data is certified.
 | insensitive program matching                                      | `matching.case_insensitive` on the root node                                                                                        | global semantic mode                                                 |
 
 The following constructs add no target requirement by themselves: `Empty`,
-`Sequence`, `Alternation`, nonempty `Literal`, `Wildcard`, literal/range and
-ASCII-domain character-set members, greedy repetition, unnamed capture, and
-positive/negative polarity independent of its assertion or boundary. Their
-children can still add requirements. Unicode scalar literals are data in the
-ratified model; no separate Unicode encoding mode is invented for them.
+`Sequence`, `Alternation`, ASCII-only nonempty `Literal`, `Wildcard`,
+ASCII literal/range and ASCII-domain character-set members, greedy repetition,
+unnamed capture, and positive/negative polarity independent of its assertion or
+boundary. Their children can still add requirements. Unicode scalar
+requirements remain semantic data; no target encoding mode or emitted flag is
+invented for them.
 
 Logical capture identity remains independent of target numbering. An unnamed
 capture does not require a particular target capture spelling; named captures
