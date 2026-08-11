@@ -3,8 +3,12 @@
 //! This stage chooses a representation strategy. It never mutates Semantic IR,
 //! applies a rewrite, lowers captures, emits target syntax, or probes a runtime.
 
+mod validation;
+
 use std::error::Error;
 use std::fmt;
+
+use validation::{aggregate_status, collect_rewrite_dependencies};
 
 use crate::capability_evaluation::{
     validate_prerequisites, CapabilityDisposition, CapabilityEvaluation,
@@ -32,6 +36,10 @@ pub enum PortabilityPlanningErrorCode {
     RequirementResultMismatch,
     CapabilityEvidenceMismatch,
     RequirementIdentityOverflow,
+    MalformedRewritePlan,
+    RewriteDependencyMissing,
+    RewriteDependencyCycle,
+    AggregateStatusMismatch,
 }
 
 /// One deterministic portability-planning failure.
@@ -221,7 +229,6 @@ pub enum UnresolvedPlanningReason {
     CapabilityUnknown,
     RewriteProofIndeterminate,
     ReplacementCapabilityUnknown,
-    RewriteStrategyEvaluationPending,
 }
 
 /// Incomplete evidence retained outside the final portability vocabulary.
@@ -328,10 +335,8 @@ pub fn plan_portability(
                         }))
                     }
                     RewriteRegistryResolution::NoEquivalent(attempts) => {
-                        unresolved_requirements.push(identity.clone());
-                        RequirementPlanningDisposition::Unresolved(Box::new(UnresolvedDecision {
+                        RequirementPlanningDisposition::Unsupported(Box::new(UnsupportedDecision {
                             capability_result: result.clone(),
-                            reason: UnresolvedPlanningReason::RewriteStrategyEvaluationPending,
                             rewrite_attempts: attempts,
                         }))
                     }
@@ -345,28 +350,20 @@ pub fn plan_portability(
         });
     }
 
-    let status = if !unresolved_requirements.is_empty() {
-        None
-    } else if decisions.iter().any(|decision| {
-        matches!(
-            decision.disposition,
-            RequirementPlanningDisposition::EquivalentRewrite(_)
-        )
-    }) {
-        Some(PortabilityStatus::EquivalentRewrite)
-    } else {
-        Some(PortabilityStatus::Native)
-    };
-    Ok(PortabilityPlan {
+    let rewrite_dependencies = collect_rewrite_dependencies(&decisions);
+    let status = aggregate_status(&decisions);
+    let plan = PortabilityPlan {
         contract_version: input.contract_version,
         specification_version: input.specification_version.clone(),
         semantic_program,
         target_profile: evaluation.target_profile.clone(),
         decisions,
-        rewrite_dependencies: Vec::new(),
+        rewrite_dependencies,
         unresolved_requirements,
         status,
-    })
+    };
+    plan.validate()?;
+    Ok(plan)
 }
 
 enum RewriteRegistryResolution {

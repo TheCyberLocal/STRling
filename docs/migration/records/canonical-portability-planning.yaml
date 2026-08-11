@@ -32,6 +32,7 @@ scope:
         - core/src/capability_evaluation.rs
         - core/src/lib.rs
         - core/src/portability_planning.rs
+        - core/src/portability_planning/validation.rs
         - core/tests/portability_planning.rs
         - docs/migration/records/canonical-portability-planning.yaml
         - docs/portability-planning.md
@@ -116,8 +117,12 @@ checkpoints:
             result: passed
             details: Twelve focused integration tests, two internal proof tests, and all 183 kernel tests pass. The normative atomic-literal strategy proves exact atomic and literal node kinds plus their child relationship, produces no replacement target syntax, preserves the exact profile, and is rejected on failed or indeterminate proof. Generic replacement support rejects Unsupported, ConstraintViolation, and Unknown; speculative possessive and other unregistered candidates remain unavailable.
     - name: Unsupported and aggregate portability decisions
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Negative evidence, completeness-first aggregation, and rewrite dependency integrity
+            command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && cargo check --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml
+            result: passed
+            details: Nineteen focused planning tests and all 190 kernel tests pass. Explicit unavailability and constraint violations become unsupported only after the complete registry yields no applicable or indeterminate rewrite; unresolved evidence suppresses aggregate status before unsupported, then unsupported precedes rewrite and native. Same-node requirements remain independent, and plan self-validation rejects missing dependency evidence, malformed endpoints, and cycles.
     - name: Property and profile-differential certification
       status: planned
       evidence: []
@@ -132,3 +137,5 @@ commits:
       subject: "docs(core): define canonical portability planning"
     - sha: 85d36f1c3d71b0c205581e9f47dd6f7a7ce35385
       subject: "feat(core): establish portability planning"
+    - sha: 5fd1f78449c0c33c44cd3f0f108836348b06c386
+      subject: "feat(core): plan semantics-preserving portability rewrites"
