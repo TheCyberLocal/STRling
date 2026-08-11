@@ -110,8 +110,12 @@ checkpoints:
             result: passed
             details: Added structured identity, level, domain, definition, validator pipeline, standards scope, exclusions, performed and omitted checks, target limitations, safety and rewrite non-claims, evidence bindings, documentation claims, versioning, three level examples, and seven isolated negative mutations.
     - name: Compiler guarantee reconciliation
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Safety, diagnostics, portability, rewrite, and uncertainty ownership
+            command: npx prettier --check spec/stdlib/COMPILER_BOUNDARIES.md and python3 tooling/documentation_integrity.py and python3 tooling/contract_validation.py and python3 tooling/governance.py and python3 tooling/architecture_fitness.py and git diff --check
+            result: passed
+            details: Kept value rejection separate from helper-definition and argument failures, compiler semantic errors, safety warnings, and portability failures; prohibited safety and performance implications; required exact certified rewrite equivalence; and preserved every owning unknown or unsupported state.
     - name: Fixtures and documentation reconciliation
       status: planned
       evidence: []
@@ -126,3 +130,5 @@ commits:
       subject: "docs(spec): audit validation guarantee claims"
     - sha: a67658b9bd31e7421671389542309fd3c4180ec6
       subject: "docs(spec): define validation guarantee levels"
+    - sha: ac939201ca5a0b2dcc973dbf4512889496556e0a
+      subject: "feat(spec): define standard library guarantee contracts"
