@@ -167,3 +167,61 @@ execution, package APIs, package-version changes, or publication.
 
 No existing STRling runtime/compiler behavior is intentionally changed.
 The facade is not wired into any legacy product execution path.
+
+## Kernel-phase readiness
+
+The authoritative embedded boundary is the crate-root re-export of
+`kernel::compile`. It accepts the canonical request contract plus optional exact
+target-profile evidence and returns only the canonical result contract or a
+typed `KernelCompileError`. Contract `1.0.0` semantic, analysis, and
+profile-authorized portability requests are executable. Source frontends,
+unsupported specification revisions, and target-artifact requests remain
+explicit failed results; unknown contract data remains malformed input.
+
+The reachable implementation path is exactly request validation, normalization,
+semantic facts, structural facts, safety analysis, structured diagnostics, and,
+when target authority is required, target requirements, exact-profile capability
+evaluation, and portability planning, followed by validated result/exchange
+projection. Stage-owned program/profile fingerprints and correspondence checks
+remain mandatory. No lowered target IR, target regex, capture numbering, emitter
+option, or `TargetArtifact` enters the public result.
+
+Clean committed-state certification at integration checkpoint
+`aaeb08eb0438cfc36d8853cd7f3b42ad8a912fbc` produced:
+
+-   213 passing kernel tests, including 13 facade, five orchestration, nine
+    resource-boundary, and five property/fuzz-smoke tests;
+-   256 generated valid source-less requests, 64 profile-sensitivity cases, 256
+    malformed typed requests, 32 exhaustion cases, and 512 serialized mutation
+    cases (64 valid and 448 malformed), with zero unexplained failures;
+-   11 schema mappings and 63 fixtures, 34 focused
+    boundary/diagnostic/portability/public-contract tests, five architecture
+    mutation tests, and passing public-contract, generation, documentation,
+    governance, architecture, security, and patch-integrity hardgates;
+-   passing TypeScript typecheck/build and 19 suites with 963 tests, and passing
+    Rust-binding typecheck/build and 638 tests.
+
+The governed profiles retained truthful aggregate availability:
+
+| Profile        | Aggregate     | Passed | Unavailable | Failed |
+| -------------- | ------------- | -----: | ----------: | -----: |
+| `local`        | `UNAVAILABLE` |     17 |           6 |      0 |
+| `pull-request` | `UNAVAILABLE` |     36 |           7 |      0 |
+| `full`         | `UNAVAILABLE` |     65 |          10 |      0 |
+
+All six shared gaps are installed Ruff `0.16.2` versus governed `0.15.21`.
+Pull-request additionally retains the repository-managed Bundler mismatch for
+Ruby lint. Full additionally retains dependency-risk availability and Ruby
+build/test. The profiles were not weakened, and `test@core` passed in all three.
+
+The carry-forward is limited to those certification-environment gaps and later
+campaign work. This task did not implement the legacy regex parser, Semantic
+DSL, Simply, target lowering, regex emission, `TargetArtifact` production,
+runtime execution, bindings/adapters, CLI/LSP migration, package-version changes,
+or publication.
+
+Readiness is `READY WITH RECORDED CARRY-FORWARD`. The next ordered incomplete
+task in the Notion campaign is
+[P07-T01 — Build a controlled legacy TypeScript reference runner](https://app.notion.com/p/3b97d940647581da94ffe41b544e6489?pvs=204).
+That runner must provide deterministic, independently versioned historical
+evidence without becoming normative compiler authority.

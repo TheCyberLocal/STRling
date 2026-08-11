@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Embeddable canonical compiler-kernel boundary
-status: in_progress
+status: complete
 objective: Expose one deterministic, contract-validating, resource-bounded, panic-resistant Rust facade from CompileRequest plus explicit immutable target-profile evidence to CompileResult by reusing the certified canonical orchestration and projection stages without adding a frontend, lowering, emission, binding, or product integration.
 scope:
     diff:
@@ -175,6 +175,62 @@ checkpoints:
             result: passed
             details: The profile executed 23 operations, of which 17 passed, zero failed, and six were reported UNAVAILABLE because installed Ruff 0.16.2 does not satisfy governed 0.15.21. test@core, security integrity/content, contracts, generated integrity, governance, documentation, Rust formatting/lint/typecheck, LSP/TypeScript typecheck, and TypeScript formatting passed. No profile or security semantics were weakened.
     - name: Completion and readiness
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: Stable kernel phase boundary and complete evidence record
+            result: passed
+            details: The crate-root facade, contract/version behavior, supported and deferred modes, typed errors, sole canonical stage flow, correspondence checks, public result projection, deterministic identities, every enforced limit, whole-result exhaustion, property/fuzz evidence, architecture independence, and explicit exclusions are recorded durably.
+          - check: Clean committed-state repository hardgates and profiles
+            command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings && cargo check --manifest-path core/Cargo.toml --all-targets && cargo build --manifest-path core/Cargo.toml --all-targets && cargo test --manifest-path core/Cargo.toml && python3 tooling/core_contract_validation.py && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/documentation_integrity.py --json && python3 tooling/security.py integrity --json && python3 tooling/security.py content --json && python3 tooling/governance.py && python3 tooling/architecture_fitness.py && git diff --check
+            result: passed
+            details: All 213 kernel tests, 11 schema mappings/63 fixtures, 34 focused architecture/public-contract tests, public/generation/documentation/governance/security/architecture checks, warnings-denied quality, and patch integrity passed from clean integration checkpoint aaeb08eb0438cfc36d8853cd7f3b42ad8a912fbc.
+          - check: Truthful repository profiles and compatibility baselines
+            command: ./strling profile local; ./strling profile pull-request; ./strling profile full; ./strling typecheck typescript; ./strling build typescript; ./strling test typescript; ./strling typecheck rust; ./strling build rust; ./strling test rust
+            result: passed
+            details: Local, pull-request, and full recorded respectively 17/36/65 passed, 6/7/10 unavailable, and zero failed operations. Shared Ruff, additional Ruby/Bundler, and full dependency-risk gaps remained UNAVAILABLE without weakening. TypeScript typecheck/build plus 19 suites/963 tests and Rust-binding typecheck/build plus 638 tests passed.
+          - check: Next ordered Notion task
+            result: passed
+            details: The Notion campaign identifies P06-T05 as the final open kernel task and P07-T01, the controlled legacy TypeScript reference runner, as the next ordered incomplete task. That later harness must produce deterministic independently versioned historical evidence without becoming normative compiler authority.
+commits:
+    - sha: 9337c838a34553aa476458aec0d4eaec0c615174
+      subject: "docs(core): define embeddable compiler boundary"
+    - sha: a18494e3d6799bad12a1466c52f1cc97e4c95448
+      subject: "feat(core): expose canonical compiler facade"
+    - sha: 0de6a7cb2d0bbe28a48fce2403545d268417b6e1
+      subject: "feat(core): orchestrate canonical compilation requests"
+    - sha: aae7ed8990e392732d5f03635ce1468f62f16999
+      subject: "feat(core): bound canonical compiler execution"
+    - sha: 8b8d8202aae818de877aefd145bf22cc261f7e77
+      subject: "test(core): certify compiler boundary invariants"
+    - sha: aaeb08eb0438cfc36d8853cd7f3b42ad8a912fbc
+      subject: "ci(core): certify embeddable compiler boundary"
+completion:
+    accomplished:
+        - Exposed the sole stable non-published Rust kernel facade from borrowed canonical CompileRequest plus optional exact borrowed TargetProfile evidence to validated CompileResult or typed KernelCompileError.
+        - Reused one certified orchestration path for strict request validation, normalization, semantic facts, structural facts, safety analysis, diagnostics, and the profile-authorized capability/portability suffix without reproducing semantic rules.
+        - Preserved exact program, fact-store, target-profile, capability-evaluation, and portability-plan correspondence while projecting only contract-authorized semantic, analysis, and portability evidence.
+        - Made deterministic request/profile size, semantic depth/node, relationship/comparison, finding/uncertainty/diagnostic, capability, decision, and rewrite-dependency limits explicit with whole-result structured exhaustion.
+        - Locked the facade as an enforced public source contract, routed all canonical certification profiles through the complete core suite, and mechanically prohibited host, frontend, emitter, adapter, binding, CLI, LSP, package-manager, engine-probe, network, clock, and mutable-global dependencies.
+    verified:
+        - Rustfmt, warnings-denied Clippy, typecheck, build, and all 213 kernel tests passed; the test total includes 13 facade, five end-to-end orchestration, nine resource-boundary, and five property/fuzz-smoke tests.
+        - Fixed seeds produced 256 valid source-less requests, 64 target-profile sensitivity cases, 256 malformed typed requests, 32 one-over exhaustion cases, and 512 serialized mutation cases with 64 valid and 448 malformed; every public call was panic-contained and zero unexplained failures remained.
+        - Canonical mapping certified 11 schemas and 63 fixtures; 34 focused boundary/diagnostic/portability/public-contract tests, five controlled architecture mutations, the 22-marker global/host-state denylist, public snapshots, generation integrity, documentation, governance, architecture, security, and patch integrity passed.
+        - Local, pull-request, and full profiles ran from clean committed checkpoint aaeb08eb0438cfc36d8853cd7f3b42ad8a912fbc with zero failed operations. Their aggregates truthfully remained UNAVAILABLE for six Ruff version mismatches, one additional Ruby/Bundler mismatch in pull-request, and those gaps plus Ruby build/test and dependency-risk availability in full.
+        - TypeScript typecheck/build and 19 suites with 963 tests passed; Rust-binding typecheck/build and all 638 tests passed; the repository remained clean after verification.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - The internal non-published canonical Rust crate now offers one executable public facade over already-certified compiler stages.
+        - Canonical profiles and public/architecture hardgates now fail when the facade suite, signature, resource contract, stage ownership, purity, or inward dependency boundary drifts.
+    preserved_behavior:
+        - Existing parser acceptance, legacy compiler and emitter behavior, regex text, capture numbering, runtime options and execution, target artifacts, diagnostics consumed by product paths, bindings, Simply, CLI/LSP, public package APIs, package versions, and publication remain unchanged.
+        - Target-neutral semantic, structural, safety, and diagnostic facts and target-aware requirement, capability, and portability semantics remain owned by their existing certified stages.
+    transitional_architecture:
+        - Existing product, binding, CLI, LSP, editor, and adapter paths do not yet invoke the facade; dependency direction is locked so future integrations depend inward on it.
+        - Ruff 0.16.2 does not satisfy governed 0.15.21 in the certification environment; the repository-managed Bundler version differs; and the full dependency-risk operation is unavailable. These states remain explicit and did not weaken any aggregate or security rule.
+    deferred_work:
+        - Build P07-T01, the controlled deterministic legacy TypeScript reference runner, as independently versioned compatibility evidence without granting historical implementation behavior normative authority.
+        - Implement the legacy regex frontend, target lowering/emission, Semantic DSL, Simply, runtime integration, adapters/bindings, CLI/LSP migration, packages, and publication only in their separately governed later campaign tasks.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Build P07-T01, the controlled legacy TypeScript reference runner, to isolate deterministic independently versioned historical evidence without making it normative compiler authority.
+    rationale: The canonical Rust-kernel phase now has one strict, deterministic, resource-bounded, panic-resistant, self-validating CompileRequest-to-CompileResult boundary over the sole certified orchestration path. Every available kernel and repository hardgate passed with zero unexplained failures, and no stable boundary work remains. Governed profiles truthfully retain only the recorded Ruff, Bundler, and dependency-risk availability gaps; those do not block the separately scoped P07-T01 compatibility harness.

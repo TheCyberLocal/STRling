@@ -2109,3 +2109,109 @@ the Notion source of truth is
 currently `Partial`; the remaining work is a stable embeddable boundary,
 deterministic fingerprints where needed, resource-limit hooks, and property/fuzz
 smoke tests.
+
+## Embeddable canonical compiler-kernel boundary
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `2012dc2cedf24eae891ca126b83a829d1188c368`
+-   Behavior change: Additive non-published kernel API and hardgates only; no
+    existing STRling runtime/compiler behavior intentionally changed
+-   Completion record:
+    [`compiler-kernel-boundary.yaml`](records/compiler-kernel-boundary.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                                    | Result | Commit                                     | Verification                                                                                                                                                                                                                                                                                           |
+| --------------------------------------------- | ------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Boundary contract lock                        | Passed | `9337c838a34553aa476458aec0d4eaec0c615174` | Locked contract `1.0.0`, exact target-profile evidence, executable/deferred modes, malformed/typed/result failure ownership, resource ceilings, purity exclusions, and unchanged product paths without changing the compiler protocol                                                                  |
+| Public kernel facade                          | Passed | `a18494e3d6799bad12a1466c52f1cc97e4c95448` | Exposed borrowed `compile(&CompileRequest, Option<&TargetProfile>)` with strict validation, typed failures, explicit unsupported outcomes, source-less support, repeat equality, immutability, and 13 focused tests                                                                                    |
+| Canonical orchestration and result projection | Passed | `0de6a7cb2d0bbe28a48fce2403545d268417b6e1` | Routed the facade through the single certified target-neutral path and optional exact-profile suffix; preserved stage correspondence and projected only requested SemanticResult, AnalysisResult, and PortabilityPlan evidence through five end-to-end and five mutation tests                         |
+| Deterministic identity and resource bounds    | Passed | `aae7ed8990e392732d5f03635ce1468f62f16999` | Preserved canonical program/profile identity; bounded bytes, depth, nodes, relationships, comparisons, findings, diagnostics, requirements, decisions, and rewrite dependencies; nine exact/one-over tests proved whole-result deterministic exhaustion                                                |
+| Property and fuzz-smoke certification         | Passed | `8b8d8202aae818de877aefd145bf22cc261f7e77` | Fixed seeds generated 256 valid, 64 profile, 256 malformed typed, 32 exhaustion, and 512 serialized mutation cases; determinism, purity, immutability, validation, profile sensitivity, source independence, resource containment, and panic resistance passed with zero unexplained failures          |
+| Integration and hardgate certification        | Passed | `aaeb08eb0438cfc36d8853cd7f3b42ad8a912fbc` | Added core tests to the local canonical profile, locked the non-published facade snapshot, certified host/frontend/emitter/binding independence, and passed public-contract, generation, governance, documentation, security, architecture, TypeScript, Rust-binding, and clean-state kernel hardgates |
+| Completion and readiness                      | Passed | Recorded by the readiness commit           | Recorded the stable API, exact stage flow, deterministic/resource evidence, certification totals, exclusions, truthful profile availability, carry-forward, unchanged behavior, and next ordered Notion task                                                                                           |
+
+### API, orchestration, and deterministic evidence
+
+The non-published `strling-kernel` crate exposes one crate-root facade:
+
+```rust
+pub fn compile(
+    request: &CompileRequest,
+    target_profile: Option<&TargetProfile>,
+) -> Result<CompileResult, KernelCompileError>
+```
+
+It executes canonical semantic, analysis, source-less, and exact-profile
+portability requests. Source input, unsupported specification revisions, and
+target-artifact output return explicit structured failed results. Malformed
+serialized contracts remain `ContractError`; invalid typed requests, missing or
+mismatched profiles, stage correspondence failures, and invalid projections are
+typed `KernelCompileError` values.
+
+The sole path is validation, normalization, semantic facts, structural facts,
+safety, diagnostics, optional target requirements/capability evaluation/
+portability planning, then result and exchange validation. Target-neutral work
+does not require target authority. Program, fact-store, profile, capability, and
+plan correspondence remains stage-owned. Public projection never exposes facts,
+lowered IR, regex syntax, capture numbering, emitter options, or target artifacts.
+
+Identity derives only from canonical contract/specification/compiler identity,
+normalized Semantic IR, exact profile evidence, and deterministic canonical
+ordering/fingerprinting. The facade reads no files, environment, network, clock,
+engine/package state, path, address, or mutable global.
+
+Enforced ceilings are 8,388,608 request bytes; 1,048,576 profile bytes; depth
+128; 65,536 semantic nodes; 256 leading terms; and 4,096 each for relationships,
+overlap comparisons, findings, uncertainties, diagnostics, capability
+requirements, portability decisions, and rewrite dependencies. Caller node and
+diagnostic limits are honored without raising hard ceilings. Exhaustion returns
+one deterministic `STRL-PROTOCOL-0003` failed result without truncation, partial
+success, retry, or panic.
+
+### Certification, exclusions, and readiness
+
+All 213 kernel tests passed with rustfmt, warnings-denied Clippy, typecheck, and
+build. Contract mapping certified 11 schemas and 63 fixtures. The boundary
+corpora used four valid seeds (`0x4b45524e454c0001`, `0x9e3779b97f4a7c15`,
+`0xd1b54a32d192ed03`, `0x94d049bb133111eb`), profile seed
+`0x50524f46494c4501`, malformed seed `0x4d414c464f524d01`, resource seed
+`0x5245534f55524301`, and fuzz seeds `0x46555a5a00000001` through
+`0x46555a5a00000004`. They produced 256 valid, 64 profile, 704 total malformed,
+32 exhaustion, and zero unexplained cases. Five controlled architecture mutation
+tests and a 22-marker facade/global-state denylist passed.
+
+From clean committed checkpoint `aaeb08eb0438cfc36d8853cd7f3b42ad8a912fbc`:
+
+| Execution      | Aggregate     | Passed | Unavailable | Failed | Exit |
+| -------------- | ------------- | -----: | ----------: | -----: | ---: |
+| `local`        | `UNAVAILABLE` |     17 |           6 |      0 |    1 |
+| `pull-request` | `UNAVAILABLE` |     36 |           7 |      0 |    1 |
+| `full`         | `UNAVAILABLE` |     65 |          10 |      0 |    1 |
+
+The six shared gaps are installed Ruff `0.16.2` versus governed `0.15.21`.
+Pull-request additionally retains Ruby lint because Bundler differs from the
+repository-managed version. Full additionally retains Ruby build/test and
+dependency-risk availability. No profile/security rule was weakened. Every
+available operation passed, including `test@core` in all three profiles,
+TypeScript typecheck/build and 19 suites/963 tests, and Rust-binding
+typecheck/build and 638 tests.
+
+This task did not implement the legacy regex parser, Semantic DSL, Simply,
+target lowering, regex emission, `TargetArtifact` production, runtime regex
+execution, bindings/adapters, CLI/LSP migration, package-version changes, or
+publication.
+
+No existing STRling runtime/compiler behavior intentionally changed. Legacy
+product paths still do not invoke the new facade.
+
+The result is `READY WITH RECORDED CARRY-FORWARD`. Carry-forward is limited to
+the recorded certification-environment availability gaps and separately
+governed later campaign phases; no stable kernel-boundary work is deferred. The
+next ordered incomplete task in the Notion source of truth is
+[P07-T01 — Build a controlled legacy TypeScript reference runner](https://app.notion.com/p/3b97d940647581da94ffe41b544e6489?pvs=204),
+currently `Not Started`. Its objective is to isolate TypeScript parser/compiler/
+emitter/API history behind deterministic, independently versioned evidence
+without granting it normative authority.
