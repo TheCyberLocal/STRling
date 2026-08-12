@@ -1,0 +1,55 @@
+{
+    "contract_version": "1.0.0",
+    "compiler": { "id": "strling_kernel", "version": "0.1.0" },
+    "specification_version": "1.0-draft.1",
+    "outcome": "succeeded",
+    "semantic_result": {
+        "status": "complete",
+        "program": {
+            "contract_version": "1.0.0",
+            "specification_version": "1.0-draft.1",
+            "normalization": "canonical-v1",
+            "case_matching": "sensitive",
+            "sources": [
+                {
+                    "contract_version": "1.0.0",
+                    "source_id": "src:protocol.regex-portability",
+                    "specification_version": "1.0-draft.1",
+                    "frontend": {
+                        "id": "strling.regex-compat",
+                        "dialect_version": "1.0.0"
+                    },
+                    "content": { "kind": "inline", "encoding": "utf-8", "text": "a" },
+                    "provenance": { "kind": "imported" }
+                }
+            ],
+            "root": {
+                "kind": "literal",
+                "node_id": "node:regex-compat/00000001",
+                "origin": {
+                    "source_spans": [
+                        {
+                            "source_id": "src:protocol.regex-portability",
+                            "coordinate_system": "utf8-bytes",
+                            "start": 0,
+                            "end": 1
+                        }
+                    ]
+                },
+                "text": "a"
+            }
+        }
+    },
+    "portability": {
+        "contract_version": "1.0.0",
+        "specification_version": "1.0-draft.1",
+        "target_profile": {
+            "profile_id": "profile:pcre2/10.43",
+            "profile_version": "1.0.0",
+            "sha256": "6351e2238916cf012230f56c4134eb6e03fe82b51131b6cb1f79272d5b669c74"
+        },
+        "status": "native",
+        "decisions": []
+    },
+    "diagnostics": []
+}

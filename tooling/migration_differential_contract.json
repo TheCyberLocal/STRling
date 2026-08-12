@@ -17,26 +17,37 @@
             {
                 "kind": "ratified_architecture",
                 "reference": "docs/migration/compiler-kernel-boundary.md"
+            },
+            {
+                "kind": "frontend_orchestration_contract",
+                "reference": "spec/frontends/legacy-regex/1.0/orchestration/cases.json"
             }
         ],
         "implementation_paths": [
             "core/Cargo.lock",
             "core/Cargo.toml",
-            "core/src/**/*.rs"
+            "core/bin/strling-kernel.rs",
+            "core/src/**/*.rs",
+            "spec/frontends/legacy-regex/1.0/orchestration/cases.json",
+            "strling"
         ],
         "routes": [
             {
                 "authority": [
                     {
-                        "kind": "ratified_architecture",
-                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                        "kind": "canonical_contract",
+                        "reference": "core/src/kernel.rs"
+                    },
+                    {
+                        "kind": "frontend_orchestration_contract",
+                        "reference": "spec/frontends/legacy-regex/1.0/orchestration/cases.json"
                     }
                 ],
-                "canonical_surface": null,
+                "canonical_surface": "./strling compile -> strling_kernel::compile(&CompileRequest::Source)",
                 "operation": "api.root.parse",
-                "rationale": "The canonical kernel intentionally accepts structured source contracts; the legacy text frontend and package-root adapter are not yet exposed.",
-                "reason": "operation_not_exposed",
-                "review_id": "canonical-route-api-root-parse@1.0.0",
+                "rationale": "The root JSON CLI and canonical kernel now accept every governed regex-compatible source case, but the canonical result is validated Semantic IR rather than the historical package-root AST shape.",
+                "reason": "incompatible_surface",
+                "review_id": "canonical-route-api-root-parse@2.0.0",
                 "state": "not_comparable"
             },
             {
@@ -48,7 +59,7 @@
                 ],
                 "canonical_surface": null,
                 "operation": "api.root.parse_to_artifact",
-                "rationale": "The canonical kernel intentionally accepts structured source contracts; the legacy artifact frontend and package-root adapter are not yet exposed.",
+                "rationale": "The regex-compatible source frontend is exposed through the root JSON CLI, but canonical target lowering and artifact emission remain intentionally unavailable.",
                 "reason": "operation_not_exposed",
                 "review_id": "canonical-route-api-root-parse-artifact@1.0.0",
                 "state": "not_comparable"
@@ -100,13 +111,17 @@
                     {
                         "kind": "canonical_contract",
                         "reference": "core/src/kernel.rs"
+                    },
+                    {
+                        "kind": "frontend_orchestration_contract",
+                        "reference": "spec/frontends/legacy-regex/1.0/orchestration/cases.json"
                     }
                 ],
-                "canonical_surface": "strling_kernel::compile(CompileRequest<SourceProgram>)",
+                "canonical_surface": "strling_kernel::compile(&CompileRequest::Source)",
                 "operation": "compiler.compile",
-                "rationale": "The historical operation consumes legacy source text while the canonical kernel consumes a governed structured SourceProgram; no frontend adapter yet establishes semantic correspondence.",
+                "rationale": "The historical source is now accepted through the explicit regex-compatible CompileRequest frontend, but the canonical Semantic IR and diagnostics are not the historical compiler's private IR result shape.",
                 "reason": "incompatible_surface",
-                "review_id": "canonical-route-compiler-compile@1.0.0",
+                "review_id": "canonical-route-compiler-compile@2.0.0",
                 "state": "not_comparable"
             },
             {
@@ -114,13 +129,17 @@
                     {
                         "kind": "canonical_contract",
                         "reference": "core/src/kernel.rs"
+                    },
+                    {
+                        "kind": "frontend_orchestration_contract",
+                        "reference": "spec/frontends/legacy-regex/1.0/orchestration/cases.json"
                     }
                 ],
-                "canonical_surface": "strling_kernel::compile(CompileRequest<SourceProgram>)",
+                "canonical_surface": "strling_kernel::compile(&CompileRequest::Source)",
                 "operation": "compiler.compile_with_metadata",
-                "rationale": "The historical metadata compiler consumes legacy source text and returns legacy IR metadata; the canonical structured request/result surface is not a faithful counterpart without the governed frontend adapter.",
+                "rationale": "The governed frontend now establishes source acceptance through CompileRequest, but canonical Semantic IR, provenance, analysis, and diagnostics do not reproduce the legacy compiler's private metadata result shape.",
                 "reason": "incompatible_surface",
-                "review_id": "canonical-route-compiler-metadata@1.0.0",
+                "review_id": "canonical-route-compiler-metadata@2.0.0",
                 "state": "not_comparable"
             },
             {
@@ -159,14 +178,18 @@
                     },
                     {
                         "kind": "canonical_implementation",
-                        "reference": "core/src/regex_frontend.rs"
+                        "reference": "core/src/kernel.rs"
+                    },
+                    {
+                        "kind": "frontend_orchestration_contract",
+                        "reference": "spec/frontends/legacy-regex/1.0/orchestration/cases.json"
                     }
                 ],
-                "canonical_surface": "strling_kernel::regex_frontend::parse(&SourceDocument)",
+                "canonical_surface": "strling_kernel::compile(&CompileRequest::Source)",
                 "operation": "parser.parse",
-                "rationale": "The canonical Rust frontend executes every governed historical parser case and preserves acceptance status, but it returns validated canonical Semantic IR rather than the historical binding-specific AST shape; structural output comparison therefore remains intentionally inapplicable.",
+                "rationale": "The canonical CompileRequest route executes every governed historical source-bearing case and preserves frontend acceptance status and structured diagnostics, but it returns validated canonical Semantic IR rather than the historical binding-specific AST shape.",
                 "reason": "incompatible_surface",
-                "review_id": "canonical-route-parser-parse@2.0.0",
+                "review_id": "canonical-route-parser-parse@3.0.0",
                 "state": "not_comparable"
             },
             {
@@ -178,7 +201,7 @@
                 ],
                 "canonical_surface": null,
                 "operation": "parser.parse_to_artifact",
-                "rationale": "The legacy regex-compatible artifact frontend is not yet part of the canonical Rust kernel.",
+                "rationale": "The regex-compatible source frontend is part of the canonical kernel, but target lowering and artifact emission remain intentionally unavailable.",
                 "reason": "operation_not_exposed",
                 "review_id": "canonical-route-parser-artifact@1.0.0",
                 "state": "not_comparable"

@@ -16,3 +16,6 @@ sha2 = "0.10"
 name = "strling_kernel"
 path = "src/lib.rs"
 
+[[bin]]
+name = "strling-kernel"
+path = "bin/strling-kernel.rs"

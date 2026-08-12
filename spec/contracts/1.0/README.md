@@ -102,6 +102,16 @@ kind, position kind, lookaround combination, logical capture, UTF-8 attribution,
 and source-less construction. [`invalid/`](invalid/) contains controlled test
 inputs, not conformance cases or language behavior definitions.
 
+[`examples/compile-request/`](examples/compile-request/) and
+[`examples/compile-result/`](examples/compile-result/) include paired
+`strling.regex-compat@1.0.0` source exchanges for success, syntax rejection,
+unsupported directives, caller-unresolved references, and exact-profile
+portability. The specification-authored
+[`frontend orchestration corpus`](../../frontends/legacy-regex/1.0/orchestration/cases.json)
+exhaustively maps all historical source-bearing migration cases onto canonical
+`CompileRequest` execution; the historical implementations remain evidence,
+not semantic authority.
+
 ## Protocol, targets, and conformance
 
 [`PROTOCOL.md`](PROTOCOL.md) governs diagnostics, keyed analysis, portability,

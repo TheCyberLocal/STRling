@@ -1,0 +1,196 @@
+{
+    "case_set_version": "1.0.0",
+    "frontend": "strling.regex-compat@1.0.0",
+    "authorship": "specification-authored",
+    "authority": "Canonical CompileRequest orchestration and exhaustive historical source-bearing coverage; historical implementations remain evidence only.",
+    "cases": [
+        {
+            "id": "case:orchestration/001-plain-text",
+            "source": "plain text",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "parser-literal" },
+                { "runner_id": "typescript", "case_id": "parser-literal" }
+            ]
+        },
+        {
+            "id": "case:orchestration/002-escape-class",
+            "source": "[a-z\\d_]+",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "parser-escape-class" },
+                { "runner_id": "typescript", "case_id": "parser-escape-class" }
+            ]
+        },
+        {
+            "id": "case:orchestration/003-groups-alternation-lookaround",
+            "source": "(?<word>[a-z]+)(?=\\d)|x{2,3}",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "parser-groups-alternation-lookaround" },
+                { "runner_id": "typescript", "case_id": "parser-groups-alternation-lookaround" }
+            ]
+        },
+        {
+            "id": "case:orchestration/004-extended-directive",
+            "source": "%flags x\na # comment\n[\\d_]",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "parser-extended-directive" },
+                { "runner_id": "typescript", "case_id": "parser-extended-directive" }
+            ]
+        },
+        {
+            "id": "case:orchestration/005-malformed-group",
+            "source": "(abc",
+            "expected": { "outcome": "failed", "diagnostic_code": "STRL-FRONTEND-2012" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "parser-malformed-group" },
+                { "runner_id": "typescript", "case_id": "parser-malformed-group" },
+                { "runner_id": "typescript", "case_id": "compiler-malformed-group" }
+            ]
+        },
+        {
+            "id": "case:orchestration/006-artifact-repetition",
+            "source": "(?:ab){2,4}?",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "parser-artifact-repetition" },
+                { "runner_id": "typescript", "case_id": "parser-artifact-repetition" }
+            ]
+        },
+        {
+            "id": "case:orchestration/007-literal-normalization",
+            "source": "abc",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "compiler-literal-normalization" },
+                { "runner_id": "typescript", "case_id": "compiler-literal-normalization" }
+            ]
+        },
+        {
+            "id": "case:orchestration/008-directive-flags",
+            "source": "%flags im\nab",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "compiler-directive-flags" },
+                { "runner_id": "typescript", "case_id": "compiler-directive-flags" }
+            ]
+        },
+        {
+            "id": "case:orchestration/009-malformed-compiler-group",
+            "source": "a(b",
+            "expected": { "outcome": "failed", "diagnostic_code": "STRL-FRONTEND-2012" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "compiler-malformed-group" }
+            ]
+        },
+        {
+            "id": "case:orchestration/010-python-feature-metadata",
+            "source": "(?<name>a)(?<=b)c++\\k<name>",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "compiler-feature-metadata" }
+            ]
+        },
+        {
+            "id": "case:orchestration/011-inline-flags-emission-source",
+            "source": "%flags im\n(?<word>\\w+)",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "emitter-inline-flags" }
+            ]
+        },
+        {
+            "id": "case:orchestration/012-redos-warning-source",
+            "source": "(a+)+",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "emitter-redos-warning" },
+                { "runner_id": "typescript", "case_id": "emitter-redos-warning" }
+            ]
+        },
+        {
+            "id": "case:orchestration/013-variable-lookbehind-source",
+            "source": "(?<=a+)b",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "emitter-variable-lookbehind" },
+                { "runner_id": "typescript", "case_id": "emitter-variable-lookbehind" }
+            ]
+        },
+        {
+            "id": "case:orchestration/014-python-depth-source",
+            "source": "((((((a))))))",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "emitter-depth-limit" }
+            ]
+        },
+        {
+            "id": "case:orchestration/015-root-literal",
+            "source": "a",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "root-parse-not-exposed" }
+            ]
+        },
+        {
+            "id": "case:orchestration/016-root-alternation",
+            "source": "a|b",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "python", "case_id": "root-artifact-not-exposed" },
+                { "runner_id": "typescript", "case_id": "root-artifact-alternation" }
+            ]
+        },
+        {
+            "id": "case:orchestration/017-typescript-feature-metadata",
+            "source": "(?<tag>\\p{L}++)(?<=x)\\k<tag>(?>a)",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "typescript", "case_id": "compiler-feature-metadata" }
+            ]
+        },
+        {
+            "id": "case:orchestration/018-phone-source",
+            "source": "%flags x\n(?<area>\\d{3}) - (?<exchange>\\d{3}) - (?<line>\\d{4})",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "typescript", "case_id": "emitter-phone-golden" }
+            ]
+        },
+        {
+            "id": "case:orchestration/019-unicode-flags-source",
+            "source": "%flags u\n\\p{L}+",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "typescript", "case_id": "emitter-unicode-flags" }
+            ]
+        },
+        {
+            "id": "case:orchestration/020-typescript-depth-source",
+            "source": "((a))",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "typescript", "case_id": "emitter-depth-guard" }
+            ]
+        },
+        {
+            "id": "case:orchestration/021-clean-diagnostic-source",
+            "source": "a{2,3}",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "typescript", "case_id": "emitter-diagnostics-clean" }
+            ]
+        },
+        {
+            "id": "case:orchestration/022-root-named-capture",
+            "source": "(?<name>\\w+)",
+            "expected": { "outcome": "succeeded" },
+            "historical_cases": [
+                { "runner_id": "typescript", "case_id": "root-parse-named-capture" }
+            ]
+        }
+    ]
+}

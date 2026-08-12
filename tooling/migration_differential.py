@@ -35,19 +35,22 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
 
 CONTRACT_PATH = Path(__file__).with_name("migration_differential_contract.json")
 BASELINE_PATH = Path(__file__).with_name("migration_differential_baseline.json")
+FRONTEND_ORCHESTRATION_PATH = (
+    ROOT / "spec/frontends/legacy-regex/1.0/orchestration/cases.json"
+)
 CANDIDATE_KIND = "strling.full-migration-differential-candidate"
 NOT_COMPARABLE_REASONS = frozenset(
     comparison_contract.CONTRACT["comparability"]["not_comparable_reasons"]
 )
 FINGERPRINT_PREFIX = "sha256:"
-CANONICAL_PARSER_TEST = (
+CANONICAL_FRONTEND_TEST = (
     "cargo",
     "test",
     "--manifest-path",
     "core/Cargo.toml",
     "--test",
-    "regex_frontend",
-    "covers_the_specification_authored_correspondence_set",
+    "frontend_orchestration",
+    "covers_every_governed_historical_source_through_compile_request",
     "--locked",
     "--quiet",
 )
@@ -319,11 +322,116 @@ def canonical_boundary_identity(contract: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def _certify_canonical_parser_route(runner: Any = None) -> None:
+def _validate_frontend_orchestration_coverage(
+    orchestration: Mapping[str, Any] | None = None,
+    corpora: Mapping[str, Mapping[str, Any]] | None = None,
+) -> dict[str, int]:
+    governed = (
+        _load_json(FRONTEND_ORCHESTRATION_PATH, "frontend orchestration corpus")
+        if orchestration is None
+        else copy.deepcopy(dict(orchestration))
+    )
+    _exact_keys(
+        governed,
+        ("authorship", "authority", "case_set_version", "cases", "frontend"),
+        "frontend orchestration corpus",
+    )
+    if governed["case_set_version"] != "1.0.0":
+        raise DifferentialGateError(
+            "frontend orchestration corpus version is unsupported"
+        )
+    if governed["frontend"] != "strling.regex-compat@1.0.0":
+        raise DifferentialGateError("frontend orchestration identity is incompatible")
+    if governed["authorship"] != "specification-authored":
+        raise DifferentialGateError(
+            "frontend orchestration must be specification-authored"
+        )
+    _require_text(governed["authority"], "frontend orchestration corpus.authority")
+
+    raw_cases = governed["cases"]
+    if not isinstance(raw_cases, list) or not raw_cases:
+        raise DifferentialGateError("frontend orchestration cases are required")
+    coverage: dict[tuple[str, str], str] = {}
+    sources: set[str] = set()
+    for index, case in enumerate(raw_cases):
+        location = f"frontend orchestration corpus.cases/{index}"
+        if not isinstance(case, dict):
+            raise DifferentialGateError(f"{location} must be an object")
+        _exact_keys(
+            case,
+            ("expected", "historical_cases", "id", "source"),
+            location,
+        )
+        _require_text(case["id"], f"{location}.id")
+        source = _require_text(case["source"], f"{location}.source")
+        if source in sources:
+            raise DifferentialGateError("frontend orchestration sources must be unique")
+        sources.add(source)
+        expected = case["expected"]
+        if not isinstance(expected, dict):
+            raise DifferentialGateError(f"{location}.expected is invalid")
+        outcome = expected.get("outcome")
+        expected_keys = (
+            ("outcome",) if outcome == "succeeded" else ("diagnostic_code", "outcome")
+        )
+        _exact_keys(expected, expected_keys, f"{location}.expected")
+        if outcome == "failed":
+            _require_text(
+                expected["diagnostic_code"], f"{location}.expected.diagnostic_code"
+            )
+        elif outcome != "succeeded":
+            raise DifferentialGateError(f"{location}.expected.outcome is invalid")
+        references = case["historical_cases"]
+        if not isinstance(references, list) or not references:
+            raise DifferentialGateError(f"{location}.historical_cases is required")
+        for reference_index, reference in enumerate(references):
+            reference_location = f"{location}.historical_cases/{reference_index}"
+            if not isinstance(reference, dict):
+                raise DifferentialGateError(f"{reference_location} must be an object")
+            _exact_keys(reference, ("case_id", "runner_id"), reference_location)
+            key = (
+                _require_text(
+                    reference["runner_id"], f"{reference_location}.runner_id"
+                ),
+                _require_text(reference["case_id"], f"{reference_location}.case_id"),
+            )
+            if key in coverage:
+                raise DifferentialGateError(
+                    "historical source-bearing cases must map exactly once"
+                )
+            coverage[key] = source
+
+    corpus_set = (
+        _contract_corpora(load_contract()) if corpora is None else dict(corpora)
+    )
+    source_bearing_cases = 0
+    for runner_id, corpus in sorted(corpus_set.items()):
+        for case in corpus["cases"]:
+            source = case["request"].get("input", {}).get("source")
+            if source is None:
+                continue
+            source_bearing_cases += 1
+            key = (runner_id, case["id"])
+            if coverage.pop(key, None) != source:
+                raise DifferentialGateError(
+                    f"frontend orchestration coverage differs for {runner_id}/{case['id']}"
+                )
+    if coverage:
+        raise DifferentialGateError(
+            "frontend orchestration contains orphaned historical references"
+        )
+    return {
+        "historical_source_cases": source_bearing_cases,
+        "orchestration_cases": len(raw_cases),
+    }
+
+
+def _certify_canonical_frontend_route(runner: Any = None) -> None:
+    _validate_frontend_orchestration_coverage()
     execute = subprocess.run if runner is None else runner
     try:
         completed = execute(
-            list(CANONICAL_PARSER_TEST),
+            list(CANONICAL_FRONTEND_TEST),
             cwd=ROOT,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -331,12 +439,14 @@ def _certify_canonical_parser_route(runner: Any = None) -> None:
         )
     except OSError as error:
         raise DifferentialGateError(
-            "canonical Rust parser route could not be executed"
+            "canonical CompileRequest frontend route could not be executed"
         ) from error
     if completed.returncode != 0:
         details = completed.stderr.decode("utf-8", errors="replace").strip()
         suffix = f": {details}" if details else ""
-        raise DifferentialGateError(f"canonical Rust parser route failed{suffix}")
+        raise DifferentialGateError(
+            f"canonical CompileRequest frontend route failed{suffix}"
+        )
 
 
 def capture_full_corpus(repeat_runs: int) -> dict[str, list[dict[str, Any]]]:
@@ -346,7 +456,7 @@ def capture_full_corpus(repeat_runs: int) -> dict[str, list[dict[str, Any]]]:
         or repeat_runs < 2
     ):
         raise DifferentialGateError("repeat_runs must be an integer of at least 2")
-    _certify_canonical_parser_route()
+    _certify_canonical_frontend_route()
     batches: dict[str, list[dict[str, Any]]] = {"python": [], "typescript": []}
     with tempfile.TemporaryDirectory(prefix="strling-migration-differential-") as raw:
         output = Path(raw)

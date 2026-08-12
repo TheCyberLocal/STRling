@@ -51,7 +51,9 @@ class FullMigrationDifferentialTests(unittest.TestCase):
             )
         )
 
-    def test_canonical_parser_route_execution_is_blocking(self) -> None:
+    def test_canonical_compile_request_frontend_route_execution_is_blocking(
+        self,
+    ) -> None:
         calls = []
 
         class Completed:
@@ -62,8 +64,8 @@ class FullMigrationDifferentialTests(unittest.TestCase):
             calls.append((command, kwargs))
             return Completed()
 
-        differential._certify_canonical_parser_route(passing_runner)
-        self.assertEqual(calls[0][0], list(differential.CANONICAL_PARSER_TEST))
+        differential._certify_canonical_frontend_route(passing_runner)
+        self.assertEqual(calls[0][0], list(differential.CANONICAL_FRONTEND_TEST))
         self.assertEqual(calls[0][1]["cwd"], differential.ROOT)
         self.assertFalse(calls[0][1]["check"])
 
@@ -71,9 +73,30 @@ class FullMigrationDifferentialTests(unittest.TestCase):
         Completed.stderr = b"controlled parser failure"
         with self.assertRaisesRegex(
             differential.DifferentialGateError,
-            "canonical Rust parser route failed: controlled parser failure",
+            "canonical CompileRequest frontend route failed: controlled parser failure",
         ):
-            differential._certify_canonical_parser_route(passing_runner)
+            differential._certify_canonical_frontend_route(passing_runner)
+
+    def test_frontend_orchestration_exactly_maps_every_historical_source(self) -> None:
+        summary = differential._validate_frontend_orchestration_coverage()
+        self.assertEqual(
+            summary,
+            {"historical_source_cases": 34, "orchestration_cases": 22},
+        )
+
+        governed = differential._load_json(
+            differential.FRONTEND_ORCHESTRATION_PATH,
+            "frontend orchestration corpus",
+        )
+        governed["cases"][0]["historical_cases"].pop()
+        with self.assertRaisesRegex(
+            differential.DifferentialGateError,
+            "coverage differs",
+        ):
+            differential._validate_frontend_orchestration_coverage(
+                governed,
+                differential._contract_corpora(self.contract),
+            )
 
     def test_full_corpus_candidate_has_expected_quantitative_evidence(self) -> None:
         metrics = self.candidate["metrics"]

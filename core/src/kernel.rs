@@ -23,8 +23,9 @@ use crate::protocol::{
     validate_exchange, CompileInput, CompileOutcome, CompileRequest, CompileResult, CompilerId,
     CompilerIdentity, CompilerVersion, RequestedOutput,
 };
+use crate::regex_frontend::{self, RegexFrontendFailure};
 use crate::semantic::{Node, SemanticProgram};
-use crate::source::ContractVersion;
+use crate::source::{ContractVersion, FrontendId, SourceDocument};
 use crate::target::{
     PortabilityDecision, PortabilityPlan, PortabilityStatus, ReasonCode, RequirementId,
     TargetProfile, TargetProfileReference,
@@ -54,6 +55,8 @@ pub const RESOURCE_EXHAUSTED_DIAGNOSTIC: &str = "STRL-PROTOCOL-0003";
 
 /// Stable diagnostic for a valid request whose source frontend is unavailable.
 pub const UNSUPPORTED_FRONTEND_DIAGNOSTIC: &str = "STRL-PROTOCOL-0002";
+/// Stable diagnostic for source content that has not been resolved by the caller.
+pub const SOURCE_CONTENT_UNAVAILABLE_DIAGNOSTIC: &str = "STRL-PROTOCOL-0006";
 /// Stable diagnostic for a valid request using an unimplemented specification.
 pub const UNSUPPORTED_SPECIFICATION_DIAGNOSTIC: &str = "STRL-PROTOCOL-0004";
 /// Stable diagnostic for requested target lowering or emission that is absent.
@@ -183,9 +186,25 @@ pub fn compile(
     }
 
     match &request.input {
-        CompileInput::Source { .. } => failed_result(
+        CompileInput::Source { document } => {
+            compile_source_request(request, document, target_profile, &compiler)
+        }
+        CompileInput::Semantic { program } => {
+            compile_semantic_request(request, program, target_profile, &compiler)
+        }
+    }
+}
+
+fn compile_source_request(
+    request: &CompileRequest,
+    document: &SourceDocument,
+    target_profile: Option<&TargetProfile>,
+    compiler: &CompilerIdentity,
+) -> Result<CompileResult, KernelCompileError> {
+    if document.frontend.id.as_str() != regex_frontend::FRONTEND_ID {
+        return failed_result(
             request,
-            compiler,
+            compiler.clone(),
             diagnostic(
                 request.contract_version,
                 UNSUPPORTED_FRONTEND_DIAGNOSTIC,
@@ -193,11 +212,42 @@ pub fn compile(
                 DiagnosticCategory::UnsupportedFrontend,
                 "The requested frontend is not supported by this compiler.",
             )?,
-        ),
-        CompileInput::Semantic { program } => {
-            compile_semantic_request(request, program, target_profile, &compiler)
-        }
+        );
     }
+
+    let parsed = match regex_frontend::parse(document) {
+        Ok(parsed) => parsed,
+        Err(RegexFrontendFailure::Diagnostic(error)) => {
+            return failed_result(request, compiler.clone(), error.diagnostic);
+        }
+        Err(RegexFrontendFailure::InvalidSource(errors)) => {
+            return Err(KernelCompileError::InvalidRequest(errors));
+        }
+        Err(RegexFrontendFailure::ReferencedSourceUnavailable) => {
+            return failed_result(
+                request,
+                compiler.clone(),
+                diagnostic(
+                    request.contract_version,
+                    SOURCE_CONTENT_UNAVAILABLE_DIAGNOSTIC,
+                    CompilerPhase::Protocol,
+                    DiagnosticCategory::MalformedRequest,
+                    "Referenced source content must be resolved and supplied inline before compilation.",
+                )?,
+            );
+        }
+        Err(RegexFrontendFailure::InvalidSemanticOutput(errors)) => {
+            return Err(KernelCompileError::StageFailure {
+                stage: KernelStage::CanonicalSemanticPipeline,
+                message: format!("regex frontend produced invalid Semantic IR: {errors}"),
+            });
+        }
+    };
+
+    if let Some(exhaustion) = preflight_semantic_resources(request, &parsed.program) {
+        return resource_failed_result(request, compiler.clone(), exhaustion);
+    }
+    compile_semantic_request(request, &parsed.program, target_profile, compiler)
 }
 
 fn compile_semantic_request(
@@ -670,7 +720,15 @@ fn finish_result(
     result
         .validate()
         .map_err(KernelCompileError::InvalidResult)?;
-    validate_exchange(request, &result, &[]).map_err(KernelCompileError::InvalidResult)?;
+    let supported_frontend =
+        FrontendId::try_from(regex_frontend::FRONTEND_ID).map_err(|message| {
+            KernelCompileError::StageFailure {
+                stage: KernelStage::ResultProjection,
+                message: message.to_string(),
+            }
+        })?;
+    validate_exchange(request, &result, &[supported_frontend])
+        .map_err(KernelCompileError::InvalidResult)?;
     Ok(result)
 }
 

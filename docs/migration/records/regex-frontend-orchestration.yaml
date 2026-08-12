@@ -1,0 +1,145 @@
+record_version: 2.0.0
+title: Expose the regex-compatible frontend through canonical compile and CLI boundaries
+status: in_progress
+objective: Make strling.regex-compat@1.0.0 an explicit CompileRequest source frontend and deterministic root JSON CLI route without adding another parser, target policy, or implicit source interpretation.
+scope:
+    diff:
+        base: e9c8bb0465b3b037cef600e5d6df924192d3e2f4
+        head: working-tree
+    allowed_paths:
+        - core/bin/strling-kernel.rs
+        - core/Cargo.toml
+        - core/src/kernel.rs
+        - core/tests/compiler_boundary.rs
+        - core/tests/frontend_orchestration.rs
+        - docs/architecture.md
+        - docs/migration/**
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/contracts/snapshots/root-cli.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/public-surfaces.json
+        - spec/contracts/1.0/PROTOCOL.md
+        - spec/contracts/1.0/README.md
+        - spec/contracts/1.0/examples/compile-request/**
+        - spec/contracts/1.0/examples/compile-result/**
+        - spec/frontends/legacy-regex/1.0/orchestration/**
+        - strling
+        - tooling/core_stage_boundaries.py
+        - tooling/migration_differential.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/tests/fixtures/migration_differential/**
+        - tooling/tests/test_compiler_boundary_architecture.py
+        - tooling/tests/test_frontend_orchestration_architecture.py
+        - tooling/tests/test_migration_differential.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/target/**
+        - core/src/regex_frontend.rs
+        - spec/contracts/1.0/*.schema.json
+        - spec/targets/**
+        - tests/spec/**
+    expected_files:
+        - core/bin/strling-kernel.rs
+        - core/src/kernel.rs
+        - core/tests/frontend_orchestration.rs
+        - docs/migration/regex-frontend-orchestration.md
+        - docs/migration/records/regex-frontend-orchestration.yaml
+        - spec/frontends/legacy-regex/1.0/orchestration/cases.json
+        - strling
+        - tooling/tests/test_frontend_orchestration_architecture.py
+    permitted_generated_changes:
+        - public-contract-snapshots
+    expected_generated_outputs:
+        - public-contract-snapshots
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: intentional-correction
+        evidence:
+            - Activates the already-frozen regex-compatible SourceDocument path through the canonical compile facade without changing accepted source meaning or target behavior.
+    public_api_change:
+        level: additive
+        evidence:
+            - CompileRequest source input becomes executable for one explicit frontend identity, and the root CLI gains one JSON compile transport command.
+        affected_surfaces:
+            - strling-kernel
+            - root-cli
+    schema_change:
+        level: none
+        evidence:
+            - Reuses the existing CompileInput source variant, SourceDocument frontend identity, CompileResult, Diagnostic, and TargetProfile contracts without changing schemas.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Frontend diagnostics now cross the compile boundary unchanged, and unresolved referenced content receives one stable protocol diagnostic rather than an exception or filesystem lookup.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Portability continues through the existing exact-profile path; target artifact lowering and emission remain unavailable.
+    architecture_change:
+        level: additive
+        evidence:
+            - The canonical kernel facade may dispatch to the pure regex frontend, while the CLI remains a transport adapter and duplicate parser logic stays forbidden.
+    generated_output_change:
+        level: additive
+        evidence:
+            - The root CLI and strling-kernel public snapshots renew only for the declared additive surfaces.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Canonical source frontend orchestration
+      command: cargo test --manifest-path core/Cargo.toml --test frontend_orchestration --locked
+      expected_result: Explicit regex-compatible source requests preserve source identity, provenance, diagnostics, resource limits, requested outputs, and exact target-profile behavior through compile.
+    - name: Deterministic root JSON CLI
+      command: cargo test --manifest-path core/Cargo.toml --test frontend_orchestration cli_ --locked; ./strling compile --help
+      expected_result: The CLI reads one canonical request from standard input, accepts only an explicit optional target-profile document, emits deterministic CompileResult JSON, and uses stable exit semantics without parsing source itself.
+    - name: Complete governed source corpus
+      command: ./strling migration-differential --repeat-runs 3
+      expected_result: Every governed historical source-bearing case executes through canonical CompileRequest before historical runners; all route differences remain machine-classified with zero blocking unresolved replacements.
+    - name: Repository certification
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked; cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; python3 tooling/core_contract_validation.py; python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; ./strling profile local; ./strling profile pull-request; ./strling profile full; git diff --check
+      expected_result: Every task-scoped gate passes, public snapshots match the declared additive change, and aggregate carry-forward remains exact.
+checkpoints:
+    - name: Existing compile, source, CLI, and differential inventory
+      status: passed
+      evidence:
+          - check: Read-first canonical boundary inventory
+            result: passed
+            details: CompileInput already distinguishes source from source-less semantic input, SourceDocument already carries explicit open frontend and dialect identifiers, and kernel::compile already owns the sole semantic/portability pipeline. The only source branch is a structured unsupported-frontend result. The root shell is a transport/quality CLI with a governed command snapshot and no source parser. The blocking differential currently executes direct regex_frontend tests before historical runners, so P08-T04 can move that route to CompileRequest without a new schema union or parser.
+    - name: Canonical frontend dispatch and result projection
+      status: passed
+      evidence:
+          - check: Canonical CompileRequest source orchestration
+            result: passed
+            details: kernel::compile dispatches only the explicit strling.regex-compat frontend identity, preserves frozen dialect diagnostics, projects unresolved references as STRL-PROTOCOL-0006, preflights parsed Semantic IR against caller/kernel limits, and reuses the existing semantic and exact-profile portability pipelines. Twelve focused integration tests pass, including all 22 specification-authored orchestration cases.
+          - check: Architecture ownership
+            result: passed
+            details: The focused architecture suite requires regex_frontend::parse dispatch in kernel.rs, proves it has exactly one production owner, rejects parser logic in the shell and Rust transport, and retains the frontend prohibition on target lowering and emission. Core contract validation passes with 11 schema mappings and 73 fixtures.
+    - name: Root CLI transport and public fixtures
+      status: passed
+      evidence:
+          - check: Deterministic JSON transport
+            result: passed
+            details: The explicitly declared core/bin/strling-kernel.rs target and root compile route accept one stdin request plus an optional exact profile path, emit compact newline-terminated result JSON, and pass success, failed-result, malformed-contract, help, missing-profile, and present-profile exit tests for statuses 0, 2, 64, and 70.
+          - check: Additive public contracts
+            result: passed
+            details: Five request/result pairs execute exactly for success, malformed syntax, unsupported directive, unresolved reference, and profile-aware portability. Public-contract reproduction reports only the declared additive SOURCE_CONTENT_UNAVAILABLE_DIAGNOSTIC constant and root compile command; both renewed snapshots reproduce cleanly.
+    - name: Full differential and repository certification
+      status: in_progress
+      evidence:
+          - check: Complete source-bearing orchestration coverage
+            result: passed
+            details: Migration tooling proves the 22 specification-authored cases map every one of the 34 source-bearing historical cases exactly once before executing the blocking CompileRequest Rust route and both evidence-only runners.
+          - check: Three-run differential
+            result: passed
+            details: Baseline sha256:24e240f359ec4a00e8d818f40d3829f70c3ad7d33addfe81d4995275111f2804 certifies 44 observations across three runs with zero mismatches, zero blocking unresolved replacements, canonical boundary sha256:014801a79a50b40834452aeb37a483bce7eadad43ca6a17da1419264e9bed472, route coverage sha256:96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e, and result sha256:09406e519e7bbf6e447803cf21e2bcc04a1f38d6b5f154e191e552c512c6959e.
+commits: []

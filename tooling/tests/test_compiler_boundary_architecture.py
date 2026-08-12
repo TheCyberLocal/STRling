@@ -39,6 +39,7 @@ class CompilerBoundaryArchitectureTests(unittest.TestCase):
             "crate::protocol",
             "crate::compiler_pipeline",
             "crate::capability_pipeline",
+            "crate::regex_frontend",
             "crate::target",
             "crate::validation",
         ):
@@ -56,6 +57,7 @@ class CompilerBoundaryArchitectureTests(unittest.TestCase):
         for call in (
             "compile_semantic_diagnostics(",
             "compile_semantic_portability(",
+            "regex_frontend::parse(",
         ):
             sources = source_texts()
             path = "core/src/kernel.rs"

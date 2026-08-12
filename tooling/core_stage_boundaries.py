@@ -387,6 +387,7 @@ def kernel_boundary_violation(source_texts: Mapping[str, str]) -> str | None:
         ("crate::protocol", "canonical request and result contracts"),
         ("crate::compiler_pipeline", "canonical target-neutral orchestration"),
         ("crate::capability_pipeline", "canonical target-aware orchestration"),
+        ("crate::regex_frontend", "governed compatibility frontend"),
         ("crate::target", "immutable target-profile contracts"),
         ("crate::validation", "canonical contract validation"),
     )
@@ -403,6 +404,7 @@ def kernel_boundary_violation(source_texts: Mapping[str, str]) -> str | None:
             "compile_semantic_portability(",
             "canonical target-aware orchestration",
         ),
+        ("regex_frontend::parse(", "governed compatibility frontend"),
     ):
         if call not in source:
             return f"kernel facade must invoke {description}"
@@ -437,7 +439,6 @@ def kernel_boundary_violation(source_texts: Mapping[str, str]) -> str | None:
             "crate::editor",
             "crate::parser",
             "bindings::",
-            "frontend::",
             "emitters::",
             "std::env",
             "std::fs",

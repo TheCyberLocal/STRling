@@ -1,0 +1,29 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "input": {
+        "kind": "source",
+        "document": {
+            "contract_version": "1.0.0",
+            "source_id": "src:protocol.regex-reference",
+            "specification_version": "1.0-draft.1",
+            "frontend": {
+                "id": "strling.regex-compat",
+                "dialect_version": "1.0.0"
+            },
+            "content": {
+                "kind": "reference",
+                "encoding": "utf-8",
+                "media_type": "text/strling-regex",
+                "uri": "urn:strling:source:regex-reference",
+                "sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+            },
+            "provenance": { "kind": "imported" }
+        }
+    },
+    "requested_outputs": ["semantic"],
+    "compiler_options": {
+        "partial_semantics": "forbid",
+        "diagnostic_policy": { "minimum_severity": "error" }
+    }
+}

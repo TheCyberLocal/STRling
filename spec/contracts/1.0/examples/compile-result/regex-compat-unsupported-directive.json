@@ -1,0 +1,24 @@
+{
+    "contract_version": "1.0.0",
+    "compiler": { "id": "strling_kernel", "version": "0.1.0" },
+    "specification_version": "1.0-draft.1",
+    "outcome": "failed",
+    "diagnostics": [
+        {
+            "contract_version": "1.0.0",
+            "occurrence": 0,
+            "code": "STRL-FRONTEND-1002",
+            "severity": "error",
+            "severity_basis": "normative",
+            "phase": "frontend_parse",
+            "category": "syntax",
+            "message": "unsupported frontend directive",
+            "primary_location": {
+                "source_id": "src:protocol.regex-directive",
+                "coordinate_system": "utf8-bytes",
+                "start": 0,
+                "end": 1
+            }
+        }
+    ]
+}

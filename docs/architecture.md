@@ -37,8 +37,12 @@ authoring frontend
     -> versioned TargetArtifact
 ```
 
-This is a responsibility model, not a module diagram. The exact canonical source
-and Semantic IR contracts have not yet been designed.
+This is a responsibility model, not a module diagram. The checked-in
+prepublication source, Semantic IR, compile request/result, diagnostic,
+analysis, profile, portability, and artifact contracts live under
+`spec/contracts/1.0`. The canonical Rust kernel currently implements the path
+through portability planning; target lowering and emission remain deliberately
+absent.
 
 **Semantic analysis** owns target-independent validity, diagnostics, safety
 findings, and explanation.
@@ -84,9 +88,9 @@ orthogonal:
 | Own idiomatic APIs, conversion, packaging, error mapping | Own version-sensitive runtime facts and target serialization |
 | Must not reimplement semantics                           | Must not redefine STRling semantic intent                    |
 
-A Rust canonical core could become the reference implementation. It would not
-become the specification. TypeScript behavior remains compatibility evidence,
-not semantic authority.
+The Rust canonical core is the prepublication reference implementation. It does
+not become the specification. TypeScript and Python behavior remain
+compatibility evidence, not semantic authority.
 
 ## Tooling
 
@@ -94,6 +98,15 @@ The CLI, LSP, editor integrations, documentation tools, and conformance tools
 consume the same canonical compiler interface. They may own transport,
 presentation, caching, and source projection, but not shadow semantic
 implementations.
+
+The root `./strling compile` command is a deterministic JSON transport for
+`CompileRequest` and `CompileResult`. It delegates to the Rust kernel and owns
+only standard-input/output, argument, target-profile file, and exit-status
+handling. The kernel selects source syntax only from the explicit
+`SourceDocument.frontend` identity; it currently dispatches
+`strling.regex-compat@1.0.0` to the one governed compatibility parser. Neither
+the shell nor the Rust transport binary parses regex syntax, selects a default
+frontend or target, lowers targets, or emits artifacts.
 
 ## Current versus target state
 
@@ -113,7 +126,8 @@ ratified versioned specification and expressly normative contracts above the
 reference implementation, tests, compatibility evidence, and explanatory
 documentation.
 
-There is no ratified Semantic STRling specification version yet.
-[`1.0-draft.1`](../spec/drafts/1.0/README.md) is a non-normative scope scaffold.
-The existing regex-frontend grammar and semantics remain transitional
-compatibility evidence.
+There is no ratified Semantic STRling flagship language specification version
+yet. [`1.0-draft.1`](../spec/drafts/1.0/README.md) remains a non-normative scope
+scaffold. The frozen `strling.regex-compat@1.0.0` grammar is a governed
+compatibility/import frontend contract and must not be presented as the
+flagship authoring language.

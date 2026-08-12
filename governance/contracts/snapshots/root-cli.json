@@ -10,6 +10,7 @@
         "certify": "certify [lang|all] Run the current certification aggregate",
         "check": "check [lang|all] Run the fast quality aggregate",
         "clean": "clean <lang|all> Clean artifacts",
+        "compile": "compile [--target-profile PATH] Compile canonical request JSON from standard input",
         "contracts": "contracts [--check] [--json] Regenerate or verify public contracts",
         "environment": "environment [lang|all] Validate declared tool versions",
         "format": "format [--check] [lang|all] Run or verify configured formatters",

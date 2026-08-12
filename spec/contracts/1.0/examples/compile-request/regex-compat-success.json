@@ -1,0 +1,29 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "input": {
+        "kind": "source",
+        "document": {
+            "contract_version": "1.0.0",
+            "source_id": "src:protocol.regex-success",
+            "specification_version": "1.0-draft.1",
+            "frontend": {
+                "id": "strling.regex-compat",
+                "dialect_version": "1.0.0"
+            },
+            "display_name": "success.regex",
+            "content": {
+                "kind": "inline",
+                "encoding": "utf-8",
+                "media_type": "text/strling-regex",
+                "text": "a"
+            },
+            "provenance": { "kind": "imported" }
+        }
+    },
+    "requested_outputs": ["semantic", "analysis"],
+    "compiler_options": {
+        "partial_semantics": "forbid",
+        "diagnostic_policy": { "minimum_severity": "hint" }
+    }
+}
