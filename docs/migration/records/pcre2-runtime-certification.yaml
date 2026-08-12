@@ -33,9 +33,19 @@ scope:
         - spec/targets/profiles/**
         - tests/spec/**
     expected_files:
+        - core/tests/pcre2_runtime_certification.rs
         - docs/migration/pcre2-runtime-certification.md
         - docs/migration/records/pcre2-runtime-certification.yaml
+        - governance/certification-profiles.md
         - governance/change-control.json
+        - tests/conformance/pcre2-runtime-certification.json
+        - toolchain.json
+        - tooling/pcre2_feature_probe.py
+        - tooling/pcre2_runtime_certification.py
+        - tooling/quality.py
+        - tooling/tests/test_pcre2_feature_probe.py
+        - tooling/tests/test_pcre2_runtime_certification.py
+        - tooling/tests/test_quality.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -63,9 +73,9 @@ change_classification:
         level: none
         evidence: []
     target_behavior_change:
-        level: none
+        level: additive
         evidence:
-            - Runtime execution validates existing PCRE2 artifacts and options without changing their production.
+            - A new test-only conformance corpus adds exact runtime, capture/span, resource-limit, rewrite, generated-case, and performance observations without changing artifact production or public target behavior.
     architecture_change:
         level: additive
         evidence:
@@ -80,10 +90,10 @@ required_verification:
       command: cargo test --manifest-path core/Cargo.toml --test pcre2_runtime_certification --locked -- --nocapture
       expected_result: Deep, empty, escape-heavy, large-but-bounded, invalid-name, malformed-artifact, and option-conflict cases fail safely or serialize deterministically; fixed-corpus analysis/planning, lowering, and serialization remain under recorded generous budgets.
     - name: Exact real-engine runtime certification
-      command: STRLING_PCRE2_1042_LIBRARY=<exact-10.42-lib> STRLING_PCRE2_1043_LIBRARY=<exact-10.43-lib> python3 tooling/pcre2_runtime_certification.py --json --repeat-runs 2
+      command: STRLING_PCRE2_1042_LIBRARY=<exact-10.42-lib> STRLING_PCRE2_1043_LIBRARY=<exact-10.43-lib> python3 -m tooling.pcre2_runtime_certification --json --repeat-runs 2
       expected_result: Both exact 8-bit engines pass compile, match, capture value/name/span, option, Unicode, anchor, assertion, repetition, rewrite, resource-limit, and deterministic generated-case evidence with stable semantic digests.
     - name: Sanitized exact-engine certification
-      command: <asan-ubsan-runtime> STRLING_PCRE2_1042_LIBRARY=<sanitized-10.42-lib> STRLING_PCRE2_1043_LIBRARY=<sanitized-10.43-lib> python3 tooling/pcre2_runtime_certification.py --json --repeat-runs 2
+      command: LD_PRELOAD=<libasan.so> ASAN_OPTIONS=detect_leaks=0:halt_on_error=1:abort_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 STRLING_PCRE2_1042_LIBRARY=<sanitized-10.42-lib> STRLING_PCRE2_1043_LIBRARY=<sanitized-10.43-lib> python3 -m tooling.pcre2_runtime_certification --json --repeat-runs 2
       expected_result: Every bounded applicable runtime case completes with no sanitizer report, crash, or nondeterministic semantic result; unavailable sanitizer runtimes remain explicit.
     - name: Repository certification
       command: python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/migration_differential.py --repeat-runs 3; ./strling profile local; ./strling profile pull-request; STRLING_PCRE2_1042_LIBRARY=<exact-10.42-lib> STRLING_PCRE2_1043_LIBRARY=<exact-10.43-lib> ./strling profile full; git diff --check
@@ -104,4 +114,22 @@ checkpoints:
           - check: Discovered predecessor test-path defect
             result: passed
             details: The P10-T03 corpus was moved to tests/conformance but tooling/tests/test_pcre2_feature_probe.py retained the former tests/target path. P10-T04 will correct the test authority before extending the shared ABI layer.
+    - name: Exact runtime harness, pathology, and profile integration
+      status: passed
+      evidence:
+          - check: Detailed exact-engine ABI and bounded resources
+            result: passed
+            details: The shared 8-bit ABI now exposes overall and capture byte spans, numbered and named capture values, unmatched captures, explicit match/depth/heap contexts, and stable no-match or limit outcomes. All allocations are paired and all subjects, patterns, generated cases, and resource ceilings are bounded.
+          - check: Exact 10.42 and 10.43 repeated runtime matrix
+            result: passed
+            details: Both official exact-tag libraries passed two consecutive runs over 16 feature cases, six detailed capture/span cases, three resource-limit cases, two atomic-literal rewrite differentials, and 256 deterministic generated cases each. Ordinary and sanitized builds share semantic digests 2dc7a609e68f1d104d07a3d54d901b4942011a32f4a9d9860658d2464a93c1b1 for 10.42 and d152cf55d2db232acb484959f6743885a7a1497b481a4c3747f7c75f67cad3b9 for 10.43.
+          - check: Pathological serialization and stage budgets
+            result: passed
+            details: Empty, escape-heavy UTF-8, dense class, maximum 65,535 quantifier, legal and illegal capture-name, 128-depth, malformed capture-slot, and conflicting-option cases completed deterministically or failed closed without panic. Across 16 warmups and 128 samples, median analysis/planning, lowering, and serialization were 1,158, 448, and 46 microseconds against generous 10,000, 5,000, and 5,000 microsecond ceilings.
+          - check: Canonical Full and Release operation
+            result: passed
+            details: certification-result-v1 is validated through the existing structured repository-operation executor. The exact-engine operation is mandatory in Full and Release definition version 1.5.0, omitted from Local and Pull Request, and reports missing exact libraries as unavailable with structured evidence.
+          - check: Exact-tag ASan and UBSan execution
+            result: passed
+            details: GCC 13.3.0 built both exact tags with -fsanitize=address,undefined and -fno-omit-frame-pointer. With abort-on-error enabled, the full repeated corpus passed for sanitized library hashes c33dfbacd61499659d58cf2f4fd09e61d78c2f37fd5f93587d12788f0446388a (10.42) and 6b02c73663bde34fd8f6b7520582cfffc9f4a35aca0449cdb3af90eea6c47aa3 (10.43), with no ASan or UBSan report. Leak-only detection is not claimed because CPython 3.12 and ctypes reported host-interpreter shutdown allocations outside PCRE2; the attempted corpus itself completed successfully before that non-attributable process-exit report.
 commits: []

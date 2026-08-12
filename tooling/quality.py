@@ -59,6 +59,11 @@ STRUCTURED_RESULT_EXIT_CODES = {
     "unavailable": 2,
     "incomplete": 3,
 }
+STRUCTURED_RESULT_CONTRACT_PREFIXES = {
+    "security-result-v1": "security.",
+    "documentation-result-v1": "documentation.",
+    "certification-result-v1": "certification.",
+}
 
 
 class ConfigurationError(ValueError):
@@ -400,19 +405,12 @@ class Toolchain:
                     raise ConfigurationError(
                         f"repository operation {operation} declares a result operation without a contract"
                     )
-            elif result_contract not in (
-                "security-result-v1",
-                "documentation-result-v1",
-            ):
+            elif result_contract not in STRUCTURED_RESULT_CONTRACT_PREFIXES:
                 raise ConfigurationError(
                     f"repository operation {operation} has unsupported result contract"
                 )
             else:
-                expected_prefix = (
-                    "security."
-                    if result_contract == "security-result-v1"
-                    else "documentation."
-                )
+                expected_prefix = STRUCTURED_RESULT_CONTRACT_PREFIXES[result_contract]
                 if (
                     not isinstance(result_operation_id, str)
                     or not result_operation_id.startswith(expected_prefix)
@@ -1109,7 +1107,7 @@ class QualityRunner:
         execution = self.hardgate_executor(operation, invocation)
         structured_result: dict[str, object] | None = None
         result_contract = definition.get("result_contract")
-        if result_contract in ("security-result-v1", "documentation-result-v1"):
+        if result_contract in STRUCTURED_RESULT_CONTRACT_PREFIXES:
             expected_operation = definition["result_operation_id"]
             assert isinstance(expected_operation, str)
             try:

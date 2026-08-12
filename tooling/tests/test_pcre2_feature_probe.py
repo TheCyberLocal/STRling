@@ -20,7 +20,7 @@ from tooling.pcre2_feature_probe import (
 ROOT = Path(__file__).resolve().parents[2]
 PROFILE_1042 = ROOT / "spec" / "targets" / "profiles" / "pcre2-10.42.json"
 PROFILE_1043 = ROOT / "spec" / "targets" / "profiles" / "pcre2-10.43.json"
-CORPUS = ROOT / "tests" / "target" / "pcre2" / "versioned-features.json"
+CORPUS = ROOT / "tests" / "conformance" / "pcre2-versioned-features.json"
 
 
 def load(path: Path) -> object:
@@ -129,9 +129,12 @@ class Pcre2FeatureProbeTests(unittest.TestCase):
                 engine_factory=FakeEngine,
             )
         self.assertEqual(first, second)
-        self.assertEqual(first["result_sha256"], canonical_digest({
-            key: value for key, value in first.items() if key != "result_sha256"
-        }))
+        self.assertEqual(
+            first["result_sha256"],
+            canonical_digest(
+                {key: value for key, value in first.items() if key != "result_sha256"}
+            ),
+        )
         self.assertEqual("profile:pcre2/10.43", first["profile"]["profile_id"])
 
         class WrongVersionEngine(FakeEngine):

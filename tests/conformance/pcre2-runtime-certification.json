@@ -1,0 +1,183 @@
+{
+    "corpus_version": "1.0.0",
+    "profiles": ["10.42", "10.43"],
+    "normal_limits": {"match": 1000000, "depth": 1000, "heap_kib": 8192},
+    "detailed_cases": [
+        {
+            "id": "named-capture-value-name-and-span",
+            "feature_case_id": "named-capture-backreference",
+            "observations": [
+                {
+                    "subject": "aa",
+                    "outcome": "match",
+                    "return_code": 2,
+                    "span": [0, 2],
+                    "captures": [
+                        {"index": 0, "span": [0, 2], "value": "aa"},
+                        {"index": 1, "name": "word", "span": [0, 1], "value": "a"}
+                    ]
+                },
+                {"subject": "ab", "outcome": "no_match", "return_code": -1, "span": null, "captures": []}
+            ]
+        },
+        {
+            "id": "optional-numbered-and-named-captures",
+            "pattern": "\\A(?:(a))?(?<right>b)\\z",
+            "observations": [
+                {
+                    "subject": "b",
+                    "outcome": "match",
+                    "return_code": 3,
+                    "span": [0, 1],
+                    "captures": [
+                        {"index": 0, "span": [0, 1], "value": "b"},
+                        {"index": 1, "span": null, "value": null},
+                        {"index": 2, "name": "right", "span": [0, 1], "value": "b"}
+                    ]
+                },
+                {
+                    "subject": "ab",
+                    "outcome": "match",
+                    "return_code": 3,
+                    "span": [0, 2],
+                    "captures": [
+                        {"index": 0, "span": [0, 2], "value": "ab"},
+                        {"index": 1, "span": [0, 1], "value": "a"},
+                        {"index": 2, "name": "right", "span": [1, 2], "value": "b"}
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "multiline-anchor-span",
+            "pattern": "^(?<line>b)$",
+            "observations": [
+                {
+                    "subject": "a\nb\nc",
+                    "outcome": "match",
+                    "return_code": 2,
+                    "span": [2, 3],
+                    "captures": [
+                        {"index": 0, "span": [2, 3], "value": "b"},
+                        {"index": 1, "name": "line", "span": [2, 3], "value": "b"}
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "unicode-byte-spans",
+            "pattern": "\\A(?<greek>[\\p{Script=Greek}]+)\\z",
+            "observations": [
+                {
+                    "subject": "λβ",
+                    "outcome": "match",
+                    "return_code": 2,
+                    "span": [0, 4],
+                    "captures": [
+                        {"index": 0, "span": [0, 4], "value": "λβ"},
+                        {"index": 1, "name": "greek", "span": [0, 4], "value": "λβ"}
+                    ]
+                },
+                {"subject": "λa", "outcome": "no_match", "return_code": -1, "span": null, "captures": []}
+            ]
+        },
+        {
+            "id": "lookbehind-and-negative-lookahead-span",
+            "pattern": "(?<=ab)(?<body>c+)(?![cd])",
+            "observations": [
+                {
+                    "subject": "xxabccc!",
+                    "outcome": "match",
+                    "return_code": 2,
+                    "span": [4, 7],
+                    "captures": [
+                        {"index": 0, "span": [4, 7], "value": "ccc"},
+                        {"index": 1, "name": "body", "span": [4, 7], "value": "ccc"}
+                    ]
+                },
+                {"subject": "xxabcccd", "outcome": "no_match", "return_code": -1, "span": null, "captures": []}
+            ]
+        },
+        {
+            "id": "atomic-and-possessive-captures",
+            "pattern": "\\A(?<atomic>(?>ab|a))(?<tail>b*+)\\z",
+            "observations": [
+                {
+                    "subject": "abbb",
+                    "outcome": "match",
+                    "return_code": 3,
+                    "span": [0, 4],
+                    "captures": [
+                        {"index": 0, "span": [0, 4], "value": "abbb"},
+                        {"index": 1, "name": "atomic", "span": [0, 2], "value": "ab"},
+                        {"index": 2, "name": "tail", "span": [2, 4], "value": "bb"}
+                    ]
+                }
+            ]
+        }
+    ],
+    "resource_cases": [
+        {
+            "id": "match-limit-stops-catastrophic-backtracking",
+            "pattern": "^(a+)+$",
+            "subject_repeat": {"text": "a", "count": 64, "suffix": "!"},
+            "limits": {"match": 10, "depth": 1000, "heap_kib": 8192},
+            "expected_outcome": "match_limit"
+        },
+        {
+            "id": "depth-limit-stops-deep-backtracking",
+            "pattern": "\\A(?:a?){128}a{128}\\z",
+            "subject_repeat": {"text": "a", "count": 128, "suffix": ""},
+            "limits": {"match": 1000000, "depth": 1, "heap_kib": 8192},
+            "expected_outcome": "depth_limit"
+        },
+        {
+            "id": "heap-limit-stops-frame-growth",
+            "pattern": "\\A(?:a?){128}a{128}\\z",
+            "subject_repeat": {"text": "a", "count": 128, "suffix": ""},
+            "limits": {"match": 1000000, "depth": 1000, "heap_kib": 1},
+            "expected_outcome": "heap_limit"
+        }
+    ],
+    "rewrite_cases": [
+        {
+            "id": "atomic-literal-ascii-elision",
+            "strategy_id": "rewrite.atomic_literal.elide.v1",
+            "original_pattern": "\\A(?>a)\\z",
+            "rewritten_pattern": "\\Aa\\z",
+            "subjects": ["a", "b", "aa"]
+        },
+        {
+            "id": "atomic-literal-caseless-elision",
+            "strategy_id": "rewrite.atomic_literal.elide.v1",
+            "original_pattern": "(?i:\\A(?>k)\\z)",
+            "rewritten_pattern": "(?i:\\Ak\\z)",
+            "subjects": ["k", "K", "K", "x"]
+        }
+    ],
+    "generated_cases": {
+        "seed": 23434101947158087,
+        "count": 256,
+        "maximum_pattern_bytes": 160,
+        "maximum_subject_bytes": 160
+    },
+    "serializer_pathologies": [
+        "deeply_nested_groups",
+        "dense_character_class",
+        "escape_palette",
+        "empty_construct",
+        "maximum_bounded_quantifier",
+        "legal_and_illegal_capture_names",
+        "malformed_lowered_artifact",
+        "conflicting_options"
+    ],
+    "performance_budget": {
+        "warmup_iterations": 16,
+        "sample_iterations": 128,
+        "median_microseconds": {
+            "analysis_and_planning": 10000,
+            "lowering": 5000,
+            "serialization": 5000
+        }
+    }
+}

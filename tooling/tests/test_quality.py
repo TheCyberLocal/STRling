@@ -631,6 +631,31 @@ class QualityRoutingTests(unittest.TestCase):
         assert isinstance(full_members, list)
         full_ids = [member["operation"] for member in full_members]
         self.assertIn("security_dependency_risk", full_ids)
+        self.assertIn("pcre2_runtime_certification", full_ids)
+        self.assertNotIn(
+            "pcre2_runtime_certification",
+            [member["operation"] for member in local_members],
+        )
+        self.assertNotIn(
+            "pcre2_runtime_certification",
+            [
+                member["operation"]
+                for member in toolchain.profile("pull-request")["operations"]
+            ],
+        )
+        self.assertEqual(
+            [
+                "python3",
+                "-m",
+                "tooling.pcre2_runtime_certification",
+                "--json",
+                "--repeat-runs",
+                "2",
+            ],
+            toolchain.operation("pcre2_runtime_certification")["command"],
+        )
+        self.assertEqual("1.5.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.5.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],
@@ -705,6 +730,30 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual("passed", result.status)
         self.assertEqual(payload, result.structured_result)
         self.assertEqual(0, _profile_exit([result]))
+
+    def test_structured_certification_operation_preserves_unavailable(self) -> None:
+        data = policy()
+        definition = {
+            "kind": "repository",
+            "component": "alpha",
+            "command": ["fixture-certification", "--json"],
+            "network": "offline",
+            "result_contract": "certification-result-v1",
+            "result_operation_id": "certification.fixture",
+        }
+        payload = {
+            "operation_id": "certification.fixture",
+            "status": "unavailable",
+            "summary": {"unavailable": 2},
+            "checks": [],
+        }
+        result = QualityRunner(
+            Toolchain(data, Path.cwd()),
+            hardgate_executor=lambda *_args: Execution(2, stdout=json.dumps(payload)),
+        ).run_repository_operation("certification_fixture", definition)
+        self.assertEqual("unavailable", result.status)
+        self.assertEqual(payload, result.structured_result)
+        self.assertEqual(1, _profile_exit([result]))
 
     def test_repository_operation_precedes_profile_and_cannot_be_scoped_away(
         self,
@@ -818,6 +867,17 @@ class QualityRoutingTests(unittest.TestCase):
                     "command": ["fixture-integrity", "--json"],
                     "network": "offline",
                     "result_contract": "security-result-v1",
+                },
+            ),
+            (
+                "certification_fixture",
+                {
+                    "kind": "repository",
+                    "component": "alpha",
+                    "command": ["fixture-certification", "--json"],
+                    "network": "offline",
+                    "result_contract": "certification-result-v1",
+                    "result_operation_id": "security.wrong-prefix",
                 },
             ),
         ]

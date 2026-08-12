@@ -7,11 +7,20 @@ import argparse
 import ctypes
 import hashlib
 import json
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any
 
 PCRE2_CONFIG_VERSION = 11
+PCRE2_ERROR_NOMATCH = -1
+PCRE2_ERROR_MATCHLIMIT = -47
+PCRE2_ERROR_DEPTHLIMIT = -53
+PCRE2_ERROR_HEAPLIMIT = -63
+PCRE2_INFO_CAPTURECOUNT = 4
+PCRE2_INFO_NAMECOUNT = 17
+PCRE2_INFO_NAMEENTRYSIZE = 18
+PCRE2_INFO_NAMETABLE = 19
 PCRE2_MULTILINE = 0x00000400
 PCRE2_UCP = 0x00020000
 PCRE2_UTF = 0x00080000
@@ -34,6 +43,22 @@ class EngineConfiguration:
     newline: int | None
 
 
+@dataclass(frozen=True)
+class MatchLimits:
+    match: int
+    depth: int
+    heap_kib: int
+
+    def __post_init__(self) -> None:
+        for name, value in (
+            ("match", self.match),
+            ("depth", self.depth),
+            ("heap_kib", self.heap_kib),
+        ):
+            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+                raise ValueError(f"{name} limit must be a positive integer")
+
+
 def canonical_bytes(value: object) -> bytes:
     return json.dumps(
         value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
@@ -53,9 +78,7 @@ def file_digest(path: Path) -> str:
 
 
 def profile_configuration(profile: Mapping[str, Any]) -> EngineConfiguration:
-    options = {
-        item["option_id"]: item["value"] for item in profile.get("options", [])
-    }
+    options = {item["option_id"]: item["value"] for item in profile.get("options", [])}
     unknown = sorted(set(options) - SUPPORTED_OPTIONS)
     if unknown:
         raise ValueError(f"unsupported PCRE2 probe option(s): {', '.join(unknown)}")
@@ -112,9 +135,7 @@ class Engine:
         self.set_newline = self.lib.pcre2_set_newline_8
         self.set_newline.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
         self.set_newline.restype = ctypes.c_int
-        self.set_maximum = getattr(
-            self.lib, "pcre2_set_max_varlookbehind_8", None
-        )
+        self.set_maximum = getattr(self.lib, "pcre2_set_max_varlookbehind_8", None)
         if self.set_maximum is not None:
             self.set_maximum.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
             self.set_maximum.restype = ctypes.c_int
@@ -132,6 +153,13 @@ class Engine:
         self.code_free = self.lib.pcre2_code_free_8
         self.code_free.argtypes = [ctypes.c_void_p]
         self.code_free.restype = None
+        self.pattern_info = self.lib.pcre2_pattern_info_8
+        self.pattern_info.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_uint32,
+            ctypes.c_void_p,
+        ]
+        self.pattern_info.restype = ctypes.c_int
 
         self.match_data_create = self.lib.pcre2_match_data_create_from_pattern_8
         self.match_data_create.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
@@ -139,6 +167,24 @@ class Engine:
         self.match_data_free = self.lib.pcre2_match_data_free_8
         self.match_data_free.argtypes = [ctypes.c_void_p]
         self.match_data_free.restype = None
+        self.ovector_pointer = self.lib.pcre2_get_ovector_pointer_8
+        self.ovector_pointer.argtypes = [ctypes.c_void_p]
+        self.ovector_pointer.restype = ctypes.POINTER(ctypes.c_size_t)
+        self.match_context_create = self.lib.pcre2_match_context_create_8
+        self.match_context_create.argtypes = [ctypes.c_void_p]
+        self.match_context_create.restype = ctypes.c_void_p
+        self.match_context_free = self.lib.pcre2_match_context_free_8
+        self.match_context_free.argtypes = [ctypes.c_void_p]
+        self.match_context_free.restype = None
+        self.set_match_limit = self.lib.pcre2_set_match_limit_8
+        self.set_match_limit.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
+        self.set_match_limit.restype = ctypes.c_int
+        self.set_depth_limit = self.lib.pcre2_set_depth_limit_8
+        self.set_depth_limit.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
+        self.set_depth_limit.restype = ctypes.c_int
+        self.set_heap_limit = self.lib.pcre2_set_heap_limit_8
+        self.set_heap_limit.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
+        self.set_heap_limit.restype = ctypes.c_int
         self.match = self.lib.pcre2_match_8
         self.match.argtypes = [
             ctypes.c_void_p,
@@ -188,11 +234,9 @@ class Engine:
                     context, configuration.maximum_variable_lookbehind
                 )
                 if result != 0:
-                    raise RuntimeError(
-                        f"pcre2_set_max_varlookbehind failed: {result}"
-                    )
+                    raise RuntimeError(f"pcre2_set_max_varlookbehind failed: {result}")
 
-            pattern_buffer, pattern_pointer, pattern_length = self._buffer(pattern)
+            _pattern_buffer, pattern_pointer, pattern_length = self._buffer(pattern)
             error_code = ctypes.c_int()
             error_offset = ctypes.c_size_t()
             code = self.compile(
@@ -214,7 +258,7 @@ class Engine:
                 results = []
                 for observation in observations:
                     subject = observation["subject"]
-                    subject_buffer, subject_pointer, subject_length = self._buffer(
+                    _subject_buffer, subject_pointer, subject_length = self._buffer(
                         subject
                     )
                     match_data = self.match_data_create(code, None)
@@ -234,6 +278,186 @@ class Engine:
                         self.match_data_free(match_data)
                     results.append({"subject": subject, "matched": result >= 0})
                 return {"compile": "ok", "matches": results}
+            finally:
+                self.code_free(code)
+        finally:
+            self.compile_context_free(context)
+
+    def _pattern_u32(self, code: int, selector: int) -> int:
+        value = ctypes.c_uint32()
+        result = self.pattern_info(code, selector, ctypes.byref(value))
+        if result != 0:
+            raise RuntimeError(f"pcre2_pattern_info({selector}) failed: {result}")
+        return value.value
+
+    def _capture_names(self, code: int) -> dict[int, str]:
+        name_count = self._pattern_u32(code, PCRE2_INFO_NAMECOUNT)
+        if name_count == 0:
+            return {}
+        entry_size = self._pattern_u32(code, PCRE2_INFO_NAMEENTRYSIZE)
+        table = ctypes.c_void_p()
+        result = self.pattern_info(
+            code,
+            PCRE2_INFO_NAMETABLE,
+            ctypes.byref(table),
+        )
+        if result != 0 or table.value is None:
+            raise RuntimeError(
+                f"pcre2_pattern_info({PCRE2_INFO_NAMETABLE}) failed: {result}"
+            )
+        names: dict[int, str] = {}
+        for index in range(name_count):
+            entry = ctypes.string_at(table.value + index * entry_size, entry_size)
+            capture_index = (entry[0] << 8) | entry[1]
+            names[capture_index] = entry[2:].split(b"\0", 1)[0].decode("utf-8")
+        return names
+
+    def _create_match_context(self, limits: MatchLimits) -> int:
+        context = self.match_context_create(None)
+        if not context:
+            raise RuntimeError("PCRE2 match-context allocation failed")
+        setters = (
+            ("match", self.set_match_limit, limits.match),
+            ("depth", self.set_depth_limit, limits.depth),
+            ("heap", self.set_heap_limit, limits.heap_kib),
+        )
+        for name, setter, value in setters:
+            result = setter(context, value)
+            if result != 0:
+                self.match_context_free(context)
+                raise RuntimeError(f"pcre2_set_{name}_limit failed: {result}")
+        return context
+
+    @staticmethod
+    def _match_outcome(result: int) -> str:
+        return {
+            PCRE2_ERROR_NOMATCH: "no_match",
+            PCRE2_ERROR_MATCHLIMIT: "match_limit",
+            PCRE2_ERROR_DEPTHLIMIT: "depth_limit",
+            PCRE2_ERROR_HEAPLIMIT: "heap_limit",
+        }.get(result, "match" if result >= 0 else "error")
+
+    def run_detailed_case(
+        self,
+        pattern: str,
+        observations: Sequence[Mapping[str, Any]],
+        configuration: EngineConfiguration,
+        limits: MatchLimits,
+    ) -> dict[str, Any]:
+        """Compile once and expose bounded match, span, and capture observations."""
+
+        context = self.compile_context_create(None)
+        if not context:
+            raise RuntimeError("PCRE2 compile-context allocation failed")
+        try:
+            if configuration.newline is not None:
+                result = self.set_newline(context, configuration.newline)
+                if result != 0:
+                    raise RuntimeError(f"pcre2_set_newline failed: {result}")
+            if configuration.maximum_variable_lookbehind is not None:
+                if self.set_maximum is None:
+                    raise RuntimeError(
+                        "selected profile requires pcre2_set_max_varlookbehind"
+                    )
+                result = self.set_maximum(
+                    context, configuration.maximum_variable_lookbehind
+                )
+                if result != 0:
+                    raise RuntimeError(f"pcre2_set_max_varlookbehind failed: {result}")
+
+            _pattern_buffer, pattern_pointer, pattern_length = self._buffer(pattern)
+            error_code = ctypes.c_int()
+            error_offset = ctypes.c_size_t()
+            code = self.compile(
+                pattern_pointer,
+                pattern_length,
+                configuration.compile_options,
+                ctypes.byref(error_code),
+                ctypes.byref(error_offset),
+                context,
+            )
+            if not code:
+                return {
+                    "compile": "error",
+                    "error_code": error_code.value,
+                    "error_offset": error_offset.value,
+                    "captures": [],
+                    "matches": [],
+                }
+            try:
+                capture_count = self._pattern_u32(code, PCRE2_INFO_CAPTURECOUNT)
+                capture_names = self._capture_names(code)
+                results = []
+                for observation in observations:
+                    subject = observation["subject"]
+                    subject_bytes = subject.encode("utf-8")
+                    _subject_buffer, subject_pointer, subject_length = self._buffer(
+                        subject
+                    )
+                    match_data = self.match_data_create(code, None)
+                    if not match_data:
+                        raise RuntimeError("PCRE2 match-data allocation failed")
+                    match_context = self._create_match_context(limits)
+                    try:
+                        result = self.match(
+                            code,
+                            subject_pointer,
+                            subject_length,
+                            0,
+                            0,
+                            match_data,
+                            match_context,
+                        )
+                        outcome = self._match_outcome(result)
+                        captures = []
+                        if result >= 0:
+                            ovector = self.ovector_pointer(match_data)
+                            unset = ctypes.c_size_t(-1).value
+                            for capture_index in range(capture_count + 1):
+                                start = ovector[2 * capture_index]
+                                end = ovector[2 * capture_index + 1]
+                                item: dict[str, Any] = {"index": capture_index}
+                                if capture_index in capture_names:
+                                    item["name"] = capture_names[capture_index]
+                                if start == unset or end == unset:
+                                    item.update({"span": None, "value": None})
+                                else:
+                                    item.update(
+                                        {
+                                            "span": [start, end],
+                                            "value": subject_bytes[start:end].decode(
+                                                "utf-8"
+                                            ),
+                                        }
+                                    )
+                                captures.append(item)
+                        results.append(
+                            {
+                                "subject": subject,
+                                "outcome": outcome,
+                                "return_code": result,
+                                "span": captures[0]["span"] if captures else None,
+                                "captures": captures,
+                            }
+                        )
+                    finally:
+                        self.match_context_free(match_context)
+                        self.match_data_free(match_data)
+                return {
+                    "compile": "ok",
+                    "captures": [
+                        {
+                            "index": index,
+                            **(
+                                {"name": capture_names[index]}
+                                if index in capture_names
+                                else {}
+                            ),
+                        }
+                        for index in range(capture_count + 1)
+                    ],
+                    "matches": results,
+                }
             finally:
                 self.code_free(code)
         finally:
@@ -278,8 +502,7 @@ def run_probe(
             )
         if actual["compile"] == "ok" and actual["matches"] != expectation["matches"]:
             raise AssertionError(
-                f"{case['id']}: direct match observations differ: "
-                f"{actual['matches']!r}"
+                f"{case['id']}: direct match observations differ: {actual['matches']!r}"
             )
         results.append(
             {
@@ -302,9 +525,7 @@ def run_probe(
         "configuration": {
             "compile_options": configuration.compile_options,
             "matcher_api": configuration.matcher_api,
-            "maximum_variable_lookbehind": (
-                configuration.maximum_variable_lookbehind
-            ),
+            "maximum_variable_lookbehind": (configuration.maximum_variable_lookbehind),
             "newline": configuration.newline,
         },
         "cases": results,

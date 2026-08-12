@@ -40,8 +40,8 @@ operation sets ratchet forward:
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `local`        | Fast, deterministic developer feedback from offline-capable baseline operations.                                                                               | Network-backed operations are forbidden.                                                                                          |
 | `pull-request` | Merge confidence, including every local guarantee plus applicable tests, generated-state checks, and documentation/example integrity.                          | Network-backed operations are forbidden unless a later explicit policy revision can make them deterministic and least-privileged. |
-| `full`         | Broad repository certification across the currently governed component and environment envelope.                                                               | Governed network operations are permitted and remain unavailable when their authoritative environment is absent.                  |
-| `release`      | The highest currently implemented pre-release envelope and the stable destination for later packaging, real-engine, provenance, adapter, and clean-room gates. | Governed network operations are permitted; release publication is outside this profile.                                           |
+| `full`         | Broad repository certification across the currently governed component, exact-engine, and environment envelope.                                                 | Governed network operations are permitted and remain unavailable when their authoritative environment is absent.                  |
+| `release`      | The highest currently implemented pre-release envelope and the stable destination for later packaging, provenance, adapter, and clean-room gates.              | Governed network operations are permitted; release publication is outside this profile.                                           |
 
 The release identity does not assert release readiness. A defined but
 unimplemented or unavailable required member makes the result incomplete or
@@ -125,9 +125,26 @@ canonical deterministic evidence projection. Timestamps and local paths must
 not change profile identity or evidence fingerprints.
 
 Artifact generation does not scan stdout. An operation with a nested structured
-contract, including security, must validate that contract, operation identity,
-status, and exit code before its evidence is accepted. Artifact schema
-validation is mechanical.
+contract, including security, documentation, or exact-engine certification,
+must validate that contract, operation identity, status, and exit code before
+its evidence is accepted. Artifact schema validation is mechanical.
+
+## Exact-engine certification
+
+Full and Release include the canonical `pcre2_runtime_certification`
+repository operation. It consumes only explicitly supplied exact PCRE2 10.42
+and 10.43 8-bit libraries, validates their versions, and preserves its
+`certification-result-v1` evidence in the profile artifact. Missing libraries
+produce `unavailable`; component selection, profile rendering, and CI cannot
+scope the operation away or reinterpret it as passing.
+
+The operation is offline and deterministic with respect to semantic evidence.
+Its structured result fingerprints exact binaries, profiles, corpora, harness,
+platform, configuration, bounded generated cases, resource-limit outcomes, and
+repeated semantic digests. Raw timing observations remain visible but are
+excluded from the deterministic evidence digest. Local and Pull Request omit
+the operation so their bounded developer and merge-confidence purposes remain
+unchanged.
 
 ## Human-summary ownership
 
