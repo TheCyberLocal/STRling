@@ -1,0 +1,120 @@
+record_version: 2.0.0
+title: Evidence-bearing rewrite equivalence and portability explanations
+status: in_progress
+objective: Make equivalent_rewrite impossible without current authored certification evidence and expose deterministic target-aware explanations without applying rewrites, lowering, emission, or product migration.
+scope:
+    diff:
+        base: bf085633f9ff036a0c0d6db3b72d5868787b600c
+        head: working-tree
+    allowed_paths:
+        - core/contract-mapping.json
+        - core/src/capability_pipeline.rs
+        - core/src/kernel.rs
+        - core/src/lib.rs
+        - core/src/portability_diagnostics.rs
+        - core/src/portability_planning.rs
+        - core/src/portability_planning/**
+        - core/tests/compiler_boundary_orchestration.rs
+        - core/tests/portability_diagnostics.rs
+        - core/tests/portability_planning.rs
+        - core/tests/portability_planning_properties.rs
+        - core/tests/rewrite_equivalence_registry.rs
+        - docs/architecture.md
+        - docs/migration/equivalence-proof-hooks.md
+        - docs/migration/records/equivalence-proof-hooks.yaml
+        - docs/portability-planning.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/public-surfaces.json
+        - spec/contracts/1.0/examples/compile-request/equivalence-explanation.json
+        - spec/contracts/1.0/examples/compile-result/equivalence-explanation.json
+        - spec/portability/equivalence/1.0/**
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_portability_architecture.py
+        - tooling/tests/test_portability_diagnostics_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/regex_frontend.rs
+        - core/src/target/**
+        - spec/contracts/1.0/*.schema.json
+        - spec/grammar/**
+        - spec/targets/profiles/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/equivalence-proof-hooks.md
+        - docs/migration/records/equivalence-proof-hooks.yaml
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - The only admitted strategy remains atomic-literal elision with the same structural preconditions and no applied transformation.
+    public_api_change:
+        level: additive
+        evidence:
+            - Canonical portability requests gain structured explanatory diagnostics and equivalent-rewrite plans carry inspectable certification evidence inside the internal Rust planning model.
+        affected_surfaces:
+            - strling-kernel
+    schema_change:
+        level: additive
+        evidence:
+            - Adds a separately versioned authored equivalence-registry schema; canonical compiler protocol and target-profile schemas remain unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Adds stable portability explanation diagnostics for native, equivalent rewrite, unsupported, and unresolved decisions with node/source and capability/proof evidence.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Target profiles, factual capability evaluation, lowering, emission, and runtime behavior remain unchanged.
+    architecture_change:
+        level: additive
+        evidence:
+            - Separates authored equivalence certification and target-aware portability explanations from target-neutral diagnostics, emitters, bindings, and frontend code.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Authored equivalence registry and certification binding
+      command: cargo test --manifest-path core/Cargo.toml --test rewrite_equivalence_registry --locked
+      expected_result: Registry version, strategy definition, conformance bytes, fingerprints, proof obligations, and later-executable hooks reproduce exactly; missing or stale evidence blocks selection and validation.
+    - name: Planner proof and property certification
+      command: cargo test --manifest-path core/Cargo.toml --test portability_planning --test portability_planning_properties --locked
+      expected_result: Atomic-literal elision remains the sole admitted strategy; all positive, negative, profile-differential, completeness, determinism, idempotence, immutability, and malformed-evidence properties pass.
+    - name: Portability explanations and public facade
+      command: cargo test --manifest-path core/Cargo.toml --test portability_diagnostics --test compiler_boundary_orchestration --locked
+      expected_result: Native, rewrite, unsupported, and unresolved decisions receive stable structured explanations with exact node/source and capability, constraint, registry, proof, and profile evidence; diagnostic policy and public projection remain deterministic.
+    - name: Repository certification
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked; cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; python3 tooling/core_contract_validation.py; python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; ./strling profile local; ./strling profile pull-request; git diff --check
+      expected_result: Every task-scoped gate passes, public additions reproduce exactly, aggregate carry-forward remains explicit, and the committed tree is clean.
+checkpoints:
+    - name: Existing planner, proof, diagnostic, and contract inventory
+      status: passed
+      evidence:
+          - check: Read-first authority inventory
+            result: passed
+            details: P09-T04 already owns a pure planner, one hard-coded rewrite.atomic_literal.elide.v1 strategy, three structural proof conditions, replacement-capability checks, complete attempt evidence, profile correspondence, property tests, and internal validation. The missing P09-T05 boundary is authored/versioned registry authority, reproducible strategy/conformance fingerprints bound into selected plans, stale-evidence rejection, and target-aware explanatory diagnostics. Canonical portability/result schemas already carry stable status, reason code, node IDs, and Diagnostic values, so the compiler protocol schemas need no mutation.
+    - name: Versioned registry and proof certification
+      status: in_progress
+      evidence: []
+    - name: Compatibility explanations and negative evidence
+      status: planned
+      evidence: []
+    - name: Property, contract, architecture, and repository certification
+      status: planned
+      evidence: []
+commits: []
