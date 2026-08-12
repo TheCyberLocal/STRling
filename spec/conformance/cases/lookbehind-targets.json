@@ -55,8 +55,8 @@
             {
                 "target_profile": {
                     "profile_id": "profile:pcre2/10.42",
-                    "profile_version": "1.0.0",
-                    "sha256": "0c02900843a8ab51b1e7f5bac686d6dd682adb280eba52bd9331da4f4c0be71a"
+                    "profile_version": "1.1.0",
+                    "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
                 },
                 "status": "unsupported",
                 "reason_codes": ["profile_capability_unavailable"]
@@ -64,8 +64,8 @@
             {
                 "target_profile": {
                     "profile_id": "profile:pcre2/10.43",
-                    "profile_version": "1.0.0",
-                    "sha256": "6351e2238916cf012230f56c4134eb6e03fe82b51131b6cb1f79272d5b669c74"
+                    "profile_version": "1.1.0",
+                    "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
                 },
                 "status": "native",
                 "reason_codes": ["within_profile_limit"]
@@ -73,8 +73,8 @@
             {
                 "target_profile": {
                     "profile_id": "profile:python-re/3.11",
-                    "profile_version": "1.0.0",
-                    "sha256": "75466587f6b7f27f1d697ac737eb87a2595f6d359fb7991a6d4865999ed28550"
+                    "profile_version": "1.1.0",
+                    "sha256": "d5cf41327257b97a68df551f5971c1e0e3b95bca810e8ac7b11b23020f23879d"
                 },
                 "status": "unsupported",
                 "reason_codes": ["profile_capability_unavailable"]

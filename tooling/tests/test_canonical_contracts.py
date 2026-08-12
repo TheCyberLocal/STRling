@@ -45,7 +45,7 @@ class CanonicalContractTests(unittest.TestCase):
         )
 
     def test_positive_examples_validate(self) -> None:
-        self.assertEqual(30, self.suite.validate_positive_examples())
+        self.assertEqual(42, self.suite.validate_positive_examples())
 
     def test_controlled_negative_examples_are_rejected(self) -> None:
         self.assertEqual(33, self.suite.validate_negative_examples())
@@ -228,7 +228,14 @@ class CanonicalContractTests(unittest.TestCase):
         self.assertNotIn("(*UTF)", artifact["pattern"]["text"])
         self.assertNotIn("(*UCP)", artifact["pattern"]["text"])
         self.assertEqual(
-            ["pcre2.ucp", "pcre2.utf"],
+            [
+                "pcre2.matcher_api",
+                "pcre2.max_variable_lookbehind",
+                "pcre2.multiline",
+                "pcre2.newline",
+                "pcre2.ucp",
+                "pcre2.utf",
+            ],
             [item["option_id"] for item in artifact["engine_options"]],
         )
 

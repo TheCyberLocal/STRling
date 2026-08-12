@@ -108,11 +108,11 @@ fn mixed_program() -> SemanticProgram {
                 "polarity": "positive",
                 "body": {
                     "node_id": "node:mixed.lookbehind.variable.body",
-                    "kind": "alternation",
-                    "branches": [
-                        literal("node:mixed.lookbehind.variable.short", "e"),
-                        literal("node:mixed.lookbehind.variable.long", "fgh")
-                    ]
+                    "kind": "repeat",
+                    "body": literal("node:mixed.lookbehind.variable.operand", "e"),
+                    "min": 1,
+                    "max": 3,
+                    "mode": "greedy"
                 }
             },
             {
@@ -195,7 +195,7 @@ fn canonical_profiles_produce_expected_feature_differentials() {
     );
     assert_eq!(
         result_for(&pcre_1043, "node:mixed.lookbehind.variable").disposition,
-        CapabilityDisposition::Unknown
+        CapabilityDisposition::Supported
     );
     assert_eq!(
         result_for(&ecmascript, "node:mixed.lookbehind.variable").disposition,
@@ -242,6 +242,14 @@ fn canonical_profiles_produce_expected_feature_differentials() {
             unicode_property.disposition,
             CapabilityDisposition::Supported
         );
+    }
+    for evaluation in [&pcre_1042, &pcre_1043] {
+        assert_eq!(
+            result_for(evaluation, "node:mixed.lookahead").disposition,
+            CapabilityDisposition::Supported
+        );
+    }
+    for evaluation in [&ecmascript, &python] {
         assert_eq!(
             result_for(evaluation, "node:mixed.lookahead").disposition,
             CapabilityDisposition::Unknown

@@ -1,7 +1,7 @@
 {
     "contract_version": "1.0.0",
     "profile_id": "profile:pcre2/10.42",
-    "profile_version": "1.0.0",
+    "profile_version": "1.1.0",
     "engine": {
         "id": "pcre2",
         "version": {
@@ -16,6 +16,58 @@
     },
     "capabilities": [
         {
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "anchors.input_end",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "anchors.input_start",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "anchors.line_end",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "multiline_option",
+                    "operator": "requires_option",
+                    "value": "pcre2.multiline"
+                },
+                {
+                    "constraint_id": "newline_option",
+                    "operator": "requires_option",
+                    "value": "pcre2.newline"
+                }
+            ]
+        },
+        {
+            "capability_id": "anchors.line_start",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "multiline_option",
+                    "operator": "requires_option",
+                    "value": "pcre2.multiline"
+                },
+                {
+                    "constraint_id": "newline_option",
+                    "operator": "requires_option",
+                    "value": "pcre2.newline"
+                }
+            ]
+        },
+        {
+            "capability_id": "assertions.lookahead",
+            "availability": "available",
+            "constraints": []
+        },
+        {
             "capability_id": "assertions.lookbehind.fixed_length",
             "availability": "available",
             "constraints": []
@@ -24,6 +76,27 @@
             "capability_id": "assertions.lookbehind.variable_length",
             "availability": "unavailable",
             "constraints": []
+        },
+        {
+            "capability_id": "boundaries.word",
+            "availability": "unavailable",
+            "constraints": []
+        },
+        {
+            "capability_id": "character_classes.unicode",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "class",
+                    "operator": "one_of",
+                    "value": ["digit", "whitespace"]
+                },
+                {
+                    "constraint_id": "ucp_option",
+                    "operator": "requires_option",
+                    "value": "pcre2.ucp"
+                }
+            ]
         },
         {
             "capability_id": "character_properties.unicode",
@@ -37,7 +110,56 @@
             ]
         },
         {
+            "capability_id": "character_semantics.unicode_scalar",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "utf_option",
+                    "operator": "requires_option",
+                    "value": "pcre2.utf"
+                }
+            ]
+        },
+        {
             "capability_id": "groups.atomic",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "groups.named_capture",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "name_code_units",
+                    "operator": "at_most",
+                    "value": 32,
+                    "unit": "code_units"
+                },
+                {
+                    "constraint_id": "name_syntax",
+                    "operator": "equals",
+                    "value": "ascii_identifier"
+                }
+            ]
+        },
+        {
+            "capability_id": "matching.case_insensitive",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "utf_option",
+                    "operator": "requires_option",
+                    "value": "pcre2.utf"
+                }
+            ]
+        },
+        {
+            "capability_id": "references.backreference",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "repetition.lazy",
             "availability": "available",
             "constraints": []
         },
@@ -48,6 +170,24 @@
         }
     ],
     "options": [
+        {
+            "option_id": "pcre2.matcher_api",
+            "stage": "runtime",
+            "value": "pcre2_match",
+            "selection": "required"
+        },
+        {
+            "option_id": "pcre2.multiline",
+            "stage": "compile",
+            "value": true,
+            "selection": "required"
+        },
+        {
+            "option_id": "pcre2.newline",
+            "stage": "compile",
+            "value": "any",
+            "selection": "required"
+        },
         {
             "option_id": "pcre2.ucp",
             "stage": "compile",
@@ -63,10 +203,16 @@
     ],
     "evidence": [
         {
+            "evidence_id": "pcre2_api_options",
+            "authority": "engine_documentation",
+            "url": "https://raw.githubusercontent.com/PCRE2Project/pcre2/pcre2-10.42/doc/pcre2api.3",
+            "locator": "Compile contexts select newline convention; compile options include MULTILINE, UCP, and UTF; matching is performed by pcre2_match."
+        },
+        {
             "evidence_id": "pcre2_pattern",
             "authority": "engine_documentation",
-            "url": "https://pcre.org/current/doc/html/pcre2pattern.html",
-            "locator": "Lookbehind assertions: versions earlier than 10.43 support fixed-length top-level alternatives only."
+            "url": "https://raw.githubusercontent.com/PCRE2Project/pcre2/pcre2-10.42/doc/pcre2pattern.3",
+            "locator": "Documents captures and references, lookahead, fixed-length top-level lookbehind alternatives, anchors, UCP classes, atomic groups, repetition modes, and the 32-code-unit capture-name maximum."
         }
     ]
 }

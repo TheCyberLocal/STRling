@@ -33,6 +33,9 @@ pub const MAX_PCRE2_PATTERN_BYTES: usize = 16 * 1024 * 1024;
 /// PCRE2's maximum ordinary capture slot and quantifier bound.
 pub const MAX_PCRE2_PATTERN_COUNT: u64 = 65_535;
 
+/// PCRE2's documented maximum named-capture length in code units.
+pub const MAX_PCRE2_CAPTURE_NAME_CODE_UNITS: usize = 32;
+
 /// Stable PCRE2 serialization failure categories.
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Pcre2SerializationErrorCode {
@@ -238,7 +241,7 @@ fn validate_capture_plan(plan: &Pcre2LoweringPlan) -> Result<(), Box<EmitProblem
             ));
         }
         if let Some(name) = &capture.name {
-            validate_identifier(name).map_err(|message| {
+            validate_capture_name(name).map_err(|message| {
                 problem(
                     Pcre2SerializationErrorCode::InvalidCapture,
                     &plan.root.provenance,
@@ -424,7 +427,7 @@ fn emit_node(emitter: &mut PatternEmitter, node: &Pcre2Node) -> Result<(), Box<E
             name, body, slot, ..
         } => {
             if let Some(name) = name {
-                validate_identifier(name).map_err(|message| {
+                validate_capture_name(name).map_err(|message| {
                     problem(
                         Pcre2SerializationErrorCode::InvalidCapture,
                         &node.provenance,
@@ -458,7 +461,14 @@ fn emit_node(emitter: &mut PatternEmitter, node: &Pcre2Node) -> Result<(), Box<E
                 Pcre2Lookaround::NegativeBehind => "(?<!",
             };
             emitter.push(prefix, &node.provenance)?;
-            emit_node(emitter, body)?;
+            if matches!(
+                assertion,
+                Pcre2Lookaround::PositiveBehind | Pcre2Lookaround::NegativeBehind
+            ) {
+                emit_lookbehind_body(emitter, body)?;
+            } else {
+                emit_node(emitter, body)?;
+            }
             emitter.push(")", &node.provenance)?;
         }
         Pcre2Operation::Atomic(body) => {
@@ -469,6 +479,24 @@ fn emit_node(emitter: &mut PatternEmitter, node: &Pcre2Node) -> Result<(), Box<E
     }
     let end = emitter.offset();
     emitter.record(start, end, &node.provenance);
+    Ok(())
+}
+
+fn emit_lookbehind_body(
+    emitter: &mut PatternEmitter,
+    body: &Pcre2Node,
+) -> Result<(), Box<EmitProblem>> {
+    let Pcre2Operation::Alternation(branches) = &body.operation else {
+        return emit_node(emitter, body);
+    };
+    let start = emitter.offset();
+    for (index, branch) in branches.iter().enumerate() {
+        if index != 0 {
+            emitter.push("|", &body.provenance)?;
+        }
+        emit_node(emitter, branch)?;
+    }
+    emitter.record(start, emitter.offset(), &body.provenance);
     Ok(())
 }
 
@@ -633,7 +661,7 @@ fn emit_unicode_property(
     value: Option<&str>,
     negated: bool,
 ) -> Result<(), Box<EmitProblem>> {
-    validate_identifier(property).map_err(|message| {
+    validate_unicode_identifier(property).map_err(|message| {
         problem(
             Pcre2SerializationErrorCode::InvalidUnicodeProperty,
             &node.provenance,
@@ -641,7 +669,7 @@ fn emit_unicode_property(
         )
     })?;
     if let Some(value) = value {
-        validate_identifier(value).map_err(|message| {
+        validate_unicode_identifier(value).map_err(|message| {
             problem(
                 Pcre2SerializationErrorCode::InvalidUnicodeProperty,
                 &node.provenance,
@@ -658,10 +686,21 @@ fn emit_unicode_property(
     emitter.push("}", &node.provenance)
 }
 
-fn validate_identifier(value: &str) -> Result<(), &'static str> {
-    if value.len() > 128 {
-        return Err("identifier exceeds 128 ASCII code units");
+fn validate_capture_name(value: &str) -> Result<(), &'static str> {
+    if value.len() > MAX_PCRE2_CAPTURE_NAME_CODE_UNITS {
+        return Err("capture name exceeds 32 ASCII code units");
     }
+    validate_ascii_identifier(value)
+}
+
+fn validate_unicode_identifier(value: &str) -> Result<(), &'static str> {
+    if value.len() > 128 {
+        return Err("Unicode property identifier exceeds 128 ASCII code units");
+    }
+    validate_ascii_identifier(value)
+}
+
+fn validate_ascii_identifier(value: &str) -> Result<(), &'static str> {
     let mut characters = value.chars();
     let Some(first) = characters.next() else {
         return Err("identifier is empty");

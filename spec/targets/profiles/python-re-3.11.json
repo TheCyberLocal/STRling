@@ -1,7 +1,7 @@
 {
     "contract_version": "1.0.0",
     "profile_id": "profile:python-re/3.11",
-    "profile_version": "1.0.0",
+    "profile_version": "1.1.0",
     "engine": {
         "id": "python_re",
         "version": {
@@ -24,8 +24,14 @@
     "capabilities": [
         {
             "capability_id": "assertions.lookbehind.fixed_length",
-            "availability": "available",
-            "constraints": []
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "common_fixed_width",
+                    "operator": "equals",
+                    "value": true
+                }
+            ]
         },
         {
             "capability_id": "assertions.lookbehind.variable_length",
@@ -67,7 +73,7 @@
             "evidence_id": "python_re",
             "authority": "engine_documentation",
             "url": "https://docs.python.org/3.11/library/re.html",
-            "locator": "Python 3.11 re syntax documents fixed-length lookbehind, atomic groups, and possessive quantifiers."
+            "locator": "Python 3.11 re syntax requires a fixed-length lookbehind body; alternatives are permitted only when every branch has the same fixed length, and the same syntax reference documents atomic groups and possessive quantifiers."
         }
     ]
 }

@@ -1,0 +1,480 @@
+{
+    "corpus_version": "1.0.0",
+    "profiles": ["10.42", "10.43"],
+    "cases": [
+        {
+            "id": "positive-lookahead",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.lookahead-positive.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.lookahead-positive.start", "kind": "position", "position": "input_start"},
+                        {
+                            "node_id": "node:feature.lookahead-positive.assertion",
+                            "kind": "lookaround",
+                            "direction": "ahead",
+                            "polarity": "positive",
+                            "body": {"node_id": "node:feature.lookahead-positive.body", "kind": "literal", "text": "a"}
+                        },
+                        {"node_id": "node:feature.lookahead-positive.literal", "kind": "literal", "text": "a"},
+                        {"node_id": "node:feature.lookahead-positive.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "\\A(?=a)a\\z",
+            "profiles": {
+                "10.42": {"status": "native", "compile": "ok", "matches": [{"subject": "a", "matched": true}, {"subject": "b", "matched": false}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "a", "matched": true}, {"subject": "b", "matched": false}]}
+            }
+        },
+        {
+            "id": "negative-lookahead",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.lookahead-negative.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.lookahead-negative.start", "kind": "position", "position": "input_start"},
+                        {
+                            "node_id": "node:feature.lookahead-negative.assertion",
+                            "kind": "lookaround",
+                            "direction": "ahead",
+                            "polarity": "negative",
+                            "body": {"node_id": "node:feature.lookahead-negative.body", "kind": "literal", "text": "b"}
+                        },
+                        {"node_id": "node:feature.lookahead-negative.literal", "kind": "literal", "text": "a"},
+                        {"node_id": "node:feature.lookahead-negative.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "\\A(?!b)a\\z",
+            "profiles": {
+                "10.42": {"status": "native", "compile": "ok", "matches": [{"subject": "a", "matched": true}, {"subject": "b", "matched": false}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "a", "matched": true}, {"subject": "b", "matched": false}]}
+            }
+        },
+        {
+            "id": "fixed-alternative-lookbehind",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.fixed-alternatives.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.fixed-alternatives.start", "kind": "position", "position": "input_start"},
+                        {
+                            "node_id": "node:feature.fixed-alternatives.prefix",
+                            "kind": "alternation",
+                            "branches": [
+                                {"node_id": "node:feature.fixed-alternatives.prefix-a", "kind": "literal", "text": "a"},
+                                {"node_id": "node:feature.fixed-alternatives.prefix-bc", "kind": "literal", "text": "bc"}
+                            ]
+                        },
+                        {
+                            "node_id": "node:feature.fixed-alternatives.assertion",
+                            "kind": "lookaround",
+                            "direction": "behind",
+                            "polarity": "positive",
+                            "body": {
+                                "node_id": "node:feature.fixed-alternatives.body",
+                                "kind": "alternation",
+                                "branches": [
+                                    {"node_id": "node:feature.fixed-alternatives.body-a", "kind": "literal", "text": "a"},
+                                    {"node_id": "node:feature.fixed-alternatives.body-bc", "kind": "literal", "text": "bc"}
+                                ]
+                            }
+                        },
+                        {"node_id": "node:feature.fixed-alternatives.suffix", "kind": "literal", "text": "d"},
+                        {"node_id": "node:feature.fixed-alternatives.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "\\A(?:a|bc)(?<=a|bc)d\\z",
+            "profiles": {
+                "10.42": {"status": "native", "compile": "ok", "matches": [{"subject": "ad", "matched": true}, {"subject": "bcd", "matched": true}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "ad", "matched": true}, {"subject": "bcd", "matched": true}]}
+            }
+        },
+        {
+            "id": "bounded-variable-lookbehind",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.variable-lookbehind.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.variable-lookbehind.start", "kind": "position", "position": "input_start"},
+                        {
+                            "node_id": "node:feature.variable-lookbehind.prefix",
+                            "kind": "alternation",
+                            "branches": [
+                                {"node_id": "node:feature.variable-lookbehind.prefix-a", "kind": "literal", "text": "a"},
+                                {"node_id": "node:feature.variable-lookbehind.prefix-aa", "kind": "literal", "text": "aa"}
+                            ]
+                        },
+                        {
+                            "node_id": "node:feature.variable-lookbehind.assertion",
+                            "kind": "lookaround",
+                            "direction": "behind",
+                            "polarity": "positive",
+                            "body": {
+                                "node_id": "node:feature.variable-lookbehind.repeat",
+                                "kind": "repeat",
+                                "body": {"node_id": "node:feature.variable-lookbehind.body", "kind": "literal", "text": "a"},
+                                "min": 1,
+                                "max": 255,
+                                "mode": "greedy"
+                            }
+                        },
+                        {"node_id": "node:feature.variable-lookbehind.suffix", "kind": "literal", "text": "d"},
+                        {"node_id": "node:feature.variable-lookbehind.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "\\A(?:a|aa)(?<=(?:a){1,255})d\\z",
+            "profiles": {
+                "10.42": {"status": "unsupported", "compile": "error", "matches": []},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "ad", "matched": true}, {"subject": "aad", "matched": true}]}
+            }
+        },
+        {
+            "id": "variable-lookbehind-over-limit",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.variable-over-limit.assertion",
+                    "kind": "lookaround",
+                    "direction": "behind",
+                    "polarity": "positive",
+                    "body": {
+                        "node_id": "node:feature.variable-over-limit.repeat",
+                        "kind": "repeat",
+                        "body": {"node_id": "node:feature.variable-over-limit.body", "kind": "literal", "text": "a"},
+                        "min": 1,
+                        "max": 256,
+                        "mode": "greedy"
+                    }
+                }
+            },
+            "pattern": "(?<=(?:a){1,256})",
+            "profiles": {
+                "10.42": {"status": "unsupported", "compile": "error", "matches": []},
+                "10.43": {"status": "unsupported", "compile": "error", "matches": []}
+            }
+        },
+        {
+            "id": "named-capture-backreference",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.capture-reference.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.capture-reference.start", "kind": "position", "position": "input_start"},
+                        {
+                            "node_id": "node:feature.capture-reference.capture",
+                            "kind": "capture",
+                            "capture_id": "capture:feature.word",
+                            "name": "word",
+                            "body": {"node_id": "node:feature.capture-reference.body", "kind": "literal", "text": "a"}
+                        },
+                        {"node_id": "node:feature.capture-reference.reference", "kind": "backreference", "capture_id": "capture:feature.word"},
+                        {"node_id": "node:feature.capture-reference.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "\\A(?<word>a)\\g{1}\\z",
+            "profiles": {
+                "10.42": {"status": "native", "compile": "ok", "matches": [{"subject": "aa", "matched": true}, {"subject": "ab", "matched": false}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "aa", "matched": true}, {"subject": "ab", "matched": false}]}
+            }
+        },
+        {
+            "id": "capture-name-at-limit",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.capture-name-limit.capture",
+                    "kind": "capture",
+                    "capture_id": "capture:feature.name-limit",
+                    "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "body": {"node_id": "node:feature.capture-name-limit.body", "kind": "literal", "text": "a"}
+                }
+            },
+            "pattern": "(?<aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa>a)",
+            "profiles": {
+                "10.42": {"status": "native", "compile": "ok", "matches": [{"subject": "a", "matched": true}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "a", "matched": true}]}
+            }
+        },
+        {
+            "id": "capture-name-over-limit",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.capture-name-over.capture",
+                    "kind": "capture",
+                    "capture_id": "capture:feature.name-over",
+                    "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "body": {"node_id": "node:feature.capture-name-over.body", "kind": "literal", "text": "a"}
+                }
+            },
+            "pattern": "(?<aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa>a)",
+            "profiles": {
+                "10.42": {"status": "unsupported", "compile": "error", "matches": []},
+                "10.43": {"status": "unsupported", "compile": "error", "matches": []}
+            }
+        },
+        {
+            "id": "multiline-anchors",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.multiline.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.multiline.start", "kind": "position", "position": "line_start"},
+                        {"node_id": "node:feature.multiline.literal", "kind": "literal", "text": "b"},
+                        {"node_id": "node:feature.multiline.end", "kind": "position", "position": "line_end"}
+                    ]
+                }
+            },
+            "pattern": "^b$",
+            "profiles": {
+                "10.42": {"status": "native", "compile": "ok", "matches": [{"subject": "a\nb\nc", "matched": true}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "a\nb\nc", "matched": true}]}
+            }
+        },
+        {
+            "id": "atomic-no-backtrack",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.atomic.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.atomic.start", "kind": "position", "position": "input_start"},
+                        {
+                            "node_id": "node:feature.atomic.group",
+                            "kind": "atomic",
+                            "body": {
+                                "node_id": "node:feature.atomic.alternation",
+                                "kind": "alternation",
+                                "branches": [
+                                    {"node_id": "node:feature.atomic.a", "kind": "literal", "text": "a"},
+                                    {"node_id": "node:feature.atomic.ab", "kind": "literal", "text": "ab"}
+                                ]
+                            }
+                        },
+                        {"node_id": "node:feature.atomic.c", "kind": "literal", "text": "c"},
+                        {"node_id": "node:feature.atomic.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "\\A(?>(?:a|ab))c\\z",
+            "profiles": {
+                "10.42": {"status": "native", "compile": "ok", "matches": [{"subject": "abc", "matched": false}, {"subject": "ac", "matched": true}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "abc", "matched": false}, {"subject": "ac", "matched": true}]}
+            }
+        },
+        {
+            "id": "possessive-no-backtrack",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.possessive.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.possessive.start", "kind": "position", "position": "input_start"},
+                        {
+                            "node_id": "node:feature.possessive.repeat",
+                            "kind": "repeat",
+                            "body": {"node_id": "node:feature.possessive.body", "kind": "literal", "text": "a"},
+                            "min": 1,
+                            "max": null,
+                            "mode": "possessive"
+                        },
+                        {"node_id": "node:feature.possessive.suffix", "kind": "literal", "text": "a"},
+                        {"node_id": "node:feature.possessive.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "\\A(?:a)++a\\z",
+            "profiles": {
+                "10.42": {"status": "native", "compile": "ok", "matches": [{"subject": "aa", "matched": false}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "aa", "matched": false}]}
+            }
+        },
+        {
+            "id": "lazy-repetition",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.lazy.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.lazy.start", "kind": "position", "position": "input_start"},
+                        {
+                            "node_id": "node:feature.lazy.repeat",
+                            "kind": "repeat",
+                            "body": {"node_id": "node:feature.lazy.body", "kind": "literal", "text": "a"},
+                            "min": 1,
+                            "max": null,
+                            "mode": "lazy"
+                        },
+                        {"node_id": "node:feature.lazy.suffix", "kind": "literal", "text": "a"},
+                        {"node_id": "node:feature.lazy.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "\\A(?:a)+?a\\z",
+            "profiles": {
+                "10.42": {"status": "native", "compile": "ok", "matches": [{"subject": "aa", "matched": true}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "aa", "matched": true}]}
+            }
+        },
+        {
+            "id": "unicode-property",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.property.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.property.start", "kind": "position", "position": "input_start"},
+                        {
+                            "node_id": "node:feature.property.class",
+                            "kind": "character_set",
+                            "negated": false,
+                            "members": [{"kind": "unicode_property", "property": "Script", "value": "Greek", "negated": false}]
+                        },
+                        {"node_id": "node:feature.property.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "\\A[\\p{Script=Greek}]\\z",
+            "profiles": {
+                "10.42": {"status": "native", "compile": "ok", "matches": [{"subject": "λ", "matched": true}, {"subject": "a", "matched": false}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "λ", "matched": true}, {"subject": "a", "matched": false}]}
+            }
+        },
+        {
+            "id": "unicode-word-combining-mark",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.word.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.word.start", "kind": "position", "position": "input_start"},
+                        {
+                            "node_id": "node:feature.word.class",
+                            "kind": "character_set",
+                            "negated": false,
+                            "members": [{"kind": "builtin", "name": "word", "domain": "unicode", "negated": false}]
+                        },
+                        {"node_id": "node:feature.word.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "\\A[\\w]\\z",
+            "profiles": {
+                "10.42": {"status": "unsupported", "compile": "ok", "matches": [{"subject": "\u0301", "matched": false}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "\u0301", "matched": true}]}
+            }
+        },
+        {
+            "id": "unicode-word-boundary",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "sensitive",
+                "root": {
+                    "node_id": "node:feature.boundary.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.boundary.start", "kind": "position", "position": "input_start"},
+                        {"node_id": "node:feature.boundary.left", "kind": "position", "position": "word_boundary"},
+                        {"node_id": "node:feature.boundary.literal", "kind": "literal", "text": "\u0301"},
+                        {"node_id": "node:feature.boundary.right", "kind": "position", "position": "word_boundary"},
+                        {"node_id": "node:feature.boundary.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "\\A\\b\u0301\\b\\z",
+            "profiles": {
+                "10.42": {"status": "unsupported", "compile": "ok", "matches": [{"subject": "\u0301", "matched": false}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "\u0301", "matched": true}]}
+            }
+        },
+        {
+            "id": "scoped-caseless-kelvin",
+            "program": {
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "normalization": "canonical-v1",
+                "case_matching": "insensitive",
+                "root": {
+                    "node_id": "node:feature.caseless.root",
+                    "kind": "sequence",
+                    "items": [
+                        {"node_id": "node:feature.caseless.start", "kind": "position", "position": "input_start"},
+                        {"node_id": "node:feature.caseless.literal", "kind": "literal", "text": "k"},
+                        {"node_id": "node:feature.caseless.end", "kind": "position", "position": "input_end"}
+                    ]
+                }
+            },
+            "pattern": "(?i:\\Ak\\z)",
+            "profiles": {
+                "10.42": {"status": "native", "compile": "ok", "matches": [{"subject": "K", "matched": true}]},
+                "10.43": {"status": "native", "compile": "ok", "matches": [{"subject": "K", "matched": true}]}
+            }
+        }
+    ]
+}

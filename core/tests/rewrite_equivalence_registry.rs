@@ -71,11 +71,11 @@ fn authored_registry_reproduces_strategy_and_conformance_fingerprints() {
     );
     assert_eq!(
         strategy.strategy_fingerprint.as_str(),
-        "52d1a15ffb3becdde9e33f708539395e395eff752741283d90ff8bb1ccb64cc5"
+        "789e7a286244afd53239f4673415da128d8b3fb9bd38b17c17cc2675f5887a9f"
     );
     assert_eq!(
         strategy.definition.conformance_evidence.sha256.as_str(),
-        "5fe61a36f43a50b7ce5f6e2b13f0ac36ded8bda0e6255a66027bcf669a1d3532"
+        "7b7083b3b1883aaddf3f3851717e673f9a7c8589e53d63e23529f9ef19195444"
     );
     assert_eq!(
         strategy.definition.required_tests,

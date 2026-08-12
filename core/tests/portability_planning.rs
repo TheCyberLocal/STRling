@@ -79,13 +79,21 @@ fn variable_lookbehind(maximum: usize) -> Value {
         "polarity": "positive",
         "body": {
             "node_id": "node:lookbehind.variable.body",
-            "kind": "alternation",
-            "branches": [
-                literal("node:lookbehind.variable.short", "x"),
-                literal("node:lookbehind.variable.long", &"y".repeat(maximum))
-            ]
+            "kind": "repeat",
+            "body": literal("node:lookbehind.variable.repeated", "x"),
+            "min": 1,
+            "max": maximum,
+            "mode": "greedy"
         }
     })
+}
+
+fn profile_without_lookahead() -> TargetProfile {
+    let mut target = profile(PCRE2_1042);
+    target
+        .capabilities
+        .retain(|capability| capability.capability_id.as_str() != "assertions.lookahead");
+    target
 }
 
 fn fixed_lookbehind(node_id: &str, body_id: &str) -> Value {
@@ -177,7 +185,7 @@ fn multiple_supported_requirements_remain_independent_and_ordered() {
 #[test]
 fn unknown_capability_remains_unresolved_outside_final_status() {
     let semantic = program(lookahead("node:lookahead", "node:lookahead.body"));
-    let target = profile(PCRE2_1042);
+    let target = profile_without_lookahead();
     let (foundational, structural) = prerequisites(&semantic);
     let evaluation = evaluate(&semantic, &foundational, &structural, &target);
     assert_eq!(
@@ -212,7 +220,7 @@ fn mixed_native_and_unknown_requirements_do_not_claim_final_status() {
             lookahead("node:lookahead", "node:lookahead.body")
         ]
     }));
-    let target = profile(PCRE2_1042);
+    let target = profile_without_lookahead();
     let (foundational, structural) = prerequisites(&semantic);
     let evaluation = evaluate(&semantic, &foundational, &structural, &target);
 

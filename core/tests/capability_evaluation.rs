@@ -2,18 +2,20 @@ use serde_json::{json, Value};
 use strling_kernel::capability_evaluation::{
     evaluate_capabilities, evaluate_capabilities_for_reference, CapabilityDisposition,
     CapabilityEvaluation, CapabilityEvaluationErrorCode, ConstraintDisposition, ConstraintEvidence,
+    ConstraintFactValue,
 };
 use strling_kernel::semantic::SemanticProgram;
 use strling_kernel::semantic_analysis::analyze;
 use strling_kernel::source::{Sha256Digest, SpecificationVersion};
 use strling_kernel::structural_analysis::analyze_structure;
 use strling_kernel::target::{
-    ProfileVersion, TargetProfile, TargetProfileReference, TargetProfileSet,
+    ConstraintScalar, ProfileVersion, TargetProfile, TargetProfileReference, TargetProfileSet,
 };
 
 const PCRE2_1042: &str = include_str!("../../spec/targets/profiles/pcre2-10.42.json");
 const PCRE2_1043: &str = include_str!("../../spec/targets/profiles/pcre2-10.43.json");
 const ECMASCRIPT: &str = include_str!("../../spec/targets/profiles/ecmascript-2024.json");
+const PYTHON_RE_311: &str = include_str!("../../spec/targets/profiles/python-re-3.11.json");
 
 fn program(root: Value) -> SemanticProgram {
     serde_json::from_value(json!({
@@ -50,11 +52,11 @@ fn variable_lookbehind(maximum: usize) -> SemanticProgram {
         "polarity": "positive",
         "body": {
             "node_id": "node:lookbehind.body",
-            "kind": "alternation",
-            "branches": [
-                literal("node:lookbehind.short", "x"),
-                literal("node:lookbehind.long", &"y".repeat(maximum))
-            ]
+            "kind": "repeat",
+            "body": literal("node:lookbehind.repeated", "x"),
+            "min": 1,
+            "max": maximum,
+            "mode": "greedy"
         }
     }))
 }
@@ -97,7 +99,18 @@ fn lookup_distinguishes_supported_unsupported_and_absent_capabilities() {
         "polarity": "positive",
         "body": literal("node:lookahead.body", "a")
     }));
-    let absent = evaluate(&lookahead, &profile(PCRE2_1042));
+    let supported = evaluate(&lookahead, &profile(PCRE2_1042));
+    assert_eq!(
+        supported.results[0].disposition,
+        CapabilityDisposition::Supported
+    );
+    assert!(supported.results[0].profile_capability.is_some());
+
+    let mut incomplete = profile(PCRE2_1042);
+    incomplete
+        .capabilities
+        .retain(|capability| capability.capability_id.as_str() != "assertions.lookahead");
+    let absent = evaluate(&lookahead, &incomplete);
     assert_eq!(
         absent.results[0].disposition,
         CapabilityDisposition::Unknown
@@ -118,7 +131,7 @@ fn profile_versions_change_results_without_changing_requirements() {
     );
     assert_eq!(
         modern.results[0].disposition,
-        CapabilityDisposition::Unknown
+        CapabilityDisposition::Supported
     );
     assert_eq!(
         modern.results[0]
@@ -128,10 +141,78 @@ fn profile_versions_change_results_without_changing_requirements() {
             .collect::<Vec<_>>(),
         [
             ConstraintDisposition::Satisfied,
-            ConstraintDisposition::Unknown
+            ConstraintDisposition::Satisfied
         ]
     );
     assert_ne!(earlier.target_engine.version, modern.target_engine.version);
+}
+
+#[test]
+fn fixed_alternatives_respect_profile_width_rules() {
+    let semantic = program(json!({
+        "node_id": "node:lookbehind.fixed-alternatives",
+        "kind": "lookaround",
+        "direction": "behind",
+        "polarity": "negative",
+        "body": {
+            "node_id": "node:lookbehind.fixed-alternatives.body",
+            "kind": "alternation",
+            "branches": [
+                literal("node:lookbehind.fixed-alternatives.short", "x"),
+                literal("node:lookbehind.fixed-alternatives.long", "yz")
+            ]
+        }
+    }));
+    for target in [profile(PCRE2_1042), profile(PCRE2_1043)] {
+        let result = evaluate(&semantic, &target);
+        assert_eq!(
+            result.requirements.requirements[0].capability_id.as_str(),
+            "assertions.lookbehind.fixed_length"
+        );
+        assert_eq!(
+            result.results[0].disposition,
+            CapabilityDisposition::Supported
+        );
+        assert!(result.results[0].constraint_facts.iter().any(|fact| {
+            fact.constraint_id.as_str() == "common_fixed_width"
+                && fact.value == ConstraintFactValue::Scalar(ConstraintScalar::Boolean(false))
+        }));
+    }
+
+    let python = evaluate(&semantic, &profile(PYTHON_RE_311));
+    assert_eq!(
+        python.results[0].disposition,
+        CapabilityDisposition::ConstraintViolation
+    );
+    assert_eq!(
+        python.results[0].constraint_evaluations[0].disposition,
+        ConstraintDisposition::Violated
+    );
+}
+
+#[test]
+fn capture_name_shape_and_length_are_profile_constraints() {
+    fn named_capture(name: &str) -> SemanticProgram {
+        program(json!({
+            "node_id": "node:capture",
+            "kind": "capture",
+            "capture_id": "capture:named",
+            "name": name,
+            "body": literal("node:capture.body", "x")
+        }))
+    }
+
+    let target = profile(PCRE2_1042);
+    assert_eq!(
+        evaluate(&named_capture(&"a".repeat(32)), &target).results[0].disposition,
+        CapabilityDisposition::Supported
+    );
+    for name in [&"a".repeat(33), "bad-name"] {
+        assert_eq!(
+            evaluate(&named_capture(name), &target).results[0].disposition,
+            CapabilityDisposition::ConstraintViolation
+        );
+    }
 }
 
 #[test]

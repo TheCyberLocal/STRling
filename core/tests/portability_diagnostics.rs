@@ -89,10 +89,10 @@ fn equivalent_rewrite_explanation_carries_source_and_certification_evidence() {
         .join("\n");
     assert!(advice.contains("rewrite.atomic_literal.elide.v1"));
     assert!(
-        advice.contains("sha256:52d1a15ffb3becdde9e33f708539395e395eff752741283d90ff8bb1ccb64cc5")
+        advice.contains("sha256:789e7a286244afd53239f4673415da128d8b3fb9bd38b17c17cc2675f5887a9f")
     );
     assert!(
-        advice.contains("sha256:5fe61a36f43a50b7ce5f6e2b13f0ac36ded8bda0e6255a66027bcf669a1d3532")
+        advice.contains("sha256:7b7083b3b1883aaddf3f3851717e673f9a7c8589e53d63e23529f9ef19195444")
     );
     assert!(advice.contains("precondition.original_node_atomic"));
     assert_eq!(plan.decisions.len(), 1);

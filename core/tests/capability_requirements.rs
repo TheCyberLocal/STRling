@@ -81,17 +81,31 @@ fn captures_references_assertions_and_backtracking_modes_are_typed() {
                 "body": literal("node:mixed.lookbehind.fixed.body", "xy")
             },
             {
+                "node_id": "node:mixed.lookbehind.fixed_alternatives",
+                "kind": "lookaround",
+                "direction": "behind",
+                "polarity": "negative",
+                "body": {
+                    "node_id": "node:mixed.lookbehind.fixed_alternatives.body",
+                    "kind": "alternation",
+                    "branches": [
+                        literal("node:mixed.lookbehind.fixed_alternatives.short", "q"),
+                        literal("node:mixed.lookbehind.fixed_alternatives.long", "rst")
+                    ]
+                }
+            },
+            {
                 "node_id": "node:mixed.lookbehind.variable",
                 "kind": "lookaround",
                 "direction": "behind",
                 "polarity": "negative",
                 "body": {
                     "node_id": "node:mixed.lookbehind.variable.body",
-                    "kind": "alternation",
-                    "branches": [
-                        literal("node:mixed.lookbehind.variable.short", "q"),
-                        literal("node:mixed.lookbehind.variable.long", "rst")
-                    ]
+                    "kind": "repeat",
+                    "body": literal("node:mixed.lookbehind.variable.repeated", "q"),
+                    "min": 1,
+                    "max": 3,
+                    "mode": "greedy"
                 }
             },
             {
@@ -131,6 +145,7 @@ fn captures_references_assertions_and_backtracking_modes_are_typed() {
             "repetition.lazy",
             "assertions.lookahead",
             "assertions.lookbehind.fixed_length",
+            "assertions.lookbehind.fixed_length",
             "assertions.lookbehind.variable_length",
             "repetition.possessive",
             "references.backreference",
@@ -149,12 +164,30 @@ fn captures_references_assertions_and_backtracking_modes_are_typed() {
         matches!(
             requirement.kind,
             RequirementKind::Lookbehind {
+                length: LookbehindLength::FixedAlternatives {
+                    minimum: 1,
+                    maximum: 3
+                },
+                ..
+            }
+        )
+    }));
+    assert!(found.iter().any(|requirement| {
+        matches!(
+            requirement.kind,
+            RequirementKind::Lookbehind {
                 length: LookbehindLength::FiniteVariable {
                     minimum: 1,
                     maximum: 3
                 },
                 ..
             }
+        )
+    }));
+    assert!(found.iter().any(|requirement| {
+        matches!(
+            &requirement.kind,
+            RequirementKind::NamedCapture { name, .. } if name == "word"
         )
     }));
 }

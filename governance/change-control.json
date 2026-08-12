@@ -28,6 +28,9 @@
                 "bindings/**/emitters/**",
                 "core/src/capability_evaluation.rs",
                 "core/src/target_serialization.rs",
+                "spec/conformance/**",
+                "spec/contracts/1.0/examples/**",
+                "spec/contracts/1.0/invalid/**",
                 "spec/targets/profiles/**",
                 "tests/conformance/**",
                 "tests/target/**"

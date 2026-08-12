@@ -3,8 +3,8 @@
     "specification_version": "1.0-draft.1",
     "target_profile": {
         "profile_id": "profile:python-re/3.11",
-        "profile_version": "1.0.0",
-        "sha256": "75466587f6b7f27f1d697ac737eb87a2595f6d359fb7991a6d4865999ed28550"
+        "profile_version": "1.1.0",
+        "sha256": "d5cf41327257b97a68df551f5971c1e0e3b95bca810e8ac7b11b23020f23879d"
     },
     "status": "unsupported",
     "decisions": [

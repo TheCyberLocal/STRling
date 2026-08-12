@@ -25,16 +25,16 @@
             {
                 "target_profile": {
                     "profile_id": "profile:pcre2/10.43",
-                    "profile_version": "1.0.0",
-                    "sha256": "6351e2238916cf012230f56c4134eb6e03fe82b51131b6cb1f79272d5b669c74"
+                    "profile_version": "1.1.0",
+                    "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
                 },
                 "status": "native"
             },
             {
                 "target_profile": {
                     "profile_id": "profile:pcre2/10.43",
-                    "profile_version": "1.0.0",
-                    "sha256": "6351e2238916cf012230f56c4134eb6e03fe82b51131b6cb1f79272d5b669c74"
+                    "profile_version": "1.1.0",
+                    "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
                 },
                 "status": "native"
             }

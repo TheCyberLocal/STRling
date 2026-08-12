@@ -19,27 +19,6 @@ const PCRE2_1042: &str = include_str!("../../spec/targets/profiles/pcre2-10.42.j
 const PCRE2_1043: &str = include_str!("../../spec/targets/profiles/pcre2-10.43.json");
 const ECMASCRIPT: &str = include_str!("../../spec/targets/profiles/ecmascript-2024.json");
 
-const ALL_REQUIREMENT_CAPABILITIES: &[&str] = &[
-    "anchors.end_before_final_line_terminator",
-    "anchors.input_end",
-    "anchors.input_start",
-    "anchors.line_end",
-    "anchors.line_start",
-    "assertions.lookahead",
-    "assertions.lookbehind.fixed_length",
-    "assertions.lookbehind.variable_length",
-    "boundaries.word",
-    "character_classes.unicode",
-    "character_properties.unicode",
-    "character_semantics.unicode_scalar",
-    "groups.atomic",
-    "groups.named_capture",
-    "matching.case_insensitive",
-    "references.backreference",
-    "repetition.lazy",
-    "repetition.possessive",
-];
-
 fn program_with_case(root: Value, case_matching: &str) -> SemanticProgram {
     serde_json::from_value(json!({
         "contract_version": "1.0.0",
@@ -96,25 +75,12 @@ fn literal(node_id: &str, text: &str) -> Value {
     json!({"node_id": node_id, "kind": "literal", "text": text})
 }
 
-fn full_pcre2_profile() -> TargetProfile {
-    let mut value: Value = serde_json::from_str(PCRE2_1042).expect("PCRE2 fixture JSON");
-    value["capabilities"] = Value::Array(
-        ALL_REQUIREMENT_CAPABILITIES
-            .iter()
-            .map(|capability| {
-                json!({
-                    "capability_id": capability,
-                    "availability": "available",
-                    "constraints": []
-                })
-            })
-            .collect(),
-    );
-    serde_json::from_value(value).expect("complete PCRE2 profile must deserialize")
+fn governed_pcre2_profile() -> TargetProfile {
+    serde_json::from_str(PCRE2_1043).expect("governed PCRE2 10.43 profile must deserialize")
 }
 
 fn pcre2_without_atomic_groups() -> TargetProfile {
-    let mut value = serde_json::to_value(full_pcre2_profile()).expect("profile JSON");
+    let mut value = serde_json::to_value(governed_pcre2_profile()).expect("profile JSON");
     for capability in value["capabilities"]
         .as_array_mut()
         .expect("capability array")
@@ -124,6 +90,15 @@ fn pcre2_without_atomic_groups() -> TargetProfile {
         }
     }
     serde_json::from_value(value).expect("atomic-free PCRE2 profile must deserialize")
+}
+
+fn pcre2_without_lookahead_evidence() -> TargetProfile {
+    let mut value = serde_json::to_value(governed_pcre2_profile()).expect("profile JSON");
+    value["capabilities"]
+        .as_array_mut()
+        .expect("capability array")
+        .retain(|capability| capability["capability_id"] != "assertions.lookahead");
+    serde_json::from_value(value).expect("incomplete PCRE2 profile must deserialize")
 }
 
 fn plan_for(semantic: &SemanticProgram, target: &TargetProfile) -> PortabilityPlan {
@@ -324,7 +299,7 @@ fn comprehensive_program() -> SemanticProgram {
 #[test]
 fn every_semantic_variant_lowers_to_explicit_pcre2_structure() {
     let semantic = comprehensive_program();
-    let target = full_pcre2_profile();
+    let target = governed_pcre2_profile();
     let portability = plan_for(&semantic, &target);
     let semantic_before = semantic.clone();
     let target_before = target.clone();
@@ -349,7 +324,7 @@ fn every_semantic_variant_lowers_to_explicit_pcre2_structure() {
         lowered.portability_status,
         ArtifactPortabilityStatus::Native
     );
-    assert_eq!(lowered.options.len(), 2);
+    assert_eq!(lowered.options.len(), 6);
     assert!(lowered
         .options
         .iter()
@@ -577,7 +552,7 @@ fn profile_default_and_runtime_options_remain_typed_data() {
 
     let lowered = lower_pcre2(&semantic, &target, &portability).expect("option lowering");
 
-    assert_eq!(lowered.options.len(), 4);
+    assert_eq!(lowered.options.len(), 7);
     let jit = lowered
         .options
         .iter()
@@ -615,9 +590,9 @@ fn unresolved_and_unsupported_plans_fail_closed_with_stable_diagnostics() {
         "polarity": "positive",
         "body": literal("node:unresolved.body", "a")
     }));
-    let stock_target: TargetProfile = serde_json::from_str(PCRE2_1042).expect("profile");
-    let unresolved_plan = plan_for(&unresolved_semantic, &stock_target);
-    let unresolved = lower_pcre2(&unresolved_semantic, &stock_target, &unresolved_plan)
+    let incomplete_target = pcre2_without_lookahead_evidence();
+    let unresolved_plan = plan_for(&unresolved_semantic, &incomplete_target);
+    let unresolved = lower_pcre2(&unresolved_semantic, &incomplete_target, &unresolved_plan)
         .expect_err("unknown lookahead support must not lower");
     assert_eq!(
         unresolved.code,
@@ -666,7 +641,7 @@ fn unresolved_and_unsupported_plans_fail_closed_with_stable_diagnostics() {
 fn stale_mismatched_and_non_pcre2_inputs_are_rejected_before_lowering() {
     let first = program(literal("node:stale.literal", "a"));
     let second = program(literal("node:stale.literal", "b"));
-    let target = full_pcre2_profile();
+    let target = governed_pcre2_profile();
     let plan = plan_for(&first, &target);
     assert_eq!(
         lower_pcre2(&second, &target, &plan)
@@ -749,7 +724,7 @@ fn malformed_planner_and_rewrite_evidence_are_rejected() {
 
 #[test]
 fn invalid_semantic_and_excessive_depth_fail_without_partial_output() {
-    let target = full_pcre2_profile();
+    let target = governed_pcre2_profile();
     let shallow = program(literal("node:depth.base", "a"));
     let plan = plan_for(&shallow, &target);
 
@@ -806,7 +781,7 @@ fn constructed_plan_validation_detects_capture_slot_corruption() {
             }
         ]
     }));
-    let target = full_pcre2_profile();
+    let target = governed_pcre2_profile();
     let portability = plan_for(&semantic, &target);
     let mut lowered = lower_pcre2(&semantic, &target, &portability).expect("lowering");
     lowered.captures[0].slot = 2;

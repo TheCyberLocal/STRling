@@ -37,7 +37,13 @@ variable-length branch. Capability extraction therefore distinguishes:
 - an unbounded branch; and
 - an indeterminate bound.
 
-The first two require `assertions.lookbehind.fixed_length`. PCRE2 10.42 rejects
+The first two require `assertions.lookbehind.fixed_length`. Serialization keeps
+fixed alternatives at the assertion's top level (`(?<=a|bc)`) because wrapping
+them in one noncapturing branch would change PCRE2 10.42's length analysis.
+The target-neutral requirement also carries a `common_fixed_width` fact so
+profiles such as Python `re`, which require equal width across every
+alternative, remain unsupported for this PCRE2-specific form.
+PCRE2 10.42 rejects
 the other forms. PCRE2 10.43 admits genuinely variable branches only when the
 maximum is at most the profile limit and the selected matcher is
 `pcre2_match`; no DFA or inferred API substitution is allowed.

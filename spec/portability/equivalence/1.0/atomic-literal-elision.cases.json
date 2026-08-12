@@ -37,7 +37,7 @@
                     "profile": "ecmascript-2024.json",
                     "status": "unresolved"
                 },
-                { "profile": "pcre2-10.43.json", "status": "unresolved" }
+                { "profile": "pcre2-10.43.json", "status": "native" }
             ]
         },
         {

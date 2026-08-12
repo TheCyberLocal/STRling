@@ -56,7 +56,7 @@
             "conformance_evidence": {
                 "evidence_id": "conformance.atomic_literal_elision.v1",
                 "path": "spec/portability/equivalence/1.0/atomic-literal-elision.cases.json",
-                "sha256": "5fe61a36f43a50b7ce5f6e2b13f0ac36ded8bda0e6255a66027bcf669a1d3532"
+                "sha256": "7b7083b3b1883aaddf3f3851717e673f9a7c8589e53d63e23529f9ef19195444"
             },
             "execution_hooks": [
                 {

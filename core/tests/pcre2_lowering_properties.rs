@@ -8,44 +8,10 @@ use strling_kernel::target::TargetProfile;
 use strling_kernel::target_lowering::{lower_pcre2, Pcre2LoweringErrorCode};
 use strling_kernel::validation::Validate;
 
-const PCRE2_1042: &str = include_str!("../../spec/targets/profiles/pcre2-10.42.json");
+const PCRE2_1043: &str = include_str!("../../spec/targets/profiles/pcre2-10.43.json");
 
-const ALL_REQUIREMENT_CAPABILITIES: &[&str] = &[
-    "anchors.end_before_final_line_terminator",
-    "anchors.input_end",
-    "anchors.input_start",
-    "anchors.line_end",
-    "anchors.line_start",
-    "assertions.lookahead",
-    "assertions.lookbehind.fixed_length",
-    "assertions.lookbehind.variable_length",
-    "boundaries.word",
-    "character_classes.unicode",
-    "character_properties.unicode",
-    "character_semantics.unicode_scalar",
-    "groups.atomic",
-    "groups.named_capture",
-    "matching.case_insensitive",
-    "references.backreference",
-    "repetition.lazy",
-    "repetition.possessive",
-];
-
-fn full_pcre2_profile() -> TargetProfile {
-    let mut value: Value = serde_json::from_str(PCRE2_1042).expect("PCRE2 fixture JSON");
-    value["capabilities"] = Value::Array(
-        ALL_REQUIREMENT_CAPABILITIES
-            .iter()
-            .map(|capability| {
-                json!({
-                    "capability_id": capability,
-                    "availability": "available",
-                    "constraints": []
-                })
-            })
-            .collect(),
-    );
-    serde_json::from_value(value).expect("complete PCRE2 profile must deserialize")
+fn governed_pcre2_profile() -> TargetProfile {
+    serde_json::from_str(PCRE2_1043).expect("governed PCRE2 10.43 profile must deserialize")
 }
 
 fn program(root: Value, insensitive: bool) -> SemanticProgram {
@@ -187,7 +153,7 @@ fn plan_for(semantic: &SemanticProgram, target: &TargetProfile) -> PortabilityPl
 
 #[test]
 fn generated_valid_programs_lower_deterministically_without_input_mutation() {
-    let target = full_pcre2_profile();
+    let target = governed_pcre2_profile();
     for seed in 0..196 {
         let semantic = generated_program(seed);
         let portability = plan_for(&semantic, &target);
@@ -216,7 +182,7 @@ fn generated_valid_programs_lower_deterministically_without_input_mutation() {
 
 #[test]
 fn generated_cross_program_evidence_is_always_rejected() {
-    let target = full_pcre2_profile();
+    let target = governed_pcre2_profile();
     for seed in 0..64 {
         let planned = generated_program(seed);
         let supplied = program(

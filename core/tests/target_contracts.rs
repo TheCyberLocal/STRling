@@ -12,12 +12,12 @@ const PROFILES: &[(&str, &str, &str)] = &[
     (
         "PCRE2 10.42",
         include_str!("../../spec/targets/profiles/pcre2-10.42.json"),
-        "0c02900843a8ab51b1e7f5bac686d6dd682adb280eba52bd9331da4f4c0be71a",
+        "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d",
     ),
     (
         "PCRE2 10.43",
         include_str!("../../spec/targets/profiles/pcre2-10.43.json"),
-        "6351e2238916cf012230f56c4134eb6e03fe82b51131b6cb1f79272d5b669c74",
+        "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4",
     ),
     (
         "ECMAScript 2024",
@@ -27,7 +27,7 @@ const PROFILES: &[(&str, &str, &str)] = &[
     (
         "Python re 3.11",
         include_str!("../../spec/targets/profiles/python-re-3.11.json"),
-        "75466587f6b7f27f1d697ac737eb87a2595f6d359fb7991a6d4865999ed28550",
+        "d5cf41327257b97a68df551f5971c1e0e3b95bca810e8ac7b11b23020f23879d",
     ),
 ];
 
@@ -101,11 +101,11 @@ fn constraints_preserve_typed_operators_values_and_units() {
             if value.as_u64() == Some(255)
     ));
     let matcher = &capability.constraints[1];
-    assert_eq!(matcher.operator, ConstraintOperator::Equals);
+    assert_eq!(matcher.operator, ConstraintOperator::RequiresOption);
     assert!(matches!(
         matcher.value,
         ConstraintValue::Scalar(ConstraintScalar::String(ref value))
-            if value == "pcre2_match"
+            if value == "pcre2.matcher_api"
     ));
 }
 
@@ -155,7 +155,7 @@ fn target_artifact_keeps_pattern_options_and_profile_separate() {
         .validate_against_profile(&profile)
         .expect("artifact resolves against profile");
     assert_eq!(artifact.pattern.text, "(?<word>\\p{L}+)");
-    assert_eq!(artifact.engine_options.len(), 2);
+    assert_eq!(artifact.engine_options.len(), 6);
     assert!(!artifact.pattern.text.contains("(*UTF)"));
 }
 

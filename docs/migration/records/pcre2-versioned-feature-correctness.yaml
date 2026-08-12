@@ -11,26 +11,40 @@ scope:
         - core/src/target_serialization.rs
         - core/tests/capability_evaluation.rs
         - core/tests/capability_evaluation_properties.rs
+        - core/tests/capability_profile_fixtures.rs
         - core/tests/capability_requirements.rs
+        - core/tests/conformance_contracts.rs
         - core/tests/pcre2_lowering.rs
         - core/tests/pcre2_lowering_properties.rs
         - core/tests/pcre2_serialization.rs
         - core/tests/pcre2_serialization_properties.rs
         - core/tests/pcre2_versioned_features.rs
         - core/tests/portability_planning.rs
+        - core/tests/portability_planning_properties.rs
+        - core/tests/portability_diagnostics.rs
+        - core/tests/rewrite_equivalence_registry.rs
         - core/tests/target_contracts.rs
         - docs/migration/ledger.md
+        - docs/migration/equivalence-proof-hooks.md
         - docs/migration/pcre2-target-serialization.md
         - docs/migration/pcre2-versioned-feature-correctness.md
         - docs/migration/records/pcre2-versioned-feature-correctness.yaml
+        - docs/portability-planning.md
         - governance/change-control.json
         - spec/targets/profiles/pcre2-10.42.json
         - spec/targets/profiles/pcre2-10.43.json
+        - spec/targets/profiles/python-re-3.11.json
+        - spec/conformance/**
+        - spec/contracts/1.0/examples/**
+        - spec/contracts/1.0/invalid/**
+        - spec/portability/equivalence/1.0/atomic-literal-elision.cases.json
+        - spec/portability/equivalence/1.0/registry.json
         - tests/target/pcre2/versioned-features.json
         - tooling/migration_differential_baseline.json
         - tooling/migration_differential_contract.json
         - tooling/pcre2_feature_probe.py
         - tooling/tests/test_pcre2_feature_probe.py
+        - tooling/tests/test_canonical_contracts.py
     forbidden_paths:
         - bindings/**
         - core/src/compiler_pipeline.rs

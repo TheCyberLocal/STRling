@@ -11,48 +11,14 @@ use strling_kernel::target_serialization::{
 };
 use strling_kernel::validation::{canonical_sha256, to_json, Validate};
 
-const PCRE2_1042: &str = include_str!("../../spec/targets/profiles/pcre2-10.42.json");
+const PCRE2_1043: &str = include_str!("../../spec/targets/profiles/pcre2-10.43.json");
 
-const ALL_REQUIREMENT_CAPABILITIES: &[&str] = &[
-    "anchors.end_before_final_line_terminator",
-    "anchors.input_end",
-    "anchors.input_start",
-    "anchors.line_end",
-    "anchors.line_start",
-    "assertions.lookahead",
-    "assertions.lookbehind.fixed_length",
-    "assertions.lookbehind.variable_length",
-    "boundaries.word",
-    "character_classes.unicode",
-    "character_properties.unicode",
-    "character_semantics.unicode_scalar",
-    "groups.atomic",
-    "groups.named_capture",
-    "matching.case_insensitive",
-    "references.backreference",
-    "repetition.lazy",
-    "repetition.possessive",
-];
-
-fn full_pcre2_profile() -> TargetProfile {
-    let mut value: Value = serde_json::from_str(PCRE2_1042).expect("PCRE2 fixture JSON");
-    value["capabilities"] = Value::Array(
-        ALL_REQUIREMENT_CAPABILITIES
-            .iter()
-            .map(|capability| {
-                json!({
-                    "capability_id": capability,
-                    "availability": "available",
-                    "constraints": []
-                })
-            })
-            .collect(),
-    );
-    serde_json::from_value(value).expect("complete PCRE2 profile must deserialize")
+fn governed_pcre2_profile() -> TargetProfile {
+    serde_json::from_str(PCRE2_1043).expect("governed PCRE2 10.43 profile must deserialize")
 }
 
 fn pcre2_without_atomic_groups() -> TargetProfile {
-    let mut value = serde_json::to_value(full_pcre2_profile()).expect("profile JSON");
+    let mut value = serde_json::to_value(governed_pcre2_profile()).expect("profile JSON");
     for capability in value["capabilities"]
         .as_array_mut()
         .expect("capability array")
@@ -255,7 +221,7 @@ fn all_features_program() -> SemanticProgram {
 #[test]
 fn every_target_operation_serializes_to_one_valid_deterministic_artifact() {
     let semantic = all_features_program();
-    let target = full_pcre2_profile();
+    let target = governed_pcre2_profile();
     let lowered = lower(&semantic, &target);
     let lowered_before = lowered.clone();
 
@@ -269,7 +235,7 @@ fn every_target_operation_serializes_to_one_valid_deterministic_artifact() {
     artifact
         .validate_against_profile(&target)
         .expect("artifact must resolve against the exact profile");
-    assert_eq!(artifact.engine_options.len(), 2);
+    assert_eq!(artifact.engine_options.len(), 6);
     assert!(artifact.pattern.text.starts_with("(?i:"));
     assert!(artifact.pattern.text.ends_with(')'));
     assert!(artifact.pattern.text.contains("(?:a|bc)"));
@@ -319,15 +285,28 @@ fn every_target_operation_serializes_to_one_valid_deterministic_artifact() {
 #[test]
 fn literals_classes_options_and_utf8_spans_are_unambiguous() {
     let semantic = program_with_case(literal("node:escaping", ". []{}\\ #\n\0é"), "insensitive");
-    let target = full_pcre2_profile();
+    let target = governed_pcre2_profile();
     let artifact = serialize_pcre2(&lower(&semantic, &target)).expect("artifact");
 
     assert_eq!(
         artifact.pattern.text,
         r"(?i:\.\x{20}\[\]\{\}\\\x{20}\x{23}\n\x{0}é)"
     );
-    assert_eq!(artifact.engine_options[0].option_id.as_str(), "pcre2.ucp");
-    assert_eq!(artifact.engine_options[1].option_id.as_str(), "pcre2.utf");
+    assert_eq!(
+        artifact
+            .engine_options
+            .iter()
+            .map(|option| option.option_id.as_str())
+            .collect::<Vec<_>>(),
+        [
+            "pcre2.matcher_api",
+            "pcre2.max_variable_lookbehind",
+            "pcre2.multiline",
+            "pcre2.newline",
+            "pcre2.ucp",
+            "pcre2.utf",
+        ]
+    );
     let pattern_length = u64::try_from(artifact.pattern.text.len()).expect("pattern length");
     let full = artifact
         .source_map
@@ -353,7 +332,7 @@ fn identical_empty_spans_coalesce_sorted_provenance() {
             {"node_id": "node:empty.right", "kind": "empty", "origin": origin(1, 1)}
         ]
     }));
-    let target = full_pcre2_profile();
+    let target = governed_pcre2_profile();
     let artifact = serialize_pcre2(&lower(&semantic, &target)).expect("empty artifact");
 
     assert!(artifact.pattern.text.is_empty());
@@ -394,7 +373,7 @@ fn certified_rewrite_projects_exact_resolution_without_reapplying_policy() {
 
 #[test]
 fn malformed_capture_property_bounds_and_plan_fail_closed() {
-    let target = full_pcre2_profile();
+    let target = governed_pcre2_profile();
 
     let capture_program = program(json!({
         "node_id": "node:bad-capture",
@@ -461,7 +440,7 @@ fn malformed_capture_property_bounds_and_plan_fail_closed() {
 
 #[test]
 fn pattern_growth_is_resource_bounded() {
-    let target = full_pcre2_profile();
+    let target = governed_pcre2_profile();
     let semantic = program(literal("node:large-pattern", "a"));
     let mut plan = lower(&semantic, &target);
     plan.root.operation = Pcre2Operation::Literal("a".repeat(MAX_PCRE2_PATTERN_BYTES + 1));

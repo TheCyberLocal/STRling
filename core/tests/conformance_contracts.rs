@@ -14,7 +14,7 @@ const CASES: &[(&str, &str, &str)] = &[
     (
         "spec/conformance/cases/capture-match.json",
         include_str!("../../spec/conformance/cases/capture-match.json"),
-        "4ea4147ce60020a56646485eb19507f81b1ee918902681ee09fe07202da41be4",
+        "480463d7e35098d237e626fe6336b222256d0b97bfda5c765017765ddad1efd3",
     ),
     (
         "spec/conformance/cases/semantic-literal.json",
@@ -24,7 +24,7 @@ const CASES: &[(&str, &str, &str)] = &[
     (
         "spec/conformance/cases/lookbehind-targets.json",
         include_str!("../../spec/conformance/cases/lookbehind-targets.json"),
-        "0408040707dfa93d17474fc0f247a43fef50e2e18a2eef4c1760671068b5617f",
+        "f78166eae8b0c943f213c42627cf230b24fbb558ca8cab221cac69ae677a158e",
     ),
 ];
 

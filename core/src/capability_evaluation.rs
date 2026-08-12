@@ -130,6 +130,7 @@ impl From<AssertionPolarity> for RequirementPolarity {
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum LookbehindLength {
     Fixed { length: u64 },
+    FixedAlternatives { minimum: u64, maximum: u64 },
     FiniteVariable { minimum: u64, maximum: u64 },
     Unbounded { minimum: u64 },
     Indeterminate { minimum: u64 },
@@ -160,6 +161,7 @@ pub enum RequirementKind {
     },
     NamedCapture {
         capture_id: CaptureId,
+        name: String,
     },
     Backreference {
         capture_id: CaptureId,
@@ -708,9 +710,25 @@ fn requirement_constraint_facts(
             };
             match length {
                 LookbehindLength::Fixed { length } => {
+                    facts.push(scalar_fact(
+                        "common_fixed_width",
+                        ConstraintScalar::Boolean(true),
+                        None,
+                        source.clone(),
+                    ));
                     facts.push(numeric_fact("fixed_length", *length, source.clone()));
                     facts.push(numeric_fact("bounded_minimum", *length, source.clone()));
                     facts.push(numeric_fact("bounded_maximum", *length, source));
+                }
+                LookbehindLength::FixedAlternatives { minimum, maximum } => {
+                    facts.push(scalar_fact(
+                        "common_fixed_width",
+                        ConstraintScalar::Boolean(false),
+                        None,
+                        source.clone(),
+                    ));
+                    facts.push(numeric_fact("bounded_minimum", *minimum, source.clone()));
+                    facts.push(numeric_fact("bounded_maximum", *maximum, source));
                 }
                 LookbehindLength::FiniteVariable { minimum, maximum } => {
                     facts.push(numeric_fact("bounded_minimum", *minimum, source.clone()));
@@ -782,8 +800,21 @@ fn requirement_constraint_facts(
             None,
             semantic_source,
         )),
-        RequirementKind::NamedCapture { .. }
-        | RequirementKind::Backreference { .. }
+        RequirementKind::NamedCapture { name, .. } => {
+            facts.push(numeric_fact_with_unit(
+                "name_code_units",
+                u64::try_from(name.len()).expect("capture name length must fit in u64"),
+                "code_units",
+                semantic_source.clone(),
+            ));
+            facts.push(scalar_fact(
+                "name_syntax",
+                ConstraintScalar::String(capture_name_syntax(name).to_owned()),
+                None,
+                semantic_source,
+            ));
+        }
+        RequirementKind::Backreference { .. }
         | RequirementKind::Atomic
         | RequirementKind::PossessiveRepetition
         | RequirementKind::LazyRepetition
@@ -824,6 +855,23 @@ fn numeric_fact(
     )
 }
 
+fn numeric_fact_with_unit(
+    constraint_id: &'static str,
+    value: u64,
+    unit: &'static str,
+    source: ConstraintFactSource,
+) -> RequirementConstraintFact {
+    scalar_fact(
+        constraint_id,
+        ConstraintScalar::Number(serde_json::Number::from(value)),
+        Some(
+            ConstraintUnit::try_from(unit)
+                .expect("canonical requirement constraint unit must be valid"),
+        ),
+        source,
+    )
+}
+
 fn nonfinite_fact(
     constraint_id: &'static str,
     value: ConstraintFactValue,
@@ -853,6 +901,20 @@ fn builtin_class_name(name: BuiltinClassName) -> &'static str {
         BuiltinClassName::Digit => "digit",
         BuiltinClassName::Word => "word",
         BuiltinClassName::Whitespace => "whitespace",
+    }
+}
+
+fn capture_name_syntax(name: &str) -> &'static str {
+    let mut characters = name.chars();
+    match characters.next() {
+        Some(first)
+            if (first.is_ascii_alphabetic() || first == '_')
+                && characters
+                    .all(|character| character.is_ascii_alphanumeric() || character == '_') =>
+        {
+            "ascii_identifier"
+        }
+        _ => "other",
     }
 }
 
@@ -1043,6 +1105,7 @@ fn extract_node_requirements(
                 NAMED_CAPTURE,
                 RequirementKind::NamedCapture {
                     capture_id: capture_id.clone(),
+                    name: name.clone().expect("guard requires a capture name"),
                 },
             ));
         }
@@ -1085,9 +1148,11 @@ fn extract_node_requirements(
                 },
             )),
             LookaroundDirection::Behind => {
-                let length = lookbehind_length(body.node_id(), foundational, structural)?;
+                let length = lookbehind_length(body, foundational, structural)?;
                 let capability = match length {
-                    LookbehindLength::Fixed { .. } => FIXED_LOOKBEHIND,
+                    LookbehindLength::Fixed { .. } | LookbehindLength::FixedAlternatives { .. } => {
+                        FIXED_LOOKBEHIND
+                    }
                     LookbehindLength::FiniteVariable { .. }
                     | LookbehindLength::Unbounded { .. }
                     | LookbehindLength::Indeterminate { .. } => VARIABLE_LOOKBEHIND,
@@ -1118,10 +1183,11 @@ fn extract_node_requirements(
 }
 
 fn lookbehind_length(
-    body_node_id: &NodeId,
+    body: &Node,
     foundational: &SemanticFacts,
     structural: &StructuralFacts,
 ) -> Result<LookbehindLength, CapabilityEvaluationErrors> {
+    let body_node_id = body.node_id();
     let semantic = foundational
         .get(body_node_id)
         .ok_or_else(|| missing_foundational(body_node_id, "lookbehind length"))?;
@@ -1154,6 +1220,25 @@ fn lookbehind_length(
                     "finite-variable structural length requires distinct bounds",
                 ));
             }
+            if let Node::Alternation { branches, .. } = body {
+                let mut lengths = Vec::with_capacity(branches.len());
+                for branch in branches {
+                    let Some(length) =
+                        certified_fixed_length(branch.node_id(), foundational, structural)?
+                    else {
+                        lengths.clear();
+                        break;
+                    };
+                    lengths.push(length);
+                }
+                if let (Some(minimum), Some(maximum)) = (lengths.iter().min(), lengths.iter().max())
+                {
+                    return Ok(LookbehindLength::FixedAlternatives {
+                        minimum: *minimum,
+                        maximum: *maximum,
+                    });
+                }
+            }
             Ok(LookbehindLength::FiniteVariable {
                 minimum: semantic.minimum_consumption,
                 maximum,
@@ -1182,6 +1267,31 @@ fn lookbehind_length(
             })
         }
     }
+}
+
+fn certified_fixed_length(
+    node_id: &NodeId,
+    foundational: &SemanticFacts,
+    structural: &StructuralFacts,
+) -> Result<Option<u64>, CapabilityEvaluationErrors> {
+    let semantic = foundational
+        .get(node_id)
+        .ok_or_else(|| missing_foundational(node_id, "fixed-alternative lookbehind length"))?;
+    let structure = structural
+        .get(node_id)
+        .ok_or_else(|| missing_structural(node_id, "fixed-alternative lookbehind length"))?;
+    let LengthClassification::Fixed(length) = structure.length else {
+        return Ok(None);
+    };
+    if semantic.minimum_consumption != length
+        || semantic.maximum_consumption != MaximumConsumption::Finite(length)
+    {
+        return Err(fact_invariant(
+            node_id,
+            "fixed structural length contradicts foundational bounds",
+        ));
+    }
+    Ok(Some(length))
 }
 
 fn semantic_program_fingerprint(
