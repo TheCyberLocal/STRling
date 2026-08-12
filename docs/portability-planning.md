@@ -147,9 +147,9 @@ applicability, so declaration order cannot change the result.
 
 The current `rewrite.atomic_literal.elide.v1` definition has canonical strategy
 fingerprint
-`789e7a286244afd53239f4673415da128d8b3fb9bd38b17c17cc2675f5887a9f`.
+`d1ac04c04241dff1423c22b5962fc7336c57e664e2510d557edb6e41f885a7d6`.
 Its `conformance.atomic_literal_elision.v1` evidence fingerprint is
-`7b7083b3b1883aaddf3f3851717e673f9a7c8589e53d63e23529f9ef19195444`.
+`ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2`.
 These identities are part of the selected-plan evidence, not comments or test
 metadata.
 

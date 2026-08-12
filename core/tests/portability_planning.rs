@@ -566,7 +566,10 @@ fn unknown_plus_explicit_unsupported_suppresses_final_program_status() {
             }
         ]
     }));
-    let target = profile(ECMASCRIPT);
+    let mut target = profile(ECMASCRIPT);
+    target
+        .capabilities
+        .retain(|capability| capability.capability_id.as_str() != "assertions.lookahead");
     let (foundational, structural) = prerequisites(&semantic);
     let evaluation = evaluate(&semantic, &foundational, &structural, &target);
 
@@ -606,7 +609,10 @@ fn multiple_requirements_on_one_node_are_planned_independently() {
         }
     }))
     .expect("shared-node program");
-    let target = profile(ECMASCRIPT);
+    let mut target = profile(ECMASCRIPT);
+    target
+        .capabilities
+        .retain(|capability| capability.capability_id.as_str() != "matching.case_insensitive");
     let (foundational, structural) = prerequisites(&semantic);
     let evaluation = evaluate(&semantic, &foundational, &structural, &target);
 

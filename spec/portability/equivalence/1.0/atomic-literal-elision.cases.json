@@ -35,7 +35,7 @@
             "target_expectations": [
                 {
                     "profile": "ecmascript-2024.json",
-                    "status": "unresolved"
+                    "status": "equivalent_rewrite"
                 },
                 { "profile": "pcre2-10.43.json", "status": "native" }
             ]

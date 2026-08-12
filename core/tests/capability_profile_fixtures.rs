@@ -243,18 +243,16 @@ fn canonical_profiles_produce_expected_feature_differentials() {
             CapabilityDisposition::Supported
         );
     }
-    for evaluation in [&pcre_1042, &pcre_1043] {
+    for evaluation in [&pcre_1042, &pcre_1043, &ecmascript] {
         assert_eq!(
             result_for(evaluation, "node:mixed.lookahead").disposition,
             CapabilityDisposition::Supported
         );
     }
-    for evaluation in [&ecmascript, &python] {
-        assert_eq!(
-            result_for(evaluation, "node:mixed.lookahead").disposition,
-            CapabilityDisposition::Unknown
-        );
-    }
+    assert_eq!(
+        result_for(&python, "node:mixed.lookahead").disposition,
+        CapabilityDisposition::Unknown
+    );
 }
 
 #[test]

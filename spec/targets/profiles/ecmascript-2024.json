@@ -1,7 +1,7 @@
 {
     "contract_version": "1.0.0",
     "profile_id": "profile:ecmascript/2024",
-    "profile_version": "1.0.0",
+    "profile_version": "1.1.0",
     "engine": {
         "id": "ecmascript",
         "version": {
@@ -16,6 +16,36 @@
     },
     "capabilities": [
         {
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "anchors.input_end",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "anchors.input_start",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "anchors.line_end",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "anchors.line_start",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "assertions.lookahead",
+            "availability": "available",
+            "constraints": []
+        },
+        {
             "capability_id": "assertions.lookbehind.fixed_length",
             "availability": "available",
             "constraints": []
@@ -24,6 +54,27 @@
             "capability_id": "assertions.lookbehind.variable_length",
             "availability": "available",
             "constraints": []
+        },
+        {
+            "capability_id": "boundaries.word",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "character_classes.unicode",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "class",
+                    "operator": "one_of",
+                    "value": ["digit", "whitespace", "word"]
+                },
+                {
+                    "constraint_id": "unicode_mode",
+                    "operator": "requires_option",
+                    "value": "ecmascript.unicode_mode"
+                }
+            ]
         },
         {
             "capability_id": "character_properties.unicode",
@@ -37,8 +88,45 @@
             ]
         },
         {
+            "capability_id": "character_semantics.unicode_scalar",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "unicode_mode",
+                    "operator": "requires_option",
+                    "value": "ecmascript.unicode_mode"
+                }
+            ]
+        },
+        {
             "capability_id": "groups.atomic",
             "availability": "unavailable",
+            "constraints": []
+        },
+        {
+            "capability_id": "groups.named_capture",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "name_syntax",
+                    "operator": "equals",
+                    "value": "ascii_identifier"
+                }
+            ]
+        },
+        {
+            "capability_id": "matching.case_insensitive",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "references.backreference",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "repetition.lazy",
+            "availability": "available",
             "constraints": []
         },
         {
@@ -57,10 +145,10 @@
     ],
     "evidence": [
         {
-            "evidence_id": "ecmascript_regexp",
+            "evidence_id": "ecmascript_regexp_2024",
             "authority": "normative_standard",
             "url": "https://tc39.es/ecma262/2024/multipage/text-processing.html",
-            "locator": "ECMAScript 2024 clauses 22.2.1 and 22.2.2 define the RegExp grammar and matching semantics."
+            "locator": "ECMAScript 2024 clauses 22.2.1 and 22.2.2: Pattern and Assertion grammar, Quantifier, AtomEscape, GroupSpecifier, CharacterClassEscape, RegExp initialization, Canonicalize, and WordCharacters."
         }
     ]
 }

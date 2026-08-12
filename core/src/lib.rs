@@ -5,10 +5,11 @@
 //! truth. Its current boundary contains strongly typed contract data,
 //! structural validation, pure semantic normalization, target-neutral semantic
 //! and safety analyses, structured diagnostic generation, pure factual target
-//! capability evaluation, pure portability planning, pure structured target
-//! lowering, deterministic PCRE2 artifact serialization, and crate-private
-//! stage orchestration. Runtime execution, bindings, editor presentation, and
-//! product integration remain intentionally absent.
+//! capability evaluation, pure portability planning, independent pure PCRE2 and
+//! ECMAScript structured target lowering, deterministic PCRE2 artifact
+//! serialization, and crate-private stage orchestration. Runtime execution,
+//! bindings, editor presentation, and product integration remain intentionally
+//! absent.
 #![forbid(unsafe_code)]
 
 pub mod capability_evaluation;
@@ -22,6 +23,7 @@ mod compiler_pipeline;
 pub mod conformance;
 pub mod diagnostic;
 pub mod diagnostic_generation;
+pub mod ecmascript_lowering;
 pub mod normalization;
 pub mod portability_diagnostics;
 pub mod portability_planning;

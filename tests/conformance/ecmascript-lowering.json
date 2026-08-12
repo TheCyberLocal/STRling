@@ -1,0 +1,43 @@
+{
+    "corpus_version": "1.0.0",
+    "target_profile": {
+        "profile_id": "profile:ecmascript/2024",
+        "profile_version": "1.1.0",
+        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+    },
+    "native_operations": [
+        "empty",
+        "sequence",
+        "alternation",
+        "literal",
+        "wildcard",
+        "character_set",
+        "repeat_greedy",
+        "repeat_lazy",
+        "position",
+        "capture",
+        "backreference",
+        "lookaround"
+    ],
+    "certified_rewrites": [
+        {
+            "semantic_operation": "atomic_literal",
+            "strategy_id": "rewrite.atomic_literal.elide.v1",
+            "status": "equivalent_rewrite"
+        }
+    ],
+    "fail_closed": [
+        {
+            "semantic_operation": "atomic_non_literal",
+            "diagnostic_code": "STRL-ECMASCRIPT_LOWERING-0011"
+        },
+        {
+            "semantic_operation": "possessive_repetition",
+            "diagnostic_code": "STRL-ECMASCRIPT_LOWERING-0011"
+        }
+    ],
+    "resource_limits": {
+        "maximum_nodes": 65536,
+        "maximum_depth": 128
+    }
+}

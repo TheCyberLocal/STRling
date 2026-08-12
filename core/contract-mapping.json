@@ -45,6 +45,7 @@
                 "diagnostic",
                 "diagnostic_generation",
                 "portability_diagnostics",
+                "ecmascript_lowering",
                 "target_lowering",
                 "target_serialization"
             ]
@@ -57,6 +58,7 @@
                 "target",
                 "portability_planning",
                 "portability_diagnostics",
+                "ecmascript_lowering",
                 "target_lowering",
                 "target_serialization"
             ]
@@ -75,6 +77,7 @@
                 "capability_evaluation",
                 "portability_planning",
                 "portability_diagnostics",
+                "ecmascript_lowering",
                 "target_lowering"
             ]
         },
@@ -95,6 +98,7 @@
                 "target::profile",
                 "capability_evaluation",
                 "portability_planning",
+                "ecmascript_lowering",
                 "target_lowering",
                 "target_serialization"
             ]

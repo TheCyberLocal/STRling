@@ -22,7 +22,7 @@ const PROFILES: &[(&str, &str, &str)] = &[
     (
         "ECMAScript 2024",
         include_str!("../../spec/targets/profiles/ecmascript-2024.json"),
-        "180513005b078fcc34875b7cd5cf3369daa8e8bdacf184baea0f48b170238604",
+        "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f",
     ),
     (
         "Python re 3.11",

@@ -13,6 +13,7 @@ scope:
         - core/tests/capability_evaluation.rs
         - core/tests/capability_evaluation_properties.rs
         - core/tests/capability_profile_fixtures.rs
+        - core/tests/conformance_contracts.rs
         - core/tests/ecmascript_lowering.rs
         - core/tests/ecmascript_lowering_properties.rs
         - core/tests/portability_diagnostics.rs
@@ -23,14 +24,19 @@ scope:
         - docs/migration/ecmascript-target-lowering.md
         - docs/migration/ledger.md
         - docs/migration/records/ecmascript-target-lowering.yaml
+        - docs/portability-planning.md
         - governance/change-control.json
         - spec/conformance/cases/lookbehind-targets.json
+        - spec/conformance/manifest.json
         - spec/contracts/1.0/examples/compile-request/equivalence-explanation.json
         - spec/contracts/1.0/examples/compile-result/equivalence-explanation.json
         - spec/contracts/1.0/examples/portability/ecmascript-rewrite.json
+        - spec/portability/equivalence/1.0/atomic-literal-elision.cases.json
+        - spec/portability/equivalence/1.0/registry.json
         - spec/targets/profiles/ecmascript-2024.json
         - tests/conformance/ecmascript-lowering.json
         - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
         - tooling/migration_differential_baseline.json
         - tooling/migration_differential_contract.json
         - tooling/tests/test_ecmascript_lowering_architecture.py
@@ -48,19 +54,30 @@ scope:
         - core/contract-mapping.json
         - core/src/ecmascript_lowering.rs
         - core/src/lib.rs
+        - core/tests/capability_profile_fixtures.rs
+        - core/tests/conformance_contracts.rs
         - core/tests/ecmascript_lowering.rs
         - core/tests/ecmascript_lowering_properties.rs
+        - core/tests/portability_diagnostics.rs
+        - core/tests/portability_planning.rs
+        - core/tests/portability_planning_properties.rs
+        - core/tests/rewrite_equivalence_registry.rs
         - core/tests/target_contracts.rs
         - docs/migration/ecmascript-target-lowering.md
         - docs/migration/records/ecmascript-target-lowering.yaml
+        - docs/portability-planning.md
         - governance/change-control.json
         - spec/conformance/cases/lookbehind-targets.json
+        - spec/conformance/manifest.json
         - spec/contracts/1.0/examples/compile-request/equivalence-explanation.json
         - spec/contracts/1.0/examples/compile-result/equivalence-explanation.json
         - spec/contracts/1.0/examples/portability/ecmascript-rewrite.json
+        - spec/portability/equivalence/1.0/atomic-literal-elision.cases.json
+        - spec/portability/equivalence/1.0/registry.json
         - spec/targets/profiles/ecmascript-2024.json
         - tests/conformance/ecmascript-lowering.json
         - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
         - tooling/tests/test_ecmascript_lowering_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []

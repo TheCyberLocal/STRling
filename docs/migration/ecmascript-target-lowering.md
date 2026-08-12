@@ -65,7 +65,7 @@ and the public kernel cannot bypass the ordered compiler pipeline to call it.
 
 Tests cover every Semantic IR variant, ASCII/Unicode class domains, wildcard
 line policy, all position and lookaround variants, capture slots and names,
-case intent, options, all repetition modes, certified atomic-literal elision,
+case intent, options, native greedy/lazy and fail-closed possessive repetition,
 unsupported and unresolved plans, profile/version/fingerprint drift,
 malformed rewrites, capture errors, resource ceilings, deterministic output,
 and generated nested/interacting programs. No test fabricates target support by

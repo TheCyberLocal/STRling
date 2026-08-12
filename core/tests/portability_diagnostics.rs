@@ -19,17 +19,26 @@ const ECMASCRIPT: &str = include_str!("../../spec/targets/profiles/ecmascript-20
 
 #[test]
 fn native_rewrite_unsupported_and_unresolved_decisions_are_explained() {
+    let pcre2: TargetProfile = serde_json::from_str(PCRE2).expect("PCRE2 profile");
+    let ecmascript: TargetProfile = serde_json::from_str(ECMASCRIPT).expect("ECMAScript profile");
+    let mut incomplete_ecmascript = ecmascript.clone();
+    incomplete_ecmascript.capabilities.retain(|capability| {
+        capability.capability_id.as_str() != "character_semantics.unicode_scalar"
+    });
     let cases = [
-        ("(?>a)", PCRE2, PORTABILITY_NATIVE_DIAGNOSTIC),
-        ("(?>a)", ECMASCRIPT, PORTABILITY_REWRITE_DIAGNOSTIC),
-        ("(?>a|b)", ECMASCRIPT, PORTABILITY_UNSUPPORTED_DIAGNOSTIC),
-        ("(?>λ)", ECMASCRIPT, PORTABILITY_UNRESOLVED_DIAGNOSTIC),
+        ("(?>a)", &pcre2, PORTABILITY_NATIVE_DIAGNOSTIC),
+        ("(?>a)", &ecmascript, PORTABILITY_REWRITE_DIAGNOSTIC),
+        ("(?>a|b)", &ecmascript, PORTABILITY_UNSUPPORTED_DIAGNOSTIC),
+        (
+            "(?>λ)",
+            &incomplete_ecmascript,
+            PORTABILITY_UNRESOLVED_DIAGNOSTIC,
+        ),
     ];
 
-    for (source, profile, expected_code) in cases {
+    for (source, target, expected_code) in cases {
         let semantic = parsed_program(source);
-        let target: TargetProfile = serde_json::from_str(profile).expect("target profile");
-        let (plan, first) = plan_and_explain(&semantic, &target);
+        let (plan, first) = plan_and_explain(&semantic, target);
         let second = explain_portability(&semantic, &plan).expect("second explanation pass");
 
         assert_eq!(first, second, "explanations must be deterministic");
@@ -89,10 +98,10 @@ fn equivalent_rewrite_explanation_carries_source_and_certification_evidence() {
         .join("\n");
     assert!(advice.contains("rewrite.atomic_literal.elide.v1"));
     assert!(
-        advice.contains("sha256:789e7a286244afd53239f4673415da128d8b3fb9bd38b17c17cc2675f5887a9f")
+        advice.contains("sha256:d1ac04c04241dff1423c22b5962fc7336c57e664e2510d557edb6e41f885a7d6")
     );
     assert!(
-        advice.contains("sha256:7b7083b3b1883aaddf3f3851717e673f9a7c8589e53d63e23529f9ef19195444")
+        advice.contains("sha256:ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2")
     );
     assert!(advice.contains("precondition.original_node_atomic"));
     assert_eq!(plan.decisions.len(), 1);
