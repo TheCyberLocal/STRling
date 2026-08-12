@@ -3,6 +3,8 @@
 The complementary historical reference-runner strategy and inventory are
 recorded in
 [`complementary-reference-runners.md`](complementary-reference-runners.md).
+The separately versioned projection, factual comparison, and governed taxonomy
+are defined in [`observation-comparison.md`](observation-comparison.md).
 
 This directory contains migration-control records and verification evidence for
 the architectural initiative. It is not product documentation and MUST NOT

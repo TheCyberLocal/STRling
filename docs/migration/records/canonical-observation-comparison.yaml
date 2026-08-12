@@ -1,0 +1,114 @@
+record_version: 2.0.0
+title: Canonical observation comparison and discrepancy taxonomy
+status: in_progress
+objective: Build and certify a deterministic, separately versioned comparison and governed migration-disposition layer above immutable historical reference observations without changing product semantics or executing the complete migration-corpus gate.
+scope:
+    diff:
+        base: "52d1649003fb29ceab6cb277c0f99d0ad31e2c75"
+        head: working-tree
+    allowed_paths:
+        - docs/migration/**
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/quality.json
+        - tooling/architecture_fitness.py
+        - tooling/legacy_reference/launch.py
+        - tooling/migration_comparison.py
+        - tooling/migration_comparison_contract.json
+        - tooling/tests/fixtures/migration_comparison/**
+        - tooling/tests/test_legacy_reference_architecture.py
+        - tooling/tests/test_migration_comparison.py
+        - tooling/tests/test_quality.py
+    forbidden_paths:
+        - bindings/**
+        - core/**
+        - spec/**
+    expected_files:
+        - docs/migration/observation-comparison.md
+        - docs/migration/records/canonical-observation-comparison.yaml
+        - tooling/migration_comparison_contract.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: compatible
+        evidence:
+            - Adds independently versioned internal comparison artifacts without changing runner, canonical, or public schemas.
+        affected_surfaces:
+            - migration-comparison-contract
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: compatible
+        evidence:
+            - Adds an isolated non-normative comparison layer and later strengthens authority-boundary hardgates around it.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Comparison contract and focused tests
+      command: python3 -m unittest tooling.tests.test_migration_comparison -v
+      expected_result: Projection, comparison, classification, certification, mutation, and determinism tests pass.
+    - name: Historical reference runners
+      command: python3 tooling/legacy_reference/launch.py --check
+      expected_result: TypeScript, Python, and cross-runner certification remain backward-compatible and deterministic.
+    - name: Repository authority and integrity
+      command: python3 tooling/governance.py && python3 tooling/architecture_fitness.py && python3 tooling/documentation_integrity.py && git diff --check
+      expected_result: Governance, architecture, documentation, and patch integrity pass without weakening authority boundaries.
+    - name: Canonical profiles
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full
+      expected_result: Every available operation passes and unavailable host-dependent operations remain explicitly recorded.
+checkpoints:
+    - name: Comparison contract and taxonomy lock
+      status: passed
+      evidence:
+        - check: Contract and taxonomy versions
+          command: python3 -m json.tool tooling/migration_comparison_contract.json
+          result: passed
+          details: Locked comparison, projection, normalization, comparator, and taxonomy version 1.0.0 independently of runner protocol 1.0.0 and observation schema 1.1.0.
+        - check: Faithful comparability and normalization scope
+          result: passed
+          details: Locked exact shared identity and surface pairing, explicit not-comparable states, one envelope-only normalization rule, complete outcome preservation, and explicit rejection of semantic-field normalization.
+        - check: Affected repository verification
+          command: python3 tooling/formatting.py repository --check; python3 tooling/governance.py; python3 tooling/architecture_fitness.py; python3 tooling/documentation_integrity.py; python3 tooling/security.py integrity --json; python3 tooling/security.py content --json; git diff --check
+          result: passed
+          details: Formatting, governance scope and declarations, architecture authority boundaries, 125-document link integrity, dependency integrity, content/workflow security, JSON parsing, and patch integrity passed.
+    - name: Canonical observation projection and normalization
+      status: planned
+      evidence: []
+    - name: Deterministic observation pairing and comparison
+      status: planned
+      evidence: []
+    - name: Governed discrepancy classification
+      status: planned
+      evidence: []
+    - name: Comparison corpus and taxonomy certification
+      status: planned
+      evidence: []
+    - name: Tooling integration and authority hardgates
+      status: planned
+      evidence: []
+    - name: Comparison readiness and corpus-gate handoff
+      status: planned
+      evidence: []
+commits: []

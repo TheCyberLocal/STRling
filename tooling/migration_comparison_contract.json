@@ -1,0 +1,169 @@
+{
+    "authority_model": {
+        "historical_consensus_is_normative": false,
+        "majority_is_authority": false,
+        "precedence": [
+            "normative-specification",
+            "canonical-contracts-and-kernel",
+            "migration-decisions",
+            "historical-comparison-evidence"
+        ]
+    },
+    "comparability": {
+        "not_comparable_reasons": [
+            "operation_not_exposed",
+            "unsupported_operation",
+            "incompatible_surface",
+            "missing_counterpart",
+            "insufficient_semantic_correspondence"
+        ],
+        "states": ["comparable", "not_comparable"]
+    },
+    "comparison_kind": "strling.migration-comparison-result",
+    "comparison_relationships": [
+        "equivalent_observation",
+        "differing_observation",
+        "not_comparable"
+    ],
+    "comparison_schema_version": "1.0.0",
+    "comparator_implementation_version": "1.0.0",
+    "difference_kinds": [
+        "value_mismatch",
+        "type_mismatch",
+        "left_missing",
+        "right_missing"
+    ],
+    "disposition_applicability": ["classified", "not_applicable"],
+    "dispositions": [
+        {
+            "authority_required": ["replacement_evidence"],
+            "id": "preserved_behavior",
+            "meaning": "The demonstrated replacement behavior intentionally retains the scoped historical semantics."
+        },
+        {
+            "authority_required": [
+                "normative_specification",
+                "canonical_contract",
+                "ratified_architecture"
+            ],
+            "id": "intentional_specification_correction",
+            "meaning": "The demonstrated replacement behavior intentionally differs because explicit governing authority requires or justifies correction."
+        },
+        {
+            "authority_required": [
+                "supported_scope_contract",
+                "normative_specification",
+                "canonical_contract",
+                "ratified_architecture"
+            ],
+            "id": "unsupported_legacy_behavior",
+            "meaning": "Observed historical behavior intentionally lies outside an explicit replacement support boundary."
+        },
+        {
+            "authority_required": [],
+            "id": "unresolved_discrepancy",
+            "meaning": "A meaningful difference lacks sufficient evidence or authority for another disposition."
+        }
+    ],
+    "normalization_rules": [
+        {
+            "affected_fields": [
+                "implementation",
+                "kind",
+                "observation_schema_version",
+                "operation",
+                "protocol_version",
+                "request",
+                "runner",
+                "surface"
+            ],
+            "id": "select-semantic-outcome@1.0.0",
+            "justification": "These source-envelope fields establish identity, pairing, and provenance. They are retained without change in projection provenance but are not historical outcome content. The complete outcome object remains the compared value.",
+            "preserves": [
+                "outcome.status",
+                "outcome.evidence",
+                "outcome.failure",
+                "outcome.reason"
+            ]
+        }
+    ],
+    "normalization_rules_version": "1.0.0",
+    "projection_kind": "strling.migration-comparison-projection",
+    "projection_schema_version": "1.0.0",
+    "rationale_fields": [
+        "comparison_identity",
+        "affected_operation",
+        "affected_surfaces",
+        "difference_paths",
+        "authority",
+        "evidence_identities",
+        "explanation",
+        "limitations",
+        "unresolved_questions"
+    ],
+    "source_observation_contracts": [
+        {
+            "kind": "strling.legacy-reference-observation",
+            "schema_version": "1.1.0"
+        }
+    ],
+    "surface_correspondence": [
+        {
+            "operation": "parser.parse",
+            "python": "python.core.parser.parse",
+            "typescript": "typescript.core.parser.parse"
+        },
+        {
+            "operation": "parser.parse_to_artifact",
+            "python": "python.core.parser.parse_to_artifact",
+            "typescript": "typescript.core.parser.parseToArtifact"
+        },
+        {
+            "operation": "compiler.compile",
+            "python": "python.core.Compiler.compile",
+            "typescript": "typescript.core.Compiler.compile"
+        },
+        {
+            "operation": "compiler.compile_with_metadata",
+            "python": "python.core.Compiler.compile_with_metadata",
+            "typescript": "typescript.core.Compiler.compileWithMetadata"
+        },
+        {
+            "operation": "emitter.pcre2.emit",
+            "python": "python.emitters.pcre2.emit",
+            "typescript": "typescript.emitters.pcre2.emit"
+        },
+        {
+            "operation": "emitter.pcre2.emit_with_diagnostics",
+            "python": "python.emitters.pcre2.emit_with_diagnostics",
+            "typescript": "typescript.emitters.pcre2.emitWithDiagnostics"
+        },
+        {
+            "operation": "api.root.parse",
+            "python": "python.package-root.parse",
+            "typescript": "typescript.package-root.parse"
+        },
+        {
+            "operation": "api.root.parse_to_artifact",
+            "python": "python.package-root.parse_to_artifact",
+            "typescript": "typescript.package-root.parseToArtifact"
+        },
+        {
+            "operation": "api.simply.literal_to_string",
+            "python": "python.simply.Pattern.__str__",
+            "typescript": "typescript.simply.Pattern.toString"
+        },
+        {
+            "operation": "api.simply.compile_node",
+            "python": "python.simply.compile_node",
+            "typescript": "typescript.simply.compileNode"
+        },
+        {
+            "operation": "api.simply.to_regexp",
+            "python": "python.simply.to_regexp",
+            "typescript": "typescript.simply.toRegExp"
+        }
+    ],
+    "taxonomy_kind": "strling.migration-discrepancy-classification",
+    "taxonomy_version": "1.0.0"
+}
