@@ -19,16 +19,22 @@ scope:
         - docs/architecture.md
         - docs/migration/ecmascript-target-serialization.md
         - docs/migration/ledger.md
+        - docs/migration/pcre2-target-serialization.md
+        - docs/migration/pcre2-versioned-feature-correctness.md
         - docs/migration/records/ecmascript-target-serialization.yaml
         - governance/architecture-rules.json
         - governance/certification-profiles.md
         - governance/change-control.json
         - spec/contracts/1.0/target-artifact.schema.json
+        - spec/contracts/1.0/examples/compile-result/target-artifact.json
         - tests/conformance/ecmascript-runtime-certification.json
+        - tests/conformance/pcre2-versioned-features.json
         - toolchain.json
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
         - tooling/ecmascript_runtime_certification.py
+        - tooling/legacy_reference/tests/test_launch.py
+        - tooling/migration_comparison_cli.py
         - tooling/migration_differential_baseline.json
         - tooling/migration_differential_contract.json
         - tooling/node_regexp_harness.mjs
@@ -36,6 +42,9 @@ scope:
         - tooling/tests/test_core_contracts.py
         - tooling/tests/test_ecmascript_runtime_certification.py
         - tooling/tests/test_ecmascript_serialization_architecture.py
+        - tooling/tests/test_legacy_regex_contract.py
+        - tooling/tests/test_pcre2_lowering_architecture.py
+        - tooling/tests/test_pcre2_serialization_architecture.py
         - tooling/tests/test_quality.py
     forbidden_paths:
         - bindings/**

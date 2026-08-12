@@ -45,29 +45,29 @@
             "encoding": "utf-8",
             "text": "abc"
         },
-    "engine_options": [
-        {
-            "option_id": "pcre2.matcher_api",
-            "stage": "runtime",
-            "value": "pcre2_match"
-        },
-        {
-            "option_id": "pcre2.max_variable_lookbehind",
-            "stage": "compile",
-            "value": 255
-        },
-        {
-            "option_id": "pcre2.multiline",
-            "stage": "compile",
-            "value": true
-        },
-        {
-            "option_id": "pcre2.newline",
-            "stage": "compile",
-            "value": "any"
-        },
-        {
-            "option_id": "pcre2.ucp",
+        "engine_options": [
+            {
+                "option_id": "pcre2.matcher_api",
+                "stage": "runtime",
+                "value": "pcre2_match"
+            },
+            {
+                "option_id": "pcre2.max_variable_lookbehind",
+                "stage": "compile",
+                "value": 255
+            },
+            {
+                "option_id": "pcre2.multiline",
+                "stage": "compile",
+                "value": true
+            },
+            {
+                "option_id": "pcre2.newline",
+                "stage": "compile",
+                "value": "any"
+            },
+            {
+                "option_id": "pcre2.ucp",
                 "stage": "compile",
                 "value": true
             },

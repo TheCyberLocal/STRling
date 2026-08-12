@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import unittest
+from typing import cast
 
 from tooling.ecmascript_runtime_certification import (
     CORPUS,
@@ -60,7 +61,7 @@ def passing_response(request: dict[str, object]) -> dict[str, object]:
         observations[f"rewrite:{rewrite['id']}:rewritten"] = expected
     compile_errors = {case["id"] for case in corpus["compile_error_cases"]}
     cases = []
-    for case in request["cases"]:  # type: ignore[index]
+    for case in cast(list[dict[str, object]], request["cases"]):
         case_id = case["id"]
         if case_id in compile_errors:
             cases.append({"id": case_id, "compile": "syntax_error", "observations": []})

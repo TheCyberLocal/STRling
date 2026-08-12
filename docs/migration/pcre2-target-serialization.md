@@ -34,18 +34,18 @@ lowering, and it cannot infer support from an engine-version string.
 Serialization uses a deliberately canonical, mechanically reviewable PCRE2
 spelling:
 
-- alternations are enclosed in noncapturing groups and retain branch order;
-- sequences concatenate their already-grouped children in order;
-- every repetition operand is enclosed in a noncapturing group before the
-  canonical `*`, `+`, `?`, `{m}`, `{m,}`, or `{m,n}` spelling and the optional
-  lazy or possessive suffix;
-- named and unnamed captures use PCRE2 capture syntax, while backreferences use
-  unambiguous absolute slot syntax from the lowering capture table;
-- lookarounds, anchors, boundaries, and atomic groups use their exact PCRE2
-  constructs; and
-- insensitive matching and wildcard inclusion of line terminators use scoped
-  PCRE2 option groups because `i` and `s` are genuine pattern-level PCRE2
-  semantics. They are not substitutes for profile-owned runtime options.
+-   alternations are enclosed in noncapturing groups and retain branch order;
+-   sequences concatenate their already-grouped children in order;
+-   every repetition operand is enclosed in a noncapturing group before the
+    canonical `*`, `+`, `?`, `{m}`, `{m,}`, or `{m,n}` spelling and the optional
+    lazy or possessive suffix;
+-   named and unnamed captures use PCRE2 capture syntax, while backreferences use
+    unambiguous absolute slot syntax from the lowering capture table;
+-   lookarounds, anchors, boundaries, and atomic groups use their exact PCRE2
+    constructs; and
+-   insensitive matching and wildcard inclusion of line terminators use scoped
+    PCRE2 option groups because `i` and `s` are genuine pattern-level PCRE2
+    semantics. They are not substitutes for profile-owned runtime options.
 
 This grouping rule favors a single deterministic form over minimal text. It
 prevents parent context from changing the serialization of an operation and

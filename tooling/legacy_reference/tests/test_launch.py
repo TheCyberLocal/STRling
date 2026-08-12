@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import importlib
 import sys
 import unittest
 from pathlib import Path
@@ -10,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tooling.legacy_reference import launch
+launch = importlib.import_module("tooling.legacy_reference.launch")
 
 
 class MultiRunnerLaunchTests(unittest.TestCase):

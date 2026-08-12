@@ -58,9 +58,7 @@ class Pcre2SerializationBoundaryTests(unittest.TestCase):
             ("artifact.validate()", "artifact.skip_validation()"),
         ):
             sources = source_texts()
-            sources[SERIALIZER] = sources[SERIALIZER].replace(
-                existing, replacement, 1
-            )
+            sources[SERIALIZER] = sources[SERIALIZER].replace(existing, replacement, 1)
             with (
                 self.subTest(existing=existing),
                 self.assertRaisesRegex(
@@ -84,7 +82,8 @@ class Pcre2SerializationBoundaryTests(unittest.TestCase):
             with (
                 self.subTest(prerequisite=prerequisite),
                 self.assertRaisesRegex(
-                    CoreContractError, "PCRE2 target serialization|PCRE2 target lowering"
+                    CoreContractError,
+                    "PCRE2 target serialization|PCRE2 target lowering",
                 ),
             ):
                 validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
@@ -110,7 +109,8 @@ class Pcre2SerializationBoundaryTests(unittest.TestCase):
             with (
                 self.subTest(forbidden=forbidden),
                 self.assertRaisesRegex(
-                    CoreContractError, "PCRE2 target serialization|PCRE2 target lowering"
+                    CoreContractError,
+                    "PCRE2 target serialization|PCRE2 target lowering",
                 ),
             ):
                 validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)

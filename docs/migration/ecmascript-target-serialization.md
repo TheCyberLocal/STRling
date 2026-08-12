@@ -63,17 +63,17 @@ separately from the artifact flags.
 
 Serialization favors one reviewable form over minimal text:
 
-- alternations use an explicit noncapturing group and preserve branch order;
-- sequences concatenate already-delimited children in order;
-- every repetition operand uses an explicit noncapturing group before the
-  canonical `*`, `+`, `?`, `{m}`, `{m,}`, or `{m,n}` spelling and optional lazy
-  suffix;
-- named captures use `(?<name>...)`, unnamed captures use `(...)`, and
-  backreferences use the lowering plan's unambiguous named or decimal form;
-- lookahead and lookbehind use their exact positive or negative assertion
-  forms; and
-- include-line-terminators wildcard uses `[\\s\\S]`, while the ordinary
-  wildcard uses `.`, so no global `s` flag broadens unrelated nodes.
+-   alternations use an explicit noncapturing group and preserve branch order;
+-   sequences concatenate already-delimited children in order;
+-   every repetition operand uses an explicit noncapturing group before the
+    canonical `*`, `+`, `?`, `{m}`, `{m,}`, or `{m,n}` spelling and optional lazy
+    suffix;
+-   named captures use `(?<name>...)`, unnamed captures use `(...)`, and
+    backreferences use the lowering plan's unambiguous named or decimal form;
+-   lookahead and lookbehind use their exact positive or negative assertion
+    forms; and
+-   include-line-terminators wildcard uses `[\\s\\S]`, while the ordinary
+    wildcard uses `.`, so no global `s` flag broadens unrelated nodes.
 
 Input start uses `^` without `m`. Strict input end uses a terminal negative
 lookahead. ECMAScript `$` without `m` recognizes only strict input end, so

@@ -31,11 +31,11 @@ PCRE2 10.42 accepts a lookbehind whose top-level alternatives each have a
 fixed length, even when those branch lengths differ. That is not a
 variable-length branch. Capability extraction therefore distinguishes:
 
-- one fixed length;
-- fixed top-level alternatives with a finite minimum and maximum;
-- a genuinely variable but finitely bounded branch;
-- an unbounded branch; and
-- an indeterminate bound.
+-   one fixed length;
+-   fixed top-level alternatives with a finite minimum and maximum;
+-   a genuinely variable but finitely bounded branch;
+-   an unbounded branch; and
+-   an indeterminate bound.
 
 The first two require `assertions.lookbehind.fixed_length`. Serialization keeps
 fixed alternatives at the assertion's top level (`(?<=a|bc)`) because wrapping

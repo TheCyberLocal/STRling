@@ -25,7 +25,9 @@ def source_texts() -> dict[str, str]:
 
 
 class Pcre2LoweringMappingTests(unittest.TestCase):
-    def test_consumed_contract_authorities_require_target_lowering_mapping(self) -> None:
+    def test_consumed_contract_authorities_require_target_lowering_mapping(
+        self,
+    ) -> None:
         mapping = load_mapping(ROOT / "core" / "contract-mapping.json")
         for schema in (
             "spec/contracts/1.0/diagnostic.schema.json",
@@ -51,7 +53,9 @@ class Pcre2LoweringBoundaryTests(unittest.TestCase):
     def test_current_boundary_is_valid(self) -> None:
         validate_source_boundaries(source_texts(), ALLOWED_RUNTIME_DEPENDENCIES)
 
-    def test_stage_entrypoint_and_exact_correspondence_checks_are_required(self) -> None:
+    def test_stage_entrypoint_and_exact_correspondence_checks_are_required(
+        self,
+    ) -> None:
         for existing, replacement in (
             ("pub fn lower_pcre2(", "fn lower_pcre2("),
             ("portability.validate()", "portability.skip_validation()"),

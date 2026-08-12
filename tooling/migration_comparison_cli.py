@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import sys
 from collections.abc import Mapping, Sequence
@@ -14,11 +15,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tooling import migration_classification as classification
-from tooling import migration_comparison as projection_contract
-from tooling import migration_comparison_certification as certification
-from tooling import migration_comparison_engine as comparison_engine
-from tooling.legacy_reference import python_reference as reference
+classification = importlib.import_module("tooling.migration_classification")
+projection_contract = importlib.import_module("tooling.migration_comparison")
+certification = importlib.import_module("tooling.migration_comparison_certification")
+comparison_engine = importlib.import_module("tooling.migration_comparison_engine")
+reference = importlib.import_module("tooling.legacy_reference.python_reference")
 
 MODES = ("project", "compare", "classify", "certify")
 

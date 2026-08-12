@@ -20,7 +20,7 @@
             "id": "named-capture-backreference",
             "source": "^(?<word>a)\\k<word>(?![\\s\\S])",
             "flags": ["u"],
-            "capture_names": {"1": "word"},
+            "capture_names": { "1": "word" },
             "subjects": ["aa", "ab"],
             "expected": [
                 {
@@ -30,20 +30,25 @@
                             "span": [0, 2],
                             "value": "aa",
                             "captures": [
-                                {"index": 0, "span": [0, 2], "value": "aa"},
-                                {"index": 1, "name": "word", "span": [0, 1], "value": "a"}
+                                { "index": 0, "span": [0, 2], "value": "aa" },
+                                {
+                                    "index": 1,
+                                    "name": "word",
+                                    "span": [0, 1],
+                                    "value": "a"
+                                }
                             ]
                         }
                     ]
                 },
-                {"subject": "ab", "matches": []}
+                { "subject": "ab", "matches": [] }
             ]
         },
         {
             "id": "optional-numbered-and-named-captures",
             "source": "^(?:(a))?(?<right>b)(?![\\s\\S])",
             "flags": ["u"],
-            "capture_names": {"2": "right"},
+            "capture_names": { "2": "right" },
             "subjects": ["b", "ab"],
             "expected": [
                 {
@@ -53,9 +58,14 @@
                             "span": [0, 1],
                             "value": "b",
                             "captures": [
-                                {"index": 0, "span": [0, 1], "value": "b"},
-                                {"index": 1, "span": null, "value": null},
-                                {"index": 2, "name": "right", "span": [0, 1], "value": "b"}
+                                { "index": 0, "span": [0, 1], "value": "b" },
+                                { "index": 1, "span": null, "value": null },
+                                {
+                                    "index": 2,
+                                    "name": "right",
+                                    "span": [0, 1],
+                                    "value": "b"
+                                }
                             ]
                         }
                     ]
@@ -67,9 +77,14 @@
                             "span": [0, 2],
                             "value": "ab",
                             "captures": [
-                                {"index": 0, "span": [0, 2], "value": "ab"},
-                                {"index": 1, "span": [0, 1], "value": "a"},
-                                {"index": 2, "name": "right", "span": [1, 2], "value": "b"}
+                                { "index": 0, "span": [0, 2], "value": "ab" },
+                                { "index": 1, "span": [0, 1], "value": "a" },
+                                {
+                                    "index": 2,
+                                    "name": "right",
+                                    "span": [1, 2],
+                                    "value": "b"
+                                }
                             ]
                         }
                     ]
@@ -80,7 +95,7 @@
             "id": "utf16-spans",
             "source": "^(?<emoji>😀)(?<greek>λ)(?![\\s\\S])",
             "flags": ["u"],
-            "capture_names": {"1": "emoji", "2": "greek"},
+            "capture_names": { "1": "emoji", "2": "greek" },
             "subjects": ["😀λ", "😀x"],
             "expected": [
                 {
@@ -90,21 +105,31 @@
                             "span": [0, 3],
                             "value": "😀λ",
                             "captures": [
-                                {"index": 0, "span": [0, 3], "value": "😀λ"},
-                                {"index": 1, "name": "emoji", "span": [0, 2], "value": "😀"},
-                                {"index": 2, "name": "greek", "span": [2, 3], "value": "λ"}
+                                { "index": 0, "span": [0, 3], "value": "😀λ" },
+                                {
+                                    "index": 1,
+                                    "name": "emoji",
+                                    "span": [0, 2],
+                                    "value": "😀"
+                                },
+                                {
+                                    "index": 2,
+                                    "name": "greek",
+                                    "span": [2, 3],
+                                    "value": "λ"
+                                }
                             ]
                         }
                     ]
                 },
-                {"subject": "😀x", "matches": []}
+                { "subject": "😀x", "matches": [] }
             ]
         },
         {
             "id": "lookbehind-and-negative-lookahead",
             "source": "(?<=ab)(?<body>c+)(?![cd])",
             "flags": ["u"],
-            "capture_names": {"1": "body"},
+            "capture_names": { "1": "body" },
             "subjects": ["xxabccc!", "xxabcccd"],
             "expected": [
                 {
@@ -114,20 +139,25 @@
                             "span": [4, 7],
                             "value": "ccc",
                             "captures": [
-                                {"index": 0, "span": [4, 7], "value": "ccc"},
-                                {"index": 1, "name": "body", "span": [4, 7], "value": "ccc"}
+                                { "index": 0, "span": [4, 7], "value": "ccc" },
+                                {
+                                    "index": 1,
+                                    "name": "body",
+                                    "span": [4, 7],
+                                    "value": "ccc"
+                                }
                             ]
                         }
                     ]
                 },
-                {"subject": "xxabcccd", "matches": []}
+                { "subject": "xxabcccd", "matches": [] }
             ]
         },
         {
             "id": "structural-line-anchors",
             "source": "(?:^|(?<=[\\n\\r\\u2028\\u2029]))(?<line>b)(?=$|[\\n\\r\\u2028\\u2029])",
             "flags": ["u"],
-            "capture_names": {"1": "line"},
+            "capture_names": { "1": "line" },
             "subjects": ["a\nb\nc", "a\rb\rc", "a\r\nb\r\nc", "a b c"],
             "expected": [
                 {
@@ -137,8 +167,13 @@
                             "span": [2, 3],
                             "value": "b",
                             "captures": [
-                                {"index": 0, "span": [2, 3], "value": "b"},
-                                {"index": 1, "name": "line", "span": [2, 3], "value": "b"}
+                                { "index": 0, "span": [2, 3], "value": "b" },
+                                {
+                                    "index": 1,
+                                    "name": "line",
+                                    "span": [2, 3],
+                                    "value": "b"
+                                }
                             ]
                         }
                     ]
@@ -150,8 +185,13 @@
                             "span": [2, 3],
                             "value": "b",
                             "captures": [
-                                {"index": 0, "span": [2, 3], "value": "b"},
-                                {"index": 1, "name": "line", "span": [2, 3], "value": "b"}
+                                { "index": 0, "span": [2, 3], "value": "b" },
+                                {
+                                    "index": 1,
+                                    "name": "line",
+                                    "span": [2, 3],
+                                    "value": "b"
+                                }
                             ]
                         }
                     ]
@@ -163,8 +203,13 @@
                             "span": [3, 4],
                             "value": "b",
                             "captures": [
-                                {"index": 0, "span": [3, 4], "value": "b"},
-                                {"index": 1, "name": "line", "span": [3, 4], "value": "b"}
+                                { "index": 0, "span": [3, 4], "value": "b" },
+                                {
+                                    "index": 1,
+                                    "name": "line",
+                                    "span": [3, 4],
+                                    "value": "b"
+                                }
                             ]
                         }
                     ]
@@ -176,8 +221,13 @@
                             "span": [2, 3],
                             "value": "b",
                             "captures": [
-                                {"index": 0, "span": [2, 3], "value": "b"},
-                                {"index": 1, "name": "line", "span": [2, 3], "value": "b"}
+                                { "index": 0, "span": [2, 3], "value": "b" },
+                                {
+                                    "index": 1,
+                                    "name": "line",
+                                    "span": [2, 3],
+                                    "value": "b"
+                                }
                             ]
                         }
                     ]
@@ -188,7 +238,7 @@
             "id": "negative-lookbehind-and-positive-lookahead",
             "source": "^..(?<!ab)(?<body>c+)(?=!)",
             "flags": ["u"],
-            "capture_names": {"1": "body"},
+            "capture_names": { "1": "body" },
             "subjects": ["xxccc!", "abccc!"],
             "expected": [
                 {
@@ -198,13 +248,22 @@
                             "span": [0, 5],
                             "value": "xxccc",
                             "captures": [
-                                {"index": 0, "span": [0, 5], "value": "xxccc"},
-                                {"index": 1, "name": "body", "span": [2, 5], "value": "ccc"}
+                                {
+                                    "index": 0,
+                                    "span": [0, 5],
+                                    "value": "xxccc"
+                                },
+                                {
+                                    "index": 1,
+                                    "name": "body",
+                                    "span": [2, 5],
+                                    "value": "ccc"
+                                }
                             ]
                         }
                     ]
                 },
-                {"subject": "abccc!", "matches": []}
+                { "subject": "abccc!", "matches": [] }
             ]
         },
         {
@@ -213,8 +272,30 @@
             "flags": ["u"],
             "subjects": ["\n", "😀"],
             "expected": [
-                {"subject": "\n", "matches": [{"span": [0, 1], "value": "\n", "captures": [{"index": 0, "span": [0, 1], "value": "\n"}]}]},
-                {"subject": "😀", "matches": [{"span": [0, 2], "value": "😀", "captures": [{"index": 0, "span": [0, 2], "value": "😀"}]}]}
+                {
+                    "subject": "\n",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "\n",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "\n" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "😀",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "😀",
+                            "captures": [
+                                { "index": 0, "span": [0, 2], "value": "😀" }
+                            ]
+                        }
+                    ]
+                }
             ]
         },
         {
@@ -223,10 +304,43 @@
             "flags": ["u"],
             "subjects": ["a", "a\n", "a\r\n", "a\nb"],
             "expected": [
-                {"subject": "a", "matches": [{"span": [0, 1], "value": "a", "captures": [{"index": 0, "span": [0, 1], "value": "a"}]}]},
-                {"subject": "a\n", "matches": [{"span": [0, 1], "value": "a", "captures": [{"index": 0, "span": [0, 1], "value": "a"}]}]},
-                {"subject": "a\r\n", "matches": [{"span": [0, 1], "value": "a", "captures": [{"index": 0, "span": [0, 1], "value": "a"}]}]},
-                {"subject": "a\nb", "matches": []}
+                {
+                    "subject": "a",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "a",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "a" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "a\n",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "a",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "a" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "a\r\n",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "a",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "a" }
+                            ]
+                        }
+                    ]
+                },
+                { "subject": "a\nb", "matches": [] }
             ]
         },
         {
@@ -235,10 +349,43 @@
             "flags": ["i", "u"],
             "subjects": ["k", "K", "K", "x"],
             "expected": [
-                {"subject": "k", "matches": [{"span": [0, 1], "value": "k", "captures": [{"index": 0, "span": [0, 1], "value": "k"}]}]},
-                {"subject": "K", "matches": [{"span": [0, 1], "value": "K", "captures": [{"index": 0, "span": [0, 1], "value": "K"}]}]},
-                {"subject": "K", "matches": [{"span": [0, 1], "value": "K", "captures": [{"index": 0, "span": [0, 1], "value": "K"}]}]},
-                {"subject": "x", "matches": []}
+                {
+                    "subject": "k",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "k",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "k" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "K",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "K",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "K" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "K",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "K",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "K" }
+                            ]
+                        }
+                    ]
+                },
+                { "subject": "x", "matches": [] }
             ]
         },
         {
@@ -247,8 +394,19 @@
             "flags": ["u"],
             "subjects": ["λβ", "λa"],
             "expected": [
-                {"subject": "λβ", "matches": [{"span": [0, 2], "value": "λβ", "captures": [{"index": 0, "span": [0, 2], "value": "λβ"}]}]},
-                {"subject": "λa", "matches": []}
+                {
+                    "subject": "λβ",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "λβ",
+                            "captures": [
+                                { "index": 0, "span": [0, 2], "value": "λβ" }
+                            ]
+                        }
+                    ]
+                },
+                { "subject": "λa", "matches": [] }
             ]
         },
         {
@@ -257,8 +415,19 @@
             "flags": ["v"],
             "subjects": ["AZ", "é"],
             "expected": [
-                {"subject": "AZ", "matches": [{"span": [0, 2], "value": "AZ", "captures": [{"index": 0, "span": [0, 2], "value": "AZ"}]}]},
-                {"subject": "é", "matches": []}
+                {
+                    "subject": "AZ",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "AZ",
+                            "captures": [
+                                { "index": 0, "span": [0, 2], "value": "AZ" }
+                            ]
+                        }
+                    ]
+                },
+                { "subject": "é", "matches": [] }
             ]
         },
         {
@@ -272,17 +441,44 @@
                 {
                     "subject": "😀",
                     "matches": [
-                        {"span": [0, 0], "value": "", "captures": [{"index": 0, "span": [0, 0], "value": ""}]},
-                        {"span": [2, 2], "value": "", "captures": [{"index": 0, "span": [2, 2], "value": ""}]}
+                        {
+                            "span": [0, 0],
+                            "value": "",
+                            "captures": [
+                                { "index": 0, "span": [0, 0], "value": "" }
+                            ]
+                        },
+                        {
+                            "span": [2, 2],
+                            "value": "",
+                            "captures": [
+                                { "index": 0, "span": [2, 2], "value": "" }
+                            ]
+                        }
                     ]
                 }
             ]
         }
     ],
     "compile_error_cases": [
-        {"id": "invalid-unclosed-class", "source": "[", "flags": ["u"], "expected_compile": "syntax_error"},
-        {"id": "duplicate-unicode-flag", "source": ".", "flags": ["u", "u"], "expected_compile": "syntax_error"},
-        {"id": "newer-runtime-scoped-modifier-extension", "source": "(?i:a)", "flags": ["u"], "expected_compile": "syntax_error"}
+        {
+            "id": "invalid-unclosed-class",
+            "source": "[",
+            "flags": ["u"],
+            "expected_compile": "syntax_error"
+        },
+        {
+            "id": "duplicate-unicode-flag",
+            "source": ".",
+            "flags": ["u", "u"],
+            "expected_compile": "syntax_error"
+        },
+        {
+            "id": "newer-runtime-scoped-modifier-extension",
+            "source": "(?i:a)",
+            "flags": ["u"],
+            "expected_compile": "syntax_error"
+        }
     ],
     "rewrite_cases": [
         {
