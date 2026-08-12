@@ -42,9 +42,7 @@ def bounded_case(raw_case: Any) -> dict[str, Any]:
     item = require_record(raw_case, "case")
     case_id = require_string(item.get("id"), "case.id")
     source = require_string(item.get("source"), f"{case_id}.source")
-    pattern_kind = require_string(
-        item.get("pattern_kind"), f"{case_id}.pattern_kind"
-    )
+    pattern_kind = require_string(item.get("pattern_kind"), f"{case_id}.pattern_kind")
     if pattern_kind not in {"str", "bytes"}:
         raise ValueError(f"{case_id}.pattern_kind is unsupported")
     flags = require_string_list(item.get("flags"), f"{case_id}.flags")
@@ -65,7 +63,10 @@ def bounded_case(raw_case: Any) -> dict[str, Any]:
             decoded_subjects = [bytes.fromhex(subject) for subject in subjects]
         except ValueError as exc:
             raise ValueError(f"{case_id}.bytes subject is not canonical hex") from exc
-        if any(subject.hex() != encoded.lower() for subject, encoded in zip(decoded_subjects, subjects)):
+        if any(
+            subject.hex() != encoded.lower()
+            for subject, encoded in zip(decoded_subjects, subjects)
+        ):
             raise ValueError(f"{case_id}.bytes subject is not canonical lowercase hex")
         if any(len(subject) > MAXIMUM_SUBJECT_UNITS for subject in decoded_subjects):
             raise ValueError(f"{case_id}.bytes subject exceeds the byte limit")
@@ -205,7 +206,13 @@ def main() -> None:
                 separators=(",", ":"),
             )
         )
-    except (AssertionError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+    except (
+        AssertionError,
+        KeyError,
+        TypeError,
+        ValueError,
+        json.JSONDecodeError,
+    ) as exc:
         print(
             json.dumps(
                 {

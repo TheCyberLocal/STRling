@@ -67,8 +67,7 @@ def passing_response(request: dict[str, object]) -> dict[str, object]:
         observations[f"rewrite:{rewrite['id']}:original"] = expected
         observations[f"rewrite:{rewrite['id']}:rewritten"] = expected
     compile_errors = {
-        case["id"]: case["expected_compile"]
-        for case in corpus["compile_error_cases"]
+        case["id"]: case["expected_compile"] for case in corpus["compile_error_cases"]
     }
     cases = []
     for case in cast(list[dict[str, object]], request["cases"]):
@@ -147,7 +146,11 @@ class PythonReRuntimeCertificationTests(unittest.TestCase):
         self.assertIn("SHA-256", wrong["checks"][0]["unavailable_reason"])
 
     def test_newer_local_runtime_identity_is_never_accepted(self) -> None:
-        newer = {**exact_runtime_identity(), "version": "3.12.3", "cache_tag": "cpython-312"}
+        newer = {
+            **exact_runtime_identity(),
+            "version": "3.12.3",
+            "cache_tag": "cpython-312",
+        }
         self.assertFalse(exact_runtime(newer))
 
         def wrong_runtime(_binary, request):

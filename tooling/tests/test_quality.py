@@ -709,8 +709,7 @@ class QualityRoutingTests(unittest.TestCase):
             toolchain.operation("python_re_runtime_certification")["command"],
         )
         release_ids = [
-            member["operation"]
-            for member in toolchain.profile("release")["operations"]
+            member["operation"] for member in toolchain.profile("release")["operations"]
         ]
         self.assertEqual(
             release_ids.index("ecmascript_runtime_certification") + 1,

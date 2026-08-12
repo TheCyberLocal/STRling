@@ -95,9 +95,7 @@ def exact_observation(subject: str, value: str, pattern_kind: str) -> dict[str, 
             {
                 "span": [0, end],
                 "value": encoded_match,
-                "captures": [
-                    {"index": 0, "span": [0, end], "value": encoded_match}
-                ],
+                "captures": [{"index": 0, "span": [0, end], "value": encoded_match}],
             }
         ],
     }
@@ -197,7 +195,9 @@ def generated_cases(configuration: Mapping[str, Any]) -> list[dict[str, Any]]:
                 {"subject": subjects[1].encode("ascii").hex(), "matches": []},
             ]
             flags = ["i"]
-        encoded_subjects = [encode_subject(subject, pattern_kind) for subject in subjects]
+        encoded_subjects = [
+            encode_subject(subject, pattern_kind) for subject in subjects
+        ]
         cases.append(
             {
                 "id": case_id,
@@ -240,12 +240,18 @@ def validate_corpus_identity(corpus: Mapping[str, Any]) -> None:
     if not isinstance(runtime, Mapping) or any(
         runtime.get(key) != value for key, value in expected_runtime.items()
     ):
-        raise ValueError("runtime corpus identity differs from the governed CPython pin")
+        raise ValueError(
+            "runtime corpus identity differs from the governed CPython pin"
+        )
     if corpus.get("profiles") != EXPECTED_PROFILES:
-        raise ValueError("runtime corpus profiles differ from the governed profile pins")
+        raise ValueError(
+            "runtime corpus profiles differ from the governed profile pins"
+        )
 
 
-def request_case(case: Mapping[str, Any], *, case_id: str | None = None) -> dict[str, Any]:
+def request_case(
+    case: Mapping[str, Any], *, case_id: str | None = None
+) -> dict[str, Any]:
     result = {
         "id": case_id or case["id"],
         "source": case["source"],
@@ -499,12 +505,16 @@ def run_certification(
                     "supplied executable does not report the governed CPython 3.11.15 Linux x86-64 identity"
                 )
             if runtime is not None and runtime != observed_runtime:
-                raise AssertionError("repeated CPython runtime identity is nondeterministic")
+                raise AssertionError(
+                    "repeated CPython runtime identity is nondeterministic"
+                )
             runtime = observed_runtime
             semantic = evaluate_response(response, request, corpus, generated)
             semantic_digests.append(canonical_digest(semantic))
         if len(set(semantic_digests)) != 1:
-            raise AssertionError("repeated Python re semantic evidence is nondeterministic")
+            raise AssertionError(
+                "repeated Python re semantic evidence is nondeterministic"
+            )
         assert runtime is not None
         harness_sha256 = canonical_digest(
             {
@@ -550,7 +560,12 @@ def run_certification(
         )
     except OSError:
         return unavailable("exact CPython executable could not be started")
-    except (AssertionError, RuntimeError, subprocess.SubprocessError, ValueError) as exc:
+    except (
+        AssertionError,
+        RuntimeError,
+        subprocess.SubprocessError,
+        ValueError,
+    ) as exc:
         return structured_result(
             {
                 "check_id": CHECK_ID,
@@ -595,7 +610,9 @@ def main() -> None:
     if args.json:
         print(serialized)
     else:
-        print(f"Python re runtime certification: {result['status'].upper()} ({result['summary']})")
+        print(
+            f"Python re runtime certification: {result['status'].upper()} ({result['summary']})"
+        )
     raise SystemExit(EXIT_CODES[result["status"]])
 
 

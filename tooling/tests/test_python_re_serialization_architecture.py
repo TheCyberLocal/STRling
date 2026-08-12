@@ -38,7 +38,9 @@ class PythonReSerializationMappingTests(unittest.TestCase):
             "spec/contracts/1.0/target-profile.schema.json",
         ):
             changed = copy.deepcopy(mapping)
-            entry = next(item for item in changed["schemas"] if item["schema"] == schema)
+            entry = next(
+                item for item in changed["schemas"] if item["schema"] == schema
+            )
             entry["rust_modules"].remove("python_re_serialization")
             with (
                 self.subTest(schema=schema),
@@ -218,7 +220,9 @@ class PythonReRuntimeCertificationBoundaryTests(unittest.TestCase):
                     python_re_runtime_certification_boundary_violation(changed, harness)
                 )
 
-    def test_harness_bounds_observation_and_process_isolation_are_required(self) -> None:
+    def test_harness_bounds_observation_and_process_isolation_are_required(
+        self,
+    ) -> None:
         orchestrator, harness = self.sources()
         for marker in (
             "MAXIMUM_INPUT_BYTES",

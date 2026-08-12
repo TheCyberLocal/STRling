@@ -63,17 +63,17 @@ policy.
 
 Serialization favors one reviewable form over minimal text:
 
-- alternations use an explicit noncapturing group and preserve branch order;
-- sequences concatenate already-delimited children in order;
-- every repetition operand uses a noncapturing group followed by canonical
-  `*`, `+`, `?`, `{m}`, `{m,}`, or `{m,n}` spelling and an optional lazy `?` or
-  possessive `+` suffix;
-- named captures and references use `(?P<name>...)` and `(?P=name)`; unnamed
-  captures use `(...)` and unambiguous decimal references;
-- lookahead, fixed lookbehind, and atomic groups use their Python 3.11 forms;
-  and
-- include-line-terminators wildcard uses `(?s:.)`, while the excluding form
-  uses an explicit line-terminator complement, so no global dot-all mode leaks.
+-   alternations use an explicit noncapturing group and preserve branch order;
+-   sequences concatenate already-delimited children in order;
+-   every repetition operand uses a noncapturing group followed by canonical
+    `*`, `+`, `?`, `{m}`, `{m,}`, or `{m,n}` spelling and an optional lazy `?` or
+    possessive `+` suffix;
+-   named captures and references use `(?P<name>...)` and `(?P=name)`; unnamed
+    captures use `(...)` and unambiguous decimal references;
+-   lookahead, fixed lookbehind, and atomic groups use their Python 3.11 forms;
+    and
+-   include-line-terminators wildcard uses `(?s:.)`, while the excluding form
+    uses an explicit line-terminator complement, so no global dot-all mode leaks.
 
 Input start and strict input end use `\A` and `\Z`. Line-start and line-end use
 scoped Python multiline assertions, `(?m:^)` and `(?m:$)`, whose target-native

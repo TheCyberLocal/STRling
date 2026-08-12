@@ -904,7 +904,9 @@ def python_re_target_serialization_boundary_violation(
     source = source_texts.get(path, "").lower()
     source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
     if "pub fn serialize_python_re(" not in source:
-        return "canonical Python re target-serialization stage boundary cannot be located"
+        return (
+            "canonical Python re target-serialization stage boundary cannot be located"
+        )
 
     prerequisites = (
         ("crate::diagnostic::{", "canonical structured emission diagnostics"),

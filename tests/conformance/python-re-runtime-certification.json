@@ -43,7 +43,12 @@
                             "value": "aa",
                             "captures": [
                                 { "index": 0, "span": [0, 2], "value": "aa" },
-                                { "index": 1, "name": "word", "span": [0, 1], "value": "a" }
+                                {
+                                    "index": 1,
+                                    "name": "word",
+                                    "span": [0, 1],
+                                    "value": "a"
+                                }
                             ]
                         }
                     ]
@@ -67,7 +72,12 @@
                             "captures": [
                                 { "index": 0, "span": [0, 1], "value": "b" },
                                 { "index": 1, "span": null, "value": null },
-                                { "index": 2, "name": "right", "span": [0, 1], "value": "b" }
+                                {
+                                    "index": 2,
+                                    "name": "right",
+                                    "span": [0, 1],
+                                    "value": "b"
+                                }
                             ]
                         }
                     ]
@@ -81,7 +91,12 @@
                             "captures": [
                                 { "index": 0, "span": [0, 2], "value": "ab" },
                                 { "index": 1, "span": [0, 1], "value": "a" },
-                                { "index": 2, "name": "right", "span": [1, 2], "value": "b" }
+                                {
+                                    "index": 2,
+                                    "name": "right",
+                                    "span": [1, 2],
+                                    "value": "b"
+                                }
                             ]
                         }
                     ]
@@ -103,8 +118,18 @@
                             "value": "😀λ",
                             "captures": [
                                 { "index": 0, "span": [0, 2], "value": "😀λ" },
-                                { "index": 1, "name": "emoji", "span": [0, 1], "value": "😀" },
-                                { "index": 2, "name": "greek", "span": [1, 2], "value": "λ" }
+                                {
+                                    "index": 1,
+                                    "name": "emoji",
+                                    "span": [0, 1],
+                                    "value": "😀"
+                                },
+                                {
+                                    "index": 2,
+                                    "name": "greek",
+                                    "span": [1, 2],
+                                    "value": "λ"
+                                }
                             ]
                         }
                     ]
@@ -127,7 +152,12 @@
                             "value": "ccc",
                             "captures": [
                                 { "index": 0, "span": [4, 7], "value": "ccc" },
-                                { "index": 1, "name": "body", "span": [4, 7], "value": "ccc" }
+                                {
+                                    "index": 1,
+                                    "name": "body",
+                                    "span": [4, 7],
+                                    "value": "ccc"
+                                }
                             ]
                         }
                     ]
@@ -150,7 +180,12 @@
                             "value": "b",
                             "captures": [
                                 { "index": 0, "span": [2, 3], "value": "b" },
-                                { "index": 1, "name": "line", "span": [2, 3], "value": "b" }
+                                {
+                                    "index": 1,
+                                    "name": "line",
+                                    "span": [2, 3],
+                                    "value": "b"
+                                }
                             ]
                         }
                     ]
@@ -173,7 +208,9 @@
                         {
                             "span": [0, 1],
                             "value": "a",
-                            "captures": [{ "index": 0, "span": [0, 1], "value": "a" }]
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "a" }
+                            ]
                         }
                     ]
                 },
@@ -193,7 +230,9 @@
                         {
                             "span": [0, 1],
                             "value": "a",
-                            "captures": [{ "index": 0, "span": [0, 1], "value": "a" }]
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "a" }
+                            ]
                         }
                     ]
                 },
@@ -203,7 +242,9 @@
                         {
                             "span": [0, 1],
                             "value": "a",
-                            "captures": [{ "index": 0, "span": [0, 1], "value": "a" }]
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "a" }
+                            ]
                         }
                     ]
                 },
@@ -218,9 +259,42 @@
             "flags": ["i"],
             "subjects": ["k", "K", "K", "x"],
             "expected": [
-                { "subject": "k", "matches": [{ "span": [0, 1], "value": "k", "captures": [{ "index": 0, "span": [0, 1], "value": "k" }] }] },
-                { "subject": "K", "matches": [{ "span": [0, 1], "value": "K", "captures": [{ "index": 0, "span": [0, 1], "value": "K" }] }] },
-                { "subject": "K", "matches": [{ "span": [0, 1], "value": "K", "captures": [{ "index": 0, "span": [0, 1], "value": "K" }] }] },
+                {
+                    "subject": "k",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "k",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "k" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "K",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "K",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "K" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "K",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "K",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "K" }
+                            ]
+                        }
+                    ]
+                },
                 { "subject": "x", "matches": [] }
             ]
         },
@@ -231,8 +305,30 @@
             "flags": ["i"],
             "subjects": ["k", "K", "K"],
             "expected": [
-                { "subject": "k", "matches": [{ "span": [0, 1], "value": "k", "captures": [{ "index": 0, "span": [0, 1], "value": "k" }] }] },
-                { "subject": "K", "matches": [{ "span": [0, 1], "value": "K", "captures": [{ "index": 0, "span": [0, 1], "value": "K" }] }] },
+                {
+                    "subject": "k",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "k",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "k" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "K",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "K",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "K" }
+                            ]
+                        }
+                    ]
+                },
                 { "subject": "K", "matches": [] }
             ]
         },
@@ -243,7 +339,18 @@
             "flags": [],
             "subjects": ["λ9", "-"],
             "expected": [
-                { "subject": "λ9", "matches": [{ "span": [0, 2], "value": "λ9", "captures": [{ "index": 0, "span": [0, 2], "value": "λ9" }] }] },
+                {
+                    "subject": "λ9",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "λ9",
+                            "captures": [
+                                { "index": 0, "span": [0, 2], "value": "λ9" }
+                            ]
+                        }
+                    ]
+                },
                 { "subject": "-", "matches": [] }
             ]
         },
@@ -255,7 +362,18 @@
             "flags": [],
             "subjects": ["ac", "abc"],
             "expected": [
-                { "subject": "ac", "matches": [{ "span": [0, 2], "value": "ac", "captures": [{ "index": 0, "span": [0, 2], "value": "ac" }] }] },
+                {
+                    "subject": "ac",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "ac",
+                            "captures": [
+                                { "index": 0, "span": [0, 2], "value": "ac" }
+                            ]
+                        }
+                    ]
+                },
                 { "subject": "abc", "matches": [] }
             ]
         },
@@ -283,8 +401,20 @@
                 {
                     "subject": "😀",
                     "matches": [
-                        { "span": [0, 0], "value": "", "captures": [{ "index": 0, "span": [0, 0], "value": "" }] },
-                        { "span": [1, 1], "value": "", "captures": [{ "index": 0, "span": [1, 1], "value": "" }] }
+                        {
+                            "span": [0, 0],
+                            "value": "",
+                            "captures": [
+                                { "index": 0, "span": [0, 0], "value": "" }
+                            ]
+                        },
+                        {
+                            "span": [1, 1],
+                            "value": "",
+                            "captures": [
+                                { "index": 0, "span": [1, 1], "value": "" }
+                            ]
+                        }
                     ]
                 }
             ]
@@ -304,7 +434,12 @@
                             "value": "6161",
                             "captures": [
                                 { "index": 0, "span": [0, 2], "value": "6161" },
-                                { "index": 1, "name": "word", "span": [0, 1], "value": "61" }
+                                {
+                                    "index": 1,
+                                    "name": "word",
+                                    "span": [0, 1],
+                                    "value": "61"
+                                }
                             ]
                         }
                     ]
@@ -352,10 +487,32 @@
             "source": "\\Ak\\Z",
             "pattern_kind": "bytes",
             "flags": ["i"],
-            "subjects": ["6b", "4b", "e2"] ,
+            "subjects": ["6b", "4b", "e2"],
             "expected": [
-                { "subject": "6b", "matches": [{ "span": [0, 1], "value": "6b", "captures": [{ "index": 0, "span": [0, 1], "value": "6b" }] }] },
-                { "subject": "4b", "matches": [{ "span": [0, 1], "value": "4b", "captures": [{ "index": 0, "span": [0, 1], "value": "4b" }] }] },
+                {
+                    "subject": "6b",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "6b",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "6b" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "4b",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "4b",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "4b" }
+                            ]
+                        }
+                    ]
+                },
                 { "subject": "e2", "matches": [] }
             ]
         }
@@ -366,21 +523,33 @@
             "source": "[",
             "pattern_kind": "str",
             "flags": [],
-            "expected_compile": { "status": "error", "type": "error", "position": 0 }
+            "expected_compile": {
+                "status": "error",
+                "type": "error",
+                "position": 0
+            }
         },
         {
             "id": "invalid-capture-name",
             "source": "(?P<bad-name>a)",
             "pattern_kind": "str",
             "flags": [],
-            "expected_compile": { "status": "error", "type": "error", "position": 4 }
+            "expected_compile": {
+                "status": "error",
+                "type": "error",
+                "position": 4
+            }
         },
         {
             "id": "unicode-escape-in-bytes-pattern",
             "source": "\\u0061",
             "pattern_kind": "bytes",
             "flags": [],
-            "expected_compile": { "status": "error", "type": "error", "position": 0 }
+            "expected_compile": {
+                "status": "error",
+                "type": "error",
+                "position": 0
+            }
         }
     ],
     "rewrite_cases": [
