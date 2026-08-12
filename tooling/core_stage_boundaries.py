@@ -772,6 +772,127 @@ def ecmascript_target_lowering_boundary_violation(
     return None
 
 
+def python_re_target_lowering_boundary_violation(
+    source_texts: Mapping[str, str],
+) -> str | None:
+    """Return the first structured Python re target-lowering violation."""
+
+    path = "core/src/python_re_lowering.rs"
+    source = source_texts.get(path, "").lower()
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub fn lower_python_re(" not in source:
+        return "canonical Python re target-lowering stage boundary cannot be located"
+
+    prerequisites = (
+        ("crate::diagnostic::{", "canonical structured diagnostics"),
+        ("crate::portability_planning::{", "certified portability plans"),
+        ("crate::semantic::{", "normalized Semantic IR"),
+        ("crate::source::{", "canonical identity and provenance contracts"),
+        ("crate::target::{", "exact immutable target profiles"),
+        ("crate::validation::{", "canonical validation and fingerprints"),
+    )
+    for marker, description in prerequisites:
+        if marker not in source:
+            return f"Python re target lowering must consume {description}"
+
+    correspondence = (
+        "portability.validate()",
+        "canonical_sha256(input)",
+        "target.reference()",
+        'target.engine.id.as_str() != "python_re"',
+        "target.runtime.as_ref()",
+        'runtime.id.as_str() != "cpython"',
+    )
+    for marker in correspondence:
+        if marker not in source:
+            return (
+                "Python re target lowering must validate exact planner/program/profile/runtime "
+                f"correspondence: {marker}"
+            )
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "evaluate_capabilities(",
+            "extract_requirements(",
+            "plan_portability(",
+            "certified_rewrite_registry(",
+            "crate::capability_evaluation",
+            "crate::normalization",
+            "crate::semantic_analysis",
+            "crate::structural_analysis",
+            "crate::safety_analysis",
+            "crate::diagnostic_generation",
+            "crate::compiler_pipeline",
+            "crate::capability_pipeline",
+            "crate::kernel",
+            "crate::protocol",
+            "crate::conformance",
+            "crate::regex_frontend",
+            "crate::target_lowering",
+            "crate::ecmascript_lowering",
+            "crate::ecmascript_serialization",
+            "crate::target_serialization",
+            "crate::emitter",
+            "crate::emitters",
+            "crate::bindings",
+            "crate::frontend",
+            "crate::lsp",
+            "crate::editor",
+            "crate::python_reference",
+            "crate::legacy_reference",
+            "bindings::",
+            "bindings::python",
+            "frontend::",
+            "emitters::",
+            "std::env::",
+            "std::fs::",
+            "std::net::",
+            "std::path::",
+            "std::process::",
+            "std::thread::",
+            "std::time::",
+            "systemtime",
+            "thread_rng",
+            "rand::",
+            "serde_json::to_string",
+            "serde::serialize",
+            "format_pattern(",
+            "escape_literal(",
+            "pcre2operation",
+            "pcre2loweringplan",
+            "lower_pcre2(",
+            "serialize_pcre2(",
+            "ecmascriptoperation",
+            "ecmascriptloweringplan",
+            "lower_ecmascript(",
+            "serialize_ecmascript(",
+            "re.compile(",
+            "strling.core",
+            "python::",
+            "regex::",
+            "emittedpattern {",
+            "generatedspan {",
+            "targetartifact {",
+        ),
+    )
+    if forbidden is not None:
+        return (
+            "Python re target lowering violates independent pure "
+            f"pre-serialization boundary: {forbidden}"
+        )
+
+    for candidate, text in source_texts.items():
+        if candidate in {path, "core/src/lib.rs"}:
+            continue
+        if "lower_python_re(" in text.lower():
+            return (
+                "Python re target lowering has an ungoverned direct caller before "
+                f"canonical orchestration exists: {candidate}"
+            )
+    return None
+
+
 def ecmascript_target_serialization_boundary_violation(
     source_texts: Mapping[str, str],
 ) -> str | None:

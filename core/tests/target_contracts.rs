@@ -27,7 +27,7 @@ const PROFILES: &[(&str, &str, &str)] = &[
     (
         "Python re 3.11",
         include_str!("../../spec/targets/profiles/python-re-3.11.json"),
-        "d5cf41327257b97a68df551f5971c1e0e3b95bca810e8ac7b11b23020f23879d",
+        "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c",
     ),
 ];
 

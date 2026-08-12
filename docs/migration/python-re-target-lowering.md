@@ -9,8 +9,10 @@ execution, bindings, packages, and publication remain outside this task.
 ## Target authority and selected profile
 
 The target facts come from the official Python 3.11 `re` documentation, not
-the historical Python binding. The selected profile is CPython `re` 3.11 with
-a required `str` pattern kind. Python 3.11 supports lookahead, common-width
+the historical Python binding. The selected profile is CPython `re` 3.11
+revision `1.2.0`, fingerprint
+`sha256:55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c`,
+with a required `str` pattern kind. Python 3.11 supports lookahead, common-width
 fixed lookbehind, named and numbered captures and references, atomic groups,
 lazy and possessive quantifiers, absolute and line anchors, word boundaries,
 Unicode-aware built-in classes for `str`, and case-insensitive matching.
@@ -18,13 +20,13 @@ Variable-length lookbehind and Unicode property escape syntax remain
 unavailable. Bytes applicability is retained explicitly and fails closed for
 Unicode-only semantic requirements.
 
-The profile will enumerate the same complete canonical capability vocabulary
+The profile enumerates the same complete canonical capability vocabulary
 used by the other target backends. Its option remains data owned by the target
 profile; lowering must never infer pattern kind or flags from a host process.
 
 ## Independent representation
 
-The plan will own a closed Python `re` operation vocabulary for empty,
+The plan owns a closed Python `re` operation vocabulary for empty,
 sequence, alternation, literal, wildcard, character set, greedy/lazy/
 possessive repetition, positions, captures, backreferences, lookarounds, and
 atomic groups. It will retain deterministic capture slots, logical capture
@@ -40,22 +42,22 @@ pattern objects.
 
 ## Certified-input and failure boundary
 
-Lowering will validate canonical Semantic IR, bounded node/depth resources,
+Lowering validates canonical Semantic IR, bounded node/depth resources,
 the exact Python `re` engine and CPython runtime identities, contract and
 specification compatibility, program/profile fingerprints, completed planner
 correspondence, capture resolution, options, pattern-kind applicability, and
 rewrite evidence. Unsupported, unresolved, stale, malformed, cross-target,
 over-limit, or Unicode-in-bytes evidence returns stable target-lowering
-diagnostics and no partial plan.
+diagnostics `STRL-PYTHON_RE_LOWERING-0001` through `0015` and no partial plan.
 
-Architecture fitness will prohibit PCRE2/ECMAScript lowering reuse,
+Architecture fitness prohibits PCRE2/ECMAScript lowering reuse,
 capability/planner recomputation, serializer/runtime/product dependencies,
 ambient state, historical Python semantic authority, target-neutral reverse
 dependencies, and direct kernel bypass.
 
 ## Verification boundary
 
-Focused tests will cover every current Semantic IR variant, string and bytes
+Focused tests cover every current Semantic IR variant, string and bytes
 applicability, all position/lookaround variants, common-width lookbehind,
 captures/references, Unicode/ASCII classes, case intent, options, atomic and
 all repetition modes, deterministic nested programs, immutable inputs,

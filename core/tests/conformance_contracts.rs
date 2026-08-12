@@ -24,7 +24,7 @@ const CASES: &[(&str, &str, &str)] = &[
     (
         "spec/conformance/cases/lookbehind-targets.json",
         include_str!("../../spec/conformance/cases/lookbehind-targets.json"),
-        "d9490c62c16ade77a2240cf444f237a4123c47c8f5207162c682f87cc2a80db6",
+        "7a44eace04fef701cdff469aa74e0ff08e101fc1e053f2149bcebbd00fae238d",
     ),
 ];
 

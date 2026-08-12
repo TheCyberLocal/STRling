@@ -24,6 +24,7 @@ scope:
         - docs/migration/records/python-re-target-lowering.yaml
         - governance/change-control.json
         - spec/conformance/cases/lookbehind-targets.json
+        - spec/conformance/manifest.json
         - spec/contracts/1.0/examples/portability/python-unsupported.json
         - spec/targets/profiles/python-re-3.11.json
         - tests/conformance/python-re-lowering.json
@@ -83,9 +84,9 @@ change_classification:
         evidence:
             - Adds stable internal Python re target-lowering failures without changing public facade results.
     target_behavior_change:
-        level: additive
+        level: intentional-correction
         evidence:
-            - Completes exact CPython re 3.11 capability facts and adds a structured pre-serialization target representation; no emitted or executed behavior is added.
+            - Completes exact CPython re 3.11 capability facts, corrects the prior unsupported Unicode-property claim to unavailable, and adds a structured pre-serialization target representation; no emitted or executed behavior is added.
     architecture_change:
         level: additive
         evidence:
@@ -122,12 +123,29 @@ checkpoints:
             result: passed
             details: PCRE2 and ECMAScript prove the neutral input, validation, rewrite, provenance, and fail-closed pattern, but their types, syntax assumptions, serializers, runtimes, and implementations are prohibited dependencies. Python lowering will consume only neutral contracts and retain Python-specific pattern-kind, option, position, class, repetition, capture, and assertion distinctions for P11-T04.
     - name: Complete governed Python profile and structured lowering
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Exact CPython re 3.11 profile
+            result: passed
+            details: Revision 1.2.0 enumerates all eighteen canonical capabilities, records Python Unicode property escapes and variable-length lookbehind as unavailable, preserves native atomic and possessive support, requires python.pattern_kind=str, and fingerprints as sha256:55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c. Authored profile references and the conformance manifest were renewed exactly.
+          - check: Independent structured lowering
+            result: passed
+            details: python_re_lowering consumes only canonical Semantic IR, an exact CPython target profile, and the completed portability plan. It emits a closed Python-specific operation tree with pattern kind, typed runtime options, captures, requirements, rewrites, node/source provenance, native possessive and atomic structure, and stable STRL-PYTHON_RE_LOWERING-0001 through 0015 failures; it does not emit regex text, construct artifacts, call Python, or reuse peer target output.
     - name: Deterministic, negative, property, and architecture proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Focused and generated lowering proof
+            result: passed
+            details: Ten focused lowering tests and two property tests pass. They cover every Semantic IR variant, all four lookaround forms and seven positions, captures/references, Unicode and ASCII class domains, greedy/lazy/possessive repetition, atomic groups, exact options, str/bytes applicability, certified rewrite retention, immutable inputs, deterministic output, stale evidence, malformed plans and rewrites, unsupported/unknown requirements, capture corruption, and depth limits across 196 generated valid programs and 64 generated cross-program rejections.
+          - check: Complete kernel and architecture regression
+            result: passed
+            details: All 318 all-target Rust tests pass. The complete canonical profiles now produce zero unknown generated capability requirements; 2,048 generated plan invocations retain 64 certified rewrites, zero unresolved requirements, and 160 genuine profile-differential programs. Eight controlled Python lowering architecture tests and all 83 architecture suites reject policy recomputation, peer-target reuse, serialization/runtime/product dependencies, ambient state, legacy Python authority, reverse dependencies, and direct callers.
+          - check: Reviewed migration differential renewal
+            result: passed
+            details: Under the verified official Node v22.23.2 Linux x64 binary, three repeated runs have zero mismatches. Only the canonical boundary changed, to sha256:7aac6d8221aa03b0b978b1cfe8047ea1a2ccbc344ac05d661e76adba153913a0; corpus, route, source-observation, historical-peer, and contract fingerprints remain unchanged. The reviewed baseline fingerprint is sha256:58358b3edb3bcde30a07eb2bbabe1c35860bffb0f81ebf0bda355f085a9c6461.
     - name: Complete repository and profile certification
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 32fe04afd1db7785b43d50bfb56c24091b4f7075
+      subject: "docs(core): define Python re target lowering"

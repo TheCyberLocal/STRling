@@ -6,7 +6,7 @@
 //! structural validation, pure semantic normalization, target-neutral semantic
 //! and safety analyses, structured diagnostic generation, pure factual target
 //! capability evaluation, pure portability planning, independent pure PCRE2 and
-//! ECMAScript structured target lowering, deterministic PCRE2 artifact
+//! ECMAScript and Python re structured target lowering, deterministic PCRE2 artifact
 //! serialization, deterministic ECMAScript artifact serialization, and
 //! crate-private stage orchestration. Runtime execution, bindings, editor
 //! presentation, and product integration remain intentionally absent.
@@ -29,6 +29,7 @@ pub mod normalization;
 pub mod portability_diagnostics;
 pub mod portability_planning;
 pub mod protocol;
+pub mod python_re_lowering;
 pub mod regex_frontend;
 pub mod safety_analysis;
 pub mod semantic;

@@ -27,6 +27,7 @@ try:
         portability_planning_boundary_violation,
         pcre2_target_lowering_boundary_violation,
         pcre2_target_serialization_boundary_violation,
+        python_re_target_lowering_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
@@ -43,6 +44,7 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
         portability_planning_boundary_violation,
         pcre2_target_lowering_boundary_violation,
         pcre2_target_serialization_boundary_violation,
+        python_re_target_lowering_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 
@@ -86,6 +88,7 @@ MODULE_PATHS = {
     "diagnostic_generation": "core/src/diagnostic_generation.rs",
     "ecmascript_lowering": "core/src/ecmascript_lowering.rs",
     "ecmascript_serialization": "core/src/ecmascript_serialization.rs",
+    "python_re_lowering": "core/src/python_re_lowering.rs",
     "normalization": "core/src/normalization.rs",
     "portability_planning": "core/src/portability_planning.rs",
     "portability_diagnostics": "core/src/portability_diagnostics.rs",
@@ -208,12 +211,13 @@ def validate_mapping_document(
             "diagnostic_generation",
             "portability_diagnostics",
             "ecmascript_lowering",
+            "python_re_lowering",
             "ecmascript_serialization",
             "target_lowering",
             "target_serialization",
         ]:
             raise CoreContractError(
-                "diagnostic mapping must register target-neutral diagnostic generation, target-aware portability explanations, ECMAScript and PCRE2 target-lowering failures, and both emission failures"
+                "diagnostic mapping must register target-neutral diagnostic generation, target-aware portability explanations, ECMAScript, Python re, and PCRE2 target-lowering failures, and both emission failures"
             )
         if relative == "spec/contracts/1.0/portability.schema.json" and modules != [
             "protocol::analysis",
@@ -221,6 +225,7 @@ def validate_mapping_document(
             "portability_planning",
             "portability_diagnostics",
             "ecmascript_lowering",
+            "python_re_lowering",
             "ecmascript_serialization",
             "target_lowering",
             "target_serialization",
@@ -240,6 +245,7 @@ def validate_mapping_document(
             "portability_planning",
             "portability_diagnostics",
             "ecmascript_lowering",
+            "python_re_lowering",
             "target_lowering",
         ]:
             raise CoreContractError(
@@ -265,6 +271,7 @@ def validate_mapping_document(
             "capability_evaluation",
             "portability_planning",
             "ecmascript_lowering",
+            "python_re_lowering",
             "ecmascript_serialization",
             "target_lowering",
             "target_serialization",
@@ -658,6 +665,7 @@ def validate_source_boundaries(
         portability_planning_boundary_violation,
         portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
+        python_re_target_lowering_boundary_violation,
         ecmascript_target_lowering_boundary_violation,
         ecmascript_target_serialization_boundary_violation,
         pcre2_target_lowering_boundary_violation,

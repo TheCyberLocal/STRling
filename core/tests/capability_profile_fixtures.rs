@@ -230,6 +230,8 @@ fn canonical_profiles_produce_expected_feature_differentials() {
             result_for(evaluation, "node:mixed.lookbehind.fixed").disposition,
             CapabilityDisposition::Supported
         );
+    }
+    for evaluation in [&pcre_1042, &pcre_1043, &ecmascript] {
         let unicode_property = evaluation
             .results
             .iter()
@@ -243,16 +245,24 @@ fn canonical_profiles_produce_expected_feature_differentials() {
             CapabilityDisposition::Supported
         );
     }
-    for evaluation in [&pcre_1042, &pcre_1043, &ecmascript] {
+    let python_unicode_property = python
+        .results
+        .iter()
+        .find(|result| {
+            result.node_id.as_str() == "node:mixed.characters"
+                && result.evaluated_capability.as_str() == "character_properties.unicode"
+        })
+        .expect("Python Unicode property result");
+    assert_eq!(
+        python_unicode_property.disposition,
+        CapabilityDisposition::Unsupported
+    );
+    for evaluation in [&pcre_1042, &pcre_1043, &ecmascript, &python] {
         assert_eq!(
             result_for(evaluation, "node:mixed.lookahead").disposition,
             CapabilityDisposition::Supported
         );
     }
-    assert_eq!(
-        result_for(&python, "node:mixed.lookahead").disposition,
-        CapabilityDisposition::Unknown
-    );
 }
 
 #[test]

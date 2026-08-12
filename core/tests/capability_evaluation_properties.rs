@@ -329,7 +329,10 @@ fn generated_capability_properties_are_reproducible_and_sound() {
     assert_eq!(generated_programs, GENERATED_PROGRAM_COUNT);
     assert_eq!(profile_evaluations, EXPECTED_PROFILE_EVALUATIONS);
     assert!(profile_differentials > 0);
-    assert!(unknown_results > 0);
+    assert_eq!(
+        unknown_results, 0,
+        "canonical profiles must enumerate every generated capability"
+    );
     assert!(constraint_violations > 0);
 }
 

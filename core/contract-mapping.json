@@ -46,6 +46,7 @@
                 "diagnostic_generation",
                 "portability_diagnostics",
                 "ecmascript_lowering",
+                "python_re_lowering",
                 "ecmascript_serialization",
                 "target_lowering",
                 "target_serialization"
@@ -60,6 +61,7 @@
                 "portability_planning",
                 "portability_diagnostics",
                 "ecmascript_lowering",
+                "python_re_lowering",
                 "ecmascript_serialization",
                 "target_lowering",
                 "target_serialization"
@@ -80,6 +82,7 @@
                 "portability_planning",
                 "portability_diagnostics",
                 "ecmascript_lowering",
+                "python_re_lowering",
                 "target_lowering"
             ]
         },
@@ -105,6 +108,7 @@
                 "capability_evaluation",
                 "portability_planning",
                 "ecmascript_lowering",
+                "python_re_lowering",
                 "ecmascript_serialization",
                 "target_lowering",
                 "target_serialization"
