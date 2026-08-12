@@ -23,6 +23,7 @@ try:
         portability_pipeline_boundary_violation,
         portability_planning_boundary_violation,
         pcre2_target_lowering_boundary_violation,
+        pcre2_target_serialization_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
@@ -35,6 +36,7 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
         portability_pipeline_boundary_violation,
         portability_planning_boundary_violation,
         pcre2_target_lowering_boundary_violation,
+        pcre2_target_serialization_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 
@@ -92,6 +94,7 @@ MODULE_PATHS = {
     "target": "core/src/target/mod.rs",
     "target::profile": "core/src/target/profile.rs",
     "target_lowering": "core/src/target_lowering.rs",
+    "target_serialization": "core/src/target_serialization.rs",
 }
 
 
@@ -197,9 +200,10 @@ def validate_mapping_document(
             "diagnostic_generation",
             "portability_diagnostics",
             "target_lowering",
+            "target_serialization",
         ]:
             raise CoreContractError(
-                "diagnostic mapping must register target-neutral generation, target-aware portability explanations, and target-lowering failures"
+                "diagnostic mapping must register target-neutral generation, target-aware portability explanations, target-lowering failures, and PCRE2 emission failures"
             )
         if relative == "spec/contracts/1.0/portability.schema.json" and modules != [
             "protocol::analysis",
@@ -207,9 +211,10 @@ def validate_mapping_document(
             "portability_planning",
             "portability_diagnostics",
             "target_lowering",
+            "target_serialization",
         ]:
             raise CoreContractError(
-                "portability mapping must register canonical planning, explanations, and structured target lowering"
+                "portability mapping must register canonical planning, explanations, structured target lowering, and artifact requirement projection"
             )
         if relative == "spec/contracts/1.0/semantic-ir.schema.json" and modules != [
             "regex_frontend",
@@ -234,14 +239,22 @@ def validate_mapping_document(
             raise CoreContractError(
                 "source mapping must register the canonical regex compatibility frontend"
             )
+        if relative == "spec/contracts/1.0/target-artifact.schema.json" and modules != [
+            "target",
+            "target_serialization",
+        ]:
+            raise CoreContractError(
+                "target artifact mapping must register the canonical PCRE2 serializer"
+            )
         if relative == "spec/contracts/1.0/target-profile.schema.json" and modules != [
             "target::profile",
             "capability_evaluation",
             "portability_planning",
             "target_lowering",
+            "target_serialization",
         ]:
             raise CoreContractError(
-                "target profile mapping must register factual capability evaluation, portability planning, and exact-profile target lowering"
+                "target profile mapping must register factual capability evaluation, portability planning, exact-profile target lowering, and option-preserving artifact serialization"
             )
 
     fixture_roots = mapping["fixture_roots"]
@@ -625,6 +638,7 @@ def validate_source_boundaries(
         portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
         pcre2_target_lowering_boundary_violation,
+        pcre2_target_serialization_boundary_violation,
     ):
         violation = boundary_check(source_texts)
         if violation is not None:

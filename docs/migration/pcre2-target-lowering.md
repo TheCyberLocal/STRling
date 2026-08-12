@@ -95,7 +95,9 @@ spans, `TargetArtifact` construction, filesystem/environment/network/clock/
 process/thread/randomness inputs, runtime PCRE2 calls, binding/frontend/editor
 dependencies, and host-specific implementation reuse.
 
-P10-T02 will serialize a certified PCRE2 plan, select PCRE2 syntax and escaping,
-produce generated spans/source maps, and construct a `TargetArtifact`. P10-T04
+P10-T02 now serializes a certified PCRE2 plan through the separate
+[`serialize_pcre2` boundary](pcre2-target-serialization.md), selects canonical
+PCRE2 syntax and escaping, produces generated spans/source maps, preserves
+profile options outside pattern text, and constructs a `TargetArtifact`. P10-T04
 will execute real PCRE2 and discharge runtime differential hooks. Those later
 tasks must not move policy back into the emitter.

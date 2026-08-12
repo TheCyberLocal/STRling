@@ -45,7 +45,8 @@
                 "diagnostic",
                 "diagnostic_generation",
                 "portability_diagnostics",
-                "target_lowering"
+                "target_lowering",
+                "target_serialization"
             ]
         },
         {
@@ -56,7 +57,8 @@
                 "target",
                 "portability_planning",
                 "portability_diagnostics",
-                "target_lowering"
+                "target_lowering",
+                "target_serialization"
             ]
         },
         {
@@ -84,7 +86,7 @@
         {
             "schema": "spec/contracts/1.0/target-artifact.schema.json",
             "sha256": "77b08d429584eafddd51fddc813b1eed89f5fb347f2b1751516a601b5b887c81",
-            "rust_modules": ["target"]
+            "rust_modules": ["target", "target_serialization"]
         },
         {
             "schema": "spec/contracts/1.0/target-profile.schema.json",
@@ -93,7 +95,8 @@
                 "target::profile",
                 "capability_evaluation",
                 "portability_planning",
-                "target_lowering"
+                "target_lowering",
+                "target_serialization"
             ]
         }
     ],

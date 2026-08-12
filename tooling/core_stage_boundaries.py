@@ -654,6 +654,106 @@ def pcre2_target_lowering_boundary_violation(
     return None
 
 
+def pcre2_target_serialization_boundary_violation(
+    source_texts: Mapping[str, str],
+) -> str | None:
+    """Return the first deterministic PCRE2 serialization violation."""
+
+    path = "core/src/target_serialization.rs"
+    source = source_texts.get(path, "").lower()
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub fn serialize_pcre2(" not in source:
+        return "canonical PCRE2 target-serialization stage boundary cannot be located"
+
+    prerequisites = (
+        ("crate::diagnostic::{", "canonical structured emission diagnostics"),
+        ("crate::source::{", "canonical generated and source coordinates"),
+        ("crate::target::{", "canonical TargetArtifact contracts"),
+        ("crate::target_lowering::{", "validated structured PCRE2 lowering plans"),
+        ("crate::validation::validate", "canonical contract validation"),
+    )
+    for marker, description in prerequisites:
+        if marker not in source:
+            return f"PCRE2 target serialization must consume {description}"
+
+    for marker in ("plan.validate()", "artifact.validate()"):
+        if marker not in source:
+            return (
+                "PCRE2 target serialization must validate its exact input and output "
+                f"contracts: {marker}"
+            )
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "lower_pcre2(",
+            "evaluate_capabilities(",
+            "extract_requirements(",
+            "plan_portability(",
+            "certified_rewrite_registry(",
+            "crate::capability_evaluation",
+            "crate::normalization",
+            "crate::portability_planning",
+            "crate::semantic",
+            "crate::semantic_analysis",
+            "crate::structural_analysis",
+            "crate::safety_analysis",
+            "crate::diagnostic_generation",
+            "crate::compiler_pipeline",
+            "crate::capability_pipeline",
+            "crate::kernel",
+            "crate::protocol",
+            "crate::conformance",
+            "crate::regex_frontend",
+            "crate::emitter",
+            "crate::emitters",
+            "crate::bindings",
+            "crate::frontend",
+            "crate::lsp",
+            "crate::editor",
+            "bindings::",
+            "frontend::",
+            "emitters::",
+            "crate::target::targetprofile",
+            "crate::target::optionselection",
+            "engine.version",
+            "std::env::",
+            "std::fs::",
+            "std::net::",
+            "std::path::",
+            "std::process::",
+            "std::thread::",
+            "std::time::",
+            "systemtime",
+            "thread_rng",
+            "rand::",
+            "pcre2_compile",
+            "pcre2_match",
+            "runtime_probe",
+            "engine_probe",
+            "regex::",
+            "(*utf)",
+            "(*ucp)",
+            "pcre2_code_unit_width",
+        ),
+    )
+    if forbidden is not None:
+        return (
+            "PCRE2 target serialization violates mechanical artifact boundary: "
+            f"{forbidden}"
+        )
+
+    for candidate, text in source_texts.items():
+        if candidate in {path, "core/src/lib.rs"}:
+            continue
+        if "serialize_pcre2(" in text.lower():
+            return (
+                "PCRE2 target serialization has an ungoverned direct caller before "
+                f"canonical orchestration exists: {candidate}"
+            )
+    return None
+
+
 def target_neutral_reverse_dependency_violation(
     source_texts: Mapping[str, str],
 ) -> str | None:
@@ -684,6 +784,7 @@ def target_neutral_reverse_dependency_violation(
                 "crate::portability_planning",
                 "crate::capability_pipeline",
                 "crate::target_lowering",
+                "crate::target_serialization",
             ),
         )
         if forbidden is not None:

@@ -43,8 +43,18 @@ scope:
         - spec/targets/profiles/**
         - tests/spec/**
     expected_files:
+        - core/contract-mapping.json
+        - core/src/lib.rs
+        - core/src/target_serialization.rs
+        - core/tests/pcre2_serialization.rs
+        - core/tests/pcre2_serialization_properties.rs
+        - docs/architecture.md
+        - docs/migration/pcre2-target-lowering.md
         - docs/migration/pcre2-target-serialization.md
         - docs/migration/records/pcre2-target-serialization.yaml
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_pcre2_serialization_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -110,12 +120,38 @@ checkpoints:
             result: passed
             details: Case insensitivity and dot-all wildcard behavior have exact scoped PCRE2 pattern constructs; UTF/UCP stay engine options and must never leak as invented inline Unicode flags. Current profiles do not declare code-unit width, newline/BSR overrides, JIT, or match-context settings, so this task will preserve all declared options without fabricating missing consumer obligations. UTF-16/32 and version-sensitive feature execution remain later profile/runtime work.
     - name: Deterministic serializer, artifact projection, and failures
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Exact input and output contract
+            result: passed
+            details: serialize_pcre2 borrows one Pcre2LoweringPlan, validates its complete canonical structure, serializes without mutating it, constructs one TargetArtifact with contract/specification versions, exact immutable profile reference, portability status, UTF-8 regex text, all selected options, requirement records, generated source map, and empty successful emission diagnostics, then validates the artifact before returning all-or-nothing.
+          - check: Closed deterministic PCRE2 spelling
+            result: passed
+            details: Every target operation has one branch. Alternations and repetition operands use explicit noncapturing groups; quantifiers use canonical short/general forms plus lazy/possessive suffixes; captures use named/unnamed PCRE2 syntax; backreferences use absolute slot syntax; all position and lookaround forms and atomic groups use exact PCRE2 constructs. Global insensitive mode and include-line-terminators wildcard use genuine scoped i/s PCRE2 syntax without changing profile option ownership.
+          - check: Stable fail-closed boundary
+            result: passed
+            details: STRL-PCRE2_EMIT-0001 through -0006 cover invalid lowering plans, capture correspondence/names, Unicode property syntax data, PCRE2 capture/quantifier limits, 16 MiB pattern growth, and invalid constructed artifacts. Failures are emission-phase target-profile diagnostics tied to the smallest available source span and affected semantic node.
     - name: Escaping, precedence, options, source maps, and property evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Escaping and precedence matrix
+            result: passed
+            details: Pattern metacharacters, backslash, whitespace, hash, NUL, controls, printable non-ASCII scalars, class metacharacters, range endpoints, ASCII/Unicode built-ins, Unicode properties, mixed positive/negative sets, nested alternation, and repeated operations are covered. ASCII built-ins use explicit scoped case-sensitive atoms; Unicode built-ins retain UCP-dependent PCRE2 shorthands. Invalid capture/property identifier data fails instead of entering syntax.
+          - check: Option and requirement projection
+            result: passed
+            details: Every lowering option is copied with exact ID, compile/runtime stage, and scalar value in canonical profile order, including profile defaults. Required pcre2.utf and pcre2.ucp are present as options, and tests prohibit (*UTF) and (*UCP) leakage. Requirement IDs use zero-padded canonical ordinals; native resolution is profile_capability_resolved and certified rewrites retain the exact strategy ID.
+          - check: Deterministic provenance and property corpus
+            result: passed
+            details: Every operation records a half-open generated UTF-8 byte span; identical empty/rewrite spans coalesce sorted unique node/source evidence. Tests serialize 196 generated programs twice with equal typed artifacts, compact JSON, and canonical fingerprints; exercise 128 deterministic 48-scalar escape mutations; and reject 64 shuffled-option plans before emission. Inputs remain byte-equivalent typed values.
     - name: Architecture, contracts, migration evidence, and repository certification
-      status: planned
-      evidence: []
-commits: []
+      status: in_progress
+      evidence:
+          - check: Focused Rust, architecture, and contract checks
+            result: passed
+            details: Nine focused integration tests plus the serializer module unit test pass. Twenty-nine serializer/lowering/core-contract controlled tests pass, enforcing entrypoint and validation, mandatory authorities, no lowering/policy recomputation, no profile reinterpretation, no runtime/ambient/product dependency, no invalid Unicode inline leakage, no target-neutral reverse dependency, and no direct caller. Core validation passes 11 schema mappings and 78 fixtures.
+          - check: Complete Rust quality
+            result: passed
+            details: All 278 Rust tests pass and warnings-denied Clippy is clean. Final repository, reviewed migration differential, Local, and Pull Request certification remain pending the implementation commit.
+commits:
+    - sha: 9991575b347ac5f56108f18065c88b2b16a5065a
+      subject: "docs(core): define PCRE2 target serialization"

@@ -43,9 +43,9 @@ prepublication source, Semantic IR, compile request/result, diagnostic,
 analysis, profile, portability, and artifact contracts live under
 `spec/contracts/1.0`. The canonical Rust kernel currently implements the path
 through certified portability planning, structured target-aware explanations,
-and a pure pre-serialization PCRE2 lowering stage. Regex serialization,
-`TargetArtifact` construction, runtime execution, and product orchestration of
-that lowering stage remain deliberately absent.
+a pure PCRE2 lowering stage, and deterministic standalone PCRE2 artifact
+serialization. Runtime execution and product orchestration of those target
+stages remain deliberately absent.
 
 **Semantic analysis** owns target-independent validity, diagnostics, safety
 findings, and explanation.
@@ -85,9 +85,17 @@ regex punctuation, escaping, generated spans, emitted pattern, artifact, or
 runtime call.
 
 **Emitters** deterministically serialize certified lowering plans; they do not
-invent semantic or portability policy. A later PCRE2 emitter owns spelling and
-escaping, generated pattern spans/source maps, and `TargetArtifact`
-construction. Runtime integration remains a later boundary again.
+invent semantic or portability policy. `serialize_pcre2` validates one exact
+`Pcre2LoweringPlan`, applies canonical PCRE2 spelling, escaping, grouping, and
+precedence, copies all already-selected compile/runtime options and requirement
+resolutions, builds generated UTF-8 spans/source maps, and validates the final
+`TargetArtifact`. Its
+[mechanical serialization contract](migration/pcre2-target-serialization.md)
+uses genuine scoped PCRE2 `i` and `s` syntax but keeps UTF/UCP and every other
+profile-owned consumer option outside pattern text. It cannot inspect Semantic
+IR, reinterpret target profiles, choose rewrites, run PCRE2, access ambient
+state, or serve bindings and product callers. Runtime integration remains a
+later boundary again.
 
 ## Simply
 
