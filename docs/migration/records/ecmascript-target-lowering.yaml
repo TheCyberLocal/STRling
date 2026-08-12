@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Independent ECMAScript 2024 structured target lowering
-status: in_progress
+status: complete
 objective: Complete the governed ECMAScript 2024 capability profile and lower normalized Semantic IR plus the exact certified portability plan into deterministic ECMAScript-specific structure without reusing PCRE2 syntax, serializing JavaScript regex text, executing Node, constructing a TargetArtifact, or changing public, binding, package, or publication behavior.
 scope:
     diff:
@@ -64,6 +64,7 @@ scope:
         - core/tests/rewrite_equivalence_registry.rs
         - core/tests/target_contracts.rs
         - docs/migration/ecmascript-target-lowering.md
+        - docs/migration/ledger.md
         - docs/migration/records/ecmascript-target-lowering.yaml
         - docs/portability-planning.md
         - governance/change-control.json
@@ -78,6 +79,7 @@ scope:
         - tests/conformance/ecmascript-lowering.json
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
         - tooling/tests/test_ecmascript_lowering_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
@@ -146,4 +148,69 @@ checkpoints:
           - check: Independent lowering boundary
             result: passed
             details: The PCRE2 lowering proves the required pure input/validation/rewrite/provenance pattern, but its types, syntax assumptions, option identities, and implementation are forbidden dependencies. A separate module will import only neutral contracts and retain ECMAScript-specific position, class, wildcard, flag-intent, capture, and lookaround distinctions for P11-T02.
-commits: []
+    - name: Governed ECMAScript profile and rewrite evidence
+      status: passed
+      evidence:
+          - check: Complete immutable ECMAScript 2024 capability profile
+            result: passed
+            details: Profile revision 1.1.0 now contains all eighteen canonical capability facts, explicitly marks atomic groups and possessive repetition unavailable, requires compile-stage Unicode mode u, and fingerprints as 5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f. Every authored profile reference and conformance digest was renewed and revalidated.
+          - check: ECMAScript atomic-literal equivalence evidence
+            result: passed
+            details: The specification-authored ECMAScript atomic-literal case is now certified as equivalent_rewrite. Its conformance evidence fingerprints as ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2, and the governed strategy fingerprints as d1ac04c04241dff1423c22b5962fc7336c57e664e2510d557edb6e41f885a7d6; no possessive or nonliteral atomic rewrite was added.
+    - name: Independent structured lowering and failure boundary
+      status: passed
+      evidence:
+          - check: Closed ECMAScript target representation
+            result: passed
+            details: The pure lowering module covers empty, sequence, alternation, literal, wildcard, character set, greedy/lazy repetition, every position, deterministic capture slots, named/numbered backreferences, and both lookaround directions. Case intent, exact profile options, requirements, applied rewrite certification, semantic identities, and source spans remain typed data outside regex syntax.
+          - check: Certified input correspondence and fail-closed behavior
+            result: passed
+            details: Lowering validates canonical Semantic IR, 65,536-node and depth-128 limits, contract/specification compatibility, exact program and profile fingerprints, completed planner correspondence, capture resolution, and rewrite shape before returning output. Unknown, unsupported, stale, cross-target, malformed, over-limit, possessive, and nonliteral atomic inputs return stable STRL-ECMASCRIPT_LOWERING diagnostics with no partial plan.
+          - check: Deterministic unit, property, corpus, and architecture proof
+            result: passed
+            details: Eight focused lowering tests and two generated-property tests over 196 valid programs passed. The governed lowering corpus records twelve native operation identities, one certified rewrite, two explicit fail-closed operations, and exact resource ceilings. Eight architecture tests prohibit PCRE2 reuse, policy recomputation, serialization/runtime/product dependencies, ambient inputs, reverse target dependencies, and direct kernel bypass.
+    - name: Complete repository and governed-profile certification
+      status: passed
+      evidence:
+          - check: Complete core and repository hardgates
+            result: passed
+            details: All 293 core tests, warnings-denied all-target Clippy, eight ECMAScript architecture tests, 11 schema mappings and 78 canonical fixtures, public and generated contracts, governance, documentation integrity across 139 files and seven executable examples, and patch integrity passed.
+          - check: Reviewed migration differential renewal
+            result: passed
+            details: Adding the profile and lowering module changed only the canonical boundary projection. The reviewed three-run gate passes with 44 source observations, zero blocking unresolved replacements, zero nondeterministic mismatches, no replacement-review exemptions, canonical-boundary fingerprint sha256:80b90a82bc74a994aebdc74ac93fdd9a1a75bd3549835936f0825983f190d109, and baseline fingerprint sha256:39f309162b403c4f3af21a587e3d88dbc9b55edb471c12498702f6ef57d3286a; all corpus, route, source-observation, and historical-peer fingerprints remained unchanged.
+          - check: Local and Pull Request profiles
+            result: passed
+            details: At clean implementation commit 4a5028cf68ee56fce051c62d28e9364d6e00ee7e, Local recorded 20 passed, zero failed, zero waived, and six unavailable operations with evidence fingerprint 33a0c9edd488c5ddafe594c12bfbf796b37216f8d2d15d4174e72016d58a0cf3. Pull Request recorded 39 passed, zero failed, zero waived, and seven unavailable operations. Aggregates are UNAVAILABLE, never failed, solely because host Ruff 0.16.2 differs from pin 0.15.21 and Pull Request also records the repository-managed Ruby Bundler mismatch.
+commits:
+    - sha: 01b275a18297ccc48be4dbefec6df495ba9d67b1
+      subject: "docs(core): define ECMAScript target lowering"
+    - sha: 4a5028cf68ee56fce051c62d28e9364d6e00ee7e
+      subject: "feat(core): implement ECMAScript target lowering"
+completion:
+    accomplished:
+        - Completed and immutably fingerprinted the normative ECMAScript 2024 target profile across every canonical requirement capability, exact Unicode-mode option intent, and explicit atomic/possessive unavailability.
+        - Added a separate pure ECMAScript lowering module that consumes only canonical semantic, target-profile, portability-plan, source, diagnostic, and validation contracts and returns a closed pre-serialization representation.
+        - Preserved exact planner decisions and certified atomic-literal rewrite evidence while retaining deterministic captures, requirements, options, provenance, rewrite identities, and target-profile correspondence.
+        - Added governed unit, negative, property, conformance-corpus, contract-mapping, and architecture-mutation coverage without importing or translating PCRE2 target code.
+    verified:
+        - All focused profile, lowering, generated-property, rewrite-registry, portability, conformance, and architecture tests pass; all 293 core tests and warning-denied Clippy pass.
+        - Core/public/generated contracts, governance, documentation, patch integrity, and the reviewed three-run migration differential pass with zero blocking or nondeterministic results.
+        - Local and Pull Request profiles have zero failures and zero waivers; every unavailable host-tool operation remains explicit and unweakened.
+    behavior_changed: Internal target behavior now includes exact ECMAScript 2024 capability planning and deterministic structured lowering; no regex text is emitted, no JavaScript runtime is invoked, and no public or package surface changed.
+    intentional_behavior_changes:
+        - ECMAScript lookahead, fixed and variable backward lookbehind, captures/references, lazy repetition, Unicode properties/scalars/classes, anchors, boundaries, and case intent now resolve from complete governed profile evidence instead of remaining absent/unknown.
+        - Atomic literals may lower only through the exact previously certified elision strategy; nonliteral atomic groups and possessive repetition remain explicitly unsupported.
+        - A required compile-stage ecmascript.unicode_mode option with value u is retained as typed flag intent for the serializer rather than embedded into pattern text.
+    preserved_behavior:
+        - Semantic IR, normalization, analysis, safety findings, portability vocabulary, public compiler contracts, existing PCRE2 lowering/serialization/runtime behavior, bindings, packages, and publication state remain unchanged.
+        - Lowering never recomputes capability or rewrite policy, serializes syntax, constructs TargetArtifact or RegExp values, executes Node, or consults ambient state.
+    transitional_architecture:
+        - ECMAScript lowering is intentionally a standalone internal stage and is not yet called by the public compiler pipeline; P11-T02 owns deterministic serialization, TargetArtifact construction, and controlled Node/V8 execution evidence.
+        - Governed profiles remain READY WITH RECORDED CARRY-FORWARD because host Ruff and Ruby Bundler versions differ from repository pins; no unavailable operation is waived or represented as passing.
+    deferred_work:
+        - P11-T02 owns ECMAScript syntax/escaping, precedence, canonical flags/options, artifact construction, pinned Node/V8 execution, runtime spans/captures/errors, determinism, and repository-profile integration.
+        - Python target lowering/runtime, cross-engine conformance, binding migration, public orchestration, packages, versions, release notes, tagging, publication, and registry upload remain later ordered work.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P11-T02 by implementing deterministic ECMAScript serialization and pinned Node/V8 execution certification from the completed structured lowering plan, without moving capability or rewrite policy into the serializer.
+    rationale: P11-T01 is complete with a fully evidenced ECMAScript 2024 profile, independent deterministic lowering, explicit unsupported boundaries, exact rewrite/provenance retention, comprehensive test and architecture proof, reviewed migration-baseline renewal, and zero failed certification-profile operations. Only explicit host tool-version availability carries forward.

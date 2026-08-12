@@ -2782,3 +2782,54 @@ CARRY-FORWARD`. The next ordered task is
 which must lower independently from normalized Semantic IR and portability-plan
 evidence without reusing PCRE2 syntax or adding JavaScript serialization or
 Node execution.
+
+## Implement ECMAScript target lowering
+
+The ECMAScript 2024 profile is complete at revision 1.1.0 with all eighteen
+canonical capability facts, required compile-stage `u` mode, explicit atomic
+and possessive unavailability, and immutable fingerprint
+`5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f`.
+The specification-authored ECMAScript atomic-literal case is now certified as
+an equivalent rewrite; its evidence fingerprints as
+`ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2`,
+and the exact governed strategy fingerprints as
+`d1ac04c04241dff1423c22b5962fc7336c57e664e2510d557edb6e41f885a7d6`.
+No possessive or nonliteral atomic rewrite was added.
+
+The independent pure lowering module consumes normalized Semantic IR, the
+exact target profile, and the completed portability plan. Its closed typed
+representation covers every natively supported operation while retaining
+case intent, options, deterministic capture slots and names, requirement
+resolutions, certified applied rewrites, semantic identities, and source
+spans. It does not import PCRE2 target code, recompute planning, serialize
+JavaScript syntax, construct a `TargetArtifact` or `RegExp`, execute Node, or
+consult ambient state. Unknown, unsupported, stale, cross-target, malformed,
+over-limit, possessive, and nonliteral atomic inputs fail closed with stable
+structured diagnostics and no partial plan.
+
+At clean implementation commit
+`4a5028cf68ee56fce051c62d28e9364d6e00ee7e`, eight focused lowering tests,
+two generated-property tests over 196 programs, eight architecture tests, all
+293 core tests, warning-denied Clippy, 11 schema mappings and 78 canonical
+fixtures, public/generated contracts, governance, documentation, and patch
+integrity passed. The reviewed three-run migration differential has
+canonical-boundary fingerprint
+`sha256:80b90a82bc74a994aebdc74ac93fdd9a1a75bd3549835936f0825983f190d109`
+and baseline
+`sha256:39f309162b403c4f3af21a587e3d88dbc9b55edb471c12498702f6ef57d3286a`;
+all other corpus, route, source-observation, and historical-peer fingerprints
+remain unchanged, with no replacement-review exemption.
+
+Local recorded 20 passing, zero failed, zero waived, and six unavailable
+operations with evidence fingerprint
+`33a0c9edd488c5ddafe594c12bfbf796b37216f8d2d15d4174e72016d58a0cf3`.
+Pull Request recorded 39 passing, zero failed, zero waived, and seven
+unavailable operations. Both aggregates are `UNAVAILABLE`, never failed,
+solely because host Ruff 0.16.2 differs from pin 0.15.21 and Pull Request also
+records the repository-managed Ruby Bundler mismatch. No policy was weakened.
+
+P11-T01 is `READY WITH RECORDED CARRY-FORWARD`. The next ordered task is
+[P11-T02 — Implement ECMAScript serialization and Node execution certification](https://app.notion.com/p/3b97d9406475812aa633d2ea86e5a9f9?pvs=204),
+which owns deterministic ECMAScript syntax and flags, `TargetArtifact`
+construction, and pinned real Node/V8 execution evidence without moving
+capability or rewrite policy into the serializer.
