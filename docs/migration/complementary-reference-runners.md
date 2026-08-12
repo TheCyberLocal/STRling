@@ -326,3 +326,53 @@ carry-forward.
 **Historical reference observations are non-normative evidence. Agreement among
 historical implementations does not override the normative specification or
 canonical Rust semantics.**
+
+## Complementary reference readiness
+
+The selected observational peers are:
+
+| Runner     | Historical implementation and runtime        | Supported surfaces                                                                                                   | Identity                                                                  | Protocol compatibility                                                                    |
+| ---------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| TypeScript | Checked-in TypeScript package on Node 24.4.1 | 11 parser, compiler, emitter, package-root, and Simply operations                                                    | `sha256:43cd3efde7b6afd11b1230ea26355f65255b5a79e7c0fcd7f54f6da2632b83a4` | Request protocol 1.0.0; observation/certification schema 1.1.0; runner `typescript@1.0.0` |
+| Python     | Checked-in Python package on Python 3.13.5   | Seven implemented parser, compiler, emitter, metadata/diagnostic, and Simply operations; four explicitly not exposed | `sha256:0748ef7994a2bf143cb71efc149f0e8929905533d05b4fa1c2365f596ba88bc5` | Request protocol 1.0.0; observation/certification schema 1.1.0; runner `python@1.0.0`     |
+
+C, C++, C#, Dart, F#, Go, Java, Kotlin, Lua, Perl, PHP, R, Ruby, the
+legacy Rust binding, and Swift remain deliberately rejected as additional
+reference runners for this task. They contain partially independent translated
+logic but no currently established unique historical path proportionate to
+another maintained runner. Package facades, generated tests, packaged Python
+copies, and the retired JavaScript oracle are thin, generated, copied, or
+otherwise redundant references. Their rejection is not evidence of agreement.
+
+The final corpus certificate contains 12 shared identities and 20
+runner-specific identities across 44 runner cases. Three runs per implementation
+compared 132 canonical observations and contained four malformed requests, with
+zero repeated-run mismatches and zero unexplained runner failures. The
+TypeScript and Python corpus fingerprints remain
+`sha256:744a4d0e029fbb2890e98e25d20402044f5b551a7642255a57c80f5dec48d30a`
+and
+`sha256:f3114a423da9928ab12ff7afe5c2ce0eba97c2f57c3599cdc98b2105a5ef914d`;
+the combined manifest is
+`sha256:844f9abee4870ac74fe986a7aa623ea0033d5b69bedaa89026c1970a8beeedb6`.
+Raw observations may differ between runners, but this evidence layer emits no
+consensus, defect, preservation, correction, equivalence, compatibility, or
+normative classification.
+
+**Historical reference observations are non-normative evidence. Agreement among
+historical implementations does not override the normative specification or
+canonical Rust semantics.**
+
+No existing STRling runtime/compiler behavior intentionally changed.
+TypeScript semantics, Python semantics, other legacy binding semantics, the
+canonical Rust kernel, Semantic IR, diagnostics, safety, portability, target
+behavior, package APIs, package versions, and publication remain unchanged.
+Only migration-only observation tooling, its engineering CLI route, and
+authority hardgates were added.
+
+The task is `READY WITH RECORDED CARRY-FORWARD`. The recorded carry-forward is
+the WSL service failure that prevented native Rust, POSIX governance/generation,
+and local, pull-request, and full profile dispatch, plus the already separate
+comparison work. The next ordered incomplete Notion task is P07-T03: separately
+versioned canonical observation comparison, demonstrably irrelevant
+representation normalization, and discrepancy taxonomy. It owns classification,
+migration dispositions, and later full migration-corpus gating.

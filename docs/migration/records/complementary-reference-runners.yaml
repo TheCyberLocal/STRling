@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Complementary historical reference runners
-status: in_progress
+status: complete
 objective: Capture deterministic independently fingerprinted Python and TypeScript historical observations as non-normative migration evidence without changing or classifying legacy behavior.
 scope:
     diff:
@@ -207,7 +207,7 @@ checkpoints:
                 changes.
           - check: Platform-dependent repository certification attempts
             command: WSL Rust/governance/generation/profile batch; direct Windows governance, generated-artifact, public-contract, local, pull-request, and full profile commands.
-            result: unavailable
+            result: not_run
             details: >-
                 WSL failed before command dispatch with
                 Wsl/Service/0x80072747. Direct host attempts recorded the existing
@@ -216,6 +216,82 @@ checkpoints:
                 or profile was weakened, and no unavailable result is reported as
                 passing.
     - name: Complementary reference readiness
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: Stable complementary-reference readiness record
+            result: passed
+            details: Recorded both selected runners, all supported and explicitly unsupported operations, rejected candidates, independent identities, protocol compatibility, shared and runner-specific corpus evidence, non-normative authority, unchanged behavior, carry-forward, and next-task ownership.
+          - check: Available committed-state certification
+            command: launch.py --check; TypeScript format/typecheck/build/test; Python format/lint/test; architecture_fitness.py; canonical/core/root public contracts; documentation integrity; security integrity/content; shell syntax; git diff --check.
+            result: passed
+            details: >-
+                From committed checkpoint
+                9ac8ccfdf137e61c2e279b37542329a5ca85913d, all 43
+                TypeScript runner tests, 28 Python/cross/launcher tests, six
+                architecture tests, both implementation and combined corpus
+                certifications, TypeScript formatting/typecheck/build and 19
+                suites/963 tests, Python formatting/lint and 789 tests,
+                canonical/core/root public contracts, documentation, security,
+                shell syntax, and patch integrity passed.
+          - check: Native profiles and platform-dependent hardgates
+            command: WSL Rust/governance/generation/profile batch; direct local, pull-request, and full profile attempts; direct Windows governance, generation, and full public-contract checks.
+            result: not_run
+            details: >-
+                WSL failed before dispatch with Wsl/Service/0x80072747, so Rust
+                formatting, clippy, tests, and POSIX repository aggregates did
+                not run. Direct host profiles recorded local 7 failed/3
+                incomplete/14 unavailable of 24, pull-request 7/3/34 of 44, and
+                full 7/4/65 of 76 because the Windows host cannot satisfy their
+                POSIX executable contracts. Full public contracts additionally
+                lacked Go and the POSIX TypeScript compiler path; the
+                generated-artifact aggregate did not complete. No requirement
+                was weakened or reported as passing.
+          - check: Next ordered Notion task
+            result: passed
+            details: P07-T03, separately versioned canonical observation comparison, demonstrably irrelevant representation normalization, and discrepancy taxonomy, is the next ordered incomplete task. It owns discrepancy classification, migration dispositions, and later full migration-corpus gating.
+commits:
+    - sha: 52c7fd8c576c2aa6c3c8d5762b5bb6770e107034
+      subject: "docs(migration): define complementary reference strategy"
+    - sha: 35aa309a9213995f2926c5fe67fe87b2d6c61f26
+      subject: "feat(migration): generalize reference evidence protocol"
+    - sha: a7ebc4155c072e648d484e43e4513dff48d5d5fc
+      subject: "feat(migration): capture python legacy evidence"
+    - sha: 21326cd616a66e9ea0ce953809ce4c0fb17c101b
+      subject: "docs(migration): certify complementary runner selection"
+    - sha: 028d004bb26fc597660c2b49b502fc16456bb65a
+      subject: "test(migration): certify cross-runner reference evidence"
+    - sha: 9ac8ccfdf137e61c2e279b37542329a5ca85913d
+      subject: "ci(migration): certify complementary reference runners"
+completion:
+    accomplished:
+        - Inventoried all historical bindings and runtime/reference paths, selected the independent TypeScript and Python implementations, and rejected partially independent translated bindings, thin/generated facades, copied packages, and the retired TypeScript oracle where another runner would not add proportionate distinct evidence.
+        - Generalized only the observation envelopes needed for explicit runner provenance while preserving request protocol and corpus compatibility, independently versioned implementations, runner-owned operation maps, canonical JSON, structured legacy failures, and explicit unsupported/not-exposed outcomes.
+        - Wrapped the existing Python parser, artifact, compiler, metadata, PCRE2 emitter/diagnostic, and Simply string surfaces without changing or repairing Python behavior, and bounded its fingerprint to the exact package implementation, metadata/specification, and runtime inputs.
+        - Certified 12 exact shared case identities and 20 runner-specific identities across 44 runner cases, six total repeat runs, 132 canonical within-runner comparisons, four malformed requests, immutable inputs, zero repeat mismatches, and zero unexplained failures.
+        - Integrated both peers into the existing migration command surface and enforced controlled-mutation hardgates that prevent product, normative, kernel, target, portability, or cross-runner expected-output authority from flowing through observations.
+    verified:
+        - TypeScript on Node 24.4.1 produced implementation fingerprint sha256:43cd3efde7b6afd11b1230ea26355f65255b5a79e7c0fcd7f54f6da2632b83a4 and corpus fingerprint sha256:744a4d0e029fbb2890e98e25d20402044f5b551a7642255a57c80f5dec48d30a.
+        - Python on Python 3.13.5 produced implementation fingerprint sha256:0748ef7994a2bf143cb71efc149f0e8929905533d05b4fa1c2365f596ba88bc5 and corpus fingerprint sha256:f3114a423da9928ab12ff7afe5c2ce0eba97c2f57c3599cdc98b2105a5ef914d; the combined manifest fingerprint is sha256:844f9abee4870ac74fe986a7aa623ea0033d5b69bedaa89026c1970a8beeedb6.
+        - Forty-three TypeScript runner tests, 28 Python/cross/launcher tests, six architecture tests, all 19 TypeScript suites/963 tests, and all 789 Python package tests passed from the checkpoint-six committed state.
+        - Canonical and core contracts, the root CLI contract, documentation integrity across 125 files, architecture fitness, security integrity/content, formatting, lint, typecheck, build, syntax, and patch integrity passed with no unexplained runner failure.
+        - WSL-native Rust, POSIX governance/generation, full public contracts, and canonical local/pull-request/full profiles remain truthfully not run or unavailable because Wsl/Service/0x80072747 and Windows executable/path differences prevented valid dispatch; no gate was weakened.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - The engineering-only historical-reference command now selects TypeScript, Python, or aggregate certification and exposes deterministic machine-readable evidence without adding a package API.
+        - Architecture fitness now rejects cross-runner expected-output dependencies in both directions in addition to the existing product and normative authority boundary.
+    preserved_behavior:
+        - TypeScript, Python, and every other historical binding parser, compiler, emitter, diagnostic, target, and package API behavior remain unchanged; runners only invoke and project existing surfaces.
+        - Canonical Rust-kernel semantics, Semantic IR, diagnostics, safety, portability, target profiles and behavior, normative specification authority, and published bindings remain unchanged and do not consume observations.
+        - Package APIs, package versions, generated product artifacts, runtime behavior, publication, and release state remain unchanged.
+    transitional_architecture:
+        - Historical observations remain ephemeral migration evidence with independently versioned runner, implementation, corpus, and combined-manifest identities; no consensus or discrepancy disposition is emitted.
+        - Python dependency declarations are not lock-file complete, so the fingerprint records their exact specifications and runtime without claiming an environment lock.
+        - The final native certification environment remained unavailable because WSL failed with service error 0x80072747. No security, profile, governance, generation, contract, or aggregate policy was weakened.
+    deferred_work:
+        - Implement P07-T03 canonical observation comparison and normalize representation only where it is demonstrably irrelevant.
+        - Classify raw differences through the separately governed discrepancy taxonomy and record migration dispositions without making historical agreement normative.
+        - Gate the complete migration corpus only in its later governed task.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Build P07-T03, the separately versioned canonical observation comparison and discrepancy taxonomy, without treating historical agreement or disagreement as normative.
+    rationale: The selected TypeScript and Python implementations now produce stable, independently fingerprinted, immutable, contained, machine-readable historical evidence through one isolated command surface with zero repeated-run mismatches and mechanically enforced authority boundaries. All directly executable task-specific and product-preservation checks passed. Only the recorded WSL/platform aggregate gap and explicitly later comparison, classification, disposition, and full-corpus tasks remain.

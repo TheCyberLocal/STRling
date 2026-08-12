@@ -2312,3 +2312,76 @@ comparison normalization/discrepancy taxonomy, and complete migration-corpus
 execution. The next ordered incomplete Notion task is
 [P07-T02 - Build complementary legacy/reference runners](https://app.notion.com/p/3b97d9406475815eba6ed6bb8f41f146?pvs=204),
 currently `Not Started`.
+
+## Complementary historical reference runners
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `c3cc4b41262b79c891259db80e917f24634fa936`
+-   Behavior change: Additive migration-only Python/multi-runner evidence,
+    command routing, and authority hardgates; no existing STRling
+    runtime/compiler behavior intentionally changed
+-   Completion record:
+    [`complementary-reference-runners.yaml`](records/complementary-reference-runners.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                                  | Result | Commit                                     | Verification                                                                                                                                                                                                       |
+| ------------------------------------------- | ------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Complementary strategy and inventory        | Passed | `52c7fd8c576c2aa6c3c8d5762b5bb6770e107034` | Classified every binding/reference candidate, selected independent TypeScript and Python implementations, rejected redundant paths, and fixed the non-normative selection criteria                                 |
+| Shared multi-runner evidence contract       | Passed | `35aa309a9213995f2926c5fe67fe87b2d6c61f26` | Preserved request protocol 1.0.0 while adding validated `typescript@1.0.0` and `python@1.0.0` provenance to observation/certification schema 1.1.0, runner-owned operation maps, and explicit unsupported outcomes |
+| Python historical evidence                  | Passed | `a7ebc4155c072e648d484e43e4513dff48d5d5fc` | Directly observed seven implemented Python parser/compiler/emitter/Simply operations plus four not-exposed operations; 15 focused and 789 historical package tests passed                                          |
+| Complementary path selection                | Passed | `21326cd616a66e9ea0ce953809ce4c0fb17c101b` | Certified that no third runner currently contributes proportionate distinct historical evidence; retained later runtime-engine testing ownership                                                                   |
+| Cross-runner corpus certification           | Passed | `028d004bb26fc597660c2b49b502fc16456bb65a` | Certified 44 runner cases, 12 shared identities, 20 runner-specific identities, six runs, 132 canonical comparisons, four malformed cases, and zero repeat mismatches or unexplained failures                      |
+| Tooling integration and authority hardgates | Passed | `9ac8ccfdf137e61c2e279b37542329a5ca85913d` | Unified root/launcher orchestration; 43 TypeScript runner tests, 28 Python/cross/launcher tests, six controlled architecture tests, language baselines, contracts, docs, and security passed                       |
+| Complementary reference readiness           | Passed | Recorded by the readiness commit           | Recorded selected/rejected paths, exact identities and corpus counts, authority, unchanged behavior, truthful platform availability, carry-forward, and P07-T03 handoff                                            |
+
+### Architecture, protocol, and corpus
+
+The TypeScript peer observes 11 parser, compiler, emitter, package-root, and
+Simply operations on Node 24.4.1. The Python peer observes seven implemented
+parser, artifact, compiler, metadata, emitter/diagnostic, and Simply operations
+and four explicitly not-exposed conceptual operations on Python 3.13.5. Each
+retains its own runner and implementation identity; neither reads the other's
+outputs or expected results. Shared orchestration compares stable case identity
+and within-runner repeatability only.
+
+Request protocol 1.0.0 and corpus version 1.0.0 remain compatible. Observation,
+batch, and certification schema 1.1.0 carry explicit runner provenance. Canonical
+JSON, request identity, structured stack-free legacy failures, explicit
+unsupported outcomes, corpus identity, and independent implementation
+fingerprints are deterministic.
+
+The TypeScript implementation and corpus fingerprints are
+`sha256:43cd3efde7b6afd11b1230ea26355f65255b5a79e7c0fcd7f54f6da2632b83a4`
+and
+`sha256:744a4d0e029fbb2890e98e25d20402044f5b551a7642255a57c80f5dec48d30a`.
+The Python values are
+`sha256:0748ef7994a2bf143cb71efc149f0e8929905533d05b4fa1c2365f596ba88bc5`
+and
+`sha256:f3114a423da9928ab12ff7afe5c2ce0eba97c2f57c3599cdc98b2105a5ef914d`.
+The combined manifest fingerprint is
+`sha256:844f9abee4870ac74fe986a7aa623ea0033d5b69bedaa89026c1970a8beeedb6`.
+
+**Historical reference observations are non-normative evidence. Agreement among
+historical implementations does not override the normative specification or
+canonical Rust semantics.**
+
+No existing STRling runtime/compiler behavior intentionally changed.
+TypeScript, Python, and other binding semantics; the canonical Rust kernel;
+Semantic IR; diagnostics; safety; portability; targets; package APIs; versions;
+and publication remain unchanged.
+
+All available committed-state runner, architecture, TypeScript, Python,
+contract, documentation, security, formatting, lint, typecheck, build, syntax,
+and patch checks passed. WSL continued to fail before dispatch with
+`Wsl/Service/0x80072747`, so native Rust, POSIX governance/generation, and the
+canonical local, pull-request, and full profiles remain recorded rather than
+weakened.
+
+The result is `READY WITH RECORDED CARRY-FORWARD`. The next ordered incomplete
+Notion task is P07-T03, the separately versioned canonical observation
+comparison and discrepancy taxonomy. It owns demonstrably irrelevant
+representation normalization, discrepancy classification, migration
+dispositions, and later full migration-corpus gating.
