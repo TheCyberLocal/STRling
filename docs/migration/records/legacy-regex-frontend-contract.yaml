@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Formalize the legacy regex-compatible source dialect contract
-status: in_progress
+status: complete
 objective: Freeze the historical regex-shaped source notation as a versioned compatibility/import frontend contract with exhaustive syntax-family fixtures and authority boundaries, without implementing the parser or changing product runtime behavior.
 scope:
     diff:
@@ -93,22 +93,61 @@ required_verification:
       expected_result: Historical evidence remains stable, declared scope passes, documentation and formatting are valid, and no parser/runtime behavior changes.
 checkpoints:
     - name: Evidence inventory and authority lock
-      status: complete
+      status: passed
       evidence:
-          - Inventoried 177 historical tests/spec pattern cases and all 44 certified legacy differential observations before freezing the frontend boundary.
-          - Locked SourceDocument identity to strling.regex-compat@1.0.0 with explicit UTF-8 source metadata, no inferred target, no parser-port work, and Semantic IR as the only lowering destination.
+          - check: Evidence inventory and frontend authority decision
+            result: passed
+            details: Inventoried 177 historical tests/spec pattern cases and all 44 certified legacy differential observations, then locked SourceDocument identity to strling.regex-compat@1.0.0 with explicit UTF-8 source metadata, no inferred target, no parser-port work, and Semantic IR as the only lowering destination.
     - name: Versioned grammar, catalog, and fixtures
-      status: complete
+      status: passed
       evidence:
-          - Published two schemas, 51 feature decisions, 45 stable diagnostics, 30 positive fixtures, 45 negative fixtures, and a versioned EBNF under spec/frontends/legacy-regex/1.0.
-          - Canonical manifest fingerprint is sha256:0cb32dd3ed534d13ce6d4278a2723898ac40bc374fa6d40c5ac43c553a2265ad.
+          - check: Versioned specification artifacts
+            result: passed
+            details: Published two schemas, 51 feature decisions, 45 stable diagnostics, 30 positive fixtures, 45 negative fixtures, and a versioned EBNF under spec/frontends/legacy-regex/1.0; canonical manifest fingerprint is sha256:0cb32dd3ed534d13ce6d4278a2723898ac40bc374fa6d40c5ac43c553a2265ad.
     - name: Contract and architecture certification
-      status: complete
+      status: passed
       evidence:
-          - Standalone frontend certification and canonical contract integration pass with the frontend authority kept separate from compiler data contracts.
-          - All 16 focused contract, mutation, byte-offset, manifest, and repository authority-boundary tests pass; tooling/architecture_fitness.py also passes.
+          - check: Contract and authority hardgates
+            command: python3 tooling/legacy_regex_contract.py; python3 tooling/contract_validation.py; python3 tooling/architecture_fitness.py
+            result: passed
+            details: Standalone frontend certification and canonical contract integration pass with the frontend authority kept separate from compiler data contracts; all 16 focused contract, mutation, byte-offset, manifest, and repository authority-boundary tests pass.
     - name: Repository certification and readiness
-      status: in_progress
+      status: passed
       evidence:
-          - Documentation integrity passes across 130 files, pinned Prettier 3.3.3 and Ruff 0.15.21 checks pass for all task files, and git diff --check is clean.
-commits: []
+          - check: Portable repository certification
+            result: passed
+            details: Documentation integrity passes across 130 files, pinned Prettier 3.3.3 and Ruff 0.15.21 checks pass for all task files, Git whitespace validation is clean, and all 34 governance plus 46 architecture tests pass; governance registries, the task schema, task scope, and change declarations validate.
+          - check: Native Linux differential and aggregate profile replay
+            command: ./strling migration-differential --repeat-runs 3; python3 tooling/governance.py; ./strling quality --profile local
+            result: not_run
+            details: The WSL host failed to create sessions with Wsl/Service/0x80072747. Corpus definitions, canonical-boundary, contract, route-coverage, Python-corpus, and TypeScript-corpus fingerprints are unchanged from P07-T04; Windows live observation fingerprints were intentionally not accepted as a replacement Linux baseline.
+commits:
+    - sha: 5067cc8050269370a99bf711c01b9c424f736a12
+      subject: "spec(frontend): freeze regex compatibility dialect"
+completion:
+    accomplished:
+        - Froze the compatibility/import frontend identity as strling.regex-compat@1.0.0 with explicit UTF-8 SourceDocument metadata, syntax-only authority, no target inference, and Semantic IR as its sole future lowering destination.
+        - Published a versioned EBNF, two schemas, 51 feature decisions, 45 stable diagnostic identities, 30 positive fixtures, 45 negative fixtures, and a signed specification-authored manifest.
+        - Added deterministic contract certification, canonical contract-suite integration, a frontend authority architecture hardgate, mutation coverage, operator documentation, and supersession notices on the transitional grammar evidence.
+    verified:
+        - Standalone certification passes with fingerprint sha256:0cb32dd3ed534d13ce6d4278a2723898ac40bc374fa6d40c5ac43c553a2265ad; canonical integration passes with 11 compiler schemas and the separate two-schema frontend domain.
+        - All 16 focused frontend tests, 46 architecture tests, and 34 governance tests pass, including manifest tampering, malformed diagnostic offsets, missing coverage, forbidden semantic/target authority, and real-repository boundary checks.
+        - Documentation integrity passes across 130 files; pinned Prettier 3.3.3 and Ruff 0.15.21 checks pass; Git whitespace validation is clean.
+        - P07-T04 corpus, contract, route, and canonical-boundary fingerprints remain unchanged. The Linux-certified live observation replay could not run because the host WSL service was unavailable, and no environment-specific Windows result was promoted into the baseline.
+    behavior_changed: No parser, compiler, emitter, semantic IR, target, runtime, binding, package, or public API behavior changed; this task adds a versioned compatibility source specification and its engineering enforcement only.
+    intentional_behavior_changes:
+        - The normative specification hub now recognizes strling.regex-compat@1.0.0 as a bounded compatibility/import frontend rather than treating the transitional unversioned grammar as authority.
+        - Canonical contract validation now certifies the independently versioned frontend contract, and architecture fitness blocks compatibility syntax from self-promoting into semantic or target authority.
+    preserved_behavior:
+        - Existing Python and TypeScript parser behavior, the 177 historical pattern fixtures, the 44 governed differential observations, canonical compiler contracts, Semantic IR, target profiles, and generated behavior remain unchanged.
+        - The former unversioned grammar and semantics files remain in place as explicitly superseded historical evidence; no legacy file was rewritten into a parser implementation.
+    transitional_architecture:
+        - The frontend contract deliberately has no parser implementation in P08-T01; P08-T02 owns porting the parser against this frozen authority.
+        - Native Linux aggregate governance/profile and live baseline replay remain a recorded host carry-forward because the WSL service cannot create new sessions (Wsl/Service/0x80072747). Equivalent Windows checks passed where portable, and Windows observation fingerprints were not accepted as a baseline update.
+    deferred_work:
+        - Implement P08-T02, the canonical parser for strling.regex-compat@1.0.0, without changing this contract silently.
+        - Replay the native Linux migration differential and aggregate profiles when WSL host service capacity is restored, before treating any future runtime observation change as reviewed.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Build P08-T02, the canonical parser port for the frozen strling.regex-compat@1.0.0 dialect, while preserving syntax-only frontend authority.
+    rationale: The complete frontend contract is versioned, specification-authored, fingerprinted, mutation-tested, integrated, documented, and architecture-bounded with no runtime change. Only native Linux aggregate/profile replay is carried forward because the WSL host service is unavailable; no baseline or product behavior was weakened to accommodate that environment.
