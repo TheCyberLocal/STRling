@@ -14,12 +14,14 @@ scope:
         - tooling/architecture_fitness.py
         - tooling/legacy_reference/launch.py
         - tooling/migration_classification.py
+        - tooling/migration_comparison_certification.py
         - tooling/migration_comparison.py
         - tooling/migration_comparison_engine.py
         - tooling/migration_comparison_contract.json
         - tooling/tests/fixtures/migration_comparison/**
         - tooling/tests/test_legacy_reference_architecture.py
         - tooling/tests/test_migration_classification.py
+        - tooling/tests/test_migration_comparison_certification.py
         - tooling/tests/test_migration_comparison.py
         - tooling/tests/test_migration_comparison_engine.py
         - tooling/tests/test_quality.py
@@ -31,10 +33,13 @@ scope:
         - docs/migration/observation-comparison.md
         - docs/migration/records/canonical-observation-comparison.yaml
         - tooling/migration_comparison_contract.json
+        - tooling/tests/fixtures/migration_comparison/certification.json
         - tooling/migration_classification.py
+        - tooling/migration_comparison_certification.py
         - tooling/migration_comparison.py
         - tooling/migration_comparison_engine.py
         - tooling/tests/test_migration_classification.py
+        - tooling/tests/test_migration_comparison_certification.py
         - tooling/tests/test_migration_comparison.py
         - tooling/tests/test_migration_comparison_engine.py
     permitted_generated_changes: []
@@ -147,8 +152,19 @@ checkpoints:
             result: passed
             details: Classification is independently content-addressed, never mutates comparison evidence, and satisfies governed Python formatting, lint, and patch integrity.
     - name: Comparison corpus and taxonomy certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Certification corpus and quantitative report
+            command: python3 -m unittest tooling.tests.test_migration_comparison_certification -v
+            result: passed
+            details: Three identical runs produced zero mismatches across 16 source observations, 16 projections, eight comparisons, four comparable and four not-comparable results, two equivalent and two differing results, four substantive classifications with one of each disposition, one peer non-applicable classification, 15 normalization applications, four malformed cases, nine detected mutations, and zero unexplained failures.
+          - check: Determinism, non-loss, provenance, and conservative uncertainty
+            result: passed
+            details: The fixture certifies equivalent raw copies, authorized normalized equality, meaningful differences, failures, unsupported and not-exposed operations, incompatible surfaces, missing counterparts, full projection provenance, all dispositions, peer non-applicability, insufficient authority rejection, and stable content fingerprints.
+          - check: Controlled property and mutation certification
+            command: python3 -m unittest tooling.tests.test_migration_comparison tooling.tests.test_migration_comparison_engine tooling.tests.test_migration_classification tooling.tests.test_migration_comparison_certification -v
+            result: passed
+            details: All 37 focused tests pass, including detection of observation values, runner fingerprints, normalization version, deleted authority, invalid disposition, altered path, unsupported-to-success, raw mutation, and invalid unresolved promotion mutations.
     - name: Tooling integration and authority hardgates
       status: planned
       evidence: []
