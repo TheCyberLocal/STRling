@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Deterministic Python re serialization and exact CPython execution certification
-status: in_progress
+status: complete
 objective: Serialize one validated PythonReLoweringPlan into deterministic Python re source, canonical flags, profile-owned pattern-kind options, resolved requirements, generated provenance, and a canonical TargetArtifact, then certify bounded str and bytes artifact execution against exact pinned CPython 3.11 evidence without adding product runtime, binding, package, or publication behavior.
 scope:
     diff:
@@ -129,21 +129,77 @@ checkpoints:
             result: passed
             details: Official CPython 3.11.15, released 2026-03-03 as the current security-fix source release, is selected. Its XZ source archive SHA-256 is 272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625. Certification will record the derived Linux x86-64 executable and build fingerprints and will reject host Python 3.12/Windows 3.13 substitution.
     - name: Deterministic Python serializer
-      status: planned
+      status: passed
       evidence:
           - check: Implementation and focused proof
-            result: not_run
-            details: Awaiting implementation after this governed scope commit.
+            result: passed
+            details: The pure serializer validates and immutably consumes only PythonReLoweringPlan, emits canonical Python source and optional i flag, projects exact str/bytes profile identity, options, requirements, rewrite evidence, diagnostics, and UTF-8 source maps, and validates the completed TargetArtifact. Five focused unit, four generated property, two resource-bound, eleven target-contract, and four canonical-profile tests pass.
+          - check: Exact str and bytes profile authority
+            result: passed
+            details: profile:python-re/3.11 version 1.2.0 retains immutable python.pattern_kind=str with SHA-256 55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c. The new profile:python-re/3.11-bytes version 1.0.0 fixes python.pattern_kind=bytes, explicitly rejects Unicode-only capabilities, and validates at SHA-256 2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca. Exact profile identity is fail-closed.
+          - check: Canonical Python syntax and failures
+            result: passed
+            details: Alternation and repetition grouping, named and numbered captures/references, fixed lookbehind, atomic and possessive forms, scoped dot-all/multiline/ASCII/Unicode semantics, Python-native LF line anchors, strict input anchors, verbose-sensitive escaping, mixed and outer-negated sets, bytes ASCII limits, the CPython repetition maximum, all-or-nothing output, and stable STRL-PYTHON_RE_EMIT-0001 through -0008 diagnostics are covered.
     - name: Controlled CPython harness, corpus, and quality-profile integration
-      status: planned
+      status: passed
       evidence:
           - check: Runtime protocol and exact execution evidence
-            result: not_run
-            details: Awaiting official source acquisition, controlled build, fixed harness, governed corpus, orchestrator, executable checksum, repeat-determinism proof, and Full/Release registration.
+            result: passed
+            details: The fixed isolated harness and host orchestrator verify the official CPython 3.11.15 archive SHA-256 272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625, derived executable SHA-256 1fbfa9ca2d8b4a1180be898c8de67732deee8aff7bb838012acb63764be83232, cpython-311 cache tag and SOABI, linux-x86_64 platform, exact profiles, corpus, harness, bounded process environment, and two-run semantic determinism. Host CPython 3.12.3 is recorded with accepted_as_target=false.
+          - check: Exact CPython 3.11.15 semantic proof
+            result: passed
+            details: Each run executes 16 detailed cases, three compile-error cases, two rewrite variants, and 128 generated cases for 149 requests total, split into 81 str and 68 bytes requests. Both runs pass with zero mismatches, corpus SHA-256 b778d5e9df54346666d2e7ca99eb56c97d477af1c7d15f29491a3df172512d0a, formatted harness SHA-256 f335bd48b27e8b149b198371896f1aff8019370ead8b28151fd8ed4491f5e8b8, semantic SHA-256 3dc0ad3f8e93fb61c4fcccd12b1aa555390ac8d133604f36946e613a53dfc911, and deterministic operation SHA-256 4d076e05837e10cc3a4bc0af9badd8d68161c5fbde9d3f634750886d3a2ab789.
+          - check: Full and Release quality integration
+            result: passed
+            details: certification.python-re-runtime is registered immediately after ECMAScript certification in Full and Release definition 1.7.0, returns certification-result-v1 evidence, is absent from Local and Pull Request, and preserves structured unavailable, incomplete, and failed states without substitution.
     - name: Complete repository and migration certification
-      status: planned
+      status: passed
       evidence:
           - check: Full hardgate evidence
-            result: not_run
-            details: Awaiting implementation, reviewed boundary renewal if required, complete profiles, final task record, and clean-tree verification.
-commits: []
+            result: passed
+            details: Rust 1.75.0 all-target tests and warning-denied Clippy pass; exact Ruff 0.15.21 and Prettier 3.3.3 pass; 82 focused Python quality/runtime/architecture tests, 11 core schema mappings with 79 fixtures, public contracts, generated artifacts, governance, documentation integrity, the three-repeat migration differential, and patch integrity pass. The canonical boundary renewal under exact Node 22 is sha256:39d61ddc8b747a274e051e73c8e0aebc09004a6df23b188460fe70c6086b3493 with reviewed baseline sha256:8127c22a016013ff9751540ce39615fa780291da675082f2668bae5d63e4da5c.
+          - check: Clean Local, Pull Request, and Full profiles
+            result: passed
+            details: At clean commit 3232e816bde01712912262bf4b1dffd1b178b00d, Local passes all 26 operations. Pull Request records 44 passed, zero failed, and only repository-managed Ruby Bundler mismatch and missing Swift as unavailable. Full 1.7.0 records 74 passed, zero failed or incomplete, and seven inherited host/scanner unavailabilities; exact PCRE2 10.42/10.43, ECMAScript Node 22, and Python CPython 3.11.15 runtime certifications pass. Full evidence fingerprint is d4547ba5c81b24f9014ff6679203cc6e92e50821404bdec6c5b8e2a58a5160eb.
+          - check: Explicit environment carry-forward
+            result: passed
+            details: Pull Request carries only Ruby Bundler version mismatch and missing Swift. Full carries Ruby lint/build/test, Swift typecheck/build/test, and the existing structured dependency-risk scanner unavailability. No unavailable operation is represented as passing and no waiver or requirement weakening was introduced.
+commits:
+    - sha: 8d903ada4a3eef838e3affe01abcbe90ad4157e4
+      subject: "docs(core): define Python re serialization certification"
+    - sha: 27b72aab8e0d0a7e35a653d6b7074237ce89567c
+      subject: "docs(core): govern Python bytes artifact profile"
+    - sha: 6b1831c2eb25283cb609d4565752b1e72e82dbb3
+      subject: "feat(core): serialize and certify Python re artifacts"
+    - sha: 77bc18fe7588d1d2d217ede2841c9f6242eaf19e
+      subject: "fix(tooling): renew migration baseline under Node 22"
+    - sha: 3232e816bde01712912262bf4b1dffd1b178b00d
+      subject: "style(tooling): apply governed Python formatting"
+completion:
+    accomplished:
+        - Added pure deterministic Python re serialization from one validated PythonReLoweringPlan to canonical pattern source, i flags, exact str/bytes profile options, requirements, rewrites, diagnostics, generated provenance, and a validated TargetArtifact.
+        - Added an immutable Python 3.11 bytes companion profile that fails closed on Unicode-only requirements without weakening the existing str profile.
+        - Added a bounded isolated CPython harness and orchestrator that verify exact archive, executable, ABI, platform, profiles, corpus, harness, and repeated semantic identity.
+        - Integrated exact Python runtime certification into Full and Release immediately after PCRE2 and ECMAScript certification while keeping CPython outside the Rust kernel and Local/Pull Request runtime scope.
+    verified:
+        - Exact official-source CPython 3.11.15 on Linux x86-64 passed all 149 bounded requests twice with stable semantic SHA-256 3dc0ad3f8e93fb61c4fcccd12b1aa555390ac8d133604f36946e613a53dfc911 and exact executable identity.
+        - All Rust all-target tests, warning-denied Clippy, focused serializer/runtime/architecture suites, core/public/generated contracts, governance, documentation, migration differential, and patch integrity pass.
+        - Local passes 26/26; Pull Request and Full record 44/46 and 74/81 passed respectively with zero failures and only explicit inherited host-tool/scanner unavailability. Full passes all four exact engine checks across PCRE2 10.42, PCRE2 10.43, Node 22, and CPython 3.11.15.
+    behavior_changed: The canonical Rust target layer can now deterministically serialize certified Python re plans into complete str or bytes TargetArtifacts, and the repository can certify those artifacts against exact supported Linux CPython 3.11.15; no product-facing compiler route, binding, package, or publication behavior changed.
+    intentional_behavior_changes:
+        - Valid Python re lowering plans now produce canonical pattern source plus separate i flags, exact pattern-kind options, requirements, rewrites, diagnostics, and provenance.
+        - Malformed, stale, cross-profile, non-ASCII bytes, Unicode-property, over-limit, or syntactically impossible plans fail with stable structured emission diagnostics and no partial artifact.
+        - Full and Release certification require exact CPython 3.11.15 Linux x86-64 evidence when supplied and otherwise report structured unavailability.
+    preserved_behavior:
+        - Canonical Semantic IR, capability facts, portability planning, rewrite selection, lowering decisions, compiler facade/protocols, bindings, packages, public versions, and existing PCRE2/ECMAScript artifact behavior remain unchanged.
+        - Runtime observations remain certification evidence rather than normative Python language authority, and no CPython runtime dependency entered the Rust kernel.
+    transitional_architecture:
+        - Python re lowering and serialization remain standalone canonical domain stages and are intentionally not yet wired through a product-facing source-to-artifact compiler route.
+        - Pull Request and Full are READY WITH RECORDED CARRY-FORWARD for inherited Ruby Bundler, Swift, and dependency-risk scanner availability only; every task-owned and available operation passed.
+    deferred_work:
+        - P11-T05 and P11-T06 own the shared specification-authored cross-engine corpus and initial PCRE2/ECMAScript/Python portability matrix.
+        - Product orchestration, bindings, packages, versions, publication, and release actions remain outside this task.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P11-T05 by defining the shared specification-authored cross-engine conformance corpus without reopening target lowering, serialization, or product execution scope.
+    rationale: P11-T04 is complete with deterministic str/bytes serialization, exact Linux CPython execution, reviewed exact-tool migration evidence, complete available hardgates, clean profile artifacts, and zero failed operations. Only inherited host-tool and scanner availability is carried forward explicitly.

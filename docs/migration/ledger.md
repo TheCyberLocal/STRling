@@ -2962,22 +2962,28 @@ serialization.
 
 ## Implement Python re serialization and CPython execution certification
 
-P11-T04 starts from clean certified commit
-`7912736b4d3965be9f1bb9c37c5cad524a5d0a10`. The read-first inventory fixes
-the boundary at one validated `PythonReLoweringPlan` and the existing
-`TargetArtifact` contract. The new pure serializer will emit Python regular
-expression source, canonical case flags, exact pattern-kind options,
-requirements, and provenance without inspecting Semantic IR, recomputing
-capabilities or rewrites, executing Python, or translating peer-target output.
+P11-T04 started from clean certified commit
+`7912736b4d3965be9f1bb9c37c5cad524a5d0a10` and is complete through the
+verified implementation and prerequisite-correction commits
+`6b1831c2eb25283cb609d4565752b1e72e82dbb3`,
+`77bc18fe7588d1d2d217ede2841c9f6242eaf19e`, and
+`3232e816bde01712912262bf4b1dffd1b178b00d`. The pure serializer consumes one
+validated `PythonReLoweringPlan` and emits the existing `TargetArtifact`
+contract with Python regular-expression source, canonical case flags, exact
+pattern-kind options, requirements, rewrites, diagnostics, and generated
+provenance. It does not inspect Semantic IR, recompute capabilities or
+rewrites, execute Python, or translate peer-target output.
 
 Official Python 3.11 `re` documentation governs syntax and observations. Exact
 runtime evidence selects the official source-only CPython 3.11.15 release,
 whose XZ archive SHA-256 is
 `272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625`.
-The controlled build and certification will fingerprint the derived Linux
-x86-64 executable, ABI/runtime identity, profile revision, corpus, harness,
-pattern kind, flags, and repeated semantic results. It must reject rather than
-substitute the available host Python 3.12 or Windows Python 3.13.
+The controlled build and certification fingerprint the derived Linux x86-64
+executable, ABI/runtime identity, profile revisions, corpus, harness, pattern
+kind, flags, and repeated semantic results. The exact executable SHA-256 is
+`1fbfa9ca2d8b4a1180be898c8de67732deee8aff7bb838012acb63764be83232`;
+the host CPython 3.12.3 controller is explicitly recorded and rejected as a
+target runtime.
 
 No schema change is required. The existing pattern `flags` array represents
 per-program `i`; required `python.pattern_kind` remains a separate runtime
@@ -2991,4 +2997,29 @@ ASCII/Unicode class behavior without leaking global `s`, `m`, `a`, `u`, `L`,
 or verbose behavior. String and bytes execution, captures and spans,
 lookarounds, anchors/newlines, Unicode/case, atomic and possessive 3.11
 boundaries, zero-length matching, compile errors, rewrites, negative runtime
-identity, and repeat determinism are all required before completion.
+identity, and repeat determinism are covered by 149 requests per run. Two
+complete exact-runtime runs pass with 81 `str` and 68 `bytes` requests, zero
+discrepancies, corpus SHA-256
+`b778d5e9df54346666d2e7ca99eb56c97d477af1c7d15f29491a3df172512d0a`,
+formatted harness SHA-256
+`f335bd48b27e8b149b198371896f1aff8019370ead8b28151fd8ed4491f5e8b8`,
+semantic result SHA-256
+`3dc0ad3f8e93fb61c4fcccd12b1aa555390ac8d133604f36946e613a53dfc911`,
+and deterministic operation SHA-256
+`4d076e05837e10cc3a4bc0af9badd8d68161c5fbde9d3f634750886d3a2ab789`.
+
+All Rust all-target tests and warning-denied Clippy pass. Exact Ruff 0.15.21,
+Prettier 3.3.3, focused Python/runtime/architecture suites, 11 core schema
+mappings with 79 fixtures, public/generated contracts, governance,
+documentation integrity, the reviewed Node 22 migration differential, and
+patch integrity pass. Local passes all 26 operations. Pull Request records 44
+passed and only inherited Ruby Bundler and Swift availability as unavailable.
+Full 1.7.0 records 74 passed, zero failed or incomplete, and seven explicit
+inherited host/scanner unavailabilities; exact PCRE2 10.42, PCRE2 10.43,
+ECMAScript Node 22, and Python `re` CPython 3.11.15 certifications all pass.
+No finding is waived or represented as passing.
+
+P11-T04 is `READY WITH RECORDED CARRY-FORWARD`. P11-T05 is the next ordered
+task and owns the shared specification-authored cross-engine conformance corpus
+without reopening serializer, lowering, product, binding, package, version, or
+publication scope.
