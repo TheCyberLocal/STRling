@@ -1,0 +1,168 @@
+record_version: 2.0.0
+title: Deterministic ECMAScript serialization and exact Node execution certification
+status: in_progress
+objective: Serialize one validated EcmascriptLoweringPlan into deterministic ECMAScript RegExp source, canonical flags, profile-owned options, resolved requirements, generated provenance, and a canonical TargetArtifact, then certify bounded artifact execution against exact pinned Node/V8 evidence without adding product runtime, binding, package, or publication behavior.
+scope:
+    diff:
+        base: 0ae66445bfcf60f8b302c4ab88a9b6c46f0e5a46
+        head: working-tree
+    allowed_paths:
+        - core/contract-mapping.json
+        - core/src/ecmascript_serialization.rs
+        - core/src/lib.rs
+        - core/src/target/mod.rs
+        - core/tests/ecmascript_runtime_certification.rs
+        - core/tests/ecmascript_serialization.rs
+        - core/tests/ecmascript_serialization_properties.rs
+        - core/tests/target_contracts.rs
+        - docs/architecture.md
+        - docs/migration/ecmascript-target-serialization.md
+        - docs/migration/ledger.md
+        - docs/migration/records/ecmascript-target-serialization.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - spec/contracts/1.0/target-artifact.schema.json
+        - tests/conformance/ecmascript-runtime-certification.json
+        - toolchain.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/ecmascript_runtime_certification.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/node_regexp_harness.mjs
+        - tooling/quality.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_ecmascript_runtime_certification.py
+        - tooling/tests/test_ecmascript_serialization_architecture.py
+        - tooling/tests/test_quality.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/capability_evaluation.rs
+        - core/src/compiler_pipeline.rs
+        - core/src/ecmascript_lowering.rs
+        - core/src/kernel.rs
+        - core/src/portability_planning.rs
+        - core/src/portability_planning/**
+        - core/src/protocol/**
+        - core/src/regex_frontend.rs
+        - core/src/semantic/**
+        - core/src/target_lowering.rs
+        - core/src/target_serialization.rs
+        - packages/**
+        - spec/contracts/1.0/semantic-ir.schema.json
+        - spec/contracts/1.0/target-profile.schema.json
+        - spec/grammar/**
+        - spec/stdlib/**
+        - spec/targets/profiles/**
+        - tests/spec/**
+    expected_files:
+        - core/contract-mapping.json
+        - core/src/ecmascript_serialization.rs
+        - core/src/lib.rs
+        - core/src/target/mod.rs
+        - core/tests/ecmascript_runtime_certification.rs
+        - core/tests/ecmascript_serialization.rs
+        - core/tests/ecmascript_serialization_properties.rs
+        - core/tests/target_contracts.rs
+        - docs/architecture.md
+        - docs/migration/ecmascript-target-serialization.md
+        - docs/migration/ledger.md
+        - docs/migration/records/ecmascript-target-serialization.yaml
+        - governance/change-control.json
+        - spec/contracts/1.0/target-artifact.schema.json
+        - tests/conformance/ecmascript-runtime-certification.json
+        - toolchain.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/ecmascript_runtime_certification.py
+        - tooling/node_regexp_harness.mjs
+        - tooling/tests/test_ecmascript_runtime_certification.py
+        - tooling/tests/test_ecmascript_serialization_architecture.py
+        - tooling/tests/test_quality.py
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Canonical language meaning and normalized Semantic IR remain unchanged; this task consumes the completed ECMAScript target plan mechanically.
+    public_api_change:
+        level: none
+        evidence:
+            - No kernel facade, compiler protocol, binding, package, or published interface changes.
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Adds optional canonical pattern flags to EmittedPattern because ES2024 global case intent cannot be represented in pattern source or immutable profile options; existing PCRE2 artifacts remain byte-compatible by omitting empty flags.
+        affected_surfaces:
+            - target-artifact-contract
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Adds stable internal ECMAScript emission failures for malformed plans, syntax data, flags, bounds, resource limits, and invalid artifacts.
+    target_behavior_change:
+        level: additive
+        evidence:
+            - Adds standalone ECMAScript RegExp artifact production and exact bounded Node/V8 observations without changing an existing product execution route.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds one pure ECMAScript serializer after structured lowering and one isolated exact-runtime certification operation outside the Rust kernel.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: ECMAScript serializer and artifact unit/property certification
+      command: cargo test --manifest-path core/Cargo.toml --test ecmascript_serialization --test ecmascript_serialization_properties --locked
+      expected_result: Every operation, precedence rule, literal/class escape, capture/reference, anchor, lookaround, wildcard, canonical flag, option/requirement projection, source-map span, failure category, deterministic JSON/fingerprint, input immutability, and generated mutation passes.
+    - name: TargetArtifact compatibility and architecture fitness
+      command: cargo test --manifest-path core/Cargo.toml --test target_contracts --locked && python3 -m unittest tooling.tests.test_ecmascript_serialization_architecture tooling.tests.test_core_contracts && python3 tooling/core_contract_validation.py
+      expected_result: Optional pattern flags preserve existing artifact bytes, ECMAScript artifacts validate canonically, and controlled mutations reject policy recomputation, PCRE2 reuse, runtime/ambient/product dependencies, target-neutral reverse dependencies, and direct bypass.
+    - name: Exact Node/V8 runtime certification
+      command: STRLING_NODE_22_BINARY=/exact/node-v22.23.2/bin/node python3 -m tooling.ecmascript_runtime_certification --json --repeat-runs 2
+      expected_result: The official-sha256 Node v22.23.2 Linux x64 binary reports V8 12.4.254.21 and all bounded source/flags, UTF-16 span, capture, assertion, anchor/newline, case, Unicode u/v, error, zero-length, rewrite, negative, and determinism cases pass twice with one stable certification-result-v1 digest.
+    - name: Complete kernel and repository certification
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && python3 tooling/documentation_integrity.py && python3 tooling/migration_differential.py --repeat-runs 3 && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check
+      expected_result: Every available hardgate passes, exact runtime evidence is recorded by Full, reviewed canonical-boundary evidence is current, host-only gaps remain unavailable without waiver, and the final committed tree is clean.
+checkpoints:
+    - name: ECMAScript artifact, flag, syntax, runtime, and profile inventory
+      status: passed
+      evidence:
+          - check: Read-first contract and stage inventory
+            result: passed
+            details: EcmascriptLoweringPlan supplies a validated closed operation tree, deterministic captures, global case intent, the required Unicode option, requirements, certified rewrites, and provenance. TargetArtifact supplies pattern text, immutable profile reference, engine options, requirements, UTF-8 source mapping, and diagnostics, but cannot currently represent per-program ECMAScript flags; an optional canonical EmittedPattern flags field is the smallest backward-compatible contract addition.
+          - check: Normative ECMAScript syntax and execution authority
+            result: passed
+            details: ECMA-262 2024 RegExp grammar, initialization, execution, match-index, canonicalization, and word-character clauses govern serializer spelling and runtime observations. ES2024 has global u/i flags but no PCRE2-style scoped modifier authority, requiring structural wildcard/line-anchor spellings and explicit artifact flags.
+          - check: Exact maintained runtime selection
+            result: passed
+            details: The official Node 22 archive identifies v22.23.2 as the current maintained Jod release, with V8 12.4.254.21 and Linux x64 distribution, satisfying the repository's governed Node >=22,<23 constraint. The certification operation will require its official release SHA-256 and will never substitute the transitional host Node 18 or unrelated Windows Node 24.
+    - name: Deterministic ECMAScript serializer and additive flag contract
+      status: planned
+      evidence:
+          - check: Implementation and focused proof
+            result: not_run
+            details: Awaiting implementation after this governed scope commit.
+    - name: Controlled Node/V8 harness, corpus, and quality-profile integration
+      status: planned
+      evidence:
+          - check: Runtime protocol and exact execution evidence
+            result: not_run
+            details: Awaiting fixed harness, governed corpus, Python orchestrator, official binary checksum, repeat-determinism proof, and Full/Release registration.
+    - name: Complete repository and migration certification
+      status: planned
+      evidence:
+          - check: Full hardgate evidence
+            result: not_run
+            details: Awaiting implementation, reviewed boundary renewal if required, complete profiles, final task record, and clean-tree verification.
+commits: []
