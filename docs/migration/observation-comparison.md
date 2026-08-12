@@ -34,12 +34,12 @@ The machine-readable contract is
 Its initial identities are independent of runner protocol `1.0.0`, observation
 schema `1.1.0`, and both runner versions.
 
-| Concern                   | Version | Meaning                                                                     |
-| ------------------------- | ------- | --------------------------------------------------------------------------- |
+| Concern                   | Version | Meaning                                                                    |
+| ------------------------- | ------- | -------------------------------------------------------------------------- |
 | Comparison schema         | `1.0.0` | Projection-pair facts, comparability, relationship, and stable differences |
 | Projection schema         | `1.0.0` | Provenance-bearing derived representation of one validated observation     |
 | Normalization rules       | `1.0.0` | Exact ordered set of permitted representation-only transformations         |
-| Comparator implementation | `1.0.0` | Deterministic pairing and field-difference implementation identity          |
+| Comparator implementation | `1.0.0` | Deterministic pairing and field-difference implementation identity         |
 | Discrepancy taxonomy      | `1.0.0` | Governed migration-disposition meanings and evidence requirements          |
 
 A version change is explicit in every derived artifact. In particular, a later

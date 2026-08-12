@@ -27,6 +27,8 @@ scope:
         - docs/migration/observation-comparison.md
         - docs/migration/records/canonical-observation-comparison.yaml
         - tooling/migration_comparison_contract.json
+        - tooling/migration_comparison.py
+        - tooling/tests/test_migration_comparison.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -82,20 +84,32 @@ checkpoints:
     - name: Comparison contract and taxonomy lock
       status: passed
       evidence:
-        - check: Contract and taxonomy versions
-          command: python3 -m json.tool tooling/migration_comparison_contract.json
-          result: passed
-          details: Locked comparison, projection, normalization, comparator, and taxonomy version 1.0.0 independently of runner protocol 1.0.0 and observation schema 1.1.0.
-        - check: Faithful comparability and normalization scope
-          result: passed
-          details: Locked exact shared identity and surface pairing, explicit not-comparable states, one envelope-only normalization rule, complete outcome preservation, and explicit rejection of semantic-field normalization.
-        - check: Affected repository verification
-          command: python3 tooling/formatting.py repository --check; python3 tooling/governance.py; python3 tooling/architecture_fitness.py; python3 tooling/documentation_integrity.py; python3 tooling/security.py integrity --json; python3 tooling/security.py content --json; git diff --check
-          result: passed
-          details: Formatting, governance scope and declarations, architecture authority boundaries, 125-document link integrity, dependency integrity, content/workflow security, JSON parsing, and patch integrity passed.
+          - check: Contract and taxonomy versions
+            command: python3 -m json.tool tooling/migration_comparison_contract.json
+            result: passed
+            details: Locked comparison, projection, normalization, comparator, and taxonomy version 1.0.0 independently of runner protocol 1.0.0 and observation schema 1.1.0.
+          - check: Faithful comparability and normalization scope
+            result: passed
+            details: Locked exact shared identity and surface pairing, explicit not-comparable states, one envelope-only normalization rule, complete outcome preservation, and explicit rejection of semantic-field normalization.
+          - check: Affected repository verification
+            command: python3 tooling/formatting.py repository --check; python3 tooling/governance.py; python3 tooling/architecture_fitness.py; python3 tooling/documentation_integrity.py; python3 tooling/security.py integrity --json; python3 tooling/security.py content --json; git diff --check
+            result: passed
+            details: Formatting, governance scope and declarations, architecture authority boundaries, 125-document link integrity, dependency integrity, content/workflow security, JSON parsing, and patch integrity passed.
     - name: Canonical observation projection and normalization
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Projection and normalization unit contract
+            command: python3 -m unittest tooling.tests.test_migration_comparison -v
+            result: passed
+            details: Ten focused tests cover the authorized normalization, zero normalization, stable rule ordering and rejection, repeat idempotence, provenance and semantic fingerprint sensitivity, malformed schemas and identities, semantic-field non-loss, unsupported and failure preservation, raw immutability, and source/projection matching.
+          - check: Python formatting and lint
+            command: ruff format --check tooling/migration_comparison.py tooling/tests/test_migration_comparison.py; ruff check tooling/migration_comparison.py tooling/tests/test_migration_comparison.py
+            result: passed
+            details: The new projection implementation and tests satisfy the governed Ruff format and lint policies.
+          - check: Governance and patch integrity
+            command: python3 tooling/governance.py; git diff --check
+            result: passed
+            details: Scope, change declarations, architecture boundaries, and patch integrity passed with raw runner files unchanged.
     - name: Deterministic observation pairing and comparison
       status: planned
       evidence: []
