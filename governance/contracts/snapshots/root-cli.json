@@ -17,6 +17,7 @@
         "governance": "governance [--json] Validate task scope and architecture rules",
         "help": "help Show this help message",
         "hygiene": "hygiene Validate tracked repository artifacts",
+        "legacy-reference": "legacy-reference [options] Run isolated historical reference observations",
         "lint": "lint [lang|all] Run configured static analyzers",
         "list": "list List all bindings and tool status",
         "lockfile": "lockfile <lang> Print lockfile name (for CI)",

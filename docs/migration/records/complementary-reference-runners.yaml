@@ -12,6 +12,8 @@ scope:
         - docs/migration/README.md
         - docs/migration/records/complementary-reference-runners.yaml
         - governance/architecture-rules.json
+        - governance/contracts/snapshots/root-cli.json
+        - governance/schemas/architecture-rules.schema.json
         - governance/change-control.json
         - strling
         - strling.ps1
@@ -31,6 +33,8 @@ scope:
         - docs/migration/README.md
         - docs/migration/records/complementary-reference-runners.yaml
         - governance/architecture-rules.json
+        - governance/contracts/snapshots/root-cli.json
+        - governance/schemas/architecture-rules.schema.json
         - governance/change-control.json
         - strling
         - strling.ps1
@@ -39,8 +43,10 @@ scope:
         - tooling/legacy_reference/**
         - tooling/tests/test_legacy_reference_architecture.py
         - tooling/tests/test_quality.py
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+    permitted_generated_changes:
+        - public-contract-snapshots
+    expected_generated_outputs:
+        - public-contract-snapshots
     required_verification_levels:
         - contract
         - unit
@@ -62,6 +68,7 @@ change_classification:
         level: additive
         evidence:
             - Adds explicit runner provenance and multi-runner certification fields to migration-only observation records.
+            - Adds a typed runner-isolation boundary configuration to the internal architecture-rule registry schema.
         affected_surfaces: []
     diagnostic_change:
         level: none
@@ -74,8 +81,9 @@ change_classification:
         evidence:
             - Generalizes the isolated historical-evidence tooling boundary from TypeScript to independently fingerprinted runners.
     generated_output_change:
-        level: none
-        evidence: []
+        level: additive
+        evidence:
+            - Regenerates the additive root CLI public-contract snapshot for the engineering-only legacy-reference command.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -166,8 +174,47 @@ checkpoints:
                 failures passed with immutable corpus and implementation inputs.
                 Cross-corpus fingerprint sha256:844f9abee4870ac74fe986a7aa623ea0033d5b69bedaa89026c1970a8beeedb6.
     - name: Tooling integration and authority hardgates
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Integrated multi-runner command surface
+            command: python tooling/legacy_reference/launch.py --check; python tooling/legacy_reference/launch.py --cross-certify; strling.ps1 legacy-reference --runner python --certify; strling.ps1 legacy-reference --cross-certify
+            result: passed
+            details: >-
+                The unified launcher passed 43 TypeScript runner tests and 28
+                Python runner, cross-runner, and orchestration tests, then
+                certified two independently fingerprinted runners, 44 runner
+                cases, 12 shared cases, 20 runner-specific cases, 132 canonical
+                comparisons, four malformed cases, zero repeat mismatches, and
+                zero unexplained failures. Both PowerShell runner routes passed.
+          - check: Authority-isolation hardgates and controlled mutations
+            command: python -m unittest tooling.tests.test_legacy_reference_architecture; python tooling/architecture_fitness.py
+            result: passed
+            details: >-
+                Six unit/live tests and the repository scan passed. Typed
+                architecture boundaries reject product, specification, core,
+                target, portability, and cross-runner expected-output authority
+                in both directions while permitting orchestration in the shared
+                migration-only certifier.
+          - check: Available product, contract, documentation, and security baselines
+            command: Direct pinned TypeScript format/typecheck/build/test; Python format/lint/test; contract_validation.py; core_contract_validation.py; public_contracts.py --surface root-cli --check; documentation_integrity.py --json; security.py integrity/content; shell syntax; git diff --check.
+            result: passed
+            details: >-
+                TypeScript formatting, typecheck, build, and 19 suites/963 tests;
+                Python formatting, lint, and 789 tests; 11 canonical schemas with
+                63 canonical fixtures; 63 core-contract fixtures; root CLI
+                contract; 125 documentation files; architecture, security, shell
+                syntax, and patch checks passed without product implementation
+                changes.
+          - check: Platform-dependent repository certification attempts
+            command: WSL Rust/governance/generation/profile batch; direct Windows governance, generated-artifact, public-contract, local, pull-request, and full profile commands.
+            result: unavailable
+            details: >-
+                WSL failed before command dispatch with
+                Wsl/Service/0x80072747. Direct host attempts recorded the existing
+                POSIX path/executable assumptions, unavailable Rust and Go tools,
+                and a non-completing generated-artifact aggregate. No requirement
+                or profile was weakened, and no unavailable result is reported as
+                passing.
     - name: Complementary reference readiness
       status: planned
       evidence: []

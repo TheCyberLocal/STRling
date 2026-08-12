@@ -56,15 +56,20 @@ If you add or change tooling, please update this index so maintainers and CI con
 -   `baseline.py` — Validates the frozen certified migration-baseline registry, Git identities and ancestry, governed path-set fingerprints, and cross-record evidence consistency. Exposed as `./strling baseline --check [--json]` and enforced by `check` and `certify`.
 
 -   `generate_c_asts.sh` — Helper script that builds/produces C AST artifacts from parser outputs. Used by C/C++ integration tasks and tests which rely on JSON AST artifacts.
--   `legacy_reference/` - **Controlled Legacy TypeScript Reference Runner**.
-    Builds the governed TypeScript sources into a temporary directory, invokes
-    parser/compiler/emitter/public API surfaces without changing them, and
-    emits canonical JSON historical observations. It is migration tooling only;
-    its output is non-normative and cannot define compiler or target behavior.
+-   `legacy_reference/` - **Controlled Historical Reference Runners**. Builds
+    governed TypeScript sources into a temporary directory or imports the
+    checked-in Python package directly, invokes runner-owned historical
+    parser/compiler/emitter/public API surfaces without changing them, and emits
+    canonical JSON observations. Shared orchestration certifies independently
+    versioned runners without comparing or classifying their outputs. It is
+    migration tooling only; its output is non-normative and cannot define
+    compiler or target behavior.
 
     -   python3 tooling/legacy_reference/launch.py --request request.json
+    -   python3 tooling/legacy_reference/launch.py --runner python --certify
     -   python3 tooling/legacy_reference/launch.py --corpus
     -   python3 tooling/legacy_reference/launch.py --certify
+    -   python3 tooling/legacy_reference/launch.py --cross-certify
     -   ./strling legacy-reference --check
 
 -   `generated_artifacts.py` — Validates the generated-artifact registry and either regenerates governed outputs or certifies exact committed reproduction without mutating the working tree. Exposed as `./strling generate [--check]`.

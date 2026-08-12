@@ -142,13 +142,48 @@
         },
         {
             "id": "legacy-reference-authority-boundary",
-            "description": "Legacy TypeScript observations remain isolated historical evidence and cannot become product, normative, kernel, binding, or target-capability authority.",
+            "description": "Legacy reference observations remain isolated historical evidence and cannot become product, normative, kernel, binding, target-capability, or cross-runner expected-output authority.",
             "status": "enforced",
             "kind": "legacy-reference-boundary",
             "configuration": {
                 "consumer_sources": ["core/**", "bindings/**"],
                 "normative_sources": ["spec/**"],
                 "runner_sources": ["tooling/legacy_reference/**"],
+                "runner_isolation_boundaries": [
+                    {
+                        "id": "typescript-from-python",
+                        "sources": [
+                            "tooling/legacy_reference/canonical.mjs",
+                            "tooling/legacy_reference/cli.mjs",
+                            "tooling/legacy_reference/constants.mjs",
+                            "tooling/legacy_reference/corpus.json",
+                            "tooling/legacy_reference/corpus.mjs",
+                            "tooling/legacy_reference/corpus_cli.mjs",
+                            "tooling/legacy_reference/identity.mjs",
+                            "tooling/legacy_reference/legacy_runtime.mjs"
+                        ],
+                        "forbidden_markers": [
+                            "python_corpus",
+                            "python_expected",
+                            "python_golden",
+                            "python_reference"
+                        ]
+                    },
+                    {
+                        "id": "python-from-typescript",
+                        "sources": [
+                            "tooling/legacy_reference/python_corpus.json",
+                            "tooling/legacy_reference/python_reference.py"
+                        ],
+                        "forbidden_markers": [
+                            "corpus_cli",
+                            "legacy_runtime",
+                            "typescript_expected",
+                            "typescript_golden",
+                            "with_name(\"corpus.json\")"
+                        ]
+                    }
+                ],
                 "forbidden_evidence_markers": [
                     "tooling/legacy_reference",
                     "legacy_reference",

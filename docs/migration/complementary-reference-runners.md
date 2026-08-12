@@ -266,3 +266,63 @@ unchanged; the cross-corpus identity derives from case partitions and runner
 corpus identities, not implementation outputs. The emitted certification has no
 semantic-disposition fields and performs no cross-runner observation comparison.
 A raw TypeScript/Python difference is therefore outside repeat-mismatch counts.
+
+## Tooling integration and authority hardgates
+
+The existing migration-only launcher is now the single command surface for both
+selected implementations. `--runner typescript` retains the previous default
+request, corpus, and certification behavior; `--runner python` invokes the
+checked-in Python implementation without building TypeScript; `--runner all`
+supports aggregate checks and certifications; and `--cross-certify` emits the
+machine-readable joint corpus/determinism certificate. The root `strling` and
+PowerShell entrypoints route `legacy-reference` to that launcher. No published
+package API consumes or exposes migration observations.
+
+The repository architecture registry now carries typed runner-isolation
+boundaries. It rejects TypeScript runner dependencies on Python corpus,
+reference, golden, or expected-output markers and rejects the corresponding
+TypeScript corpus/runtime/expected-output markers from the Python runner. The
+shared cross-runner certifier may orchestrate both, but it compares only stable
+case identities and independently produced certification facts. Controlled
+mutations plus repository scans prove all of the following:
+
+-   canonical Rust, the normative specification, published bindings, target
+    profiles, portability planning, and product code cannot consume historical
+    observations as semantic authority;
+-   the TypeScript runner cannot define Python expected output, and the Python
+    runner cannot define TypeScript expected output;
+-   migration tooling may launch both observational peers without introducing a
+    product or normative dependency on either one.
+
+The integrated `--check` command passed 43 TypeScript runner tests and 28 Python
+runner, cross-runner, and launcher tests, then independently certified both
+corpora and the combined manifest. Six architecture mutation/live tests passed,
+including both cross-runner dependency directions. Root CLI snapshot generation
+and checking, 11 canonical schemas with 30 positive and 33 negative fixtures,
+63 core-contract fixtures, documentation integrity, architecture fitness, and
+security integrity/content checks passed.
+
+Direct product-preservation checks passed with the available pinned tools:
+TypeScript formatting, typecheck, build, and all 19 Jest suites/963 tests; Python
+formatting, lint, all 789 historical package tests, and all focused runner tests.
+The complete Jest rerun used a temporary host-only `python3` executable shim to
+avoid the Microsoft Store alias; it changed no repository or implementation
+input. PowerShell parsing, Git Bash syntax, patch integrity, and the focused root
+public contract passed.
+
+Platform-dependent checks were attempted without weakening their requirements.
+Every WSL command failed before dispatch with `Wsl/Service/0x80072747`, so native
+Rust formatting, clippy, and tests plus the POSIX governance and profile routes
+could not execute. Direct Windows governance reached its existing POSIX path
+assumption; full public-contract extraction could not dispatch the unavailable Go
+extractor or POSIX TypeScript command; and the generated-artifact aggregate did
+not complete under the host child-process environment. Direct local,
+pull-request, and full profile attempts likewise recorded failed, incomplete, or
+unavailable dispatch rather than false passes. The task-specific runner,
+hardgate, product-baseline, contract, documentation, and security evidence above
+is complete, while these repository-environment checks remain an explicit
+carry-forward.
+
+**Historical reference observations are non-normative evidence. Agreement among
+historical implementations does not override the normative specification or
+canonical Rust semantics.**

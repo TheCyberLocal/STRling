@@ -547,6 +547,7 @@ def legacy_reference_boundary_findings(
     consumer_sources = configuration["consumer_sources"]
     normative_sources = configuration["normative_sources"]
     runner_sources = configuration["runner_sources"]
+    runner_isolation_boundaries = configuration["runner_isolation_boundaries"]
     evidence_markers = configuration["forbidden_evidence_markers"]
     runner_forbidden_roots = configuration["runner_forbidden_roots"]
     runner_authority_tokens = configuration["runner_forbidden_authority_tokens"]
@@ -554,6 +555,7 @@ def legacy_reference_boundary_findings(
     assert isinstance(consumer_sources, list)
     assert isinstance(normative_sources, list)
     assert isinstance(runner_sources, list)
+    assert isinstance(runner_isolation_boundaries, list)
     assert isinstance(evidence_markers, list)
     assert isinstance(runner_forbidden_roots, list)
     assert isinstance(runner_authority_tokens, list)
@@ -655,6 +657,34 @@ def legacy_reference_boundary_findings(
                 break
 
     root_resolved = root.resolve()
+    for boundary in runner_isolation_boundaries:
+        assert isinstance(boundary, dict)
+        boundary_id = boundary["id"]
+        boundary_sources = boundary["sources"]
+        forbidden_markers = boundary["forbidden_markers"]
+        assert isinstance(boundary_id, str)
+        assert isinstance(boundary_sources, list)
+        assert isinstance(forbidden_markers, list)
+        for path, relative in selected_files(
+            boundary_sources,
+            (".cjs", ".js", ".json", ".mjs", ".py"),
+        ):
+            text = read_text(path, relative)
+            if text is None:
+                continue
+            folded = text.casefold()
+            for marker in forbidden_markers:
+                if str(marker).casefold() not in folded:
+                    continue
+                findings.append(
+                    (
+                        f"{relative}: {boundary_id} runner contains forbidden "
+                        f"cross-runner expectation marker {marker}",
+                        relative,
+                    )
+                )
+                break
+
     string_literal = re.compile(r"""["']([^"'\\]*(?:\\.[^"'\\]*)*)["']""")
     for path, relative in selected_files(
         runner_sources, (".cjs", ".js", ".json", ".mjs", ".py")

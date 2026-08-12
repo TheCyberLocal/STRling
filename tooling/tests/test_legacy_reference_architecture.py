@@ -14,6 +14,24 @@ CONFIGURATION: Mapping[str, object] = {
     "consumer_sources": ["core/**", "bindings/**"],
     "normative_sources": ["spec/**"],
     "runner_sources": ["tooling/legacy_reference/**"],
+    "runner_isolation_boundaries": [
+        {
+            "id": "typescript-from-python",
+            "sources": ["tooling/legacy_reference/corpus.mjs"],
+            "forbidden_markers": [
+                "python_corpus",
+                "python_expected",
+            ],
+        },
+        {
+            "id": "python-from-typescript",
+            "sources": ["tooling/legacy_reference/python_reference.py"],
+            "forbidden_markers": [
+                "typescript_expected",
+                'with_name("corpus.json")',
+            ],
+        },
+    ],
     "forbidden_evidence_markers": [
         "tooling/legacy_reference",
         "legacy_reference",
@@ -67,7 +85,34 @@ class LegacyReferenceArchitectureTests(unittest.TestCase):
             "tooling/legacy_reference/runner.mjs",
             'import { readFile } from "node:fs/promises";\n',
         )
+        self.write(
+            "tooling/legacy_reference/cross_reference.py",
+            'PYTHON = "python_corpus.json"\nTYPESCRIPT = "corpus.json"\n',
+        )
+
         self.assertEqual([], self.evaluate())
+
+    def test_runner_specific_expected_outputs_are_isolated(self) -> None:
+        self.write(
+            "tooling/legacy_reference/corpus.mjs",
+            'const python_expected = "./python_corpus.json";\n',
+        )
+        self.write(
+            "tooling/legacy_reference/python_reference.py",
+            'typescript_expected = Path(__file__).with_name("corpus.json")\n',
+        )
+        findings = self.evaluate()
+        paths = {path for _, path in findings}
+        self.assertEqual(
+            {
+                "tooling/legacy_reference/corpus.mjs",
+                "tooling/legacy_reference/python_reference.py",
+            },
+            paths,
+        )
+        self.assertTrue(
+            all("cross-runner expectation marker" in message for message, _ in findings)
+        )
 
     def test_product_and_normative_consumers_are_rejected(self) -> None:
         self.write(

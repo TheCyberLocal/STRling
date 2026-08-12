@@ -48,7 +48,8 @@ function Resolve-CommandName {
     switch ($Name) {
         "python3" {
             foreach ($candidate in @("python3", "python", "py")) {
-                if (Get-Command $candidate -ErrorAction SilentlyContinue) {
+                $resolved = Get-Command $candidate -ErrorAction SilentlyContinue
+                if ($resolved -and $resolved.Source -notmatch '[\\/]WindowsApps[\\/]') {
                     return $candidate
                 }
             }
@@ -298,6 +299,7 @@ function Show-Help {
     Write-Host "  generate [--check]    Regenerate or verify registered artifacts"
     Write-Host "  governance [--json]   Validate task scope and architecture rules"
     Write-Host "  contracts [--check]   Regenerate or verify public contracts"
+    Write-Host "  legacy-reference [options] Run isolated historical reference observations"
     Write-Host "  audit                 Run the final audit report generator"
     Write-Host "  cache-dir <lang>      Print cache directory path"
     Write-Host "  lockfile <lang>       Print cache key lockfile"
@@ -411,6 +413,28 @@ switch ($Command) {
         Push-Location $PSScriptRoot
         try {
             & $pythonCommand "tooling/public_contracts.py" @contractArguments
+            exit $LASTEXITCODE
+        }
+        finally {
+            Pop-Location
+        }
+    }
+    "legacy-reference" {
+        $pythonCommand = Resolve-CommandName "python3"
+        if (-not $pythonCommand) {
+            Write-Error "Python is required to run historical reference observations."
+            exit 1
+        }
+        $referenceArguments = @()
+        if ($Language) {
+            $referenceArguments += $Language
+        }
+        if ($Options) {
+            $referenceArguments += $Options
+        }
+        Push-Location $PSScriptRoot
+        try {
+            & $pythonCommand "tooling/legacy_reference/launch.py" @referenceArguments
             exit $LASTEXITCODE
         }
         finally {
