@@ -203,7 +203,7 @@ def validate_mapping_document(
             "target_serialization",
         ]:
             raise CoreContractError(
-                "diagnostic mapping must register target-neutral generation, target-aware portability explanations, target-lowering failures, and PCRE2 emission failures"
+                "diagnostic mapping must register target-neutral diagnostic generation, target-aware portability explanations, target-lowering failures, and PCRE2 emission failures"
             )
         if relative == "spec/contracts/1.0/portability.schema.json" and modules != [
             "protocol::analysis",
@@ -283,7 +283,9 @@ def validate_equivalence_registry(root: Path = ROOT) -> int:
             key=lambda error: tuple(str(item) for item in error.absolute_path),
         )
     except (OSError, json.JSONDecodeError, SchemaError) as error:
-        raise CoreContractError(f"invalid equivalence registry authority: {error}") from error
+        raise CoreContractError(
+            f"invalid equivalence registry authority: {error}"
+        ) from error
     if errors:
         error = errors[0]
         location = ".".join(str(item) for item in error.absolute_path) or "<root>"
@@ -299,7 +301,10 @@ def validate_equivalence_registry(root: Path = ROOT) -> int:
     for strategy in strategies:
         evidence = strategy["conformance_evidence"]
         evidence_path = (root / evidence["path"]).resolve()
-        if not evidence_path.is_relative_to(resolved_root) or not evidence_path.is_file():
+        if (
+            not evidence_path.is_relative_to(resolved_root)
+            or not evidence_path.is_file()
+        ):
             raise CoreContractError(
                 f"equivalence evidence does not resolve: {evidence['path']}"
             )
@@ -652,9 +657,7 @@ def canonical_fixture_paths(root: Path = ROOT) -> set[Path]:
         *sorted((root / "spec" / "targets" / "profiles").glob("*.json")),
         *sorted((root / "spec" / "conformance" / "cases").glob("*.json")),
         root / "spec" / "conformance" / "manifest.json",
-        *sorted(
-            (root / "spec" / "portability" / "equivalence" / "1.0").glob("*.json")
-        ),
+        *sorted((root / "spec" / "portability" / "equivalence" / "1.0").glob("*.json")),
     }
     return {path.resolve() for path in paths}
 

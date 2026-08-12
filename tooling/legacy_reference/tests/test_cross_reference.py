@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import importlib
 import sys
 import unittest
 from collections import Counter
@@ -10,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tooling.legacy_reference import cross_reference as cross  # noqa: E402
-from tooling.legacy_reference import python_reference as reference  # noqa: E402
+cross = importlib.import_module("tooling.legacy_reference.cross_reference")
+reference = importlib.import_module("tooling.legacy_reference.python_reference")
 
 
 def fake_certification(

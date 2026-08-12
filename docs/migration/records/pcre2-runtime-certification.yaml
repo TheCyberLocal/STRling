@@ -17,6 +17,10 @@ scope:
         - toolchain.json
         - tooling/migration_differential_baseline.json
         - tooling/migration_differential_contract.json
+        - tooling/core_contract_validation.py
+        - tooling/legacy_reference/python_reference.py
+        - tooling/legacy_reference/tests/test_cross_reference.py
+        - tooling/legacy_reference/tests/test_python_reference.py
         - tooling/pcre2_feature_probe.py
         - tooling/pcre2_runtime_certification.py
         - tooling/quality.py
@@ -40,6 +44,10 @@ scope:
         - governance/change-control.json
         - tests/conformance/pcre2-runtime-certification.json
         - toolchain.json
+        - tooling/core_contract_validation.py
+        - tooling/legacy_reference/python_reference.py
+        - tooling/legacy_reference/tests/test_cross_reference.py
+        - tooling/legacy_reference/tests/test_python_reference.py
         - tooling/pcre2_feature_probe.py
         - tooling/pcre2_runtime_certification.py
         - tooling/quality.py
@@ -132,4 +140,13 @@ checkpoints:
           - check: Exact-tag ASan and UBSan execution
             result: passed
             details: GCC 13.3.0 built both exact tags with -fsanitize=address,undefined and -fno-omit-frame-pointer. With abort-on-error enabled, the full repeated corpus passed for sanitized library hashes c33dfbacd61499659d58cf2f4fd09e61d78c2f37fd5f93587d12788f0446388a (10.42) and 6b02c73663bde34fd8f6b7520582cfffc9f4a35aca0449cdb3af90eea6c47aa3 (10.43), with no ASan or UBSan report. Leak-only detection is not claimed because CPython 3.12 and ctypes reported host-interpreter shutdown allocations outside PCRE2; the attempted corpus itself completed successfully before that non-attributable process-exit report.
+    - name: Predecessor hardgate hygiene
+      status: passed
+      evidence:
+          - check: Suppression baseline restoration
+            result: passed
+            details: Seven unmanaged late-import noqa directives introduced by the complementary Python reference runner were replaced by explicit importlib loading after the same controlled path setup. The runner behavior and focused tests remain unchanged while the governed repository suppression total returns from 87 to its recorded 80 with no waiver.
+          - check: Architecture mutation diagnostic stability
+            result: passed
+            details: The target-aware diagnostic-mapping mutation now retains the governed phrase diagnostic generation in its failure text, restoring the architecture test without changing the validated dependency boundary.
 commits: []

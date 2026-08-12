@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import importlib
 import json
 import subprocess
 import sys
@@ -11,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tooling.legacy_reference import python_reference as reference  # noqa: E402
+reference = importlib.import_module("tooling.legacy_reference.python_reference")
 
 
 def request(

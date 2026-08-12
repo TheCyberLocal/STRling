@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib
 import json
 import math
 import platform
@@ -19,10 +20,14 @@ PYTHON_SOURCE = PYTHON_ROOT / "src"
 if str(PYTHON_SOURCE) not in sys.path:
     sys.path.insert(0, str(PYTHON_SOURCE))
 
-from STRling import simply  # noqa: E402
-from STRling.core.compiler import Compiler  # noqa: E402
-from STRling.core.parser import parse, parse_to_artifact  # noqa: E402
-from STRling.emitters.pcre2 import emit, emit_with_diagnostics  # noqa: E402
+simply = importlib.import_module("STRling.simply")
+Compiler = importlib.import_module("STRling.core.compiler").Compiler
+parser_module = importlib.import_module("STRling.core.parser")
+parse = parser_module.parse
+parse_to_artifact = parser_module.parse_to_artifact
+emitter_module = importlib.import_module("STRling.emitters.pcre2")
+emit = emitter_module.emit
+emit_with_diagnostics = emitter_module.emit_with_diagnostics
 
 
 PROTOCOL_VERSION = "1.0.0"
