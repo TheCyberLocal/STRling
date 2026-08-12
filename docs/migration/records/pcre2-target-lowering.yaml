@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Structured Semantic IR to PCRE2 target lowering
-status: in_progress
+status: complete
 objective: Lower one exact normalized Semantic IR program and completed certified portability plan into a deterministic PCRE2-specific target representation without serializing pattern text, executing PCRE2, constructing a TargetArtifact, or reimplementing capability/planning policy.
 scope:
     diff:
@@ -137,7 +137,7 @@ checkpoints:
             result: passed
             details: Property fixtures lower 196 generated valid programs twice with byte-identity-equivalent typed results, output self-validation, exact planner/profile correspondence, and unchanged Semantic IR, target profile, and portability plan inputs; 64 generated cross-program evidence cases fail closed.
     - name: Negative, property, architecture, and repository certification
-      status: in_progress
+      status: passed
       evidence:
           - check: Focused Rust certification
             result: passed
@@ -146,8 +146,57 @@ checkpoints:
             result: passed
             details: python3 -m unittest tooling.tests.test_pcre2_lowering_architecture tooling.tests.test_portability_architecture tooling.tests.test_core_contracts passed 29 tests. Mutations prove required entrypoint/correspondence checks, mandatory authority inputs, no capability/planner recomputation, no serialization/runtime/artifact/ambient/product dependency, no target-neutral reverse dependency, and no direct bypass. core_contract_validation passed 11 schema mappings and 78 canonical fixtures.
           - check: Complete repository certification
-            result: not_run
-            details: Full Rust, Clippy, governance, documentation, generated/public contracts, migration differential, Local, PR, clean-tree, and reproducibility checks remain before completion.
+            command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; git diff --check
+            result: passed
+            details: All 268 Rust tests passed and warnings-denied Clippy was clean. Public facade snapshots remained unchanged; generated artifacts, exact governed scope/declarations, architecture rules, seven executable documentation examples, 135-file link validation, canonical contracts, and patch hygiene all passed.
+          - check: Reviewed migration differential and route evidence renewal
+            command: python3 -m unittest tooling.tests.test_migration_differential && python3 tooling/migration_differential.py --repeat-runs 3
+            result: passed
+            details: Sixteen controlled migration-gate tests and the three-run differential passed with zero determinism mismatches. The canonical boundary moved from sha256:868e23157f9e7c31a7e813b8ceaad0dd88cd89c515e32a795f6f71749f63e9d7 to sha256:c017abaad43e4656838df1029a486b057dd2262e35e81f9cf0098a84383f3342. The reviewed route rationale now truthfully records standalone structured lowering while keeping emission/product routes not comparable; contract sha256:4a9f76fd184f2660d923c186296a7131292d6c01fe73c24ec89d90ef16d16467, source observations sha256:627adc5d693d13702a53ba1552efbbaa4444f892dabe830ce3d8a7c37a6b4c4d, full corpus sha256:5382302ac5870239fa64b6a360a81bb9336de14ec611e430e0d5566d5173f54c, and baseline sha256:f4d3acc56deb042ba67e4abc96580cde7178666b95468b4ec1209bf06c6c886b were renewed. Both legacy corpora/case sets, route coverage sha256:96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e, and historical-peer corpus/result fingerprints remained unchanged.
+          - check: Local and Pull Request profiles
+            command: ./strling profile local --artifact /tmp/p10-t01-local.json; ./strling profile pull-request --artifact /tmp/p10-t01-pr.json
+            result: passed
+            details: At clean commit a5989c9955c0a7dd0567963cdd96c88c0f31d1ae, Local recorded 20 passed, zero failed, and six unavailable operations with evidence fingerprint 3415dcaa18e9ae260d4a7a00950cf7b42703cfe397f91ffbd1ab473cd35ab7f2. Pull Request recorded 39 passed, zero failed, and seven unavailable operations with evidence fingerprint 7f32e15953fc4287cc3c28516a3125e32989b910ae2cda8a150f08d5c0a57c0d.
+          - check: Explicit environment carry-forward
+            result: passed
+            details: Profile aggregates were UNAVAILABLE, never failed. Host Ruff 0.16.2 does not satisfy repository pin 0.15.21 for six Python/repository format/lint operations, and Pull Request additionally found inherited Ruby Bundler version drift. No waiver or weakened requirement was introduced; every available operation passed.
 commits:
     - sha: 58e35dc712766ab8c859a3e4168afda47e3de1c2
       subject: "docs(core): define PCRE2 target lowering"
+    - sha: fdefa37e53ddda8b6ccdcb79a578d2b388afb265
+      subject: "feat(core): add structured PCRE2 lowering"
+    - sha: a5989c9955c0a7dd0567963cdd96c88c0f31d1ae
+      subject: "chore(migration): renew PCRE2 lowering boundary baseline"
+completion:
+    accomplished:
+        - Added lower_pcre2 as a pure borrowed-input stage from normalized Semantic IR, exact PCRE2 profile, and completed certified PortabilityPlan to an all-or-nothing pre-serialization Pcre2LoweringPlan.
+        - Defined a closed PCRE2 operation tree for every current Semantic IR variant, target-specific character/wildcard/repetition/position/assertion choices, deterministic one-based capture/reference slots, global case intent, compile/runtime profile options with required/profile-default selection, requirement resolutions, and canonical source/node provenance.
+        - Applied only rewrite.atomic_literal.elide.v1 when selected by the certified planner, retaining exact registry, strategy, conformance, proof, affected-node, planner-identity, target-reference, and merged source provenance evidence.
+        - Added stable STRL-PCRE2_LOWERING-0001 through -0014 failures for invalid/stale/mismatched/incomplete/unsupported/malformed/resource/capture states, all owned by target_lowering and tied to the affected semantic node and source origin when present.
+        - Registered exact Semantic IR, profile, portability, and diagnostic contract consumption; added controlled architecture fitness that prohibits capability/planner recomputation, serialization, runtime PCRE2, artifacts, ambient state, product dependencies, target-neutral reverse dependencies, and direct stage bypass.
+    verified:
+        - Ten focused lowering tests cover every Semantic IR and target operation variant, native and certified-rewrite paths, captures/backreferences, option stages/selections, stale/malformed/unsupported/unresolved/resource cases, 196 generated valid programs lowered twice, and 64 rejected cross-program evidence cases.
+        - All 268 Rust tests, warnings-as-errors Clippy, 29 focused architecture/contract tests, 16 migration-differential mutation tests, 11-schema/78-fixture core validation, public/generated contracts, governance, documentation, and diff hygiene passed.
+        - The reviewed three-run migration differential passed with zero mismatches and unchanged legacy corpora, case sets, route coverage, and historical-peer results after renewing only the canonical boundary and truthful target-route review evidence.
+        - Local and Pull Request profiles recorded 20 and 39 passed operations respectively, zero failures, no waivers, and only explicit inherited Ruff/Bundler version unavailability.
+    behavior_changed: The internal canonical Rust kernel can now deterministically lower certified semantic/planner evidence into a structured PCRE2 target plan; no existing public compiler, binding, emitted regex, runtime, artifact, package, or release behavior changed.
+    intentional_behavior_changes:
+        - A completed native or equivalent-rewrite plan for one exact PCRE2 profile can now produce a validated target-specific structure without serializing pattern text.
+        - Unsupported, unresolved, stale, non-PCRE2, or malformed evidence now fails through stable structured target-lowering diagnostics instead of allowing an implicit target assumption.
+        - The certified atomic-literal rewrite is now applied at its owned lowering boundary while retaining exact proof and provenance evidence.
+    preserved_behavior:
+        - Semantic IR, target profiles, capability results, portability plans, canonical protocol schemas, kernel facade signatures, bindings, historical emitters, package APIs/versions, and published artifacts remain unchanged and immutable.
+        - No PCRE2 syntax, escaping, generated pattern spans, TargetArtifact, engine invocation, safety remediation, runtime probe, or product orchestration was added.
+        - Unknown profile capability evidence remains unresolved and cannot be inferred as supported from the PCRE2 engine name or historical emitter behavior.
+    transitional_architecture:
+        - Structured PCRE2 lowering is a standalone canonical domain stage and is intentionally not yet called by the public kernel facade; canonical orchestration must be added only with its separately governed artifact/output contract.
+        - Current authored PCRE2 profiles enumerate a deliberately bounded capability set; unlisted constructs remain truthful unresolved failures until profile authority is expanded.
+        - Local and Pull Request remain READY WITH RECORDED CARRY-FORWARD because host Ruff and Bundler versions do not match repository pins; all available operations passed with zero failures.
+    deferred_work:
+        - P10-T02 owns deterministic PCRE2 regex serialization and escaping, generated spans/source maps, and TargetArtifact construction from this exact lowering plan without moving policy into the emitter.
+        - Runtime PCRE2 execution and the deferred atomic-literal differential hook remain owned by the later runtime integration task; no runtime observation was fabricated here.
+        - Canonical facade/product orchestration, bindings, Simply, editor/LSP integration, package changes, version changes, publication, and release actions remain outside this task.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P10-T02 by serializing the certified PCRE2 lowering plan into deterministic regex text, generated provenance, and a TargetArtifact without reintroducing semantic or portability policy.
+    rationale: P10-T01 is complete with exhaustive typed lowering, exact correspondence and rewrite evidence, fail-closed diagnostics, deterministic/property coverage, architecture hardgates, reviewed compatibility evidence, full repository certification, and zero failed profile operations. Only recorded host tool-version drift remains; PCRE2 serialization is the next ordered contained task.
