@@ -519,6 +519,15 @@ impl Validate for SourceOrigin {
                     "source spans must be unique and sorted by source/start/end",
                 ));
             }
+            for (index, pair) in spans.windows(2).enumerate() {
+                if pair[0].source_id == pair[1].source_id && pair[0].end > pair[1].start {
+                    errors.push(ValidationError::new(
+                        ValidationCode::InvalidSpan,
+                        format!("$.origin.source_spans[{}]", index + 1),
+                        "source spans for one origin must not overlap",
+                    ));
+                }
+            }
             for span in spans {
                 if let Err(found) = span.validate() {
                     errors.extend(found);

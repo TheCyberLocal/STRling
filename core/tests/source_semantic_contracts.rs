@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 
 use serde_json::Value;
 use strling_kernel::semantic::SemanticProgram;
-use strling_kernel::source::{SourceDocument, SourceId, SourceSpan};
+use strling_kernel::source::{SourceDocument, SourceId, SourceOrigin, SourceSpan};
 use strling_kernel::validation::{from_json, to_json, ContractError, Validate, ValidationCode};
 
 const SOURCE_INLINE: &str =
@@ -156,6 +156,29 @@ fn reversed_span_returns_structured_validation_error() {
     .expect("shape deserializes before relational validation");
     let errors = span.validate().expect_err("reversed span must fail");
     assert_eq!(errors.errors[0].code, ValidationCode::InvalidSpan);
+}
+
+#[test]
+fn overlapping_and_out_of_range_spans_are_rejected() {
+    let source_id = SourceId::try_from("src:span-validation").expect("source identity");
+    let overlapping = SourceOrigin {
+        source_spans: Some(vec![
+            SourceSpan::new(source_id.clone(), 0, 4).expect("first span"),
+            SourceSpan::new(source_id.clone(), 2, 6).expect("second span"),
+        ]),
+        derived_from_node_ids: None,
+    };
+    let errors = overlapping.validate().expect_err("overlap must fail");
+    assert!(errors
+        .errors
+        .iter()
+        .any(|error| error.code == ValidationCode::InvalidSpan));
+
+    let out_of_range = SourceSpan::new(source_id, 0, 7).expect("ordered span");
+    let errors = out_of_range
+        .validate_against_text("six")
+        .expect_err("out-of-range span must fail");
+    assert_eq!(errors.errors[0].code, ValidationCode::Utf8Boundary);
 }
 
 #[test]

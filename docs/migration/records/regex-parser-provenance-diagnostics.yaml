@@ -1,0 +1,120 @@
+record_version: 2.0.0
+title: Add source spans, provenance, and canonical diagnostics to the regex-compatible parser
+status: in_progress
+objective: Make every accepted construct and rejected input from strling.regex-compat@1.0.0 traceable through canonical half-open UTF-8 source spans, document provenance, and stable structured diagnostics without adding public frontend orchestration.
+scope:
+    diff:
+        base: f584cd6ca95868069583646a9174f1e3d556b3b6
+        head: working-tree
+    allowed_paths:
+        - core/src/regex_frontend.rs
+        - core/src/source/mod.rs
+        - core/tests/regex_frontend.rs
+        - core/tests/source_semantic_contracts.rs
+        - docs/migration/**
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - spec/frontends/legacy-regex/1.0/provenance/**
+        - tooling/core_contract_validation.py
+        - tooling/migration_differential.py
+        - tooling/migration_differential_baseline.json
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_migration_differential.py
+        - tooling/tests/test_regex_frontend_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/target/**
+        - spec/contracts/**
+        - spec/targets/**
+        - tests/spec/**
+    expected_files:
+        - core/src/regex_frontend.rs
+        - core/tests/regex_frontend.rs
+        - docs/migration/regex-parser-provenance-diagnostics.md
+        - docs/migration/records/regex-parser-provenance-diagnostics.yaml
+        - spec/frontends/legacy-regex/1.0/provenance/cases.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: intentional-correction
+        evidence:
+            - Adds exact source attribution and canonical diagnostic projection to the already frozen parser behavior without changing accepted language meaning.
+    public_api_change:
+        level: additive
+        evidence:
+            - Extends the internal Rust parser result and error evidence; no binding, package, CLI, editor, or import surface is wired.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - Reuses the existing canonical SourceSpan, SourceOrigin, Provenance, and Diagnostic contracts without changing their JSON schemas.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Projects all 45 frozen frontend identities into canonical structured diagnostics with normative severity, stable messages, source locations, and deterministic ordering.
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Completes the source-to-semantic evidence path inside the pure frontend while keeping diagnostic presentation and public orchestration outside the parser.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Parser span and provenance contract
+      command: cargo test --manifest-path core/Cargo.toml --test regex_frontend --locked
+      expected_result: Every node, directive, multibyte, multiline, escape, nested, empty, EOF, and malformed case has valid deterministic half-open UTF-8 evidence tied to the embedded SourceDocument.
+    - name: Canonical frontend diagnostics
+      command: cargo test --manifest-path core/Cargo.toml --test regex_frontend --locked
+      expected_result: All 45 frozen frontend errors project to valid stable canonical diagnostics with exact identity, severity, message, primary span, optional related evidence, and deterministic order.
+    - name: Source validation hardening
+      command: cargo test --manifest-path core/Cargo.toml --test source_semantic_contracts --locked
+      expected_result: Out-of-range, non-boundary, overlapping, unsorted, duplicate, and source-mismatched spans fail instead of being repaired silently.
+    - name: Migration and repository certification
+      command: ./strling migration-differential --repeat-runs 3; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/formatting.py repository --check; ./strling profile local; ./strling profile pull-request; git diff --check
+      expected_result: Historical behavior remains stable, the canonical boundary and baseline renew deliberately, all task-scoped gates pass, and aggregate carry-forward is exact.
+checkpoints:
+    - name: Existing contract and error-family inventory
+      status: passed
+      evidence:
+          - check: Read-first canonical evidence inventory
+            result: passed
+            details: SourceDocument already owns frontend identity and provenance; SourceSpan is half-open UTF-8; SourceOrigin is available on every Semantic IR node; normalization retains and canonicalizes origins; canonical Diagnostic already owns phase, category, normative severity, message, primary/related locations, advice, fixes, and deterministic ordering. The parser currently emits stable code plus byte offset but no node origins or canonical diagnostic object.
+    - name: Node spans and frontend provenance
+      status: passed
+      evidence:
+          - check: Focused parser and normalization provenance suite
+            result: passed
+            details: Ten Rust integration tests cover all positive fixtures plus specification-authored multibyte, escaped, nested, multiline, extended-layout, empty, EOF, duplicate-definition, resource-limit, and arbitrary UTF-8 cases. Every syntax node lowers with canonical source evidence; merged extended-layout literals retain discontiguous spans; normalization preserves the embedded SourceDocument and origins.
+          - check: Specification-authored provenance corpus
+            result: passed
+            details: spec/frontends/legacy-regex/1.0/provenance/cases.json freezes eight accepted and diagnostic evidence families and is consumed directly by the Rust test suite.
+    - name: Canonical diagnostics and invalid-span rejection
+      status: passed
+      evidence:
+          - check: Frozen diagnostic projection
+            result: passed
+            details: All 45 negative fixtures produce a validated canonical Diagnostic with the frozen code and message, error severity, normative basis, frontend-parse phase, deterministic category, exact primary location, frontend identity, and source provenance; duplicate definitions include first-declaration related locations.
+          - check: Source origin validation hardening
+            result: passed
+            details: Eleven source and semantic contract tests pass, including half-open multibyte boundaries plus rejection of reversed, out-of-range, non-boundary, overlapping, duplicate, unsorted, and undeclared-source evidence.
+          - check: Architecture boundary enforcement
+            result: passed
+            details: Twenty frontend architecture and core-contract validator tests pass. The frontend may depend on canonical diagnostic data contracts but remains forbidden from diagnostic generation, target, protocol, kernel, binding, environment, and emitted-pattern authority.
+    - name: Differential and repository certification
+      status: planned
+      evidence: []
+commits: []

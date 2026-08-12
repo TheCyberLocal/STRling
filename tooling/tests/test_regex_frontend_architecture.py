@@ -79,11 +79,18 @@ class RegexFrontendArchitectureTests(unittest.TestCase):
         with self.assertRaisesRegex(CoreContractError, "regex compatibility frontend"):
             validate_mapping_document(changed, ROOT)
 
-    def test_parse_and_validated_semantic_boundaries_are_required(self) -> None:
+    def test_parse_semantic_diagnostic_and_provenance_boundaries_are_required(
+        self,
+    ) -> None:
         for current, replacement in (
             ("pub fn parse(", "fn parse("),
             ("let program = SemanticProgram", "let program = MissingSemanticProgram"),
             ("InvalidSemanticOutput", "UncheckedSemanticOutput"),
+            ("crate::diagnostic", "crate::missing_contract"),
+            ("CompilerPhase::FrontendParse", "CompilerPhase::Normalization"),
+            ("SeverityBasis::Normative", "SeverityBasis::Inferred"),
+            ("SourceOrigin", "MissingOrigin"),
+            ("SourceSpan", "MissingSpan"),
         ):
             sources = source_texts()
             sources["core/src/regex_frontend.rs"] = sources[
@@ -100,7 +107,7 @@ class RegexFrontendArchitectureTests(unittest.TestCase):
             "use crate::target;",
             "use crate::protocol;",
             "use crate::kernel;",
-            "use crate::diagnostic;",
+            "use crate::diagnostic_generation;",
             "std::env::var",
             "std::time::SystemTime",
             "std::process::Command",

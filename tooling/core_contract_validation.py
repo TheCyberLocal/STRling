@@ -300,8 +300,13 @@ def validate_source_boundaries(
     for required in (
         "let program = semanticprogram",
         "invalidsemanticoutput",
+        "crate::diagnostic",
         "crate::source",
         "crate::semantic",
+        "compilerphase::frontendparse",
+        "severitybasis::normative",
+        "sourceorigin",
+        "sourcespan",
     ):
         if required not in regex_frontend:
             raise CoreContractError(
@@ -312,7 +317,7 @@ def validate_source_boundaries(
         "crate::target",
         "crate::protocol",
         "crate::kernel",
-        "crate::diagnostic",
+        "crate::diagnostic_generation",
         "std::env",
         "std::time",
         "std::process",

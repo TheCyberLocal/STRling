@@ -9,12 +9,19 @@ use std::collections::BTreeMap;
 use std::error::Error;
 use std::fmt;
 
+use crate::diagnostic::{
+    CompilerPhase, Diagnostic, DiagnosticCategory, DiagnosticCode, DiagnosticOccurrence,
+    RelatedLocation, RelatedLocationRole, Severity, SeverityBasis,
+};
 use crate::semantic::{
     AssertionPolarity, BuiltinClassName, CaseMatching, CharacterDomain, CharacterSetMember,
     LineTerminators, LookaroundDirection, Node, Normalization, PositionKind, RepetitionMaximum,
     RepetitionMode, SemanticProgram, UnicodeScalar,
 };
-use crate::source::{CaptureId, NodeId, SourceContent, SourceDocument};
+use crate::source::{
+    CaptureId, FrontendIdentity, NodeId, Provenance, SourceContent, SourceDocument, SourceId,
+    SourceOrigin, SourceSpan,
+};
 use crate::validation::{Validate, ValidationErrors};
 
 pub const FRONTEND_ID: &str = "strling.regex-compat";
@@ -176,13 +183,30 @@ impl RegexFrontendErrorCode {
             Self::MalformedNamedBackreference => "named backreference is malformed",
         }
     }
+
+    #[must_use]
+    pub const fn category(self) -> DiagnosticCategory {
+        match self {
+            Self::InvalidUtf8 => DiagnosticCategory::MalformedRequest,
+            Self::MissingFrontendIdentity | Self::ConflictingFrontendMetadata => {
+                DiagnosticCategory::UnsupportedFrontend
+            }
+            Self::SourceTooLarge | Self::NestingTooDeep | Self::TooManyCaptures => {
+                DiagnosticCategory::ResourceLimit
+            }
+            _ => DiagnosticCategory::Syntax,
+        }
+    }
 }
 
-/// One first-in-source-order frontend diagnostic using UTF-8 byte coordinates.
+/// One first-in-source-order canonical frontend diagnostic and its source evidence.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RegexFrontendError {
     pub code: RegexFrontendErrorCode,
     pub byte_offset: u64,
+    pub diagnostic: Diagnostic,
+    pub frontend: FrontendIdentity,
+    pub source_provenance: Provenance,
 }
 
 impl fmt::Display for RegexFrontendError {
@@ -198,6 +222,74 @@ impl fmt::Display for RegexFrontendError {
 }
 
 impl Error for RegexFrontendError {}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct RawRelatedLocation {
+    role: RelatedLocationRole,
+    message: &'static str,
+    byte_offset: usize,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct RawFrontendError {
+    code: RegexFrontendErrorCode,
+    byte_offset: usize,
+    related: Vec<RawRelatedLocation>,
+}
+
+impl RawFrontendError {
+    fn with_related(
+        mut self,
+        role: RelatedLocationRole,
+        message: &'static str,
+        byte_offset: usize,
+    ) -> Self {
+        self.related.push(RawRelatedLocation {
+            role,
+            message,
+            byte_offset,
+        });
+        self
+    }
+
+    fn attach(self, document: &SourceDocument, text: &str) -> RegexFrontendError {
+        let primary_location = source_span_at(&document.source_id, text, self.byte_offset);
+        let related_locations: Vec<_> = self
+            .related
+            .into_iter()
+            .map(|related| RelatedLocation {
+                role: related.role,
+                message: related.message.to_owned(),
+                location: source_span_at(&document.source_id, text, related.byte_offset),
+            })
+            .collect();
+        let diagnostic = Diagnostic {
+            contract_version: document.contract_version,
+            occurrence: DiagnosticOccurrence::new(0),
+            code: DiagnosticCode::try_from(self.code.id())
+                .expect("frozen frontend diagnostic identity is valid"),
+            severity: Severity::Error,
+            severity_basis: SeverityBasis::Normative,
+            phase: CompilerPhase::FrontendParse,
+            category: self.code.category(),
+            message: self.code.message().to_owned(),
+            primary_location: Some(primary_location),
+            related_locations: (!related_locations.is_empty()).then_some(related_locations),
+            advice: None,
+            fixes: None,
+        };
+        diagnostic
+            .validate()
+            .expect("constructed frontend diagnostic is valid");
+        RegexFrontendError {
+            code: self.code,
+            byte_offset: self.byte_offset as u64,
+            diagnostic,
+            frontend: document.frontend.clone(),
+            source_provenance: document.provenance.clone(),
+        }
+    }
+}
 
 /// Frontend diagnostics remain distinct from canonical contract failures.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -315,6 +407,7 @@ impl RegexFrontendFlags {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ParsedRegex {
     pub flags: RegexFrontendFlags,
+    pub flags_directive: Option<SourceSpan>,
     pub program: SemanticProgram,
 }
 
@@ -326,9 +419,9 @@ pub fn parse(document: &SourceDocument) -> Result<ParsedRegex, RegexFrontendFail
     if document.frontend.id.as_str() != FRONTEND_ID
         || document.frontend.dialect_version.as_str() != DIALECT_VERSION
     {
-        return Err(diagnostic(
-            RegexFrontendErrorCode::ConflictingFrontendMetadata,
-            0,
+        return Err(RegexFrontendFailure::Diagnostic(
+            diagnostic(RegexFrontendErrorCode::ConflictingFrontendMetadata, 0)
+                .attach(document, document.content.inline_text().unwrap_or("")),
         ));
     }
     let text = match &document.content {
@@ -338,16 +431,23 @@ pub fn parse(document: &SourceDocument) -> Result<ParsedRegex, RegexFrontendFail
         }
     };
     if text.len() > MAX_SOURCE_BYTES {
-        return Err(diagnostic(
-            RegexFrontendErrorCode::SourceTooLarge,
-            MAX_SOURCE_BYTES,
+        return Err(RegexFrontendFailure::Diagnostic(
+            diagnostic(RegexFrontendErrorCode::SourceTooLarge, MAX_SOURCE_BYTES)
+                .attach(document, text),
         ));
     }
 
-    let (flags, body_start) = parse_preamble(text)?;
+    let (flags, body_start, flags_range) = parse_preamble(text)
+        .map_err(|error| RegexFrontendFailure::Diagnostic(error.attach(document, text)))?;
     let mut parser = Parser::new(text, body_start, flags);
-    let syntax = parser.parse()?;
-    let root = Lowerer::new(flags.dot_matches_line_terminators).lower(syntax);
+    let syntax = parser
+        .parse()
+        .map_err(|error| RegexFrontendFailure::Diagnostic(error.attach(document, text)))?;
+    let root = Lowerer::new(
+        flags.dot_matches_line_terminators,
+        document.source_id.clone(),
+    )
+    .lower(syntax);
     let program = SemanticProgram {
         contract_version: document.contract_version,
         specification_version: document.specification_version.clone(),
@@ -363,14 +463,36 @@ pub fn parse(document: &SourceDocument) -> Result<ParsedRegex, RegexFrontendFail
     program
         .validate()
         .map_err(RegexFrontendFailure::InvalidSemanticOutput)?;
-    Ok(ParsedRegex { flags, program })
+    let flags_directive = flags_range.map(|(start, end)| {
+        SourceSpan::new(document.source_id.clone(), start as u64, end as u64)
+            .expect("parser directive offsets are valid")
+    });
+    Ok(ParsedRegex {
+        flags,
+        flags_directive,
+        program,
+    })
 }
 
-fn diagnostic(code: RegexFrontendErrorCode, byte_offset: usize) -> RegexFrontendFailure {
-    RegexFrontendFailure::Diagnostic(RegexFrontendError {
+fn diagnostic(code: RegexFrontendErrorCode, byte_offset: usize) -> RawFrontendError {
+    RawFrontendError {
         code,
-        byte_offset: byte_offset as u64,
-    })
+        byte_offset,
+        related: Vec::new(),
+    }
+}
+
+fn source_span_at(source_id: &SourceId, text: &str, byte_offset: usize) -> SourceSpan {
+    let mut start = byte_offset.min(text.len());
+    while start > 0 && !text.is_char_boundary(start) {
+        start -= 1;
+    }
+    let end = text[start..]
+        .chars()
+        .next()
+        .map_or(start, |character| start + character.len_utf8());
+    SourceSpan::new(source_id.clone(), start as u64, end as u64)
+        .expect("parser diagnostic offsets form a valid span")
 }
 
 #[derive(Clone, Copy)]
@@ -418,10 +540,13 @@ fn trim_horizontal_start(value: &str) -> (&str, usize) {
     (&value[removed..], removed)
 }
 
-fn parse_preamble(text: &str) -> Result<(RegexFrontendFlags, usize), RegexFrontendFailure> {
+fn parse_preamble(
+    text: &str,
+) -> Result<(RegexFrontendFlags, usize, Option<(usize, usize)>), RawFrontendError> {
     let lines = physical_lines(text);
     let mut flags = RegexFrontendFlags::default();
     let mut saw_flags = false;
+    let mut flags_range: Option<(usize, usize)> = None;
     let mut body_start = text.len();
     let mut body_line_index = lines.len();
 
@@ -435,10 +560,16 @@ fn parse_preamble(text: &str) -> Result<(RegexFrontendFlags, usize), RegexFronte
                 return Err(diagnostic(
                     RegexFrontendErrorCode::DuplicateFlagsDirective,
                     line.start + indentation,
+                )
+                .with_related(
+                    RelatedLocationRole::Definition,
+                    "The first flags directive is here.",
+                    flags_range.expect("prior flags directive").0,
                 ));
             }
             flags = parse_flags_directive(*line, indentation)?;
             saw_flags = true;
+            flags_range = Some((line.start + indentation, line.start + line.content.len()));
             continue;
         }
         body_start = line.start;
@@ -455,13 +586,13 @@ fn parse_preamble(text: &str) -> Result<(RegexFrontendFlags, usize), RegexFronte
             ));
         }
     }
-    Ok((flags, body_start))
+    Ok((flags, body_start, flags_range))
 }
 
 fn parse_flags_directive(
     line: PhysicalLine<'_>,
     indentation: usize,
-) -> Result<RegexFrontendFlags, RegexFrontendFailure> {
+) -> Result<RegexFrontendFlags, RawFrontendError> {
     let offset = line.start + indentation;
     let content = &line.content[indentation..];
     if !content.starts_with("%flags") {
@@ -556,7 +687,15 @@ fn parse_flags_directive(
 }
 
 #[derive(Clone, Debug)]
-enum SyntaxNode {
+struct SyntaxNode {
+    start: usize,
+    end: usize,
+    spans: Vec<(usize, usize)>,
+    kind: SyntaxKind,
+}
+
+#[derive(Clone, Debug)]
+enum SyntaxKind {
     Empty,
     Sequence(Vec<SyntaxNode>),
     Alternation(Vec<SyntaxNode>),
@@ -588,8 +727,24 @@ enum SyntaxNode {
 }
 
 impl SyntaxNode {
+    fn new(start: usize, end: usize, kind: SyntaxKind) -> Self {
+        Self {
+            start,
+            end,
+            spans: vec![(start, end)],
+            kind,
+        }
+    }
+
     fn is_assertion(&self) -> bool {
-        matches!(self, Self::Position(_) | Self::Lookaround { .. })
+        matches!(
+            self.kind,
+            SyntaxKind::Position(_) | SyntaxKind::Lookaround { .. }
+        )
+    }
+
+    fn cover(start: usize, end: usize, kind: SyntaxKind) -> Self {
+        Self::new(start.min(end), end.max(start), kind)
     }
 }
 
@@ -611,7 +766,7 @@ struct Parser<'a> {
     flags: RegexFrontendFlags,
     depth: usize,
     capture_count: usize,
-    capture_names: BTreeMap<String, usize>,
+    capture_names: BTreeMap<String, (usize, usize)>,
     pending_references: Vec<PendingReference>,
 }
 
@@ -628,7 +783,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse(&mut self) -> Result<SyntaxNode, RegexFrontendFailure> {
+    fn parse(&mut self) -> Result<SyntaxNode, RawFrontendError> {
         let syntax = self.parse_alternation()?;
         self.skip_layout();
         if self.peek() == Some(')') {
@@ -701,8 +856,9 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_alternation(&mut self) -> Result<SyntaxNode, RegexFrontendFailure> {
+    fn parse_alternation(&mut self) -> Result<SyntaxNode, RawFrontendError> {
         self.skip_layout();
+        let start = self.position;
         if self.peek() == Some('|') {
             return Err(diagnostic(
                 RegexFrontendErrorCode::AlternationMissingLeft,
@@ -733,11 +889,17 @@ impl<'a> Parser<'a> {
         if branches.len() == 1 {
             Ok(branches.pop().expect("one branch"))
         } else {
-            Ok(SyntaxNode::Alternation(branches))
+            let end = branches.last().map_or(start, |branch| branch.end);
+            Ok(SyntaxNode::cover(
+                start,
+                end,
+                SyntaxKind::Alternation(branches),
+            ))
         }
     }
 
-    fn parse_sequence(&mut self) -> Result<SyntaxNode, RegexFrontendFailure> {
+    fn parse_sequence(&mut self) -> Result<SyntaxNode, RawFrontendError> {
+        let start = self.position;
         let mut items = Vec::new();
         loop {
             self.skip_layout();
@@ -758,38 +920,55 @@ impl<'a> Parser<'a> {
             push_sequence_item(&mut items, term);
         }
         match items.len() {
-            0 => Ok(SyntaxNode::Empty),
+            0 => Ok(SyntaxNode::new(start, start, SyntaxKind::Empty)),
             1 => Ok(items.pop().expect("one item")),
-            _ => Ok(SyntaxNode::Sequence(items)),
+            _ => {
+                let end = items.last().map_or(start, |item| item.end);
+                Ok(SyntaxNode::cover(start, end, SyntaxKind::Sequence(items)))
+            }
         }
     }
 
-    fn parse_atom(&mut self) -> Result<SyntaxNode, RegexFrontendFailure> {
+    fn parse_atom(&mut self) -> Result<SyntaxNode, RawFrontendError> {
         let offset = self.position;
         let Some(character) = self.take() else {
-            return Ok(SyntaxNode::Empty);
+            return Ok(SyntaxNode::new(offset, offset, SyntaxKind::Empty));
         };
         match character {
             '(' => self.parse_group(offset),
-            '[' => self.parse_character_class(),
-            '.' => Ok(SyntaxNode::Wildcard),
-            '^' => Ok(SyntaxNode::Position(if self.flags.multiline {
-                PositionKind::LineStart
-            } else {
-                PositionKind::InputStart
-            })),
-            '$' => Ok(SyntaxNode::Position(if self.flags.multiline {
-                PositionKind::LineEnd
-            } else {
-                PositionKind::EndBeforeFinalLineTerminator
-            })),
-            '\\' => self.parse_escape(offset, false).map(EscapeValue::outside),
+            '[' => self.parse_character_class(offset),
+            '.' => Ok(SyntaxNode::new(offset, self.position, SyntaxKind::Wildcard)),
+            '^' => Ok(SyntaxNode::new(
+                offset,
+                self.position,
+                SyntaxKind::Position(if self.flags.multiline {
+                    PositionKind::LineStart
+                } else {
+                    PositionKind::InputStart
+                }),
+            )),
+            '$' => Ok(SyntaxNode::new(
+                offset,
+                self.position,
+                SyntaxKind::Position(if self.flags.multiline {
+                    PositionKind::LineEnd
+                } else {
+                    PositionKind::EndBeforeFinalLineTerminator
+                }),
+            )),
+            '\\' => self
+                .parse_escape(offset, false)
+                .map(|value| SyntaxNode::new(offset, self.position, value.outside())),
             ']' | '}' => Err(diagnostic(RegexFrontendErrorCode::RawTargetSyntax, offset)),
-            _ => Ok(SyntaxNode::Literal(character.to_string())),
+            _ => Ok(SyntaxNode::new(
+                offset,
+                self.position,
+                SyntaxKind::Literal(character.to_string()),
+            )),
         }
     }
 
-    fn parse_quantifier(&mut self, atom: SyntaxNode) -> Result<SyntaxNode, RegexFrontendFailure> {
+    fn parse_quantifier(&mut self, atom: SyntaxNode) -> Result<SyntaxNode, RawFrontendError> {
         self.skip_layout();
         let Some(character) = self.peek() else {
             return Ok(atom);
@@ -837,17 +1016,20 @@ impl<'a> Parser<'a> {
                 self.position,
             ));
         }
-        Ok(SyntaxNode::Repeat {
-            body: Box::new(atom),
-            min,
-            max,
-            mode,
-        })
+        let start = atom.start;
+        Ok(SyntaxNode::cover(
+            start,
+            self.position,
+            SyntaxKind::Repeat {
+                body: Box::new(atom),
+                min,
+                max,
+                mode,
+            },
+        ))
     }
 
-    fn parse_braced_quantifier(
-        &mut self,
-    ) -> Result<(u64, RepetitionMaximum), RegexFrontendFailure> {
+    fn parse_braced_quantifier(&mut self) -> Result<(u64, RepetitionMaximum), RawFrontendError> {
         let brace_offset = self.position;
         self.take();
         let minimum_offset = self.position;
@@ -907,7 +1089,7 @@ impl<'a> Parser<'a> {
         &mut self,
         brace_offset: usize,
         bound_offset: usize,
-    ) -> Result<u64, RegexFrontendFailure> {
+    ) -> Result<u64, RawFrontendError> {
         let start = self.position;
         while matches!(self.peek(), Some('0'..='9')) {
             self.take();
@@ -934,7 +1116,7 @@ impl<'a> Parser<'a> {
         Ok(value)
     }
 
-    fn parse_group(&mut self, opener_offset: usize) -> Result<SyntaxNode, RegexFrontendFailure> {
+    fn parse_group(&mut self, opener_offset: usize) -> Result<SyntaxNode, RawFrontendError> {
         if self.peek() == Some('*') {
             return Err(diagnostic(
                 RegexFrontendErrorCode::RawTargetSyntax,
@@ -982,14 +1164,20 @@ impl<'a> Parser<'a> {
                     ));
                 }
                 self.take();
-                if self.capture_names.contains_key(&name) {
+                if let Some((_, first_offset)) = self.capture_names.get(&name) {
                     return Err(diagnostic(
                         RegexFrontendErrorCode::DuplicateCaptureName,
                         question_offset,
+                    )
+                    .with_related(
+                        RelatedLocationRole::Definition,
+                        "The first capture with this name is here.",
+                        *first_offset,
                     ));
                 }
                 let index = self.new_capture(opener_offset)?;
-                self.capture_names.insert(name.clone(), index);
+                self.capture_names
+                    .insert(name.clone(), (index, opener_offset));
                 capture = Some((index, Some(name)));
             } else if matches!(
                 self.peek(),
@@ -1019,27 +1207,40 @@ impl<'a> Parser<'a> {
             ));
         }
         self.take();
+        let end = self.position;
         self.depth -= 1;
         if let Some((direction, polarity)) = lookaround {
-            Ok(SyntaxNode::Lookaround {
-                direction,
-                polarity,
-                body: Box::new(body),
-            })
+            Ok(SyntaxNode::cover(
+                opener_offset,
+                end,
+                SyntaxKind::Lookaround {
+                    direction,
+                    polarity,
+                    body: Box::new(body),
+                },
+            ))
         } else if atomic {
-            Ok(SyntaxNode::Atomic(Box::new(body)))
+            Ok(SyntaxNode::cover(
+                opener_offset,
+                end,
+                SyntaxKind::Atomic(Box::new(body)),
+            ))
         } else if let Some((capture_index, name)) = capture {
-            Ok(SyntaxNode::Capture {
-                capture_index,
-                name,
-                body: Box::new(body),
-            })
+            Ok(SyntaxNode::cover(
+                opener_offset,
+                end,
+                SyntaxKind::Capture {
+                    capture_index,
+                    name,
+                    body: Box::new(body),
+                },
+            ))
         } else {
-            Ok(body)
+            Ok(SyntaxNode::cover(opener_offset, end, body.kind))
         }
     }
 
-    fn new_capture(&mut self, offset: usize) -> Result<usize, RegexFrontendFailure> {
+    fn new_capture(&mut self, offset: usize) -> Result<usize, RawFrontendError> {
         if self.capture_count >= MAX_CAPTURE_GROUPS {
             return Err(diagnostic(RegexFrontendErrorCode::TooManyCaptures, offset));
         }
@@ -1050,7 +1251,7 @@ impl<'a> Parser<'a> {
     fn parse_identifier(
         &mut self,
         error_code: RegexFrontendErrorCode,
-    ) -> Result<String, RegexFrontendFailure> {
+    ) -> Result<String, RawFrontendError> {
         let start = self.position;
         let Some(first) = self.peek() else {
             return Err(diagnostic(error_code, self.position));
@@ -1066,7 +1267,10 @@ impl<'a> Parser<'a> {
         Ok(self.text[start..self.position].to_owned())
     }
 
-    fn parse_character_class(&mut self) -> Result<SyntaxNode, RegexFrontendFailure> {
+    fn parse_character_class(
+        &mut self,
+        opener_offset: usize,
+    ) -> Result<SyntaxNode, RawFrontendError> {
         let mut negated = false;
         if self.peek() == Some('^') {
             self.take();
@@ -1139,10 +1343,14 @@ impl<'a> Parser<'a> {
         }
         members.sort();
         members.dedup();
-        Ok(SyntaxNode::CharacterSet { negated, members })
+        Ok(SyntaxNode::cover(
+            opener_offset,
+            self.position,
+            SyntaxKind::CharacterSet { negated, members },
+        ))
     }
 
-    fn parse_class_atom(&mut self) -> Result<ClassAtom, RegexFrontendFailure> {
+    fn parse_class_atom(&mut self) -> Result<ClassAtom, RawFrontendError> {
         let offset = self.position;
         let Some(character) = self.take() else {
             return Err(diagnostic(
@@ -1162,7 +1370,7 @@ impl<'a> Parser<'a> {
         &mut self,
         backslash_offset: usize,
         in_class: bool,
-    ) -> Result<EscapeValue, RegexFrontendFailure> {
+    ) -> Result<EscapeValue, RawFrontendError> {
         let Some(character) = self.take() else {
             return Err(diagnostic(
                 RegexFrontendErrorCode::UnexpectedEscapeEnd,
@@ -1258,7 +1466,7 @@ impl<'a> Parser<'a> {
         fixed_digits: usize,
         allow_braces: bool,
         invalid_code: RegexFrontendErrorCode,
-    ) -> Result<EscapeValue, RegexFrontendFailure> {
+    ) -> Result<EscapeValue, RawFrontendError> {
         let digits = if allow_braces && self.peek() == Some('{') {
             self.take();
             let start = self.position;
@@ -1300,7 +1508,7 @@ impl<'a> Parser<'a> {
         &mut self,
         backslash_offset: usize,
         negated: bool,
-    ) -> Result<EscapeValue, RegexFrontendFailure> {
+    ) -> Result<EscapeValue, RawFrontendError> {
         if self.peek() != Some('{') {
             return Err(diagnostic(
                 RegexFrontendErrorCode::PropertyBracesRequired,
@@ -1344,7 +1552,7 @@ impl<'a> Parser<'a> {
     fn parse_named_backreference(
         &mut self,
         backslash_offset: usize,
-    ) -> Result<EscapeValue, RegexFrontendFailure> {
+    ) -> Result<EscapeValue, RawFrontendError> {
         if self.peek() != Some('<') {
             return Err(diagnostic(
                 RegexFrontendErrorCode::MalformedNamedBackreference,
@@ -1369,7 +1577,7 @@ impl<'a> Parser<'a> {
             ));
         }
         self.take();
-        if let Some(index) = self.capture_names.get(&name) {
+        if let Some((index, _)) = self.capture_names.get(&name) {
             Ok(EscapeValue::Backreference(*index))
         } else {
             self.pending_references.push(PendingReference {
@@ -1382,14 +1590,47 @@ impl<'a> Parser<'a> {
 }
 
 fn push_sequence_item(items: &mut Vec<SyntaxNode>, item: SyntaxNode) {
-    if let SyntaxNode::Literal(text) = item {
-        if let Some(SyntaxNode::Literal(previous)) = items.last_mut() {
-            previous.push_str(&text);
-        } else {
-            items.push(SyntaxNode::Literal(text));
+    let SyntaxNode {
+        start,
+        end,
+        spans,
+        kind,
+    } = item;
+    match kind {
+        SyntaxKind::Literal(text) => {
+            if let Some(SyntaxNode {
+                end: previous_end,
+                spans: previous_spans,
+                kind: SyntaxKind::Literal(previous),
+                ..
+            }) = items.last_mut()
+            {
+                previous.push_str(&text);
+                *previous_end = end.max(*previous_end);
+                for span in spans {
+                    if let Some(previous_span) = previous_spans.last_mut() {
+                        if previous_span.1 == span.0 {
+                            previous_span.1 = span.1;
+                            continue;
+                        }
+                    }
+                    previous_spans.push(span);
+                }
+            } else {
+                items.push(SyntaxNode {
+                    start,
+                    end,
+                    spans,
+                    kind: SyntaxKind::Literal(text),
+                });
+            }
         }
-    } else {
-        items.push(item);
+        kind => items.push(SyntaxNode {
+            start,
+            end,
+            spans,
+            kind,
+        }),
     }
 }
 
@@ -1466,19 +1707,19 @@ enum EscapeValue {
 }
 
 impl EscapeValue {
-    fn outside(self) -> SyntaxNode {
+    fn outside(self) -> SyntaxKind {
         match self {
-            Self::Scalar(value) => SyntaxNode::Literal(value.to_string()),
-            Self::Member(member) => SyntaxNode::CharacterSet {
+            Self::Scalar(value) => SyntaxKind::Literal(value.to_string()),
+            Self::Member(member) => SyntaxKind::CharacterSet {
                 negated: false,
                 members: vec![member],
             },
-            Self::Position(position) => SyntaxNode::Position(position),
-            Self::Backreference(index) => SyntaxNode::Backreference(index),
+            Self::Position(position) => SyntaxKind::Position(position),
+            Self::Backreference(index) => SyntaxKind::Backreference(index),
         }
     }
 
-    fn class_atom(self) -> Result<ClassAtom, RegexFrontendFailure> {
+    fn class_atom(self) -> Result<ClassAtom, RawFrontendError> {
         match self {
             Self::Scalar(value) => Ok(ClassAtom::scalar(value)),
             Self::Member(member) => Ok(ClassAtom {
@@ -1495,104 +1736,116 @@ impl EscapeValue {
 struct Lowerer {
     next_node: u64,
     dot_matches_line_terminators: bool,
+    source_id: SourceId,
 }
 
 impl Lowerer {
-    const fn new(dot_matches_line_terminators: bool) -> Self {
+    fn new(dot_matches_line_terminators: bool, source_id: SourceId) -> Self {
         Self {
             next_node: 0,
             dot_matches_line_terminators,
+            source_id,
         }
     }
 
     fn lower(&mut self, syntax: SyntaxNode) -> Node {
         let node_id = self.node_id();
-        match syntax {
-            SyntaxNode::Empty => Node::Empty {
+        let SyntaxNode { spans, kind, .. } = syntax;
+        let origin = Some(SourceOrigin {
+            source_spans: Some(
+                spans
+                    .into_iter()
+                    .map(|(start, end)| {
+                        SourceSpan::new(self.source_id.clone(), start as u64, end as u64)
+                            .expect("parser syntax offsets form a valid source span")
+                    })
+                    .collect(),
+            ),
+            derived_from_node_ids: None,
+        });
+        match kind {
+            SyntaxKind::Empty => Node::Empty { node_id, origin },
+            SyntaxKind::Sequence(items) => Node::Sequence {
                 node_id,
-                origin: None,
-            },
-            SyntaxNode::Sequence(items) => Node::Sequence {
-                node_id,
-                origin: None,
+                origin,
                 items: items.into_iter().map(|item| self.lower(item)).collect(),
             },
-            SyntaxNode::Alternation(branches) => Node::Alternation {
+            SyntaxKind::Alternation(branches) => Node::Alternation {
                 node_id,
-                origin: None,
+                origin,
                 branches: branches
                     .into_iter()
                     .map(|branch| self.lower(branch))
                     .collect(),
             },
-            SyntaxNode::Literal(text) => Node::Literal {
+            SyntaxKind::Literal(text) => Node::Literal {
                 node_id,
-                origin: None,
+                origin,
                 text,
             },
-            SyntaxNode::Wildcard => Node::Wildcard {
+            SyntaxKind::Wildcard => Node::Wildcard {
                 node_id,
-                origin: None,
+                origin,
                 line_terminators: if self.dot_matches_line_terminators {
                     LineTerminators::Include
                 } else {
                     LineTerminators::Exclude
                 },
             },
-            SyntaxNode::CharacterSet { negated, members } => Node::CharacterSet {
+            SyntaxKind::CharacterSet { negated, members } => Node::CharacterSet {
                 node_id,
-                origin: None,
+                origin,
                 negated,
                 members,
             },
-            SyntaxNode::Repeat {
+            SyntaxKind::Repeat {
                 body,
                 min,
                 max,
                 mode,
             } => Node::Repeat {
                 node_id,
-                origin: None,
+                origin,
                 body: Box::new(self.lower(*body)),
                 min,
                 max,
                 mode,
             },
-            SyntaxNode::Position(position) => Node::Position {
+            SyntaxKind::Position(position) => Node::Position {
                 node_id,
-                origin: None,
+                origin,
                 position,
             },
-            SyntaxNode::Capture {
+            SyntaxKind::Capture {
                 capture_index,
                 name,
                 body,
             } => Node::Capture {
                 node_id,
-                origin: None,
+                origin,
                 capture_id: capture_id(capture_index),
                 name,
                 body: Box::new(self.lower(*body)),
             },
-            SyntaxNode::Backreference(index) => Node::Backreference {
+            SyntaxKind::Backreference(index) => Node::Backreference {
                 node_id,
-                origin: None,
+                origin,
                 capture_id: capture_id(index),
             },
-            SyntaxNode::Lookaround {
+            SyntaxKind::Lookaround {
                 direction,
                 polarity,
                 body,
             } => Node::Lookaround {
                 node_id,
-                origin: None,
+                origin,
                 direction,
                 polarity,
                 body: Box::new(self.lower(*body)),
             },
-            SyntaxNode::Atomic(body) => Node::Atomic {
+            SyntaxKind::Atomic(body) => Node::Atomic {
                 node_id,
-                origin: None,
+                origin,
                 body: Box::new(self.lower(*body)),
             },
         }
