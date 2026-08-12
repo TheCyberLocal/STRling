@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Deterministic ECMAScript serialization and exact Node execution certification
-status: in_progress
+status: complete
 objective: Serialize one validated EcmascriptLoweringPlan into deterministic ECMAScript RegExp source, canonical flags, profile-owned options, resolved requirements, generated provenance, and a canonical TargetArtifact, then certify bounded artifact execution against exact pinned Node/V8 evidence without adding product runtime, binding, package, or publication behavior.
 scope:
     diff:
@@ -171,7 +171,7 @@ checkpoints:
             result: passed
             details: An isolated official rustup installation outside the repository supplied project-era Rust and Cargo 1.75.0 with rustfmt 1.7.0. Cargo fmt --check, warning-denied all-target Clippy, and all 306 all-target tests pass with Cargo.lock enforced. The same full core test matrix also passes on current Rust 1.97.1, while the governed 1.75.0 result remains authoritative for compatibility.
     - name: Controlled Node/V8 harness, corpus, and quality-profile integration
-      status: in_progress
+      status: passed
       evidence:
           - check: Runtime protocol and exact execution evidence
             result: passed
@@ -183,10 +183,10 @@ checkpoints:
             result: passed
             details: The official Node v22.23.2 Windows x64 archive SHA-256 1177b4137ba5adaa56354ae40f1080c7450e8ae09cecb47da459d1c52ac99f97 and node.exe SHA-256 0d0f5e39f9f3d9587bc19f73eab3c2c9c4903fd02d6dbf9c853dd81b3d95fad4 were verified against upstream SHASUMS256.txt. The exact process identities v22.23.2 and V8 12.4.254.21-node.56 executed all 145 requests twice on win32/x64 with stable semantic digest 06d0cfdcc13324335464f795d8b6b9a6fc2fb778df4a22b7a0d3e8830e9ec23. This independently proves the selected engine behavior and corpus determinism but does not satisfy the separate canonical Linux x64 executable-identity gate.
           - check: Exact Node 22 Linux x64 certification
-            result: not_run
-            details: The verified official archive and exact extracted executable are available locally, but the Linux executable cannot run while the WSL service is exhausted. No host runtime was substituted.
+            result: passed
+            details: The official Node v22.23.2 Linux x64 archive SHA-256 d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307 and extracted executable SHA-256 3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327 were verified before execution. Exact Node v22.23.2/V8 12.4.254.21-node.56 on linux/x64 executed 12 detailed, three compile-error, 128 generated, and one rewrite case twice with corpus SHA-256 bc11fba576380ea0e976127e4db6cd22713f1ce1673ca0ba3418b1289439d34c, formatted harness SHA-256 93a26189d074e19ecb003692c724c4ba23ea52b0c811231c99ab4989d63b01a1, semantic result SHA-256 06d0cfdcc13324335464f795d8b6b9a6fc2fb778df4a22b7a0d3e8830e9ec23b, and deterministic operation SHA-256 36b5f94e75bf8d19f96f525542723fdec4220a6f5a3ea1282a944d5e150f5d9f. All 145 requests passed with no runtime substitution.
     - name: Complete repository and migration certification
-      status: in_progress
+      status: passed
       evidence:
           - check: Available platform-neutral hardgate evidence
             result: passed
@@ -195,10 +195,60 @@ checkpoints:
             result: passed
             details: Repeated candidate runs under host Node 24/Python 3.13, exact selected Node 22/Python 3.12, and exact WSL-era Node 18.19.1/Python 3.12 were deterministic and agreed that the intentional Rust public-module addition changes only the directly computed canonical-boundary identity to sha256:c8ee813968a98d410049b7581998a8b549766538380d69194842fc1c7ca2fbf8. Their source-observation and historical-peer fingerprints nevertheless differed from the Linux-authored canonical baseline, proving the evidence is platform-sensitive. Baseline sha256:39f309162b403c4f3af21a587e3d88dbc9b55edb471c12498702f6ef57d3286a was deliberately retained; no Windows candidate was accepted as a review renewal.
           - check: Canonical Linux hardgate evidence
-            result: not_run
-            details: Awaiting recovery of the exhausted WSL service for exact Linux Node identity, Linux-sensitive migration differential and boundary renewal, Local/Pull Request/Full profiles, final task record, and clean-tree verification.
+            result: passed
+            details: On Linux with project-era Rust/Cargo 1.75.0, rustfmt, all 306 all-target tests, warning-denied Clippy, 33 focused Python tests, core contracts, public contracts, generated artifacts, governance, documentation integrity, migration differential, and patch integrity pass. The exact Node 22 profile changes historical TypeScript observation identities relative to Node 18 without changing case coverage, canonical route coverage, or the reviewed canonical boundary; the renewed exact-tool baseline is sha256:b65732d9f174208a286acbb206222b2170aa022db67021112990fa3e33d0ad9e and the three-repeat result is sha256:4a44fddd19ef7c690994c88c959802d01e999731620de99ead94e68b16cc9bf0 with zero mismatches.
+          - check: Pinned analyzer prerequisite repair
+            result: passed
+            details: Exact Ruff 0.15.21 and Prettier 3.3.3 exposed formatting drift, five path-bootstrap E402 findings, one unused import, and one new unmanaged type suppression. Mechanical formatting, importlib-based bootstrap imports, the unused-import removal, and a typed cast restore 84-file formatter conformance, zero Ruff findings, and the governed 80-directive suppression baseline. Forty-eight focused regressions, governance, documentation, and the exact-Node migration gate pass; no product or semantic behavior changed.
+          - check: Clean Local, Pull Request, and Full profiles
+            result: passed
+            details: At clean commit 3f7ef6ab6903144737b697c6e3a7dd16caca1b71, Local 1.5.0 passed all 26 operations with evidence fingerprint 446ffd738a74c661aa340efc7d1ed2bc9db0b8f37ca47f798281c28a5eda03cb. Pull Request 1.4.0 recorded 44 passed and two unavailable operations with fingerprint dbb62797f1ec281893c50a3361235d24a2af16cae1b9a180789b979297654f95. Full 1.6.0 recorded 73 passed and seven unavailable operations with fingerprint a27d35abe95c4c96e49d6c7352995a883ac5c3ba34f7bb031c816c67089a8f61; exact PCRE2 10.42/10.43 and ECMAScript Node 22 runtime operations passed. There were zero failed, incomplete, not-yet, or newly waived operations.
+          - check: Explicit environment carry-forward
+            result: passed
+            details: Pull Request records only repository-managed Ruby Bundler 2.4.20 versus installed 2.7.2 and missing Swift as unavailable. Full records those same Ruby lint/build/test and Swift typecheck/build/test gaps plus the existing structured dependency-risk scanner unavailability across ecosystems. Existing npm vulnerability/license waivers remain governed; no unavailable evidence was reported as passing and no requirement was weakened.
 commits:
     - sha: e1b27fcff4af5dd666ed88dabf229806381b7a58
       subject: "docs(core): define ECMAScript serialization certification"
     - sha: b0ccc8c037319301fb03b3124ebae5ad83297e1d
       subject: "feat(core): serialize and certify ECMAScript artifacts"
+    - sha: 428cbaf0d495c8c1d781e37e1b65f0d5ff9232ce
+      subject: "docs(core): record ECMAScript certification checkpoint"
+    - sha: 8a97534ef429de65726c6f3f7bda833ede31bf84
+      subject: "test(core): renew ECMAScript boundary certification"
+    - sha: d860b07813d14b4f1e6c496442fe7e52e6a66bae
+      subject: "chore(quality): align repository with pinned analyzers"
+    - sha: 3f7ef6ab6903144737b697c6e3a7dd16caca1b71
+      subject: "test(migration): align exact Node evidence baseline"
+completion:
+    accomplished:
+        - Added a pure deterministic ECMAScript serializer from one validated EcmascriptLoweringPlan to canonical source, sorted u/iu flags, exact options and requirements, generated UTF-8 source mapping, structured diagnostics, and one validated TargetArtifact.
+        - Extended EmittedPattern with an optional canonical flag vector while preserving byte-identical existing PCRE2 artifacts by omitting empty flags.
+        - Defined fail-closed escaping, grouping, capture/reference, assertion, anchor/newline, case, Unicode, rewrite, resource, and stale-plan behavior without moving capability or rewrite policy into serialization.
+        - Added a bounded module-free Node harness and Python orchestrator that verify exact executable, Node/V8, platform, profile, corpus, harness, and two-run semantic identity before accepting observations.
+        - Integrated exact ECMAScript runtime certification into Full and Release profiles after PCRE2 certification while keeping Node outside the pure Rust kernel and Local/Pull Request runtime scope.
+    verified:
+        - Exact official Node v22.23.2/V8 12.4.254.21-node.56 on linux/x64 passed all 145 bounded requests twice with stable semantic SHA-256 06d0cfdcc13324335464f795d8b6b9a6fc2fb778df4a22b7a0d3e8830e9ec23b and exact archive/executable identity.
+        - All 306 core tests, warning-denied Clippy, focused serializer/runtime/architecture suites, 11 schema mappings with 78 fixtures, public/generated contracts, governance, documentation, migration differential, and patch integrity passed on Linux.
+        - Exact Ruff 0.15.21 and Prettier 3.3.3 pass after the bounded prerequisite cleanup; 48 directly affected Python regressions pass and suppression governance returns to 80 managed directives with zero findings.
+        - Local passed 26/26; Pull Request and Full recorded 44/46 and 73/80 passed respectively with zero failures and only explicit inherited host-tool/scanner unavailability. Full independently passed exact PCRE2 10.42, PCRE2 10.43, and ECMAScript Node 22 certification.
+    behavior_changed: The canonical Rust target layer can now deterministically serialize a certified ECMAScript plan into a complete TargetArtifact, and the repository can certify that artifact against the exact supported Linux Node/V8 runtime; no product-facing compiler route, binding, package, or publication behavior changed.
+    intentional_behavior_changes:
+        - Valid ECMAScript lowering plans now produce canonical RegExp source plus separate u/iu flags and exact artifact metadata.
+        - Malformed, stale, cross-profile, over-limit, or syntactically impossible plans now fail through stable structured emission diagnostics without partial output.
+        - Full and Release certification now require exact Node 22 Linux x64 evidence when the governed executable is supplied and otherwise report structured unavailability.
+    preserved_behavior:
+        - Canonical Semantic IR, profile capability facts, portability planning, rewrite selection, lowering decisions, compiler facade/protocols, bindings, packages, and public versions remain unchanged.
+        - Existing PCRE2 artifacts retain their previous serialized bytes and fingerprints because empty pattern flags are omitted.
+        - Node observations remain certification evidence rather than normative ECMAScript authority, and no runtime dependency entered the Rust kernel.
+    transitional_architecture:
+        - ECMAScript lowering and serialization remain standalone canonical domain stages and are intentionally not yet wired through a product-facing source-to-artifact compiler route.
+        - Pull Request and Full are READY WITH RECORDED CARRY-FORWARD for inherited Ruby Bundler, Swift, and dependency-risk scanner availability only; every task-owned and available operation passed.
+    deferred_work:
+        - P11-T03 owns Python re-specific structured lowering and constraints without contaminating semantic or portability layers.
+        - P11-T04 owns deterministic Python artifact serialization and pinned CPython execution certification.
+        - P11-T05 and P11-T06 own the shared spec-authored cross-engine corpus and initial PCRE2/ECMAScript/Python portability matrix.
+        - Product orchestration, bindings, packages, versions, publication, and release actions remain outside this task.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P11-T03 by implementing Python re-specific lowering from Semantic IR and the completed portability plan, preserving target-neutral semantic authority and recording exact profile-driven constraints.
+    rationale: P11-T02 is complete with deterministic serialization, exact Linux Node/V8 execution, reviewed exact-tool migration evidence, complete Linux hardgates, clean profile artifacts, and zero failed operations. Only inherited host-tool and scanner availability is carried forward explicitly; Python re lowering is the next ordered incomplete campaign task.

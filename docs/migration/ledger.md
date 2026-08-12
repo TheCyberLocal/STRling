@@ -2853,21 +2853,45 @@ runtime orchestrator unit suite, 11 contract mappings with 78 fixtures, 15
 existing core-contract tests, every enforced public-contract surface, all
 three enforced generated-artifact families including 126 Swift fixtures, and
 the complete governance/architecture evaluation also pass. Exact official
-Node v22.23.2/V8 12.4.254.21-node.56 on the verified Windows x64 distribution
-executes all 145 bounded requests twice with stable semantic digest
+Node v22.23.2/V8 12.4.254.21-node.56 on the verified Linux x64 distribution
+now executes all 145 bounded requests twice with stable semantic digest
 `06d0cfdcc13324335464f795d8b6b9a6fc2fb778df4a22b7a0d3e8830e9ec23b`.
-This corroborates the selected engine and corpus but does not replace the
-required verified Linux x64 executable identity.
+The official archive SHA-256 is
+`d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307`,
+the extracted executable SHA-256 is
+`3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327`,
+and the final formatted harness SHA-256 is
+`93a26189d074e19ecb003692c724c4ba23ea52b0c811231c99ab4989d63b01a1`.
+No host runtime was substituted.
 
-Three-repeat migration candidates on Windows consistently compute the new
-canonical-boundary fingerprint
+Exact Node 22 changes historical TypeScript observation identities relative
+to the earlier system Node 18 execution without changing corpus case coverage,
+route approvals, or the intentional canonical-boundary fingerprint
 `sha256:c8ee813968a98d410049b7581998a8b549766538380d69194842fc1c7ca2fbf8`,
-but their source-observation and historical-peer fingerprints differ from the
-Linux-authored baseline even under the WSL-era Node 18.19.1 and Python 3.12
-major/minor versions. The canonical baseline remains unchanged pending Linux
-review; no cross-platform candidate was accepted as renewal evidence.
+so the exact-tool migration baseline is reviewed and renewed at
+`sha256:b65732d9f174208a286acbb206222b2170aa022db67021112990fa3e33d0ad9e`.
+The three-repeat differential result is
+`sha256:4a44fddd19ef7c690994c88c959802d01e999731620de99ead94e68b16cc9bf0`
+with zero mismatches. Exact Ruff 0.15.21 and Prettier 3.3.3 also exposed and
+closed bounded repository formatting, import-bootstrap, unused-import, and
+suppression debt; formatter and lint hardgates now pass with 80 governed
+suppression directives and zero findings.
 
-P11-T02 remains `IN PROGRESS`. Canonical Linux execution, complete repository
-profiles and hardgates, the final evidence record, and a clean final commit are
-still required; no unavailable operation has been waived or represented as
-passing.
+At clean exact-evidence commit
+`3f7ef6ab6903144737b697c6e3a7dd16caca1b71`, Local 1.5.0 passes all 26
+operations with fingerprint
+`446ffd738a74c661aa340efc7d1ed2bc9db0b8f37ca47f798281c28a5eda03cb`.
+Pull Request 1.4.0 records 44 passed and two unavailable operations with
+fingerprint
+`dbb62797f1ec281893c50a3361235d24a2af16cae1b9a180789b979297654f95`.
+Full 1.6.0 records 73 passed and seven unavailable operations with fingerprint
+`a27d35abe95c4c96e49d6c7352995a883ac5c3ba34f7bb031c816c67089a8f61`;
+both PCRE2 runtime versions and exact ECMAScript Node certification pass. The
+only carry-forward is inherited Ruby Bundler drift, missing Swift, and the
+existing structured multi-ecosystem dependency-risk scanner unavailability.
+There are zero failed, incomplete, not-yet, or newly waived operations.
+
+P11-T02 is `READY WITH RECORDED CARRY-FORWARD`. P11-T03 is the next ordered
+task and owns Python `re`-specific structured lowering from Semantic IR and the
+completed portability plan without moving target behavior into semantic
+authority.
