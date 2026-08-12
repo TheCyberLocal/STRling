@@ -294,7 +294,7 @@ impl RawFrontendError {
 /// Frontend diagnostics remain distinct from canonical contract failures.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum RegexFrontendFailure {
-    Diagnostic(RegexFrontendError),
+    Diagnostic(Box<RegexFrontendError>),
     InvalidSource(ValidationErrors),
     ReferencedSourceUnavailable,
     InvalidSemanticOutput(ValidationErrors),
@@ -304,7 +304,7 @@ impl RegexFrontendFailure {
     #[must_use]
     pub fn diagnostic(&self) -> Option<&RegexFrontendError> {
         match self {
-            Self::Diagnostic(error) => Some(error),
+            Self::Diagnostic(error) => Some(error.as_ref()),
             Self::InvalidSource(_)
             | Self::ReferencedSourceUnavailable
             | Self::InvalidSemanticOutput(_) => None,
@@ -331,7 +331,7 @@ impl fmt::Display for RegexFrontendFailure {
 impl Error for RegexFrontendFailure {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
-            Self::Diagnostic(error) => Some(error),
+            Self::Diagnostic(error) => Some(error.as_ref()),
             Self::InvalidSource(errors) | Self::InvalidSemanticOutput(errors) => Some(errors),
             Self::ReferencedSourceUnavailable => None,
         }
@@ -419,10 +419,10 @@ pub fn parse(document: &SourceDocument) -> Result<ParsedRegex, RegexFrontendFail
     if document.frontend.id.as_str() != FRONTEND_ID
         || document.frontend.dialect_version.as_str() != DIALECT_VERSION
     {
-        return Err(RegexFrontendFailure::Diagnostic(
+        return Err(RegexFrontendFailure::Diagnostic(Box::new(
             diagnostic(RegexFrontendErrorCode::ConflictingFrontendMetadata, 0)
                 .attach(document, document.content.inline_text().unwrap_or("")),
-        ));
+        )));
     }
     let text = match &document.content {
         SourceContent::Inline { text, .. } => text,
@@ -431,18 +431,24 @@ pub fn parse(document: &SourceDocument) -> Result<ParsedRegex, RegexFrontendFail
         }
     };
     if text.len() > MAX_SOURCE_BYTES {
-        return Err(RegexFrontendFailure::Diagnostic(
+        return Err(RegexFrontendFailure::Diagnostic(Box::new(
             diagnostic(RegexFrontendErrorCode::SourceTooLarge, MAX_SOURCE_BYTES)
                 .attach(document, text),
-        ));
+        )));
     }
 
-    let (flags, body_start, flags_range) = parse_preamble(text)
-        .map_err(|error| RegexFrontendFailure::Diagnostic(error.attach(document, text)))?;
+    let preamble = parse_preamble(text).map_err(|error| {
+        RegexFrontendFailure::Diagnostic(Box::new(error.attach(document, text)))
+    })?;
+    let ParsedPreamble {
+        flags,
+        body_start,
+        flags_range,
+    } = preamble;
     let mut parser = Parser::new(text, body_start, flags);
-    let syntax = parser
-        .parse()
-        .map_err(|error| RegexFrontendFailure::Diagnostic(error.attach(document, text)))?;
+    let syntax = parser.parse().map_err(|error| {
+        RegexFrontendFailure::Diagnostic(Box::new(error.attach(document, text)))
+    })?;
     let root = Lowerer::new(
         flags.dot_matches_line_terminators,
         document.source_id.clone(),
@@ -540,9 +546,13 @@ fn trim_horizontal_start(value: &str) -> (&str, usize) {
     (&value[removed..], removed)
 }
 
-fn parse_preamble(
-    text: &str,
-) -> Result<(RegexFrontendFlags, usize, Option<(usize, usize)>), RawFrontendError> {
+struct ParsedPreamble {
+    flags: RegexFrontendFlags,
+    body_start: usize,
+    flags_range: Option<(usize, usize)>,
+}
+
+fn parse_preamble(text: &str) -> Result<ParsedPreamble, RawFrontendError> {
     let lines = physical_lines(text);
     let mut flags = RegexFrontendFlags::default();
     let mut saw_flags = false;
@@ -586,7 +596,11 @@ fn parse_preamble(
             ));
         }
     }
-    Ok((flags, body_start, flags_range))
+    Ok(ParsedPreamble {
+        flags,
+        body_start,
+        flags_range,
+    })
 }
 
 fn parse_flags_directive(

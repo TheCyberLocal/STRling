@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::semantic::{
     BuiltinClassName, CharacterDomain, CharacterSetMember, Node, RepetitionMaximum, SemanticProgram,
 };
-use crate::source::{CaptureId, NodeId, SourceDocument, SourceId, SourceOrigin};
+use crate::source::{CaptureId, NodeId, SourceDocument, SourceId, SourceOrigin, SourceSpan};
 use crate::validation::{Validate, ValidationCode, ValidationErrors};
 
 /// Stable categories for failures encountered before or during normalization.
@@ -673,6 +673,17 @@ fn canonicalize_origin(origin: &mut SourceOrigin) {
     if let Some(spans) = &mut origin.source_spans {
         spans.sort();
         spans.dedup();
+        let mut disjoint: Vec<SourceSpan> = Vec::with_capacity(spans.len());
+        for span in spans.drain(..) {
+            if let Some(previous) = disjoint.last_mut() {
+                if previous.source_id == span.source_id && previous.end > span.start {
+                    previous.end = previous.end.max(span.end);
+                    continue;
+                }
+            }
+            disjoint.push(span);
+        }
+        *spans = disjoint;
     }
     if let Some(node_ids) = &mut origin.derived_from_node_ids {
         node_ids.sort();

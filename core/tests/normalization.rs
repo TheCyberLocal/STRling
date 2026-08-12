@@ -369,7 +369,7 @@ fn invalid_normalization_input_returns_stable_structured_categories() {
 }
 
 #[test]
-fn merged_unicode_literals_keep_first_identity_and_exact_utf8_origins() {
+fn merged_unicode_literals_keep_first_identity_and_union_overlapping_utf8_origins() {
     let candidate = program_with_unicode_source(json!({
         "node_id": "node:sequence.unicode",
         "kind": "sequence",
@@ -434,7 +434,7 @@ fn merged_unicode_literals_keep_first_identity_and_exact_utf8_origins() {
             .iter()
             .map(|span| (span.start, span.end))
             .collect::<Vec<_>>(),
-        [(0, 2), (0, 6), (2, 6)]
+        [(0, 6)]
     );
     assert_eq!(
         origin

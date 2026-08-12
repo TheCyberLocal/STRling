@@ -1,7 +1,7 @@
 {
-    "baseline_fingerprint": "sha256:e52a2b48c01b214cf74a9aee967a55817637b11f5c68666a14a59799227dd845",
+    "baseline_fingerprint": "sha256:f21d86ac5c2028adb7dfdeb2004300a5d86e478101d8cea08ccbdc26578add7f",
     "baseline_schema_version": "1.0.0",
-    "canonical_boundary_fingerprint": "sha256:44b92e3636b8a28a9425261c5929c20637a8cd96231485c022631c5e22e2a395",
+    "canonical_boundary_fingerprint": "sha256:b34af79220c8a5f17721d38d32e20bd88fe2ce8daef880ed9f8999b0a399ebbc",
     "contract_fingerprint": "sha256:4b8d2d71537fbb04f61ed4afd5ea730a23a8f0074f9b130ee343f0e436cb90dc",
     "corpora": [
         {

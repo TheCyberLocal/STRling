@@ -1,77 +1,80 @@
 {
-  "case_set_version": "1.0.0",
-  "frontend": "strling.regex-compat@1.0.0",
-  "authorship": "specification-authored",
-  "authority": "legacy-regex-compatibility-provenance",
-  "cases": [
-    {
-      "id": "multibyte-literal",
-      "source": "éλ",
-      "expected": {
-        "status": "accepted",
-        "root_spans": [[0, 4]]
-      }
-    },
-    {
-      "id": "escaped-unicode-scalar",
-      "source": "\\u{1F600}",
-      "expected": {
-        "status": "accepted",
-        "root_spans": [[0, 9]]
-      }
-    },
-    {
-      "id": "nested-named-capture",
-      "source": "(?<word>éλ)",
-      "expected": {
-        "status": "accepted",
-        "root_spans": [[0, 13]]
-      }
-    },
-    {
-      "id": "multiline-literal",
-      "source": "a\nb",
-      "expected": {
-        "status": "accepted",
-        "root_spans": [[0, 3]]
-      }
-    },
-    {
-      "id": "extended-layout-discontiguous-literal",
-      "source": "%flags x\na # comment\nb",
-      "expected": {
-        "status": "accepted",
-        "directive_span": [0, 8],
-        "root_spans": [[9, 10], [21, 22]]
-      }
-    },
-    {
-      "id": "empty-source",
-      "source": "",
-      "expected": {
-        "status": "accepted",
-        "root_spans": [[0, 0]]
-      }
-    },
-    {
-      "id": "multibyte-eof-diagnostic",
-      "source": "é(",
-      "expected": {
-        "status": "diagnostic",
-        "diagnostic_code": "STRL-FRONTEND-2012",
-        "primary_span": [3, 3],
-        "related_spans": []
-      }
-    },
-    {
-      "id": "duplicate-capture-related-location",
-      "source": "(?<x>a)(?<x>b)",
-      "expected": {
-        "status": "diagnostic",
-        "diagnostic_code": "STRL-FRONTEND-2014",
-        "primary_span": [8, 9],
-        "related_spans": [[0, 1]]
-      }
-    }
-  ]
+    "case_set_version": "1.0.0",
+    "frontend": "strling.regex-compat@1.0.0",
+    "authorship": "specification-authored",
+    "authority": "legacy-regex-compatibility-provenance",
+    "cases": [
+        {
+            "id": "multibyte-literal",
+            "source": "éλ",
+            "expected": {
+                "status": "accepted",
+                "root_spans": [[0, 4]]
+            }
+        },
+        {
+            "id": "escaped-unicode-scalar",
+            "source": "\\u{1F600}",
+            "expected": {
+                "status": "accepted",
+                "root_spans": [[0, 9]]
+            }
+        },
+        {
+            "id": "nested-named-capture",
+            "source": "(?<word>éλ)",
+            "expected": {
+                "status": "accepted",
+                "root_spans": [[0, 13]]
+            }
+        },
+        {
+            "id": "multiline-literal",
+            "source": "a\nb",
+            "expected": {
+                "status": "accepted",
+                "root_spans": [[0, 3]]
+            }
+        },
+        {
+            "id": "extended-layout-discontiguous-literal",
+            "source": "%flags x\na # comment\nb",
+            "expected": {
+                "status": "accepted",
+                "directive_span": [0, 8],
+                "root_spans": [
+                    [9, 10],
+                    [21, 22]
+                ]
+            }
+        },
+        {
+            "id": "empty-source",
+            "source": "",
+            "expected": {
+                "status": "accepted",
+                "root_spans": [[0, 0]]
+            }
+        },
+        {
+            "id": "multibyte-eof-diagnostic",
+            "source": "é(",
+            "expected": {
+                "status": "diagnostic",
+                "diagnostic_code": "STRL-FRONTEND-2012",
+                "primary_span": [3, 3],
+                "related_spans": []
+            }
+        },
+        {
+            "id": "duplicate-capture-related-location",
+            "source": "(?<x>a)(?<x>b)",
+            "expected": {
+                "status": "diagnostic",
+                "diagnostic_code": "STRL-FRONTEND-2014",
+                "primary_span": [8, 9],
+                "related_spans": [[0, 1]]
+            }
+        }
+    ]
 }

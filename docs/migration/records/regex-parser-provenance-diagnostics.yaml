@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Add source spans, provenance, and canonical diagnostics to the regex-compatible parser
-status: in_progress
+status: complete
 objective: Make every accepted construct and rejected input from strling.regex-compat@1.0.0 traceable through canonical half-open UTF-8 source spans, document provenance, and stable structured diagnostics without adding public frontend orchestration.
 scope:
     diff:
@@ -8,7 +8,9 @@ scope:
         head: working-tree
     allowed_paths:
         - core/src/regex_frontend.rs
+        - core/src/normalization.rs
         - core/src/source/mod.rs
+        - core/tests/normalization.rs
         - core/tests/regex_frontend.rs
         - core/tests/source_semantic_contracts.rs
         - docs/migration/**
@@ -29,6 +31,8 @@ scope:
         - tests/spec/**
     expected_files:
         - core/src/regex_frontend.rs
+        - core/src/normalization.rs
+        - core/tests/normalization.rs
         - core/tests/regex_frontend.rs
         - docs/migration/regex-parser-provenance-diagnostics.md
         - docs/migration/records/regex-parser-provenance-diagnostics.yaml
@@ -98,7 +102,7 @@ checkpoints:
       evidence:
           - check: Focused parser and normalization provenance suite
             result: passed
-            details: Ten Rust integration tests cover all positive fixtures plus specification-authored multibyte, escaped, nested, multiline, extended-layout, empty, EOF, duplicate-definition, resource-limit, and arbitrary UTF-8 cases. Every syntax node lowers with canonical source evidence; merged extended-layout literals retain discontiguous spans; normalization preserves the embedded SourceDocument and origins.
+            details: Ten Rust integration tests cover all positive fixtures plus specification-authored multibyte, escaped, nested, multiline, extended-layout, empty, EOF, duplicate-definition, resource-limit, and arbitrary UTF-8 cases. Every syntax node lowers with canonical source evidence; merged extended-layout literals retain discontiguous spans; normalization preserves the embedded SourceDocument, retains non-overlapping spans, and unions only overlapping spans from the same source.
           - check: Specification-authored provenance corpus
             result: passed
             details: spec/frontends/legacy-regex/1.0/provenance/cases.json freezes eight accepted and diagnostic evidence families and is consumed directly by the Rust test suite.
@@ -115,6 +119,58 @@ checkpoints:
             result: passed
             details: Twenty frontend architecture and core-contract validator tests pass. The frontend may depend on canonical diagnostic data contracts but remains forbidden from diagnostic generation, target, protocol, kernel, binding, environment, and emitted-pattern authority.
     - name: Differential and repository certification
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: Native Linux differential baseline renewal
+            command: ./strling migration-differential --repeat-runs 3
+            result: passed
+            details: Three runs cover all 44 observations with zero mismatches and zero blocking unresolved replacements. Baseline sha256:f21d86ac5c2028adb7dfdeb2004300a5d86e478101d8cea08ccbdc26578add7f produces result sha256:6180b35ab9ff211a07e907d7907527b6c4d11195457d9fd1e8d3eccb32f5fcd0 and canonical boundary sha256:b34af79220c8a5f17721d38d32e20bd88fe2ce8daef880ed9f8999b0a399ebbc; full-corpus, route-coverage, and historical-peer-result fingerprints remain sha256:823a6b0806553ed08fe7c367c6510d80235079383632a11a9857c48d951ad2cb, sha256:c6d41f9483e1235ab44e2f2b0e9322a8cb56b69c3ca13aff43de102c313048ae, and sha256:06a2e2d095f89ba2fdfb13ffc950e1290b920d558605ab176bd4d08887dfba97.
+          - check: Exact canonical Rust toolchain quality
+            command: cargo fmt --manifest-path core/Cargo.toml --all -- --check; cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; cargo test --manifest-path core/Cargo.toml --all-targets --locked
+            result: passed
+            details: Rustc and cargo 1.75.0 pass formatting, warnings-denied Clippy, and all 237 canonical-core tests. The full run exposed and corrected normalization of overlapping provenance by unioning only same-source overlaps while retaining discontiguous spans.
+          - check: Repository hardgates
+            command: python3 tooling/core_contract_validation.py; python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/formatting.py repository --check; git diff --check
+            result: passed
+            details: Canonical contracts pass with 11 mappings and 63 fixtures; public contracts and generated artifacts reproduce unchanged; all enforced governance and architecture rules pass; documentation integrity, pinned Prettier 3.3.3 and Ruff 0.15.21 formatting, and whitespace validation pass.
+          - check: Structured aggregate profiles with exact carry-forward
+            command: ./strling profile local --json; ./strling profile pull-request --json
+            result: failed
+            details: Local records 25 passed and one pre-existing lint@repository failure with evidence fingerprint 0e0f6019c733b51576919319a9235ca00b0dc765a9bd0c984030a196a0d4a0bf. Pull-request records 43 passed, the same repository-lint failure, unavailable lint@ruby from Bundler 2.7.2 versus required 2.4.20, and unavailable typecheck@swift from the missing executable, with fingerprint a3eef39ce900a1c4d145a8c3d42cb17cae5fb2c2c0255c70b41d5fb9d72b7f0a. All task-scoped operations pass; no finding is waived or reported as passing.
+          - check: Legacy Rust binding carry-forward
+            command: cargo test --manifest-path bindings/rust/Cargo.toml --all-targets --locked
+            result: failed
+            details: The unchanged legacy binding passes 23 library tests, 596 conformance tests, four deserialization tests, and 20 of 26 E2E tests; six existing lookaround and validation E2E expectations fail. No file under bindings/rust changed from the task base.
+commits:
+    - sha: 136e4f77f6c5819ef3004f92176277f14b9fa0bd
+      subject: "feat(frontend): preserve regex parser provenance"
+completion:
+    accomplished:
+        - Attached exact half-open UTF-8 SourceOrigin evidence to every parser-lowered node, including multibyte, escape, nested, empty, multiline, delimiter, quantifier, and discontiguous extended-layout cases, while preserving the complete SourceDocument and flags-directive span.
+        - Projected all 45 frozen frontend failures into validated canonical diagnostics with stable identity, message, severity, basis, phase, category, primary location, document provenance, and deterministic related declaration locations.
+        - Hardened SourceOrigin against same-source overlap and made normalization union only overlapping intervals while preserving genuinely discontiguous evidence and idempotence.
+        - Added a specification-authored provenance corpus, focused Rust contracts, canonical architecture enforcement, migration documentation, and deliberate differential baseline renewal without adding a public frontend or target path.
+    verified:
+        - All 237 canonical-core tests, Rust formatting, and warnings-denied Clippy pass under rustc/cargo 1.75.0; focused parser, normalization, and source suites pass 10, 11, and 11 tests respectively.
+        - The native three-run differential passes all 44 observations with zero mismatches, zero blocking unresolved replacements, unchanged full-corpus/route/historical fingerprints, and certified result sha256:6180b35ab9ff211a07e907d7907527b6c4d11195457d9fd1e8d3eccb32f5fcd0.
+        - Core/public contracts, generated artifacts, governance, architecture, documentation integrity, pinned formatting, and patch integrity pass.
+        - Local and pull-request profiles pass every P08-T03-relevant operation; their only non-passed results are exact pre-existing repository/toolchain carry-forward.
+    behavior_changed: The internal regex-compatible Rust parser now emits canonical provenance and diagnostics, and canonical normalization rejects unnormalized overlapping origins while deterministically unioning them during normalization. No binding, package, CLI, editor, target, emitter, import, version, or publication behavior changed.
+    intentional_behavior_changes:
+        - Accepted parser output now identifies the exact source evidence for every Semantic IR node and the optional flags directive.
+        - Rejected parser input now exposes the existing frozen frontend identity through the canonical Diagnostic contract, including exact UTF-8 locations and related first declarations.
+        - Canonical SourceOrigin validation rejects overlap; normalization unions only same-source overlapping intervals before final validation.
+    preserved_behavior:
+        - All 44 historical observations, full corpus, route coverage, and historical peer comparison remain unchanged; accepted language meaning and the 45 frozen error identities/messages remain stable.
+        - Public APIs, bindings, package roots, CLI, frontend selection/orchestration, targets, emission, portability, editor integration, generated artifacts, and publication state remain unchanged.
+    transitional_architecture:
+        - Frontend selection, public parsing APIs, source resolution orchestration, and presentation of canonical diagnostics remain deferred to P08-T04.
+        - Historical AST output and canonical Semantic IR remain deliberately structurally not comparable until governing authority defines correspondence.
+        - Aggregate profiles retain one pre-existing repository-lint failure; pull-request also retains the existing Bundler mismatch and missing Swift tool. The unchanged legacy Rust binding retains six E2E failures. None is waived or attributed to P08-T03.
+    deferred_work:
+        - Implement P08-T04 public frontend APIs and orchestration without moving diagnostic presentation, source resolution, or target policy into the pure parser.
+        - Resolve the pre-existing repository lint/suppression baseline, legacy Rust E2E failures, and host Ruby/Swift availability in their owning tasks.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Build P08-T04 public frontend APIs and orchestration over the now-provenance-complete canonical parser.
+    rationale: P08-T03 is contract-complete, UTF-8-exact, normalization-stable, warnings-clean, all-core-tested, native-differential-certified, architecture-isolated, and documented. Every task-scoped gate passes; only explicit pre-existing repository, legacy-binding, and host-toolchain findings remain as carry-forward.
