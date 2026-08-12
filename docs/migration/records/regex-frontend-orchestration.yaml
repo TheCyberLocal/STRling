@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Expose the regex-compatible frontend through canonical compile and CLI boundaries
-status: in_progress
+status: complete
 objective: Make strling.regex-compat@1.0.0 an explicit CompileRequest source frontend and deterministic root JSON CLI route without adding another parser, target policy, or implicit source interpretation.
 scope:
     diff:
@@ -134,7 +134,7 @@ checkpoints:
             result: passed
             details: Five request/result pairs execute exactly for success, malformed syntax, unsupported directive, unresolved reference, and profile-aware portability. Public-contract reproduction reports only the declared additive SOURCE_CONTENT_UNAVAILABLE_DIAGNOSTIC constant and root compile command; both renewed snapshots reproduce cleanly.
     - name: Full differential and repository certification
-      status: in_progress
+      status: passed
       evidence:
           - check: Complete source-bearing orchestration coverage
             result: passed
@@ -142,4 +142,45 @@ checkpoints:
           - check: Three-run differential
             result: passed
             details: Baseline sha256:a914c350fd1facee7a0460cf586c2a576e113fb165be3597d733cd13ae7d0595 and result sha256:a8f8288adfda0c74c72fbbdcee5a5e803b8af59cff3d560502002d8dcfeae706 certify 44 observations across three runs with zero mismatches, zero blocking unresolved replacements, canonical boundary sha256:c6afd58a149f7fb0241847be2ad33bffefaf0c41397fc31efc0dab262e42d3e8, full corpus sha256:e6307c75de2a7af8a0e6958bca7a6a318fca6ba8ca232f9b17a4c46316306386, and route coverage sha256:96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e.
-commits: []
+          - check: Canonical core, contracts, architecture, and security hardgates
+            result: passed
+            details: All canonical-core targets and focused orchestration tests pass under rustc/cargo 1.75.0; warnings-denied Clippy and rustfmt pass. Core validation reproduces 11 schema mappings and 73 fixtures; public contracts reproduce only the declared additive kernel constant and root compile command; generated artifacts, governance, architecture ownership, documentation integrity, pinned repository formatting, dependency-integrity/content security scans, hygiene, and whitespace checks pass.
+          - check: Structured Local, Pull Request, and Full profiles
+            result: failed
+            details: On clean commit d928e5ca330b10e23d6440ee23c575a2275d95ac, Local records 25 passed and only the pre-existing lint@repository failure (fingerprint 13382079b1a1665cab77f4fc497e4468e0f44ca9d01171c87182cd170915a4a9). Pull Request records 43 passed, the same lint failure, unavailable lint@ruby from the repository-managed Bundler mismatch, and unavailable typecheck@swift from the missing executable (fingerprint aaa72c2475bdc01ad41a5af81d0613b89b95833dabe4940c7a8680347277d6fd). Full records 70 passed, the same lint failure, unavailable dependency-risk scanning, and the existing Ruby lint/build/test and Swift typecheck/build/test host gaps (fingerprint 33ee765835d6a5c2689b788f7673fba6e693182182df421957a323cd9000a745). Every P08-T04-scoped operation passes; no finding is waived or reported as passing.
+commits:
+    - sha: 21c4109dba2dfed2b9ece791fc4c12635e3957e6
+      subject: "feat(frontend): expose canonical regex compile orchestration"
+    - sha: f17f568ee67d2b29afea680260d5ebd82f4729fa
+      subject: "fix(frontend): keep compile transport outside build-output paths"
+    - sha: d928e5ca330b10e23d6440ee23c575a2275d95ac
+      subject: "fix(frontend): normalize orchestration fixtures"
+completion:
+    accomplished:
+        - Activated the frozen strling.regex-compat@1.0.0 SourceDocument through the canonical CompileRequest facade with explicit frontend selection, unchanged frontend diagnostics, caller/kernel resource enforcement, preserved source provenance, and reuse of the existing semantic and exact-profile portability pipeline.
+        - Added a deterministic root JSON compile transport with explicit optional target-profile evidence, stable success/failure/usage/kernel/I/O exits, typed unresolved-reference behavior, and no parser, source guessing, target policy, lowering, or emission in the CLI.
+        - Added five executable public request/result exchanges and 22 specification-authored orchestration cases that cover all 34 historical source-bearing cases through the canonical facade before evidence-only legacy runners.
+        - Added architecture enforcement for one production frontend-dispatch owner and parser-free transports, renewed only the declared additive public snapshots, and kept the Rust transport outside prohibited build-output paths.
+    verified:
+        - All canonical-core targets, the 12-test orchestration suite, warnings-denied Clippy, rustfmt, 11 core schema mappings, 73 contract fixtures, public-contract reproduction, generated artifacts, governance, architecture, documentation, formatting, security integrity/content, hygiene, and patch integrity pass.
+        - The native three-run migration differential certifies 44 observations with zero mismatches and zero blocking unresolved replacements at result sha256:a8f8288adfda0c74c72fbbdcee5a5e803b8af59cff3d560502002d8dcfeae706.
+        - Local, Pull Request, and Full profiles execute from clean commit d928e5ca330b10e23d6440ee23c575a2275d95ac and pass every P08-T04-relevant operation; their only non-passed results are exact inherited repository or host-toolchain carry-forward.
+    behavior_changed: CompileRequest and the root CLI now execute an explicitly identified regex-compatible source through the canonical kernel. This is an import/frontend compatibility route, not a flagship-language, binding, target-artifact, package, version, release, or publication change.
+    intentional_behavior_changes:
+        - A valid inline source document with frontend id strling.regex-compat now produces canonical Semantic IR, diagnostics, analysis, and optional exact-profile portability through kernel::compile.
+        - A reference-form source not resolved by the caller now returns STRL-PROTOCOL-0006, and unsupported frontend identities remain structured STRL-PROTOCOL-0002 results.
+        - The root compile command now exposes the canonical JSON exchange with deterministic transport behavior and stable exits.
+    preserved_behavior:
+        - Frontend dialect and parser diagnostics remain frozen; target artifact requests remain unavailable; no filename, media type, content, runtime, or filesystem guessing selects a frontend or target.
+        - Historical peer outputs remain evidence-only and machine-classified where canonical Semantic IR or target output is not structurally comparable; zero case is silently treated as equivalent.
+        - Bindings, editor integrations, package entrypoints, target lowering/emission, versioning, publishing, and release state remain unchanged.
+    transitional_architecture:
+        - The canonical route produces Semantic IR and portability evidence but still has no target artifact lowerer or emitter; those remain owned by later target phases.
+        - Aggregate profiles retain one pre-existing repository lint/suppression-baseline failure. Pull Request and Full retain the existing Ruby Bundler mismatch and missing Swift executable; Full also retains unavailable dependency-risk scanning. None is waived or attributed to P08-T04.
+    deferred_work:
+        - Continue with P09-T05 equivalence-proof hooks and compatibility diagnostics over the existing versioned target-profile and portability foundations.
+        - Resolve repository lint/suppression debt and host Ruby, Swift, and dependency-risk availability only in their owning tasks.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P09-T05 — Implement equivalence-proof hooks and compatibility diagnostics.
+    rationale: P08-T04 is explicit-front-end-only, contract-executable, parser-single-owner, target-neutral, clean-tree differential-certified, and documented. Every task-scoped gate passes; only exact pre-existing repository and host-toolchain findings remain as carry-forward.

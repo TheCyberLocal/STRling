@@ -33,10 +33,10 @@ canonical-stage invariant failure. Target artifact requests still return
 ## CLI transport
 
 `./strling compile [--target-profile PATH]` delegates directly to the explicit
-Rust `strling-kernel` binary target from `core/cli`. It reads one request from standard input,
-optionally reads the exact target profile named in that request, and emits one
-compact newline-terminated result to standard output. It contains no source
-parser, semantic stage, target policy, or emitter.
+Rust `strling-kernel` binary target from `core/cli`. It reads one request from
+standard input, optionally reads the exact target profile named in that
+request, and emits one compact newline-terminated result to standard output.
+It contains no source parser, semantic stage, target policy, or emitter.
 
 The stable exits are `0` for success, `2` for a valid failed result, `64` for
 usage/contract decoding, `69` when the root wrapper cannot locate Cargo, `70`
@@ -65,7 +65,29 @@ dispatch, and retain the frontend prohibition on target lowering and emission.
 
 ## Verification status
 
-Implementation-focused orchestration, architecture, contract, public-surface,
-and differential gates are recorded in the governed task record. Final
-certification fingerprints and aggregate carry-forward are appended only after
-the implementation commit and clean-tree certification are complete.
+The canonical core, 12 focused orchestration tests, warnings-denied Clippy,
+rustfmt, 11 schema mappings, 73 contract fixtures, public-contract
+reproduction, generated artifacts, governance, architecture, documentation,
+pinned formatting, security integrity/content, hygiene, and patch integrity all
+pass.
+
+The native three-run differential certifies 44 observations with zero
+mismatches and zero blocking unresolved replacements:
+
+-   Baseline: `sha256:a914c350fd1facee7a0460cf586c2a576e113fb165be3597d733cd13ae7d0595`.
+-   Result: `sha256:a8f8288adfda0c74c72fbbdcee5a5e803b8af59cff3d560502002d8dcfeae706`.
+-   Canonical boundary: `sha256:c6afd58a149f7fb0241847be2ad33bffefaf0c41397fc31efc0dab262e42d3e8`.
+-   Full corpus: `sha256:e6307c75de2a7af8a0e6958bca7a6a318fca6ba8ca232f9b17a4c46316306386`.
+-   Route coverage: `sha256:96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e`.
+
+Clean-tree profiles at commit
+`d928e5ca330b10e23d6440ee23c575a2275d95ac` pass every P08-T04-scoped
+operation. Local records 25 passed and one inherited repository-lint failure,
+fingerprint `13382079b1a1665cab77f4fc497e4468e0f44ca9d01171c87182cd170915a4a9`.
+Pull Request records 43 passed, that same failure, and the existing Bundler and
+Swift host gaps, fingerprint
+`aaa72c2475bdc01ad41a5af81d0613b89b95833dabe4940c7a8680347277d6fd`.
+Full records 70 passed, the same failure, unavailable dependency-risk scanning,
+and the existing Ruby and Swift host gaps, fingerprint
+`33ee765835d6a5c2689b788f7673fba6e693182182df421957a323cd9000a745`.
+No carry-forward finding is waived or reported as passing.
