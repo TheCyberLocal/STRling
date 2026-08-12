@@ -2385,3 +2385,132 @@ Notion task is P07-T03, the separately versioned canonical observation
 comparison and discrepancy taxonomy. It owns demonstrably irrelevant
 representation normalization, discrepancy classification, migration
 dispositions, and later full migration-corpus gating.
+
+## Canonical observation comparison and discrepancy taxonomy
+
+-   Status: Complete
+-   Starting branch: `architecture/v4`
+-   Starting commit: `52d1649003fb29ceab6cb277c0f99d0ad31e2c75`
+-   Behavior change: Additive migration-only comparison, classification,
+    certification, command routing, and authority hardgates; no existing STRling
+    runtime/compiler behavior intentionally changed
+-   Completion record:
+    [`canonical-observation-comparison.yaml`](records/canonical-observation-comparison.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+### Checkpoint evidence
+
+| Checkpoint                                   | Result | Commit                                     | Verification                                                                                                                                                                                                                                                                                                                  |
+| -------------------------------------------- | ------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Comparison contract and taxonomy lock        | Passed | `4299157a0de0ae3728ea59005f543dcf7ffab2a9` | Locked separate comparison, projection, normalization, comparator, and taxonomy versions; factual comparability/relationship states; four substantive governed dispositions; machine-readable rationale; peer non-applicability; and explicit comparison exclusions                                                           |
+| Canonical observation projection             | Passed | `688341c4501ff22998fb73da2ab9c9b9c9ece8ec` | Ten tests cover the sole authorized outcome-selection normalization, zero normalization, stable ordering and rule rejection, provenance/fingerprint sensitivity, malformed input, semantic non-loss, unsupported/failure preservation, source matching, and raw immutability                                                  |
+| Deterministic pairing and comparison         | Passed | `7a6830d1badb0457639ef413abe44cb4e0f06067` | Twenty-three projection/comparison tests cover stable identity pairing, exact and normalized equality, nested JSON-Pointer differences, every special outcome, missing/incompatible cases, rejection, immutability, stable ordering, and repeated output                                                                      |
+| Governed discrepancy classification          | Passed | `beffdf4f3aaa3d5310d42d9d7b77e9fe409f5211` | Thirty-three tests cover peer non-applicability, conservative unresolved defaults, all four dispositions, required replacement/scope/normative authority, exceptional correction justification, replacement-adapter rejection, supersession, identity validation, and comparison immutability                                 |
+| Comparison taxonomy certification            | Passed | `e061673ee5c3588464a65b903710bb06f34801b8` | Three fixture runs certify 16 sources, 16 projections, eight comparisons, four comparable/four not-comparable, two equivalent/two differing, all dispositions, four malformed cases, nine mutations, 15 normalizations, zero mismatches, and zero unexplained failures                                                        |
+| Differential comparison integration          | Passed | `df0e6d64661de790750058fd11a1179b96d390b8` | Added explicit project/compare/classify/certify modes, live comparison certification in the reference launcher and all canonical profiles, 104 affected tests, authority hardgates, 12 live shared comparisons, language/product checks, contracts, security, governance, docs, affected formatting/lint, and patch integrity |
+| Comparison readiness and corpus-gate handoff | Passed | Recorded by the readiness commit           | Records exact identities, normalization proof, pairing/comparability/difference contracts, taxonomy requirements, fixture/live metrics, determinism, hardgates, platform limits, unchanged behavior, six unresolved live divergences, and P07-T04 handoff                                                                     |
+
+### Versioned architecture and normalization
+
+Comparison schema, projection schema, normalization rules, comparator
+implementation, and discrepancy taxonomy are each `1.0.0`, independent of
+runner protocol `1.0.0` and observation/batch/certification schema `1.1.0`.
+The comparator identity is
+`tooling.migration-comparison-comparator@1.0.0`, with certified source digest
+`sha256:7602cea37c4cc6a58737bc4403e706bca11f67b1412360d20a205e985efecc71`.
+
+The only normalization is `select-semantic-outcome@1.0.0`. It removes the
+runner-owned implementation, kind, observation/protocol versions, operation,
+request, runner, and surface envelope from the compared value while preserving
+every field unchanged in projection provenance. It compares the complete
+outcome, including status and all success evidence, legacy failure, or
+unsupported reason. Tests demonstrate non-loss, raw immutability, failure and
+unsupported preservation, zero-normalization fidelity, idempotence, stable rule
+ordering, and fingerprint sensitivity. No array, diagnostic, AST, source
+position, capture, warning, error, flag, emitted text, target, or semantic-node
+ordering/content is normalized.
+
+Pairing requires the exact cross-corpus case identity, case ID, conceptual
+operation, input/options request tuple, projection/normalization versions, rule
+IDs, and registered cross-runner surface correspondence. Name similarity is
+never pairing authority. Results are structurally `comparable` or
+`not_comparable`; relationships are `equivalent_observation`,
+`differing_observation`, or `not_comparable`. Not-comparable reasons are
+operation not exposed, unsupported operation, incompatible surface, missing
+counterpart, or insufficient semantic correspondence.
+
+Differences retain deterministic JSON-Pointer paths, left/right presence and
+values, and `value_mismatch`, `type_mismatch`, `left_missing`, or
+`right_missing`. Object keys use canonical order; arrays retain source order.
+
+### Governed taxonomy and certification
+
+`preserved_behavior` requires equivalent demonstrated replacement evidence
+and a named preservation scope. `intentional_specification_correction`
+requires a meaningful difference (or explicit exceptional justification), an
+identified corrected rule, and normative specification, canonical contract, or
+ratified architecture authority. `unsupported_legacy_behavior` requires
+historical evidence, an explicit scope boundary, and supported-scope or stronger
+authority. `unresolved_discrepancy` is the conservative state whenever
+evidence, correspondence, replacement behavior, or authority is insufficient.
+Historical peer evidence alone has disposition applicability
+`not_applicable`.
+
+The controlled fixture certifies eight comparisons: four comparable, four
+not-comparable, two equivalent, and two differing. It contains one of each
+substantive disposition, one peer non-applicable result, four malformed cases,
+nine controlled mutations, and 15 normalization applications over 16
+projections. Three repeated runs have zero mismatches and zero unexplained
+failures.
+
+Live certification retrieves all 44 TypeScript/Python source observations,
+selects 24 observations for the 12 stable shared identities, builds 24
+projections, and emits 12 comparable comparisons: six equivalent and six
+differing. All six differences are retained at
+`/outcome/evidence/return_shape`; they are `unresolved_discrepancy` because
+historical peers cannot supply replacement or normative authority. Six
+equivalent historical comparisons are disposition-not-applicable. Twenty
+runner-specific observations remain unpaired. Three runs apply 24
+normalizations with zero mismatches and zero unexplained failures.
+
+Across fixture and live streams the machinery certifies 20 comparisons, 16
+comparable and four not-comparable results, eight equivalent and eight differing
+results, 40 projections, 39 normalization applications, and substantive
+disposition counts of preserved 1, correction 1, unsupported 1, and unresolved 7. Fixture examples demonstrate taxonomy completeness; only the six live
+unresolved records describe current shared historical divergence.
+
+### Hardgates, verification, and unchanged behavior
+
+Architecture fitness prohibits product/compiler/binding/kernel/target/spec
+dependencies on comparison evidence; specification or target capability
+authority from historical comparisons or dispositions; source-observation
+rewrite operations in comparison tooling; normalization authority outside
+tooling; unresolved-as-success mappings; majority or consensus authority; and
+migration classifications in public APIs.
+
+TypeScript formatting, direct typecheck/build, and 19 suites/963 tests passed.
+Python package build and 789 tests passed. Rust formatting, Clippy, check, build,
+and tests passed. Historical runner/cross-runner checks, 104 affected tests,
+canonical/core/public contracts, frozen baseline, generated artifacts,
+dependency/content security, governance, architecture, documentation,
+TypeScript/documentation formatting, affected Python formatting/lint, and patch
+integrity passed. Raw reference corpus and runner evidence remained unchanged.
+
+Local, pull-request, and full profiles ran the new comparison operation and no
+operation failed. Their aggregate result remains `UNAVAILABLE`: installed Ruff
+0.16.2 differs from pinned 0.15.21; pull-request/full also report the existing
+Bundler mismatch; full additionally reports dependency-risk scanning
+unavailable. No policy was weakened or unavailable check reported as passing.
+
+No existing STRling runtime/compiler behavior intentionally changed. TypeScript,
+Python, and other legacy binding semantics; Rust-kernel semantics; Semantic IR;
+diagnostics; safety analysis; portability planning; target behavior; package
+APIs; package versions; publication state; and full-corpus migration gating
+remain unchanged.
+
+The result is `READY WITH RECORDED CARRY-FORWARD`. The next ordered incomplete
+Notion task is
+[P07-T04 — Run the complete migration corpus and gate unresolved differences](https://app.notion.com/p/3b97d940647581adb18afb462ffec125?pvs=204).
+That task owns full-corpus execution and gating; it must retain conservative
+uncertainty and may resolve the six live discrepancies only with explicit
+governing authority.

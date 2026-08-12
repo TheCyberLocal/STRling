@@ -159,3 +159,76 @@ change TypeScript, Python, Rust-kernel, Semantic IR, diagnostic, safety,
 portability, target, package, version, or publication behavior.
 
 No existing STRling runtime/compiler behavior intentionally changed.
+
+## Certification results
+
+The controlled certification fixture and live historical-evidence certification
+are intentionally reported separately.
+
+| Evidence stream                        |       Source observations | Projections | Comparisons | Comparable | Not comparable | Equivalent | Differing |
+| -------------------------------------- | ------------------------: | ----------: | ----------: | ---------: | -------------: | ---------: | --------: |
+| Controlled taxonomy fixture            |                        16 |          16 |           8 |          4 |              4 |          2 |         2 |
+| Live TypeScript/Python shared evidence | 44 retrieved; 24 selected |          24 |          12 |         12 |              0 |          6 |         6 |
+| Combined machinery certification       | 60 retrieved; 40 selected |          40 |          20 |         16 |              4 |          8 |         8 |
+
+The controlled fixture applies 15 normalization rules, exercises four malformed
+cases and nine controlled mutations, and contains one valid example of each
+substantive disposition. The live evidence applies 24 normalization rules over
+12 exact shared cases, leaves 20 runner-specific observations unpaired, and
+records six equivalent peer results as disposition-not-applicable. Its six
+differences are all retained at
+`/outcome/evidence/return_shape` and are classified
+`unresolved_discrepancy`; live historical evidence produces zero preserved,
+correction, or unsupported dispositions.
+
+Across both certification streams the substantive disposition counts are one
+`preserved_behavior`, one `intentional_specification_correction`, one
+`unsupported_legacy_behavior`, and seven `unresolved_discrepancy`. Each
+stream ran three times with zero mismatches and zero unexplained failures.
+Raw batches and both source corpora remained byte-stable.
+
+The comparator identity is
+`tooling.migration-comparison-comparator@1.0.0`; its certified implementation
+source digest is
+`sha256:7602cea37c4cc6a58737bc4403e706bca11f67b1412360d20a205e985efecc71`.
+Projection, comparison, classification, fixture certification, and live
+certification remain reproducible through the machine-readable comparison CLI
+and the existing reference launcher.
+
+## Architecture hardgates and product preservation
+
+Architecture fitness rejects comparison/taxonomy references in product,
+binding, kernel, target-profile, and specification sources. It also rejects
+comparison-side source-rewrite tokens, unresolved-as-accepted mappings,
+historical-consensus authority, majority authority, normalization authority
+outside tooling, and taxonomy/relationship identity drift. Migration
+classification remains absent from public APIs.
+
+No existing STRling runtime/compiler behavior intentionally changed. TypeScript
+semantics, Python semantics, other legacy bindings, Rust-kernel semantics,
+Semantic IR, diagnostics, safety analysis, portability planning, target
+behavior, package APIs, package versions, and publication state remain
+unchanged.
+
+TypeScript formatting, direct typecheck/build, and all 963 tests passed. Python
+package build and all 789 tests passed. Rust formatting, Clippy, check, build,
+and tests passed. Canonical, core, public, baseline, generated-artifact,
+security, governance, documentation, TypeScript/documentation formatting,
+affected Python formatting/lint, and patch-integrity checks passed.
+
+The canonical local, pull-request, and full profiles executed the comparison
+operation successfully and reported no failed operations. Their aggregate
+status remains `UNAVAILABLE`: this host has Ruff 0.16.2 instead of pinned
+0.15.21; pull-request and full also retain the pre-existing Bundler version
+mismatch; full additionally reported the network dependency-risk operation
+unavailable. Requirements were not weakened.
+
+## Readiness and handoff
+
+The result is `READY WITH RECORDED CARRY-FORWARD`. The full migration-corpus
+gate was deliberately not executed. The next ordered incomplete task in the
+Notion source of truth is
+[P07-T04 — Run the complete migration corpus and gate unresolved differences](https://app.notion.com/p/3b97d940647581adb18afb462ffec125?pvs=204).
+It must consume these versioned artifacts, preserve the six controlled live
+unresolved cases unless new authority resolves them, and must not infer
+correctness from historical majority.

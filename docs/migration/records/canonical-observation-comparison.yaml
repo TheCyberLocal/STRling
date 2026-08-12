@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical observation comparison and discrepancy taxonomy
-status: in_progress
+status: complete
 objective: Build and certify a deterministic, separately versioned comparison and governed migration-disposition layer above immutable historical reference observations without changing product semantics or executing the complete migration-corpus gate.
 scope:
     diff:
@@ -192,12 +192,66 @@ checkpoints:
             details: Both independently versioned runners, cross-runner certification, and all 104 affected comparison, classification, certification, CLI, launcher, architecture, and profile tests pass.
           - check: Product, contract, and repository verification
             result: passed
-            details: TypeScript direct typecheck/build and 963 tests pass; Python package build and 789 tests pass; Rust fmt, Clippy, check, build, and tests pass; canonical, core, public, baseline, generated-artifact, security, governance, documentation, repository formatting, and patch-integrity checks pass.
+            details: TypeScript direct typecheck/build and 963 tests pass; Python package build and 789 tests pass; Rust fmt, Clippy, check, build, and tests pass; canonical, core, public, baseline, generated-artifact, security, governance, documentation, TypeScript/documentation formatting, affected Python formatting/lint, and patch-integrity checks pass.
           - check: Canonical profiles
             command: ./strling profile local; ./strling profile pull-request; ./strling profile full
             result: not_run
             details: Comparison certification passed in every profile and no operation failed. Local reported 19 passed and six unavailable; pull-request 38 passed and seven unavailable; full 67 passed and ten unavailable. The common host constraint is installed Ruff 0.16.2 versus pinned 0.15.21; pull-request/full also report the pre-existing Bundler version mismatch, and full reports network dependency risk unavailable. Requirements were not weakened. WSL, TypeScript, Python, Rust, and all platform-dependent full-profile build/test operations otherwise executed.
     - name: Comparison readiness and corpus-gate handoff
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: Versioned comparison architecture
+            result: passed
+            details: Comparison schema 1.0.0, projection schema 1.0.0, normalization rules 1.0.0, comparator implementation 1.0.0, and discrepancy taxonomy 1.0.0 are independently identified; the comparator source identity is sha256:7602cea37c4cc6a58737bc4403e706bca11f67b1412360d20a205e985efecc71.
+          - check: Normalization non-loss record
+            result: passed
+            details: select-semantic-outcome@1.0.0 removes only the validated runner-owned envelope by selecting the complete outcome subtree; it preserves status, success evidence, legacy failures, unsupported outcomes, ordering, text, diagnostics, positions, options, and semantic shapes. Focused projection, fingerprint-sensitivity, immutability, and mutation tests provide semantic non-loss evidence.
+          - check: Certified quantitative evidence
+            result: passed
+            details: The fixture certifies 16 observations, 16 projections, eight comparisons, four comparable and four not-comparable results, two equivalent and two differing results, one of each substantive disposition, 15 normalization applications, three repeat runs, four malformed cases, nine detected mutations, zero mismatches, and zero unexplained failures. Live historical certification covers 44 observations, 24 projections, 12 comparable comparisons, six equivalent and six differing results, six unresolved discrepancies, 24 normalization applications, three repeats, zero mismatches, and zero unexplained failures.
+          - check: Product behavior preservation
+            result: passed
+            details: No existing STRling runtime/compiler behavior intentionally changed. TypeScript, Python, other legacy bindings, the Rust kernel, Semantic IR, diagnostics, safety analysis, portability planning, target behavior, package APIs, package versions, and publication state remain unchanged.
+          - check: Ordered carry-forward
+            result: passed
+            details: The complete migration-corpus execution and unresolved-difference gate remain intentionally out of scope and are handed to P07-T04, Run the complete migration corpus and gate unresolved differences, the next ordered incomplete task in the Notion source of truth.
+commits:
+    - subject: "docs(migration): define comparison and discrepancy contract"
+      sha: 4299157a0de0ae3728ea59005f543dcf7ffab2a9
+    - subject: "feat(migration): canonicalize reference observations"
+      sha: 688341c4501ff22998fb73da2ab9c9b9c9ece8ec
+    - subject: "feat(migration): compare reference observations"
+      sha: 7a6830d1badb0457639ef413abe44cb4e0f06067
+    - subject: "feat(migration): classify migration discrepancies"
+      sha: beffdf4f3aaa3d5310d42d9d7b77e9fe409f5211
+    - subject: "test(migration): certify comparison taxonomy"
+      sha: e061673ee5c3588464a65b903710bb06f34801b8
+    - subject: "ci(migration): certify differential comparison"
+      sha: df0e6d64661de790750058fd11a1179b96d390b8
+completion:
+    accomplished:
+        - Defined independently versioned raw-observation, projection, factual comparison, and governed migration-disposition layers.
+        - Implemented deterministic projection, exact-identity pairing, field-level comparison, authority-gated classification, fixture certification, live historical certification, CLI integration, and architecture hardgates.
+        - Recorded the sole authorized normalization rule, rejected candidate normalizations, exact provenance, quantitative certification, platform availability, and the next ordered corpus-gate handoff.
+    verified:
+        - All 104 affected comparison, classification, certification, CLI, launcher, architecture, and quality tests pass.
+        - TypeScript direct typecheck/build and 963 tests, Python package build and 789 tests, Rust format/Clippy/check/build/tests, historical runner certification, canonical/core/public contracts, architecture, governance, documentation, generated-artifact, security, TypeScript/documentation formatting, affected Python formatting/lint, and patch-integrity checks pass.
+        - Three repeat fixture runs and three repeat live historical runs produce zero projection, fingerprint, comparison, ordering, classification, or report mismatches.
+    behavior_changed: No existing STRling runtime/compiler behavior intentionally changed.
+    intentional_behavior_changes:
+        - Engineering-only comparison artifacts and commands were added above immutable historical runner evidence.
+        - Architecture hardgates were strengthened to keep historical evidence and migration classifications non-normative and outside product/public surfaces.
+    preserved_behavior:
+        - TypeScript semantics and Python semantics.
+        - Other legacy binding behavior and Rust kernel semantics.
+        - Semantic IR, diagnostics, safety analysis, portability planning, and target behavior.
+        - Package APIs, package versions, and publication state.
+    transitional_architecture:
+        - Six current shared TypeScript/Python return-shape disagreements remain explicitly unresolved; historical peer evidence cannot assign a substantive migration disposition.
+        - Canonical local, pull-request, and full profiles remain unavailable rather than failed because this host has Ruff 0.16.2 instead of pinned 0.15.21; pull-request/full also retain the existing Bundler mismatch, and full retains unavailable network dependency-risk checks.
+    deferred_work:
+        - P07-T04 must execute the complete migration corpus and gate unresolved differences; that full corpus gate was intentionally not performed here.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: P07-T04 - Run the complete migration corpus and gate unresolved differences
+    rationale: The comparison and discrepancy machinery is independently versioned, deterministic, provenance-preserving, authority-gated, integrated, and certified. Six observed historical divergences remain conservatively unresolved for the ordered full-corpus gate, while pinned-tool host mismatches remain recorded without weakening requirements.
