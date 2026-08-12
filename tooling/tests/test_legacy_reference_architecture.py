@@ -9,9 +9,26 @@ from typing import Mapping
 
 from tooling.architecture_fitness import legacy_reference_boundary_findings
 
-
 CONFIGURATION: Mapping[str, object] = {
     "consumer_sources": ["core/**", "bindings/**"],
+    "comparison_sources": [
+        "tooling/migration_*.py",
+        "tooling/tests/fixtures/migration_comparison/**",
+    ],
+    "comparison_contract": "tooling/migration_comparison_contract.json",
+    "comparison_forbidden_mutation_tokens": [
+        "write_text(",
+        "write_bytes(",
+        ".unlink(",
+        ".rename(",
+        "open(",
+    ],
+    "comparison_forbidden_authority_tokens": [
+        '"majority_is_authority": true',
+        '"historical_consensus_is_normative": true',
+        '"unresolved_discrepancy": "passed"',
+        '"unresolved_discrepancy": "accepted"',
+    ],
     "normative_sources": ["spec/**"],
     "runner_sources": ["tooling/legacy_reference/**"],
     "runner_isolation_boundaries": [
@@ -36,6 +53,14 @@ CONFIGURATION: Mapping[str, object] = {
         "tooling/legacy_reference",
         "legacy_reference",
         "strling.legacy-reference",
+        "migration_comparison",
+        "strling.migration-comparison",
+        "strling.migration-discrepancy",
+        "preserved_behavior",
+        "intentional_specification_correction",
+        "unsupported_legacy_behavior",
+        "unresolved_discrepancy",
+        "historical_consensus",
     ],
     "runner_forbidden_roots": ["core", "spec"],
     "runner_forbidden_authority_tokens": [
@@ -70,6 +95,31 @@ class LegacyReferenceArchitectureTests(unittest.TestCase):
     def evaluate(
         self, artifact_registry: Mapping[str, object] | None = None
     ) -> list[tuple[str, str | None]]:
+        contract = self.root / str(CONFIGURATION["comparison_contract"])
+        if not contract.is_file():
+            self.write(
+                str(CONFIGURATION["comparison_contract"]),
+                json.dumps(
+                    {
+                        "authority_model": {
+                            "historical_consensus_is_normative": False,
+                            "majority_is_authority": False,
+                        },
+                        "comparison_relationships": [
+                            "equivalent_observation",
+                            "differing_observation",
+                            "not_comparable",
+                        ],
+                        "dispositions": [
+                            {"id": "preserved_behavior"},
+                            {"id": "intentional_specification_correction"},
+                            {"id": "unsupported_legacy_behavior"},
+                            {"id": "unresolved_discrepancy"},
+                        ],
+                        "normalization_rules": [{"id": "fixture-rule@1.0.0"}],
+                    }
+                ),
+            )
         return legacy_reference_boundary_findings(
             self.root,
             CONFIGURATION,
@@ -154,6 +204,57 @@ class LegacyReferenceArchitectureTests(unittest.TestCase):
                 for message, _ in findings
             )
         )
+
+    def test_comparison_artifacts_cannot_leak_into_product_or_spec(self) -> None:
+        self.write(
+            "core/src/target/profile.rs",
+            'const SOURCE: &str = "migration_comparison";\n',
+        )
+        self.write(
+            "spec/contracts/authority.md",
+            "historical_consensus governs this requirement.\n",
+        )
+        self.write(
+            "bindings/typescript/src/index.ts",
+            'export const state = "unresolved_discrepancy";\n',
+        )
+        paths = {path for _, path in self.evaluate()}
+        self.assertEqual(
+            {
+                "bindings/typescript/src/index.ts",
+                "core/src/target/profile.rs",
+                "spec/contracts/authority.md",
+            },
+            paths,
+        )
+
+    def test_comparison_cannot_mutate_sources_or_accept_unresolved(self) -> None:
+        self.write(
+            "tooling/migration_bad.py",
+            'source.write_text("changed")\n'
+            'mapping = {"unresolved_discrepancy": "accepted"}\n',
+        )
+        findings = self.evaluate()
+        self.assertEqual(2, len(findings))
+        self.assertTrue(
+            any(
+                "source-mutation token write_text(" in message
+                for message, _ in findings
+            )
+        )
+        self.assertTrue(
+            any("authority or acceptance token" in message for message, _ in findings)
+        )
+
+    def test_historical_consensus_cannot_become_contract_authority(self) -> None:
+        self.assertEqual([], self.evaluate())
+        path = str(CONFIGURATION["comparison_contract"])
+        contract = json.loads((self.root / path).read_text(encoding="utf-8"))
+        contract["authority_model"]["majority_is_authority"] = True
+        self.write(path, json.dumps(contract))
+        findings = self.evaluate()
+        self.assertEqual(1, len(findings))
+        self.assertIn("historical evidence cannot become authority", findings[0][0])
 
     def test_normative_generated_output_cannot_use_legacy_evidence(self) -> None:
         registry = {

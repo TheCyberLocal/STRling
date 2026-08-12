@@ -5,13 +5,14 @@ from __future__ import annotations
 
 import copy
 import json
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
 from tooling import migration_classification as classification
 from tooling import migration_comparison as projection_contract
 from tooling import migration_comparison_engine as comparison_engine
+from tooling.legacy_reference import cross_reference
 from tooling.legacy_reference import python_reference as reference
 
 CERTIFICATION_SCHEMA_VERSION = "1.0.0"
@@ -23,6 +24,9 @@ DEFAULT_CORPUS_PATH = (
     / "fixtures"
     / "migration_comparison"
     / "certification.json"
+)
+HISTORICAL_CERTIFICATION_KIND = (
+    "strling.migration-comparison-historical-evidence-certification"
 )
 EXPECTED_MALFORMED_CASES = (
     "malformed-observation",
@@ -636,6 +640,378 @@ def certify_fixture_corpus(
             "normalization_rules_version": projection_contract.NORMALIZATION_RULES_VERSION,
             "projection_schema_version": projection_contract.PROJECTION_SCHEMA_VERSION,
             "result_fingerprint": projection_contract.canonical_fingerprint(first),
+            "status": "passed",
+            "taxonomy_version": projection_contract.TAXONOMY_VERSION,
+        }
+    )
+
+
+def _validate_historical_batch(
+    value: Any,
+    runner_id: str,
+    corpus: Mapping[str, Any],
+) -> dict[str, Any]:
+    batch = projection_contract._require_object(
+        value, f"historical_batches.{runner_id}"
+    )
+    projection_contract._exact_keys(
+        batch,
+        (
+            "batch_kind",
+            "batch_schema_version",
+            "corpus",
+            "implementation",
+            "observation_schema_version",
+            "observations",
+            "protocol_version",
+            "runner",
+        ),
+        f"historical_batches.{runner_id}",
+    )
+    if (
+        batch["batch_kind"] != reference.BATCH_KIND
+        or batch["batch_schema_version"] != reference.BATCH_SCHEMA_VERSION
+        or batch["observation_schema_version"] != reference.OBSERVATION_SCHEMA_VERSION
+        or batch["protocol_version"] != reference.PROTOCOL_VERSION
+    ):
+        raise CertificationError(f"{runner_id} historical batch schema is incompatible")
+    if batch["runner"] != cross_reference.RUNNER_IDENTITIES[runner_id]:
+        raise CertificationError(f"{runner_id} historical batch runner is incompatible")
+    expected_corpus = {
+        "algorithm": "sha256",
+        "fingerprint": reference.canonical_fingerprint(corpus),
+        "version": corpus["corpus_version"],
+    }
+    if batch["corpus"] != expected_corpus:
+        raise CertificationError(
+            f"{runner_id} historical batch corpus identity does not match"
+        )
+    implementation = projection_contract._require_object(
+        batch["implementation"], f"historical_batches.{runner_id}.implementation"
+    )
+    projection_contract._require_fingerprint(
+        implementation.get("fingerprint"),
+        f"historical_batches.{runner_id}.implementation.fingerprint",
+    )
+    observations = batch["observations"]
+    if not isinstance(observations, list) or len(observations) != len(corpus["cases"]):
+        raise CertificationError(
+            f"{runner_id} historical batch does not cover its corpus"
+        )
+    expected_cases = {entry["id"]: entry for entry in corpus["cases"]}
+    observed_cases: set[str] = set()
+    for index, raw_entry in enumerate(observations):
+        entry = projection_contract._require_object(
+            raw_entry, f"historical_batches.{runner_id}.observations/{index}"
+        )
+        projection_contract._exact_keys(
+            entry,
+            (
+                "behavior_family",
+                "case_id",
+                "case_identity",
+                "observation",
+                "provenance",
+            ),
+            f"historical_batches.{runner_id}.observations/{index}",
+        )
+        case_id = projection_contract._require_nonempty_string(
+            entry["case_id"],
+            f"historical_batches.{runner_id}.observations/{index}.case_id",
+        )
+        if case_id in observed_cases or case_id not in expected_cases:
+            raise CertificationError(
+                f"{runner_id} historical batch has an invalid case identity"
+            )
+        observed_cases.add(case_id)
+        observation = projection_contract._require_object(
+            entry["observation"],
+            f"historical_batches.{runner_id}.observations/{index}.observation",
+        )
+        if (
+            observation.get("implementation") != implementation
+            or observation.get("runner") != batch["runner"]
+            or observation.get("operation")
+            != expected_cases[case_id]["request"]["operation"]
+        ):
+            raise CertificationError(
+                f"{runner_id} historical observation provenance does not match"
+            )
+        expected_case_identity = reference.canonical_fingerprint(
+            {
+                "case_id": case_id,
+                "corpus_version": corpus["corpus_version"],
+                "request": observation.get("request", {}).get("value"),
+            }
+        )
+        if entry["case_identity"] != expected_case_identity:
+            raise CertificationError(
+                f"{runner_id} historical source case identity does not match"
+            )
+    if observed_cases != set(expected_cases):
+        raise CertificationError(
+            f"{runner_id} historical batch case coverage does not match"
+        )
+    return reference.canonicalize(batch)
+
+
+def _historical_rationale(comparison: Mapping[str, Any]) -> dict[str, Any]:
+    sources = [
+        comparison[side]["source"]
+        for side in ("left", "right")
+        if comparison[side] is not None
+    ]
+    differing = comparison["relationship"] == "differing_observation"
+    not_comparable = comparison["relationship"] == "not_comparable"
+    limitations = ["Historical agreement cannot establish normative correctness."]
+    unresolved_questions: list[str] = []
+    if differing:
+        unresolved_questions.append(
+            "Which behavior, if either, conforms to governing authority?"
+        )
+    elif not_comparable:
+        unresolved_questions.append(
+            "Can a governed replacement counterpart establish semantic correspondence?"
+        )
+    return {
+        "affected_operation": comparison["operation"],
+        "affected_surfaces": sorted(
+            surface
+            for surface in comparison["surfaces"].values()
+            if surface is not None
+        ),
+        "authority": [],
+        "comparison_identity": comparison["comparison_identity"],
+        "difference_paths": [
+            difference["path"] for difference in comparison["differences"]
+        ],
+        "evidence_identities": sorted(
+            source["observation_identity"] for source in sources
+        ),
+        "explanation": (
+            "Historical runner evidence is recorded without treating consensus "
+            "or divergence as normative correctness."
+        ),
+        "limitations": limitations,
+        "unresolved_questions": unresolved_questions,
+    }
+
+
+def _run_historical_once(
+    raw_batches: Mapping[str, Any],
+    corpora: Mapping[str, Mapping[str, Any]],
+    shared_cases: Sequence[Mapping[str, Any]],
+    runner_specific_cases: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    batches = {
+        runner_id: _validate_historical_batch(
+            copy.deepcopy(raw_batches[runner_id]),
+            runner_id,
+            corpora[runner_id],
+        )
+        for runner_id in cross_reference.SELECTED_RUNNERS
+    }
+    indexed = {
+        runner_id: {
+            entry["case_id"]: entry for entry in batches[runner_id]["observations"]
+        }
+        for runner_id in cross_reference.SELECTED_RUNNERS
+    }
+    case_results = []
+    classifications = []
+    projections = []
+    comparisons = []
+    for shared in shared_cases:
+        case_id = shared["case_id"]
+        pair = []
+        for runner_id in cross_reference.SELECTED_RUNNERS:
+            entry = indexed[runner_id][case_id]
+            projection = projection_contract.project_observation(
+                entry["observation"],
+                {
+                    "case_id": case_id,
+                    "case_identity": entry["case_identity"],
+                    "comparison_corpus_version": cross_reference.CROSS_CORPUS_VERSION,
+                    "corpus": batches[runner_id]["corpus"],
+                },
+            )
+            projections.append(projection)
+            pair.append(projection)
+        comparison = comparison_engine.compare_projections(pair[0], pair[1])
+        comparisons.append(comparison)
+        classification_result = classification.classify_comparison(
+            comparison,
+            evidence_scope="migration_review",
+            roles={"left": "historical", "right": "historical"},
+            rationale=_historical_rationale(comparison),
+        )
+        classifications.append(classification_result)
+        case_results.append(
+            {
+                "case_id": case_id,
+                "classification_identity": classification_result[
+                    "classification_identity"
+                ],
+                "comparability": comparison["comparability"],
+                "comparison_identity": comparison["comparison_identity"],
+                "difference_paths": [
+                    difference["path"] for difference in comparison["differences"]
+                ],
+                "disposition": classification_result["disposition"],
+                "projection_fingerprints": [
+                    projection["projection_fingerprint"] for projection in pair
+                ],
+                "relationship": comparison["relationship"],
+            }
+        )
+
+    relationships = [item["relationship"] for item in comparisons]
+    comparability = [item["comparability"]["state"] for item in comparisons]
+    disposition_counts = {item: 0 for item in classification.DISPOSITIONS}
+    for result in classifications:
+        if result["disposition"] is not None:
+            disposition_counts[result["disposition"]] += 1
+    source_observations = sum(len(batch["observations"]) for batch in batches.values())
+    runner_specific_count = sum(
+        len(partition["cases"]) for partition in runner_specific_cases
+    )
+    metrics = {
+        "classifications": sum(
+            result["disposition"] is not None for result in classifications
+        ),
+        "comparable_results": comparability.count("comparable"),
+        "comparisons": len(comparisons),
+        "differing_results": relationships.count("differing_observation"),
+        "disposition_counts": disposition_counts,
+        "equivalent_results": relationships.count("equivalent_observation"),
+        "normalization_applications": sum(
+            len(projection["normalization_rule_ids"]) for projection in projections
+        ),
+        "not_applicable_classifications": sum(
+            result["applicability"] == "not_applicable" for result in classifications
+        ),
+        "not_comparable_results": comparability.count("not_comparable"),
+        "projections": len(projections),
+        "runner_specific_observations_not_paired": runner_specific_count,
+        "selected_source_observations": len(projections),
+        "source_observations": source_observations,
+        "unexplained_failures": 0,
+    }
+    return {
+        "case_results": case_results,
+        "metrics": metrics,
+        "runners": [
+            {
+                "corpus": batches[runner_id]["corpus"],
+                "implementation": batches[runner_id]["implementation"],
+                "runner": batches[runner_id]["runner"],
+            }
+            for runner_id in cross_reference.SELECTED_RUNNERS
+        ],
+    }
+
+
+def certify_historical_batches(
+    batches: Mapping[str, Sequence[Mapping[str, Any]]],
+    *,
+    repeat_runs: int = 3,
+    typescript_corpus_path: Path = cross_reference.TYPESCRIPT_CORPUS_PATH,
+    python_corpus_path: Path = cross_reference.PYTHON_CORPUS_PATH,
+) -> dict[str, Any]:
+    """Certify governed shared historical cases without running the full gate."""
+
+    if (
+        isinstance(repeat_runs, bool)
+        or not isinstance(repeat_runs, int)
+        or repeat_runs < 2
+    ):
+        raise CertificationError("repeat_runs must be an integer of at least 2")
+    if tuple(sorted(batches)) != cross_reference.SELECTED_RUNNERS:
+        raise CertificationError(
+            "historical batches must contain exactly the selected runners"
+        )
+    for runner_id in cross_reference.SELECTED_RUNNERS:
+        runs = batches[runner_id]
+        if isinstance(runs, (str, bytes)) or len(runs) != repeat_runs:
+            raise CertificationError(
+                f"{runner_id} must provide exactly {repeat_runs} historical batches"
+            )
+
+    corpus_paths = {
+        "python": python_corpus_path,
+        "typescript": typescript_corpus_path,
+    }
+    corpus_bytes = {
+        runner_id: path.read_bytes() for runner_id, path in corpus_paths.items()
+    }
+    corpora = {
+        runner_id: cross_reference.load_corpus(path)
+        for runner_id, path in corpus_paths.items()
+    }
+    shared_cases, runner_specific_cases = cross_reference.derive_case_partitions(
+        corpora
+    )
+    raw_before = reference.canonical_json(batches)
+    runs = [
+        _run_historical_once(
+            {
+                runner_id: batches[runner_id][index]
+                for runner_id in cross_reference.SELECTED_RUNNERS
+            },
+            corpora,
+            shared_cases,
+            runner_specific_cases,
+        )
+        for index in range(repeat_runs)
+    ]
+    encoded_runs = [reference.canonical_line(run) for run in runs]
+    mismatches = sum(encoded != encoded_runs[0] for encoded in encoded_runs)
+    if mismatches:
+        raise CertificationError(
+            "repeated historical comparisons were not deterministic"
+        )
+    if reference.canonical_json(batches) != raw_before:
+        raise CertificationError("historical comparison mutated raw observations")
+    if any(
+        path.read_bytes() != corpus_bytes[runner_id]
+        for runner_id, path in corpus_paths.items()
+    ):
+        raise CertificationError("historical comparison mutated a source corpus")
+
+    first = runs[0]
+    cross_corpus_manifest = {
+        "runner_corpora": [
+            {
+                "corpus": record["corpus"],
+                "runner_id": record["runner"]["id"],
+            }
+            for record in first["runners"]
+        ],
+        "runner_specific_cases": runner_specific_cases,
+        "shared_cases": shared_cases,
+        "version": cross_reference.CROSS_CORPUS_VERSION,
+    }
+    return reference.canonicalize(
+        {
+            "certification_kind": HISTORICAL_CERTIFICATION_KIND,
+            "certification_schema_version": CERTIFICATION_SCHEMA_VERSION,
+            "comparison_schema_version": projection_contract.COMPARISON_SCHEMA_VERSION,
+            "comparator_implementation_version": projection_contract.COMPARATOR_IMPLEMENTATION_VERSION,
+            "corpus": {
+                "algorithm": "sha256",
+                "fingerprint": reference.canonical_fingerprint(cross_corpus_manifest),
+                "version": cross_reference.CROSS_CORPUS_VERSION,
+            },
+            "determinism": {
+                "mismatches": mismatches,
+                "repeat_runs": repeat_runs,
+            },
+            "metrics": first["metrics"],
+            "normalization_rules_version": projection_contract.NORMALIZATION_RULES_VERSION,
+            "projection_schema_version": projection_contract.PROJECTION_SCHEMA_VERSION,
+            "result_fingerprint": projection_contract.canonical_fingerprint(first),
+            "results": first["case_results"],
+            "runners": first["runners"],
             "status": "passed",
             "taxonomy_version": projection_contract.TAXONOMY_VERSION,
         }

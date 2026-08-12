@@ -16,6 +16,8 @@ from typing import Sequence
 ROOT = Path(__file__).resolve().parents[2]
 TOOL_ROOT = ROOT / "tooling" / "legacy_reference"
 TYPESCRIPT_ROOT = ROOT / "bindings" / "typescript"
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 TSC = TYPESCRIPT_ROOT / "node_modules" / "typescript" / "bin" / "tsc"
 RUNNER_CHOICES = ("all", "python", "typescript")
 
@@ -31,13 +33,14 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     modes.add_argument("--corpus", action="store_true")
     modes.add_argument("--certify", action="store_true")
     modes.add_argument("--cross-certify", action="store_true")
+    modes.add_argument("--comparison-certify", action="store_true")
     return parser.parse_args(argv)
 
 
 def selected_runner(args: argparse.Namespace) -> str:
     if args.runner is not None:
         return args.runner
-    if args.check or args.cross_certify:
+    if args.check or args.cross_certify or args.comparison_certify:
         return "all"
     return "typescript"
 
@@ -191,11 +194,57 @@ def run_cross_certification(output: Path) -> int:
     return 0
 
 
+def run_comparison_certification(output: Path, repeat_runs: int = 3) -> int:
+    from tooling import migration_comparison_certification as comparison
+
+    if __package__:
+        from . import python_reference as python_runner
+    else:
+        import python_reference as python_runner
+
+    batches: dict[str, list[dict[str, object]]] = {
+        "python": [],
+        "typescript": [],
+    }
+    for _ in range(repeat_runs):
+        typescript = capture_certification(
+            ["node", str(TOOL_ROOT / "corpus_cli.mjs"), "--observations"],
+            env=typescript_environment(output),
+        )
+        if typescript is None:
+            return emit_protocol_failure(
+                "COMPARISON_CERTIFICATION_FAILURE",
+                "the TypeScript runner did not produce a valid observation batch",
+            )
+        python = capture_certification(
+            [sys.executable, str(TOOL_ROOT / "python_reference.py"), "--corpus"]
+        )
+        if python is None:
+            return emit_protocol_failure(
+                "COMPARISON_CERTIFICATION_FAILURE",
+                "the Python runner did not produce a valid observation batch",
+            )
+        batches["typescript"].append(typescript)
+        batches["python"].append(python)
+    try:
+        certification = comparison.certify_historical_batches(
+            batches,
+            repeat_runs=repeat_runs,
+        )
+    except comparison.CertificationError:
+        return emit_protocol_failure(
+            "COMPARISON_CERTIFICATION_FAILURE",
+            "selected runner observations could not be compared deterministically",
+        )
+    sys.stdout.write(python_runner.canonical_line(certification))
+    return 0
+
+
 def run_python_mode(args: argparse.Namespace) -> int:
-    if args.cross_certify:
+    if args.cross_certify or args.comparison_certify:
         return emit_protocol_failure(
             "INVALID_INVOCATION",
-            "--cross-certify requires --runner all",
+            "cross-runner certification modes require --runner all",
         )
     if args.check:
         return run_python_check()
@@ -210,10 +259,10 @@ def run_python_mode(args: argparse.Namespace) -> int:
 
 
 def run_typescript_mode(args: argparse.Namespace, output: Path) -> int:
-    if args.cross_certify:
+    if args.cross_certify or args.comparison_certify:
         return emit_protocol_failure(
             "INVALID_INVOCATION",
-            "--cross-certify requires --runner all",
+            "cross-runner certification modes require --runner all",
         )
     if args.check:
         return run_typescript_check(output)
@@ -230,11 +279,13 @@ def run_all_mode(args: argparse.Namespace, output: Path) -> int:
     if (
         args.request is not None
         or args.corpus
-        or not (args.check or args.certify or args.cross_certify)
+        or not (
+            args.check or args.certify or args.cross_certify or args.comparison_certify
+        )
     ):
         return emit_protocol_failure(
             "INVALID_INVOCATION",
-            "--runner all supports only --check, --certify, or --cross-certify",
+            "--runner all supports only aggregate check and certification modes",
         )
     if args.check:
         typescript_exit = run_typescript_check(output)
@@ -243,6 +294,8 @@ def run_all_mode(args: argparse.Namespace, output: Path) -> int:
         python_exit = run_python_check()
         if python_exit != 0:
             return python_exit
+    if args.comparison_certify:
+        return run_comparison_certification(output)
     return run_cross_certification(output)
 
 

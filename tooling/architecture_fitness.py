@@ -548,6 +548,10 @@ def legacy_reference_boundary_findings(
     normative_sources = configuration["normative_sources"]
     runner_sources = configuration["runner_sources"]
     runner_isolation_boundaries = configuration["runner_isolation_boundaries"]
+    comparison_sources = configuration["comparison_sources"]
+    comparison_contract = configuration["comparison_contract"]
+    comparison_mutation_tokens = configuration["comparison_forbidden_mutation_tokens"]
+    comparison_authority_tokens = configuration["comparison_forbidden_authority_tokens"]
     evidence_markers = configuration["forbidden_evidence_markers"]
     runner_forbidden_roots = configuration["runner_forbidden_roots"]
     runner_authority_tokens = configuration["runner_forbidden_authority_tokens"]
@@ -557,6 +561,10 @@ def legacy_reference_boundary_findings(
     assert isinstance(runner_sources, list)
     assert isinstance(runner_isolation_boundaries, list)
     assert isinstance(evidence_markers, list)
+    assert isinstance(comparison_sources, list)
+    assert isinstance(comparison_contract, str)
+    assert isinstance(comparison_mutation_tokens, list)
+    assert isinstance(comparison_authority_tokens, list)
     assert isinstance(runner_forbidden_roots, list)
     assert isinstance(runner_authority_tokens, list)
     assert isinstance(normative_output_roots, list)
@@ -655,6 +663,99 @@ def legacy_reference_boundary_findings(
                     )
                 )
                 break
+
+    for path, relative in selected_files(comparison_sources, text_suffixes):
+        text = read_text(path, relative)
+        if text is None:
+            continue
+        folded = text.casefold()
+        for token in comparison_mutation_tokens:
+            if str(token).casefold() in folded:
+                findings.append(
+                    (
+                        f"{relative}: comparison tooling contains forbidden "
+                        f"source-mutation token {token}",
+                        relative,
+                    )
+                )
+        for token in comparison_authority_tokens:
+            if str(token).casefold() in folded:
+                findings.append(
+                    (
+                        f"{relative}: comparison tooling contains forbidden "
+                        f"authority or acceptance token {token}",
+                        relative,
+                    )
+                )
+
+    contract_path = root / comparison_contract
+    if not comparison_contract.startswith("tooling/"):
+        findings.append(
+            (
+                f"{comparison_contract}: normalization authority must remain in tooling",
+                comparison_contract,
+            )
+        )
+    try:
+        comparison_definition = json.loads(contract_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        findings.append(
+            (
+                f"{comparison_contract}: cannot inspect comparison authority: {exc}",
+                comparison_contract,
+            )
+        )
+    else:
+        authority_model = comparison_definition.get("authority_model")
+        if not isinstance(authority_model, dict) or (
+            authority_model.get("historical_consensus_is_normative") is not False
+            or authority_model.get("majority_is_authority") is not False
+        ):
+            findings.append(
+                (
+                    f"{comparison_contract}: historical evidence cannot become authority",
+                    comparison_contract,
+                )
+            )
+        dispositions = comparison_definition.get("dispositions")
+        disposition_ids = (
+            [entry.get("id") for entry in dispositions]
+            if isinstance(dispositions, list)
+            and all(isinstance(entry, dict) for entry in dispositions)
+            else []
+        )
+        if disposition_ids != [
+            "preserved_behavior",
+            "intentional_specification_correction",
+            "unsupported_legacy_behavior",
+            "unresolved_discrepancy",
+        ]:
+            findings.append(
+                (
+                    f"{comparison_contract}: discrepancy taxonomy identities changed",
+                    comparison_contract,
+                )
+            )
+        relationships = comparison_definition.get("comparison_relationships")
+        if relationships != [
+            "equivalent_observation",
+            "differing_observation",
+            "not_comparable",
+        ]:
+            findings.append(
+                (
+                    f"{comparison_contract}: comparison relationship states changed",
+                    comparison_contract,
+                )
+            )
+        rules = comparison_definition.get("normalization_rules")
+        if not isinstance(rules, list) or not rules:
+            findings.append(
+                (
+                    f"{comparison_contract}: normalization rules require explicit identities",
+                    comparison_contract,
+                )
+            )
 
     root_resolved = root.resolve()
     for boundary in runner_isolation_boundaries:

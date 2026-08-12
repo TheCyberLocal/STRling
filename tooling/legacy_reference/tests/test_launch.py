@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tooling.legacy_reference import launch  # noqa: E402
+from tooling.legacy_reference import launch
 
 
 class MultiRunnerLaunchTests(unittest.TestCase):
@@ -28,6 +28,10 @@ class MultiRunnerLaunchTests(unittest.TestCase):
         )
         self.assertEqual(
             launch.selected_runner(launch.parse_args(["--cross-certify"])),
+            "all",
+        )
+        self.assertEqual(
+            launch.selected_runner(launch.parse_args(["--comparison-certify"])),
             "all",
         )
         self.assertEqual(
@@ -101,6 +105,18 @@ class MultiRunnerLaunchTests(unittest.TestCase):
             0,
         )
         run_cross_certification.assert_called_once()
+
+    @patch("tooling.legacy_reference.launch.run_comparison_certification")
+    @patch("tooling.legacy_reference.launch.build_legacy_typescript")
+    def test_comparison_certification_uses_aggregate_runner_mode(
+        self,
+        build_typescript,
+        run_comparison_certification,
+    ) -> None:
+        build_typescript.return_value = 0
+        run_comparison_certification.return_value = 0
+        self.assertEqual(launch.main(["--comparison-certify"]), 0)
+        run_comparison_certification.assert_called_once()
 
     @patch("tooling.legacy_reference.launch.build_legacy_typescript")
     def test_runner_all_rejects_single_request_and_corpus_modes(

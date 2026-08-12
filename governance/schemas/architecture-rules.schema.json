@@ -111,6 +111,18 @@
                 "consumer_sources": {
                     "$ref": "#/$defs/paths"
                 },
+                "comparison_sources": {
+                    "$ref": "#/$defs/paths"
+                },
+                "comparison_contract": {
+                    "$ref": "#/$defs/path"
+                },
+                "comparison_forbidden_mutation_tokens": {
+                    "$ref": "#/$defs/paths"
+                },
+                "comparison_forbidden_authority_tokens": {
+                    "$ref": "#/$defs/paths"
+                },
                 "normative_sources": {
                     "$ref": "#/$defs/paths"
                 },
@@ -411,6 +423,10 @@
                             "configuration": {
                                 "required": [
                                     "consumer_sources",
+                                    "comparison_sources",
+                                    "comparison_contract",
+                                    "comparison_forbidden_mutation_tokens",
+                                    "comparison_forbidden_authority_tokens",
                                     "normative_sources",
                                     "runner_sources",
                                     "runner_isolation_boundaries",

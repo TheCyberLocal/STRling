@@ -176,11 +176,21 @@
                     "--check"
                 ],
                 "network": "offline"
+            },
+            "migration_comparison_check": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "tooling/legacy_reference/launch.py",
+                    "--comparison-certify"
+                ],
+                "network": "offline"
             }
         },
         "profiles": {
             "local": {
-                "definition_version": "1.3.0",
+                "definition_version": "1.4.0",
                 "purpose": "Fast deterministic developer feedback.",
                 "network_policy": "offline",
                 "operations": [
@@ -215,6 +225,9 @@
                         "operation": "legacy_reference_check"
                     },
                     {
+                        "operation": "migration_comparison_check"
+                    },
+                    {
                         "operation": "format_check",
                         "targets": [
                             "repository",
@@ -243,7 +256,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.2.0",
+                "definition_version": "1.3.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -276,6 +289,9 @@
                     },
                     {
                         "operation": "legacy_reference_check"
+                    },
+                    {
+                        "operation": "migration_comparison_check"
                     },
                     {
                         "operation": "format_check",
@@ -334,7 +350,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.2.0",
+                "definition_version": "1.3.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -370,6 +386,9 @@
                     },
                     {
                         "operation": "legacy_reference_check"
+                    },
+                    {
+                        "operation": "migration_comparison_check"
                     },
                     {
                         "operation": "format_check",
@@ -467,7 +486,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.2.0",
+                "definition_version": "1.3.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -503,6 +522,9 @@
                     },
                     {
                         "operation": "legacy_reference_check"
+                    },
+                    {
+                        "operation": "migration_comparison_check"
                     },
                     {
                         "operation": "format_check",

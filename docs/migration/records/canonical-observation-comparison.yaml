@@ -10,12 +10,15 @@ scope:
         - docs/migration/**
         - governance/architecture-rules.json
         - governance/change-control.json
+        - governance/schemas/architecture-rules.schema.json
         - governance/quality.json
         - tooling/architecture_fitness.py
         - tooling/legacy_reference/launch.py
         - tooling/migration_classification.py
+        - tooling/legacy_reference/tests/test_launch.py
         - tooling/migration_comparison_certification.py
         - tooling/migration_comparison.py
+        - tooling/migration_comparison_cli.py
         - tooling/migration_comparison_engine.py
         - tooling/migration_comparison_contract.json
         - tooling/tests/fixtures/migration_comparison/**
@@ -23,8 +26,10 @@ scope:
         - tooling/tests/test_migration_classification.py
         - tooling/tests/test_migration_comparison_certification.py
         - tooling/tests/test_migration_comparison.py
+        - tooling/tests/test_migration_comparison_cli.py
         - tooling/tests/test_migration_comparison_engine.py
         - tooling/tests/test_quality.py
+        - toolchain.json
     forbidden_paths:
         - bindings/**
         - core/**
@@ -36,9 +41,11 @@ scope:
         - tooling/tests/fixtures/migration_comparison/certification.json
         - tooling/migration_classification.py
         - tooling/migration_comparison_certification.py
+        - tooling/migration_comparison_cli.py
         - tooling/migration_comparison.py
         - tooling/migration_comparison_engine.py
         - tooling/tests/test_migration_classification.py
+        - tooling/tests/test_migration_comparison_cli.py
         - tooling/tests/test_migration_comparison_certification.py
         - tooling/tests/test_migration_comparison.py
         - tooling/tests/test_migration_comparison_engine.py
@@ -63,8 +70,7 @@ change_classification:
         level: compatible
         evidence:
             - Adds independently versioned internal comparison artifacts without changing runner, canonical, or public schemas.
-        affected_surfaces:
-            - migration-comparison-contract
+        affected_surfaces: []
     diagnostic_change:
         level: none
         evidence: []
@@ -166,8 +172,31 @@ checkpoints:
             result: passed
             details: All 37 focused tests pass, including detection of observation values, runner fingerprints, normalization version, deleted authority, invalid disposition, altered path, unsupported-to-success, raw mutation, and invalid unresolved promotion mutations.
     - name: Tooling integration and authority hardgates
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Explicit machine-readable tooling
+            command: python3 tooling/migration_comparison_cli.py certify; python3 tooling/legacy_reference/launch.py --comparison-certify
+            result: passed
+            details: The comparison CLI exposes project, compare, classify, and certify modes; the existing reference launcher exposes an aggregate comparison-certify mode; migration_comparison_check runs once in every versioned canonical profile.
+          - check: Live shared historical evidence certification
+            command: python3 tooling/legacy_reference/launch.py --comparison-certify
+            result: passed
+            details: Three repeated runs over all 44 source observations selected 24 observations across 12 stable shared cases, produced 24 projections and 12 comparable results with six equivalent and six differing relationships, applied 24 authorized normalizations, left 20 runner-specific observations unpaired, classified six historical divergences as unresolved, emitted six peer non-applicable results, and reported zero mismatches and zero unexplained failures.
+          - check: Authority architecture hardgates
+            command: python3 -m unittest tooling.tests.test_legacy_reference_architecture tooling.tests.test_quality -v; python3 tooling/architecture_fitness.py
+            result: passed
+            details: Product, binding, kernel, target, and specification sources cannot reference comparison artifacts, taxonomy dispositions, unresolved state, or historical consensus; comparison tooling cannot carry source-rewrite tokens or acceptance mappings; historical majority and consensus remain non-authoritative; the contract and normalization rules remain tooling-owned.
+          - check: Historical runners and comparison stack
+            command: python3 tooling/legacy_reference/launch.py --check; python3 -m unittest tooling.tests.test_migration_comparison tooling.tests.test_migration_comparison_engine tooling.tests.test_migration_classification tooling.tests.test_migration_comparison_certification tooling.tests.test_migration_comparison_cli tooling.tests.test_legacy_reference_architecture tooling.tests.test_quality tooling.legacy_reference.tests.test_launch -v
+            result: passed
+            details: Both independently versioned runners, cross-runner certification, and all 104 affected comparison, classification, certification, CLI, launcher, architecture, and profile tests pass.
+          - check: Product, contract, and repository verification
+            result: passed
+            details: TypeScript direct typecheck/build and 963 tests pass; Python package build and 789 tests pass; Rust fmt, Clippy, check, build, and tests pass; canonical, core, public, baseline, generated-artifact, security, governance, documentation, repository formatting, and patch-integrity checks pass.
+          - check: Canonical profiles
+            command: ./strling profile local; ./strling profile pull-request; ./strling profile full
+            result: not_run
+            details: Comparison certification passed in every profile and no operation failed. Local reported 19 passed and six unavailable; pull-request 38 passed and seven unavailable; full 67 passed and ten unavailable. The common host constraint is installed Ruff 0.16.2 versus pinned 0.15.21; pull-request/full also report the pre-existing Bundler version mismatch, and full reports network dependency risk unavailable. Requirements were not weakened. WSL, TypeScript, Python, Rust, and all platform-dependent full-profile build/test operations otherwise executed.
     - name: Comparison readiness and corpus-gate handoff
       status: planned
       evidence: []

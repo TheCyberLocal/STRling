@@ -147,6 +147,24 @@
             "kind": "legacy-reference-boundary",
             "configuration": {
                 "consumer_sources": ["core/**", "bindings/**"],
+                "comparison_sources": [
+                    "tooling/migration_*.py",
+                    "tooling/tests/fixtures/migration_comparison/**"
+                ],
+                "comparison_contract": "tooling/migration_comparison_contract.json",
+                "comparison_forbidden_mutation_tokens": [
+                    "write_text(",
+                    "write_bytes(",
+                    ".unlink(",
+                    ".rename(",
+                    "open("
+                ],
+                "comparison_forbidden_authority_tokens": [
+                    "\"majority_is_authority\": true",
+                    "\"historical_consensus_is_normative\": true",
+                    "\"unresolved_discrepancy\": \"passed\"",
+                    "\"unresolved_discrepancy\": \"accepted\""
+                ],
                 "normative_sources": ["spec/**"],
                 "runner_sources": ["tooling/legacy_reference/**"],
                 "runner_isolation_boundaries": [
@@ -187,7 +205,15 @@
                 "forbidden_evidence_markers": [
                     "tooling/legacy_reference",
                     "legacy_reference",
-                    "strling.legacy-reference"
+                    "strling.legacy-reference",
+                    "migration_comparison",
+                    "strling.migration-comparison",
+                    "strling.migration-discrepancy",
+                    "preserved_behavior",
+                    "intentional_specification_correction",
+                    "unsupported_legacy_behavior",
+                    "unresolved_discrepancy",
+                    "historical_consensus"
                 ],
                 "runner_forbidden_roots": ["core", "spec"],
                 "runner_forbidden_authority_tokens": [
