@@ -557,8 +557,9 @@ class QualityRoutingTests(unittest.TestCase):
                 "governance",
                 "legacy_reference_check",
                 "migration_comparison_check",
+                "migration_differential_gate",
             ],
-            [member["operation"] for member in local_members[:11]],
+            [member["operation"] for member in local_members[:12]],
         )
         self.assertEqual(
             ["python3", "tooling/security.py", "integrity", "--json"],
@@ -568,7 +569,7 @@ class QualityRoutingTests(unittest.TestCase):
             member for member in local_members if member["operation"] == "test"
         )
         self.assertEqual(["core"], local_test["targets"])
-        self.assertEqual("1.4.0", toolchain.profile("local")["definition_version"])
+        self.assertEqual("1.5.0", toolchain.profile("local")["definition_version"])
 
         self.assertEqual(
             ["python3", "tooling/core_contract_validation.py"],
@@ -594,6 +595,15 @@ class QualityRoutingTests(unittest.TestCase):
             ],
             toolchain.operation("migration_comparison_check")["command"],
         )
+        self.assertEqual(
+            [
+                "python3",
+                "tooling/migration_differential.py",
+                "--repeat-runs",
+                "3",
+            ],
+            toolchain.operation("migration_differential_gate")["command"],
+        )
         for profile_id in ["local", "pull-request", "full", "release"]:
             members = toolchain.profile(profile_id)["operations"]
             self.assertEqual(
@@ -607,6 +617,13 @@ class QualityRoutingTests(unittest.TestCase):
                 1,
                 sum(
                     member["operation"] == "migration_comparison_check"
+                    for member in members
+                ),
+            )
+            self.assertEqual(
+                1,
+                sum(
+                    member["operation"] == "migration_differential_gate"
                     for member in members
                 ),
             )

@@ -2514,3 +2514,44 @@ Notion task is
 That task owns full-corpus execution and gating; it must retain conservative
 uncertainty and may resolve the six live discrepancies only with explicit
 governing authority.
+
+## Complete migration differential gate
+
+The repository now has a blocking, offline full-corpus differential command:
+
+```text
+./strling migration-differential --repeat-runs 3
+```
+
+The command executes all 20 Python and 24 TypeScript source observations,
+validates three byte-stable runs, preserves every raw observation identity, and
+emits one canonical artifact. The complete corpus fingerprint is
+`sha256:04270620441db4715cc40f6c82cea832d1c8d7c85631d96638a427d9f4a968e6`;
+the checked baseline fingerprint is
+`sha256:cb763a33bf620c467b1633b7747096da31757f41736368ced0bc859e42464366`.
+
+Eleven versioned canonical route reviews exactly cover every corpus operation.
+The current compiler boundary makes 36 observations not comparable because the
+operation is not exposed and eight legacy source-text compiler observations not
+comparable because the kernel accepts structured source contracts. No canonical
+replacement comparison is fabricated, no production divergence is approved,
+and no product behavior changes.
+
+The 12 exact historical peer comparisons remain visible: six equivalent and
+six differing only at `/outcome/evidence/return_shape`. The six differences
+retain `unresolved_discrepancy` evidence identities; they are not called
+equivalent or accepted. They do not constitute historical-to-replacement
+comparisons. Any future comparable canonical route without execution evidence,
+or any unresolved replacement classification, fails the gate.
+
+The checked baseline also rejects corpus shrinkage, source-observation changes,
+historical-comparison drift, changed canonical-boundary inputs, stale route
+reviews, baseline alteration, and missing or altered approved dispositions.
+Controlled fixture classifications cannot enter production review records. The
+gate is a mandatory operation in the `local`, `pull-request`, `full`, and
+`release` profiles, whose definition versions advanced to `1.5.0`, `1.4.0`,
+`1.4.0`, and `1.4.0` respectively.
+
+The permanent contract, counts, fingerprints, authority treatment, update
+protocol, and negative certification are recorded in
+[`full-corpus-differential.md`](full-corpus-differential.md).

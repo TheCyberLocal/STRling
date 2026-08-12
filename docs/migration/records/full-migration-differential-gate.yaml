@@ -1,0 +1,137 @@
+record_version: 2.0.0
+title: Complete migration differential gate
+status: in_progress
+objective: Execute and fingerprint the complete governed historical migration corpus, explicitly account for every absent canonical counterpart, and block corpus drift, stale review records, or unresolved replacement discrepancies without changing product semantics.
+scope:
+    diff:
+        base: "21eea17a09bd5d3c5a7c9db673614b8c0213d1f7"
+        head: working-tree
+    allowed_paths:
+        - docs/migration/**
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/contracts/snapshots/root-cli.json
+        - governance/quality.json
+        - strling
+        - tooling/architecture_fitness.py
+        - tooling/legacy_reference/launch.py
+        - tooling/migration_differential.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/tests/fixtures/migration_differential/**
+        - tooling/tests/test_legacy_reference_architecture.py
+        - tooling/tests/test_migration_differential.py
+        - tooling/tests/test_quality.py
+        - toolchain.json
+    forbidden_paths:
+        - bindings/**
+        - core/**
+        - spec/**
+    expected_files:
+        - docs/migration/full-corpus-differential.md
+        - docs/migration/records/full-migration-differential-gate.yaml
+        - governance/contracts/snapshots/root-cli.json
+        - tooling/migration_differential.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/tests/fixtures/migration_differential/certification.json
+        - tooling/tests/test_migration_differential.py
+    permitted_generated_changes:
+        - public-contract-snapshots
+    expected_generated_outputs:
+        - public-contract-snapshots
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence: []
+    public_api_change:
+        level: additive
+        evidence:
+            - Adds the engineering-only migration-differential command to the governed root CLI; binding and package APIs are unchanged.
+        affected_surfaces:
+            - root-cli
+    schema_change:
+        level: compatible
+        evidence:
+            - Adds independently versioned internal full-corpus gate artifacts without changing runner, canonical, or public schemas.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: compatible
+        evidence:
+            - Ratchets non-normative migration comparison evidence into an offline blocking repository gate while retaining the existing authority boundary.
+    generated_output_change:
+        level: additive
+        evidence:
+            - Regenerates the additive root CLI public-contract snapshot for the migration-only command.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Full-corpus differential contract and focused tests
+      command: python3 -m unittest tooling.tests.test_migration_differential -v
+      expected_result: Complete coverage, deterministic evidence, stale review detection, corpus shrinkage rejection, unresolved replacement blocking, and controlled mutations pass.
+    - name: Root full-corpus differential gate
+      command: ./strling migration-differential --repeat-runs 3
+      expected_result: All governed historical observations are reproduced, every canonical counterpart state is explicit, no blocking discrepancy remains, and canonical JSON evidence is emitted.
+    - name: Repository authority and integrity
+      command: python3 tooling/governance.py && python3 tooling/architecture_fitness.py && python3 tooling/documentation_integrity.py && git diff --check
+      expected_result: Scope, authority, documentation, and patch-integrity hardgates pass without product dependencies on migration evidence.
+    - name: Canonical profiles
+      command: ./strling profile local && ./strling profile pull-request && ./strling profile full
+      expected_result: The full-corpus gate passes in every profile; host-unavailable operations remain explicit and no operation fails.
+checkpoints:
+    - name: Scope and full-corpus contract lock
+      status: passed
+      evidence:
+          - check: Complete operation and path scope
+            result: passed
+            details: The active task permits only migration documentation, isolated tooling, root/profile wiring, and authority hardgates; bindings, core, and specifications remain forbidden.
+          - check: Versioned full-corpus contract
+            command: python3 -m json.tool tooling/migration_differential_contract.json
+            result: passed
+            details: Artifact, baseline, and gate schemas are version 1.0.0; 11 stable route reviews exactly cover every operation in the 20-case Python and 24-case TypeScript corpora.
+          - check: Canonical boundary accounting
+            result: passed
+            details: Thirty-six observations are operation_not_exposed and eight legacy source-text compiler observations have incompatible_surface; every state has rationale, authority, and a stable review identity.
+    - name: Deterministic corpus execution and review hardgates
+      status: passed
+      evidence:
+          - check: Complete three-run corpus differential
+            command: ./strling migration-differential --repeat-runs 3
+            result: passed
+            details: All 44 source observations reproduced with zero mismatches. Full corpus fingerprint sha256:04270620441db4715cc40f6c82cea832d1c8d7c85631d96638a427d9f4a968e6 and baseline fingerprint sha256:cb763a33bf620c467b1633b7747096da31757f41736368ced0bc859e42464366 passed.
+          - check: Historical peer evidence retention
+            result: passed
+            details: Twelve exact peer comparisons remain six equivalent and six unresolved return-shape differences under result fingerprint sha256:06a2e2d095f89ba2fdfb13ffc950e1290b920d558605ab176bd4d08887dfba97; none becomes replacement authority.
+          - check: Replacement hardgate
+            result: passed
+            details: Comparable routes require executable canonical evidence and taxonomy-valid migration_review records; unresolved replacement discrepancies are blocking and fixture-only classifications cannot enter the baseline.
+    - name: Mutation certification and root profile integration
+      status: passed
+      evidence:
+          - check: Focused gate, profile, and authority tests
+            command: python3 -m unittest tooling.tests.test_migration_differential tooling.tests.test_quality tooling.tests.test_legacy_reference_architecture -v
+            result: passed
+            details: All 71 tests passed, including complete coverage, repeated determinism, corpus shrinkage, source observation drift, stale route reviews, canonical-boundary drift, peer-evidence drift, altered baseline, removed or altered approved disposition, unresolved replacement, profile membership, and evidence-leakage hardgates.
+          - check: Root and profile integration
+            result: passed
+            details: The root command emits canonical JSON and exits successfully; migration_differential_gate appears exactly once in local 1.5.0, pull-request 1.4.0, full 1.4.0, and release 1.4.0.
+          - check: Product preservation
+            result: passed
+            details: No binding, kernel, specification, parser, compiler, emitter, Simply, diagnostic, target, or package API behavior changed; the only public-surface addition is the governed engineering-only root command.
+    - name: Repository certification and readiness
+      status: planned
+      evidence: []
+commits: []

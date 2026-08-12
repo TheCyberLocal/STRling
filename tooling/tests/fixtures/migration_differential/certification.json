@@ -1,0 +1,22 @@
+{
+    "expected_metrics": {
+        "blocking_unresolved_replacements": 0,
+        "canonical_comparable_cases": 0,
+        "canonical_not_comparable_cases": 44,
+        "historical_peer_comparisons": 12,
+        "historical_peer_unresolved_evidence": 6,
+        "source_observations": 44
+    },
+    "fixture_kind": "strling.full-migration-differential-certification-fixture",
+    "mutation_cases": [
+        "approved-disposition-altered",
+        "approved-disposition-removed",
+        "baseline-fingerprint-altered",
+        "canonical-boundary-changed",
+        "corpus-shrinkage",
+        "historical-peer-evidence-changed",
+        "source-observation-changed",
+        "stale-route-review"
+    ],
+    "version": "1.0.0"
+}

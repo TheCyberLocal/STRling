@@ -9,6 +9,7 @@ GENERATED_ARTIFACT_RUNNER="$DIR/tooling/generated_artifacts.py"
 GOVERNANCE_RUNNER="$DIR/tooling/governance.py"
 CONTRACT_RUNNER="$DIR/tooling/public_contracts.py"
 LEGACY_REFERENCE_RUNNER="$DIR/tooling/legacy_reference/launch.py"
+MIGRATION_DIFFERENTIAL_RUNNER="$DIR/tooling/migration_differential.py"
 BASELINE_RUNNER="$DIR/tooling/baseline.py"
 
 if ! command -v python3 >/dev/null 2>&1; then
@@ -406,6 +407,7 @@ print_help() {
     echo "  governance [--json]          Validate task scope and architecture rules"
     echo "  contracts [--check] [--json] Regenerate or verify public contracts"
     echo "  legacy-reference [options]   Run isolated historical reference observations"
+    echo "  migration-differential [options]  Gate the complete migration corpus"
     echo "  typecheck [lang|all]         Run configured type/static analysis"
     echo "  setup <lang|all>      Install prerequisites and dependencies"
     echo "  build <lang|all>      Build a binding if it has a build step"
@@ -430,6 +432,7 @@ print_help() {
     echo "  ./strling legacy-reference --certify"
     echo "  ./strling legacy-reference --runner python --certify"
     echo "  ./strling legacy-reference --cross-certify"
+    echo "  ./strling migration-differential --repeat-runs 3"
     echo "  ./strling check"
     echo "  ./strling profile local"
     echo "  ./strling environment typescript"
@@ -508,6 +511,16 @@ if [[ "$COMMAND" == "legacy-reference" ]]; then
     fi
     cd "$DIR" || exit 1
     python3 "$LEGACY_REFERENCE_RUNNER" "${@:2}"
+    exit $?
+fi
+
+if [[ "$COMMAND" == "migration-differential" ]]; then
+    if [[ ! -f "$MIGRATION_DIFFERENTIAL_RUNNER" ]]; then
+        echo "Error: migration differential runner not found at $MIGRATION_DIFFERENTIAL_RUNNER"
+        exit 1
+    fi
+    cd "$DIR" || exit 1
+    python3 "$MIGRATION_DIFFERENTIAL_RUNNER" "${@:2}"
     exit $?
 fi
 

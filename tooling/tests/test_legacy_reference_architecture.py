@@ -13,7 +13,9 @@ CONFIGURATION: Mapping[str, object] = {
     "consumer_sources": ["core/**", "bindings/**"],
     "comparison_sources": [
         "tooling/migration_*.py",
+        "tooling/migration_differential*.json",
         "tooling/tests/fixtures/migration_comparison/**",
+        "tooling/tests/fixtures/migration_differential/**",
     ],
     "comparison_contract": "tooling/migration_comparison_contract.json",
     "comparison_forbidden_mutation_tokens": [
@@ -54,8 +56,10 @@ CONFIGURATION: Mapping[str, object] = {
         "legacy_reference",
         "strling.legacy-reference",
         "migration_comparison",
+        "migration_differential",
         "strling.migration-comparison",
         "strling.migration-discrepancy",
+        "strling.full-migration-differential",
         "preserved_behavior",
         "intentional_specification_correction",
         "unsupported_legacy_behavior",
@@ -208,7 +212,7 @@ class LegacyReferenceArchitectureTests(unittest.TestCase):
     def test_comparison_artifacts_cannot_leak_into_product_or_spec(self) -> None:
         self.write(
             "core/src/target/profile.rs",
-            'const SOURCE: &str = "migration_comparison";\n',
+            'const SOURCE: &str = "migration_differential";\n',
         )
         self.write(
             "spec/contracts/authority.md",

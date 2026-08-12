@@ -5,6 +5,9 @@ recorded in
 [`complementary-reference-runners.md`](complementary-reference-runners.md).
 The separately versioned projection, factual comparison, and governed taxonomy
 are defined in [`observation-comparison.md`](observation-comparison.md).
+The blocking complete-corpus execution, baseline, and canonical route-review
+contract are defined in
+[`full-corpus-differential.md`](full-corpus-differential.md).
 
 This directory contains migration-control records and verification evidence for
 the architectural initiative. It is not product documentation and MUST NOT

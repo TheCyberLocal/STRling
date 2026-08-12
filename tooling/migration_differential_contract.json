@@ -1,0 +1,203 @@
+{
+    "artifact_kind": "strling.full-migration-differential-certification",
+    "artifact_schema_version": "1.0.0",
+    "authority_model": {
+        "historical_evidence_is_normative": false,
+        "historical_peer_discrepancies_are_evidence_only": true,
+        "not_comparable_requires_review": true,
+        "unresolved_replacement_discrepancies_are_blocking": true
+    },
+    "baseline_schema_version": "1.0.0",
+    "canonical_boundary": {
+        "authority": [
+            {
+                "kind": "canonical_contract",
+                "reference": "core/src/lib.rs"
+            },
+            {
+                "kind": "ratified_architecture",
+                "reference": "docs/migration/compiler-kernel-boundary.md"
+            }
+        ],
+        "implementation_paths": [
+            "core/Cargo.lock",
+            "core/Cargo.toml",
+            "core/src/**/*.rs"
+        ],
+        "routes": [
+            {
+                "authority": [
+                    {
+                        "kind": "ratified_architecture",
+                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                    }
+                ],
+                "canonical_surface": null,
+                "operation": "api.root.parse",
+                "rationale": "The canonical kernel intentionally accepts structured source contracts; the legacy text frontend and package-root adapter are not yet exposed.",
+                "reason": "operation_not_exposed",
+                "review_id": "canonical-route-api-root-parse@1.0.0",
+                "state": "not_comparable"
+            },
+            {
+                "authority": [
+                    {
+                        "kind": "ratified_architecture",
+                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                    }
+                ],
+                "canonical_surface": null,
+                "operation": "api.root.parse_to_artifact",
+                "rationale": "The canonical kernel intentionally accepts structured source contracts; the legacy artifact frontend and package-root adapter are not yet exposed.",
+                "reason": "operation_not_exposed",
+                "review_id": "canonical-route-api-root-parse-artifact@1.0.0",
+                "state": "not_comparable"
+            },
+            {
+                "authority": [
+                    {
+                        "kind": "ratified_architecture",
+                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                    }
+                ],
+                "canonical_surface": null,
+                "operation": "api.simply.compile_node",
+                "rationale": "Simply construction and target convenience adapters are outside the current canonical kernel boundary.",
+                "reason": "operation_not_exposed",
+                "review_id": "canonical-route-simply-compile@1.0.0",
+                "state": "not_comparable"
+            },
+            {
+                "authority": [
+                    {
+                        "kind": "ratified_architecture",
+                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                    }
+                ],
+                "canonical_surface": null,
+                "operation": "api.simply.literal_to_string",
+                "rationale": "Simply source rendering is outside the current canonical kernel boundary.",
+                "reason": "operation_not_exposed",
+                "review_id": "canonical-route-simply-render@1.0.0",
+                "state": "not_comparable"
+            },
+            {
+                "authority": [
+                    {
+                        "kind": "ratified_architecture",
+                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                    }
+                ],
+                "canonical_surface": null,
+                "operation": "api.simply.to_regexp",
+                "rationale": "Simply runtime-regexp construction is outside the current canonical kernel boundary.",
+                "reason": "operation_not_exposed",
+                "review_id": "canonical-route-simply-regexp@1.0.0",
+                "state": "not_comparable"
+            },
+            {
+                "authority": [
+                    {
+                        "kind": "canonical_contract",
+                        "reference": "core/src/kernel.rs"
+                    }
+                ],
+                "canonical_surface": "strling_kernel::compile(CompileRequest<SourceProgram>)",
+                "operation": "compiler.compile",
+                "rationale": "The historical operation consumes legacy source text while the canonical kernel consumes a governed structured SourceProgram; no frontend adapter yet establishes semantic correspondence.",
+                "reason": "incompatible_surface",
+                "review_id": "canonical-route-compiler-compile@1.0.0",
+                "state": "not_comparable"
+            },
+            {
+                "authority": [
+                    {
+                        "kind": "canonical_contract",
+                        "reference": "core/src/kernel.rs"
+                    }
+                ],
+                "canonical_surface": "strling_kernel::compile(CompileRequest<SourceProgram>)",
+                "operation": "compiler.compile_with_metadata",
+                "rationale": "The historical metadata compiler consumes legacy source text and returns legacy IR metadata; the canonical structured request/result surface is not a faithful counterpart without the governed frontend adapter.",
+                "reason": "incompatible_surface",
+                "review_id": "canonical-route-compiler-metadata@1.0.0",
+                "state": "not_comparable"
+            },
+            {
+                "authority": [
+                    {
+                        "kind": "ratified_architecture",
+                        "reference": "core/src/lib.rs"
+                    }
+                ],
+                "canonical_surface": null,
+                "operation": "emitter.pcre2.emit",
+                "rationale": "Target lowering and emission remain intentionally absent from the current canonical kernel boundary.",
+                "reason": "operation_not_exposed",
+                "review_id": "canonical-route-pcre2-emit@1.0.0",
+                "state": "not_comparable"
+            },
+            {
+                "authority": [
+                    {
+                        "kind": "ratified_architecture",
+                        "reference": "core/src/lib.rs"
+                    }
+                ],
+                "canonical_surface": null,
+                "operation": "emitter.pcre2.emit_with_diagnostics",
+                "rationale": "Target lowering and emission remain intentionally absent from the current canonical kernel boundary, so legacy emitter diagnostics have no executable canonical counterpart.",
+                "reason": "operation_not_exposed",
+                "review_id": "canonical-route-pcre2-diagnostics@1.0.0",
+                "state": "not_comparable"
+            },
+            {
+                "authority": [
+                    {
+                        "kind": "ratified_architecture",
+                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                    }
+                ],
+                "canonical_surface": null,
+                "operation": "parser.parse",
+                "rationale": "The legacy regex-compatible text frontend is not yet part of the canonical Rust kernel.",
+                "reason": "operation_not_exposed",
+                "review_id": "canonical-route-parser-parse@1.0.0",
+                "state": "not_comparable"
+            },
+            {
+                "authority": [
+                    {
+                        "kind": "ratified_architecture",
+                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                    }
+                ],
+                "canonical_surface": null,
+                "operation": "parser.parse_to_artifact",
+                "rationale": "The legacy regex-compatible artifact frontend is not yet part of the canonical Rust kernel.",
+                "reason": "operation_not_exposed",
+                "review_id": "canonical-route-parser-artifact@1.0.0",
+                "state": "not_comparable"
+            }
+        ]
+    },
+    "comparison_contract": {
+        "comparison_schema_version": "1.0.0",
+        "normalization_rules_version": "1.0.0",
+        "projection_schema_version": "1.0.0",
+        "taxonomy_version": "1.0.0"
+    },
+    "gate_schema_version": "1.0.0",
+    "runner_corpora": [
+        {
+            "minimum_case_count": 20,
+            "path": "tooling/legacy_reference/python_corpus.json",
+            "runner_id": "python"
+        },
+        {
+            "minimum_case_count": 24,
+            "path": "tooling/legacy_reference/corpus.json",
+            "runner_id": "typescript"
+        }
+    ]
+}
