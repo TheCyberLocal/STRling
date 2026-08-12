@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Evidence-bearing rewrite equivalence and portability explanations
-status: in_progress
+status: complete
 objective: Make equivalent_rewrite impossible without current authored certification evidence and expose deterministic target-aware explanations without applying rewrites, lowering, emission, or product migration.
 scope:
     diff:
@@ -135,12 +135,91 @@ checkpoints:
             result: passed
             details: P09-T04 already owns a pure planner, one hard-coded rewrite.atomic_literal.elide.v1 strategy, three structural proof conditions, replacement-capability checks, complete attempt evidence, profile correspondence, property tests, and internal validation. The missing P09-T05 boundary is authored/versioned registry authority, reproducible strategy/conformance fingerprints bound into selected plans, stale-evidence rejection, and target-aware explanatory diagnostics. Canonical portability/result schemas already carry stable status, reason code, node IDs, and Diagnostic values, so the compiler protocol schemas need no mutation.
     - name: Versioned registry and proof certification
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Authored registry authority
+            command: cargo test --manifest-path core/Cargo.toml --test rewrite_equivalence_registry --locked
+            result: passed
+            details: Registry 1.0.0 is schema-validated and contains exactly rewrite.atomic_literal.elide.v1. Its canonical strategy fingerprint is sha256:52d1a15ffb3becdde9e33f708539395e395eff752741283d90ff8bb1ccb64cc5 and conformance.atomic_literal_elision.v1 fingerprint is sha256:5fe61a36f43a50b7ce5f6e2b13f0ac36ded8bda0e6255a66027bcf669a1d3532.
+          - check: Proof and conformance completeness
+            result: passed
+            details: Three structural preconditions, two semantic invariants, three unsupported conditions, two required test identities, and runtime.atomic_literal_elision.differential.v1 are authored and fingerprint-bound. Four semantic cases with six profile expectations pass; incomplete Unicode profile evidence remains unresolved rather than being concealed by a rewrite.
+          - check: Stale or incomplete authority rejection
+            result: passed
+            details: Missing strategy tests, missing conformance cases, stale evidence SHA, missing certification, stale strategy fingerprint, and stale conformance fingerprint all fail certification or plan validation before equivalent_rewrite can be reported.
     - name: Compatibility explanations and negative evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Evidence-only explanation stage
+            command: cargo test --manifest-path core/Cargo.toml --test portability_diagnostics --test compiler_boundary_orchestration --locked
+            result: passed
+            details: Native, rewrite, unsupported, and unresolved dispositions emit deterministic canonical diagnostics STRL-PORTABILITY-0101 through STRL-PORTABILITY-0104 with profile/capability evidence, exact Semantic IR node IDs, source origins, proof identities, and certification fingerprints. Cross-program plan reuse is rejected.
+          - check: Exact public contract projection
+            result: passed
+            details: The equivalence-explanation request/result pair validates and matches the canonical kernel exactly for an ECMAScript 2024 atomic literal. It exposes both affected node IDs and primary/related source spans while preserving the existing CompileResult, Diagnostic, and Portability schema shapes and the governed kernel facade snapshot.
+          - check: Diagnostic resource-boundary preservation
+            command: cargo test --manifest-path core/Cargo.toml --test compiler_boundary_resources --locked
+            result: passed
+            details: Byte-identical explanations on the same affected nodes coalesce deterministically with their exact canonical occurrence count. The certified 4,096-requirement ceiling succeeds, 4,097 still fails structurally, and advisory diagnostics cannot exhaust the pre-existing diagnostic budget.
+          - check: Architecture mutation hardgates
+            command: python3 -m unittest tooling.tests.test_portability_diagnostics_architecture tooling.tests.test_portability_architecture tooling.tests.test_core_contracts
+            result: passed
+            details: All 25 focused tests passed. Controlled mutations prohibit capability extraction/evaluation, planning, rewrite application, lowering, emission, runtime probes, target artifacts, frontend/binding dependencies, and ambient filesystem, environment, clock, process, thread, or randomness inputs.
     - name: Property, contract, architecture, and repository certification
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: Complete Rust and contract certification
+            command: cargo test --manifest-path core/Cargo.toml --all-targets --locked; cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; python3 tooling/core_contract_validation.py
+            result: passed
+            details: All 258 Rust tests passed, including planner/property/profile differential, registry, explanation, public facade, contract, resource, normalization, semantic, structural, safety, frontend, and target suites. Warnings-as-errors passed. Core mapping validates 11 canonical schemas and exact coverage of 78 authoritative JSON fixtures plus the equivalence registry/evidence relationship.
+          - check: Repository integrity hardgates
+            command: python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; git diff --check
+            result: passed
+            details: Public facade snapshots remained unchanged; generated-artifact integrity, scope/declarations, architecture rules, seven executable documentation examples, 134-file local link validation, and patch hygiene all passed.
+          - check: Reviewed migration differential renewal
+            command: python3 tooling/migration_differential.py --repeat-runs 3
+            result: passed
+            details: The canonical-boundary fingerprint moved from sha256:c6afd58a149f7fb0241847be2ad33bffefaf0c41397fc31efc0dab262e42d3e8 to sha256:868e23157f9e7c31a7e813b8ceaad0dd88cd89c515e32a795f6f71749f63e9d7 and baseline fingerprint to sha256:7c25f46f5611d65f77216c074c94183076cab6addfb08cbf31cc07dae699779b. Full corpus sha256:e6307c75de2a7af8a0e6958bca7a6a318fca6ba8ca232f9b17a4c46316306386, route coverage sha256:96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e, source observations, corpora, and historical-peer fingerprints remained unchanged across three runs with zero mismatches.
+          - check: Local and Pull Request profiles
+            command: ./strling profile local --artifact /tmp/p09-t05-local.json; ./strling profile pull-request --artifact /tmp/p09-t05-pull-request.json
+            result: passed
+            details: At clean commit 4b998d5c7cbd3c4478cfd20b200b3a59f22d6081, Local recorded 20 passed, zero failed, and six unavailable operations with evidence fingerprint 4c13d84c7f8c1ed64ed81c9e8c4e9131207119b4980b98146cb4b4cd1e62a716. Pull Request recorded 39 passed, zero failed, and seven unavailable operations with evidence fingerprint fbf1679117712a82f3438c3cfcb5d2f41f99fc5a0970cb409f0946dd9ecc8c9c.
+          - check: Explicit environment carry-forward
+            result: passed
+            details: The profile aggregates were UNAVAILABLE, never failed. Host Ruff 0.16.2 does not satisfy repository pin 0.15.21 for six Python/repository format/lint operations, and Pull Request additionally found inherited Ruby Bundler version drift. No waiver was added, no requirement was weakened, and every available operation passed.
+commits:
+    - sha: cc293e73fd0163bc479aa472539b8ff43782f1ab
+      subject: "docs(core): define equivalence proof boundary"
+    - sha: 30374653bd083877d0a3eb81073bd5e2f999458a
+      subject: "feat(core): certify portability equivalence evidence"
+    - sha: 4b998d5c7cbd3c4478cfd20b200b3a59f22d6081
+      subject: "chore(migration): renew equivalence boundary baseline"
+completion:
+    accomplished:
+        - Replaced the in-code rewrite authority with a versioned, schema-validated, specification-authored equivalence registry whose strategy and conformance bytes are fingerprint-bound into every selected rewrite plan.
+        - Certified atomic-literal elision as the only admitted semantics-preserving strategy, with explicit structural preconditions, semantic invariants, unsupported states, property/conformance obligations, and a deferred target-emitter execution hook.
+        - Added deterministic target-aware explanations for native, equivalent rewrite, unsupported, and unresolved evidence using existing canonical diagnostic/result contracts and exact Semantic IR source provenance.
+        - Added fail-closed negative, property, profile-differential, public-fixture, resource-boundary, and architecture-mutation coverage without applying rewrites or introducing lowering, emission, runtime probes, or product dependencies.
+    verified:
+        - All 258 Rust tests, warnings-as-errors, 25 focused Python architecture/contract tests, 11-schema/78-fixture coverage, governance, generated/public contract integrity, documentation integrity, and diff hygiene passed.
+        - The three-run migration differential passed with unchanged corpus, route, source-observation, and historical-peer fingerprints after an exact reviewed canonical-boundary renewal.
+        - Local and Pull Request profiles recorded 20 and 39 passed operations respectively, zero failures, no waivers, and only explicit inherited tool-version unavailability.
+    behavior_changed: Equivalent-rewrite claims now require current authored proof certification, and target-aware compilation now emits structured evidence explanations; matching semantics, target profiles, rewrite application, lowering, emission, and package behavior are unchanged.
+    intentional_behavior_changes:
+        - A selected equivalent rewrite now carries registry 1.0.0 plus exact strategy and conformance fingerprints and fails validation if any certification evidence is stale or absent.
+        - Portability requests now receive stable informational or warning diagnostics explaining native, rewrite, unsupported, or unresolved decisions, including source and proof evidence.
+        - Repeated byte-identical evidence on the same nodes is coalesced with an exact occurrence count so advisory output preserves the existing deterministic resource ceiling.
+    preserved_behavior:
+        - Atomic-literal elision remains the only admitted rewrite, retains its prior structural applicability, and is recorded but never applied.
+        - Unknown target-profile evidence remains unresolved and cannot become unsupported or equivalent_rewrite through registry selection.
+        - Canonical protocol schemas, target profiles, kernel facade signatures, target artifacts, bindings, packages, and release state remain unchanged.
+    transitional_architecture:
+        - runtime.atomic_literal_elision.differential.v1 remains explicitly deferred_until_target_emitter; P10 target lowering must consume the certified plan without broadening equivalence or hiding generated capability requirements.
+        - Local and Pull Request remain READY WITH RECORDED CARRY-FORWARD because host Ruff and Bundler versions do not match repository pins; all available operations passed with zero failures.
+    deferred_work:
+        - Begin P10-T01 by implementing Semantic IR to PCRE2 lowering from the certified portability plan and exact target profile without moving serialization into the lowering stage.
+        - Execute the authored atomic-literal differential hook only when a target emitter/runtime observation path exists, retaining the current certification fingerprints as the handoff identity.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Build P10-T01, Semantic IR to PCRE2 lowering, from the certified plan/equivalence boundary at the next clean committed SHA.
+    rationale: P09-T05 is complete with fail-closed authored proof authority, deterministic explanations, exact contract projection, full implementation certification, and zero failed profile operations. Only recorded host tool-version drift remains; target lowering is the next ordered migration task.
