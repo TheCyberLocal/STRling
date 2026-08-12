@@ -32,6 +32,7 @@ scope:
         - spec/portability/equivalence/1.0/**
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
         - tooling/tests/test_core_contracts.py
         - tooling/tests/test_portability_architecture.py
         - tooling/tests/test_portability_diagnostics_architecture.py
@@ -68,6 +69,7 @@ scope:
         - spec/portability/equivalence/1.0/registry.schema.json
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
         - tooling/tests/test_core_contracts.py
         - tooling/tests/test_portability_architecture.py
         - tooling/tests/test_portability_diagnostics_architecture.py
