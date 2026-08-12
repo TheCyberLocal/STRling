@@ -76,10 +76,12 @@ Serialization favors one reviewable form over minimal text:
   wildcard uses `.`, so no global `s` flag broadens unrelated nodes.
 
 Input start uses `^` without `m`. Strict input end uses a terminal negative
-lookahead rather than `$`, because `$` also matches before a final line
-terminator. `end_before_final_line_terminator` retains `$`. Line-start and
-line-end behavior is spelled with explicit zero-width alternatives over the
-four ECMAScript LineTerminator code points rather than enabling global `m`.
+lookahead. ECMAScript `$` without `m` recognizes only strict input end, so
+`end_before_final_line_terminator` uses an explicit CRLF-aware lookahead that
+accepts strict end or the position before one final LF, CR, CRLF, U+2028, or
+U+2029 sequence. Line-start and line-end behavior is spelled with explicit
+zero-width alternatives over the four ECMAScript LineTerminator code points
+rather than enabling global `m`.
 Word and non-word boundaries retain ECMAScript `\\b` and `\\B` behavior under
 the artifact's exact `u`/`i` flags.
 
@@ -122,12 +124,16 @@ artifact is returned.
 ## Exact Node/V8 certification
 
 Runtime evidence is controlled by a Python orchestrator and a fixed JavaScript
-harness. The governed runtime is Node.js `v22.23.2` on Linux x64 with V8
-`12.4.254.21`, the current maintained Node 22 release within the repository's
-`>=22,<23` toolchain constraint when this task was scoped. The orchestrator
-accepts only `STRLING_NODE_22_BINARY`, verifies the executable's official
-release SHA-256, exact Node and V8 versions, operating system, and architecture,
-and returns `unavailable` rather than substituting another host runtime.
+harness. The governed runtime is Node.js `v22.23.2` on Linux x64 with upstream
+V8 `12.4.254.21` and exact process-reported identity
+`12.4.254.21-node.56`, the current maintained Node 22 release within the
+repository's `>=22,<23` toolchain constraint when this task was scoped. The orchestrator
+accepts only `STRLING_NODE_22_BINARY`. Node publishes SHA-256 evidence for the
+Linux x64 archive, so the governed pin records that official archive hash plus
+the extracted `bin/node` hash derived from the verified archive. The
+orchestrator verifies the executable hash, exact Node and V8 versions,
+operating system, and architecture, and returns `unavailable` rather than
+substituting another host runtime.
 
 The harness receives bounded JSON on standard input and returns canonical JSON
 on standard output. It has no network, package-manager, module-resolution,

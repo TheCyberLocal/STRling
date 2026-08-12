@@ -19,6 +19,8 @@ try:
         compiler_pipeline_boundary_violation,
         diagnostic_generation_boundary_violation,
         ecmascript_target_lowering_boundary_violation,
+        ecmascript_runtime_certification_boundary_violation,
+        ecmascript_target_serialization_boundary_violation,
         kernel_boundary_violation,
         portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
@@ -33,6 +35,8 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
         compiler_pipeline_boundary_violation,
         diagnostic_generation_boundary_violation,
         ecmascript_target_lowering_boundary_violation,
+        ecmascript_runtime_certification_boundary_violation,
+        ecmascript_target_serialization_boundary_violation,
         kernel_boundary_violation,
         portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
@@ -81,6 +85,7 @@ MODULE_PATHS = {
     "diagnostic": "core/src/diagnostic/mod.rs",
     "diagnostic_generation": "core/src/diagnostic_generation.rs",
     "ecmascript_lowering": "core/src/ecmascript_lowering.rs",
+    "ecmascript_serialization": "core/src/ecmascript_serialization.rs",
     "normalization": "core/src/normalization.rs",
     "portability_planning": "core/src/portability_planning.rs",
     "portability_diagnostics": "core/src/portability_diagnostics.rs",
@@ -203,11 +208,12 @@ def validate_mapping_document(
             "diagnostic_generation",
             "portability_diagnostics",
             "ecmascript_lowering",
+            "ecmascript_serialization",
             "target_lowering",
             "target_serialization",
         ]:
             raise CoreContractError(
-                "diagnostic mapping must register target-neutral diagnostic generation, target-aware portability explanations, ECMAScript and PCRE2 target-lowering failures, and PCRE2 emission failures"
+                "diagnostic mapping must register target-neutral diagnostic generation, target-aware portability explanations, ECMAScript and PCRE2 target-lowering failures, and both emission failures"
             )
         if relative == "spec/contracts/1.0/portability.schema.json" and modules != [
             "protocol::analysis",
@@ -215,6 +221,7 @@ def validate_mapping_document(
             "portability_planning",
             "portability_diagnostics",
             "ecmascript_lowering",
+            "ecmascript_serialization",
             "target_lowering",
             "target_serialization",
         ]:
@@ -246,17 +253,19 @@ def validate_mapping_document(
                 "source mapping must register the canonical regex compatibility frontend"
             )
         if relative == "spec/contracts/1.0/target-artifact.schema.json" and modules != [
+            "ecmascript_serialization",
             "target",
             "target_serialization",
         ]:
             raise CoreContractError(
-                "target artifact mapping must register the canonical PCRE2 serializer"
+                "target artifact mapping must register both canonical serializers"
             )
         if relative == "spec/contracts/1.0/target-profile.schema.json" and modules != [
             "target::profile",
             "capability_evaluation",
             "portability_planning",
             "ecmascript_lowering",
+            "ecmascript_serialization",
             "target_lowering",
             "target_serialization",
         ]:
@@ -650,6 +659,7 @@ def validate_source_boundaries(
         portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
         ecmascript_target_lowering_boundary_violation,
+        ecmascript_target_serialization_boundary_violation,
         pcre2_target_lowering_boundary_violation,
         pcre2_target_serialization_boundary_violation,
     ):
@@ -711,6 +721,14 @@ def validate_repository(root: Path = ROOT) -> tuple[int, int]:
         (root / "core" / "Cargo.toml").read_text(encoding="utf-8")
     )
     validate_source_boundaries(sources, dependencies)
+    runtime_violation = ecmascript_runtime_certification_boundary_violation(
+        (root / "tooling" / "ecmascript_runtime_certification.py").read_text(
+            encoding="utf-8"
+        ),
+        (root / "tooling" / "node_regexp_harness.mjs").read_text(encoding="utf-8"),
+    )
+    if runtime_violation is not None:
+        raise CoreContractError(runtime_violation)
     fixture_count = validate_fixture_coverage(root)
     return schema_count, fixture_count
 

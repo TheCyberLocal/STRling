@@ -6,7 +6,7 @@ use strling_kernel::target::{
     CapabilityAvailability, ConstraintOperator, ConstraintScalar, ConstraintValue,
     PortabilityStatus, TargetArtifact, TargetProfile, TargetProfileSet,
 };
-use strling_kernel::validation::{from_json, to_json, ContractError, ValidationCode};
+use strling_kernel::validation::{from_json, to_json, ContractError, Validate, ValidationCode};
 
 const PROFILES: &[(&str, &str, &str)] = &[
     (
@@ -155,8 +155,34 @@ fn target_artifact_keeps_pattern_options_and_profile_separate() {
         .validate_against_profile(&profile)
         .expect("artifact resolves against profile");
     assert_eq!(artifact.pattern.text, "(?<word>\\p{L}+)");
+    assert!(artifact.pattern.flags.is_empty());
     assert_eq!(artifact.engine_options.len(), 6);
     assert!(!artifact.pattern.text.contains("(*UTF)"));
+}
+
+#[test]
+fn target_artifact_pattern_flags_are_optional_unique_and_sorted() {
+    let artifact: TargetArtifact = from_json(ARTIFACT).expect("legacy artifact validates");
+    let serialized = to_json(&artifact).expect("legacy artifact serializes");
+    assert!(!serialized.contains("\"flags\""));
+
+    let mut flagged = artifact.clone();
+    flagged.pattern.flags = vec!["i".to_owned(), "u".to_owned()];
+    flagged.validate().expect("canonical pattern flags");
+
+    flagged.pattern.flags.swap(0, 1);
+    let errors = flagged.validate().expect_err("out-of-order pattern flags");
+    assert!(errors
+        .errors
+        .iter()
+        .any(|error| error.code == ValidationCode::NonCanonicalOrder));
+
+    flagged.pattern.flags = vec!["unicode".to_owned()];
+    let errors = flagged.validate().expect_err("multi-letter pattern flag");
+    assert!(errors
+        .errors
+        .iter()
+        .any(|error| error.code == ValidationCode::InvalidIdentity));
 }
 
 #[test]

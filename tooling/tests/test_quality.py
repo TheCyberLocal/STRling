@@ -632,12 +632,28 @@ class QualityRoutingTests(unittest.TestCase):
         full_ids = [member["operation"] for member in full_members]
         self.assertIn("security_dependency_risk", full_ids)
         self.assertIn("pcre2_runtime_certification", full_ids)
+        self.assertIn("ecmascript_runtime_certification", full_ids)
+        self.assertEqual(
+            full_ids.index("pcre2_runtime_certification") + 1,
+            full_ids.index("ecmascript_runtime_certification"),
+        )
         self.assertNotIn(
             "pcre2_runtime_certification",
             [member["operation"] for member in local_members],
         )
         self.assertNotIn(
+            "ecmascript_runtime_certification",
+            [member["operation"] for member in local_members],
+        )
+        self.assertNotIn(
             "pcre2_runtime_certification",
+            [
+                member["operation"]
+                for member in toolchain.profile("pull-request")["operations"]
+            ],
+        )
+        self.assertNotIn(
+            "ecmascript_runtime_certification",
             [
                 member["operation"]
                 for member in toolchain.profile("pull-request")["operations"]
@@ -654,8 +670,19 @@ class QualityRoutingTests(unittest.TestCase):
             ],
             toolchain.operation("pcre2_runtime_certification")["command"],
         )
-        self.assertEqual("1.5.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.5.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual(
+            [
+                "python3",
+                "-m",
+                "tooling.ecmascript_runtime_certification",
+                "--json",
+                "--repeat-runs",
+                "2",
+            ],
+            toolchain.operation("ecmascript_runtime_certification")["command"],
+        )
+        self.assertEqual("1.6.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.6.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

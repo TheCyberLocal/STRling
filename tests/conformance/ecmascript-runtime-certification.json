@@ -1,0 +1,322 @@
+{
+    "corpus_version": "1.0.0",
+    "profile": {
+        "id": "profile:ecmascript/2024",
+        "version": "1.1.0",
+        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+    },
+    "runtime": {
+        "node_version": "v22.23.2",
+        "v8_version": "12.4.254.21-node.56",
+        "platform": "linux",
+        "architecture": "x64",
+        "archive": "node-v22.23.2-linux-x64.tar.xz",
+        "archive_sha256": "d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307",
+        "executable_sha256": "3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327",
+        "release_index": "https://nodejs.org/download/release/v22.23.2/SHASUMS256.txt"
+    },
+    "cases": [
+        {
+            "id": "named-capture-backreference",
+            "source": "^(?<word>a)\\k<word>(?![\\s\\S])",
+            "flags": ["u"],
+            "capture_names": {"1": "word"},
+            "subjects": ["aa", "ab"],
+            "expected": [
+                {
+                    "subject": "aa",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "aa",
+                            "captures": [
+                                {"index": 0, "span": [0, 2], "value": "aa"},
+                                {"index": 1, "name": "word", "span": [0, 1], "value": "a"}
+                            ]
+                        }
+                    ]
+                },
+                {"subject": "ab", "matches": []}
+            ]
+        },
+        {
+            "id": "optional-numbered-and-named-captures",
+            "source": "^(?:(a))?(?<right>b)(?![\\s\\S])",
+            "flags": ["u"],
+            "capture_names": {"2": "right"},
+            "subjects": ["b", "ab"],
+            "expected": [
+                {
+                    "subject": "b",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "b",
+                            "captures": [
+                                {"index": 0, "span": [0, 1], "value": "b"},
+                                {"index": 1, "span": null, "value": null},
+                                {"index": 2, "name": "right", "span": [0, 1], "value": "b"}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "ab",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "ab",
+                            "captures": [
+                                {"index": 0, "span": [0, 2], "value": "ab"},
+                                {"index": 1, "span": [0, 1], "value": "a"},
+                                {"index": 2, "name": "right", "span": [1, 2], "value": "b"}
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "utf16-spans",
+            "source": "^(?<emoji>😀)(?<greek>λ)(?![\\s\\S])",
+            "flags": ["u"],
+            "capture_names": {"1": "emoji", "2": "greek"},
+            "subjects": ["😀λ", "😀x"],
+            "expected": [
+                {
+                    "subject": "😀λ",
+                    "matches": [
+                        {
+                            "span": [0, 3],
+                            "value": "😀λ",
+                            "captures": [
+                                {"index": 0, "span": [0, 3], "value": "😀λ"},
+                                {"index": 1, "name": "emoji", "span": [0, 2], "value": "😀"},
+                                {"index": 2, "name": "greek", "span": [2, 3], "value": "λ"}
+                            ]
+                        }
+                    ]
+                },
+                {"subject": "😀x", "matches": []}
+            ]
+        },
+        {
+            "id": "lookbehind-and-negative-lookahead",
+            "source": "(?<=ab)(?<body>c+)(?![cd])",
+            "flags": ["u"],
+            "capture_names": {"1": "body"},
+            "subjects": ["xxabccc!", "xxabcccd"],
+            "expected": [
+                {
+                    "subject": "xxabccc!",
+                    "matches": [
+                        {
+                            "span": [4, 7],
+                            "value": "ccc",
+                            "captures": [
+                                {"index": 0, "span": [4, 7], "value": "ccc"},
+                                {"index": 1, "name": "body", "span": [4, 7], "value": "ccc"}
+                            ]
+                        }
+                    ]
+                },
+                {"subject": "xxabcccd", "matches": []}
+            ]
+        },
+        {
+            "id": "structural-line-anchors",
+            "source": "(?:^|(?<=[\\n\\r\\u2028\\u2029]))(?<line>b)(?=$|[\\n\\r\\u2028\\u2029])",
+            "flags": ["u"],
+            "capture_names": {"1": "line"},
+            "subjects": ["a\nb\nc", "a\rb\rc", "a\r\nb\r\nc", "a b c"],
+            "expected": [
+                {
+                    "subject": "a\nb\nc",
+                    "matches": [
+                        {
+                            "span": [2, 3],
+                            "value": "b",
+                            "captures": [
+                                {"index": 0, "span": [2, 3], "value": "b"},
+                                {"index": 1, "name": "line", "span": [2, 3], "value": "b"}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "a\rb\rc",
+                    "matches": [
+                        {
+                            "span": [2, 3],
+                            "value": "b",
+                            "captures": [
+                                {"index": 0, "span": [2, 3], "value": "b"},
+                                {"index": 1, "name": "line", "span": [2, 3], "value": "b"}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "a\r\nb\r\nc",
+                    "matches": [
+                        {
+                            "span": [3, 4],
+                            "value": "b",
+                            "captures": [
+                                {"index": 0, "span": [3, 4], "value": "b"},
+                                {"index": 1, "name": "line", "span": [3, 4], "value": "b"}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "a b c",
+                    "matches": [
+                        {
+                            "span": [2, 3],
+                            "value": "b",
+                            "captures": [
+                                {"index": 0, "span": [2, 3], "value": "b"},
+                                {"index": 1, "name": "line", "span": [2, 3], "value": "b"}
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "negative-lookbehind-and-positive-lookahead",
+            "source": "^..(?<!ab)(?<body>c+)(?=!)",
+            "flags": ["u"],
+            "capture_names": {"1": "body"},
+            "subjects": ["xxccc!", "abccc!"],
+            "expected": [
+                {
+                    "subject": "xxccc!",
+                    "matches": [
+                        {
+                            "span": [0, 5],
+                            "value": "xxccc",
+                            "captures": [
+                                {"index": 0, "span": [0, 5], "value": "xxccc"},
+                                {"index": 1, "name": "body", "span": [2, 5], "value": "ccc"}
+                            ]
+                        }
+                    ]
+                },
+                {"subject": "abccc!", "matches": []}
+            ]
+        },
+        {
+            "id": "include-newline-wildcard",
+            "source": "^[\\s\\S](?![\\s\\S])",
+            "flags": ["u"],
+            "subjects": ["\n", "😀"],
+            "expected": [
+                {"subject": "\n", "matches": [{"span": [0, 1], "value": "\n", "captures": [{"index": 0, "span": [0, 1], "value": "\n"}]}]},
+                {"subject": "😀", "matches": [{"span": [0, 2], "value": "😀", "captures": [{"index": 0, "span": [0, 2], "value": "😀"}]}]}
+            ]
+        },
+        {
+            "id": "end-before-final-line-terminator",
+            "source": "^a(?=$|(?:\\r\\n|[\\r\\u2028\\u2029]|(?<!\\r)\\n)(?![\\s\\S]))",
+            "flags": ["u"],
+            "subjects": ["a", "a\n", "a\r\n", "a\nb"],
+            "expected": [
+                {"subject": "a", "matches": [{"span": [0, 1], "value": "a", "captures": [{"index": 0, "span": [0, 1], "value": "a"}]}]},
+                {"subject": "a\n", "matches": [{"span": [0, 1], "value": "a", "captures": [{"index": 0, "span": [0, 1], "value": "a"}]}]},
+                {"subject": "a\r\n", "matches": [{"span": [0, 1], "value": "a", "captures": [{"index": 0, "span": [0, 1], "value": "a"}]}]},
+                {"subject": "a\nb", "matches": []}
+            ]
+        },
+        {
+            "id": "unicode-ignore-case-canonicalization",
+            "source": "^k(?![\\s\\S])",
+            "flags": ["i", "u"],
+            "subjects": ["k", "K", "K", "x"],
+            "expected": [
+                {"subject": "k", "matches": [{"span": [0, 1], "value": "k", "captures": [{"index": 0, "span": [0, 1], "value": "k"}]}]},
+                {"subject": "K", "matches": [{"span": [0, 1], "value": "K", "captures": [{"index": 0, "span": [0, 1], "value": "K"}]}]},
+                {"subject": "K", "matches": [{"span": [0, 1], "value": "K", "captures": [{"index": 0, "span": [0, 1], "value": "K"}]}]},
+                {"subject": "x", "matches": []}
+            ]
+        },
+        {
+            "id": "unicode-property-u-mode",
+            "source": "^\\p{Script=Greek}+(?![\\s\\S])",
+            "flags": ["u"],
+            "subjects": ["λβ", "λa"],
+            "expected": [
+                {"subject": "λβ", "matches": [{"span": [0, 2], "value": "λβ", "captures": [{"index": 0, "span": [0, 2], "value": "λβ"}]}]},
+                {"subject": "λa", "matches": []}
+            ]
+        },
+        {
+            "id": "unicode-set-intersection-v-mode-probe",
+            "source": "^[\\p{ASCII}&&\\p{Letter}]+(?![\\s\\S])",
+            "flags": ["v"],
+            "subjects": ["AZ", "é"],
+            "expected": [
+                {"subject": "AZ", "matches": [{"span": [0, 2], "value": "AZ", "captures": [{"index": 0, "span": [0, 2], "value": "AZ"}]}]},
+                {"subject": "é", "matches": []}
+            ]
+        },
+        {
+            "id": "zero-length-unicode-iteration",
+            "source": "(?:)",
+            "flags": ["u"],
+            "mode": "iterate",
+            "maximum_matches": 8,
+            "subjects": ["😀"],
+            "expected": [
+                {
+                    "subject": "😀",
+                    "matches": [
+                        {"span": [0, 0], "value": "", "captures": [{"index": 0, "span": [0, 0], "value": ""}]},
+                        {"span": [2, 2], "value": "", "captures": [{"index": 0, "span": [2, 2], "value": ""}]}
+                    ]
+                }
+            ]
+        }
+    ],
+    "compile_error_cases": [
+        {"id": "invalid-unclosed-class", "source": "[", "flags": ["u"], "expected_compile": "syntax_error"},
+        {"id": "duplicate-unicode-flag", "source": ".", "flags": ["u", "u"], "expected_compile": "syntax_error"},
+        {"id": "newer-runtime-scoped-modifier-extension", "source": "(?i:a)", "flags": ["u"], "expected_compile": "syntax_error"}
+    ],
+    "rewrite_cases": [
+        {
+            "id": "atomic-literal-elision",
+            "strategy_id": "rewrite.atomic_literal.elide.v1",
+            "original_source": "^(?:a)(?![\\s\\S])",
+            "rewritten_source": "^a(?![\\s\\S])",
+            "flags": ["u"],
+            "subjects": ["a", "b", "aa"]
+        }
+    ],
+    "generated_cases": {
+        "seed": 23434101947158087,
+        "count": 128,
+        "maximum_source_bytes": 160,
+        "maximum_subject_utf16_units": 160
+    },
+    "serializer_pathologies": [
+        "deeply_nested_groups",
+        "dense_character_class",
+        "escape_palette",
+        "empty_construct",
+        "maximum_bounded_quantifier",
+        "legal_and_illegal_capture_names",
+        "malformed_lowered_artifact",
+        "conflicting_options"
+    ],
+    "performance_budget": {
+        "warmup_iterations": 16,
+        "sample_iterations": 128,
+        "median_microseconds": {
+            "analysis_and_planning": 10000,
+            "lowering": 5000,
+            "serialization": 5000
+        }
+    }
+}

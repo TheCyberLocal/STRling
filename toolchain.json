@@ -212,6 +212,21 @@
                 "network": "offline",
                 "result_contract": "certification-result-v1",
                 "result_operation_id": "certification.pcre2-runtime"
+            },
+            "ecmascript_runtime_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.ecmascript_runtime_certification",
+                    "--json",
+                    "--repeat-runs",
+                    "2"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.ecmascript-runtime"
             }
         },
         "profiles": {
@@ -382,7 +397,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.5.0",
+                "definition_version": "1.6.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -427,6 +442,9 @@
                     },
                     {
                         "operation": "pcre2_runtime_certification"
+                    },
+                    {
+                        "operation": "ecmascript_runtime_certification"
                     },
                     {
                         "operation": "format_check",
@@ -524,7 +542,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.5.0",
+                "definition_version": "1.6.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -569,6 +587,9 @@
                     },
                     {
                         "operation": "pcre2_runtime_certification"
+                    },
+                    {
+                        "operation": "ecmascript_runtime_certification"
                     },
                     {
                         "operation": "format_check",

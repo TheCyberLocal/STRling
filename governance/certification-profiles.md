@@ -131,20 +131,26 @@ its evidence is accepted. Artifact schema validation is mechanical.
 
 ## Exact-engine certification
 
-Full and Release include the canonical `pcre2_runtime_certification`
-repository operation. It consumes only explicitly supplied exact PCRE2 10.42
-and 10.43 8-bit libraries, validates their versions, and preserves its
-`certification-result-v1` evidence in the profile artifact. Missing libraries
-produce `unavailable`; component selection, profile rendering, and CI cannot
-scope the operation away or reinterpret it as passing.
+Full and Release include canonical `pcre2_runtime_certification` and
+`ecmascript_runtime_certification` repository operations. The PCRE2 gate
+consumes only explicitly supplied exact PCRE2 10.42 and 10.43 8-bit libraries.
+The ECMAScript gate consumes only the explicitly supplied Node v22.23.2 Linux
+x64 executable derived from the verified official distribution, validates its
+exact executable SHA-256 plus Node v22.23.2 and process-reported V8
+12.4.254.21-node.56 identities, and executes only the fixed bounded harness.
+Both preserve
+`certification-result-v1` evidence in the profile artifact. Missing or
+mismatched engines produce `unavailable`; component selection, profile
+rendering, and CI cannot scope either operation away or reinterpret it as
+passing.
 
 The operation is offline and deterministic with respect to semantic evidence.
-Its structured result fingerprints exact binaries, profiles, corpora, harness,
-platform, configuration, bounded generated cases, resource-limit outcomes, and
-repeated semantic digests. Raw timing observations remain visible but are
-excluded from the deterministic evidence digest. Local and Pull Request omit
-the operation so their bounded developer and merge-confidence purposes remain
-unchanged.
+Their structured results fingerprint exact binaries, profiles, corpora,
+harnesses, platforms, configurations, bounded generated cases, runtime
+observations, and repeated semantic digests. Raw timing observations remain
+visible but are excluded from deterministic evidence digests. Local and Pull
+Request omit both operations so their bounded developer and merge-confidence
+purposes remain unchanged.
 
 ## Human-summary ownership
 

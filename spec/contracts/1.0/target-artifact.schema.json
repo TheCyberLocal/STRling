@@ -74,6 +74,14 @@
                 },
                 "text": {
                     "type": "string"
+                },
+                "flags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[a-z]$"
+                    },
+                    "uniqueItems": true
                 }
             }
         },

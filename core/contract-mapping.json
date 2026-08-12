@@ -46,6 +46,7 @@
                 "diagnostic_generation",
                 "portability_diagnostics",
                 "ecmascript_lowering",
+                "ecmascript_serialization",
                 "target_lowering",
                 "target_serialization"
             ]
@@ -59,6 +60,7 @@
                 "portability_planning",
                 "portability_diagnostics",
                 "ecmascript_lowering",
+                "ecmascript_serialization",
                 "target_lowering",
                 "target_serialization"
             ]
@@ -88,8 +90,12 @@
         },
         {
             "schema": "spec/contracts/1.0/target-artifact.schema.json",
-            "sha256": "77b08d429584eafddd51fddc813b1eed89f5fb347f2b1751516a601b5b887c81",
-            "rust_modules": ["target", "target_serialization"]
+            "sha256": "1d0bfb5c31c8ae2e51338014dfee0c74024591a2f8628686cc323ab743e444bc",
+            "rust_modules": [
+                "ecmascript_serialization",
+                "target",
+                "target_serialization"
+            ]
         },
         {
             "schema": "spec/contracts/1.0/target-profile.schema.json",
@@ -99,6 +105,7 @@
                 "capability_evaluation",
                 "portability_planning",
                 "ecmascript_lowering",
+                "ecmascript_serialization",
                 "target_lowering",
                 "target_serialization"
             ]

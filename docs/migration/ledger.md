@@ -2833,3 +2833,30 @@ P11-T01 is `READY WITH RECORDED CARRY-FORWARD`. The next ordered task is
 which owns deterministic ECMAScript syntax and flags, `TargetArtifact`
 construction, and pinned real Node/V8 execution evidence without moving
 capability or rewrite policy into the serializer.
+
+## Implement ECMAScript serialization and Node execution certification
+
+Scope checkpoint `e1b27fcff4af5dd666ed88dabf229806381b7a58` fixes the
+serializer boundary, optional per-program flag contract, exact Node/V8
+identity, bounded execution corpus, and Full/Release-only certification gate.
+The pure Rust serializer now consumes only a validated
+`EcmascriptLoweringPlan`, emits deterministic ECMAScript source with canonical
+`u` or `iu` flags, and constructs one validated `TargetArtifact` without
+recomputing capability or rewrite policy. Empty PCRE2 flags remain omitted, so
+existing PCRE2 artifact bytes and fingerprints are unchanged.
+
+Project-era Rust and Cargo 1.75.0 with rustfmt 1.7.0 pass formatting,
+warning-denied all-target Clippy, and all 306 all-target core tests. The
+serializer/runtime architecture suite, runtime orchestrator unit suite, 11
+contract mappings with 78 fixtures, and 15 existing core-contract tests also
+pass. Exact official Node v22.23.2/V8 12.4.254.21-node.56 on the verified
+Windows x64 distribution executes all 145 bounded requests twice with stable
+semantic digest
+`06d0cfdcc13324335464f795d8b6b9a6fc2fb778df4a22b7a0d3e8830e9ec23b`.
+This corroborates the selected engine and corpus but does not replace the
+required verified Linux x64 executable identity.
+
+P11-T02 remains `IN PROGRESS`. Canonical Linux execution, complete repository
+profiles and hardgates, the final evidence record, and a clean final commit are
+still required; no unavailable operation has been waived or represented as
+passing.

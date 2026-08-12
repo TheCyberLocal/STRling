@@ -11,6 +11,7 @@ scope:
         - core/src/ecmascript_serialization.rs
         - core/src/lib.rs
         - core/src/target/mod.rs
+        - core/src/target_serialization.rs
         - core/tests/ecmascript_runtime_certification.rs
         - core/tests/ecmascript_serialization.rs
         - core/tests/ecmascript_serialization_properties.rs
@@ -20,6 +21,7 @@ scope:
         - docs/migration/ledger.md
         - docs/migration/records/ecmascript-target-serialization.yaml
         - governance/architecture-rules.json
+        - governance/certification-profiles.md
         - governance/change-control.json
         - spec/contracts/1.0/target-artifact.schema.json
         - tests/conformance/ecmascript-runtime-certification.json
@@ -47,7 +49,6 @@ scope:
         - core/src/regex_frontend.rs
         - core/src/semantic/**
         - core/src/target_lowering.rs
-        - core/src/target_serialization.rs
         - packages/**
         - spec/contracts/1.0/semantic-ir.schema.json
         - spec/contracts/1.0/target-profile.schema.json
@@ -60,6 +61,7 @@ scope:
         - core/src/ecmascript_serialization.rs
         - core/src/lib.rs
         - core/src/target/mod.rs
+        - core/src/target_serialization.rs
         - core/tests/ecmascript_runtime_certification.rs
         - core/tests/ecmascript_serialization.rs
         - core/tests/ecmascript_serialization_properties.rs
@@ -68,6 +70,7 @@ scope:
         - docs/migration/ecmascript-target-serialization.md
         - docs/migration/ledger.md
         - docs/migration/records/ecmascript-target-serialization.yaml
+        - governance/certification-profiles.md
         - governance/change-control.json
         - spec/contracts/1.0/target-artifact.schema.json
         - tests/conformance/ecmascript-runtime-certification.json
@@ -130,7 +133,7 @@ required_verification:
       expected_result: Optional pattern flags preserve existing artifact bytes, ECMAScript artifacts validate canonically, and controlled mutations reject policy recomputation, PCRE2 reuse, runtime/ambient/product dependencies, target-neutral reverse dependencies, and direct bypass.
     - name: Exact Node/V8 runtime certification
       command: STRLING_NODE_22_BINARY=/exact/node-v22.23.2/bin/node python3 -m tooling.ecmascript_runtime_certification --json --repeat-runs 2
-      expected_result: The official-sha256 Node v22.23.2 Linux x64 binary reports V8 12.4.254.21 and all bounded source/flags, UTF-16 span, capture, assertion, anchor/newline, case, Unicode u/v, error, zero-length, rewrite, negative, and determinism cases pass twice with one stable certification-result-v1 digest.
+      expected_result: The official-sha256 Node v22.23.2 Linux x64 binary reports process V8 identity 12.4.254.21-node.56 and all bounded source/flags, UTF-16 span, capture, assertion, anchor/newline, case, Unicode u/v, error, zero-length, rewrite, negative, and determinism cases pass twice with one stable certification-result-v1 digest.
     - name: Complete kernel and repository certification
       command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && python3 tooling/documentation_integrity.py && python3 tooling/migration_differential.py --repeat-runs 3 && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check
       expected_result: Every available hardgate passes, exact runtime evidence is recorded by Full, reviewed canonical-boundary evidence is current, host-only gaps remain unavailable without waiver, and the final committed tree is clean.
@@ -140,29 +143,49 @@ checkpoints:
       evidence:
           - check: Read-first contract and stage inventory
             result: passed
-            details: EcmascriptLoweringPlan supplies a validated closed operation tree, deterministic captures, global case intent, the required Unicode option, requirements, certified rewrites, and provenance. TargetArtifact supplies pattern text, immutable profile reference, engine options, requirements, UTF-8 source mapping, and diagnostics, but cannot currently represent per-program ECMAScript flags; an optional canonical EmittedPattern flags field is the smallest backward-compatible contract addition.
+            details: EcmascriptLoweringPlan supplies a validated closed operation tree, deterministic captures, global case intent, the required Unicode option, requirements, certified rewrites, and provenance. TargetArtifact supplies pattern text, immutable profile reference, engine options, requirements, UTF-8 source mapping, and diagnostics, but cannot currently represent per-program ECMAScript flags; an optional canonical EmittedPattern flags field is the smallest backward-compatible contract addition. The existing PCRE2 constructor receives only an explicit empty flags vector so its serialized bytes and fingerprint remain unchanged.
           - check: Normative ECMAScript syntax and execution authority
             result: passed
             details: ECMA-262 2024 RegExp grammar, initialization, execution, match-index, canonicalization, and word-character clauses govern serializer spelling and runtime observations. ES2024 has global u/i flags but no PCRE2-style scoped modifier authority, requiring structural wildcard/line-anchor spellings and explicit artifact flags.
           - check: Exact maintained runtime selection
             result: passed
-            details: The official Node 22 archive identifies v22.23.2 as the current maintained Jod release, with V8 12.4.254.21 and Linux x64 distribution, satisfying the repository's governed Node >=22,<23 constraint. The certification operation will require its official release SHA-256 and will never substitute the transitional host Node 18 or unrelated Windows Node 24.
+            details: The official Node 22 archive identifies v22.23.2 as the current maintained Jod release, with upstream V8 12.4.254.21 and Linux x64 distribution, satisfying the repository's governed Node >=22,<23 constraint. Official Node v22.23.2 reports the exact V8 build identity 12.4.254.21-node.56 through process.versions.v8. The official Linux x64 archive SHA-256 is d60acfe00a2932254bb0ad20e01b0d74397a0875595de719654b214f4b03f307; the extracted bin/node derived from that verified archive is 3517c2df0b2f8cd7f422b4b8450ef81c6889f08eb03e281d6de9079b15e6a327. The gate will never substitute the transitional host Node 18 or unrelated Windows Node 24.
     - name: Deterministic ECMAScript serializer and additive flag contract
-      status: planned
+      status: passed
       evidence:
           - check: Implementation and focused proof
-            result: not_run
-            details: Awaiting implementation after this governed scope commit.
+            result: passed
+            details: The pure serializer now validates and immutably consumes only EcmascriptLoweringPlan, emits canonical source and u/iu flags, projects exact options, requirements, rewrites, profile identity, diagnostics, and UTF-8 source maps, and validates the final artifact. Optional sorted unique lowercase flags preserve existing PCRE2 JSON by omitting the empty vector. Eleven schema mappings, 78 fixtures, 15 existing contract architecture tests, ten controlled ECMAScript serializer/runtime architecture tests, and eight runtime-orchestrator unit tests pass in the available Windows-side fallback.
+          - check: Runtime-discovered final-anchor correction
+            result: passed
+            details: A non-certifying Node 24 harness diagnostic demonstrated that ECMAScript dollar without m is strict end only. The serializer now uses an explicit CRLF-aware lookahead for end_before_final_line_terminator; the governed corpus proves strict end, LF, CRLF, and a non-final newline without enabling global m.
+          - check: Canonical Rust formatter, compiler, and unit proof
+            result: passed
+            details: An isolated official rustup installation outside the repository supplied project-era Rust and Cargo 1.75.0 with rustfmt 1.7.0. Cargo fmt --check, warning-denied all-target Clippy, and all 306 all-target tests pass with Cargo.lock enforced. The same full core test matrix also passes on current Rust 1.97.1, while the governed 1.75.0 result remains authoritative for compatibility.
     - name: Controlled Node/V8 harness, corpus, and quality-profile integration
-      status: planned
+      status: in_progress
       evidence:
           - check: Runtime protocol and exact execution evidence
+            result: passed
+            details: The fixed module-free harness enforces byte, case, subject, and match limits; independently confirms d-index instrumentation parity; handles zero-length Unicode iteration; and reports runtime identity. The Python orchestrator checks the exact extracted executable SHA, Node, V8, Linux x64 identity, corpus/profile/harness fingerprints, and two-run semantic determinism. Its eight unit tests pass, host-specific I/O errors are excluded from deterministic evidence, missing or mismatched binaries produce structured unavailable evidence, Full and Release 1.6.0 register the operation immediately after PCRE2 certification, and Local/Pull Request omit it.
+          - check: Non-certifying protocol diagnostic
+            result: passed
+            details: Host Node v24.4.1/V8 13.6 on Windows accepts the deliberately out-of-profile (?i:a) scoped-modifier extension, proving the negative case distinguishes a newer runtime from the selected V8 12.4 surface. The remaining 144 detailed, error, rewrite, and generated requests pass with semantic digest ceaf02f53bf7ef2cfc4dbdeae50efe899e221358965bcd8eb63b433bc28b707c. This proves the protocol and negative discrimination only and is not accepted as exact runtime certification.
+          - check: Exact Node 22 engine proof on the noncanonical Windows distribution
+            result: passed
+            details: The official Node v22.23.2 Windows x64 archive SHA-256 1177b4137ba5adaa56354ae40f1080c7450e8ae09cecb47da459d1c52ac99f97 and node.exe SHA-256 0d0f5e39f9f3d9587bc19f73eab3c2c9c4903fd02d6dbf9c853dd81b3d95fad4 were verified against upstream SHASUMS256.txt. The exact process identities v22.23.2 and V8 12.4.254.21-node.56 executed all 145 requests twice on win32/x64 with stable semantic digest 06d0cfdcc13324335464f795d8b6b9a6fc2fb778df4a22b7a0d3e8830e9ec23. This independently proves the selected engine behavior and corpus determinism but does not satisfy the separate canonical Linux x64 executable-identity gate.
+          - check: Exact Node 22 Linux x64 certification
             result: not_run
-            details: Awaiting fixed harness, governed corpus, Python orchestrator, official binary checksum, repeat-determinism proof, and Full/Release registration.
+            details: The verified official archive and exact extracted executable are available locally, but the Linux executable cannot run while the WSL service is exhausted. No host runtime was substituted.
     - name: Complete repository and migration certification
-      status: planned
+      status: in_progress
       evidence:
-          - check: Full hardgate evidence
+          - check: Available platform-neutral hardgate evidence
+            result: passed
+            details: Project-era Rust formatting, warning-denied Clippy, all 306 core tests, focused serializer/runtime and architecture suites, 11 contract mappings with 78 fixtures, 15 existing core-contract tests, seven documentation examples with 140-file link validation, scope/change declarations, and patch integrity pass. Windows cannot authoritatively run the Linux shell entrypoint, exact Linux Node executable, or complete profile matrix; those remain pending rather than waived or substituted.
+          - check: Canonical Linux hardgate evidence
             result: not_run
-            details: Awaiting implementation, reviewed boundary renewal if required, complete profiles, final task record, and clean-tree verification.
-commits: []
+            details: Awaiting recovery of the exhausted WSL service for exact Linux Node identity, canonical governance/architecture evaluation, migration differential, generated/public contract tooling unavailable on Windows, Local/Pull Request/Full profiles, final task record, and clean-tree verification.
+commits:
+    - sha: e1b27fcff4af5dd666ed88dabf229806381b7a58
+      subject: "docs(core): define ECMAScript serialization certification"

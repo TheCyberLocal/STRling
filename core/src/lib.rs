@@ -7,9 +7,9 @@
 //! and safety analyses, structured diagnostic generation, pure factual target
 //! capability evaluation, pure portability planning, independent pure PCRE2 and
 //! ECMAScript structured target lowering, deterministic PCRE2 artifact
-//! serialization, and crate-private stage orchestration. Runtime execution,
-//! bindings, editor presentation, and product integration remain intentionally
-//! absent.
+//! serialization, deterministic ECMAScript artifact serialization, and
+//! crate-private stage orchestration. Runtime execution, bindings, editor
+//! presentation, and product integration remain intentionally absent.
 #![forbid(unsafe_code)]
 
 pub mod capability_evaluation;
@@ -24,6 +24,7 @@ pub mod conformance;
 pub mod diagnostic;
 pub mod diagnostic_generation;
 pub mod ecmascript_lowering;
+pub mod ecmascript_serialization;
 pub mod normalization;
 pub mod portability_diagnostics;
 pub mod portability_planning;

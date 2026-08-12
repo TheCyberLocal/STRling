@@ -255,6 +255,8 @@ pub struct EmittedPattern {
     pub syntax: PatternSyntax,
     pub encoding: Utf8Encoding,
     pub text: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub flags: Vec<String>,
 }
 
 /// JSON scalar selected for an engine option.
@@ -349,6 +351,22 @@ pub struct TargetArtifact {
 impl Validate for TargetArtifact {
     fn validate(&self) -> Result<(), ValidationErrors> {
         let mut errors = ValidationErrors::default();
+        if self.pattern.flags.windows(2).any(|pair| pair[0] >= pair[1]) {
+            errors.push(ValidationError::new(
+                ValidationCode::NonCanonicalOrder,
+                "$.pattern.flags",
+                "pattern flags must be unique and sorted",
+            ));
+        }
+        for (index, flag) in self.pattern.flags.iter().enumerate() {
+            if flag.len() != 1 || !flag.bytes().all(|byte| byte.is_ascii_lowercase()) {
+                errors.push(ValidationError::new(
+                    ValidationCode::InvalidIdentity,
+                    format!("$.pattern.flags[{index}]"),
+                    "pattern flag must be one lowercase ASCII letter",
+                ));
+            }
+        }
         if self
             .engine_options
             .windows(2)

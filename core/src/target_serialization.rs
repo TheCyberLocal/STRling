@@ -204,6 +204,7 @@ pub fn serialize_pcre2(
             syntax: PatternSyntax::Regex,
             encoding: Utf8Encoding::Utf8,
             text,
+            flags: Vec::new(),
         },
         engine_options,
         requirements,
