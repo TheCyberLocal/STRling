@@ -122,6 +122,8 @@ runtime execution, ambient state, product callers, and target-neutral reverse
 dependencies.
 
 P10-T03 owns advanced and version-sensitive feature proof against exact
-profiles. P10-T04 owns real-PCRE2 execution, pathological and sanitizer
-certification, and performance budgets. Neither later task may move semantic or
-portability decisions into serialization.
+profiles, including bounded direct engine observations that verify serialized
+artifacts without creating a product runtime. P10-T04 owns exhaustive
+pathological and sanitizer certification, runtime-resource policy, and
+performance budgets. Neither later task may move semantic or portability
+decisions into serialization.
