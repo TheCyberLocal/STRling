@@ -2915,6 +2915,47 @@ remain unavailable. The current governed profile enumerates only five facts,
 so this task must complete the capability vocabulary and renew exact profile
 evidence before lowering can claim full coverage.
 
-P11-T03 is `IN PROGRESS`. The next checkpoint is the complete exact profile
-and independent Python target representation with deterministic/fail-closed
-unit, property, and architecture proof.
+Profile revision 1.2.0 now enumerates all eighteen canonical requirements and
+fingerprints as
+`sha256:55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c`.
+It corrects Unicode property escapes to unavailable, retains variable-length
+lookbehind as unavailable, admits common-width fixed lookbehind, and records
+native atomic and possessive support. Required `python.pattern_kind=str`
+remains typed runtime data, while the lowering boundary also accepts explicit
+`bytes` profiles and rejects Unicode-only semantics with a stable diagnostic.
+
+At implementation checkpoint
+`0ad92f65b3d04a55563958ad527d25a4e23354a0`, the independent pure Rust
+lowering owns a closed Python `re` operation tree for every Semantic IR
+variant, deterministic capture slots, pattern kind, exact options,
+requirements, certified rewrites, and node/source provenance. It returns
+`STRL-PYTHON_RE_LOWERING-0001` through `0015` failures without emitting regex
+text, constructing artifacts, invoking Python, translating PCRE2/ECMAScript
+output, or consulting the historical Python binding.
+
+All 318 Rust tests and warning-denied Clippy pass. The complete profiles
+produce zero unknown generated requirements; 2,048 generated plan invocations
+retain 64 certified rewrites, zero unresolved requirements, and 160 genuine
+profile differentials. All 83 architecture tests, 15 core-contract tests, 11
+schema mappings with 78 fixtures, enforced public/generated contracts,
+governance, documentation integrity across 141 files, formatting, and patch
+integrity pass. Under the verified official Node v22.23.2 Linux x64 binary,
+the three-repeat migration gate has zero mismatches and renews only the
+canonical boundary to
+`sha256:7aac6d8221aa03b0b978b1cfe8047ea1a2ccbc344ac05d661e76adba153913a0`;
+the reviewed baseline is
+`sha256:58358b3edb3bcde30a07eb2bbabe1c35860bffb0f81ebf0bda355f085a9c6461`.
+
+On the clean implementation commit, Local 1.5.0 passes all 26 operations with
+fingerprint
+`77582a99e81c55f86ff6418f560983984a70507d307a6c42e12fed3d2a53900f`.
+Pull Request 1.4.0 records 44 passed, zero failed, and only the inherited Ruby
+Bundler drift and missing Swift as unavailable, with fingerprint
+`1320a4902a46e136b500900b616c2f7ec7685bd2267a50e6d64e2f17f6006246`.
+No finding is waived or represented as passing.
+
+P11-T03 is `READY WITH RECORDED CARRY-FORWARD`. P11-T04 is the next ordered
+task and owns deterministic Python `re` syntax/escaping, flags and options,
+`TargetArtifact` construction, and exact CPython execution certification from
+the completed lowering plan without moving capability or rewrite policy into
+serialization.

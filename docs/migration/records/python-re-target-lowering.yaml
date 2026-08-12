@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Independent Python re 3.11 structured target lowering
-status: in_progress
+status: complete
 objective: Complete the governed CPython re 3.11 capability profile and lower normalized Semantic IR plus the exact certified portability plan into deterministic Python-specific structure without translating PCRE2 or ECMAScript output, serializing regex text, executing Python, constructing a TargetArtifact, or changing public, binding, package, or publication behavior.
 scope:
     diff:
@@ -144,8 +144,47 @@ checkpoints:
             result: passed
             details: Under the verified official Node v22.23.2 Linux x64 binary, three repeated runs have zero mismatches. Only the canonical boundary changed, to sha256:7aac6d8221aa03b0b978b1cfe8047ea1a2ccbc344ac05d661e76adba153913a0; corpus, route, source-observation, historical-peer, and contract fingerprints remain unchanged. The reviewed baseline fingerprint is sha256:58358b3edb3bcde30a07eb2bbabe1c35860bffb0f81ebf0bda355f085a9c6461.
     - name: Complete repository and profile certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Complete repository hardgates
+            result: passed
+            details: At clean implementation commit 0ad92f65b3d04a55563958ad527d25a4e23354a0, all 318 Rust tests, warning-denied Clippy, 83 architecture tests, 15 core-contract tests, 11 schema mappings with 78 fixtures, enforced public contracts, generated-artifact checks including 126 Swift fixtures, governance, documentation integrity across 141 files and seven executable examples, exact-tool migration differential, formatting, and patch integrity pass.
+          - check: Exact Local profile
+            result: passed
+            details: Local 1.5.0 passes all 26 operations with zero failed, waived, unavailable, incomplete, not-yet-configured, or not-yet-enforceable results. Its clean-commit evidence fingerprint is 77582a99e81c55f86ff6418f560983984a70507d307a6c42e12fed3d2a53900f.
+          - check: Pull Request profile with explicit carry-forward
+            result: passed
+            details: Pull Request 1.4.0 records 44 passed, zero failed, zero waived, and two unavailable operations with clean-commit evidence fingerprint 1320a4902a46e136b500900b616c2f7ec7685bd2267a50e6d64e2f17f6006246. The only unavailable operations are inherited Ruby Bundler version drift and missing Swift; neither is broadened, waived, or represented as passing.
 commits:
     - sha: 32fe04afd1db7785b43d50bfb56c24091b4f7075
       subject: "docs(core): define Python re target lowering"
+    - sha: 0ad92f65b3d04a55563958ad527d25a4e23354a0
+      subject: "feat(core): implement Python re target lowering"
+completion:
+    accomplished:
+        - Completed and immutably fingerprinted the CPython re 3.11 profile across all eighteen canonical capability requirements, explicit str/bytes pattern-kind applicability, and corrected Unicode-property unavailability.
+        - Added an independent pure Python re lowering module with a closed pre-serialization operation tree for every Semantic IR variant, native atomic and possessive behavior, deterministic capture slots, typed options, and exact provenance.
+        - Preserved certified portability decisions and rewrites without recomputing policy, translating PCRE2/ECMAScript output, emitting Python regex syntax, constructing TargetArtifact values, invoking re.compile, or consulting historical Python authority.
+        - Added focused, negative, generated-property, conformance-corpus, contract-mapping, and controlled architecture-mutation coverage with stable fail-closed diagnostics.
+    verified:
+        - All 318 Rust tests, warning-denied Clippy, 83 architecture tests, 15 core-contract tests, and every complete repository hardgate pass.
+        - The exact Node 22 three-repeat migration differential has zero mismatches and renews only the canonical boundary identity; all historical observation and corpus identities remain stable.
+        - Local passes all 26 operations; Pull Request has zero failures and only the two inherited, explicit host-tool unavailabilities.
+    behavior_changed: Internal target behavior now contains exact CPython re 3.11 capability planning and deterministic structured lowering; no Python pattern text is serialized or executed, and no public, binding, package, version, or publication surface changes.
+    intentional_behavior_changes:
+        - The governed profile now resolves the full canonical vocabulary instead of returning unknown for omitted Python capabilities.
+        - Unicode property escapes are correctly unavailable in Python re, while Unicode-aware built-in classes and scalar literals remain available for str patterns and fail closed for bytes patterns.
+        - Atomic groups and possessive repetition are retained as native Python re 3.11 structure; variable-length lookbehind remains unsupported and fixed common-width lookbehind remains admitted.
+    preserved_behavior:
+        - Semantic IR, normalization, analysis, safety, portability vocabulary and policy, public compiler contracts, existing PCRE2 and ECMAScript stages, bindings, packages, and publication state remain unchanged.
+        - The lowering boundary never emits syntax, selects host flags, invokes Python, constructs artifacts, probes ambient state, or imports historical binding behavior as authority.
+    transitional_architecture:
+        - Python re lowering is intentionally a standalone internal stage and is not yet called by the public compiler pipeline.
+        - Pull Request remains READY WITH RECORDED CARRY-FORWARD for inherited Ruby Bundler drift and missing Swift; no unavailable operation is waived or represented as passing.
+    deferred_work:
+        - P11-T04 owns deterministic Python re syntax and escaping, precedence, flags/options, TargetArtifact construction, exact CPython execution evidence, runtime spans/captures/errors, and serializer/runtime architecture fitness.
+        - Cross-engine conformance, binding migration, public orchestration, packages, versions, release notes, tagging, publication, and registry upload remain later ordered work.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P11-T04 by implementing deterministic Python re serialization and exact CPython execution certification from the completed structured lowering plan, without moving capability or rewrite policy into the serializer.
+    rationale: P11-T03 is complete with a fully evidenced CPython re 3.11 profile, independent deterministic lowering, explicit str/bytes and unsupported boundaries, exact rewrite/provenance retention, comprehensive test and architecture proof, reviewed migration-baseline renewal, and zero failed profile operations. Only inherited host-tool availability carries forward.
