@@ -59,7 +59,7 @@
                 ],
                 "canonical_surface": null,
                 "operation": "api.root.parse_to_artifact",
-                "rationale": "The regex-compatible source frontend is exposed through the root JSON CLI, but canonical target lowering and artifact emission remain intentionally unavailable.",
+                "rationale": "The regex-compatible source frontend is exposed through the root JSON CLI and pure structured PCRE2 lowering exists as a standalone stage, but canonical artifact emission and a product-facing target route remain intentionally unavailable.",
                 "reason": "operation_not_exposed",
                 "review_id": "canonical-route-api-root-parse-artifact@1.0.0",
                 "state": "not_comparable"
@@ -151,7 +151,7 @@
                 ],
                 "canonical_surface": null,
                 "operation": "emitter.pcre2.emit",
-                "rationale": "Target lowering and emission remain intentionally absent from the current canonical kernel boundary.",
+                "rationale": "Pure structured PCRE2 lowering now exists, but exact regex serialization and emission remain absent from the canonical kernel facade, so there is no comparable emitted-text surface.",
                 "reason": "operation_not_exposed",
                 "review_id": "canonical-route-pcre2-emit@1.0.0",
                 "state": "not_comparable"
@@ -165,7 +165,7 @@
                 ],
                 "canonical_surface": null,
                 "operation": "emitter.pcre2.emit_with_diagnostics",
-                "rationale": "Target lowering and emission remain intentionally absent from the current canonical kernel boundary, so legacy emitter diagnostics have no executable canonical counterpart.",
+                "rationale": "Pure structured PCRE2 lowering now produces target-lowering failures, but serialization/emission are absent from the canonical facade and legacy emitter diagnostics have no executable canonical counterpart.",
                 "reason": "operation_not_exposed",
                 "review_id": "canonical-route-pcre2-diagnostics@1.0.0",
                 "state": "not_comparable"

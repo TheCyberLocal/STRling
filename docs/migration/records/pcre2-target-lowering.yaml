@@ -21,6 +21,7 @@ scope:
         - governance/change-control.json
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_contract.json
         - tooling/migration_differential_baseline.json
         - tooling/tests/test_core_contracts.py
         - tooling/tests/test_pcre2_lowering_architecture.py
@@ -50,6 +51,8 @@ scope:
         - governance/change-control.json
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_contract.json
+        - tooling/migration_differential_baseline.json
         - tooling/tests/test_pcre2_lowering_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
