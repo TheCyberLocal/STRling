@@ -1,6 +1,6 @@
 {
     "configuration_version": 1,
-    "active_task": "docs/migration/records/pcre2-versioned-feature-correctness.yaml",
+    "active_task": "docs/migration/records/pcre2-runtime-certification.yaml",
     "generated_artifact_registry": "governance/generated-artifacts.json",
     "public_surface_registry": "governance/public-surfaces.json",
     "architecture_rule_registry": "governance/architecture-rules.json",
@@ -50,7 +50,8 @@
                 "governance/architecture.md",
                 "governance/architecture-rules.json",
                 "governance/schemas/architecture-rules.schema.json",
-                "tooling/pcre2_feature_probe.py"
+                "tooling/pcre2_feature_probe.py",
+                "tooling/pcre2_runtime_certification.py"
             ]
         }
     ],

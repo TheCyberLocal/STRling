@@ -1,0 +1,107 @@
+record_version: 2.0.0
+title: Real PCRE2 runtime, pathological-input, and performance certification
+status: in_progress
+objective: Certify canonical PCRE2 10.42 and 10.43 artifacts against exact real engines, bounded adversarial inputs, explicit resource limits, deterministic generated cases, available native sanitizers, and reproducible STRling stage budgets without adding product runtime, public API, binding, package, or publication behavior.
+scope:
+    diff:
+        base: 2a5053cc3b825698988666a97200edc6e3582c25
+        head: working-tree
+    allowed_paths:
+        - core/tests/pcre2_runtime_certification.rs
+        - docs/migration/ledger.md
+        - docs/migration/pcre2-runtime-certification.md
+        - docs/migration/records/pcre2-runtime-certification.yaml
+        - governance/certification-profiles.md
+        - governance/change-control.json
+        - tests/conformance/pcre2-runtime-certification.json
+        - toolchain.json
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/pcre2_feature_probe.py
+        - tooling/pcre2_runtime_certification.py
+        - tooling/quality.py
+        - tooling/tests/test_pcre2_feature_probe.py
+        - tooling/tests/test_pcre2_runtime_certification.py
+        - tooling/tests/test_quality.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/**
+        - spec/contracts/**
+        - spec/grammar/**
+        - spec/schema/**
+        - spec/stdlib/**
+        - spec/targets/profiles/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/pcre2-runtime-certification.md
+        - docs/migration/records/pcre2-runtime-certification.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Canonical Semantic IR, language meaning, and target capability facts remain unchanged; this task executes and measures already-governed artifacts.
+    public_api_change:
+        level: none
+        evidence:
+            - No facade, protocol, binding, package, or published interface changes.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - Existing profile certification artifact structure accepts nested structured evidence; the repository executor only generalizes its internal result-contract registry.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence:
+            - Runtime execution validates existing PCRE2 artifacts and options without changing their production.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds a test-only runtime certification harness and a canonical Full/Release repository operation with explicit unavailable states.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Canonical pathological and stage-budget proof
+      command: cargo test --manifest-path core/Cargo.toml --test pcre2_runtime_certification --locked -- --nocapture
+      expected_result: Deep, empty, escape-heavy, large-but-bounded, invalid-name, malformed-artifact, and option-conflict cases fail safely or serialize deterministically; fixed-corpus analysis/planning, lowering, and serialization remain under recorded generous budgets.
+    - name: Exact real-engine runtime certification
+      command: STRLING_PCRE2_1042_LIBRARY=<exact-10.42-lib> STRLING_PCRE2_1043_LIBRARY=<exact-10.43-lib> python3 tooling/pcre2_runtime_certification.py --json --repeat-runs 2
+      expected_result: Both exact 8-bit engines pass compile, match, capture value/name/span, option, Unicode, anchor, assertion, repetition, rewrite, resource-limit, and deterministic generated-case evidence with stable semantic digests.
+    - name: Sanitized exact-engine certification
+      command: <asan-ubsan-runtime> STRLING_PCRE2_1042_LIBRARY=<sanitized-10.42-lib> STRLING_PCRE2_1043_LIBRARY=<sanitized-10.43-lib> python3 tooling/pcre2_runtime_certification.py --json --repeat-runs 2
+      expected_result: Every bounded applicable runtime case completes with no sanitizer report, crash, or nondeterministic semantic result; unavailable sanitizer runtimes remain explicit.
+    - name: Repository certification
+      command: python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/migration_differential.py --repeat-runs 3; ./strling profile local; ./strling profile pull-request; STRLING_PCRE2_1042_LIBRARY=<exact-10.42-lib> STRLING_PCRE2_1043_LIBRARY=<exact-10.43-lib> ./strling profile full; git diff --check
+      expected_result: Every available hardgate passes, Full preserves the exact structured runtime result, host-only gaps remain unavailable without waiver, and the final committed tree is clean.
+checkpoints:
+    - name: Runtime, profile, pathological, and performance inventory
+      status: passed
+      evidence:
+          - check: Existing exact-engine boundary
+            result: passed
+            details: The P10-T03 ctypes probe verifies exact library version, compile outcomes, boolean matches, options, and canonical digests but does not expose capture values or spans, match/depth/heap limits, adversarial generation, sanitizer metadata, stage budgets, or a profile result contract.
+          - check: Canonical profile integration boundary
+            result: passed
+            details: Repository operations already preserve validated structured passed, failed, waived, unavailable, and incomplete states. P10-T04 can register one certification-result-v1 contract and add one exact-engine operation to Full and Release without creating a parallel executor or weakening profile aggregation.
+          - check: Test-only implementation boundary
+            result: passed
+            details: Existing public internal-stage functions are sufficient for pathological and per-stage budget tests; core production source, schemas, target profiles, bindings, packages, and publication state are forbidden from the task scope.
+          - check: Discovered predecessor test-path defect
+            result: passed
+            details: The P10-T03 corpus was moved to tests/conformance but tooling/tests/test_pcre2_feature_probe.py retained the former tests/target path. P10-T04 will correct the test authority before extending the shared ABI layer.
+commits: []
