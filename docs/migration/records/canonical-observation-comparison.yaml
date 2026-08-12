@@ -14,10 +14,12 @@ scope:
         - tooling/architecture_fitness.py
         - tooling/legacy_reference/launch.py
         - tooling/migration_comparison.py
+        - tooling/migration_comparison_engine.py
         - tooling/migration_comparison_contract.json
         - tooling/tests/fixtures/migration_comparison/**
         - tooling/tests/test_legacy_reference_architecture.py
         - tooling/tests/test_migration_comparison.py
+        - tooling/tests/test_migration_comparison_engine.py
         - tooling/tests/test_quality.py
     forbidden_paths:
         - bindings/**
@@ -28,7 +30,9 @@ scope:
         - docs/migration/records/canonical-observation-comparison.yaml
         - tooling/migration_comparison_contract.json
         - tooling/migration_comparison.py
+        - tooling/migration_comparison_engine.py
         - tooling/tests/test_migration_comparison.py
+        - tooling/tests/test_migration_comparison_engine.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -111,8 +115,19 @@ checkpoints:
             result: passed
             details: Scope, change declarations, architecture boundaries, and patch integrity passed with raw runner files unchanged.
     - name: Deterministic observation pairing and comparison
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Deterministic pairing and comparison tests
+            command: python3 -m unittest tooling.tests.test_migration_comparison tooling.tests.test_migration_comparison_engine -v
+            result: passed
+            details: Twenty-three focused tests include 13 pairing/comparison cases covering normalized exact equality, single and multiple nested differences, deterministic ordering, success/failure, equal failures, success/unsupported, unsupported/unsupported, missing counterparts, incompatible surfaces, pairing rejection, mutation rejection, immutability, and repeated stability.
+          - check: Pairing and difference contract
+            result: passed
+            details: Pairing requires the exact shared comparison case identity, request semantic tuple, projection and normalization versions, rule IDs, conceptual operation, and registered cross-runner surfaces. Differences retain stable JSON-Pointer paths, presence, values, and typed mismatch kinds without collapsing evidence.
+          - check: Python quality and patch integrity
+            command: ruff format --check tooling/migration_comparison_engine.py tooling/tests/test_migration_comparison_engine.py; ruff check tooling/migration_comparison_engine.py tooling/tests/test_migration_comparison_engine.py; git diff --check
+            result: passed
+            details: The comparison engine and tests satisfy governed Python formatting, lint, and patch-integrity requirements.
     - name: Governed discrepancy classification
       status: planned
       evidence: []
