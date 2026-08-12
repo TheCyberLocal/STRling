@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Complete migration differential gate
-status: in_progress
+status: complete
 objective: Execute and fingerprint the complete governed historical migration corpus, explicitly account for every absent canonical counterpart, and block corpus drift, stale review records, or unresolved replacement discrepancies without changing product semantics.
 scope:
     diff:
@@ -132,6 +132,63 @@ checkpoints:
             result: passed
             details: No binding, kernel, specification, parser, compiler, emitter, Simply, diagnostic, target, or package API behavior changed; the only public-surface addition is the governed engineering-only root command.
     - name: Repository certification and readiness
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: Committed-state repository hardgates
+            command: Repository formatting; canonical/core/public contracts; frozen baseline; generated artifacts; governance; architecture fitness; documentation integrity; security integrity/content; legacy reference and comparison certification; git diff --check.
+            result: passed
+            details: From clean implementation checkpoint e1a68dd33b37571203b0a1c873f2972159bdebb3, every directly executable repository hardgate passed. The root CLI addition was declared additive and its generated compatibility snapshot passed.
+          - check: Canonical local and pull-request profiles
+            command: ./strling profile local --artifact /tmp/p07-t04-local.json; ./strling profile pull-request --artifact /tmp/p07-t04-pull-request.json
+            result: passed
+            details: Local recorded 20 passed, zero failed, and six unavailable operations; pull-request recorded 39 passed, zero failed, and seven unavailable operations. The migration differential gate passed in both. Artifact SHA-256 values are 41855bdedb126bdbeaee43f1dd557758ea42ffae04ccfae201d9cb91c3d6a318 and 46f1c1535421b7fc6b1640ec9b246c323d31b0d6df90604f8f7b38500ebdbf7a.
+          - check: Canonical full and release profiles
+            command: ./strling profile full --artifact /tmp/p07-t04-full.json; ./strling profile release --artifact /tmp/p07-t04-release.json
+            result: passed
+            details: Full and release each recorded 68 passed, zero failed, and ten unavailable operations. The migration differential gate and every available product build/test operation passed. Artifact SHA-256 values are ec270298dcb9fd3c5f8712ecf47a5794a210ff69ec828d5ebb7383f18f44a288 and b2bdb6e17bcbf21f2a3031eaefb1de7523dfadec97f764d0ef1d66f35e1e39c4.
+          - check: Explicit environment carry-forward
+            result: passed
+            details: >-
+                All four profile aggregates were UNAVAILABLE, never failed:
+                host Ruff 0.16.2 does not satisfy pinned 0.15.21; Ruby Bundler
+                differs from the repository-managed version; and the
+                full/release dependency-risk scanner reported structured
+                unavailability. No requirement was weakened or reported as
+                passing.
+commits:
+    - sha: e1a68dd33b37571203b0a1c873f2972159bdebb3
+      subject: "ci(migration): gate complete differential corpus"
+completion:
+    accomplished:
+        - Added an independently versioned full-corpus contract, checked baseline, deterministic evidence artifact, and root command that reproduce every 20-case Python and 24-case TypeScript historical observation at least three times.
+        - Locked exact corpus, implementation, canonical-boundary, route-review, peer-result, and baseline fingerprints; corpus shrinkage, altered source evidence, stale reviews, missing routes, changed boundaries, and altered baselines fail closed.
+        - >-
+            Accounted for every historical observation against the current
+            canonical boundary: 36 are operation_not_exposed and eight
+            source-text compiler cases have incompatible_surface, with no
+            invented frontend behavior before Phase 08.
+        - Enforced taxonomy-valid replacement review records, controlled approval/removal/alteration mutations, and blocking unresolved replacement discrepancies while retaining six historical peer return-shape discrepancies as non-normative evidence only.
+        - Wired the gate exactly once into local, pull-request, full, and release profiles, declared the additive engineering root command, and documented operator, authority, interpretation, and update procedures.
+    verified:
+        - All 71 focused differential, profile, and authority tests passed, including actual repeated corpus executions and every required negative/mutation case.
+        - The three-run root gate passed with 44 deterministic source observations, zero source mismatches, zero blocking unresolved replacements, full-corpus fingerprint sha256:04270620441db4715cc40f6c82cea832d1c8d7c85631d96638a427d9f4a968e6, and baseline fingerprint sha256:cb763a33bf620c467b1633b7747096da31757f41736368ced0bc859e42464366.
+        - Formatting, canonical/core/public contracts, baseline, generation, documentation, governance, architecture, security, legacy evidence/comparison, and patch integrity passed from the committed implementation checkpoint.
+        - Local, pull-request, full, and release profiles reported respectively 20, 39, 68, and 68 passed operations with zero failed operations; migration_differential_gate passed in all four.
+    behavior_changed: No parser, compiler, emitter, Simply, diagnostic, target, kernel, binding, package, or specification behavior changed; only the engineering root command and profile gate surface were added.
+    intentional_behavior_changes:
+        - The root engineering CLI now exposes migration-differential and produces canonical machine-readable full-corpus gate evidence.
+        - Every canonical certification profile now blocks on corpus, baseline, route-review, canonical-boundary, replacement-review, and authority drift.
+    preserved_behavior:
+        - Historical TypeScript and Python implementations remain immutable evidence sources and are neither repaired nor treated as normative.
+        - Canonical Rust semantics, diagnostics, safety/portability policy, target behavior, public binding APIs, package versions, and release state remain unchanged.
+        - The six peer return-shape differences remain explicitly unresolved historical evidence; only future canonical replacement discrepancies are blocking.
+    transitional_architecture:
+        - All 44 current observations are intentionally not comparable to a canonical frontend route because Phase 08 parser/import work has not begun; the checked canonical-boundary fingerprint makes that absence reviewable and stale on change.
+        - Profile aggregates remain READY WITH RECORDED CARRY-FORWARD because Ruff and Ruby tool versions do not match repository pins and the dependency-risk scanner is unavailable; all available operations passed with zero failures.
+    deferred_work:
+        - Begin P08-T01 by formalizing the legacy regex-compatible source dialect contract before implementing the canonical parser.
+        - Add executable canonical comparison routes and migration_review dispositions only when later Phase 08 tasks expose those surfaces.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Build P08-T01, the formal legacy regex-compatible source dialect contract, without implementing parser behavior ahead of that contract.
+    rationale: The complete governed migration corpus is deterministic, fingerprinted, exhaustively routed, mutation-tested, and enforced in every canonical profile with zero failed operations. Only explicit host tool/scanner unavailability and the intentionally later Phase 08 canonical frontend remain.

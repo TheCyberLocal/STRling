@@ -45,8 +45,8 @@ review action.
 
 The checked baseline covers all 44 source observations:
 
-| Runner     | Cases | Corpus fingerprint                                                          |
-| ---------- | ----: | --------------------------------------------------------------------------- |
+| Runner     | Cases | Corpus fingerprint                                                        |
+| ---------- | ----: | ------------------------------------------------------------------------- |
 | Python     |    20 | `sha256:f3114a423da9928ab12ff7afe5c2ce0eba97c2f57c3599cdc98b2105a5ef914d` |
 | TypeScript |    24 | `sha256:744a4d0e029fbb2890e98e25d20402044f5b551a7642255a57c80f5dec48d30a` |
 

@@ -41,7 +41,9 @@ def _load_json(path: Path, location: str) -> dict[str, Any]:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
-        raise DifferentialGateError(f"{location} is unavailable or malformed") from error
+        raise DifferentialGateError(
+            f"{location} is unavailable or malformed"
+        ) from error
     if not isinstance(value, dict):
         raise DifferentialGateError(f"{location} must be an object")
     return reference.canonicalize(value)
@@ -60,7 +62,9 @@ def _exact_keys(
             details.append("missing " + ", ".join(missing))
         if extra:
             details.append("unexpected " + ", ".join(extra))
-        raise DifferentialGateError(f"{location} keys are invalid: {'; '.join(details)}")
+        raise DifferentialGateError(
+            f"{location} keys are invalid: {'; '.join(details)}"
+        )
 
 
 def _require_text(value: Any, location: str) -> str:
@@ -209,7 +213,9 @@ def validate_contract(raw_contract: Mapping[str, Any]) -> dict[str, Any]:
     review_ids = set()
     for index, route in enumerate(routes):
         if not isinstance(route, dict):
-            raise DifferentialGateError(f"contract.canonical_boundary.routes/{index} is invalid")
+            raise DifferentialGateError(
+                f"contract.canonical_boundary.routes/{index} is invalid"
+            )
         location = f"contract.canonical_boundary.routes/{index}"
         _exact_keys(
             route,
@@ -294,13 +300,19 @@ def canonical_boundary_identity(contract: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def capture_full_corpus(repeat_runs: int) -> dict[str, list[dict[str, Any]]]:
-    if isinstance(repeat_runs, bool) or not isinstance(repeat_runs, int) or repeat_runs < 2:
+    if (
+        isinstance(repeat_runs, bool)
+        or not isinstance(repeat_runs, int)
+        or repeat_runs < 2
+    ):
         raise DifferentialGateError("repeat_runs must be an integer of at least 2")
     batches: dict[str, list[dict[str, Any]]] = {"python": [], "typescript": []}
     with tempfile.TemporaryDirectory(prefix="strling-migration-differential-") as raw:
         output = Path(raw)
         if legacy_launch.build_legacy_typescript(output) != 0:
-            raise DifferentialGateError("historical TypeScript runner could not be built")
+            raise DifferentialGateError(
+                "historical TypeScript runner could not be built"
+            )
         environment = legacy_launch.typescript_environment(output)
         for _ in range(repeat_runs):
             typescript = legacy_launch.capture_certification(
@@ -319,7 +331,9 @@ def capture_full_corpus(repeat_runs: int) -> dict[str, list[dict[str, Any]]]:
                 ]
             )
             if typescript is None or python is None:
-                raise DifferentialGateError("a historical runner did not produce a batch")
+                raise DifferentialGateError(
+                    "a historical runner did not produce a batch"
+                )
             batches["typescript"].append(typescript)
             batches["python"].append(python)
     return batches
@@ -358,7 +372,9 @@ def _source_records(
                     },
                     "case_id": entry["case_id"],
                     "case_identity": entry["case_identity"],
-                    "observation_identity": reference.canonical_fingerprint(observation),
+                    "observation_identity": reference.canonical_fingerprint(
+                        observation
+                    ),
                     "operation": operation,
                     "outcome_fingerprint": reference.canonical_fingerprint(
                         observation["outcome"]
@@ -457,8 +473,7 @@ def build_candidate(
     if tuple(sorted(batches)) != cross_reference.SELECTED_RUNNERS:
         raise DifferentialGateError("batches must contain exactly the selected runners")
     route_by_operation = {
-        route["operation"]: route
-        for route in contract["canonical_boundary"]["routes"]
+        route["operation"]: route for route in contract["canonical_boundary"]["routes"]
     }
     corpus_operations = {
         entry["request"]["operation"]
@@ -631,13 +646,17 @@ def validate_baseline(
         raise DifferentialGateError("migration differential baseline was altered")
     actual = baseline_projection(candidate, raw_baseline["replacement_reviews"])
     if actual["contract_fingerprint"] != baseline["contract_fingerprint"]:
-        raise DifferentialGateError("migration review records are stale for the contract")
+        raise DifferentialGateError(
+            "migration review records are stale for the contract"
+        )
     expected_total = sum(entry["case_count"] for entry in baseline["corpora"])
     actual_total = sum(entry["case_count"] for entry in actual["corpora"])
     if actual_total < expected_total:
         raise DifferentialGateError("migration corpus shrinkage is blocking")
     if actual["corpora"] != baseline["corpora"]:
-        raise DifferentialGateError("migration corpus identity or case coverage changed")
+        raise DifferentialGateError(
+            "migration corpus identity or case coverage changed"
+        )
     if (
         actual["canonical_boundary_fingerprint"]
         != baseline["canonical_boundary_fingerprint"]

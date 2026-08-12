@@ -54,7 +54,9 @@ class FullMigrationDifferentialTests(unittest.TestCase):
     def test_full_corpus_candidate_has_expected_quantitative_evidence(self) -> None:
         metrics = self.candidate["metrics"]
         expected = self.fixture["expected_metrics"]
-        self.assertEqual(metrics["source_observations"], expected["source_observations"])
+        self.assertEqual(
+            metrics["source_observations"], expected["source_observations"]
+        )
         self.assertEqual(
             metrics["canonical_not_comparable_cases"],
             expected["canonical_not_comparable_cases"],
@@ -75,7 +77,9 @@ class FullMigrationDifferentialTests(unittest.TestCase):
             self.candidate["historical_peer_comparison"]["metrics"]["comparisons"],
             expected["historical_peer_comparisons"],
         )
-        self.assertEqual(self.candidate["determinism"], {"mismatches": 0, "repeat_runs": 2})
+        self.assertEqual(
+            self.candidate["determinism"], {"mismatches": 0, "repeat_runs": 2}
+        )
 
     def test_checked_baseline_certifies_the_complete_candidate(self) -> None:
         artifact = differential.certify(
@@ -86,9 +90,7 @@ class FullMigrationDifferentialTests(unittest.TestCase):
         )
         self.assertEqual(artifact["status"], "passed")
         self.assertEqual(artifact["metrics"]["source_observations"], 44)
-        self.assertEqual(
-            artifact["metrics"]["blocking_unresolved_replacements"], 0
-        )
+        self.assertEqual(artifact["metrics"]["blocking_unresolved_replacements"], 0)
         comparison_contract._require_fingerprint(
             artifact["result_fingerprint"], "artifact.result_fingerprint"
         )
@@ -114,8 +116,8 @@ class FullMigrationDifferentialTests(unittest.TestCase):
 
     def test_source_observation_change_is_blocking(self) -> None:
         changed = copy.deepcopy(self.candidate)
-        changed["source_observations"][0]["observation_identity"] = (
-            "sha256:" + ("a" * 64)
+        changed["source_observations"][0]["observation_identity"] = "sha256:" + (
+            "a" * 64
         )
         with self.assertRaisesRegex(
             differential.DifferentialGateError, "source observation changed"
@@ -140,8 +142,8 @@ class FullMigrationDifferentialTests(unittest.TestCase):
 
     def test_historical_peer_evidence_change_is_blocking(self) -> None:
         changed = copy.deepcopy(self.candidate)
-        changed["historical_peer_comparison"]["result_fingerprint"] = (
-            "sha256:" + ("d" * 64)
+        changed["historical_peer_comparison"]["result_fingerprint"] = "sha256:" + (
+            "d" * 64
         )
         with self.assertRaisesRegex(
             differential.DifferentialGateError, "peer comparison evidence changed"
@@ -204,7 +206,11 @@ class FullMigrationDifferentialTests(unittest.TestCase):
             }
         ]
         changed["comparison_identity"] = reference.canonical_fingerprint(
-            {key: value for key, value in changed.items() if key != "comparison_identity"}
+            {
+                key: value
+                for key, value in changed.items()
+                if key != "comparison_identity"
+            }
         )
         rationale = comparison_certification._rationale(changed)
         unresolved = classification.classify_comparison(

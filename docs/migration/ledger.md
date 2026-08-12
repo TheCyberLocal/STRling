@@ -2555,3 +2555,14 @@ gate is a mandatory operation in the `local`, `pull-request`, `full`, and
 The permanent contract, counts, fingerprints, authority treatment, update
 protocol, and negative certification are recorded in
 [`full-corpus-differential.md`](full-corpus-differential.md).
+
+Implementation checkpoint `e1a68dd33b37571203b0a1c873f2972159bdebb3`
+passed all 71 focused differential/profile/authority tests and every directly
+executable formatting, contract, baseline, generation, documentation,
+governance, architecture, security, legacy-evidence, and patch-integrity gate.
+The canonical local, pull-request, full, and release profiles recorded 20, 39,
+68, and 68 passed operations respectively, zero failed operations, and explicit
+host-only unavailability for the Ruff/Ruby version pins and dependency-risk
+scanner. P07-T04 is therefore `READY WITH RECORDED CARRY-FORWARD`; the next
+ordered task is P08-T01, formalizing the legacy regex-compatible source dialect
+contract before canonical parser implementation.
