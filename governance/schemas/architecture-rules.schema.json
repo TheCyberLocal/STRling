@@ -143,6 +143,21 @@
                 },
                 "normative_output_roots": {
                     "$ref": "#/$defs/paths"
+                },
+                "frontend_contract_sources": {
+                    "$ref": "#/$defs/paths"
+                },
+                "semantic_authority_sources": {
+                    "$ref": "#/$defs/paths"
+                },
+                "target_authority_sources": {
+                    "$ref": "#/$defs/paths"
+                },
+                "forbidden_frontend_markers": {
+                    "$ref": "#/$defs/paths"
+                },
+                "contract_forbidden_authority_markers": {
+                    "$ref": "#/$defs/paths"
                 }
             }
         },
@@ -181,6 +196,7 @@
                         "artifact-authority-boundary",
                         "ci-profile-routing",
                         "legacy-reference-boundary",
+                        "frontend-authority-boundary",
                         "tracked-transition"
                     ]
                 },
@@ -201,6 +217,29 @@
                 }
             },
             "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "kind": {
+                                "const": "frontend-authority-boundary"
+                            }
+                        },
+                        "required": ["kind"]
+                    },
+                    "then": {
+                        "properties": {
+                            "configuration": {
+                                "required": [
+                                    "frontend_contract_sources",
+                                    "semantic_authority_sources",
+                                    "target_authority_sources",
+                                    "forbidden_frontend_markers",
+                                    "contract_forbidden_authority_markers"
+                                ]
+                            }
+                        }
+                    }
+                },
                 {
                     "if": {
                         "properties": {

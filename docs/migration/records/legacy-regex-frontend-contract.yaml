@@ -1,0 +1,114 @@
+record_version: 2.0.0
+title: Formalize the legacy regex-compatible source dialect contract
+status: in_progress
+objective: Freeze the historical regex-shaped source notation as a versioned compatibility/import frontend contract with exhaustive syntax-family fixtures and authority boundaries, without implementing the parser or changing product runtime behavior.
+scope:
+    diff:
+        base: ba31bfd8656458fd872964f1ac6ea314f82b1671
+        head: working-tree
+    allowed_paths:
+        - docs/migration/**
+        - docs/spec_links.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/schemas/architecture-rules.schema.json
+        - spec/README.md
+        - spec/grammar/dsl.ebnf
+        - spec/grammar/semantics.md
+        - spec/frontends/legacy-regex/**
+        - tooling/architecture_fitness.py
+        - tooling/contract_validation.py
+        - tooling/legacy_regex_contract.py
+        - tooling/tests/test_canonical_contracts.py
+        - tooling/tests/test_legacy_regex_contract.py
+    forbidden_paths:
+        - bindings/**
+        - core/**
+        - spec/contracts/**
+        - spec/targets/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/legacy-regex-frontend-contract.md
+        - docs/migration/records/legacy-regex-frontend-contract.yaml
+        - spec/frontends/legacy-regex/README.md
+        - spec/frontends/legacy-regex/1.0/README.md
+        - spec/frontends/legacy-regex/1.0/grammar.ebnf
+        - spec/frontends/legacy-regex/1.0/dialect.schema.json
+        - spec/frontends/legacy-regex/1.0/case.schema.json
+        - spec/frontends/legacy-regex/1.0/dialect.json
+        - spec/frontends/legacy-regex/1.0/fixtures/manifest.json
+        - tooling/legacy_regex_contract.py
+        - tooling/tests/test_legacy_regex_contract.py
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: intentional-correction
+        evidence:
+            - Formalizes a bounded frontend-only syntax contract and resolves documented legacy ambiguities without changing runtime behavior in this task.
+    public_api_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Adds separately versioned frontend dialect and specification-authored case schemas outside the canonical compiler data-contract suite.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Defines stable future frontend diagnostic identities and byte-location expectations without changing current binding diagnostics.
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Establishes a normative compatibility/import frontend authority that is explicitly subordinate to Semantic IR and separate from target profiles and emission.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Versioned frontend contract
+      command: python3 tooling/legacy_regex_contract.py
+      expected_result: Schemas, dialect catalog, grammar identities, fixture manifest, coverage, byte offsets, and canonical fingerprint pass deterministically.
+    - name: Canonical contract integration
+      command: python3 tooling/contract_validation.py
+      expected_result: Existing compiler/stdlib contracts and the independently versioned regex frontend contract pass together without merging authority domains.
+    - name: Frontend authority boundary
+      command: python3 tooling/architecture_fitness.py
+      expected_result: Compatibility syntax cannot enter Semantic IR authority, target profiles, lowering, or emission contracts.
+    - name: Migration stability and repository integrity
+      command: ./strling migration-differential --repeat-runs 3; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/formatting.py repository --check; git diff --check
+      expected_result: Historical evidence remains stable, declared scope passes, documentation and formatting are valid, and no parser/runtime behavior changes.
+checkpoints:
+    - name: Evidence inventory and authority lock
+      status: complete
+      evidence:
+          - Inventoried 177 historical tests/spec pattern cases and all 44 certified legacy differential observations before freezing the frontend boundary.
+          - Locked SourceDocument identity to strling.regex-compat@1.0.0 with explicit UTF-8 source metadata, no inferred target, no parser-port work, and Semantic IR as the only lowering destination.
+    - name: Versioned grammar, catalog, and fixtures
+      status: complete
+      evidence:
+          - Published two schemas, 51 feature decisions, 45 stable diagnostics, 30 positive fixtures, 45 negative fixtures, and a versioned EBNF under spec/frontends/legacy-regex/1.0.
+          - Canonical manifest fingerprint is sha256:0cb32dd3ed534d13ce6d4278a2723898ac40bc374fa6d40c5ac43c553a2265ad.
+    - name: Contract and architecture certification
+      status: complete
+      evidence:
+          - Standalone frontend certification and canonical contract integration pass with the frontend authority kept separate from compiler data contracts.
+          - All 16 focused contract, mutation, byte-offset, manifest, and repository authority-boundary tests pass; tooling/architecture_fitness.py also passes.
+    - name: Repository certification and readiness
+      status: in_progress
+      evidence:
+          - Documentation integrity passes across 130 files, pinned Prettier 3.3.3 and Ruff 0.15.21 checks pass for all task files, and git diff --check is clean.
+commits: []

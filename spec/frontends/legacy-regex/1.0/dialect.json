@@ -1,0 +1,782 @@
+{
+    "$schema": "https://strling.dev/frontends/legacy-regex/1.0/dialect.schema.json",
+    "contract_kind": "strling.regex-compatible-dialect",
+    "contract_version": "1.0.0",
+    "frontend": {
+        "id": "strling.regex-compat",
+        "dialect_version": "1.0.0",
+        "role": "compatibility-import-frontend",
+        "media_type": "text/x-strling-regex-compat"
+    },
+    "authority": {
+        "syntax_authority": true,
+        "semantic_authority": false,
+        "target_authority": false,
+        "lowering_destination": "semantic-ir"
+    },
+    "source_model": {
+        "encoding": "utf-8",
+        "coordinate_system": "utf8-bytes",
+        "line_endings": ["crlf", "lf"],
+        "bom_policy": "literal-scalar",
+        "invalid_encoding": "protocol-rejection",
+        "raw_fragment_model": "structured-source-only",
+        "target_assumption": "none",
+        "missing_frontend_metadata": "protocol-rejection",
+        "ambiguous_frontend_metadata": "protocol-rejection"
+    },
+    "directives": {
+        "phase": "preamble-only",
+        "supported": ["%flags"],
+        "allow_leading_blank_lines": true,
+        "allow_leading_preamble_comments": true,
+        "pattern_same_line": false,
+        "duplicate_policy": "reject",
+        "flag_letters": ["i", "m", "s", "u", "x"],
+        "flag_separators": ["ascii-whitespace", "comma"],
+        "flags_case_sensitive": false,
+        "empty_flags": "no-flags",
+        "unknown_directive": "reject"
+    },
+    "precedence": ["atom", "quantifier", "concatenation", "alternation"],
+    "limits": {
+        "max_source_bytes": 1048576,
+        "max_nesting_depth": 128,
+        "max_capture_groups": 65535,
+        "max_quantifier_bound": 4294967295,
+        "error_selection": "first-source-order-error"
+    },
+    "features": [
+        {
+            "id": "assertion.absolute-anchors",
+            "family": "assertions",
+            "syntax": "\\A \\Z",
+            "status": "compatibility-only",
+            "boundary": "target-portability",
+            "grammar_rule": "Assertion",
+            "description": "Absolute-start and end-before-final-newline assertions are accepted as explicit capabilities; no target spelling is implied."
+        },
+        {
+            "id": "assertion.line-anchors",
+            "family": "assertions",
+            "syntax": "^ $",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "Assertion",
+            "description": "Line/start and line/end positions lower to target-neutral position semantics."
+        },
+        {
+            "id": "assertion.lookahead",
+            "family": "assertions",
+            "syntax": "(?=...) (?!...)",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "Lookahead",
+            "description": "Positive and negative lookahead lower to target-neutral lookaround structure."
+        },
+        {
+            "id": "assertion.lookbehind",
+            "family": "assertions",
+            "syntax": "(?<=...) (?<!...)",
+            "status": "accepted",
+            "boundary": "target-portability",
+            "grammar_rule": "Lookbehind",
+            "description": "Lookbehind syntax is accepted; width support is decided after semantic analysis against a selected target profile."
+        },
+        {
+            "id": "assertion.word-boundaries",
+            "family": "assertions",
+            "syntax": "\\b \\B",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "Assertion",
+            "description": "Word and non-word boundary positions are explicit assertions."
+        },
+        {
+            "id": "backreference.named",
+            "family": "backreferences",
+            "syntax": "\\k<name>",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "NamedBackreference",
+            "description": "Named references must resolve to a unique capture opened earlier in source order."
+        },
+        {
+            "id": "backreference.numeric",
+            "family": "backreferences",
+            "syntax": "\\1",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "NumericBackreference",
+            "description": "Numeric references are decimal, start at one, and must resolve to a capture opened earlier in source order."
+        },
+        {
+            "id": "class.character",
+            "family": "classes",
+            "syntax": "[...]",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "CharacterClass",
+            "description": "A character class contains at least one class item."
+        },
+        {
+            "id": "class.negation",
+            "family": "classes",
+            "syntax": "[^...]",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "CharacterClass",
+            "description": "Caret negates only when it is the first scalar after the opening bracket."
+        },
+        {
+            "id": "class.range",
+            "family": "classes",
+            "syntax": "[a-z]",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "ClassRange",
+            "description": "A range has two scalar endpoints in nondecreasing code-point order."
+        },
+        {
+            "id": "class.shorthand",
+            "family": "classes",
+            "syntax": "\\d \\D \\w \\W \\s \\S",
+            "status": "accepted",
+            "boundary": "target-portability",
+            "grammar_rule": "ShorthandClass",
+            "description": "Shorthand classes lower to explicit semantic class intents whose target realization is evaluated later."
+        },
+        {
+            "id": "class.special-literals",
+            "family": "classes",
+            "syntax": "[]a] [-a] [a-] [^^]",
+            "status": "accepted",
+            "boundary": "frontend-structure",
+            "grammar_rule": "ClassLiteral",
+            "description": "Closing bracket is literal only first, hyphen is literal first or last, and noninitial caret is literal."
+        },
+        {
+            "id": "class.unicode-property",
+            "family": "classes",
+            "syntax": "\\p{Name} \\P{Name} \\p{Name=Value}",
+            "status": "accepted",
+            "boundary": "target-portability",
+            "grammar_rule": "UnicodeProperty",
+            "description": "Property syntax preserves name and optional value for semantic validation and target capability evaluation."
+        },
+        {
+            "id": "composition.alternation",
+            "family": "composition",
+            "syntax": "a|b",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "Alternation",
+            "description": "Alternation requires nonempty left and right branches."
+        },
+        {
+            "id": "composition.concatenation",
+            "family": "composition",
+            "syntax": "ab",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "Concatenation",
+            "description": "Adjacent terms form an ordered sequence and bind more tightly than alternation."
+        },
+        {
+            "id": "composition.empty-pattern",
+            "family": "composition",
+            "syntax": "empty source or group body",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "Pattern",
+            "description": "An empty source pattern and an empty group body lower to explicit empty semantics."
+        },
+        {
+            "id": "directive.duplicate",
+            "family": "directives",
+            "syntax": "%flags i followed by %flags m",
+            "status": "rejected",
+            "boundary": "frontend-structure",
+            "diagnostic_id": "STRL-FRONTEND-1004",
+            "description": "Multiple flag directives are ambiguous and are rejected instead of using last-write-wins behavior."
+        },
+        {
+            "id": "directive.flags",
+            "family": "directives",
+            "syntax": "%flags i,m,s,u,x",
+            "status": "accepted",
+            "boundary": "frontend-structure",
+            "grammar_rule": "FlagsDirective",
+            "description": "The sole supported directive declares case-insensitive i, multiline m, dot-all s, Unicode u, and extended-layout x flags."
+        },
+        {
+            "id": "directive.inline-pattern",
+            "family": "directives",
+            "syntax": "%flags i pattern",
+            "status": "rejected",
+            "boundary": "frontend-structure",
+            "diagnostic_id": "STRL-FRONTEND-1005",
+            "description": "A directive occupies its entire physical line; pattern text starts on a later line."
+        },
+        {
+            "id": "escape.control",
+            "family": "escapes",
+            "syntax": "\\n \\r \\t \\f \\v",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "ControlEscape",
+            "description": "The five control escapes denote their Unicode control scalars; backslash-v is vertical tab, not a target shorthand."
+        },
+        {
+            "id": "escape.hex-braced",
+            "family": "escapes",
+            "syntax": "\\x{1F600}",
+            "status": "compatibility-only",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "HexEscape",
+            "description": "Braced hexadecimal scalar escapes are retained for compatibility and must denote a valid Unicode scalar."
+        },
+        {
+            "id": "escape.hex-fixed",
+            "family": "escapes",
+            "syntax": "\\x7F",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "HexEscape",
+            "description": "Fixed hexadecimal escapes contain exactly two hexadecimal digits."
+        },
+        {
+            "id": "escape.identity",
+            "family": "escapes",
+            "syntax": "\\. \\| \\{ \\  \\#",
+            "status": "accepted",
+            "boundary": "frontend-structure",
+            "grammar_rule": "IdentityEscape",
+            "description": "Only listed syntax punctuation, space, and comment marker may be identity-escaped."
+        },
+        {
+            "id": "escape.null",
+            "family": "escapes",
+            "syntax": "\\0",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "NullEscape",
+            "description": "Backslash-zero denotes the null scalar and never capture group zero."
+        },
+        {
+            "id": "escape.unicode-braced",
+            "family": "escapes",
+            "syntax": "\\u{1F600}",
+            "status": "compatibility-only",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "UnicodeEscape",
+            "description": "Braced Unicode escapes are retained for compatibility and must denote a valid Unicode scalar."
+        },
+        {
+            "id": "escape.unicode-fixed",
+            "family": "escapes",
+            "syntax": "\\u03B1",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "UnicodeEscape",
+            "description": "Lowercase-u fixed escapes contain exactly four hexadecimal digits and may not denote a surrogate."
+        },
+        {
+            "id": "escape.unicode-long",
+            "family": "escapes",
+            "syntax": "\\U0001F600",
+            "status": "compatibility-only",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "UnicodeEscape",
+            "description": "Uppercase-U escapes contain exactly eight hexadecimal digits and must denote a valid Unicode scalar."
+        },
+        {
+            "id": "extension.advanced-group-syntax",
+            "family": "extensions",
+            "syntax": "(?R) (?1) (?(condition)...) (?|...)",
+            "status": "rejected",
+            "boundary": "target-portability",
+            "diagnostic_id": "STRL-FRONTEND-2015",
+            "description": "Recursion, subroutines, conditionals, and branch-reset groups are target syntax and are not frontend structure."
+        },
+        {
+            "id": "extension.control-a-e-c",
+            "family": "extensions",
+            "syntax": "\\a \\e \\cA",
+            "status": "rejected",
+            "boundary": "target-portability",
+            "diagnostic_id": "STRL-FRONTEND-3002",
+            "description": "Target-specific control escape spellings are rejected; use an explicit hexadecimal or Unicode scalar escape."
+        },
+        {
+            "id": "extension.inline-modifier",
+            "family": "extensions",
+            "syntax": "(?i) (?im:...)",
+            "status": "rejected",
+            "boundary": "frontend-structure",
+            "diagnostic_id": "STRL-FRONTEND-2016",
+            "description": "Inline modifiers are rejected; source-wide flags use the preamble directive."
+        },
+        {
+            "id": "extension.language-directive",
+            "family": "extensions",
+            "syntax": "%lang ...",
+            "status": "rejected",
+            "boundary": "frontend-structure",
+            "diagnostic_id": "STRL-FRONTEND-1002",
+            "description": "Dialect identity is carried by SourceDocument frontend metadata, not an inline language directive."
+        },
+        {
+            "id": "extension.lowercase-z-anchor",
+            "family": "extensions",
+            "syntax": "\\z",
+            "status": "rejected",
+            "boundary": "target-portability",
+            "diagnostic_id": "STRL-FRONTEND-3002",
+            "description": "Lowercase-z is not a portable frontend assertion; end-before-final-newline uses backslash-Z."
+        },
+        {
+            "id": "extension.octal",
+            "family": "extensions",
+            "syntax": "\\123",
+            "status": "rejected",
+            "boundary": "frontend-structure",
+            "diagnostic_id": "STRL-FRONTEND-3006",
+            "description": "Octal is ambiguous with numeric backreferences; only backslash-zero is a scalar escape."
+        },
+        {
+            "id": "extension.posix-class",
+            "family": "extensions",
+            "syntax": "[[:alpha:]]",
+            "status": "rejected",
+            "boundary": "target-portability",
+            "diagnostic_id": "STRL-FRONTEND-2024",
+            "description": "POSIX class syntax is target-specific and has no opaque pass-through route."
+        },
+        {
+            "id": "extension.quoting-block",
+            "family": "extensions",
+            "syntax": "\\Q...\\E",
+            "status": "rejected",
+            "boundary": "target-portability",
+            "diagnostic_id": "STRL-FRONTEND-2024",
+            "description": "Target quoting blocks are rejected; each literal scalar must use ordinary literal or identity-escape syntax."
+        },
+        {
+            "id": "extension.raw-target-fragment",
+            "family": "extensions",
+            "syntax": "opaque target regex",
+            "status": "rejected",
+            "boundary": "target-portability",
+            "diagnostic_id": "STRL-FRONTEND-2024",
+            "description": "The frontend has no opaque target-regex node; every accepted construct lowers structurally before target planning."
+        },
+        {
+            "id": "extension.shorthand-r-h",
+            "family": "extensions",
+            "syntax": "\\R \\h \\H",
+            "status": "rejected",
+            "boundary": "target-portability",
+            "diagnostic_id": "STRL-FRONTEND-3002",
+            "description": "Target-specific newline and horizontal-space shorthands are rejected in favor of explicit semantic classes."
+        },
+        {
+            "id": "extension.target-directive",
+            "family": "extensions",
+            "syntax": "%engine ...",
+            "status": "rejected",
+            "boundary": "target-portability",
+            "diagnostic_id": "STRL-FRONTEND-1002",
+            "description": "Targets are selected through canonical compile-request metadata and never inferred from source text."
+        },
+        {
+            "id": "group.atomic",
+            "family": "groups",
+            "syntax": "(?>...)",
+            "status": "compatibility-only",
+            "boundary": "target-portability",
+            "grammar_rule": "AtomicGroup",
+            "description": "Atomic grouping is preserved as an explicit semantic capability subject to target portability evaluation."
+        },
+        {
+            "id": "group.capturing",
+            "family": "groups",
+            "syntax": "(...) ",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "CaptureGroup",
+            "description": "Captures are numbered by opening delimiter in source order starting at one."
+        },
+        {
+            "id": "group.named",
+            "family": "groups",
+            "syntax": "(?<name>...)",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "NamedCaptureGroup",
+            "description": "Names use ASCII identifier syntax and are unique within one source."
+        },
+        {
+            "id": "group.noncapturing",
+            "family": "groups",
+            "syntax": "(?:...)",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "NoncapturingGroup",
+            "description": "Noncapturing grouping affects structure and precedence without allocating capture identity."
+        },
+        {
+            "id": "layout.extended",
+            "family": "layout",
+            "syntax": "%flags x",
+            "status": "accepted",
+            "boundary": "frontend-structure",
+            "grammar_rule": "FlagsDirective",
+            "description": "With x active, ASCII space, tab, CR, and LF are ignored outside classes and hash comments extend to the next line ending."
+        },
+        {
+            "id": "layout.literal-whitespace",
+            "family": "layout",
+            "syntax": "space tab CR LF",
+            "status": "accepted",
+            "boundary": "frontend-structure",
+            "grammar_rule": "Literal",
+            "description": "Without x, whitespace after the preamble is pattern content; inside a class whitespace is always literal."
+        },
+        {
+            "id": "layout.preamble-comments",
+            "family": "layout",
+            "syntax": "# comment before pattern",
+            "status": "accepted",
+            "boundary": "frontend-structure",
+            "grammar_rule": "PreambleComment",
+            "description": "Blank and comment-only lines may precede the optional flags directive independently of x."
+        },
+        {
+            "id": "literal.dot",
+            "family": "literals",
+            "syntax": ".",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "Dot",
+            "description": "Dot lowers to wildcard intent; newline and Unicode behavior are semantic and target decisions, not lexer inference."
+        },
+        {
+            "id": "literal.scalar",
+            "family": "literals",
+            "syntax": "ordinary Unicode scalar",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "Literal",
+            "description": "A non-metacharacter Unicode scalar denotes itself and adjacent literals preserve source order."
+        },
+        {
+            "id": "quantifier.brace",
+            "family": "quantifiers",
+            "syntax": "{n} {n,} {n,m}",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "QuantifierBody",
+            "description": "Decimal bounds are inclusive, nonnegative, within the declared limit, and require minimum no greater than maximum."
+        },
+        {
+            "id": "quantifier.lazy",
+            "family": "quantifiers",
+            "syntax": "*? +? ?? {n,m}?",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "Quantifier",
+            "description": "One question-mark suffix selects lazy repetition."
+        },
+        {
+            "id": "quantifier.possessive",
+            "family": "quantifiers",
+            "syntax": "*+ ++ ?+ {n,m}+",
+            "status": "compatibility-only",
+            "boundary": "target-portability",
+            "grammar_rule": "Quantifier",
+            "description": "One plus suffix selects possessive repetition as an explicit capability."
+        },
+        {
+            "id": "quantifier.simple",
+            "family": "quantifiers",
+            "syntax": "* + ?",
+            "status": "accepted",
+            "boundary": "semantic-lowering",
+            "grammar_rule": "QuantifierBody",
+            "description": "A quantifier applies to the immediately preceding quantifiable atom."
+        }
+    ],
+    "diagnostics": [
+        {
+            "id": "STRL-FRONTEND-0001",
+            "category": "protocol",
+            "fixture_required": false,
+            "trigger": "Source bytes are not valid UTF-8."
+        },
+        {
+            "id": "STRL-FRONTEND-0002",
+            "category": "protocol",
+            "fixture_required": false,
+            "trigger": "SourceDocument omits the required frontend identity or dialect version."
+        },
+        {
+            "id": "STRL-FRONTEND-0003",
+            "category": "protocol",
+            "fixture_required": false,
+            "trigger": "SourceDocument declares conflicting or ambiguous frontend metadata."
+        },
+        {
+            "id": "STRL-FRONTEND-0004",
+            "category": "resource",
+            "fixture_required": false,
+            "trigger": "UTF-8 source length exceeds max_source_bytes."
+        },
+        {
+            "id": "STRL-FRONTEND-0005",
+            "category": "resource",
+            "fixture_required": false,
+            "trigger": "Syntactic nesting exceeds max_nesting_depth."
+        },
+        {
+            "id": "STRL-FRONTEND-0006",
+            "category": "resource",
+            "fixture_required": false,
+            "trigger": "Capture count exceeds max_capture_groups."
+        },
+        {
+            "id": "STRL-FRONTEND-1001",
+            "category": "directive",
+            "fixture_required": true,
+            "trigger": "A percent-prefixed preamble line is malformed."
+        },
+        {
+            "id": "STRL-FRONTEND-1002",
+            "category": "directive",
+            "fixture_required": true,
+            "trigger": "A well-formed but unsupported directive is present."
+        },
+        {
+            "id": "STRL-FRONTEND-1003",
+            "category": "directive",
+            "fixture_required": true,
+            "trigger": "A directive appears after pattern content starts."
+        },
+        {
+            "id": "STRL-FRONTEND-1004",
+            "category": "directive",
+            "fixture_required": true,
+            "trigger": "More than one flags directive is present."
+        },
+        {
+            "id": "STRL-FRONTEND-1005",
+            "category": "directive",
+            "fixture_required": true,
+            "trigger": "Pattern content appears on a directive line."
+        },
+        {
+            "id": "STRL-FRONTEND-1006",
+            "category": "directive",
+            "fixture_required": true,
+            "trigger": "A flags directive contains a letter outside i, m, s, u, x."
+        },
+        {
+            "id": "STRL-FRONTEND-2001",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "Alternation has no left branch."
+        },
+        {
+            "id": "STRL-FRONTEND-2002",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "Alternation has no right branch."
+        },
+        {
+            "id": "STRL-FRONTEND-2003",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "Alternation contains an empty middle branch."
+        },
+        {
+            "id": "STRL-FRONTEND-2004",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A quantifier has no preceding atom."
+        },
+        {
+            "id": "STRL-FRONTEND-2005",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A quantified term has a second repetition operator after its optional mode suffix."
+        },
+        {
+            "id": "STRL-FRONTEND-2006",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A braced quantifier is not closed."
+        },
+        {
+            "id": "STRL-FRONTEND-2007",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A braced quantifier contains nondecimal or structurally invalid content."
+        },
+        {
+            "id": "STRL-FRONTEND-2008",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A braced quantifier minimum exceeds its maximum."
+        },
+        {
+            "id": "STRL-FRONTEND-2009",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A quantifier is applied to a zero-width assertion."
+        },
+        {
+            "id": "STRL-FRONTEND-2010",
+            "category": "resource",
+            "fixture_required": true,
+            "trigger": "A braced quantifier bound exceeds max_quantifier_bound."
+        },
+        {
+            "id": "STRL-FRONTEND-2011",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A closing parenthesis has no matching opener."
+        },
+        {
+            "id": "STRL-FRONTEND-2012",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A group or lookaround is not closed."
+        },
+        {
+            "id": "STRL-FRONTEND-2013",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A capture or backreference name is not an ASCII identifier."
+        },
+        {
+            "id": "STRL-FRONTEND-2014",
+            "category": "reference",
+            "fixture_required": true,
+            "trigger": "A named capture duplicates an earlier capture name."
+        },
+        {
+            "id": "STRL-FRONTEND-2015",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A group uses an unsupported prefix."
+        },
+        {
+            "id": "STRL-FRONTEND-2016",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "An inline modifier is used instead of the preamble flags directive."
+        },
+        {
+            "id": "STRL-FRONTEND-2017",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A character class has no item."
+        },
+        {
+            "id": "STRL-FRONTEND-2018",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A character class is not closed."
+        },
+        {
+            "id": "STRL-FRONTEND-2019",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A character range start scalar is greater than its end scalar."
+        },
+        {
+            "id": "STRL-FRONTEND-2020",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "A character range endpoint is not a single scalar."
+        },
+        {
+            "id": "STRL-FRONTEND-2021",
+            "category": "escape",
+            "fixture_required": true,
+            "trigger": "A Unicode property escape omits braces."
+        },
+        {
+            "id": "STRL-FRONTEND-2022",
+            "category": "escape",
+            "fixture_required": true,
+            "trigger": "A Unicode property escape is not closed."
+        },
+        {
+            "id": "STRL-FRONTEND-2023",
+            "category": "escape",
+            "fixture_required": true,
+            "trigger": "A Unicode property name or value is empty."
+        },
+        {
+            "id": "STRL-FRONTEND-2024",
+            "category": "syntax",
+            "fixture_required": true,
+            "trigger": "Source contains target-specific or opaque raw-regex syntax outside the dialect."
+        },
+        {
+            "id": "STRL-FRONTEND-3001",
+            "category": "escape",
+            "fixture_required": true,
+            "trigger": "A backslash appears at end of source or class."
+        },
+        {
+            "id": "STRL-FRONTEND-3002",
+            "category": "escape",
+            "fixture_required": true,
+            "trigger": "An escape spelling is not in the dialect."
+        },
+        {
+            "id": "STRL-FRONTEND-3003",
+            "category": "escape",
+            "fixture_required": true,
+            "trigger": "A hexadecimal escape has the wrong number or kind of digits."
+        },
+        {
+            "id": "STRL-FRONTEND-3004",
+            "category": "escape",
+            "fixture_required": true,
+            "trigger": "A Unicode escape has the wrong number or kind of digits."
+        },
+        {
+            "id": "STRL-FRONTEND-3005",
+            "category": "escape",
+            "fixture_required": true,
+            "trigger": "An escape denotes a surrogate or a value above U+10FFFF."
+        },
+        {
+            "id": "STRL-FRONTEND-3006",
+            "category": "escape",
+            "fixture_required": true,
+            "trigger": "An octal escape is used instead of null, hexadecimal, or Unicode syntax."
+        },
+        {
+            "id": "STRL-FRONTEND-4001",
+            "category": "reference",
+            "fixture_required": true,
+            "trigger": "A backreference refers to a capture declared later in source order."
+        },
+        {
+            "id": "STRL-FRONTEND-4002",
+            "category": "reference",
+            "fixture_required": true,
+            "trigger": "A backreference does not resolve to a declared capture."
+        },
+        {
+            "id": "STRL-FRONTEND-4003",
+            "category": "reference",
+            "fixture_required": true,
+            "trigger": "A named backreference delimiter or identifier is malformed."
+        }
+    ]
+}

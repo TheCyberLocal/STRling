@@ -24,10 +24,13 @@ ratification rules.
     draft seed cases and content-addressed authority manifest.
 -   [`Target profiles`](../spec/targets/profiles/) — version-aware,
     enumerated-scope engine capability facts.
+-   [`Regex-compatible frontend 1.0`](../spec/frontends/legacy-regex/1.0/) —
+    normative compatibility/import syntax, limits, frontend diagnostics, and
+    specification-authored positive/negative fixtures.
 -   [`Regex frontend grammar`](../spec/grammar/dsl.ebnf) — transitional
-    compatibility/import syntax, not the final Semantic STRling DSL.
+    historical compatibility evidence superseded by the versioned frontend.
 -   [`Regex frontend semantics`](../spec/grammar/semantics.md) — transitional
-    compatibility evidence and future specification input.
+    historical behavior/target evidence, not current frontend authority.
 -   [`Base TargetArtifact schema`](../spec/schema/base.schema.json) — versioned
     current contract for its declared scope, not the final canonical artifact.
 -   [`PCRE2 v1 schema`](../spec/schema/pcre2.v1.schema.json) — versioned current

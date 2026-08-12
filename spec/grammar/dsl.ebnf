@@ -1,5 +1,8 @@
 (* STRling v3 Canonical Grammar *)
 (* This EBNF is aligned with the semantics.md document for Base Schema 1.0.0. *)
+(* SUPERSEDED TRANSITIONAL EVIDENCE: the normative compatibility/import *)
+(* frontend is spec/frontends/legacy-regex/1.0. This file remains unchanged *)
+(* below this notice so historical contradictions stay reviewable. *)
 
 (* --- Lexical Tokens ------------------------------------------------------ *)
 LETTER          = ? A through Z, a through z ? ;

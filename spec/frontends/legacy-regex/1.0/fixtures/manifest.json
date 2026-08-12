@@ -1,0 +1,33 @@
+{
+    "manifest_kind": "strling.regex-compatible-fixtures",
+    "manifest_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "authorship": "specification-authored",
+    "files": [
+        {
+            "path": "case.schema.json",
+            "sha256": "sha256:54ee1c7cdc2ee88d12a886b9a39e4a38e1c524df4c452712212bd250eed2fd13"
+        },
+        {
+            "path": "dialect.json",
+            "sha256": "sha256:d6aa33c9a8aae4c2f74bb427f74fe4000931558f36b31de691ff3d0bc623c347"
+        },
+        {
+            "path": "dialect.schema.json",
+            "sha256": "sha256:995da42587be79abfd73fce8819b6ddbb8798cc7a94c3d11e26425b48e5610eb"
+        },
+        {
+            "path": "fixtures/negative.json",
+            "sha256": "sha256:85e3c4ebd76b7806b9f74dca6706bfb364eb7607d0e738477d0bc8ccb3d9747b"
+        },
+        {
+            "path": "fixtures/positive.json",
+            "sha256": "sha256:b7c68ea6c0318af48de4b130ab51c722d4497de62495a304d8ceed67374434af"
+        },
+        {
+            "path": "grammar.ebnf",
+            "sha256": "sha256:f1643f4929a0827d680be496bbd2b0e8abbe33684da94583d9df579d71355deb"
+        }
+    ],
+    "case_counts": { "negative": 45, "positive": 30 }
+}

@@ -13,8 +13,10 @@ from typing import Any
 from jsonschema import Draft202012Validator, FormatChecker, RefResolver
 
 if __package__:
+    from tooling.legacy_regex_contract import LegacyRegexContractSuite
     from tooling.stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
 else:
+    from legacy_regex_contract import LegacyRegexContractSuite
     from stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1275,18 +1277,25 @@ def iter_nodes(root: Mapping[str, Any]) -> Iterator[Mapping[str, Any]]:
 def main() -> int:
     suite = ContractSuite()
     stdlib_suite = StandardLibraryGuaranteeSuite()
+    legacy_regex_suite = LegacyRegexContractSuite()
     document_count = suite.validate_suite_structure()
     positive_count = suite.validate_positive_examples()
     negative_count = suite.validate_negative_examples()
     stdlib_schema_count = stdlib_suite.validate_suite_structure()
     stdlib_positive_count = stdlib_suite.validate_positive_examples()
     stdlib_negative_count = stdlib_suite.validate_negative_examples()
+    legacy_regex = legacy_regex_suite.certify()
     print(
         "CANONICAL_CONTRACTS status=passed "
         f"schemas={len(suite.schemas)} positive={positive_count} "
         f"negative={negative_count} documents={document_count} "
         f"stdlib_schemas={stdlib_schema_count} stdlib_positive={stdlib_positive_count} "
-        f"stdlib_negative={stdlib_negative_count}"
+        f"stdlib_negative={stdlib_negative_count} "
+        f"legacy_regex_schemas={legacy_regex['schemas']} "
+        f"legacy_regex_features={legacy_regex['features']} "
+        f"legacy_regex_positive={legacy_regex['positive']} "
+        f"legacy_regex_negative={legacy_regex['negative']} "
+        f"legacy_regex_fingerprint={legacy_regex['fingerprint']}"
     )
     return 0
 

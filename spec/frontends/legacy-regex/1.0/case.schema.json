@@ -1,0 +1,116 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/frontends/legacy-regex/1.0/case.schema.json",
+    "title": "STRling regex-compatible frontend authored fixture set",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "fixture_set_version",
+        "contract_version",
+        "kind",
+        "authorship",
+        "cases"
+    ],
+    "properties": {
+        "$schema": {
+            "const": "https://strling.dev/frontends/legacy-regex/1.0/case.schema.json"
+        },
+        "fixture_set_version": { "const": "1.0.0" },
+        "contract_version": { "const": "1.0.0" },
+        "kind": { "enum": ["positive", "negative"] },
+        "authorship": { "const": "specification-authored" },
+        "cases": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/Case" }
+        }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": { "kind": { "const": "positive" } },
+                "required": ["kind"]
+            },
+            "then": {
+                "properties": {
+                    "cases": {
+                        "items": {
+                            "properties": {
+                                "expected": {
+                                    "properties": {
+                                        "status": { "const": "accepted" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": { "kind": { "const": "negative" } },
+                "required": ["kind"]
+            },
+            "then": {
+                "properties": {
+                    "cases": {
+                        "items": {
+                            "properties": {
+                                "expected": {
+                                    "properties": {
+                                        "status": { "const": "rejected" }
+                                    },
+                                    "required": ["diagnostic_id", "byte_offset"]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "$defs": {
+        "Case": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "source", "feature_ids", "expected"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^case:regex-compat/[a-z0-9][a-z0-9-]{2,63}$"
+                },
+                "source": { "type": "string" },
+                "feature_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)+$"
+                    }
+                },
+                "expected": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["status"],
+                    "properties": {
+                        "status": { "enum": ["accepted", "rejected"] },
+                        "active_flags": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": { "enum": ["i", "m", "s", "u", "x"] }
+                        },
+                        "diagnostic_id": {
+                            "type": "string",
+                            "pattern": "^STRL-FRONTEND-[0-9]{4}$"
+                        },
+                        "byte_offset": { "type": "integer", "minimum": 0 },
+                        "notes": { "type": "string", "minLength": 1 }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,278 @@
+{
+    "$schema": "https://strling.dev/frontends/legacy-regex/1.0/case.schema.json",
+    "fixture_set_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "kind": "positive",
+    "authorship": "specification-authored",
+    "cases": [
+        {
+            "id": "case:regex-compat/absolute-anchors",
+            "source": "\\Avalue\\Z",
+            "feature_ids": ["assertion.absolute-anchors", "literal.scalar"],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/alternation-precedence",
+            "source": "ab|cd",
+            "feature_ids": [
+                "composition.alternation",
+                "composition.concatenation",
+                "literal.scalar"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/atomic-group",
+            "source": "(?>ab|a)b",
+            "feature_ids": [
+                "composition.alternation",
+                "composition.concatenation",
+                "group.atomic",
+                "literal.scalar"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/backreferences",
+            "source": "(a)(?<word>b)\\1\\k<word>",
+            "feature_ids": [
+                "backreference.named",
+                "backreference.numeric",
+                "composition.concatenation",
+                "group.capturing",
+                "group.named",
+                "literal.scalar"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/brace-quantifiers",
+            "source": "a{0}b{2,}c{3,5}",
+            "feature_ids": [
+                "composition.concatenation",
+                "literal.scalar",
+                "quantifier.brace"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/character-class",
+            "source": "[^a-z0-9_]",
+            "feature_ids": ["class.character", "class.negation", "class.range"],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/class-shorthand-property",
+            "source": "[\\d\\p{Script=Greek}]",
+            "feature_ids": [
+                "class.character",
+                "class.shorthand",
+                "class.unicode-property"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/class-special-literals",
+            "source": "[]^a-]",
+            "feature_ids": ["class.character", "class.special-literals"],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/control-escapes",
+            "source": "\\n\\r\\t\\f\\v",
+            "feature_ids": ["composition.concatenation", "escape.control"],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/dot-wildcard",
+            "source": ".",
+            "feature_ids": ["literal.dot"],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/empty-pattern",
+            "source": "",
+            "feature_ids": ["composition.empty-pattern"],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/extended-layout",
+            "source": "%flags x\n a \\  # comment\n [ #] ",
+            "feature_ids": [
+                "class.character",
+                "directive.flags",
+                "escape.identity",
+                "layout.extended",
+                "literal.scalar"
+            ],
+            "expected": { "status": "accepted", "active_flags": ["x"] }
+        },
+        {
+            "id": "case:regex-compat/flags-all-separators",
+            "source": "%flags [I, m S, u X]\na",
+            "feature_ids": ["directive.flags", "literal.scalar"],
+            "expected": {
+                "status": "accepted",
+                "active_flags": ["i", "m", "s", "u", "x"]
+            }
+        },
+        {
+            "id": "case:regex-compat/flags-empty",
+            "source": "%flags\na",
+            "feature_ids": ["directive.flags", "literal.scalar"],
+            "expected": { "status": "accepted", "active_flags": [] }
+        },
+        {
+            "id": "case:regex-compat/group-kinds",
+            "source": "()(?:a)(?<name>b)",
+            "feature_ids": [
+                "composition.concatenation",
+                "composition.empty-pattern",
+                "group.capturing",
+                "group.named",
+                "group.noncapturing",
+                "literal.scalar"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/hex-escapes",
+            "source": "\\x7F\\x{1F600}",
+            "feature_ids": [
+                "composition.concatenation",
+                "escape.hex-braced",
+                "escape.hex-fixed"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/identity-escapes",
+            "source": "\\.\\|\\{\\}\\#",
+            "feature_ids": ["composition.concatenation", "escape.identity"],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/line-anchors",
+            "source": "^value$",
+            "feature_ids": [
+                "assertion.line-anchors",
+                "composition.concatenation",
+                "literal.scalar"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/literal-scalar",
+            "source": "alpha😀omega",
+            "feature_ids": ["composition.concatenation", "literal.scalar"],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/literal-whitespace",
+            "source": "a b\tc\nd",
+            "feature_ids": [
+                "composition.concatenation",
+                "layout.literal-whitespace",
+                "literal.scalar"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/lookahead",
+            "source": "a(?=b)(?!c)",
+            "feature_ids": [
+                "assertion.lookahead",
+                "composition.concatenation",
+                "literal.scalar"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/lookbehind",
+            "source": "(?<=a)b(?<!c)",
+            "feature_ids": [
+                "assertion.lookbehind",
+                "composition.concatenation",
+                "literal.scalar"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/null-escape",
+            "source": "\\0",
+            "feature_ids": ["escape.null"],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/possessive-quantifiers",
+            "source": "a*+b++c?+d{2,4}+",
+            "feature_ids": [
+                "composition.concatenation",
+                "literal.scalar",
+                "quantifier.brace",
+                "quantifier.possessive",
+                "quantifier.simple"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/preamble-comments",
+            "source": "\n# imported expression\n  # second note\nvalue",
+            "feature_ids": ["layout.preamble-comments", "literal.scalar"],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/quantifier-lazy",
+            "source": "a*?b+?c??d{2,4}?",
+            "feature_ids": [
+                "composition.concatenation",
+                "literal.scalar",
+                "quantifier.brace",
+                "quantifier.lazy",
+                "quantifier.simple"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/quantifier-simple",
+            "source": "a*b+c?",
+            "feature_ids": [
+                "composition.concatenation",
+                "literal.scalar",
+                "quantifier.simple"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/unicode-escapes",
+            "source": "\\u03B1\\u{1F600}\\U0001F642",
+            "feature_ids": [
+                "composition.concatenation",
+                "escape.unicode-braced",
+                "escape.unicode-fixed",
+                "escape.unicode-long"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/unicode-properties",
+            "source": "\\p{Letter}+\\P{Script=Latin}",
+            "feature_ids": [
+                "class.unicode-property",
+                "composition.concatenation",
+                "quantifier.simple"
+            ],
+            "expected": { "status": "accepted" }
+        },
+        {
+            "id": "case:regex-compat/word-boundaries",
+            "source": "\\bword\\B",
+            "feature_ids": [
+                "assertion.word-boundaries",
+                "composition.concatenation",
+                "literal.scalar"
+            ],
+            "expected": { "status": "accepted" }
+        }
+    ]
+}

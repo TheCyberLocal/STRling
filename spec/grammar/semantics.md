@@ -8,6 +8,12 @@ specification. Its earlier “normative STRling v3” label did not identify a
 ratified specification version; the certified baseline records this
 specification bundle as `unversioned-transitional`.
 
+It is now superseded for frontend syntax by the normative
+[`strling.regex-compat` dialect 1.0 contract](../frontends/legacy-regex/1.0/README.md).
+This file remains historical behavior and target-expectation evidence; its
+contradictions do not override the versioned frontend, canonical Semantic IR,
+or target-profile contracts.
+
 The described behavior remains important migration and specification input
 until an explicit versioned decision revises it. References to TargetArtifact
 Base Schema 1.0.0 and the PCRE2 emitter schema v1 describe current versioned

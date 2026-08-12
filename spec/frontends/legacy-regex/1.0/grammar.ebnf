@@ -1,0 +1,96 @@
+(* STRling regex-compatible source dialect 1.0.0. *)
+(* Normative only for the compatibility/import frontend syntax. *)
+(* Semantic lowering and target interpretation are outside this grammar. *)
+
+Letter          = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H"
+                | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P"
+                | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X"
+                | "Y" | "Z" | "a" | "b" | "c" | "d" | "e" | "f"
+                | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n"
+                | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v"
+                | "w" | "x" | "y" | "z" ;
+Digit           = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7"
+                | "8" | "9" ;
+HexDigit        = Digit | "A" | "B" | "C" | "D" | "E" | "F"
+                | "a" | "b" | "c" | "d" | "e" | "f" ;
+Identifier      = ( Letter | "_" ), { Letter | Digit | "_" } ;
+UnsignedInteger = Digit, { Digit } ;
+HorizontalSpace = " " | "\t" ;
+LineEnding      = "\n" | "\r\n" ;
+
+Source          = Preamble, Pattern ;
+Preamble        = { BlankLine | PreambleComment }, [ FlagsDirective ] ;
+BlankLine       = { HorizontalSpace }, LineEnding ;
+PreambleComment = { HorizontalSpace }, "#", { ? any scalar except CR or LF ? },
+                  LineEnding ;
+
+FlagsDirective  = { HorizontalSpace }, "%flags", [ HorizontalSpace, FlagList ],
+                  { HorizontalSpace }, LineEnding ;
+FlagList        = [ "[" ], Flag, { FlagSeparator, Flag }, [ "]" ] ;
+FlagSeparator   = { HorizontalSpace }, [ "," ], { HorizontalSpace } ;
+Flag            = "i" | "I" | "m" | "M" | "s" | "S" | "u" | "U"
+                | "x" | "X" ;
+
+Pattern         = [ Alternation ] ;
+Alternation     = Concatenation, { "|", Concatenation } ;
+Concatenation   = Term, { Term } ;
+Term            = Atom, [ Quantifier ] ;
+
+Atom            = Group | CharacterClass | Dot | Assertion | Backreference
+                | Escape | Literal ;
+Dot             = "." ;
+Literal         = ? any Unicode scalar except . \\ | ( ) [ ] { } ^ $ * + ? ? ;
+
+Group           = CaptureGroup | NamedCaptureGroup | NoncapturingGroup
+                | AtomicGroup | Lookahead | Lookbehind ;
+CaptureGroup    = "(", Pattern, ")" ;
+NamedCaptureGroup = "(?<", Identifier, ">", Pattern, ")" ;
+NoncapturingGroup = "(?:", Pattern, ")" ;
+AtomicGroup     = "(?>", Pattern, ")" ;
+Lookahead       = "(?=", Pattern, ")" | "(?!", Pattern, ")" ;
+Lookbehind      = "(?<=", Pattern, ")" | "(?<!", Pattern, ")" ;
+
+Assertion       = "^" | "$" | "\b" | "\B" | "\A" | "\Z" ;
+Backreference   = NumericBackreference | NamedBackreference ;
+NumericBackreference = "\", NonzeroInteger ;
+NamedBackreference = "\k<", Identifier, ">" ;
+NonzeroInteger  = ( "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8"
+                | "9" ), { Digit } ;
+
+Quantifier      = QuantifierBody, [ "?" | "+" ] ;
+QuantifierBody  = "*" | "+" | "?" | "{", UnsignedInteger, "}"
+                | "{", UnsignedInteger, ",}"
+                | "{", UnsignedInteger, ",", UnsignedInteger, "}" ;
+
+CharacterClass  = "[", [ "^" ], ClassItem, { ClassItem }, "]" ;
+ClassItem       = ClassRange | ClassAtom ;
+ClassRange      = ClassRangeEndpoint, "-", ClassRangeEndpoint ;
+ClassRangeEndpoint = ClassLiteral | ClassScalarEscape ;
+ClassAtom       = ClassLiteral | ClassScalarEscape | ShorthandClass
+                | UnicodeProperty ;
+ClassLiteral    = ? any Unicode scalar except ] \\ ? ;
+
+Escape          = IdentityEscape | ControlEscape | NullEscape | HexEscape
+                | UnicodeEscape | ShorthandClass | UnicodeProperty ;
+ClassScalarEscape = IdentityEscape | ControlEscape | NullEscape | HexEscape
+                | UnicodeEscape ;
+IdentityEscape  = "\", ( "." | "\\" | "|" | "(" | ")" | "[" | "]"
+                | "{" | "}" | "^" | "$" | "*" | "+" | "?" | "/"
+                | "-" | ":" | "," | " " | "#" ) ;
+ControlEscape   = "\n" | "\r" | "\t" | "\f" | "\v" ;
+NullEscape      = "\0" ;
+HexEscape       = "\x", HexDigit, HexDigit
+                | "\x{", HexDigit, { HexDigit }, "}" ;
+UnicodeEscape   = "\u", HexDigit, HexDigit, HexDigit, HexDigit
+                | "\u{", HexDigit, { HexDigit }, "}"
+                | "\U", HexDigit, HexDigit, HexDigit, HexDigit,
+                  HexDigit, HexDigit, HexDigit, HexDigit ;
+ShorthandClass  = "\d" | "\D" | "\w" | "\W" | "\s" | "\S" ;
+UnicodeProperty = ( "\p" | "\P" ), "{", Identifier,
+                  [ "=", Identifier ], "}" ;
+
+(* When flag x is active, ASCII space, tab, CR, and LF outside a character *)
+(* class are layout; # begins a comment through the next line ending. *)
+(* Inside a character class the same scalars remain literal. *)
+(* Context rules, resource limits, rejection rules, and byte locations are *)
+(* normative in dialect.json and README.md. *)

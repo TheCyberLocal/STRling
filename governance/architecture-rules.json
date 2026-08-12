@@ -257,9 +257,47 @@
             "configuration": {
                 "sources": [
                     "spec/schema/*.json",
-                    "spec/contracts/**/*.schema.json"
+                    "spec/contracts/**/*.schema.json",
+                    "spec/frontends/**/*.schema.json"
                 ],
-                "allowed_reference_roots": ["spec/schema", "spec/contracts"]
+                "allowed_reference_roots": [
+                    "spec/schema",
+                    "spec/contracts",
+                    "spec/frontends"
+                ]
+            }
+        },
+        {
+            "id": "regex-frontend-authority-boundary",
+            "description": "The regex-compatible frontend owns only versioned compatibility syntax and cannot define canonical semantic or target authority.",
+            "status": "enforced",
+            "kind": "frontend-authority-boundary",
+            "configuration": {
+                "frontend_contract_sources": ["spec/frontends/legacy-regex/**"],
+                "semantic_authority_sources": [
+                    "core/src/semantic/**",
+                    "spec/contracts/1.0/semantic-ir.schema.json",
+                    "spec/drafts/**"
+                ],
+                "target_authority_sources": [
+                    "core/src/portability_planning.rs",
+                    "core/src/target/**",
+                    "spec/contracts/1.0/target-artifact.schema.json",
+                    "spec/contracts/1.0/target-profile.schema.json",
+                    "spec/targets/**"
+                ],
+                "forbidden_frontend_markers": [
+                    "%flags",
+                    "legacy-regex",
+                    "strling.regex-compat",
+                    "text/x-strling-regex-compat"
+                ],
+                "contract_forbidden_authority_markers": [
+                    "\"raw_fragment_model\": \"opaque-passthrough\"",
+                    "\"semantic_authority\": true",
+                    "\"target_assumption\": \"inferred\"",
+                    "\"target_authority\": true"
+                ]
             }
         },
         {

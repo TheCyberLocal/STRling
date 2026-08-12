@@ -1,0 +1,459 @@
+{
+    "$schema": "https://strling.dev/frontends/legacy-regex/1.0/case.schema.json",
+    "fixture_set_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "kind": "negative",
+    "authorship": "specification-authored",
+    "cases": [
+        {
+            "id": "case:regex-compat/advanced-group-syntax",
+            "source": "(?R)",
+            "feature_ids": ["extension.advanced-group-syntax"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2015",
+                "byte_offset": 1
+            }
+        },
+        {
+            "id": "case:regex-compat/alternation-empty-branch",
+            "source": "a||b",
+            "feature_ids": ["composition.alternation"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2003",
+                "byte_offset": 2
+            }
+        },
+        {
+            "id": "case:regex-compat/alternation-missing-left",
+            "source": "|a",
+            "feature_ids": ["composition.alternation"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2001",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/alternation-missing-right",
+            "source": "a|",
+            "feature_ids": ["composition.alternation"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2002",
+                "byte_offset": 1
+            }
+        },
+        {
+            "id": "case:regex-compat/backreference-forward",
+            "source": "\\k<later>(?<later>a)",
+            "feature_ids": ["backreference.named", "group.named"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-4001",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/backreference-malformed",
+            "source": "(?<name>a)\\k<name",
+            "feature_ids": ["backreference.named", "group.named"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-4003",
+                "byte_offset": 10
+            }
+        },
+        {
+            "id": "case:regex-compat/backreference-undefined",
+            "source": "(a)\\2",
+            "feature_ids": ["backreference.numeric", "group.capturing"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-4002",
+                "byte_offset": 3
+            }
+        },
+        {
+            "id": "case:regex-compat/class-empty",
+            "source": "[]",
+            "feature_ids": ["class.character"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2017",
+                "byte_offset": 1
+            }
+        },
+        {
+            "id": "case:regex-compat/class-range-endpoint",
+            "source": "[a-\\d]",
+            "feature_ids": ["class.range", "class.shorthand"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2020",
+                "byte_offset": 2
+            }
+        },
+        {
+            "id": "case:regex-compat/class-range-reversed",
+            "source": "[z-a]",
+            "feature_ids": ["class.range"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2019",
+                "byte_offset": 3
+            }
+        },
+        {
+            "id": "case:regex-compat/class-unterminated",
+            "source": "[abc",
+            "feature_ids": ["class.character"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2018",
+                "byte_offset": 4
+            }
+        },
+        {
+            "id": "case:regex-compat/directive-after-pattern",
+            "source": "a\n%flags i",
+            "feature_ids": ["directive.flags", "literal.scalar"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-1003",
+                "byte_offset": 2
+            }
+        },
+        {
+            "id": "case:regex-compat/directive-duplicate",
+            "source": "%flags i\n%flags m\na",
+            "feature_ids": ["directive.duplicate", "directive.flags"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-1004",
+                "byte_offset": 9
+            }
+        },
+        {
+            "id": "case:regex-compat/directive-inline-pattern",
+            "source": "%flags i pattern",
+            "feature_ids": ["directive.flags", "directive.inline-pattern"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-1005",
+                "byte_offset": 9
+            }
+        },
+        {
+            "id": "case:regex-compat/directive-invalid-flag",
+            "source": "%flags z\na",
+            "feature_ids": ["directive.flags"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-1006",
+                "byte_offset": 7
+            }
+        },
+        {
+            "id": "case:regex-compat/directive-language",
+            "source": "%lang regex\na",
+            "feature_ids": ["extension.language-directive"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-1002",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/directive-malformed",
+            "source": "%flags[\na",
+            "feature_ids": ["directive.flags"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-1001",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/directive-target",
+            "source": "%engine pcre2\na",
+            "feature_ids": ["extension.target-directive"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-1002",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/escape-control-extension",
+            "source": "\\a\\e\\cA",
+            "feature_ids": ["extension.control-a-e-c"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-3002",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/escape-hex-invalid",
+            "source": "\\xGG",
+            "feature_ids": ["escape.hex-fixed"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-3003",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/escape-lowercase-z",
+            "source": "\\z",
+            "feature_ids": ["extension.lowercase-z-anchor"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-3002",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/escape-octal",
+            "source": "\\123",
+            "feature_ids": ["extension.octal"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-3006",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/escape-scalar-invalid",
+            "source": "\\uD800",
+            "feature_ids": ["escape.unicode-fixed"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-3005",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/escape-shorthand-r-h",
+            "source": "\\R\\h",
+            "feature_ids": ["extension.shorthand-r-h"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-3002",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/escape-unexpected-end",
+            "source": "a\\",
+            "feature_ids": ["escape.identity", "literal.scalar"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-3001",
+                "byte_offset": 1
+            }
+        },
+        {
+            "id": "case:regex-compat/escape-unicode-invalid",
+            "source": "\\u12Z4",
+            "feature_ids": ["escape.unicode-fixed"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-3004",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/escape-unknown",
+            "source": "\\q",
+            "feature_ids": ["escape.identity"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-3002",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/group-duplicate-name",
+            "source": "(?<name>a)(?<name>b)",
+            "feature_ids": ["group.named"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2014",
+                "byte_offset": 11
+            }
+        },
+        {
+            "id": "case:regex-compat/group-inline-modifier",
+            "source": "(?i)a",
+            "feature_ids": ["extension.inline-modifier"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2016",
+                "byte_offset": 1
+            }
+        },
+        {
+            "id": "case:regex-compat/group-invalid-name",
+            "source": "(?<1name>a)",
+            "feature_ids": ["group.named"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2013",
+                "byte_offset": 3
+            }
+        },
+        {
+            "id": "case:regex-compat/group-unmatched-close",
+            "source": "a)",
+            "feature_ids": ["group.capturing"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2011",
+                "byte_offset": 1
+            }
+        },
+        {
+            "id": "case:regex-compat/group-unterminated",
+            "source": "(a",
+            "feature_ids": ["group.capturing"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2012",
+                "byte_offset": 2
+            }
+        },
+        {
+            "id": "case:regex-compat/property-braces-required",
+            "source": "\\pL",
+            "feature_ids": ["class.unicode-property"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2021",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/property-empty",
+            "source": "\\p{}",
+            "feature_ids": ["class.unicode-property"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2023",
+                "byte_offset": 3
+            }
+        },
+        {
+            "id": "case:regex-compat/property-unterminated",
+            "source": "\\p{Letter",
+            "feature_ids": ["class.unicode-property"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2022",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/quantifier-bound-exceeded",
+            "source": "a{4294967296}",
+            "feature_ids": ["quantifier.brace"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2010",
+                "byte_offset": 2
+            }
+        },
+        {
+            "id": "case:regex-compat/quantifier-incomplete",
+            "source": "a{2,",
+            "feature_ids": ["quantifier.brace"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2006",
+                "byte_offset": 4
+            }
+        },
+        {
+            "id": "case:regex-compat/quantifier-invalid-content",
+            "source": "a{many}",
+            "feature_ids": ["quantifier.brace"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2007",
+                "byte_offset": 1
+            }
+        },
+        {
+            "id": "case:regex-compat/quantifier-missing-atom",
+            "source": "*a",
+            "feature_ids": ["quantifier.simple"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2004",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/quantifier-on-assertion",
+            "source": "^*",
+            "feature_ids": ["assertion.line-anchors", "quantifier.simple"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2009",
+                "byte_offset": 1
+            }
+        },
+        {
+            "id": "case:regex-compat/quantifier-range-reversed",
+            "source": "a{5,2}",
+            "feature_ids": ["quantifier.brace"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2008",
+                "byte_offset": 6
+            }
+        },
+        {
+            "id": "case:regex-compat/quantifier-stacked",
+            "source": "a**",
+            "feature_ids": ["quantifier.simple"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2005",
+                "byte_offset": 2
+            }
+        },
+        {
+            "id": "case:regex-compat/raw-posix-class",
+            "source": "[[:alpha:]]",
+            "feature_ids": ["extension.posix-class"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2024",
+                "byte_offset": 1
+            }
+        },
+        {
+            "id": "case:regex-compat/raw-quoting-block",
+            "source": "\\Qliteral.*\\E",
+            "feature_ids": ["extension.quoting-block"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2024",
+                "byte_offset": 0
+            }
+        },
+        {
+            "id": "case:regex-compat/raw-target-fragment",
+            "source": "(*UTF)a",
+            "feature_ids": ["extension.raw-target-fragment"],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_id": "STRL-FRONTEND-2024",
+                "byte_offset": 1
+            }
+        }
+    ]
+}

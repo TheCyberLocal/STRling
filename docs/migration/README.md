@@ -8,6 +8,9 @@ are defined in [`observation-comparison.md`](observation-comparison.md).
 The blocking complete-corpus execution, baseline, and canonical route-review
 contract are defined in
 [`full-corpus-differential.md`](full-corpus-differential.md).
+The evidence inventory and decisions that produced the versioned
+regex-compatible source frontend are recorded in
+[`legacy-regex-frontend-contract.md`](legacy-regex-frontend-contract.md).
 
 This directory contains migration-control records and verification evidence for
 the architectural initiative. It is not product documentation and MUST NOT

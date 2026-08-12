@@ -1,0 +1,271 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/frontends/legacy-regex/1.0/dialect.schema.json",
+    "title": "STRling regex-compatible frontend dialect contract",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "contract_kind",
+        "contract_version",
+        "frontend",
+        "authority",
+        "source_model",
+        "directives",
+        "precedence",
+        "limits",
+        "features",
+        "diagnostics"
+    ],
+    "properties": {
+        "$schema": {
+            "const": "https://strling.dev/frontends/legacy-regex/1.0/dialect.schema.json"
+        },
+        "contract_kind": { "const": "strling.regex-compatible-dialect" },
+        "contract_version": { "const": "1.0.0" },
+        "frontend": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "dialect_version", "role", "media_type"],
+            "properties": {
+                "id": { "const": "strling.regex-compat" },
+                "dialect_version": { "const": "1.0.0" },
+                "role": { "const": "compatibility-import-frontend" },
+                "media_type": { "const": "text/x-strling-regex-compat" }
+            }
+        },
+        "authority": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "syntax_authority",
+                "semantic_authority",
+                "target_authority",
+                "lowering_destination"
+            ],
+            "properties": {
+                "syntax_authority": { "const": true },
+                "semantic_authority": { "const": false },
+                "target_authority": { "const": false },
+                "lowering_destination": { "const": "semantic-ir" }
+            }
+        },
+        "source_model": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "encoding",
+                "coordinate_system",
+                "line_endings",
+                "bom_policy",
+                "invalid_encoding",
+                "raw_fragment_model",
+                "target_assumption",
+                "missing_frontend_metadata",
+                "ambiguous_frontend_metadata"
+            ],
+            "properties": {
+                "encoding": { "const": "utf-8" },
+                "coordinate_system": { "const": "utf8-bytes" },
+                "line_endings": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "uniqueItems": true,
+                    "items": { "enum": ["lf", "crlf"] }
+                },
+                "bom_policy": { "const": "literal-scalar" },
+                "invalid_encoding": { "const": "protocol-rejection" },
+                "raw_fragment_model": { "const": "structured-source-only" },
+                "target_assumption": { "const": "none" },
+                "missing_frontend_metadata": { "const": "protocol-rejection" },
+                "ambiguous_frontend_metadata": { "const": "protocol-rejection" }
+            }
+        },
+        "directives": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "phase",
+                "supported",
+                "allow_leading_blank_lines",
+                "allow_leading_preamble_comments",
+                "pattern_same_line",
+                "duplicate_policy",
+                "flag_letters",
+                "flag_separators",
+                "flags_case_sensitive",
+                "empty_flags",
+                "unknown_directive"
+            ],
+            "properties": {
+                "phase": { "const": "preamble-only" },
+                "supported": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": { "const": "%flags" }
+                },
+                "allow_leading_blank_lines": { "const": true },
+                "allow_leading_preamble_comments": { "const": true },
+                "pattern_same_line": { "const": false },
+                "duplicate_policy": { "const": "reject" },
+                "flag_letters": {
+                    "type": "array",
+                    "minItems": 5,
+                    "maxItems": 5,
+                    "uniqueItems": true,
+                    "items": { "enum": ["i", "m", "s", "u", "x"] }
+                },
+                "flag_separators": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "uniqueItems": true,
+                    "items": { "enum": ["ascii-whitespace", "comma"] }
+                },
+                "flags_case_sensitive": { "const": false },
+                "empty_flags": { "const": "no-flags" },
+                "unknown_directive": { "const": "reject" }
+            }
+        },
+        "precedence": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "prefixItems": [
+                { "const": "atom" },
+                { "const": "quantifier" },
+                { "const": "concatenation" },
+                { "const": "alternation" }
+            ],
+            "items": false
+        },
+        "limits": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "max_source_bytes",
+                "max_nesting_depth",
+                "max_capture_groups",
+                "max_quantifier_bound",
+                "error_selection"
+            ],
+            "properties": {
+                "max_source_bytes": { "const": 1048576 },
+                "max_nesting_depth": { "const": 128 },
+                "max_capture_groups": { "const": 65535 },
+                "max_quantifier_bound": { "const": 4294967295 },
+                "error_selection": { "const": "first-source-order-error" }
+            }
+        },
+        "features": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/Feature" }
+        },
+        "diagnostics": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/Diagnostic" }
+        }
+    },
+    "$defs": {
+        "Feature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "family",
+                "syntax",
+                "status",
+                "boundary",
+                "description"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)+$"
+                },
+                "family": {
+                    "enum": [
+                        "directives",
+                        "layout",
+                        "literals",
+                        "escapes",
+                        "classes",
+                        "composition",
+                        "groups",
+                        "assertions",
+                        "backreferences",
+                        "quantifiers",
+                        "extensions"
+                    ]
+                },
+                "syntax": { "type": "string", "minLength": 1 },
+                "status": {
+                    "enum": ["accepted", "compatibility-only", "rejected"]
+                },
+                "boundary": {
+                    "enum": [
+                        "frontend-structure",
+                        "semantic-lowering",
+                        "target-portability"
+                    ]
+                },
+                "grammar_rule": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Za-z0-9]*$"
+                },
+                "diagnostic_id": {
+                    "type": "string",
+                    "pattern": "^STRL-FRONTEND-[0-9]{4}$"
+                },
+                "description": { "type": "string", "minLength": 1 }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "status": {
+                                "enum": ["accepted", "compatibility-only"]
+                            }
+                        },
+                        "required": ["status"]
+                    },
+                    "then": { "required": ["grammar_rule"] }
+                },
+                {
+                    "if": {
+                        "properties": { "status": { "const": "rejected" } },
+                        "required": ["status"]
+                    },
+                    "then": { "required": ["diagnostic_id"] }
+                }
+            ]
+        },
+        "Diagnostic": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "category", "fixture_required", "trigger"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^STRL-FRONTEND-[0-9]{4}$"
+                },
+                "category": {
+                    "enum": [
+                        "protocol",
+                        "resource",
+                        "directive",
+                        "syntax",
+                        "escape",
+                        "reference"
+                    ]
+                },
+                "fixture_required": { "type": "boolean" },
+                "trigger": { "type": "string", "minLength": 1 }
+            }
+        }
+    }
+}

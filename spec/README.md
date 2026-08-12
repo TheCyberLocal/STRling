@@ -49,10 +49,11 @@ sources; they do not create behavior and must be corrected when they conflict.
 | Path                                                                               | Current classification                                                                                  | Permanent handling                                                                                                                             |
 | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`contracts/`](contracts/)                                                         | Canonical compiler data-contract suite; normative for serialized shape and cross-contract invariants    | Implement every future frontend, kernel, backend, adapter, diagnostic surface, and conformance harness against these versioned contracts.      |
+| [`frontends/legacy-regex/`](frontends/legacy-regex/)                               | Normative `strling.regex-compat` compatibility/import frontend syntax, currently dialect `1.0.0`        | Parse only its versioned grammar and fixtures, then lower structurally to canonical Semantic IR without target inference or raw passthrough.   |
 | [`conformance/`](conformance/)                                                     | Specification-owned draft seed corpus; not yet normative language semantics                             | Activate cases only through a ratified specification delegation and its content-addressed manifest.                                            |
 | [`targets/profiles/`](targets/profiles/)                                           | Version-aware authored target-profile facts with explicitly enumerated scope                            | Expand capability coverage deliberately; never infer support for an unlisted capability.                                                       |
-| [`grammar/dsl.ebnf`](grammar/dsl.ebnf)                                             | Transitional regex-frontend grammar and compatibility evidence                                          | Preserve accepted behavior until an explicit versioned decision revises it; do not treat it as the final Semantic STRling DSL.                 |
-| [`grammar/semantics.md`](grammar/semantics.md)                                     | Transitional description of regex-frontend behavior and historical target expectations                  | Use for compatibility and specification input; its previous “STRling v3 normative” label is not a ratified semantic specification version.     |
+| [`grammar/dsl.ebnf`](grammar/dsl.ebnf)                                             | Superseded transitional regex-frontend grammar and compatibility evidence                               | Retain for migration traceability; the versioned frontend contract resolves its contradictions and owns new parser requirements.               |
+| [`grammar/semantics.md`](grammar/semantics.md)                                     | Superseded transitional behavior/target prose and historical compatibility evidence                     | Retain for evidence only; use the versioned frontend contract for syntax and canonical semantic/target contracts for later stages.             |
 | [`schema/base.schema.json`](schema/base.schema.json)                               | Legacy versioned TargetArtifact compatibility contract                                                  | Preserve its public compatibility scope; new kernel work uses the canonical contract suite.                                                    |
 | [`schema/pcre2.v1.schema.json`](schema/pcre2.v1.schema.json)                       | Legacy versioned PCRE2 artifact compatibility contract                                                  | Preserve its public compatibility scope; canonical target profiles and artifacts supersede it for new architecture.                            |
 | [`schema/conformance-fixture.schema.json`](schema/conformance-fixture.schema.json) | Versioned fixture-shape contract                                                                        | Governs shape, not the semantic authority of implementation-derived fixture values.                                                            |
@@ -69,6 +70,11 @@ The existing regex-shaped source notation, including current `.strl` inputs,
 is the **regex frontend** or **regex-compatible source dialect**. It remains a
 supported compatibility and import capability, but it does not define the
 semantic ceiling of STRling.
+
+Its normative syntax identity is now
+[`strling.regex-compat` dialect `1.0.0`](frontends/legacy-regex/1.0/README.md).
+Dialect metadata is explicit and out of band; source text does not infer a
+target.
 
 Target regex is emitted output for a selected target engine/profile. It is
 neither Semantic STRling nor the regex frontend, even when surface spellings

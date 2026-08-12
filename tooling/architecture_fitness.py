@@ -228,6 +228,86 @@ def schema_reference_findings(
     return findings
 
 
+def frontend_authority_boundary_findings(
+    root: Path,
+    configuration: Mapping[str, object],
+    matches_any: Match,
+) -> list[Finding]:
+    """Keep compatibility syntax out of semantic and target authority."""
+
+    contract_sources = configuration["frontend_contract_sources"]
+    semantic_sources = configuration["semantic_authority_sources"]
+    target_sources = configuration["target_authority_sources"]
+    frontend_markers = configuration["forbidden_frontend_markers"]
+    contract_markers = configuration["contract_forbidden_authority_markers"]
+    assert isinstance(contract_sources, list)
+    assert isinstance(semantic_sources, list)
+    assert isinstance(target_sources, list)
+    assert isinstance(frontend_markers, list)
+    assert isinstance(contract_markers, list)
+    findings: list[Finding] = []
+
+    def authority_files(patterns: list[object]) -> list[tuple[Path, str]]:
+        """Enumerate only declared authority roots, not the whole repository."""
+
+        selected = [str(pattern) for pattern in patterns]
+        candidates: set[Path] = set()
+        for pattern in selected:
+            wildcard = min(
+                (
+                    index
+                    for index in (pattern.find("*"), pattern.find("?"))
+                    if index >= 0
+                ),
+                default=len(pattern),
+            )
+            prefix = pattern[:wildcard].rstrip("/")
+            candidate = root / prefix
+            if candidate.is_file():
+                candidates.add(candidate)
+            elif candidate.is_dir():
+                candidates.update(
+                    path for path in candidate.rglob("*") if path.is_file()
+                )
+
+        files = []
+        for path in candidates:
+            relative = path.relative_to(root).as_posix()
+            if matches_any(relative, selected):
+                files.append((path, relative))
+        return sorted(files, key=lambda item: item[1])
+
+    def inspect(
+        patterns: list[object],
+        markers: list[object],
+        boundary: str,
+    ) -> None:
+        for path, relative in authority_files(patterns):
+            try:
+                folded = path.read_text(encoding="utf-8").casefold()
+            except (OSError, UnicodeDecodeError) as error:
+                findings.append(
+                    (f"{relative}: cannot inspect {boundary}: {error}", relative)
+                )
+                continue
+            for marker in markers:
+                if str(marker).casefold() not in folded:
+                    continue
+                findings.append(
+                    (
+                        f"{relative}: {boundary} contains forbidden frontend "
+                        f"authority marker {marker}",
+                        relative,
+                    )
+                )
+                break
+
+    inspect(contract_sources, contract_markers, "frontend contract")
+    inspect(semantic_sources, frontend_markers, "semantic authority")
+    inspect(target_sources, frontend_markers, "target authority")
+    return findings
+
+
 def semantic_declarations(path: Path) -> tuple[set[str], str | None]:
     try:
         text = path.read_text(encoding="utf-8")
@@ -892,6 +972,8 @@ def evaluate_extended_rule(
         return python_import_findings(root, configuration, matches_any)
     if kind == "schema-reference-boundary":
         return schema_reference_findings(root, configuration, matches_any)
+    if kind == "frontend-authority-boundary":
+        return frontend_authority_boundary_findings(root, configuration, matches_any)
     if kind == "semantic-island-placement":
         return semantic_island_findings(
             root,

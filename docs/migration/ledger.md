@@ -2566,3 +2566,26 @@ host-only unavailability for the Ruff/Ruby version pins and dependency-risk
 scanner. P07-T04 is therefore `READY WITH RECORDED CARRY-FORWARD`; the next
 ordered task is P08-T01, formalizing the legacy regex-compatible source dialect
 contract before canonical parser implementation.
+
+## Formalize the legacy regex-compatible frontend contract
+
+The historical regex-shaped source notation is now frozen as frontend
+`strling.regex-compat`, dialect `1.0.0`. Its versioned contract owns source
+encoding, UTF-8 byte locations, preamble and `%flags` rules, exact grammar,
+context constraints, resource limits, stable frontend diagnostic identities,
+and specification-authored positive/negative fixtures. It does not define
+Semantic STRling, Semantic IR meaning, target capability, or emitted syntax.
+
+The machine catalog records 51 decisions: 32 accepted, six
+compatibility-only, and 13 rejected. Thirty positive cases cover every accepted
+feature; 45 negative cases cover every rejected feature and every required
+syntax/directive/escape/reference diagnostic. The checked initial fingerprint
+is
+`sha256:0cb32dd3ed534d13ce6d4278a2723898ac40bc374fa6d40c5ac43c553a2265ad`.
+
+The contract makes dialect identity explicit through `SourceDocument`, rejects
+inline target/language directives and opaque target-regex fragments, and
+requires all accepted constructs to lower structurally before target planning.
+No parser or runtime behavior changes in this task. Evidence inventory,
+preservation/correction decisions, exclusions, and the P08-T02 handoff are in
+[`legacy-regex-frontend-contract.md`](legacy-regex-frontend-contract.md).
