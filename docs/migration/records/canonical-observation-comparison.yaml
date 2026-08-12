@@ -13,11 +13,13 @@ scope:
         - governance/quality.json
         - tooling/architecture_fitness.py
         - tooling/legacy_reference/launch.py
+        - tooling/migration_classification.py
         - tooling/migration_comparison.py
         - tooling/migration_comparison_engine.py
         - tooling/migration_comparison_contract.json
         - tooling/tests/fixtures/migration_comparison/**
         - tooling/tests/test_legacy_reference_architecture.py
+        - tooling/tests/test_migration_classification.py
         - tooling/tests/test_migration_comparison.py
         - tooling/tests/test_migration_comparison_engine.py
         - tooling/tests/test_quality.py
@@ -29,8 +31,10 @@ scope:
         - docs/migration/observation-comparison.md
         - docs/migration/records/canonical-observation-comparison.yaml
         - tooling/migration_comparison_contract.json
+        - tooling/migration_classification.py
         - tooling/migration_comparison.py
         - tooling/migration_comparison_engine.py
+        - tooling/tests/test_migration_classification.py
         - tooling/tests/test_migration_comparison.py
         - tooling/tests/test_migration_comparison_engine.py
     permitted_generated_changes: []
@@ -129,8 +133,19 @@ checkpoints:
             result: passed
             details: The comparison engine and tests satisfy governed Python formatting, lint, and patch-integrity requirements.
     - name: Governed discrepancy classification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Governed classification tests
+            command: python3 -m unittest tooling.tests.test_migration_comparison tooling.tests.test_migration_comparison_engine tooling.tests.test_migration_classification -v
+            result: passed
+            details: Thirty-three focused tests include 10 classification cases covering historical-peer non-applicability, controlled unresolved migration review, every substantive disposition, correction authority and exceptional justification, supported-scope authority, replacement-adapter rejection, invalid disposition and altered-path rejection, deterministic immutability, and traceable supersession.
+          - check: Disposition authority invariants
+            result: passed
+            details: Preservation requires equivalent replacement evidence and scope; corrections require a meaningful difference or exceptional justification plus governing authority and a corrected rule; unsupported legacy behavior requires historical evidence, a scope boundary, and scope authority; uncertainty defaults to unresolved and cannot accept equivalent observations.
+          - check: Python quality and comparison immutability
+            command: ruff format --check tooling/migration_classification.py tooling/tests/test_migration_classification.py; ruff check tooling/migration_classification.py tooling/tests/test_migration_classification.py; git diff --check
+            result: passed
+            details: Classification is independently content-addressed, never mutates comparison evidence, and satisfies governed Python formatting, lint, and patch integrity.
     - name: Comparison corpus and taxonomy certification
       status: planned
       evidence: []
