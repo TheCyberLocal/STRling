@@ -51,9 +51,13 @@ Global case intent is the only current artifact flag: insensitive plans emit
 the canonical one-element `i` array and sensitive plans emit no flags. The
 harness maps `i` to `re.IGNORECASE`. It never infers `A`, `L`, `M`, `S`, `U`,
 or `X`. The required `python.pattern_kind` value remains separately copied as
-a runtime-stage engine option. Scoped Python modifiers used inside pattern
-text preserve individual wildcard, anchor, or character-domain semantics;
-they are syntax projection, not new profile policy.
+a runtime-stage engine option. Because target-profile options are immutable,
+the existing `profile:python-re/3.11` continues to govern `str` and a separate
+`profile:python-re/3.11-bytes` companion governs `bytes`; serializers accept
+only the exact fingerprints of those two profiles. Scoped Python modifiers
+used inside pattern text preserve individual wildcard, anchor, or
+character-domain semantics; they are syntax projection, not new profile
+policy.
 
 ## Canonical syntax and precedence
 

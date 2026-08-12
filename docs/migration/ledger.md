@@ -2979,9 +2979,14 @@ x86-64 executable, ABI/runtime identity, profile revision, corpus, harness,
 pattern kind, flags, and repeated semantic results. It must reject rather than
 substitute the available host Python 3.12 or Windows Python 3.13.
 
-No schema or target-profile change is required. The existing pattern `flags`
-array represents per-program `i`; required `python.pattern_kind` remains a
-separate runtime option. Scoped syntax preserves wildcard, line-position, and
+No schema change is required. The existing pattern `flags` array represents
+per-program `i`; required `python.pattern_kind` remains a separate runtime
+option. Read-first implementation proof exposed that the existing immutable
+profile permits only `str`, while this task explicitly requires executable
+bytes artifacts. Scope therefore adds a separate exact
+`profile:python-re/3.11-bytes` companion whose Unicode-only capabilities are
+unavailable; it does not mutate the certified `str` profile or weaken exact
+profile identity checks. Scoped syntax preserves wildcard, line-position, and
 ASCII/Unicode class behavior without leaking global `s`, `m`, `a`, `u`, `L`,
 or verbose behavior. String and bytes execution, captures and spans,
 lookarounds, anchors/newlines, Unicode/case, atomic and possessive 3.11

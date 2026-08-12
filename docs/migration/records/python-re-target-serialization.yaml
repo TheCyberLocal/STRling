@@ -10,15 +10,18 @@ scope:
         - core/contract-mapping.json
         - core/src/lib.rs
         - core/src/python_re_serialization.rs
+        - core/tests/capability_profile_fixtures.rs
         - core/tests/python_re_runtime_certification.rs
         - core/tests/python_re_serialization.rs
         - core/tests/python_re_serialization_properties.rs
+        - core/tests/target_contracts.rs
         - docs/architecture.md
         - docs/migration/ledger.md
         - docs/migration/python-re-target-serialization.md
         - docs/migration/records/python-re-target-serialization.yaml
         - governance/architecture-rules.json
         - governance/change-control.json
+        - spec/targets/profiles/python-re-3.11-bytes.json
         - tests/conformance/python-re-runtime-certification.json
         - toolchain.json
         - tooling/core_contract_validation.py
@@ -49,7 +52,6 @@ scope:
         - spec/contracts/1.0/*.schema.json
         - spec/grammar/**
         - spec/stdlib/**
-        - spec/targets/profiles/**
         - tests/spec/**
     expected_files:
         - docs/migration/ledger.md
@@ -87,7 +89,7 @@ change_classification:
     target_behavior_change:
         level: additive
         evidence:
-            - Adds standalone Python re artifact production and exact bounded CPython observations without changing an existing product execution route.
+            - Adds standalone Python re artifact production, an immutable bytes-applicability companion profile, and exact bounded CPython observations without changing an existing product execution route.
     architecture_change:
         level: additive
         evidence:
@@ -116,7 +118,10 @@ checkpoints:
       evidence:
           - check: Read-first contract and stage inventory
             result: passed
-            details: PythonReLoweringPlan supplies a validated closed operation tree, exact str/bytes pattern kind, deterministic captures, global case intent, required options, completed requirements and rewrites, and provenance. TargetArtifact already supplies pattern source and flags, immutable profile reference, engine options, requirements, UTF-8 source mapping, and diagnostics; no schema change is required.
+            details: PythonReLoweringPlan supplies a validated closed operation tree, exact str/bytes pattern kind, deterministic captures, global case intent, required options, completed requirements and rewrites, and provenance. TargetArtifact already supplies pattern source and flags, immutable profile reference, engine options, requirements, UTF-8 source mapping, and diagnostics; no schema change is required. Because profile option values are immutable, exact bytes artifact provenance requires a separate companion profile rather than mutation of the governed str profile.
+          - check: Immutable bytes applicability profile correction
+            result: passed
+            details: The existing profile:python-re/3.11 is permanently python.pattern_kind=str. P11-T04 requires executable bytes artifacts, so governed scope adds profile:python-re/3.11-bytes with the same CPython 3.11 runtime, bytes option, explicit unavailability of Unicode scalar/class/property capabilities, and its own exact fingerprint. An ungoverned synthetic profile or relaxed serializer identity check is prohibited.
           - check: Normative Python syntax and execution authority
             result: passed
             details: Official Python 3.11 re documentation governs pattern syntax, scoped modes, str/bytes distinctions, captures and references, anchors, Unicode and ASCII classes, fixed lookbehind, atomic groups, possessive quantifiers, compilation, matching, spans, and errors. Peer targets and the historical binding remain non-normative migration evidence.
