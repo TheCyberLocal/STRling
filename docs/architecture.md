@@ -42,8 +42,10 @@ This is a responsibility model, not a module diagram. The checked-in
 prepublication source, Semantic IR, compile request/result, diagnostic,
 analysis, profile, portability, and artifact contracts live under
 `spec/contracts/1.0`. The canonical Rust kernel currently implements the path
-through certified portability planning and structured target-aware
-explanations; target lowering and emission remain deliberately absent.
+through certified portability planning, structured target-aware explanations,
+and a pure pre-serialization PCRE2 lowering stage. Regex serialization,
+`TargetArtifact` construction, runtime execution, and product orchestration of
+that lowering stage remain deliberately absent.
 
 **Semantic analysis** owns target-independent validity, diagnostics, safety
 findings, and explanation.
@@ -71,9 +73,21 @@ origins, affected node identities, profile facts, and proof identities. This
 stage does not recompute capabilities or planning, apply a rewrite, lower, emit,
 or probe a runtime.
 
-**Lowering** selects deliberate target-specific forms. **Emitters**
-deterministically serialize those plans; they do not invent semantic or
-portability policy.
+**Lowering** consumes normalized Semantic IR, the exact target profile, and the
+completed certified portability plan. The first implementation,
+`lower_pcre2`, produces a closed PCRE2 operation tree, deterministic capture
+slots, profile-owned option data, requirement resolutions, source/node
+provenance, and exact applied-rewrite certification. It rejects stale,
+unsupported, unresolved, non-PCRE2, or malformed evidence and never re-runs
+capability evaluation or planning. Its
+[structured handoff contract](migration/pcre2-target-lowering.md) contains no
+regex punctuation, escaping, generated spans, emitted pattern, artifact, or
+runtime call.
+
+**Emitters** deterministically serialize certified lowering plans; they do not
+invent semantic or portability policy. A later PCRE2 emitter owns spelling and
+escaping, generated pattern spans/source maps, and `TargetArtifact`
+construction. Runtime integration remains a later boundary again.
 
 ## Simply
 

@@ -554,6 +554,106 @@ def kernel_boundary_violation(source_texts: Mapping[str, str]) -> str | None:
     return None
 
 
+def pcre2_target_lowering_boundary_violation(
+    source_texts: Mapping[str, str],
+) -> str | None:
+    """Return the first structured PCRE2 target-lowering violation."""
+
+    path = "core/src/target_lowering.rs"
+    source = source_texts.get(path, "").lower()
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub fn lower_pcre2(" not in source:
+        return "canonical PCRE2 target-lowering stage boundary cannot be located"
+
+    prerequisites = (
+        ("crate::diagnostic::{", "canonical structured diagnostics"),
+        ("crate::portability_planning::{", "certified portability plans"),
+        ("crate::semantic::{", "normalized Semantic IR"),
+        ("crate::source::{", "canonical identity and provenance contracts"),
+        ("crate::target::{", "exact immutable target profiles"),
+        ("crate::validation::{", "canonical validation and fingerprints"),
+    )
+    for marker, description in prerequisites:
+        if marker not in source:
+            return f"PCRE2 target lowering must consume {description}"
+
+    correspondence = (
+        "portability.validate()",
+        "canonical_sha256(input)",
+        "target.reference()",
+        'target.engine.id.as_str() != "pcre2"',
+    )
+    for marker in correspondence:
+        if marker not in source:
+            return (
+                "PCRE2 target lowering must validate exact planner/program/profile "
+                f"correspondence: {marker}"
+            )
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "evaluate_capabilities(",
+            "extract_requirements(",
+            "plan_portability(",
+            "certified_rewrite_registry(",
+            "crate::capability_evaluation",
+            "crate::normalization",
+            "crate::semantic_analysis",
+            "crate::structural_analysis",
+            "crate::safety_analysis",
+            "crate::diagnostic_generation",
+            "crate::compiler_pipeline",
+            "crate::capability_pipeline",
+            "crate::kernel",
+            "crate::protocol",
+            "crate::conformance",
+            "crate::regex_frontend",
+            "crate::emitter",
+            "crate::emitters",
+            "crate::bindings",
+            "crate::frontend",
+            "crate::lsp",
+            "crate::editor",
+            "bindings::",
+            "frontend::",
+            "emitters::",
+            "std::env::",
+            "std::fs::",
+            "std::net::",
+            "std::path::",
+            "std::process::",
+            "std::thread::",
+            "std::time::",
+            "systemtime",
+            "thread_rng",
+            "rand::",
+            "serde_json::to_string",
+            "serde::serialize",
+            "format_pattern(",
+            "escape_literal(",
+            "pcre2_compile",
+            "pcre2_match",
+            "regex::",
+            "emittedpattern {",
+            "generatedspan {",
+            "targetartifact {",
+        ),
+    )
+    if forbidden is not None:
+        return f"PCRE2 target lowering violates pure pre-serialization boundary: {forbidden}"
+
+    for candidate, text in source_texts.items():
+        if candidate in {path, "core/src/lib.rs"}:
+            continue
+        if "lower_pcre2(" in text.lower():
+            return (
+                "PCRE2 target lowering has an ungoverned direct caller before "
+                f"canonical orchestration exists: {candidate}"
+            )
+    return None
+
+
 def target_neutral_reverse_dependency_violation(
     source_texts: Mapping[str, str],
 ) -> str | None:
@@ -583,6 +683,7 @@ def target_neutral_reverse_dependency_violation(
                 "crate::capability_evaluation",
                 "crate::portability_planning",
                 "crate::capability_pipeline",
+                "crate::target_lowering",
             ),
         )
         if forbidden is not None:

@@ -44,7 +44,8 @@
             "rust_modules": [
                 "diagnostic",
                 "diagnostic_generation",
-                "portability_diagnostics"
+                "portability_diagnostics",
+                "target_lowering"
             ]
         },
         {
@@ -54,7 +55,8 @@
                 "protocol::analysis",
                 "target",
                 "portability_planning",
-                "portability_diagnostics"
+                "portability_diagnostics",
+                "target_lowering"
             ]
         },
         {
@@ -70,7 +72,8 @@
                 "diagnostic_generation",
                 "capability_evaluation",
                 "portability_planning",
-                "portability_diagnostics"
+                "portability_diagnostics",
+                "target_lowering"
             ]
         },
         {
@@ -89,7 +92,8 @@
             "rust_modules": [
                 "target::profile",
                 "capability_evaluation",
-                "portability_planning"
+                "portability_planning",
+                "target_lowering"
             ]
         }
     ],

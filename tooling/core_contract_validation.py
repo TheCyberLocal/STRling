@@ -22,6 +22,7 @@ try:
         portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
         portability_planning_boundary_violation,
+        pcre2_target_lowering_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
@@ -33,6 +34,7 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
         portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
         portability_planning_boundary_violation,
+        pcre2_target_lowering_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 
@@ -89,6 +91,7 @@ MODULE_PATHS = {
     "source": "core/src/source/mod.rs",
     "target": "core/src/target/mod.rs",
     "target::profile": "core/src/target/profile.rs",
+    "target_lowering": "core/src/target_lowering.rs",
 }
 
 
@@ -193,18 +196,20 @@ def validate_mapping_document(
             "diagnostic",
             "diagnostic_generation",
             "portability_diagnostics",
+            "target_lowering",
         ]:
             raise CoreContractError(
-                "diagnostic mapping must register target-neutral generation and target-aware portability explanations"
+                "diagnostic mapping must register target-neutral generation, target-aware portability explanations, and target-lowering failures"
             )
         if relative == "spec/contracts/1.0/portability.schema.json" and modules != [
             "protocol::analysis",
             "target",
             "portability_planning",
             "portability_diagnostics",
+            "target_lowering",
         ]:
             raise CoreContractError(
-                "portability mapping must register canonical planning and explanations"
+                "portability mapping must register canonical planning, explanations, and structured target lowering"
             )
         if relative == "spec/contracts/1.0/semantic-ir.schema.json" and modules != [
             "regex_frontend",
@@ -217,9 +222,10 @@ def validate_mapping_document(
             "capability_evaluation",
             "portability_planning",
             "portability_diagnostics",
+            "target_lowering",
         ]:
             raise CoreContractError(
-                "Semantic IR mapping must register target-neutral stages, capability requirement extraction, portability planning, and evidence-only explanations in dependency order"
+                "Semantic IR mapping must register target-neutral stages, capability requirement extraction, portability planning, evidence-only explanations, and structured target lowering in dependency order"
             )
         if relative == "spec/contracts/1.0/source.schema.json" and modules != [
             "source",
@@ -232,9 +238,10 @@ def validate_mapping_document(
             "target::profile",
             "capability_evaluation",
             "portability_planning",
+            "target_lowering",
         ]:
             raise CoreContractError(
-                "target profile mapping must register factual capability evaluation and portability planning"
+                "target profile mapping must register factual capability evaluation, portability planning, and exact-profile target lowering"
             )
 
     fixture_roots = mapping["fixture_roots"]
@@ -617,6 +624,7 @@ def validate_source_boundaries(
         portability_planning_boundary_violation,
         portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
+        pcre2_target_lowering_boundary_violation,
     ):
         violation = boundary_check(source_texts)
         if violation is not None:

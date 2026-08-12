@@ -38,8 +38,19 @@ scope:
         - spec/targets/profiles/**
         - tests/spec/**
     expected_files:
+        - core/contract-mapping.json
+        - core/src/lib.rs
+        - core/src/target_lowering.rs
+        - core/tests/pcre2_lowering.rs
+        - core/tests/pcre2_lowering_properties.rs
+        - docs/architecture.md
         - docs/migration/pcre2-target-lowering.md
         - docs/migration/records/pcre2-target-lowering.yaml
+        - docs/portability-planning.md
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_pcre2_lowering_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -102,12 +113,38 @@ checkpoints:
             result: passed
             details: The canonical TargetArtifact already separates emitted pattern, options, requirements, source map, and diagnostics, but no pre-serialization target plan exists. Semantic IR has 12 node variants plus typed character-set members, repetition, positions, logical captures/references, lookaround, atomicity, case matching, and canonical provenance. The completed planner owns exact native/rewrite/unsupported/unresolved decisions and only rewrite.atomic_literal.elide.v1. PCRE2 10.42/10.43 profiles own exact version-sensitive capabilities and options. Historical emitters are non-normative compatibility evidence and currently conflate lowering, escaping, serialization, runtime guards, and safety warnings.
     - name: Structured PCRE2 plan and correspondence validation
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Exact immutable input and output contract
+            result: passed
+            details: lower_pcre2 borrows normalized SemanticProgram, exact PCRE2 TargetProfile, and self-validating PortabilityPlan; checks canonical-v1, resource limits, contract/specification compatibility, engine identity, canonical program SHA-256, exact profile identity/revision/fingerprint, final plan status, rewrite/program shape, and constructed output invariants before returning an all-or-nothing Pcre2LoweringPlan.
+          - check: Structured pre-serialization representation
+            result: passed
+            details: The target plan has a closed operation tree, target-specific wildcard/class/repetition/position/assertion enums, deterministic one-based capture slots, logical capture/reference identities, profile options with selection and stage, canonical planner resolution order, source/node provenance, and applied rewrite evidence. It has no pattern text, escaping, generated spans, TargetArtifact, or runtime call.
     - name: Explicit node, capture, option, and rewrite lowering
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Exhaustive Semantic IR fixture
+            result: passed
+            details: Eight focused Rust unit tests cover all 12 Semantic IR variants; literal and range class members; ASCII/Unicode built-ins and Unicode properties; both wildcard modes; bounded/unbounded and greedy/lazy/possessive repetition; all seven positions; four assertion forms plus fixed/variable lookbehind shapes; named/unnamed captures; backreferences; global case options; compile/runtime and required/profile-default options; native atomic groups; and deterministic provenance.
+          - check: Certified rewrite execution
+            result: passed
+            details: rewrite.atomic_literal.elide.v1 is the sole admitted rewrite. Lowering removes only the certified atomic wrapper over a direct literal and retains registry version, strategy and conformance fingerprints, satisfied proof, affected nodes, planner identity, exact target reference, and merged wrapper/body provenance.
+          - check: Deterministic generated cases
+            result: passed
+            details: Property fixtures lower 196 generated valid programs twice with byte-identity-equivalent typed results, output self-validation, exact planner/profile correspondence, and unchanged Semantic IR, target profile, and portability plan inputs; 64 generated cross-program evidence cases fail closed.
     - name: Negative, property, architecture, and repository certification
-      status: planned
-      evidence: []
-commits: []
+      status: in_progress
+      evidence:
+          - check: Focused Rust certification
+            result: passed
+            details: cargo test --manifest-path core/Cargo.toml --test pcre2_lowering --test pcre2_lowering_properties --locked passed 10 tests (8 unit, 2 property) with zero failures.
+          - check: Controlled-mutation architecture and contract fitness
+            result: passed
+            details: python3 -m unittest tooling.tests.test_pcre2_lowering_architecture tooling.tests.test_portability_architecture tooling.tests.test_core_contracts passed 29 tests. Mutations prove required entrypoint/correspondence checks, mandatory authority inputs, no capability/planner recomputation, no serialization/runtime/artifact/ambient/product dependency, no target-neutral reverse dependency, and no direct bypass. core_contract_validation passed 11 schema mappings and 78 canonical fixtures.
+          - check: Complete repository certification
+            result: not_run
+            details: Full Rust, Clippy, governance, documentation, generated/public contracts, migration differential, Local, PR, clean-tree, and reproducibility checks remain before completion.
+commits:
+    - sha: 58e35dc712766ab8c859a3e4168afda47e3de1c2
+      subject: "docs(core): define PCRE2 target lowering"

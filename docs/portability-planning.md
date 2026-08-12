@@ -24,6 +24,7 @@ normalized Semantic IR
             + unsupported decision
             + unresolved planning evidence
         -> target-aware portability explanations
+        -> structured target lowering
 ```
 
 The pure API is:
@@ -205,9 +206,21 @@ filesystem, environment, clock, process, thread, or randomness dependencies.
 ## Ownership and exclusions
 
 Portability planning owns representation strategy and proof-backed evidence.
-Target lowering later consumes a certified plan and decides how a strategy
-becomes transformed target-neutral lowering structures. Emitters later
-serialize those structures.
+`lower_pcre2(&SemanticProgram, &TargetProfile, &PortabilityPlan)` now consumes a
+completed plan and transforms native nodes plus the selected certified rewrite
+into target-specific, pre-serialization PCRE2 structures. It validates the
+exact program fingerprint and target-profile identity/revision/fingerprint,
+retains planner decision order and certification evidence, assigns captures in
+semantic preorder, and carries profile options as data. An unresolved or
+unsupported plan cannot produce a partial lowering result.
+
+The only currently executable rewrite handoff is
+`rewrite.atomic_literal.elide.v1`: PCRE2 lowering removes the atomic wrapper,
+retains the literal operation, merges original/body provenance, and records the
+planner's registry version, strategy fingerprint, conformance fingerprint,
+proof evidence, affected nodes, and profile reference. Lowering recognizes no
+uncertified rewrite or fallback. Emitters later serialize these structures and
+remain subordinate to both the plan and lowering result.
 
 This stage does not own rewrite application, safety remediation, target-specific
 diagnostics, capture numbering, target syntax, target artifacts, runtime probing,
