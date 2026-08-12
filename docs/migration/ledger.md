@@ -2644,3 +2644,68 @@ Swift executable. No policy or evidence was weakened.
 P08-T02 is `READY WITH RECORDED CARRY-FORWARD`. The next ordered task is
 P08-T03, attaching canonical provenance, source spans, and diagnostics without
 moving presentation or orchestration policy into the frontend.
+
+## Complete advanced and version-sensitive PCRE2 correctness
+
+The canonical PCRE2 10.42 and 10.43 profiles now enumerate the complete
+eighteen-capability advanced-feature vocabulary with exact release-tag
+evidence. Their immutable revision 1.1.0 fingerprints are
+`sha256:0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d`
+and
+`sha256:0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4`.
+Both explicitly select `pcre2_match`, UTF, UCP, multiline mode, and newline
+ANY; only 10.43 carries the governed 255-character variable-lookbehind limit.
+
+Capability extraction distinguishes one fixed width, differing fixed
+top-level alternatives, genuinely bounded variable length, unbounded length,
+and indeterminate length. This lets PCRE2 10.42 accept `(?<=a|bc)` while still
+rejecting true variable lookbehind. A separate `common_fixed_width` fact keeps
+Python `re`'s equal-width rule intact; its corrected profile revision 1.1.0 is
+`sha256:d5cf41327257b97a68df551f5971c1e0e3b95bca810e8ac7b11b23020f23879d`.
+Named captures now retain their semantic name and enforce PCRE2's exact
+32-code-unit identifier limit through both profile constraints and final
+serialization.
+
+One shared 16-case conformance corpus covers lookahead, fixed and bounded
+lookbehind, captures and references, anchors and boundaries, atomic groups,
+lazy and possessive repetition, scoped caseless behavior, Unicode properties,
+and the documented UCP word-category change. The complete pipeline produces
+11 native/five unsupported cases on 10.42 and 14 native/two unsupported cases
+on 10.43. Fixed alternatives serialize directly at assertion top level;
+wrapping them in a noncapturing group was found by direct execution to make
+PCRE2 10.42 reject an otherwise valid lookbehind.
+
+Official PCRE2 tags were built as isolated 8-bit shared libraries. Tag 10.42
+commit `52c08847921a324c804cabf2814549f50bce1265` produced library fingerprint
+`sha256:fdb00bcb3dd68707ed155927738b454a4281bb664e830d60dd205b10d1a2edd1`
+and deterministic result
+`sha256:d4129048228a2136e884d90017ba0d080699d6685c78faf2756c4cf18d3623cc`.
+Tag 10.43 commit `3864abdb713f78831dd12d898ab31bbb0fa630b6` produced library fingerprint
+`sha256:c1426544954ea17aa2d006dca0b0c31d641d8fa3a22eeb5e591e2d51bc721b5c`
+and result
+`sha256:ebd3355cda411fb6ca25422349b0f374f937a3cab8fd03d6147656699508eb61`.
+The test-only probe consumes only serialized patterns and explicit options,
+calls `pcre2_match`, and has no product or kernel dependency.
+
+All 281 Rust tests, warning-denying Clippy, 37 focused Python architecture and
+probe tests, canonical/core/public/generated contracts, repository hygiene,
+governance, documentation, and patch integrity pass. The reviewed three-run
+migration differential has canonical-boundary fingerprint
+`sha256:566a2fa7623493db7957353ff1e2ed6d20725f1c1971979c71916301a917bb94`
+and baseline
+`sha256:8a6c16b059dc4fd6a4854259ec90406fc82c557840e0a53eee4e0894307a5eeb`;
+all corpora, case sets, route coverage, source observations, and historical-peer
+evidence remain unchanged.
+
+Local, pull-request, and full profiles record 20, 39, and 68 passing
+operations, zero failures, and no waivers. Their aggregate status remains
+`UNAVAILABLE` only because host Ruff 0.16.2 differs from pin 0.15.21, the Ruby
+Bundler version differs from the repository-managed version on broader
+profiles, and full dependency-risk scanning is unavailable. No unavailable
+operation is represented as passing and no policy was weakened.
+
+P10-T03 is `READY WITH RECORDED CARRY-FORWARD`. The next ordered task is
+[P10-T04 — Prove PCRE2 runtime safety and performance](https://app.notion.com/p/3b97d9406475818299a0daf86ccd47f7?pvs=204),
+which owns exhaustive real-engine execution, adversarial/pathological inputs,
+runtime limits, sanitizer/JIT considerations, and performance budgets without
+broadening semantic or release authority.

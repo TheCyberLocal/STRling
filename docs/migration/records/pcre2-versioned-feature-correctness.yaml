@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Versioned PCRE2 advanced-feature correctness
-status: in_progress
+status: complete
 objective: Complete the exact PCRE2 10.42 and 10.43 capability profiles and prove captures, references, lookarounds, anchors, boundaries, atomic groups, repetition modes, Unicode behavior, scoped matching, and bounded variable lookbehind through canonical artifacts and bounded direct target evidence without adding product runtime or release behavior.
 scope:
     diff:
@@ -61,10 +61,18 @@ scope:
         - spec/stdlib/**
         - tests/spec/**
     expected_files:
+        - core/src/capability_evaluation.rs
+        - core/src/target_serialization.rs
+        - core/tests/pcre2_versioned_features.rs
         - docs/migration/pcre2-target-serialization.md
         - docs/migration/pcre2-versioned-feature-correctness.md
         - docs/migration/records/pcre2-versioned-feature-correctness.yaml
         - governance/change-control.json
+        - spec/targets/profiles/pcre2-10.42.json
+        - spec/targets/profiles/pcre2-10.43.json
+        - tests/conformance/pcre2-versioned-features.json
+        - tooling/pcre2_feature_probe.py
+        - tooling/tests/test_pcre2_feature_probe.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -133,12 +141,84 @@ checkpoints:
             result: passed
             details: Current profiles enumerate only five of eighteen canonical requirement capabilities; tests fabricate complete support by replacing profile capabilities; matcher API is not an evaluable 10.43 fact; differing fixed branch lengths are misclassified as variable; serializer capture-name length is 128 instead of 32; and anchor/Unicode word obligations are implicit. The implementation must close these gaps without inferring runtime or broadening P10-T04.
     - name: Complete exact PCRE2 profiles and capability facts
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Complete immutable capability profiles
+            result: passed
+            details: PCRE2 10.42 and 10.43 profile revisions 1.1.0 enumerate all eighteen canonical requirement capabilities with exact release-tag evidence. Their canonical fingerprints are 0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d and 0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4. Both explicitly require pcre2_match, multiline, newline ANY, UCP, and UTF; 10.43 alone records the 255-character variable-lookbehind maximum.
+          - check: Exact version and cross-target feature classification
+            result: passed
+            details: Fixed top-level alternatives now remain fixed capability requirements for both PCRE2 releases, while genuine bounded repeats require variable lookbehind and are unsupported on 10.42. A target-neutral common_fixed_width fact preserves Python re's equal-width rule; python-re/3.11 revision 1.1.0 fingerprint d5cf41327257b97a68df551f5971c1e0e3b95bca810e8ac7b11b23020f23879d rejects differing fixed alternatives instead of inheriting PCRE2 behavior.
+          - check: Capture, Unicode, boundary, and option constraints
+            result: passed
+            details: Named-capture requirements retain the semantic name and expose ASCII identifier shape plus exact code-unit length; both profiles and final serialization enforce PCRE2's 32-code-unit maximum. PCRE2 10.42 does not claim canonical Unicode word or boundary semantics, while 10.43 records the exact UCP Mn/Pc expansion. Unsupported, missing, incompatible, over-bound, and option-dependent cases remain structured capability evidence and fail before artifact emission.
     - name: Shared canonical artifact and direct-engine feature matrix
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical pipeline and artifact matrix
+            result: passed
+            details: One shared 16-case corpus executes foundational and structural analysis, capability evaluation, portability planning, lowering, and serialization. It covers positive and negative lookahead, fixed and fixed-alternative lookbehind, bounded variable lookbehind at 255 and over 256, named captures/references and the 32/33-name boundary, multiline anchors, atomic groups, possessive and lazy repetition, Unicode properties, versioned word/boundary behavior, and scoped caseless Kelvin matching. Governed profiles produce 11 native and five unsupported cases on 10.42 and 14 native and two unsupported cases on 10.43, deterministically and without test-only fabricated support.
+          - check: Exact 10.42 direct ABI evidence
+            result: passed
+            details: Official tag pcre2-10.42 at commit 52c08847921a324c804cabf2814549f50bce1265 was built as an isolated 8-bit shared library. The probe verified engine 10.42 2022-12-11, library sha256 fdb00bcb3dd68707ed155927738b454a4281bb664e830d60dd205b10d1a2edd1, corpus sha256 071765762cebf462d0768a7c58e88ec2058dd7340f9d5e316bfa526acf604a36, 13 expected successful compilations, three expected compile rejections, 19 match observations, and result sha256 d4129048228a2136e884d90017ba0d080699d6685c78faf2756c4cf18d3623cc.
+          - check: Exact 10.43 direct ABI evidence
+            result: passed
+            details: Official tag pcre2-10.43 at commit 3864abdb713f78831dd12d898ab31bbb0fa630b6 was built as an isolated 8-bit shared library. The probe verified engine 10.43 2024-02-16, library sha256 c1426544954ea17aa2d006dca0b0c31d641d8fa3a22eeb5e591e2d51bc721b5c, the same corpus digest, 14 expected successful compilations, two expected compile rejections, 21 match observations, and result sha256 ebd3355cda411fb6ca25422349b0f374f937a3cab8fd03d6147656699508eb61.
+          - check: Serializer and probe boundary corrections
+            result: passed
+            details: Lookbehind alternatives serialize directly at assertion top level, for example (?<=a|bc), because a wrapping noncapturing group makes PCRE2 10.42 reject the otherwise valid fixed alternatives. The standalone ctypes probe consumes only artifact pattern/options, validates the loaded exact engine version, calls only pcre2_match, records deterministic digests, and remains isolated under tooling with four passing probe tests and no product/kernel dependency.
     - name: Complete kernel, repository, and migration certification
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: Complete Rust and focused architecture quality
+            result: passed
+            details: All 281 core tests pass across every target, warnings-denied Clippy is clean, and 37 focused Python probe/serialization/lowering/capability/core-contract architecture tests pass. Canonical validation reports 11 schema mappings and 78 fixtures; public contracts, generated artifacts, repository hygiene, governance, architecture, seven executable documentation examples, 137-file link validation, and patch integrity pass.
+          - check: Reviewed migration boundary renewal
+            result: passed
+            details: The three-run migration differential has zero determinism mismatches after baseline-only renewal. The canonical boundary fingerprint is sha256:566a2fa7623493db7957353ff1e2ed6d20725f1c1971979c71916301a917bb94 and baseline fingerprint is sha256:8a6c16b059dc4fd6a4854259ec90406fc82c557840e0a53eee4e0894307a5eeb; contract, corpora, case sets, route coverage sha256:96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e, historical-peer evidence, and source observations remain unchanged.
+          - check: Local, Pull Request, and Full profiles
+            result: passed
+            details: At clean commit 7ad3fbef68037b749e118e536a7dfd64edabe90f, Local recorded 20 passed, zero failed, and six unavailable operations; Pull Request recorded 39 passed, zero failed, and seven unavailable; Full recorded 68 passed, zero failed, and ten unavailable. Every available security, contract, generation, documentation, governance, differential, format, lint, typecheck, build, and test operation passed with no waiver.
+          - check: Explicit environment carry-forward
+            result: passed
+            details: All three profile aggregates were UNAVAILABLE, never failed. Host Ruff 0.16.2 does not satisfy repository pin 0.15.21 for six repository/LSP/Python format and lint operations; Pull Request and Full additionally report the inherited repository-managed Ruby Bundler mismatch; Full also reports dependency-risk scanning unavailable. No requirement was weakened or unavailable operation represented as passing.
+commits:
+    - sha: 339846aecdf8df0708c5d6e890f0a2a9c714401a
+      subject: "docs(core): define versioned PCRE2 feature proof"
+    - sha: 7eeefae00895ae047eb92a52a7a371c00a443ca0
+      subject: "feat(core): certify versioned PCRE2 features"
+    - sha: d4aafbddc4db43b8fbb9612c5bd638f9ca5bd245
+      subject: "test(migration): renew PCRE2 boundary baseline"
+    - sha: 7ad3fbef68037b749e118e536a7dfd64edabe90f
+      subject: "test(core): place PCRE2 corpus in conformance data"
+completion:
+    accomplished:
+        - Completed exact immutable PCRE2 10.42 and 10.43 capability profiles for the full advanced-feature vocabulary, including explicit matcher API, UTF/UCP, multiline/newline, Unicode-word, and bounded variable-lookbehind claims.
+        - Corrected target-neutral lookbehind classification so fixed alternatives remain PCRE2-compatible without erasing Python's common-width constraint, and corrected capture-name facts plus the final serializer maximum to 32 code units.
+        - Corrected fixed-alternative serialization to preserve top-level assertion branches and proved deterministic artifacts, structured pre-emission failures, exact options, version boundaries, and Unicode deltas through one shared 16-case corpus.
+        - Added a bounded test-only exact 8-bit PCRE2 ABI probe with deterministic library/corpus/result evidence and no runtime, binding, package, facade, or release authority.
+        - Renewed all immutable profile, conformance, equivalence, public diagnostic, property-count, and migration-boundary evidence affected by the exact profile corrections.
+    verified:
+        - Both exact official PCRE2 release tags pass every expected corpus compilation, rejection, and match observation with recorded source commits, library hashes, and result hashes.
+        - All 281 Rust tests, warning-free Clippy, 37 focused Python architecture/probe tests, canonical/core/public/generated contracts, hygiene, governance, documentation, patch integrity, and the three-run migration differential pass.
+        - Local, Pull Request, and Full profiles record 20, 39, and 68 passing operations respectively, zero failures, no waivers, and only explicit host tool or scanner unavailability.
+    behavior_changed: Internal target planning and serialization now follow exact PCRE2 10.42 versus 10.43 feature semantics, constraints, artifact options, and syntax boundaries; no public compiler, binding, package, runtime, or release surface changed.
+    intentional_behavior_changes:
+        - PCRE2 10.42 accepts fixed top-level lookbehind alternatives but rejects genuine variable-length lookbehind; PCRE2 10.43 accepts bounded variable lookbehind only through pcre2_match at the governed maximum of 255.
+        - PCRE2 10.42 no longer overclaims canonical Unicode word and boundary semantics, while 10.43 claims the exact documented UCP category expansion.
+        - Named captures over 32 code units and invalid identifiers fail as exact profile/serializer constraints; fixed-alternative lookbehind retains direct assertion-level alternation in emitted text.
+        - Complete authored profiles replace synthetic test-only capability fabrication and turn previously unknown supported features into exact native evidence.
+    preserved_behavior:
+        - Semantic IR, language semantics, safety analysis, normalization, public request/result schemas, kernel facade signatures, bindings, package APIs and versions, and publication state remain unchanged.
+        - Unsupported, unknown, stale, incompatible, over-bound, or option-incompatible requirements still fail closed before artifact emission; no current-version behavior, silent fallback, DFA substitution, JIT, or ambient engine setting is inferred.
+        - Exact direct execution remains a bounded certification tool and is not callable from product or kernel code.
+    transitional_architecture:
+        - Advanced PCRE2 profiles, lowering, and serialization remain standalone internal stages; the public facade still has no canonical source-to-artifact runtime route.
+        - Local, Pull Request, and Full remain READY WITH RECORDED CARRY-FORWARD because host Ruff/Bundler versions and the dependency-risk scanner are unavailable; every available operation passes with zero failures.
+    deferred_work:
+        - P10-T04 owns exhaustive real-engine execution, adversarial and pathological patterns, match/depth/heap limits, sanitizer/JIT considerations, resource budgets, and performance certification.
+        - UTF-16/UTF-32 parity, public runtime orchestration, bindings, editor/LSP integration, package/version changes, publication, tagging, release notes, and artifact upload remain outside this task.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P10-T04 by proving real PCRE2 runtime safety, adversarial behavior, resource limits, and performance boundaries without moving runtime policy into canonical semantics or publishing a release.
+    rationale: P10-T03 is complete with exact 10.42/10.43 profiles, deterministic advanced-feature artifacts, bounded direct engine proof, structured version and option failures, cross-target width preservation, full quality and differential certification, and zero failed profile operations. Only explicit host tool/scanner availability carries forward; P10-T04 is the next ordered contained task.
