@@ -7,7 +7,7 @@ scope:
         base: e9c8bb0465b3b037cef600e5d6df924192d3e2f4
         head: working-tree
     allowed_paths:
-        - core/bin/strling-kernel.rs
+        - core/cli/strling-kernel.rs
         - core/Cargo.toml
         - core/src/kernel.rs
         - core/tests/compiler_boundary.rs
@@ -41,7 +41,7 @@ scope:
         - spec/targets/**
         - tests/spec/**
     expected_files:
-        - core/bin/strling-kernel.rs
+        - core/cli/strling-kernel.rs
         - core/src/kernel.rs
         - core/tests/frontend_orchestration.rs
         - docs/migration/regex-frontend-orchestration.md
@@ -129,7 +129,7 @@ checkpoints:
       evidence:
           - check: Deterministic JSON transport
             result: passed
-            details: The explicitly declared core/bin/strling-kernel.rs target and root compile route accept one stdin request plus an optional exact profile path, emit compact newline-terminated result JSON, and pass success, failed-result, malformed-contract, help, missing-profile, and present-profile exit tests for statuses 0, 2, 64, and 70.
+            details: The explicitly declared core/cli/strling-kernel.rs target and root compile route accept one stdin request plus an optional exact profile path, emit compact newline-terminated result JSON, and pass success, failed-result, malformed-contract, help, missing-profile, and present-profile exit tests for statuses 0, 2, 64, and 70.
           - check: Additive public contracts
             result: passed
             details: Five request/result pairs execute exactly for success, malformed syntax, unsupported directive, unresolved reference, and profile-aware portability. Public-contract reproduction reports only the declared additive SOURCE_CONTENT_UNAVAILABLE_DIAGNOSTIC constant and root compile command; both renewed snapshots reproduce cleanly.
@@ -141,5 +141,5 @@ checkpoints:
             details: Migration tooling proves the 22 specification-authored cases map every one of the 34 source-bearing historical cases exactly once before executing the blocking CompileRequest Rust route and both evidence-only runners.
           - check: Three-run differential
             result: passed
-            details: Baseline sha256:24e240f359ec4a00e8d818f40d3829f70c3ad7d33addfe81d4995275111f2804 certifies 44 observations across three runs with zero mismatches, zero blocking unresolved replacements, canonical boundary sha256:014801a79a50b40834452aeb37a483bce7eadad43ca6a17da1419264e9bed472, route coverage sha256:96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e, and result sha256:09406e519e7bbf6e447803cf21e2bcc04a1f38d6b5f154e191e552c512c6959e.
+            details: Baseline sha256:b4c2a4ba2693c5483baf68e5013c6a866052079c6aff82e6988c3fef7c26b4a6 and result sha256:2fc7d71fca15289fb7c951d02c3b2997ee155f59c5cb7f5d4f34bb4682675b4b certify 44 observations across three runs with zero mismatches, zero blocking unresolved replacements, canonical boundary sha256:9c8cc82ec313bcafe785c30d842190be003052a019d5ff9a9b6dae3338b62957, full corpus sha256:e6307c75de2a7af8a0e6958bca7a6a318fca6ba8ca232f9b17a4c46316306386, and route coverage sha256:96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e.
 commits: []

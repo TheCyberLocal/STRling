@@ -33,7 +33,7 @@ canonical-stage invariant failure. Target artifact requests still return
 ## CLI transport
 
 `./strling compile [--target-profile PATH]` delegates directly to the explicit
-Rust `strling-kernel` binary target. It reads one request from standard input,
+Rust `strling-kernel` binary target from `core/cli`. It reads one request from standard input,
 optionally reads the exact target profile named in that request, and emits one
 compact newline-terminated result to standard output. It contains no source
 parser, semantic stage, target policy, or emitter.

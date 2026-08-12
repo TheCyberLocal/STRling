@@ -31,7 +31,7 @@ class FrontendOrchestrationArchitectureTests(unittest.TestCase):
                 self.assertNotIn(forbidden, compile_route.lower())
 
     def test_rust_cli_decodes_contracts_and_calls_only_the_public_facade(self) -> None:
-        binary = (ROOT / "core/bin/strling-kernel.rs").read_text(encoding="utf-8")
+        binary = (ROOT / "core/cli/strling-kernel.rs").read_text(encoding="utf-8")
         self.assertIn("strling_kernel::compile", binary)
         self.assertIn("strling_kernel::validation::from_json", binary)
         self.assertIn("CompileRequest", binary)

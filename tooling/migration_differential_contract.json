@@ -26,7 +26,7 @@
         "implementation_paths": [
             "core/Cargo.lock",
             "core/Cargo.toml",
-            "core/bin/strling-kernel.rs",
+            "core/cli/strling-kernel.rs",
             "core/src/**/*.rs",
             "spec/frontends/legacy-regex/1.0/orchestration/cases.json",
             "strling"
