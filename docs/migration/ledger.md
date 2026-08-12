@@ -2895,3 +2895,26 @@ P11-T02 is `READY WITH RECORDED CARRY-FORWARD`. P11-T03 is the next ordered
 task and owns Python `re`-specific structured lowering from Semantic IR and the
 completed portability plan without moving target behavior into semantic
 authority.
+
+## Implement Python re target lowering
+
+P11-T03 starts from clean commit
+`bff5414c3c822b5bffc7bfd17ef5d32d8a259a13`. The read-first inventory fixes
+the boundary at normalized Semantic IR plus one exact CPython `re` profile and
+the completed portability plan. The stage will produce typed Python-specific
+structure only; it will not translate another target, serialize pattern text,
+construct a `TargetArtifact`, execute Python, migrate a binding, or publish a
+package.
+
+Official Python 3.11 `re` documentation is the target authority. It establishes
+separate `str` and `bytes` applicability, common-width fixed lookbehind,
+lookahead, captures and references, anchors and boundaries, Unicode-aware
+built-in classes for `str`, flags, and native atomic and possessive constructs
+added in 3.11. Variable-length lookbehind and Unicode property escape syntax
+remain unavailable. The current governed profile enumerates only five facts,
+so this task must complete the capability vocabulary and renew exact profile
+evidence before lowering can claim full coverage.
+
+P11-T03 is `IN PROGRESS`. The next checkpoint is the complete exact profile
+and independent Python target representation with deterministic/fail-closed
+unit, property, and architecture proof.

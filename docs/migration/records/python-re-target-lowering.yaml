@@ -1,0 +1,133 @@
+record_version: 2.0.0
+title: Independent Python re 3.11 structured target lowering
+status: in_progress
+objective: Complete the governed CPython re 3.11 capability profile and lower normalized Semantic IR plus the exact certified portability plan into deterministic Python-specific structure without translating PCRE2 or ECMAScript output, serializing regex text, executing Python, constructing a TargetArtifact, or changing public, binding, package, or publication behavior.
+scope:
+    diff:
+        base: bff5414c3c822b5bffc7bfd17ef5d32d8a259a13
+        head: working-tree
+    allowed_paths:
+        - core/contract-mapping.json
+        - core/src/lib.rs
+        - core/src/python_re_lowering.rs
+        - core/tests/capability_evaluation.rs
+        - core/tests/capability_evaluation_properties.rs
+        - core/tests/capability_profile_fixtures.rs
+        - core/tests/conformance_contracts.rs
+        - core/tests/portability_planning_properties.rs
+        - core/tests/protocol_contracts.rs
+        - core/tests/python_re_lowering.rs
+        - core/tests/python_re_lowering_properties.rs
+        - core/tests/target_contracts.rs
+        - docs/migration/ledger.md
+        - docs/migration/python-re-target-lowering.md
+        - docs/migration/records/python-re-target-lowering.yaml
+        - governance/change-control.json
+        - spec/conformance/cases/lookbehind-targets.json
+        - spec/contracts/1.0/examples/portability/python-unsupported.json
+        - spec/targets/profiles/python-re-3.11.json
+        - tests/conformance/python-re-lowering.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_python_re_lowering_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/capability_evaluation.rs
+        - core/src/compiler_pipeline.rs
+        - core/src/ecmascript_lowering.rs
+        - core/src/ecmascript_serialization.rs
+        - core/src/kernel.rs
+        - core/src/portability_planning.rs
+        - core/src/semantic/**
+        - core/src/target_lowering.rs
+        - core/src/target_serialization.rs
+        - packages/**
+        - spec/contracts/1.0/*.schema.json
+        - spec/grammar/**
+        - spec/stdlib/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/python-re-target-lowering.md
+        - docs/migration/records/python-re-target-lowering.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Canonical language meaning and normalized Semantic IR remain unchanged; this task consumes them through an independent target-specific stage.
+    public_api_change:
+        level: none
+        evidence:
+            - No facade, protocol, binding, package, or published interface changes.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - Existing semantic, portability, diagnostic, and target-profile contracts are sufficient and remain unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Adds stable internal Python re target-lowering failures without changing public facade results.
+    target_behavior_change:
+        level: additive
+        evidence:
+            - Completes exact CPython re 3.11 capability facts and adds a structured pre-serialization target representation; no emitted or executed behavior is added.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds a third pure target-specific lowering module depending only on canonical semantic, target, portability, source, diagnostic, and validation contracts.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Complete Python profile and structured lowering matrix
+      command: cargo test --manifest-path core/Cargo.toml --test target_contracts --test capability_profile_fixtures --test python_re_lowering --locked
+      expected_result: The complete capability vocabulary validates with one immutable profile fingerprint and every admitted Semantic IR variant lowers explicitly with exact pattern kind, options, captures, provenance, requirements, and deterministic target structure.
+    - name: Generated and negative properties
+      command: cargo test --manifest-path core/Cargo.toml --test python_re_lowering_properties --locked
+      expected_result: Generated nested and interacting programs are deterministic and immutable; bytes/Unicode conflicts, stale profiles/plans, unsupported or unresolved requirements, malformed rewrites, capture failures, target mismatches, and resource limits fail closed without panic.
+    - name: Architecture and complete kernel quality
+      command: python3 -m unittest tooling.tests.test_python_re_lowering_architecture; cargo test --manifest-path core/Cargo.toml --all-targets --locked; cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings
+      expected_result: Architecture mutations prohibit historical Python authority, peer-target reuse, policy recomputation, serialization/runtime/product dependencies, and target-neutral reverse dependencies; all kernel tests and warning-denied Clippy pass.
+    - name: Repository certification
+      command: python3 tooling/core_contract_validation.py; python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/migration_differential.py --repeat-runs 3; ./strling profile local; ./strling profile pull-request; git diff --check
+      expected_result: Every available hardgate passes, reviewed exact profile and boundary evidence is current, host-only gaps remain unavailable without waiver, and the final committed tree is clean.
+checkpoints:
+    - name: Python authority, profile, applicability, and architecture inventory
+      status: passed
+      evidence:
+          - check: Official CPython re 3.11 target authority
+            result: passed
+            details: The official re syntax documents str/bytes separation; greedy, lazy, and 3.11 possessive quantifiers; 3.11 atomic groups; lookahead; fixed/common-width lookbehind; captures and references; absolute and line anchors; built-in character classes; Unicode str behavior; flags; and the absence of Unicode property escape syntax. Historical Python code is non-normative migration evidence only.
+          - check: Governed profile completion gap
+            result: passed
+            details: The current revision 1.1.0 profile has only five capability facts. This task must enumerate the full canonical vocabulary, retain required python.pattern_kind=str, and renew exact authored references before lowering may claim complete coverage.
+          - check: Independent target boundary
+            result: passed
+            details: PCRE2 and ECMAScript prove the neutral input, validation, rewrite, provenance, and fail-closed pattern, but their types, syntax assumptions, serializers, runtimes, and implementations are prohibited dependencies. Python lowering will consume only neutral contracts and retain Python-specific pattern-kind, option, position, class, repetition, capture, and assertion distinctions for P11-T04.
+    - name: Complete governed Python profile and structured lowering
+      status: planned
+      evidence: []
+    - name: Deterministic, negative, property, and architecture proof
+      status: planned
+      evidence: []
+    - name: Complete repository and profile certification
+      status: planned
+      evidence: []
+commits: []
