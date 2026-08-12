@@ -39,7 +39,7 @@ scope:
         - spec/contracts/1.0/invalid/**
         - spec/portability/equivalence/1.0/atomic-literal-elision.cases.json
         - spec/portability/equivalence/1.0/registry.json
-        - tests/target/pcre2/versioned-features.json
+        - tests/conformance/pcre2-versioned-features.json
         - tooling/migration_differential_baseline.json
         - tooling/migration_differential_contract.json
         - tooling/pcre2_feature_probe.py
@@ -111,7 +111,7 @@ required_verification:
       command: cargo test --manifest-path core/Cargo.toml --test capability_requirements --test capability_evaluation --test portability_planning --test pcre2_lowering --test pcre2_serialization --test pcre2_versioned_features --locked
       expected_result: Exact authored 10.42 and 10.43 profiles resolve every advanced requirement, preserve true unknowns, reject unsupported or over-bound constructs, and create deterministic artifacts only for proven support.
     - name: Exact PCRE2 10.42 and 10.43 direct feature proof
-      command: python3 tooling/pcre2_feature_probe.py --fixture tests/target/pcre2/versioned-features.json --profile spec/targets/profiles/pcre2-10.42.json --library <exact-10.42-lib>; python3 tooling/pcre2_feature_probe.py --fixture tests/target/pcre2/versioned-features.json --profile spec/targets/profiles/pcre2-10.43.json --library <exact-10.43-lib>
+      command: python3 tooling/pcre2_feature_probe.py --fixture tests/conformance/pcre2-versioned-features.json --profile spec/targets/profiles/pcre2-10.42.json --library <exact-10.42-lib>; python3 tooling/pcre2_feature_probe.py --fixture tests/conformance/pcre2-versioned-features.json --profile spec/targets/profiles/pcre2-10.43.json --library <exact-10.43-lib>
       expected_result: Both exact 8-bit libraries report their selected version; every applicable compile and pcre2_match observation, boundary rejection, Unicode delta, artifact option, and deterministic result digest matches the shared corpus.
     - name: Generated properties, architecture, and complete kernel quality
       command: cargo test --manifest-path core/Cargo.toml --all-targets --locked; cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; python3 -m unittest tooling.tests.test_pcre2_feature_probe tooling.tests.test_pcre2_serialization_architecture tooling.tests.test_pcre2_lowering_architecture tooling.tests.test_capability_architecture tooling.tests.test_core_contracts
