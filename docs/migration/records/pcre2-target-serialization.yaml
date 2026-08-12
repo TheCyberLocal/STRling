@@ -1,0 +1,121 @@
+record_version: 2.0.0
+title: Deterministic PCRE2 serialization and TargetArtifact construction
+status: in_progress
+objective: Serialize one validated Pcre2LoweringPlan into deterministic PCRE2 pattern text, profile-owned options, resolved requirements, generated provenance, and a canonical TargetArtifact without reimplementing semantic, capability, planning, lowering, runtime, binding, or package behavior.
+scope:
+    diff:
+        base: aa861e4c018c7526d9ca1ea9acb059692ec43198
+        head: working-tree
+    allowed_paths:
+        - core/contract-mapping.json
+        - core/src/lib.rs
+        - core/src/target_serialization.rs
+        - core/src/target_serialization/**
+        - core/tests/pcre2_serialization.rs
+        - core/tests/pcre2_serialization_properties.rs
+        - docs/architecture.md
+        - docs/migration/ledger.md
+        - docs/migration/pcre2-target-lowering.md
+        - docs/migration/pcre2-target-serialization.md
+        - docs/migration/records/pcre2-target-serialization.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_contract.json
+        - tooling/migration_differential_baseline.json
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_pcre2_serialization_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/capability_evaluation.rs
+        - core/src/compiler_pipeline.rs
+        - core/src/kernel.rs
+        - core/src/portability_planning.rs
+        - core/src/portability_planning/**
+        - core/src/protocol/**
+        - core/src/regex_frontend.rs
+        - core/src/semantic/**
+        - core/src/target/**
+        - core/src/target_lowering.rs
+        - spec/contracts/1.0/*.schema.json
+        - spec/grammar/**
+        - spec/targets/profiles/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/pcre2-target-serialization.md
+        - docs/migration/records/pcre2-target-serialization.yaml
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Serialization consumes already-certified target operations and cannot redefine matching meaning.
+    public_api_change:
+        level: none
+        evidence:
+            - The governed kernel facade and serialized compiler request/result contracts remain unchanged; this is a standalone internal domain-stage entrypoint.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - The existing TargetArtifact, target-profile, portability, diagnostic, and Semantic IR schemas are consumed without modification.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Adds stable emission diagnostics for malformed target plans, invalid syntax data, PCRE2 syntax bounds, resource limits, and invalid constructed artifacts.
+    target_behavior_change:
+        level: additive
+        evidence:
+            - Adds standalone deterministic PCRE2 pattern and TargetArtifact production without changing any existing public compiler, binding, package, or runtime result.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds one pure serializer after structured PCRE2 lowering with policy, runtime, ambient-state, and product-orchestration exclusions.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: PCRE2 serializer and artifact unit/property certification
+      command: cargo test --manifest-path core/Cargo.toml --test pcre2_serialization --test pcre2_serialization_properties --locked
+      expected_result: Every PCRE2 operation, precedence/grouping rule, literal/class escape, capture/reference spelling, scoped case/wildcard mode, option/requirement projection, generated span, failure category, deterministic JSON/fingerprint, input immutability, and generated mutation case passes.
+    - name: Architecture and contract fitness
+      command: python3 -m unittest tooling.tests.test_pcre2_serialization_architecture tooling.tests.test_pcre2_lowering_architecture tooling.tests.test_core_contracts && python3 tooling/core_contract_validation.py
+      expected_result: One-way lowering-to-serialization consumption is enforced; policy recomputation, semantic/profile reinterpretation, runtime PCRE2, ambient state, bindings/frontends/editors, target-neutral reverse dependencies, and product callers fail controlled mutations.
+    - name: Complete kernel quality
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings
+      expected_result: The complete kernel suite passes without warnings and all prior target-neutral, lowering, planner, equivalence, diagnostic, frontend, contract, and resource regressions remain certified.
+    - name: Repository certification
+      command: python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/migration_differential.py --repeat-runs 3; ./strling profile local; ./strling profile pull-request; git diff --check
+      expected_result: Every task-owned operation passes, reviewed canonical-boundary evidence is current, aggregate carry-forward remains explicit, and the final committed tree is clean.
+checkpoints:
+    - name: TargetArtifact, lowering, profile-option, syntax, compatibility, and architecture inventory
+      status: passed
+      evidence:
+          - check: Read-first authority inventory
+            result: passed
+            details: The canonical TargetArtifact fixes UTF-8 regex text, exact target reference, sorted compile/runtime options, resolved requirements, generated UTF-8 spans, and emission diagnostics. Pcre2LoweringPlan supplies a closed operation tree, deterministic captures/backreferences, case/wildcard/class/repetition/position/assertion forms, every profile option with stage/value/selection, planner resolutions, rewrites, and source/node provenance. Authored PCRE2 10.42/10.43 profiles require separate UTF/UCP compile options and 10.43 additionally carries a profile-default variable-lookbehind limit. PCRE2 primary documentation confirms pattern metacharacters, class metacharacters, scoped i/s options, named-capture and backreference forms, quantifier limits, UTF/UCP API options, and 8/16/32 code-unit library distinction. Historical Python, TypeScript, and Rust emitters remain non-normative compatibility evidence and disagree in escaping, grouping, shorthand, guard, and warning details.
+          - check: Ownership and known-profile boundary
+            result: passed
+            details: Case insensitivity and dot-all wildcard behavior have exact scoped PCRE2 pattern constructs; UTF/UCP stay engine options and must never leak as invented inline Unicode flags. Current profiles do not declare code-unit width, newline/BSR overrides, JIT, or match-context settings, so this task will preserve all declared options without fabricating missing consumer obligations. UTF-16/32 and version-sensitive feature execution remain later profile/runtime work.
+    - name: Deterministic serializer, artifact projection, and failures
+      status: in_progress
+      evidence: []
+    - name: Escaping, precedence, options, source maps, and property evidence
+      status: planned
+      evidence: []
+    - name: Architecture, contracts, migration evidence, and repository certification
+      status: planned
+      evidence: []
+commits: []
