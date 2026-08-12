@@ -1,0 +1,113 @@
+record_version: 2.0.0
+title: Structured Semantic IR to PCRE2 target lowering
+status: in_progress
+objective: Lower one exact normalized Semantic IR program and completed certified portability plan into a deterministic PCRE2-specific target representation without serializing pattern text, executing PCRE2, constructing a TargetArtifact, or reimplementing capability/planning policy.
+scope:
+    diff:
+        base: 7549d718bbef8bf8c26ea9907394f0255149fe10
+        head: working-tree
+    allowed_paths:
+        - core/contract-mapping.json
+        - core/src/lib.rs
+        - core/src/target_lowering.rs
+        - core/src/target_lowering/**
+        - core/tests/pcre2_lowering.rs
+        - core/tests/pcre2_lowering_properties.rs
+        - docs/architecture.md
+        - docs/migration/pcre2-target-lowering.md
+        - docs/migration/records/pcre2-target-lowering.yaml
+        - docs/portability-planning.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_pcre2_lowering_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/capability_evaluation.rs
+        - core/src/portability_planning.rs
+        - core/src/portability_planning/**
+        - core/src/regex_frontend.rs
+        - core/src/semantic/**
+        - core/src/target/**
+        - core/src/kernel.rs
+        - spec/contracts/1.0/*.schema.json
+        - spec/grammar/**
+        - spec/targets/profiles/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/pcre2-target-lowering.md
+        - docs/migration/records/pcre2-target-lowering.yaml
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Lowering consumes already-certified semantic and portability decisions and does not redefine matching meaning.
+    public_api_change:
+        level: none
+        evidence:
+            - The governed kernel facade and serialized compiler contracts remain unchanged; the target plan is a new internal domain-stage contract.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - Canonical Semantic IR, portability, profile, result, and TargetArtifact schemas remain unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Adds stable internal target-lowering diagnostics for stale, incomplete, unsupported, or malformed PCRE2 lowering inputs.
+    target_behavior_change:
+        level: none
+        evidence:
+            - No pattern string, engine option execution, TargetArtifact, runtime call, binding result, or package behavior is produced by this task.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds the first target-specific structured lowering stage after certified portability planning with one-way dependency and serialization/runtime exclusions.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: PCRE2 lowering unit and property certification
+      command: cargo test --manifest-path core/Cargo.toml --test pcre2_lowering --test pcre2_lowering_properties --locked
+      expected_result: Every Semantic IR variant, capture/reference mapping, option, native decision, certified rewrite, unsupported/unresolved state, malformed correspondence, deterministic ordering, idempotence, and input immutability case passes.
+    - name: Architecture and contract fitness
+      command: python3 -m unittest tooling.tests.test_pcre2_lowering_architecture tooling.tests.test_portability_architecture tooling.tests.test_core_contracts && python3 tooling/core_contract_validation.py
+      expected_result: One-way Semantic IR and planner consumption is enforced; capability/planner recomputation, serialization, runtime, artifacts, bindings, frontends, ambient state, and bypass paths fail controlled mutations.
+    - name: Complete kernel quality
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings
+      expected_result: The complete kernel suite passes without warnings and all prior target-neutral, capability, planner, equivalence, diagnostic, frontend, contract, and resource regressions remain certified.
+    - name: Repository certification
+      command: python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/migration_differential.py --repeat-runs 3; ./strling profile local; ./strling profile pull-request; git diff --check
+      expected_result: Every task-owned operation passes, canonical boundary review is current, aggregate carry-forward remains explicit, and the final committed tree is clean.
+checkpoints:
+    - name: Target, planner, Semantic IR, compatibility, and architecture inventory
+      status: passed
+      evidence:
+          - check: Read-first authority inventory
+            result: passed
+            details: The canonical TargetArtifact already separates emitted pattern, options, requirements, source map, and diagnostics, but no pre-serialization target plan exists. Semantic IR has 12 node variants plus typed character-set members, repetition, positions, logical captures/references, lookaround, atomicity, case matching, and canonical provenance. The completed planner owns exact native/rewrite/unsupported/unresolved decisions and only rewrite.atomic_literal.elide.v1. PCRE2 10.42/10.43 profiles own exact version-sensitive capabilities and options. Historical emitters are non-normative compatibility evidence and currently conflate lowering, escaping, serialization, runtime guards, and safety warnings.
+    - name: Structured PCRE2 plan and correspondence validation
+      status: in_progress
+      evidence: []
+    - name: Explicit node, capture, option, and rewrite lowering
+      status: planned
+      evidence: []
+    - name: Negative, property, architecture, and repository certification
+      status: planned
+      evidence: []
+commits: []
