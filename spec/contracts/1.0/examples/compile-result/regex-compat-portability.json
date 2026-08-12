@@ -19,7 +19,11 @@
                         "id": "strling.regex-compat",
                         "dialect_version": "1.0.0"
                     },
-                    "content": { "kind": "inline", "encoding": "utf-8", "text": "a" },
+                    "content": {
+                        "kind": "inline",
+                        "encoding": "utf-8",
+                        "text": "a"
+                    },
                     "provenance": { "kind": "imported" }
                 }
             ],
