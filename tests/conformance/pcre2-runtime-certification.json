@@ -1,7 +1,7 @@
 {
     "corpus_version": "1.0.0",
     "profiles": ["10.42", "10.43"],
-    "normal_limits": {"match": 1000000, "depth": 1000, "heap_kib": 8192},
+    "normal_limits": { "match": 1000000, "depth": 1000, "heap_kib": 8192 },
     "detailed_cases": [
         {
             "id": "named-capture-value-name-and-span",
@@ -13,11 +13,22 @@
                     "return_code": 2,
                     "span": [0, 2],
                     "captures": [
-                        {"index": 0, "span": [0, 2], "value": "aa"},
-                        {"index": 1, "name": "word", "span": [0, 1], "value": "a"}
+                        { "index": 0, "span": [0, 2], "value": "aa" },
+                        {
+                            "index": 1,
+                            "name": "word",
+                            "span": [0, 1],
+                            "value": "a"
+                        }
                     ]
                 },
-                {"subject": "ab", "outcome": "no_match", "return_code": -1, "span": null, "captures": []}
+                {
+                    "subject": "ab",
+                    "outcome": "no_match",
+                    "return_code": -1,
+                    "span": null,
+                    "captures": []
+                }
             ]
         },
         {
@@ -30,9 +41,14 @@
                     "return_code": 3,
                     "span": [0, 1],
                     "captures": [
-                        {"index": 0, "span": [0, 1], "value": "b"},
-                        {"index": 1, "span": null, "value": null},
-                        {"index": 2, "name": "right", "span": [0, 1], "value": "b"}
+                        { "index": 0, "span": [0, 1], "value": "b" },
+                        { "index": 1, "span": null, "value": null },
+                        {
+                            "index": 2,
+                            "name": "right",
+                            "span": [0, 1],
+                            "value": "b"
+                        }
                     ]
                 },
                 {
@@ -41,9 +57,14 @@
                     "return_code": 3,
                     "span": [0, 2],
                     "captures": [
-                        {"index": 0, "span": [0, 2], "value": "ab"},
-                        {"index": 1, "span": [0, 1], "value": "a"},
-                        {"index": 2, "name": "right", "span": [1, 2], "value": "b"}
+                        { "index": 0, "span": [0, 2], "value": "ab" },
+                        { "index": 1, "span": [0, 1], "value": "a" },
+                        {
+                            "index": 2,
+                            "name": "right",
+                            "span": [1, 2],
+                            "value": "b"
+                        }
                     ]
                 }
             ]
@@ -58,8 +79,13 @@
                     "return_code": 2,
                     "span": [2, 3],
                     "captures": [
-                        {"index": 0, "span": [2, 3], "value": "b"},
-                        {"index": 1, "name": "line", "span": [2, 3], "value": "b"}
+                        { "index": 0, "span": [2, 3], "value": "b" },
+                        {
+                            "index": 1,
+                            "name": "line",
+                            "span": [2, 3],
+                            "value": "b"
+                        }
                     ]
                 }
             ]
@@ -74,11 +100,22 @@
                     "return_code": 2,
                     "span": [0, 4],
                     "captures": [
-                        {"index": 0, "span": [0, 4], "value": "λβ"},
-                        {"index": 1, "name": "greek", "span": [0, 4], "value": "λβ"}
+                        { "index": 0, "span": [0, 4], "value": "λβ" },
+                        {
+                            "index": 1,
+                            "name": "greek",
+                            "span": [0, 4],
+                            "value": "λβ"
+                        }
                     ]
                 },
-                {"subject": "λa", "outcome": "no_match", "return_code": -1, "span": null, "captures": []}
+                {
+                    "subject": "λa",
+                    "outcome": "no_match",
+                    "return_code": -1,
+                    "span": null,
+                    "captures": []
+                }
             ]
         },
         {
@@ -91,11 +128,22 @@
                     "return_code": 2,
                     "span": [4, 7],
                     "captures": [
-                        {"index": 0, "span": [4, 7], "value": "ccc"},
-                        {"index": 1, "name": "body", "span": [4, 7], "value": "ccc"}
+                        { "index": 0, "span": [4, 7], "value": "ccc" },
+                        {
+                            "index": 1,
+                            "name": "body",
+                            "span": [4, 7],
+                            "value": "ccc"
+                        }
                     ]
                 },
-                {"subject": "xxabcccd", "outcome": "no_match", "return_code": -1, "span": null, "captures": []}
+                {
+                    "subject": "xxabcccd",
+                    "outcome": "no_match",
+                    "return_code": -1,
+                    "span": null,
+                    "captures": []
+                }
             ]
         },
         {
@@ -108,9 +156,19 @@
                     "return_code": 3,
                     "span": [0, 4],
                     "captures": [
-                        {"index": 0, "span": [0, 4], "value": "abbb"},
-                        {"index": 1, "name": "atomic", "span": [0, 2], "value": "ab"},
-                        {"index": 2, "name": "tail", "span": [2, 4], "value": "bb"}
+                        { "index": 0, "span": [0, 4], "value": "abbb" },
+                        {
+                            "index": 1,
+                            "name": "atomic",
+                            "span": [0, 2],
+                            "value": "ab"
+                        },
+                        {
+                            "index": 2,
+                            "name": "tail",
+                            "span": [2, 4],
+                            "value": "bb"
+                        }
                     ]
                 }
             ]
@@ -120,22 +178,22 @@
         {
             "id": "match-limit-stops-catastrophic-backtracking",
             "pattern": "^(a+)+$",
-            "subject_repeat": {"text": "a", "count": 64, "suffix": "!"},
-            "limits": {"match": 10, "depth": 1000, "heap_kib": 8192},
+            "subject_repeat": { "text": "a", "count": 64, "suffix": "!" },
+            "limits": { "match": 10, "depth": 1000, "heap_kib": 8192 },
             "expected_outcome": "match_limit"
         },
         {
             "id": "depth-limit-stops-deep-backtracking",
             "pattern": "\\A(?:a?){128}a{128}\\z",
-            "subject_repeat": {"text": "a", "count": 128, "suffix": ""},
-            "limits": {"match": 1000000, "depth": 1, "heap_kib": 8192},
+            "subject_repeat": { "text": "a", "count": 128, "suffix": "" },
+            "limits": { "match": 1000000, "depth": 1, "heap_kib": 8192 },
             "expected_outcome": "depth_limit"
         },
         {
             "id": "heap-limit-stops-frame-growth",
             "pattern": "\\A(?:a?){128}a{128}\\z",
-            "subject_repeat": {"text": "a", "count": 128, "suffix": ""},
-            "limits": {"match": 1000000, "depth": 1000, "heap_kib": 1},
+            "subject_repeat": { "text": "a", "count": 128, "suffix": "" },
+            "limits": { "match": 1000000, "depth": 1000, "heap_kib": 1 },
             "expected_outcome": "heap_limit"
         }
     ],

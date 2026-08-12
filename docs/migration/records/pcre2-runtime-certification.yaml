@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Real PCRE2 runtime, pathological-input, and performance certification
-status: in_progress
+status: complete
 objective: Certify canonical PCRE2 10.42 and 10.43 artifacts against exact real engines, bounded adversarial inputs, explicit resource limits, deterministic generated cases, available native sanitizers, and reproducible STRling stage budgets without adding product runtime, public API, binding, package, or publication behavior.
 scope:
     diff:
@@ -149,4 +149,58 @@ checkpoints:
           - check: Architecture mutation diagnostic stability
             result: passed
             details: The target-aware diagnostic-mapping mutation now retains the governed phrase diagnostic generation in its failure text, restoring the architecture test without changing the validated dependency boundary.
-commits: []
+    - name: Complete repository and governed-profile certification
+      status: passed
+      evidence:
+          - check: Repeated ordinary exact-tag certification
+            result: passed
+            details: Clean commit a96408ff82be956e27b0d90e3e22b95ede4ad0e7 passed two ordinary executions per exact tag. The harness sha256 was 9bee8319ba62f025518df0be48dab1762cb07d34374c4905e7a96248104493a3, the certification corpus sha256 was 9a515fc6d1faff254081287784aebb8c1d9f470d691f8af30658fe4799d28c5b, and deterministic result sha256 was 90673d7a115a5b9fa21a24c9e170d2c7d533a2ab2ec42d50387a915ba9b87db4. Exact ordinary library hashes remained fdb00bcb3dd68707ed155927738b454a4281bb664e830d60dd205b10d1a2edd1 for 10.42 and c1426544954ea17aa2d006dca0b0c31d641d8fa3a22eeb5e591e2d51bc721b5 for 10.43.
+          - check: Sanitized exact-tag certification
+            result: passed
+            details: The isolated GCC 13.3.0 ASan/UBSan builds completed the same repeated matrix with no address or undefined-behavior report and deterministic result sha256 6bcfa0cc6c5829db9a2c4a4759776a35e7bd4168db3e3ac70d40916e0fd99b67. Leak-only cleanliness is deliberately not claimed because CPython 3.12 and ctypes produced host-interpreter shutdown allocations outside PCRE2 when LeakSanitizer was enabled.
+          - check: Complete Rust, Python, contract, and migration hardgates
+            result: passed
+            details: All 283 core tests, warnings-denied all-target Clippy, 404 discovered Python tooling tests, 75 focused runtime/profile tests, 36 focused legacy/architecture/static tests, 11 schema mappings and 78 contract fixtures, public and generated contracts, repository hygiene with 80 managed suppressions/four waivers/zero findings, governance, seven documentation examples and 138-file link validation, and patch integrity passed. The three-run migration differential remained unchanged with canonical-boundary sha256 566a2fa7623493db7957353ff1e2ed6d20725f1c1971979c71916301a917bb94, baseline sha256 8a6c16b059dc4fd6a4854259ec90406fc82c557840e0a53eee4e0894307a5eeb, and route sha256 96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e.
+          - check: Local, Pull Request, and exact-engine Full profiles
+            result: passed
+            details: At clean commit a96408ff82be956e27b0d90e3e22b95ede4ad0e7, Local recorded 20 passed, zero failed, zero waived, and six unavailable operations with evidence fingerprint 58896d2ef24200a74e9c74cb4156d1536d195e24fc56f6f63eb76d97f23ce695. Pull Request recorded 39/0/0/seven with fingerprint 41c8124b2edaf10e091a0114a7865c10ed9a8be7bccc577a15d7e4727a1dc7cd. Full, supplied both exact ordinary libraries and tag commits, recorded 69/0/0/ten with fingerprint fde06042313c647cef6a05e3d16424d9d399aa5527684b6d2ba5c0c94eb51cfa; pcre2_runtime_certification passed through the canonical aggregator.
+          - check: Explicit environment carry-forward
+            result: passed
+            details: Every profile aggregate was UNAVAILABLE, never failed. Host Ruff 0.16.2 does not satisfy pin 0.15.21 for six repository/LSP/Python format and lint operations; Pull Request and Full also report the repository-managed Ruby Bundler mismatch; Full additionally reports dependency-risk scanning unavailable. No unavailable operation was waived or represented as passing.
+commits:
+    - sha: df2bbccbe332c3b19a3ecdc5baf6e7336a9c3ea2
+      subject: "docs(core): define PCRE2 runtime certification"
+    - sha: edb4e9e6c4f74eb1e39ab28b9931834aceb55c35
+      subject: "test(core): certify real PCRE2 runtime boundaries"
+    - sha: a96408ff82be956e27b0d90e3e22b95ede4ad0e7
+      subject: "test(tooling): restore migration hardgate hygiene"
+completion:
+    accomplished:
+        - Added one bounded, test-only exact-PCRE2 runtime harness covering compile and match semantics, complete capture values/names/byte spans, explicit options, three native resource contexts, two atomic-literal rewrite differentials, and 256 deterministic generated cases per supported release.
+        - Added a fixed pathological Rust corpus that proves panic-free deterministic handling or fail-closed rejection for empty, escape-heavy UTF-8, dense-class, maximum-quantifier, capture-name, depth, malformed-artifact, and conflicting-option inputs.
+        - Established explicit reproducible internal-stage performance budgets and measured analysis/planning, lowering, and serialization independently without claiming universal regex runtime performance.
+        - Integrated certification-result-v1 with the existing repository-operation executor and made the exact-engine operation mandatory in Full and Release while retaining structured unavailability when exact libraries are absent.
+        - Restored predecessor repository hardgates without expanding scope by removing seven unmanaged late-import suppressions and preserving the governed architecture mutation diagnostic phrase.
+    verified:
+        - Exact official 10.42 and 10.43 libraries passed ordinary and ASan/UBSan repeated matrices with stable per-version semantic digests and no crash, panic, timeout, address-sanitizer report, or undefined-behavior report.
+        - All core and Python tests, warnings-denied Clippy, contract, generation, hygiene, governance, documentation, differential, and patch-integrity gates pass; no migration baseline renewal was required.
+        - Local, Pull Request, and exact-engine Full profiles record 20, 39, and 69 passing operations respectively, zero failures, no waivers, and only explicit host tool or scanner unavailability.
+    behavior_changed: Internal certification now executes and measures governed PCRE2 artifacts against exact real 10.42 and 10.43 engines and carries that structured proof through Full/Release profiles; no product runtime, public compiler, binding, package, or release behavior changed.
+    intentional_behavior_changes:
+        - The test-only ABI exposes capture values, names, byte spans, unmatched slots, and match/depth/heap limits so semantic and resource-boundary failures are directly observable.
+        - Full and Release require exact-engine runtime certification and report absent exact libraries as unavailable rather than silently using an ambient engine.
+        - Internal analysis/planning, lowering, and serialization stages now have fixed-corpus median budgets of 10,000, 5,000, and 5,000 microseconds with 16 warmups and 128 samples.
+    preserved_behavior:
+        - Semantic IR, language semantics, normalization, capability evaluation, portability planning, lowering, serialization, facade signatures, public schemas, bindings, package versions, and publication state remain unchanged.
+        - Unsupported, malformed, over-bound, stale, or option-incompatible artifacts still fail closed; the harness does not introduce product execution, network access, JIT claims, or implicit system-library selection.
+        - Sanitizer evidence claims ASan/UBSan cleanliness only. Host-interpreter LeakSanitizer shutdown allocations are recorded and leak-only cleanliness is not claimed.
+    transitional_architecture:
+        - Exact engine execution remains an engineering certification operation under tooling; the canonical public facade still has no runtime executor and no binding can invoke this harness.
+        - Governed profiles remain READY WITH RECORDED CARRY-FORWARD because host Ruff/Bundler versions and the dependency-risk scanner are unavailable; all available operations pass with zero failures.
+    deferred_work:
+        - P11-T01 owns independent ECMAScript target lowering from common semantics and planner evidence without translating PCRE2 syntax or executing Node.
+        - JIT-specific certification, UTF-16/UTF-32 parity, public runtime orchestration, bindings, Simply, editor/LSP integration, package/version changes, publication, tagging, release notes, and artifact upload remain outside this task.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P11-T01 by implementing ECMAScript-specific structured lowering directly from normalized Semantic IR, the governed target profile, and portability-plan evidence, without reusing PCRE2 syntax or adding serialization/runtime behavior.
+    rationale: P10-T04 and the P10 phase are complete with exact ordinary and sanitizer-backed engine execution, adversarial/resource-limit proof, deterministic generated coverage, independent stage budgets, canonical Full-profile integration, comprehensive repository certification, and zero failed profile operations. Only explicit host tool/scanner availability carries forward; P11-T01 is the next ordered contained task.

@@ -2709,3 +2709,76 @@ P10-T03 is `READY WITH RECORDED CARRY-FORWARD`. The next ordered task is
 which owns exhaustive real-engine execution, adversarial/pathological inputs,
 runtime limits, sanitizer/JIT considerations, and performance budgets without
 broadening semantic or release authority.
+
+## Certify real PCRE2 runtime safety and performance
+
+The canonical test-only runtime harness now executes already-governed PCRE2
+artifacts against exact official 8-bit PCRE2 10.42 and 10.43 libraries. It
+verifies compile and match outcomes, complete numbered and named capture
+values, overall and capture byte spans, unmatched slots, options, Unicode and
+boundary behavior, three explicit native resource-limit contexts, two
+atomic-literal rewrite differentials, and 256 deterministic generated cases
+per release. Missing exact libraries are structured `unavailable` evidence;
+the harness never selects an ambient engine or becomes product runtime.
+
+Both exact-tag libraries passed two ordinary repetitions. PCRE2 10.42 retained
+semantic fingerprint
+`sha256:2dc7a609e68f1d104d07a3d54d901b4942011a32f4a9d9860658d2464a93c1b1`;
+PCRE2 10.43 retained
+`sha256:d152cf55d2db232acb484959f6743885a7a1497b481a4c3747f7c75f67cad3b9`.
+The fixed runtime corpus fingerprint is
+`sha256:9a515fc6d1faff254081287784aebb8c1d9f470d691f8af30658fe4799d28c5b`,
+the harness fingerprint is
+`sha256:9bee8319ba62f025518df0be48dab1762cb07d34374c4905e7a96248104493a3`,
+and the ordinary repeated result is
+`sha256:90673d7a115a5b9fa21a24c9e170d2c7d533a2ab2ec42d50387a915ba9b87db4`.
+
+Isolated GCC 13.3.0 builds of both exact tags used AddressSanitizer and
+UndefinedBehaviorSanitizer with frame pointers and abort-on-error. The same
+repeated matrix passed without an ASan or UBSan report and produced result
+`sha256:6bcfa0cc6c5829db9a2c4a4759776a35e7bd4168db3e3ac70d40916e0fd99b67`.
+Leak-only cleanliness is not claimed: enabling LeakSanitizer reported CPython
+3.12/ctypes shutdown allocations outside PCRE2 after the corpus itself had
+completed. This limitation is retained rather than reclassified or waived.
+
+The Rust pathological corpus covers empty input, escape-heavy UTF-8, a dense
+class, the maximum 65,535 quantifier, legal and illegal capture names, depth
+128, malformed capture slots, and duplicate or conflicting options. Every
+case is deterministic and panic-free or fails closed. With 16 warmups and 128
+samples, median analysis/planning, lowering, and serialization were 1,158,
+448, and 46 microseconds against deliberately generous fixed-corpus budgets of
+10,000, 5,000, and 5,000 microseconds. These are reproducible STRling internal
+stage budgets, not a universal regex-runtime performance claim.
+
+The existing structured repository executor now validates
+`certification-result-v1`. Full and Release definition version 1.5.0 require
+the exact-engine operation; Local and Pull Request omit it. At clean commit
+`a96408ff82be956e27b0d90e3e22b95ede4ad0e7`, Local recorded 20 passing,
+zero failed, and six unavailable operations with evidence fingerprint
+`sha256:58896d2ef24200a74e9c74cb4156d1536d195e24fc56f6f63eb76d97f23ce695`.
+Pull Request recorded 39/0/seven with
+`sha256:41c8124b2edaf10e091a0114a7865c10ed9a8be7bccc577a15d7e4727a1dc7cd`.
+Full, supplied the exact libraries and tag commits, passed the new operation
+and recorded 69/0/ten with
+`sha256:fde06042313c647cef6a05e3d16424d9d399aa5527684b6d2ba5c0c94eb51cfa`.
+All aggregates remain `UNAVAILABLE`, never failed, only because of the recorded
+Ruff/Ruby tool-version mismatches and Full dependency-risk scanner absence.
+No operation was waived or represented as passing.
+
+All 283 core tests, warning-denying all-target Clippy, 404 discovered Python
+tooling tests, focused runtime/profile and architecture suites, 11 schema
+mappings and 78 contract fixtures, public/generated contracts, repository
+hygiene, governance, seven documentation examples and 138-file link
+validation, and patch integrity pass. The three-run migration differential is
+unchanged at canonical-boundary fingerprint
+`sha256:566a2fa7623493db7957353ff1e2ed6d20725f1c1971979c71916301a917bb94`
+and baseline
+`sha256:8a6c16b059dc4fd6a4854259ec90406fc82c557840e0a53eee4e0894307a5eeb`;
+no evidence renewal was required.
+
+P10-T04 and the Production PCRE2 Backend phase are `READY WITH RECORDED
+CARRY-FORWARD`. The next ordered task is
+[P11-T01 — Implement ECMAScript target lowering](https://app.notion.com/p/3b97d940647581329888eb59876fc4a2?pvs=204),
+which must lower independently from normalized Semantic IR and portability-plan
+evidence without reusing PCRE2 syntax or adding JavaScript serialization or
+Node execution.
