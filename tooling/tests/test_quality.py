@@ -633,9 +633,14 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertIn("security_dependency_risk", full_ids)
         self.assertIn("pcre2_runtime_certification", full_ids)
         self.assertIn("ecmascript_runtime_certification", full_ids)
+        self.assertIn("python_re_runtime_certification", full_ids)
         self.assertEqual(
             full_ids.index("pcre2_runtime_certification") + 1,
             full_ids.index("ecmascript_runtime_certification"),
+        )
+        self.assertEqual(
+            full_ids.index("ecmascript_runtime_certification") + 1,
+            full_ids.index("python_re_runtime_certification"),
         )
         self.assertNotIn(
             "pcre2_runtime_certification",
@@ -643,6 +648,10 @@ class QualityRoutingTests(unittest.TestCase):
         )
         self.assertNotIn(
             "ecmascript_runtime_certification",
+            [member["operation"] for member in local_members],
+        )
+        self.assertNotIn(
+            "python_re_runtime_certification",
             [member["operation"] for member in local_members],
         )
         self.assertNotIn(
@@ -654,6 +663,13 @@ class QualityRoutingTests(unittest.TestCase):
         )
         self.assertNotIn(
             "ecmascript_runtime_certification",
+            [
+                member["operation"]
+                for member in toolchain.profile("pull-request")["operations"]
+            ],
+        )
+        self.assertNotIn(
+            "python_re_runtime_certification",
             [
                 member["operation"]
                 for member in toolchain.profile("pull-request")["operations"]
@@ -681,8 +697,27 @@ class QualityRoutingTests(unittest.TestCase):
             ],
             toolchain.operation("ecmascript_runtime_certification")["command"],
         )
-        self.assertEqual("1.6.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.6.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual(
+            [
+                "python3",
+                "-m",
+                "tooling.python_re_runtime_certification",
+                "--json",
+                "--repeat-runs",
+                "2",
+            ],
+            toolchain.operation("python_re_runtime_certification")["command"],
+        )
+        release_ids = [
+            member["operation"]
+            for member in toolchain.profile("release")["operations"]
+        ]
+        self.assertEqual(
+            release_ids.index("ecmascript_runtime_certification") + 1,
+            release_ids.index("python_re_runtime_certification"),
+        )
+        self.assertEqual("1.7.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.7.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

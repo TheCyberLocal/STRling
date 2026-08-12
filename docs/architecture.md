@@ -43,10 +43,11 @@ prepublication source, Semantic IR, compile request/result, diagnostic,
 analysis, profile, portability, and artifact contracts live under
 `spec/contracts/1.0`. The canonical Rust kernel currently implements the path
 through certified portability planning, structured target-aware explanations,
-pure PCRE2 and ECMAScript lowering stages, and deterministic standalone PCRE2
-and ECMAScript artifact serialization. Exact-engine execution exists only in
-isolated repository certification; product runtime execution and orchestration
-of those target stages remain deliberately absent.
+pure PCRE2, ECMAScript, and Python `re` lowering stages, and deterministic
+standalone PCRE2, ECMAScript, and Python `re` artifact serialization.
+Exact-engine execution exists only in isolated repository certification;
+product runtime execution and orchestration of those target stages remain
+deliberately absent.
 
 **Semantic analysis** owns target-independent validity, diagnostics, safety
 findings, and explanation.
@@ -75,25 +76,29 @@ stage does not recompute capabilities or planning, apply a rewrite, lower, emit,
 or probe a runtime.
 
 **Lowering** consumes normalized Semantic IR, the exact target profile, and the
-completed certified portability plan. `lower_pcre2` and `lower_ecmascript`
-produce closed target operation trees, deterministic capture slots,
+completed certified portability plan. `lower_pcre2`, `lower_ecmascript`, and
+`lower_python_re` produce closed target operation trees, deterministic capture
+slots,
 profile-owned option data, requirement resolutions, source/node provenance,
 and exact applied-rewrite certification. They reject stale, unsupported,
 unresolved, wrong-target, or malformed evidence and never re-run capability
 evaluation or planning. Their structured handoff contracts for
-[PCRE2](migration/pcre2-target-lowering.md) and
-[ECMAScript](migration/ecmascript-target-lowering.md) contain no regex
+[PCRE2](migration/pcre2-target-lowering.md),
+[ECMAScript](migration/ecmascript-target-lowering.md), and
+[Python `re`](migration/python-re-target-lowering.md) contain no regex
 punctuation, escaping, generated spans, emitted pattern, artifact, or runtime
 call.
 
 **Emitters** deterministically serialize certified lowering plans; they do not
-invent semantic or portability policy. `serialize_pcre2` and
-`serialize_ecmascript` validate one exact target plan, apply canonical target
+invent semantic or portability policy. `serialize_pcre2`,
+`serialize_ecmascript`, and `serialize_python_re` validate one exact target
+plan, apply canonical target
 spelling, escaping, grouping, precedence, and flags, copy all already-selected
 options and requirement resolutions, build generated UTF-8 spans/source maps,
 and validate the final `TargetArtifact`. Their mechanical contracts for
-[PCRE2](migration/pcre2-target-serialization.md) and
-[ECMAScript](migration/ecmascript-target-serialization.md) keep profile-owned
+[PCRE2](migration/pcre2-target-serialization.md),
+[ECMAScript](migration/ecmascript-target-serialization.md), and
+[Python `re`](migration/python-re-target-serialization.md) keep profile-owned
 consumer options distinct from pattern syntax. They cannot inspect Semantic
 IR, reinterpret target profiles, choose rewrites, run a regex engine, access
 ambient state, or serve bindings and product callers.

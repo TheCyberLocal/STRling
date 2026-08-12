@@ -29,6 +29,11 @@ const PROFILES: &[(&str, &str, &str)] = &[
         include_str!("../../spec/targets/profiles/python-re-3.11.json"),
         "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c",
     ),
+    (
+        "Python re 3.11 bytes",
+        include_str!("../../spec/targets/profiles/python-re-3.11-bytes.json"),
+        "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca",
+    ),
 ];
 
 const ARTIFACT: &str =

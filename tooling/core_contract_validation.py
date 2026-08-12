@@ -27,7 +27,9 @@ try:
         portability_planning_boundary_violation,
         pcre2_target_lowering_boundary_violation,
         pcre2_target_serialization_boundary_violation,
+        python_re_runtime_certification_boundary_violation,
         python_re_target_lowering_boundary_violation,
+        python_re_target_serialization_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
@@ -44,7 +46,9 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
         portability_planning_boundary_violation,
         pcre2_target_lowering_boundary_violation,
         pcre2_target_serialization_boundary_violation,
+        python_re_runtime_certification_boundary_violation,
         python_re_target_lowering_boundary_violation,
+        python_re_target_serialization_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 
@@ -89,6 +93,7 @@ MODULE_PATHS = {
     "ecmascript_lowering": "core/src/ecmascript_lowering.rs",
     "ecmascript_serialization": "core/src/ecmascript_serialization.rs",
     "python_re_lowering": "core/src/python_re_lowering.rs",
+    "python_re_serialization": "core/src/python_re_serialization.rs",
     "normalization": "core/src/normalization.rs",
     "portability_planning": "core/src/portability_planning.rs",
     "portability_diagnostics": "core/src/portability_diagnostics.rs",
@@ -213,6 +218,7 @@ def validate_mapping_document(
             "ecmascript_lowering",
             "python_re_lowering",
             "ecmascript_serialization",
+            "python_re_serialization",
             "target_lowering",
             "target_serialization",
         ]:
@@ -227,6 +233,7 @@ def validate_mapping_document(
             "ecmascript_lowering",
             "python_re_lowering",
             "ecmascript_serialization",
+            "python_re_serialization",
             "target_lowering",
             "target_serialization",
         ]:
@@ -260,11 +267,12 @@ def validate_mapping_document(
             )
         if relative == "spec/contracts/1.0/target-artifact.schema.json" and modules != [
             "ecmascript_serialization",
+            "python_re_serialization",
             "target",
             "target_serialization",
         ]:
             raise CoreContractError(
-                "target artifact mapping must register both canonical serializers"
+                "target artifact mapping must register all canonical serializers"
             )
         if relative == "spec/contracts/1.0/target-profile.schema.json" and modules != [
             "target::profile",
@@ -273,6 +281,7 @@ def validate_mapping_document(
             "ecmascript_lowering",
             "python_re_lowering",
             "ecmascript_serialization",
+            "python_re_serialization",
             "target_lowering",
             "target_serialization",
         ]:
@@ -666,6 +675,7 @@ def validate_source_boundaries(
         portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
         python_re_target_lowering_boundary_violation,
+        python_re_target_serialization_boundary_violation,
         ecmascript_target_lowering_boundary_violation,
         ecmascript_target_serialization_boundary_violation,
         pcre2_target_lowering_boundary_violation,
@@ -734,6 +744,14 @@ def validate_repository(root: Path = ROOT) -> tuple[int, int]:
             encoding="utf-8"
         ),
         (root / "tooling" / "node_regexp_harness.mjs").read_text(encoding="utf-8"),
+    )
+    if runtime_violation is not None:
+        raise CoreContractError(runtime_violation)
+    runtime_violation = python_re_runtime_certification_boundary_violation(
+        (root / "tooling" / "python_re_runtime_certification.py").read_text(
+            encoding="utf-8"
+        ),
+        (root / "tooling" / "python_re_harness.py").read_text(encoding="utf-8"),
     )
     if runtime_violation is not None:
         raise CoreContractError(runtime_violation)

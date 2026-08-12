@@ -10,7 +10,7 @@ use strling_kernel::semantic_analysis::analyze;
 use strling_kernel::structural_analysis::analyze_structure;
 use strling_kernel::target::TargetProfile;
 
-const PROFILES: [(&str, &str); 4] = [
+const PROFILES: [(&str, &str); 5] = [
     (
         "pcre2-10.42",
         include_str!("../../spec/targets/profiles/pcre2-10.42.json"),
@@ -26,6 +26,10 @@ const PROFILES: [(&str, &str); 4] = [
     (
         "python-re-3.11",
         include_str!("../../spec/targets/profiles/python-re-3.11.json"),
+    ),
+    (
+        "python-re-3.11-bytes",
+        include_str!("../../spec/targets/profiles/python-re-3.11-bytes.json"),
     ),
 ];
 
@@ -263,6 +267,33 @@ fn canonical_profiles_produce_expected_feature_differentials() {
             CapabilityDisposition::Supported
         );
     }
+}
+
+#[test]
+fn python_bytes_profile_rejects_unicode_only_requirements_explicitly() {
+    let semantic = mixed_program();
+    let bytes = evaluate(&semantic, &profile("python-re-3.11-bytes"));
+
+    for capability in [
+        "character_classes.unicode",
+        "character_properties.unicode",
+        "character_semantics.unicode_scalar",
+    ] {
+        let result = bytes
+            .results
+            .iter()
+            .find(|result| result.evaluated_capability.as_str() == capability)
+            .unwrap_or_else(|| panic!("missing bytes result for {capability}"));
+        assert_eq!(result.disposition, CapabilityDisposition::Unsupported);
+    }
+    assert_eq!(
+        result_for(&bytes, "node:mixed.atomic").disposition,
+        CapabilityDisposition::Supported
+    );
+    assert_eq!(
+        result_for(&bytes, "node:mixed.possessive").disposition,
+        CapabilityDisposition::Supported
+    );
 }
 
 #[test]

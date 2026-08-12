@@ -48,6 +48,7 @@
                 "ecmascript_lowering",
                 "python_re_lowering",
                 "ecmascript_serialization",
+                "python_re_serialization",
                 "target_lowering",
                 "target_serialization"
             ]
@@ -63,6 +64,7 @@
                 "ecmascript_lowering",
                 "python_re_lowering",
                 "ecmascript_serialization",
+                "python_re_serialization",
                 "target_lowering",
                 "target_serialization"
             ]
@@ -96,6 +98,7 @@
             "sha256": "1d0bfb5c31c8ae2e51338014dfee0c74024591a2f8628686cc323ab743e444bc",
             "rust_modules": [
                 "ecmascript_serialization",
+                "python_re_serialization",
                 "target",
                 "target_serialization"
             ]
@@ -110,6 +113,7 @@
                 "ecmascript_lowering",
                 "python_re_lowering",
                 "ecmascript_serialization",
+                "python_re_serialization",
                 "target_lowering",
                 "target_serialization"
             ]

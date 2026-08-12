@@ -75,11 +75,10 @@ Serialization favors one reviewable form over minimal text:
 - include-line-terminators wildcard uses `(?s:.)`, while the excluding form
   uses an explicit line-terminator complement, so no global dot-all mode leaks.
 
-Input start and strict input end use `\A` and `\Z`. Line-start, line-end, and
-end-before-one-final-line-terminator are structural zero-width expressions
-over LF, CR, CRLF, U+2028, and U+2029 for `str`; bytes artifacts omit the two
-unrepresentable Unicode scalars. This avoids global multiline behavior and
-does not rely on Python `$` having broader cross-target semantics. Word and
+Input start and strict input end use `\A` and `\Z`. Line-start and line-end use
+scoped Python multiline assertions, `(?m:^)` and `(?m:$)`, whose target-native
+line boundary is LF; CR, CRLF, U+2028, and U+2029 do not acquire broader
+cross-target meaning. End-before-one-final-LF uses Python `$`. Word and
 non-word boundaries retain `\b` and `\B` under the exact pattern kind and case
 flag.
 

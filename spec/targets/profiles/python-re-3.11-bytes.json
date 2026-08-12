@@ -1,0 +1,144 @@
+{
+    "contract_version": "1.0.0",
+    "profile_id": "profile:python-re/3.11-bytes",
+    "profile_version": "1.0.0",
+    "engine": {
+        "id": "python_re",
+        "version": {
+            "scheme": "dotted_numeric",
+            "value": "3.11"
+        }
+    },
+    "runtime": {
+        "id": "cpython",
+        "version": {
+            "scheme": "dotted_numeric",
+            "value": "3.11"
+        }
+    },
+    "compatible_specification_versions": ["1.0-draft.1"],
+    "capability_scope": {
+        "kind": "enumerated",
+        "unlisted_capabilities": "unknown"
+    },
+    "capabilities": [
+        {
+            "capability_id": "anchors.end_before_final_line_terminator",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "anchors.input_end",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "anchors.input_start",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "anchors.line_end",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "anchors.line_start",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "assertions.lookahead",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "assertions.lookbehind.fixed_length",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "common_fixed_width",
+                    "operator": "equals",
+                    "value": true
+                }
+            ]
+        },
+        {
+            "capability_id": "assertions.lookbehind.variable_length",
+            "availability": "unavailable",
+            "constraints": []
+        },
+        {
+            "capability_id": "boundaries.word",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "character_classes.unicode",
+            "availability": "unavailable",
+            "constraints": []
+        },
+        {
+            "capability_id": "character_properties.unicode",
+            "availability": "unavailable",
+            "constraints": []
+        },
+        {
+            "capability_id": "character_semantics.unicode_scalar",
+            "availability": "unavailable",
+            "constraints": []
+        },
+        {
+            "capability_id": "groups.atomic",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "groups.named_capture",
+            "availability": "constrained",
+            "constraints": [
+                {
+                    "constraint_id": "name_syntax",
+                    "operator": "equals",
+                    "value": "ascii_identifier"
+                }
+            ]
+        },
+        {
+            "capability_id": "matching.case_insensitive",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "references.backreference",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "repetition.lazy",
+            "availability": "available",
+            "constraints": []
+        },
+        {
+            "capability_id": "repetition.possessive",
+            "availability": "available",
+            "constraints": []
+        }
+    ],
+    "options": [
+        {
+            "option_id": "python.pattern_kind",
+            "stage": "runtime",
+            "value": "bytes",
+            "selection": "required"
+        }
+    ],
+    "evidence": [
+        {
+            "evidence_id": "python_re",
+            "authority": "engine_documentation",
+            "url": "https://docs.python.org/3.11/library/re.html",
+            "locator": "Python 3.11 re bytes-pattern syntax and flags: bytes patterns and subjects require bytes, group names are ASCII, built-in classes and boundaries use bytes-domain behavior, lookarounds and captures are supported, and atomic groups plus possessive quantifiers are available from 3.11; Unicode-only scalar, class, and property semantics are unavailable."
+        }
+    ]
+}

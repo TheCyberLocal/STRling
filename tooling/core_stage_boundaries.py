@@ -719,6 +719,7 @@ def ecmascript_target_lowering_boundary_violation(
             "crate::regex_frontend",
             "crate::target_lowering",
             "crate::ecmascript_serialization",
+            "crate::python_re_serialization",
             "crate::target_serialization",
             "crate::emitter",
             "crate::emitters",
@@ -867,6 +868,7 @@ def python_re_target_lowering_boundary_violation(
             "ecmascriptloweringplan",
             "lower_ecmascript(",
             "serialize_ecmascript(",
+            "serialize_python_re(",
             "re.compile(",
             "strling.core",
             "python::",
@@ -888,6 +890,128 @@ def python_re_target_lowering_boundary_violation(
         if "lower_python_re(" in text.lower():
             return (
                 "Python re target lowering has an ungoverned direct caller before "
+                f"canonical orchestration exists: {candidate}"
+            )
+    return None
+
+
+def python_re_target_serialization_boundary_violation(
+    source_texts: Mapping[str, str],
+) -> str | None:
+    """Return the first deterministic Python re serialization violation."""
+
+    path = "core/src/python_re_serialization.rs"
+    source = source_texts.get(path, "").lower()
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub fn serialize_python_re(" not in source:
+        return "canonical Python re target-serialization stage boundary cannot be located"
+
+    prerequisites = (
+        ("crate::diagnostic::{", "canonical structured emission diagnostics"),
+        ("crate::python_re_lowering::{", "validated Python re lowering plans"),
+        ("crate::source::{", "canonical generated and source coordinates"),
+        ("crate::target::{", "canonical TargetArtifact contracts"),
+        ("crate::validation::validate", "canonical contract validation"),
+    )
+    for marker, description in prerequisites:
+        if marker not in source:
+            return f"Python re target serialization must consume {description}"
+
+    for marker in ("plan.validate()", "artifact.validate()"):
+        if marker not in source:
+            return (
+                "Python re target serialization must validate its exact input and output "
+                f"contracts: {marker}"
+            )
+
+    for marker in (
+        "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c",
+        "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca",
+        "python.pattern_kind",
+        "plan.case_matching",
+    ):
+        if marker not in source:
+            return (
+                "Python re target serialization must preserve exact profile, pattern-kind, "
+                f"and flag intent: {marker}"
+            )
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "lower_python_re(",
+            "evaluate_capabilities(",
+            "extract_requirements(",
+            "plan_portability(",
+            "certified_rewrite_registry(",
+            "crate::capability_evaluation",
+            "crate::normalization",
+            "crate::portability_planning",
+            "crate::semantic",
+            "crate::semantic_analysis",
+            "crate::structural_analysis",
+            "crate::safety_analysis",
+            "crate::diagnostic_generation",
+            "crate::compiler_pipeline",
+            "crate::capability_pipeline",
+            "crate::kernel",
+            "crate::protocol",
+            "crate::conformance",
+            "crate::regex_frontend",
+            "crate::target_lowering",
+            "crate::target_serialization",
+            "crate::ecmascript_lowering",
+            "crate::ecmascript_serialization",
+            "crate::emitter",
+            "crate::emitters",
+            "crate::bindings",
+            "crate::frontend",
+            "crate::lsp",
+            "crate::editor",
+            "bindings::",
+            "frontend::",
+            "emitters::",
+            "crate::target::targetprofile",
+            "crate::target::optionselection",
+            "engine.version",
+            "std::env::",
+            "std::fs::",
+            "std::net::",
+            "std::path::",
+            "std::process::",
+            "std::thread::",
+            "std::time::",
+            "systemtime",
+            "thread_rng",
+            "rand::",
+            "re.compile(",
+            "runtime_probe",
+            "engine_probe",
+            "regex::",
+            "pcre2",
+            "ecmascriptoperation",
+            "ecmascriptloweringplan",
+            "serialize_ecmascript(",
+            'flags.push("a"',
+            'flags.push("l"',
+            'flags.push("m"',
+            'flags.push("s"',
+            'flags.push("u"',
+            'flags.push("x"',
+        ),
+    )
+    if forbidden is not None:
+        return (
+            "Python re target serialization violates mechanical artifact boundary: "
+            f"{forbidden}"
+        )
+
+    for candidate, text in source_texts.items():
+        if candidate in {path, "core/src/lib.rs"}:
+            continue
+        if "serialize_python_re(" in text.lower():
+            return (
+                "Python re target serialization has an ungoverned direct caller before "
                 f"canonical orchestration exists: {candidate}"
             )
     return None
@@ -1010,6 +1134,116 @@ def ecmascript_target_serialization_boundary_violation(
                 "ECMAScript target serialization has an ungoverned direct caller before "
                 f"canonical orchestration exists: {candidate}"
             )
+    return None
+
+
+def python_re_runtime_certification_boundary_violation(
+    orchestrator_text: str,
+    harness_text: str,
+) -> str | None:
+    """Return the first exact-CPython certification isolation violation."""
+
+    orchestrator = orchestrator_text.lower()
+    harness = harness_text.lower()
+    orchestrator_prerequisites = (
+        'python_env = "strling_cpython_311_binary"',
+        'expected_version = "3.11.15"',
+        'expected_implementation = "cpython"',
+        'expected_platform = "linux"',
+        'expected_machine = "x86_64"',
+        "272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625",
+        "1fbfa9ca2d8b4a1180be898c8de67732deee8aff7bb838012acb63764be83232",
+        "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c",
+        "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca",
+        '[str(binary), "-i", "-s", "-b", str(harness)]',
+        "identity_reader(binary)",
+        "def exact_runtime(",
+        '"lang": "c.utf-8"',
+        '"lc_all": "c.utf-8"',
+        '"tz": "utc"',
+        "timeout=30",
+    )
+    for marker in orchestrator_prerequisites:
+        if marker not in orchestrator:
+            return (
+                "Python re runtime certification must preserve exact binary, profile, "
+                f"runtime, harness, and bounded-process authority: {marker}"
+            )
+
+    forbidden_orchestrator = _first_forbidden(
+        orchestrator,
+        (
+            "shell=true",
+            "os.system(",
+            "os.popen(",
+            "subprocess.popen(",
+            "requests.",
+            "urllib.",
+            "http.client",
+            "socket.",
+            "curl ",
+            "wget ",
+            "pythonpath",
+        ),
+    )
+    if forbidden_orchestrator is not None:
+        return (
+            "Python re runtime certification violates fixed offline orchestrator "
+            f"authority: {forbidden_orchestrator}"
+        )
+
+    harness_prerequisites = (
+        'protocol_version = "1.0.0"',
+        "maximum_input_bytes",
+        "maximum_cases",
+        "maximum_subjects_per_case",
+        "maximum_source_bytes",
+        "maximum_subject_units",
+        "maximum_matches",
+        "sys.stdin.buffer",
+        "re.compile(",
+        "compiled.finditer(",
+        "platform.python_version()",
+        "platform.python_implementation()",
+        "sys.implementation.cache_tag",
+        'sysconfig.get_config_var("soabi")',
+    )
+    for marker in harness_prerequisites:
+        if marker not in harness:
+            return (
+                "Python re runtime harness must remain bounded, observable, and "
+                f"protocol-complete: {marker}"
+            )
+
+    forbidden_harness = _first_forbidden(
+        harness,
+        (
+            "import os",
+            "import pathlib",
+            "import random",
+            "import socket",
+            "import subprocess",
+            "import threading",
+            "import time",
+            "import urllib",
+            "from pathlib",
+            "from subprocess",
+            "open(",
+            "path(",
+            "requests.",
+            "socket.",
+            "sys.argv",
+            "sys.path",
+            "os.environ",
+            "os.getcwd",
+            "os.chdir",
+        ),
+    )
+    if forbidden_harness is not None:
+        return (
+            "Python re runtime harness violates standard-library deterministic authority: "
+            f"{forbidden_harness}"
+        )
     return None
 
 
@@ -1259,6 +1493,7 @@ def target_neutral_reverse_dependency_violation(
                 "crate::capability_pipeline",
                 "crate::target_lowering",
                 "crate::ecmascript_serialization",
+                "crate::python_re_serialization",
                 "crate::target_serialization",
             ),
         )

@@ -1,0 +1,423 @@
+{
+    "corpus_version": "1.0.0",
+    "profiles": [
+        {
+            "id": "profile:python-re/3.11",
+            "version": "1.2.0",
+            "pattern_kind": "str",
+            "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+        },
+        {
+            "id": "profile:python-re/3.11-bytes",
+            "version": "1.0.0",
+            "pattern_kind": "bytes",
+            "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+        }
+    ],
+    "runtime": {
+        "python_version": "3.11.15",
+        "implementation": "cpython",
+        "platform": "linux",
+        "machine": "x86_64",
+        "cache_tag": "cpython-311",
+        "soabi": "cpython-311-x86_64-linux-gnu",
+        "sysconfig_platform": "linux-x86_64",
+        "archive": "Python-3.11.15.tar.xz",
+        "archive_sha256": "272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625",
+        "executable_sha256": "1fbfa9ca2d8b4a1180be898c8de67732deee8aff7bb838012acb63764be83232",
+        "release_url": "https://www.python.org/downloads/release/python-31115/"
+    },
+    "cases": [
+        {
+            "id": "str-named-capture-backreference",
+            "source": "\\A(?P<word>a)(?P=word)\\Z",
+            "pattern_kind": "str",
+            "flags": [],
+            "subjects": ["aa", "ab"],
+            "expected": [
+                {
+                    "subject": "aa",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "aa",
+                            "captures": [
+                                { "index": 0, "span": [0, 2], "value": "aa" },
+                                { "index": 1, "name": "word", "span": [0, 1], "value": "a" }
+                            ]
+                        }
+                    ]
+                },
+                { "subject": "ab", "matches": [] }
+            ]
+        },
+        {
+            "id": "str-optional-numbered-and-named-captures",
+            "source": "\\A(?:(a))?(?P<right>b)\\Z",
+            "pattern_kind": "str",
+            "flags": [],
+            "subjects": ["b", "ab"],
+            "expected": [
+                {
+                    "subject": "b",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "b",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "b" },
+                                { "index": 1, "span": null, "value": null },
+                                { "index": 2, "name": "right", "span": [0, 1], "value": "b" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "ab",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "ab",
+                            "captures": [
+                                { "index": 0, "span": [0, 2], "value": "ab" },
+                                { "index": 1, "span": [0, 1], "value": "a" },
+                                { "index": 2, "name": "right", "span": [1, 2], "value": "b" }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "str-code-point-spans",
+            "source": "\\A(?P<emoji>😀)(?P<greek>λ)\\Z",
+            "pattern_kind": "str",
+            "flags": [],
+            "subjects": ["😀λ", "😀x"],
+            "expected": [
+                {
+                    "subject": "😀λ",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "😀λ",
+                            "captures": [
+                                { "index": 0, "span": [0, 2], "value": "😀λ" },
+                                { "index": 1, "name": "emoji", "span": [0, 1], "value": "😀" },
+                                { "index": 2, "name": "greek", "span": [1, 2], "value": "λ" }
+                            ]
+                        }
+                    ]
+                },
+                { "subject": "😀x", "matches": [] }
+            ]
+        },
+        {
+            "id": "str-lookbehind-and-negative-lookahead",
+            "source": "(?<=ab)(?P<body>c+)(?![cd])",
+            "pattern_kind": "str",
+            "flags": [],
+            "subjects": ["xxabccc!", "xxabcccd"],
+            "expected": [
+                {
+                    "subject": "xxabccc!",
+                    "matches": [
+                        {
+                            "span": [4, 7],
+                            "value": "ccc",
+                            "captures": [
+                                { "index": 0, "span": [4, 7], "value": "ccc" },
+                                { "index": 1, "name": "body", "span": [4, 7], "value": "ccc" }
+                            ]
+                        }
+                    ]
+                },
+                { "subject": "xxabcccd", "matches": [] }
+            ]
+        },
+        {
+            "id": "str-python-line-anchors",
+            "source": "(?m:^)(?P<line>b)(?m:$)",
+            "pattern_kind": "str",
+            "flags": [],
+            "subjects": ["a\nb\nc", "a\rb\rc", "a\r\nb\r\nc", "a b c"],
+            "expected": [
+                {
+                    "subject": "a\nb\nc",
+                    "matches": [
+                        {
+                            "span": [2, 3],
+                            "value": "b",
+                            "captures": [
+                                { "index": 0, "span": [2, 3], "value": "b" },
+                                { "index": 1, "name": "line", "span": [2, 3], "value": "b" }
+                            ]
+                        }
+                    ]
+                },
+                { "subject": "a\rb\rc", "matches": [] },
+                { "subject": "a\r\nb\r\nc", "matches": [] },
+                { "subject": "a b c", "matches": [] }
+            ]
+        },
+        {
+            "id": "str-input-end-is-strict",
+            "source": "\\Aa\\Z",
+            "pattern_kind": "str",
+            "flags": [],
+            "subjects": ["a", "a\n"],
+            "expected": [
+                {
+                    "subject": "a",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "a",
+                            "captures": [{ "index": 0, "span": [0, 1], "value": "a" }]
+                        }
+                    ]
+                },
+                { "subject": "a\n", "matches": [] }
+            ]
+        },
+        {
+            "id": "str-end-before-final-newline",
+            "source": "\\Aa$",
+            "pattern_kind": "str",
+            "flags": [],
+            "subjects": ["a", "a\n", "a\r\n", "a\nb"],
+            "expected": [
+                {
+                    "subject": "a",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "a",
+                            "captures": [{ "index": 0, "span": [0, 1], "value": "a" }]
+                        }
+                    ]
+                },
+                {
+                    "subject": "a\n",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "a",
+                            "captures": [{ "index": 0, "span": [0, 1], "value": "a" }]
+                        }
+                    ]
+                },
+                { "subject": "a\r\n", "matches": [] },
+                { "subject": "a\nb", "matches": [] }
+            ]
+        },
+        {
+            "id": "str-unicode-ignore-case",
+            "source": "\\Ak\\Z",
+            "pattern_kind": "str",
+            "flags": ["i"],
+            "subjects": ["k", "K", "K", "x"],
+            "expected": [
+                { "subject": "k", "matches": [{ "span": [0, 1], "value": "k", "captures": [{ "index": 0, "span": [0, 1], "value": "k" }] }] },
+                { "subject": "K", "matches": [{ "span": [0, 1], "value": "K", "captures": [{ "index": 0, "span": [0, 1], "value": "K" }] }] },
+                { "subject": "K", "matches": [{ "span": [0, 1], "value": "K", "captures": [{ "index": 0, "span": [0, 1], "value": "K" }] }] },
+                { "subject": "x", "matches": [] }
+            ]
+        },
+        {
+            "id": "str-scoped-ascii-ignore-case",
+            "source": "\\A(?a:k)\\Z",
+            "pattern_kind": "str",
+            "flags": ["i"],
+            "subjects": ["k", "K", "K"],
+            "expected": [
+                { "subject": "k", "matches": [{ "span": [0, 1], "value": "k", "captures": [{ "index": 0, "span": [0, 1], "value": "k" }] }] },
+                { "subject": "K", "matches": [{ "span": [0, 1], "value": "K", "captures": [{ "index": 0, "span": [0, 1], "value": "K" }] }] },
+                { "subject": "K", "matches": [] }
+            ]
+        },
+        {
+            "id": "str-unicode-word-class",
+            "source": "\\A(?u:\\w+)\\Z",
+            "pattern_kind": "str",
+            "flags": [],
+            "subjects": ["λ9", "-"],
+            "expected": [
+                { "subject": "λ9", "matches": [{ "span": [0, 2], "value": "λ9", "captures": [{ "index": 0, "span": [0, 2], "value": "λ9" }] }] },
+                { "subject": "-", "matches": [] }
+            ]
+        },
+        {
+            "id": "str-atomic-version-boundary",
+            "minimum_runtime": "3.11",
+            "source": "\\A(?>a|ab)c\\Z",
+            "pattern_kind": "str",
+            "flags": [],
+            "subjects": ["ac", "abc"],
+            "expected": [
+                { "subject": "ac", "matches": [{ "span": [0, 2], "value": "ac", "captures": [{ "index": 0, "span": [0, 2], "value": "ac" }] }] },
+                { "subject": "abc", "matches": [] }
+            ]
+        },
+        {
+            "id": "str-possessive-version-boundary",
+            "minimum_runtime": "3.11",
+            "source": "\\Aa*+a\\Z",
+            "pattern_kind": "str",
+            "flags": [],
+            "subjects": ["a", "aaa", "b"],
+            "expected": [
+                { "subject": "a", "matches": [] },
+                { "subject": "aaa", "matches": [] },
+                { "subject": "b", "matches": [] }
+            ]
+        },
+        {
+            "id": "str-zero-length-code-point-iteration",
+            "source": "(?:)",
+            "pattern_kind": "str",
+            "flags": [],
+            "maximum_matches": 8,
+            "subjects": ["😀"],
+            "expected": [
+                {
+                    "subject": "😀",
+                    "matches": [
+                        { "span": [0, 0], "value": "", "captures": [{ "index": 0, "span": [0, 0], "value": "" }] },
+                        { "span": [1, 1], "value": "", "captures": [{ "index": 0, "span": [1, 1], "value": "" }] }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "bytes-named-capture-backreference",
+            "source": "\\A(?P<word>a)(?P=word)\\Z",
+            "pattern_kind": "bytes",
+            "flags": [],
+            "subjects": ["6161", "6162"],
+            "expected": [
+                {
+                    "subject": "6161",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "6161",
+                            "captures": [
+                                { "index": 0, "span": [0, 2], "value": "6161" },
+                                { "index": 1, "name": "word", "span": [0, 1], "value": "61" }
+                            ]
+                        }
+                    ]
+                },
+                { "subject": "6162", "matches": [] }
+            ]
+        },
+        {
+            "id": "bytes-optional-capture-and-spans",
+            "source": "\\A(a)?b\\Z",
+            "pattern_kind": "bytes",
+            "flags": [],
+            "subjects": ["62", "6162"],
+            "expected": [
+                {
+                    "subject": "62",
+                    "matches": [
+                        {
+                            "span": [0, 1],
+                            "value": "62",
+                            "captures": [
+                                { "index": 0, "span": [0, 1], "value": "62" },
+                                { "index": 1, "span": null, "value": null }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "subject": "6162",
+                    "matches": [
+                        {
+                            "span": [0, 2],
+                            "value": "6162",
+                            "captures": [
+                                { "index": 0, "span": [0, 2], "value": "6162" },
+                                { "index": 1, "span": [0, 1], "value": "61" }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "bytes-ignore-case-is-bytes-domain",
+            "source": "\\Ak\\Z",
+            "pattern_kind": "bytes",
+            "flags": ["i"],
+            "subjects": ["6b", "4b", "e2"] ,
+            "expected": [
+                { "subject": "6b", "matches": [{ "span": [0, 1], "value": "6b", "captures": [{ "index": 0, "span": [0, 1], "value": "6b" }] }] },
+                { "subject": "4b", "matches": [{ "span": [0, 1], "value": "4b", "captures": [{ "index": 0, "span": [0, 1], "value": "4b" }] }] },
+                { "subject": "e2", "matches": [] }
+            ]
+        }
+    ],
+    "compile_error_cases": [
+        {
+            "id": "invalid-unclosed-class",
+            "source": "[",
+            "pattern_kind": "str",
+            "flags": [],
+            "expected_compile": { "status": "error", "type": "error", "position": 0 }
+        },
+        {
+            "id": "invalid-capture-name",
+            "source": "(?P<bad-name>a)",
+            "pattern_kind": "str",
+            "flags": [],
+            "expected_compile": { "status": "error", "type": "error", "position": 4 }
+        },
+        {
+            "id": "unicode-escape-in-bytes-pattern",
+            "source": "\\u0061",
+            "pattern_kind": "bytes",
+            "flags": [],
+            "expected_compile": { "status": "error", "type": "error", "position": 0 }
+        }
+    ],
+    "rewrite_cases": [
+        {
+            "id": "atomic-literal-elision",
+            "strategy_id": "rewrite.atomic_literal.elide.v1",
+            "pattern_kind": "str",
+            "original_source": "\\A(?>a)\\Z",
+            "rewritten_source": "\\Aa\\Z",
+            "flags": [],
+            "subjects": ["a", "b", "aa"]
+        }
+    ],
+    "generated_cases": {
+        "seed": 23434101947158087,
+        "count": 128,
+        "maximum_source_bytes": 160,
+        "maximum_subject_units": 160
+    },
+    "serializer_pathologies": [
+        "deeply_nested_groups",
+        "dense_character_class",
+        "escape_palette",
+        "empty_construct",
+        "maximum_bounded_quantifier",
+        "legal_and_illegal_capture_names",
+        "malformed_lowered_artifact",
+        "conflicting_options",
+        "str_and_bytes_profile_confusion"
+    ],
+    "performance_budget": {
+        "warmup_iterations": 16,
+        "sample_iterations": 128,
+        "median_microseconds": {
+            "analysis_and_planning": 10000,
+            "lowering": 5000,
+            "serialization": 5000
+        }
+    }
+}

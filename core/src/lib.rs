@@ -30,6 +30,7 @@ pub mod portability_diagnostics;
 pub mod portability_planning;
 pub mod protocol;
 pub mod python_re_lowering;
+pub mod python_re_serialization;
 pub mod regex_frontend;
 pub mod safety_analysis;
 pub mod semantic;
