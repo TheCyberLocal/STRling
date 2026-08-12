@@ -73,6 +73,7 @@ MODULE_PATHS = {
     "protocol::exchange": "core/src/protocol/exchange.rs",
     "protocol::request": "core/src/protocol/request.rs",
     "protocol::result": "core/src/protocol/result.rs",
+    "regex_frontend": "core/src/regex_frontend.rs",
     "semantic": "core/src/semantic/mod.rs",
     "semantic_analysis": "core/src/semantic_analysis.rs",
     "safety_analysis": "core/src/safety_analysis.rs",
@@ -196,6 +197,7 @@ def validate_mapping_document(
                 "portability mapping must register canonical portability planning"
             )
         if relative == "spec/contracts/1.0/semantic-ir.schema.json" and modules != [
+            "regex_frontend",
             "normalization",
             "semantic",
             "semantic_analysis",
@@ -207,6 +209,13 @@ def validate_mapping_document(
         ]:
             raise CoreContractError(
                 "Semantic IR mapping must register target-neutral stages, capability requirement extraction, and portability planning in dependency order"
+            )
+        if relative == "spec/contracts/1.0/source.schema.json" and modules != [
+            "source",
+            "regex_frontend",
+        ]:
+            raise CoreContractError(
+                "source mapping must register the canonical regex compatibility frontend"
             )
         if relative == "spec/contracts/1.0/target-profile.schema.json" and modules != [
             "target::profile",
@@ -281,6 +290,41 @@ def validate_source_boundaries(
         if forbidden in semantic:
             raise CoreContractError(
                 f"Semantic IR contains target-specific marker: {forbidden}"
+            )
+
+    regex_frontend = source_texts.get("core/src/regex_frontend.rs", "").lower()
+    if "pub fn parse(" not in regex_frontend:
+        raise CoreContractError(
+            "canonical regex frontend parse boundary cannot be located"
+        )
+    for required in (
+        "let program = semanticprogram",
+        "invalidsemanticoutput",
+        "crate::source",
+        "crate::semantic",
+    ):
+        if required not in regex_frontend:
+            raise CoreContractError(
+                "regex compatibility frontend must lower through validated canonical contracts: "
+                f"{required}"
+            )
+    for forbidden in (
+        "crate::target",
+        "crate::protocol",
+        "crate::kernel",
+        "crate::diagnostic",
+        "std::env",
+        "std::time",
+        "std::process",
+        "bindings::",
+        "target_profile",
+        "engine_options",
+        "emitted_pattern",
+    ):
+        if forbidden in regex_frontend:
+            raise CoreContractError(
+                "regex compatibility frontend violates pure target-neutral boundary: "
+                f"{forbidden}"
             )
     node_start = semantic.find("pub enum node")
     node_end = semantic.find("impl node", node_start)

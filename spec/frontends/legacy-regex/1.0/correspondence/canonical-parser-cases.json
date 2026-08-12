@@ -1,0 +1,33 @@
+{
+    "case_set_version": "1.0.0",
+    "frontend": "strling.regex-compat@1.0.0",
+    "authorship": "specification-authored",
+    "authority": "spec/frontends/legacy-regex/1.0/dialect.json",
+    "cases": [
+        {
+            "id": "parser-escape-class",
+            "source": "[a-z\\d_]+",
+            "expected_status": "accepted"
+        },
+        {
+            "id": "parser-extended-directive",
+            "source": "%flags x\na # comment\n[\\d_]",
+            "expected_status": "accepted"
+        },
+        {
+            "id": "parser-groups-alternation-lookaround",
+            "source": "(?<word>[a-z]+)(?=\\d)|x{2,3}",
+            "expected_status": "accepted"
+        },
+        {
+            "id": "parser-literal",
+            "source": "plain text",
+            "expected_status": "accepted"
+        },
+        {
+            "id": "parser-malformed-group",
+            "source": "(abc",
+            "expected_status": "rejected"
+        }
+    ]
+}

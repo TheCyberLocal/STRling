@@ -1,0 +1,137 @@
+record_version: 2.0.0
+title: Port the regex-compatible parser into the canonical Rust kernel
+status: in_progress
+objective: Implement the frozen strling.regex-compat@1.0.0 syntax contract as a pure bounded Rust frontend that produces valid canonical Semantic IR without target, binding, public CLI, or diagnostic-presentation behavior.
+scope:
+    diff:
+        base: 95a1d96de43fbfe32cfbb98ab2af0afdf0cdb4e4
+        head: working-tree
+    allowed_paths:
+        - core/contract-mapping.json
+        - core/src/lib.rs
+        - core/src/regex_frontend.rs
+        - core/tests/regex_frontend.rs
+        - docs/migration/**
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - spec/frontends/legacy-regex/1.0/**
+        - tooling/core_contract_validation.py
+        - tooling/migration_differential.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/tests/fixtures/migration_differential/**
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_migration_differential.py
+        - tooling/tests/test_regex_frontend_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/diagnostic/**
+        - core/src/target/**
+        - spec/contracts/**
+        - spec/targets/**
+        - tests/spec/**
+    expected_files:
+        - core/src/regex_frontend.rs
+        - core/tests/regex_frontend.rs
+        - docs/migration/regex-compatible-parser.md
+        - docs/migration/records/regex-compatible-parser.yaml
+        - spec/frontends/legacy-regex/1.0/correspondence/canonical-parser-cases.json
+        - tooling/tests/test_regex_frontend_architecture.py
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: intentional-correction
+        evidence:
+            - Adds the first canonical implementation of the already frozen compatibility frontend and lowers its accepted syntax directly into existing target-neutral Semantic IR.
+    public_api_change:
+        level: additive
+        evidence:
+            - Exposes a Rust-kernel frontend module and parse result for later canonical orchestration; no binding, product CLI, import, editor, or package surface is wired.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence: []
+        affected_surfaces: []
+    diagnostic_change:
+        level: compatible
+        evidence:
+            - Implements the 45 stable frontend identities and byte offsets frozen in P08-T01 without changing canonical diagnostic presentation contracts.
+    target_behavior_change:
+        level: none
+        evidence: []
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds a pure source-to-Semantic-IR parser stage whose dependencies are limited to canonical source, semantic, and validation domains.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Frozen frontend fixture contract
+      command: cargo test --manifest-path core/Cargo.toml --test regex_frontend
+      expected_result: All 30 positive and 45 negative specification-authored fixtures, synthetic protocol/resource limits, deterministic lowering, and malformed-input stress coverage pass.
+    - name: Canonical Rust kernel quality
+      command: cargo fmt --manifest-path core/Cargo.toml --check; cargo clippy --manifest-path core/Cargo.toml --all-targets -- -D warnings; cargo test --manifest-path core/Cargo.toml
+      expected_result: Formatting, warnings, focused tests, full kernel tests, and contract mappings pass without new runtime dependencies.
+    - name: Parser architecture boundary
+      command: python3 tooling/core_contract_validation.py; python3 -m unittest tooling.tests.test_regex_frontend_architecture
+      expected_result: The frontend consumes only SourceDocument and Semantic IR contracts and cannot reach target, portability, emitter, binding, environment, filesystem, network, or legacy evidence authority.
+    - name: Complete migration differential
+      command: ./strling migration-differential --repeat-runs 3
+      expected_result: Every governed historical parser observation has an executable canonical route and every difference is equivalent or carries a governed non-unresolved disposition.
+    - name: Repository certification
+      command: python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/formatting.py repository --check; git diff --check; ./strling quality --profile local; ./strling quality --profile pull-request
+      expected_result: Declared scope, documentation, formatting, architecture, local/PR profiles, and clean checkout pass with exact unavailable-operation evidence only.
+checkpoints:
+    - name: Contract-to-kernel design and authority boundary
+      status: passed
+      evidence:
+          - check: Frozen contract mapped to one canonical source-to-semantic boundary
+            result: passed
+            details: The public kernel entry point is strling_kernel::regex_frontend::parse(&SourceDocument); it validates the source contract and exact strling.regex-compat@1.0.0 identity, returns normalized flags plus validated SemanticProgram output, and introduces no target, emitter, portability, binding, filesystem, network, environment, CLI, TypeScript, or Python dependency.
+    - name: Bounded parser and canonical lowering
+      status: passed
+      evidence:
+          - check: Pure Rust parser and deterministic Semantic IR lowering
+            command: cargo +1.75 test --manifest-path core/Cargo.toml --test regex_frontend --locked
+            result: passed
+            details: Implemented the complete frozen grammar, all five global flags, captures and backreferences, classes and escapes, assertions and lookarounds, greedy/lazy/possessive quantifiers, directives/comments/layout, exact first-in-source-order diagnostics, deterministic node construction, and validation of every produced SemanticProgram.
+          - check: Frozen resource boundaries and no-panic behavior
+            result: passed
+            details: Enforced 1,048,576 UTF-8 source bytes, 128 nesting levels, 65,535 captures, and quantifier bounds through 4,294,967,295; all limits return typed failures and 2,048 deterministic generated UTF-8 inputs complete without panic.
+    - name: Full fixtures, malformed stress, and differential route
+      status: in_progress
+      evidence:
+          - check: Complete specification-authored frontend corpus
+            command: cargo +1.75 test --manifest-path core/Cargo.toml --test regex_frontend --locked
+            result: passed
+            details: All 30 positive fixtures lower deterministically and all 45 negative fixtures reject with their exact frozen diagnostic identity and UTF-8 byte offset.
+          - check: Complete governed historical parser corpus
+            result: passed
+            details: The Rust suite executes a specification-authored five-case correspondence set. A separate migration-layer test proves that both governed runner corpora contain exactly those parser.parse identities, sources, and accepted/rejected statuses, preserving the legacy-evidence authority boundary. Route review canonical-route-parser-parse@2.0.0 records the executable Rust surface and retains incompatible_surface because canonical Semantic IR and binding-specific historical ASTs have no authoritative structural correspondence.
+          - check: Native Linux differential baseline renewal
+            command: ./strling migration-differential --repeat-runs 3 --print-baseline-candidate
+            result: not_run
+            details: The WSL host cannot create a session (Wsl/Service/0x80072747). A Windows replay preserved the corpus fingerprint but changed the historical result fingerprint, so its candidate was intentionally rejected rather than promoted as the Linux baseline; the checked baseline remains stale until native replay succeeds.
+    - name: Repository certification and readiness
+      status: planned
+      evidence:
+          - check: Exact governed Rust toolchain quality
+            command: cargo +1.75 fmt --manifest-path core/Cargo.toml -- --check; cargo +1.75 clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; RUSTFLAGS=-Dwarnings cargo +1.75 check --manifest-path core/Cargo.toml --all-targets --locked; cargo +1.75 test --manifest-path core/Cargo.toml --all-targets --locked
+            result: passed
+            details: Formatting, Clippy, warning-denying check, and the complete all-target Rust test suite pass under the repository-governed Rust 1.75.0 toolchain.
+          - check: Canonical mapping and parser architecture
+            command: python3 tooling/core_contract_validation.py; python3 -m unittest tooling.tests.test_regex_frontend_architecture
+            result: passed
+            details: The canonical mapping validator passes with the frontend registered on source and Semantic IR boundaries, and all five parser architecture/correspondence tests pass including forbidden dependency, mapping mutation, and historical-to-specification case-set checks.
+commits: []

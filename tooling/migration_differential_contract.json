@@ -154,15 +154,19 @@
             {
                 "authority": [
                     {
-                        "kind": "ratified_architecture",
-                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                        "kind": "frontend_contract",
+                        "reference": "spec/frontends/legacy-regex/1.0/dialect.json"
+                    },
+                    {
+                        "kind": "canonical_implementation",
+                        "reference": "core/src/regex_frontend.rs"
                     }
                 ],
-                "canonical_surface": null,
+                "canonical_surface": "strling_kernel::regex_frontend::parse(&SourceDocument)",
                 "operation": "parser.parse",
-                "rationale": "The legacy regex-compatible text frontend is not yet part of the canonical Rust kernel.",
-                "reason": "operation_not_exposed",
-                "review_id": "canonical-route-parser-parse@1.0.0",
+                "rationale": "The canonical Rust frontend executes every governed historical parser case and preserves acceptance status, but it returns validated canonical Semantic IR rather than the historical binding-specific AST shape; structural output comparison therefore remains intentionally inapplicable.",
+                "reason": "incompatible_surface",
+                "review_id": "canonical-route-parser-parse@2.0.0",
                 "state": "not_comparable"
             },
             {
