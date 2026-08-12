@@ -59,7 +59,7 @@
                 ],
                 "canonical_surface": null,
                 "operation": "api.root.parse_to_artifact",
-                "rationale": "The regex-compatible source frontend is exposed through the root JSON CLI and pure structured PCRE2 lowering exists as a standalone stage, but canonical artifact emission and a product-facing target route remain intentionally unavailable.",
+                "rationale": "The regex-compatible source frontend is exposed through the root JSON CLI, and standalone structured PCRE2 lowering plus deterministic TargetArtifact serialization now exist, but no canonical orchestration or product-facing route connects source parsing to those stages.",
                 "reason": "operation_not_exposed",
                 "review_id": "canonical-route-api-root-parse-artifact@1.0.0",
                 "state": "not_comparable"
@@ -151,7 +151,7 @@
                 ],
                 "canonical_surface": null,
                 "operation": "emitter.pcre2.emit",
-                "rationale": "Pure structured PCRE2 lowering now exists, but exact regex serialization and emission remain absent from the canonical kernel facade, so there is no comparable emitted-text surface.",
+                "rationale": "The standalone deterministic PCRE2 serializer now converts a validated Pcre2LoweringPlan into a TargetArtifact, but the canonical kernel facade exposes no emitter operation accepting the historical emitter input or returning a comparable emitted-text surface.",
                 "reason": "operation_not_exposed",
                 "review_id": "canonical-route-pcre2-emit@1.0.0",
                 "state": "not_comparable"
@@ -165,7 +165,7 @@
                 ],
                 "canonical_surface": null,
                 "operation": "emitter.pcre2.emit_with_diagnostics",
-                "rationale": "Pure structured PCRE2 lowering now produces target-lowering failures, but serialization/emission are absent from the canonical facade and legacy emitter diagnostics have no executable canonical counterpart.",
+                "rationale": "Standalone lowering and serialization now return structured target-lowering or emission failures for a validated plan, but the canonical kernel facade exposes no diagnostics-bearing emitter route comparable to the historical emitter operation.",
                 "reason": "operation_not_exposed",
                 "review_id": "canonical-route-pcre2-diagnostics@1.0.0",
                 "state": "not_comparable"
@@ -201,7 +201,7 @@
                 ],
                 "canonical_surface": null,
                 "operation": "parser.parse_to_artifact",
-                "rationale": "The regex-compatible source frontend is part of the canonical kernel, but target lowering and artifact emission remain intentionally unavailable.",
+                "rationale": "The regex-compatible source frontend is part of the canonical kernel, and standalone target lowering plus artifact serialization exist, but no canonical parser-to-artifact orchestration route connects them.",
                 "reason": "operation_not_exposed",
                 "review_id": "canonical-route-parser-artifact@1.0.0",
                 "state": "not_comparable"

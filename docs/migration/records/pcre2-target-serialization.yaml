@@ -152,6 +152,11 @@ checkpoints:
           - check: Complete Rust quality
             result: passed
             details: All 278 Rust tests pass and warnings-denied Clippy is clean. Final repository, reviewed migration differential, Local, and Pull Request certification remain pending the implementation commit.
+          - check: Reviewed migration boundary renewal
+            result: passed
+            details: The standalone serializer expands the canonical boundary to 37 governed inputs with fingerprint sha256:c96af2fd2ba9184b5aa94d89c3c11b93a6690b5ac39c8650a88c6b4600e7f19b. Four route rationales now acknowledge standalone lowering and serialization while retaining not-comparable status because no canonical source-to-artifact or historical-emitter-compatible product route exists. Route coverage remains sha256:96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e, historical peer corpus/result fingerprints remain unchanged, the renewed baseline is sha256:d481c0f57c65f0a567005a13f21e5873c1ae902518cd80848af6d7ac92450bd2, three repeated runs are identical, and all 16 differential tests pass.
 commits:
     - sha: 9991575b347ac5f56108f18065c88b2b16a5065a
       subject: "docs(core): define PCRE2 target serialization"
+    - sha: aace0d3ac742410f165113de75e98f366026ffec
+      subject: "feat(core): add deterministic PCRE2 artifacts"
