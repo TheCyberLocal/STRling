@@ -2959,3 +2959,31 @@ task and owns deterministic Python `re` syntax/escaping, flags and options,
 `TargetArtifact` construction, and exact CPython execution certification from
 the completed lowering plan without moving capability or rewrite policy into
 serialization.
+
+## Implement Python re serialization and CPython execution certification
+
+P11-T04 starts from clean certified commit
+`7912736b4d3965be9f1bb9c37c5cad524a5d0a10`. The read-first inventory fixes
+the boundary at one validated `PythonReLoweringPlan` and the existing
+`TargetArtifact` contract. The new pure serializer will emit Python regular
+expression source, canonical case flags, exact pattern-kind options,
+requirements, and provenance without inspecting Semantic IR, recomputing
+capabilities or rewrites, executing Python, or translating peer-target output.
+
+Official Python 3.11 `re` documentation governs syntax and observations. Exact
+runtime evidence selects the official source-only CPython 3.11.15 release,
+whose XZ archive SHA-256 is
+`272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625`.
+The controlled build and certification will fingerprint the derived Linux
+x86-64 executable, ABI/runtime identity, profile revision, corpus, harness,
+pattern kind, flags, and repeated semantic results. It must reject rather than
+substitute the available host Python 3.12 or Windows Python 3.13.
+
+No schema or target-profile change is required. The existing pattern `flags`
+array represents per-program `i`; required `python.pattern_kind` remains a
+separate runtime option. Scoped syntax preserves wildcard, line-position, and
+ASCII/Unicode class behavior without leaking global `s`, `m`, `a`, `u`, `L`,
+or verbose behavior. String and bytes execution, captures and spans,
+lookarounds, anchors/newlines, Unicode/case, atomic and possessive 3.11
+boundaries, zero-length matching, compile errors, rewrites, negative runtime
+identity, and repeat determinism are all required before completion.

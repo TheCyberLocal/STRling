@@ -1,0 +1,144 @@
+record_version: 2.0.0
+title: Deterministic Python re serialization and exact CPython execution certification
+status: in_progress
+objective: Serialize one validated PythonReLoweringPlan into deterministic Python re source, canonical flags, profile-owned pattern-kind options, resolved requirements, generated provenance, and a canonical TargetArtifact, then certify bounded str and bytes artifact execution against exact pinned CPython 3.11 evidence without adding product runtime, binding, package, or publication behavior.
+scope:
+    diff:
+        base: 7912736b4d3965be9f1bb9c37c5cad524a5d0a10
+        head: working-tree
+    allowed_paths:
+        - core/contract-mapping.json
+        - core/src/lib.rs
+        - core/src/python_re_serialization.rs
+        - core/tests/python_re_runtime_certification.rs
+        - core/tests/python_re_serialization.rs
+        - core/tests/python_re_serialization_properties.rs
+        - docs/architecture.md
+        - docs/migration/ledger.md
+        - docs/migration/python-re-target-serialization.md
+        - docs/migration/records/python-re-target-serialization.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - tests/conformance/python-re-runtime-certification.json
+        - toolchain.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/python_re_harness.py
+        - tooling/python_re_runtime_certification.py
+        - tooling/quality.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_python_re_runtime_certification.py
+        - tooling/tests/test_python_re_serialization_architecture.py
+        - tooling/tests/test_quality.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/capability_evaluation.rs
+        - core/src/compiler_pipeline.rs
+        - core/src/ecmascript_lowering.rs
+        - core/src/ecmascript_serialization.rs
+        - core/src/kernel.rs
+        - core/src/pcre2_lowering.rs
+        - core/src/portability_planning.rs
+        - core/src/python_re_lowering.rs
+        - core/src/semantic/**
+        - core/src/target_lowering.rs
+        - core/src/target_serialization.rs
+        - packages/**
+        - spec/contracts/1.0/*.schema.json
+        - spec/grammar/**
+        - spec/stdlib/**
+        - spec/targets/profiles/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/python-re-target-serialization.md
+        - docs/migration/records/python-re-target-serialization.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Canonical language meaning and normalized Semantic IR remain unchanged; this task mechanically consumes the completed Python re target plan.
+    public_api_change:
+        level: none
+        evidence:
+            - No facade, protocol, binding, package, or published interface changes.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - Existing TargetArtifact pattern flags, engine options, requirements, source maps, and diagnostics represent Python artifacts without contract changes.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Adds stable internal Python re emission failures for malformed plans, capture or property syntax, bytes applicability, bounds, flags, and invalid artifacts.
+    target_behavior_change:
+        level: additive
+        evidence:
+            - Adds standalone Python re artifact production and exact bounded CPython observations without changing an existing product execution route.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds one pure Python re serializer after structured lowering and one isolated exact-runtime certification operation outside the Rust kernel.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Python serializer and artifact unit/property certification
+      command: cargo test --manifest-path core/Cargo.toml --test python_re_serialization --test python_re_serialization_properties --locked
+      expected_result: Every operation, precedence rule, str/bytes literal and class escape, capture/reference, anchor, lookaround, wildcard, canonical flag, option/requirement projection, source-map span, failure category, deterministic JSON/fingerprint, immutable input, and generated mutation passes.
+    - name: TargetArtifact compatibility and architecture fitness
+      command: python3 -m unittest tooling.tests.test_python_re_serialization_architecture tooling.tests.test_core_contracts && python3 tooling/core_contract_validation.py
+      expected_result: Python artifacts use the existing contract canonically, and controlled mutations reject policy recomputation, peer reuse, runtime/ambient/product dependencies, target-neutral reverse dependencies, and direct bypass.
+    - name: Exact CPython runtime certification
+      command: STRLING_CPYTHON_311_BINARY=/exact/cpython-3.11.15/bin/python3.11 python3 -m tooling.python_re_runtime_certification --json --repeat-runs 2
+      expected_result: The official-source CPython 3.11.15 Linux x86-64 build executes all bounded str/bytes, span, capture, assertion, anchor/newline, case, Unicode, atomic, possessive, error, zero-length, rewrite, negative-version, and determinism cases twice with one stable certification-result-v1 digest.
+    - name: Complete kernel and repository certification
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && python3 tooling/documentation_integrity.py && python3 tooling/migration_differential.py --repeat-runs 3 && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check
+      expected_result: Every available hardgate passes, exact runtime evidence is recorded by Full, reviewed boundary evidence is current, host-only gaps remain unavailable without waiver, and the final committed tree is clean.
+checkpoints:
+    - name: Python artifact, syntax, runtime, and profile inventory
+      status: passed
+      evidence:
+          - check: Read-first contract and stage inventory
+            result: passed
+            details: PythonReLoweringPlan supplies a validated closed operation tree, exact str/bytes pattern kind, deterministic captures, global case intent, required options, completed requirements and rewrites, and provenance. TargetArtifact already supplies pattern source and flags, immutable profile reference, engine options, requirements, UTF-8 source mapping, and diagnostics; no schema change is required.
+          - check: Normative Python syntax and execution authority
+            result: passed
+            details: Official Python 3.11 re documentation governs pattern syntax, scoped modes, str/bytes distinctions, captures and references, anchors, Unicode and ASCII classes, fixed lookbehind, atomic groups, possessive quantifiers, compilation, matching, spans, and errors. Peer targets and the historical binding remain non-normative migration evidence.
+          - check: Exact maintained runtime selection
+            result: passed
+            details: Official CPython 3.11.15, released 2026-03-03 as the current security-fix source release, is selected. Its XZ source archive SHA-256 is 272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625. Certification will record the derived Linux x86-64 executable and build fingerprints and will reject host Python 3.12/Windows 3.13 substitution.
+    - name: Deterministic Python serializer
+      status: planned
+      evidence:
+          - check: Implementation and focused proof
+            result: not_run
+            details: Awaiting implementation after this governed scope commit.
+    - name: Controlled CPython harness, corpus, and quality-profile integration
+      status: planned
+      evidence:
+          - check: Runtime protocol and exact execution evidence
+            result: not_run
+            details: Awaiting official source acquisition, controlled build, fixed harness, governed corpus, orchestrator, executable checksum, repeat-determinism proof, and Full/Release registration.
+    - name: Complete repository and migration certification
+      status: planned
+      evidence:
+          - check: Full hardgate evidence
+            result: not_run
+            details: Awaiting implementation, reviewed boundary renewal if required, complete profiles, final task record, and clean-tree verification.
+commits: []
