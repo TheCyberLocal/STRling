@@ -1,0 +1,132 @@
+record_version: 2.0.0
+title: Independent ECMAScript 2024 structured target lowering
+status: in_progress
+objective: Complete the governed ECMAScript 2024 capability profile and lower normalized Semantic IR plus the exact certified portability plan into deterministic ECMAScript-specific structure without reusing PCRE2 syntax, serializing JavaScript regex text, executing Node, constructing a TargetArtifact, or changing public, binding, package, or publication behavior.
+scope:
+    diff:
+        base: 5b03c82b1a8c25d5e19164d77b880a4157c98294
+        head: working-tree
+    allowed_paths:
+        - core/contract-mapping.json
+        - core/src/ecmascript_lowering.rs
+        - core/src/lib.rs
+        - core/tests/capability_evaluation.rs
+        - core/tests/capability_evaluation_properties.rs
+        - core/tests/capability_profile_fixtures.rs
+        - core/tests/ecmascript_lowering.rs
+        - core/tests/ecmascript_lowering_properties.rs
+        - core/tests/portability_diagnostics.rs
+        - core/tests/portability_planning.rs
+        - core/tests/portability_planning_properties.rs
+        - core/tests/rewrite_equivalence_registry.rs
+        - core/tests/target_contracts.rs
+        - docs/migration/ecmascript-target-lowering.md
+        - docs/migration/ledger.md
+        - docs/migration/records/ecmascript-target-lowering.yaml
+        - governance/change-control.json
+        - spec/conformance/cases/lookbehind-targets.json
+        - spec/contracts/1.0/examples/compile-request/equivalence-explanation.json
+        - spec/contracts/1.0/examples/compile-result/equivalence-explanation.json
+        - spec/contracts/1.0/examples/portability/ecmascript-rewrite.json
+        - spec/targets/profiles/ecmascript-2024.json
+        - tests/conformance/ecmascript-lowering.json
+        - tooling/core_contract_validation.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/tests/test_ecmascript_lowering_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/compiler_pipeline.rs
+        - core/src/kernel.rs
+        - core/src/target_lowering.rs
+        - core/src/target_serialization.rs
+        - spec/contracts/1.0/*.schema.json
+        - spec/grammar/**
+        - spec/stdlib/**
+        - tests/spec/**
+    expected_files:
+        - core/contract-mapping.json
+        - core/src/ecmascript_lowering.rs
+        - core/src/lib.rs
+        - core/tests/ecmascript_lowering.rs
+        - core/tests/ecmascript_lowering_properties.rs
+        - core/tests/target_contracts.rs
+        - docs/migration/ecmascript-target-lowering.md
+        - docs/migration/records/ecmascript-target-lowering.yaml
+        - governance/change-control.json
+        - spec/conformance/cases/lookbehind-targets.json
+        - spec/contracts/1.0/examples/compile-request/equivalence-explanation.json
+        - spec/contracts/1.0/examples/compile-result/equivalence-explanation.json
+        - spec/contracts/1.0/examples/portability/ecmascript-rewrite.json
+        - spec/targets/profiles/ecmascript-2024.json
+        - tests/conformance/ecmascript-lowering.json
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_ecmascript_lowering_architecture.py
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Canonical Semantic IR and language meaning remain unchanged; the task consumes them through an independent target-specific stage.
+    public_api_change:
+        level: none
+        evidence:
+            - No facade, protocol, binding, package, or published interface changes.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - Existing semantic, portability, diagnostic, and target-profile contracts are sufficient and remain unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Adds internal stable ECMAScript target-lowering failure identities without changing public facade results.
+    target_behavior_change:
+        level: additive
+        evidence:
+            - Completes exact ECMAScript 2024 capability facts and adds a structured pre-serialization target representation; no emitted or executed behavior is added.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds a second target-specific lowering module that depends only on canonical semantic, target, portability, source, diagnostic, and validation contracts.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Complete ECMAScript profile and structured lowering matrix
+      command: cargo test --manifest-path core/Cargo.toml --test target_contracts --test capability_profile_fixtures --test ecmascript_lowering --locked
+      expected_result: All eighteen capability facts validate with an immutable profile fingerprint; every current Semantic IR variant lowers explicitly with exact options, captures, provenance, requirements, rewrites, and deterministic target structure.
+    - name: Generated and negative properties
+      command: cargo test --manifest-path core/Cargo.toml --test ecmascript_lowering_properties --locked
+      expected_result: Generated nested/interacting programs are deterministic and immutable, while stale profiles/plans, unsupported or unresolved requirements, malformed rewrites, capture failures, target mismatches, and resource limits fail closed without panic.
+    - name: Architecture and complete kernel quality
+      command: python3 -m unittest tooling.tests.test_ecmascript_lowering_architecture; cargo test --manifest-path core/Cargo.toml --all-targets --locked; cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings
+      expected_result: Architecture mutation tests prohibit PCRE2 reuse, policy recomputation, serialization/runtime/product dependencies, and target-neutral reverse dependencies; all kernel tests and warning-denied Clippy pass.
+    - name: Repository certification
+      command: python3 tooling/core_contract_validation.py; python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/migration_differential.py --repeat-runs 3; ./strling profile local; ./strling profile pull-request; git diff --check
+      expected_result: Every available hardgate passes, any exact immutable profile/boundary renewal is reviewed, host-only gaps remain unavailable without waiver, and the final committed tree is clean.
+checkpoints:
+    - name: ECMAScript authority, profile, and architecture inventory
+      status: passed
+      evidence:
+          - check: Normative ECMAScript 2024 target authority
+            result: passed
+            details: The official ECMA-262 2024 Pattern, Assertion, Quantifier, AtomEscape, GroupSpecifier, CharacterClassEscape, RegExp initialization, Canonicalize, and WordCharacters clauses were inspected. They provide target facts for arbitrary backward assertions, Unicode modes/properties/scalars, captures/references, lazy quantifiers, anchors/boundaries, and flags while omitting atomic and possessive syntax.
+          - check: Governed profile gap
+            result: passed
+            details: The current revision 1.0.0 profile enumerates only five of eighteen canonical requirement capabilities. P11-T01 must complete exact target facts and renew every authored profile reference before lowering; tests may not fabricate missing support.
+          - check: Independent lowering boundary
+            result: passed
+            details: The PCRE2 lowering proves the required pure input/validation/rewrite/provenance pattern, but its types, syntax assumptions, option identities, and implementation are forbidden dependencies. A separate module will import only neutral contracts and retain ECMAScript-specific position, class, wildcard, flag-intent, capture, and lookaround distinctions for P11-T02.
+commits: []
