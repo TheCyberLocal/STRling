@@ -2589,3 +2589,58 @@ requires all accepted constructs to lower structurally before target planning.
 No parser or runtime behavior changes in this task. Evidence inventory,
 preservation/correction decisions, exclusions, and the P08-T02 handoff are in
 [`legacy-regex-frontend-contract.md`](legacy-regex-frontend-contract.md).
+
+## Port the regex-compatible parser into the canonical Rust kernel
+
+The canonical kernel now exposes the internal pure frontend
+`strling_kernel::regex_frontend::parse(&SourceDocument)` for
+`strling.regex-compat@1.0.0`. It validates the source contract and exact
+frontend identity, parses the complete frozen grammar, normalizes the five
+global flags, lowers directly to target-neutral Semantic IR, and validates the
+result before returning. It does not perform target selection, emission,
+binding behavior, package orchestration, filesystem/network access, or
+diagnostic presentation.
+
+The parser enforces 1,048,576 UTF-8 source bytes, 128 nesting levels, 65,535
+captures, and quantifier bounds through 4,294,967,295. Thirty positive and 45
+negative specification fixtures pass deterministically with exact diagnostic
+identities and UTF-8 offsets. Resource-limit tests and 2,048 generated UTF-8
+inputs complete without panic under the repository-governed Rust 1.75.0
+toolchain.
+
+A specification-authored five-case correspondence set covers the complete
+governed parser case set. Migration-layer tests prove exact identity, source,
+and accepted/rejected correspondence with both historical corpora, while Rust
+tests consume only specification authority. The complete differential now
+executes that focused Rust test before either historical runner, so canonical
+route failure blocks the gate without creating a public probe or adapter.
+
+Native Linux certification executes all 44 historical observations across
+three stable runs. The parser route moves ten observations from
+`operation_not_exposed` to `incompatible_surface`: canonical Semantic IR and
+historical binding-specific ASTs have no authoritative structural
+correspondence. The checked baseline is
+`sha256:e52a2b48c01b214cf74a9aee967a55817637b11f5c68666a14a59799227dd845`;
+the full-corpus, canonical-boundary, route-coverage, and final result
+fingerprints are
+`sha256:823a6b0806553ed08fe7c367c6510d80235079383632a11a9857c48d951ad2cb`,
+`sha256:44b92e3636b8a28a9425261c5929c20637a8cd96231485c022631c5e22e2a395`,
+`sha256:c6d41f9483e1235ab44e2f2b0e9322a8cb56b69c3ca13aff43de102c313048ae`,
+and
+`sha256:e8d610c1fd0ddac973507774f2a98f2a69be62504ec4b94ea8fec9d5ce77e01e`.
+The P07 historical peer fingerprint remains unchanged and no Windows-specific
+observation was promoted.
+
+Implementation checkpoint `5fd88655966097ae09a1a81704045d8970a7823a`
+passes Rust formatting, warning-denying Clippy/check, all-target tests, frozen
+contract certification, canonical mapping, differential mutation tests, all
+enforced governance/architecture rules, documentation integrity, task-scoped
+pinned Ruff/Prettier checks, and patch integrity. Local and pull-request
+profiles execute every P08-T02 operation successfully. Their aggregate result
+retains a pre-existing repository-lint failure in earlier migration/reference
+files; pull-request also retains the existing Ruby Bundler mismatch and missing
+Swift executable. No policy or evidence was weakened.
+
+P08-T02 is `READY WITH RECORDED CARRY-FORWARD`. The next ordered task is
+P08-T03, attaching canonical provenance, source spans, and diagnostics without
+moving presentation or orchestration policy into the frontend.

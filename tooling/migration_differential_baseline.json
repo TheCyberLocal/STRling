@@ -1,8 +1,8 @@
 {
-    "baseline_fingerprint": "sha256:cb763a33bf620c467b1633b7747096da31757f41736368ced0bc859e42464366",
+    "baseline_fingerprint": "sha256:e52a2b48c01b214cf74a9aee967a55817637b11f5c68666a14a59799227dd845",
     "baseline_schema_version": "1.0.0",
-    "canonical_boundary_fingerprint": "sha256:3b967142d8690b0f49afbc2502831eee380276dc42ea78f0a6af443d472fe9bc",
-    "contract_fingerprint": "sha256:c68c9cdb8a77c9f07336d1c82321105cf1941cf0e596b3a05fead15629236cf2",
+    "canonical_boundary_fingerprint": "sha256:44b92e3636b8a28a9425261c5929c20637a8cd96231485c022631c5e22e2a395",
+    "contract_fingerprint": "sha256:4b8d2d71537fbb04f61ed4afd5ea730a23a8f0074f9b130ee343f0e436cb90dc",
     "corpora": [
         {
             "case_count": 20,
@@ -19,10 +19,10 @@
             "runner_id": "typescript"
         }
     ],
-    "full_corpus_fingerprint": "sha256:04270620441db4715cc40f6c82cea832d1c8d7c85631d96638a427d9f4a968e6",
+    "full_corpus_fingerprint": "sha256:823a6b0806553ed08fe7c367c6510d80235079383632a11a9857c48d951ad2cb",
     "historical_peer_corpus_fingerprint": "sha256:844f9abee4870ac74fe986a7aa623ea0033d5b69bedaa89026c1970a8beeedb6",
     "historical_peer_result_fingerprint": "sha256:06a2e2d095f89ba2fdfb13ffc950e1290b920d558605ab176bd4d08887dfba97",
     "replacement_reviews": [],
-    "route_coverage_fingerprint": "sha256:18990c0c54f34a8d8b142a81096ac7f9121a2908bb594f9ad9fef30cc1132514",
-    "source_observations_fingerprint": "sha256:6019bd838651c22b3c0dfb32cb44fb910a2b8a1620c4bc6d7bc8251428964621"
+    "route_coverage_fingerprint": "sha256:c6d41f9483e1235ab44e2f2b0e9322a8cb56b69c3ca13aff43de102c313048ae",
+    "source_observations_fingerprint": "sha256:3cfca8d433dc5436ecdc5e5131e7d2e6f313fbecff46efd3fc486d31d49c92e9"
 }

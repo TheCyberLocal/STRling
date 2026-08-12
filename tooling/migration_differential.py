@@ -7,6 +7,7 @@ import argparse
 import copy
 import hashlib
 import json
+import subprocess
 import sys
 import tempfile
 from collections.abc import Mapping, Sequence
@@ -14,15 +15,23 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
-from tooling import migration_classification as classification
-from tooling import migration_comparison as comparison_contract
-from tooling import migration_comparison_certification as comparison_certification
-from tooling.legacy_reference import cross_reference
-from tooling.legacy_reference import launch as legacy_launch
-from tooling.legacy_reference import python_reference as reference
+try:
+    import migration_classification as classification
+    import migration_comparison as comparison_contract
+    import migration_comparison_certification as comparison_certification
+    from legacy_reference import cross_reference
+    from legacy_reference import launch as legacy_launch
+    from legacy_reference import python_reference as reference
+except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+    from tooling import migration_classification as classification
+    from tooling import migration_comparison as comparison_contract
+    from tooling import migration_comparison_certification as comparison_certification
+    from tooling.legacy_reference import cross_reference
+    from tooling.legacy_reference import launch as legacy_launch
+    from tooling.legacy_reference import python_reference as reference
 
 CONTRACT_PATH = Path(__file__).with_name("migration_differential_contract.json")
 BASELINE_PATH = Path(__file__).with_name("migration_differential_baseline.json")
@@ -31,6 +40,17 @@ NOT_COMPARABLE_REASONS = frozenset(
     comparison_contract.CONTRACT["comparability"]["not_comparable_reasons"]
 )
 FINGERPRINT_PREFIX = "sha256:"
+CANONICAL_PARSER_TEST = (
+    "cargo",
+    "test",
+    "--manifest-path",
+    "core/Cargo.toml",
+    "--test",
+    "regex_frontend",
+    "covers_the_specification_authored_correspondence_set",
+    "--locked",
+    "--quiet",
+)
 
 
 class DifferentialGateError(Exception):
@@ -299,6 +319,26 @@ def canonical_boundary_identity(contract: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def _certify_canonical_parser_route(runner: Any = None) -> None:
+    execute = subprocess.run if runner is None else runner
+    try:
+        completed = execute(
+            list(CANONICAL_PARSER_TEST),
+            cwd=ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except OSError as error:
+        raise DifferentialGateError(
+            "canonical Rust parser route could not be executed"
+        ) from error
+    if completed.returncode != 0:
+        details = completed.stderr.decode("utf-8", errors="replace").strip()
+        suffix = f": {details}" if details else ""
+        raise DifferentialGateError(f"canonical Rust parser route failed{suffix}")
+
+
 def capture_full_corpus(repeat_runs: int) -> dict[str, list[dict[str, Any]]]:
     if (
         isinstance(repeat_runs, bool)
@@ -306,6 +346,7 @@ def capture_full_corpus(repeat_runs: int) -> dict[str, list[dict[str, Any]]]:
         or repeat_runs < 2
     ):
         raise DifferentialGateError("repeat_runs must be an integer of at least 2")
+    _certify_canonical_parser_route()
     batches: dict[str, list[dict[str, Any]]] = {"python": [], "typescript": []}
     with tempfile.TemporaryDirectory(prefix="strling-migration-differential-") as raw:
         output = Path(raw)

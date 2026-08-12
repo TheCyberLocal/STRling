@@ -78,6 +78,11 @@ exactly the same case identities, sources, and accepted/rejected statuses. The
 kernel therefore receives no dependency on historical evidence while its
 results cover the complete governed parser corpus.
 
+The blocking `./strling migration-differential` command executes that focused
+Rust correspondence test before launching either historical runner. A missing
+Rust toolchain, failed canonical case, or nonzero test process therefore blocks
+the same differential gate that owns the route review and baseline.
+
 The differential route review for `parser.parse` is now
 `canonical-route-parser-parse@2.0.0`. Its canonical surface is the Rust API
 above. Structural output comparison remains intentionally `not_comparable`
@@ -93,11 +98,22 @@ fixture and corpus tests, `cargo fmt --check`, warning-denying `cargo check`,
 and warning-denying Clippy. Canonical contract mapping and five mutation-aware
 parser architecture and correspondence tests also pass.
 
-Native Linux migration-differential certification and checked-baseline renewal
-remain pending because the host WSL service cannot create a session
-(`Wsl/Service/0x80072747`). An isolated Windows replay preserved the historical
-corpus fingerprint but produced a different historical result fingerprint, so
-that host-specific observation is deliberately not promoted as the Linux
-baseline. The implementation checkpoint is complete; P08-T02 is not ready to
-close until the native differential, governed baseline update, aggregate
-profiles, and clean-checkout certification pass.
+Native Linux migration-differential certification passes across all 44 source
+observations and three repeated runs with zero determinism mismatches and zero
+blocking replacement discrepancies. The gate executes the focused canonical
+Rust parser route before both historical runners. The renewed checked baseline
+is
+`sha256:e52a2b48c01b214cf74a9aee967a55817637b11f5c68666a14a59799227dd845`;
+the certified result is
+`sha256:e8d610c1fd0ddac973507774f2a98f2a69be62504ec4b94ea8fec9d5ce77e01e`.
+The historical peer result remains the P07-certified
+`sha256:06a2e2d095f89ba2fdfb13ffc950e1290b920d558605ab176bd4d08887dfba97`.
+
+The local and pull-request profiles execute the renewed differential and every
+P08-T02 operation successfully. Their aggregate status retains one pre-existing
+repository-lint failure in earlier migration/reference files outside this
+task's diff. Pull-request certification additionally records the existing Ruby
+Bundler mismatch and unavailable Swift executable. No profile policy, baseline,
+or finding was weakened or reported as passing. P08-T02 is therefore `READY
+WITH RECORDED CARRY-FORWARD`; P08-T03 owns canonical provenance, source spans,
+and diagnostic integration.

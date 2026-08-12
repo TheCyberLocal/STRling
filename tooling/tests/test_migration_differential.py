@@ -51,6 +51,30 @@ class FullMigrationDifferentialTests(unittest.TestCase):
             )
         )
 
+    def test_canonical_parser_route_execution_is_blocking(self) -> None:
+        calls = []
+
+        class Completed:
+            returncode = 0
+            stderr = b""
+
+        def passing_runner(command, **kwargs):
+            calls.append((command, kwargs))
+            return Completed()
+
+        differential._certify_canonical_parser_route(passing_runner)
+        self.assertEqual(calls[0][0], list(differential.CANONICAL_PARSER_TEST))
+        self.assertEqual(calls[0][1]["cwd"], differential.ROOT)
+        self.assertFalse(calls[0][1]["check"])
+
+        Completed.returncode = 1
+        Completed.stderr = b"controlled parser failure"
+        with self.assertRaisesRegex(
+            differential.DifferentialGateError,
+            "canonical Rust parser route failed: controlled parser failure",
+        ):
+            differential._certify_canonical_parser_route(passing_runner)
+
     def test_full_corpus_candidate_has_expected_quantitative_evidence(self) -> None:
         metrics = self.candidate["metrics"]
         expected = self.fixture["expected_metrics"]

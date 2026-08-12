@@ -51,9 +51,9 @@ The checked baseline covers all 44 source observations:
 | TypeScript |    24 | `sha256:744a4d0e029fbb2890e98e25d20402044f5b551a7642255a57c80f5dec48d30a` |
 
 The complete corpus fingerprint is
-`sha256:04270620441db4715cc40f6c82cea832d1c8d7c85631d96638a427d9f4a968e6`.
+`sha256:823a6b0806553ed08fe7c367c6510d80235079383632a11a9857c48d951ad2cb`.
 The source-observation fingerprint is
-`sha256:6019bd838651c22b3c0dfb32cb44fb910a2b8a1620c4bc6d7bc8251428964621`.
+`sha256:3cfca8d433dc5436ecdc5e5131e7d2e6f313fbecff46efd3fc486d31d49c92e9`.
 Every emitted case record retains runner, case, operation, surface, request,
 outcome, raw observation, provenance, route review, and canonical counterpart
 identities.
@@ -66,24 +66,27 @@ refreshing evidence.
 ## Canonical counterpart accounting
 
 The current canonical Rust kernel accepts governed structured `SourceProgram`
-requests. It intentionally does not yet expose the legacy regex-compatible text
-frontend, package-root frontend adapters, Simply conveniences, target lowering,
-or emission. Treating legacy source text as if it were already a kernel request
-would invent the next frontend and violate the compiler boundary.
+requests and exposes the pure `strling.regex-compat@1.0.0` parser as
+`strling_kernel::regex_frontend::parse(&SourceDocument)`. It intentionally does
+not yet expose package-root frontend adapters, Simply conveniences, target
+lowering, artifact orchestration, or emission. The parser returns validated
+canonical Semantic IR rather than a binding-specific historical AST.
 
 The contract therefore has 11 exact operation reviews that expand across all
 44 cases:
 
--   36 cases are `not_comparable` with reason `operation_not_exposed`;
--   8 legacy compiler cases are `not_comparable` with reason
-    `incompatible_surface`, because the historical operation consumes source
-    text while the kernel consumes a structured source contract;
+-   26 cases are `not_comparable` with reason `operation_not_exposed`;
+-   18 cases are `not_comparable` with reason `incompatible_surface`: eight
+    legacy compiler cases consume source text while the kernel compiler consumes
+    a structured source contract, and ten historical parser observations return
+    binding-specific ASTs while the canonical parser returns validated Semantic
+    IR;
 -   0 cases currently have a comparable canonical replacement observation; and
 -   0 production replacement dispositions are approved.
 
 Each not-comparable state has a stable review ID, rationale, authority
 reference, and canonical-surface record. Changing the kernel boundary changes
-its 29-input implementation fingerprint and blocks until the route reviews and
+its 30-input implementation fingerprint and blocks until the route reviews and
 baseline are deliberately renewed. Marking a route comparable without actual
 canonical execution evidence also fails.
 
@@ -128,13 +131,14 @@ The controlled approved-disposition mutations use the taxonomy's explicit
 ## Checked identity and product preservation
 
 The checked contract fingerprint is
-`sha256:c68c9cdb8a77c9f07336d1c82321105cf1941cf0e596b3a05fead15629236cf2`.
+`sha256:4b8d2d71537fbb04f61ed4afd5ea730a23a8f0074f9b130ee343f0e436cb90dc`.
 The route-coverage fingerprint is
-`sha256:18990c0c54f34a8d8b142a81096ac7f9121a2908bb594f9ad9fef30cc1132514`.
+`sha256:c6d41f9483e1235ab44e2f2b0e9322a8cb56b69c3ca13aff43de102c313048ae`.
 The baseline fingerprint is
-`sha256:cb763a33bf620c467b1633b7747096da31757f41736368ced0bc859e42464366`.
+`sha256:e52a2b48c01b214cf74a9aee967a55817637b11f5c68666a14a59799227dd845`.
 
-No language, parser, compiler, emitter, Simply, diagnostic, target, binding,
-package, or public API behavior is changed by this gate. Later migration work
-must replace a not-comparable route only when the governed canonical surface
-exists and the corresponding differential evidence can be executed.
+This renewal records the additive pure Rust parser route and no binding,
+package, public API, artifact, compiler, emitter, Simply, diagnostic, or target
+behavior. Later migration work must replace a not-comparable route only when
+authoritative structural correspondence and executable canonical evidence both
+exist.

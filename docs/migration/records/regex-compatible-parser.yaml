@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Port the regex-compatible parser into the canonical Rust kernel
-status: in_progress
+status: complete
 objective: Implement the frozen strling.regex-compat@1.0.0 syntax contract as a pure bounded Rust frontend that produces valid canonical Semantic IR without target, binding, public CLI, or diagnostic-presentation behavior.
 scope:
     diff:
@@ -90,7 +90,7 @@ required_verification:
       command: ./strling migration-differential --repeat-runs 3
       expected_result: Every governed historical parser observation has an executable canonical route and every difference is equivalent or carries a governed non-unresolved disposition.
     - name: Repository certification
-      command: python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/formatting.py repository --check; git diff --check; ./strling quality --profile local; ./strling quality --profile pull-request
+      command: python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/formatting.py repository --check; git diff --check; ./strling profile local; ./strling profile pull-request
       expected_result: Declared scope, documentation, formatting, architecture, local/PR profiles, and clean checkout pass with exact unavailable-operation evidence only.
 checkpoints:
     - name: Contract-to-kernel design and authority boundary
@@ -110,7 +110,7 @@ checkpoints:
             result: passed
             details: Enforced 1,048,576 UTF-8 source bytes, 128 nesting levels, 65,535 captures, and quantifier bounds through 4,294,967,295; all limits return typed failures and 2,048 deterministic generated UTF-8 inputs complete without panic.
     - name: Full fixtures, malformed stress, and differential route
-      status: in_progress
+      status: passed
       evidence:
           - check: Complete specification-authored frontend corpus
             command: cargo +1.75 test --manifest-path core/Cargo.toml --test regex_frontend --locked
@@ -118,13 +118,13 @@ checkpoints:
             details: All 30 positive fixtures lower deterministically and all 45 negative fixtures reject with their exact frozen diagnostic identity and UTF-8 byte offset.
           - check: Complete governed historical parser corpus
             result: passed
-            details: The Rust suite executes a specification-authored five-case correspondence set. A separate migration-layer test proves that both governed runner corpora contain exactly those parser.parse identities, sources, and accepted/rejected statuses, preserving the legacy-evidence authority boundary. Route review canonical-route-parser-parse@2.0.0 records the executable Rust surface and retains incompatible_surface because canonical Semantic IR and binding-specific historical ASTs have no authoritative structural correspondence.
+            details: The Rust suite executes a specification-authored five-case correspondence set. A separate migration-layer test proves that both governed runner corpora contain exactly those parser.parse identities, sources, and accepted/rejected statuses, preserving the legacy-evidence authority boundary. The blocking migration-differential command invokes the focused Rust correspondence test before either historical runner, so missing or failing canonical execution blocks the gate. Route review canonical-route-parser-parse@2.0.0 retains incompatible_surface because canonical Semantic IR and binding-specific historical ASTs have no authoritative structural correspondence.
           - check: Native Linux differential baseline renewal
             command: ./strling migration-differential --repeat-runs 3 --print-baseline-candidate
-            result: not_run
-            details: The WSL host cannot create a session (Wsl/Service/0x80072747). A Windows replay preserved the corpus fingerprint but changed the historical result fingerprint, so its candidate was intentionally rejected rather than promoted as the Linux baseline; the checked baseline remains stale until native replay succeeds.
+            result: passed
+            details: After the Ubuntu host was restarted with approval, three native Linux runs covered all 44 observations with zero mismatches and preserved historical peer result sha256:06a2e2d095f89ba2fdfb13ffc950e1290b920d558605ab176bd4d08887dfba97. The renewed baseline is sha256:e52a2b48c01b214cf74a9aee967a55817637b11f5c68666a14a59799227dd845; full-corpus, contract, canonical-boundary, and route-coverage fingerprints are sha256:823a6b0806553ed08fe7c367c6510d80235079383632a11a9857c48d951ad2cb, sha256:4b8d2d71537fbb04f61ed4afd5ea730a23a8f0074f9b130ee343f0e436cb90dc, sha256:44b92e3636b8a28a9425261c5929c20637a8cd96231485c022631c5e22e2a395, and sha256:c6d41f9483e1235ab44e2f2b0e9322a8cb56b69c3ca13aff43de102c313048ae.
     - name: Repository certification and readiness
-      status: planned
+      status: passed
       evidence:
           - check: Exact governed Rust toolchain quality
             command: cargo +1.75 fmt --manifest-path core/Cargo.toml -- --check; cargo +1.75 clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; RUSTFLAGS=-Dwarnings cargo +1.75 check --manifest-path core/Cargo.toml --all-targets --locked; cargo +1.75 test --manifest-path core/Cargo.toml --all-targets --locked
@@ -134,4 +134,44 @@ checkpoints:
             command: python3 tooling/core_contract_validation.py; python3 -m unittest tooling.tests.test_regex_frontend_architecture
             result: passed
             details: The canonical mapping validator passes with the frontend registered on source and Semantic IR boundaries, and all five parser architecture/correspondence tests pass including forbidden dependency, mapping mutation, and historical-to-specification case-set checks.
-commits: []
+          - check: Native repository hardgates
+            command: python3 -m unittest tooling.tests.test_migration_differential tooling.tests.test_regex_frontend_architecture tooling.tests.test_core_contracts; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/formatting.py repository --check; git diff --check
+            result: passed
+            details: All 35 focused differential, parser architecture, and core-contract tests pass. All enforced governance and architecture rules pass, including the legacy-evidence boundary; documentation integrity passes across 131 files; pinned Prettier 3.3.3, task-scoped Ruff 0.15.21, and Git whitespace checks pass.
+          - check: Aggregate local and pull-request profiles with recorded carry-forward
+            command: ./strling profile local --artifact /tmp/p08-t02-local.json; ./strling profile pull-request --artifact /tmp/p08-t02-pull-request.json
+            result: failed
+            details: The local aggregate is FAILED with 25 passed operations and one pre-existing repository-lint failure; pull-request is FAILED with 43 passed, the same repository-lint failure, and two unavailable operations for the existing Ruby Bundler mismatch and missing Swift executable. The passing operations include migration differential, contracts, governance, formatting, core lint, typechecks, and Rust/core tests. The failures are in P07/P08-T01-era migration/reference files outside this task diff. No task-scoped operation failed and no carry-forward was waived or reported as passing.
+commits:
+    - sha: 5fd88655966097ae09a1a81704045d8970a7823a
+      subject: "feat(frontend): port regex compatibility parser"
+completion:
+    accomplished:
+        - Implemented strling.regex-compat@1.0.0 as a pure Rust SourceDocument-to-SemanticProgram frontend with deterministic lowering, validated output, normalized flags, all 45 frozen diagnostic identities, and exact UTF-8 byte offsets.
+        - Enforced the frozen 1 MiB source, 128-level nesting, 65,535-capture, and 2^32-1 quantifier limits with typed failures and no panic across 2,048 generated UTF-8 inputs.
+        - Added specification-owned five-case correspondence, migration-layer equality checks against both historical corpora, and blocking canonical Rust route execution inside the complete differential command without adding a product CLI, package adapter, or target path.
+        - Renewed the native Linux differential route review and checked baseline for the additive parser boundary while preserving incompatible_surface for historical AST versus canonical Semantic IR output.
+    verified:
+        - Rust 1.75.0 formatting, Clippy with warnings denied, warning-denying all-target check, the complete all-target test suite, all 30 positive fixtures, all 45 negative fixtures, resource-limit tests, deterministic lowering, and malformed-input stress pass.
+        - Fifteen differential tests, five parser architecture/correspondence tests, and the complete native three-run 44-observation differential pass with zero mismatches, zero blocking replacement discrepancies, and certified result sha256:e8d610c1fd0ddac973507774f2a98f2a69be62504ec4b94ea8fec9d5ce77e01e.
+        - Canonical contract mapping, the unchanged frozen frontend contract fingerprint, all enforced governance/architecture rules, documentation integrity across 131 files, pinned formatting, task-scoped lint, and patch integrity pass.
+        - Local and pull-request profiles execute every P08-T02 operation successfully; their aggregate carry-forward is limited to pre-existing repository lint and host Ruby/Swift availability outside this task.
+    behavior_changed: The internal canonical Rust kernel can now parse the frozen regex-compatible frontend into validated target-neutral Semantic IR. No binding, package-root, product CLI, import, artifact, target, emitter, Simply, editor, package-version, or publication behavior changed.
+    intentional_behavior_changes:
+        - SourceDocument values identified as strling.regex-compat@1.0.0 have a bounded canonical Rust parsing surface whose accepted and rejected behavior follows the P08-T01 specification rather than historical parser accidents.
+        - The migration differential now executes the focused canonical Rust parser correspondence test before historical runners and baseline review.
+    preserved_behavior:
+        - All 44 historical source observations and the historical peer comparison fingerprint remain unchanged; all ten governed parser observations preserve accepted/rejected status.
+        - Canonical Semantic IR, normalization, analysis, safety, portability, target profiles, bindings, package APIs, generated artifacts, diagnostics presentation, and publication state remain unchanged outside the additive frontend module.
+    transitional_architecture:
+        - Historical AST output and canonical Semantic IR remain deliberately not comparable because no authority defines a structural correspondence; parser.parse_to_artifact and public adapters remain unexposed.
+        - Canonical origins, source spans, diagnostic presentation, and frontend orchestration remain deferred to P08-T03 and P08-T04.
+        - Aggregate profiles retain a pre-existing repository-lint failure in earlier migration/reference files; pull-request also retains the existing Ruby Bundler mismatch and missing Swift tool. These findings were neither changed nor waived by P08-T02.
+    deferred_work:
+        - Implement P08-T03 canonical provenance, source spans, and diagnostics over the parser output without folding presentation policy into the frontend.
+        - Implement P08-T04 public frontend/orchestration surfaces and executable structural replacement comparisons only where governing authority establishes correspondence.
+        - Resolve the pre-existing repository lint/suppression baseline and host Ruby/Swift tool availability in their owning maintenance/toolchain tasks.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Build P08-T03, attaching canonical source spans, provenance, and diagnostics to the parser output while preserving the pure frontend boundary.
+    rationale: The parser is contract-complete, bounded, deterministic, no-panic tested, authority-isolated, fully exercised through the blocking native differential, baseline-renewed, and documented. All task-scoped gates pass; only explicitly pre-existing repository/toolchain findings remain as carry-forward.
