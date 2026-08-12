@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Deterministic PCRE2 serialization and TargetArtifact construction
-status: in_progress
+status: complete
 objective: Serialize one validated Pcre2LoweringPlan into deterministic PCRE2 pattern text, profile-owned options, resolved requirements, generated provenance, and a canonical TargetArtifact without reimplementing semantic, capability, planning, lowering, runtime, binding, or package behavior.
 scope:
     diff:
@@ -144,19 +144,65 @@ checkpoints:
             result: passed
             details: Every operation records a half-open generated UTF-8 byte span; identical empty/rewrite spans coalesce sorted unique node/source evidence. Tests serialize 196 generated programs twice with equal typed artifacts, compact JSON, and canonical fingerprints; exercise 128 deterministic 48-scalar escape mutations; and reject 64 shuffled-option plans before emission. Inputs remain byte-equivalent typed values.
     - name: Architecture, contracts, migration evidence, and repository certification
-      status: in_progress
+      status: passed
       evidence:
           - check: Focused Rust, architecture, and contract checks
             result: passed
             details: Nine focused integration tests plus the serializer module unit test pass. Twenty-nine serializer/lowering/core-contract controlled tests pass, enforcing entrypoint and validation, mandatory authorities, no lowering/policy recomputation, no profile reinterpretation, no runtime/ambient/product dependency, no invalid Unicode inline leakage, no target-neutral reverse dependency, and no direct caller. Core validation passes 11 schema mappings and 78 fixtures.
           - check: Complete Rust quality
             result: passed
-            details: All 278 Rust tests pass and warnings-denied Clippy is clean. Final repository, reviewed migration differential, Local, and Pull Request certification remain pending the implementation commit.
+            details: All 278 Rust tests pass and warnings-denied Clippy is clean on the committed implementation and renewed-baseline tree.
           - check: Reviewed migration boundary renewal
             result: passed
             details: The standalone serializer expands the canonical boundary to 37 governed inputs with fingerprint sha256:c96af2fd2ba9184b5aa94d89c3c11b93a6690b5ac39c8650a88c6b4600e7f19b. Four route rationales now acknowledge standalone lowering and serialization while retaining not-comparable status because no canonical source-to-artifact or historical-emitter-compatible product route exists. Route coverage remains sha256:96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e, historical peer corpus/result fingerprints remain unchanged, the renewed baseline is sha256:d481c0f57c65f0a567005a13f21e5873c1ae902518cd80848af6d7ac92450bd2, three repeated runs are identical, and all 16 differential tests pass.
+          - check: Complete repository hardgates
+            command: python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; python3 tooling/migration_differential.py --repeat-runs 3; git diff --check
+            result: passed
+            details: Public facade snapshots remained unchanged; generated artifacts, exact governed scope and change declarations, architecture rules, seven executable documentation examples, 136-file link validation, patch hygiene, and the clean-tree requirement all passed. The differential result fingerprint is sha256:8050f72e6988d5e5871330c1e132bbba7b2556efe43ba9bcae0f2884f6a09849 with zero blocking replacements and zero determinism mismatches.
+          - check: Local and Pull Request profiles
+            command: ./strling profile local --artifact /tmp/p10-t02-local.json; ./strling profile pull-request --artifact /tmp/p10-t02-pr.json
+            result: passed
+            details: At clean commit 7482259d535a55bcf93c4f0dce725c79b7849bb7, Local recorded 20 passed, zero failed, and six unavailable operations with evidence fingerprint 6673bae927871da48979a31fa2fa56e97012e7c78c7a66ab1d8ba7f100a85a90. Pull Request recorded 39 passed, zero failed, and seven unavailable operations with evidence fingerprint 01d3cfec8588408e04e568a4c746a5543581a1a9909572db4227b5d03027ba48.
+          - check: Explicit environment carry-forward
+            result: passed
+            details: Profile aggregates were UNAVAILABLE, never failed. Host Ruff 0.16.2 does not satisfy repository pin 0.15.21 for six Python/repository format and lint operations, and Pull Request additionally found inherited Ruby Bundler version drift. No waiver or weakened requirement was introduced; every available operation passed.
 commits:
     - sha: 9991575b347ac5f56108f18065c88b2b16a5065a
       subject: "docs(core): define PCRE2 target serialization"
     - sha: aace0d3ac742410f165113de75e98f366026ffec
       subject: "feat(core): add deterministic PCRE2 artifacts"
+    - sha: 7482259d535a55bcf93c4f0dce725c79b7849bb7
+      subject: "chore(migration): renew PCRE2 serialization boundary baseline"
+completion:
+    accomplished:
+        - Added serialize_pcre2 as a pure borrowed-input stage from one validated Pcre2LoweringPlan to one all-or-nothing canonical TargetArtifact, with no capability, planning, rewrite, semantic, runtime, binding, or product orchestration authority.
+        - Defined deterministic PCRE2 spellings for the complete current target-operation tree, including explicit precedence groups, canonical quantifiers and suffixes, captures and absolute-slot references, lookarounds, positions, atomic groups, scoped case and dot-all behavior, literals, classes, built-ins, Unicode properties, and mixed-set negation.
+        - Projected the exact target profile reference, every selected compile/runtime option and profile default, requirement resolution, portability status, and coalesced generated UTF-8 byte-span provenance into the existing TargetArtifact contract without inventing inline UTF/UCP, width, JIT, newline, BSR, or match-context settings.
+        - Added stable STRL-PCRE2_EMIT-0001 through -0006 failures for invalid plans, capture correspondence and names, property syntax data, PCRE2 numeric bounds, resource exhaustion, and invalid constructed artifacts.
+        - Registered exact target, lowering, profile, portability, diagnostic, and source-map contract consumption and added controlled architecture fitness prohibiting policy recomputation, profile reinterpretation, runtime/ambient/product dependencies, invalid Unicode inline modes, target-neutral reverse dependencies, and direct bypass.
+    verified:
+        - Ten focused serializer tests cover every operation family, precedence and escaping rules, exact options and requirements, generated spans, stable failures, 196 generated valid programs serialized twice, 128 deterministic 48-scalar escape mutations, 64 rejected option-order mutations, artifact JSON/fingerprint identity, and input immutability.
+        - All 278 Rust tests, warnings-as-errors Clippy, 29 focused architecture and contract tests, 16 migration-differential mutation tests, 11-schema/78-fixture core validation, public and generated contracts, governance, documentation, and diff hygiene passed.
+        - The reviewed three-run migration differential passed with zero mismatches, unchanged legacy corpora, case sets, route coverage, and historical-peer results after renewing the canonical boundary and truthful target-route review evidence.
+        - Local and Pull Request profiles recorded 20 and 39 passed operations respectively, zero failures, no waivers, and only explicit inherited Ruff and Bundler version unavailability.
+    behavior_changed: The internal canonical Rust kernel can now deterministically serialize a certified PCRE2 target plan into validated regex text and a complete TargetArtifact; no existing public compiler, binding, runtime, package, or release behavior changed.
+    intentional_behavior_changes:
+        - A valid Pcre2LoweringPlan can now produce canonical PCRE2 pattern text, exact engine options and requirement resolutions, generated source mapping, and stable artifact fingerprints.
+        - Malformed target plans or syntax-domain data now fail through stable structured emission diagnostics instead of producing partial or convenience-driven regex text.
+        - Unicode and other host/runtime settings remain separate artifact options and obligations rather than being silently embedded into pattern text.
+    preserved_behavior:
+        - Semantic IR, target profiles, capability results, portability plans, lowering plans, canonical protocol schemas, kernel facade signatures, bindings, historical emitters, package APIs and versions, and published artifacts remain unchanged and immutable.
+        - No PCRE2 library invocation, JIT or match-context configuration, UTF-16/32 execution path, product orchestration, binding adapter, safety remediation, runtime probe, package operation, or release action was added.
+        - The serializer applies no rewrite or capability decision and cannot turn unsupported, unresolved, stale, non-PCRE2, or malformed evidence into an artifact.
+    transitional_architecture:
+        - PCRE2 serialization remains a standalone canonical domain stage and is intentionally not called by the public kernel facade; canonical source-to-artifact orchestration must be added only by a separately governed task.
+        - Current profiles do not declare code-unit width, newline/BSR overrides, JIT, or match-context policy, so the artifact truthfully omits those settings rather than inferring runtime behavior.
+        - Local and Pull Request remain READY WITH RECORDED CARRY-FORWARD because host Ruff and Bundler versions do not match repository pins; all available operations passed with zero failures.
+    deferred_work:
+        - P10-T03 owns profile-version correctness verification for advanced and version-sensitive PCRE2 constructs and exact artifact options without broadening serialization policy.
+        - P10-T04 owns real PCRE2 execution, pathological/adversarial behavior, runtime limits, and performance certification; no runtime observation was fabricated here.
+        - Canonical facade and product orchestration, bindings, Simply, editor/LSP integration, package changes, version changes, publication, and release actions remain outside this task.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P10-T03 by verifying advanced and version-sensitive PCRE2 serialization and artifact options against the exact authored 10.42 and 10.43 profiles, without moving capability or runtime policy into the serializer.
+    rationale: P10-T02 is complete with exhaustive deterministic serialization, fail-closed artifact construction, exact option and provenance projection, architecture hardgates, reviewed compatibility evidence, full repository certification, and zero failed profile operations. Only recorded host tool-version drift remains; profile-specific correctness verification is the next ordered contained task.
