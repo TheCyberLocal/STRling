@@ -7,6 +7,10 @@ use strling_kernel::validation::{from_json, Validate};
 const PCRE2_1042: &str = include_str!("../../spec/targets/profiles/pcre2-10.42.json");
 const ECMASCRIPT_2024: &str = include_str!("../../spec/targets/profiles/ecmascript-2024.json");
 const PYTHON_RE_311: &str = include_str!("../../spec/targets/profiles/python-re-3.11.json");
+const EQUIVALENCE_EXPLANATION_REQUEST: &str =
+    include_str!("../../spec/contracts/1.0/examples/compile-request/equivalence-explanation.json");
+const EQUIVALENCE_EXPLANATION_RESULT: &str =
+    include_str!("../../spec/contracts/1.0/examples/compile-result/equivalence-explanation.json");
 
 fn targeted_request(root: Value, outputs: Vec<&str>, profile: &TargetProfile) -> CompileRequest {
     let mut request: CompileRequest = serde_json::from_value(json!({
@@ -92,6 +96,19 @@ fn certified_rewrite_is_projected_without_applying_or_emitting_it() {
     assert!(result.semantic_result.is_some());
     assert!(result.artifact.is_none());
     result.validate().expect("projected result validates");
+}
+
+#[test]
+fn equivalence_explanation_matches_the_public_contract_fixture() {
+    let profile: TargetProfile = from_json(ECMASCRIPT_2024).expect("profile");
+    let request: CompileRequest = from_json(EQUIVALENCE_EXPLANATION_REQUEST).expect("request");
+    let expected: Value =
+        serde_json::from_str(EQUIVALENCE_EXPLANATION_RESULT).expect("expected result");
+
+    let result = compile(&request, Some(&profile)).expect("equivalence explanation");
+    let actual = serde_json::to_value(result).expect("result JSON");
+
+    assert_eq!(actual, expected);
 }
 
 #[test]

@@ -236,7 +236,9 @@ fn validate_rewrite_plan(
     rewrite: &SemanticRewritePlan,
     index: usize,
 ) -> Result<(), PortabilityPlanningErrors> {
-    if !CERTIFIED_REWRITE_REGISTRY.contains(&rewrite.strategy_id)
+    let expected_certification =
+        equivalence::certification_for(rewrite.strategy_id).map_err(registry_error)?;
+    if rewrite.certification != expected_certification
         || rewrite.original_requirement != decision.requirement
         || rewrite.target_profile != plan.target_profile
         || rewrite.affected_node_ids.is_empty()
@@ -313,11 +315,14 @@ fn validate_attempts(
     attempts: &[RewriteAttempt],
     index: usize,
 ) -> Result<(), PortabilityPlanningErrors> {
-    if attempts.len() != CERTIFIED_REWRITE_REGISTRY.len()
+    let expected = certified_rewrite_registry()
+        .map_err(registry_error)?
+        .strategy_ids();
+    if attempts.len() != expected.len()
         || attempts
             .iter()
             .map(|attempt| attempt.strategy_id)
-            .ne(CERTIFIED_REWRITE_REGISTRY)
+            .ne(expected)
     {
         return Err(rewrite_error(
             index,

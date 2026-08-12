@@ -32,6 +32,7 @@ authoring frontend
     -> semantic requirement extraction
     -> factual capability evaluation against a versioned target profile
     -> portability planning against a versioned target profile
+    -> evidence-only portability explanations
     -> target lowering
     -> target-specific emitter
     -> versioned TargetArtifact
@@ -41,8 +42,8 @@ This is a responsibility model, not a module diagram. The checked-in
 prepublication source, Semantic IR, compile request/result, diagnostic,
 analysis, profile, portability, and artifact contracts live under
 `spec/contracts/1.0`. The canonical Rust kernel currently implements the path
-through portability planning; target lowering and emission remain deliberately
-absent.
+through certified portability planning and structured target-aware
+explanations; target lowering and emission remain deliberately absent.
 
 **Semantic analysis** owns target-independent validity, diagnostics, safety
 findings, and explanation.
@@ -59,7 +60,16 @@ support, a proven semantics-preserving rewrite plan, or an unsupported result.
 Its [canonical contract](portability-planning.md) preserves incomplete evidence
 as unresolved outside the final portability vocabulary. Engine capabilities
 are version/profile-sensitive, and planning neither applies rewrites nor emits
-target syntax.
+target syntax. An equivalent rewrite must be bound to the versioned authored
+registry, exact strategy fingerprint, and exact conformance-evidence
+fingerprint.
+
+**Portability explanations** consume the immutable Semantic IR and completed
+certified plan. They project native, rewrite, unsupported, and unresolved
+evidence into canonical structured diagnostics with stable codes, source
+origins, affected node identities, profile facts, and proof identities. This
+stage does not recompute capabilities or planning, apply a rewrite, lower, emit,
+or probe a runtime.
 
 **Lowering** selects deliberate target-specific forms. **Emitters**
 deterministically serialize those plans; they do not invent semantic or

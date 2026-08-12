@@ -1,0 +1,101 @@
+{
+    "suite_version": "1.0.0",
+    "strategy_id": "rewrite.atomic_literal.elide.v1",
+    "cases": [
+        {
+            "case_id": "atomic-literal-ascii",
+            "semantic_root": {
+                "node_id": "node:equivalence.ascii.atomic",
+                "kind": "atomic",
+                "body": {
+                    "node_id": "node:equivalence.ascii.literal",
+                    "kind": "literal",
+                    "text": "a"
+                }
+            },
+            "target_expectations": [
+                {
+                    "profile": "ecmascript-2024.json",
+                    "status": "equivalent_rewrite"
+                },
+                { "profile": "pcre2-10.42.json", "status": "native" }
+            ]
+        },
+        {
+            "case_id": "atomic-literal-unicode",
+            "semantic_root": {
+                "node_id": "node:equivalence.unicode.atomic",
+                "kind": "atomic",
+                "body": {
+                    "node_id": "node:equivalence.unicode.literal",
+                    "kind": "literal",
+                    "text": "λ"
+                }
+            },
+            "target_expectations": [
+                {
+                    "profile": "ecmascript-2024.json",
+                    "status": "unresolved"
+                },
+                { "profile": "pcre2-10.43.json", "status": "unresolved" }
+            ]
+        },
+        {
+            "case_id": "atomic-alternation-proof-fails",
+            "semantic_root": {
+                "node_id": "node:equivalence.alternation.atomic",
+                "kind": "atomic",
+                "body": {
+                    "node_id": "node:equivalence.alternation.body",
+                    "kind": "alternation",
+                    "branches": [
+                        {
+                            "node_id": "node:equivalence.alternation.left",
+                            "kind": "literal",
+                            "text": "a"
+                        },
+                        {
+                            "node_id": "node:equivalence.alternation.right",
+                            "kind": "literal",
+                            "text": "b"
+                        }
+                    ]
+                }
+            },
+            "target_expectations": [
+                { "profile": "ecmascript-2024.json", "status": "unsupported" }
+            ]
+        },
+        {
+            "case_id": "possessive-not-registered",
+            "semantic_root": {
+                "node_id": "node:equivalence.possessive",
+                "kind": "repeat",
+                "body": {
+                    "node_id": "node:equivalence.possessive.body",
+                    "kind": "literal",
+                    "text": "a"
+                },
+                "min": 1,
+                "max": null,
+                "mode": "possessive"
+            },
+            "target_expectations": [
+                { "profile": "ecmascript-2024.json", "status": "unsupported" }
+            ]
+        }
+    ],
+    "preserved_invariants": [
+        "accepted_language",
+        "matched_text_and_span",
+        "capture_participation_and_values",
+        "case_matching_behavior"
+    ],
+    "execution_hooks": [
+        {
+            "hook_id": "runtime.atomic_literal_elision.differential.v1",
+            "status": "deferred_until_target_emitter",
+            "obligation": "Execute original atomic-literal semantics and the lowered elision artifact over positive, negative, Unicode, case-sensitive, and case-insensitive inputs and require identical match and capture observations."
+        }
+    ]
+}

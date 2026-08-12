@@ -8,6 +8,7 @@ from tooling.core_contract_validation import (
     ALLOWED_RUNTIME_DEPENDENCIES,
     CoreContractError,
     load_mapping,
+    validate_equivalence_registry,
     validate_fixture_coverage,
     validate_mapping_document,
     validate_repository,
@@ -27,8 +28,9 @@ def source_texts() -> dict[str, str]:
 
 class CoreSchemaMappingTests(unittest.TestCase):
     def test_current_mapping_and_fixture_corpus_pass(self) -> None:
-        self.assertEqual((11, 63), validate_repository(ROOT))
-        self.assertEqual(63, validate_fixture_coverage(ROOT))
+        self.assertEqual((11, 78), validate_repository(ROOT))
+        self.assertEqual(78, validate_fixture_coverage(ROOT))
+        self.assertEqual(1, validate_equivalence_registry(ROOT))
 
     def test_changed_schema_without_mapping_update_fails(self) -> None:
         mapping = load_mapping(ROOT / "core" / "contract-mapping.json")

@@ -44,8 +44,33 @@ scope:
         - spec/targets/profiles/**
         - tests/spec/**
     expected_files:
+        - core/contract-mapping.json
+        - core/src/capability_pipeline.rs
+        - core/src/kernel.rs
+        - core/src/lib.rs
+        - core/src/portability_diagnostics.rs
+        - core/src/portability_planning.rs
+        - core/src/portability_planning/equivalence.rs
+        - core/src/portability_planning/validation.rs
+        - core/tests/compiler_boundary_orchestration.rs
+        - core/tests/portability_diagnostics.rs
+        - core/tests/portability_planning.rs
+        - core/tests/portability_planning_properties.rs
+        - core/tests/rewrite_equivalence_registry.rs
+        - docs/architecture.md
         - docs/migration/equivalence-proof-hooks.md
         - docs/migration/records/equivalence-proof-hooks.yaml
+        - docs/portability-planning.md
+        - spec/contracts/1.0/examples/compile-request/equivalence-explanation.json
+        - spec/contracts/1.0/examples/compile-result/equivalence-explanation.json
+        - spec/portability/equivalence/1.0/atomic-literal-elision.cases.json
+        - spec/portability/equivalence/1.0/registry.json
+        - spec/portability/equivalence/1.0/registry.schema.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_portability_architecture.py
+        - tooling/tests/test_portability_diagnostics_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -61,11 +86,10 @@ change_classification:
         evidence:
             - The only admitted strategy remains atomic-literal elision with the same structural preconditions and no applied transformation.
     public_api_change:
-        level: additive
+        level: none
         evidence:
-            - Canonical portability requests gain structured explanatory diagnostics and equivalent-rewrite plans carry inspectable certification evidence inside the internal Rust planning model.
-        affected_surfaces:
-            - strling-kernel
+            - The governed strling-kernel facade signatures and canonical compiler schemas are unchanged; certification types remain in the existing internal domain-module boundary while serialized results use the existing Diagnostic and Portability contracts.
+        affected_surfaces: []
     schema_change:
         level: additive
         evidence:

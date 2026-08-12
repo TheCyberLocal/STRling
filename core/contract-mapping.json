@@ -41,7 +41,11 @@
         {
             "schema": "spec/contracts/1.0/diagnostic.schema.json",
             "sha256": "9c929e230110adf3fe5fac63e28314afa0142c331c50ded4dfdb3c97565ae8f5",
-            "rust_modules": ["diagnostic", "diagnostic_generation"]
+            "rust_modules": [
+                "diagnostic",
+                "diagnostic_generation",
+                "portability_diagnostics"
+            ]
         },
         {
             "schema": "spec/contracts/1.0/portability.schema.json",
@@ -49,7 +53,8 @@
             "rust_modules": [
                 "protocol::analysis",
                 "target",
-                "portability_planning"
+                "portability_planning",
+                "portability_diagnostics"
             ]
         },
         {
@@ -64,7 +69,8 @@
                 "safety_analysis",
                 "diagnostic_generation",
                 "capability_evaluation",
-                "portability_planning"
+                "portability_planning",
+                "portability_diagnostics"
             ]
         },
         {
@@ -91,6 +97,7 @@
         "spec/contracts/1.0/examples",
         "spec/contracts/1.0/invalid",
         "spec/conformance",
-        "spec/targets/profiles"
+        "spec/targets/profiles",
+        "spec/portability/equivalence/1.0"
     ]
 }

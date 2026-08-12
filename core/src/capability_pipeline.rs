@@ -10,6 +10,7 @@ use crate::capability_evaluation::{
 use crate::compiler_pipeline::{
     run_target_neutral_stages, CompilerPipelineErrors, TargetNeutralStages,
 };
+use crate::portability_diagnostics::{explain_portability, PortabilityDiagnosticError};
 use crate::portability_planning::{
     plan_portability, PortabilityPlan, PortabilityPlanningErrorCode, PortabilityPlanningErrors,
 };
@@ -21,6 +22,7 @@ pub enum PortabilityPipelineErrors {
     TargetNeutral(CompilerPipelineErrors),
     CapabilityEvaluation(CapabilityEvaluationErrors),
     PortabilityPlanning(PortabilityPlanningErrors),
+    PortabilityDiagnostics(PortabilityDiagnosticError),
 }
 
 impl PortabilityPipelineErrors {
@@ -35,6 +37,7 @@ impl PortabilityPipelineErrors {
                 .errors
                 .iter()
                 .any(|error| error.code == PortabilityPlanningErrorCode::ResourceLimitExceeded),
+            Self::PortabilityDiagnostics(_) => false,
         }
     }
 }
@@ -44,6 +47,7 @@ impl fmt::Display for PortabilityPipelineErrors {
             Self::TargetNeutral(error) => error.fmt(formatter),
             Self::CapabilityEvaluation(error) => error.fmt(formatter),
             Self::PortabilityPlanning(error) => error.fmt(formatter),
+            Self::PortabilityDiagnostics(error) => error.fmt(formatter),
         }
     }
 }
@@ -54,6 +58,7 @@ impl Error for PortabilityPipelineErrors {
             Self::TargetNeutral(error) => Some(error),
             Self::CapabilityEvaluation(error) => Some(error),
             Self::PortabilityPlanning(error) => Some(error),
+            Self::PortabilityDiagnostics(error) => Some(error),
         }
     }
 }
@@ -64,6 +69,7 @@ pub struct PortabilityPipelineOutput {
     pub stages: TargetNeutralStages,
     pub evaluation: CapabilityEvaluation,
     pub plan: PortabilityPlan,
+    pub portability_diagnostics: Vec<crate::diagnostic::Diagnostic>,
 }
 
 /// Normalize and run every target-neutral analysis before factual capability
@@ -89,10 +95,13 @@ pub fn compile_semantic_portability(
         &evaluation,
     )
     .map_err(PortabilityPipelineErrors::PortabilityPlanning)?;
+    let portability_diagnostics = explain_portability(&stages.normalized, &plan)
+        .map_err(PortabilityPipelineErrors::PortabilityDiagnostics)?;
     Ok(PortabilityPipelineOutput {
         stages,
         evaluation,
         plan,
+        portability_diagnostics,
     })
 }
 

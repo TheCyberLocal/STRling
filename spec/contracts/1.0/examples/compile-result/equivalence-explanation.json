@@ -1,0 +1,79 @@
+{
+    "contract_version": "1.0.0",
+    "compiler": {
+        "id": "strling_kernel",
+        "version": "0.1.0"
+    },
+    "specification_version": "1.0-draft.1",
+    "outcome": "succeeded",
+    "portability": {
+        "contract_version": "1.0.0",
+        "specification_version": "1.0-draft.1",
+        "target_profile": {
+            "profile_id": "profile:ecmascript/2024",
+            "profile_version": "1.0.0",
+            "sha256": "180513005b078fcc34875b7cd5cf3369daa8e8bdacf184baea0f48b170238604"
+        },
+        "status": "equivalent_rewrite",
+        "decisions": [
+            {
+                "requirement_id": "requirement:semantic.0000000000",
+                "capability_id": "groups.atomic",
+                "node_ids": [
+                    "node:regex-compat/00000001",
+                    "node:regex-compat/00000002"
+                ],
+                "status": "equivalent_rewrite",
+                "reason_code": "literal_atomicity_redundant"
+            }
+        ]
+    },
+    "diagnostics": [
+        {
+            "contract_version": "1.0.0",
+            "occurrence": 0,
+            "code": "STRL-PORTABILITY-0102",
+            "severity": "info",
+            "severity_basis": "target_profile",
+            "phase": "portability",
+            "category": "portability",
+            "message": "The target lacks native atomic grouping, but this atomic node directly contains one literal; removing only the redundant atomic wrapper preserves matching semantics.",
+            "primary_location": {
+                "source_id": "src:protocol.equivalence-explanation",
+                "coordinate_system": "utf8-bytes",
+                "start": 0,
+                "end": 5
+            },
+            "related_locations": [
+                {
+                    "role": "context",
+                    "message": "Related rewrite evidence for node:regex-compat/00000002.",
+                    "location": {
+                        "source_id": "src:protocol.equivalence-explanation",
+                        "coordinate_system": "utf8-bytes",
+                        "start": 3,
+                        "end": 4
+                    }
+                }
+            ],
+            "advice": [
+                {
+                    "kind": "note",
+                    "message": "Capability evidence: disposition unsupported; profile availability unavailable."
+                },
+                {
+                    "kind": "note",
+                    "message": "Certification: registry 1.0.0; strategy rewrite.atomic_literal.elide.v1 sha256:52d1a15ffb3becdde9e33f708539395e395eff752741283d90ff8bb1ccb64cc5; conformance conformance.atomic_literal_elision.v1 sha256:5fe61a36f43a50b7ce5f6e2b13f0ac36ded8bda0e6255a66027bcf669a1d3532."
+                },
+                {
+                    "kind": "note",
+                    "message": "Satisfied proof obligations: precondition.original_node_atomic, precondition.direct_body_relationship, precondition.body_node_literal."
+                },
+                {
+                    "kind": "note",
+                    "message": "Affected Semantic IR nodes: node:regex-compat/00000001, node:regex-compat/00000002."
+                }
+            ]
+        }
+    ]
+}

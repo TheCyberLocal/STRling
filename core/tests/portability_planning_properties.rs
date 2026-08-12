@@ -6,8 +6,9 @@ use strling_kernel::capability_evaluation::{
 };
 use strling_kernel::normalization::normalize;
 use strling_kernel::portability_planning::{
-    plan_portability, RequirementPlanningDisposition, RewriteAttemptDisposition,
-    RewriteProofDisposition, RewriteStrategyId, UnresolvedPlanningReason,
+    certified_rewrite_registry, plan_portability, RequirementPlanningDisposition,
+    RewriteAttemptDisposition, RewriteProofDisposition, RewriteStrategyId,
+    UnresolvedPlanningReason,
 };
 use strling_kernel::semantic::SemanticProgram;
 use strling_kernel::semantic_analysis::analyze;
@@ -286,9 +287,24 @@ fn generated_portability_plans_are_reproducible_complete_and_sound() {
                         }
                         RequirementPlanningDisposition::EquivalentRewrite(rewrite) => {
                             rewrite_plan_count += 1;
+                            let certification = certified_rewrite_registry()
+                                .expect("authored registry")
+                                .strategy(RewriteStrategyId::ElideAtomicLiteralV1)
+                                .expect("atomic-literal strategy");
                             assert_eq!(
                                 rewrite.rewrite_plan.strategy_id,
                                 RewriteStrategyId::ElideAtomicLiteralV1
+                            );
+                            assert_eq!(
+                                rewrite.rewrite_plan.certification.strategy_fingerprint,
+                                certification.strategy_fingerprint
+                            );
+                            assert_eq!(
+                                rewrite
+                                    .rewrite_plan
+                                    .certification
+                                    .conformance_evidence_sha256,
+                                certification.definition.conformance_evidence.sha256
                             );
                             assert!(rewrite.rewrite_plan.proof.iter().all(|proof| {
                                 proof.disposition == RewriteProofDisposition::Satisfied

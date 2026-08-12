@@ -286,13 +286,14 @@ fn compile_semantic_request(
                     });
                 }
             };
-            let result =
+            let mut result =
                 project_target_neutral_stages(output.stages, compiler).map_err(|error| {
                     KernelCompileError::StageFailure {
                         stage: KernelStage::ResultProjection,
                         message: error.to_string(),
                     }
                 })?;
+            result.diagnostics.extend(output.portability_diagnostics);
             (result, Some(output.plan))
         }
         None => {
@@ -583,10 +584,16 @@ fn project_portability(
                 stage: KernelStage::ResultProjection,
                 message,
             })?;
+        let node_ids = match &planned_decision.disposition {
+            RequirementPlanningDisposition::EquivalentRewrite(rewrite) => {
+                rewrite.rewrite_plan.affected_node_ids.clone()
+            }
+            _ => vec![planned_decision.requirement.node_id.clone()],
+        };
         decisions.push(PortabilityDecision {
             requirement_id,
             capability_id: planned_decision.requirement.capability_id.clone(),
-            node_ids: vec![planned_decision.requirement.node_id.clone()],
+            node_ids,
             status: decision_status,
             reason_code,
         });

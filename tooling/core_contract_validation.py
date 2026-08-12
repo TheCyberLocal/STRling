@@ -10,12 +10,16 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+from jsonschema import Draft202012Validator
+from jsonschema.exceptions import SchemaError
+
 try:
     from core_stage_boundaries import (
         capability_evaluation_boundary_violation,
         compiler_pipeline_boundary_violation,
         diagnostic_generation_boundary_violation,
         kernel_boundary_violation,
+        portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
         portability_planning_boundary_violation,
         target_neutral_reverse_dependency_violation,
@@ -26,6 +30,7 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
         compiler_pipeline_boundary_violation,
         diagnostic_generation_boundary_violation,
         kernel_boundary_violation,
+        portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
         portability_planning_boundary_violation,
         target_neutral_reverse_dependency_violation,
@@ -35,6 +40,7 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
 ROOT = Path(__file__).resolve().parents[1]
 MAPPING_PATH = ROOT / "core" / "contract-mapping.json"
 CONTRACT_ROOT = ROOT / "spec" / "contracts" / "1.0"
+EQUIVALENCE_ROOT = ROOT / "spec" / "portability" / "equivalence" / "1.0"
 
 EXPECTED_SCHEMAS = tuple(
     f"spec/contracts/1.0/{name}.schema.json"
@@ -57,6 +63,7 @@ EXPECTED_FIXTURE_ROOTS = (
     "spec/contracts/1.0/invalid",
     "spec/conformance",
     "spec/targets/profiles",
+    "spec/portability/equivalence/1.0",
 )
 ALLOWED_RUNTIME_DEPENDENCIES = {"serde", "serde_json", "sha2"}
 MODULE_PATHS = {
@@ -69,6 +76,7 @@ MODULE_PATHS = {
     "diagnostic_generation": "core/src/diagnostic_generation.rs",
     "normalization": "core/src/normalization.rs",
     "portability_planning": "core/src/portability_planning.rs",
+    "portability_diagnostics": "core/src/portability_diagnostics.rs",
     "protocol::analysis": "core/src/protocol/analysis.rs",
     "protocol::exchange": "core/src/protocol/exchange.rs",
     "protocol::request": "core/src/protocol/request.rs",
@@ -184,17 +192,19 @@ def validate_mapping_document(
         if relative == "spec/contracts/1.0/diagnostic.schema.json" and modules != [
             "diagnostic",
             "diagnostic_generation",
+            "portability_diagnostics",
         ]:
             raise CoreContractError(
-                "diagnostic mapping must register canonical diagnostic generation"
+                "diagnostic mapping must register target-neutral generation and target-aware portability explanations"
             )
         if relative == "spec/contracts/1.0/portability.schema.json" and modules != [
             "protocol::analysis",
             "target",
             "portability_planning",
+            "portability_diagnostics",
         ]:
             raise CoreContractError(
-                "portability mapping must register canonical portability planning"
+                "portability mapping must register canonical planning and explanations"
             )
         if relative == "spec/contracts/1.0/semantic-ir.schema.json" and modules != [
             "regex_frontend",
@@ -206,9 +216,10 @@ def validate_mapping_document(
             "diagnostic_generation",
             "capability_evaluation",
             "portability_planning",
+            "portability_diagnostics",
         ]:
             raise CoreContractError(
-                "Semantic IR mapping must register target-neutral stages, capability requirement extraction, and portability planning in dependency order"
+                "Semantic IR mapping must register target-neutral stages, capability requirement extraction, portability planning, and evidence-only explanations in dependency order"
             )
         if relative == "spec/contracts/1.0/source.schema.json" and modules != [
             "source",
@@ -235,6 +246,53 @@ def validate_mapping_document(
         if not (root / relative).is_dir():
             raise CoreContractError(f"fixture root does not resolve: {relative}")
     return len(schemas)
+
+
+def validate_equivalence_registry(root: Path = ROOT) -> int:
+    """Validate the authored rewrite registry and every referenced evidence blob."""
+
+    registry_root = root / "spec" / "portability" / "equivalence" / "1.0"
+    schema_path = registry_root / "registry.schema.json"
+    registry_path = registry_root / "registry.json"
+    try:
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        Draft202012Validator.check_schema(schema)
+        errors = sorted(
+            Draft202012Validator(schema).iter_errors(registry),
+            key=lambda error: tuple(str(item) for item in error.absolute_path),
+        )
+    except (OSError, json.JSONDecodeError, SchemaError) as error:
+        raise CoreContractError(f"invalid equivalence registry authority: {error}") from error
+    if errors:
+        error = errors[0]
+        location = ".".join(str(item) for item in error.absolute_path) or "<root>"
+        raise CoreContractError(
+            f"equivalence registry violates its schema at {location}: {error.message}"
+        )
+
+    strategies = registry["strategies"]
+    strategy_ids = [strategy["strategy_id"] for strategy in strategies]
+    if len(strategy_ids) != len(set(strategy_ids)):
+        raise CoreContractError("equivalence registry strategy IDs must be unique")
+    resolved_root = root.resolve()
+    for strategy in strategies:
+        evidence = strategy["conformance_evidence"]
+        evidence_path = (root / evidence["path"]).resolve()
+        if not evidence_path.is_relative_to(resolved_root) or not evidence_path.is_file():
+            raise CoreContractError(
+                f"equivalence evidence does not resolve: {evidence['path']}"
+            )
+        actual = hashlib.sha256(evidence_path.read_bytes()).hexdigest()
+        if evidence["sha256"] != actual:
+            raise CoreContractError(
+                f"equivalence evidence fingerprint is stale: {evidence['path']}"
+            )
+        if evidence["evidence_id"] not in strategy["required_tests"]:
+            raise CoreContractError(
+                f"equivalence evidence is not a required test: {evidence['evidence_id']}"
+            )
+    return len(strategies)
 
 
 def runtime_dependencies(cargo_manifest: str) -> set[str]:
@@ -557,6 +615,7 @@ def validate_source_boundaries(
         kernel_boundary_violation,
         capability_evaluation_boundary_violation,
         portability_planning_boundary_violation,
+        portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
     ):
         violation = boundary_check(source_texts)
@@ -571,6 +630,9 @@ def canonical_fixture_paths(root: Path = ROOT) -> set[Path]:
         *sorted((root / "spec" / "targets" / "profiles").glob("*.json")),
         *sorted((root / "spec" / "conformance" / "cases").glob("*.json")),
         root / "spec" / "conformance" / "manifest.json",
+        *sorted(
+            (root / "spec" / "portability" / "equivalence" / "1.0").glob("*.json")
+        ),
     }
     return {path.resolve() for path in paths}
 
@@ -607,6 +669,7 @@ def validate_fixture_coverage(root: Path = ROOT) -> int:
 def validate_repository(root: Path = ROOT) -> tuple[int, int]:
     mapping = load_mapping(root / "core" / "contract-mapping.json")
     schema_count = validate_mapping_document(mapping, root)
+    validate_equivalence_registry(root)
     sources = {
         path.relative_to(root).as_posix(): path.read_text(encoding="utf-8")
         for path in sorted((root / "core" / "src").glob("**/*.rs"))

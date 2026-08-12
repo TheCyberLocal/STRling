@@ -295,6 +295,84 @@ def portability_planning_boundary_violation(
     return None
 
 
+def portability_diagnostics_boundary_violation(
+    source_texts: Mapping[str, str],
+) -> str | None:
+    """Return the first portability-explanation architecture violation."""
+
+    source = source_texts.get("core/src/portability_diagnostics.rs", "").lower()
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub fn explain_portability(" not in source:
+        return "canonical portability diagnostics stage boundary cannot be located"
+
+    prerequisites = (
+        ("crate::diagnostic::{", "canonical diagnostic contracts"),
+        ("crate::portability_planning::{", "certified portability plans"),
+        ("crate::semantic::{", "normalized Semantic IR and source origins"),
+    )
+    for marker, description in prerequisites:
+        if marker not in source:
+            return f"portability diagnostics must consume {description}"
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "evaluate_capabilities(",
+            "extract_requirements(",
+            "plan_portability(",
+            "apply_rewrite(",
+            "apply_semantic_rewrite(",
+            "lower_to_target(",
+            "emit_target(",
+            "crate::normalization",
+            "crate::diagnostic_generation",
+            "crate::compiler_pipeline",
+            "crate::capability_pipeline",
+            "crate::protocol",
+            "crate::conformance",
+            "crate::emitter",
+            "crate::emitters",
+            "crate::bindings",
+            "crate::frontend",
+            "crate::lsp",
+            "crate::editor",
+            "crate::parser",
+            "bindings::",
+            "frontend::",
+            "emitters::",
+            "std::env",
+            "std::fs",
+            "std::net",
+            "std::path",
+            "std::process",
+            "std::thread",
+            "std::time",
+            "systemtime",
+            "thread_rng",
+            "rand::",
+            "raw_source",
+            "source_text",
+            "regex_source",
+            "parse_regex",
+            "scan_regex",
+            "runtime_probe",
+            "engine_options",
+            "emitted_pattern",
+            "target_artifact",
+            "capture_numbering",
+            "pcre2",
+            "ecmascript",
+            "python_re",
+        ),
+    )
+    if forbidden is not None:
+        return (
+            "portability diagnostics violates evidence-only explanation boundary: "
+            f"{forbidden}"
+        )
+    return None
+
+
 def portability_pipeline_boundary_violation(
     source_texts: Mapping[str, str],
 ) -> str | None:
@@ -309,6 +387,7 @@ def portability_pipeline_boundary_violation(
         ("crate::compiler_pipeline", "completed target-neutral stages"),
         ("crate::capability_evaluation", "factual capability evaluation"),
         ("crate::portability_planning", "certified portability planning"),
+        ("crate::portability_diagnostics", "target-aware portability explanations"),
         ("crate::semantic", "normalized semantic input contract"),
         ("crate::target", "immutable target profile contract"),
     )
@@ -319,16 +398,20 @@ def portability_pipeline_boundary_violation(
     neutral = source.find("run_target_neutral_stages(input)")
     capability = source.find("evaluate_capabilities(")
     planning = source.find("plan_portability(")
+    explanation = source.find("explain_portability(")
     if (
         neutral < 0
         or capability < 0
         or planning < 0
+        or explanation < 0
         or neutral >= capability
         or capability >= planning
+        or planning >= explanation
     ):
         return (
             "portability pipeline must run target-neutral diagnostics, factual "
-            "capability evaluation, and planning in dependency order"
+            "capability evaluation, planning, and target-aware explanations in "
+            "dependency order"
         )
 
     forbidden = _first_forbidden(

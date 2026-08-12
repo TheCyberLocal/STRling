@@ -1,0 +1,119 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/portability/equivalence/1.0/registry.schema.json",
+    "title": "STRling certified rewrite-equivalence registry",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["registry_version", "strategies"],
+    "properties": {
+        "registry_version": { "const": "1.0.0" },
+        "strategies": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/Strategy" }
+        }
+    },
+    "$defs": {
+        "ScopedId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)+$"
+        },
+        "Strategy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "strategy_id",
+                "applicable_semantic_shape",
+                "original_requirement_kind",
+                "preconditions",
+                "semantic_invariants",
+                "unsupported_conditions",
+                "explanation",
+                "proof_method",
+                "target_scope",
+                "required_tests",
+                "conformance_evidence",
+                "execution_hooks"
+            ],
+            "properties": {
+                "strategy_id": { "$ref": "#/$defs/ScopedId" },
+                "applicable_semantic_shape": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["original_node_kind", "direct_body_node_kind"],
+                    "properties": {
+                        "original_node_kind": { "const": "atomic" },
+                        "direct_body_node_kind": { "const": "literal" }
+                    }
+                },
+                "original_requirement_kind": { "const": "atomic" },
+                "preconditions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Obligation" }
+                },
+                "semantic_invariants": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Obligation" }
+                },
+                "unsupported_conditions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/Obligation" }
+                },
+                "explanation": { "type": "string", "minLength": 1 },
+                "proof_method": { "const": "structural" },
+                "target_scope": { "const": "target_neutral" },
+                "required_tests": {
+                    "type": "array",
+                    "minItems": 2,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/ScopedId" }
+                },
+                "conformance_evidence": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["evidence_id", "path", "sha256"],
+                    "properties": {
+                        "evidence_id": { "$ref": "#/$defs/ScopedId" },
+                        "path": {
+                            "const": "spec/portability/equivalence/1.0/atomic-literal-elision.cases.json"
+                        },
+                        "sha256": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{64}$"
+                        }
+                    }
+                },
+                "execution_hooks": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/ExecutionHook" }
+                }
+            }
+        },
+        "Obligation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "text"],
+            "properties": {
+                "id": { "$ref": "#/$defs/ScopedId" },
+                "text": { "type": "string", "minLength": 1 }
+            }
+        },
+        "ExecutionHook": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["hook_id", "status", "obligation"],
+            "properties": {
+                "hook_id": { "$ref": "#/$defs/ScopedId" },
+                "status": { "const": "deferred_until_target_emitter" },
+                "obligation": { "type": "string", "minLength": 1 }
+            }
+        }
+    }
+}

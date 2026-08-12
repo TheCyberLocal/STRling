@@ -9,6 +9,7 @@ use strling_kernel::portability_planning::{
 };
 use strling_kernel::semantic::SemanticProgram;
 use strling_kernel::semantic_analysis::{analyze, SemanticFacts};
+use strling_kernel::source::Sha256Digest;
 use strling_kernel::structural_analysis::{analyze_structure, StructuralFacts};
 use strling_kernel::target::{PortabilityStatus, TargetProfile};
 
@@ -698,4 +699,44 @@ fn malformed_program_dependency_index_is_rejected() {
         errors.errors[0].code,
         PortabilityPlanningErrorCode::RewriteDependencyMissing
     );
+}
+
+#[test]
+fn missing_or_stale_rewrite_certification_cannot_validate_as_equivalent() {
+    let semantic = program(atomic("node:atomic", "node:atomic.body", "a"));
+    let target = profile(ECMASCRIPT);
+    let (foundational, structural) = prerequisites(&semantic);
+    let evaluation = evaluate(&semantic, &foundational, &structural, &target);
+    let plan = plan_portability(&semantic, &foundational, &structural, &target, &evaluation)
+        .expect("certified rewrite plan");
+
+    for mutation in ["strategy", "conformance"] {
+        let mut tampered = plan.clone();
+        let RequirementPlanningDisposition::EquivalentRewrite(rewrite) =
+            &mut tampered.decisions[0].disposition
+        else {
+            panic!("expected equivalent rewrite");
+        };
+        match mutation {
+            "strategy" => {
+                rewrite.rewrite_plan.certification.strategy_fingerprint =
+                    Sha256Digest::from_bytes([0; 32]);
+            }
+            "conformance" => {
+                rewrite
+                    .rewrite_plan
+                    .certification
+                    .conformance_evidence_sha256 = Sha256Digest::from_bytes([0; 32]);
+            }
+            _ => unreachable!(),
+        }
+
+        let errors = tampered
+            .validate()
+            .expect_err("stale certification must fail validation");
+        assert_eq!(
+            errors.errors[0].code,
+            PortabilityPlanningErrorCode::MalformedRewritePlan
+        );
+    }
 }

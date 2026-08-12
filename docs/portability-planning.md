@@ -5,7 +5,8 @@
 This contract defines the canonical portability-planning stage. The stage turns
 factual capability results into explicit representation decisions for one exact
 target profile. It does not transform Semantic IR, lower captures, serialize a
-target pattern, produce target-specific diagnostics, or probe a runtime.
+target pattern, produce diagnostics, or probe a runtime. A separate
+evidence-only stage explains the completed plan through canonical diagnostics.
 
 ## Boundary and API
 
@@ -22,6 +23,7 @@ normalized Semantic IR
             + equivalent semantic rewrite plan
             + unsupported decision
             + unresolved planning evidence
+        -> target-aware portability explanations
 ```
 
 The pure API is:
@@ -101,7 +103,10 @@ proof preconditions, and unknown proof preconditions without re-analysis.
 A rewrite plan is a target-neutral instruction for a later semantic rewrite or
 lowering stage. It contains:
 
--   a versioned stable strategy identity;
+-   a versioned stable strategy identity plus the exact authored registry
+    version;
+-   the canonical strategy-definition and conformance-evidence SHA-256
+    fingerprints;
 -   the original requirement and all affected stable semantic nodes;
 -   zero or more replacement semantic requirements;
 -   structural proof preconditions and a satisfied/failed/indeterminate result
@@ -128,11 +133,24 @@ identities are each unique and sorted. Dependencies may refer only to existing
 plans and must form an acyclic graph. The planner does not assume independent
 rewrites commute and does not optimize for the fewest rewrites.
 
-## Initial certified rewrite registry
+## Authored certified rewrite registry
 
-The registry is deliberately closed and small. Strategy selection is by stable
-strategy identity after applicability, so declaration order cannot change the
-result.
+The versioned registry and its schema live under
+`spec/portability/equivalence/1.0`. Registry certification validates the schema
+shape, the closed reviewed strategy set, obligation and test identities,
+evidence path and bytes, and later-executable hook declaration before planning
+can select a rewrite. A stale or missing registry, strategy fingerprint,
+conformance fingerprint, required test, or proof obligation makes selection or
+plan validation fail. Strategy selection is by stable identity after
+applicability, so declaration order cannot change the result.
+
+The current `rewrite.atomic_literal.elide.v1` definition has canonical strategy
+fingerprint
+`52d1a15ffb3becdde9e33f708539395e395eff752741283d90ff8bb1ccb64cc5`.
+Its `conformance.atomic_literal_elision.v1` evidence fingerprint is
+`5fe61a36f43a50b7ce5f6e2b13f0ac36ded8bda0e6255a66027bcf669a1d3532`.
+These identities are part of the selected-plan evidence, not comments or test
+metadata.
 
 | Candidate                                                                          | Classification                                      | Boundary                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ---------------------------------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -164,6 +182,25 @@ truthful final conclusion. Aggregation uses this exact precedence:
 Consequently a mixed unknown/unsupported program does not overclaim either
 success or complete failure. A later profile-completion or diagnostic policy may
 explain the already retained negative evidence without changing its meaning.
+
+## Target-aware explanations
+
+`explain_portability(&SemanticProgram, &PortabilityPlan)` runs only after plan
+validation and exact program-fingerprint correspondence. It emits deterministic
+canonical diagnostics for native (`STRL-PORTABILITY-0101`), certified rewrite
+(`STRL-PORTABILITY-0102`), unsupported (`STRL-PORTABILITY-0103`), and unresolved
+(`STRL-PORTABILITY-0104`) evidence. Locations come from Semantic IR source
+origins; advice records capability availability and constraints, affected node
+IDs, registry version, strategy and conformance fingerprints, and satisfied or
+failed proof identities. Byte-identical explanations for repeated canonical
+requirements on the same affected nodes are coalesced deterministically and
+retain the exact occurrence count, preventing redundant advisory records from
+consuming the compiler's certified diagnostic budget.
+
+The explanation stage treats the plan as authority. Architecture tests prohibit
+capability extraction/evaluation, planning, rewrite application, lowering,
+emission, runtime probes, target artifacts, bindings, frontends, and ambient
+filesystem, environment, clock, process, thread, or randomness dependencies.
 
 ## Ownership and exclusions
 

@@ -3,7 +3,15 @@
 //! This stage chooses a representation strategy. It never mutates Semantic IR,
 //! applies a rewrite, lowers captures, emits target syntax, or probes a runtime.
 
+mod equivalence;
 mod validation;
+
+pub use equivalence::{
+    certified_rewrite_registry, certify_rewrite_registry, CertifiedRewriteRegistry,
+    CertifiedRewriteStrategy, RewriteCertificationEvidence, RewriteConformanceEvidence,
+    RewriteExecutionHook, RewriteObligation, RewriteProofMethod, RewriteRegistryError,
+    RewriteSemanticShape, RewriteStrategyDefinition, RewriteTargetScope,
+};
 
 use std::error::Error;
 use std::fmt;
@@ -42,6 +50,7 @@ pub enum PortabilityPlanningErrorCode {
     RequirementOrderMismatch,
     RequirementResultMismatch,
     CapabilityEvidenceMismatch,
+    InvalidRewriteRegistry,
     RequirementIdentityOverflow,
     MalformedRewritePlan,
     RewriteDependencyMissing,
@@ -181,6 +190,7 @@ pub struct ReplacementCapabilityEvidence {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SemanticRewritePlan {
     pub strategy_id: RewriteStrategyId,
+    pub certification: RewriteCertificationEvidence,
     pub affected_node_ids: Vec<NodeId>,
     pub original_requirement: SemanticRequirement,
     pub replacement_requirements: Vec<SemanticRequirement>,
@@ -330,7 +340,7 @@ pub fn plan_portability(
                 }))
             }
             CapabilityDisposition::Unsupported | CapabilityDisposition::ConstraintViolation => {
-                match evaluate_rewrite_registry(input, foundational, evaluation, result) {
+                match evaluate_rewrite_registry(input, foundational, evaluation, result)? {
                     RewriteRegistryResolution::Equivalent(rewrite_plan) => {
                         RequirementPlanningDisposition::EquivalentRewrite(Box::new(
                             EquivalentRewriteDecision {
@@ -420,22 +430,26 @@ enum ReplacementSupportOutcome {
     Unknown(Vec<ReplacementCapabilityEvidence>),
 }
 
-const CERTIFIED_REWRITE_REGISTRY: [RewriteStrategyId; 1] =
-    [RewriteStrategyId::ElideAtomicLiteralV1];
-
 fn evaluate_rewrite_registry(
     input: &SemanticProgram,
     foundational: &SemanticFacts,
     evaluation: &CapabilityEvaluation,
     capability_result: &CapabilityResult,
-) -> RewriteRegistryResolution {
-    let mut attempts = Vec::with_capacity(CERTIFIED_REWRITE_REGISTRY.len());
+) -> Result<RewriteRegistryResolution, PortabilityPlanningErrors> {
+    let registry = certified_rewrite_registry().map_err(registry_error)?;
+    let strategy_ids = registry.strategy_ids();
+    let mut attempts = Vec::with_capacity(strategy_ids.len());
     let mut selected = None;
-    for strategy_id in CERTIFIED_REWRITE_REGISTRY {
+    for strategy_id in strategy_ids {
+        let certification = equivalence::certification_for(strategy_id).map_err(registry_error)?;
         let evaluated = match strategy_id {
-            RewriteStrategyId::ElideAtomicLiteralV1 => {
-                evaluate_atomic_literal_elision(input, foundational, evaluation, capability_result)
-            }
+            RewriteStrategyId::ElideAtomicLiteralV1 => evaluate_atomic_literal_elision(
+                input,
+                foundational,
+                evaluation,
+                capability_result,
+                certification,
+            ),
         };
         if selected.is_none() {
             selected = evaluated.plan;
@@ -444,27 +458,27 @@ fn evaluate_rewrite_registry(
     }
 
     if let Some(plan) = selected {
-        return RewriteRegistryResolution::Equivalent(Box::new(plan));
+        return Ok(RewriteRegistryResolution::Equivalent(Box::new(plan)));
     }
     if attempts
         .iter()
         .any(|attempt| attempt.disposition == RewriteAttemptDisposition::ProofIndeterminate)
     {
-        return RewriteRegistryResolution::Incomplete {
+        return Ok(RewriteRegistryResolution::Incomplete {
             reason: UnresolvedPlanningReason::RewriteProofIndeterminate,
             attempts,
-        };
+        });
     }
     if attempts
         .iter()
         .any(|attempt| attempt.disposition == RewriteAttemptDisposition::ReplacementUnknown)
     {
-        return RewriteRegistryResolution::Incomplete {
+        return Ok(RewriteRegistryResolution::Incomplete {
             reason: UnresolvedPlanningReason::ReplacementCapabilityUnknown,
             attempts,
-        };
+        });
     }
-    RewriteRegistryResolution::NoEquivalent(attempts)
+    Ok(RewriteRegistryResolution::NoEquivalent(attempts))
 }
 
 fn evaluate_atomic_literal_elision(
@@ -472,6 +486,7 @@ fn evaluate_atomic_literal_elision(
     foundational: &SemanticFacts,
     evaluation: &CapabilityEvaluation,
     capability_result: &CapabilityResult,
+    certification: RewriteCertificationEvidence,
 ) -> StrategyEvaluation {
     if !matches!(capability_result.requirement.kind, RequirementKind::Atomic) {
         return StrategyEvaluation {
@@ -575,6 +590,7 @@ fn evaluate_atomic_literal_elision(
     affected_node_ids.dedup();
     let plan = SemanticRewritePlan {
         strategy_id: RewriteStrategyId::ElideAtomicLiteralV1,
+        certification,
         affected_node_ids,
         original_requirement: capability_result.requirement.clone(),
         replacement_requirements: replacement_requirements.clone(),
@@ -694,6 +710,14 @@ fn replacement_failure(disposition: CapabilityDisposition) -> Option<RewriteAtte
         }
         CapabilityDisposition::Unknown => Some(RewriteAttemptDisposition::ReplacementUnknown),
     }
+}
+
+fn registry_error(error: RewriteRegistryError) -> PortabilityPlanningErrors {
+    PortabilityPlanningErrors::single(PortabilityPlanningError::new(
+        PortabilityPlanningErrorCode::InvalidRewriteRegistry,
+        "$.rewrite_registry",
+        error.message,
+    ))
 }
 
 fn find_node<'a>(root: &'a Node, node_id: &NodeId) -> Option<&'a Node> {

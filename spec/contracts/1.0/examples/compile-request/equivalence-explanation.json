@@ -1,0 +1,32 @@
+{
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "input": {
+        "kind": "source",
+        "document": {
+            "contract_version": "1.0.0",
+            "source_id": "src:protocol.equivalence-explanation",
+            "specification_version": "1.0-draft.1",
+            "frontend": {
+                "id": "strling.regex-compat",
+                "dialect_version": "1.0.0"
+            },
+            "content": {
+                "kind": "inline",
+                "encoding": "utf-8",
+                "text": "(?>a)"
+            },
+            "provenance": { "kind": "imported" }
+        }
+    },
+    "target_profile": {
+        "profile_id": "profile:ecmascript/2024",
+        "profile_version": "1.0.0",
+        "sha256": "180513005b078fcc34875b7cd5cf3369daa8e8bdacf184baea0f48b170238604"
+    },
+    "requested_outputs": ["portability"],
+    "compiler_options": {
+        "partial_semantics": "forbid",
+        "diagnostic_policy": { "minimum_severity": "hint" }
+    }
+}

@@ -49,6 +49,26 @@ class PortabilityMappingTests(unittest.TestCase):
             ):
                 validate_mapping_document(changed, ROOT)
 
+    def test_semantic_diagnostic_and_portability_mappings_require_explanations(
+        self,
+    ) -> None:
+        mapping = load_mapping(ROOT / "core" / "contract-mapping.json")
+        for schema in (
+            "spec/contracts/1.0/diagnostic.schema.json",
+            "spec/contracts/1.0/portability.schema.json",
+            "spec/contracts/1.0/semantic-ir.schema.json",
+        ):
+            changed = copy.deepcopy(mapping)
+            entry = next(
+                item for item in changed["schemas"] if item["schema"] == schema
+            )
+            entry["rust_modules"].remove("portability_diagnostics")
+            with (
+                self.subTest(schema=schema),
+                self.assertRaisesRegex(CoreContractError, "explanation"),
+            ):
+                validate_mapping_document(changed, ROOT)
+
 
 class PortabilityPlanningBoundaryTests(unittest.TestCase):
     def test_stage_boundary_and_certified_prerequisites_are_required(self) -> None:
@@ -127,6 +147,7 @@ class PortabilityPipelineBoundaryTests(unittest.TestCase):
             ),
             ("evaluate_capabilities(", "evaluate_capabilities_after_planning("),
             ("plan_portability(", "plan_portability_before_capability("),
+            ("explain_portability(", "explain_portability_before_planning("),
         ):
             sources = source_texts()
             path = "core/src/capability_pipeline.rs"

@@ -1,0 +1,70 @@
+{
+    "registry_version": "1.0.0",
+    "strategies": [
+        {
+            "strategy_id": "rewrite.atomic_literal.elide.v1",
+            "applicable_semantic_shape": {
+                "original_node_kind": "atomic",
+                "direct_body_node_kind": "literal"
+            },
+            "original_requirement_kind": "atomic",
+            "preconditions": [
+                {
+                    "id": "precondition.original_node_atomic",
+                    "text": "The original requirement node is certified as an atomic Semantic IR node."
+                },
+                {
+                    "id": "precondition.direct_body_relationship",
+                    "text": "The candidate body is the atomic node's direct Semantic IR child."
+                },
+                {
+                    "id": "precondition.body_node_literal",
+                    "text": "The direct body node is certified as a literal."
+                }
+            ],
+            "semantic_invariants": [
+                {
+                    "id": "invariant.accepted_language",
+                    "text": "Eliding the atomic wrapper preserves the accepted language because a literal exposes no internal alternative or repetition choice point."
+                },
+                {
+                    "id": "invariant.match_observation",
+                    "text": "Matched text, match span, capture participation and values, and case-matching behavior remain unchanged."
+                }
+            ],
+            "unsupported_conditions": [
+                {
+                    "id": "unsupported.nonliteral_body",
+                    "text": "A nonliteral body is not certified because it may expose backtracking choices."
+                },
+                {
+                    "id": "unsupported.incomplete_proof",
+                    "text": "Missing structural facts, stale registry evidence, or unsatisfied proof conditions block equivalence."
+                },
+                {
+                    "id": "unsupported.replacement_requirements",
+                    "text": "Any generated semantic requirement must have exact Supported evidence for the requested target profile."
+                }
+            ],
+            "explanation": "The target lacks native atomic grouping, but this atomic node directly contains one literal; removing only the redundant atomic wrapper preserves matching semantics.",
+            "proof_method": "structural",
+            "target_scope": "target_neutral",
+            "required_tests": [
+                "property.normalized_programs.v1",
+                "conformance.atomic_literal_elision.v1"
+            ],
+            "conformance_evidence": {
+                "evidence_id": "conformance.atomic_literal_elision.v1",
+                "path": "spec/portability/equivalence/1.0/atomic-literal-elision.cases.json",
+                "sha256": "5fe61a36f43a50b7ce5f6e2b13f0ac36ded8bda0e6255a66027bcf669a1d3532"
+            },
+            "execution_hooks": [
+                {
+                    "hook_id": "runtime.atomic_literal_elision.differential.v1",
+                    "status": "deferred_until_target_emitter",
+                    "obligation": "Execute original atomic-literal semantics and the lowered elision artifact over positive, negative, Unicode, case-sensitive, and case-insensitive inputs and require identical match and capture observations."
+                }
+            ]
+        }
+    ]
+}
