@@ -2845,16 +2845,27 @@ The pure Rust serializer now consumes only a validated
 recomputing capability or rewrite policy. Empty PCRE2 flags remain omitted, so
 existing PCRE2 artifact bytes and fingerprints are unchanged.
 
-Project-era Rust and Cargo 1.75.0 with rustfmt 1.7.0 pass formatting,
-warning-denied all-target Clippy, and all 306 all-target core tests. The
-serializer/runtime architecture suite, runtime orchestrator unit suite, 11
-contract mappings with 78 fixtures, and 15 existing core-contract tests also
-pass. Exact official Node v22.23.2/V8 12.4.254.21-node.56 on the verified
-Windows x64 distribution executes all 145 bounded requests twice with stable
-semantic digest
+At implementation checkpoint
+`b0ccc8c037319301fb03b3124ebae5ad83297e1d`, project-era Rust and Cargo
+1.75.0 with rustfmt 1.7.0 pass formatting, warning-denied all-target Clippy,
+and all 306 all-target core tests. The serializer/runtime architecture suite,
+runtime orchestrator unit suite, 11 contract mappings with 78 fixtures, 15
+existing core-contract tests, every enforced public-contract surface, all
+three enforced generated-artifact families including 126 Swift fixtures, and
+the complete governance/architecture evaluation also pass. Exact official
+Node v22.23.2/V8 12.4.254.21-node.56 on the verified Windows x64 distribution
+executes all 145 bounded requests twice with stable semantic digest
 `06d0cfdcc13324335464f795d8b6b9a6fc2fb778df4a22b7a0d3e8830e9ec23b`.
 This corroborates the selected engine and corpus but does not replace the
 required verified Linux x64 executable identity.
+
+Three-repeat migration candidates on Windows consistently compute the new
+canonical-boundary fingerprint
+`sha256:c8ee813968a98d410049b7581998a8b549766538380d69194842fc1c7ca2fbf8`,
+but their source-observation and historical-peer fingerprints differ from the
+Linux-authored baseline even under the WSL-era Node 18.19.1 and Python 3.12
+major/minor versions. The canonical baseline remains unchanged pending Linux
+review; no cross-platform candidate was accepted as renewal evidence.
 
 P11-T02 remains `IN PROGRESS`. Canonical Linux execution, complete repository
 profiles and hardgates, the final evidence record, and a clean final commit are

@@ -105,8 +105,7 @@ change_classification:
         level: additive
         evidence:
             - Adds optional canonical pattern flags to EmittedPattern because ES2024 global case intent cannot be represented in pattern source or immutable profile options; existing PCRE2 artifacts remain byte-compatible by omitting empty flags.
-        affected_surfaces:
-            - target-artifact-contract
+        affected_surfaces: []
     diagnostic_change:
         level: additive
         evidence:
@@ -182,10 +181,15 @@ checkpoints:
       evidence:
           - check: Available platform-neutral hardgate evidence
             result: passed
-            details: Project-era Rust formatting, warning-denied Clippy, all 306 core tests, focused serializer/runtime and architecture suites, 11 contract mappings with 78 fixtures, 15 existing core-contract tests, seven documentation examples with 140-file link validation, scope/change declarations, and patch integrity pass. Windows cannot authoritatively run the Linux shell entrypoint, exact Linux Node executable, or complete profile matrix; those remain pending rather than waived or substituted.
+            details: Project-era Rust formatting, warning-denied Clippy, all 306 core tests, focused serializer/runtime and architecture suites, 11 contract mappings with 78 fixtures, 15 existing core-contract tests, all enforced public-contract surfaces, all three enforced generated-artifact families including 126 Swift fixtures, seven documentation examples with 140-file link validation, full governance and architecture evaluation, scope/change declarations, and patch integrity pass. The public/generated proof used verified official Go 1.22.12, the repository-managed TypeScript compiler, UTF-8 decoding, and command-name-only Windows adapters in a disposable committed-SHA clone; every enforced surface and generated output is unchanged. Windows cannot authoritatively run the Linux shell entrypoint, exact Linux Node executable, or complete profile matrix; those remain pending rather than waived or substituted.
+          - check: Non-certifying Windows migration-differential diagnostic
+            result: passed
+            details: Repeated candidate runs under host Node 24/Python 3.13, exact selected Node 22/Python 3.12, and exact WSL-era Node 18.19.1/Python 3.12 were deterministic and agreed that the intentional Rust public-module addition changes only the directly computed canonical-boundary identity to sha256:c8ee813968a98d410049b7581998a8b549766538380d69194842fc1c7ca2fbf8. Their source-observation and historical-peer fingerprints nevertheless differed from the Linux-authored canonical baseline, proving the evidence is platform-sensitive. Baseline sha256:39f309162b403c4f3af21a587e3d88dbc9b55edb471c12498702f6ef57d3286a was deliberately retained; no Windows candidate was accepted as a review renewal.
           - check: Canonical Linux hardgate evidence
             result: not_run
-            details: Awaiting recovery of the exhausted WSL service for exact Linux Node identity, canonical governance/architecture evaluation, migration differential, generated/public contract tooling unavailable on Windows, Local/Pull Request/Full profiles, final task record, and clean-tree verification.
+            details: Awaiting recovery of the exhausted WSL service for exact Linux Node identity, Linux-sensitive migration differential and boundary renewal, Local/Pull Request/Full profiles, final task record, and clean-tree verification.
 commits:
     - sha: e1b27fcff4af5dd666ed88dabf229806381b7a58
       subject: "docs(core): define ECMAScript serialization certification"
+    - sha: b0ccc8c037319301fb03b3124ebae5ad83297e1d
+      subject: "feat(core): serialize and certify ECMAScript artifacts"
