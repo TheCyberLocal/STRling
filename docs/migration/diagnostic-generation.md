@@ -2,8 +2,9 @@
 
 ## Stage ownership and boundary
 
-Diagnostic generation communicates already-certified target-neutral evidence. It
-does not establish safety facts. The pure kernel boundary is conceptually:
+Diagnostic generation communicates already-certified target-neutral safety
+evidence and owns a closed proof-backed semantic quality substage. It does not
+establish safety facts. The pure kernel boundary is conceptually:
 
 ```text
 generate_diagnostics(
@@ -27,8 +28,9 @@ shape, reachable node references, and referenced structural relationships.
 
 The stage borrows every input and returns independent values. It does not parse
 source or regex text, normalize or mutate Semantic IR, derive semantic,
-structural, or safety facts, consult a target profile, plan portability, run an
-emitter, apply a fix, lower to target syntax, or observe filesystem,
+structural, or safety facts, solve general satisfiability or language
+inclusion, consult a target profile, plan portability, run an emitter, apply a
+fix, lower to target syntax, or observe filesystem,
 environment, network, time, process, thread, or randomness state.
 
 The canonical responsibility flow is:
@@ -49,6 +51,9 @@ semantic safety findings and typed uncertainty
 diagnostic generation
         |
         v
+certified safety projection + closed semantic quality proofs
+        |
+        v
 canonically ordered structured diagnostics
 ```
 
@@ -60,8 +65,9 @@ also retains:
 
 -   the primary semantic `NodeId`;
 -   sorted and deduplicated contributing `NodeId` values;
--   the certified structural relationship identity when the finding has one;
--   the complete typed `SafetyEvidence`; and
+-   the certified structural relationship identity when a safety finding has
+    one;
+-   exactly one complete typed `SafetyEvidence` or `QualityEvidence` value; and
 -   the selected primary and related source spans, when provenance exists.
 
 These values are used to validate evidence integrity, deduplicate equivalent
@@ -108,6 +114,36 @@ They do not claim nontermination, catastrophic backtracking, denial of service,
 universal vulnerability, exploitability, runtime complexity, or behavior of a
 specific engine.
 
+## Closed semantic quality mapping
+
+P12-T04 adds seven `STRL-QUALITY` identities under the same canonical generator
+and unchanged wire contract:
+
+| Quality proof                                          | Diagnostic code     | Severity  |
+| ------------------------------------------------------ | ------------------- | --------- |
+| zero-maximum repetition                                | `STRL-QUALITY-0001` | `warning` |
+| non-possessive exact-once repetition                   | `STRL-QUALITY-0002` | `info`    |
+| exact duplicate later alternation branch               | `STRL-QUALITY-0003` | `warning` |
+| same-position complementary boundary assertions        | `STRL-QUALITY-0004` | `warning` |
+| same-position equivalent opposite-polarity lookarounds | `STRL-QUALITY-0005` | `warning` |
+| explicit character-set member intersection             | `STRL-QUALITY-0006` | `info`    |
+| backreference to a proven zero-width capture body      | `STRL-QUALITY-0007` | `info`    |
+
+These diagnostics use phase `semantic_analysis`, category
+`semantic_validity`, and severity basis `compiler_policy`. Proof construction
+compares canonical node shape while ignoring only `NodeId` and `SourceOrigin`;
+all capture/reference identities and semantic fields remain significant. It
+uses concrete Unicode-scalar witnesses for explicit set overlap and resets
+assertion comparison after any consuming expression.
+
+The generator stays silent for shared leading prefixes, unknown symbolic
+overlap, case-fold or Unicode-property uncertainty, general assertion
+satisfiability, unused captures, forward-reference behavior, possessive
+exact-once repetition, raw-source style, and target/runtime guesses. The exact
+proof table, evidence shapes, source ownership, and false-positive policy are
+documented in
+[Proof-backed semantic quality diagnostics](semantic-quality-diagnostics.md).
+
 ## Severity and confidence policy
 
 Finding identity, evidence confidence, diagnostic severity, and target policy
@@ -144,7 +180,7 @@ merged. Within one evidence role, spans retain canonical source/start/end
 order. A node without source provenance remains valid evidence and does not
 cause a location to be fabricated.
 
-The finding-specific projection is:
+The safety-finding-specific projection is:
 
 -   repetition progress: repetition primary; operand related as the progress
     cause when its location differs;
@@ -162,6 +198,13 @@ locations may still be emitted for contributing nodes that have provenance.
 The generator does not promote a related span into the primary location because
 doing so would misattribute finding ownership.
 
+Quality findings use the repetition, later duplicate branch, later
+contradictory assertion, character set, or backreference as primary. Operands,
+earlier equivalent branches or assertions, and capture definitions/bodies are
+related evidence when source provenance exists. Character-set member indices
+and the concrete intersection witness remain typed evidence because members do
+not have independent origins.
+
 ## Advice and remediation boundary
 
 Advice is structured with the certified `note` and `help` kinds. Notes explain
@@ -175,8 +218,8 @@ and input. Help may propose only conceptual actions:
 -   separate repeated content from follower input that competes for the same
     leading characters.
 
-Generated safety diagnostics contain no `Fix`, `TextEdit`, replacement text,
-or executable semantic transformation. They do not emit atomic-group or
+Generated safety and quality diagnostics contain no `Fix`, `TextEdit`,
+replacement text, or executable semantic transformation. They do not emit atomic-group or
 possessive-quantifier syntax and do not recommend such behavior
 unconditionally. Advice may note that a later target-aware stage can consider
 engine-supported atomic or possessive behavior only after it proves semantic

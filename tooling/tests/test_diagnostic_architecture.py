@@ -94,6 +94,31 @@ class DiagnosticStageBoundaryTests(unittest.TestCase):
             ):
                 validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 
+    def test_quality_proof_substage_is_owned_and_target_neutral(self) -> None:
+        sources = source_texts()
+        sources.pop("core/src/diagnostic_generation/quality.rs")
+        with self.assertRaisesRegex(CoreContractError, "quality proof substage"):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+        for forbidden in (
+            "use crate::target::profile;",
+            "use crate::portability_planning;",
+            'let raw_source = "regex text";',
+            'std::process::Command::new("runtime");',
+        ):
+            sources = source_texts()
+            sources["core/src/diagnostic_generation/quality.rs"] += (
+                f"\n// {forbidden}\n"
+            )
+            with (
+                self.subTest(forbidden=forbidden),
+                self.assertRaisesRegex(
+                    CoreContractError,
+                    "diagnostic generation.*boundary|target-neutral stage",
+                ),
+            ):
+                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
 
 class CompilerPipelineBoundaryTests(unittest.TestCase):
     def test_stage_boundary_and_target_neutral_stages_are_required(self) -> None:

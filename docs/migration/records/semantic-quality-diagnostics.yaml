@@ -20,6 +20,7 @@ scope:
         - core/tests/semantic_quality_diagnostic_properties.rs
         - core/tests/semantic_quality_diagnostics.rs
         - docs/architecture.md
+        - docs/migration/diagnostic-generation.md
         - docs/migration/ledger.md
         - docs/migration/records/semantic-quality-diagnostics.yaml
         - docs/migration/semantic-quality-diagnostics.md
@@ -27,6 +28,7 @@ scope:
         - spec/contracts/1.0/examples/diagnostic/semantic-quality-warning.json
         - tooling/core_stage_boundaries.py
         - tooling/tests/test_canonical_contracts.py
+        - tooling/tests/test_core_contracts.py
         - tooling/tests/test_diagnostic_architecture.py
     forbidden_paths:
         - bindings/**
@@ -54,10 +56,24 @@ scope:
         - spec/targets/**
         - tests/spec/**
     expected_files:
+        - core/README.md
+        - core/src/compiler_pipeline.rs
+        - core/src/diagnostic_generation.rs
+        - core/src/diagnostic_generation/quality.rs
+        - core/tests/diagnostic_evidence.rs
+        - core/tests/semantic_quality_diagnostic_properties.rs
+        - core/tests/semantic_quality_diagnostics.rs
+        - docs/architecture.md
+        - docs/migration/diagnostic-generation.md
         - docs/migration/ledger.md
         - docs/migration/records/semantic-quality-diagnostics.yaml
         - docs/migration/semantic-quality-diagnostics.md
         - governance/change-control.json
+        - spec/contracts/1.0/examples/diagnostic/semantic-quality-warning.json
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_canonical_contracts.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_diagnostic_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -87,9 +103,9 @@ change_classification:
         evidence:
             - Adds seven stable STRL-QUALITY codes for complete target-neutral semantic proofs while preserving STRL-SAFETY-0001 through STRL-SAFETY-0005 exactly.
     target_behavior_change:
-        level: none
+        level: additive
         evidence:
-            - No target profile, capability, portability, lowering, serialization, runtime harness, or conformance expectation changes.
+            - Adds one Diagnostic-contract example under the repository path classified as target-behavior evidence; it exercises target-neutral semantic quality output and does not change any target profile, capability, portability, lowering, serialization, runtime harness, or conformance expectation.
     architecture_change:
         level: additive
         evidence:
@@ -127,27 +143,29 @@ checkpoints:
             result: passed
             details: No canonical code currently reports provable zero-maximum or exact-once repetitions, exact duplicate alternatives, complementary same-position assertions, explicit set-member intersection, or backreferences to proven zero-width captures. The existing fact stores can prove these without raw-source or target heuristics.
     - name: Closed quality proof and diagnostic contract
-      status: planned
+      status: passed
       evidence:
           - check: Seven-code false-positive boundary
-            result: not_run
-            details: Awaiting typed quality evidence, canonical semantic-shape comparison, concrete set-overlap witnesses, same-position assertion segmentation, stable policy mapping, and explicit silence for all excluded unknown or target-dependent cases.
+            result: passed
+            details: Seven typed QualityFindingCode and QualityEvidence variants implement only the locked zero-maximum, non-possessive exact-once, duplicate-branch, boundary-contradiction, lookaround-contradiction, explicit set-overlap, and zero-width-backreference proofs. Semantic-shape comparison ignores only NodeId and SourceOrigin, explicit set overlap retains a Unicode-scalar witness, consuming nodes reset assertion regions, possessive exact-once and every unproved or target-dependent near miss remain silent.
     - name: Canonical generator implementation and source projection
-      status: planned
+      status: passed
       evidence:
           - check: Integrated generation
-            result: not_run
-            details: Awaiting one target-neutral internal quality substage, unified deterministic occurrence ordering, typed safety-versus-quality provenance, resource bounds, precise primary/related locations, and compiler-pipeline integration without a parallel product route.
+            result: passed
+            details: Canonical generate_diagnostics owns one private quality proof submodule, retains distinct DiagnosticEvidence::Safety and ::Quality provenance, and orders both by stable code/node/evidence identities. The combined bound is 4,096 safety plus 4,096 quality records with fail-closed overflow. Primary and related locations project only canonical origins; character-set indices/witnesses stay typed evidence. The existing crate-private pipeline returns advisory safety and quality diagnostics without target or product routing.
     - name: Property, contract, and architecture certification
-      status: planned
+      status: passed
       evidence:
           - check: Positive, negative, adversarial, and mutation evidence
-            result: not_run
-            details: Awaiting every-code fixtures, safety preservation, fixed-seed determinism, normalization and source-less properties, unchanged-schema fixture validation, and controlled architecture failures.
+            result: passed
+            details: Thirteen focused Rust tests cover all seven mappings, every false-positive guard, source-backed projection, source-less evidence, all five preserved safety identities, and 128 fixed-seed candidates through repeated normalization/generation. The new quality fixture validates under the unchanged Diagnostic schema; canonical contracts pass 11 schemas, 60 positive, 33 negative, and core mapping passes 96 fixtures. Forty-four focused Python contract/architecture tests pass, including controlled missing-substage, target, portability, raw-source, and process dependency mutations.
     - name: Complete repository and P12-T04 certification
       status: planned
       evidence:
           - check: Task-closing hardgates
             result: not_run
             details: Awaiting all Rust and tooling tests, contracts, shared corpus where relevant, formatting, public/generated checks, governance, documentation, migration differential, Local/Pull Request/Full profiles, clean final commit, and P12-T05 handoff.
-commits: []
+commits:
+    - sha: 68ef4556153d11711f9180d6ce3c0a09d91447cf
+      subject: "docs(core): define proof-backed quality diagnostics"

@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 use strling_kernel::diagnostic_generation::{
-    generate_diagnostics, DiagnosticGeneration, DiagnosticGenerationErrorCode,
+    generate_diagnostics, DiagnosticEvidence, DiagnosticGeneration, DiagnosticGenerationErrorCode,
 };
 use strling_kernel::safety_analysis::{analyze_safety, SafetyAnalysis, SafetyEvidence};
 use strling_kernel::semantic::SemanticProgram;
@@ -152,7 +152,9 @@ fn generation_records_retain_complete_stable_source_and_path_evidence() {
         node_ids,
         vec!["node:nested.atom", "node:nested.inner", "node:nested.outer"]
     );
-    let SafetyEvidence::NestedRepetition { path, .. } = &record.provenance.safety_evidence else {
+    let DiagnosticEvidence::Safety(SafetyEvidence::NestedRepetition { path, .. }) =
+        &record.provenance.evidence
+    else {
         panic!("nested diagnostic must retain nested evidence");
     };
     assert_eq!(

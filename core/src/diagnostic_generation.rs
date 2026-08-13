@@ -1,5 +1,5 @@
-//! Pure projection of certified semantic safety evidence into structured
-//! diagnostics.
+//! Canonical projection of certified semantic safety evidence plus closed,
+//! proof-backed semantic quality conditions into structured diagnostics.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
@@ -24,6 +24,15 @@ use crate::source::{NodeId, SourceOrigin, SourceSpan};
 use crate::structural_analysis::StructuralFacts;
 use crate::validation::{Validate, ValidationCode, ValidationErrors};
 
+mod quality;
+
+use quality::{derive_quality_findings, QualityDerivationErrorCode};
+pub use quality::{
+    QualityAssertionPolarity, QualityBoundaryKind, QualityCharacterSetMember, QualityEvidence,
+    QualityFinding, QualityFindingCategory, QualityFindingCode, QualityLookaroundDirection,
+    QualityProofStatus, QualityRepetitionMode, MAX_QUALITY_FINDINGS,
+};
+
 /// Canonical source provenance retained for one semantic evidence node.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct DiagnosticNodeOrigin {
@@ -41,9 +50,30 @@ pub const SAFETY_NESTED_REPETITION_OVERLAP: &str = "STRL-SAFETY-0003";
 pub const SAFETY_REPEATED_ALTERNATION_OVERLAP: &str = "STRL-SAFETY-0004";
 /// Stable external code for proved repetition/follower overlap.
 pub const SAFETY_REPETITION_FOLLOWER_OVERLAP: &str = "STRL-SAFETY-0005";
+/// Stable external code for a repetition whose operand is unreachable.
+pub const QUALITY_ZERO_MAXIMUM_REPETITION: &str = "STRL-QUALITY-0001";
+/// Stable external code for a non-possessive repetition that executes exactly once.
+pub const QUALITY_REDUNDANT_SINGLE_REPETITION: &str = "STRL-QUALITY-0002";
+/// Stable external code for an exact duplicate later alternation branch.
+pub const QUALITY_DUPLICATE_ALTERNATION_BRANCH: &str = "STRL-QUALITY-0003";
+/// Stable external code for same-position complementary boundary assertions.
+pub const QUALITY_CONTRADICTORY_BOUNDARY_ASSERTIONS: &str = "STRL-QUALITY-0004";
+/// Stable external code for equivalent opposite-polarity lookarounds.
+pub const QUALITY_CONTRADICTORY_LOOKAROUND_ASSERTIONS: &str = "STRL-QUALITY-0005";
+/// Stable external code for explicit character-set members with proved overlap.
+pub const QUALITY_OVERLAPPING_CHARACTER_SET_MEMBERS: &str = "STRL-QUALITY-0006";
+/// Stable external code for a backreference to a proven zero-width capture body.
+pub const QUALITY_ZERO_WIDTH_BACKREFERENCE: &str = "STRL-QUALITY-0007";
 
 /// Maximum diagnostics produced by one generation invocation.
-pub const MAX_GENERATED_DIAGNOSTICS: usize = MAX_SAFETY_FINDINGS;
+pub const MAX_GENERATED_DIAGNOSTICS: usize = MAX_SAFETY_FINDINGS + MAX_QUALITY_FINDINGS;
+
+/// Typed provenance for one canonical generated diagnostic.
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum DiagnosticEvidence {
+    Safety(SafetyEvidence),
+    Quality(QualityEvidence),
+}
 
 /// Stable semantic evidence retained beside one contract diagnostic.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -51,7 +81,7 @@ pub struct DiagnosticProvenance {
     pub primary_node_id: NodeId,
     pub contributing_node_ids: Vec<NodeId>,
     pub relationship: Option<StructuralRelationshipRef>,
-    pub safety_evidence: SafetyEvidence,
+    pub evidence: DiagnosticEvidence,
     pub source_origins: Vec<DiagnosticNodeOrigin>,
 }
 
@@ -201,9 +231,10 @@ impl Error for DiagnosticGenerationErrors {}
 
 /// Generate canonical diagnostics from certified facts and safety evidence.
 ///
-/// The stage validates correspondence and evidence shape but never derives a
-/// safety condition. Current typed uncertainty is intentionally not promoted
-/// into a diagnostic.
+/// The stage validates correspondence and safety evidence shape, never derives
+/// a safety condition, and independently constructs only its closed set of
+/// semantic quality proofs. Current typed uncertainty is intentionally not
+/// promoted into a diagnostic.
 pub fn generate_diagnostics(
     input: &SemanticProgram,
     foundational: &SemanticFacts,
@@ -231,8 +262,29 @@ pub fn generate_diagnostics(
     validate_projection_evidence(&node_index, structural, &canonical_safety)?;
     let mut records: Vec<_> = canonical_safety
         .findings()
-        .map(|finding| build_record(input, &node_index, finding))
+        .map(|finding| build_safety_record(input, &node_index, finding))
         .collect::<Result<_, _>>()?;
+    let quality_findings =
+        derive_quality_findings(input, foundational, structural).map_err(|error| {
+            DiagnosticGenerationErrors::single(DiagnosticGenerationError::new(
+                match error.code {
+                    QualityDerivationErrorCode::FindingLimitExceeded => {
+                        DiagnosticGenerationErrorCode::DiagnosticLimitExceeded
+                    }
+                    QualityDerivationErrorCode::Invariant => {
+                        DiagnosticGenerationErrorCode::GenerationInvariant
+                    }
+                },
+                error.path,
+                error.message,
+            ))
+        })?;
+    records.extend(
+        quality_findings
+            .iter()
+            .map(|finding| build_quality_record(input, &node_index, finding))
+            .collect::<Result<Vec<_>, _>>()?,
+    );
     if records.len() > MAX_GENERATED_DIAGNOSTICS {
         return Err(DiagnosticGenerationErrors::single(
             DiagnosticGenerationError::new(
@@ -273,7 +325,7 @@ pub fn generate_diagnostics(
     Ok(DiagnosticGeneration { records })
 }
 
-fn build_record(
+fn build_safety_record(
     input: &SemanticProgram,
     nodes: &BTreeMap<NodeId, &Node>,
     finding: &SafetyFinding,
@@ -311,7 +363,50 @@ fn build_record(
             primary_node_id: primary_node_id.clone(),
             contributing_node_ids: finding.evidence_node_ids.clone(),
             relationship: relationship(&finding.evidence).cloned(),
-            safety_evidence: finding.evidence.clone(),
+            evidence: DiagnosticEvidence::Safety(finding.evidence.clone()),
+            source_origins: source_origins(nodes, primary_node_id, &finding.evidence_node_ids),
+        },
+    })
+}
+
+fn build_quality_record(
+    input: &SemanticProgram,
+    nodes: &BTreeMap<NodeId, &Node>,
+    finding: &QualityFinding,
+) -> Result<GeneratedDiagnostic, DiagnosticGenerationErrors> {
+    let (code, severity, message) = quality_diagnostic_policy(finding.code);
+    let primary_node_id = &finding.primary_node_id;
+    let primary_location = primary_span(nodes, primary_node_id).cloned();
+    let related_locations =
+        quality_related_locations(nodes, finding, primary_node_id, primary_location.as_ref());
+    let code = DiagnosticCode::try_from(code).map_err(|message| {
+        DiagnosticGenerationErrors::single(DiagnosticGenerationError::new(
+            DiagnosticGenerationErrorCode::GenerationInvariant,
+            "$.diagnostics.code",
+            message,
+        ))
+    })?;
+
+    Ok(GeneratedDiagnostic {
+        diagnostic: Diagnostic {
+            contract_version: input.contract_version,
+            occurrence: DiagnosticOccurrence::new(0),
+            code,
+            severity,
+            severity_basis: SeverityBasis::CompilerPolicy,
+            phase: CompilerPhase::SemanticAnalysis,
+            category: DiagnosticCategory::SemanticValidity,
+            message: message.to_owned(),
+            primary_location,
+            related_locations: (!related_locations.is_empty()).then_some(related_locations),
+            advice: Some(quality_advice(finding.code)),
+            fixes: None,
+        },
+        provenance: DiagnosticProvenance {
+            primary_node_id: primary_node_id.clone(),
+            contributing_node_ids: finding.evidence_node_ids.clone(),
+            relationship: None,
+            evidence: DiagnosticEvidence::Quality(finding.evidence.clone()),
             source_origins: source_origins(nodes, primary_node_id, &finding.evidence_node_ids),
         },
     })
@@ -347,6 +442,46 @@ fn diagnostic_policy(code: SafetyFindingCode) -> (&'static str, Severity, &'stat
     }
 }
 
+fn quality_diagnostic_policy(code: QualityFindingCode) -> (&'static str, Severity, &'static str) {
+    match code {
+        QualityFindingCode::ZeroMaximumRepetition => (
+            QUALITY_ZERO_MAXIMUM_REPETITION,
+            Severity::Warning,
+            "A repetition with maximum zero has an unreachable operand.",
+        ),
+        QualityFindingCode::RedundantSingleRepetition => (
+            QUALITY_REDUNDANT_SINGLE_REPETITION,
+            Severity::Info,
+            "A non-possessive repetition that executes exactly once is semantically redundant.",
+        ),
+        QualityFindingCode::DuplicateAlternationBranch => (
+            QUALITY_DUPLICATE_ALTERNATION_BRANCH,
+            Severity::Warning,
+            "A later alternation branch duplicates an earlier canonical semantic branch.",
+        ),
+        QualityFindingCode::ContradictoryBoundaryAssertions => (
+            QUALITY_CONTRADICTORY_BOUNDARY_ASSERTIONS,
+            Severity::Warning,
+            "The same input position requires both word-boundary and not-word-boundary.",
+        ),
+        QualityFindingCode::ContradictoryLookaroundAssertions => (
+            QUALITY_CONTRADICTORY_LOOKAROUND_ASSERTIONS,
+            Severity::Warning,
+            "Equivalent lookarounds at the same input position require opposite outcomes.",
+        ),
+        QualityFindingCode::OverlappingCharacterSetMembers => (
+            QUALITY_OVERLAPPING_CHARACTER_SET_MEMBERS,
+            Severity::Info,
+            "Explicit character-set members overlap on a proven Unicode scalar.",
+        ),
+        QualityFindingCode::ZeroWidthBackreference => (
+            QUALITY_ZERO_WIDTH_BACKREFERENCE,
+            Severity::Info,
+            "A backreference targets a capture body proven to consume no input.",
+        ),
+    }
+}
+
 fn advice(code: SafetyFindingCode) -> Vec<Advice> {
     let (note, help) = match code {
         SafetyFindingCode::UnboundedNullableRepetition => (
@@ -368,6 +503,49 @@ fn advice(code: SafetyFindingCode) -> Vec<Advice> {
         SafetyFindingCode::RepetitionFollowerOverlap => (
             "The repeated operand and follower share proved leading consumption; runtime impact remains target-dependent.",
             "Separate repeated content from follower input that competes for the same leading characters.",
+        ),
+    };
+    vec![
+        Advice {
+            kind: AdviceKind::Note,
+            message: note.to_owned(),
+        },
+        Advice {
+            kind: AdviceKind::Help,
+            message: help.to_owned(),
+        },
+    ]
+}
+
+fn quality_advice(code: QualityFindingCode) -> Vec<Advice> {
+    let (note, help) = match code {
+        QualityFindingCode::ZeroMaximumRepetition => (
+            "The certified repetition bound prevents the operand from executing.",
+            "Remove the unreachable operand or express the intended repetition bound.",
+        ),
+        QualityFindingCode::RedundantSingleRepetition => (
+            "The exact count is one and no possessive commitment is present.",
+            "Use the operand directly when the exact-once wrapper is not needed for provenance.",
+        ),
+        QualityFindingCode::DuplicateAlternationBranch => (
+            "Every semantic field and capture/reference identity agrees; only node identity or source provenance differs.",
+            "Remove the later duplicate branch or make its semantic intent distinct.",
+        ),
+        QualityFindingCode::ContradictoryBoundaryAssertions => (
+            "No consuming expression separates the complementary boundary requirements.",
+            "Remove one boundary assertion or separate them with the intended consuming expression.",
+        ),
+        QualityFindingCode::ContradictoryLookaroundAssertions => (
+            "The assertions have the same direction and canonical-equivalent bodies but opposite polarity.",
+            "Keep the assertion outcome that represents the intended condition.",
+        ),
+        QualityFindingCode::OverlappingCharacterSetMembers => (
+            "The evidence records an explicit scalar contained by both members; symbolic class and case-fold guesses are not used.",
+            "Merge or narrow the explicit members when the overlap is unintended.",
+        ),
+        QualityFindingCode::ZeroWidthBackreference => (
+            "When the capture participates, its certified body cannot contribute consuming progress.",
+            "Use a consuming capture body or remove the reference if zero-width behavior is not intentional.",
         ),
     };
     vec![
@@ -711,6 +889,115 @@ fn related_locations(
     related
 }
 
+fn quality_related_locations(
+    nodes: &BTreeMap<NodeId, &Node>,
+    finding: &QualityFinding,
+    primary_node_id: &NodeId,
+    primary: Option<&SourceSpan>,
+) -> Vec<RelatedLocation> {
+    let mut related = Vec::new();
+    for span in node_spans(nodes, primary_node_id) {
+        if Some(span) != primary {
+            push_related(
+                &mut related,
+                RelatedLocationRole::Context,
+                "Additional source region for the primary quality finding.",
+                span,
+            );
+        }
+    }
+
+    match &finding.evidence {
+        QualityEvidence::ZeroMaximumRepetition {
+            operand_node_id, ..
+        } => push_node_locations(
+            &mut related,
+            nodes,
+            operand_node_id,
+            RelatedLocationRole::Cause,
+            "This operand is unreachable because the repetition maximum is zero.",
+        ),
+        QualityEvidence::RedundantSingleRepetition {
+            operand_node_id, ..
+        } => push_node_locations(
+            &mut related,
+            nodes,
+            operand_node_id,
+            RelatedLocationRole::Context,
+            "This operand already represents the exact-once semantic behavior.",
+        ),
+        QualityEvidence::DuplicateAlternationBranch {
+            first_branch_node_id,
+            ..
+        } => push_node_locations(
+            &mut related,
+            nodes,
+            first_branch_node_id,
+            RelatedLocationRole::Definition,
+            "This earlier branch has the same canonical semantic shape.",
+        ),
+        QualityEvidence::ContradictoryBoundaryAssertions { first_node_id, .. } => {
+            push_node_locations(
+                &mut related,
+                nodes,
+                first_node_id,
+                RelatedLocationRole::Cause,
+                "This earlier assertion requires the complementary boundary state.",
+            )
+        }
+        QualityEvidence::ContradictoryLookaroundAssertions {
+            first_node_id,
+            first_body_node_id,
+            later_body_node_id,
+            ..
+        } => {
+            push_node_locations(
+                &mut related,
+                nodes,
+                first_node_id,
+                RelatedLocationRole::Cause,
+                "This earlier equivalent lookaround has the opposite polarity.",
+            );
+            push_node_locations(
+                &mut related,
+                nodes,
+                first_body_node_id,
+                RelatedLocationRole::Context,
+                "This body is canonically equivalent to the later lookaround body.",
+            );
+            push_node_locations(
+                &mut related,
+                nodes,
+                later_body_node_id,
+                RelatedLocationRole::Context,
+                "This body is canonically equivalent to the earlier lookaround body.",
+            );
+        }
+        QualityEvidence::OverlappingCharacterSetMembers { .. } => {}
+        QualityEvidence::ZeroWidthBackreference {
+            capture_definition_node_id,
+            capture_body_node_id,
+            ..
+        } => {
+            push_node_locations(
+                &mut related,
+                nodes,
+                capture_definition_node_id,
+                RelatedLocationRole::Definition,
+                "This capture defines the referenced logical identity.",
+            );
+            push_node_locations(
+                &mut related,
+                nodes,
+                capture_body_node_id,
+                RelatedLocationRole::Cause,
+                "This capture body is proven to have maximum consumption zero.",
+            );
+        }
+    }
+    related
+}
+
 fn push_node_locations(
     related: &mut Vec<RelatedLocation>,
     nodes: &BTreeMap<NodeId, &Node>,
@@ -766,11 +1053,7 @@ fn compare_occurrence_keys(
                 .contributing_node_ids
                 .cmp(&right.provenance.contributing_node_ids)
         })
-        .then_with(|| {
-            left.provenance
-                .safety_evidence
-                .cmp(&right.provenance.safety_evidence)
-        })
+        .then_with(|| left.provenance.evidence.cmp(&right.provenance.evidence))
 }
 
 fn generation_code(code: SafetyAnalysisErrorCode) -> DiagnosticGenerationErrorCode {

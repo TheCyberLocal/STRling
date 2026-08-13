@@ -45,7 +45,7 @@ class CanonicalContractTests(unittest.TestCase):
         )
 
     def test_positive_examples_validate(self) -> None:
-        self.assertEqual(59, self.suite.validate_positive_examples())
+        self.assertEqual(60, self.suite.validate_positive_examples())
 
     def test_controlled_negative_examples_are_rejected(self) -> None:
         self.assertEqual(33, self.suite.validate_negative_examples())

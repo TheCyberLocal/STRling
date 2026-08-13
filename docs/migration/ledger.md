@@ -3175,3 +3175,23 @@ language inclusion or satisfiability, unused captures, forward-reference
 behavior, possessive exact-once repetition, style-only advice, target/runtime
 claims, raw-source scanning, fixes, and automatic rewrites remain excluded.
 P12-T05 separately owns semantics-preserving rewrites.
+
+The implementation checkpoint adds typed `QualityFinding` and
+`QualityEvidence` values inside canonical diagnostic generation, distinct
+`DiagnosticEvidence::Safety` and `DiagnosticEvidence::Quality` provenance, and
+stable `STRL-QUALITY-0001` through `STRL-QUALITY-0007` mappings. Safety and
+quality records share canonical code/node/evidence occurrence ordering and a
+combined fail-closed bound of 4,096 records per class. The crate-private
+target-neutral pipeline projects both as advisory diagnostics without adding a
+target, binding, package, product, or editor route.
+
+Thirteen focused Rust tests cover all seven positive mappings, adversarial near
+misses, exact source projection, source-less programs, preservation of all five
+safety codes, and 128 fixed-seed candidates through repeated normalization and
+generation. The complete kernel all-target suite passes and warning-denied
+Clippy passes. The additive quality example validates under the unchanged
+Diagnostic schema; canonical contracts pass 11 schemas, 60 positive and 33
+negative examples, while core contract mapping covers 96 fixtures. Forty-four
+focused Python contract and architecture tests pass, including missing quality
+ownership and injected target, portability, raw-source, and process
+dependencies.

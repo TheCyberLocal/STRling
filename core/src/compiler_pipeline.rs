@@ -106,9 +106,10 @@ impl Error for CompilerPipelineErrors {
 /// Compile Semantic IR through target-neutral diagnostics without target
 /// selection, lowering, or emission.
 ///
-/// Safety diagnostics are advisory, so a valid semantic program returns a
-/// successful `CompileResult` even when warnings or informational diagnostics
-/// are present. The result deliberately has no portability plan or artifact.
+/// Safety and proof-backed quality diagnostics are advisory, so a valid
+/// semantic program returns a successful `CompileResult` even when warnings or
+/// informational diagnostics are present. The result deliberately has no
+/// portability plan or artifact.
 pub fn compile_semantic_diagnostics(
     input: &SemanticProgram,
     compiler: &CompilerIdentity,

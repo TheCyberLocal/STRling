@@ -1,0 +1,38 @@
+{
+    "contract_version": "1.0.0",
+    "occurrence": 0,
+    "code": "STRL-QUALITY-0003",
+    "severity": "warning",
+    "severity_basis": "compiler_policy",
+    "phase": "semantic_analysis",
+    "category": "semantic_validity",
+    "message": "A later alternation branch duplicates an earlier canonical semantic branch.",
+    "primary_location": {
+        "source_id": "src:quality",
+        "coordinate_system": "utf8-bytes",
+        "start": 2,
+        "end": 3
+    },
+    "related_locations": [
+        {
+            "role": "definition",
+            "message": "This earlier branch has the same canonical semantic shape.",
+            "location": {
+                "source_id": "src:quality",
+                "coordinate_system": "utf8-bytes",
+                "start": 0,
+                "end": 1
+            }
+        }
+    ],
+    "advice": [
+        {
+            "kind": "note",
+            "message": "Every semantic field and capture/reference identity agrees; only node identity or source provenance differs."
+        },
+        {
+            "kind": "help",
+            "message": "Remove the later duplicate branch or make its semantic intent distinct."
+        }
+    ]
+}

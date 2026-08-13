@@ -14,10 +14,18 @@ def diagnostic_generation_boundary_violation(
 ) -> str | None:
     """Return the first diagnostic-stage architecture violation, if any."""
 
-    source = source_texts.get("core/src/diagnostic_generation.rs", "").lower()
-    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
-    if "pub fn generate_diagnostics(" not in source:
+    entry = source_texts.get("core/src/diagnostic_generation.rs", "").lower()
+    entry = entry.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub fn generate_diagnostics(" not in entry:
         return "canonical diagnostic generation stage boundary cannot be located"
+    if "mod quality;" not in entry:
+        return "canonical diagnostic generation must own the quality proof substage"
+    quality_path = "core/src/diagnostic_generation/quality.rs"
+    if quality_path not in source_texts:
+        return "canonical diagnostic quality proof substage cannot be located"
+    quality_source = source_texts[quality_path].lower()
+    quality_source = quality_source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    source = f"{entry}\n{quality_source}"
 
     prerequisites = (
         ("crate::diagnostic", "certified diagnostic contracts"),
@@ -26,7 +34,7 @@ def diagnostic_generation_boundary_violation(
         ("crate::safety_analysis", "certified semantic safety evidence"),
     )
     for marker, description in prerequisites:
-        if marker not in source:
+        if marker not in entry:
             return f"diagnostic generation must consume {description}"
 
     forbidden = _first_forbidden(
@@ -1479,6 +1487,7 @@ def target_neutral_reverse_dependency_violation(
         "core/src/safety_analysis.rs",
         "core/src/safety_analysis/",
         "core/src/diagnostic_generation.rs",
+        "core/src/diagnostic_generation/",
     )
     for path, text in source_texts.items():
         if not any(

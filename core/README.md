@@ -16,7 +16,11 @@ validation, pure canonical Semantic IR normalization through
 `semantic_analysis::analyze`, structural facts through
 `structural_analysis::analyze_structure`, structured target-neutral safety
 evidence through `safety_analysis::analyze_safety`, and canonical contract
-diagnostics through `diagnostic_generation::generate_diagnostics`. Pure
+diagnostics through `diagnostic_generation::generate_diagnostics`. The
+diagnostic stage preserves the five certified safety mappings and constructs a
+closed set of proof-backed semantic quality findings from normalized Semantic
+IR plus exact foundational and structural facts; it does not inspect raw regex
+text or target behavior. Pure
 semantic requirements and factual profile support are available through
 `capability_evaluation::extract_requirements` and
 `capability_evaluation::evaluate_capabilities`. Representation decisions are
@@ -26,7 +30,8 @@ IR. The crate-private target-aware pipeline certifies that planning follows
 capability evaluation, while the existing `CompileResult` projection remains
 target-neutral and produces no portability plan or artifact.
 
-Parsing, rewrite application, target-specific portability diagnostics,
+Parsing, rewrite application, general satisfiability or language-inclusion
+solving, style-only warnings, target-specific portability diagnostics,
 exploitability or target-runtime verdicts, capture numbering, lowering,
 emission, bindings, editor presentation, adapters, and product integrations
 remain deferred to separately contained tasks.

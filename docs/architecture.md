@@ -49,8 +49,17 @@ Exact-engine execution exists only in isolated repository certification;
 product runtime execution and orchestration of those target stages remain
 deliberately absent.
 
-**Semantic analysis** owns target-independent validity, diagnostics, safety
-findings, and explanation.
+**Semantic analysis** owns target-independent validity, facts, safety findings,
+and canonical diagnostic explanation. Diagnostic generation preserves the five
+certified `STRL-SAFETY` mappings and also owns a closed proof substage for
+`STRL-QUALITY` findings: unreachable zero-maximum repetition operands,
+non-possessive exact-once wrappers, exact duplicate alternatives,
+same-position contradictory boundary or lookaround assertions, explicit
+character-set member intersections, and references to proven zero-width
+capture bodies. These findings use normalized Semantic IR and certified facts,
+not raw-source scanning, target/runtime behavior, general satisfiability,
+style-only policy, or rewrite authority. See
+[Proof-backed semantic quality diagnostics](migration/semantic-quality-diagnostics.md).
 
 **Semantic requirement extraction** describes which target capabilities the
 normalized program demands. **Capability evaluation** compares those

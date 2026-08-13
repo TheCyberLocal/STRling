@@ -36,15 +36,15 @@ harnesses, frontends, bindings, product routes, or editor tooling.
 
 ## Closed diagnostic inventory
 
-| Code | Severity | Proof condition |
-| --- | --- | --- |
-| `STRL-QUALITY-0001` | warning | A repetition has bounded maximum zero. Its operand is unreachable and the repetition always contributes the empty match. |
-| `STRL-QUALITY-0002` | info | A greedy or lazy repetition has minimum and maximum exactly one. The repetition wrapper cannot change count or backtracking commitment; possessive mode is excluded. |
-| `STRL-QUALITY-0003` | warning | A later alternation branch has the exact same canonical semantic shape as an earlier branch when only `NodeId` and `SourceOrigin` are ignored. Capture/reference identities and every semantic field must still agree. |
-| `STRL-QUALITY-0004` | warning | One zero-consumption sequence region requires both word-boundary and not-word-boundary at the same input position. Any consuming expression resets the comparison region. |
-| `STRL-QUALITY-0005` | warning | One zero-consumption sequence region contains same-direction lookarounds with exact canonical-equivalent bodies and opposite polarity. |
-| `STRL-QUALITY-0006` | info | Two explicit members of one character set have a concrete shared Unicode-scalar witness: literal-in-range or range intersection. Symbolic class/property and case-fold guesses are excluded. |
-| `STRL-QUALITY-0007` | info | A resolved backreference targets a capture body whose certified maximum consumption is exactly zero. The diagnostic states only that the reference cannot contribute consuming progress when the capture participates. |
+| Code                | Severity | Proof condition                                                                                                                                                                                                        |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `STRL-QUALITY-0001` | warning  | A repetition has bounded maximum zero. Its operand is unreachable and the repetition always contributes the empty match.                                                                                               |
+| `STRL-QUALITY-0002` | info     | A greedy or lazy repetition has minimum and maximum exactly one. The repetition wrapper cannot change count or backtracking commitment; possessive mode is excluded.                                                   |
+| `STRL-QUALITY-0003` | warning  | A later alternation branch has the exact same canonical semantic shape as an earlier branch when only `NodeId` and `SourceOrigin` are ignored. Capture/reference identities and every semantic field must still agree. |
+| `STRL-QUALITY-0004` | warning  | One zero-consumption sequence region requires both word-boundary and not-word-boundary at the same input position. Any consuming expression resets the comparison region.                                              |
+| `STRL-QUALITY-0005` | warning  | One zero-consumption sequence region contains same-direction lookarounds with exact canonical-equivalent bodies and opposite polarity.                                                                                 |
+| `STRL-QUALITY-0006` | info     | Two explicit members of one character set have a concrete shared Unicode-scalar witness: literal-in-range or range intersection. Symbolic class/property and case-fold guesses are excluded.                           |
+| `STRL-QUALITY-0007` | info     | A resolved backreference targets a capture body whose certified maximum consumption is exactly zero. The diagnostic states only that the reference cannot contribute consuming progress when the capture participates. |
 
 Every finding retains a stable code, proof category, primary and contributing
 `NodeId` values, typed proof evidence, compiler-policy severity, concise note
