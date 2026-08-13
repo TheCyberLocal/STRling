@@ -3042,10 +3042,40 @@ composition, repetition modes, captures/references, assertions, anchors,
 Unicode/case behavior, the certified atomic-literal rewrite, diagnostic and
 unsupported cases, and interactions against silent shrinkage.
 
-A repository-only Rust adapter will project authored Semantic IR through the
+A repository-only Rust adapter projects authored Semantic IR through the
 completed canonical planning/lowering/serialization stages. A separate Python
-orchestrator will execute only declared applications through the already-fixed
-exact PCRE2, Node, and CPython harnesses, normalize engine offsets to UTF-8 and
-capture slots to logical IDs, and preserve raw plus normalized observations in
-one deterministic checked evidence artifact. P11-T06—not this task—will build
-the portability matrix and classify every cross-target divergence.
+orchestrator executes only declared applications through the already-fixed
+exact PCRE2, Node, and CPython harnesses, normalizes engine offsets to UTF-8 and
+capture slots to logical IDs, and preserves raw plus normalized observations in
+one deterministic checked evidence artifact. The generated serializer owns
+that artifact exclusively, so producer `--write` and verifier `--check` bytes
+remain identical without exempting authored corpus JSON from formatting.
+
+The certified corpus contains 20 cases and 100 explicit applications: 88
+execute, five unsupported, and seven not applicable. ECMAScript records
+18/1/1 execute/unsupported/not-applicable, PCRE2 10.42 records 17/2/1, PCRE2
+10.43 records 19/0/1, Python `re` text records 18/1/1, and Python `re` bytes
+records 16/1/3. All 19 semantic, 19 target, 19 match/capture, and one diagnostic
+expectations agree across two exact runs. Canonical identities are case set
+`8ce5b9874312e9527944960f84c722a8293e9030bc6d9d8550aca53012ae849d`, vector
+set `8d6fc71842065e7d1e8796e4ee3e210669220c2b129530e70d9e05ff08e17afc`, corpus
+`e8c069f068b8562518bfcf4f782a0961b53124660e4d40e63e49cbe8c6824fb1`, projection
+`029cf1c0df979774e71acb8f08e2a02bfd99001529a14faf9dcedfe01cda8089`, and checked
+observation `9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c`.
+
+Exact shared execution passed on PCRE2 10.42 and 10.43, Node 22.23.2, and
+official-source CPython 3.11.15. Rust all-target tests, warning-denied Clippy,
+focused contracts and architecture checks, generated artifacts, formatting,
+governance, documentation integrity, patch integrity, and the reviewed
+three-run Node 22 migration differential pass. Local passes 26/26. Pull Request
+records 44 passed and only the inherited Ruby Bundler mismatch and missing
+Swift as unavailable. Full 1.7.0 records 75 passed, zero failed or incomplete,
+and seven explicit inherited host/scanner unavailabilities; all exact runtime
+certification operations, including shared cross-engine certification, pass.
+No finding is waived or represented as passing.
+
+P11-T05 is `READY WITH RECORDED CARRY-FORWARD`. P11-T06 owns the initial
+feature-by-profile portability matrix and explicit classification of every
+preserved cross-target divergence; it must consume this fixed corpus and
+evidence without changing target behavior or treating engine majority as
+authority.

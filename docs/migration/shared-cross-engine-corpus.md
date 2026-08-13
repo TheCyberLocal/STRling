@@ -88,6 +88,37 @@ excluding timing. A checked-in evidence artifact preserves the exact raw and
 normalized observations for P11-T06; its fingerprint and denominator are
 verified by Full and Release.
 
+## Certified identity
+
+The completed corpus contains 20 cases and 100 explicit applications: 88
+execute, five unsupported, and seven not applicable. The per-profile
+execute/unsupported/not-applicable counts are ECMAScript 2024 `18/1/1`, PCRE2
+10.42 `17/2/1`, PCRE2 10.43 `19/0/1`, Python `re` 3.11 text `18/1/1`, and
+Python `re` 3.11 bytes `16/1/3`. Two complete exact-runtime runs agree with all
+19 semantic, 19 target, 19 match/capture, and one diagnostic expectations.
+
+The canonical SHA-256 identities are:
+
+-   case set:
+    `8ce5b9874312e9527944960f84c722a8293e9030bc6d9d8550aca53012ae849d`;
+-   vector set:
+    `8d6fc71842065e7d1e8796e4ee3e210669220c2b129530e70d9e05ff08e17afc`;
+-   corpus:
+    `e8c069f068b8562518bfcf4f782a0961b53124660e4d40e63e49cbe8c6824fb1`;
+-   projection:
+    `029cf1c0df979774e71acb8f08e2a02bfd99001529a14faf9dcedfe01cda8089`;
+    and
+-   preserved observations:
+    `9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c`.
+
+Certification used exact PCRE2 10.42 and 10.43 libraries, official Node
+22.23.2, and official-source CPython 3.11.15. Local passes all 26 operations.
+Pull Request records 44 passed and two inherited host operations unavailable;
+Full 1.7.0 records 75 passed and seven inherited host/scanner operations
+unavailable. No operation failed, was incomplete, or was waived. All exact
+runtime certification operations pass, including shared cross-engine
+certification.
+
 ## Boundary with P11-T06
 
 P11-T05 fixes schema defects, expectation defects, projection defects, and

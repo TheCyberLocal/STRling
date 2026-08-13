@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Specification-authored shared cross-engine behavioral corpus
-status: in_progress
+status: complete
 objective: Build a versioned target-neutral corpus of canonical semantic, diagnostic, match, capture, support, and applicability expectations; project it through the completed PCRE2, ECMAScript, and Python re target stages; and preserve exact raw engine observations without claiming the final portability matrix or adding product execution behavior.
 scope:
     diff:
@@ -140,21 +140,74 @@ checkpoints:
             result: passed
             details: The compiler case schema intentionally lacks execution applicability and coverage-denominator policy. P11-T05 therefore adds a separate corpus-v1 schema that references unchanged case documents, explicitly covers every governed profile, and records coverage obligations without changing compiler contract version 1.0.0.
     - name: Shared authored vectors and completeness guards
-      status: planned
+      status: passed
       evidence:
           - check: Corpus implementation
-            result: not_run
-            details: Awaiting authored case expansion, exact fingerprints, applicability manifest, coverage obligations, and mutation tests after this scope checkpoint.
+            result: passed
+            details: >-
+                Twenty specification-owned cases define 100 explicit applications across the five exact profiles: 88 execute, five unsupported, and seven not applicable. The closed denominator, 21 feature tags, 16 requirement tags, certified rewrite coverage, exact case fingerprints, mutation tests, and schema validation prevent silent shrinkage or runtime-authored expectations.
+          - check: Authored corpus identity
+            result: passed
+            details: Case-set SHA-256 is 8ce5b9874312e9527944960f84c722a8293e9030bc6d9d8550aca53012ae849d, vector-set SHA-256 is 8d6fc71842065e7d1e8796e4ee3e210669220c2b129530e70d9e05ff08e17afc, and canonical corpus SHA-256 is e8c069f068b8562518bfcf4f782a0961b53124660e4d40e63e49cbe8c6824fb1.
+          - check: Per-profile denominator
+            result: passed
+            details: ECMAScript 2024 records 18 execute, one unsupported, and one not applicable; PCRE2 10.42 records 17 execute, two unsupported, and one not applicable; PCRE2 10.43 records 19 execute and one not applicable; Python re 3.11 text records 18 execute, one unsupported, and one not applicable; Python re 3.11 bytes records 16 execute, one unsupported, and three not applicable.
     - name: Deterministic target projection and exact engine execution
-      status: planned
+      status: passed
       evidence:
           - check: Projection and preserved observation proof
-            result: not_run
-            details: Awaiting repository-only Rust projection, exact runtime orchestration, raw/normalized evidence artifact, repeated determinism, and Full/Release registration.
+            result: passed
+            details: The repository-only Rust adapter projects authored Semantic IR through the completed target stages without runtime or product access. Exact PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15 execution ran every declared application twice, preserved raw and normalized observations, and agreed with all 19 semantic, 19 target, 19 match, and one diagnostic expectation.
+          - check: Deterministic evidence identity
+            result: passed
+            details: Projection SHA-256 is 029cf1c0df979774e71acb8f08e2a02bfd99001529a14faf9dcedfe01cda8089 and checked observation SHA-256 is 9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c. Producer --write and verifier --check agree because the generated evidence serializer exclusively owns its formatting.
+          - check: Exact runtime identity
+            result: passed
+            details: Certification used Node 22.23.2, official-source CPython 3.11.15, PCRE2 10.42 build pcre2-10.42@52c08847921a324c804cabf2814549f50bce1265 with library SHA-256 61acdf1505445bccf8257ca48b6a5b82af651e800f948d45f81ec684e1b129a7, and PCRE2 10.43 build pcre2-10.43@3864abdb713f78831dd12d898ab31bbb0fa630b6 with library SHA-256 9998a4700a45c220c856ee2bf8389084234cdb91b4dfeb4dc0c001b65c537853.
     - name: Complete repository and migration certification
-      status: planned
+      status: passed
       evidence:
           - check: Full hardgate evidence
-            result: not_run
-            details: Awaiting implementation checkpoint, reviewed boundary renewal if required, final profiles, and clean-tree evidence.
-commits: []
+            result: passed
+            details: All Rust all-target tests, warning-denied Clippy, exact shared-corpus checks, core/public/generated contracts, governance, documentation integrity, formatting, patch integrity, and the reviewed three-run Node 22 migration differential pass. The migration candidate exactly matches the checked baseline fingerprint sha256:8127c22a016013ff9751540ce39615fa780291da675082f2668bae5d63e4da5c, so no renewal is required.
+          - check: Clean Local, Pull Request, and Full profiles
+            result: passed
+            details: At clean commit d12049f3fbdd72fac4897b2cd56fcef1a2abaf2c, Local passes all 26 operations. Pull Request records 44 passed and two unavailable; Full 1.7.0 records 75 passed and seven unavailable. No operation failed, was incomplete, or was waived, and Full passes all four exact runtime certification operations including the new shared cross-engine certification.
+          - check: Explicit environment carry-forward
+            result: passed
+            details: Pull Request carries only repository-managed Ruby Bundler mismatch and missing Swift. Full carries those Ruby and Swift host gaps plus the existing structured dependency-risk scanner unavailability. No unavailable operation is represented as passing and no requirement, profile, corpus obligation, or exact-runtime identity was weakened.
+commits:
+    - sha: 6ff362ac261d38aff282173c08a8841d3c5704cf
+      subject: "docs(core): define shared cross-engine corpus"
+    - sha: ec920e4f544eb7bd12fe418318f868710f1cd512
+      subject: "feat(core): add shared cross-engine corpus"
+    - sha: d12049f3fbdd72fac4897b2cd56fcef1a2abaf2c
+      subject: "fix(tooling): align shared corpus formatting ownership"
+completion:
+    accomplished:
+        - Added a specification-owned, versioned 20-case corpus with 100 explicit five-profile applications and complete feature, requirement, rewrite, diagnostic, support, and applicability guards.
+        - Added a repository-only canonical projection adapter and isolated orchestrator that reuse the certified PCRE2, ECMAScript, and Python re target and runtime boundaries.
+        - Added deterministic checked raw and normalized observation evidence for exact PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15 execution.
+        - Integrated shared-corpus certification into Full and Release without adding a product execution route or allowing observations to author expectations.
+    verified:
+        - All 88 execute applications passed twice; five unsupported and seven not-applicable applications remained non-executing, with stable corpus, projection, and observation fingerprints.
+        - All Rust, Python, contract, architecture, generated-artifact, formatting, governance, documentation, migration-differential, and patch-integrity checks pass.
+        - Local passes 26/26; Pull Request and Full record 44/46 and 75/82 passed respectively with zero failures and only explicit inherited host-tool/scanner unavailability.
+    behavior_changed: The repository can now deterministically certify one shared authored behavioral denominator across all five governed engine profiles and preserve exact observations for P11-T06; no STRling language semantics, public API, binding, package, version, or publication behavior changed.
+    intentional_behavior_changes:
+        - Shared corpus applications now explicitly classify each exact profile as execute, unsupported, or not applicable and fail closed on denominator or fingerprint drift.
+        - Full and Release now require exact shared cross-engine certification when the governed runtimes are supplied and otherwise report structured unavailability.
+        - Generated shared observation evidence has one exclusive formatting owner so write/check identity remains stable.
+    preserved_behavior:
+        - Authored semantic and diagnostic expectations remain authoritative; engine observations, peer-majority results, and historical fixtures cannot rewrite them.
+        - Canonical target profiles, planning, lowering, serialization, compiler facade, bindings, packages, and public versions remain unchanged.
+    transitional_architecture:
+        - The projection adapter remains a repository-only example and exact runtime execution remains outside the Rust kernel and product-facing routes.
+        - Pull Request and Full are READY WITH RECORDED CARRY-FORWARD for inherited Ruby Bundler, Swift, and dependency-risk scanner availability only; every task-owned and available operation passed.
+    deferred_work:
+        - P11-T06 owns the initial feature-by-profile portability matrix and explicit classification of every preserved cross-target divergence.
+        - Product orchestration, bindings, packages, versions, publication, release notes, and release actions remain outside this task.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P11-T06 by deriving the initial portability matrix exclusively from the fixed authored corpus and preserved exact observations, without changing target behavior or treating majority results as authority.
+    rationale: P11-T05 is complete with a closed five-profile denominator, deterministic exact-runtime evidence, complete available hardgates, clean profile artifacts, zero failed operations, and only inherited host-tool/scanner availability carried forward explicitly.
