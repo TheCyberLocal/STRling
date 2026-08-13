@@ -64,18 +64,28 @@ target syntax/options in builder meaning, emitter/lowering/runtime calls,
 filesystem/network/process/environment/clock access, binding/product imports,
 direct analysis/planning orchestration, or a shadow semantic node model.
 
-## Certification plan
+## Certification result
 
-Authored tests will reproduce all nine positive protocol cases and all 12
-stable failure identities, including both import modes. Additional ownership,
-cloning, malformed, serialization, fixed-seed determinism, no-panic, and input
-immutability tests will exercise host-specific edge cases. Compile-through
-tests will prove equal canonical results for representative target-neutral,
-native, certified-rewrite, unsupported, and artifact requests.
+The native API reproduces all nine positive protocol cases and all 12 stable
+failure identities, including both import modes. Ownership, cloning, malformed
+input, canonical serialization, 256 fixed-seed determinism cases, no-panic
+behavior, and input immutability pass. Compile-through tests prove exact
+`CompileResult` equality for representative target-neutral, native,
+certified-rewrite, unsupported, and artifact requests.
 
-The enforced `strling-kernel` source snapshot will intentionally add the Simply
-module, root re-exports, public types, and method signatures. Rust format,
-warning-denied Clippy, all targets, protocol/canonical contracts, public and
-generated contracts, architecture mutations, documentation, governance,
-migration differential, Local, Pull Request, and clean-tree checks close the
-task.
+The enforced `strling-kernel` source snapshot additively records the Simply
+module, root re-exports, public types, fields, constants, enum variants, and
+method signatures. Warning-denied Clippy, every Rust target, 502 tooling tests,
+protocol/canonical/core/public/generated contracts, controlled architecture
+mutations, formatting, documentation, governance, security, and patch
+integrity pass.
+
+The reviewed three-run migration differential certifies 44 governed
+observations with zero mismatches and zero blocking unresolved replacements at
+baseline
+`sha256:3676dbe20c75ccd159aadd325ad2ada0a1a8736ae65591d956582f6352b3f0f4`.
+Local passes 26/26. Pull Request passes all 45 available operations; only the
+inherited missing Swift toolchain remains explicitly unavailable, with no
+failures or waivers. The profile-created untracked Python venv was removed and
+the task closes from a clean tree at implementation commit
+`a26a3a1966bd68c2ce25067106dd89465f3b5a68`.

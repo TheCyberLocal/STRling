@@ -3411,3 +3411,32 @@ compile results, intentional `strling-kernel` public snapshot expansion,
 controlled architecture mutations, complete Rust/repository checks, reviewed
 migration-baseline renewal if necessary, Local and Pull Request profiles, a
 clean tree, and P13-T03 handoff.
+
+P13-T02 closes from clean implementation commit
+`a26a3a1966bd68c2ce25067106dd89465f3b5a68`. `SimplyBuilder` implements all 15
+protocol operations directly over canonical `Node` candidates with opaque
+immutable values, deterministic node/capture identities, validate-before-
+mutation single-parent ownership, transparent group provenance, canonical
+imports, normalization, explicit request projection, stable errors, and no
+parallel semantic model or compiler.
+
+All nine positive protocol fixtures, all 12 stable failures, 256 fixed-seed
+property cases, malformed bounded inputs, import immutability, deterministic
+serialization, and direct-versus-Simply compile results pass. Warning-denied
+Clippy, every Rust target, 502 tooling tests, 11 schema mappings and 107
+fixtures, protocol/core/public/generated contracts, controlled architecture
+mutations, formatting, governance, security, documentation integrity across
+151 files, and patch integrity pass. The additive `strling-kernel` snapshot is
+intentional.
+
+The reviewed three-run migration differential certifies 44 observations with
+zero mismatches or blocking unresolved replacements. Its renewed baseline is
+`sha256:3676dbe20c75ccd159aadd325ad2ada0a1a8736ae65591d956582f6352b3f0f4`
+and canonical boundary is
+`sha256:52abcfd126a02765086e93256cae70af4c1c86763f424136d879f0e52cca3eda`.
+Local passes 26/26. Pull Request passes all 45 available operations with zero
+failures or waivers; only the inherited missing Swift toolchain is explicitly
+unavailable. The profile-generated Python venv was removed and the final tree
+is clean. P13-T02 is `READY WITH RECORDED CARRY-FORWARD`; P13-T03 is next and
+will implement the ordered TypeScript and Python preview adapters without
+reopening semantic or compiler authority.

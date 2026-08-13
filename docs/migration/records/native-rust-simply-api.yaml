@@ -1,11 +1,11 @@
 record_version: 2.0.0
 title: Native Rust Simply API
-status: in_progress
+status: complete
 objective: Implement an idiomatic, public, host-facing Rust construction layer that mechanically covers the complete strling.simply-builder 1.0.0 protocol by building canonical Semantic IR candidates directly, enforcing deterministic identity/provenance/ownership/error rules, delegating normalization and compilation to the existing kernel, and proving exact equivalence without creating a parallel semantic model, compiler, target path, runtime, or other-language adapter.
 scope:
     diff:
         base: 092fe005f6e0c3709ca6313d6a8d5b1ef0a3a100
-        head: working-tree
+        head: a26a3a1966bd68c2ce25067106dd89465f3b5a68
     allowed_paths:
         - core/README.md
         - core/src/lib.rs
@@ -142,21 +142,59 @@ checkpoints:
             result: passed
             details: The surface exposes protocol argument types plus canonical semantic/request types only. It will not parse regex, model targets, emit syntax, execute runtimes, inspect ambient state, call analysis/planning/lowering stages directly, or expose a second compile function. Compile-through tests call the existing crate-root compile facade with the produced request.
     - name: Native implementation, equivalence, and properties
-      status: planned
+      status: passed
       evidence:
           - check: Complete public API and executable protocol proof
-            result: not_run
-            details: Awaiting implementation, all-operation fixture reproduction, stable-error and ownership tests, fixed-seed properties, canonical serialization, imports/provenance, and exact request equivalence.
+            command: RUSTFLAGS=-Dwarnings cargo test --manifest-path core/Cargo.toml --all-targets --locked
+            result: passed
+            details: SimplyBuilder and its opaque immutable values implement all 15 protocol operations directly over canonical Node candidates. Nine authored positive fixtures reproduce exact SemanticProgram and CompileRequest values; all 12 error identities, atomic failure, duplicate and foreign identities, ownership/reuse, imports/provenance, resource limits, deterministic JSON, 256 fixed seeds, malformed bounded inputs, and no-panic behavior pass.
     - name: Compile-through and architecture/public-surface certification
-      status: planned
+      status: passed
       evidence:
           - check: One-kernel behavior and controlled boundary failures
-            result: not_run
-            details: Awaiting direct-versus-Simply diagnostics/analysis/portability/artifact comparisons, additive snapshot generation/declaration, and architecture mutations.
+            command: cargo test --manifest-path core/Cargo.toml --test simply_compile_through --locked; python3 tooling/public_contracts.py --check; python3 tooling/generated_artifacts.py --check; python3 -m unittest tooling.tests.test_public_contracts tooling.tests.test_core_contracts
+            result: passed
+            details: Direct and Simply-built requests yield exact CompileResult JSON equality for target-neutral analysis, native PCRE2 portability, ECMAScript certified rewrite, Python re unsupported behavior, and PCRE2 artifact/unavailable paths through the sole compile facade. The strling-kernel snapshot additively records the module, root re-exports, public types, fields, constants, enum variants, and methods. Controlled mutations reject a second model/compiler, parser or regex authority, target/emitter/runtime stages, ambient state, bindings, process access, and signature drift.
     - name: Complete repository and task certification
-      status: planned
+      status: passed
       evidence:
           - check: Task-closing hardgates
-            result: not_run
-            details: Awaiting all Rust/tooling/contracts/governance/docs/migration/Local/Pull Request evidence, reviewed baseline renewal if required, clean commits, and next-task handoff.
-commits: []
+            command: cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; cargo test --manifest-path core/Cargo.toml --all-targets --locked; python3 -m unittest discover -s tooling/tests; ./strling format --check all; ./strling generate --check --json; ./strling contracts --check --json; ./strling governance --json; ./strling migration-differential --repeat-runs 3; ./strling profile local; ./strling profile pull-request; git diff --check; git status --short
+            result: passed
+            details: At clean implementation commit a26a3a1966bd68c2ce25067106dd89465f3b5a68, warning-denied Clippy and every Rust target pass; all 502 tooling tests pass; canonical/core/Simply/public/generated contracts, formatting, linting, governance, security, documentation integrity across 151 files, and patch integrity pass. The reviewed three-run differential certifies 44 observations with zero mismatches or blocking unresolved replacements at baseline sha256:3676dbe20c75ccd159aadd325ad2ada0a1a8736ae65591d956582f6352b3f0f4 and canonical boundary sha256:52abcfd126a02765086e93256cae70af4c1c86763f424136d879f0e52cca3eda. Local passes 26/26. Pull Request passes every available operation, 45/46, with only inherited missing Swift explicitly unavailable and no failures or waivers. The profile-generated untracked Python venv was removed and the final task tree is clean.
+commits:
+    - sha: 8bad63db8b93dbd316a7f4f95e49bf3401658a91
+      subject: "docs(frontend): define native Rust Simply API"
+    - sha: a26a3a1966bd68c2ce25067106dd89465f3b5a68
+      subject: "feat(frontend): implement native Rust Simply API"
+completion:
+    accomplished:
+        - Added the idiomatic public SimplyBuilder construction layer, opaque immutable SimplyValue handles, explicit options and compile projection, stable STRL-SIMPLY errors, and all 15 protocol operations without a parallel AST or compiler.
+        - Implemented deterministic node and capture identity derivation, validate-before-mutation ownership, transparent group provenance, canonical node/program imports, normalization, request projection, and resource enforcement directly over existing kernel contracts.
+        - Added exhaustive fixture, error, ownership, import, serialization, fixed-seed property, malformed-input, compile-through, public-contract, architecture-mutation, and documentation evidence.
+        - Expanded the governed non-published strling-kernel public snapshot additively and renewed the migration differential baseline for the intentional canonical Simply route and formatted source observations.
+    verified:
+        - All nine positive protocol fixtures and all 12 stable failures are covered; 256 deterministic property seeds, bounded malformed inputs, cloning and single-parent ownership, import immutability, and exact canonical JSON round trips pass.
+        - Direct and Simply-built requests produce equal canonical CompileResult values across analysis, native, certified-rewrite, unsupported, and artifact paths through the existing compile facade.
+        - Warning-denied Clippy, every Rust target, 502 tooling tests, 11 schema mappings and 107 fixtures, the Simply fingerprint sha256:245bd1aa0745db78258f5c5f27e023d4bd07ffbc3814bfd751e577192a034740, public/generated contracts, governance, docs, formatting, security, and patch integrity pass.
+        - The three-run migration differential passes with 44 governed observations and zero determinism mismatches or blocking unresolved replacements. Local passes 26/26; Pull Request passes all 45 available operations with only Swift explicitly unavailable.
+    behavior_changed: The internal non-published Rust kernel now exposes a native host construction API for producing canonical SemanticProgram and CompileRequest values; no binding, package, CLI, LSP, target, emitted pattern, or runtime behavior changes.
+    intentional_behavior_changes:
+        - Rust callers can construct every Simply 1.0.0 operation through stable typed methods and receive stable structured STRL-SIMPLY failure identities.
+        - Generated values enforce deterministic identities and single materializing ownership; cloned handles remain references rather than subtree duplication.
+        - Compile projection remains explicit and delegates all semantic, diagnostic, portability, lowering, serialization, and artifact behavior to the existing canonical kernel.
+    preserved_behavior:
+        - Protocol 1.0.0, canonical schemas, Semantic IR meaning, normalization, analysis, diagnostics, portability planning, target profiles/backends, and compile-result contracts remain unchanged.
+        - Existing bindings, packages, historical Simply implementations, regex frontends, CLI/LSP routes, target artifacts, and runtime execution remain unchanged and unredirected.
+        - Imported canonical identities, origins, and source documents are retained; generated nodes remain source-less.
+    transitional_architecture:
+        - The new API is a Rust-only internal frontend boundary. TypeScript, Python, other bindings, packages, and product tooling do not consume it yet.
+        - Historical direct target conversion, callable patterns, runtime execution, formatted exceptions, and host-specific repeat/capture quirks remain compatibility obligations outside canonical builder semantics.
+        - Swift remains unavailable in the current Pull Request environment and is recorded as inherited toolchain availability, not waived or task-owned behavior.
+    deferred_work:
+        - P13-T03 will implement the ordered TypeScript and Python preview adapters over the completed protocol and kernel boundary without reintroducing host semantic authority.
+        - The flagship Semantic STRling DSL, remaining frontend adapters, compatibility convergence, publication review, and release actions remain later P13 tasks.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P13-T03 — implement the TypeScript and Python preview adapters over the certified Simply protocol and native Rust/kernel boundary.
+    rationale: P13-T02 satisfies every task-owned implementation, equivalence, ownership, property, public-contract, architecture, documentation, migration, Local, Pull Request, and clean-tree requirement. The only unavailable Pull Request operation is the inherited missing Swift toolchain; it has no task-owned failure or waiver and does not affect this Rust frontend boundary.
