@@ -1,0 +1,142 @@
+record_version: 2.0.0
+title: Canonical Simply builder protocol
+status: in_progress
+objective: Define a specification-owned, host-language-neutral Simply construction protocol that maps deterministic immutable builder operations directly into canonical source-less Semantic IR and CompileRequest values, with complete identity, provenance, validation, error, compatibility, schema, fixture, normalization-equivalence, and architecture evidence, without implementing or changing any host API.
+scope:
+    diff:
+        base: 11368a125fff6f5a98b1c2e32ac477679e4b278b
+        head: working-tree
+    allowed_paths:
+        - core/tests/simply_builder_contract.rs
+        - docs/architecture.md
+        - docs/migration/ledger.md
+        - docs/migration/records/canonical-simply-builder-protocol.yaml
+        - docs/migration/simply-builder-protocol.md
+        - docs/spec_links.md
+        - governance/change-control.json
+        - spec/README.md
+        - spec/contracts/INVARIANTS.md
+        - spec/contracts/README.md
+        - spec/frontends/README.md
+        - spec/frontends/simply/1.0/README.md
+        - spec/frontends/simply/1.0/builder-request.schema.json
+        - spec/frontends/simply/1.0/case.schema.json
+        - spec/frontends/simply/1.0/protocol.json
+        - spec/frontends/simply/1.0/protocol.schema.json
+        - spec/frontends/simply/1.0/fixtures/manifest.json
+        - spec/frontends/simply/1.0/fixtures/negative.json
+        - spec/frontends/simply/1.0/fixtures/positive.json
+        - tooling/contract_validation.py
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/simply_contract.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_simply_contract.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/**
+        - packages/**
+        - spec/conformance/**
+        - spec/grammar/**
+        - spec/schema/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - tests/spec/**
+        - tooling/legacy_reference/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/records/canonical-simply-builder-protocol.yaml
+        - docs/migration/simply-builder-protocol.md
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - The protocol can express only already-ratified Semantic IR meaning and cannot add or reinterpret a STRling construct.
+    public_api_change:
+        level: none
+        evidence:
+            - No binding, package, exported symbol, compiler facade, or runtime route changes in this task.
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Adds a separately versioned frontend protocol, request, and equivalence-case schema family under spec/frontends/simply without changing canonical contract suite 1.0.0.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Builder validation failures are defined as frontend protocol data but are not yet emitted through the canonical Diagnostic or any product surface.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Builder intent maps to Semantic IR before planning and cannot contain target syntax, runtime options, engine names, or emitted pattern fragments.
+    architecture_change:
+        level: additive
+        evidence:
+            - Establishes the specification-owned Simply-to-Semantic-IR boundary and certification-only validator while forbidding a host, binding, target, runtime, or product dependency.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Builder protocol, schemas, fixtures, and manifest
+      command: python3 tooling/simply_contract.py && python3 -m unittest tooling.tests.test_simply_contract
+      expected_result: The exact operation, option, identity, error, provenance, ownership, import, compatibility, and evidence inventories validate; positive and negative coverage is complete; stale files, fingerprints, counts, or weakened rules fail closed.
+    - name: Canonical normalization and CompileRequest equivalence
+      command: cargo test --manifest-path core/Cargo.toml --test simply_builder_contract --locked
+      expected_result: Every successful builder case projects the authored candidate, canonical Rust normalization reproduces the exact expected source-less Semantic IR, and the exact expected CompileRequest validates; negative cases retain their stable ordered builder error identities.
+    - name: Canonical contract and architecture boundary
+      command: python3 tooling/contract_validation.py && python3 tooling/core_contract_validation.py && python3 -m unittest tooling.tests.test_core_contracts
+      expected_result: The builder suite participates in canonical contract certification while mutation tests reject binding, target, runtime, product, process, raw-regex, target-syntax, or second-compiler authority leakage.
+    - name: Repository certification
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 -m unittest discover -s tooling/tests && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && python3 tooling/documentation_integrity.py && ./strling migration-differential --repeat-runs 3 && ./strling profile local && git diff --check
+      expected_result: Every available affected hardgate passes, product/public behavior remains unchanged, migration evidence remains stable, and the final repository is clean.
+checkpoints:
+    - name: Canonical boundary and historical Simply inventory
+      status: passed
+      evidence:
+          - check: Authoritative destination
+            result: passed
+            details: Canonical Semantic IR owns 12 target-neutral node variants, logical capture identities, source-less validity, canonical-v1 normalization, and program-level case matching. CompileRequest already owns outputs, profiles, diagnostic policy, partial-semantics policy, and resource limits. Simply therefore requires a frontend contract, not a new compiler contract or host AST authority.
+          - check: Historical evidence disposition
+            result: passed
+            details: TypeScript and Python expose literal, composition, capture, lookaround, set, repetition, helper, direct-target, callable-pattern, and formatted-exception behavior, while the Rust and other bindings diverge. These surfaces remain compatibility evidence only. The max-equals-zero unbounded sentinel, capture duplication, repeat guards, PCRE2 string conversion, host exceptions, and runtime execution conveniences cannot define canonical semantics.
+    - name: Locked protocol, identity, error, and compatibility policy
+      status: passed
+      evidence:
+          - check: Direct construction contract
+            result: passed
+            details: The protocol will admit exactly empty, literal, wildcard, character-set, sequence, alternation, transparent group, capture, backreference, position, lookaround, atomic, repeat, imported node, and imported program operations. Generated node and capture identities derive from one request namespace plus stable step/capture keys; imports preserve identities and sources. Values are immutable and single-materialization, generated nodes are source-less, imported provenance is preserved, and mixed provenance must remain fully resolvable.
+          - check: Options and validation policy
+            result: passed
+            details: Unicode scalar text is fixed. Case matching, built-in class domain, wildcard line-terminator treatment, repetition mode, and semantic positions are explicit intent. Requested outputs, target-profile references, diagnostic policy, and limits remain compiler routing. Target syntax, engine flags, runtime values, raw regex, host objects, and emitted fragments are forbidden. Decode, graph, projection, canonical normalization, semantic, and CompileRequest validation occur in deterministic order and fail without partial mutation.
+    - name: Governed schemas, registry, fixtures, and reference certification
+      status: planned
+      evidence:
+          - check: Machine contract
+            result: not_run
+            details: Awaiting exact schemas, operation/error/compatibility registry, positive and negative fixture corpus, checked manifest, specification docs, and certification-only projection validation.
+    - name: Canonical Rust equivalence and controlled architecture failures
+      status: planned
+      evidence:
+          - check: Behavioral and boundary evidence
+            result: not_run
+            details: Awaiting canonical normalizer/CompileRequest equivalence tests plus mutations for identity, bounds, references, provenance, imports, target leakage, raw-regex authority, process execution, and binding/product dependencies.
+    - name: Complete repository and task certification
+      status: planned
+      evidence:
+          - check: Task-closing hardgates
+            result: not_run
+            details: Awaiting all Rust/tooling/contracts/architecture/security/documentation/migration/Local evidence, a clean final commit, and next-task handoff.
+commits: []

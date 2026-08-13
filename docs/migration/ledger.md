@@ -3313,3 +3313,45 @@ dependency-risk scanner remain unavailable. P12-T05 and P12 are `READY WITH
 RECORDED CARRY-FORWARD`; P13-T01 is the next ordered task and begins the
 canonical builder protocol and Simply semantic contract without reopening the
 completed rewrite authority boundary.
+
+## Define the canonical Simply builder protocol
+
+P13-T01 starts from clean P12 completion commit
+`11368a125fff6f5a98b1c2e32ac477679e4b278b`. Canonical Semantic IR,
+`CompileRequest`, normalization, analysis, planning, target backends,
+diagnostics, and rewrite authority are stable prerequisites. This task defines
+the host-neutral Simply construction contract and its evidence; it does not
+implement or change any Rust, TypeScript, Python, binding, package, product, or
+runtime API.
+
+The locked protocol admits exactly empty, literal, wildcard, character-set,
+sequence, alternation, transparent group, capture, backreference, position,
+lookaround, atomic, repeat, imported-node, and imported-program operations.
+Generated identities derive deterministically from a request namespace plus
+stable step/capture keys. Generated nodes are source-less; imported identities,
+origins, and sources are preserved and must remain unique and fully resolvable.
+Builder values are immutable and single-materialization so host object aliasing
+cannot create duplicate Semantic IR identities.
+
+Unicode scalar text, case matching, built-in class domain, wildcard line
+terminator treatment, positions, lookaround direction/polarity, and repetition
+mode are semantic intent. Requested outputs, target-profile references,
+diagnostic policy, partial-semantics policy, and limits remain compiler routing.
+Raw regex, target fragments, engine flags, runtime values, host callbacks, and
+implicit engine selection are forbidden. Decode, graph, projection, canonical
+normalization, semantic, and `CompileRequest` validation will execute in a
+deterministic fail-without-mutation order.
+
+Historical literal behavior and immutable composition remain compatibility
+evidence. The `max=0` unbounded sentinel is intentionally corrected to explicit
+`null`; host repeat guards and Python capture duplication are not semantics;
+direct `toString`, `compileNode`, `toRegExp`, and `exec` conveniences remain
+separate compatibility obligations that must later route through the canonical
+compiler; and formatted exception prose remains presentation only.
+
+Completion requires versioned machine schemas and protocol data, exhaustive
+positive and negative fixtures, a checked manifest, a certification-only
+projector, canonical Rust normalization and CompileRequest equivalence, and
+controlled architecture mutations. All affected contracts, Rust/tooling tests,
+documentation, governance, migration, Local profile, and clean-tree checks must
+pass before P13-T01 can close.
