@@ -222,15 +222,30 @@ class SemanticStrlingContractSuite:
             0
         ]
         keywords = set(re.findall(r'"([a-z]+)"', grammar_before_strings))
-        reserved = self.language["reserved_words"]
-        self._require_sorted_unique(reserved, "language.reserved_words")
-        if set(reserved) != keywords:
+        keyword_terminals = self.language["keyword_terminals"]
+        self._require_sorted_unique(keyword_terminals, "language.keyword_terminals")
+        if set(keyword_terminals) != keywords:
             raise SemanticStrlingContractError(
-                "reserved words must exactly equal grammar keyword terminals"
+                "keyword terminals must exactly equal grammar keyword terminals"
             )
 
         phrases = self.language["construct_phrases"]
         self._require_sorted_unique(phrases, "language.construct_phrases")
+        reserved = self.language["reserved_words"]
+        self._require_sorted_unique(reserved, "language.reserved_words")
+        expected_reserved = {phrase.split()[0] for phrase in phrases} | {
+            "semantic",
+            "case",
+            "pattern",
+        }
+        if set(reserved) != expected_reserved:
+            raise SemanticStrlingContractError(
+                "reserved words must exactly equal declaration and construct-leading keywords"
+            )
+        if not set(reserved).issubset(keywords):
+            raise SemanticStrlingContractError(
+                "reserved words must be grammar keyword terminals"
+            )
         tokenized = [phrase.split() for phrase in phrases]
         for index, left in enumerate(tokenized):
             for right in tokenized[index + 1 :]:

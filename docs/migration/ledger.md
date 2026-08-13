@@ -3624,3 +3624,14 @@ all governed resource limits, parse-format-parse semantic stability,
 format-format idempotence, generated valid programs, and arbitrary-input
 no-panic behavior before Rust, repository, Local, Pull Request, and clean-tree
 certification.
+
+During the first direct P13-T05 fixture run, the positive capture/reference
+case and canonical example exposed a P13-T04 catalog contradiction: both use
+`word` as an identifier, while the machine catalog incorrectly treated every
+grammar keyword terminal as identifier-reserved. P13-T04 is narrowly reopened
+to separate the complete keyword-terminal inventory from the contextual
+identifier-reserved set. Declaration starters and construct-leading keywords
+remain reserved (`sequence` retains explicit negative evidence); context-only
+keywords such as `word` remain legal where the grammar is unambiguous. The
+contract fingerprint and all T04 certification evidence will be renewed before
+T05 implementation resumes.

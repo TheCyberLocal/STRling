@@ -65,7 +65,10 @@ a string and continues through the physical line ending or end of input.
 Comments cannot split a token.
 
 Capture identifiers match `[a-z][a-z0-9_]{0,63}` and cannot equal a 1.0
-reserved word. Capture names are unique. A `same text as` reference must appear
+identifier-reserved word. The reserved set contains the top-level declaration
+starters and every construct-leading keyword; context-only keyword terminals
+such as `word` remain valid capture names because their position is
+unambiguous. Capture names are unique. A `same text as` reference must appear
 after the complete declaration it names; forward, self, numeric, and recursive
 references are unavailable.
 

@@ -6,7 +6,7 @@
     "files": [
         {
             "path": "README.md",
-            "sha256": "sha256:00649a6cfeb408f4f5ae5a26a68d992101a5cb6eaebd76966fe15f7c95569141"
+            "sha256": "sha256:21924e89707dea1db841b9b90fd33b86e6c2b6102d49afd7d230b43d055d1f31"
         },
         {
             "path": "case.schema.json",
@@ -22,11 +22,11 @@
         },
         {
             "path": "language.json",
-            "sha256": "sha256:05792098ccd1bdd464466c5cb9e30c4d58cd5df018ac66f36ddabc0c3699df53"
+            "sha256": "sha256:e2b40984a758085dce358ee24d434fa5b769e9f2e5a2e04bbee021fed097f663"
         },
         {
             "path": "language.schema.json",
-            "sha256": "sha256:b822d7f221c1f46136346b6014a2782bb45a6ffc631140e7b84a4587ab9889c7"
+            "sha256": "sha256:daaa57fe85c8cfeb87b5c9a76cc9060060a5b29f2470d435899c098dcc14b5b0"
         },
         {
             "path": "mapping.json",

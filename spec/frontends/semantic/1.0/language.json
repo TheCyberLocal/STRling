@@ -52,7 +52,7 @@
         "max_integer": 4294967295,
         "error_selection": "first-utf8-byte-order"
     },
-    "reserved_words": [
+    "keyword_terminals": [
         "any",
         "as",
         "ascii",
@@ -107,6 +107,26 @@
         "whitespace",
         "without",
         "word"
+    ],
+    "reserved_words": [
+        "any",
+        "at",
+        "before",
+        "capture",
+        "case",
+        "character",
+        "choice",
+        "empty",
+        "if",
+        "not",
+        "pattern",
+        "repeat",
+        "same",
+        "semantic",
+        "sequence",
+        "text",
+        "unless",
+        "without"
     ],
     "construct_phrases": [
         "any character excluding line terminators",

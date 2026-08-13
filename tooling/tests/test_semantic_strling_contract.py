@@ -143,6 +143,22 @@ class SemanticStrlingContractTests(unittest.TestCase):
         with self.assertRaisesRegex(SemanticStrlingContractError, "prefix-disjoint"):
             self.copied_suite(mutation).certify()
 
+    def test_contextual_keyword_is_not_identifier_reserved(self) -> None:
+        self.assertIn("word", self.suite.language["keyword_terminals"])
+        self.assertNotIn("word", self.suite.language["reserved_words"])
+        self.assertIn("sequence", self.suite.language["reserved_words"])
+
+    def test_missing_construct_leader_reservation_is_rejected(self) -> None:
+        def mutation(root: Path) -> None:
+            self.mutate_json(
+                root,
+                "language.json",
+                lambda value: value["reserved_words"].remove("sequence"),
+            )
+
+        with self.assertRaisesRegex(SemanticStrlingContractError, "reserved words"):
+            self.copied_suite(mutation).certify()
+
     def test_missing_node_mapping_is_rejected(self) -> None:
         def mutation(root: Path) -> None:
             self.mutate_json(

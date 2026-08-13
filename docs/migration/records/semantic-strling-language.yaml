@@ -1,17 +1,19 @@
 record_version: 2.0.0
 title: Semantic STRling textual language contract
-status: complete
+status: in_progress
 objective: Ratify a readable, explicit, versioned Semantic STRling 1.0 textual frontend whose complete syntax and source diagnostics map deterministically to canonical Semantic IR, without implementing a parser or formatter or introducing target, runtime, module, portability-policy, or safety-policy authority.
 scope:
     diff:
         base: ff85bbe381e8dbfb0ed9c689611280dc60922657
-        head: 3be9a678c80fb3a4bb2aeff460b5ffd20161b580
+        head: working-tree
     allowed_paths:
         - README.md
         - core/tests/normalization.rs
         - docs/architecture.md
         - docs/migration/ledger.md
+        - docs/migration/records/semantic-dsl-parser-formatter.yaml
         - docs/migration/records/semantic-strling-language.yaml
+        - docs/migration/semantic-dsl-parser-formatter.md
         - docs/migration/semantic-strling-language.md
         - docs/testing_workflow.md
         - docs/tutorial/first_contribution.md
@@ -46,7 +48,9 @@ scope:
         - README.md
         - docs/architecture.md
         - docs/migration/ledger.md
+        - docs/migration/records/semantic-dsl-parser-formatter.yaml
         - docs/migration/records/semantic-strling-language.yaml
+        - docs/migration/semantic-dsl-parser-formatter.md
         - docs/migration/semantic-strling-language.md
         - docs/testing_workflow.md
         - docs/tutorial/first_contribution.md
@@ -178,6 +182,9 @@ checkpoints:
             command: ./strling profile local; git status --short
             result: passed
             details: Local passes all 26 operations with no failures, waivers, unavailable, or incomplete operations from clean commit 3be9a678c80fb3a4bb2aeff460b5ffd20161b580; the final tracked tree is clean.
+    - name: Contextual identifier reservation correction
+      status: planned
+      evidence: []
 commits:
     - sha: 36f66bdf6fa3575a42fc619dc42bde9a0e46b0bd
       subject: "docs(frontend): define Semantic STRling language"
@@ -211,6 +218,6 @@ completion:
         - P13-T05 will implement the Semantic DSL parser and canonical formatter in Rust with exact grammar, source-span, diagnostic, resource-limit, and stability properties.
         - Frontend convergence, product-default adoption, packaging/provenance, publication review, and every release action remain later ordered tasks.
 readiness:
-    status: READY WITH RECORDED CARRY-FORWARD
-    next_task: Begin P13-T05 — Implement the Semantic DSL parser and formatter in Rust.
-    rationale: P13-T04 satisfies every task-owned design, formal-grammar, mapping, fixture, diagnostic, versioning, authority, documentation, repository, Local, and clean-tree requirement. Executable parsing and formatting are intentionally carried forward to the next ordered task rather than omitted from this specification-only scope.
+    status: BLOCKED
+    next_task: Correct and recertify contextual identifier reservation before resuming P13-T05.
+    rationale: Direct P13-T05 fixture execution proved the positive `capture word` case conflicts with the catalog's all-keywords-reserved rule. The authority-level correction and renewed fingerprint/certification are in progress; an implementation-only exception is prohibited.

@@ -63,12 +63,12 @@ syntax errors.
 
 The parsed syntax tree retains:
 
-- the required case declaration and one root;
-- authored node and set-member order;
-- decoded strings plus their original token spans;
-- every material construct's first-keyword-through-delimiter span;
-- capture/reference identifier spans; and
-- comments in exact source order for canonical placement.
+-   the required case declaration and one root;
+-   authored node and set-member order;
+-   decoded strings plus their original token spans;
+-   every material construct's first-keyword-through-delimiter span;
+-   capture/reference identifier spans; and
+-   comments in exact source order for canonical placement.
 
 ## Semantic lowering and identities
 
@@ -94,15 +94,15 @@ returns the validated canonical program; it owns no competing normalization.
 
 The parser enforces the ratified limits exactly:
 
-| Resource | Limit |
-| --- | ---: |
-| UTF-8 source | 1,048,576 bytes |
-| Syntactic nesting | 128 block levels |
-| Material nodes | 65,535 |
-| Capture declarations | 16,384 |
-| Set members per set | 65,535 |
-| Identifier | 64 UTF-8 bytes |
-| Integer | 4,294,967,295 |
+| Resource             |            Limit |
+| -------------------- | ---------------: |
+| UTF-8 source         |  1,048,576 bytes |
+| Syntactic nesting    | 128 block levels |
+| Material nodes       |           65,535 |
+| Capture declarations |           16,384 |
+| Set members per set  |           65,535 |
+| Identifier           |   64 UTF-8 bytes |
+| Integer              |    4,294,967,295 |
 
 The first excess item returns `STRL-DSL-1013`; integer and identifier lexical
 limits retain their dedicated 1012/1007 identities. Recursion never exceeds the
