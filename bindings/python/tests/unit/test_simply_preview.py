@@ -18,6 +18,11 @@ POSITIVE = json.loads(
         encoding="utf-8"
     )
 )
+CONVERGENCE = json.loads(
+    (REPOSITORY / "tests/convergence/frontend-convergence.json").read_text(
+        encoding="utf-8"
+    )
+)
 PROJECTION = {
     "requested_outputs": ["semantic", "analysis"],
     "compiler_options": {
@@ -98,6 +103,23 @@ def rebuild_fixture(request: dict[str, object]) -> dict[str, object]:
     return builder.build_request(values[request["root_step_id"]], request["compile"])
 
 
+def convergence_request(case: dict[str, object]) -> dict[str, object]:
+    return {
+        "protocol_version": "1.0.0",
+        "contract_version": "1.0.0",
+        "specification_version": "1.0-draft.1",
+        "identity_namespace": case["identity_namespace"],
+        "semantic_options": case["semantic_options"],
+        "steps": case["steps"],
+        "root_step_id": case["root_step_id"],
+        "compile": {
+            "target_profile": CONVERGENCE["target_profiles"][0]["reference"],
+            "requested_outputs": CONVERGENCE["comparison_outputs"],
+            "compiler_options": CONVERGENCE["compiler_options"],
+        },
+    }
+
+
 def test_authored_basic_case_is_exact_and_compiles_through_rust() -> None:
     builder = SimplyPreviewBuilder("basic")
     literal = builder.literal("literal", "a.b")
@@ -123,6 +145,20 @@ def test_authored_basic_case_is_exact_and_compiles_through_rust() -> None:
 def test_all_nine_authored_cross_language_requests_are_exact() -> None:
     for fixture in POSITIVE["cases"]:
         assert rebuild_fixture(fixture["request"]) == fixture["request"]
+
+
+def test_all_convergence_requests_are_exact_and_compile_through_rust() -> None:
+    transport = CliSimplyPreviewTransport(
+        [str(ROOT_CLI), "simply"],
+        str(REPOSITORY / CONVERGENCE["target_profiles"][0]["path"]),
+    )
+    for case in CONVERGENCE["cases"]:
+        request = convergence_request(case)
+        assert rebuild_fixture(request) == request, case["id"]
+        response = transport.execute(request)
+        assert response["status"] == "success", case["id"]
+        assert response["compile_request"]["input"]["kind"] == "semantic", case["id"]
+        assert response["compile_result"]["semantic_result"]["status"] == "complete", case["id"]
 
 
 def test_exact_target_profile_is_transport_only() -> None:

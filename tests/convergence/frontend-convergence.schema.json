@@ -1,0 +1,205 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tests/convergence/frontend-convergence.schema.json",
+    "title": "STRling frontend convergence corpus",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "corpus_kind",
+        "corpus_version",
+        "authority",
+        "host_routes",
+        "comparison_outputs",
+        "compiler_options",
+        "target_profiles",
+        "representation_exclusions",
+        "cases",
+        "rejected_legacy_features",
+        "corpus_fingerprint"
+    ],
+    "properties": {
+        "$schema": { "const": "./frontend-convergence.schema.json" },
+        "corpus_kind": { "const": "strling.frontend-convergence-corpus" },
+        "corpus_version": { "const": "1.0.0" },
+        "authority": { "type": "string", "minLength": 1 },
+        "host_routes": {
+            "type": "array",
+            "prefixItems": [
+                { "const": "rust-native" },
+                { "const": "typescript-preview" },
+                { "const": "python-preview" }
+            ],
+            "items": false
+        },
+        "comparison_outputs": {
+            "const": [
+                "semantic",
+                "analysis",
+                "portability",
+                "target_artifact"
+            ]
+        },
+        "compiler_options": { "type": "object" },
+        "target_profiles": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path", "reference"],
+                "properties": {
+                    "path": { "type": "string", "minLength": 1 },
+                    "reference": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["profile_id", "profile_version", "sha256"],
+                        "properties": {
+                            "profile_id": { "type": "string", "minLength": 1 },
+                            "profile_version": { "type": "string", "minLength": 1 },
+                            "sha256": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{64}$"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "representation_exclusions": {
+            "const": [
+                "node_id spelling",
+                "capture_id spelling",
+                "source documents",
+                "node origins",
+                "source locations"
+            ]
+        },
+        "cases": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/case" }
+        },
+        "rejected_legacy_features": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/rejectedLegacy" }
+        },
+        "corpus_fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+    },
+    "$defs": {
+        "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[._/-][a-z0-9]+)*$"
+        },
+        "semanticOptions": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "case_matching",
+                "text_model",
+                "builtin_character_domain",
+                "wildcard_line_terminators"
+            ],
+            "properties": {
+                "case_matching": { "enum": ["sensitive", "insensitive"] },
+                "text_model": { "const": "unicode_scalar_values" },
+                "builtin_character_domain": { "enum": ["ascii", "unicode"] },
+                "wildcard_line_terminators": {
+                    "enum": ["exclude", "include"]
+                }
+            }
+        },
+        "step": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "operation", "arguments"],
+            "properties": {
+                "step_id": { "$ref": "#/$defs/key" },
+                "operation": {
+                    "enum": [
+                        "alternation",
+                        "atomic",
+                        "backreference",
+                        "capture",
+                        "character_set",
+                        "empty",
+                        "group",
+                        "import_node",
+                        "import_program",
+                        "literal",
+                        "lookaround",
+                        "position",
+                        "repeat",
+                        "sequence",
+                        "wildcard"
+                    ]
+                },
+                "arguments": { "type": "object" }
+            }
+        },
+        "legacy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "feature_ids", "disposition"],
+            "properties": {
+                "source": { "type": "string" },
+                "feature_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "string", "minLength": 1 },
+                    "uniqueItems": true
+                },
+                "disposition": { "const": "preserved_behavior" }
+            }
+        },
+        "case": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "semantic_source",
+                "semantic_mapping_ids",
+                "identity_namespace",
+                "semantic_options",
+                "steps",
+                "root_step_id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^case:convergence/[a-z0-9-]+$"
+                },
+                "semantic_source": { "type": "string", "minLength": 1 },
+                "semantic_mapping_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "string", "minLength": 1 },
+                    "uniqueItems": true
+                },
+                "identity_namespace": { "$ref": "#/$defs/key" },
+                "semantic_options": { "$ref": "#/$defs/semanticOptions" },
+                "steps": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/step" }
+                },
+                "root_step_id": { "$ref": "#/$defs/key" },
+                "legacy": { "$ref": "#/$defs/legacy" }
+            }
+        },
+        "rejectedLegacy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["feature_id", "disposition", "authority"],
+            "properties": {
+                "feature_id": { "type": "string", "minLength": 1 },
+                "disposition": { "const": "unsupported_legacy_behavior" },
+                "authority": {
+                    "const": "spec/frontends/legacy-regex/1.0/dialect.json"
+                }
+            }
+        }
+    }
+}

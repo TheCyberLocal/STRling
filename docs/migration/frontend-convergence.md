@@ -18,13 +18,13 @@ source.
 
 Completeness is fail-closed against the governing contracts:
 
-- all 15 operations in `spec/frontends/simply/1.0/protocol.json` occur;
-- all 17 entries in `spec/frontends/semantic/1.0/mapping.json` occur;
-- all 38 accepted or compatibility-only feature IDs in the
-  regex-compatible dialect occur across its ten non-extension families; and
-- all 13 rejected legacy features retain the existing
-  `unsupported_legacy_behavior` migration disposition. The corpus permits no
-  `unresolved_discrepancy` entry.
+-   all 15 operations in `spec/frontends/simply/1.0/protocol.json` occur;
+-   all 17 entries in `spec/frontends/semantic/1.0/mapping.json` occur;
+-   all 38 accepted or compatibility-only feature IDs in the
+    regex-compatible dialect occur across its ten non-extension families; and
+-   all 13 rejected legacy features retain the existing
+    `unsupported_legacy_behavior` migration disposition. The corpus permits no
+    `unresolved_discrepancy` entry.
 
 The denominator is derived from the contracts at validation time. Removing an
 operation, mapping, supported legacy feature, legacy family, host route, or

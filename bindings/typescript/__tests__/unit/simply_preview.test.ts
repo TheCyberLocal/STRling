@@ -23,6 +23,15 @@ const POSITIVE = JSON.parse(
         "utf8",
     ),
 );
+const CONVERGENCE = JSON.parse(
+    fs.readFileSync(
+        path.join(
+            REPOSITORY,
+            "tests/convergence/frontend-convergence.json",
+        ),
+        "utf8",
+    ),
+);
 
 const PROJECTION: SimplyCompileProjection = {
     requested_outputs: ["semantic", "analysis"],
@@ -126,6 +135,23 @@ function rebuildFixture(request: SimplyBuilderRequest): SimplyBuilderRequest {
     );
 }
 
+function convergenceRequest(testCase: Record<string, any>): SimplyBuilderRequest {
+    return {
+        protocol_version: "1.0.0",
+        contract_version: "1.0.0",
+        specification_version: "1.0-draft.1",
+        identity_namespace: testCase.identity_namespace,
+        semantic_options: testCase.semantic_options,
+        steps: testCase.steps,
+        root_step_id: testCase.root_step_id,
+        compile: {
+            target_profile: CONVERGENCE.target_profiles[0].reference,
+            requested_outputs: CONVERGENCE.comparison_outputs,
+            compiler_options: CONVERGENCE.compiler_options,
+        },
+    } as SimplyBuilderRequest;
+}
+
 describe("Simply Preview adapter", () => {
     test("serializes the authored basic case exactly and compiles through Rust", () => {
         const builder = new SimplyPreviewBuilder("basic");
@@ -158,6 +184,32 @@ describe("Simply Preview adapter", () => {
             expect(
                 rebuildFixture(fixture.request as SimplyBuilderRequest),
             ).toEqual(fixture.request);
+        }
+    });
+
+    test("reproduces every convergence request and compiles through Rust", () => {
+        const transport = new CliSimplyPreviewTransport(
+            ROOT_CLI,
+            ["simply"],
+            path.join(REPOSITORY, CONVERGENCE.target_profiles[0].path),
+        );
+        for (const testCase of CONVERGENCE.cases) {
+            const request = convergenceRequest(testCase);
+            expect(rebuildFixture(request)).toEqual(request);
+            const response = transport.execute(request);
+            expect(response.status).toBe("success");
+            if (response.status === "success") {
+                const compileRequest = response.compile_request as Record<
+                    string,
+                    any
+                >;
+                const compileResult = response.compile_result as Record<
+                    string,
+                    any
+                >;
+                expect(compileRequest.input.kind).toBe("semantic");
+                expect(compileResult.semantic_result.status).toBe("complete");
+            }
         }
     });
 

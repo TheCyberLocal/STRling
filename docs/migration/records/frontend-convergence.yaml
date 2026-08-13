@@ -47,10 +47,17 @@ scope:
         - spec/targets/**
         - tooling/legacy_reference/**
     expected_files:
+        - bindings/python/tests/unit/test_simply_preview.py
+        - bindings/typescript/__tests__/unit/simply_preview.test.ts
+        - core/tests/frontend_convergence.rs
         - docs/migration/frontend-convergence.md
         - docs/migration/ledger.md
         - docs/migration/records/frontend-convergence.yaml
         - governance/change-control.json
+        - tests/convergence/frontend-convergence.json
+        - tests/convergence/frontend-convergence.schema.json
+        - tooling/frontend_convergence.py
+        - tooling/tests/test_frontend_convergence.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -116,15 +123,26 @@ checkpoints:
             result: passed
             details: Alpha-renamed identities and removed provenance/location metadata are the only exclusions; semantic values, facts, diagnostics, portability decisions, rewrites, target options, artifacts, and outcomes remain compared.
     - name: Executable convergence corpus and host adapters
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Fail-closed authored denominator
+            result: passed
+            details: The content-addressed eleven-case corpus certifies all 15 Simply operations, all 17 Semantic mappings, all 38 accepted or compatibility-only legacy features across ten families, all 13 rejected legacy dispositions, three exact profiles, three host routes, and zero unresolved entry; ten controlled mutations fail closed.
+          - check: Canonical multi-route equality
+            result: passed
+            details: Semantic source, native Rust Simply, independently re-identified source-less Semantic IR, and nine regex-compatible imports compare across all three exact profiles. The harness executes 132 route/profile comparisons with deterministic repeat compiles and retains semantic values, facts, diagnostics, portability, and target results.
+          - check: TypeScript and Python Preview reuse
+            result: passed
+            details: Both Preview adapters reconstruct every one of the eleven shared builder requests exactly and compile them through the Rust transport; the focused TypeScript and Python suites pass seven tests each.
     - name: Canonical documentation hierarchy
       status: planned
       evidence: []
     - name: Full repository and phase certification
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: b7cc79804c95c7a57ee05207772566e4f5bf680f
+      subject: "docs(frontend): define convergence certification"
 readiness:
     status: BLOCKED
     next_task: Implement and certify the locked convergence corpus before changing canonical tutorials.
