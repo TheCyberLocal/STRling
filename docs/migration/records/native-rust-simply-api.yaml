@@ -1,0 +1,143 @@
+record_version: 2.0.0
+title: Native Rust Simply API
+status: in_progress
+objective: Implement an idiomatic, public, host-facing Rust construction layer that mechanically covers the complete strling.simply-builder 1.0.0 protocol by building canonical Semantic IR candidates directly, enforcing deterministic identity/provenance/ownership/error rules, delegating normalization and compilation to the existing kernel, and proving exact equivalence without creating a parallel semantic model, compiler, target path, runtime, or other-language adapter.
+scope:
+    diff:
+        base: 092fe005f6e0c3709ca6313d6a8d5b1ef0a3a100
+        head: working-tree
+    allowed_paths:
+        - core/README.md
+        - core/src/lib.rs
+        - core/src/simply.rs
+        - core/tests/simply_api.rs
+        - core/tests/simply_compile_through.rs
+        - core/tests/simply_properties.rs
+        - docs/architecture.md
+        - docs/migration/ledger.md
+        - docs/migration/native-rust-simply-api.md
+        - docs/migration/records/native-rust-simply-api.yaml
+        - governance/baselines/migration-baseline.json
+        - governance/change-control.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/public-surfaces.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/public_contracts.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_public_contracts.py
+    forbidden_paths:
+        - bindings/**
+        - packages/**
+        - spec/contracts/**
+        - spec/conformance/**
+        - spec/frontends/**
+        - spec/grammar/**
+        - spec/schema/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - tests/spec/**
+        - tooling/legacy_reference/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/native-rust-simply-api.md
+        - docs/migration/records/native-rust-simply-api.yaml
+        - governance/change-control.json
+    permitted_generated_changes:
+        - public-contract-snapshots
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Every builder operation maps mechanically to the completed Simply protocol and already-ratified Semantic IR; no construct or meaning changes.
+    public_api_change:
+        level: additive
+        evidence:
+            - The non-published strling-kernel crate gains an intentional native Rust Simply construction surface and root re-exports; no published binding/package surface changes.
+        affected_surfaces:
+            - strling-kernel
+    schema_change:
+        level: none
+        evidence:
+            - Protocol 1.0.0 and canonical compiler schemas remain unchanged and are implementation inputs.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Stable STRL-SIMPLY code/path records are construction API errors, not new canonical Diagnostic values or product-visible diagnostics.
+    target_behavior_change:
+        level: none
+        evidence:
+            - The API constructs semantic requests only; existing profiles, planning, lowering, serializers, artifacts, and runtimes remain unchanged.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds one Rust host-construction boundary that depends inward on semantic contracts, canonical normalization, CompileRequest, and the existing compile facade while prohibiting reverse dependencies and alternate orchestration.
+    generated_output_change:
+        level: none
+        evidence:
+            - The scope checkpoint does not update generated output; the implementation checkpoint will declare and regenerate the enforced strling-kernel public-contract snapshot.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Complete protocol operation and error coverage
+      command: cargo test --manifest-path core/Cargo.toml --test simply_api --test simply_properties --locked
+      expected_result: All 15 operations, semantic options, identities, imports, ownership/cloning cases, stable errors, determinism, serialization, immutability, and bounded malformed inputs pass without partial mutation or panics.
+    - name: Canonical equivalence and compile-through behavior
+      command: cargo test --manifest-path core/Cargo.toml --test simply_builder_contract --test simply_compile_through --locked
+      expected_result: Native constructors reproduce every authored protocol fixture exactly after canonical normalization and yield the same diagnostics, analysis, portability, and target artifacts as equivalent direct semantic requests through the sole kernel facade.
+    - name: Public API and architecture fitness
+      command: python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/core_contract_validation.py && python3 -m unittest tooling.tests.test_public_contracts tooling.tests.test_core_contracts && python3 tooling/governance.py
+      expected_result: The additive Rust surface is declared and snapshotted; mutations reject second models/compilers, parser/target/runtime/emitter/binding dependencies, hidden target syntax, ambient state, and protocol inventory drift.
+    - name: Rust and repository quality
+      command: cargo fmt --manifest-path core/Cargo.toml --all --check && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && cargo test --manifest-path core/Cargo.toml --all-targets --locked && python3 -m unittest discover -s tooling/tests && python3 tooling/documentation_integrity.py && ./strling migration-differential --repeat-runs 3 && git diff --check
+      expected_result: Every affected and repository hardgate passes with a deliberate reviewed canonical-boundary/public-snapshot baseline renewal only where required.
+    - name: Certification profiles and cleanliness
+      command: ./strling profile local && ./strling profile pull-request && git status --short
+      expected_result: All task-owned and available operations pass, unavailable inherited tools remain explicit without waiver, and the final tree is clean.
+checkpoints:
+    - name: Protocol, kernel, and Rust surface inventory
+      status: passed
+      evidence:
+          - check: Canonical dependency audit
+            result: passed
+            details: P13-T01 protocol 1.0.0 closes 15 operations, four semantic options, 12 stable failures, deterministic generated IDs, import-preserving provenance, and immutable single-parent ownership. Canonical Rust Node/SemanticProgram, normalize, CompileRequest, compile, target profiles, and validation already own all later semantics; the native API needs only a construction graph and conversions.
+          - check: Public contract and profile audit
+            result: passed
+            details: strling-kernel is an enforced non-published Rust source surface. Its snapshot extractor currently owns lib.rs and kernel.rs only and must intentionally expand to Simply declarations. Local and Pull Request already execute the complete core suite; no new runner or profile operation is required.
+    - name: Locked native API and ownership boundary
+      status: passed
+      evidence:
+          - check: Direct canonical construction
+            result: passed
+            details: SimplyBuilder will store canonical Node candidates directly behind opaque stable handles. Explicit step/capture keys derive node:simply and capture:simply identities. All methods validate before mutation; cloned handles remain immutable references and a second materializing parent fails as reused_value. Group is transparent provenance, imports retain canonical IDs/origins/sources, and finishing consumes the builder into normalized SemanticProgram or CompileRequest.
+          - check: Exclusions and delegation
+            result: passed
+            details: The surface exposes protocol argument types plus canonical semantic/request types only. It will not parse regex, model targets, emit syntax, execute runtimes, inspect ambient state, call analysis/planning/lowering stages directly, or expose a second compile function. Compile-through tests call the existing crate-root compile facade with the produced request.
+    - name: Native implementation, equivalence, and properties
+      status: planned
+      evidence:
+          - check: Complete public API and executable protocol proof
+            result: not_run
+            details: Awaiting implementation, all-operation fixture reproduction, stable-error and ownership tests, fixed-seed properties, canonical serialization, imports/provenance, and exact request equivalence.
+    - name: Compile-through and architecture/public-surface certification
+      status: planned
+      evidence:
+          - check: One-kernel behavior and controlled boundary failures
+            result: not_run
+            details: Awaiting direct-versus-Simply diagnostics/analysis/portability/artifact comparisons, additive snapshot generation/declaration, and architecture mutations.
+    - name: Complete repository and task certification
+      status: planned
+      evidence:
+          - check: Task-closing hardgates
+            result: not_run
+            details: Awaiting all Rust/tooling/contracts/governance/docs/migration/Local/Pull Request evidence, reviewed baseline renewal if required, clean commits, and next-task handoff.
+commits: []

@@ -3381,3 +3381,33 @@ Local passes 26/26 from a clean tree with zero failures, waivers, unavailable
 operations, or incomplete operations. The task is READY; P13-T02 is next and
 will implement the native Rust Simply API as a thin protocol/kernel layer
 without a parallel semantic model or compiler.
+
+## Implement the native Rust Simply API
+
+P13-T02 starts from clean P13-T01 completion commit
+`092fe005f6e0c3709ca6313d6a8d5b1ef0a3a100`. Protocol `1.0.0` is complete at
+`sha256:245bd1aa0745db78258f5c5f27e023d4bd07ffbc3814bfd751e577192a034740`
+with 15 operations, nine positive cases, 13 negative cases, 12 stable failures,
+and exact canonical Rust equivalence. This task implements only the native
+Rust host construction layer.
+
+The locked `SimplyBuilder` stores canonical `Node` candidates directly behind
+opaque immutable value handles. Explicit stable step and capture keys derive
+the protocol node/capture identities. Values have one materializing parent;
+cloned handles do not clone semantic subtrees and reuse fails before mutation.
+Generated nodes are source-less, group is transparent derivation provenance,
+and canonical imports preserve fully resolved identities, origins, and sources.
+
+Finishing consumes the graph into the existing `canonical-v1` normalizer and
+then into `SemanticProgram` or `CompileRequest`. Requested outputs, compiler
+options, and target-profile references remain request routing. The API exposes
+no parser, raw regex, target syntax, emitter, runtime, ambient state, direct
+analysis/planning/lowering orchestration, or alternate compiler function;
+compile-through uses the existing `compile` facade.
+
+Completion requires all-operation/error/import equivalence, ownership and
+fixed-seed property tests, deterministic serialization, direct-versus-Simply
+compile results, intentional `strling-kernel` public snapshot expansion,
+controlled architecture mutations, complete Rust/repository checks, reviewed
+migration-baseline renewal if necessary, Local and Pull Request profiles, a
+clean tree, and P13-T03 handoff.
