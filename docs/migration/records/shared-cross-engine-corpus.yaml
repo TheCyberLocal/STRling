@@ -15,6 +15,7 @@ scope:
         - docs/migration/shared-cross-engine-corpus.md
         - governance/architecture-rules.json
         - governance/change-control.json
+        - governance/formatting.json
         - governance/generated-artifacts.json
         - spec/conformance/README.md
         - spec/conformance/cases/**
@@ -60,6 +61,7 @@ scope:
         - docs/migration/records/shared-cross-engine-corpus.yaml
         - docs/migration/shared-cross-engine-corpus.md
         - governance/change-control.json
+        - governance/formatting.json
         - governance/generated-artifacts.json
         - spec/conformance/cases/**
         - spec/conformance/shared-corpus-v1.json
@@ -108,6 +110,7 @@ change_classification:
         level: additive
         evidence:
             - Registers and checks one deterministic certification-evidence artifact containing the complete five-profile raw and normalized observation denominator.
+            - Assigns that checked observation artifact exclusively to its owning serializer so repository formatting cannot make producer --write and verifier --check disagree.
     documentation_only: false
     internal_implementation: true
 required_verification:

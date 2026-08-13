@@ -128,8 +128,5 @@
             }
         ]
     },
-    "tags": [
-        "lookbehind",
-        "matching"
-    ]
+    "tags": ["lookbehind", "matching"]
 }

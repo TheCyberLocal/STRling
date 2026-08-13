@@ -131,8 +131,5 @@
             }
         ]
     },
-    "tags": [
-        "matching",
-        "wildcard"
-    ]
+    "tags": ["matching", "wildcard"]
 }

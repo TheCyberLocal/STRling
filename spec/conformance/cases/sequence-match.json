@@ -128,8 +128,5 @@
             }
         ]
     },
-    "tags": [
-        "matching",
-        "sequence"
-    ]
+    "tags": ["matching", "sequence"]
 }

@@ -304,6 +304,14 @@
             "disposition": "not_applicable",
             "strategy": "Owning generator",
             "reason": "Generated outputs are reproduced rather than independently formatted."
+        },
+        {
+            "paths": [
+                "tests/conformance/evidence/shared-cross-engine-observations.json"
+            ],
+            "disposition": "not_applicable",
+            "strategy": "Shared cross-engine corpus controller",
+            "reason": "The checked exact-runtime observation artifact is deterministically serialized and verified by its owning controller; a competing formatter would make --check disagree with --write."
         }
     ],
     "enforcement": {
@@ -328,6 +336,7 @@
                         "bindings/swift/Tests/STRlingConformanceTests/Resources/*",
                         "governance/contracts/snapshots/*",
                         "docs/generated/*",
+                        "tests/conformance/evidence/shared-cross-engine-observations.json",
                         "tooling/js_to_json_ast/out/*",
                         "tooling/lsp-server/dist/*",
                         "bindings/typescript/*.js",

@@ -67,9 +67,7 @@
                     "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
                 },
                 "status": "equivalent_rewrite",
-                "reason_codes": [
-                    "equivalence_proof_certified"
-                ]
+                "reason_codes": ["equivalence_proof_certified"]
             },
             {
                 "target_profile": {
@@ -105,9 +103,5 @@
             }
         ]
     },
-    "tags": [
-        "atomic",
-        "matching",
-        "rewrite"
-    ]
+    "tags": ["atomic", "matching", "rewrite"]
 }

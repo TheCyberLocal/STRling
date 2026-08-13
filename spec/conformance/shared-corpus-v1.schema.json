@@ -26,21 +26,14 @@
         "authority": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "manifest_id",
-                "status",
-                "expectation_source"
-            ],
+            "required": ["manifest_id", "status", "expectation_source"],
             "properties": {
                 "manifest_id": {
                     "type": "string",
                     "minLength": 1
                 },
                 "status": {
-                    "enum": [
-                        "draft",
-                        "delegated_normative"
-                    ]
+                    "enum": ["draft", "delegated_normative"]
                 },
                 "expectation_source": {
                     "const": "specification"
@@ -74,11 +67,7 @@
         "ProfileRef": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "profile_id",
-                "profile_version",
-                "sha256"
-            ],
+            "required": ["profile_id", "profile_version", "sha256"],
             "properties": {
                 "profile_id": {
                     "type": "string",
@@ -113,10 +102,7 @@
                     ]
                 },
                 "subject_representation": {
-                    "enum": [
-                        "utf8-text",
-                        "ascii-bytes"
-                    ]
+                    "enum": ["utf8-text", "ascii-bytes"]
                 }
             }
         },
@@ -161,11 +147,7 @@
                 "expected_application_counts": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": [
-                        "execute",
-                        "unsupported",
-                        "not_applicable"
-                    ],
+                    "required": ["execute", "unsupported", "not_applicable"],
                     "properties": {
                         "execute": {
                             "type": "integer",
@@ -192,12 +174,7 @@
         "Application": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "target_profile",
-                "predicate",
-                "state",
-                "reason"
-            ],
+            "required": ["target_profile", "predicate", "state", "reason"],
             "properties": {
                 "target_profile": {
                     "$ref": "#/$defs/ProfileRef"
@@ -206,18 +183,10 @@
                     "const": "exact_profile"
                 },
                 "state": {
-                    "enum": [
-                        "execute",
-                        "unsupported",
-                        "not_applicable"
-                    ]
+                    "enum": ["execute", "unsupported", "not_applicable"]
                 },
                 "portability_status": {
-                    "enum": [
-                        "native",
-                        "equivalent_rewrite",
-                        "unsupported"
-                    ]
+                    "enum": ["native", "equivalent_rewrite", "unsupported"]
                 },
                 "reason": {
                     "type": "string",
@@ -229,17 +198,12 @@
                     "if": {
                         "properties": {
                             "state": {
-                                "enum": [
-                                    "execute",
-                                    "unsupported"
-                                ]
+                                "enum": ["execute", "unsupported"]
                             }
                         }
                     },
                     "then": {
-                        "required": [
-                            "portability_status"
-                        ]
+                        "required": ["portability_status"]
                     }
                 },
                 {
@@ -252,9 +216,7 @@
                     },
                     "then": {
                         "not": {
-                            "required": [
-                                "portability_status"
-                            ]
+                            "required": ["portability_status"]
                         }
                     }
                 }
@@ -289,10 +251,7 @@
                     "$ref": "#/$defs/Sha256"
                 },
                 "input_kind": {
-                    "enum": [
-                        "semantic",
-                        "source"
-                    ]
+                    "enum": ["semantic", "source"]
                 },
                 "features": {
                     "$ref": "#/$defs/StringSet"
@@ -306,10 +265,7 @@
                 "modes": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": [
-                        "case_matching",
-                        "operation"
-                    ],
+                    "required": ["case_matching", "operation"],
                     "properties": {
                         "case_matching": {
                             "enum": [
@@ -319,11 +275,7 @@
                             ]
                         },
                         "operation": {
-                            "enum": [
-                                "full_match",
-                                "search",
-                                "diagnostic"
-                            ]
+                            "enum": ["full_match", "search", "diagnostic"]
                         }
                     }
                 },

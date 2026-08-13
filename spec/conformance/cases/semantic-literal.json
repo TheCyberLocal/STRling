@@ -94,11 +94,7 @@
             }
         ]
     },
-    "tags": [
-        "literal",
-        "matching",
-        "semantic"
-    ],
+    "tags": ["literal", "matching", "semantic"],
     "compatibility_evidence": [
         {
             "kind": "legacy_fixture",

@@ -107,9 +107,5 @@
             }
         ]
     },
-    "tags": [
-        "character_class",
-        "matching",
-        "unicode"
-    ]
+    "tags": ["character_class", "matching", "unicode"]
 }

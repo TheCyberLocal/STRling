@@ -117,10 +117,7 @@
             }
         ]
     },
-    "tags": [
-        "capture",
-        "matching"
-    ],
+    "tags": ["capture", "matching"],
     "compatibility_evidence": [
         {
             "kind": "legacy_fixture",

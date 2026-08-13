@@ -27,12 +27,12 @@ records sorted feature and requirement tags, the applicable match or diagnostic
 operation, coverage roles, and one explicit disposition for every governed
 profile:
 
-- `execute` requires a case target expectation of `native` or
-  `equivalent_rewrite` and exact engine execution;
-- `unsupported` requires the case to declare unsupported target evidence and
-  forbids artifact or runtime success; and
-- `not_applicable` requires a stable rationale and prevents coercing a text,
-  Unicode, diagnostic-only, or semantic-only vector into an unrelated profile.
+-   `execute` requires a case target expectation of `native` or
+    `equivalent_rewrite` and exact engine execution;
+-   `unsupported` requires the case to declare unsupported target evidence and
+    forbids artifact or runtime success; and
+-   `not_applicable` requires a stable rationale and prevents coercing a text,
+    Unicode, diagnostic-only, or semantic-only vector into an unrelated profile.
 
 The initial profile denominator is exact and closed: PCRE2 10.42, PCRE2 10.43,
 ECMAScript 2024 on Node 22, Python `re` 3.11 `str`, and Python `re` 3.11
@@ -71,9 +71,9 @@ The Python orchestrator validates corpus authority first, invokes the fixed
 Rust projection, and dispatches only `execute` applications to the existing
 exact-runtime adapters:
 
-- PCRE2 10.42 and 10.43 shared libraries from immutable upstream tags;
-- official Node 22.23.2/V8 12.4.254.21-node.56 on Linux x64; and
-- official-source CPython 3.11.15 on Linux x86-64 for both `str` and `bytes`.
+-   PCRE2 10.42 and 10.43 shared libraries from immutable upstream tags;
+-   official Node 22.23.2/V8 12.4.254.21-node.56 on Linux x64; and
+-   official-source CPython 3.11.15 on Linux x86-64 for both `str` and `bytes`.
 
 Engine-native offsets and capture slots are normalized back to canonical UTF-8
 subject spans and logical capture IDs. Full-match versus search is evaluated at

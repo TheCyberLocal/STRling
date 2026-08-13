@@ -138,8 +138,5 @@
             }
         ]
     },
-    "tags": [
-        "character_class",
-        "matching"
-    ]
+    "tags": ["character_class", "matching"]
 }

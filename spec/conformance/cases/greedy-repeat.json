@@ -117,8 +117,5 @@
             }
         ]
     },
-    "tags": [
-        "matching",
-        "repeat"
-    ]
+    "tags": ["matching", "repeat"]
 }

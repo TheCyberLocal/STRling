@@ -120,10 +120,5 @@
             }
         ]
     },
-    "tags": [
-        "character_class",
-        "interaction",
-        "matching",
-        "negation"
-    ]
+    "tags": ["character_class", "interaction", "matching", "negation"]
 }

@@ -130,9 +130,5 @@
             }
         ]
     },
-    "tags": [
-        "interaction",
-        "matching",
-        "repeat"
-    ]
+    "tags": ["interaction", "matching", "repeat"]
 }

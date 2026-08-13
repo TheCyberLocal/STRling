@@ -95,9 +95,7 @@
                     "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
                 },
                 "status": "unsupported",
-                "reason_codes": [
-                    "profile_capability_unavailable"
-                ]
+                "reason_codes": ["profile_capability_unavailable"]
             },
             {
                 "target_profile": {
@@ -133,9 +131,5 @@
             }
         ]
     },
-    "tags": [
-        "interaction",
-        "matching",
-        "repeat"
-    ]
+    "tags": ["interaction", "matching", "repeat"]
 }

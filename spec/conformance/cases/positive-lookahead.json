@@ -128,8 +128,5 @@
             }
         ]
     },
-    "tags": [
-        "lookahead",
-        "matching"
-    ]
+    "tags": ["lookahead", "matching"]
 }

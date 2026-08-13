@@ -91,10 +91,5 @@
             }
         ]
     },
-    "tags": [
-        "case_insensitive",
-        "literal",
-        "matching",
-        "unicode"
-    ]
+    "tags": ["case_insensitive", "literal", "matching", "unicode"]
 }

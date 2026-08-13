@@ -123,9 +123,7 @@
                     "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
                 },
                 "status": "unsupported",
-                "reason_codes": [
-                    "profile_capability_unavailable"
-                ]
+                "reason_codes": ["profile_capability_unavailable"]
             },
             {
                 "target_profile": {
@@ -153,9 +151,5 @@
             }
         ]
     },
-    "tags": [
-        "anchor",
-        "boundary",
-        "matching"
-    ]
+    "tags": ["anchor", "boundary", "matching"]
 }
