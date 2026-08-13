@@ -16,7 +16,8 @@ engine, or editor.
 Three authoring surface families converge on one semantic compiler path:
 
 -   **Semantic STRling DSL:** the flagship textual semantic language, with
-    ratified `strling.semantic@1.0.0` syntax and mapping but no parser yet;
+    ratified `strling.semantic@1.0.0` syntax and mapping implemented by one
+    bounded Rust parser and canonical formatter;
 -   **Simply APIs:** idiomatic host-language semantic builders; and
 -   **regex frontend/importer:** the existing regex-shaped compatibility source
     dialect.
@@ -238,10 +239,14 @@ versioned Simply `BuilderRequest`; both return canonical `CompileResult`
 evidence and delegate semantics to the Rust kernel. The commands own only
 standard-input/output, argument, exact target-profile file, and exit-status
 handling. The kernel selects source syntax only from the explicit
-`SourceDocument.frontend` identity; it currently dispatches
-`strling.regex-compat@1.0.0` to the one governed compatibility parser. Neither
-the shell nor the Rust transport binary parses regex syntax, selects a default
-frontend or target, lowers targets, or emits artifacts.
+`SourceDocument.frontend` identity. It dispatches
+`strling.regex-compat@1.0.0` to the governed compatibility parser and
+`strling.semantic@1.0.0` to the pure Semantic STRling parser; both lower to the
+same canonical Semantic IR normalization and compiler pipeline. The Semantic
+frontend alone retains private authored-order and comment evidence for its
+canonical formatter. Neither the shell nor the Rust transport binary parses
+source syntax, selects a default frontend or target, lowers targets, or emits
+artifacts.
 
 ## Current versus target state
 
@@ -264,7 +269,8 @@ documentation.
 The contained
 [`strling.semantic@1.0.0`](../spec/frontends/semantic/1.0/README.md) frontend
 contract ratifies the flagship source grammar, mapping, diagnostics, formatting,
-and authored cases before implementation. The broader
+and authored cases. The Rust parser and formatter consume that immutable
+authority and cannot regenerate or amend it. The broader
 [`1.0-draft.1`](../spec/drafts/1.0/README.md) Semantic Specification remains a
 non-normative scope scaffold. The frozen `strling.regex-compat@1.0.0` grammar is
 a separate compatibility/import frontend and must not be presented as Semantic

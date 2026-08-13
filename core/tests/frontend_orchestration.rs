@@ -111,6 +111,42 @@ fn source_request(source: &str, outputs: &[&str]) -> CompileRequest {
     .expect("valid regex source compile request")
 }
 
+fn semantic_source_request(source: &str, outputs: &[&str]) -> CompileRequest {
+    serde_json::from_value(json!({
+        "contract_version": "1.0.0",
+        "specification_version": "1.0-draft.1",
+        "input": {
+            "kind": "source",
+            "document": {
+                "contract_version": "1.0.0",
+                "source_id": "src:orchestration.semantic",
+                "specification_version": "1.0-draft.1",
+                "frontend": {
+                    "id": "strling.semantic",
+                    "dialect_version": "1.0.0"
+                },
+                "display_name": "fixture.semantic.strling",
+                "content": {
+                    "kind": "inline",
+                    "encoding": "utf-8",
+                    "media_type": "text/x-strling-semantic",
+                    "text": source
+                },
+                "provenance": {
+                    "kind": "authored",
+                    "description": "P13-T05 canonical semantic frontend integration fixture"
+                }
+            }
+        },
+        "requested_outputs": outputs,
+        "compiler_options": {
+            "partial_semantics": "forbid",
+            "diagnostic_policy": { "minimum_severity": "hint" }
+        }
+    }))
+    .expect("valid semantic source compile request")
+}
+
 fn run_cli(request: &CompileRequest, args: &[&str]) -> std::process::Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_strling-kernel"))
         .args(args)
@@ -147,6 +183,83 @@ fn supported_source_compiles_through_the_canonical_semantic_pipeline() {
     assert!(result.analysis.is_some());
     assert!(result.portability.is_none());
     assert!(result.artifact.is_none());
+}
+
+#[test]
+fn semantic_source_reuses_the_canonical_semantic_and_analysis_pipeline() {
+    let request = semantic_source_request(
+        "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\"; text \"b\"; }\n",
+        &["semantic", "analysis"],
+    );
+    let expected_document = match &request.input {
+        CompileInput::Source { document } => document.as_ref(),
+        CompileInput::Semantic { .. } => panic!("source request expected"),
+    };
+
+    let result = compile(&request, None).expect("semantic source compiles");
+
+    assert_eq!(result.outcome, CompileOutcome::Succeeded);
+    assert!(result.diagnostics.is_empty());
+    let semantic = result.semantic_result.expect("requested semantic result");
+    assert_eq!(
+        semantic.program.sources.as_deref(),
+        Some(std::slice::from_ref(expected_document))
+    );
+    assert!(semantic.program.root.origin().is_some());
+    assert!(result.analysis.is_some());
+    assert!(result.portability.is_none());
+    assert!(result.artifact.is_none());
+}
+
+#[test]
+fn semantic_source_failure_preserves_the_frozen_diagnostic_and_no_partial_ir() {
+    let request = semantic_source_request(
+        "semantic strling 1.0;\ncase sensitive;\npattern character from { range \"z\" through \"a\"; }\n",
+        &["semantic", "analysis"],
+    );
+
+    let result = compile(&request, None).expect("semantic rejection is a compile result");
+
+    assert_eq!(result.outcome, CompileOutcome::Failed);
+    assert!(result.semantic_result.is_none());
+    assert!(result.analysis.is_none());
+    assert_eq!(result.diagnostics.len(), 1);
+    let diagnostic = &result.diagnostics[0];
+    assert_eq!(diagnostic.code.as_str(), "STRL-DSL-2003");
+    assert_eq!(diagnostic.phase, CompilerPhase::SemanticLowering);
+    assert_eq!(diagnostic.category, DiagnosticCategory::SemanticValidity);
+    let location = diagnostic
+        .primary_location
+        .as_ref()
+        .expect("source location");
+    assert_eq!(location.source_id.as_str(), "src:orchestration.semantic");
+    assert_eq!(location.start, 70);
+}
+
+#[test]
+fn semantic_source_reference_uses_the_existing_protocol_failure() {
+    let mut request = semantic_source_request(
+        "semantic strling 1.0;\ncase sensitive;\npattern empty;\n",
+        &["semantic"],
+    );
+    let CompileInput::Source { document } = &mut request.input else {
+        panic!("source request expected");
+    };
+    document.content = serde_json::from_value(json!({
+        "kind": "reference",
+        "encoding": "utf-8",
+        "media_type": "text/x-strling-semantic",
+        "uri": "urn:strling:source:semantic",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }))
+    .expect("valid referenced content");
+
+    let result = compile(&request, None).expect("unresolved content is a result");
+
+    assert_eq!(result.outcome, CompileOutcome::Failed);
+    assert_eq!(result.diagnostics.len(), 1);
+    assert_eq!(result.diagnostics[0].code.as_str(), "STRL-PROTOCOL-0006");
+    assert_eq!(result.diagnostics[0].phase, CompilerPhase::Protocol);
 }
 
 #[test]

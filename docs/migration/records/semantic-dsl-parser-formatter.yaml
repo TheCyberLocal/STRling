@@ -24,6 +24,8 @@ scope:
         - governance/change-control.json
         - tooling/core_contract_validation.py
         - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_frontend_orchestration_architecture.py
+        - tooling/tests/test_regex_frontend_architecture.py
         - tooling/tests/test_semantic_frontend_architecture.py
     forbidden_paths:
         - bindings/**
@@ -43,9 +45,24 @@ scope:
         - tests/**
         - tooling/lsp-server/**
     expected_files:
+        - core/README.md
+        - core/contract-mapping.json
+        - core/src/kernel.rs
+        - core/src/lib.rs
+        - core/src/semantic_frontend.rs
+        - core/tests/frontend_orchestration.rs
+        - core/tests/semantic_frontend.rs
+        - core/tests/semantic_frontend_properties.rs
+        - docs/architecture.md
         - docs/migration/ledger.md
         - docs/migration/records/semantic-dsl-parser-formatter.yaml
+        - docs/migration/semantic-dsl-parser-formatter.md
+        - docs/testing_workflow.md
         - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_frontend_orchestration_architecture.py
+        - tooling/tests/test_regex_frontend_architecture.py
+        - tooling/tests/test_semantic_frontend_architecture.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -121,11 +138,29 @@ checkpoints:
             result: passed
             details: Material nodes and captures allocate independent one-based preorder identities before existing normalization; references resolve only completed named captures; normalization alone flattens/coalesces/sorts canonical IR while syntax evidence remains formatter-owned.
     - name: Parser, formatter, and diagnostics implementation
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Ratified grammar and first-error parser
+            result: passed
+            details: The dependency-free demand-driven lexer/parser implements all 55 productions, exact required-layout and delimiter behavior, the contextual reserved-word set, deterministic material/capture identities, exact spans, and all 27 stable STRL-DSL diagnostic routes.
+          - check: Syntax-preserving canonical formatter
+            result: passed
+            details: Private syntax evidence preserves comments and authored set order; formatting emits canonical LF/layout/escapes, aligns nested comments with following constructs or enclosing closures, and reparses idempotently without deriving presentation from normalized IR.
+          - check: Bounded canonical lowering
+            result: passed
+            details: Successful syntax lowers directly into canonical Semantic IR with exact provenance and then calls the existing normalization::normalize; no target, emitter, runtime, binding, filesystem, network, environment, package, or specification-writing dependency was added.
     - name: Fixture, property, robustness, and pipeline certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Specification-authored fixtures
+            result: passed
+            details: All 12 positive and 30 negative cases pass with deterministic Semantic IR, exact diagnostic identity/phase/category/UTF-8 byte location, material spans, canonical formatting, and reparse stability.
+          - check: Property and adversarial robustness
+            result: passed
+            details: 512 generated valid programs preserve canonical semantics, capture names, and preorder identities; 2,048 deterministic arbitrary UTF-8 inputs never panic; nesting, material-node, capture, set-member, identifier, integer, and source limits have exact boundary evidence.
+          - check: Kernel and architecture integration
+            result: passed
+            details: Explicit strling.semantic requests reuse the existing semantic and analysis pipeline; failures return one frozen diagnostic with no partial IR; unresolved references retain the protocol route. Contract mapping, single dispatch ownership, dependency boundaries, and controlled architecture mutations pass.
     - name: Repository, Local, Pull Request, and clean-tree certification
       status: planned
       evidence: []
@@ -134,5 +169,5 @@ commits:
       subject: "docs(frontend): define Semantic DSL parser and formatter"
 readiness:
     status: BLOCKED
-    next_task: Complete P13-T05 implementation and certification before frontend convergence.
-    rationale: Design is locked, but parser, formatter, executable fixture/property evidence, compiler dispatch, aggregate profiles, and clean-tree closure remain incomplete.
+    next_task: Complete repository, Local, Pull Request, reproducibility, and clean-tree certification before frontend convergence.
+    rationale: Implementation, focused contract fixtures, property/robustness coverage, kernel dispatch, exact Rust 1.75.0 warning-denied checks, and architecture mutations pass; aggregate repository profiles and closure evidence remain pending.

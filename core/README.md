@@ -30,6 +30,16 @@ IR. The crate-private target-aware pipeline certifies that planning follows
 capability evaluation, while the existing `CompileResult` projection remains
 target-neutral and produces no portability plan or artifact.
 
+Source compilation is selected only by explicit `SourceDocument.frontend`
+identity. `regex_frontend` preserves the frozen compatibility grammar, while
+`semantic_frontend` implements the ratified `strling.semantic@1.0.0` grammar,
+all 27 frozen `STRL-DSL-*` diagnostics, bounded direct lowering, source spans,
+and canonical formatting. The Semantic formatter retains private syntax
+evidence for comments and authored set order; accepted programs still pass
+through the sole `normalization::normalize` and existing compiler pipeline.
+Neither frontend reads files, selects targets, lowers artifacts, or owns
+runtime behavior.
+
 `SimplyBuilder` is the native Rust construction surface for
 `strling.simply-builder@1.0.0`. It stores canonical `semantic::Node` candidates
 directly, derives stable node and capture identities from explicit host keys,
@@ -49,8 +59,8 @@ The transport owns only bounded I/O and exact profile-file loading; host
 adapters remain protocol serializers and do not discover or implement compiler,
 target, emitter, or runtime behavior.
 
-Parsing, rewrite application, general satisfiability or language-inclusion
-solving, style-only warnings, target-specific portability diagnostics,
+Additional parsing surfaces, rewrite application, general satisfiability or
+language-inclusion solving, style-only warnings, target-specific portability diagnostics,
 exploitability or target-runtime verdicts, capture numbering, lowering,
 emission, editor presentation, non-Preview bindings, and product integrations
 remain deferred to separately contained tasks.

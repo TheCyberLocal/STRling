@@ -21,7 +21,9 @@ class FrontendOrchestrationArchitectureTests(unittest.TestCase):
             "node",
             "typescript",
             "regex_frontend",
+            "semantic_frontend",
             "strling.regex-compat",
+            "strling.semantic",
             "%flags",
             "parse",
             "target lowering",
@@ -39,6 +41,7 @@ class FrontendOrchestrationArchitectureTests(unittest.TestCase):
 
         for forbidden in (
             "regex_frontend",
+            "semantic_frontend",
             "::parse(",
             "parse_regex",
             "scan_regex",
@@ -53,28 +56,29 @@ class FrontendOrchestrationArchitectureTests(unittest.TestCase):
                 self.assertNotIn(forbidden, binary.lower())
 
     def test_frontend_dispatch_has_one_production_owner(self) -> None:
-        owners = []
-        for path in sorted((ROOT / "core/src").rglob("*.rs")):
-            source = path.read_text(encoding="utf-8")
-            if "regex_frontend::parse(" in source:
-                owners.append(path.relative_to(ROOT).as_posix())
-        self.assertEqual(owners, ["core/src/kernel.rs"])
+        for call in ("regex_frontend::parse(", "semantic_frontend::parse("):
+            owners = []
+            for path in sorted((ROOT / "core/src").rglob("*.rs")):
+                source = path.read_text(encoding="utf-8")
+                if call in source:
+                    owners.append(path.relative_to(ROOT).as_posix())
+            with self.subTest(call=call):
+                self.assertEqual(owners, ["core/src/kernel.rs"])
 
     def test_frontend_module_cannot_lower_targets_or_emit_artifacts(self) -> None:
-        frontend = (
-            (ROOT / "core/src/regex_frontend.rs").read_text(encoding="utf-8").lower()
-        )
-        for forbidden in (
-            "crate::target",
-            "crate::capability_evaluation",
-            "crate::portability_planning",
-            "targetprofile",
-            "targetartifact",
-            "emit(",
-            "engine_options",
-        ):
-            with self.subTest(forbidden=forbidden):
-                self.assertNotIn(forbidden, frontend)
+        for relative in ("core/src/regex_frontend.rs", "core/src/semantic_frontend.rs"):
+            frontend = (ROOT / relative).read_text(encoding="utf-8").lower()
+            for forbidden in (
+                "crate::target",
+                "crate::capability_evaluation",
+                "crate::portability_planning",
+                "targetprofile",
+                "targetartifact",
+                "emit(",
+                "engine_options",
+            ):
+                with self.subTest(relative=relative, forbidden=forbidden):
+                    self.assertNotIn(forbidden, frontend)
 
 
 if __name__ == "__main__":

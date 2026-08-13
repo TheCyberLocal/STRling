@@ -41,8 +41,10 @@ The TypeScript binding is the current fixture producer and compatibility
 reference. It is subordinate to the engineering authority hierarchy and every
 expressly normative versioned contract. The current regex-frontend grammar and
 semantics remain transitional evidence. Semantic STRling's
-`strling.semantic@1.0.0` source contract is ratified specification input, while
-its parser and formatter and the broader Semantic Specification remain pending.
+`strling.semantic@1.0.0` source contract is ratified specification input. Its
+Rust parser and formatter are certified consumers of the 12 positive and 30
+negative authored cases, exact diagnostics, formatting rules, and governed
+resource limits; the broader Semantic Specification remains pending.
 
 ### What This Means
 

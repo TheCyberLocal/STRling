@@ -109,6 +109,7 @@ MODULE_PATHS = {
     "protocol::result": "core/src/protocol/result.rs",
     "regex_frontend": "core/src/regex_frontend.rs",
     "semantic": "core/src/semantic/mod.rs",
+    "semantic_frontend": "core/src/semantic_frontend.rs",
     "semantic_analysis": "core/src/semantic_analysis.rs",
     "safety_analysis": "core/src/safety_analysis.rs",
     "structural_analysis": "core/src/structural_analysis.rs",
@@ -248,6 +249,7 @@ def validate_mapping_document(
             )
         if relative == "spec/contracts/1.0/semantic-ir.schema.json" and modules != [
             "regex_frontend",
+            "semantic_frontend",
             "normalization",
             "semantic",
             "semantic_analysis",
@@ -267,9 +269,10 @@ def validate_mapping_document(
         if relative == "spec/contracts/1.0/source.schema.json" and modules != [
             "source",
             "regex_frontend",
+            "semantic_frontend",
         ]:
             raise CoreContractError(
-                "source mapping must register the canonical regex compatibility frontend"
+                "source mapping must register the canonical regex compatibility frontend and semantic frontend"
             )
         if relative == "spec/contracts/1.0/target-artifact.schema.json" and modules != [
             "ecmascript_serialization",
@@ -595,6 +598,54 @@ def validate_source_boundaries(
         if forbidden in regex_frontend:
             raise CoreContractError(
                 "regex compatibility frontend violates pure target-neutral boundary: "
+                f"{forbidden}"
+            )
+
+    semantic_frontend = source_texts.get("core/src/semantic_frontend.rs", "").lower()
+    for required in (
+        "pub fn parse(",
+        "pub fn format(",
+        "let candidate = semanticprogram",
+        "invalidsemanticoutput",
+        "crate::diagnostic",
+        "crate::normalization",
+        "crate::source",
+        "crate::semantic",
+        "compilerphase::frontendparse",
+        "compilerphase::semanticlowering",
+        "severitybasis::normative",
+        "sourceorigin",
+        "sourcespan",
+    ):
+        if required not in semantic_frontend:
+            raise CoreContractError(
+                "semantic frontend must parse and format through validated canonical contracts: "
+                f"{required}"
+            )
+    for forbidden in (
+        "crate::target",
+        "crate::protocol",
+        "crate::kernel",
+        "crate::diagnostic_generation",
+        "crate::capability_evaluation",
+        "crate::portability_planning",
+        "std::env",
+        "std::time",
+        "std::process",
+        "std::fs",
+        "std::net",
+        "std::path",
+        "include_str!",
+        "include_bytes!",
+        "bindings::",
+        "target_profile",
+        "targetartifact",
+        "engine_options",
+        "emitted_pattern",
+    ):
+        if forbidden in semantic_frontend:
+            raise CoreContractError(
+                "semantic frontend violates pure target-neutral in-memory boundary: "
                 f"{forbidden}"
             )
     node_start = semantic.find("pub enum node")

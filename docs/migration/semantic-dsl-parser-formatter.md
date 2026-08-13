@@ -127,22 +127,31 @@ and the required header/case/blank-line/pattern layout is always emitted.
 alpha-equivalent canonical semantics, every material capture name, and the same
 preorder identity sequence. Only source content and spans may change.
 
-## Verification plan
+## Verification evidence
 
 Focused Rust tests consume, but never regenerate, all 12 positive and 30
-negative specification-authored fixtures. They assert exact diagnostic code and
-UTF-8 byte offset, all construct mappings, source spans, identities, comments,
-Unicode/escape behavior, EOF and reserved/version cases, and deterministic
-output.
+negative specification-authored fixtures. All pass with exact diagnostic code,
+phase, category, UTF-8 byte offset and location, material source spans,
+identities, comments, Unicode/escape behavior, EOF and reserved/version cases,
+and deterministic output.
 
-Separate property tests cover parse-format-parse, format-format, generated valid
-programs, all resource boundaries, and arbitrary-input no-panic behavior.
+Separate property tests certify parse-format-parse, format-format, 512 generated
+valid programs, exact boundaries for all seven resource families, and 2,048
+deterministic arbitrary UTF-8 inputs under panic capture. Nested comment cases
+prove following-construct and enclosing-closure alignment remains idempotent.
+
 Kernel orchestration tests prove successful Semantic STRling source traverses
-the existing semantic/analysis/portability pipeline and failed source produces
-one canonical diagnostic with no partial semantics. Architecture mutations
-reject target/emitter/binding/legacy dependencies, missing source/Semantic IR
-mappings, duplicate parser ownership, and implementation-derived specification
-changes.
+the existing semantic and analysis pipeline and failed source produces one
+canonical diagnostic with no partial semantics. Unresolved referenced content
+retains the existing protocol failure. Architecture mutations reject
+target/emitter/binding/host-I/O dependencies, missing source/Semantic IR
+mappings, duplicate parser ownership, and loss of parser, formatter,
+normalization, diagnostic, or provenance boundaries.
+
+Exact Rust 1.75.0 formatting, warning-denied Clippy/check, all Rust targets,
+canonical contract mapping, public/generated contract integrity, and repository
+hygiene pass. Aggregate repository, Local, Pull Request, reproducibility, and
+clean-tree closure remain the final certification steps.
 
 Closure requires exact Rust 1.75.0 formatting, warning-denied check and Clippy,
 all-target tests, canonical/public/generated contracts, governance,

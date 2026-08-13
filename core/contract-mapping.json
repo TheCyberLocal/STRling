@@ -74,6 +74,7 @@
             "sha256": "bf641bdf129dd5ced9d9f89d0170cefbb4dd976117d9e0c61000fd03041468db",
             "rust_modules": [
                 "regex_frontend",
+                "semantic_frontend",
                 "normalization",
                 "semantic",
                 "semantic_analysis",
@@ -91,7 +92,7 @@
         {
             "schema": "spec/contracts/1.0/source.schema.json",
             "sha256": "66a519a57ff6ea32bb8758873b641d04a040ea1e000fcb1386fe2670f760a8f9",
-            "rust_modules": ["source", "regex_frontend"]
+            "rust_modules": ["source", "regex_frontend", "semantic_frontend"]
         },
         {
             "schema": "spec/contracts/1.0/target-artifact.schema.json",

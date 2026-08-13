@@ -35,6 +35,7 @@ pub mod regex_frontend;
 pub mod safety_analysis;
 pub mod semantic;
 pub mod semantic_analysis;
+pub mod semantic_frontend;
 pub mod semantic_rewrite;
 pub mod simply;
 pub mod source;

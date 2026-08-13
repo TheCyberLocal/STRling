@@ -25,6 +25,7 @@ use crate::protocol::{
 };
 use crate::regex_frontend::{self, RegexFrontendFailure};
 use crate::semantic::{Node, SemanticProgram};
+use crate::semantic_frontend::{self, SemanticFrontendFailure};
 use crate::source::{ContractVersion, FrontendId, SourceDocument};
 use crate::target::{
     PortabilityDecision, PortabilityPlan, PortabilityStatus, ReasonCode, RequirementId,
@@ -201,53 +202,79 @@ fn compile_source_request(
     target_profile: Option<&TargetProfile>,
     compiler: &CompilerIdentity,
 ) -> Result<CompileResult, KernelCompileError> {
-    if document.frontend.id.as_str() != regex_frontend::FRONTEND_ID {
-        return failed_result(
-            request,
-            compiler.clone(),
-            diagnostic(
-                request.contract_version,
-                UNSUPPORTED_FRONTEND_DIAGNOSTIC,
-                CompilerPhase::Protocol,
-                DiagnosticCategory::UnsupportedFrontend,
-                "The requested frontend is not supported by this compiler.",
-            )?,
-        );
-    }
-
-    let parsed = match regex_frontend::parse(document) {
-        Ok(parsed) => parsed,
-        Err(RegexFrontendFailure::Diagnostic(error)) => {
-            return failed_result(request, compiler.clone(), error.diagnostic);
-        }
-        Err(RegexFrontendFailure::InvalidSource(errors)) => {
-            return Err(KernelCompileError::InvalidRequest(errors));
-        }
-        Err(RegexFrontendFailure::ReferencedSourceUnavailable) => {
+    let program = match document.frontend.id.as_str() {
+        regex_frontend::FRONTEND_ID => match regex_frontend::parse(document) {
+            Ok(parsed) => parsed.program,
+            Err(RegexFrontendFailure::Diagnostic(error)) => {
+                return failed_result(request, compiler.clone(), error.diagnostic);
+            }
+            Err(RegexFrontendFailure::InvalidSource(errors)) => {
+                return Err(KernelCompileError::InvalidRequest(errors));
+            }
+            Err(RegexFrontendFailure::ReferencedSourceUnavailable) => {
+                return source_content_unavailable_result(request, compiler);
+            }
+            Err(RegexFrontendFailure::InvalidSemanticOutput(errors)) => {
+                return Err(KernelCompileError::StageFailure {
+                    stage: KernelStage::CanonicalSemanticPipeline,
+                    message: format!("regex frontend produced invalid Semantic IR: {errors}"),
+                });
+            }
+        },
+        semantic_frontend::FRONTEND_ID => match semantic_frontend::parse(document) {
+            Ok(parsed) => parsed.program,
+            Err(SemanticFrontendFailure::Diagnostic(error)) => {
+                return failed_result(request, compiler.clone(), error.diagnostic);
+            }
+            Err(SemanticFrontendFailure::InvalidSource(errors)) => {
+                return Err(KernelCompileError::InvalidRequest(errors));
+            }
+            Err(SemanticFrontendFailure::ReferencedSourceUnavailable) => {
+                return source_content_unavailable_result(request, compiler);
+            }
+            Err(SemanticFrontendFailure::InvalidSemanticOutput(errors)) => {
+                return Err(KernelCompileError::StageFailure {
+                    stage: KernelStage::CanonicalSemanticPipeline,
+                    message: format!("semantic frontend produced invalid Semantic IR: {errors}"),
+                });
+            }
+        },
+        _ => {
             return failed_result(
                 request,
                 compiler.clone(),
                 diagnostic(
                     request.contract_version,
-                    SOURCE_CONTENT_UNAVAILABLE_DIAGNOSTIC,
+                    UNSUPPORTED_FRONTEND_DIAGNOSTIC,
                     CompilerPhase::Protocol,
-                    DiagnosticCategory::MalformedRequest,
-                    "Referenced source content must be resolved and supplied inline before compilation.",
+                    DiagnosticCategory::UnsupportedFrontend,
+                    "The requested frontend is not supported by this compiler.",
                 )?,
             );
         }
-        Err(RegexFrontendFailure::InvalidSemanticOutput(errors)) => {
-            return Err(KernelCompileError::StageFailure {
-                stage: KernelStage::CanonicalSemanticPipeline,
-                message: format!("regex frontend produced invalid Semantic IR: {errors}"),
-            });
-        }
     };
 
-    if let Some(exhaustion) = preflight_semantic_resources(request, &parsed.program) {
+    if let Some(exhaustion) = preflight_semantic_resources(request, &program) {
         return resource_failed_result(request, compiler.clone(), exhaustion);
     }
-    compile_semantic_request(request, &parsed.program, target_profile, compiler)
+    compile_semantic_request(request, &program, target_profile, compiler)
+}
+
+fn source_content_unavailable_result(
+    request: &CompileRequest,
+    compiler: &CompilerIdentity,
+) -> Result<CompileResult, KernelCompileError> {
+    failed_result(
+        request,
+        compiler.clone(),
+        diagnostic(
+            request.contract_version,
+            SOURCE_CONTENT_UNAVAILABLE_DIAGNOSTIC,
+            CompilerPhase::Protocol,
+            DiagnosticCategory::MalformedRequest,
+            "Referenced source content must be resolved and supplied inline before compilation.",
+        )?,
+    )
 }
 
 fn compile_semantic_request(
@@ -727,14 +754,21 @@ fn finish_result(
     result
         .validate()
         .map_err(KernelCompileError::InvalidResult)?;
-    let supported_frontend =
+    let supported_frontends = [
         FrontendId::try_from(regex_frontend::FRONTEND_ID).map_err(|message| {
             KernelCompileError::StageFailure {
                 stage: KernelStage::ResultProjection,
                 message: message.to_string(),
             }
-        })?;
-    validate_exchange(request, &result, &[supported_frontend])
+        })?,
+        FrontendId::try_from(semantic_frontend::FRONTEND_ID).map_err(|message| {
+            KernelCompileError::StageFailure {
+                stage: KernelStage::ResultProjection,
+                message: message.to_string(),
+            }
+        })?,
+    ];
+    validate_exchange(request, &result, &supported_frontends)
         .map_err(KernelCompileError::InvalidResult)?;
     Ok(result)
 }
