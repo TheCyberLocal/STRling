@@ -3534,3 +3534,27 @@ diagnostic coverage, content-addressed manifests, grammar/ambiguity checks,
 specification-sovereignty mutations, canonical contract integration,
 repository documentation consistency, Local, and a clean tree. This task does
 not implement the parser or formatter.
+
+The specification bundle now ratifies frontend identity `strling.semantic`,
+dialect `1.0.0`, and source edition `1.0`. Its formal EBNF contains 55 reachable
+productions with prefix-disjoint construct phrases and no precedence or implicit
+concatenation. Seventeen mapping entries cover all 12 canonical node kinds, all
+four character-set member kinds, and every governed semantic enum value.
+
+Material nodes and captures receive deterministic, independent one-based
+preorder identities that consumers treat as opaque; offsets, names, child
+positions, hashes, and target capture numbers never become identity. Three
+frontend-local schemas govern the language, mapping, and authored cases.
+The 12 positive and 30 negative cases cover every grammar production in both
+directions, every mapping, and all 26 fixture-required diagnostics; the
+resource-limit diagnostic remains a synthetic boundary obligation. Ten
+unsupported families are explicitly unavailable. The complete contract
+fingerprint is
+`sha256:7e31ea7cf5560b6899acc61d6a3526ed5b1a85254f3599859169099385680546`.
+
+The no-parser certifier and 14 mutation tests reject grammar reachability and
+phrase ambiguity failures, missing mappings or fixture coverage, invalid UTF-8
+offsets, stale manifests, and authority promotion. Canonical contract
+aggregation includes this suite, and a new enforced architecture rule prevents
+the frontend identity or implementation claims from entering canonical
+semantic or target authority.

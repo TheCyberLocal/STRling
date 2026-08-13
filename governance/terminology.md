@@ -16,8 +16,9 @@ this reference.
 
 **Semantic STRling**
 : The flagship semantic authoring language and abstraction. It expresses
-pattern intent independently of target regex spelling. Its future textual
-syntax is not the current regex-shaped grammar by default.
+pattern intent independently of target regex spelling. Its textual source
+identity is `strling.semantic`; dialect `1.0.0` uses ratified keyword-and-block
+syntax and is distinct from the regex-compatible grammar.
 
 **Simply**
 : A family of idiomatic, first-class semantic authoring APIs for host

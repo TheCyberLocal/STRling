@@ -40,8 +40,9 @@ This ensures:
 The TypeScript binding is the current fixture producer and compatibility
 reference. It is subordinate to the engineering authority hierarchy and every
 expressly normative versioned contract. The current regex-frontend grammar and
-semantics remain transitional evidence; no ratified Semantic STRling version
-exists yet.
+semantics remain transitional evidence. Semantic STRling's
+`strling.semantic@1.0.0` source contract is ratified specification input, while
+its parser and formatter and the broader Semantic Specification remain pending.
 
 ### What This Means
 

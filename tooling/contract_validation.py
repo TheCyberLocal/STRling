@@ -15,9 +15,11 @@ from jsonschema import Draft202012Validator, FormatChecker, RefResolver
 
 if __package__:
     from tooling.legacy_regex_contract import LegacyRegexContractSuite
+    from tooling.semantic_strling_contract import SemanticStrlingContractSuite
     from tooling.stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
 else:
     from legacy_regex_contract import LegacyRegexContractSuite
+    from semantic_strling_contract import SemanticStrlingContractSuite
     from stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1286,6 +1288,7 @@ def main() -> int:
     suite = ContractSuite()
     stdlib_suite = StandardLibraryGuaranteeSuite()
     legacy_regex_suite = LegacyRegexContractSuite()
+    semantic_strling_suite = SemanticStrlingContractSuite()
     simply_suite = SimplyContractSuite()
     document_count = suite.validate_suite_structure()
     positive_count = suite.validate_positive_examples()
@@ -1294,6 +1297,7 @@ def main() -> int:
     stdlib_positive_count = stdlib_suite.validate_positive_examples()
     stdlib_negative_count = stdlib_suite.validate_negative_examples()
     legacy_regex = legacy_regex_suite.certify()
+    semantic_strling = semantic_strling_suite.certify()
     simply = simply_suite.certify()
     simply_adapters = certify_simply_adapters()
     shared_corpus = validate_corpus()
@@ -1308,6 +1312,13 @@ def main() -> int:
         f"legacy_regex_positive={legacy_regex['positive']} "
         f"legacy_regex_negative={legacy_regex['negative']} "
         f"legacy_regex_fingerprint={legacy_regex['fingerprint']} "
+        f"semantic_strling_schemas={semantic_strling['schemas']} "
+        f"semantic_strling_productions={semantic_strling['productions']} "
+        f"semantic_strling_mappings={semantic_strling['mappings']} "
+        f"semantic_strling_diagnostics={semantic_strling['diagnostics']} "
+        f"semantic_strling_positive={semantic_strling['positive']} "
+        f"semantic_strling_negative={semantic_strling['negative']} "
+        f"semantic_strling_fingerprint={semantic_strling['fingerprint']} "
         f"simply_schemas={simply['schemas']} "
         f"simply_operations={simply['operations']} "
         f"simply_errors={simply['errors']} "

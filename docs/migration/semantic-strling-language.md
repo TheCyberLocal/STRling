@@ -64,11 +64,13 @@ empty text values, and multi-scalar character-set endpoints are rejected.
 Integers are unsigned decimal without leading zeroes, bounded to 4,294,967,295.
 
 Every material node receives the half-open UTF-8 byte span from its first
-keyword through its semicolon or closing brace. A parser allocates unique
-opaque node identities and logical capture identities; identifiers, source
-offsets, array positions, content hashes, and target capture numbers do not
-become node identity. Cross-implementation semantic comparison remains
-alpha-equivalent because identity and origin are non-semantic.
+keyword through its semicolon or closing brace. Parsers allocate material node
+identities in one-based source preorder (`node:semantic/n1`, then `n2`) and
+capture identities in independent declaration preorder
+(`capture:semantic/c1`, then `c2`). Consumers treat both as opaque. Identifiers,
+source offsets, child-array positions, content hashes, and target capture
+numbers do not become identity. Cross-implementation semantic comparison
+remains alpha-equivalent because identity and origin are non-semantic.
 
 ## Explicit semantic mapping
 

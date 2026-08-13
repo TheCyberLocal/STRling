@@ -54,12 +54,14 @@ falsely rejecting recorded transitional code.
 ### Semantic STRling DSL
 
 Semantic STRling is the flagship textual frontend for semantic pattern intent.
-It will parse its own versioned source dialect into the canonical semantic path.
-Its syntax and source contract are later specification work.
+Its `strling.semantic@1.0.0` source dialect, formatting, diagnostics, and
+deterministic mapping to canonical Semantic IR are ratified. A later parser will
+implement that contract; it cannot define or extend the language by accepting
+additional input.
 
 Semantic STRling does not mean “whatever the current `.strl` parser accepts,”
-and it must not be designed by copying target regex spelling without semantic
-justification.
+and its ratified keyword-and-block syntax is deliberately distinct from target
+regex spelling and the regex-compatible import frontend.
 
 ### Simply APIs
 

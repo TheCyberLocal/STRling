@@ -1,0 +1,182 @@
+{
+    "$schema": "https://strling.dev/frontends/semantic/1.0/mapping.schema.json",
+    "mapping_kind": "strling.semantic-ir-mapping",
+    "mapping_version": "1.0.0",
+    "source_frontend": "strling.semantic@1.0.0",
+    "destination": "https://strling.dev/contracts/1.0/semantic-ir.schema.json",
+    "authority": {
+        "frontend_mapping": true,
+        "canonical_semantics": false,
+        "target_behavior": false
+    },
+    "program_mappings": [
+        {
+            "id": "program.case-matching",
+            "production": "CaseDeclaration",
+            "destination": "SemanticProgram.case_matching",
+            "source_values": ["insensitive", "sensitive"],
+            "semantic_values": ["insensitive", "sensitive"]
+        }
+    ],
+    "node_mappings": [
+        {
+            "id": "node.alternation",
+            "production": "Choice",
+            "node_kind": "alternation",
+            "source_form": "choice { Node Node ... }",
+            "field_mapping": {"children": "branches in authored order"},
+            "normalization": "flatten nested alternations; preserve branch order; require at least two",
+            "span": "material-node"
+        },
+        {
+            "id": "node.atomic",
+            "production": "Atomic",
+            "node_kind": "atomic",
+            "source_form": "without backtracking { Node }",
+            "field_mapping": {"child": "body"},
+            "normalization": "preserve explicit atomic intent",
+            "span": "material-node"
+        },
+        {
+            "id": "node.backreference",
+            "production": "Reference",
+            "node_kind": "backreference",
+            "source_form": "same text as Identifier;",
+            "field_mapping": {"identifier": "capture_id resolved from prior unique capture name"},
+            "normalization": "resolve name to logical capture identity; retain no target number",
+            "span": "material-node"
+        },
+        {
+            "id": "node.capture",
+            "production": "Capture",
+            "node_kind": "capture",
+            "source_form": "capture Identifier { Node }",
+            "field_mapping": {"identifier": "name", "logical allocation": "capture_id", "child": "body"},
+            "normalization": "require globally unique human name and opaque logical identity",
+            "span": "material-node"
+        },
+        {
+            "id": "node.character-set",
+            "production": "CharacterSet",
+            "node_kind": "character_set",
+            "source_form": "character from|except { SetMember ... }",
+            "field_mapping": {"from": "negated=false", "except": "negated=true", "members": "members"},
+            "normalization": "require at least one member and apply canonical member ordering",
+            "span": "material-node"
+        },
+        {
+            "id": "node.empty",
+            "production": "Empty",
+            "node_kind": "empty",
+            "source_form": "empty;",
+            "field_mapping": {"keyword": "empty node"},
+            "normalization": "retain the explicit empty-string node",
+            "span": "material-node"
+        },
+        {
+            "id": "node.literal",
+            "production": "Text",
+            "node_kind": "literal",
+            "source_form": "text String;",
+            "field_mapping": {"decoded nonempty string": "text"},
+            "normalization": "coalesce adjacent literal nodes; reject empty text",
+            "span": "material-node"
+        },
+        {
+            "id": "node.lookaround",
+            "production": "Lookaround",
+            "node_kind": "lookaround",
+            "source_form": "if|unless followed|preceded by { Node }",
+            "field_mapping": {"followed": "direction=ahead", "preceded": "direction=behind", "if": "polarity=positive", "unless": "polarity=negative", "child": "body"},
+            "normalization": "preserve explicit direction and polarity without target width decisions",
+            "span": "material-node"
+        },
+        {
+            "id": "node.position",
+            "production": "Position",
+            "node_kind": "position",
+            "source_form": "the seven keyword position phrases",
+            "field_mapping": {"phrase": "position enum"},
+            "normalization": "preserve exact target-neutral position intent",
+            "span": "material-node"
+        },
+        {
+            "id": "node.repeat",
+            "production": "Repeat",
+            "node_kind": "repeat",
+            "source_form": "repeat from Integer to Integer|unbounded using RepeatMode { Node }",
+            "field_mapping": {"from": "min", "finite to": "max integer", "unbounded": "max=null", "using": "mode", "child": "body"},
+            "normalization": "validate nonnegative ordered bounds; null alone is unbounded",
+            "span": "material-node"
+        },
+        {
+            "id": "node.sequence",
+            "production": "Sequence",
+            "node_kind": "sequence",
+            "source_form": "sequence { Node Node ... }",
+            "field_mapping": {"children": "items in authored order"},
+            "normalization": "flatten nested sequences, coalesce adjacent text, preserve order, require at least two",
+            "span": "material-node"
+        },
+        {
+            "id": "node.wildcard",
+            "production": "Wildcard",
+            "node_kind": "wildcard",
+            "source_form": "any character including|excluding line terminators;",
+            "field_mapping": {"including": "line_terminators=include", "excluding": "line_terminators=exclude"},
+            "normalization": "no default or case interaction",
+            "span": "material-node"
+        }
+    ],
+    "member_mappings": [
+        {
+            "id": "member.builtin",
+            "production": "BuiltinMember",
+            "member_kind": "builtin",
+            "source_form": "[not] ascii|unicode digit|word|whitespace;",
+            "field_mapping": {"domain keyword": "domain", "class keyword": "name", "not": "negated"},
+            "normalization": "canonical character-set member ordering"
+        },
+        {
+            "id": "member.literal",
+            "production": "ScalarMember",
+            "member_kind": "literal",
+            "source_form": "scalar ScalarString;",
+            "field_mapping": {"decoded scalar": "value"},
+            "normalization": "require exactly one Unicode scalar and canonical member ordering"
+        },
+        {
+            "id": "member.range",
+            "production": "RangeMember",
+            "member_kind": "range",
+            "source_form": "range ScalarString through ScalarString;",
+            "field_mapping": {"first scalar": "start", "second scalar": "end"},
+            "normalization": "require start no greater than end and canonical member ordering"
+        },
+        {
+            "id": "member.unicode-property",
+            "production": "UnicodePropertyMember",
+            "member_kind": "unicode_property",
+            "source_form": "[not] property String [value String];",
+            "field_mapping": {"first string": "property", "optional value string": "value", "not": "negated"},
+            "normalization": "validate nonempty property/value strings and canonical member ordering"
+        }
+    ],
+    "enum_coverage": {
+        "case_matching": ["insensitive", "sensitive"],
+        "line_terminators": ["exclude", "include"],
+        "builtin_class_names": ["digit", "whitespace", "word"],
+        "character_domains": ["ascii", "unicode"],
+        "repetition_modes": ["greedy", "lazy", "possessive"],
+        "position_kinds": ["end_before_final_line_terminator", "input_end", "input_start", "line_end", "line_start", "not_word_boundary", "word_boundary"],
+        "lookaround_directions": ["ahead", "behind"],
+        "lookaround_polarities": ["negative", "positive"]
+    },
+    "identity_and_origin": {
+        "node_identity": "node:semantic/n{one-based-material-preorder}",
+        "capture_identity": "capture:semantic/c{one-based-declaration-preorder}",
+        "node_span": "first-keyword-through-semicolon-or-closing-brace-utf8-bytes",
+        "member_span": "attributed-to-containing-character-set-node",
+        "semantic_equality": "alpha-equivalent-excluding-identity-and-origin"
+    }
+}

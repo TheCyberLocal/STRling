@@ -1,0 +1,145 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/frontends/semantic/1.0/mapping.schema.json",
+    "title": "Semantic STRling 1.0 to canonical Semantic IR mapping",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "mapping_kind",
+        "mapping_version",
+        "source_frontend",
+        "destination",
+        "authority",
+        "program_mappings",
+        "node_mappings",
+        "member_mappings",
+        "enum_coverage",
+        "identity_and_origin"
+    ],
+    "properties": {
+        "$schema": { "const": "https://strling.dev/frontends/semantic/1.0/mapping.schema.json" },
+        "mapping_kind": { "const": "strling.semantic-ir-mapping" },
+        "mapping_version": { "const": "1.0.0" },
+        "source_frontend": { "const": "strling.semantic@1.0.0" },
+        "destination": { "const": "https://strling.dev/contracts/1.0/semantic-ir.schema.json" },
+        "authority": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["frontend_mapping", "canonical_semantics", "target_behavior"],
+            "properties": {
+                "frontend_mapping": { "const": true },
+                "canonical_semantics": { "const": false },
+                "target_behavior": { "const": false }
+            }
+        },
+        "program_mappings": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/ProgramMapping" }
+        },
+        "node_mappings": {
+            "type": "array",
+            "minItems": 12,
+            "items": { "$ref": "#/$defs/NodeMapping" }
+        },
+        "member_mappings": {
+            "type": "array",
+            "minItems": 4,
+            "items": { "$ref": "#/$defs/MemberMapping" }
+        },
+        "enum_coverage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "case_matching",
+                "line_terminators",
+                "builtin_class_names",
+                "character_domains",
+                "repetition_modes",
+                "position_kinds",
+                "lookaround_directions",
+                "lookaround_polarities"
+            ],
+            "properties": {
+                "case_matching": { "$ref": "#/$defs/StringSet" },
+                "line_terminators": { "$ref": "#/$defs/StringSet" },
+                "builtin_class_names": { "$ref": "#/$defs/StringSet" },
+                "character_domains": { "$ref": "#/$defs/StringSet" },
+                "repetition_modes": { "$ref": "#/$defs/StringSet" },
+                "position_kinds": { "$ref": "#/$defs/StringSet" },
+                "lookaround_directions": { "$ref": "#/$defs/StringSet" },
+                "lookaround_polarities": { "$ref": "#/$defs/StringSet" }
+            }
+        },
+        "identity_and_origin": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_identity", "capture_identity", "node_span", "member_span", "semantic_equality"],
+            "properties": {
+                "node_identity": { "const": "node:semantic/n{one-based-material-preorder}" },
+                "capture_identity": { "const": "capture:semantic/c{one-based-declaration-preorder}" },
+                "node_span": { "const": "first-keyword-through-semicolon-or-closing-brace-utf8-bytes" },
+                "member_span": { "const": "attributed-to-containing-character-set-node" },
+                "semantic_equality": { "const": "alpha-equivalent-excluding-identity-and-origin" }
+            }
+        }
+    },
+    "$defs": {
+        "StringSet": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+        },
+        "ProgramMapping": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "production", "destination", "source_values", "semantic_values"],
+            "properties": {
+                "id": { "type": "string", "pattern": "^program\\.[a-z0-9-]+$" },
+                "production": { "type": "string", "minLength": 1 },
+                "destination": { "type": "string", "minLength": 1 },
+                "source_values": { "$ref": "#/$defs/StringSet" },
+                "semantic_values": { "$ref": "#/$defs/StringSet" }
+            }
+        },
+        "NodeMapping": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "production", "node_kind", "source_form", "field_mapping", "normalization", "span"],
+            "properties": {
+                "id": { "type": "string", "pattern": "^node\\.[a-z0-9-]+$" },
+                "production": { "type": "string", "minLength": 1 },
+                "node_kind": {
+                    "enum": ["empty", "sequence", "alternation", "literal", "wildcard", "character_set", "repeat", "position", "capture", "backreference", "lookaround", "atomic"]
+                },
+                "source_form": { "type": "string", "minLength": 1 },
+                "field_mapping": {
+                    "type": "object",
+                    "minProperties": 1,
+                    "additionalProperties": { "type": "string", "minLength": 1 }
+                },
+                "normalization": { "type": "string", "minLength": 1 },
+                "span": { "const": "material-node" }
+            }
+        },
+        "MemberMapping": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "production", "member_kind", "source_form", "field_mapping", "normalization"],
+            "properties": {
+                "id": { "type": "string", "pattern": "^member\\.[a-z0-9-]+$" },
+                "production": { "type": "string", "minLength": 1 },
+                "member_kind": { "enum": ["literal", "range", "builtin", "unicode_property"] },
+                "source_form": { "type": "string", "minLength": 1 },
+                "field_mapping": {
+                    "type": "object",
+                    "minProperties": 1,
+                    "additionalProperties": { "type": "string", "minLength": 1 }
+                },
+                "normalization": { "type": "string", "minLength": 1 }
+            }
+        }
+    }
+}

@@ -24,8 +24,10 @@ PCRE2 wrapper, a TypeScript-centric builder, or an editor-only tool.
 
 ## Authoring surfaces
 
-**Semantic STRling** is the future flagship textual language. Its syntax will be
-designed against the canonical semantic model.
+**Semantic STRling** is the flagship textual language. Its specification-first
+[`strling.semantic@1.0.0`](spec/frontends/semantic/1.0/README.md) source contract
+uses readable keyword-and-block syntax and maps deterministically to the
+canonical semantic model. Parser and formatter implementation is still pending.
 
 **Simply** is the first-class family of fluent, idiomatic semantic APIs. Simply
 does not define a separate compiler or emit target regex as its semantic

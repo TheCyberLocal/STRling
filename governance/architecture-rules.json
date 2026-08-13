@@ -301,6 +301,38 @@
             }
         },
         {
+            "id": "semantic-strling-authority-boundary",
+            "description": "The Semantic STRling contract owns versioned source syntax and mapping but cannot implement parsing or redefine canonical semantics, targets, or runtimes.",
+            "status": "enforced",
+            "kind": "frontend-authority-boundary",
+            "configuration": {
+                "frontend_contract_sources": ["spec/frontends/semantic/**"],
+                "semantic_authority_sources": [
+                    "core/src/semantic/**",
+                    "spec/contracts/1.0/semantic-ir.schema.json"
+                ],
+                "target_authority_sources": [
+                    "core/src/portability_planning.rs",
+                    "core/src/target/**",
+                    "spec/contracts/1.0/target-artifact.schema.json",
+                    "spec/contracts/1.0/target-profile.schema.json",
+                    "spec/targets/**"
+                ],
+                "forbidden_frontend_markers": [
+                    "strling.semantic",
+                    "semantic strling 1.0",
+                    "text/x-strling-semantic"
+                ],
+                "contract_forbidden_authority_markers": [
+                    "\"canonical_semantic_authority\": true",
+                    "\"target_authority\": true",
+                    "\"runtime_authority\": true",
+                    "\"parser_implementation\": true",
+                    "\"formatter_implementation\": true"
+                ]
+            }
+        },
+        {
             "id": "new-tooling-semantic-islands",
             "description": "New parser, compiler, analyzer, planner, or emitter implementations under tooling require explicit architecture review.",
             "status": "enforced",

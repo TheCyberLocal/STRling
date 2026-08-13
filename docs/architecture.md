@@ -15,7 +15,8 @@ engine, or editor.
 
 Three authoring surface families converge on one semantic compiler path:
 
--   **Semantic STRling DSL:** the future flagship textual semantic language;
+-   **Semantic STRling DSL:** the flagship textual semantic language, with
+    ratified `strling.semantic@1.0.0` syntax and mapping but no parser yet;
 -   **Simply APIs:** idiomatic host-language semantic builders; and
 -   **regex frontend/importer:** the existing regex-shaped compatibility source
     dialect.
@@ -260,8 +261,11 @@ ratified versioned specification and expressly normative contracts above the
 reference implementation, tests, compatibility evidence, and explanatory
 documentation.
 
-There is no ratified Semantic STRling flagship language specification version
-yet. [`1.0-draft.1`](../spec/drafts/1.0/README.md) remains a non-normative scope
-scaffold. The frozen `strling.regex-compat@1.0.0` grammar is a governed
-compatibility/import frontend contract and must not be presented as the
-flagship authoring language.
+The contained
+[`strling.semantic@1.0.0`](../spec/frontends/semantic/1.0/README.md) frontend
+contract ratifies the flagship source grammar, mapping, diagnostics, formatting,
+and authored cases before implementation. The broader
+[`1.0-draft.1`](../spec/drafts/1.0/README.md) Semantic Specification remains a
+non-normative scope scaffold. The frozen `strling.regex-compat@1.0.0` grammar is
+a separate compatibility/import frontend and must not be presented as Semantic
+STRling.

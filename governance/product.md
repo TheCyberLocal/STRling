@@ -73,9 +73,10 @@ later contract-first architecture work.
 
 ### Semantic STRling
 
-Semantic STRling is the flagship textual authoring surface. It will express
-pattern intent against the canonical semantic model. Its syntax and exact
-construct set have not yet been designed or ratified.
+Semantic STRling is the flagship textual authoring surface. The ratified
+`strling.semantic@1.0.0` frontend expresses pattern intent through readable,
+explicit keyword-and-block syntax and maps deterministically to the canonical
+semantic model. Its parser and formatter remain later implementation work.
 
 ### Simply
 
@@ -94,8 +95,8 @@ those APIs.
 The existing regex-shaped `.strl` syntax is the **regex frontend**: a
 low-level, regex-compatible source dialect retained for compatibility,
 migration, and import workflows. It is useful input evidence and capability,
-but it is not the permanent semantic ceiling of STRling and is not sufficient
-proof that the future Semantic STRling DSL has already been designed.
+but it is not the permanent semantic ceiling of STRling and did not define the
+separately ratified Semantic STRling language.
 
 “Regex importer” describes the responsibility of accepting regex-shaped input;
 “regex frontend” names the current source-facing capability. A future importer

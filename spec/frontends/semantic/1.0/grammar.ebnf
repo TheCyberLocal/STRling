@@ -1,0 +1,103 @@
+(* Semantic STRling textual frontend, dialect 1.0.0. *)
+(* The grammar is normative. Context rules in README.md are also normative. *)
+(* Every construct is keyword-led and structurally delimited; no operator *)
+(* precedence, implicit concatenation, target syntax, or raw-regex token exists. *)
+
+Program                 = Layout, Header, Layout, CaseDeclaration, Layout,
+                          PatternDeclaration, Layout ;
+Header                  = "semantic", RequiredLayout, "strling", RequiredLayout,
+                          Version, Layout, ";" ;
+Version                 = "1.0" ;
+CaseDeclaration         = "case", RequiredLayout, CaseMode, Layout, ";" ;
+CaseMode                = "sensitive" | "insensitive" ;
+PatternDeclaration      = "pattern", RequiredLayout, Node ;
+
+Node                    = Empty | Sequence | Choice | Text | Wildcard
+                        | CharacterSet | Repeat | Position | Capture | Reference
+                        | Lookaround | Atomic ;
+
+Empty                   = "empty", Layout, ";" ;
+Sequence                = "sequence", Layout, "{", Layout, Node,
+                          RequiredLayout, Node, { RequiredLayout, Node }, Layout, "}" ;
+Choice                  = "choice", Layout, "{", Layout, Node,
+                          RequiredLayout, Node, { RequiredLayout, Node }, Layout, "}" ;
+Text                    = "text", RequiredLayout, String, Layout, ";" ;
+Wildcard                = "any", RequiredLayout, "character", RequiredLayout,
+                          LineTerminatorPolicy, Layout, ";" ;
+LineTerminatorPolicy    = "including", RequiredLayout, "line", RequiredLayout,
+                          "terminators"
+                        | "excluding", RequiredLayout, "line", RequiredLayout,
+                          "terminators" ;
+
+CharacterSet            = "character", RequiredLayout, SetPolarity, Layout, "{",
+                          Layout, SetMember, { RequiredLayout, SetMember }, Layout, "}" ;
+SetPolarity             = "from" | "except" ;
+SetMember               = ScalarMember | RangeMember | BuiltinMember
+                        | UnicodePropertyMember ;
+ScalarMember            = "scalar", RequiredLayout, ScalarString, Layout, ";" ;
+RangeMember             = "range", RequiredLayout, ScalarString, RequiredLayout,
+                          "through", RequiredLayout, ScalarString, Layout, ";" ;
+BuiltinMember           = [ "not", RequiredLayout ], CharacterDomain,
+                          RequiredLayout, BuiltinClass, Layout, ";" ;
+CharacterDomain         = "ascii" | "unicode" ;
+BuiltinClass            = "digit" | "word" | "whitespace" ;
+UnicodePropertyMember   = [ "not", RequiredLayout ], "property", RequiredLayout,
+                          String, [ RequiredLayout, "value", RequiredLayout, String ],
+                          Layout, ";" ;
+
+Repeat                  = "repeat", RequiredLayout, "from", RequiredLayout, Integer,
+                          RequiredLayout, "to", RequiredLayout, RepetitionMaximum,
+                          RequiredLayout, "using", RequiredLayout, RepeatMode, Layout,
+                          "{", Layout, Node, Layout, "}" ;
+RepetitionMaximum       = Integer | "unbounded" ;
+RepeatMode              = "greedy" | "lazy" | "possessive" ;
+
+Position                = AtPosition | NotWordBoundary | FinalLinePosition ;
+AtPosition              = "at", RequiredLayout,
+                          ( InputPosition | LinePosition
+                          | "word", RequiredLayout, "boundary" ), Layout, ";" ;
+InputPosition           = "input", RequiredLayout, ( "start" | "end" ) ;
+LinePosition            = "line", RequiredLayout, ( "start" | "end" ) ;
+NotWordBoundary         = "not", RequiredLayout, "at", RequiredLayout, "word",
+                          RequiredLayout, "boundary", Layout, ";" ;
+FinalLinePosition       = "before", RequiredLayout, "final", RequiredLayout, "line",
+                          RequiredLayout, "terminator", Layout, ";" ;
+
+Capture                 = "capture", RequiredLayout, Identifier, Layout, "{", Layout,
+                          Node, Layout, "}" ;
+Reference               = "same", RequiredLayout, "text", RequiredLayout, "as",
+                          RequiredLayout, Identifier, Layout, ";" ;
+Lookaround              = LookCondition, RequiredLayout, LookDirection, Layout, "{",
+                          Layout, Node, Layout, "}" ;
+LookCondition           = "if" | "unless" ;
+LookDirection           = "followed", RequiredLayout, "by"
+                        | "preceded", RequiredLayout, "by" ;
+Atomic                  = "without", RequiredLayout, "backtracking", Layout, "{",
+                          Layout, Node, Layout, "}" ;
+
+String                  = '"', { StringCharacter | Escape }, '"' ;
+StringCharacter         = ? any Unicode scalar except quote, backslash, CR, LF,
+                            or U+0000 through U+001F ? ;
+Escape                  = "\", ( '"' | "\" | "b" | "f" | "n" | "r" | "t"
+                          | "0" | UnicodeEscape ) ;
+UnicodeEscape           = "u", "{", HexDigit, { HexDigit }, "}" ;
+ScalarString            = String ;
+Identifier              = Lowercase, { Lowercase | Digit | "_" } ;
+Integer                 = "0" | NonzeroDigit, { Digit } ;
+Digit                   = "0" | NonzeroDigit ;
+NonzeroDigit            = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+HexDigit                = Digit | "a" | "b" | "c" | "d" | "e" | "f"
+                        | "A" | "B" | "C" | "D" | "E" | "F" ;
+Lowercase               = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h"
+                        | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p"
+                        | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x"
+                        | "y" | "z" ;
+
+Layout                  = { LayoutItem } ;
+RequiredLayout          = LayoutItem, { LayoutItem } ;
+LayoutItem              = Whitespace | Comment ;
+Whitespace              = " " | "\t" | "\r" | "\n" ;
+Comment                 = "#", { CommentCharacter },
+                          ( "\r\n" | "\n" | "\r" | EndOfInput ) ;
+CommentCharacter        = ? any Unicode scalar except CR or LF ? ;
+EndOfInput              = ? the position immediately after the final source byte ? ;

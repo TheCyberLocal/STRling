@@ -49,6 +49,7 @@ sources; they do not create behavior and must be corrected when they conflict.
 | Path                                                                               | Current classification                                                                                  | Permanent handling                                                                                                                              |
 | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`contracts/`](contracts/)                                                         | Canonical compiler data-contract suite; normative for serialized shape and cross-contract invariants    | Implement every future frontend, kernel, backend, adapter, diagnostic surface, and conformance harness against these versioned contracts.       |
+| [`frontends/semantic/`](frontends/semantic/)                                       | Normative `strling.semantic` flagship textual frontend syntax and mapping, currently dialect `1.0.0`    | Implement its parser and formatter from the ratified grammar, mapping, formatting, diagnostics, and authored fixtures without redefining them.  |
 | [`frontends/legacy-regex/`](frontends/legacy-regex/)                               | Normative `strling.regex-compat` compatibility/import frontend syntax, currently dialect `1.0.0`        | Parse only its versioned grammar and fixtures, then lower structurally to canonical Semantic IR without target inference or raw passthrough.    |
 | [`frontends/simply/`](frontends/simply/)                                           | Normative host-neutral Simply construction protocol, currently protocol `1.0.0`                         | Project the closed immutable operation graph into canonical Semantic IR and `CompileRequest`; keep host APIs, targets, and runtimes outside it. |
 | [`conformance/`](conformance/)                                                     | Specification-owned draft seed corpus; not yet normative language semantics                             | Activate cases only through a ratified specification delegation and its content-addressed manifest.                                             |
@@ -64,8 +65,11 @@ sources; they do not create behavior and must be corrected when they conflict.
 
 ## Source-language identities
 
-**Semantic STRling** is the future flagship textual authoring language designed
-against the canonical semantic representation.
+**Semantic STRling** is the flagship textual authoring language. Its normative
+source identity is [`strling.semantic` dialect `1.0.0`](frontends/semantic/1.0/README.md),
+designed against the canonical semantic representation. The contract is
+ratified before its parser and formatter are implemented and does not by itself
+ratify the broader Semantic Specification 1.0 draft.
 
 **Simply** is the semantic construction frontend shared by idiomatic host
 builders. Its normative construction identity is

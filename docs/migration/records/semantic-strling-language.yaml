@@ -43,10 +43,36 @@ scope:
         - tests/**
         - tooling/lsp-server/**
     expected_files:
+        - README.md
+        - docs/architecture.md
         - docs/migration/ledger.md
         - docs/migration/records/semantic-strling-language.yaml
         - docs/migration/semantic-strling-language.md
+        - docs/testing_workflow.md
+        - docs/tutorial/first_contribution.md
+        - governance/architecture-rules.json
+        - governance/architecture.md
         - governance/change-control.json
+        - governance/product.md
+        - governance/terminology.md
+        - spec/README.md
+        - spec/drafts/1.0/README.md
+        - spec/frontends/README.md
+        - spec/frontends/semantic/README.md
+        - spec/frontends/semantic/1.0/README.md
+        - spec/frontends/semantic/1.0/case.schema.json
+        - spec/frontends/semantic/1.0/formatting.md
+        - spec/frontends/semantic/1.0/grammar.ebnf
+        - spec/frontends/semantic/1.0/language.json
+        - spec/frontends/semantic/1.0/language.schema.json
+        - spec/frontends/semantic/1.0/mapping.json
+        - spec/frontends/semantic/1.0/mapping.schema.json
+        - spec/frontends/semantic/1.0/fixtures/manifest.json
+        - spec/frontends/semantic/1.0/fixtures/negative.json
+        - spec/frontends/semantic/1.0/fixtures/positive.json
+        - tooling/contract_validation.py
+        - tooling/semantic_strling_contract.py
+        - tooling/tests/test_semantic_strling_contract.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels: [contract, unit, quality, certification]
@@ -83,7 +109,7 @@ change_classification:
         evidence:
             - All new catalogs, schemas, mappings, fixtures, manifests, and documentation are specification-authored inputs.
     documentation_only: false
-    internal_implementation: false
+    internal_implementation: true
 required_verification:
     - name: Semantic language contract and grammar consistency
       command: python3 tooling/semantic_strling_contract.py && python3 -m unittest tooling.tests.test_semantic_strling_contract
@@ -120,12 +146,30 @@ checkpoints:
             result: passed
             details: Exact targets remain in CompileRequest; modules/imports lack a canonical linkage model; portability/safety directives lack source-policy contracts; all are unavailable rather than hidden syntax.
     - name: Formal grammar, mappings, and authored fixtures
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Complete formal language bundle
+            command: python3 tooling/semantic_strling_contract.py
+            result: passed
+            details: Three schemas, 55 reachable grammar productions, 17 complete Semantic IR mappings, deterministic one-based material/capture preorder identities, 27 stable diagnostics, 10 explicit unavailable constructs, 12 positive cases, and 30 negative cases pass at fingerprint sha256:7e31ea7cf5560b6899acc61d6a3526ed5b1a85254f3599859169099385680546.
+          - check: Semantic IR and fixture completeness
+            command: python3 tooling/contract_validation.py
+            result: passed
+            details: Every one of 12 canonical node kinds, four set-member kinds, and all governed enum values has exactly one deterministic mapping and positive fixture coverage; every grammar production has positive and negative authored coverage.
     - name: No-parser consistency and sovereignty hardgates
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Controlled contract mutations
+            command: python3 -m unittest tooling.tests.test_semantic_strling_contract
+            result: passed
+            details: All 14 tests pass, rejecting authority promotion, undefined/unreachable grammar, prefix ambiguity, incomplete mappings/production/diagnostic coverage, invalid UTF-8 offsets, stale fingerprints, parser claims, and frontend leakage into canonical semantic authority.
+          - check: Enforced architecture boundary
+            command: python3 tooling/architecture_fitness.py
+            result: passed
+            details: The enforced semantic-strling-authority-boundary keeps strling.semantic identity out of canonical semantic/target authority and rejects parser, formatter, runtime, target, or canonical-semantic claims in the contract.
     - name: Repository and Local certification
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 36f66bdf6fa3575a42fc619dc42bde9a0e46b0bd
+      subject: "docs(frontend): define Semantic STRling language"

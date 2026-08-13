@@ -104,4 +104,7 @@ git commit -m "feat: add US Zip Code conformance test"
 ```
 
 Congratulations! You've added a cross-binding compatibility case. Normative
-Semantic STRling conformance cases follow the ratified specification process.
+Semantic STRling source cases live under
+[`spec/frontends/semantic/1.0/fixtures/`](../../spec/frontends/semantic/1.0/fixtures/)
+and follow the ratified specification process; implementation-generated output
+cannot renew them.

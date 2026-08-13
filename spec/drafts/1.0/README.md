@@ -4,7 +4,14 @@
 
 **Unratified and non-normative.** This directory is the working home for the
 future STRling Semantic Specification 1.0. Its current contents establish scope
-only; they define no language constructs or canonical data-contract fields.
+only; they define no canonical semantic meaning.
+
+The separately contained
+[`strling.semantic@1.0.0`](../../frontends/semantic/1.0/README.md) frontend
+contract now ratifies flagship textual syntax, source diagnostics, formatting,
+and deterministic mapping to the existing canonical Semantic IR. That narrow
+frontend ratification neither moves material into this draft nor ratifies this
+broader semantic specification.
 
 The working label is `1.0-draft.1`. It must not be used to claim conformance by
 the current compiler, bindings, Simply APIs, regex frontend, schemas, or target
