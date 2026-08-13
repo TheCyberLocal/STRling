@@ -1,0 +1,163 @@
+record_version: 2.0.0
+title: Semantics-preserving rewrite library
+status: in_progress
+objective: Extend the governed equivalence registry into a deliberately closed rewrite library with complete proof, counterexample, provenance, capability, target-applicability, and exact-runtime evidence; retain atomic-literal portability rewriting, add only request-driven non-possessive exact-once repetition elision, and prevent diagnostics or incomplete evidence from authorizing mutation.
+scope:
+    diff:
+        base: 9c88584c2c22f92572d89a4a87711e3b738e2e1a
+        head: working-tree
+    allowed_paths:
+        - core/src/lib.rs
+        - core/src/portability_planning.rs
+        - core/src/portability_planning/equivalence.rs
+        - core/src/semantic_rewrite.rs
+        - core/tests/ecmascript_runtime_certification.rs
+        - core/tests/pcre2_runtime_certification.rs
+        - core/tests/python_re_runtime_certification.rs
+        - core/tests/rewrite_equivalence_registry.rs
+        - core/tests/semantic_rewrite.rs
+        - core/tests/semantic_rewrite_properties.rs
+        - docs/architecture.md
+        - docs/migration/ledger.md
+        - docs/migration/portability-planning.md
+        - docs/migration/records/semantics-preserving-rewrite-library.yaml
+        - docs/migration/semantics-preserving-rewrite-library.md
+        - governance/change-control.json
+        - spec/portability/equivalence/1.0/atomic-literal-elision.cases.json
+        - spec/portability/equivalence/1.0/exact-once-repetition-elision.cases.json
+        - spec/portability/equivalence/1.0/registry.json
+        - spec/portability/equivalence/1.0/registry.schema.json
+        - tests/conformance/ecmascript-runtime-certification.json
+        - tests/conformance/pcre2-runtime-certification.json
+        - tests/conformance/python-re-runtime-certification.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
+        - tooling/shared_cross_engine_corpus.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_diagnostic_architecture.py
+        - tooling/tests/test_ecmascript_runtime_certification.py
+        - tooling/tests/test_pcre2_runtime_certification.py
+        - tooling/tests/test_python_re_runtime_certification.py
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_shared_cross_engine_corpus.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/diagnostic_generation.rs
+        - core/src/diagnostic_generation/**
+        - core/src/normalization.rs
+        - core/src/safety_analysis.rs
+        - core/src/safety_analysis/**
+        - core/src/semantic/**
+        - core/src/semantic_analysis.rs
+        - core/src/semantic_analysis/**
+        - core/src/structural_analysis.rs
+        - core/src/structural_analysis/**
+        - core/src/target/**
+        - core/src/target_lowering.rs
+        - core/src/ecmascript_lowering.rs
+        - core/src/python_re_lowering.rs
+        - packages/**
+        - spec/conformance/**
+        - spec/grammar/**
+        - spec/stdlib/**
+        - spec/targets/profiles/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/records/semantics-preserving-rewrite-library.yaml
+        - docs/migration/semantics-preserving-rewrite-library.md
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Registered rewrites must preserve accepted language, match and capture observations, priority, zero-length behavior, options, and diagnostics; they cannot define or alter STRling semantics.
+    public_api_change:
+        level: none
+        evidence:
+            - The governed kernel facade and every binding/package surface remain unchanged; the explicit action remains an excluded certified-stage module surface.
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - The internal equivalence registry schema gains application-kind, transformation, capability, provenance, target-applicability, and exact-execution evidence fields while retaining registry contract version 1.0.0.
+        affected_surfaces:
+            - equivalence-registry
+    diagnostic_change:
+        level: none
+        evidence:
+            - Existing safety, quality, portability, and target diagnostics remain unchanged and cannot authorize a rewrite.
+    target_behavior_change:
+        level: additive
+        evidence:
+            - Dedicated exact-runtime comparison vectors certify request-only exact-once repetition elision across all five initial profiles without changing any target profile, lowering rule, serializer, or default execution route.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds one pure target-neutral explicit-request action boundary downstream of the certified registry and prerequisite facts; portability planning filters mandatory strategies and no diagnostic/product route can apply optional rewrites.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Registry contract, evidence completeness, and fingerprints
+      command: cargo test --manifest-path core/Cargo.toml --test rewrite_equivalence_registry --locked && python3 tooling/core_contract_validation.py
+      expected_result: Both and only the locked strategies register with stable fingerprints; missing/stale conformance or runtime corpus bytes, incomplete profile coverage, widened preconditions, unknown strategies, and duplicate/out-of-order entries fail closed.
+    - name: Explicit optional action and adversarial properties
+      command: cargo test --manifest-path core/Cargo.toml --test semantic_rewrite --test semantic_rewrite_properties --locked
+      expected_result: An explicit request for a greedy/lazy exact-once node yields one deterministic certified replacement action without mutating input; possessive, non-exact, wrong-node, missing-fact, stale-evidence, capture/priority-risk, and resource-limit cases do not produce an action.
+    - name: Exact applicable-target execution
+      command: STRLING_PCRE2_1042_LIBRARY=/exact/libpcre2-10.42.so STRLING_PCRE2_1043_LIBRARY=/exact/libpcre2-10.43.so STRLING_NODE_22_BINARY=/exact/node-v22.23.2/bin/node STRLING_CPYTHON_311_BINARY=/exact/cpython-3.11.15/bin/python3.11 ./strling profile full
+      expected_result: PCRE2 10.42/10.43, ECMAScript 2024, Python re str, and Python re bytes compare original and rewritten patterns over capture, priority, zero-length, Unicode/options, positive, and negative vectors; every applicable observation is identical and missing exact runtimes remain structured unavailable.
+    - name: Complete repository certification
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 -m unittest discover -s tooling/tests && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && python3 tooling/documentation_integrity.py && ./strling migration-differential --repeat-runs 3 && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check
+      expected_result: All available hardgates pass, shared-corpus and portability-matrix behavior remain certified, inherited host-only gaps remain explicit without waiver, and the final tree is clean.
+checkpoints:
+    - name: Existing proof, planner, target, runtime, and corpus inventory
+      status: passed
+      evidence:
+          - check: Existing mandatory portability strategy
+            result: passed
+            details: Registry 1.0.0 currently admits only rewrite.atomic_literal.elide.v1. The planner selects it only for an unsupported Atomic requirement with exact Atomic-to-Literal structural proof and no replacement requirements; PCRE2, ECMAScript, and Python lowering consume the certified plan, and exact runtime plus shared-corpus evidence already covers it.
+          - check: Missing library boundary
+            result: passed
+            details: The registry schema is hard-coded to one strategy, execution hooks remain labeled deferred despite completed targets, all strategies are treated as portability candidates, and no explicit request-only optional action exists. Registration does not yet bind every applicable profile/runtime corpus or distinguish optional optimization from mandatory portability.
+    - name: Closed strategy and false-positive policy
+      status: passed
+      evidence:
+          - check: Admitted inventory
+            result: passed
+            details: P12-T05 retains atomic-literal elision as mandatory portability and admits only greedy/lazy exact-once repetition wrapper elision as optional optimization. Exact bounds make count and greediness non-observable; possessive mode is excluded because commitment may suppress body backtracking. The action retains wrapper identity/origin as evidence and direct-body provenance unchanged.
+          - check: Rejected candidates
+            result: passed
+            details: Zero-count repetition, duplicate alternatives, general atomic/possessive changes, and character-set overlap cleanup remain unregistered because capture declaration, match priority, choice commitment, Unicode/case-folding, negation, or source-member behavior lacks a complete proof. Quality and safety findings remain advisory only.
+    - name: Governed registry and explicit action implementation
+      status: planned
+      evidence:
+          - check: Typed implementation
+            result: not_run
+            details: Awaiting generalized registry validation, complete evidence binding, mandatory-strategy planner filtering, and the request-only exact-once replacement action.
+    - name: Cross-engine, property, contract, and architecture certification
+      status: planned
+      evidence:
+          - check: Complete behavioral evidence
+            result: not_run
+            details: Awaiting deterministic/adversarial tests, all five exact profile comparisons, static profile/vector completeness checks, unchanged shared-corpus/matrix evidence, controlled architecture failures, and repository profiles.
+    - name: Complete repository and P12 phase certification
+      status: planned
+      evidence:
+          - check: Task and phase-closing hardgates
+            result: not_run
+            details: Awaiting complete Rust/tooling/contracts/security/documentation/migration/profile evidence, a clean final commit, P12 phase gate verification, and next-task handoff.
+commits: []

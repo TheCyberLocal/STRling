@@ -3228,3 +3228,39 @@ structured dependency-risk scanner unavailability remain explicit.
 P12-T04 is `READY WITH RECORDED CARRY-FORWARD`; P12-T05 owns any
 semantics-preserving rewrite suggestions and cannot infer rewrite authority
 from a quality finding alone.
+
+## Implement and certify a semantics-preserving rewrite library
+
+P12-T05 starts from clean P12-T04 completion commit
+`9c88584c2c22f92572d89a4a87711e3b738e2e1a`. The existing equivalence
+registry, planner proof types, target lowering consumers, exact runtime
+adapters, shared corpus, and portability matrix are preserved as prerequisites.
+Atomic-literal elision remains the sole mandatory portability rewrite and is
+not broadened.
+
+The locked additive strategy is
+`rewrite.repeat_exactly_once.elide.v1`: a request-only optional optimization
+for a repetition whose minimum and bounded maximum are both one and whose mode
+is greedy or lazy. Its exact count makes repetition choice non-observable, but
+possessive mode remains excluded because commitment can suppress backtracking
+inside the body. The action will retain the removed wrapper identity/origin as
+evidence and leave direct-body provenance unchanged; it cannot emit source
+edits, target syntax, or an automatically mutated program.
+
+Registration will distinguish mandatory portability from optional
+optimization and bind the exact Semantic IR shape, transformation, capability
+effects, target applicability, proof obligations, rejected states,
+provenance, explanation, conformance bytes, and execution vectors. Missing or
+stale evidence, incomplete PCRE2 10.42/10.43, ECMAScript 2024, Python `re` str,
+or Python `re` bytes coverage, an unknown strategy, or a widened precondition
+will fail closed. Dedicated exact-runtime vectors will exercise captures,
+alternative priority, zero-length bodies, Unicode/options, and positive and
+negative subjects. The shared corpus and portability matrix must remain
+semantically unchanged.
+
+Zero-count repetition removal, duplicate-branch removal, general atomic or
+possessive changes, and character-set overlap cleanup remain rejected because
+capture contracts, priority, commitment, Unicode/case-folding, negation, or
+source-member behavior lacks a complete proof. No safety or quality diagnostic
+is rewrite authority; `STRL-QUALITY-0002` can explain an exact-once wrapper but
+cannot select or apply the optional action.
