@@ -1,11 +1,11 @@
 record_version: 2.0.0
 title: Semantic STRling textual language contract
-status: in_progress
+status: complete
 objective: Ratify a readable, explicit, versioned Semantic STRling 1.0 textual frontend whose complete syntax and source diagnostics map deterministically to canonical Semantic IR, without implementing a parser or formatter or introducing target, runtime, module, portability-policy, or safety-policy authority.
 scope:
     diff:
         base: ff85bbe381e8dbfb0ed9c689611280dc60922657
-        head: working-tree
+        head: 4f05d5989643b6cc379bcebc694c04d864390f2d
     allowed_paths:
         - README.md
         - core/tests/normalization.rs
@@ -155,7 +155,7 @@ checkpoints:
           - check: Complete formal language bundle
             command: python3 tooling/semantic_strling_contract.py
             result: passed
-            details: Three schemas, 55 reachable grammar productions, 17 complete Semantic IR mappings, deterministic one-based material/capture preorder identities, 27 stable diagnostics, 10 explicit unavailable constructs, 12 positive cases, and 30 negative cases pass at fingerprint sha256:7f3a0bf23a4ba17a5caf58406b497aa4274f26f6d8d51eeeb3b87cb36f8f5f0c.
+            details: Three schemas, 55 reachable grammar productions, 17 complete Semantic IR mappings, deterministic one-based material/capture preorder identities, 27 stable diagnostics, 10 explicit unavailable constructs, 12 positive cases, and 30 negative cases pass at corrected fingerprint sha256:463ec4ada9d89340fafccfce4fece6294d2b699617898c6413b4bd991948956f.
           - check: Semantic IR and fixture completeness
             command: python3 tooling/contract_validation.py
             result: passed
@@ -177,14 +177,22 @@ checkpoints:
           - check: Complete contract and repository hardgates
             command: python3 tooling/semantic_strling_contract.py; python3 -m unittest tooling.tests.test_semantic_strling_contract; python3 tooling/contract_validation.py; python3 tooling/architecture_fitness.py; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; ./strling format --check repository; ./strling lint repository; ./strling hygiene; ./strling generate --check --json; ./strling contracts --check --json; ./strling governance --json; python3 -m unittest discover -s tooling/tests; git diff --check
             result: passed
-            details: The final formatted contract passes with fingerprint sha256:7f3a0bf23a4ba17a5caf58406b497aa4274f26f6d8d51eeeb3b87cb36f8f5f0c; all 14 focused mutation tests and all 522 tooling tests pass. Canonical contracts, three frontend schemas, authored fixtures, architecture, governance, documentation across 156 files, generated-artifact integrity, public contracts, formatting, lint, hygiene, and patch integrity pass from clean corrected implementation commit 3be9a678c80fb3a4bb2aeff460b5ffd20161b580.
+            details: The corrected formatted contract passes with fingerprint sha256:463ec4ada9d89340fafccfce4fece6294d2b699617898c6413b4bd991948956f; all 16 focused mutation tests and all 524 tooling tests pass. Canonical contracts, three frontend schemas, authored fixtures, architecture, governance, documentation, generated-artifact integrity, public contracts, formatting, lint, hygiene, and patch integrity pass from clean correction commit 4f05d5989643b6cc379bcebc694c04d864390f2d.
           - check: Local profile and clean tree
             command: ./strling profile local; git status --short
             result: passed
             details: Local passes all 26 operations with no failures, waivers, unavailable, or incomplete operations from clean commit 3be9a678c80fb3a4bb2aeff460b5ffd20161b580; the final tracked tree is clean.
     - name: Contextual identifier reservation correction
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Separate grammar keywords from identifier reservation
+            command: python3 tooling/semantic_strling_contract.py; python3 -m unittest tooling.tests.test_semantic_strling_contract
+            result: passed
+            details: The machine catalog now separately inventories every grammar keyword terminal and reserves exactly the declaration starters plus construct-leading keywords. The positive `capture word` example remains valid, `sequence` remains reserved with negative evidence, all 16 focused contract/mutation tests pass, and the corrected fingerprint is sha256:463ec4ada9d89340fafccfce4fece6294d2b699617898c6413b4bd991948956f.
+          - check: Complete correction certification
+            command: python3 tooling/contract_validation.py; python3 -m unittest discover -s tooling/tests; ./strling profile local; git status --short
+            result: passed
+            details: Canonical aggregation retains three Semantic STRling schemas, 55 productions, 17 mappings, 27 diagnostics, 12 positive and 30 negative cases. All 524 tooling tests pass, Local passes 26/26 with no failures, waivers, unavailable, or incomplete operations, and correction commit 4f05d5989643b6cc379bcebc694c04d864390f2d is clean.
 commits:
     - sha: 36f66bdf6fa3575a42fc619dc42bde9a0e46b0bd
       subject: "docs(frontend): define Semantic STRling language"
@@ -192,6 +200,8 @@ commits:
       subject: "docs(frontend): ratify Semantic STRling 1.0"
     - sha: 3be9a678c80fb3a4bb2aeff460b5ffd20161b580
       subject: "style(frontend): normalize Semantic STRling contracts"
+    - sha: 4f05d5989643b6cc379bcebc694c04d864390f2d
+      subject: "fix(frontend): correct Semantic identifier reservation"
 completion:
     accomplished:
         - Ratified the versioned strling.semantic 1.0.0 textual frontend with explicit keyword-and-block syntax, closed lexical and formatting rules, stable diagnostics, UTF-8 span semantics, and deterministic material-node and capture identities.
@@ -200,7 +210,8 @@ completion:
     verified:
         - All 55 reachable grammar productions have positive and negative authored coverage; all 17 mappings cover every canonical node, set-member kind, and governed enum value with positive evidence.
         - All 27 diagnostics are governed; all 26 fixture-required identities have negative evidence and the resource-limit diagnostic remains an explicit synthetic parser-boundary obligation.
-        - The final formatted contract fingerprint is sha256:7f3a0bf23a4ba17a5caf58406b497aa4274f26f6d8d51eeeb3b87cb36f8f5f0c. All 14 focused mutation tests, all 522 tooling tests, canonical contracts, architecture, governance, documentation across 156 files, formatting, lint, hygiene, and integrity gates pass.
+        - The corrected formatted contract fingerprint is sha256:463ec4ada9d89340fafccfce4fece6294d2b699617898c6413b4bd991948956f. All 16 focused mutation tests, all 524 tooling tests, canonical contracts, architecture, governance, documentation, formatting, lint, hygiene, and integrity gates pass.
+        - Direct fixture implementation confirmed contextual keyword identifiers such as word are accepted while declaration and construct-leading identifiers such as sequence remain rejected by the normative reserved set.
         - Local passes 26/26 with no failures, waivers, unavailable, or incomplete operations from clean commit 3be9a678c80fb3a4bb2aeff460b5ffd20161b580.
     behavior_changed: The repository now contains the normative Semantic STRling 1.0 textual-language specification and certification inputs; no executable parser, formatter, compiler, CLI, target, runtime, binding, or package behavior changes.
     intentional_behavior_changes:
@@ -218,6 +229,6 @@ completion:
         - P13-T05 will implement the Semantic DSL parser and canonical formatter in Rust with exact grammar, source-span, diagnostic, resource-limit, and stability properties.
         - Frontend convergence, product-default adoption, packaging/provenance, publication review, and every release action remain later ordered tasks.
 readiness:
-    status: BLOCKED
-    next_task: Correct and recertify contextual identifier reservation before resuming P13-T05.
-    rationale: Direct P13-T05 fixture execution proved the positive `capture word` case conflicts with the catalog's all-keywords-reserved rule. The authority-level correction and renewed fingerprint/certification are in progress; an implementation-only exception is prohibited.
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Resume P13-T05 — Implement the Semantic DSL parser and formatter in Rust from the corrected contract.
+    rationale: P13-T04 again satisfies every task-owned grammar, mapping, fixture, diagnostic, contextual-identifier, authority, repository, Local, and clean-tree requirement. The discovered contradiction was corrected in specification authority rather than hidden in implementation; executable parsing and formatting remain the ordered carry-forward.

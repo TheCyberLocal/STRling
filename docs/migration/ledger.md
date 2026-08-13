@@ -3550,7 +3550,7 @@ directions, every mapping, and all 26 fixture-required diagnostics; the
 resource-limit diagnostic remains a synthetic boundary obligation. Ten
 unsupported families are explicitly unavailable. The complete contract
 fingerprint is
-`sha256:7f3a0bf23a4ba17a5caf58406b497aa4274f26f6d8d51eeeb3b87cb36f8f5f0c`.
+`sha256:463ec4ada9d89340fafccfce4fece6294d2b699617898c6413b4bd991948956f`.
 
 The no-parser certifier and 14 mutation tests reject grammar reachability and
 phrase ambiguity failures, missing mappings or fixture coverage, invalid UTF-8
@@ -3569,8 +3569,8 @@ fixture-required diagnostics have negative evidence; the resource-limit
 diagnostic remains the documented synthetic parser-boundary obligation.
 
 The formatter-normalized contract fingerprint is
-`sha256:7f3a0bf23a4ba17a5caf58406b497aa4274f26f6d8d51eeeb3b87cb36f8f5f0c`.
-All 14 focused mutation tests and all 522 tooling tests pass. Canonical
+`sha256:463ec4ada9d89340fafccfce4fece6294d2b699617898c6413b4bd991948956f`.
+All 16 focused mutation tests and all 524 tooling tests pass. Canonical
 contracts, architecture, governance, documentation across 156 files,
 generated-artifact and public-contract integrity, formatting, lint, hygiene,
 and patch checks pass. Local passes 26/26 with no failures, waivers,
@@ -3635,3 +3635,20 @@ remain reserved (`sequence` retains explicit negative evidence); context-only
 keywords such as `word` remain legal where the grammar is unambiguous. The
 contract fingerprint and all T04 certification evidence will be renewed before
 T05 implementation resumes.
+
+The correction closes from clean commit
+`4f05d5989643b6cc379bcebc694c04d864390f2d`. The machine catalog now separates
+the complete grammar keyword-terminal inventory from the contextual
+identifier-reserved set. Declaration starters and every construct-leading
+keyword remain reserved; non-leading contextual terms such as `word` are valid
+capture names, reconciling the canonical example and positive fixture without
+weakening the negative `capture sequence` obligation.
+
+The renewed contract fingerprint is
+`sha256:463ec4ada9d89340fafccfce4fece6294d2b699617898c6413b4bd991948956f`.
+All 16 focused tests and all 524 tooling tests pass. Canonical aggregation
+retains three schemas, 55 productions, 17 mappings, 27 diagnostics, ten
+deferrals, 12 positive cases, and 30 negative cases. Local passes 26/26 with no
+failure, waiver, unavailable, or incomplete operation, and the tree is clean.
+P13-T04 is again `READY WITH RECORDED CARRY-FORWARD`; P13-T05 may resume from
+this corrected authority rather than carrying an implementation exception.
