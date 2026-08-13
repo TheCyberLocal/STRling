@@ -1,11 +1,11 @@
 record_version: 2.0.0
 title: Semantics-preserving rewrite library
-status: in_progress
+status: complete
 objective: Extend the governed equivalence registry into a deliberately closed rewrite library with complete proof, counterexample, provenance, capability, target-applicability, and exact-runtime evidence; retain atomic-literal portability rewriting, add only request-driven non-possessive exact-once repetition elision, and prevent diagnostics or incomplete evidence from authorizing mutation.
 scope:
     diff:
         base: 9c88584c2c22f92572d89a4a87711e3b738e2e1a
-        head: working-tree
+        head: 0dfdbc08e0c47474646738be1cce34573f94488a
     allowed_paths:
         - core/src/lib.rs
         - core/src/ecmascript_lowering.rs
@@ -176,21 +176,55 @@ checkpoints:
             result: passed
             details: Zero-count repetition, duplicate alternatives, general atomic/possessive changes, and character-set overlap cleanup remain unregistered because capture declaration, match priority, choice commitment, Unicode/case-folding, negation, or source-member behavior lacks a complete proof. Quality and safety findings remain advisory only.
     - name: Governed registry and explicit action implementation
-      status: planned
+      status: passed
       evidence:
           - check: Typed implementation
-            result: not_run
-            details: Awaiting generalized registry validation, complete evidence binding, mandatory-strategy planner filtering, and the request-only exact-once replacement action.
+            result: passed
+            details: The closed registry retains rewrite.atomic_literal.elide.v1 as mandatory portability and adds only rewrite.repeat_exactly_once.elide.v1 as request-only optional optimization. Registration binds the exact Semantic IR shape, transformation, invariant, capability effect, applicability, provenance, conformance bytes, and complete runtime evidence. A pure target-neutral semantic_rewrite action boundary returns a deterministic unapplied replacement for an explicit stable-node request; it cannot mutate input or emit diagnostics, edits, target syntax, or product actions. Portability planning filters mandatory strategies and every lowerer fails closed if an optional strategy enters a target plan. The certified atomic and exact-once fingerprints are 43f866c83d9e2dfbe3d2f9f4686a2578311c37060d2592dbdfae7560c332c6e1 and 7116e5773e64815db90f31c78ca6ad90069925c0e43242346a95b3d01d62c837 respectively.
     - name: Cross-engine, property, contract, and architecture certification
-      status: planned
+      status: passed
       evidence:
           - check: Complete behavioral evidence
-            result: not_run
-            details: Awaiting deterministic/adversarial tests, all five exact profile comparisons, static profile/vector completeness checks, unchanged shared-corpus/matrix evidence, controlled architecture failures, and repository profiles.
+            result: passed
+            details: Deterministic, adversarial, fixed-seed property, stale-evidence, widened-precondition, missing-profile, unknown-strategy, planner-leak, and architecture-mutation tests pass. Exact execution compares five rewrite cases on PCRE2 10.42 at semantic sha256:638fb79db33bc7765a2d933eeaaead97cb02d1518795f2a5048b05d157084dcd, five on PCRE2 10.43 at sha256:7b507748e473bbbe80426430372b76bb371084c5d12712b3c9e8c06c536b50ad, four on ECMAScript 2024 at sha256:bfa6a2b3f600599b13e15c5295b6101e5b8ea9794cdd5de873f8ae0631653af4, and five each on Python re str/bytes at combined sha256:b39f8b26fd35951a4391c9655e45990362e2a54a94d74f81f892223581bdb10d. Capture, priority, zero-length, Unicode/options, positive, and negative observations are identical. Static validation binds the formatted conformance evidence and exact runtime corpus bytes. The shared corpus remains 20 cases and 100 applications at observation sha256:9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c; the matrix remains zero-unresolved at sha256:11f70923cdc200b132d7f68077fd840f3d38cf9aff63949fae24d703b68ea205.
     - name: Complete repository and P12 phase certification
-      status: planned
+      status: passed
       evidence:
           - check: Task and phase-closing hardgates
-            result: not_run
-            details: Awaiting complete Rust/tooling/contracts/security/documentation/migration/profile evidence, a clean final commit, P12 phase gate verification, and next-task handoff.
-commits: []
+            result: passed
+            details: At clean review commit 0dfdbc08e0c47474646738be1cce34573f94488a, all Rust targets, warning-denied Clippy, 490 tooling tests, canonical/core/public/generated contracts, formatting, security-content and dependency-integrity checks, governance, documentation integrity across 147 files, and patch integrity pass. The reviewed three-run migration differential passes at baseline sha256:c6552f544b307f7ca9bb01c52fd79ea4c046248fcd03dedf57fb501b570aa0d0 with only the intended canonical-boundary identity advanced to sha256:2f58ec3fe3e9f1c4498a40b43c5a44eeb386e15973ae0cef7b4aaa47ab2998ed. Local passes 26/26; Pull Request records 44/46 and Full 76/83 passed with zero failures or waivers. Full passes exact PCRE2 10.42/10.43, Node 22.23.2, CPython 3.11.15, shared-corpus, and matrix certification. Only inherited Bundler, Swift, and dependency-risk scanner availability remains explicit carry-forward. All five P12 children are complete and the phase gate is satisfied because canonical facts and diagnostics are computed once in core, while rewrites require registered equivalence evidence and an explicit action boundary.
+commits:
+    - sha: e7b35cae4918eb4028955b7b9b2a60d3d0e23d76
+      subject: "docs(core): define certified rewrite library"
+    - sha: c34ad86ec8d3af7b337654e997627e3be469065a
+      subject: "feat(core): certify rewrite action library"
+    - sha: 0dfdbc08e0c47474646738be1cce34573f94488a
+      subject: "fix(core): normalize rewrite evidence"
+completion:
+    accomplished:
+        - Generalized the governed equivalence registry into a deliberately closed two-strategy library with complete application, proof, provenance, capability, applicability, conformance, and exact-runtime evidence.
+        - Added a pure request-only semantic action for greedy/lazy exact-once repetition elision while preserving atomic-literal elision as the sole mandatory portability rewrite and excluding possessive or otherwise unproved candidates.
+        - Enforced diagnostic-to-rewrite separation, mandatory-only planner selection, optional-strategy lowerer hardgates, evidence fingerprints, static completeness validation, and controlled architecture mutation failures.
+    verified:
+        - Exact PCRE2 10.42/10.43, ECMAScript 2024, Python re str, and Python re bytes comparisons preserve accepted language, spans, captures, priority, zero-length behavior, Unicode/options, diagnostics, and input immutability for every admitted action vector.
+        - All deterministic, adversarial, property, registry, contract, architecture, runtime, shared-corpus, matrix, Rust, tooling, formatting, governance, documentation, security, and migration checks pass for every available operation.
+        - Local passes 26/26; Pull Request and Full record 44/46 and 76/83 passed respectively with zero failures or waivers and only explicit inherited host-tool/scanner unavailability.
+    behavior_changed: An explicit internal request can now obtain one certified, unapplied replacement action for a greedy or lazy exact-once repetition wrapper; default compilation, portability planning, diagnostics, target lowering, public APIs, bindings, packages, and source programs do not automatically apply it.
+    intentional_behavior_changes:
+        - The internal equivalence schema and registry now distinguish mandatory portability rewrites from optional optimization actions and bind complete proof/evidence metadata for both.
+        - Explicit stable-node requests can return the certified exact-once wrapper replacement while possessive, non-exact, absent, wrong-kind, stale-evidence, and otherwise unproved requests return no action.
+        - The migration differential baseline is renewed only for the intended canonical implementation identity; corpus, route, source-observation, historical-peer, replacement-review, and full-corpus evidence remains unchanged.
+    preserved_behavior:
+        - Atomic-literal elision remains the only planner-selected portability rewrite with unchanged shared-corpus, runtime, explanation-code, and zero-unresolved matrix behavior.
+        - Canonical semantics, capture behavior, alternative priority, zero-length behavior, Unicode/options, diagnostics, target profiles, lowering, serialization, public contracts, and every binding/package surface remain unchanged.
+        - Safety and quality diagnostics remain advisory only; no diagnostic, compiler route, target, runtime, product, editor, or raw-source path can select or apply the optional rewrite.
+    transitional_architecture:
+        - Pull Request and Full are READY WITH RECORDED CARRY-FORWARD for inherited Ruby Bundler, Swift, and dependency-risk scanner availability only; every task-owned and available operation passed.
+        - The request-only action remains an internal certified-stage boundary until a separately governed future product/API task explicitly chooses to expose it.
+    deferred_work:
+        - No task-owned proof, implementation, runtime, contract, or certification work is deferred; any future rewrite strategy must independently satisfy the closed registry and exact applicable-profile evidence contract.
+        - P13 begins canonical builder and Simply frontend convergence without changing the completed rewrite authority boundary.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P13-T01 by defining the canonical builder protocol and Simply semantic contract from the clean P12 completion state.
+    rationale: P12-T05 and the P12 phase gate satisfy their actual objectives and every acceptance requirement with complete proof, counterexample, provenance, architecture, exact-runtime, contract, migration, profile, and clean-commit evidence. All task-owned work passes; only inherited host-tool and scanner availability is carried forward explicitly.

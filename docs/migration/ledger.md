@@ -3264,3 +3264,52 @@ capture contracts, priority, commitment, Unicode/case-folding, negation, or
 source-member behavior lacks a complete proof. No safety or quality diagnostic
 is rewrite authority; `STRL-QUALITY-0002` can explain an exact-once wrapper but
 cannot select or apply the optional action.
+
+The implementation closes the registry as exactly two strategies. The existing
+`rewrite.atomic_literal.elide.v1` remains mandatory portability. The new
+`rewrite.repeat_exactly_once.elide.v1` is request-only optional optimization for
+greedy or lazy `{1}` wrappers; possessive mode and every broader candidate stay
+unregistered. A pure target-neutral action boundary returns a certified,
+unapplied replacement for an explicit stable-node request without mutating the
+program, emitting diagnostics or edits, or exposing target/product behavior.
+Portability planning filters mandatory strategies, and target lowerers reject an
+optional strategy if one is injected into a plan.
+
+The registry now binds exact shape, transformation, invariant, application kind,
+capability effect, target applicability, proof, counterexamples, provenance,
+explanation, conformance bytes, and exact execution evidence. Its certified
+atomic-literal and exact-once strategy fingerprints are
+`43f866c83d9e2dfbe3d2f9f4686a2578311c37060d2592dbdfae7560c332c6e1` and
+`7116e5773e64815db90f31c78ca6ad90069925c0e43242346a95b3d01d62c837`.
+Missing, stale, reordered, widened, profile-incomplete, or unknown evidence fails
+closed. Deterministic, adversarial, fixed-seed property, registry, contract, and
+controlled architecture-mutation tests certify that boundary.
+
+Exact execution passes five rewrite cases on each PCRE2 10.42 and 10.43, four on
+ECMAScript 2024, and five on each Python `re` str/bytes profile. Capture,
+alternative-priority, zero-length, Unicode/options, positive, and negative
+observations are identical before and after rewriting. The shared corpus remains
+20 cases and 100 applications at observation SHA-256
+`9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c`;
+the matrix remains zero-unresolved at SHA-256
+`11f70923cdc200b132d7f68077fd840f3d38cf9aff63949fae24d703b68ea205`.
+
+P12-T05 closes from clean review commit
+`0dfdbc08e0c47474646738be1cce34573f94488a`. All Rust targets,
+warning-denied Clippy, 490 tooling tests, canonical/core/public/generated
+contracts, formatting, governance, security, documentation integrity across 147
+files, patch integrity, and the reviewed three-run migration differential pass.
+The migration baseline is
+`sha256:c6552f544b307f7ca9bb01c52fd79ea4c046248fcd03dedf57fb501b570aa0d0`;
+only the intended canonical-boundary identity advances, while corpus, route,
+source-observation, historical-peer, replacement-review, and full-corpus
+evidence remains unchanged.
+
+Local passes 26/26. Pull Request records 44/46 and Full records 76/83 passed,
+with zero failures or waivers. Full passes exact PCRE2 10.42/10.43, Node
+22.23.2, CPython 3.11.15, shared-corpus, and matrix certification. Only the
+inherited repository-managed Bundler mismatch, missing Swift, and structured
+dependency-risk scanner remain unavailable. P12-T05 and P12 are `READY WITH
+RECORDED CARRY-FORWARD`; P13-T01 is the next ordered task and begins the
+canonical builder protocol and Simply semantic contract without reopening the
+completed rewrite authority boundary.
