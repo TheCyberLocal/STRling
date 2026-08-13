@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Semantic STRling Rust parser and canonical formatter
-status: in_progress
+status: complete
 objective: Implement the ratified strling.semantic 1.0.0 grammar and canonical formatting contract as a bounded, deterministic Rust frontend that preserves authored syntax evidence, lowers through the existing canonical Semantic IR normalization and compiler pipeline, and introduces no competing semantic, target, runtime, binding, package, or specification authority.
 scope:
     diff:
@@ -167,14 +167,49 @@ checkpoints:
             result: passed
             details: Three repeated full-corpus runs have zero mismatches. Only the canonical-boundary fingerprint moved from sha256:b5c6542a1c43788f7f3f8be256747e0e1789124a42065ff0195968b4d09bbb42 to sha256:71b8adfbab3b965cbd381317b3da9a8192ba5ab3d7f8a12b13b7b5c75058b255 and the baseline self-fingerprint moved to sha256:59c75727d33ad965a65c9ff880cb8e2aab17f495a21d213d675af7cf9cd3a934; contract, full corpus, routes, source observations, historical peers, classifications, and every other reviewed baseline field remain byte-identical.
     - name: Repository, Local, Pull Request, and clean-tree certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Complete repository hardgates
+            result: passed
+            details: At clean reviewed commit ce05ed899507355ede431c545d661dcccfe0fdc0, exact Rust 1.75.0 formatting, warning-denied Clippy/check, all 377 Rust tests, all 528 tooling tests, 11 core schema mappings with 108 fixtures, public/generated contracts, governance, lint, type checks, hygiene, patch integrity, and documentation integrity across 157 files and seven executable examples pass.
+          - check: Local and Pull Request profiles
+            result: passed
+            details: Local passes all 26 operations with zero failures, waivers, unavailable, or incomplete results. Pull Request records 44 passed, zero failed, and zero waived operations; only inherited Ruby Bundler version drift and missing Swift remain explicitly unavailable. The migration differential passes three repeated runs with zero mismatches under its unchanged governed Node-18 observation environment.
+          - check: Clean-room reproducibility and clean tree
+            result: passed
+            details: A git archive of ce05ed899507355ede431c545d661dcccfe0fdc0 in a fresh temporary directory passes all 24 focused fixture/property/pipeline Rust tests, four controlled semantic-frontend architecture tests, and core contract validation. The authoritative repository remains clean with a 19-path task diff from corrected prerequisite 2865ad33472de598f152d919123db22ef2484bb1.
 commits:
     - sha: b57f097e3fb797f36a102ae3089c2168d5ee57df
       subject: "docs(frontend): define Semantic DSL parser and formatter"
     - sha: af280826e5ae208b6a744f97f0f9ac840a73f11c
       subject: "feat(frontend): implement Semantic STRling parser"
+    - sha: ce05ed899507355ede431c545d661dcccfe0fdc0
+      subject: "test(frontend): renew Semantic DSL migration review"
+completion:
+    accomplished:
+        - Implemented the complete ratified strling.semantic@1.0.0 grammar as a dependency-free bounded Rust lexer/parser with private authored syntax evidence, exact stable diagnostics, deterministic identities, source provenance, and canonical Semantic IR lowering.
+        - Implemented the canonical formatter with LF/layout/string rules, authored set order, source-ordered comments aligned to following constructs or enclosing closures, and parse-format-parse plus format-format stability.
+        - Added explicit semantic frontend kernel dispatch into the sole normalization, analysis, diagnostics, portability, lowering, and serialization pipeline without adding a target, binding, runtime, filesystem, network, package, or specification authority.
+    verified:
+        - All 12 positive and 30 negative authored cases, 512 generated valid programs, 2,048 arbitrary UTF-8 robustness cases, seven exact resource families, nested comment alignment, and all pipeline/source-reference routes pass.
+        - Exact Rust quality, all 377 Rust tests, all 528 tooling tests, contracts, architecture mutations, migration review, formatting, documentation, governance, public/generated integrity, hygiene, and clean-room reproduction pass.
+        - Local passes 26/26; Pull Request has 44 passed, zero failed or waived, and only the two inherited Ruby Bundler and Swift availability findings.
+    behavior_changed: Explicit strling.semantic@1.0.0 SourceDocument requests now parse and format through the canonical Rust kernel; existing Semantic IR, Simply, regex-compatible, target, binding, package, default, and publication behavior does not change.
+    intentional_behavior_changes:
+        - The additive semantic_frontend Rust module exposes parse(&SourceDocument) and format(&ParsedSemantic), all 27 STRL-DSL diagnostic identities, and the seven ratified resource-limit constants.
+        - The kernel now recognizes explicit strling.semantic source identity and routes successful output through the existing canonical pipeline while returning one frozen diagnostic and no partial semantics on failure.
+        - The migration differential baseline is renewed only for the intended canonical implementation identity; corpus, routes, observations, historical peer evidence, and classifications remain unchanged.
+    preserved_behavior:
+        - The corrected P13-T04 specification bundle and fingerprint remain immutable syntax/mapping authority; implementation output does not write or regenerate specification inputs.
+        - Regex-compatible source behavior, Simply construction/adapters, source-less Semantic IR, normalization, semantic/structural/safety facts, target profiles, portability, lowering, serialization, runtimes, and public contracts remain unchanged.
+        - No frontend default, tutorial hierarchy, binding, package, version, release, tag, registry upload, or publication action is introduced.
+    transitional_architecture:
+        - Pull Request readiness carries forward only inherited Ruby Bundler drift and missing Swift; every task-owned and available operation passes.
+        - Canonical tutorials and frontend hierarchy remain intentionally unchanged until P13-T06 certifies cross-frontend convergence and replaces conflicting public examples.
+    deferred_work:
+        - P13-T06 owns the complete Semantic DSL/Simply/source-less IR/legacy-import convergence corpus, classified representation differences, and Full-profile phase closure.
+        - P13-T06 also owns public README/tutorial/getting-started/reference migration to Semantic DSL first, Simply second, and regex-compatible import/compatibility positioning.
 readiness:
-    status: BLOCKED
-    next_task: Complete repository, Local, Pull Request, reproducibility, and clean-tree certification before frontend convergence.
-    rationale: Implementation, focused contract fixtures, property/robustness coverage, kernel dispatch, exact Rust 1.75.0 warning-denied checks, and architecture mutations pass; aggregate repository profiles and closure evidence remain pending.
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P13-T06 by defining the complete cross-frontend convergence denominator and documentation-surface inventory before changing canonical tutorials.
+    rationale: P13-T05 satisfies its objective and every acceptance requirement with exact fixture, diagnostic, source-span, property, resource, architecture, migration, profile, clean-room, and clean-commit evidence. All task-owned work passes; only inherited Ruby Bundler and Swift availability are carried forward explicitly.

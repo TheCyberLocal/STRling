@@ -3661,3 +3661,34 @@ replayed against contract fingerprint
 No parser exception is needed: contextual `word` identifiers and reserved
 construct-leading `sequence` identifiers now follow one internally consistent
 authority.
+
+P13-T05 closes from reviewed commit
+`ce05ed899507355ede431c545d661dcccfe0fdc0`. The complete ratified grammar now
+has one bounded dependency-free Rust parser and canonical formatter. All 12
+positive and 30 negative authored fixtures pass with exact diagnostic identity,
+phase, category, UTF-8 location, and material spans. Property evidence covers
+512 generated valid programs, 2,048 deterministic arbitrary UTF-8 inputs, all
+seven governed resource families, nested comment placement, canonical
+idempotence, semantic equivalence, capture names, and preorder identities.
+
+Explicit `strling.semantic@1.0.0` requests now enter the same normalization,
+analysis, diagnostics, portability, lowering, and serialization pipeline as
+the other canonical inputs. The frontend retains only private presentation
+evidence and has no target, emitter, binding, runtime, filesystem, network,
+package, default, or specification-writing authority. The reviewed migration
+baseline changes only canonical-boundary and self-fingerprints; all corpus,
+route, source-observation, historical-peer, and classification evidence remains
+unchanged.
+
+All 377 Rust tests and 528 tooling tests pass. Core mapping validates 11 schemas
+and 108 fixtures; documentation integrity passes 157 files and seven executable
+examples. Local passes 26/26 with no failure, waiver, unavailability, or
+incomplete result. Pull Request records 44 passed, zero failed or waived, and
+only inherited Ruby Bundler drift and missing Swift availability. A fresh
+archive of the clean commit reproduces all 24 focused Rust tests, four
+architecture mutations, and core contract validation.
+
+P13-T05 is `READY WITH RECORDED CARRY-FORWARD`. P13-T06 is next and owns the
+complete cross-frontend convergence corpus plus canonical tutorial hierarchy;
+no tutorial, default, package, version, tag, upload, or publication action was
+taken here.
