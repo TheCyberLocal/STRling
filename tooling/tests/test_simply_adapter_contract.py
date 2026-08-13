@@ -1,0 +1,105 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+import shutil
+import tempfile
+import unittest
+
+from tooling.simply_adapter_contract import (
+    AdapterContractError,
+    ROOT,
+    certify,
+)
+
+
+class SimplyAdapterContractTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self._temporary = tempfile.TemporaryDirectory()
+        self.root = Path(self._temporary.name)
+        for relative in (
+            "bindings/python/src/STRling/simply",
+            "bindings/typescript/src/STRling/simply",
+            "spec/frontends/simply/1.0",
+        ):
+            source = ROOT / relative
+            destination = self.root / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(source, destination)
+        for relative in (
+            "bindings/typescript/src/STRling/compiler.ts",
+            "governance/baselines/simply-preview-adapter-compatibility.json",
+        ):
+            destination = self.root / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / relative, destination)
+
+    def tearDown(self) -> None:
+        self._temporary.cleanup()
+
+    def test_current_adapter_contract_passes(self) -> None:
+        report = certify(self.root)
+        self.assertEqual(15, report["operation_count"])
+        self.assertEqual(12, report["error_count"])
+        self.assertTrue(report["source_fingerprint"].startswith("sha256:"))
+
+    def test_missing_operation_fails_closed(self) -> None:
+        path = self.root / "bindings/typescript/src/STRling/simply/preview.ts"
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                'this.append(stepId, "empty", {})',
+                'this.append(stepId, "literal", {})',
+                1,
+            ),
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(
+            AdapterContractError, "TypeScript Preview operation"
+        ):
+            certify(self.root)
+
+    def test_host_compiler_dependency_fails_closed(self) -> None:
+        path = self.root / "bindings/python/src/STRling/simply/preview.py"
+        path.write_text(
+            path.read_text(encoding="utf-8") + "\nimport STRling.core\n",
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(
+            AdapterContractError, "forbidden Preview authority"
+        ):
+            certify(self.root)
+
+    def test_new_unclassified_public_operation_fails_closed(self) -> None:
+        path = self.root / "bindings/typescript/src/STRling/simply/static.ts"
+        path.write_text(
+            path.read_text(encoding="utf-8")
+            + "\nexport function surprise(): Pattern { return digit(); }\n",
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(
+            AdapterContractError,
+            "historical public-operation inventory",
+        ):
+            certify(self.root)
+
+    def test_unresolved_disposition_fails_closed(self) -> None:
+        path = (
+            self.root / "governance/baselines/simply-preview-adapter-compatibility.json"
+        )
+        document = json.loads(path.read_text(encoding="utf-8"))
+        document["unresolved"] = ["surprise"]
+        path.write_text(json.dumps(document), encoding="utf-8")
+        with self.assertRaisesRegex(AdapterContractError, "unresolved"):
+            certify(self.root)
+
+    def test_response_error_inventory_fails_closed(self) -> None:
+        path = self.root / "spec/frontends/simply/1.0/adapter-response.schema.json"
+        document = json.loads(path.read_text(encoding="utf-8"))
+        document["$defs"]["Error"]["properties"]["code"]["enum"].pop()
+        path.write_text(json.dumps(document), encoding="utf-8")
+        with self.assertRaisesRegex(AdapterContractError, "error inventory"):
+            certify(self.root)
+
+
+if __name__ == "__main__":
+    unittest.main()

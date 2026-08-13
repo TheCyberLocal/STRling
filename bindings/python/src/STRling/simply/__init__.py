@@ -71,6 +71,18 @@ from STRling.simply.static import (
     ip,
     date_time,
 )
+from STRling.simply.preview import (
+    SIMPLY_PREVIEW_PROTOCOL_VERSION,
+    SIMPLY_PREVIEW_STATUS,
+    CliSimplyPreviewTransport,
+    SimplyPreviewBuilder,
+    SimplyPreviewError,
+    SimplyPreviewTransport,
+    SimplyPreviewTransportError,
+    SimplyPreviewValue,
+    default_simply_semantic_options,
+    serialize_simply_builder_request,
+)
 
 # Public API surface exported by `STRling.simply`
 __all__ = [
@@ -128,4 +140,15 @@ __all__ = [
     "uuid",
     "ip",
     "date_time",
+    # canonical Preview adapter
+    "SIMPLY_PREVIEW_PROTOCOL_VERSION",
+    "SIMPLY_PREVIEW_STATUS",
+    "CliSimplyPreviewTransport",
+    "SimplyPreviewBuilder",
+    "SimplyPreviewError",
+    "SimplyPreviewTransport",
+    "SimplyPreviewTransportError",
+    "SimplyPreviewValue",
+    "default_simply_semantic_options",
+    "serialize_simply_builder_request",
 ]

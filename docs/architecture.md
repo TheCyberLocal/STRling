@@ -190,6 +190,17 @@ not expose another compiler entry point or directly call analysis, planning,
 lowering, serialization, or runtime stages. See
 [Native Rust Simply API](migration/native-rust-simply-api.md).
 
+The additive TypeScript and Python `SimplyPreviewBuilder` adapters record this
+same protocol and retain only opaque builder/step identities. Their explicit
+process transports call `./strling simply`, whose typed Rust decoder replays
+the request through `SimplyBuilder` and the sole `compile` facade. Successful
+adapter envelopes contain the canonical `CompileRequest` and `CompileResult`;
+construction failures preserve ordered `STRL-SIMPLY-*` code/path identities.
+A canonical failed compile is still a successfully decoded envelope. Exact
+target-profile paths are supplied to the transport, loaded only by the CLI,
+and never interpreted by a host adapter. See
+[TypeScript and Python Simply Preview adapters](migration/simply-preview-adapters.md).
+
 Existing public helpers, including direct target convenience methods, remain
 compatibility obligations. They are not proof that Simply's permanent
 implementation should bypass the canonical compiler, and this architecture does
@@ -220,9 +231,11 @@ consume the same canonical compiler interface. They may own transport,
 presentation, caching, and source projection, but not shadow semantic
 implementations.
 
-The root `./strling compile` command is a deterministic JSON transport for
-`CompileRequest` and `CompileResult`. It delegates to the Rust kernel and owns
-only standard-input/output, argument, target-profile file, and exit-status
+The root `./strling compile` and `./strling simply` commands are deterministic
+JSON transports. `compile` accepts `CompileRequest`; `simply` accepts the
+versioned Simply `BuilderRequest`; both return canonical `CompileResult`
+evidence and delegate semantics to the Rust kernel. The commands own only
+standard-input/output, argument, exact target-profile file, and exit-status
 handling. The kernel selects source syntax only from the explicit
 `SourceDocument.frontend` identity; it currently dispatches
 `strling.regex-compat@1.0.0` to the one governed compatibility parser. Neither

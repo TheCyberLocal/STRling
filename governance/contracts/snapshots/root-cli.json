@@ -25,6 +25,7 @@
         "migration-differential": "migration-differential [options] Gate the complete migration corpus",
         "profile": "profile <local|pull-request|full|release> [lang|all] Run a certification profile",
         "setup": "setup <lang|all> Install prerequisites and dependencies",
+        "simply": "simply [--target-profile PATH] Compile Simply BuilderRequest JSON through the canonical kernel",
         "test": "test <lang|all> Run tests for one binding or all bindings",
         "typecheck": "typecheck [lang|all] Run configured type/static analysis"
     }

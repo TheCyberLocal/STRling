@@ -22,6 +22,15 @@ if [[ "${1:-}" == "compile" ]]; then
     exec cargo run --quiet --manifest-path "$KERNEL_MANIFEST" --bin strling-kernel -- "${@:2}"
 fi
 
+if [[ "${1:-}" == "simply" ]]; then
+    if ! command -v cargo >/dev/null 2>&1; then
+        echo "Error: cargo is required to run the canonical compiler." >&2
+        exit 69
+    fi
+    cd "$DIR" || exit 74
+    exec cargo run --quiet --manifest-path "$KERNEL_MANIFEST" --bin strling-kernel -- --simply "${@:2}"
+fi
+
 if ! command -v python3 >/dev/null 2>&1; then
     echo "Error: python3 is required to run this script."
     exit 1
@@ -417,6 +426,7 @@ print_help() {
     echo "  governance [--json]          Validate task scope and architecture rules"
     echo "  contracts [--check] [--json] Regenerate or verify public contracts"
     echo "  compile [--target-profile PATH]  Compile canonical request JSON from standard input"
+    echo "  simply [--target-profile PATH]  Compile Simply BuilderRequest JSON through the canonical kernel"
     echo "  legacy-reference [options]   Run isolated historical reference observations"
     echo "  migration-differential [options]  Gate the complete migration corpus"
     echo "  typecheck [lang|all]         Run configured type/static analysis"
@@ -441,6 +451,7 @@ print_help() {
     echo "  ./strling governance"
     echo "  ./strling contracts --check"
     echo "  ./strling compile < request.json"
+    echo "  ./strling simply < builder-request.json"
     echo "  ./strling legacy-reference --certify"
     echo "  ./strling legacy-reference --runner python --certify"
     echo "  ./strling legacy-reference --cross-certify"

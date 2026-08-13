@@ -81,13 +81,21 @@
                     {
                         "kind": "ratified_architecture",
                         "reference": "docs/migration/native-rust-simply-api.md"
+                    },
+                    {
+                        "kind": "ratified_architecture",
+                        "reference": "docs/migration/simply-preview-adapters.md"
+                    },
+                    {
+                        "kind": "compatibility_disposition",
+                        "reference": "governance/baselines/simply-preview-adapter-compatibility.json"
                     }
                 ],
-                "canonical_surface": "SimplyBuilder::finish_request -> strling_kernel::compile(&CompileRequest::Semantic)",
+                "canonical_surface": "TypeScript/Python SimplyPreviewBuilder -> ./strling simply -> replay_simply_builder_request -> strling_kernel::compile(&CompileRequest::Semantic)",
                 "operation": "api.simply.compile_node",
-                "rationale": "The canonical native Rust builder now projects the complete host-neutral Simply protocol into Semantic IR and CompileRequest and delegates compilation to the sole kernel facade. The historical operation still accepts a binding-private node and returns target convenience output rather than the canonical request/result contracts, so its observations remain evidence-only and structurally not comparable.",
+                "rationale": "The TypeScript and Python Preview adapters now serialize the complete host-neutral Simply protocol and route it through typed Rust replay plus the sole kernel facade, returning canonical CompileRequest and CompileResult contracts. The historical TypeScript operation accepts a binding-private node and returns only a target convenience string, while Python did not expose it, so historical observations remain evidence-only and structurally not comparable.",
                 "reason": "incompatible_surface",
-                "review_id": "canonical-route-simply-compile@2.0.0",
+                "review_id": "canonical-route-simply-compile@3.0.0",
                 "state": "not_comparable"
             },
             {

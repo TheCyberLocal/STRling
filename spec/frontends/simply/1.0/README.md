@@ -97,3 +97,18 @@ not replace the stable identity with formatted prose.
 Historical TypeScript, Python, Rust, and other bindings remain compatibility
 evidence. Their dispositions are recorded in `protocol.json`; they cannot
 override this protocol or canonical contracts.
+
+## Preview adapter transport
+
+TypeScript and Python Preview adapters serialize this exact BuilderRequest.
+The repository `strling simply [--target-profile PATH]` JSON transport replays
+the request through the native Rust `SimplyBuilder` and sole compiler facade.
+Its versioned [adapter response](adapter-response.schema.json) contains the
+canonical `CompileRequest` plus `CompileResult`, or ordered stable
+`STRL-SIMPLY` code/path construction errors. A canonical compile result whose
+outcome is `failed` remains a successful adapter response.
+
+The CLI owns bounded I/O and exact profile loading only. Host adapters require
+an explicit or injected transport and do not discover a compiler, infer a
+target, or reproduce validation, normalization, analysis, planning, lowering,
+serialization, or runtime behavior.

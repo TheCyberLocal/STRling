@@ -6,10 +6,11 @@ use std::fmt;
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use crate::normalization::{normalize, NormalizationErrorCode, NormalizationErrors};
 use crate::protocol::{
-    CompileInput, CompileRequest, CompilerOptions, RequestedOutput, ResourceLimits,
+    CompileInput, CompileRequest, CompileResult, CompilerOptions, RequestedOutput, ResourceLimits,
 };
 use crate::semantic::{
     AssertionPolarity, BuiltinClassName, CaseMatching, CharacterDomain, CharacterSetMember,
@@ -21,13 +22,14 @@ use crate::source::{
     SpecificationVersion,
 };
 use crate::target::TargetProfileReference;
-use crate::validation::{Validate, ValidationErrors};
+use crate::validation::{deserialize_optional_non_null, Validate, ValidationErrors};
 
 /// The protocol version implemented by this native construction surface.
 pub const SIMPLY_PROTOCOL_VERSION: &str = "1.0.0";
 
 /// Explicit target-neutral options shared by every value in one builder.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct SimplyOptions {
     pub case_matching: CaseMatching,
     pub builtin_character_domain: CharacterDomain,
@@ -67,11 +69,459 @@ pub enum SimplyCharacterSetMember {
 }
 
 /// Compile-only routing appended after semantic construction has completed.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct SimplyCompileProjection {
+    #[serde(
+        default,
+        deserialize_with = "deserialize_optional_non_null",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub target_profile: Option<TargetProfileReference>,
     pub requested_outputs: Vec<RequestedOutput>,
     pub compiler_options: CompilerOptions,
+}
+
+/// A decoded host-neutral Simply builder request.
+///
+/// Its serialized shape is governed by
+/// `spec/frontends/simply/1.0/builder-request.schema.json`; fields stay private
+/// so bindings cannot treat the Rust representation as a second protocol.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct SimplyBuilderRequest {
+    protocol_version: String,
+    contract_version: ContractVersion,
+    specification_version: SpecificationVersion,
+    identity_namespace: String,
+    semantic_options: SimplyProtocolOptions,
+    steps: Vec<SimplyProtocolStep>,
+    root_step_id: String,
+    compile: SimplyCompileProjection,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum SimplyTextModel {
+    UnicodeScalarValues,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyProtocolOptions {
+    case_matching: CaseMatching,
+    text_model: SimplyTextModel,
+    builtin_character_domain: CharacterDomain,
+    wildcard_line_terminators: LineTerminators,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyNoArguments {}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyLiteralArguments {
+    text: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyWildcardArguments {
+    #[serde(
+        default,
+        deserialize_with = "deserialize_optional_non_null",
+        skip_serializing_if = "Option::is_none"
+    )]
+    line_terminators: Option<LineTerminators>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+enum SimplyProtocolSetMember {
+    Literal {
+        value: UnicodeScalar,
+    },
+    Range {
+        start: UnicodeScalar,
+        end: UnicodeScalar,
+    },
+    Builtin {
+        name: BuiltinClassName,
+        #[serde(
+            default,
+            deserialize_with = "deserialize_optional_non_null",
+            skip_serializing_if = "Option::is_none"
+        )]
+        domain: Option<CharacterDomain>,
+        negated: bool,
+    },
+    UnicodeProperty {
+        property: String,
+        #[serde(
+            default,
+            deserialize_with = "deserialize_optional_non_null",
+            skip_serializing_if = "Option::is_none"
+        )]
+        value: Option<String>,
+        negated: bool,
+    },
+}
+
+impl From<SimplyProtocolSetMember> for SimplyCharacterSetMember {
+    fn from(member: SimplyProtocolSetMember) -> Self {
+        match member {
+            SimplyProtocolSetMember::Literal { value } => Self::Literal { value: value.get() },
+            SimplyProtocolSetMember::Range { start, end } => Self::Range {
+                start: start.get(),
+                end: end.get(),
+            },
+            SimplyProtocolSetMember::Builtin {
+                name,
+                domain,
+                negated,
+            } => Self::Builtin {
+                name,
+                domain,
+                negated,
+            },
+            SimplyProtocolSetMember::UnicodeProperty {
+                property,
+                value,
+                negated,
+            } => Self::UnicodeProperty {
+                property,
+                value,
+                negated,
+            },
+        }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyCharacterSetArguments {
+    negated: bool,
+    members: Vec<SimplyProtocolSetMember>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyManyValuesArguments {
+    values: Vec<String>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyOneValueArguments {
+    value: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyCaptureArguments {
+    value: String,
+    capture_key: String,
+    #[serde(
+        default,
+        deserialize_with = "deserialize_optional_non_null",
+        skip_serializing_if = "Option::is_none"
+    )]
+    name: Option<String>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyBackreferenceArguments {
+    capture_key: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyPositionArguments {
+    position: PositionKind,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyLookaroundArguments {
+    value: String,
+    direction: LookaroundDirection,
+    polarity: AssertionPolarity,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyRepeatArguments {
+    value: String,
+    min: u64,
+    max: RepetitionMaximum,
+    mode: RepetitionMode,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyImportNodeArguments {
+    node: Node,
+    #[serde(default)]
+    sources: Vec<SourceDocument>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct SimplyImportProgramArguments {
+    program: SemanticProgram,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(tag = "operation", rename_all = "snake_case", deny_unknown_fields)]
+enum SimplyProtocolStep {
+    Empty {
+        step_id: String,
+        arguments: SimplyNoArguments,
+    },
+    Literal {
+        step_id: String,
+        arguments: SimplyLiteralArguments,
+    },
+    Wildcard {
+        step_id: String,
+        arguments: SimplyWildcardArguments,
+    },
+    CharacterSet {
+        step_id: String,
+        arguments: SimplyCharacterSetArguments,
+    },
+    Sequence {
+        step_id: String,
+        arguments: SimplyManyValuesArguments,
+    },
+    Alternation {
+        step_id: String,
+        arguments: SimplyManyValuesArguments,
+    },
+    Group {
+        step_id: String,
+        arguments: SimplyOneValueArguments,
+    },
+    Capture {
+        step_id: String,
+        arguments: SimplyCaptureArguments,
+    },
+    Backreference {
+        step_id: String,
+        arguments: SimplyBackreferenceArguments,
+    },
+    Position {
+        step_id: String,
+        arguments: SimplyPositionArguments,
+    },
+    Lookaround {
+        step_id: String,
+        arguments: SimplyLookaroundArguments,
+    },
+    Atomic {
+        step_id: String,
+        arguments: SimplyOneValueArguments,
+    },
+    Repeat {
+        step_id: String,
+        arguments: SimplyRepeatArguments,
+    },
+    ImportNode {
+        step_id: String,
+        arguments: SimplyImportNodeArguments,
+    },
+    ImportProgram {
+        step_id: String,
+        arguments: SimplyImportProgramArguments,
+    },
+}
+
+/// Versioned response emitted by the Simply adapter transport.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(tag = "status", rename_all = "snake_case", deny_unknown_fields)]
+pub enum SimplyAdapterResponse {
+    Success {
+        protocol_version: String,
+        compile_request: CompileRequest,
+        compile_result: CompileResult,
+    },
+    Failure {
+        protocol_version: String,
+        errors: Vec<SimplyError>,
+    },
+}
+
+/// Replay one decoded protocol request through the native builder.
+///
+/// This is the only BuilderRequest-to-CompileRequest implementation used by
+/// process adapters. It performs no compilation; callers pass the returned
+/// request to the crate-root `compile` facade.
+pub fn replay_simply_builder_request(
+    request: SimplyBuilderRequest,
+) -> Result<CompileRequest, SimplyErrors> {
+    if request.protocol_version != SIMPLY_PROTOCOL_VERSION {
+        return Err(SimplyErrors::single(
+            SimplyErrorCode::UnsupportedConstruct,
+            "$.protocol_version",
+        ));
+    }
+    if request.contract_version != ContractVersion::V1_0_0 {
+        return Err(SimplyErrors::single(
+            SimplyErrorCode::IncompatibleImport,
+            "$.contract_version",
+        ));
+    }
+    if request.steps.is_empty() {
+        return Err(SimplyErrors::single(
+            SimplyErrorCode::InvalidArgument,
+            "$.steps",
+        ));
+    }
+
+    let options = SimplyOptions {
+        case_matching: request.semantic_options.case_matching,
+        builtin_character_domain: request.semantic_options.builtin_character_domain,
+        wildcard_line_terminators: request.semantic_options.wildcard_line_terminators,
+    };
+    let mut builder = SimplyBuilder::new(
+        &request.identity_namespace,
+        request.specification_version,
+        options,
+    )?;
+    let mut values = BTreeMap::<String, SimplyValue>::new();
+
+    for (index, step) in request.steps.into_iter().enumerate() {
+        let (step_id, value) = match step {
+            SimplyProtocolStep::Empty { step_id, .. } => {
+                let value = builder.empty(&step_id)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::Literal { step_id, arguments } => {
+                let value = builder.literal(&step_id, &arguments.text)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::Wildcard { step_id, arguments } => {
+                let value = builder.wildcard(&step_id, arguments.line_terminators)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::CharacterSet { step_id, arguments } => {
+                let members: Vec<SimplyCharacterSetMember> =
+                    arguments.members.into_iter().map(Into::into).collect();
+                let value = builder.character_set(&step_id, &members, arguments.negated)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::Sequence { step_id, arguments } => {
+                let children = protocol_values(&values, &arguments.values, index, "values")?;
+                let value = builder.sequence(&step_id, &children)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::Alternation { step_id, arguments } => {
+                let children = protocol_values(&values, &arguments.values, index, "values")?;
+                let value = builder.alternation(&step_id, &children)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::Group { step_id, arguments } => {
+                let child = protocol_value(&values, &arguments.value, index, "value")?;
+                let value = builder.group(&step_id, &child)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::Capture { step_id, arguments } => {
+                let child = protocol_value(&values, &arguments.value, index, "value")?;
+                let value = builder.capture(
+                    &step_id,
+                    &arguments.capture_key,
+                    arguments.name.as_deref(),
+                    &child,
+                )?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::Backreference { step_id, arguments } => {
+                let value = builder.backreference(&step_id, &arguments.capture_key)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::Position { step_id, arguments } => {
+                let value = builder.position(&step_id, arguments.position)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::Lookaround { step_id, arguments } => {
+                let child = protocol_value(&values, &arguments.value, index, "value")?;
+                let value = builder.lookaround(
+                    &step_id,
+                    arguments.direction,
+                    arguments.polarity,
+                    &child,
+                )?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::Atomic { step_id, arguments } => {
+                let child = protocol_value(&values, &arguments.value, index, "value")?;
+                let value = builder.atomic(&step_id, &child)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::Repeat { step_id, arguments } => {
+                let child = protocol_value(&values, &arguments.value, index, "value")?;
+                let value = builder.repeat(
+                    &step_id,
+                    &child,
+                    arguments.min,
+                    arguments.max,
+                    arguments.mode,
+                )?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::ImportNode { step_id, arguments } => {
+                let value = builder.import_node(&step_id, arguments.node, arguments.sources)?;
+                (step_id, value)
+            }
+            SimplyProtocolStep::ImportProgram { step_id, arguments } => {
+                let value = builder.import_program(&step_id, arguments.program)?;
+                (step_id, value)
+            }
+        };
+        values.insert(step_id, value);
+    }
+
+    let root = values
+        .get(&request.root_step_id)
+        .cloned()
+        .ok_or_else(|| SimplyErrors::single(SimplyErrorCode::UnresolvedValue, "$.root_step_id"))?;
+    builder.finish_request(&root, request.compile)
+}
+
+fn protocol_value(
+    values: &BTreeMap<String, SimplyValue>,
+    step_id: &str,
+    step_index: usize,
+    field: &str,
+) -> Result<SimplyValue, SimplyErrors> {
+    values.get(step_id).cloned().ok_or_else(|| {
+        SimplyErrors::single(
+            SimplyErrorCode::UnresolvedValue,
+            format!("$.steps[{step_index}].arguments.{field}"),
+        )
+    })
+}
+
+fn protocol_values(
+    values: &BTreeMap<String, SimplyValue>,
+    step_ids: &[String],
+    step_index: usize,
+    field: &str,
+) -> Result<Vec<SimplyValue>, SimplyErrors> {
+    step_ids
+        .iter()
+        .enumerate()
+        .map(|(value_index, step_id)| {
+            values.get(step_id).cloned().ok_or_else(|| {
+                SimplyErrors::single(
+                    SimplyErrorCode::UnresolvedValue,
+                    format!("$.steps[{step_index}].arguments.{field}[{value_index}]"),
+                )
+            })
+        })
+        .collect()
 }
 
 /// Stable machine identities for native Simply construction failures.
@@ -167,6 +617,103 @@ impl fmt::Display for SimplyErrors {
 }
 
 impl Error for SimplyErrors {}
+
+/// Decode-stage distinction between malformed JSON transport and stable
+/// protocol construction failures.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum SimplyBuilderRequestDecodeError {
+    Malformed(String),
+    Construction(SimplyErrors),
+}
+
+impl fmt::Display for SimplyBuilderRequestDecodeError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Malformed(message) => write!(formatter, "malformed Simply request: {message}"),
+            Self::Construction(errors) => errors.fmt(formatter),
+        }
+    }
+}
+
+impl Error for SimplyBuilderRequestDecodeError {}
+
+/// Decode one BuilderRequest while preserving governed decode-stage errors.
+pub fn decode_simply_builder_request(
+    request_json: &str,
+) -> Result<SimplyBuilderRequest, SimplyBuilderRequestDecodeError> {
+    let value: Value = serde_json::from_str(request_json)
+        .map_err(|error| SimplyBuilderRequestDecodeError::Malformed(error.to_string()))?;
+    let object = value.as_object().ok_or_else(|| {
+        SimplyBuilderRequestDecodeError::Construction(SimplyErrors::single(
+            SimplyErrorCode::InvalidArgument,
+            "$",
+        ))
+    })?;
+
+    if object
+        .get("semantic_options")
+        .and_then(Value::as_object)
+        .and_then(|options| options.get("text_model"))
+        .and_then(Value::as_str)
+        .is_some_and(|model| model != "unicode_scalar_values")
+    {
+        return Err(SimplyBuilderRequestDecodeError::Construction(
+            SimplyErrors::single(
+                SimplyErrorCode::InvalidArgument,
+                "$.semantic_options.text_model",
+            ),
+        ));
+    }
+    if object.contains_key("target_pattern") {
+        return Err(SimplyBuilderRequestDecodeError::Construction(
+            SimplyErrors::single(SimplyErrorCode::UnsupportedConstruct, "$.target_pattern"),
+        ));
+    }
+    if let Some(steps) = object.get("steps").and_then(Value::as_array) {
+        for (index, step) in steps.iter().enumerate() {
+            if step
+                .get("operation")
+                .and_then(Value::as_str)
+                .is_some_and(|operation| !supported_protocol_operation(operation))
+            {
+                return Err(SimplyBuilderRequestDecodeError::Construction(
+                    SimplyErrors::single(
+                        SimplyErrorCode::UnsupportedConstruct,
+                        format!("$.steps[{index}].operation"),
+                    ),
+                ));
+            }
+        }
+    }
+
+    serde_json::from_value(value).map_err(|_error| {
+        SimplyBuilderRequestDecodeError::Construction(SimplyErrors::single(
+            SimplyErrorCode::InvalidArgument,
+            "$",
+        ))
+    })
+}
+
+fn supported_protocol_operation(operation: &str) -> bool {
+    matches!(
+        operation,
+        "empty"
+            | "literal"
+            | "wildcard"
+            | "character_set"
+            | "sequence"
+            | "alternation"
+            | "group"
+            | "capture"
+            | "backreference"
+            | "position"
+            | "lookaround"
+            | "atomic"
+            | "repeat"
+            | "import_node"
+            | "import_program"
+    )
+}
 
 #[derive(Debug)]
 struct OwnerToken;

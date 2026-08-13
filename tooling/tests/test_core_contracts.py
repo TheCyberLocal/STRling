@@ -30,8 +30,8 @@ def source_texts() -> dict[str, str]:
 
 class CoreSchemaMappingTests(unittest.TestCase):
     def test_current_mapping_and_fixture_corpus_pass(self) -> None:
-        self.assertEqual((11, 107), validate_repository(ROOT))
-        self.assertEqual(107, validate_fixture_coverage(ROOT))
+        self.assertEqual((11, 108), validate_repository(ROOT))
+        self.assertEqual(108, validate_fixture_coverage(ROOT))
         self.assertEqual(2, validate_equivalence_registry(ROOT))
 
     def test_changed_schema_without_mapping_update_fails(self) -> None:

@@ -40,8 +40,17 @@ then use the existing crate-root `compile` facade. The Simply module does not
 parse regex, model a second AST or compiler, select a target, lower, emit, or
 execute a runtime.
 
+`decode_simply_builder_request` and `replay_simply_builder_request` provide the
+typed inward edge for the TypeScript and Python Preview adapters. The additive
+`./strling simply [--target-profile PATH]` JSON transport decodes one
+`BuilderRequest`, replays it through `SimplyBuilder`, and returns either stable
+construction errors or the canonical `CompileRequest` plus `CompileResult`.
+The transport owns only bounded I/O and exact profile-file loading; host
+adapters remain protocol serializers and do not discover or implement compiler,
+target, emitter, or runtime behavior.
+
 Parsing, rewrite application, general satisfiability or language-inclusion
 solving, style-only warnings, target-specific portability diagnostics,
 exploitability or target-runtime verdicts, capture numbering, lowering,
-emission, bindings, editor presentation, adapters, and product integrations
+emission, editor presentation, non-Preview bindings, and product integrations
 remain deferred to separately contained tasks.
