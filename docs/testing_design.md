@@ -2,523 +2,220 @@
 
 [← Back to Developer Hub](index.md)
 
-This document is the **technical, normative standard** for writing new tests in STRling. It defines the formal testing patterns that ensure production-grade coverage.
+This standard defines how new STRling behavior is proved. Tests support the
+controlling specification and versioned contracts; they do not create semantic
+authority by copying the output of an implementation.
 
----
+## Authoring hierarchy under test
 
-## The 4-Test Standard
+Test user intent through the same hierarchy presented to users:
 
-Every feature must pass **four types of tests** before being considered complete:
+1. **Semantic STRling** is the flagship textual language.
+2. **Simply** is the programmatic semantic-construction surface.
+3. **Regex-compatible source** is an explicit import and migration surface.
 
-### 1. Unit Tests
+All three lower to canonical Semantic IR and enter the one Rust compiler
+pipeline. A binding-private parser, AST, compiler, diagnostic, or emitter is not
+an independent semantic oracle. The executable denominator and comparison
+projection are locked by
+[`Frontend convergence`](migration/frontend-convergence.md).
 
-**Purpose**: Validate individual components in isolation
+## Evidence layers
 
-**Characteristics:**
+Use the layers affected by the change. A feature is complete only when every
+applicable layer passes.
 
--   Test single functions, classes, or modules
--   Mock dependencies to isolate the unit under test
--   Fast execution (milliseconds)
--   Located in `bindings/{language}/tests/unit/` (Python) or `bindings/{language}/__tests__/unit/` (JavaScript)
+### 1. Contract and frontend evidence
 
-**Required Test Cases (Minimum):**
+Syntax, mapping, diagnostics, serialized requests, and profile references need
+specification-authored or implementation-independent fixtures at their owning
+boundary. These tests should prove:
 
-Each unit must have at least **three test cases** covering:
+-   accepted and rejected forms;
+-   exact stable diagnostic identity and structured paths;
+-   complete mapping into canonical Semantic IR;
+-   deterministic parse and format behavior; and
+-   schema rejection of unknown, missing, or malformed fields.
 
-1. **Simple Case**: Basic functionality with minimal input
-2. **Typical Case**: Realistic usage with common parameters
-3. **Interaction Case**: How the unit interacts with its dependencies
+For Semantic STRling, use the grammar, mapping, diagnostics, and authored
+fixtures under [`spec/frontends/semantic/1.0/`](../spec/frontends/semantic/1.0/).
+For Simply, use the closed operation protocol under
+[`spec/frontends/simply/1.0/`](../spec/frontends/simply/1.0/). For imports, use
+the governed legacy-regex contract under
+[`spec/frontends/legacy-regex/1.0/`](../spec/frontends/legacy-regex/1.0/).
 
-**Plus**: Any unique edge cases specific to the feature
+### 2. Component and property evidence
 
-**Example: Testing a `digit(n)` parser**
+Unit tests isolate a bounded implementation responsibility. Property tests
+exercise invariants across many generated values. Cover at least:
 
-**Python:**
+-   a minimal successful case;
+-   a representative composed case;
+-   a boundary or malformed case;
+-   deterministic repetition; and
+-   a controlled mutation that would escape if the test were weak.
 
-```python
-def test_digit_parser_simple():
-    """Test digit parser with minimal input"""
-    result = parse("digit(1)")
-    assert result.type == "digit"
-    assert result.count == 1
+Prefer stable codes, paths, semantic facts, and canonical values over private
+types or prose fragments. Parser tests may assert spans and recovery behavior;
+kernel tests should assert representation-neutral semantics.
 
-def test_digit_parser_typical():
-    """Test digit parser with typical usage"""
-    result = parse("digit(3)")
-    assert result.type == "digit"
-    assert result.count == 3
+### 3. Canonical pipeline and convergence evidence
 
-def test_digit_parser_interaction():
-    """Test digit parser within a larger pattern"""
-    result = parse("digit(3) '-' digit(4)")
-    assert len(result.children) == 3
-    assert result.children[0].type == "digit"
-    assert result.children[2].type == "digit"
+Integration tests must cross the actual public boundary. Route Semantic source,
+native Simply, Preview transports, or source-less IR through `core::compile` or
+the deterministic root transport and compare canonical results.
 
-def test_digit_parser_edge_case_zero():
-    """Test digit parser rejects zero count"""
-    with pytest.raises(ValueError, match="count must be positive"):
-        parse("digit(0)")
+Equivalent intent is compared after alpha-renaming identities and removing only
+the locked source/provenance fields listed in the convergence corpus. Semantic
+facts, diagnostics, portability decisions, rewrites, and target artifacts stay
+observable. A test must fail if any of those meaningful values changes.
+
+When adding a frontend construct or Simply operation, extend the shared corpus
+only from the controlling contract and retain its fail-closed completeness
+checks. Never generate the expected semantic result from the implementation
+being tested.
+
+### 4. Target and runtime certification
+
+An emitted pattern is not proof of behavior. Target claims require an exact
+profile and, where execution is claimed, the isolated governed runtime harness.
+For every applicable profile, cover:
+
+-   portability classification and capability evidence;
+-   deterministic lowering and serialization;
+-   positive and negative runtime observations;
+-   captures when the intent contains captures; and
+-   expected unsupported or indeterminate outcomes.
+
+Compare normalized observations, not target regex spelling. Engine-specific
+behavior must be explicitly classified and must not silently weaken a portable
+claim.
+
+### 5. Compatibility differential evidence
+
+Historical TypeScript, Python, and other binding implementations may be run as
+independent compatibility witnesses. Their fixtures and outputs are
+non-normative. Every meaningful difference must use the governed taxonomy:
+
+-   `preserved_behavior`;
+-   `intentional_specification_correction`;
+-   `unsupported_legacy_behavior`; or
+-   `unresolved_discrepancy`.
+
+An unresolved discrepancy blocks certification. Renewing a historical fixture
+does not resolve it.
+
+## Designing a test
+
+### Start from the controlling authority
+
+Identify the exact specification section, contract object, profile, or
+architecture invariant that owns the behavior. If no authority exists, stop and
+ratify it before implementing a new language behavior.
+
+### Choose the owning boundary
+
+Put a test where the failure can be diagnosed without duplicating another
+layer:
+
+| Concern                           | Primary evidence                                                           |
+| --------------------------------- | -------------------------------------------------------------------------- |
+| Semantic grammar and formatting   | `core/tests/semantic_frontend*.rs` and authored frontend fixtures          |
+| Simply construction               | `core/tests/simply*.rs` and the Simply contract checker                    |
+| Frontend equivalence              | `core/tests/frontend_convergence.rs` and `tooling/frontend_convergence.py` |
+| Compile orchestration             | `core/tests/frontend_orchestration.rs`                                     |
+| Semantic or safety facts          | focused `core/tests/*analysis*.rs` property/integration tests              |
+| Target lowering and serialization | target-specific `core/tests/*lowering*.rs` and `*serialization*.rs`        |
+| Runtime behavior                  | exact-engine `core/tests/*runtime_certification.rs`                        |
+| Host transport                    | affected binding Preview/adapter suite                                     |
+| Historical compatibility          | migration runner and differential corpus                                   |
+
+### Preserve structured failures
+
+Invalid cases should assert the stable diagnostic code, severity, field path,
+and relevant source location. Avoid broad exception types or message-substring
+checks when the public diagnostic schema can be asserted.
+
+### Keep expected values independent
+
+Good expected values come from a specification fixture, a hand-authored
+canonical request/result, or an independent runtime observation. Do not call a
+production parser/compiler to manufacture its own golden value.
+
+### Prove the guard
+
+For corpus and policy checks, add at least one controlled negative that removes,
+renames, or meaningfully changes required evidence and confirm that validation
+fails closed.
+
+## Golden evidence
+
+Use golden files for stable serialized contracts, canonical formatting, or
+target artifacts when a readable inline assertion would be worse. A golden
+update requires:
+
+1. the controlling behavior declaration;
+2. a reviewed diff;
+3. independent semantic or runtime evidence; and
+4. a reason recorded in the task or commit.
+
+Generated binding fixtures are compatibility evidence unless a specification
+explicitly delegates authority to them.
+
+## Test quality
+
+Tests must be deterministic, isolated, and explicit about time, locale,
+randomness, profile, runtime, and external inputs. Use fixed seeds for property
+tests. Preserve input immutability. Keep assertions focused enough that a
+failure identifies the broken contract.
+
+Resource and security limits need boundary cases at, below, and above the
+limit. Diagnostic and error paths must not leak source content beyond their
+declared contract.
+
+## Verification commands
+
+Run the narrow owning tests first. For frontend work, the usual focused set is:
+
+```bash
+cargo test --manifest-path core/Cargo.toml --test semantic_frontend --locked
+cargo test --manifest-path core/Cargo.toml --test semantic_frontend_properties --locked
+cargo test --manifest-path core/Cargo.toml --test frontend_orchestration --locked
+cargo test --manifest-path core/Cargo.toml --test frontend_convergence --locked
+python3 tooling/frontend_convergence.py --check
+python3 -m unittest tooling.tests.test_frontend_convergence
 ```
 
-**JavaScript:**
+Then run the governed profile required by the change:
 
-```javascript
-test("digit parser simple case", () => {
-    const result = parse("digit(1)");
-    expect(result.type).toBe("digit");
-    expect(result.count).toBe(1);
-});
-
-test("digit parser typical case", () => {
-    const result = parse("digit(3)");
-    expect(result.type).toBe("digit");
-    expect(result.count).toBe(3);
-});
-
-test("digit parser interaction case", () => {
-    const result = parse("digit(3) '-' digit(4)");
-    expect(result.children).toHaveLength(3);
-    expect(result.children[0].type).toBe("digit");
-    expect(result.children[2].type).toBe("digit");
-});
-
-test("digit parser edge case - zero count", () => {
-    expect(() => parse("digit(0)")).toThrow("count must be positive");
-});
+```bash
+./strling profile local
+./strling profile pr
 ```
 
-### 2. Semantic Verification
-
-**Purpose**: Verify that the binding correctly implements semantic rules, not just syntax parsing.
-
-**Characteristics:**
-
--   Validates logical constraints (e.g., duplicate group names, invalid ranges).
--   Ensures specific, descriptive error messages are thrown.
--   Prevents "valid syntax, invalid logic" scenarios.
--   **Critical for Omega Audit:** These tests must be detected in test output for audit compliance.
-
-**Required Test Cases:**
-
-All bindings **must** include tests for these semantic violations:
-
-1. **Duplicate Capture Group Names:**
-
-    - **Violation:** Defining the same capture group name twice.
-    - **Required Behavior:** Must throw an error with a message containing "duplicate" and the group name.
-    - **Test Naming:** Must include one of: `duplicate_capture_group`, `semantic_duplicates`, `dup_names`, or `DupNames`.
-    - **Audit Detection:** The Omega Audit (`audit_omega.py`) scans test output for these test names to verify compliance.
-
-2. **Invalid Ranges:**
-
-    - **Violation:** Quantifiers or ranges where min > max (e.g., `{5,3}`).
-    - **Required Behavior:** Must throw an error with a message about invalid range or min/max constraints.
-    - **Test Naming:** Must include one of: `semantic_ranges`, `invalid_range`, or `Ranges`.
-    - **Audit Detection:** The Omega Audit scans test output for these test names to verify compliance.
-
-3. **Type Mismatches (Optional):**
-    - **Violation:** Using a string where a number is expected (if not caught by the language type system).
-    - **Required Behavior:** Type error or validation error before compilation.
-    - **Note:** Statically-typed languages may catch this at compile time rather than runtime.
-
-**Example Implementation:**
-
-**Note:** The examples below use pseudocode. Actual API calls vary by language binding. Refer to your language-specific binding documentation for exact syntax.
-
-**Python:**
-
-```python
-def test_semantic_duplicate_capture_group():
-    """Test that duplicate capture group names are detected"""
-    with pytest.raises(SemanticError, match="Duplicate group name 'foo'"):
-        compile("capture('foo', digit(3)) capture('foo', letter(2))")
-
-def test_semantic_ranges():
-    """Test that invalid ranges are detected"""
-    with pytest.raises(SemanticError, match="Invalid range: min .* max"):
-        compile("repeat(min=5, max=3, pattern=digit())")
-```
-
-**JavaScript:**
-
-```javascript
-test("semantic duplicates - duplicate capture group", () => {
-    expect(() =>
-        compile("capture('foo', digit(3)) capture('foo', letter(2))"),
-    ).toThrow(/Duplicate group name 'foo'/);
-});
-
-test("semantic ranges - invalid min/max", () => {
-    expect(() => compile("repeat(min=5, max=3, pattern=digit())")).toThrow(
-        /Invalid range/,
-    );
-});
-```
-
-**Rust:**
-
-```rust
-#[test]
-#[should_panic(expected = "Duplicate group name")]
-fn test_semantic_duplicates() {
-    let _ = compile("capture('foo', digit(3)) capture('foo', letter(2))");
-}
-
-#[test]
-#[should_panic(expected = "Invalid range")]
-fn test_semantic_ranges() {
-    let _ = compile("repeat(min=5, max=3, pattern=digit())");
-}
-```
-
-**Why This Matters:**
-
-The Omega Audit enforces that these semantic checks are present in every binding. This ensures:
-
-1. **Consistency:** All bindings reject the same invalid patterns.
-2. **Error Quality:** Users get helpful error messages, not cryptic regex failures.
-3. **Regression Protection:** If semantic validation breaks, the audit catches it immediately.
-
-**Audit Verification:**
-
-The `audit_omega.py` script checks for these tests by scanning stdout/stderr for the test names listed above. If a test is not found, the binding receives a "❓ Missing" status for that semantic check, resulting in a non-certified audit verdict.
-
-### 3. End-to-End (E2E) Tests
-
-**Purpose**: Validate complete workflows from user input to final output
-
-**Characteristics:**
-
--   Test the entire compilation pipeline (parse → compile → emit)
--   Use real dependencies (no mocking)
--   Verify actual regex engine behavior
--   Located in `bindings/{language}/tests/e2e/` (Python) or `bindings/{language}/__tests__/e2e/` (JavaScript)
-
-**Required Test Cases:**
-
-For each feature, create E2E tests that exercise:
-
-1. **Compilation**: Pattern compiles successfully
-2. **Matching**: Compiled pattern matches expected inputs
-3. **Non-Matching**: Compiled pattern rejects invalid inputs
-4. **Extraction**: Captures and groups work as expected (if applicable)
-
-**Example: Phone number pattern E2E test**
-
-**Python:**
-
-```python
-def test_phone_number_pattern_e2e():
-    """Test complete phone number pattern workflow"""
-    # Compilation
-    pattern = compile_pattern("digit(3) '-' digit(4)")
-
-    # Matching positive case
-    match = pattern.match("555-1234")
-    assert match is not None
-    assert match.group(0) == "555-1234"
-
-    # Matching negative case
-    assert pattern.match("12-34") is None
-    assert pattern.match("555-12345") is None
-```
-
-**JavaScript:**
-
-```javascript
-test("phone number pattern end-to-end", () => {
-    // Compilation
-    const pattern = compilePattern("digit(3) '-' digit(4)");
-
-    // Matching positive case
-    const match = pattern.exec("555-1234");
-    expect(match).not.toBeNull();
-    expect(match[0]).toBe("555-1234");
-
-    // Matching negative case
-    expect(pattern.exec("12-34")).toBeNull();
-    expect(pattern.exec("555-12345")).toBeNull();
-});
-```
-
-### 4. Shared Compatibility Fixture Suite
-
-**Purpose**: Preserve and compare current cross-binding parsing and compilation behavior while the canonical compiler is not yet available.
-
-**Characteristics:**
-
--   **Compatibility Evidence**: JSON files in `tests/spec/` record expected
-    historical behavior for a given STRling pattern; the authoritative contract
-    remains under `spec/`.
--   **Transitional Generation**: Produced by the TypeScript binding
-    (`npm run build:specs`) until independently authored conformance contracts
-    replace implementation-derived expectations.
--   **Language Agnostic**: All bindings (Python, Java, C, etc.) read these JSON files and assert that their parser produces the identical AST.
--   **Governed Changes**: Fixture changes require an explicit semantic,
-    diagnostic, schema, or target-behavior declaration as applicable. The
-    current incomplete generator is recorded as transitional and is not
-    presented as an exact-reproduction hardgate.
-
-**Workflow:**
-
-1. Change and review the controlling specification or versioned contract.
-2. Modify the relevant implementation under a declared contained scope.
-3. Run `npm run build:specs` to update `tests/spec/*.json`.
-4. Review the generated diff against the controlling contract.
-5. Commit the declared contract, implementation, and evidence changes.
-6. Other bindings run their tests, consuming the compatibility fixtures.
-
-### 4. Conformance Tests
-
-**Purpose**: Ensure consistent behavior across multiple regex engines
-
-**Characteristics:**
-
--   Run identical STRling patterns against multiple backends (PCRE2, ECMAScript, etc.)
--   Assert matching behavior is identical across all engines
--   Detect engine-specific quirks or incompatibilities
--   Located in `tests/conformance/`
-
-**Required Test Cases:**
-
-For portable features, verify:
-
-1. **Identical Match Results**: Same input produces same match/no-match across engines
-2. **Identical Capture Groups**: Extracted values are identical
-3. **Identical Edge Cases**: Boundary conditions behave the same
-
-**Example: Character class conformance**
-
-```python
-def test_character_class_conformance():
-    """Verify character class behavior across engines"""
-    pattern_str = "in_range('a', 'z')"
-
-    # Compile for PCRE2
-    pcre2_pattern = compile_pattern(pattern_str, target="pcre2")
-
-    # Compile for ECMAScript
-    ecmascript_pattern = compile_pattern(pattern_str, target="ecmascript")
-
-    # Test identical inputs
-    test_inputs = ["a", "z", "m", "A", "1", "!"]
-
-    for test_input in test_inputs:
-        pcre2_result = bool(pcre2_pattern.match(test_input))
-        ecma_result = bool(ecmascript_pattern.match(test_input))
-        assert pcre2_result == ecma_result, f"Mismatch for '{test_input}'"
-```
-
----
-
-## Combinatorial E2E Testing
-
-For features with multiple configuration options or parameters, STRling uses **combinatorial testing** to ensure all meaningful combinations are validated.
-
-### Strategy: Pragmatic Pairwise (N=2)
-
-**Definition**: Test all pairwise combinations of feature parameters
-
-**When to Use**: Features with 2-4 independent parameters
-
-**Example: Quantifier testing with 3 parameters**
-
-Parameters:
-
--   `min`: Minimum repetitions (values: 0, 1, 5)
--   `max`: Maximum repetitions (values: 1, 5, unlimited)
--   `greedy`: Greedy vs. lazy matching (values: true, false)
-
-Rather than testing all 3 × 3 × 2 = 18 combinations, pairwise testing ensures every pair of values appears together at least once, typically requiring ~8-10 test cases.
-
-**Implementation:**
-
-```python
-@pytest.mark.parametrize("min,max,greedy", [
-    # Pairwise combinations covering all parameter pairs
-    (0, 1, True),
-    (0, 5, False),
-    (0, None, True),
-    (1, 1, False),
-    (1, 5, True),
-    (1, None, False),
-    (5, 5, True),
-    (5, None, False),
-])
-def test_quantifier_pairwise_combinations(min, max, greedy):
-    """Test pairwise combinations of quantifier parameters"""
-    pattern = create_quantifier(min=min, max=max, greedy=greedy)
-    # Verify pattern compiles and behaves correctly
-    assert pattern is not None
-    # Additional assertions based on parameters...
-```
-
-### Strategy: Strategic Triplets (N=3)
-
-**Definition**: Test specific 3-way combinations that are known to interact
-
-**When to Use**: Features where certain parameter combinations have special behavior or known edge cases
-
-**Example: Testing specific triplet interactions**
-
-```python
-@pytest.mark.parametrize("min,max,greedy,expected_behavior", [
-    # Known interaction cases
-    (0, 0, True, "matches_empty"),
-    (0, 0, False, "matches_empty"),
-    (1, 1, True, "matches_exactly_one"),
-    (0, None, False, "lazy_unlimited"),
-])
-def test_quantifier_strategic_triplets(min, max, greedy, expected_behavior):
-    """Test specific parameter triplets with known interactions"""
-    pattern = create_quantifier(min=min, max=max, greedy=greedy)
-    # Verify expected behavior based on the combination
-    if expected_behavior == "matches_empty":
-        assert pattern.match("")
-    # ... other behaviors
-```
-
-### Benefits
-
--   **Efficiency**: Catches most bugs with fewer test cases than exhaustive testing
--   **Coverage**: Ensures all parameter interactions are tested
--   **Maintainability**: Easier to understand and extend than exhaustive tests
-
----
-
-## Golden Pattern Testing
-
-For complex patterns or emitter outputs, STRling uses **golden pattern testing** to detect regressions.
-
-### Categories
-
-#### 1. Validation Goldens
-
-**Purpose**: Verify that emitted patterns are syntactically correct and semantically equivalent
-
-**Example**: Ensure PCRE2 output is valid PCRE2 syntax
-
-#### 2. Parsing Goldens
-
-**Purpose**: Verify that complex patterns parse to the expected AST structure
-
-**Example**: Ensure nested groups and backreferences produce correct IR
-
-#### 3. Stress Test Goldens
-
-**Purpose**: Verify behavior of pathological or performance-critical patterns
-
-**Example**: Deeply nested patterns, long repetitions, complex backreferences
-
-### Implementation
-
-**Directory Structure:**
-
-```
-tests/golden/
-├── pcre2/
-│   ├── digit_pattern.golden
-│   ├── group_pattern.golden
-│   └── complex_pattern.golden
-└── ecmascript/
-    ├── digit_pattern.golden
-    └── group_pattern.golden
-```
-
-**Golden Test Implementation:**
-
-**Python:**
-
-```python
-from pathlib import Path
-
-def test_against_golden_output():
-    """Verify emitter output matches golden reference"""
-    pattern = compile_pattern("digit(3) '-' digit(4)")
-    actual_output = pattern.emit_pcre2()
-
-    golden_path = Path("tests/golden/pcre2/phone_pattern.golden")
-    expected_output = golden_path.read_text()
-
-    assert actual_output == expected_output, (
-        "Output differs from golden reference. "
-        "Review changes and update golden file if intentional."
-    )
-```
-
-**Updating Golden Files:**
-
-When intentional behavior changes occur:
-
-1. Review the diff between actual and golden output
-2. Verify the new output is correct
-3. Update the golden file with the new output
-4. Document the reason for the change in the commit message
-
-### Benefits
-
--   **Regression Detection**: Catches unintended behavioral changes
--   **Documentation**: Golden files serve as executable documentation
--   **Confidence**: Enables refactoring with confidence that behavior is preserved
-
----
-
-## Test Naming Conventions
-
-### Python
-
-Use descriptive, snake*case names with the `test*` prefix:
-
-```python
-def test_feature_simple_case():
-    """One-line description of what's being tested"""
-    pass
-
-def test_feature_edge_case_negative_input():
-    """Test specific edge case with negative input"""
-    pass
-```
-
-### JavaScript
-
-Use descriptive strings with Jest's `test()` or `describe()` blocks:
-
-```javascript
-test("feature simple case", () => {
-    // Test implementation
-});
-
-describe("feature edge cases", () => {
-    test("handles negative input", () => {
-        // Test implementation
-    });
-});
-```
-
----
-
-## Code Coverage Requirements
-
-Before a feature is considered complete:
-
-### Unit Tests
-
--   **100% coverage** of new code
--   All branches and edge cases must be exercised
-
-### E2E Tests
-
--   All **user-facing workflows** must be covered
--   Happy path and common error cases
-
-### Conformance Tests
-
--   All **portable features** tested across supported engines
--   Engine-specific features clearly documented as such
-
----
-
-## Related Documentation
-
--   **[Developer Hub](index.md)**: Return to the central documentation hub for all testing guides and standards
+Use `./strling profile full` for release-candidate certification with the exact
+toolchain and runtime inputs described in [`Toolchains`](toolchains.md). A
+profile failure cannot be replaced by an ad hoc command that exercises a
+different implementation.
+
+## Test charters and review
+
+For cross-layer work, add or update the task's test charter before broad
+implementation. Record the denominator, positive and negative cases,
+representation exclusions, exact profiles/runtimes, and blocking taxonomy.
+
+During review, ask:
+
+1. Does the test trace to a controlling authority?
+2. Is the expected value independent of the implementation under test?
+3. Does it exercise the canonical boundary?
+4. Are meaningful differences still observable?
+5. Are unsupported and unresolved outcomes explicit?
+6. Would a controlled semantic mutation make the test fail?
+
+## Related documentation
+
+-   [`Testing workflow`](testing_workflow.md)
+-   [`Frontend convergence`](migration/frontend-convergence.md)
+-   [`Architecture`](architecture.md)
+-   [`Toolchains`](toolchains.md)

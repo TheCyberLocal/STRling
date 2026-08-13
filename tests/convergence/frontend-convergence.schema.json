@@ -32,12 +32,7 @@
             "items": false
         },
         "comparison_outputs": {
-            "const": [
-                "semantic",
-                "analysis",
-                "portability",
-                "target_artifact"
-            ]
+            "const": ["semantic", "analysis", "portability", "target_artifact"]
         },
         "compiler_options": { "type": "object" },
         "target_profiles": {
@@ -55,7 +50,10 @@
                         "required": ["profile_id", "profile_version", "sha256"],
                         "properties": {
                             "profile_id": { "type": "string", "minLength": 1 },
-                            "profile_version": { "type": "string", "minLength": 1 },
+                            "profile_version": {
+                                "type": "string",
+                                "minLength": 1
+                            },
                             "sha256": {
                                 "type": "string",
                                 "pattern": "^[0-9a-f]{64}$"

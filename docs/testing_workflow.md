@@ -1,352 +1,224 @@
-# Testing Philosophy & Contribution Workflow
+# STRling Testing Workflow
 
 [← Back to Developer Hub](index.md)
 
-This document defines STRling's **high-level engineering principles** and **contribution process** for testing. It explains _why_ we test the way we do and _how_ testing fits into the contribution workflow.
+This workflow turns a declared behavior change into reviewable evidence without
+creating a second semantic implementation.
 
----
+## The canonical rule
 
-## Testing Philosophy
+The Rust kernel owns semantic execution. Semantic STRling, Simply, source-less
+Semantic IR, and regex-compatible imports enter that one pipeline. No binding
+implementation, generated fixture, target regex spelling, or runtime wrapper is
+the reference semantics.
 
-### Spec-Driven, Test-Driven Development
+Use the authoring hierarchy consistently:
 
-STRling employs a **specifications → tests → features** workflow:
+1. **Semantic STRling** for flagship textual intent;
+2. **Simply** for programmatic semantic construction; and
+3. **regex-compatible source** only for explicit import or migration evidence.
 
-1. **Specifications First**: All features must be fully specified before implementation begins
-2. **Tests Second**: Comprehensive tests are written based on the specification
-3. **Implementation Last**: Code is written to make the tests pass
+The shared
+[`frontend-convergence corpus`](migration/frontend-convergence.md) proves that
+equivalent intent reaches the same representation-neutral canonical result.
 
-This ensures:
+## 1. Classify the change
 
--   Features are well-designed before coding starts
--   Implementation is validated against a clear contract
--   Changes don't break existing behavior
--   Documentation stays synchronized with code
+Before editing code, identify every affected boundary:
 
-### Why Test-Driven Development?
+-   specification grammar, mapping, or diagnostic;
+-   serialized contract or schema;
+-   Semantic or Simply frontend;
+-   canonical semantic/safety behavior;
+-   portability, rewrite, lowering, or serialization;
+-   target runtime behavior;
+-   host adapter or transport;
+-   historical compatibility; and
+-   documentation or public examples.
 
-**Quality**: Writing tests first forces clear thinking about requirements and edge cases
+Also name the exact target profiles and runtimes required for the claim. A
+change that does not affect a boundary should not rewrite its evidence.
 
-**Confidence**: Comprehensive tests enable fearless refactoring and evolution
+## 2. Confirm authority and starting state
 
-**Documentation**: Tests serve as executable documentation of expected behavior
+Read the controlling specification, contracts, architecture decisions, task
+record, and preceding certified commit. Confirm the worktree state before
+making changes.
 
-**Regression Prevention**: Tests catch unintended changes before they reach production
+If behavior has no controlling authority, ratify it first. Tests may reveal a
+gap, but passing implementation output cannot fill a specification gap.
 
----
+## 3. Write independent evidence
 
-## Transitional Test-Parity Workflow
+Add the narrowest evidence that would fail for the intended missing or broken
+behavior:
 
-The TypeScript binding is the current fixture producer and compatibility
-reference. It is subordinate to the engineering authority hierarchy and every
-expressly normative versioned contract. The current regex-frontend grammar and
-semantics remain transitional evidence. Semantic STRling's
-`strling.semantic@1.0.0` source contract is ratified specification input. Its
-Rust parser and formatter are certified consumers of the 12 positive and 30
-negative authored cases, exact diagnostics, formatting rules, and governed
-resource limits; the broader Semantic Specification remains pending.
+-   authored positive and negative frontend fixtures;
+-   exact schema/contract cases;
+-   hand-authored Semantic or Simply requests;
+-   component and fixed-seed property tests;
+-   canonical pipeline integration cases;
+-   exact-profile target/runtime observations; or
+-   classified historical differential cases.
 
-### What This Means
+Do not generate expected Semantic IR, diagnostics, or artifacts by calling the
+production path that the test is meant to validate.
 
-1. **Contracts define behavior**: STRling features begin with the controlling
-   specification or versioned contract.
-2. **TypeScript currently produces compatibility evidence**: Other bindings
-   continue to preserve the recorded behavior while the canonical compiler does
-   not yet exist.
-3. **Generated expectations are reviewable projections**: Regeneration cannot
-   make implementation behavior normative or authorize an undeclared semantic
-   change.
+For a new frontend construct or Simply operation, extend completeness evidence
+fail-closed. The corpus must continue to cover every ratified mapping,
+operation, and supported legacy construct family.
 
-### Why TypeScript Is the Transitional Producer
+## 4. Implement at the owning boundary
 
--   **Existing pipeline**: The TypeScript implementation generates the JSON
-    compatibility fixtures used by the other bindings.
--   **Strict Typing**: TypeScript's type system helps define the AST and IR structures precisely.
--   **Ecosystem**: The JS/TS ecosystem is ideal for the web-based playground and VS Code extension.
+Make the smallest coherent implementation change:
 
-### Maintaining Test Parity
+-   frontend syntax and formatting stay bounded to frontend modules;
+-   Simply remains a construction layer over the host-neutral protocol;
+-   semantic behavior belongs in the canonical kernel;
+-   target differences enter through explicit capability profiles;
+-   adapters serialize requests and preserve canonical results/errors; and
+-   historical runners remain isolated, non-normative witnesses.
 
-When adding a feature:
+Do not duplicate canonical semantics in a binding to make an adapter test pass.
 
-1. Implement and test in TypeScript first.
-2. Generate the specs (`npm run build:specs` in `bindings/typescript`).
-3. Implement in other bindings, ensuring:
-    - Same test names (adapted to language conventions)
-    - Same test cases
-    - Same assertions and expected values
-    - Same edge cases and error conditions
+## 5. Run focused verification
 
-**Example of Test Parity:**
-
-**TypeScript (`__tests__/unit/parser.test.ts`):**
-
-```typescript
-test("digit parser simple case", () => {
-    const result = parse("digit(1)");
-    expect(result.type).toBe("digit");
-    expect(result.count).toBe(1);
-});
-```
-
-**Python (`tests/unit/test_parser.py`):**
-
-```python
-def test_digit_parser_simple():
-    """Test digit parser with minimal input"""
-    result = parse("digit(1)")
-    assert result.type == "digit"
-    assert result.count == 1
-```
-
-### Exceptions to the Iron Law
-
-Engine-specific features may have unique tests, but these must be clearly documented:
-
-```python
-@pytest.mark.pcre2_only
-def test_pcre2_specific_feature():
-    """Test PCRE2-specific feature (not available in ECMAScript)"""
-    # PCRE2-only test
-```
-
-```javascript
-test("ECMAScript-specific feature", () => {
-    // ECMAScript-only test
-});
-```
-
----
-
-## Contribution Workflow
-
-### For All Pull Requests
-
-**All PRs must include tests.** No exceptions.
-
-Specifically:
-
-1. **New features** must include:
-
-    - Unit tests following the 3-Test Standard (see Test Design Standard via Developer Hub)
-    - E2E tests covering the complete workflow
-    - Conformance tests if the feature is portable across engines
-    - Tests in both Python and JavaScript
-
-2. **Bug fixes** must include:
-
-    - A test that reproduces the bug (fails before the fix)
-    - Verification that the test passes after the fix
-    - Tests in both bindings if the bug affects both
-
-3. **Refactoring** must include:
-    - Verification that all existing tests still pass
-    - New tests if coverage gaps are discovered
-    - No behavioral changes (unless intentional and documented)
-
-### Before Submitting a PR
-
-Run the complete test suite for both bindings:
-
-**Python:**
+Start with the directly affected suites. For Semantic/frontend work:
 
 ```bash
-./strling test python
+cargo test --manifest-path core/Cargo.toml --test semantic_frontend --locked
+cargo test --manifest-path core/Cargo.toml --test semantic_frontend_properties --locked
+cargo test --manifest-path core/Cargo.toml --test frontend_orchestration --locked
+cargo test --manifest-path core/Cargo.toml --test frontend_convergence --locked
+python3 tooling/semantic_strling_contract.py
+python3 tooling/frontend_convergence.py --check
+python3 -m unittest tooling.tests.test_frontend_convergence
 ```
 
-**JavaScript:**
+For Simply or a host adapter, add the owning Rust Simply suites and the affected
+Preview/adapter suite. For target behavior, add the corresponding capability,
+lowering, serialization, and exact-runtime certification tests.
+
+Always finish the focused pass with formatting and patch checks:
 
 ```bash
-./strling test typescript
+./strling format repository
+./strling format repository --check
+git diff --check
 ```
 
-Ensure:
+## 6. Compare the right values
 
--   All tests pass
--   No new warnings or errors
--   Code coverage meets requirements (see Test Design Standard via Developer Hub)
+Frontend equivalence compares normalized Semantic IR, semantic/safety facts,
+structured diagnostics, portability decisions, rewrites, and target artifacts.
+Only the locked identity and source/provenance fields may be excluded.
 
-### Test Charter Process
+Target conformance compares runtime observations under exact profiles. Regex
+text alone is insufficient because two spellings may be equivalent and one
+spelling may behave differently across engines.
 
-For significant features, create a **Test Charter** before writing tests:
+Historical comparisons use the governed taxonomy:
 
-1. **Create** a test charter in `tests/_design/`
-2. **Document**:
-    - Feature description and scope
-    - Test case enumeration (unit, E2E, conformance)
-    - Acceptance criteria
-    - Edge cases and error conditions
-3. **Review** the charter with maintainers
-4. **Implement** tests based on the approved charter
+-   `preserved_behavior`;
+-   `intentional_specification_correction`;
+-   `unsupported_legacy_behavior`; or
+-   `unresolved_discrepancy`.
 
-See existing test charters in `tests/_design/` for examples.
+`unresolved_discrepancy` is blocking. Updating a fixture or broadening a
+normalization rule is not a resolution.
 
----
+## 7. Run governed profiles
 
-## Verification Requirements
-
-### Before Merge
-
-Every PR must meet these verification requirements:
-
-#### 1. Code Coverage
-
--   **Unit tests**: 100% coverage of new code
--   **E2E tests**: All user-facing workflows covered
--   **Conformance tests**: All portable features tested across engines
-
-Use coverage tools to verify:
-
-**Python:**
+After focused checks pass, run the profiles required by the task:
 
 ```bash
-./strling test python
+./strling profile local
+./strling profile pr
 ```
 
-**JavaScript:**
+Release-candidate work also runs:
 
 ```bash
-./strling test typescript
+./strling profile full
 ```
 
-#### 2. Test Quality
+The Full profile requires the exact toolchains and runtime binaries recorded in
+[`Toolchains`](toolchains.md). Preserve its structured result; do not substitute
+a nearby local version or a hand-selected subset.
 
-Tests must:
+Run the governed migration differential when canonical or compatibility-facing
+behavior changes. Repeat it as required by the task to demonstrate deterministic
+classification.
 
--   **Pass consistently**: No flaky tests
--   **Execute quickly**: Unit tests in milliseconds, E2E in seconds
--   **Be isolated**: No dependencies between tests
--   **Clean up resources**: Proper setup and teardown
--   **Have clear assertions**: One logical assertion per test
--   **Be maintainable**: Clear naming, good documentation
+## 8. Review and commit
 
-#### 3. Mutation Testing (Recommended)
+Before each checkpoint commit:
 
-Mutation testing validates that tests are effective:
+1. inspect the complete diff and untracked-file set;
+2. confirm the task record lists every changed path;
+3. verify no generated output or local cache is accidentally included;
+4. record exact commands, counts, profiles, fingerprints, and dispositions;
+5. run governance and documentation integrity checks; and
+6. use a domain-oriented commit subject.
 
--   Tests should fail when code is intentionally broken
--   High mutation score indicates strong tests
--   Low mutation score indicates weak tests that need strengthening
+Prefer progressive commits for contract/design, implementation/evidence,
+documentation, and final certification. A task closes only after its clean-state
+verification and evidence synchronization are complete.
 
-**Python:**
+## Host adapter contributions
 
-```bash
-mutmut run
-mutmut results
-```
+Host APIs may use idiomatic types and names, but equivalent operations must
+serialize the same versioned request and preserve canonical results and errors.
+Test the adapter's construction, serialization, transport, deserialization, and
+error mapping. Run another host suite only when that host is affected; language
+symmetry is proved by the shared protocol and convergence corpus, not by copying
+tests into every binding.
 
-### CI Pipeline
+Historical binding-local parsers, compilers, ASTs, emitters, and generated
+fixtures are compatibility evidence during migration. Their output must never
+renew a canonical golden automatically.
 
-All PRs are automatically verified by the CI pipeline:
+## Diagnostics and LSP changes
 
-1. **Linting**: Code style and quality checks
-2. **Type checking**: Static type verification (TypeScript for JavaScript)
-3. **Unit tests**: All unit tests must pass
-4. **E2E tests**: All E2E tests must pass
-5. **Conformance tests**: All conformance tests must pass
-6. **Coverage**: Coverage reports generated and reviewed
+Changes that affect diagnostics require evidence at every affected boundary:
 
----
+-   the originating parser, frontend, kernel, or adapter;
+-   canonical diagnostic normalization and serialization;
+-   source span/path preservation; and
+-   LSP conversion and an editor-facing functional test when the LSP surface is
+    affected.
 
-## Test Maintenance
+Assert stable code, severity, structured path, related locations, and safe
+message content. Avoid depending only on exception class or prose substrings.
 
-### Keeping Tests Green
+## Test maintenance
 
--   **Fix broken tests immediately**: Don't let them pile up
--   **Don't disable failing tests**: Fix the root cause instead
--   **Update tests with code changes**: Keep them synchronized
--   **Remove obsolete tests**: Clean up when features are removed
+Keep tests deterministic and isolated. Fix the controlling implementation or
+contract when a test fails; do not disable the test, loosen normalization, or
+renew expected output without classifying the change. Remove obsolete evidence
+only with an explicit preservation or retirement decision.
 
-### Test Refactoring
+Shared helpers may reduce setup duplication, but they must not compute both the
+actual and expected semantic result. Keep fixed seeds, exact profiles, and
+runtime identities visible in the test or its governed fixture.
 
-As the codebase evolves, tests need refactoring too:
+## Review checklist
 
--   **Extract common setup**: Use fixtures (pytest) or setup functions (Jest)
--   **Remove duplication**: Share test utilities and helpers
--   **Improve readability**: Clear names, good documentation, logical organization
--   **Optimize performance**: Reduce test execution time without sacrificing coverage
+-   The behavior traces to a controlling authority.
+-   Semantic STRling remains the flagship textual example.
+-   Simply is presented as programmatic construction.
+-   Regex-compatible source is labeled import/compatibility.
+-   The canonical Rust pipeline remains the only semantic implementation.
+-   Expected values are independent of the production path under test.
+-   Structured diagnostics and meaningful semantic differences remain visible.
+-   Target claims use exact profiles and governed runtimes.
+-   Compatibility differences are classified with no unresolved entry.
+-   Focused tests, required profiles, governance, documentation, and clean-state
+    checks pass.
 
-### Test Helpers and Utilities
+## Related documentation
 
-Create reusable test utilities in:
-
--   `bindings/python/tests/helpers/` (Python)
--   `bindings/javascript/__tests__/helpers/` (JavaScript)
-
-Example utilities:
-
--   Pattern compilation helpers
--   Common test data generators
--   Assertion helpers for complex objects
--   Mock objects for external dependencies
-
----
-
-## Testing Best Practices
-
-### Do's
-
-✅ **Write tests first** (test-driven development)
-
-✅ **Test behavior, not implementation**: Focus on what the code does, not how it does it
-
-✅ **Use descriptive test names**: Name should explain what's being tested
-
-✅ **Keep tests simple**: One logical assertion per test
-
-✅ **Test edge cases**: Boundary values, empty inputs, null values, etc.
-
-✅ **Use parameterized tests**: For testing multiple inputs efficiently
-
-✅ **Mock external dependencies**: Isolate the unit under test
-
-✅ **Test error conditions**: Verify errors are raised appropriately
-
-### Don'ts
-
-❌ **Don't test third-party code**: Trust that libraries work (or write conformance tests)
-
-❌ **Don't write dependent tests**: Each test should be independent
-
-❌ **Don't test private methods directly**: Test through public interfaces
-
-❌ **Don't make tests brittle**: Avoid over-specification of implementation details
-
-❌ **Don't ignore test failures**: Investigate and fix immediately
-
-❌ **Don't skip tests**: Remove or fix them instead
-
-❌ **Don't write tests without assertions**: Every test must verify something
-
----
-
-## Related Documentation
-
--   **[Developer Hub](index.md)**: Return to the central documentation hub for all testing guides and standards
-
-## LSP & Diagnostics Testing Requirements
-
-Changes that affect parsing, error messages, or diagnostics now require an expanded verification set in addition to the existing unit and E2E tests. Specifically:
-
--   **Parser unit tests**: Validate parser behavior and `STRlingParseError` shapes.
--   **CLI conversion tests**: Verify the CLI Server or diagnostic normalization layer converts parser errors into the binding-agnostic diagnostic schema.
--   **LSP functional tests**: Exercise the LSP server end-to-end so editors receive diagnostics and (where applicable) code-actions/quickfixes produced by `to_lsp_diagnostic()`.
-
-Required test commands:
-
-**Run parser unit tests:**
-
-```bash
-./strling test python
-```
-
-**Run CLI/LSP tests:**
-
-```bash
-pytest tooling/lsp-server/tests
-```
-
-Notes:
-
--   LSP functional tests should run in CI and locally before merging changes that touch the parser or diagnostic conversion.
--   New diagnostic messages must include unit tests asserting the exact `to_lsp_diagnostic()` output and at least one LSP-level test showing the editor receives the diagnostic with intended severity and message text.
--   When adding or modifying diagnostics, update `tests/_design/` with a brief test charter describing the acceptance criteria for the new messages.
+-   [`Test design standard`](testing_design.md)
+-   [`Frontend convergence`](migration/frontend-convergence.md)
+-   [`Architecture`](architecture.md)
+-   [`Toolchains`](toolchains.md)

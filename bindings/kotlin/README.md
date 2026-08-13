@@ -29,6 +29,10 @@ dependencies {
 
 ## 📦 Usage
 
+> **Migration status:** this README describes the historical Kotlin package
+> surface. Its local parser/compiler output is compatibility evidence, not the
+> canonical STRling 4.0 compiler boundary.
+
 Here is how to match a US Phone number (e.g., `555-0199`) using STRling's **Simply API** in Kotlin:
 
 ```kotlin
@@ -52,30 +56,18 @@ val phonePattern = Simply.merge(
     Simply.end()
 )
 
-// `phonePattern` is a Pattern object wrapping a STRling AST node.
-// Use the binding's compiler/emitter to convert the AST into a target
-// regex string (PCRE2 / Kotlin/JVM compatible) before using it with
-// Kotlin's Regex class at runtime.
+// `phonePattern` belongs to the historical package-local model. Its emitted
+// regex is compatibility output until this binding uses the canonical adapter.
 ```
 
-### DSL String Parsing
+### Textual authoring
 
-Alternatively, you can parse a DSL string directly using the Parser:
-
-```kotlin
-import strling.core.Parser
-import strling.core.Compiler
-import strling.emitters.PCRE2Emitter
-
-// Parse a DSL pattern string
-val dsl = "start capture(digit(3)) may(anyOf('-. ')) capture(digit(3)) may(anyOf('-. ')) capture(digit(4)) end"
-val ast = Parser.parse(dsl)
-
-// Compile the AST to IR and emit
-val ir = Compiler.compile(ast)
-val regex = PCRE2Emitter.emit(ir)
-println(regex)  // ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
-```
+Semantic STRling is the flagship textual language. The historical Kotlin string
+parser does not implement `strling.semantic@1.0.0`, so its former builder-like
+string example is intentionally omitted. Use the Simply API above for
+programmatic intent; use the canonical Semantic frontend through the repository
+kernel until the Kotlin adapter migration is complete. Regex-compatible text is
+an import/compatibility surface, not Semantic STRling.
 
 ### Simply API Features
 
@@ -129,18 +121,17 @@ Regular Expressions are powerful but notorious for being "write-only" code. STRl
 -   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
 -   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
 -   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
+-   **🌍 Shared semantics:** Host APIs may be idiomatic, while equivalent requests converge through one canonical semantic model.
 
 ## 🏗️ Architecture
 
-STRling follows a strict compiler pipeline architecture to ensure consistency across all ecosystems:
-
-1.  **Parse**: `DSL -> AST` (Abstract Syntax Tree)
-    -   Converts the human-readable STRling syntax into a structured tree.
-2.  **Compile**: `AST -> IR` (Intermediate Representation)
-    -   Transforms the AST into a target-agnostic intermediate representation, optimizing structures like literal sequences.
-3.  **Emit**: `IR -> Target Regex`
-    -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
+STRling 4.0 uses one canonical pipeline: Semantic STRling, Simply requests, and
+explicit regex-compatible imports lower to canonical Semantic IR; the Rust
+kernel performs semantic analysis, portability planning, and target emission
+under an exact profile. Host bindings are adapters that serialize requests and
+preserve canonical results and structured diagnostics. Until this binding is
+migrated to that adapter boundary, its local compiler remains historical
+compatibility behavior only.
 
 ## 📚 Documentation
 

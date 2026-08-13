@@ -19,5 +19,6 @@ certification rules. Host APIs may remain idiomatic, but their serialized
 meaning must conform to the applicable frontend contract and the canonical
 compiler contracts under [`../contracts/`](../contracts/).
 
-The Semantic STRling contract is specification-first. Its parser and formatter
-remain later implementation work and cannot become specification authority.
+The Semantic STRling contract is specification-first. Its certified Rust parser
+and formatter consume that authority; implementation output cannot rewrite or
+renew the language contract.

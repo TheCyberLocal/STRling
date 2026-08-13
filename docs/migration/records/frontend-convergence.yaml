@@ -47,13 +47,27 @@ scope:
         - spec/targets/**
         - tooling/legacy_reference/**
     expected_files:
+        - README.md
+        - bindings/fsharp/README.md
+        - bindings/java/README.md
+        - bindings/kotlin/README.md
+        - bindings/lua/README.md
         - bindings/python/tests/unit/test_simply_preview.py
         - bindings/typescript/__tests__/unit/simply_preview.test.ts
         - core/tests/frontend_convergence.rs
+        - docs/architecture.md
+        - docs/index.md
         - docs/migration/frontend-convergence.md
         - docs/migration/ledger.md
         - docs/migration/records/frontend-convergence.yaml
+        - docs/spec_links.md
+        - docs/testing_design.md
+        - docs/testing_workflow.md
+        - docs/tutorial/first_contribution.md
         - governance/change-control.json
+        - spec/README.md
+        - spec/frontends/README.md
+        - spec/frontends/semantic/1.0/README.md
         - tests/convergence/frontend-convergence.json
         - tests/convergence/frontend-convergence.schema.json
         - tooling/frontend_convergence.py
@@ -135,15 +149,26 @@ checkpoints:
             result: passed
             details: Both Preview adapters reconstruct every one of the eleven shared builder requests exactly and compile them through the Rust transport; the focused TypeScript and Python suites pass seven tests each.
     - name: Canonical documentation hierarchy
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Public authoring hierarchy
+            result: passed
+            details: Fourteen public documentation surfaces now present Semantic STRling first for textual authoring, Simply second for programmatic construction, and regex-compatible source third as an explicit import/compatibility surface; the canonical tutorial uses strling.semantic and the root compile transport.
+          - check: Fail-closed documentation denominator
+            result: passed
+            details: The convergence checker requires all fourteen surfaces, rejects stale transition-era claims and binding-as-oracle guidance, and proves denominator shrinkage, stale claims, missing markers, and tutorial reordering fail closed; all fourteen checker tests pass.
+          - check: Documentation and boundary integrity
+            result: passed
+            details: Exact repository formatting passes; documentation integrity validates 158 Markdown files and seven executable parser examples; public-contract, generated-artifact, architecture-fitness, patch-integrity, and convergence checks pass without a production or public API change.
     - name: Full repository and phase certification
       status: planned
       evidence: []
 commits:
     - sha: b7cc79804c95c7a57ee05207772566e4f5bf680f
       subject: "docs(frontend): define convergence certification"
+    - sha: f194ef1fe4feaa7a871d06d611ff2afa4986747d
+      subject: "test(frontend): certify authoring convergence"
 readiness:
     status: BLOCKED
-    next_task: Implement and certify the locked convergence corpus before changing canonical tutorials.
-    rationale: The complete denominator, comparison exclusions, legacy dispositions, and documentation surface are locked, but executable convergence evidence, canonical tutorial migration, aggregate profiles, and clean-tree closure remain incomplete.
+    next_task: Run full repository, profile, reproducibility, and clean-tree certification for the completed convergence implementation and documentation hierarchy.
+    rationale: The locked denominator, executable multi-route convergence evidence, host Preview reuse, and canonical tutorial migration pass their focused hardgates; aggregate profiles and clean-state closure remain incomplete.

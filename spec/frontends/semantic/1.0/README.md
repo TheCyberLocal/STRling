@@ -9,10 +9,10 @@ This directory is the ratified source-language contract for frontend identity
 
 The ratification is deliberately contained. It makes the grammar, lexical and
 context rules, frontend diagnostics, canonical formatting, and deterministic
-Semantic IR mapping normative. It does not ratify the broader STRling Semantic
-Specification 1.0 draft, implement a parser or formatter, select a target,
-define canonical Semantic IR meaning, publish a package, or authorize a
-release.
+Semantic IR mapping normative. One bounded Rust parser and formatter are
+certified consumers of this contract, but their implementation does not ratify
+the broader STRling Semantic Specification 1.0 draft, select a target, define
+canonical Semantic IR meaning, publish a package, or authorize a release.
 
 Normative inputs are:
 
@@ -134,5 +134,7 @@ accepted syntax or meaning.
 
 Run `python3 tooling/semantic_strling_contract.py` to certify schemas, grammar
 reachability and ambiguity invariants, mappings, fixtures, manifests, spans,
-diagnostics, and authority. The later parser and formatter tasks must consume
-this contract and cannot regenerate or renew it from implementation output.
+diagnostics, and authority. Run the Rust `semantic_frontend` and
+`semantic_frontend_properties` integration tests to certify implementation
+conformance. The parser and formatter consume this contract and cannot
+regenerate or renew it from implementation output.

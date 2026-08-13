@@ -32,6 +32,8 @@
 
 ## Development
 
+-   [`Your First Semantic STRling Contribution`](tutorial/first_contribution.md)
+    — flagship textual authoring, canonical requests, and focused verification.
 -   [`Contribution Guidelines`](guidelines.md)
 -   [`Toolchains and Quality Commands`](toolchains.md)
 -   [`Testing Philosophy & Workflow`](testing_workflow.md)
@@ -40,9 +42,14 @@
 -   [`CI/CD Setup`](ci_cd_setup.md)
 -   [`Releasing`](releasing.md)
 
-## Current-state reminder
+## Authoring hierarchy
 
-The regex-shaped source grammar, per-binding compilers, TypeScript-derived
-fixtures, shallow AST/IR, target limitations, and binding-coupled tooling remain
-transitional. Documentation about those paths describes compatibility workflow,
-not the permanent source of semantic authority.
+Start with
+[`Semantic STRling`](../spec/frontends/semantic/1.0/README.md) for textual
+intent. Use the
+[`Simply protocol`](../spec/frontends/simply/1.0/README.md) for programmatic
+intent. Use
+[`regex-compatible source`](../spec/frontends/legacy-regex/1.0/README.md) only
+for import and compatibility work. Historical per-binding compilers and
+TypeScript-derived fixtures remain transitional evidence, not semantic
+authority.

@@ -3,11 +3,7 @@
     "corpus_kind": "strling.frontend-convergence-corpus",
     "corpus_version": "1.0.0",
     "authority": "Specification-authored intent and ratified frontend mappings; implementations are evidence consumers only.",
-    "host_routes": [
-        "rust-native",
-        "typescript-preview",
-        "python-preview"
-    ],
+    "host_routes": ["rust-native", "typescript-preview", "python-preview"],
     "comparison_outputs": [
         "semantic",
         "analysis",
@@ -69,14 +65,56 @@
                 "wildcard_line_terminators": "exclude"
             },
             "steps": [
-                { "step_id": "input-start", "operation": "position", "arguments": { "position": "input_start" } },
-                { "step_id": "line-start", "operation": "position", "arguments": { "position": "line_start" } },
-                { "step_id": "word-start", "operation": "position", "arguments": { "position": "word_boundary" } },
-                { "step_id": "value", "operation": "literal", "arguments": { "text": "value" } },
-                { "step_id": "word-end", "operation": "position", "arguments": { "position": "not_word_boundary" } },
-                { "step_id": "line-end", "operation": "position", "arguments": { "position": "line_end" } },
-                { "step_id": "final-line", "operation": "position", "arguments": { "position": "input_end" } },
-                { "step_id": "root", "operation": "sequence", "arguments": { "values": ["input-start", "line-start", "word-start", "value", "word-end", "line-end", "final-line"] } }
+                {
+                    "step_id": "input-start",
+                    "operation": "position",
+                    "arguments": { "position": "input_start" }
+                },
+                {
+                    "step_id": "line-start",
+                    "operation": "position",
+                    "arguments": { "position": "line_start" }
+                },
+                {
+                    "step_id": "word-start",
+                    "operation": "position",
+                    "arguments": { "position": "word_boundary" }
+                },
+                {
+                    "step_id": "value",
+                    "operation": "literal",
+                    "arguments": { "text": "value" }
+                },
+                {
+                    "step_id": "word-end",
+                    "operation": "position",
+                    "arguments": { "position": "not_word_boundary" }
+                },
+                {
+                    "step_id": "line-end",
+                    "operation": "position",
+                    "arguments": { "position": "line_end" }
+                },
+                {
+                    "step_id": "final-line",
+                    "operation": "position",
+                    "arguments": { "position": "input_end" }
+                },
+                {
+                    "step_id": "root",
+                    "operation": "sequence",
+                    "arguments": {
+                        "values": [
+                            "input-start",
+                            "line-start",
+                            "word-start",
+                            "value",
+                            "word-end",
+                            "line-end",
+                            "final-line"
+                        ]
+                    }
+                }
             ],
             "root_step_id": "root",
             "legacy": {
@@ -109,16 +147,80 @@
                 "wildcard_line_terminators": "exclude"
             },
             "steps": [
-                { "step_id": "a", "operation": "literal", "arguments": { "text": "a" } },
-                { "step_id": "b", "operation": "literal", "arguments": { "text": "b" } },
-                { "step_id": "ahead-positive", "operation": "lookaround", "arguments": { "direction": "ahead", "polarity": "positive", "value": "b" } },
-                { "step_id": "c", "operation": "literal", "arguments": { "text": "c" } },
-                { "step_id": "ahead-negative", "operation": "lookaround", "arguments": { "direction": "ahead", "polarity": "negative", "value": "c" } },
-                { "step_id": "d", "operation": "literal", "arguments": { "text": "d" } },
-                { "step_id": "behind-positive", "operation": "lookaround", "arguments": { "direction": "behind", "polarity": "positive", "value": "d" } },
-                { "step_id": "e", "operation": "literal", "arguments": { "text": "e" } },
-                { "step_id": "behind-negative", "operation": "lookaround", "arguments": { "direction": "behind", "polarity": "negative", "value": "e" } },
-                { "step_id": "root", "operation": "sequence", "arguments": { "values": ["a", "ahead-positive", "ahead-negative", "behind-positive", "behind-negative"] } }
+                {
+                    "step_id": "a",
+                    "operation": "literal",
+                    "arguments": { "text": "a" }
+                },
+                {
+                    "step_id": "b",
+                    "operation": "literal",
+                    "arguments": { "text": "b" }
+                },
+                {
+                    "step_id": "ahead-positive",
+                    "operation": "lookaround",
+                    "arguments": {
+                        "direction": "ahead",
+                        "polarity": "positive",
+                        "value": "b"
+                    }
+                },
+                {
+                    "step_id": "c",
+                    "operation": "literal",
+                    "arguments": { "text": "c" }
+                },
+                {
+                    "step_id": "ahead-negative",
+                    "operation": "lookaround",
+                    "arguments": {
+                        "direction": "ahead",
+                        "polarity": "negative",
+                        "value": "c"
+                    }
+                },
+                {
+                    "step_id": "d",
+                    "operation": "literal",
+                    "arguments": { "text": "d" }
+                },
+                {
+                    "step_id": "behind-positive",
+                    "operation": "lookaround",
+                    "arguments": {
+                        "direction": "behind",
+                        "polarity": "positive",
+                        "value": "d"
+                    }
+                },
+                {
+                    "step_id": "e",
+                    "operation": "literal",
+                    "arguments": { "text": "e" }
+                },
+                {
+                    "step_id": "behind-negative",
+                    "operation": "lookaround",
+                    "arguments": {
+                        "direction": "behind",
+                        "polarity": "negative",
+                        "value": "e"
+                    }
+                },
+                {
+                    "step_id": "root",
+                    "operation": "sequence",
+                    "arguments": {
+                        "values": [
+                            "a",
+                            "ahead-positive",
+                            "ahead-negative",
+                            "behind-positive",
+                            "behind-negative"
+                        ]
+                    }
+                }
             ],
             "root_step_id": "root",
             "legacy": {
@@ -152,14 +254,63 @@
             },
             "steps": [
                 { "step_id": "empty", "operation": "empty", "arguments": {} },
-                { "step_id": "first", "operation": "capture", "arguments": { "capture_key": "first", "name": "first", "value": "empty" } },
-                { "step_id": "a", "operation": "literal", "arguments": { "text": "a" } },
-                { "step_id": "b", "operation": "literal", "arguments": { "text": "b" } },
-                { "step_id": "name", "operation": "capture", "arguments": { "capture_key": "name", "name": "name", "value": "b" } },
-                { "step_id": "first-ref", "operation": "backreference", "arguments": { "capture_key": "first" } },
-                { "step_id": "numeric-name-ref", "operation": "backreference", "arguments": { "capture_key": "name" } },
-                { "step_id": "named-name-ref", "operation": "backreference", "arguments": { "capture_key": "name" } },
-                { "step_id": "root", "operation": "sequence", "arguments": { "values": ["first", "a", "name", "first-ref", "numeric-name-ref", "named-name-ref"] } }
+                {
+                    "step_id": "first",
+                    "operation": "capture",
+                    "arguments": {
+                        "capture_key": "first",
+                        "name": "first",
+                        "value": "empty"
+                    }
+                },
+                {
+                    "step_id": "a",
+                    "operation": "literal",
+                    "arguments": { "text": "a" }
+                },
+                {
+                    "step_id": "b",
+                    "operation": "literal",
+                    "arguments": { "text": "b" }
+                },
+                {
+                    "step_id": "name",
+                    "operation": "capture",
+                    "arguments": {
+                        "capture_key": "name",
+                        "name": "name",
+                        "value": "b"
+                    }
+                },
+                {
+                    "step_id": "first-ref",
+                    "operation": "backreference",
+                    "arguments": { "capture_key": "first" }
+                },
+                {
+                    "step_id": "numeric-name-ref",
+                    "operation": "backreference",
+                    "arguments": { "capture_key": "name" }
+                },
+                {
+                    "step_id": "named-name-ref",
+                    "operation": "backreference",
+                    "arguments": { "capture_key": "name" }
+                },
+                {
+                    "step_id": "root",
+                    "operation": "sequence",
+                    "arguments": {
+                        "values": [
+                            "first",
+                            "a",
+                            "name",
+                            "first-ref",
+                            "numeric-name-ref",
+                            "named-name-ref"
+                        ]
+                    }
+                }
             ],
             "root_step_id": "root",
             "legacy": {
@@ -203,10 +354,20 @@
                     "arguments": {
                         "negated": true,
                         "members": [
-                            { "kind": "builtin", "name": "digit", "domain": "unicode", "negated": false },
+                            {
+                                "kind": "builtin",
+                                "name": "digit",
+                                "domain": "unicode",
+                                "negated": false
+                            },
                             { "kind": "range", "start": "A", "end": "Z" },
                             { "kind": "literal", "value": "_" },
-                            { "kind": "unicode_property", "property": "Script", "value": "Greek", "negated": false }
+                            {
+                                "kind": "unicode_property",
+                                "property": "Script",
+                                "value": "Greek",
+                                "negated": false
+                            }
                         ]
                     }
                 },
@@ -223,7 +384,11 @@
                         ]
                     }
                 },
-                { "step_id": "root", "operation": "sequence", "arguments": { "values": ["negated", "special"] } }
+                {
+                    "step_id": "root",
+                    "operation": "sequence",
+                    "arguments": { "values": ["negated", "special"] }
+                }
             ],
             "root_step_id": "root",
             "legacy": {
@@ -260,13 +425,41 @@
                 "wildcard_line_terminators": "exclude"
             },
             "steps": [
-                { "step_id": "ab", "operation": "literal", "arguments": { "text": "ab" } },
-                { "step_id": "cd", "operation": "literal", "arguments": { "text": "cd" } },
-                { "step_id": "choice", "operation": "alternation", "arguments": { "values": ["ab", "cd"] } },
-                { "step_id": "grouped", "operation": "group", "arguments": { "value": "choice" } },
+                {
+                    "step_id": "ab",
+                    "operation": "literal",
+                    "arguments": { "text": "ab" }
+                },
+                {
+                    "step_id": "cd",
+                    "operation": "literal",
+                    "arguments": { "text": "cd" }
+                },
+                {
+                    "step_id": "choice",
+                    "operation": "alternation",
+                    "arguments": { "values": ["ab", "cd"] }
+                },
+                {
+                    "step_id": "grouped",
+                    "operation": "group",
+                    "arguments": { "value": "choice" }
+                },
                 { "step_id": "empty", "operation": "empty", "arguments": {} },
-                { "step_id": "nothing", "operation": "capture", "arguments": { "capture_key": "nothing", "name": "nothing", "value": "empty" } },
-                { "step_id": "root", "operation": "sequence", "arguments": { "values": ["grouped", "nothing"] } }
+                {
+                    "step_id": "nothing",
+                    "operation": "capture",
+                    "arguments": {
+                        "capture_key": "nothing",
+                        "name": "nothing",
+                        "value": "empty"
+                    }
+                },
+                {
+                    "step_id": "root",
+                    "operation": "sequence",
+                    "arguments": { "values": ["grouped", "nothing"] }
+                }
             ],
             "root_step_id": "root",
             "legacy": {
@@ -299,13 +492,56 @@
                 "wildcard_line_terminators": "exclude"
             },
             "steps": [
-                { "step_id": "a", "operation": "literal", "arguments": { "text": "a" } },
-                { "step_id": "greedy", "operation": "repeat", "arguments": { "value": "a", "min": 0, "max": null, "mode": "greedy" } },
-                { "step_id": "b", "operation": "literal", "arguments": { "text": "b" } },
-                { "step_id": "lazy", "operation": "repeat", "arguments": { "value": "b", "min": 1, "max": null, "mode": "lazy" } },
-                { "step_id": "c", "operation": "literal", "arguments": { "text": "c" } },
-                { "step_id": "possessive", "operation": "repeat", "arguments": { "value": "c", "min": 2, "max": 4, "mode": "possessive" } },
-                { "step_id": "root", "operation": "sequence", "arguments": { "values": ["greedy", "lazy", "possessive"] } }
+                {
+                    "step_id": "a",
+                    "operation": "literal",
+                    "arguments": { "text": "a" }
+                },
+                {
+                    "step_id": "greedy",
+                    "operation": "repeat",
+                    "arguments": {
+                        "value": "a",
+                        "min": 0,
+                        "max": null,
+                        "mode": "greedy"
+                    }
+                },
+                {
+                    "step_id": "b",
+                    "operation": "literal",
+                    "arguments": { "text": "b" }
+                },
+                {
+                    "step_id": "lazy",
+                    "operation": "repeat",
+                    "arguments": {
+                        "value": "b",
+                        "min": 1,
+                        "max": null,
+                        "mode": "lazy"
+                    }
+                },
+                {
+                    "step_id": "c",
+                    "operation": "literal",
+                    "arguments": { "text": "c" }
+                },
+                {
+                    "step_id": "possessive",
+                    "operation": "repeat",
+                    "arguments": {
+                        "value": "c",
+                        "min": 2,
+                        "max": 4,
+                        "mode": "possessive"
+                    }
+                },
+                {
+                    "step_id": "root",
+                    "operation": "sequence",
+                    "arguments": { "values": ["greedy", "lazy", "possessive"] }
+                }
             ],
             "root_step_id": "root",
             "legacy": {
@@ -339,12 +575,36 @@
                 "wildcard_line_terminators": "exclude"
             },
             "steps": [
-                { "step_id": "ab", "operation": "literal", "arguments": { "text": "ab" } },
-                { "step_id": "a", "operation": "literal", "arguments": { "text": "a" } },
-                { "step_id": "choice", "operation": "alternation", "arguments": { "values": ["ab", "a"] } },
-                { "step_id": "atomic", "operation": "atomic", "arguments": { "value": "choice" } },
-                { "step_id": "b", "operation": "literal", "arguments": { "text": "b" } },
-                { "step_id": "root", "operation": "sequence", "arguments": { "values": ["atomic", "b"] } }
+                {
+                    "step_id": "ab",
+                    "operation": "literal",
+                    "arguments": { "text": "ab" }
+                },
+                {
+                    "step_id": "a",
+                    "operation": "literal",
+                    "arguments": { "text": "a" }
+                },
+                {
+                    "step_id": "choice",
+                    "operation": "alternation",
+                    "arguments": { "values": ["ab", "a"] }
+                },
+                {
+                    "step_id": "atomic",
+                    "operation": "atomic",
+                    "arguments": { "value": "choice" }
+                },
+                {
+                    "step_id": "b",
+                    "operation": "literal",
+                    "arguments": { "text": "b" }
+                },
+                {
+                    "step_id": "root",
+                    "operation": "sequence",
+                    "arguments": { "values": ["atomic", "b"] }
+                }
             ],
             "root_step_id": "root",
             "legacy": {
@@ -375,9 +635,23 @@
                 "wildcard_line_terminators": "include"
             },
             "steps": [
-                { "step_id": "wildcard", "operation": "wildcard", "arguments": {} },
-                { "step_id": "escaped", "operation": "literal", "arguments": { "text": "\n\r\t\f\u000b\u0000\u007f😀α🙂🙃.|{}#a" } },
-                { "step_id": "root", "operation": "sequence", "arguments": { "values": ["wildcard", "escaped"] } }
+                {
+                    "step_id": "wildcard",
+                    "operation": "wildcard",
+                    "arguments": {}
+                },
+                {
+                    "step_id": "escaped",
+                    "operation": "literal",
+                    "arguments": {
+                        "text": "\n\r\t\f\u000b\u0000\u007f😀α🙂🙃.|{}#a"
+                    }
+                },
+                {
+                    "step_id": "root",
+                    "operation": "sequence",
+                    "arguments": { "values": ["wildcard", "escaped"] }
+                }
             ],
             "root_step_id": "root",
             "legacy": {
@@ -404,10 +678,7 @@
         {
             "id": "case:convergence/literal-whitespace",
             "semantic_source": "semantic strling 1.0;\ncase sensitive;\npattern text \"a b\\tc\\nd\";\n",
-            "semantic_mapping_ids": [
-                "program.case-matching",
-                "node.literal"
-            ],
+            "semantic_mapping_ids": ["program.case-matching", "node.literal"],
             "identity_namespace": "convergence/whitespace",
             "semantic_options": {
                 "case_matching": "sensitive",
@@ -416,7 +687,11 @@
                 "wildcard_line_terminators": "exclude"
             },
             "steps": [
-                { "step_id": "root", "operation": "literal", "arguments": { "text": "a b\tc\nd" } }
+                {
+                    "step_id": "root",
+                    "operation": "literal",
+                    "arguments": { "text": "a b\tc\nd" }
+                }
             ],
             "root_step_id": "root",
             "legacy": {
@@ -432,10 +707,7 @@
         {
             "id": "case:convergence/import-node",
             "semantic_source": "semantic strling 1.0;\ncase sensitive;\npattern text \"imported\";\n",
-            "semantic_mapping_ids": [
-                "program.case-matching",
-                "node.literal"
-            ],
+            "semantic_mapping_ids": ["program.case-matching", "node.literal"],
             "identity_namespace": "convergence/import-node",
             "semantic_options": {
                 "case_matching": "sensitive",
@@ -461,10 +733,7 @@
         {
             "id": "case:convergence/import-program",
             "semantic_source": "semantic strling 1.0;\ncase sensitive;\npattern text \"program\";\n",
-            "semantic_mapping_ids": [
-                "program.case-matching",
-                "node.literal"
-            ],
+            "semantic_mapping_ids": ["program.case-matching", "node.literal"],
             "identity_namespace": "convergence/import-program",
             "semantic_options": {
                 "case_matching": "sensitive",
@@ -495,19 +764,71 @@
         }
     ],
     "rejected_legacy_features": [
-        { "feature_id": "directive.duplicate", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "directive.inline-pattern", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "extension.advanced-group-syntax", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "extension.control-a-e-c", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "extension.inline-modifier", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "extension.language-directive", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "extension.lowercase-z-anchor", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "extension.octal", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "extension.posix-class", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "extension.quoting-block", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "extension.raw-target-fragment", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "extension.shorthand-r-h", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" },
-        { "feature_id": "extension.target-directive", "disposition": "unsupported_legacy_behavior", "authority": "spec/frontends/legacy-regex/1.0/dialect.json" }
+        {
+            "feature_id": "directive.duplicate",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "directive.inline-pattern",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "extension.advanced-group-syntax",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "extension.control-a-e-c",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "extension.inline-modifier",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "extension.language-directive",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "extension.lowercase-z-anchor",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "extension.octal",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "extension.posix-class",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "extension.quoting-block",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "extension.raw-target-fragment",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "extension.shorthand-r-h",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        },
+        {
+            "feature_id": "extension.target-directive",
+            "disposition": "unsupported_legacy_behavior",
+            "authority": "spec/frontends/legacy-regex/1.0/dialect.json"
+        }
     ],
     "corpus_fingerprint": "sha256:1ce3a851f55ac89bc5cb2825ee0a46bd701dd71f1bf09796edec5a3b5e596cb2"
 }

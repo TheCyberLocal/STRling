@@ -22,7 +22,11 @@ dotnet add package STRling.FSharp
 
 ## 📦 Usage
 
-### Simply API (Recommended)
+> **Migration status:** this README describes the historical F# package surface.
+> Its local parser/compiler output is compatibility evidence, not the canonical
+> STRling 4.0 compiler boundary.
+
+### Historical Simply API
 
 Here is how to match a US Phone number (e.g., `555-0199`) using STRling's **Simply API** in **F#**:
 
@@ -41,30 +45,20 @@ let phone =
         end' ()
     ]
 
-// Compile to regex string
+// Historical package-local compatibility output
 let regex = phone |> compile
 printfn "%s" regex
 // Output: ^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$
 ```
 
-### DSL String Parsing
+### Textual authoring
 
-Alternatively, you can parse a DSL string directly using the Parser:
-
-```fsharp
-open STRling.Core
-
-// Parse a DSL pattern string
-let dsl = "start capture(digit(3)) may(anyOf('-. ')) capture(digit(3)) may(anyOf('-. ')) capture(digit(4)) end"
-let ast = Parser.parse dsl
-
-// Compile the AST to IR and emit
-let ir = Compiler.compile ast
-let regex = Emitters.PCRE2.emit ir
-printfn "%s" regex
-```
-
-> **Note:** This compiles to the optimized regex: `^(\d{3})[-. ]?(\d{3})[-. ]?(\d{4})$`
+Semantic STRling is the flagship textual language. The historical F# string
+parser does not implement `strling.semantic@1.0.0`, so its former builder-like
+string example is intentionally omitted. Use the Simply API above for
+programmatic intent; use the canonical Semantic frontend through the repository
+kernel until the F# adapter migration is complete. Regex-compatible text is an
+import/compatibility surface, not Semantic STRling.
 
 ## 🚀 Why STRling?
 
@@ -74,18 +68,17 @@ Regular Expressions are powerful but notorious for being "write-only" code. STRl
 -   **🛡️ Type Safety:** Catch syntax errors, invalid ranges, and incompatible flags at **compile time** inside your IDE, not at runtime when your app crashes.
 -   **🧠 IntelliSense & Autocomplete:** Stop memorizing cryptic codes like `(?<=...)`. Use fluent, self-documenting methods like `simply.lookBehind(...)` with full IDE discovery.
 -   **📖 Readability First:** Code is read far more often than it is written. STRling patterns describe _intent_, making them understandable to junior developers and future maintainers instantly.
--   **🌍 Polyglot Engine:** One mental model, 17 languages. Whether you are writing Rust, Python, or TypeScript, the syntax and behavior remain identical.
+-   **🌍 Shared semantics:** Host APIs may be idiomatic, while equivalent requests converge through one canonical semantic model.
 
 ## 🏗️ Architecture
 
-STRling follows a strict compiler pipeline architecture to ensure consistency across all ecosystems:
-
-1.  **Parse**: `DSL -> AST` (Abstract Syntax Tree)
-    -   Converts the human-readable STRling syntax into a structured tree.
-2.  **Compile**: `AST -> IR` (Intermediate Representation)
-    -   Transforms the AST into a target-agnostic intermediate representation, optimizing structures like literal sequences.
-3.  **Emit**: `IR -> Target Regex`
-    -   Generates the final, optimized regex string for the specific target engine (e.g., PCRE2, JS, Python `re`).
+STRling 4.0 uses one canonical pipeline: Semantic STRling, Simply requests, and
+explicit regex-compatible imports lower to canonical Semantic IR; the Rust
+kernel performs semantic analysis, portability planning, and target emission
+under an exact profile. Host bindings are adapters that serialize requests and
+preserve canonical results and structured diagnostics. Until this binding is
+migrated to that adapter boundary, its local compiler remains historical
+compatibility behavior only.
 
 ## 📚 Documentation
 

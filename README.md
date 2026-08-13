@@ -27,7 +27,8 @@ PCRE2 wrapper, a TypeScript-centric builder, or an editor-only tool.
 **Semantic STRling** is the flagship textual language. Its specification-first
 [`strling.semantic@1.0.0`](spec/frontends/semantic/1.0/README.md) source contract
 uses readable keyword-and-block syntax and maps deterministically to the
-canonical semantic model. Parser and formatter implementation is still pending.
+canonical semantic model. One bounded Rust parser and canonical formatter
+implement that contract and feed the canonical compiler pipeline.
 
 **Simply** is the first-class family of fluent, idiomatic semantic APIs. Simply
 does not define a separate compiler or emit target regex as its semantic
@@ -36,6 +37,26 @@ implementation.
 The existing regex-shaped `.strl` notation is the **regex frontend**: a
 low-level compatibility and import source dialect. It remains useful and
 preserved, but it is not the final Semantic STRling DSL.
+
+Start textual authoring with Semantic STRling:
+
+```strling
+semantic strling 1.0;
+case sensitive;
+
+pattern sequence {
+    at input start;
+    repeat from 5 to 5 using greedy {
+        character from { unicode digit; }
+    }
+    at input end;
+}
+```
+
+Use Simply when intent originates in program code. Use regex-compatible source
+only when importing or preserving regex-shaped input. The
+[`first-contribution tutorial`](docs/tutorial/first_contribution.md) shows the
+canonical source request and verification path.
 
 ## Conceptual architecture
 
@@ -52,8 +73,9 @@ Host-language adapters and CLI/LSP/editor tooling expose or consume this same
 canonical compiler capability. They do not own independent STRling semantics.
 
 The exact source model, Semantic IR, diagnostic, compiler protocol,
-target-profile, and TargetArtifact contracts are the next architecture task;
-they are not defined by this overview.
+target-profile, and TargetArtifact contracts live under
+[`spec/contracts/1.0`](spec/contracts/1.0/README.md); this overview does not
+redefine them.
 
 ## Host languages are not target engines
 
@@ -68,13 +90,12 @@ version/profile-sensitive, not a timeless boolean.
 
 ## Current transition
 
-The repository still contains per-binding parsers, compilers, IRs, diagnostics,
-and emitters. TypeScript-derived fixtures and existing binding outputs remain
-valuable compatibility evidence. They are not semantic authority, and they will
-be replaced or migrated only through contained behavior-preserving work.
-
-No parser, grammar, compiler, emitter, or runtime semantics changed when this
-product architecture was ratified.
+The canonical Rust kernel accepts Semantic STRling, Simply, source-less Semantic
+IR, and regex-compatible imports through one semantic pipeline. The repository
+still contains historical per-binding parsers, compilers, IRs, diagnostics, and
+emitters while adapters and packages migrate. TypeScript-derived fixtures and
+existing binding outputs remain compatibility evidence, never semantic
+authority.
 
 ## Developer quick start
 

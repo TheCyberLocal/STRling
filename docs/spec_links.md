@@ -22,6 +22,9 @@ ratification rules.
     cross-family identity, ordering, versioning, and boundary certification.
 -   [`Specification-authored conformance`](../spec/conformance/README.md) —
     draft seed cases and content-addressed authority manifest.
+-   [`Semantic STRling frontend 1.0`](../spec/frontends/semantic/1.0/) —
+    flagship textual syntax, deterministic Semantic IR mapping, formatting,
+    diagnostics, and specification-authored fixtures.
 -   [`Target profiles`](../spec/targets/profiles/) — version-aware,
     enumerated-scope engine capability facts.
 -   [`Regex-compatible frontend 1.0`](../spec/frontends/legacy-regex/1.0/) —

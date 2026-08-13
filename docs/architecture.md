@@ -19,11 +19,19 @@ Three authoring surface families converge on one semantic compiler path:
     ratified `strling.semantic@1.0.0` syntax and mapping implemented by one
     bounded Rust parser and canonical formatter;
 -   **Simply APIs:** idiomatic host-language semantic builders; and
--   **regex frontend/importer:** the existing regex-shaped compatibility source
-    dialect.
+-   **Regex-compatible import frontend:** the existing regex-shaped
+    compatibility source dialect.
 
 The current `.strl` grammar belongs to the third family unless later ratified
 specification work deliberately extends or reclassifies it.
+
+The checked frontend-convergence corpus proves this hierarchy is architectural,
+not merely editorial. Eleven common-intent cases cover every Semantic mapping
+and Simply operation plus every supported legacy compatibility construct.
+Semantic source, Rust Simply, TypeScript/Python Simply Preview, source-less
+Semantic IR, and applicable regex imports agree after removing only identity
+spelling and source provenance. See
+[Frontend convergence](migration/frontend-convergence.md).
 
 ## Responsibility flow
 
