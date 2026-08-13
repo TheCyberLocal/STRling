@@ -158,12 +158,32 @@ shared-corpus certification, and any unresolved result blocks readiness. See
 
 Simply is first-class semantic authoring. APIs may remain idiomatic in Rust,
 TypeScript, Python, Java, C#, and other hosts, but equivalent operations must
-lower to the same canonical semantic representation.
+serialize the same closed, ordered
+[`strling.simply-builder@1.0.0`](../spec/frontends/simply/1.0/README.md)
+construction graph and project to the same canonical Semantic IR and
+`CompileRequest`.
+
+The protocol fixes all 15 operations, Unicode/text and character-domain
+options, repetition modes, deterministic node/capture identities, immutable
+single-parent values, source-less generated provenance, imported provenance,
+validation order, and stable structured failures. Target profiles and compiler
+options are explicit request routing, never builder semantics. Raw regex,
+emitted target syntax, implicit engines, runtime objects, and callbacks cannot
+cross this boundary.
+
+The specification-owned projector and authored fixtures are certification
+evidence, not a second semantic implementation: every expected program must
+validate as canonical in the Rust kernel, and every expected request must pass
+the canonical compiler contract. Host adapters may translate stable failures
+into idiomatic containers but may not replace their code/path identity with
+formatted prose.
 
 Existing public helpers, including direct target convenience methods, remain
 compatibility obligations. They are not proof that Simply's permanent
 implementation should bypass the canonical compiler, and this architecture does
-not redesign them.
+not redesign them. Historical maximum-zero, repeated-capture, numbered-capture,
+and formatted-exception behavior is explicitly dispositioned by the protocol
+rather than silently promoted into authority.
 
 ## Host adapters and targets
 

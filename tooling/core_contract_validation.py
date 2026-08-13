@@ -31,6 +31,7 @@ try:
         python_re_target_lowering_boundary_violation,
         python_re_target_serialization_boundary_violation,
         semantic_rewrite_boundary_violation,
+        simply_contract_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
@@ -51,6 +52,7 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
         python_re_target_lowering_boundary_violation,
         python_re_target_serialization_boundary_violation,
         semantic_rewrite_boundary_violation,
+        simply_contract_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 
@@ -834,6 +836,29 @@ def validate_source_boundaries(
             raise CoreContractError(violation)
 
 
+def validate_simply_contract_boundary(
+    root: Path = ROOT,
+    *,
+    source_override: str | None = None,
+    protocol_override: Mapping[str, object] | None = None,
+) -> None:
+    """Certify that Simply evidence cannot become semantic or runtime authority."""
+
+    source = source_override
+    if source is None:
+        source = (root / "tooling" / "simply_contract.py").read_text(encoding="utf-8")
+    protocol = protocol_override
+    if protocol is None:
+        protocol = json.loads(
+            (
+                root / "spec" / "frontends" / "simply" / "1.0" / "protocol.json"
+            ).read_text(encoding="utf-8")
+        )
+    violation = simply_contract_boundary_violation(source, protocol)
+    if violation is not None:
+        raise CoreContractError(violation)
+
+
 def canonical_fixture_paths(root: Path = ROOT) -> set[Path]:
     paths = {
         *sorted((CONTRACT_ROOT / "examples").glob("**/*.json")),
@@ -845,6 +870,7 @@ def canonical_fixture_paths(root: Path = ROOT) -> set[Path]:
         root / "tests" / "conformance" / "ecmascript-runtime-certification.json",
         root / "tests" / "conformance" / "pcre2-runtime-certification.json",
         root / "tests" / "conformance" / "python-re-runtime-certification.json",
+        *sorted((root / "spec" / "frontends" / "simply" / "1.0").glob("**/*.json")),
     }
     return {path.resolve() for path in paths}
 
@@ -918,6 +944,7 @@ def validate_repository(root: Path = ROOT) -> tuple[int, int]:
     )
     if runtime_violation is not None:
         raise CoreContractError(runtime_violation)
+    validate_simply_contract_boundary(root)
     fixture_count = validate_fixture_coverage(root)
     return schema_count, fixture_count
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import unittest
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from tooling.core_contract_validation import (
     validate_fixture_coverage,
     validate_mapping_document,
     validate_repository,
+    validate_simply_contract_boundary,
     validate_source_boundaries,
 )
 
@@ -28,8 +30,8 @@ def source_texts() -> dict[str, str]:
 
 class CoreSchemaMappingTests(unittest.TestCase):
     def test_current_mapping_and_fixture_corpus_pass(self) -> None:
-        self.assertEqual((11, 100), validate_repository(ROOT))
-        self.assertEqual(100, validate_fixture_coverage(ROOT))
+        self.assertEqual((11, 107), validate_repository(ROOT))
+        self.assertEqual(107, validate_fixture_coverage(ROOT))
         self.assertEqual(2, validate_equivalence_registry(ROOT))
 
     def test_changed_schema_without_mapping_update_fails(self) -> None:
@@ -81,6 +83,24 @@ class CoreSchemaMappingTests(unittest.TestCase):
 
 
 class CoreArchitectureBoundaryTests(unittest.TestCase):
+    def test_simply_certification_remains_runtime_free(self) -> None:
+        source = (ROOT / "tooling" / "simply_contract.py").read_text(encoding="utf-8")
+        with self.assertRaisesRegex(CoreContractError, "runtime-free"):
+            validate_simply_contract_boundary(
+                ROOT,
+                source_override=source + "\nimport subprocess\n",
+            )
+
+    def test_simply_protocol_cannot_claim_semantic_authority(self) -> None:
+        protocol = json.loads(
+            (
+                ROOT / "spec" / "frontends" / "simply" / "1.0" / "protocol.json"
+            ).read_text(encoding="utf-8")
+        )
+        protocol["authority"]["semantic_authority"] = True
+        with self.assertRaisesRegex(CoreContractError, "construction-only"):
+            validate_simply_contract_boundary(ROOT, protocol_override=protocol)
+
     def test_unapproved_runtime_dependency_fails(self) -> None:
         with self.assertRaisesRegex(CoreContractError, "runtime dependencies"):
             validate_source_boundaries(

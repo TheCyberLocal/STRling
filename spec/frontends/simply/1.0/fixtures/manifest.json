@@ -1,0 +1,41 @@
+{
+    "manifest_kind": "strling.simply-builder-fixtures",
+    "manifest_version": "1.0.0",
+    "protocol_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "authorship": "specification-authored",
+    "files": [
+        {
+            "path": "README.md",
+            "sha256": "sha256:e30dcd235088c0394b032c1e438ef4eca78ad4b415fc19db01fefdf30a726067"
+        },
+        {
+            "path": "builder-request.schema.json",
+            "sha256": "sha256:51c33b974d07a8f75143eadd40990ba82e3023971ecd5c4f896448c2a877920e"
+        },
+        {
+            "path": "case.schema.json",
+            "sha256": "sha256:53d04f10b042771fa795ff100a18233b856eef0d24a95641ac772f3aab25a369"
+        },
+        {
+            "path": "fixtures/negative.json",
+            "sha256": "sha256:e216f86fa408b27a8ddb31031d6acc63e24fc495851e8c64d790018cea3f695e"
+        },
+        {
+            "path": "fixtures/positive.json",
+            "sha256": "sha256:63137603227b5950775bea6edfb275a5db4587404bc4be333b05a8776cc4afb7"
+        },
+        {
+            "path": "protocol.json",
+            "sha256": "sha256:b35103edf87dc691abb2bdbaff55f5f9c398aecc34e7fbb0d6af168056db5da6"
+        },
+        {
+            "path": "protocol.schema.json",
+            "sha256": "sha256:cae3b9a0b4630f4775e20a2d16d62b67ca09deb9653ca7e8bdcf94f44d6cd74b"
+        }
+    ],
+    "case_counts": {
+        "negative": 13,
+        "positive": 9
+    }
+}

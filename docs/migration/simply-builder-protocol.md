@@ -16,23 +16,23 @@ message, target convenience, or emitted pattern becomes semantic precedent.
 
 The version 1.0 request will admit exactly these construction operations:
 
-| Operation       | Canonical destination                                                        |
-| --------------- | ---------------------------------------------------------------------------- |
-| `empty`         | `Node::Empty`                                                                |
-| `literal`       | nonempty `Node::Literal`; empty text becomes `Node::Empty`                   |
-| `wildcard`      | `Node::Wildcard` with explicit effective line-terminator treatment           |
-| `character_set` | `Node::CharacterSet` with canonical literal/range/builtin/property members   |
-| `sequence`      | ordered `Node::Sequence`, normalized by canonical-v1                         |
-| `alternation`   | ordered `Node::Alternation`, normalized by canonical-v1                      |
-| `group`         | transparent one-child sequence candidate removed by canonical normalization |
-| `capture`       | `Node::Capture` with a logical capture identity and optional unique name     |
-| `backreference` | `Node::Backreference` resolved by logical capture identity                   |
-| `position`      | one explicit canonical anchor or boundary position                           |
-| `lookaround`    | `Node::Lookaround` with explicit direction and polarity                      |
-| `atomic`        | `Node::Atomic`                                                               |
-| `repeat`        | `Node::Repeat` with nonnegative bounds and greedy/lazy/possessive mode        |
-| `import_node`   | a prebuilt canonical node plus any required declared source documents        |
-| `import_program`| a prebuilt canonical Semantic IR program whose root and sources are composed |
+| Operation        | Canonical destination                                                        |
+| ---------------- | ---------------------------------------------------------------------------- |
+| `empty`          | `Node::Empty`                                                                |
+| `literal`        | nonempty `Node::Literal`; empty text becomes `Node::Empty`                   |
+| `wildcard`       | `Node::Wildcard` with explicit effective line-terminator treatment           |
+| `character_set`  | `Node::CharacterSet` with canonical literal/range/builtin/property members   |
+| `sequence`       | ordered `Node::Sequence`, normalized by canonical-v1                         |
+| `alternation`    | ordered `Node::Alternation`, normalized by canonical-v1                      |
+| `group`          | transparent one-child sequence candidate removed by canonical normalization  |
+| `capture`        | `Node::Capture` with a logical capture identity and optional unique name     |
+| `backreference`  | `Node::Backreference` resolved by logical capture identity                   |
+| `position`       | one explicit canonical anchor or boundary position                           |
+| `lookaround`     | `Node::Lookaround` with explicit direction and polarity                      |
+| `atomic`         | `Node::Atomic`                                                               |
+| `repeat`         | `Node::Repeat` with nonnegative bounds and greedy/lazy/possessive mode       |
+| `import_node`    | a prebuilt canonical node plus any required declared source documents        |
+| `import_program` | a prebuilt canonical Semantic IR program whose root and sources are composed |
 
 Operation values are immutable. A value may be materialized once into the
 result tree; callers that need two equal subtrees construct two values with two
@@ -59,12 +59,12 @@ semantic equality.
 
 Builder semantic options are target-neutral intent:
 
-- Unicode scalar values are the fixed text model;
-- `case_matching` is program-level semantic intent;
-- built-in character classes select an ASCII or Unicode domain;
-- wildcards select whether line terminators are included; and
-- repetition mode and every position/lookaround property are explicit on the
-  operation that owns them.
+-   Unicode scalar values are the fixed text model;
+-   `case_matching` is program-level semantic intent;
+-   built-in character classes select an ASCII or Unicode domain;
+-   wildcards select whether line terminators are included; and
+-   repetition mode and every position/lookaround property are explicit on the
+    operation that owns them.
 
 Requested outputs, a target-profile reference, diagnostic policy, partial
 semantics, and resource limits belong to the generated `CompileRequest`. They
@@ -97,17 +97,17 @@ Semantic IR program, or compile request.
 The protocol will record the existing migration taxonomy for historical Simply
 evidence:
 
-- literal escaping and empty-literal intent are preserved semantically;
-- immutable composition and readable host helpers remain adapter ergonomics;
-- `max=0` as an unbounded sentinel is intentionally corrected to explicit JSON
-  `null`, because canonical zero is a real finite maximum;
-- host guards against repeating named captures and Python duplication of
-  numbered captures are unsupported host quirks rather than semantics;
-- direct `toString`, `compileNode`, `toRegExp`, `exec`, and PCRE2 convenience
-  routes remain separately governed compatibility obligations and must route
-  through `CompileRequest` plus a target profile when later adapters migrate;
-  and
-- formatted `STRlingError` prose is presentation, not failure identity.
+-   literal escaping and empty-literal intent are preserved semantically;
+-   immutable composition and readable host helpers remain adapter ergonomics;
+-   `max=0` as an unbounded sentinel is intentionally corrected to explicit JSON
+    `null`, because canonical zero is a real finite maximum;
+-   host guards against repeating named captures and Python duplication of
+    numbered captures are unsupported host quirks rather than semantics;
+-   direct `toString`, `compileNode`, `toRegExp`, `exec`, and PCRE2 convenience
+    routes remain separately governed compatibility obligations and must route
+    through `CompileRequest` plus a target profile when later adapters migrate;
+    and
+-   formatted `STRlingError` prose is presentation, not failure identity.
 
 ## Certification plan
 
@@ -125,3 +125,20 @@ canonical normalizer and compare the exact expected normalized program and
 validated `CompileRequest`. Architecture mutations will prove the contract and
 validator cannot acquire binding, target, runtime, product, raw-regex,
 subprocess, or second-compiler authority.
+
+## Implemented contract evidence
+
+Protocol `1.0.0` now provides the closed machine registry, three schemas, nine
+positive equivalence cases, 13 controlled-negative cases, and a seven-input
+content-addressed manifest. Its certification fingerprint is
+`sha256:245bd1aa0745db78258f5c5f27e023d4bd07ffbc3814bfd751e577192a034740`.
+
+The specification projector validates the construction graph and deterministically
+produces each authored Semantic IR program and `CompileRequest`. The Rust
+contract proof binds all seven JSON artifacts, proves every positive program is
+already canonical under `canonical-v1`, validates each exact request, and
+confirms complete stable-error coverage. Controlled mutations reject operation
+inventory drift, stale manifest bytes, raw/target field widening, missing
+historical evidence, changed failure identities, runtime/process dependencies,
+and expanded frontend authority. The canonical kernel fixture hardgate now
+accounts for 107 files, including all seven Simply artifacts.

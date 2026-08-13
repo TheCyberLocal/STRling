@@ -40,6 +40,12 @@ retain different parse representations, and Simply may construct semantic
 structures directly. Every frontend converges on Semantic IR before shared
 analysis, planning, lowering, or emission.
 
+The separately versioned
+[`strling.simply-builder` protocol](../frontends/simply/1.0/README.md) owns only
+the deterministic construction projection into this suite. It neither extends
+Semantic IR nor bypasses canonical normalization and `CompileRequest`
+validation.
+
 ## Contract families
 
 The suite defines these machine-readable families without selecting an RPC, FFI,
@@ -60,7 +66,9 @@ WASM, network, or in-process transport:
 Run `python3 tooling/contract_validation.py` for schema, authored example,
 profile, conformance, deterministic serialization, cross-reference, and
 controlled-negative validation. This command is a mandatory `check` and
-`certify` integrity hardgate.
+`certify` integrity hardgate. It also certifies the versioned frontend
+protocols, including all Simply operations, equivalence fixtures, stable
+failures, historical dispositions, and content fingerprints.
 
 The same canonical command validates the separately versioned
 [`standard-library helper claim contracts`](../stdlib/contracts/README.md),

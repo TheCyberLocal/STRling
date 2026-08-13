@@ -42,8 +42,10 @@ the canonical contracts.
    frontend parse tree.
 2. Frontend-specific syntax representations are private to their frontend and
    never cross the Semantic IR boundary.
-3. Simply may supply a source-less Semantic IR. Text spans are optional origin
-   metadata, not a precondition for semantic validity.
+3. Simply-generated nodes are source-less. Imported canonical nodes and
+   programs preserve their identities, origins, and declared source documents;
+   text spans remain optional origin metadata, not a precondition for semantic
+   validity.
 4. Semantic IR contains intent, never emitted fragments, engine option names,
    target escape spellings, capture numbers, or host-language values.
 5. Noncapturing syntax-only grouping disappears during semantic lowering.
@@ -51,6 +53,12 @@ the canonical contracts.
    explicit nodes.
 6. A target profile cannot redefine STRling meaning. A backend cannot infer a
    different meaning from frontend identity or host language.
+7. A Simply request is a closed, ordered, versioned construction graph. It
+   cannot carry raw regex, emitted target syntax, engine option names, runtime
+   objects, callbacks, or an implicit compiler/engine.
+8. Simply semantic options belong to the projected Semantic IR. Requested
+   outputs, compiler options, and an exact target profile belong only to the
+   projected `CompileRequest`.
 
 ### Identity and attribution
 
@@ -70,6 +78,13 @@ the canonical contracts.
    alpha-renaming of node and capture identifiers.
 6. Source spans reference a declared `source_id`. A span cannot silently refer
    to a path, editor buffer, or another source document.
+7. Simply-generated node and capture identities derive only from the explicit
+   request namespace and stable step or capture key. Host object address,
+   insertion position, target capture number, and content hash are forbidden
+   identity sources.
+8. Builder values are immutable and materialize under exactly one parent.
+   Transparent grouping preserves its child's identity and records the removed
+   deterministic group identity only as non-semantic derivation provenance.
 
 ### Canonical source coordinates
 

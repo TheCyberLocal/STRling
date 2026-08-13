@@ -3355,3 +3355,15 @@ projector, canonical Rust normalization and CompileRequest equivalence, and
 controlled architecture mutations. All affected contracts, Rust/tooling tests,
 documentation, governance, migration, Local profile, and clean-tree checks must
 pass before P13-T01 can close.
+
+The implementation checkpoint now provides protocol `1.0.0`, three schemas,
+nine positive cases, 13 negative cases, all 15 operations, all 12 stable errors,
+eight historical dispositions, and a seven-input checked manifest at
+`sha256:245bd1aa0745db78258f5c5f27e023d4bd07ffbc3814bfd751e577192a034740`.
+The certification-only projector reproduces exact authored Semantic IR and
+`CompileRequest` values. Rust proves all expected programs are canonical and
+all requests validate. Mutation tests fail closed on inventory, fingerprint,
+schema, raw/target authority, evidence, failure-identity, runtime/process, and
+frontend-authority drift. Canonical kernel fixture accounting advances from 100
+to 107 solely for the seven bound Simply JSON artifacts. Complete repository
+and Local certification remain before task closure.

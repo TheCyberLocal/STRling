@@ -1,0 +1,1312 @@
+{
+    "suite_version": "1.0.0",
+    "kind": "positive",
+    "cases": [
+        {
+            "case_id": "literal-empty-group-sequence",
+            "feature_ids": [
+                "empty",
+                "group",
+                "identity",
+                "literal",
+                "sequence"
+            ],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "basic",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "literal",
+                        "operation": "literal",
+                        "arguments": { "text": "a.b" }
+                    },
+                    {
+                        "step_id": "empty-text",
+                        "operation": "literal",
+                        "arguments": { "text": "" }
+                    },
+                    {
+                        "step_id": "empty",
+                        "operation": "empty",
+                        "arguments": {}
+                    },
+                    {
+                        "step_id": "grouped",
+                        "operation": "group",
+                        "arguments": { "value": "literal" }
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "sequence",
+                        "arguments": {
+                            "values": ["grouped", "empty-text", "empty"]
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic", "analysis"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "success",
+                "semantic_program": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "normalization": "canonical-v1",
+                    "case_matching": "sensitive",
+                    "root": {
+                        "node_id": "node:simply/basic/root",
+                        "kind": "sequence",
+                        "items": [
+                            {
+                                "node_id": "node:simply/basic/literal",
+                                "kind": "literal",
+                                "origin": {
+                                    "derived_from_node_ids": [
+                                        "node:simply/basic/grouped"
+                                    ]
+                                },
+                                "text": "a.b"
+                            },
+                            {
+                                "node_id": "node:simply/basic/empty-text",
+                                "kind": "empty"
+                            },
+                            {
+                                "node_id": "node:simply/basic/empty",
+                                "kind": "empty"
+                            }
+                        ]
+                    }
+                },
+                "compile_request": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "input": {
+                        "kind": "semantic",
+                        "program": {
+                            "contract_version": "1.0.0",
+                            "specification_version": "1.0-draft.1",
+                            "normalization": "canonical-v1",
+                            "case_matching": "sensitive",
+                            "root": {
+                                "node_id": "node:simply/basic/root",
+                                "kind": "sequence",
+                                "items": [
+                                    {
+                                        "node_id": "node:simply/basic/literal",
+                                        "kind": "literal",
+                                        "origin": {
+                                            "derived_from_node_ids": [
+                                                "node:simply/basic/grouped"
+                                            ]
+                                        },
+                                        "text": "a.b"
+                                    },
+                                    {
+                                        "node_id": "node:simply/basic/empty-text",
+                                        "kind": "empty"
+                                    },
+                                    {
+                                        "node_id": "node:simply/basic/empty",
+                                        "kind": "empty"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "requested_outputs": ["semantic", "analysis"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            }
+        },
+        {
+            "case_id": "alternation-wildcard-options",
+            "feature_ids": ["alternation", "literal", "options", "wildcard"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "alternatives",
+                "semantic_options": {
+                    "case_matching": "insensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "include"
+                },
+                "steps": [
+                    {
+                        "step_id": "wildcard",
+                        "operation": "wildcard",
+                        "arguments": {}
+                    },
+                    {
+                        "step_id": "lambda",
+                        "operation": "literal",
+                        "arguments": { "text": "λ" }
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "alternation",
+                        "arguments": { "values": ["wildcard", "lambda"] }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "info" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "success",
+                "semantic_program": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "normalization": "canonical-v1",
+                    "case_matching": "insensitive",
+                    "root": {
+                        "node_id": "node:simply/alternatives/root",
+                        "kind": "alternation",
+                        "branches": [
+                            {
+                                "node_id": "node:simply/alternatives/wildcard",
+                                "kind": "wildcard",
+                                "line_terminators": "include"
+                            },
+                            {
+                                "node_id": "node:simply/alternatives/lambda",
+                                "kind": "literal",
+                                "text": "λ"
+                            }
+                        ]
+                    }
+                },
+                "compile_request": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "input": {
+                        "kind": "semantic",
+                        "program": {
+                            "contract_version": "1.0.0",
+                            "specification_version": "1.0-draft.1",
+                            "normalization": "canonical-v1",
+                            "case_matching": "insensitive",
+                            "root": {
+                                "node_id": "node:simply/alternatives/root",
+                                "kind": "alternation",
+                                "branches": [
+                                    {
+                                        "node_id": "node:simply/alternatives/wildcard",
+                                        "kind": "wildcard",
+                                        "line_terminators": "include"
+                                    },
+                                    {
+                                        "node_id": "node:simply/alternatives/lambda",
+                                        "kind": "literal",
+                                        "text": "λ"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "info" }
+                    }
+                }
+            }
+        },
+        {
+            "case_id": "canonical-character-set",
+            "feature_ids": ["character_set", "options"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "set",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "ascii",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "character_set",
+                        "arguments": {
+                            "negated": false,
+                            "members": [
+                                {
+                                    "kind": "unicode_property",
+                                    "property": "General_Category",
+                                    "value": "Letter",
+                                    "negated": false
+                                },
+                                {
+                                    "kind": "builtin",
+                                    "name": "digit",
+                                    "negated": false
+                                },
+                                { "kind": "range", "start": "A", "end": "Z" },
+                                { "kind": "literal", "value": "_" }
+                            ]
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "hint" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "success",
+                "semantic_program": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "normalization": "canonical-v1",
+                    "case_matching": "sensitive",
+                    "root": {
+                        "node_id": "node:simply/set/root",
+                        "kind": "character_set",
+                        "negated": false,
+                        "members": [
+                            { "kind": "literal", "value": "_" },
+                            { "kind": "range", "start": "A", "end": "Z" },
+                            {
+                                "kind": "builtin",
+                                "name": "digit",
+                                "domain": "ascii",
+                                "negated": false
+                            },
+                            {
+                                "kind": "unicode_property",
+                                "property": "General_Category",
+                                "value": "Letter",
+                                "negated": false
+                            }
+                        ]
+                    }
+                },
+                "compile_request": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "input": {
+                        "kind": "semantic",
+                        "program": {
+                            "contract_version": "1.0.0",
+                            "specification_version": "1.0-draft.1",
+                            "normalization": "canonical-v1",
+                            "case_matching": "sensitive",
+                            "root": {
+                                "node_id": "node:simply/set/root",
+                                "kind": "character_set",
+                                "negated": false,
+                                "members": [
+                                    { "kind": "literal", "value": "_" },
+                                    {
+                                        "kind": "range",
+                                        "start": "A",
+                                        "end": "Z"
+                                    },
+                                    {
+                                        "kind": "builtin",
+                                        "name": "digit",
+                                        "domain": "ascii",
+                                        "negated": false
+                                    },
+                                    {
+                                        "kind": "unicode_property",
+                                        "property": "General_Category",
+                                        "value": "Letter",
+                                        "negated": false
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "hint" }
+                    }
+                }
+            }
+        },
+        {
+            "case_id": "capture-and-backreference",
+            "feature_ids": [
+                "backreference",
+                "capture",
+                "identity",
+                "literal",
+                "sequence"
+            ],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "capture",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "body",
+                        "operation": "literal",
+                        "arguments": { "text": "λ" }
+                    },
+                    {
+                        "step_id": "capture",
+                        "operation": "capture",
+                        "arguments": {
+                            "value": "body",
+                            "capture_key": "word",
+                            "name": "word"
+                        }
+                    },
+                    {
+                        "step_id": "reference",
+                        "operation": "backreference",
+                        "arguments": { "capture_key": "word" }
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "sequence",
+                        "arguments": { "values": ["capture", "reference"] }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic", "analysis"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "success",
+                "semantic_program": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "normalization": "canonical-v1",
+                    "case_matching": "sensitive",
+                    "root": {
+                        "node_id": "node:simply/capture/root",
+                        "kind": "sequence",
+                        "items": [
+                            {
+                                "node_id": "node:simply/capture/capture",
+                                "kind": "capture",
+                                "capture_id": "capture:simply/capture/word",
+                                "name": "word",
+                                "body": {
+                                    "node_id": "node:simply/capture/body",
+                                    "kind": "literal",
+                                    "text": "λ"
+                                }
+                            },
+                            {
+                                "node_id": "node:simply/capture/reference",
+                                "kind": "backreference",
+                                "capture_id": "capture:simply/capture/word"
+                            }
+                        ]
+                    }
+                },
+                "compile_request": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "input": {
+                        "kind": "semantic",
+                        "program": {
+                            "contract_version": "1.0.0",
+                            "specification_version": "1.0-draft.1",
+                            "normalization": "canonical-v1",
+                            "case_matching": "sensitive",
+                            "root": {
+                                "node_id": "node:simply/capture/root",
+                                "kind": "sequence",
+                                "items": [
+                                    {
+                                        "node_id": "node:simply/capture/capture",
+                                        "kind": "capture",
+                                        "capture_id": "capture:simply/capture/word",
+                                        "name": "word",
+                                        "body": {
+                                            "node_id": "node:simply/capture/body",
+                                            "kind": "literal",
+                                            "text": "λ"
+                                        }
+                                    },
+                                    {
+                                        "node_id": "node:simply/capture/reference",
+                                        "kind": "backreference",
+                                        "capture_id": "capture:simply/capture/word"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "requested_outputs": ["semantic", "analysis"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            }
+        },
+        {
+            "case_id": "assertion-position-atomic",
+            "feature_ids": [
+                "atomic",
+                "literal",
+                "lookaround",
+                "position",
+                "sequence"
+            ],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "assertion",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "start",
+                        "operation": "position",
+                        "arguments": { "position": "input_start" }
+                    },
+                    {
+                        "step_id": "look-body",
+                        "operation": "literal",
+                        "arguments": { "text": "a" }
+                    },
+                    {
+                        "step_id": "look",
+                        "operation": "lookaround",
+                        "arguments": {
+                            "value": "look-body",
+                            "direction": "ahead",
+                            "polarity": "positive"
+                        }
+                    },
+                    {
+                        "step_id": "atomic-body",
+                        "operation": "literal",
+                        "arguments": { "text": "b" }
+                    },
+                    {
+                        "step_id": "atomic",
+                        "operation": "atomic",
+                        "arguments": { "value": "atomic-body" }
+                    },
+                    {
+                        "step_id": "end",
+                        "operation": "position",
+                        "arguments": { "position": "input_end" }
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "sequence",
+                        "arguments": {
+                            "values": ["start", "look", "atomic", "end"]
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "hint" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "success",
+                "semantic_program": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "normalization": "canonical-v1",
+                    "case_matching": "sensitive",
+                    "root": {
+                        "node_id": "node:simply/assertion/root",
+                        "kind": "sequence",
+                        "items": [
+                            {
+                                "node_id": "node:simply/assertion/start",
+                                "kind": "position",
+                                "position": "input_start"
+                            },
+                            {
+                                "node_id": "node:simply/assertion/look",
+                                "kind": "lookaround",
+                                "direction": "ahead",
+                                "polarity": "positive",
+                                "body": {
+                                    "node_id": "node:simply/assertion/look-body",
+                                    "kind": "literal",
+                                    "text": "a"
+                                }
+                            },
+                            {
+                                "node_id": "node:simply/assertion/atomic",
+                                "kind": "atomic",
+                                "body": {
+                                    "node_id": "node:simply/assertion/atomic-body",
+                                    "kind": "literal",
+                                    "text": "b"
+                                }
+                            },
+                            {
+                                "node_id": "node:simply/assertion/end",
+                                "kind": "position",
+                                "position": "input_end"
+                            }
+                        ]
+                    }
+                },
+                "compile_request": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "input": {
+                        "kind": "semantic",
+                        "program": {
+                            "contract_version": "1.0.0",
+                            "specification_version": "1.0-draft.1",
+                            "normalization": "canonical-v1",
+                            "case_matching": "sensitive",
+                            "root": {
+                                "node_id": "node:simply/assertion/root",
+                                "kind": "sequence",
+                                "items": [
+                                    {
+                                        "node_id": "node:simply/assertion/start",
+                                        "kind": "position",
+                                        "position": "input_start"
+                                    },
+                                    {
+                                        "node_id": "node:simply/assertion/look",
+                                        "kind": "lookaround",
+                                        "direction": "ahead",
+                                        "polarity": "positive",
+                                        "body": {
+                                            "node_id": "node:simply/assertion/look-body",
+                                            "kind": "literal",
+                                            "text": "a"
+                                        }
+                                    },
+                                    {
+                                        "node_id": "node:simply/assertion/atomic",
+                                        "kind": "atomic",
+                                        "body": {
+                                            "node_id": "node:simply/assertion/atomic-body",
+                                            "kind": "literal",
+                                            "text": "b"
+                                        }
+                                    },
+                                    {
+                                        "node_id": "node:simply/assertion/end",
+                                        "kind": "position",
+                                        "position": "input_end"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "hint" }
+                    }
+                }
+            }
+        },
+        {
+            "case_id": "all-repetition-modes",
+            "feature_ids": ["literal", "repeat", "sequence"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "repeat",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "a",
+                        "operation": "literal",
+                        "arguments": { "text": "a" }
+                    },
+                    {
+                        "step_id": "greedy",
+                        "operation": "repeat",
+                        "arguments": {
+                            "value": "a",
+                            "min": 0,
+                            "max": null,
+                            "mode": "greedy"
+                        }
+                    },
+                    {
+                        "step_id": "b",
+                        "operation": "literal",
+                        "arguments": { "text": "b" }
+                    },
+                    {
+                        "step_id": "lazy",
+                        "operation": "repeat",
+                        "arguments": {
+                            "value": "b",
+                            "min": 1,
+                            "max": 2,
+                            "mode": "lazy"
+                        }
+                    },
+                    {
+                        "step_id": "c",
+                        "operation": "literal",
+                        "arguments": { "text": "c" }
+                    },
+                    {
+                        "step_id": "possessive",
+                        "operation": "repeat",
+                        "arguments": {
+                            "value": "c",
+                            "min": 1,
+                            "max": 1,
+                            "mode": "possessive"
+                        }
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "sequence",
+                        "arguments": {
+                            "values": ["greedy", "lazy", "possessive"]
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic", "analysis"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "success",
+                "semantic_program": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "normalization": "canonical-v1",
+                    "case_matching": "sensitive",
+                    "root": {
+                        "node_id": "node:simply/repeat/root",
+                        "kind": "sequence",
+                        "items": [
+                            {
+                                "node_id": "node:simply/repeat/greedy",
+                                "kind": "repeat",
+                                "body": {
+                                    "node_id": "node:simply/repeat/a",
+                                    "kind": "literal",
+                                    "text": "a"
+                                },
+                                "min": 0,
+                                "max": null,
+                                "mode": "greedy"
+                            },
+                            {
+                                "node_id": "node:simply/repeat/lazy",
+                                "kind": "repeat",
+                                "body": {
+                                    "node_id": "node:simply/repeat/b",
+                                    "kind": "literal",
+                                    "text": "b"
+                                },
+                                "min": 1,
+                                "max": 2,
+                                "mode": "lazy"
+                            },
+                            {
+                                "node_id": "node:simply/repeat/possessive",
+                                "kind": "repeat",
+                                "body": {
+                                    "node_id": "node:simply/repeat/c",
+                                    "kind": "literal",
+                                    "text": "c"
+                                },
+                                "min": 1,
+                                "max": 1,
+                                "mode": "possessive"
+                            }
+                        ]
+                    }
+                },
+                "compile_request": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "input": {
+                        "kind": "semantic",
+                        "program": {
+                            "contract_version": "1.0.0",
+                            "specification_version": "1.0-draft.1",
+                            "normalization": "canonical-v1",
+                            "case_matching": "sensitive",
+                            "root": {
+                                "node_id": "node:simply/repeat/root",
+                                "kind": "sequence",
+                                "items": [
+                                    {
+                                        "node_id": "node:simply/repeat/greedy",
+                                        "kind": "repeat",
+                                        "body": {
+                                            "node_id": "node:simply/repeat/a",
+                                            "kind": "literal",
+                                            "text": "a"
+                                        },
+                                        "min": 0,
+                                        "max": null,
+                                        "mode": "greedy"
+                                    },
+                                    {
+                                        "node_id": "node:simply/repeat/lazy",
+                                        "kind": "repeat",
+                                        "body": {
+                                            "node_id": "node:simply/repeat/b",
+                                            "kind": "literal",
+                                            "text": "b"
+                                        },
+                                        "min": 1,
+                                        "max": 2,
+                                        "mode": "lazy"
+                                    },
+                                    {
+                                        "node_id": "node:simply/repeat/possessive",
+                                        "kind": "repeat",
+                                        "body": {
+                                            "node_id": "node:simply/repeat/c",
+                                            "kind": "literal",
+                                            "text": "c"
+                                        },
+                                        "min": 1,
+                                        "max": 1,
+                                        "mode": "possessive"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "requested_outputs": ["semantic", "analysis"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            }
+        },
+        {
+            "case_id": "imported-node-provenance",
+            "feature_ids": ["compile_request", "import_node", "provenance"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "node-import",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "import_node",
+                        "arguments": {
+                            "node": {
+                                "node_id": "node:imported.literal",
+                                "kind": "literal",
+                                "origin": {
+                                    "source_spans": [
+                                        {
+                                            "source_id": "src:simply.imported-node",
+                                            "coordinate_system": "utf8-bytes",
+                                            "start": 0,
+                                            "end": 6
+                                        }
+                                    ]
+                                },
+                                "text": "import"
+                            },
+                            "sources": [
+                                {
+                                    "contract_version": "1.0.0",
+                                    "source_id": "src:simply.imported-node",
+                                    "specification_version": "1.0-draft.1",
+                                    "frontend": {
+                                        "id": "semantic_strling",
+                                        "dialect_version": "1.0-draft.1"
+                                    },
+                                    "display_name": "Imported semantic node",
+                                    "content": {
+                                        "kind": "inline",
+                                        "encoding": "utf-8",
+                                        "media_type": "text/strling",
+                                        "text": "import"
+                                    },
+                                    "provenance": { "kind": "authored" }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic", "analysis"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "success",
+                "semantic_program": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "normalization": "canonical-v1",
+                    "case_matching": "sensitive",
+                    "sources": [
+                        {
+                            "contract_version": "1.0.0",
+                            "source_id": "src:simply.imported-node",
+                            "specification_version": "1.0-draft.1",
+                            "frontend": {
+                                "id": "semantic_strling",
+                                "dialect_version": "1.0-draft.1"
+                            },
+                            "display_name": "Imported semantic node",
+                            "content": {
+                                "kind": "inline",
+                                "encoding": "utf-8",
+                                "media_type": "text/strling",
+                                "text": "import"
+                            },
+                            "provenance": { "kind": "authored" }
+                        }
+                    ],
+                    "root": {
+                        "node_id": "node:imported.literal",
+                        "kind": "literal",
+                        "origin": {
+                            "source_spans": [
+                                {
+                                    "source_id": "src:simply.imported-node",
+                                    "coordinate_system": "utf8-bytes",
+                                    "start": 0,
+                                    "end": 6
+                                }
+                            ]
+                        },
+                        "text": "import"
+                    }
+                },
+                "compile_request": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "input": {
+                        "kind": "semantic",
+                        "program": {
+                            "contract_version": "1.0.0",
+                            "specification_version": "1.0-draft.1",
+                            "normalization": "canonical-v1",
+                            "case_matching": "sensitive",
+                            "sources": [
+                                {
+                                    "contract_version": "1.0.0",
+                                    "source_id": "src:simply.imported-node",
+                                    "specification_version": "1.0-draft.1",
+                                    "frontend": {
+                                        "id": "semantic_strling",
+                                        "dialect_version": "1.0-draft.1"
+                                    },
+                                    "display_name": "Imported semantic node",
+                                    "content": {
+                                        "kind": "inline",
+                                        "encoding": "utf-8",
+                                        "media_type": "text/strling",
+                                        "text": "import"
+                                    },
+                                    "provenance": { "kind": "authored" }
+                                }
+                            ],
+                            "root": {
+                                "node_id": "node:imported.literal",
+                                "kind": "literal",
+                                "origin": {
+                                    "source_spans": [
+                                        {
+                                            "source_id": "src:simply.imported-node",
+                                            "coordinate_system": "utf8-bytes",
+                                            "start": 0,
+                                            "end": 6
+                                        }
+                                    ]
+                                },
+                                "text": "import"
+                            }
+                        }
+                    },
+                    "requested_outputs": ["semantic", "analysis"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            }
+        },
+        {
+            "case_id": "imported-program-mixed-provenance",
+            "feature_ids": [
+                "import_program",
+                "literal",
+                "provenance",
+                "sequence"
+            ],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "program-import",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "imported",
+                        "operation": "import_program",
+                        "arguments": {
+                            "program": {
+                                "contract_version": "1.0.0",
+                                "specification_version": "1.0-draft.1",
+                                "normalization": "canonical-v1",
+                                "case_matching": "sensitive",
+                                "sources": [
+                                    {
+                                        "contract_version": "1.0.0",
+                                        "source_id": "src:simply.imported-program",
+                                        "specification_version": "1.0-draft.1",
+                                        "frontend": {
+                                            "id": "semantic_strling",
+                                            "dialect_version": "1.0-draft.1"
+                                        },
+                                        "display_name": "Imported semantic program",
+                                        "content": {
+                                            "kind": "inline",
+                                            "encoding": "utf-8",
+                                            "media_type": "text/strling",
+                                            "text": "value"
+                                        },
+                                        "provenance": { "kind": "authored" }
+                                    }
+                                ],
+                                "root": {
+                                    "node_id": "node:imported.program.atomic",
+                                    "kind": "atomic",
+                                    "body": {
+                                        "node_id": "node:imported.program.literal",
+                                        "kind": "literal",
+                                        "origin": {
+                                            "source_spans": [
+                                                {
+                                                    "source_id": "src:simply.imported-program",
+                                                    "coordinate_system": "utf8-bytes",
+                                                    "start": 0,
+                                                    "end": 5
+                                                }
+                                            ]
+                                        },
+                                        "text": "value"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "step_id": "suffix",
+                        "operation": "literal",
+                        "arguments": { "text": "!" }
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "sequence",
+                        "arguments": { "values": ["imported", "suffix"] }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "success",
+                "semantic_program": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "normalization": "canonical-v1",
+                    "case_matching": "sensitive",
+                    "sources": [
+                        {
+                            "contract_version": "1.0.0",
+                            "source_id": "src:simply.imported-program",
+                            "specification_version": "1.0-draft.1",
+                            "frontend": {
+                                "id": "semantic_strling",
+                                "dialect_version": "1.0-draft.1"
+                            },
+                            "display_name": "Imported semantic program",
+                            "content": {
+                                "kind": "inline",
+                                "encoding": "utf-8",
+                                "media_type": "text/strling",
+                                "text": "value"
+                            },
+                            "provenance": { "kind": "authored" }
+                        }
+                    ],
+                    "root": {
+                        "node_id": "node:simply/program-import/root",
+                        "kind": "sequence",
+                        "items": [
+                            {
+                                "node_id": "node:imported.program.atomic",
+                                "kind": "atomic",
+                                "body": {
+                                    "node_id": "node:imported.program.literal",
+                                    "kind": "literal",
+                                    "origin": {
+                                        "source_spans": [
+                                            {
+                                                "source_id": "src:simply.imported-program",
+                                                "coordinate_system": "utf8-bytes",
+                                                "start": 0,
+                                                "end": 5
+                                            }
+                                        ]
+                                    },
+                                    "text": "value"
+                                }
+                            },
+                            {
+                                "node_id": "node:simply/program-import/suffix",
+                                "kind": "literal",
+                                "text": "!"
+                            }
+                        ]
+                    }
+                },
+                "compile_request": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "input": {
+                        "kind": "semantic",
+                        "program": {
+                            "contract_version": "1.0.0",
+                            "specification_version": "1.0-draft.1",
+                            "normalization": "canonical-v1",
+                            "case_matching": "sensitive",
+                            "sources": [
+                                {
+                                    "contract_version": "1.0.0",
+                                    "source_id": "src:simply.imported-program",
+                                    "specification_version": "1.0-draft.1",
+                                    "frontend": {
+                                        "id": "semantic_strling",
+                                        "dialect_version": "1.0-draft.1"
+                                    },
+                                    "display_name": "Imported semantic program",
+                                    "content": {
+                                        "kind": "inline",
+                                        "encoding": "utf-8",
+                                        "media_type": "text/strling",
+                                        "text": "value"
+                                    },
+                                    "provenance": { "kind": "authored" }
+                                }
+                            ],
+                            "root": {
+                                "node_id": "node:simply/program-import/root",
+                                "kind": "sequence",
+                                "items": [
+                                    {
+                                        "node_id": "node:imported.program.atomic",
+                                        "kind": "atomic",
+                                        "body": {
+                                            "node_id": "node:imported.program.literal",
+                                            "kind": "literal",
+                                            "origin": {
+                                                "source_spans": [
+                                                    {
+                                                        "source_id": "src:simply.imported-program",
+                                                        "coordinate_system": "utf8-bytes",
+                                                        "start": 0,
+                                                        "end": 5
+                                                    }
+                                                ]
+                                            },
+                                            "text": "value"
+                                        }
+                                    },
+                                    {
+                                        "node_id": "node:simply/program-import/suffix",
+                                        "kind": "literal",
+                                        "text": "!"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            }
+        },
+        {
+            "case_id": "target-profile-is-compiler-routing",
+            "feature_ids": ["compile_request", "literal"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "routing",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "literal",
+                        "arguments": { "text": "x" }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "requested_outputs": [
+                        "semantic",
+                        "portability",
+                        "target_artifact"
+                    ],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "hint" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "success",
+                "semantic_program": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "normalization": "canonical-v1",
+                    "case_matching": "sensitive",
+                    "root": {
+                        "node_id": "node:simply/routing/root",
+                        "kind": "literal",
+                        "text": "x"
+                    }
+                },
+                "compile_request": {
+                    "contract_version": "1.0.0",
+                    "specification_version": "1.0-draft.1",
+                    "input": {
+                        "kind": "semantic",
+                        "program": {
+                            "contract_version": "1.0.0",
+                            "specification_version": "1.0-draft.1",
+                            "normalization": "canonical-v1",
+                            "case_matching": "sensitive",
+                            "root": {
+                                "node_id": "node:simply/routing/root",
+                                "kind": "literal",
+                                "text": "x"
+                            }
+                        }
+                    },
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "requested_outputs": [
+                        "semantic",
+                        "portability",
+                        "target_artifact"
+                    ],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "hint" }
+                    }
+                }
+            }
+        }
+    ]
+}

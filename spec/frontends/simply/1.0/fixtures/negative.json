@@ -1,0 +1,628 @@
+{
+    "suite_version": "1.0.0",
+    "kind": "negative",
+    "cases": [
+        {
+            "case_id": "invalid-text-model",
+            "feature_ids": ["options"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "bad-text",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "utf16_code_units",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "literal",
+                        "arguments": { "text": "a" }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    {
+                        "code": "STRL-SIMPLY-0001",
+                        "path": "$.semantic_options.text_model"
+                    }
+                ]
+            }
+        },
+        {
+            "case_id": "finite-maximum-below-minimum",
+            "feature_ids": ["literal", "repeat"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "bad-bounds",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "body",
+                        "operation": "literal",
+                        "arguments": { "text": "a" }
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "repeat",
+                        "arguments": {
+                            "value": "body",
+                            "min": 2,
+                            "max": 1,
+                            "mode": "greedy"
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    {
+                        "code": "STRL-SIMPLY-0002",
+                        "path": "$.steps[1].arguments.max"
+                    }
+                ]
+            }
+        },
+        {
+            "case_id": "duplicate-step-identity",
+            "feature_ids": ["identity", "literal"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "duplicate",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "literal",
+                        "arguments": { "text": "a" }
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "literal",
+                        "arguments": { "text": "b" }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    { "code": "STRL-SIMPLY-0003", "path": "$.steps[1].step_id" }
+                ]
+            }
+        },
+        {
+            "case_id": "duplicate-capture-name",
+            "feature_ids": ["capture", "literal", "sequence"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "capture-name",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "left-body",
+                        "operation": "literal",
+                        "arguments": { "text": "a" }
+                    },
+                    {
+                        "step_id": "left",
+                        "operation": "capture",
+                        "arguments": {
+                            "value": "left-body",
+                            "capture_key": "left",
+                            "name": "same"
+                        }
+                    },
+                    {
+                        "step_id": "right-body",
+                        "operation": "literal",
+                        "arguments": { "text": "b" }
+                    },
+                    {
+                        "step_id": "right",
+                        "operation": "capture",
+                        "arguments": {
+                            "value": "right-body",
+                            "capture_key": "right",
+                            "name": "same"
+                        }
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "sequence",
+                        "arguments": { "values": ["left", "right"] }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    {
+                        "code": "STRL-SIMPLY-0004",
+                        "path": "$.steps[3].arguments.name"
+                    }
+                ]
+            }
+        },
+        {
+            "case_id": "unresolved-builder-value",
+            "feature_ids": ["literal", "sequence"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "missing-value",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "left",
+                        "operation": "literal",
+                        "arguments": { "text": "a" }
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "sequence",
+                        "arguments": { "values": ["left", "missing"] }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    {
+                        "code": "STRL-SIMPLY-0005",
+                        "path": "$.steps[1].arguments.values[1]"
+                    }
+                ]
+            }
+        },
+        {
+            "case_id": "unresolved-logical-capture",
+            "feature_ids": ["backreference"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "missing-capture",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "backreference",
+                        "arguments": { "capture_key": "missing" }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    {
+                        "code": "STRL-SIMPLY-0006",
+                        "path": "$.steps[0].arguments.capture_key"
+                    }
+                ]
+            }
+        },
+        {
+            "case_id": "reused-builder-value",
+            "feature_ids": ["group", "literal", "sequence"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "reuse",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "value",
+                        "operation": "literal",
+                        "arguments": { "text": "a" }
+                    },
+                    {
+                        "step_id": "left",
+                        "operation": "group",
+                        "arguments": { "value": "value" }
+                    },
+                    {
+                        "step_id": "right",
+                        "operation": "group",
+                        "arguments": { "value": "value" }
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "sequence",
+                        "arguments": { "values": ["left", "right"] }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    {
+                        "code": "STRL-SIMPLY-0007",
+                        "path": "$.steps[2].arguments.value"
+                    }
+                ]
+            }
+        },
+        {
+            "case_id": "incompatible-imported-program",
+            "feature_ids": ["import_program", "options"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "import-mismatch",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "import_program",
+                        "arguments": {
+                            "program": {
+                                "contract_version": "1.0.0",
+                                "specification_version": "1.0-draft.1",
+                                "normalization": "canonical-v1",
+                                "case_matching": "insensitive",
+                                "root": {
+                                    "node_id": "node:import.mismatch",
+                                    "kind": "literal",
+                                    "text": "a"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    {
+                        "code": "STRL-SIMPLY-0008",
+                        "path": "$.steps[0].arguments.program.case_matching"
+                    }
+                ]
+            }
+        },
+        {
+            "case_id": "unresolved-imported-origin",
+            "feature_ids": ["import_node", "provenance"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "bad-origin",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "import_node",
+                        "arguments": {
+                            "node": {
+                                "node_id": "node:bad.origin",
+                                "kind": "literal",
+                                "origin": {
+                                    "source_spans": [
+                                        {
+                                            "source_id": "src:missing",
+                                            "coordinate_system": "utf8-bytes",
+                                            "start": 0,
+                                            "end": 1
+                                        }
+                                    ]
+                                },
+                                "text": "a"
+                            }
+                        }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    {
+                        "code": "STRL-SIMPLY-0009",
+                        "path": "$.root.origin.source_spans[0].source_id"
+                    }
+                ]
+            }
+        },
+        {
+            "case_id": "raw-regex-operation-is-unsupported",
+            "feature_ids": ["literal"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "raw",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "raw_regex",
+                        "arguments": { "source": "a.*" }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    {
+                        "code": "STRL-SIMPLY-0010",
+                        "path": "$.steps[0].operation"
+                    }
+                ]
+            }
+        },
+        {
+            "case_id": "target-pattern-field-is-unsupported",
+            "feature_ids": ["compile_request", "literal"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "target-leak",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "target_pattern": "(?i:a)",
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "literal",
+                        "arguments": { "text": "a" }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    { "code": "STRL-SIMPLY-0010", "path": "$.target_pattern" }
+                ]
+            }
+        },
+        {
+            "case_id": "target-output-requires-profile",
+            "feature_ids": ["compile_request", "literal"],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "missing-profile",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "root",
+                        "operation": "literal",
+                        "arguments": { "text": "a" }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic", "portability"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    {
+                        "code": "STRL-SIMPLY-0011",
+                        "path": "$.compile.target_profile"
+                    }
+                ]
+            }
+        },
+        {
+            "case_id": "semantic-node-resource-limit",
+            "feature_ids": [
+                "compile_request",
+                "literal",
+                "sequence",
+                "wildcard"
+            ],
+            "request": {
+                "protocol_version": "1.0.0",
+                "contract_version": "1.0.0",
+                "specification_version": "1.0-draft.1",
+                "identity_namespace": "limited",
+                "semantic_options": {
+                    "case_matching": "sensitive",
+                    "text_model": "unicode_scalar_values",
+                    "builtin_character_domain": "unicode",
+                    "wildcard_line_terminators": "exclude"
+                },
+                "steps": [
+                    {
+                        "step_id": "left",
+                        "operation": "literal",
+                        "arguments": { "text": "a" }
+                    },
+                    {
+                        "step_id": "right",
+                        "operation": "wildcard",
+                        "arguments": {}
+                    },
+                    {
+                        "step_id": "root",
+                        "operation": "sequence",
+                        "arguments": { "values": ["left", "right"] }
+                    }
+                ],
+                "root_step_id": "root",
+                "compile": {
+                    "requested_outputs": ["semantic"],
+                    "compiler_options": {
+                        "partial_semantics": "forbid",
+                        "diagnostic_policy": { "minimum_severity": "warning" },
+                        "resource_limits": { "max_semantic_nodes": 2 }
+                    }
+                }
+            },
+            "expected": {
+                "outcome": "failure",
+                "errors": [
+                    {
+                        "code": "STRL-SIMPLY-0012",
+                        "path": "$.compile.compiler_options.resource_limits.max_semantic_nodes"
+                    }
+                ]
+            }
+        }
+    ]
+}

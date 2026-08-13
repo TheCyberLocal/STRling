@@ -1280,10 +1280,12 @@ def main() -> int:
     if repository_path not in sys.path:
         sys.path.insert(0, repository_path)
     from tooling.shared_cross_engine_corpus import validate_corpus
+    from tooling.simply_contract import SimplyContractSuite
 
     suite = ContractSuite()
     stdlib_suite = StandardLibraryGuaranteeSuite()
     legacy_regex_suite = LegacyRegexContractSuite()
+    simply_suite = SimplyContractSuite()
     document_count = suite.validate_suite_structure()
     positive_count = suite.validate_positive_examples()
     negative_count = suite.validate_negative_examples()
@@ -1291,6 +1293,7 @@ def main() -> int:
     stdlib_positive_count = stdlib_suite.validate_positive_examples()
     stdlib_negative_count = stdlib_suite.validate_negative_examples()
     legacy_regex = legacy_regex_suite.certify()
+    simply = simply_suite.certify()
     shared_corpus = validate_corpus()
     print(
         "CANONICAL_CONTRACTS status=passed "
@@ -1303,6 +1306,13 @@ def main() -> int:
         f"legacy_regex_positive={legacy_regex['positive']} "
         f"legacy_regex_negative={legacy_regex['negative']} "
         f"legacy_regex_fingerprint={legacy_regex['fingerprint']} "
+        f"simply_schemas={simply['schemas']} "
+        f"simply_operations={simply['operations']} "
+        f"simply_errors={simply['errors']} "
+        f"simply_compatibility={simply['compatibility']} "
+        f"simply_positive={simply['positive']} "
+        f"simply_negative={simply['negative']} "
+        f"simply_fingerprint={simply['fingerprint']} "
         f"shared_cases={shared_corpus['case_count']} "
         f"shared_fingerprint={shared_corpus['corpus_sha256']}"
     )

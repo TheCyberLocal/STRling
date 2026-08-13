@@ -1,0 +1,313 @@
+{
+    "protocol_kind": "strling.simply-builder-protocol",
+    "protocol_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "authority": {
+        "construction_authority": true,
+        "semantic_authority": false,
+        "target_authority": false,
+        "runtime_authority": false
+    },
+    "semantic_destination": {
+        "candidate": "semantic-ir",
+        "normalization": "canonical-v1",
+        "request": "compile-request"
+    },
+    "operations": [
+        {
+            "id": "alternation",
+            "destination": "semantic-ir.Node.Alternation",
+            "materializes_node": true,
+            "arguments": ["values"],
+            "invariants": ["ordered-branches", "minimum-two-values"]
+        },
+        {
+            "id": "atomic",
+            "destination": "semantic-ir.Node.Atomic",
+            "materializes_node": true,
+            "arguments": ["value"],
+            "invariants": ["single-child", "target-neutral"]
+        },
+        {
+            "id": "backreference",
+            "destination": "semantic-ir.Node.Backreference",
+            "materializes_node": true,
+            "arguments": ["capture_key"],
+            "invariants": [
+                "logical-capture-identity",
+                "resolved-after-projection"
+            ]
+        },
+        {
+            "id": "capture",
+            "destination": "semantic-ir.Node.Capture",
+            "materializes_node": true,
+            "arguments": ["capture_key", "name", "value"],
+            "invariants": ["logical-capture-identity", "unique-optional-name"]
+        },
+        {
+            "id": "character_set",
+            "destination": "semantic-ir.Node.CharacterSet",
+            "materializes_node": true,
+            "arguments": ["members", "negated"],
+            "invariants": ["canonical-member-order", "unicode-scalar-members"]
+        },
+        {
+            "id": "empty",
+            "destination": "semantic-ir.Node.Empty",
+            "materializes_node": true,
+            "arguments": ["none"],
+            "invariants": ["source-less-generated"]
+        },
+        {
+            "id": "group",
+            "destination": "semantic-ir.normalization.identity",
+            "materializes_node": false,
+            "arguments": ["value"],
+            "invariants": ["transparent-group", "derived-origin-only"]
+        },
+        {
+            "id": "import_node",
+            "destination": "semantic-ir.Node",
+            "materializes_node": false,
+            "arguments": ["node", "sources"],
+            "invariants": ["preserve-identities", "preserve-origin"]
+        },
+        {
+            "id": "import_program",
+            "destination": "semantic-ir.SemanticProgram.root",
+            "materializes_node": false,
+            "arguments": ["program"],
+            "invariants": [
+                "matching-contract-and-options",
+                "preserve-identities-and-sources"
+            ]
+        },
+        {
+            "id": "literal",
+            "destination": "semantic-ir.Node.Literal-or-Empty",
+            "materializes_node": true,
+            "arguments": ["text"],
+            "invariants": [
+                "empty-text-is-empty-node",
+                "literal-text-is-not-regex"
+            ]
+        },
+        {
+            "id": "lookaround",
+            "destination": "semantic-ir.Node.Lookaround",
+            "materializes_node": true,
+            "arguments": ["direction", "polarity", "value"],
+            "invariants": ["explicit-direction", "explicit-polarity"]
+        },
+        {
+            "id": "position",
+            "destination": "semantic-ir.Node.Position",
+            "materializes_node": true,
+            "arguments": ["position"],
+            "invariants": ["explicit-semantic-position"]
+        },
+        {
+            "id": "repeat",
+            "destination": "semantic-ir.Node.Repeat",
+            "materializes_node": true,
+            "arguments": ["max", "min", "mode", "value"],
+            "invariants": [
+                "nonnegative-bounds",
+                "null-only-unbounded",
+                "explicit-mode"
+            ]
+        },
+        {
+            "id": "sequence",
+            "destination": "semantic-ir.Node.Sequence",
+            "materializes_node": true,
+            "arguments": ["values"],
+            "invariants": ["ordered-items", "minimum-two-values"]
+        },
+        {
+            "id": "wildcard",
+            "destination": "semantic-ir.Node.Wildcard",
+            "materializes_node": true,
+            "arguments": ["line_terminators"],
+            "invariants": ["explicit-or-request-default-line-terminators"]
+        }
+    ],
+    "semantic_options": [
+        {
+            "id": "builtin_character_domain",
+            "values": ["ascii", "unicode"],
+            "destination": "character-set builtin member domain default"
+        },
+        {
+            "id": "case_matching",
+            "values": ["insensitive", "sensitive"],
+            "destination": "SemanticProgram.case_matching"
+        },
+        {
+            "id": "text_model",
+            "values": ["unicode_scalar_values"],
+            "destination": "UnicodeScalar and UTF-8 contract"
+        },
+        {
+            "id": "wildcard_line_terminators",
+            "values": ["exclude", "include"],
+            "destination": "wildcard line_terminators default"
+        }
+    ],
+    "identity": {
+        "node_template": "node:simply/{identity_namespace}/{step_id}",
+        "capture_template": "capture:simply/{identity_namespace}/{capture_key}",
+        "import_policy": "preserve",
+        "equality_exclusions": ["capture_id", "node_id", "origin"]
+    },
+    "provenance": {
+        "generated": "source-less",
+        "imported": "preserve",
+        "mixed": "fully-resolved",
+        "source_order": "source_id"
+    },
+    "ownership": {
+        "values": "immutable",
+        "materialization": "single-parent",
+        "failure": "no-partial-result"
+    },
+    "validation_order": [
+        "decode",
+        "graph",
+        "projection",
+        "normalization",
+        "semantic",
+        "compile_request"
+    ],
+    "errors": [
+        {
+            "code": "STRL-SIMPLY-0001",
+            "id": "invalid_argument",
+            "stage": "decode"
+        },
+        {
+            "code": "STRL-SIMPLY-0002",
+            "id": "invalid_bounds",
+            "stage": "projection"
+        },
+        {
+            "code": "STRL-SIMPLY-0003",
+            "id": "duplicate_identity",
+            "stage": "graph"
+        },
+        {
+            "code": "STRL-SIMPLY-0004",
+            "id": "duplicate_capture_name",
+            "stage": "semantic"
+        },
+        {
+            "code": "STRL-SIMPLY-0005",
+            "id": "unresolved_value",
+            "stage": "graph"
+        },
+        {
+            "code": "STRL-SIMPLY-0006",
+            "id": "unresolved_capture",
+            "stage": "semantic"
+        },
+        { "code": "STRL-SIMPLY-0007", "id": "reused_value", "stage": "graph" },
+        {
+            "code": "STRL-SIMPLY-0008",
+            "id": "incompatible_import",
+            "stage": "projection"
+        },
+        {
+            "code": "STRL-SIMPLY-0009",
+            "id": "invalid_provenance",
+            "stage": "semantic"
+        },
+        {
+            "code": "STRL-SIMPLY-0010",
+            "id": "unsupported_construct",
+            "stage": "decode"
+        },
+        {
+            "code": "STRL-SIMPLY-0011",
+            "id": "invalid_compile_request",
+            "stage": "compile_request"
+        },
+        {
+            "code": "STRL-SIMPLY-0012",
+            "id": "resource_limit",
+            "stage": "compile_request"
+        }
+    ],
+    "compatibility_dispositions": [
+        {
+            "id": "historical.simply.capture_repeat_guards",
+            "disposition": "excluded_host_quirk",
+            "evidence": [
+                "bindings/python/src/STRling/simply/pattern.py",
+                "bindings/typescript/src/STRling/simply/pattern.ts"
+            ],
+            "rationale": "Host guards around repeating named or numbered captures are not canonical capture semantics."
+        },
+        {
+            "id": "historical.simply.direct_target_conveniences",
+            "disposition": "adapter_obligation",
+            "evidence": [
+                "bindings/python/src/STRling/simply/pattern.py",
+                "bindings/typescript/src/STRling/simply/pattern.ts"
+            ],
+            "rationale": "Public convenience obligations remain, but later adapters must express targets through CompileRequest rather than builder semantics."
+        },
+        {
+            "id": "historical.simply.empty_literal",
+            "disposition": "adapter_obligation",
+            "evidence": [
+                "bindings/python/src/STRling/simply/pattern.py",
+                "bindings/typescript/src/STRling/simply/pattern.ts"
+            ],
+            "rationale": "Empty literal intent maps deterministically to the canonical empty node."
+        },
+        {
+            "id": "historical.simply.formatted_exceptions",
+            "disposition": "excluded_host_quirk",
+            "evidence": [
+                "bindings/python/src/STRling/simply/pattern.py",
+                "bindings/typescript/src/STRling/simply/pattern.ts"
+            ],
+            "rationale": "Formatted exception prose is host presentation and cannot replace stable structured failure identity."
+        },
+        {
+            "id": "historical.simply.immutable_composition",
+            "disposition": "adapter_obligation",
+            "evidence": [
+                "bindings/python/src/STRling/simply/pattern.py",
+                "bindings/typescript/src/STRling/simply/pattern.ts"
+            ],
+            "rationale": "Builder values remain immutable even though their interchange representation changes."
+        },
+        {
+            "id": "historical.simply.literal",
+            "disposition": "adapter_obligation",
+            "evidence": [
+                "bindings/python/src/STRling/simply/pattern.py",
+                "bindings/typescript/src/STRling/simply/pattern.ts"
+            ],
+            "rationale": "Plain strings are literal text and never raw regex syntax."
+        },
+        {
+            "id": "historical.simply.max_zero_unbounded",
+            "disposition": "protocol_correction",
+            "evidence": [
+                "bindings/python/src/STRling/simply/pattern.py",
+                "bindings/typescript/src/STRling/simply/pattern.ts",
+                "spec/contracts/INVARIANTS.md"
+            ],
+            "rationale": "JSON null is the sole unbounded maximum because zero is a meaningful finite maximum."
+        },
+        {
+            "id": "historical.simply.numbered_capture_duplication",
+            "disposition": "excluded_host_quirk",
+            "evidence": ["bindings/python/src/STRling/simply/pattern.py"],
+            "rationale": "Duplicating one capture object cannot preserve unique node and logical capture identities."
+        }
+    ]
+}

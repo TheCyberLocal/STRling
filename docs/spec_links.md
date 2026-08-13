@@ -27,6 +27,10 @@ ratification rules.
 -   [`Regex-compatible frontend 1.0`](../spec/frontends/legacy-regex/1.0/) —
     normative compatibility/import syntax, limits, frontend diagnostics, and
     specification-authored positive/negative fixtures.
+-   [`Simply builder protocol 1.0`](../spec/frontends/simply/1.0/) — normative
+    host-neutral construction operations, identities, provenance, validation,
+    structured failures, historical dispositions, and exact Semantic
+    IR/`CompileRequest` equivalence fixtures.
 -   [`Regex frontend grammar`](../spec/grammar/dsl.ebnf) — transitional
     historical compatibility evidence superseded by the versioned frontend.
 -   [`Regex frontend semantics`](../spec/grammar/semantics.md) — transitional

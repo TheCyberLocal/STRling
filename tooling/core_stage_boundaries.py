@@ -1625,3 +1625,99 @@ def target_neutral_reverse_dependency_violation(
                 f"{path}: {forbidden}"
             )
     return None
+
+
+def simply_contract_boundary_violation(
+    validator_source: str,
+    protocol: Mapping[str, object],
+) -> str | None:
+    """Keep Simply projection certification-only and specification-owned."""
+
+    source = validator_source.lower()
+    for marker, description in (
+        ("class simplycontractsuite:", "closed Simply contract suite"),
+        ("def project_request(", "deterministic construction projection"),
+        ("contractsuite", "canonical contract validation"),
+        ('canonical.validate("semantic-ir.schema.json"', "Semantic IR validation"),
+        (
+            'canonical.validate("compile-request.schema.json"',
+            "CompileRequest validation",
+        ),
+    ):
+        if marker not in source:
+            return f"Simply certification must retain {description}"
+
+    forbidden_imports = (
+        "import asyncio",
+        "from asyncio",
+        "import ctypes",
+        "from ctypes",
+        "import http",
+        "from http",
+        "import requests",
+        "from requests",
+        "import socket",
+        "from socket",
+        "import subprocess",
+        "from subprocess",
+        "import urllib",
+        "from urllib",
+        "import bindings",
+        "from bindings",
+        "import strling",
+        "from strling",
+    )
+    for line in source.splitlines():
+        statement = line.strip()
+        marker = next(
+            (
+                candidate
+                for candidate in forbidden_imports
+                if statement.startswith(candidate)
+            ),
+            None,
+        )
+        if marker is not None:
+            return (
+                "Simply certification violates the host-neutral, runtime-free boundary: "
+                f"{marker}"
+            )
+
+    marker = _first_forbidden(
+        source,
+        (
+            "node_regexp_harness",
+            "python_re_harness",
+            "pcre2_runtime",
+            "ecmascript_runtime",
+            "python_re_runtime",
+        ),
+    )
+    if marker is not None:
+        return (
+            "Simply certification must not depend on a target or runtime harness: "
+            f"{marker}"
+        )
+
+    if protocol.get("authority") != {
+        "construction_authority": True,
+        "semantic_authority": False,
+        "target_authority": False,
+        "runtime_authority": False,
+    }:
+        return "Simply protocol authority must remain construction-only"
+    if protocol.get("semantic_destination") != {
+        "candidate": "semantic-ir",
+        "normalization": "canonical-v1",
+        "request": "compile-request",
+    }:
+        return (
+            "Simply protocol must terminate in canonical Semantic IR and CompileRequest"
+        )
+    if protocol.get("ownership") != {
+        "values": "immutable",
+        "materialization": "single-parent",
+        "failure": "no-partial-result",
+    }:
+        return "Simply protocol must retain immutable, atomic value ownership"
+    return None
