@@ -51,7 +51,9 @@ class SimplyContractTests(unittest.TestCase):
 
     def test_operation_inventory_is_closed(self) -> None:
         protocol = self.read_json("protocol.json")
-        protocol["operations"].pop()  # type: ignore[union-attr]
+        operations = protocol["operations"]
+        assert isinstance(operations, list)
+        operations.pop()
         self.write_json("protocol.json", protocol)
         with self.assertRaises(SimplyContractError):
             SimplyContractSuite(self.protocol_root).certify()
