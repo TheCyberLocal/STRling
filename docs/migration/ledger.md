@@ -3206,3 +3206,25 @@ The renewed canonical-boundary fingerprint is
 `sha256:23813360fc95b4a7f26dd07efcd5a126502f60e6a5e7fa12c2e813cefbafa6dd` and
 the renewed baseline fingerprint is
 `sha256:67d84aa74329f649c57c8f4004e749a567c7649ea71272a6b4e36aedda710f3b`.
+
+P12-T04 closes from clean certification commit
+`427902e331b401827dcb8489e79f2e2e38c69c73`. All Rust targets,
+warning-denied Clippy, 486 tooling tests, canonical and core contracts,
+formatting, public/generated contracts, governance, documentation integrity
+across 146 files, patch integrity, and the reviewed three-run migration
+differential pass. Two exact shared-corpus runs retain 20 cases, 100
+applications, and observation SHA-256
+`9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c`;
+the portability matrix remains 87 native, one certified rewrite, five
+unsupported, seven not applicable, six explicit nonblocking divergences, and
+zero semantic-divergent or unresolved entries at SHA-256
+`11f70923cdc200b132d7f68077fd840f3d38cf9aff63949fae24d703b68ea205`.
+
+Local passes 26/26. Pull Request records 44/46 and Full records 76/83 passed,
+with zero failures or waivers. Full passes exact PCRE2 10.42/10.43, Node
+22.23.2, CPython 3.11.15, shared-corpus, and portability-matrix certification.
+Only the inherited repository-managed Bundler mismatch, missing Swift, and
+structured dependency-risk scanner unavailability remain explicit.
+P12-T04 is `READY WITH RECORDED CARRY-FORWARD`; P12-T05 owns any
+semantics-preserving rewrite suggestions and cannot infer rewrite authority
+from a quality finding alone.

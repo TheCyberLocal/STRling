@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Proof-backed semantic quality diagnostics
-status: in_progress
+status: complete
 objective: Preserve the five certified target-neutral safety diagnostics and extend canonical diagnostic generation with deterministic typed evidence for provably unreachable, degenerate, contradictory, overlapping, or suspicious semantic structures, without raw-source heuristics, style-only warnings, target/runtime claims, automatic rewrites, product migration, or language-semantic changes.
 scope:
     diff:
@@ -166,13 +166,43 @@ checkpoints:
             result: passed
             details: Thirteen focused Rust tests cover all seven mappings, every false-positive guard, source-backed projection, source-less evidence, all five preserved safety identities, and 128 fixed-seed candidates through repeated normalization/generation. The new quality fixture validates under the unchanged Diagnostic schema; canonical contracts pass 11 schemas, 60 positive, 33 negative, and core mapping passes 96 fixtures. Forty-four focused Python contract/architecture tests pass, including controlled missing-substage, target, portability, raw-source, and process dependency mutations.
     - name: Complete repository and P12-T04 certification
-      status: planned
+      status: passed
       evidence:
           - check: Task-closing hardgates
-            result: not_run
-            details: Awaiting all Rust and tooling tests, contracts, shared corpus where relevant, formatting, public/generated checks, governance, documentation, migration differential, Local/Pull Request/Full profiles, clean final commit, and P12-T05 handoff.
+            result: passed
+            details: At clean migration-review commit 427902e331b401827dcb8489e79f2e2e38c69c73, every Rust all-target test and warning-denied Clippy pass, all 486 tooling tests pass, canonical contracts validate 11 schemas with 60 positive and 33 negative fixtures, core mapping validates 96 fixtures, and formatting, documentation integrity across 146 files, public/generated contracts, governance, and patch integrity pass. The reviewed three-run migration differential passes at baseline sha256:67d84aa74329f649c57c8f4004e749a567c7649ea71272a6b4e36aedda710f3b; the renewal changes only the canonical-boundary and baseline self-fingerprints. Two exact shared-corpus runs reproduce 20 cases, 100 applications, and observation sha256:9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c. The matrix reproduces sha256:11f70923cdc200b132d7f68077fd840f3d38cf9aff63949fae24d703b68ea205 with zero semantic-divergent or unresolved entries. Local passes 26/26; Pull Request records 44/46 and Full 76/83 passed with zero failures or waivers. Full passes both exact PCRE2 versions, Node 22.23.2, CPython 3.11.15, shared-corpus, and matrix operations. Only inherited Bundler, Swift, and dependency-risk scanner availability remains explicit carry-forward.
 commits:
     - sha: 68ef4556153d11711f9180d6ce3c0a09d91447cf
       subject: "docs(core): define proof-backed quality diagnostics"
     - sha: 1e8cd7c49ceac6a3ed02204e2796f1055168cbb0
       subject: "feat(core): add proof-backed quality diagnostics"
+    - sha: 427902e331b401827dcb8489e79f2e2e38c69c73
+      subject: "test(core): renew quality diagnostic migration review"
+completion:
+    accomplished:
+        - Added seven stable proof-backed STRL-QUALITY diagnostics for zero-maximum and exact-once repetitions, exact duplicate branches, contradictory boundary and equivalent-lookaround assertions, explicit character-set overlap, and backreferences to certified zero-width capture bodies.
+        - Integrated quality proof construction as one private target-neutral substage of canonical diagnostic generation with typed safety/quality provenance, deterministic ordering, fail-closed bounds, precise source projection, and descriptive advice without fixes or rewrites.
+        - Added positive, negative, adversarial, fixed-seed property, contract-fixture, source-projection, safety-preservation, and controlled architecture-mutation coverage.
+    verified:
+        - All seven quality codes, their compiler-policy severities, typed proof evidence, locations, related evidence, and false-positive guards are certified while STRL-SAFETY-0001 through STRL-SAFETY-0005 remain exact.
+        - All Rust targets, warning-denied Clippy, 486 tooling tests, canonical/core/public/generated contracts, formatting, governance, documentation, migration differential, exact shared-corpus and portability-matrix checks, and patch integrity pass.
+        - Local passes 26/26; Pull Request and Full record 44/46 and 76/83 passed respectively with zero failures or waivers and only explicit inherited host-tool/scanner unavailability.
+    behavior_changed: Canonical analysis can now report seven additional target-neutral advisory quality findings when their complete semantic proof preconditions hold; accepted language, matching semantics, target planning/lowering/runtime behavior, rewrites, public APIs, bindings, packages, versions, and publication behavior do not change.
+    intentional_behavior_changes:
+        - Canonical diagnostic results may add STRL-QUALITY-0001 through STRL-QUALITY-0007 for the seven certified proof conditions.
+        - Diagnostic generation retains explicit typed quality provenance and fails closed if its combined safety or quality evidence bound is exceeded.
+        - The migration differential baseline is renewed for the intended canonical implementation identity while all corpus, route, source-observation, historical-peer, and replacement-review evidence remains unchanged.
+    preserved_behavior:
+        - STRL-SAFETY-0001 through STRL-SAFETY-0005, their severities, evidence, messages, advice, source rules, ordering, and uncertainty silence remain unchanged.
+        - Semantic IR, foundational/structural/safety fact ownership, target profiles, portability planning, lowering, serialization, exact runtime observations, and the zero-unresolved portability matrix remain unchanged.
+        - Unknown algebra, style-only warnings, target/runtime guesses, raw-source scanning, fixes, automatic rewrites, product routing, and public API expansion remain excluded.
+    transitional_architecture:
+        - Pull Request and Full are READY WITH RECORDED CARRY-FORWARD for inherited Ruby Bundler, Swift, and dependency-risk scanner availability only; every task-owned and available operation passed.
+        - Product routes and bindings remain outside this task and continue to consume the existing canonical compiler boundary as later campaign tasks migrate them.
+    deferred_work:
+        - P12-T05 owns semantics-preserving rewrite suggestions and must use separate proof and advisory-action contracts rather than treating a quality finding as rewrite authority.
+        - Later diagnostic phases may extend proof coverage only through separately governed complete facts and false-positive guards; general satisfiability, language inclusion, and target-dependent guesses remain out of scope.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P12-T05 by defining the closed semantics-preserving rewrite inventory, proof obligations, diagnostic-to-rewrite separation, and fail-closed advisory-action contract without reopening P12-T04 diagnostic semantics.
+    rationale: P12-T04 satisfies its actual objective and every acceptance requirement with complete behavioral, contract, property, architecture, migration, exact-runtime, profile, and clean-commit evidence. All task-owned work passes; only inherited host-tool and scanner availability is carried forward explicitly.
