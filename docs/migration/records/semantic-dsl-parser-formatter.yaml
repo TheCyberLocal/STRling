@@ -1,0 +1,136 @@
+record_version: 2.0.0
+title: Semantic STRling Rust parser and canonical formatter
+status: in_progress
+objective: Implement the ratified strling.semantic 1.0.0 grammar and canonical formatting contract as a bounded, deterministic Rust frontend that preserves authored syntax evidence, lowers through the existing canonical Semantic IR normalization and compiler pipeline, and introduces no competing semantic, target, runtime, binding, package, or specification authority.
+scope:
+    diff:
+        base: c1787e35b93d00dcca3ae81d11d5eda940f4618e
+        head: working-tree
+    allowed_paths:
+        - core/README.md
+        - core/contract-mapping.json
+        - core/src/kernel.rs
+        - core/src/lib.rs
+        - core/src/semantic_frontend.rs
+        - core/tests/frontend_orchestration.rs
+        - core/tests/semantic_frontend.rs
+        - core/tests/semantic_frontend_properties.rs
+        - docs/architecture.md
+        - docs/migration/ledger.md
+        - docs/migration/records/semantic-dsl-parser-formatter.yaml
+        - docs/migration/semantic-dsl-parser-formatter.md
+        - docs/testing_workflow.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - tooling/core_contract_validation.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_semantic_frontend_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - core/cli/**
+        - core/src/capability_*.rs
+        - core/src/diagnostic/**
+        - core/src/normalization.rs
+        - core/src/portability_*.rs
+        - core/src/semantic/**
+        - core/src/target/**
+        - core/src/*_lowering.rs
+        - core/src/*_serialization.rs
+        - docs/tutorial/**
+        - governance/contracts/snapshots/**
+        - packages/**
+        - spec/**
+        - tests/**
+        - tooling/lsp-server/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/records/semantic-dsl-parser-formatter.yaml
+        - docs/migration/semantic-dsl-parser-formatter.md
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels: [contract, unit, integration, quality, certification]
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: additive
+        evidence:
+            - Implements the already ratified source grammar and mapping without changing canonical Semantic IR meaning or any existing frontend behavior.
+    public_api_change:
+        level: additive
+        evidence:
+            - Adds a Rust semantic_frontend module with parse and format functions for embedders; it is a certified frontend domain module outside the governed compile/Simply facade snapshot.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - The implementation consumes unchanged specification and canonical schemas.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Implements the 27 stable STRL-DSL diagnostic identities and byte-selection rules frozen by P13-T04 without changing the canonical diagnostic schema.
+        affected_surfaces: []
+    target_behavior_change:
+        level: none
+        evidence:
+            - Target profiles, planning, lowering, serialization, emission, and runtimes remain downstream and unchanged.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds one pure source-to-Semantic-IR frontend and an explicit kernel dispatch while preserving one canonical normalization, analysis, and compiler pipeline.
+    generated_output_change:
+        level: none
+        evidence:
+            - No generated contract, fixture, artifact, or snapshot is renewed from implementation output.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Ratified grammar, fixtures, spans, and diagnostics
+      command: cargo test --manifest-path core/Cargo.toml --test semantic_frontend --locked
+      expected_result: All 12 positive and 30 negative specification-authored cases pass with deterministic Semantic IR, exact STRL-DSL identities/UTF-8 offsets, exact source spans, complete grammar coverage, and no contract edits.
+    - name: Formatter and parser properties
+      command: cargo test --manifest-path core/Cargo.toml --test semantic_frontend_properties --locked
+      expected_result: Canonical formatting is deterministic and idempotent; parse-format-parse preserves alpha-equivalent semantics, capture names, preorder identities, authored set order, and comment order; governed limits and arbitrary UTF-8 inputs never panic.
+    - name: Canonical pipeline integration
+      command: cargo test --manifest-path core/Cargo.toml --test frontend_orchestration --locked
+      expected_result: Explicit strling.semantic requests reuse the existing normalization, analysis, diagnostics, portability, and target pipeline; malformed source returns one frozen frontend diagnostic and no partial semantics.
+    - name: Architecture and contract boundary
+      command: python3 tooling/core_contract_validation.py && python3 -m unittest tooling.tests.test_semantic_frontend_architecture tooling.tests.test_core_contracts
+      expected_result: Source/Semantic IR mappings include semantic_frontend; the module has no target, emitter, binding, filesystem, network, environment, legacy, or specification-writing dependency; controlled mutations fail closed.
+    - name: Rust and repository certification
+      command: cargo fmt --manifest-path core/Cargo.toml -- --check && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && RUSTFLAGS=-Dwarnings cargo check --manifest-path core/Cargo.toml --all-targets --locked && cargo test --manifest-path core/Cargo.toml --all-targets --locked && ./strling profile local && ./strling profile pull-request && git diff --check && git status --short
+      expected_result: Exact Rust 1.75.0 quality, all kernel/repository hardgates, Local, Pull Request, and the final clean tree pass with only explicitly inherited unavailable tools if any.
+checkpoints:
+    - name: Contract, API, and authority boundary
+      status: passed
+      evidence:
+          - check: Specification-consumer implementation
+            result: passed
+            details: The immutable P13-T04 bundle remains syntax/mapping authority. semantic_frontend owns recognition, syntax evidence, diagnostics, formatting, and direct lowering only; existing normalization and kernel compile remain canonical.
+          - check: Locked Rust API
+            result: passed
+            details: parse(&SourceDocument) returns ParsedSemantic with a validated canonical SemanticProgram plus private formatter syntax evidence; format(&ParsedSemantic) returns canonical source without reparsing or inferring semantics.
+    - name: Deterministic syntax, provenance, and resource design
+      status: passed
+      evidence:
+          - check: Streaming first-error parser
+            result: passed
+            details: A dependency-free streaming lexer/parser preserves layout comments, authored set order, token/material spans, and lexical-before-structural error precedence while enforcing all six governed resource families.
+          - check: Stable lowering and identities
+            result: passed
+            details: Material nodes and captures allocate independent one-based preorder identities before existing normalization; references resolve only completed named captures; normalization alone flattens/coalesces/sorts canonical IR while syntax evidence remains formatter-owned.
+    - name: Parser, formatter, and diagnostics implementation
+      status: planned
+      evidence: []
+    - name: Fixture, property, robustness, and pipeline certification
+      status: planned
+      evidence: []
+    - name: Repository, Local, Pull Request, and clean-tree certification
+      status: planned
+      evidence: []
+commits: []
+readiness:
+    status: BLOCKED
+    next_task: Complete P13-T05 implementation and certification before frontend convergence.
+    rationale: Design is locked, but parser, formatter, executable fixture/property evidence, compiler dispatch, aggregate profiles, and clean-tree closure remain incomplete.

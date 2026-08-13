@@ -3580,3 +3580,47 @@ P13-T04 is `READY WITH RECORDED CARRY-FORWARD`. P13-T05 is next and will
 implement the exact parser and canonical formatter in Rust as pure frontends to
 the existing semantic kernel; the ratified specification, not that
 implementation, remains the syntax and mapping authority.
+
+## Semantic STRling Rust parser and canonical formatter
+
+-   Status: In progress
+-   Starting commit: `c1787e35b93d00dcca3ae81d11d5eda940f4618e`
+-   Behavior change: Additive internal Rust frontend and explicit canonical
+    compiler dispatch; no language-contract, target, binding, default, package,
+    or release change
+-   Task record:
+    [`semantic-dsl-parser-formatter.yaml`](records/semantic-dsl-parser-formatter.yaml)
+-   Readiness: Pending implementation and Local/Pull Request certification
+
+P13-T05 consumes the immutable `strling.semantic@1.0.0` bundle certified by
+P13-T04. The locked Rust surface is
+`semantic_frontend::parse(&SourceDocument) -> ParsedSemantic` plus
+`semantic_frontend::format(&ParsedSemantic) -> String`. Successful parses expose
+one validated canonical `SemanticProgram` and retain private syntax evidence so
+formatting can preserve comments and authored set-member order that canonical
+IR deliberately does not retain.
+
+The implementation will use a dependency-free, demand-driven lexer and
+recursive-descent parser over the explicit 55-production grammar. It will
+return the earliest reached UTF-8 byte failure with the frozen 27 STRL-DSL
+identities, retain exact material spans/provenance, allocate independent
+one-based material-node and capture preorder identities, and reject incomplete,
+duplicate, forward, self, recursive, or unresolved capture uses before any
+partial semantics enter the compiler.
+
+Existing `normalization::normalize` remains the sole owner of sequence/choice
+flattening, adjacent-text coalescing, set canonicalization, and validation. The
+kernel will dispatch only explicit `strling.semantic` source documents into the
+same semantic, analysis, diagnostics, portability, lowering, and serialization
+pipeline. The frontend itself cannot select targets or depend on emitters,
+bindings, legacy runtimes, filesystems, environment, network, packages, CLI, or
+editors.
+
+The canonical formatter will emit LF-only source, four-space blocks, shortest
+integers, canonical Unicode escapes, stable comment order/placement, and one
+final newline. Fixture, property, and robustness suites will cover all 12
+positive and 30 negative authored cases, exact diagnostics/offsets and spans,
+all governed resource limits, parse-format-parse semantic stability,
+format-format idempotence, generated valid programs, and arbitrary-input
+no-panic behavior before Rust, repository, Local, Pull Request, and clean-tree
+certification.
