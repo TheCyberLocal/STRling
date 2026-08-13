@@ -4,7 +4,7 @@ status: in_progress
 objective: Implement the ratified strling.semantic 1.0.0 grammar and canonical formatting contract as a bounded, deterministic Rust frontend that preserves authored syntax evidence, lowers through the existing canonical Semantic IR normalization and compiler pipeline, and introduces no competing semantic, target, runtime, binding, package, or specification authority.
 scope:
     diff:
-        base: c1787e35b93d00dcca3ae81d11d5eda940f4618e
+        base: 2865ad33472de598f152d919123db22ef2484bb1
         head: working-tree
     allowed_paths:
         - core/README.md
@@ -45,7 +45,6 @@ scope:
     expected_files:
         - docs/migration/ledger.md
         - docs/migration/records/semantic-dsl-parser-formatter.yaml
-        - docs/migration/semantic-dsl-parser-formatter.md
         - governance/change-control.json
     permitted_generated_changes: []
     expected_generated_outputs: []
@@ -130,7 +129,9 @@ checkpoints:
     - name: Repository, Local, Pull Request, and clean-tree certification
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: b57f097e3fb797f36a102ae3089c2168d5ee57df
+      subject: "docs(frontend): define Semantic DSL parser and formatter"
 readiness:
     status: BLOCKED
     next_task: Complete P13-T05 implementation and certification before frontend convergence.

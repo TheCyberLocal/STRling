@@ -3652,3 +3652,12 @@ deferrals, 12 positive cases, and 30 negative cases. Local passes 26/26 with no
 failure, waiver, unavailable, or incomplete operation, and the tree is clean.
 P13-T04 is again `READY WITH RECORDED CARRY-FORWARD`; P13-T05 may resume from
 this corrected authority rather than carrying an implementation exception.
+
+P13-T05 resumes from corrected P13-T04 recertification commit
+`2865ad33472de598f152d919123db22ef2484bb1`. Its locked design commit remains
+`b57f097e3fb797f36a102ae3089c2168d5ee57df`; the preserved Rust work will be
+replayed against contract fingerprint
+`sha256:463ec4ada9d89340fafccfce4fece6294d2b699617898c6413b4bd991948956f`.
+No parser exception is needed: contextual `word` identifiers and reserved
+construct-leading `sequence` identifiers now follow one internally consistent
+authority.
