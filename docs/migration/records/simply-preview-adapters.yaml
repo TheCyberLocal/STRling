@@ -1,0 +1,150 @@
+record_version: 2.0.0
+title: TypeScript and Python Simply Preview adapters
+status: in_progress
+objective: Bridge TypeScript and Python to the ratified Simply 1.0.0 protocol and sole Rust compiler through thin Preview adapters with stable serialization, canonical error translation, deterministic identities, complete compatibility dispositions, and cross-language equivalence, without binding-private semantic, compiler, target, or runtime authority in the Preview path.
+scope:
+    diff:
+        base: 7d25b5fe0fe511c7942d0f6c32d808e5af30ce45
+        head: working-tree
+    allowed_paths:
+        - bindings/python/src/STRling/simply/__init__.py
+        - bindings/python/src/STRling/simply/preview.py
+        - bindings/python/tests/unit/test_simply_preview.py
+        - bindings/typescript/src/STRling/simply/index.ts
+        - bindings/typescript/src/STRling/simply/preview.ts
+        - bindings/typescript/__tests__/unit/simply_preview.test.ts
+        - core/README.md
+        - core/cli/strling-kernel.rs
+        - core/src/lib.rs
+        - core/src/simply.rs
+        - core/tests/simply_adapter_transport.rs
+        - docs/architecture.md
+        - docs/migration/ledger.md
+        - docs/migration/records/simply-preview-adapters.yaml
+        - docs/migration/simply-preview-adapters.md
+        - governance/baselines/migration-baseline.json
+        - governance/baselines/simply-preview-adapter-compatibility.json
+        - governance/change-control.json
+        - governance/contracts/snapshots/python-public-api.json
+        - governance/contracts/snapshots/root-cli.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/contracts/snapshots/typescript-public-api.json
+        - spec/frontends/simply/1.0/README.md
+        - spec/frontends/simply/1.0/adapter-response.schema.json
+        - strling
+        - tooling/architecture_fitness.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/public_contracts.py
+        - tooling/simply_adapter_contract.py
+        - tooling/tests/test_architecture_fitness.py
+        - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_simply_adapter_contract.py
+    forbidden_paths:
+        - bindings/python/src/STRling/core/**
+        - bindings/python/src/STRling/emitters/**
+        - bindings/python/src/STRling/simply/constructors.py
+        - bindings/python/src/STRling/simply/lookarounds.py
+        - bindings/python/src/STRling/simply/pattern.py
+        - bindings/python/src/STRling/simply/sets.py
+        - bindings/python/src/STRling/simply/static.py
+        - bindings/typescript/src/STRling/core/**
+        - bindings/typescript/src/STRling/emitters/**
+        - bindings/typescript/src/STRling/simply/constructors.ts
+        - bindings/typescript/src/STRling/simply/lookarounds.ts
+        - bindings/typescript/src/STRling/simply/pattern.ts
+        - bindings/typescript/src/STRling/simply/sets.ts
+        - bindings/typescript/src/STRling/simply/static.ts
+        - packages/**
+        - spec/contracts/**
+        - spec/conformance/**
+        - spec/grammar/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - tests/spec/**
+        - tooling/legacy_reference/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/records/simply-preview-adapters.yaml
+        - docs/migration/simply-preview-adapters.md
+        - governance/baselines/simply-preview-adapter-compatibility.json
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels: [contract, unit, integration, quality, certification]
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Both host adapters serialize the ratified Simply 1.0.0 protocol and canonical contracts; no operation or meaning is added.
+    public_api_change:
+        level: additive
+        evidence:
+            - TypeScript and Python gain explicitly named Preview declarations, and the repository CLI gains an additive simply JSON command.
+        affected_surfaces: [typescript-public-api, python-public-api, root-cli, strling-kernel]
+    schema_change:
+        level: additive
+        evidence:
+            - A response schema binds the transport envelope to existing CompileRequest, CompileResult, and STRL-SIMPLY error identities without altering canonical contracts.
+        affected_surfaces: [simply-adapter-response]
+    diagnostic_change:
+        level: none
+        evidence:
+            - Adapters preserve canonical CompileResult diagnostics and stable construction error code/path pairs.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Exact profiles and all planning, lowering, and serialization remain in the Rust kernel.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds two outward protocol serializers and one transport-only CLI route; replay and semantics remain in core::simply and compile.
+    generated_output_change:
+        level: none
+        evidence:
+            - The design checkpoint does not modify generated outputs; implementation will declare and renew the governed public snapshots.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Adapter protocol and compatibility inventory
+      command: python3 tooling/simply_adapter_contract.py && python3 -m unittest tooling.tests.test_simply_adapter_contract
+      expected_result: Every historical reachable operation has one disposition, both adapters cover 15 operations, response/schema/fingerprint evidence is current, and mutations fail closed.
+    - name: Cross-language canonical equivalence
+      command: cargo test --manifest-path core/Cargo.toml --test simply_adapter_transport --locked && npm test --prefix bindings/typescript -- --runInBand simply_preview.test.ts && PYTHONPATH=bindings/python/src python3 -m pytest bindings/python/tests/unit/test_simply_preview.py
+      expected_result: Fixtures, errors, imports, malformed inputs, and fixed seeds serialize identically and produce equal canonical requests/results through Rust.
+    - name: Public API and architecture fitness
+      command: python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/architecture_fitness.py && python3 -m unittest tooling.tests.test_public_contracts tooling.tests.test_architecture_fitness && python3 tooling/governance.py
+      expected_result: Only additive Preview/CLI declarations appear, and mutations reject host compilers, emitters, semantic validation, runtimes, ambient discovery, target inference, and second models.
+    - name: Repository and certification profiles
+      command: cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && cargo test --manifest-path core/Cargo.toml --all-targets --locked && python3 -m unittest discover -s tooling/tests && ./strling migration-differential --repeat-runs 3 && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
+      expected_result: All task-owned and available checks pass, inherited unavailability stays explicit, historical observations are classified, and the final tree is clean.
+checkpoints:
+    - name: Existing surface and interop inventory
+      status: passed
+      evidence:
+          - check: Public operation inventory
+            result: passed
+            details: Every reachable TypeScript/Python constructor, Pattern/error method, lookaround, set, static helper, standard recipe, compile convenience, and runtime convenience is enumerated. No operation remains unresolved.
+          - check: Approved inward boundary
+            result: passed
+            details: The deterministic JSON kernel transport owns bounded input and profile loading; core::simply will own typed BuilderRequest replay and call SimplyBuilder plus the existing compile facade.
+    - name: Locked Preview adapter design
+      status: passed
+      evidence:
+          - check: Protocol-only host surfaces
+            result: passed
+            details: Both adapters expose immutable handles, all 15 operations, deterministic serialization, response/error decoding, explicit injected transports, and Preview status without semantic or target authority.
+          - check: Compatibility and rollout boundary
+            result: passed
+            details: Preview declarations are additive. Historical Pattern APIs remain evidence-only and are neither invoked by nor promoted into the Preview path.
+    - name: Rust replay transport and host implementation
+      status: planned
+      evidence: []
+    - name: Cross-language, differential, and architecture certification
+      status: planned
+      evidence: []
+    - name: Complete repository and task certification
+      status: planned
+      evidence: []
+commits: []

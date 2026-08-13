@@ -3440,3 +3440,34 @@ unavailable. The profile-generated Python venv was removed and the final tree
 is clean. P13-T02 is `READY WITH RECORDED CARRY-FORWARD`; P13-T03 is next and
 will implement the ordered TypeScript and Python preview adapters without
 reopening semantic or compiler authority.
+
+## Implement the TypeScript and Python Simply Preview adapters
+
+P13-T03 starts from clean P13-T02 completion commit
+`7d25b5fe0fe511c7942d0f6c32d808e5af30ce45`. The host-neutral protocol and
+native Rust `SimplyBuilder` are certified prerequisites. The existing
+TypeScript and Python `Pattern` trees, local compilers/emitters, target-string
+helpers, and runtime conveniences remain historical compatibility evidence and
+must not become Fourth Edition authority.
+
+The locked design adds explicit Preview builder/value/error/transport surfaces
+in both bindings. They serialize exactly the 15-operation BuilderRequest and
+delegate through an additive `strling simply` JSON transport. Typed replay
+belongs to `core::simply`; the CLI owns bounded I/O and exact profile loading
+only, then calls the existing `compile` facade. Successful responses contain
+the canonical `CompileRequest` and `CompileResult`; construction failures retain
+ordered `STRL-SIMPLY` code/path records.
+
+The complete public-operation inventory classifies adaptable construction
+intent separately from unsupported private-node construction, implicit
+rendering, runtime execution, formatted errors, capture-repeat quirks, and five
+unratified standard-pattern recipes. Historical `max=0` becomes protocol
+`null`; no operation remains unresolved. Preview additions do not silently
+change the stable legacy `Pattern` APIs, and the Preview path may not import or
+invoke their private semantic/compiler/target machinery.
+
+Completion requires byte-stable serialization, all operations/errors/imports,
+cross-language and direct-IR `CompileResult` equality, historical differential
+review, intentional public snapshots, controlled one-core architecture
+mutations, all affected binding/Rust/repository checks, Local, Pull Request,
+Full, and a clean tree.

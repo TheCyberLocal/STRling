@@ -1,0 +1,98 @@
+{
+  "artifact_kind": "strling.simply-preview-adapter-compatibility",
+  "artifact_version": "1.0.0",
+  "protocol_version": "1.0.0",
+  "starting_sha": "7d25b5fe0fe511c7942d0f6c32d808e5af30ce45",
+  "dispositions": [
+    "preserved",
+    "adapted",
+    "intentionally_corrected",
+    "unsupported_legacy_behavior",
+    "unresolved"
+  ],
+  "surfaces": [
+    {
+      "host": "typescript",
+      "public_entrypoint": "STRling.simply",
+      "groups": [
+        {
+          "disposition": "preserved",
+          "operations": ["STRlingError.constructor", "STRlingError.toString"],
+          "reason": "Formatted host exception presentation remains non-semantic; the Preview error also retains canonical code/path records."
+        },
+        {
+          "disposition": "intentionally_corrected",
+          "operations": ["Pattern.rep"],
+          "preview_equivalent": "SimplyPreviewBuilder.repeat",
+          "reason": "Repetition is adapted, but max=0 becomes explicit null."
+        },
+        {
+          "disposition": "adapted",
+          "operations": [
+            "lit", "anyOf", "may", "merge", "capture", "group",
+            "ahead", "notAhead", "behind", "notBehind", "has", "hasNot",
+            "between", "notBetween", "inChars", "notInChars",
+            "alphaNum", "notAlphaNum", "specialChar", "notSpecialChar",
+            "letter", "notLetter", "upper", "notUpper", "lower", "notLower",
+            "hexDigit", "notHexDigit", "digit", "notDigit", "whitespace",
+            "notWhitespace", "newline", "notNewline", "tab", "carriage",
+            "bound", "notBound", "start", "end", "compileNode"
+          ],
+          "preview_equivalent": "Mechanical recipes over the 15 canonical builder operations; compileNode becomes the canonical adapter response.",
+          "reason": "The intended construction or compile route has an exact protocol/kernel equivalent."
+        },
+        {
+          "disposition": "unsupported_legacy_behavior",
+          "operations": [
+            "Pattern.constructor", "Pattern.toString",
+            "Pattern.createModifiedInstance", "compileWeb", "toRegExp",
+            "toRegExpAsync", "email", "url", "uuid", "ip", "dateTime"
+          ],
+          "reason": "Private AST construction, implicit rendering, ignored endpoints, runtime RegExp objects, and unratified standard recipes are not Preview semantics."
+        }
+      ]
+    },
+    {
+      "host": "python",
+      "public_entrypoint": "STRling.simply",
+      "groups": [
+        {
+          "disposition": "preserved",
+          "operations": ["STRlingError.__init__", "STRlingError.__str__"],
+          "reason": "Formatted host exception presentation remains non-semantic; the Preview error also retains canonical code/path records."
+        },
+        {
+          "disposition": "intentionally_corrected",
+          "operations": ["Pattern.__call__", "repeat"],
+          "preview_equivalent": "SimplyPreviewBuilder.repeat",
+          "reason": "max=0 becomes null; capture duplication and repeat guards remain excluded host quirks."
+        },
+        {
+          "disposition": "adapted",
+          "operations": [
+            "lit", "any_of", "may", "merge", "capture", "group",
+            "ahead", "not_ahead", "behind", "not_behind", "has", "has_not",
+            "between", "not_between", "in_chars", "not_in_chars",
+            "alpha_num", "not_alpha_num", "special_char", "not_special_char",
+            "letter", "not_letter", "upper", "not_upper", "lower", "not_lower",
+            "hex_digit", "not_hex_digit", "digit", "not_digit", "whitespace",
+            "not_whitespace", "newline", "not_newline", "tab", "carriage",
+            "bound", "not_bound", "start", "end"
+          ],
+          "preview_equivalent": "Mechanical recipes over the 15 canonical builder operations.",
+          "reason": "The intended construction has an exact protocol equivalent."
+        },
+        {
+          "disposition": "unsupported_legacy_behavior",
+          "operations": [
+            "Pattern.__init__", "Pattern.__str__", "Pattern.exec",
+            "Pattern.create_modified_instance", "email", "url", "uuid", "ip",
+            "date_time"
+          ],
+          "reason": "Private AST construction, implicit rendering/runtime execution, and unratified standard recipes are not Preview semantics."
+        }
+      ]
+    }
+  ],
+  "unresolved": []
+}
