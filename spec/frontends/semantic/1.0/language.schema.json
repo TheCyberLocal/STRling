@@ -28,7 +28,13 @@
         "frontend": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "dialect_version", "source_edition", "role", "media_type"],
+            "required": [
+                "id",
+                "dialect_version",
+                "source_edition",
+                "role",
+                "media_type"
+            ],
             "properties": {
                 "id": { "const": "strling.semantic" },
                 "dialect_version": { "const": "1.0.0" },
@@ -84,7 +90,9 @@
                 "comment_model": { "const": "hash-to-physical-line-end" },
                 "raw_fragment_model": { "const": "none" },
                 "target_assumption": { "const": "none" },
-                "metadata_selection": { "const": "explicit-and-header-consistent" }
+                "metadata_selection": {
+                    "const": "explicit-and-header-consistent"
+                }
             }
         },
         "structure": {
@@ -114,7 +122,9 @@
                 "text_model": { "const": "unicode-scalar-values" },
                 "capture_model": { "const": "unique-named-prior-declarations" },
                 "wildcard_default": { "const": "none-explicit-per-node" },
-                "builtin_domain_default": { "const": "none-explicit-per-member" }
+                "builtin_domain_default": {
+                    "const": "none-explicit-per-member"
+                }
             }
         },
         "limits": {
@@ -169,12 +179,19 @@
         "versioning": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["selection", "compatible_addition", "incompatible_change", "patch_scope"],
+            "required": [
+                "selection",
+                "compatible_addition",
+                "incompatible_change",
+                "patch_scope"
+            ],
             "properties": {
                 "selection": { "const": "exact-major-minor-header" },
                 "compatible_addition": { "const": "new-minor-edition" },
                 "incompatible_change": { "const": "new-major-edition" },
-                "patch_scope": { "const": "editorial-or-additional-reviewed-evidence-only" }
+                "patch_scope": {
+                    "const": "editorial-or-additional-reviewed-evidence-only"
+                }
             }
         }
     },
@@ -182,12 +199,21 @@
         "Diagnostic": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["code", "id", "phase", "category", "trigger", "fixture_required"],
+            "required": [
+                "code",
+                "id",
+                "phase",
+                "category",
+                "trigger",
+                "fixture_required"
+            ],
             "properties": {
                 "code": { "type": "string", "pattern": "^STRL-DSL-[0-9]{4}$" },
                 "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]+$" },
                 "phase": { "enum": ["frontend_parse", "semantic_lowering"] },
-                "category": { "enum": ["syntax", "semantic_validity", "resource_limit"] },
+                "category": {
+                    "enum": ["syntax", "semantic_validity", "resource_limit"]
+                },
                 "trigger": { "type": "string", "minLength": 1 },
                 "fixture_required": { "type": "boolean" }
             }
@@ -197,10 +223,16 @@
             "additionalProperties": false,
             "required": ["id", "status", "rationale", "diagnostic_code"],
             "properties": {
-                "id": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)+$" },
+                "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)+$"
+                },
                 "status": { "const": "unavailable-in-1.0" },
                 "rationale": { "type": "string", "minLength": 1 },
-                "diagnostic_code": { "type": "string", "pattern": "^STRL-DSL-[0-9]{4}$" }
+                "diagnostic_code": {
+                    "type": "string",
+                    "pattern": "^STRL-DSL-[0-9]{4}$"
+                }
             }
         }
     }

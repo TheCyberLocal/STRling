@@ -129,9 +129,7 @@ class SemanticStrlingContractSuite:
             ROOT / "spec" / "contracts" / "1.0" / "semantic-ir.schema.json"
         )
         try:
-            self.grammar = (language_root / "grammar.ebnf").read_text(
-                encoding="utf-8"
-            )
+            self.grammar = (language_root / "grammar.ebnf").read_text(encoding="utf-8")
         except OSError as error:
             raise SemanticStrlingContractError(
                 f"cannot read {language_root / 'grammar.ebnf'}: {error}"
@@ -220,9 +218,9 @@ class SemanticStrlingContractSuite:
                 "language authority must remain syntax-and-mapping only"
             )
 
-        grammar_before_strings = re.split(
-            r"(?m)^String\s*=", self.grammar, maxsplit=1
-        )[0]
+        grammar_before_strings = re.split(r"(?m)^String\s*=", self.grammar, maxsplit=1)[
+            0
+        ]
         keywords = set(re.findall(r'"([a-z]+)"', grammar_before_strings))
         reserved = self.language["reserved_words"]
         self._require_sorted_unique(reserved, "language.reserved_words")
@@ -236,7 +234,9 @@ class SemanticStrlingContractSuite:
         tokenized = [phrase.split() for phrase in phrases]
         for index, left in enumerate(tokenized):
             for right in tokenized[index + 1 :]:
-                shorter, longer = (left, right) if len(left) <= len(right) else (right, left)
+                shorter, longer = (
+                    (left, right) if len(left) <= len(right) else (right, left)
+                )
                 if longer[: len(shorter)] == shorter:
                     raise SemanticStrlingContractError(
                         "construct phrases must be prefix-disjoint: "
@@ -263,7 +263,9 @@ class SemanticStrlingContractSuite:
         if "|" in self.language["structure"]["composition"]:
             raise SemanticStrlingContractError("composition cannot be regex-shaped")
         if not set(rules).issuperset({"Program", "Node", "String", "Identifier"}):
-            raise SemanticStrlingContractError("grammar lacks required root productions")
+            raise SemanticStrlingContractError(
+                "grammar lacks required root productions"
+            )
         return known_codes
 
     @staticmethod
@@ -310,12 +312,18 @@ class SemanticStrlingContractSuite:
             raise SemanticStrlingContractError(
                 "mapping must cover every canonical node kind exactly once"
             )
-        if actual_members != expected_members or len(actual_members) != len(member_entries):
+        if actual_members != expected_members or len(actual_members) != len(
+            member_entries
+        ):
             raise SemanticStrlingContractError(
                 "mapping must cover every set-member kind exactly once"
             )
 
-        for entry in [*self.mapping["program_mappings"], *node_entries, *member_entries]:
+        for entry in [
+            *self.mapping["program_mappings"],
+            *node_entries,
+            *member_entries,
+        ]:
             if entry["production"] not in rules:
                 raise SemanticStrlingContractError(
                     f"{entry['id']}: unknown grammar production {entry['production']}"
@@ -386,7 +394,9 @@ class SemanticStrlingContractSuite:
                     covered_diagnostics.add(code)
 
         if len(all_case_ids) != len(set(all_case_ids)):
-            raise SemanticStrlingContractError("fixture case identities must be global unique")
+            raise SemanticStrlingContractError(
+                "fixture case identities must be global unique"
+            )
         missing_positive = sorted(set(rules) - positive_productions)
         missing_negative = sorted(set(rules) - negative_productions)
         if missing_positive:

@@ -4,9 +4,18 @@
     "title": "Semantic STRling 1.0 specification-authored cases",
     "type": "object",
     "additionalProperties": false,
-    "required": ["$schema", "fixture_set_version", "contract_version", "kind", "authorship", "cases"],
+    "required": [
+        "$schema",
+        "fixture_set_version",
+        "contract_version",
+        "kind",
+        "authorship",
+        "cases"
+    ],
     "properties": {
-        "$schema": { "const": "https://strling.dev/frontends/semantic/1.0/case.schema.json" },
+        "$schema": {
+            "const": "https://strling.dev/frontends/semantic/1.0/case.schema.json"
+        },
         "fixture_set_version": { "const": "1.0.0" },
         "contract_version": { "const": "1.0.0" },
         "kind": { "enum": ["positive", "negative"] },
@@ -19,7 +28,10 @@
     },
     "allOf": [
         {
-            "if": { "properties": { "kind": { "const": "positive" } }, "required": ["kind"] },
+            "if": {
+                "properties": { "kind": { "const": "positive" } },
+                "required": ["kind"]
+            },
             "then": {
                 "properties": {
                     "cases": {
@@ -27,7 +39,9 @@
                             "properties": {
                                 "expected": {
                                     "required": ["status", "mapping_ids"],
-                                    "properties": { "status": { "const": "accepted" } }
+                                    "properties": {
+                                        "status": { "const": "accepted" }
+                                    }
                                 }
                             }
                         }
@@ -36,15 +50,24 @@
             }
         },
         {
-            "if": { "properties": { "kind": { "const": "negative" } }, "required": ["kind"] },
+            "if": {
+                "properties": { "kind": { "const": "negative" } },
+                "required": ["kind"]
+            },
             "then": {
                 "properties": {
                     "cases": {
                         "items": {
                             "properties": {
                                 "expected": {
-                                    "required": ["status", "diagnostic_code", "byte_offset"],
-                                    "properties": { "status": { "const": "rejected" } }
+                                    "required": [
+                                        "status",
+                                        "diagnostic_code",
+                                        "byte_offset"
+                                    ],
+                                    "properties": {
+                                        "status": { "const": "rejected" }
+                                    }
                                 }
                             }
                         }
@@ -58,14 +81,20 @@
             "type": "array",
             "minItems": 1,
             "uniqueItems": true,
-            "items": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]*$" }
+            "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9._-]*$"
+            }
         },
         "Case": {
             "type": "object",
             "additionalProperties": false,
             "required": ["id", "source", "production_ids", "expected"],
             "properties": {
-                "id": { "type": "string", "pattern": "^case:semantic/[a-z0-9][a-z0-9-]{2,63}$" },
+                "id": {
+                    "type": "string",
+                    "pattern": "^case:semantic/[a-z0-9][a-z0-9-]{2,63}$"
+                },
                 "source": { "type": "string" },
                 "production_ids": { "$ref": "#/$defs/IdentityList" },
                 "expected": {
@@ -78,9 +107,15 @@
                             "type": "array",
                             "minItems": 1,
                             "uniqueItems": true,
-                            "items": { "type": "string", "pattern": "^(program|node|member)\\.[a-z0-9-]+$" }
+                            "items": {
+                                "type": "string",
+                                "pattern": "^(program|node|member)\\.[a-z0-9-]+$"
+                            }
                         },
-                        "diagnostic_code": { "type": "string", "pattern": "^STRL-DSL-[0-9]{4}$" },
+                        "diagnostic_code": {
+                            "type": "string",
+                            "pattern": "^STRL-DSL-[0-9]{4}$"
+                        },
                         "byte_offset": { "type": "integer", "minimum": 0 },
                         "notes": { "type": "string", "minLength": 1 }
                     }

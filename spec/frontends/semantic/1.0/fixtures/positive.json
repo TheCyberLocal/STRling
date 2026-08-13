@@ -9,73 +9,207 @@
             "id": "case:semantic/atomic-intent",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern without backtracking { text \"commit\"; }\n",
             "production_ids": ["Atomic", "Text"],
-            "expected": {"status": "accepted", "mapping_ids": ["node.atomic", "node.literal", "program.case-matching"]}
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": [
+                    "node.atomic",
+                    "node.literal",
+                    "program.case-matching"
+                ]
+            }
         },
         {
             "id": "case:semantic/capture-and-reference",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { capture word { text \"go\"; } same text as word; }\n",
-            "production_ids": ["Capture", "Identifier", "Lowercase", "Reference", "Sequence"],
-            "expected": {"status": "accepted", "mapping_ids": ["node.backreference", "node.capture", "node.literal", "node.sequence", "program.case-matching"]}
+            "production_ids": [
+                "Capture",
+                "Identifier",
+                "Lowercase",
+                "Reference",
+                "Sequence"
+            ],
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": [
+                    "node.backreference",
+                    "node.capture",
+                    "node.literal",
+                    "node.sequence",
+                    "program.case-matching"
+                ]
+            }
         },
         {
             "id": "case:semantic/character-set-members",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern character from { scalar \"_\"; range \"A\" through \"Z\"; ascii digit; not unicode whitespace; property \"General_Category\" value \"Letter\"; }\n",
-            "production_ids": ["BuiltinClass", "BuiltinMember", "CharacterDomain", "CharacterSet", "RangeMember", "ScalarMember", "ScalarString", "SetMember", "SetPolarity", "UnicodePropertyMember"],
-            "expected": {"status": "accepted", "mapping_ids": ["member.builtin", "member.literal", "member.range", "member.unicode-property", "node.character-set", "program.case-matching"]}
+            "production_ids": [
+                "BuiltinClass",
+                "BuiltinMember",
+                "CharacterDomain",
+                "CharacterSet",
+                "RangeMember",
+                "ScalarMember",
+                "ScalarString",
+                "SetMember",
+                "SetPolarity",
+                "UnicodePropertyMember"
+            ],
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": [
+                    "member.builtin",
+                    "member.literal",
+                    "member.range",
+                    "member.unicode-property",
+                    "node.character-set",
+                    "program.case-matching"
+                ]
+            }
         },
         {
             "id": "case:semantic/comments-and-layout",
             "source": "# contract case\r\nsemantic strling 1.0;\r\ncase sensitive;\r\n# root\r\npattern empty;\r\n",
-            "production_ids": ["Comment", "CommentCharacter", "EndOfInput", "Layout", "LayoutItem", "RequiredLayout", "Whitespace"],
-            "expected": {"status": "accepted", "mapping_ids": ["node.empty", "program.case-matching"]}
+            "production_ids": [
+                "Comment",
+                "CommentCharacter",
+                "EndOfInput",
+                "Layout",
+                "LayoutItem",
+                "RequiredLayout",
+                "Whitespace"
+            ],
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": ["node.empty", "program.case-matching"]
+            }
         },
         {
             "id": "case:semantic/composition-and-text",
             "source": "semantic strling 1.0;\ncase insensitive;\npattern sequence { text \"prefix\"; choice { text \"cat\"; text \"dog\"; } }\n",
-            "production_ids": ["Choice", "Sequence", "String", "StringCharacter", "Text"],
-            "expected": {"status": "accepted", "mapping_ids": ["node.alternation", "node.literal", "node.sequence", "program.case-matching"]}
+            "production_ids": [
+                "Choice",
+                "Sequence",
+                "String",
+                "StringCharacter",
+                "Text"
+            ],
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": [
+                    "node.alternation",
+                    "node.literal",
+                    "node.sequence",
+                    "program.case-matching"
+                ]
+            }
         },
         {
             "id": "case:semantic/empty-program-shape",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern empty;\n",
-            "production_ids": ["CaseDeclaration", "CaseMode", "Empty", "Header", "Node", "PatternDeclaration", "Program", "Version"],
-            "expected": {"status": "accepted", "mapping_ids": ["node.empty", "program.case-matching"]}
+            "production_ids": [
+                "CaseDeclaration",
+                "CaseMode",
+                "Empty",
+                "Header",
+                "Node",
+                "PatternDeclaration",
+                "Program",
+                "Version"
+            ],
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": ["node.empty", "program.case-matching"]
+            }
         },
         {
             "id": "case:semantic/escaped-text",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern text \"quote: \\\" slash: \\\\ newline: \\n scalar: \\u{1F600}\";\n",
             "production_ids": ["Escape", "HexDigit", "String", "UnicodeEscape"],
-            "expected": {"status": "accepted", "mapping_ids": ["node.literal", "program.case-matching"]}
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": ["node.literal", "program.case-matching"]
+            }
         },
         {
             "id": "case:semantic/lookaround-matrix",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { if followed by { text \"a\"; } unless followed by { text \"b\"; } if preceded by { text \"c\"; } unless preceded by { text \"d\"; } }\n",
             "production_ids": ["LookCondition", "LookDirection", "Lookaround"],
-            "expected": {"status": "accepted", "mapping_ids": ["node.literal", "node.lookaround", "node.sequence", "program.case-matching"]}
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": [
+                    "node.literal",
+                    "node.lookaround",
+                    "node.sequence",
+                    "program.case-matching"
+                ]
+            }
         },
         {
             "id": "case:semantic/positions",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { at input start; at input end; at line start; at line end; at word boundary; not at word boundary; before final line terminator; }\n",
-            "production_ids": ["AtPosition", "FinalLinePosition", "InputPosition", "LinePosition", "NotWordBoundary", "Position"],
-            "expected": {"status": "accepted", "mapping_ids": ["node.position", "node.sequence", "program.case-matching"]}
+            "production_ids": [
+                "AtPosition",
+                "FinalLinePosition",
+                "InputPosition",
+                "LinePosition",
+                "NotWordBoundary",
+                "Position"
+            ],
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": [
+                    "node.position",
+                    "node.sequence",
+                    "program.case-matching"
+                ]
+            }
         },
         {
             "id": "case:semantic/repetition-modes",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern choice { repeat from 0 to 1 using greedy { text \"g\"; } repeat from 1 to unbounded using lazy { text \"l\"; } repeat from 2 to 2 using possessive { text \"p\"; } }\n",
-            "production_ids": ["Digit", "Integer", "NonzeroDigit", "Repeat", "RepeatMode", "RepetitionMaximum"],
-            "expected": {"status": "accepted", "mapping_ids": ["node.alternation", "node.literal", "node.repeat", "program.case-matching"]}
+            "production_ids": [
+                "Digit",
+                "Integer",
+                "NonzeroDigit",
+                "Repeat",
+                "RepeatMode",
+                "RepetitionMaximum"
+            ],
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": [
+                    "node.alternation",
+                    "node.literal",
+                    "node.repeat",
+                    "program.case-matching"
+                ]
+            }
         },
         {
             "id": "case:semantic/set-negation",
             "source": "semantic strling 1.0;\ncase insensitive;\npattern character except { unicode word; }\n",
             "production_ids": ["BuiltinMember", "CharacterSet", "SetPolarity"],
-            "expected": {"status": "accepted", "mapping_ids": ["member.builtin", "node.character-set", "program.case-matching"]}
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": [
+                    "member.builtin",
+                    "node.character-set",
+                    "program.case-matching"
+                ]
+            }
         },
         {
             "id": "case:semantic/wildcard-policies",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern choice { any character excluding line terminators; any character including line terminators; }\n",
             "production_ids": ["LineTerminatorPolicy", "Wildcard"],
-            "expected": {"status": "accepted", "mapping_ids": ["node.alternation", "node.wildcard", "program.case-matching"]}
+            "expected": {
+                "status": "accepted",
+                "mapping_ids": [
+                    "node.alternation",
+                    "node.wildcard",
+                    "program.case-matching"
+                ]
+            }
         }
     ]
 }

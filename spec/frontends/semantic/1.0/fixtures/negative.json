@@ -9,181 +9,342 @@
             "id": "case:semantic/duplicate-capture",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { capture item { text \"a\"; } capture item { text \"b\"; } }\n",
             "production_ids": ["Capture", "Identifier", "Sequence"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-2007", "byte_offset": 82}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-2007",
+                "byte_offset": 82
+            }
         },
         {
             "id": "case:semantic/duplicate-case-declaration",
             "source": "semantic strling 1.0;\ncase sensitive;\ncase insensitive;\npattern empty;\n",
             "production_ids": ["CaseDeclaration", "CaseMode", "Program"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1003", "byte_offset": 38}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1003",
+                "byte_offset": 38
+            }
         },
         {
             "id": "case:semantic/duplicate-root",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern empty;\npattern text \"x\";\n",
             "production_ids": ["PatternDeclaration", "Program"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1004", "byte_offset": 53}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1004",
+                "byte_offset": 53
+            }
         },
         {
             "id": "case:semantic/empty-character-set",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern character from { }\n",
             "production_ids": ["CharacterSet", "SetMember", "SetPolarity"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-2006", "byte_offset": 63}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-2006",
+                "byte_offset": 63
+            }
         },
         {
             "id": "case:semantic/empty-text",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern text \"\";\n",
             "production_ids": ["String", "Text"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-2001", "byte_offset": 51}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-2001",
+                "byte_offset": 51
+            }
         },
         {
             "id": "case:semantic/forward-reference",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { same text as item; capture item { text \"x\"; } }\n",
             "production_ids": ["Capture", "Reference", "Sequence"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-2009", "byte_offset": 57}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-2009",
+                "byte_offset": 57
+            }
         },
         {
             "id": "case:semantic/insufficient-choice",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern choice { empty; }\n",
             "production_ids": ["Choice", "Empty", "Node"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-2005", "byte_offset": 57}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-2005",
+                "byte_offset": 57
+            }
         },
         {
             "id": "case:semantic/invalid-header",
             "source": "strling semantic 1.0;\ncase sensitive;\npattern empty;\n",
             "production_ids": ["Header", "Program"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1001", "byte_offset": 0}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1001",
+                "byte_offset": 0
+            }
         },
         {
             "id": "case:semantic/invalid-identifier",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern capture Upper { empty; }\n",
             "production_ids": ["Capture", "Identifier", "Lowercase"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1007", "byte_offset": 54}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1007",
+                "byte_offset": 54
+            }
         },
         {
             "id": "case:semantic/invalid-integer",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 01 to 2 using greedy { empty; }\n",
-            "production_ids": ["Digit", "Integer", "NonzeroDigit", "Repeat", "RepeatMode", "RepetitionMaximum"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1012", "byte_offset": 59}
+            "production_ids": [
+                "Digit",
+                "Integer",
+                "NonzeroDigit",
+                "Repeat",
+                "RepeatMode",
+                "RepetitionMaximum"
+            ],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1012",
+                "byte_offset": 59
+            }
         },
         {
             "id": "case:semantic/invalid-range",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern character from { range \"z\" through \"a\"; }\n",
             "production_ids": ["CharacterSet", "RangeMember", "ScalarString"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-2003", "byte_offset": 70}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-2003",
+                "byte_offset": 70
+            }
         },
         {
             "id": "case:semantic/invalid-repeat-bounds",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern repeat from 3 to 2 using lazy { empty; }\n",
             "production_ids": ["Repeat", "RepeatMode", "RepetitionMaximum"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-2004", "byte_offset": 59}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-2004",
+                "byte_offset": 59
+            }
         },
         {
             "id": "case:semantic/invalid-set-scalar",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern character from { scalar \"ab\"; }\n",
             "production_ids": ["CharacterSet", "ScalarMember", "ScalarString"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-2002", "byte_offset": 77}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-2002",
+                "byte_offset": 77
+            }
         },
         {
             "id": "case:semantic/invalid-unicode-scalar",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern text \"\\u{D800}\";\n",
             "production_ids": ["HexDigit", "String", "UnicodeEscape"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1011", "byte_offset": 52}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1011",
+                "byte_offset": 52
+            }
         },
         {
             "id": "case:semantic/missing-case-declaration",
             "source": "semantic strling 1.0;\npattern empty;\n",
             "production_ids": ["CaseDeclaration", "CaseMode", "Program"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1003", "byte_offset": 22}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1003",
+                "byte_offset": 22
+            }
         },
         {
             "id": "case:semantic/missing-delimiter",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern sequence { text \"a\"; text \"b\";\n",
-            "production_ids": ["Atomic", "Capture", "CharacterSet", "Choice", "Lookaround", "Repeat", "Sequence"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1006", "byte_offset": 77}
+            "production_ids": [
+                "Atomic",
+                "Capture",
+                "CharacterSet",
+                "Choice",
+                "Lookaround",
+                "Repeat",
+                "Sequence"
+            ],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1006",
+                "byte_offset": 77
+            }
         },
         {
             "id": "case:semantic/missing-header",
             "source": "case sensitive;\npattern empty;\n",
             "production_ids": ["Header", "Program"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1001", "byte_offset": 0}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1001",
+                "byte_offset": 0
+            }
         },
         {
             "id": "case:semantic/numeric-reference",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern same text as 1;\n",
             "production_ids": ["Identifier", "Reference"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-3005", "byte_offset": 58}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-3005",
+                "byte_offset": 58
+            }
         },
         {
             "id": "case:semantic/reserved-identifier",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern capture sequence { empty; }\n",
             "production_ids": ["Capture", "Identifier"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1008", "byte_offset": 54}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1008",
+                "byte_offset": 54
+            }
         },
         {
             "id": "case:semantic/unknown-escape",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern text \"\\q\";\n",
             "production_ids": ["Escape", "String"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1009", "byte_offset": 52}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1009",
+                "byte_offset": 52
+            }
         },
         {
             "id": "case:semantic/unknown-node-keyword",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern maybe { empty; }\n",
-            "production_ids": ["AtPosition", "BuiltinClass", "BuiltinMember", "CharacterDomain", "FinalLinePosition", "InputPosition", "LinePosition", "LineTerminatorPolicy", "LookCondition", "LookDirection", "Node", "NotWordBoundary", "Position", "UnicodePropertyMember", "Wildcard"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1005", "byte_offset": 47}
+            "production_ids": [
+                "AtPosition",
+                "BuiltinClass",
+                "BuiltinMember",
+                "CharacterDomain",
+                "FinalLinePosition",
+                "InputPosition",
+                "LinePosition",
+                "LineTerminatorPolicy",
+                "LookCondition",
+                "LookDirection",
+                "Node",
+                "NotWordBoundary",
+                "Position",
+                "UnicodePropertyMember",
+                "Wildcard"
+            ],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1005",
+                "byte_offset": 47
+            }
         },
         {
             "id": "case:semantic/unresolved-reference",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern same text as missing;\n",
             "production_ids": ["Identifier", "Reference"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-2008", "byte_offset": 47}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-2008",
+                "byte_offset": 47
+            }
         },
         {
             "id": "case:semantic/unsupported-module",
             "source": "semantic strling 1.0;\ncase sensitive;\nimport \"common.strling\";\npattern empty;\n",
             "production_ids": ["PatternDeclaration", "Program"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-3002", "byte_offset": 38}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-3002",
+                "byte_offset": 38
+            }
         },
         {
             "id": "case:semantic/unsupported-policy",
             "source": "semantic strling 1.0;\ncase sensitive;\nrequire portable;\npattern empty;\n",
             "production_ids": ["PatternDeclaration", "Program"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-3003", "byte_offset": 38}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-3003",
+                "byte_offset": 38
+            }
         },
         {
             "id": "case:semantic/unsupported-regex",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern /a+/;\n",
             "production_ids": ["Node", "PatternDeclaration"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-3004", "byte_offset": 46}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-3004",
+                "byte_offset": 46
+            }
         },
         {
             "id": "case:semantic/unsupported-target",
             "source": "semantic strling 1.0;\ncase sensitive;\ntarget pcre2 10.43;\npattern empty;\n",
             "production_ids": ["PatternDeclaration", "Program"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-3001", "byte_offset": 38}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-3001",
+                "byte_offset": 38
+            }
         },
         {
             "id": "case:semantic/unsupported-version",
             "source": "semantic strling 1.1;\ncase sensitive;\npattern empty;\n",
             "production_ids": ["Header", "Version"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1002", "byte_offset": 17}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1002",
+                "byte_offset": 17
+            }
         },
         {
             "id": "case:semantic/unterminated-string",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern text \"open;\n",
             "production_ids": ["EndOfInput", "String", "StringCharacter"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1010", "byte_offset": 52}
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1010",
+                "byte_offset": 52
+            }
         },
         {
             "id": "case:semantic/whitespace-splits-token",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern emp ty;\n",
-            "production_ids": ["Layout", "LayoutItem", "RequiredLayout", "Whitespace"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1005", "byte_offset": 47}
+            "production_ids": [
+                "Layout",
+                "LayoutItem",
+                "RequiredLayout",
+                "Whitespace"
+            ],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1005",
+                "byte_offset": 47
+            }
         },
         {
             "id": "case:semantic/comment-splits-token",
             "source": "semantic strling 1.0;\ncase sensitive;\npattern emp# split\nty;\n",
-            "production_ids": ["Comment", "CommentCharacter", "Layout", "LayoutItem"],
-            "expected": {"status": "rejected", "diagnostic_code": "STRL-DSL-1005", "byte_offset": 47}
+            "production_ids": [
+                "Comment",
+                "CommentCharacter",
+                "Layout",
+                "LayoutItem"
+            ],
+            "expected": {
+                "status": "rejected",
+                "diagnostic_code": "STRL-DSL-1005",
+                "byte_offset": 47
+            }
         }
     ]
 }

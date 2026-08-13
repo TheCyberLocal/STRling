@@ -18,15 +18,23 @@
         "identity_and_origin"
     ],
     "properties": {
-        "$schema": { "const": "https://strling.dev/frontends/semantic/1.0/mapping.schema.json" },
+        "$schema": {
+            "const": "https://strling.dev/frontends/semantic/1.0/mapping.schema.json"
+        },
         "mapping_kind": { "const": "strling.semantic-ir-mapping" },
         "mapping_version": { "const": "1.0.0" },
         "source_frontend": { "const": "strling.semantic@1.0.0" },
-        "destination": { "const": "https://strling.dev/contracts/1.0/semantic-ir.schema.json" },
+        "destination": {
+            "const": "https://strling.dev/contracts/1.0/semantic-ir.schema.json"
+        },
         "authority": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["frontend_mapping", "canonical_semantics", "target_behavior"],
+            "required": [
+                "frontend_mapping",
+                "canonical_semantics",
+                "target_behavior"
+            ],
             "properties": {
                 "frontend_mapping": { "const": true },
                 "canonical_semantics": { "const": false },
@@ -75,13 +83,29 @@
         "identity_and_origin": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["node_identity", "capture_identity", "node_span", "member_span", "semantic_equality"],
+            "required": [
+                "node_identity",
+                "capture_identity",
+                "node_span",
+                "member_span",
+                "semantic_equality"
+            ],
             "properties": {
-                "node_identity": { "const": "node:semantic/n{one-based-material-preorder}" },
-                "capture_identity": { "const": "capture:semantic/c{one-based-declaration-preorder}" },
-                "node_span": { "const": "first-keyword-through-semicolon-or-closing-brace-utf8-bytes" },
-                "member_span": { "const": "attributed-to-containing-character-set-node" },
-                "semantic_equality": { "const": "alpha-equivalent-excluding-identity-and-origin" }
+                "node_identity": {
+                    "const": "node:semantic/n{one-based-material-preorder}"
+                },
+                "capture_identity": {
+                    "const": "capture:semantic/c{one-based-declaration-preorder}"
+                },
+                "node_span": {
+                    "const": "first-keyword-through-semicolon-or-closing-brace-utf8-bytes"
+                },
+                "member_span": {
+                    "const": "attributed-to-containing-character-set-node"
+                },
+                "semantic_equality": {
+                    "const": "alpha-equivalent-excluding-identity-and-origin"
+                }
             }
         }
     },
@@ -95,7 +119,13 @@
         "ProgramMapping": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "production", "destination", "source_values", "semantic_values"],
+            "required": [
+                "id",
+                "production",
+                "destination",
+                "source_values",
+                "semantic_values"
+            ],
             "properties": {
                 "id": { "type": "string", "pattern": "^program\\.[a-z0-9-]+$" },
                 "production": { "type": "string", "minLength": 1 },
@@ -107,12 +137,33 @@
         "NodeMapping": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "production", "node_kind", "source_form", "field_mapping", "normalization", "span"],
+            "required": [
+                "id",
+                "production",
+                "node_kind",
+                "source_form",
+                "field_mapping",
+                "normalization",
+                "span"
+            ],
             "properties": {
                 "id": { "type": "string", "pattern": "^node\\.[a-z0-9-]+$" },
                 "production": { "type": "string", "minLength": 1 },
                 "node_kind": {
-                    "enum": ["empty", "sequence", "alternation", "literal", "wildcard", "character_set", "repeat", "position", "capture", "backreference", "lookaround", "atomic"]
+                    "enum": [
+                        "empty",
+                        "sequence",
+                        "alternation",
+                        "literal",
+                        "wildcard",
+                        "character_set",
+                        "repeat",
+                        "position",
+                        "capture",
+                        "backreference",
+                        "lookaround",
+                        "atomic"
+                    ]
                 },
                 "source_form": { "type": "string", "minLength": 1 },
                 "field_mapping": {
@@ -127,11 +178,20 @@
         "MemberMapping": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "production", "member_kind", "source_form", "field_mapping", "normalization"],
+            "required": [
+                "id",
+                "production",
+                "member_kind",
+                "source_form",
+                "field_mapping",
+                "normalization"
+            ],
             "properties": {
                 "id": { "type": "string", "pattern": "^member\\.[a-z0-9-]+$" },
                 "production": { "type": "string", "minLength": 1 },
-                "member_kind": { "enum": ["literal", "range", "builtin", "unicode_property"] },
+                "member_kind": {
+                    "enum": ["literal", "range", "builtin", "unicode_property"]
+                },
                 "source_form": { "type": "string", "minLength": 1 },
                 "field_mapping": {
                     "type": "object",

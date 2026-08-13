@@ -4,16 +4,46 @@
     "contract_version": "1.0.0",
     "authorship": "specification-authored",
     "files": [
-        {"path": "README.md", "sha256": "sha256:00649a6cfeb408f4f5ae5a26a68d992101a5cb6eaebd76966fe15f7c95569141"},
-        {"path": "case.schema.json", "sha256": "sha256:6085d025128fb99c03ce6e37f053c7eda7179e7d7efe2cace47d6e9e4659195b"},
-        {"path": "formatting.md", "sha256": "sha256:3a7161cec55b7af87d1d8c0193c8d6d50e96fa3fc0f2c6c1c6512a2c30da7d00"},
-        {"path": "grammar.ebnf", "sha256": "sha256:2cbdbe792d2fc7c8dee7f8f55122e04ee6d6bf648e380ab1ce5e42615489ece2"},
-        {"path": "language.json", "sha256": "sha256:78177101188941cf1071220cc486c7ac70f6771d1b44ff7ddd53c403afdc07f5"},
-        {"path": "language.schema.json", "sha256": "sha256:7f0a002583e8a33b293c1819b0f089eb2ac71ddb0dc58e7c44b91acd37009462"},
-        {"path": "mapping.json", "sha256": "sha256:75eb2223ac8a3a7a8d1959dad2db8f395da92904ed972fc56e935ff300ab6267"},
-        {"path": "mapping.schema.json", "sha256": "sha256:788626658a2a5853a7785a8587bfd5ff60d3a028afd6737cfd8eafe154e6686e"},
-        {"path": "fixtures/negative.json", "sha256": "sha256:15b635c52dc1c5a7bbb0f05032adc165a9631dd065418bd266b1825c65caef4f"},
-        {"path": "fixtures/positive.json", "sha256": "sha256:6db054ec02bfee83e2130e09fe08847ffa3ffa5af6a7cc2ee168b6c6c02b7b1f"}
+        {
+            "path": "README.md",
+            "sha256": "sha256:00649a6cfeb408f4f5ae5a26a68d992101a5cb6eaebd76966fe15f7c95569141"
+        },
+        {
+            "path": "case.schema.json",
+            "sha256": "sha256:a45a62887dbd43bc817321aff6d4a0a88f238e73eed3eeb711486d807906eb47"
+        },
+        {
+            "path": "formatting.md",
+            "sha256": "sha256:3a7161cec55b7af87d1d8c0193c8d6d50e96fa3fc0f2c6c1c6512a2c30da7d00"
+        },
+        {
+            "path": "grammar.ebnf",
+            "sha256": "sha256:2cbdbe792d2fc7c8dee7f8f55122e04ee6d6bf648e380ab1ce5e42615489ece2"
+        },
+        {
+            "path": "language.json",
+            "sha256": "sha256:05792098ccd1bdd464466c5cb9e30c4d58cd5df018ac66f36ddabc0c3699df53"
+        },
+        {
+            "path": "language.schema.json",
+            "sha256": "sha256:b822d7f221c1f46136346b6014a2782bb45a6ffc631140e7b84a4587ab9889c7"
+        },
+        {
+            "path": "mapping.json",
+            "sha256": "sha256:3f27f951fc7d8b2207fbc122b68e93840efb77b0d6940a8669cd3e856d77d0bf"
+        },
+        {
+            "path": "mapping.schema.json",
+            "sha256": "sha256:54881e75d3763bdbca350194a85d25122cf4b5411e80e493b473d576ba415d51"
+        },
+        {
+            "path": "fixtures/negative.json",
+            "sha256": "sha256:cbdeaaf87f9b2944c642017fa82a6cf4965a17f6b0306f8145936fd3b1bf4c30"
+        },
+        {
+            "path": "fixtures/positive.json",
+            "sha256": "sha256:a1de275fc7b567d415c6e1770dfad87119f687566b83241d65abfab170546acd"
+        }
     ],
-    "case_counts": {"negative": 30, "positive": 12}
+    "case_counts": { "negative": 30, "positive": 12 }
 }
