@@ -183,33 +183,101 @@ def _balanced_rust_block(text: str, opening: int, description: str) -> int:
     raise ContractError(f"unbalanced Rust {description}")
 
 
+def _rust_public_structs(text: str) -> dict[str, str]:
+    symbols: dict[str, str] = {}
+    for match in re.finditer(r"(?m)^pub struct ([A-Za-z_][A-Za-z0-9_]*)\s*", text):
+        name = match.group(1)
+        opening = text.find("{", match.end())
+        semicolon = text.find(";", match.end())
+        if semicolon >= 0 and (opening < 0 or semicolon < opening):
+            declaration = canonical_space(text[match.start() : semicolon + 1])
+        elif opening >= 0:
+            end = _balanced_rust_block(text, opening, f"struct {name}")
+            body = text[opening + 1 : end - 1]
+            fields = [
+                canonical_space(field.group(0))
+                for field in re.finditer(
+                    r"(?m)^\s*pub [a-z_][A-Za-z0-9_]*:\s*[^,\n]+,\s*$",
+                    body,
+                )
+            ]
+            declaration = canonical_space(
+                f"pub struct {name} {{ {' '.join(fields)} }}"
+                if fields
+                else f"pub struct {name};"
+            )
+        else:
+            raise ContractError(f"Rust public struct {name} has no body")
+        symbols[f"struct:{name}"] = declaration
+    return symbols
+
+
+def _rust_public_methods(text: str) -> dict[str, str]:
+    symbols: dict[str, str] = {}
+    for implementation in re.finditer(r"(?m)^impl ([A-Za-z_][A-Za-z0-9_]*)\s*\{", text):
+        type_name = implementation.group(1)
+        opening = text.find("{", implementation.start())
+        end = _balanced_rust_block(text, opening, f"impl {type_name}")
+        body_start = opening + 1
+        body = text[body_start : end - 1]
+        for method in re.finditer(
+            r"(?m)^\s*pub (?:const )?fn ([A-Za-z_][A-Za-z0-9_]*)\s*\(",
+            body,
+        ):
+            absolute_start = body_start + method.start()
+            absolute_end = text.find("{", body_start + method.end())
+            if absolute_end < 0 or absolute_end >= end:
+                raise ContractError(
+                    f"Rust public method {type_name}::{method.group(1)} has no body"
+                )
+            symbols[f"method:{type_name}::{method.group(1)}"] = canonical_space(
+                text[absolute_start:absolute_end]
+            )
+    return symbols
+
+
 def extract_rust_source_boundary(
     surface: Mapping[str, object], root: Path
 ) -> dict[str, object]:
     locations = surface["source_locations"]
-    assert isinstance(locations, list) and len(locations) == 2
+    assert isinstance(locations, list) and len(locations) == 3
     try:
         lib = (root / str(locations[0])).read_text(encoding="utf-8")
         kernel = (root / str(locations[1])).read_text(encoding="utf-8")
+        simply = (root / str(locations[2])).read_text(encoding="utf-8")
     except OSError as exc:
         raise ContractError(f"cannot read Rust kernel boundary source: {exc}") from exc
 
     symbols: dict[str, str] = {}
     if re.search(r"(?m)^pub mod kernel;\s*$", lib):
         symbols["module:kernel"] = "pub mod kernel;"
+    if re.search(r"(?m)^pub mod simply;\s*$", lib):
+        symbols["module:simply"] = "pub mod simply;"
     reexport = re.search(r"pub use kernel::\{([^}]+)\};", lib, re.DOTALL)
     if reexport is not None:
         symbols["reexport:kernel"] = canonical_space(reexport.group(0))
+    reexport = re.search(r"pub use simply::\{([^}]+)\};", lib, re.DOTALL)
+    if reexport is not None:
+        symbols["reexport:simply"] = canonical_space(reexport.group(0))
 
-    for match in re.finditer(
-        r"(?m)^pub const ([A-Z][A-Z0-9_]*):\s*([^;]+);\s*$", kernel
-    ):
-        symbols[f"const:{match.group(1)}"] = canonical_space(match.group(0))
+    for source in (kernel, simply):
+        for match in re.finditer(
+            r"(?m)^pub const ([A-Z][A-Z0-9_]*):\s*([^;]+);\s*$", source
+        ):
+            symbols[f"const:{match.group(1)}"] = canonical_space(match.group(0))
 
-    for match in re.finditer(r"(?m)^pub enum ([A-Za-z_][A-Za-z0-9_]*)\s*\{", kernel):
-        opening = kernel.find("{", match.start())
-        end = _balanced_rust_block(kernel, opening, f"enum {match.group(1)}")
-        symbols[f"enum:{match.group(1)}"] = canonical_space(kernel[match.start() : end])
+    for source in (kernel, simply):
+        for match in re.finditer(
+            r"(?m)^pub enum ([A-Za-z_][A-Za-z0-9_]*)\s*\{", source
+        ):
+            opening = source.find("{", match.start())
+            end = _balanced_rust_block(source, opening, f"enum {match.group(1)}")
+            symbols[f"enum:{match.group(1)}"] = canonical_space(
+                source[match.start() : end]
+            )
+
+    symbols.update(_rust_public_structs(simply))
+    symbols.update(_rust_public_methods(simply))
 
     for match in re.finditer(r"(?m)^pub fn ([A-Za-z_][A-Za-z0-9_]*)\s*\(", kernel):
         opening = kernel.find("{", match.end())
@@ -221,10 +289,40 @@ def extract_rust_source_boundary(
 
     required = {
         "module:kernel",
+        "module:simply",
         "reexport:kernel",
+        "reexport:simply",
         "enum:KernelCompileError",
         "enum:KernelStage",
+        "enum:SimplyCharacterSetMember",
+        "enum:SimplyErrorCode",
+        "struct:SimplyBuilder",
+        "struct:SimplyCompileProjection",
+        "struct:SimplyError",
+        "struct:SimplyErrors",
+        "struct:SimplyOptions",
+        "struct:SimplyValue",
         "fn:compile",
+        "method:SimplyBuilder::new",
+        "method:SimplyBuilder::empty",
+        "method:SimplyBuilder::literal",
+        "method:SimplyBuilder::wildcard",
+        "method:SimplyBuilder::character_set",
+        "method:SimplyBuilder::sequence",
+        "method:SimplyBuilder::alternation",
+        "method:SimplyBuilder::group",
+        "method:SimplyBuilder::capture",
+        "method:SimplyBuilder::backreference",
+        "method:SimplyBuilder::position",
+        "method:SimplyBuilder::lookaround",
+        "method:SimplyBuilder::atomic",
+        "method:SimplyBuilder::repeat",
+        "method:SimplyBuilder::import_node",
+        "method:SimplyBuilder::import_program",
+        "method:SimplyBuilder::finish_program",
+        "method:SimplyBuilder::finish_request",
+        "method:SimplyErrorCode::as_str",
+        "method:SimplyValue::step_id",
     }
     missing = sorted(required - set(symbols))
     if missing:

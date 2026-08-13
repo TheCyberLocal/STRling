@@ -101,6 +101,45 @@ class CoreArchitectureBoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(CoreContractError, "construction-only"):
             validate_simply_contract_boundary(ROOT, protocol_override=protocol)
 
+    def test_native_simply_boundary_is_required(self) -> None:
+        sources = source_texts()
+        sources["core/src/simply.rs"] = sources["core/src/simply.rs"].replace(
+            "pub struct SimplyBuilder", "struct SimplyBuilder"
+        )
+        with self.assertRaisesRegex(CoreContractError, "Simply builder boundary"):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_native_simply_forbidden_dependencies_and_shadow_models_fail(self) -> None:
+        for forbidden in (
+            "use crate::regex_frontend;",
+            "use crate::compiler_pipeline;",
+            "use crate::semantic_analysis;",
+            "use crate::target_lowering;",
+            "std::fs::read",
+            "std::env::var",
+            "std::process::Command",
+            "bindings::python",
+            "parse_regex",
+            "emitted_pattern",
+            "pub enum SimplyNode { Empty }",
+            "pub fn compile() {}",
+        ):
+            sources = source_texts()
+            sources["core/src/simply.rs"] += f"\n// {forbidden}\n"
+            with (
+                self.subTest(forbidden=forbidden),
+                self.assertRaises(CoreContractError),
+            ):
+                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_native_simply_requires_all_protocol_operations(self) -> None:
+        sources = source_texts()
+        sources["core/src/simply.rs"] = sources["core/src/simply.rs"].replace(
+            "pub fn backreference(", "fn backreference("
+        )
+        with self.assertRaisesRegex(CoreContractError, "protocol operation"):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
     def test_unapproved_runtime_dependency_fails(self) -> None:
         with self.assertRaisesRegex(CoreContractError, "runtime dependencies"):
             validate_source_boundaries(

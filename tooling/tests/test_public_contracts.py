@@ -37,7 +37,11 @@ def rust_kernel_surface() -> dict[str, object]:
     return {
         "id": "test-kernel-api",
         "component": "core",
-        "source_locations": ["core/src/lib.rs", "core/src/kernel.rs"],
+        "source_locations": [
+            "core/src/lib.rs",
+            "core/src/kernel.rs",
+            "core/src/simply.rs",
+        ],
         "snapshot_path": "snapshots/kernel.json",
         "comparison": "symbol-signatures",
         "enforcement": "enforced",
@@ -62,7 +66,46 @@ class PublicContractTests(unittest.TestCase):
         source.mkdir(parents=True, exist_ok=True)
         (source / "lib.rs").write_text(
             "pub mod kernel;\n"
-            "pub use kernel::{compile, KernelCompileError, KernelStage};\n",
+            "pub mod simply;\n"
+            "pub use kernel::{compile, KernelCompileError, KernelStage};\n"
+            "pub use simply::{SimplyBuilder, SimplyValue};\n",
+            encoding="utf-8",
+        )
+        (source / "simply.rs").write_text(
+            'pub const SIMPLY_PROTOCOL_VERSION: &str = "1.0.0";\n'
+            "pub struct SimplyOptions {\n"
+            "    pub case_matching: CaseMatching,\n"
+            "}\n"
+            "pub enum SimplyCharacterSetMember { Literal { value: char } }\n"
+            "pub struct SimplyCompileProjection { pub requested_outputs: Vec<RequestedOutput>, }\n"
+            "pub enum SimplyErrorCode { InvalidArgument }\n"
+            "pub struct SimplyError { pub code: SimplyErrorCode, pub path: String, }\n"
+            "pub struct SimplyErrors { pub errors: Vec<SimplyError>, }\n"
+            "pub struct SimplyValue { private: String }\n"
+            "pub struct SimplyBuilder { private: String }\n"
+            'impl SimplyErrorCode { pub const fn as_str(self) -> &\'static str { "test" } }\n'
+            "impl SimplyValue { pub fn step_id(&self) -> &str { &self.private } }\n"
+            "impl SimplyBuilder {\n"
+            "    pub fn new() -> Self { unimplemented!() }\n"
+            "    pub fn empty(&mut self) {}\n"
+            "    pub fn literal(&mut self) {}\n"
+            "    pub fn wildcard(&mut self) {}\n"
+            "    pub fn character_set(&mut self) {}\n"
+            "    pub fn sequence(&mut self) {}\n"
+            "    pub fn alternation(&mut self) {}\n"
+            "    pub fn group(&mut self) {}\n"
+            "    pub fn capture(&mut self) {}\n"
+            "    pub fn backreference(&mut self) {}\n"
+            "    pub fn position(&mut self) {}\n"
+            "    pub fn lookaround(&mut self) {}\n"
+            "    pub fn atomic(&mut self) {}\n"
+            "    pub fn repeat(&mut self) {}\n"
+            "    pub fn import_node(&mut self) {}\n"
+            "    pub fn import_program(&mut self) {}\n"
+            "    pub fn finish_program(self) {}\n"
+            "    pub fn finish_request(self) {}\n"
+            "}\n"
+            "fn private_simply_helper() {}\n",
             encoding="utf-8",
         )
         (source / "kernel.rs").write_text(
@@ -282,11 +325,62 @@ type Flags struct {
                 "enum:KernelStage",
                 "fn:compile",
                 "module:kernel",
+                "module:simply",
                 "reexport:kernel",
+                "reexport:simply",
+                "const:SIMPLY_PROTOCOL_VERSION",
+                "enum:SimplyCharacterSetMember",
+                "enum:SimplyErrorCode",
+                "struct:SimplyBuilder",
+                "struct:SimplyCompileProjection",
+                "struct:SimplyError",
+                "struct:SimplyErrors",
+                "struct:SimplyOptions",
+                "struct:SimplyValue",
+                "method:SimplyBuilder::alternation",
+                "method:SimplyBuilder::atomic",
+                "method:SimplyBuilder::backreference",
+                "method:SimplyBuilder::capture",
+                "method:SimplyBuilder::character_set",
+                "method:SimplyBuilder::empty",
+                "method:SimplyBuilder::finish_program",
+                "method:SimplyBuilder::finish_request",
+                "method:SimplyBuilder::group",
+                "method:SimplyBuilder::import_node",
+                "method:SimplyBuilder::import_program",
+                "method:SimplyBuilder::literal",
+                "method:SimplyBuilder::lookaround",
+                "method:SimplyBuilder::new",
+                "method:SimplyBuilder::position",
+                "method:SimplyBuilder::repeat",
+                "method:SimplyBuilder::sequence",
+                "method:SimplyBuilder::wildcard",
+                "method:SimplyErrorCode::as_str",
+                "method:SimplyValue::step_id",
             },
             set(symbols),
         )
         self.assertFalse(any("private_helper" in key for key in symbols))
+        self.assertFalse(any("private_simply_helper" in key for key in symbols))
+        self.assertNotIn("private", symbols["struct:SimplyBuilder"])
+
+    def test_rust_simply_method_signature_drift_fails_as_breaking(self) -> None:
+        self.write_kernel()
+        surface = rust_kernel_surface()
+        self.assertEqual(
+            "passed", process_surface(surface, root=self.root, check=False).status
+        )
+        path = self.root / "core/src/simply.rs"
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                "pub fn literal(&mut self) {}", "pub fn literal(&self) {}"
+            ),
+            encoding="utf-8",
+        )
+        result = process_surface(surface, root=self.root, check=True)
+        self.assertEqual("failed", result.status)
+        self.assertEqual("breaking", result.classification)
+        self.assertIn("changed method:SimplyBuilder::literal", result.findings)
 
     def test_rust_kernel_signature_drift_fails_as_breaking(self) -> None:
         self.write_kernel()

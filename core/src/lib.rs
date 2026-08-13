@@ -36,6 +36,7 @@ pub mod safety_analysis;
 pub mod semantic;
 pub mod semantic_analysis;
 pub mod semantic_rewrite;
+pub mod simply;
 pub mod source;
 pub mod structural_analysis;
 pub mod target;
@@ -44,3 +45,7 @@ pub mod target_serialization;
 pub mod validation;
 
 pub use kernel::{compile, KernelCompileError, KernelStage};
+pub use simply::{
+    SimplyBuilder, SimplyCharacterSetMember, SimplyCompileProjection, SimplyError, SimplyErrorCode,
+    SimplyErrors, SimplyOptions, SimplyValue, SIMPLY_PROTOCOL_VERSION,
+};

@@ -178,6 +178,18 @@ the canonical compiler contract. Host adapters may translate stable failures
 into idiomatic containers but may not replace their code/path identity with
 formatted prose.
 
+The native Rust implementation is `SimplyBuilder`. Its opaque cloneable value
+handles refer directly to stored canonical `Node` candidates; one value may
+have only one materializing parent. All 15 protocol operations are public
+methods, generated IDs follow the protocol templates, transparent groups add
+only derivation provenance, and imports preserve canonical identities, origins,
+and ordered source documents. Finishing consumes the graph through the one
+canonical normalizer and returns either `SemanticProgram` or `CompileRequest`.
+Compilation remains the existing crate-root `compile` facade; the builder does
+not expose another compiler entry point or directly call analysis, planning,
+lowering, serialization, or runtime stages. See
+[Native Rust Simply API](migration/native-rust-simply-api.md).
+
 Existing public helpers, including direct target convenience methods, remain
 compatibility obligations. They are not proof that Simply's permanent
 implementation should bypass the canonical compiler, and this architecture does

@@ -15,6 +15,10 @@
                 "reference": "core/src/lib.rs"
             },
             {
+                "kind": "canonical_contract",
+                "reference": "core/src/simply.rs"
+            },
+            {
                 "kind": "ratified_architecture",
                 "reference": "docs/migration/compiler-kernel-boundary.md"
             },
@@ -67,15 +71,23 @@
             {
                 "authority": [
                     {
+                        "kind": "canonical_contract",
+                        "reference": "core/src/simply.rs"
+                    },
+                    {
+                        "kind": "frontend_protocol",
+                        "reference": "spec/frontends/simply/1.0/protocol.json"
+                    },
+                    {
                         "kind": "ratified_architecture",
-                        "reference": "docs/migration/compiler-kernel-boundary.md"
+                        "reference": "docs/migration/native-rust-simply-api.md"
                     }
                 ],
-                "canonical_surface": null,
+                "canonical_surface": "SimplyBuilder::finish_request -> strling_kernel::compile(&CompileRequest::Semantic)",
                 "operation": "api.simply.compile_node",
-                "rationale": "Simply construction and target convenience adapters are outside the current canonical kernel boundary.",
-                "reason": "operation_not_exposed",
-                "review_id": "canonical-route-simply-compile@1.0.0",
+                "rationale": "The canonical native Rust builder now projects the complete host-neutral Simply protocol into Semantic IR and CompileRequest and delegates compilation to the sole kernel facade. The historical operation still accepts a binding-private node and returns target convenience output rather than the canonical request/result contracts, so its observations remain evidence-only and structurally not comparable.",
+                "reason": "incompatible_surface",
+                "review_id": "canonical-route-simply-compile@2.0.0",
                 "state": "not_comparable"
             },
             {

@@ -30,6 +30,16 @@ IR. The crate-private target-aware pipeline certifies that planning follows
 capability evaluation, while the existing `CompileResult` projection remains
 target-neutral and produces no portability plan or artifact.
 
+`SimplyBuilder` is the native Rust construction surface for
+`strling.simply-builder@1.0.0`. It stores canonical `semantic::Node` candidates
+directly, derives stable node and capture identities from explicit host keys,
+enforces immutable single-parent values and import provenance, and consumes the
+graph through `normalization::normalize`. `finish_program` returns canonical
+`SemanticProgram`; `finish_request` adds only explicit compile routing. Callers
+then use the existing crate-root `compile` facade. The Simply module does not
+parse regex, model a second AST or compiler, select a target, lower, emit, or
+execute a runtime.
+
 Parsing, rewrite application, general satisfiability or language-inclusion
 solving, style-only warnings, target-specific portability diagnostics,
 exploitability or target-runtime verdicts, capture numbering, lowering,

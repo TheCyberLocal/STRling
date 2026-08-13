@@ -23,6 +23,8 @@ scope:
         - governance/public-surfaces.json
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
         - tooling/public_contracts.py
         - tooling/tests/test_core_contracts.py
         - tooling/tests/test_public_contracts.py
@@ -39,13 +41,30 @@ scope:
         - tests/spec/**
         - tooling/legacy_reference/**
     expected_files:
+        - core/README.md
+        - core/src/lib.rs
+        - core/src/simply.rs
+        - core/tests/simply_api.rs
+        - core/tests/simply_compile_through.rs
+        - core/tests/simply_properties.rs
+        - docs/architecture.md
         - docs/migration/ledger.md
         - docs/migration/native-rust-simply-api.md
         - docs/migration/records/native-rust-simply-api.yaml
         - governance/change-control.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/public-surfaces.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
+        - tooling/migration_differential_contract.json
+        - tooling/public_contracts.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_public_contracts.py
     permitted_generated_changes:
         - public-contract-snapshots
-    expected_generated_outputs: []
+    expected_generated_outputs:
+        - public-contract-snapshots
     required_verification_levels:
         - contract
         - unit
@@ -82,9 +101,9 @@ change_classification:
         evidence:
             - Adds one Rust host-construction boundary that depends inward on semantic contracts, canonical normalization, CompileRequest, and the existing compile facade while prohibiting reverse dependencies and alternate orchestration.
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - The scope checkpoint does not update generated output; the implementation checkpoint will declare and regenerate the enforced strling-kernel public-contract snapshot.
+            - The enforced strling-kernel source snapshot intentionally records the new module, re-exports, public types, and method signatures.
     documentation_only: false
     internal_implementation: true
 required_verification:

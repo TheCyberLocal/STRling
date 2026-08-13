@@ -1627,6 +1627,121 @@ def target_neutral_reverse_dependency_violation(
     return None
 
 
+def native_simply_boundary_violation(
+    source_texts: Mapping[str, str],
+) -> str | None:
+    """Keep native Simply a thin canonical construction frontend."""
+
+    path = "core/src/simply.rs"
+    source = source_texts.get(path, "").lower()
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub struct simplybuilder" not in source:
+        return "native Simply builder boundary cannot be located"
+    for method in (
+        "empty",
+        "literal",
+        "wildcard",
+        "character_set",
+        "sequence",
+        "alternation",
+        "group",
+        "capture",
+        "backreference",
+        "position",
+        "lookaround",
+        "atomic",
+        "repeat",
+        "import_node",
+        "import_program",
+    ):
+        if f"pub fn {method}(" not in source:
+            return f"native Simply builder must expose protocol operation: {method}"
+    for method in ("finish_program", "finish_request"):
+        if f"pub fn {method}(" not in source:
+            return f"native Simply builder must expose canonical conversion: {method}"
+
+    for marker, description in (
+        ("crate::semantic::{", "canonical Semantic IR types"),
+        ("crate::normalization::{", "canonical normalization"),
+        ("crate::protocol::{", "canonical CompileRequest types"),
+        ("crate::source::{", "canonical identity and provenance types"),
+        ("crate::validation::{", "canonical contract validation"),
+        ("normalize(&candidate)", "canonical normalization delegation"),
+        ("request.validate()", "CompileRequest validation delegation"),
+    ):
+        if marker not in source:
+            return f"native Simply builder must consume {description}"
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "pub enum simplynode",
+            "pub struct simplynode",
+            "pub enum buildernode",
+            "pub struct buildernode",
+            "pub fn compile(",
+            "crate::kernel",
+            "crate::compiler_pipeline",
+            "crate::capability_pipeline",
+            "crate::semantic_analysis",
+            "crate::structural_analysis",
+            "crate::safety_analysis",
+            "crate::diagnostic_generation",
+            "crate::capability_evaluation",
+            "crate::portability_planning",
+            "crate::portability_diagnostics",
+            "crate::target_lowering",
+            "crate::target_serialization",
+            "crate::ecmascript_lowering",
+            "crate::ecmascript_serialization",
+            "crate::python_re_lowering",
+            "crate::python_re_serialization",
+            "crate::regex_frontend",
+            "crate::conformance",
+            "crate::bindings",
+            "crate::frontend",
+            "crate::lsp",
+            "crate::editor",
+            "crate::parser",
+            "bindings::",
+            "frontend::",
+            "std::env",
+            "std::fs",
+            "std::net",
+            "std::path",
+            "std::process",
+            "std::thread",
+            "std::time",
+            "systemtime",
+            "thread_rng",
+            "rand::",
+            "static mut",
+            "thread_local!",
+            "once_cell::",
+            "lazy_static!",
+            "std::sync::mutex",
+            "std::sync::rwlock",
+            "std::sync::atomic",
+            "std::sync::oncelock",
+            "std::sync::lazylock",
+            "parse_regex",
+            "scan_regex",
+            "raw_regex",
+            "regex_source",
+            "emitted_pattern",
+            "engine_options",
+            "runtime_probe",
+            "engine_probe",
+            "pcre2",
+            "ecmascript",
+            "python_re",
+        ),
+    )
+    if forbidden is not None:
+        return f"native Simply builder violates thin construction boundary: {forbidden}"
+    return None
+
+
 def simply_contract_boundary_violation(
     validator_source: str,
     protocol: Mapping[str, object],
