@@ -46,12 +46,25 @@ scope:
         - tooling/python_re_runtime_certification.py
         - tooling/shared_cross_engine_corpus.py
     expected_files:
+        - docs/architecture.md
         - docs/migration/initial-portability-matrix.md
         - docs/migration/ledger.md
         - docs/migration/records/initial-portability-matrix.yaml
         - governance/change-control.json
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+        - governance/formatting.json
+        - governance/generated-artifacts.json
+        - governance/schemas/portability-matrix-evidence.schema.json
+        - tests/conformance/evidence/initial-portability-matrix.json
+        - tests/conformance/evidence/initial-portability-matrix.md
+        - toolchain.json
+        - tooling/portability_matrix.py
+        - tooling/tests/test_portability_matrix.py
+        - tooling/tests/test_portability_matrix_architecture.py
+        - tooling/tests/test_quality.py
+    permitted_generated_changes:
+        - initial-portability-matrix
+    expected_generated_outputs:
+        - initial-portability-matrix
     required_verification_levels:
         - contract
         - unit
@@ -78,17 +91,17 @@ change_classification:
         level: none
         evidence: []
     target_behavior_change:
-        level: none
+        level: additive
         evidence:
-            - Matrix dispositions describe already-authored portability plans and exact observations and do not change planning, lowering, serialization, harnesses, or runtime behavior.
+            - Adds checked target-conformance evidence under tests/conformance, while matrix dispositions only describe already-authored portability plans and exact observations and do not change planning, lowering, serialization, harnesses, or runtime behavior.
     architecture_change:
         level: additive
         evidence:
             - Adds an evidence-only controller and Full/Release certification gate strictly downstream of the fixed shared-corpus observation artifact.
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - This read-first checkpoint defines future generated-artifact ownership but does not create or change checked generated output.
+            - Registers one deterministic generated-artifact identity owning the machine-authoritative matrix JSON and its human-readable Markdown projection.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -121,21 +134,29 @@ checkpoints:
             result: passed
             details: Full and Release reproduce the exact shared observations, but no versioned matrix schema, derived machine artifact, generated human summary, feature/profile aggregation, cross-profile semantic-class check, divergence taxonomy, unresolved hardgate, or dedicated matrix operation exists yet.
     - name: Versioned matrix contract and authority boundary
-      status: planned
+      status: passed
       evidence:
           - check: Evidence schema and architecture
-            result: not_run
-            details: Awaiting the additive governance schema, identity model, classification taxonomy, evidence-only architecture rule/test, generated-artifact ownership, and Full/Release operation declaration after this scope checkpoint.
+            result: passed
+            details: The additive governance schema fixes the exact 100-entry denominator, immutable authority and runtime fingerprints, full disposition taxonomy, semantic comparison classes, feature/requirement aggregates, divergence records, readiness rule, and signed result identity. Architecture tests prove the controller has no subprocess, runtime-adapter, target-pattern, product, binding, or consensus authority path.
+          - check: Generated ownership and profile routing
+            result: passed
+            details: One enforced generated-artifact record exclusively owns the matrix JSON and Markdown projection, and formatting policy excludes both from competing serializers. Full and Release 1.9.0 run matrix certification immediately after shared exact-corpus certification; Local and Pull Request remain runtime-free.
     - name: Deterministic matrix and human summary generation
-      status: planned
+      status: passed
       evidence:
           - check: Complete vector/profile and feature/profile projections
-            result: not_run
-            details: Awaiting deterministic generation, schema validation, exact denominator and fingerprint guards, canonical and cross-profile comparison, aggregation, mutation coverage, unresolved blocking, and byte-stable JSON/Markdown outputs.
+            result: passed
+            details: The machine artifact records 100 ordered entries, 105 feature/profile rows, 80 requirement/profile rows, five exact profile/runtime identities, 87 native, one planner-certified rewrite, five target unsupported/constraint, seven not applicable, six explicit nonblocking divergences, zero semantic-divergent cases, and zero unresolved entries. Nineteen executed cases form one normalized semantic class each; the diagnostic-only case is explicitly not compared. Matrix SHA-256 is 11f70923cdc200b132d7f68077fd840f3d38cf9aff63949fae24d703b68ea205.
+          - check: Mutation, determinism, and checked-output proof
+            result: passed
+            details: Sixty-six focused matrix, architecture, and quality-routing tests pass. Missing pairs, state drift, runtime fingerprint drift, and normalized semantic differences fail closed; a semantic mutation becomes unresolved and blocked. Repeated in-memory generation is identical, producer --write matches --check, and both checked outputs verify against current inputs.
     - name: Complete repository and P11 phase certification
       status: planned
       evidence:
           - check: Phase-closing hardgate evidence
             result: not_run
             details: Awaiting repeated exact shared execution, matrix check, all target certifications, contracts, architecture, security, generated/public checks, reviewed migration differential, Local/Pull Request/Full profiles, final clean commit, and P11 readiness handoff.
-commits: []
+commits:
+    - sha: 2fc28e2f30ea6e5b52b9240e485e5e14beda9960
+      subject: "docs(core): define initial portability matrix"

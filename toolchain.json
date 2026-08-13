@@ -258,6 +258,20 @@
                 "network": "offline",
                 "result_contract": "certification-result-v1",
                 "result_operation_id": "certification.shared-cross-engine-corpus"
+            },
+            "portability_matrix_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.portability_matrix",
+                    "--json",
+                    "--check"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.initial-portability-matrix"
             }
         },
         "profiles": {
@@ -428,7 +442,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.8.0",
+                "definition_version": "1.9.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -482,6 +496,9 @@
                     },
                     {
                         "operation": "shared_cross_engine_certification"
+                    },
+                    {
+                        "operation": "portability_matrix_certification"
                     },
                     {
                         "operation": "format_check",
@@ -579,7 +596,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.8.0",
+                "definition_version": "1.9.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -633,6 +650,9 @@
                     },
                     {
                         "operation": "shared_cross_engine_certification"
+                    },
+                    {
+                        "operation": "portability_matrix_certification"
                     },
                     {
                         "operation": "format_check",

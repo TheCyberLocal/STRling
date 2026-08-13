@@ -121,6 +121,18 @@ does not vote across engines, learn expectations from emitted text, or expose a
 product execution API; subsequent portability-matrix work classifies any
 observed differences without rewriting the authored expectations.
 
+The initial portability matrix is a derived evidence-only layer downstream of
+that checked observation artifact. Its repository controller revalidates the
+complete corpus, profile, runtime, and observation identities; compares every
+executed normalized result with the authored expectation and peer profiles;
+classifies native, certified-rewrite, unsupported, not-applicable, and
+unresolved evidence; and generates one machine-authoritative JSON artifact plus
+a human-readable projection. It cannot execute runtimes, inspect emitted
+pattern spelling, vote across implementations, change an owning contract, or
+enter product/public paths. Full and Release run it only after exact target and
+shared-corpus certification, and any unresolved result blocks readiness. See
+[Initial cross-engine portability matrix](migration/initial-portability-matrix.md).
+
 ## Simply
 
 Simply is first-class semantic authoring. APIs may remain idiomatic in Rust,

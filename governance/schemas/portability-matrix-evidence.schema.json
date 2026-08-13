@@ -1,0 +1,462 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/governance/portability-matrix-evidence.schema.json",
+    "title": "STRling initial cross-engine portability matrix evidence",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "matrix_version",
+        "schema",
+        "authority",
+        "profiles",
+        "counts",
+        "entries",
+        "semantic_comparisons",
+        "feature_matrix",
+        "requirement_matrix",
+        "divergences",
+        "readiness",
+        "result_sha256"
+    ],
+    "properties": {
+        "matrix_version": { "const": "1.0.0" },
+        "schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "sha256"],
+            "properties": {
+                "id": {
+                    "const": "https://strling.dev/governance/portability-matrix-evidence.schema.json"
+                },
+                "sha256": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "authority": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["manifest", "corpus", "observations"],
+            "properties": {
+                "manifest": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["id", "status", "sha256"],
+                    "properties": {
+                        "id": { "type": "string", "minLength": 1 },
+                        "status": { "type": "string", "minLength": 1 },
+                        "sha256": { "$ref": "#/$defs/sha256" }
+                    }
+                },
+                "corpus": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "id",
+                        "version",
+                        "sha256",
+                        "case_set_sha256",
+                        "vector_set_sha256",
+                        "case_count",
+                        "application_counts"
+                    ],
+                    "properties": {
+                        "id": { "const": "corpus:shared-cross-engine/1" },
+                        "version": { "const": "1.0.0" },
+                        "sha256": { "$ref": "#/$defs/sha256" },
+                        "case_set_sha256": { "$ref": "#/$defs/sha256" },
+                        "vector_set_sha256": { "$ref": "#/$defs/sha256" },
+                        "case_count": { "const": 20 },
+                        "application_counts": {
+                            "$ref": "#/$defs/applicationCounts"
+                        }
+                    }
+                },
+                "observations": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["version", "sha256", "projection_sha256"],
+                    "properties": {
+                        "version": { "const": "1.0.0" },
+                        "sha256": { "$ref": "#/$defs/sha256" },
+                        "projection_sha256": { "$ref": "#/$defs/sha256" }
+                    }
+                }
+            }
+        },
+        "profiles": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "items": { "$ref": "#/$defs/profile" }
+        },
+        "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "entries",
+                "dispositions",
+                "representation_or_support_divergences",
+                "semantic_divergent_cases",
+                "unresolved"
+            ],
+            "properties": {
+                "entries": { "const": 100 },
+                "dispositions": { "$ref": "#/$defs/dispositionCounts" },
+                "representation_or_support_divergences": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "semantic_divergent_cases": { "type": "integer", "minimum": 0 },
+                "unresolved": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "entries": {
+            "type": "array",
+            "minItems": 100,
+            "maxItems": 100,
+            "items": { "$ref": "#/$defs/entry" }
+        },
+        "semantic_comparisons": {
+            "type": "array",
+            "minItems": 20,
+            "maxItems": 20,
+            "items": { "$ref": "#/$defs/semanticComparison" }
+        },
+        "feature_matrix": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/aggregateRow" }
+        },
+        "requirement_matrix": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/aggregateRow" }
+        },
+        "divergences": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/divergence" }
+        },
+        "readiness": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "rule"],
+            "properties": {
+                "status": { "enum": ["ready", "blocked"] },
+                "rule": {
+                    "const": "canonical-expectation-plus-every-applicable-exact-profile"
+                }
+            }
+        },
+        "result_sha256": { "$ref": "#/$defs/sha256" }
+    },
+    "$defs": {
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "stringSet": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+        },
+        "applicationCounts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["execute", "unsupported", "not_applicable"],
+            "properties": {
+                "execute": { "type": "integer", "minimum": 0 },
+                "unsupported": { "type": "integer", "minimum": 0 },
+                "not_applicable": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "disposition": {
+            "enum": [
+                "native",
+                "planner_certified_equivalent_rewrite",
+                "target_unsupported_or_constraint",
+                "not_applicable",
+                "target_profile_or_documentation_discrepancy",
+                "harness_defect",
+                "canonical_expectation_defect",
+                "implementation_or_runtime_discrepancy",
+                "unresolved"
+            ]
+        },
+        "dispositionCounts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "native",
+                "planner_certified_equivalent_rewrite",
+                "target_unsupported_or_constraint",
+                "not_applicable",
+                "target_profile_or_documentation_discrepancy",
+                "harness_defect",
+                "canonical_expectation_defect",
+                "implementation_or_runtime_discrepancy",
+                "unresolved"
+            ],
+            "properties": {
+                "native": { "type": "integer", "minimum": 0 },
+                "planner_certified_equivalent_rewrite": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "target_unsupported_or_constraint": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "not_applicable": { "type": "integer", "minimum": 0 },
+                "target_profile_or_documentation_discrepancy": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "harness_defect": { "type": "integer", "minimum": 0 },
+                "canonical_expectation_defect": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "implementation_or_runtime_discrepancy": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "unresolved": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "targetProfile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["profile_id", "profile_version", "sha256"],
+            "properties": {
+                "profile_id": {
+                    "type": "string",
+                    "pattern": "^profile:[a-z0-9][a-z0-9._/-]+$"
+                },
+                "profile_version": {
+                    "type": "string",
+                    "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+                },
+                "sha256": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "runtime": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["engine", "version", "identity", "sha256"],
+            "properties": {
+                "engine": { "enum": ["node-v8", "pcre2", "cpython-re"] },
+                "version": { "type": "string", "minLength": 1 },
+                "identity": { "type": "object", "minProperties": 2 },
+                "sha256": { "$ref": "#/$defs/sha256" }
+            }
+        },
+        "profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "target_profile",
+                "execution_adapter",
+                "subject_representation",
+                "options",
+                "options_sha256",
+                "runtime",
+                "disposition_counts",
+                "claim"
+            ],
+            "properties": {
+                "target_profile": { "$ref": "#/$defs/targetProfile" },
+                "execution_adapter": { "type": "string", "minLength": 1 },
+                "subject_representation": { "type": "string", "minLength": 1 },
+                "options": { "type": "array", "items": { "type": "object" } },
+                "options_sha256": { "$ref": "#/$defs/sha256" },
+                "runtime": { "$ref": "#/$defs/runtime" },
+                "disposition_counts": { "$ref": "#/$defs/dispositionCounts" },
+                "claim": {
+                    "enum": [
+                        "blocked",
+                        "unsupported_for_profile",
+                        "portable_with_certified_rewrite",
+                        "portable_native_for_applicable_vectors",
+                        "not_applicable"
+                    ]
+                }
+            }
+        },
+        "entry": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "entry_id",
+                "case",
+                "features",
+                "requirements",
+                "rewrite_strategies",
+                "modes",
+                "target_profile",
+                "profile_options_sha256",
+                "application",
+                "observation",
+                "disposition"
+            ],
+            "properties": {
+                "entry_id": { "type": "string", "minLength": 1 },
+                "case": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["case_id", "path", "sha256"],
+                    "properties": {
+                        "case_id": { "type": "string", "pattern": "^case:" },
+                        "path": {
+                            "type": "string",
+                            "pattern": "^spec/conformance/cases/"
+                        },
+                        "sha256": { "$ref": "#/$defs/sha256" }
+                    }
+                },
+                "features": { "$ref": "#/$defs/stringSet" },
+                "requirements": { "$ref": "#/$defs/stringSet" },
+                "rewrite_strategies": { "$ref": "#/$defs/stringSet" },
+                "modes": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["case_matching", "operation"],
+                    "properties": {
+                        "case_matching": { "type": "string", "minLength": 1 },
+                        "operation": { "type": "string", "minLength": 1 }
+                    }
+                },
+                "target_profile": { "$ref": "#/$defs/targetProfile" },
+                "profile_options_sha256": { "$ref": "#/$defs/sha256" },
+                "application": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "predicate",
+                        "state",
+                        "portability_status",
+                        "reason"
+                    ],
+                    "properties": {
+                        "predicate": { "const": "exact_profile" },
+                        "state": {
+                            "enum": ["execute", "unsupported", "not_applicable"]
+                        },
+                        "portability_status": {
+                            "enum": [
+                                "native",
+                                "equivalent_rewrite",
+                                "unsupported",
+                                null
+                            ]
+                        },
+                        "reason": { "type": "string", "minLength": 1 }
+                    }
+                },
+                "observation": {
+                    "oneOf": [
+                        { "type": "null" },
+                        {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["raw_sha256", "normalized_sha256"],
+                            "properties": {
+                                "raw_sha256": { "$ref": "#/$defs/sha256" },
+                                "normalized_sha256": {
+                                    "$ref": "#/$defs/sha256"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "disposition": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "category",
+                        "divergence",
+                        "blocking",
+                        "rationale"
+                    ],
+                    "properties": {
+                        "category": { "$ref": "#/$defs/disposition" },
+                        "divergence": { "type": "boolean" },
+                        "blocking": { "type": "boolean" },
+                        "rationale": { "type": "string", "minLength": 1 }
+                    }
+                }
+            }
+        },
+        "semanticComparison": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["case_id", "status", "classes"],
+            "properties": {
+                "case_id": { "type": "string", "pattern": "^case:" },
+                "status": {
+                    "enum": ["not_compared", "consistent", "divergent"]
+                },
+                "classes": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["sha256", "profile_ids"],
+                        "properties": {
+                            "sha256": { "$ref": "#/$defs/sha256" },
+                            "profile_ids": { "$ref": "#/$defs/stringSet" }
+                        }
+                    }
+                }
+            }
+        },
+        "aggregateRow": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "dimension",
+                "key",
+                "target_profile",
+                "entry_ids",
+                "disposition_counts",
+                "claim"
+            ],
+            "properties": {
+                "dimension": { "enum": ["feature", "requirement"] },
+                "key": { "type": "string", "minLength": 1 },
+                "target_profile": { "$ref": "#/$defs/targetProfile" },
+                "entry_ids": { "$ref": "#/$defs/stringSet" },
+                "disposition_counts": { "$ref": "#/$defs/dispositionCounts" },
+                "claim": {
+                    "enum": [
+                        "blocked",
+                        "unsupported_for_profile",
+                        "portable_with_certified_rewrite",
+                        "portable_native_for_applicable_vectors",
+                        "not_applicable"
+                    ]
+                }
+            }
+        },
+        "divergence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "divergence_id",
+                "entry_id",
+                "case_id",
+                "profile_id",
+                "category",
+                "blocking",
+                "rationale"
+            ],
+            "properties": {
+                "divergence_id": {
+                    "type": "string",
+                    "pattern": "^divergence:"
+                },
+                "entry_id": { "type": "string", "minLength": 1 },
+                "case_id": { "type": "string", "pattern": "^case:" },
+                "profile_id": { "type": "string", "pattern": "^profile:" },
+                "category": { "$ref": "#/$defs/disposition" },
+                "blocking": { "type": "boolean" },
+                "rationale": { "type": "string", "minLength": 1 }
+            }
+        }
+    }
+}

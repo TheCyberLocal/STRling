@@ -452,6 +452,55 @@
             "enforcement": "enforced"
         },
         {
+            "id": "initial-portability-matrix",
+            "category": "audit-certification-output",
+            "description": "Deterministic machine-authoritative vector/profile, feature/profile, and requirement/profile portability evidence plus its generated human-readable projection.",
+            "authoritative_sources": [
+                "spec/conformance/cases/*.json",
+                "spec/conformance/manifest.json",
+                "spec/conformance/shared-corpus-v1.json",
+                "spec/conformance/shared-corpus-v1.schema.json",
+                "spec/portability/equivalence/1.0/registry.json",
+                "spec/targets/profiles/*.json"
+            ],
+            "generator_inputs": [
+                "governance/schemas/portability-matrix-evidence.schema.json",
+                "spec/conformance/cases/*.json",
+                "spec/conformance/manifest.json",
+                "spec/conformance/shared-corpus-v1.json",
+                "spec/targets/profiles/*.json",
+                "tests/conformance/evidence/shared-cross-engine-observations.json",
+                "tooling/portability_matrix.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/portability_matrix.py"],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.portability_matrix",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "tests/conformance/evidence/initial-portability-matrix.json",
+                "tests/conformance/evidence/initial-portability-matrix.md"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "certification-evidence",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.portability_matrix",
+                    "--verify-evidence"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "rust-conformance-build-source",
             "category": "build-output",
             "description": "Rust conformance source generated into Cargo OUT_DIR during a build.",

@@ -634,6 +634,8 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertIn("pcre2_runtime_certification", full_ids)
         self.assertIn("ecmascript_runtime_certification", full_ids)
         self.assertIn("python_re_runtime_certification", full_ids)
+        self.assertIn("shared_cross_engine_certification", full_ids)
+        self.assertIn("portability_matrix_certification", full_ids)
         self.assertEqual(
             full_ids.index("pcre2_runtime_certification") + 1,
             full_ids.index("ecmascript_runtime_certification"),
@@ -642,6 +644,14 @@ class QualityRoutingTests(unittest.TestCase):
             full_ids.index("ecmascript_runtime_certification") + 1,
             full_ids.index("python_re_runtime_certification"),
         )
+        self.assertEqual(
+            full_ids.index("python_re_runtime_certification") + 1,
+            full_ids.index("shared_cross_engine_certification"),
+        )
+        self.assertEqual(
+            full_ids.index("shared_cross_engine_certification") + 1,
+            full_ids.index("portability_matrix_certification"),
+        )
         self.assertNotIn(
             "pcre2_runtime_certification",
             [member["operation"] for member in local_members],
@@ -652,6 +662,10 @@ class QualityRoutingTests(unittest.TestCase):
         )
         self.assertNotIn(
             "python_re_runtime_certification",
+            [member["operation"] for member in local_members],
+        )
+        self.assertNotIn(
+            "portability_matrix_certification",
             [member["operation"] for member in local_members],
         )
         self.assertNotIn(
@@ -670,6 +684,13 @@ class QualityRoutingTests(unittest.TestCase):
         )
         self.assertNotIn(
             "python_re_runtime_certification",
+            [
+                member["operation"]
+                for member in toolchain.profile("pull-request")["operations"]
+            ],
+        )
+        self.assertNotIn(
+            "portability_matrix_certification",
             [
                 member["operation"]
                 for member in toolchain.profile("pull-request")["operations"]
@@ -720,6 +741,16 @@ class QualityRoutingTests(unittest.TestCase):
             ],
             toolchain.operation("shared_cross_engine_certification")["command"],
         )
+        self.assertEqual(
+            [
+                "python3",
+                "-m",
+                "tooling.portability_matrix",
+                "--json",
+                "--check",
+            ],
+            toolchain.operation("portability_matrix_certification")["command"],
+        )
         release_ids = [
             member["operation"] for member in toolchain.profile("release")["operations"]
         ]
@@ -731,8 +762,12 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("python_re_runtime_certification") + 1,
             release_ids.index("shared_cross_engine_certification"),
         )
-        self.assertEqual("1.8.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.8.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual(
+            release_ids.index("shared_cross_engine_certification") + 1,
+            release_ids.index("portability_matrix_certification"),
+        )
+        self.assertEqual("1.9.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.9.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],
