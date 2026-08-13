@@ -1,0 +1,131 @@
+record_version: 2.0.0
+title: Frontend convergence and canonical tutorials
+status: in_progress
+objective: Certify that Semantic STRling, native Rust Simply, TypeScript Simply Preview, Python Simply Preview, source-less Semantic IR, and structurally equivalent regex-compatible imports converge on one canonical semantic and target pipeline, then make the public authoring hierarchy unambiguous without adding semantics or redesigning the product.
+scope:
+    diff:
+        base: f6dacb380f826207518f8285306fb5f922078aa5
+        head: working-tree
+    allowed_paths:
+        - README.md
+        - bindings/fsharp/README.md
+        - bindings/java/README.md
+        - bindings/kotlin/README.md
+        - bindings/lua/README.md
+        - bindings/python/tests/unit/test_simply_preview.py
+        - bindings/typescript/__tests__/unit/simply_preview.test.ts
+        - core/tests/frontend_convergence.rs
+        - docs/architecture.md
+        - docs/index.md
+        - docs/migration/README.md
+        - docs/migration/frontend-convergence.md
+        - docs/migration/ledger.md
+        - docs/migration/records/frontend-convergence.yaml
+        - docs/spec_links.md
+        - docs/testing_design.md
+        - docs/testing_workflow.md
+        - docs/tutorial/first_contribution.md
+        - governance/change-control.json
+        - spec/README.md
+        - spec/frontends/README.md
+        - spec/frontends/semantic/1.0/README.md
+        - tests/convergence/frontend-convergence.json
+        - tests/convergence/frontend-convergence.schema.json
+        - tooling/frontend_convergence.py
+        - tooling/migration_differential_baseline.json
+        - tooling/tests/test_frontend_convergence.py
+    forbidden_paths:
+        - bindings/**/src/**
+        - core/src/**
+        - core/cli/**
+        - governance/contracts/snapshots/**
+        - packages/**
+        - spec/contracts/**
+        - spec/frontends/legacy-regex/**
+        - spec/frontends/simply/**
+        - spec/grammar/**
+        - spec/targets/**
+        - tooling/legacy_reference/**
+    expected_files:
+        - docs/migration/frontend-convergence.md
+        - docs/migration/ledger.md
+        - docs/migration/records/frontend-convergence.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        [contract, unit, integration, quality, certification]
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - The corpus compares already ratified frontend mappings and canonical compiler results; it cannot add or alter semantic constructs.
+    public_api_change:
+        level: none
+        evidence:
+            - Only tests, validation tooling, and documentation change; binding and kernel source plus public snapshots are forbidden.
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - A test-evidence schema governs the convergence corpus without changing normative compiler contracts.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Comparison retains existing canonical diagnostic identity and content after representation-only source-location normalization.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Exact existing profiles and target pipelines are exercised without changing profile, planning, lowering, serialization, or runtime behavior.
+    architecture_change:
+        level: none
+        evidence:
+            - Certification proves all frontends use the existing one-core boundary and adds no production dependency.
+    generated_output_change:
+        level: none
+        evidence:
+            - No generated artifact or public snapshot is renewed.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Corpus contract and completeness
+      command: python3 tooling/frontend_convergence.py --check && python3 -m unittest tooling.tests.test_frontend_convergence
+      expected_result: Eleven cases cover 15 Simply operations, 17 Semantic mappings, all 38 supported legacy features across ten families, all 13 rejected features have governed unsupported dispositions, no unresolved item exists, and controlled shrinkage or classification mutations fail closed.
+    - name: Canonical Rust convergence
+      command: cargo test --manifest-path core/Cargo.toml --test frontend_convergence --locked
+      expected_result: Semantic source, native Simply replay, source-less Semantic IR, and applicable regex-compatible imports produce identical normalized semantics, facts, diagnostics, portability, and target artifacts/results under exact profiles with deterministic repeat runs.
+    - name: Host Preview convergence
+      command: npm test --prefix bindings/typescript -- --runInBand simply_preview.test.ts && PYTHONPATH=bindings/python/src python3 -m pytest bindings/python/tests/unit/test_simply_preview.py
+      expected_result: TypeScript and Python rebuild every convergence Simply request exactly and receive the same canonical projected result through the Rust transport.
+    - name: Documentation and architecture integrity
+      command: python3 tooling/documentation_integrity.py && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/architecture_fitness.py && python3 tooling/governance.py
+      expected_result: Public links and executable examples pass, the hierarchy is Semantic first/Simply second/regex import third, stale canonical regex teaching is removed, and production/public boundaries remain unchanged.
+    - name: Repository and phase certification
+      command: cargo fmt --manifest-path core/Cargo.toml -- --check && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && cargo test --manifest-path core/Cargo.toml --all-targets --locked && python3 -m unittest discover -s tooling/tests && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
+      expected_result: All affected and repository hardgates, Local, Pull Request, Full-as-available, reproducibility, and clean-tree checks pass with only explicitly inherited environment unavailability if any.
+checkpoints:
+    - name: Convergence denominator and representation policy
+      status: passed
+      evidence:
+          - check: Complete frontend denominator
+            result: passed
+            details: The locked corpus has eleven cases and fail-closed coverage for 15 Simply operations, 17 Semantic mappings, 38 supported legacy features across ten families, and all 13 rejected legacy features.
+          - check: Representation-only comparison boundary
+            result: passed
+            details: Alpha-renamed identities and removed provenance/location metadata are the only exclusions; semantic values, facts, diagnostics, portability decisions, rewrites, target options, artifacts, and outcomes remain compared.
+    - name: Executable convergence corpus and host adapters
+      status: planned
+      evidence: []
+    - name: Canonical documentation hierarchy
+      status: planned
+      evidence: []
+    - name: Full repository and phase certification
+      status: planned
+      evidence: []
+commits: []
+readiness:
+    status: BLOCKED
+    next_task: Implement and certify the locked convergence corpus before changing canonical tutorials.
+    rationale: The complete denominator, comparison exclusions, legacy dispositions, and documentation surface are locked, but executable convergence evidence, canonical tutorial migration, aggregate profiles, and clean-tree closure remain incomplete.

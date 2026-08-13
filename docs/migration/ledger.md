@@ -3692,3 +3692,33 @@ P13-T05 is `READY WITH RECORDED CARRY-FORWARD`. P13-T06 is next and owns the
 complete cross-frontend convergence corpus plus canonical tutorial hierarchy;
 no tutorial, default, package, version, tag, upload, or publication action was
 taken here.
+
+## Frontend convergence and canonical tutorials
+
+-   Status: In progress
+-   Starting commit: `f6dacb380f826207518f8285306fb5f922078aa5`
+-   Behavior change: Test evidence and public documentation only; no semantic,
+    target, runtime, binding implementation, public API, package, or release
+    behavior
+-   Task record:
+    [`frontend-convergence.yaml`](records/frontend-convergence.yaml)
+-   Readiness: Pending executable corpus and phase certification
+
+P13-T06 locks an eleven-case convergence denominator spanning authored Semantic
+STRling, native Rust Simply, TypeScript and Python Simply Preview, source-less
+Semantic IR, and nine structurally equivalent regex-compatible import cases.
+Completeness is derived fail-closed from all 15 Simply operations, all 17
+Semantic mapping entries, and all 38 accepted or compatibility-only legacy
+features across ten families. The 13 rejected legacy features retain the
+existing `unsupported_legacy_behavior` disposition; unresolved differences are
+forbidden.
+
+Semantic comparison alpha-renames frontend-specific node and capture identities
+and removes only source/provenance/location metadata. Semantic values, reference
+relationships, facts, diagnostic content, portability decisions, rewrite
+identities, target options, artifact pattern and flags, and compile outcomes
+remain compared. Public documentation migration is bounded to the root and
+developer entry points, canonical tutorial/testing examples, frontend
+references, architecture wording, and four binding README passages that still
+call regex-compatible input the canonical DSL. Dedicated import/migration and
+normative dialect documentation remains intact.
