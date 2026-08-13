@@ -1,0 +1,153 @@
+record_version: 2.0.0
+title: Proof-backed semantic quality diagnostics
+status: in_progress
+objective: Preserve the five certified target-neutral safety diagnostics and extend canonical diagnostic generation with deterministic typed evidence for provably unreachable, degenerate, contradictory, overlapping, or suspicious semantic structures, without raw-source heuristics, style-only warnings, target/runtime claims, automatic rewrites, product migration, or language-semantic changes.
+scope:
+    diff:
+        base: ca665b3e98da66aab93857e9219bcf2d256ca865
+        head: working-tree
+    allowed_paths:
+        - core/README.md
+        - core/src/compiler_pipeline.rs
+        - core/src/diagnostic_generation.rs
+        - core/src/diagnostic_generation/quality.rs
+        - core/src/kernel.rs
+        - core/tests/compiler_boundary_properties.rs
+        - core/tests/diagnostic_evidence.rs
+        - core/tests/diagnostic_generation.rs
+        - core/tests/diagnostic_generation_properties.rs
+        - core/tests/diagnostic_safety_mapping.rs
+        - core/tests/semantic_quality_diagnostic_properties.rs
+        - core/tests/semantic_quality_diagnostics.rs
+        - docs/architecture.md
+        - docs/migration/ledger.md
+        - docs/migration/records/semantic-quality-diagnostics.yaml
+        - docs/migration/semantic-quality-diagnostics.md
+        - governance/change-control.json
+        - spec/contracts/1.0/examples/diagnostic/semantic-quality-warning.json
+        - tooling/core_stage_boundaries.py
+        - tooling/tests/test_canonical_contracts.py
+        - tooling/tests/test_diagnostic_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/capability_evaluation.rs
+        - core/src/ecmascript_lowering.rs
+        - core/src/ecmascript_serialization.rs
+        - core/src/normalization.rs
+        - core/src/portability_planning.rs
+        - core/src/python_re_lowering.rs
+        - core/src/python_re_serialization.rs
+        - core/src/safety_analysis.rs
+        - core/src/safety_analysis/**
+        - core/src/semantic/**
+        - core/src/semantic_analysis.rs
+        - core/src/semantic_analysis/**
+        - core/src/structural_analysis.rs
+        - core/src/structural_analysis/**
+        - core/src/target/**
+        - core/src/target_lowering.rs
+        - core/src/target_serialization.rs
+        - packages/**
+        - spec/conformance/**
+        - spec/grammar/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/records/semantic-quality-diagnostics.yaml
+        - docs/migration/semantic-quality-diagnostics.md
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Quality proofs report immutable canonical semantics; they do not change accepted language, match behavior, captures, assertions, or rewrites.
+    public_api_change:
+        level: none
+        evidence:
+            - The governed kernel facade signature and all binding/package surfaces remain unchanged; evidence types remain in the excluded certified-stage module surface.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - New diagnostics use the existing 1.0 Diagnostic contract and SemanticValidity category without adding wire fields or enum values.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Adds seven stable STRL-QUALITY codes for complete target-neutral semantic proofs while preserving STRL-SAFETY-0001 through STRL-SAFETY-0005 exactly.
+    target_behavior_change:
+        level: none
+        evidence:
+            - No target profile, capability, portability, lowering, serialization, runtime harness, or conformance expectation changes.
+    architecture_change:
+        level: additive
+        evidence:
+            - Canonical diagnostic generation gains an internal proof substage consuming only the already-required normalized program and certified foundational and structural facts.
+            - Architecture fitness extends target-neutral enforcement to the diagnostic-generation submodule and rejects any raw-source, target, product, frontend, binding, editor, or runtime dependency.
+    generated_output_change:
+        level: none
+        evidence: []
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Closed quality-code and proof certification
+      command: cargo test --manifest-path core/Cargo.toml --test semantic_quality_diagnostics --test semantic_quality_diagnostic_properties --locked
+      expected_result: Every and only the seven closed proof conditions emits its stable code, severity, evidence, source projection, and advice; adversarial near misses and unknown conditions remain silent; normalization and source-less generation are deterministic.
+    - name: Existing diagnostic preservation and complete kernel regression
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings
+      expected_result: STRL-SAFETY-0001 through 0005, their evidence and severities remain exact, all existing kernel behavior passes, and the implementation builds warning-free.
+    - name: Contract and architecture certification
+      command: python3 tooling/contract_validation.py && python3 tooling/core_contract_validation.py && python3 tooling/core_stage_boundaries.py && python3 -m unittest tooling.tests.test_canonical_contracts tooling.tests.test_diagnostic_architecture tooling.tests.test_core_contracts
+      expected_result: The new diagnostic fixture validates under the unchanged schema and controlled mutations prove certified-fact dependency, target neutrality, no raw-source scanning, and no parallel analyzer or product route.
+    - name: Repository and profile certification
+      command: python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && python3 tooling/documentation_integrity.py && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check
+      expected_result: All available hardgates pass, no public or generated surface drifts, inherited host-only gaps remain explicit without waiver, and the final committed tree is clean.
+checkpoints:
+    - name: Preserved analysis and diagnostic inventory
+      status: passed
+      evidence:
+          - check: Canonical prerequisite boundary
+            result: passed
+            details: Foundational analysis already owns nullability, Unicode-scalar bounds, consumption, and logical capture/reference relationships. Structural analysis owns zero-width progress and exact symbolic overlap. Safety analysis owns five positive safety findings and typed uncertainty. Diagnostic generation validates exact correspondence and preserves structured evidence; P12-T04 does not need to change any prerequisite owner.
+          - check: Preserved external behavior
+            result: passed
+            details: STRL-SAFETY-0001 through STRL-SAFETY-0005, compiler-policy severities, messages, source rules, advice, ordering, uncertainty silence, and the target-neutral compiler pipeline are complete and must remain regression-locked.
+          - check: Remaining proof-backed gap
+            result: passed
+            details: No canonical code currently reports provable zero-maximum or exact-once repetitions, exact duplicate alternatives, complementary same-position assertions, explicit set-member intersection, or backreferences to proven zero-width captures. The existing fact stores can prove these without raw-source or target heuristics.
+    - name: Closed quality proof and diagnostic contract
+      status: planned
+      evidence:
+          - check: Seven-code false-positive boundary
+            result: not_run
+            details: Awaiting typed quality evidence, canonical semantic-shape comparison, concrete set-overlap witnesses, same-position assertion segmentation, stable policy mapping, and explicit silence for all excluded unknown or target-dependent cases.
+    - name: Canonical generator implementation and source projection
+      status: planned
+      evidence:
+          - check: Integrated generation
+            result: not_run
+            details: Awaiting one target-neutral internal quality substage, unified deterministic occurrence ordering, typed safety-versus-quality provenance, resource bounds, precise primary/related locations, and compiler-pipeline integration without a parallel product route.
+    - name: Property, contract, and architecture certification
+      status: planned
+      evidence:
+          - check: Positive, negative, adversarial, and mutation evidence
+            result: not_run
+            details: Awaiting every-code fixtures, safety preservation, fixed-seed determinism, normalization and source-less properties, unchanged-schema fixture validation, and controlled architecture failures.
+    - name: Complete repository and P12-T04 certification
+      status: planned
+      evidence:
+          - check: Task-closing hardgates
+            result: not_run
+            details: Awaiting all Rust and tooling tests, contracts, shared corpus where relevant, formatting, public/generated checks, governance, documentation, migration differential, Local/Pull Request/Full profiles, clean final commit, and P12-T05 handoff.
+commits: []

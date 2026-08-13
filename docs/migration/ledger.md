@@ -3147,3 +3147,31 @@ unavailable. P11-T06 and P11 are `READY WITH RECORDED CARRY-FORWARD`. P12-T04
 is the next ordered task and resumes the partially completed overlap,
 unreachable, degenerate, and suspicious-pattern diagnostics work without
 reopening the completed cross-engine target boundary.
+
+## Implement proof-backed semantic quality diagnostics
+
+P12-T04 resumes from clean P11 completion commit
+`ca665b3e98da66aab93857e9219bcf2d256ca865`. Its Partial predecessor state is
+intentional: foundational and structural semantic facts, five target-neutral
+safety findings, typed uncertainty, and `STRL-SAFETY-0001` through
+`STRL-SAFETY-0005` are already complete and remain authoritative.
+
+The remaining bounded gap is canonical communication of seven complete quality
+proofs: a zero-maximum repetition whose operand is unreachable; a greedy or
+lazy exact-once repetition wrapper; a later exact duplicate alternation branch;
+same-position word-boundary and not-word-boundary assertions; same-direction,
+canonical-equivalent lookarounds of opposite polarity; explicit literal/range
+or range/range character-set overlap with a concrete scalar witness; and a
+resolved backreference to a capture body with certified maximum consumption
+zero. These become `STRL-QUALITY-0001` through `STRL-QUALITY-0007` in that
+order.
+
+Quality proof construction remains internal to canonical diagnostic generation
+and consumes only normalized Semantic IR plus exact foundational and structural
+facts. Typed safety and quality provenance share deterministic occurrence
+ordering and the unchanged Diagnostic wire contract. Unknown overlap,
+case-folding or Unicode-property guesses, shared leading prefixes, general
+language inclusion or satisfiability, unused captures, forward-reference
+behavior, possessive exact-once repetition, style-only advice, target/runtime
+claims, raw-source scanning, fixes, and automatic rewrites remain excluded.
+P12-T05 separately owns semantics-preserving rewrites.
