@@ -211,6 +211,27 @@
             "original_pattern": "(?i:\\A(?>k)\\z)",
             "rewritten_pattern": "(?i:\\Ak\\z)",
             "subjects": ["k", "K", "K", "x"]
+        },
+        {
+            "id": "exact-once-capture-priority",
+            "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+            "original_pattern": "\\A(?:(a|ab)){1}b\\z",
+            "rewritten_pattern": "\\A(a|ab)b\\z",
+            "subjects": ["ab", "abb", "a", "abbb"]
+        },
+        {
+            "id": "exact-once-zero-width",
+            "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+            "original_pattern": "\\A(?:(?=a)){1}a\\z",
+            "rewritten_pattern": "\\A(?=a)a\\z",
+            "subjects": ["a", "b", "aa"]
+        },
+        {
+            "id": "exact-once-unicode-caseless",
+            "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+            "original_pattern": "(?i:\\A(?:k){1}\\z)",
+            "rewritten_pattern": "(?i:\\Ak\\z)",
+            "subjects": ["k", "K", "K", "x"]
         }
     ],
     "generated_cases": {

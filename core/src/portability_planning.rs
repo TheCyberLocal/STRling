@@ -6,11 +6,15 @@
 mod equivalence;
 mod validation;
 
+pub(crate) use equivalence::certification_for;
+
 pub use equivalence::{
-    certified_rewrite_registry, certify_rewrite_registry, CertifiedRewriteRegistry,
-    CertifiedRewriteStrategy, RewriteCertificationEvidence, RewriteConformanceEvidence,
-    RewriteExecutionHook, RewriteObligation, RewriteProofMethod, RewriteRegistryError,
-    RewriteSemanticShape, RewriteStrategyDefinition, RewriteTargetScope,
+    certified_rewrite_registry, certify_rewrite_registry, certify_rewrite_registry_with_evidence,
+    CertifiedRewriteRegistry, CertifiedRewriteStrategy, RewriteApplicationKind,
+    RewriteCapabilityEffects, RewriteCertificationEvidence, RewriteConformanceEvidence,
+    RewriteExecutionEvidence, RewriteObligation, RewriteProofMethod, RewriteRegistryError,
+    RewriteSelection, RewriteSemanticShape, RewriteStrategyDefinition, RewriteTargetApplicability,
+    RewriteTargetScope, RewriteTransformation,
 };
 
 use std::error::Error;
@@ -119,6 +123,7 @@ pub struct RequirementIdentity {
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum RewriteStrategyId {
     ElideAtomicLiteralV1,
+    ElideExactOnceRepetitionV1,
 }
 
 impl RewriteStrategyId {
@@ -126,6 +131,7 @@ impl RewriteStrategyId {
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::ElideAtomicLiteralV1 => "rewrite.atomic_literal.elide.v1",
+            Self::ElideExactOnceRepetitionV1 => "rewrite.repeat_exactly_once.elide.v1",
         }
     }
 }
@@ -437,7 +443,7 @@ fn evaluate_rewrite_registry(
     capability_result: &CapabilityResult,
 ) -> Result<RewriteRegistryResolution, PortabilityPlanningErrors> {
     let registry = certified_rewrite_registry().map_err(registry_error)?;
-    let strategy_ids = registry.strategy_ids();
+    let strategy_ids = registry.portability_strategy_ids();
     let mut attempts = Vec::with_capacity(strategy_ids.len());
     let mut selected = None;
     for strategy_id in strategy_ids {
@@ -450,6 +456,16 @@ fn evaluate_rewrite_registry(
                 capability_result,
                 certification,
             ),
+            RewriteStrategyId::ElideExactOnceRepetitionV1 => StrategyEvaluation {
+                attempt: RewriteAttempt {
+                    strategy_id,
+                    disposition: RewriteAttemptDisposition::NotApplicable,
+                    proof: Vec::new(),
+                    replacement_requirements: Vec::new(),
+                    replacement_support: Vec::new(),
+                },
+                plan: None,
+            },
         };
         if selected.is_none() {
             selected = evaluated.plan;

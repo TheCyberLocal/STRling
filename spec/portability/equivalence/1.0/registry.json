@@ -3,11 +3,29 @@
     "strategies": [
         {
             "strategy_id": "rewrite.atomic_literal.elide.v1",
+            "application_kind": "mandatory_portability",
             "applicable_semantic_shape": {
                 "original_node_kind": "atomic",
                 "direct_body_node_kind": "literal"
             },
-            "original_requirement_kind": "atomic",
+            "transformation": {
+                "operation": "elide_wrapper",
+                "replacement": "direct_body"
+            },
+            "capability_effects": {
+                "original_requirement_kind": "atomic",
+                "replacement_requirement_kinds": []
+            },
+            "target_applicability": {
+                "profiles": [
+                    "profile:ecmascript/2024",
+                    "profile:pcre2/10.42",
+                    "profile:pcre2/10.43",
+                    "profile:python-re/3.11",
+                    "profile:python-re/3.11-bytes"
+                ],
+                "selection": "unsupported_original_capability"
+            },
             "preconditions": [
                 {
                     "id": "precondition.original_node_atomic",
@@ -46,23 +64,158 @@
                     "text": "Any generated semantic requirement must have exact Supported evidence for the requested target profile."
                 }
             ],
+            "provenance_behavior": "The applied portability plan retains the atomic wrapper and direct literal node identities, proof evidence, target-profile identity, and registry/evidence fingerprints; lowering preserves the direct literal origin.",
             "explanation": "The target lacks native atomic grouping, but this atomic node directly contains one literal; removing only the redundant atomic wrapper preserves matching semantics.",
             "proof_method": "structural",
             "target_scope": "target_neutral",
             "required_tests": [
                 "property.normalized_programs.v1",
-                "conformance.atomic_literal_elision.v1"
+                "conformance.atomic_literal_elision.v1",
+                "runtime.atomic_literal_elision.v1"
             ],
             "conformance_evidence": {
                 "evidence_id": "conformance.atomic_literal_elision.v1",
                 "path": "spec/portability/equivalence/1.0/atomic-literal-elision.cases.json",
                 "sha256": "ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2"
             },
-            "execution_hooks": [
+            "execution_evidence": [
                 {
-                    "hook_id": "runtime.atomic_literal_elision.differential.v1",
-                    "status": "deferred_until_target_emitter",
-                    "obligation": "Execute original atomic-literal semantics and the lowered elision artifact over positive, negative, Unicode, case-sensitive, and case-insensitive inputs and require identical match and capture observations."
+                    "evidence_id": "runtime.ecmascript.rewrite.v1",
+                    "path": "tests/conformance/ecmascript-runtime-certification.json",
+                    "sha256": "daeae7fcab81545e8c5e5ece25cfc94bcb02d3b980748c34e1ffcfcae1ce624a",
+                    "profiles": ["profile:ecmascript/2024"]
+                },
+                {
+                    "evidence_id": "runtime.pcre2.rewrite.v1",
+                    "path": "tests/conformance/pcre2-runtime-certification.json",
+                    "sha256": "a9f0290f463589f0d0f911980a2d4c3e3254013238874e19987e62d42aa8cf2c",
+                    "profiles": ["profile:pcre2/10.42", "profile:pcre2/10.43"]
+                },
+                {
+                    "evidence_id": "runtime.python-re.rewrite.v1",
+                    "path": "tests/conformance/python-re-runtime-certification.json",
+                    "sha256": "fe41163d018993087da930b21faa7a17ca85f01654d46249c8636b7029fa21af",
+                    "profiles": [
+                        "profile:python-re/3.11",
+                        "profile:python-re/3.11-bytes"
+                    ]
+                }
+            ]
+        },
+        {
+            "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+            "application_kind": "optional_optimization",
+            "applicable_semantic_shape": {
+                "original_node_kind": "repeat",
+                "direct_body_node_kind": null
+            },
+            "transformation": {
+                "operation": "elide_wrapper",
+                "replacement": "direct_body"
+            },
+            "capability_effects": {
+                "original_requirement_kind": null,
+                "replacement_requirement_kinds": []
+            },
+            "target_applicability": {
+                "profiles": [
+                    "profile:ecmascript/2024",
+                    "profile:pcre2/10.42",
+                    "profile:pcre2/10.43",
+                    "profile:python-re/3.11",
+                    "profile:python-re/3.11-bytes"
+                ],
+                "selection": "explicit_request_only"
+            },
+            "preconditions": [
+                {
+                    "id": "precondition.original_node_repeat",
+                    "text": "The requested node is certified as a repeat Semantic IR node."
+                },
+                {
+                    "id": "precondition.direct_body_relationship",
+                    "text": "The replacement is the repeat node's direct Semantic IR child."
+                },
+                {
+                    "id": "precondition.minimum_exactly_one",
+                    "text": "The authored repetition minimum is exactly one."
+                },
+                {
+                    "id": "precondition.maximum_exactly_one",
+                    "text": "The authored repetition maximum is finite and exactly one."
+                },
+                {
+                    "id": "precondition.mode_nonpossessive",
+                    "text": "The repetition mode is greedy or lazy, never possessive."
+                }
+            ],
+            "semantic_invariants": [
+                {
+                    "id": "invariant.accepted_language",
+                    "text": "Exactly one body evaluation accepts the same language as its direct body."
+                },
+                {
+                    "id": "invariant.match_capture_priority",
+                    "text": "Matched span/value, capture participation/values, alternative priority, zero-length behavior, and Unicode/case options remain unchanged."
+                },
+                {
+                    "id": "invariant.diagnostics",
+                    "text": "The optional action does not mutate the analyzed input or rewrite diagnostic evidence automatically."
+                }
+            ],
+            "unsupported_conditions": [
+                {
+                    "id": "unsupported.possessive_mode",
+                    "text": "Possessive exact-once is excluded because commitment can suppress backtracking into the body."
+                },
+                {
+                    "id": "unsupported.nonexact_bounds",
+                    "text": "Any minimum or maximum other than exactly one is outside this equivalence proof."
+                },
+                {
+                    "id": "unsupported.implicit_application",
+                    "text": "Diagnostics and portability planning cannot select this optional strategy without an explicit rewrite request."
+                },
+                {
+                    "id": "unsupported.incomplete_evidence",
+                    "text": "Missing, stale, widened, or profile-incomplete proof or execution evidence blocks registration and action construction."
+                }
+            ],
+            "provenance_behavior": "The action retains the removed repeat node identity and origin as evidence and references the direct body identity without fabricating source text, a text edit, target syntax, or a mutated program.",
+            "explanation": "This non-possessive repetition executes its body exactly once, so the count and greedy/lazy wrapper cannot affect matching; an explicit consumer may replace the wrapper with its direct body.",
+            "proof_method": "structural",
+            "target_scope": "target_neutral",
+            "required_tests": [
+                "property.optional_rewrite_actions.v1",
+                "conformance.exact_once_repetition_elision.v1",
+                "runtime.exact_once_repetition_elision.v1"
+            ],
+            "conformance_evidence": {
+                "evidence_id": "conformance.exact_once_repetition_elision.v1",
+                "path": "spec/portability/equivalence/1.0/exact-once-repetition-elision.cases.json",
+                "sha256": "44cf3f948818ed42d2feec3e430490b78351ae19d3a55d4397f8e0c8c28b9677"
+            },
+            "execution_evidence": [
+                {
+                    "evidence_id": "runtime.ecmascript.rewrite.v1",
+                    "path": "tests/conformance/ecmascript-runtime-certification.json",
+                    "sha256": "daeae7fcab81545e8c5e5ece25cfc94bcb02d3b980748c34e1ffcfcae1ce624a",
+                    "profiles": ["profile:ecmascript/2024"]
+                },
+                {
+                    "evidence_id": "runtime.pcre2.rewrite.v1",
+                    "path": "tests/conformance/pcre2-runtime-certification.json",
+                    "sha256": "a9f0290f463589f0d0f911980a2d4c3e3254013238874e19987e62d42aa8cf2c",
+                    "profiles": ["profile:pcre2/10.42", "profile:pcre2/10.43"]
+                },
+                {
+                    "evidence_id": "runtime.python-re.rewrite.v1",
+                    "path": "tests/conformance/python-re-runtime-certification.json",
+                    "sha256": "fe41163d018993087da930b21faa7a17ca85f01654d46249c8636b7029fa21af",
+                    "profiles": [
+                        "profile:python-re/3.11",
+                        "profile:python-re/3.11-bytes"
+                    ]
                 }
             ]
         }

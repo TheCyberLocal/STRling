@@ -4,14 +4,27 @@ import copy
 import unittest
 
 from tooling.pcre2_runtime_certification import (
+    RUNTIME_CORPUS,
     aggregate_status,
     generated_cases,
+    load_json,
     result_digest,
     run_certification,
 )
 
 
 class Pcre2RuntimeCertificationTests(unittest.TestCase):
+    def test_rewrite_corpus_covers_both_locked_strategies(self) -> None:
+        corpus = load_json(RUNTIME_CORPUS)
+        self.assertEqual(5, len(corpus["rewrite_cases"]))
+        self.assertEqual(
+            {
+                "rewrite.atomic_literal.elide.v1",
+                "rewrite.repeat_exactly_once.elide.v1",
+            },
+            {case["strategy_id"] for case in corpus["rewrite_cases"]},
+        )
+
     def test_generated_cases_are_deterministic_bounded_and_balanced(self) -> None:
         configuration = {
             "seed": 1234,

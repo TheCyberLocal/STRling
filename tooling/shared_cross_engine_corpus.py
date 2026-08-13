@@ -377,13 +377,17 @@ def validate_corpus() -> dict[str, Any]:
             "coverage requirement denominator must equal vector coverage"
         )
     registry = load_json(EQUIVALENCE_REGISTRY)
-    registry_strategies = sorted(item["strategy_id"] for item in registry["strategies"])
+    registry_strategies = sorted(
+        item["strategy_id"]
+        for item in registry["strategies"]
+        if item["application_kind"] == "mandatory_portability"
+    )
     if (
         coverage["required_rewrite_strategies"] != registry_strategies
         or sorted(rewrite_union) != registry_strategies
     ):
         raise SharedCorpusError(
-            "every registered rewrite strategy must have shared-corpus evidence"
+            "every mandatory portability rewrite strategy must have shared-corpus evidence"
         )
     if coverage["required_application_states"] != sorted(state_union):
         raise SharedCorpusError(

@@ -317,7 +317,7 @@ fn validate_attempts(
 ) -> Result<(), PortabilityPlanningErrors> {
     let expected = certified_rewrite_registry()
         .map_err(registry_error)?
-        .strategy_ids();
+        .portability_strategy_ids();
     if attempts.len() != expected.len()
         || attempts
             .iter()
@@ -326,7 +326,7 @@ fn validate_attempts(
     {
         return Err(rewrite_error(
             index,
-            "rewrite attempts must cover the complete certified registry in stable order",
+            "rewrite attempts must cover every mandatory portability strategy in stable order",
         ));
     }
     Ok(())

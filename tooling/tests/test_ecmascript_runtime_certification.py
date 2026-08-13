@@ -95,7 +95,14 @@ class EcmascriptRuntimeCertificationTests(unittest.TestCase):
         self.assertEqual(
             len(request["cases"]), len({case["id"] for case in request["cases"]})
         )
-        self.assertEqual(2, len(rewrite_ids))
+        self.assertEqual(8, len(rewrite_ids))
+        self.assertEqual(
+            {
+                "rewrite.atomic_literal.elide.v1",
+                "rewrite.repeat_exactly_once.elide.v1",
+            },
+            {case["strategy_id"] for case in corpus["rewrite_cases"]},
+        )
         self.assertTrue(any(case["flags"] == ["v"] for case in corpus["cases"]))
         self.assertIn(
             "newer-runtime-scoped-modifier-extension",

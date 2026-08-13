@@ -1,10 +1,11 @@
 use serde::Deserialize;
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use strling_kernel::capability_evaluation::evaluate_capabilities;
 use strling_kernel::normalization::normalize;
 use strling_kernel::portability_planning::{
-    certified_rewrite_registry, certify_rewrite_registry, plan_portability,
-    RequirementPlanningDisposition, RewriteStrategyId,
+    certified_rewrite_registry, certify_rewrite_registry, certify_rewrite_registry_with_evidence,
+    plan_portability, RequirementPlanningDisposition, RewriteApplicationKind, RewriteStrategyId,
 };
 use strling_kernel::semantic::SemanticProgram;
 use strling_kernel::semantic_analysis::analyze;
@@ -15,8 +16,16 @@ use strling_kernel::target::{PortabilityStatus, TargetProfile};
 const REGISTRY: &str = include_str!("../../spec/portability/equivalence/1.0/registry.json");
 const REGISTRY_SCHEMA: &str =
     include_str!("../../spec/portability/equivalence/1.0/registry.schema.json");
-const CASES: &str =
+const ATOMIC_CASES: &str =
     include_str!("../../spec/portability/equivalence/1.0/atomic-literal-elision.cases.json");
+const EXACT_ONCE_CASES: &str =
+    include_str!("../../spec/portability/equivalence/1.0/exact-once-repetition-elision.cases.json");
+const ECMASCRIPT_EXECUTION: &str =
+    include_str!("../../tests/conformance/ecmascript-runtime-certification.json");
+const PCRE2_EXECUTION: &str =
+    include_str!("../../tests/conformance/pcre2-runtime-certification.json");
+const PYTHON_RE_EXECUTION: &str =
+    include_str!("../../tests/conformance/python-re-runtime-certification.json");
 const ECMASCRIPT: &str = include_str!("../../spec/targets/profiles/ecmascript-2024.json");
 const PCRE2_1042: &str = include_str!("../../spec/targets/profiles/pcre2-10.42.json");
 const PCRE2_1043: &str = include_str!("../../spec/targets/profiles/pcre2-10.43.json");
@@ -27,7 +36,6 @@ struct Suite {
     strategy_id: String,
     cases: Vec<Case>,
     preserved_invariants: Vec<String>,
-    execution_hooks: Vec<ExecutionHook>,
 }
 
 #[derive(Deserialize)]
@@ -43,96 +51,194 @@ struct TargetExpectation {
     status: String,
 }
 
-#[derive(Deserialize)]
-struct ExecutionHook {
-    hook_id: String,
-    status: String,
-    obligation: String,
+fn certify_all(
+    registry: &[u8],
+    atomic: &[u8],
+    exact_once: &[u8],
+    ecma: &[u8],
+) -> Result<
+    strling_kernel::portability_planning::CertifiedRewriteRegistry,
+    strling_kernel::portability_planning::RewriteRegistryError,
+> {
+    certify_rewrite_registry_with_evidence(
+        registry,
+        atomic,
+        exact_once,
+        ecma,
+        PCRE2_EXECUTION.as_bytes(),
+        PYTHON_RE_EXECUTION.as_bytes(),
+    )
 }
 
 #[test]
-fn authored_registry_reproduces_strategy_and_conformance_fingerprints() {
+fn authored_library_reproduces_complete_strategy_and_evidence_fingerprints() {
     let schema: Value = serde_json::from_str(REGISTRY_SCHEMA).expect("registry schema JSON");
     assert_eq!(
         schema["$id"],
         "https://strling.dev/portability/equivalence/1.0/registry.schema.json"
     );
-    let direct = certify_rewrite_registry(REGISTRY.as_bytes(), CASES.as_bytes())
-        .expect("authored registry must certify");
+    let direct = certify_all(
+        REGISTRY.as_bytes(),
+        ATOMIC_CASES.as_bytes(),
+        EXACT_ONCE_CASES.as_bytes(),
+        ECMASCRIPT_EXECUTION.as_bytes(),
+    )
+    .expect("authored rewrite library must certify");
     let cached = certified_rewrite_registry().expect("embedded registry must certify");
 
     assert_eq!(&direct, cached);
     assert_eq!(direct.registry_version, ContractVersion::V1_0_0);
-    assert_eq!(direct.strategies.len(), 1);
-    let strategy = &direct.strategies[0];
+    assert_eq!(direct.strategies.len(), 2);
     assert_eq!(
-        strategy.strategy_id,
-        RewriteStrategyId::ElideAtomicLiteralV1
-    );
-    assert_eq!(
-        strategy.strategy_fingerprint.as_str(),
-        "d1ac04c04241dff1423c22b5962fc7336c57e664e2510d557edb6e41f885a7d6"
-    );
-    assert_eq!(
-        strategy.definition.conformance_evidence.sha256.as_str(),
-        "ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2"
-    );
-    assert_eq!(
-        strategy.definition.required_tests,
+        direct.strategy_ids(),
         [
-            "property.normalized_programs.v1",
-            "conformance.atomic_literal_elision.v1"
+            RewriteStrategyId::ElideAtomicLiteralV1,
+            RewriteStrategyId::ElideExactOnceRepetitionV1,
         ]
     );
-    assert_eq!(strategy.definition.execution_hooks.len(), 1);
     assert_eq!(
-        strategy.definition.execution_hooks[0].status,
-        "deferred_until_target_emitter"
+        direct.portability_strategy_ids(),
+        [RewriteStrategyId::ElideAtomicLiteralV1]
     );
+    assert_eq!(
+        direct.strategies[0].definition.application_kind,
+        RewriteApplicationKind::MandatoryPortability
+    );
+    assert_eq!(
+        direct.strategies[1].definition.application_kind,
+        RewriteApplicationKind::OptionalOptimization
+    );
+    assert_eq!(
+        direct.strategies[0].strategy_fingerprint.as_str(),
+        "43f866c83d9e2dfbe3d2f9f4686a2578311c37060d2592dbdfae7560c332c6e1"
+    );
+    assert_eq!(
+        direct.strategies[1].strategy_fingerprint.as_str(),
+        "2d8c705478481947db9bd57f73f09e6f687a67f49200ebb191e82f7e8e2f8831"
+    );
+    for strategy in &direct.strategies {
+        assert_eq!(strategy.definition.execution_evidence.len(), 3);
+        assert_eq!(strategy.definition.target_applicability.profiles.len(), 5);
+    }
+
+    let compatible = certify_rewrite_registry(REGISTRY.as_bytes(), ATOMIC_CASES.as_bytes())
+        .expect("legacy atomic mutation hook must certify the complete embedded library");
+    assert_eq!(compatible, direct);
 }
 
 #[test]
-fn missing_or_stale_authored_evidence_blocks_registry_certification() {
+fn missing_stale_widened_or_profile_incomplete_evidence_blocks_registration() {
     let mut stale: Value = serde_json::from_str(REGISTRY).expect("registry JSON");
-    stale["strategies"][0]["conformance_evidence"]["sha256"] = Value::String("0".repeat(64));
-    let stale_bytes = serde_json::to_vec(&stale).expect("stale registry bytes");
-    let error = certify_rewrite_registry(&stale_bytes, CASES.as_bytes())
-        .expect_err("stale evidence must fail");
+    stale["strategies"][1]["conformance_evidence"]["sha256"] = Value::String("0".repeat(64));
+    let error = certify_all(
+        &serde_json::to_vec(&stale).expect("stale registry"),
+        ATOMIC_CASES.as_bytes(),
+        EXACT_ONCE_CASES.as_bytes(),
+        ECMASCRIPT_EXECUTION.as_bytes(),
+    )
+    .expect_err("stale exact-once evidence must fail");
     assert!(error.message.contains("missing or stale"));
 
-    let mut missing_tests: Value = serde_json::from_str(REGISTRY).expect("registry JSON");
-    missing_tests["strategies"][0]
-        .as_object_mut()
-        .expect("strategy object")
-        .remove("required_tests");
-    let missing_test_bytes = serde_json::to_vec(&missing_tests).expect("missing-test bytes");
-    assert!(certify_rewrite_registry(&missing_test_bytes, CASES.as_bytes()).is_err());
-
-    let mut missing_cases: Value = serde_json::from_str(CASES).expect("evidence JSON");
+    let mut missing_cases: Value = serde_json::from_str(EXACT_ONCE_CASES).expect("cases");
     missing_cases["cases"] = json!([]);
-    let missing_case_bytes = serde_json::to_vec(&missing_cases).expect("missing-case bytes");
-    let error = certify_rewrite_registry(REGISTRY.as_bytes(), &missing_case_bytes)
-        .expect_err("missing conformance cases must fail");
-    assert!(error.message.contains("missing or stale"));
+    assert!(certify_all(
+        REGISTRY.as_bytes(),
+        ATOMIC_CASES.as_bytes(),
+        &serde_json::to_vec(&missing_cases).expect("missing cases"),
+        ECMASCRIPT_EXECUTION.as_bytes(),
+    )
+    .is_err());
+
+    let mut missing_runtime: Value =
+        serde_json::from_str(ECMASCRIPT_EXECUTION).expect("runtime corpus");
+    missing_runtime["rewrite_cases"]
+        .as_array_mut()
+        .expect("rewrite cases")
+        .retain(|case| case["strategy_id"] != "rewrite.repeat_exactly_once.elide.v1");
+    let missing_runtime_bytes =
+        serde_json::to_vec(&missing_runtime).expect("missing-runtime bytes");
+    let mut matching_hash: Value = serde_json::from_str(REGISTRY).expect("registry");
+    matching_hash["strategies"][1]["execution_evidence"][0]["sha256"] =
+        Value::String(format!("{:x}", Sha256::digest(&missing_runtime_bytes)));
+    assert!(certify_all(
+        &serde_json::to_vec(&matching_hash).expect("matching registry"),
+        ATOMIC_CASES.as_bytes(),
+        EXACT_ONCE_CASES.as_bytes(),
+        &missing_runtime_bytes,
+    )
+    .is_err());
+
+    let mut widened: Value = serde_json::from_str(REGISTRY).expect("registry");
+    widened["strategies"][1]["preconditions"][4]["id"] =
+        Value::String("precondition.mode_any".to_owned());
+    assert!(certify_all(
+        &serde_json::to_vec(&widened).expect("widened registry"),
+        ATOMIC_CASES.as_bytes(),
+        EXACT_ONCE_CASES.as_bytes(),
+        ECMASCRIPT_EXECUTION.as_bytes(),
+    )
+    .is_err());
+
+    let mut incomplete_profiles: Value = serde_json::from_str(REGISTRY).expect("registry");
+    incomplete_profiles["strategies"][1]["target_applicability"]["profiles"]
+        .as_array_mut()
+        .expect("profiles")
+        .pop();
+    assert!(certify_all(
+        &serde_json::to_vec(&incomplete_profiles).expect("incomplete registry"),
+        ATOMIC_CASES.as_bytes(),
+        EXACT_ONCE_CASES.as_bytes(),
+        ECMASCRIPT_EXECUTION.as_bytes(),
+    )
+    .is_err());
 }
 
 #[test]
-fn specification_authored_cases_certify_only_atomic_literal_elision() {
-    let suite: Suite = serde_json::from_str(CASES).expect("authored equivalence cases");
+fn unknown_removed_or_reordered_strategy_sets_fail_closed() {
+    let mut unknown: Value = serde_json::from_str(REGISTRY).expect("registry");
+    unknown["strategies"][1]["strategy_id"] = Value::String("rewrite.unknown.v1".to_owned());
+    assert!(certify_all(
+        &serde_json::to_vec(&unknown).expect("unknown registry"),
+        ATOMIC_CASES.as_bytes(),
+        EXACT_ONCE_CASES.as_bytes(),
+        ECMASCRIPT_EXECUTION.as_bytes(),
+    )
+    .is_err());
+
+    let mut removed: Value = serde_json::from_str(REGISTRY).expect("registry");
+    removed["strategies"]
+        .as_array_mut()
+        .expect("strategies")
+        .pop();
+    assert!(certify_all(
+        &serde_json::to_vec(&removed).expect("removed registry"),
+        ATOMIC_CASES.as_bytes(),
+        EXACT_ONCE_CASES.as_bytes(),
+        ECMASCRIPT_EXECUTION.as_bytes(),
+    )
+    .is_err());
+
+    let mut reordered: Value = serde_json::from_str(REGISTRY).expect("registry");
+    reordered["strategies"]
+        .as_array_mut()
+        .expect("strategies")
+        .reverse();
+    assert!(certify_all(
+        &serde_json::to_vec(&reordered).expect("reordered registry"),
+        ATOMIC_CASES.as_bytes(),
+        EXACT_ONCE_CASES.as_bytes(),
+        ECMASCRIPT_EXECUTION.as_bytes(),
+    )
+    .is_err());
+}
+
+#[test]
+fn specification_cases_preserve_atomic_literal_portability_selection() {
+    let suite: Suite = serde_json::from_str(ATOMIC_CASES).expect("authored equivalence cases");
     assert_eq!(suite.suite_version, "1.0.0");
     assert_eq!(suite.strategy_id, "rewrite.atomic_literal.elide.v1");
     assert_eq!(suite.cases.len(), 4);
     assert_eq!(suite.preserved_invariants.len(), 4);
-    assert_eq!(suite.execution_hooks.len(), 1);
-    assert_eq!(
-        suite.execution_hooks[0].hook_id,
-        "runtime.atomic_literal_elision.differential.v1"
-    );
-    assert_eq!(
-        suite.execution_hooks[0].status,
-        "deferred_until_target_emitter"
-    );
-    assert!(!suite.execution_hooks[0].obligation.is_empty());
 
     let mut expectation_count = 0;
     for case in suite.cases {
@@ -162,32 +268,18 @@ fn specification_authored_cases_certify_only_atomic_literal_elision() {
                 "native" => PortabilityStatus::Native,
                 "equivalent_rewrite" => PortabilityStatus::EquivalentRewrite,
                 "unsupported" => PortabilityStatus::Unsupported,
-                "unresolved" => {
-                    assert_eq!(plan.status, None);
-                    continue;
-                }
                 other => panic!("unknown expected status: {other}"),
             };
-            assert_eq!(
-                plan.status,
-                Some(expected),
-                "case {} on {}",
-                case.case_id,
-                expectation.profile
-            );
+            assert_eq!(plan.status, Some(expected));
             if expected == PortabilityStatus::EquivalentRewrite {
                 let RequirementPlanningDisposition::EquivalentRewrite(rewrite) =
                     &plan.decisions[0].disposition
                 else {
                     panic!("{} must select the certified rewrite", case.case_id);
                 };
-                let certified = certified_rewrite_registry()
-                    .expect("registry")
-                    .strategy(RewriteStrategyId::ElideAtomicLiteralV1)
-                    .expect("strategy");
                 assert_eq!(
-                    rewrite.rewrite_plan.certification.strategy_fingerprint,
-                    certified.strategy_fingerprint
+                    rewrite.rewrite_plan.strategy_id,
+                    RewriteStrategyId::ElideAtomicLiteralV1
                 );
             }
         }

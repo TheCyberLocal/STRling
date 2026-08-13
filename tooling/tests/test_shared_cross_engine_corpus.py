@@ -66,7 +66,7 @@ class SharedCrossEngineCorpusTests(unittest.TestCase):
             lambda corpus: corpus["vectors"][0].update({"target_pattern": "derived"})
         )
 
-    def test_every_registered_rewrite_has_positive_negative_execution_evidence(
+    def test_every_mandatory_rewrite_has_positive_negative_execution_evidence(
         self,
     ) -> None:
         corpus = self.validation["corpus"]
@@ -81,6 +81,26 @@ class SharedCrossEngineCorpusTests(unittest.TestCase):
         self.assertIn(
             "equivalent_rewrite",
             [item.get("portability_status") for item in vector["applications"]],
+        )
+        registry = shared.load_json(shared.EQUIVALENCE_REGISTRY)
+        mandatory = sorted(
+            item["strategy_id"]
+            for item in registry["strategies"]
+            if item["application_kind"] == "mandatory_portability"
+        )
+        optional = {
+            item["strategy_id"]
+            for item in registry["strategies"]
+            if item["application_kind"] == "optional_optimization"
+        }
+        self.assertEqual(mandatory, corpus["coverage"]["required_rewrite_strategies"])
+        self.assertTrue(optional)
+        self.assertTrue(
+            optional.isdisjoint(
+                strategy
+                for item in rewrite_vectors
+                for strategy in item["rewrite_strategies"]
+            )
         )
 
     def test_checked_observation_evidence_is_structurally_current(self) -> None:

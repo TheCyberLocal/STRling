@@ -98,7 +98,7 @@ fn equivalent_rewrite_explanation_carries_source_and_certification_evidence() {
         .join("\n");
     assert!(advice.contains("rewrite.atomic_literal.elide.v1"));
     assert!(
-        advice.contains("sha256:d1ac04c04241dff1423c22b5962fc7336c57e664e2510d557edb6e41f885a7d6")
+        advice.contains("sha256:43f866c83d9e2dfbe3d2f9f4686a2578311c37060d2592dbdfae7560c332c6e1")
     );
     assert!(
         advice.contains("sha256:ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2")

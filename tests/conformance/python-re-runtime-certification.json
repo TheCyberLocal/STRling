@@ -561,6 +561,42 @@
             "rewritten_source": "\\Aa\\Z",
             "flags": [],
             "subjects": ["a", "b", "aa"]
+        },
+        {
+            "id": "exact-once-capture-priority-str",
+            "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+            "pattern_kind": "str",
+            "original_source": "\\A(?:(a|ab)){1}b\\Z",
+            "rewritten_source": "\\A(a|ab)b\\Z",
+            "flags": [],
+            "subjects": ["ab", "abb", "a", "abbb"]
+        },
+        {
+            "id": "exact-once-zero-width-str",
+            "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+            "pattern_kind": "str",
+            "original_source": "\\A(?:(?=a)){1}a\\Z",
+            "rewritten_source": "\\A(?=a)a\\Z",
+            "flags": [],
+            "subjects": ["a", "b", "aa"]
+        },
+        {
+            "id": "exact-once-unicode-caseless-str",
+            "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+            "pattern_kind": "str",
+            "original_source": "\\A(?:k){1}\\Z",
+            "rewritten_source": "\\Ak\\Z",
+            "flags": ["i"],
+            "subjects": ["k", "K", "K", "x"]
+        },
+        {
+            "id": "exact-once-capture-priority-bytes",
+            "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+            "pattern_kind": "bytes",
+            "original_source": "\\A(?:(a|ab)){1}b\\Z",
+            "rewritten_source": "\\A(a|ab)b\\Z",
+            "flags": [],
+            "subjects": ["6162", "616262", "61", "61626262"]
         }
     ],
     "generated_cases": {

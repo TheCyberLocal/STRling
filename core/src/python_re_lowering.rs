@@ -773,6 +773,13 @@ fn validate_rewrites<'a>(
                     ));
                 }
             }
+            RewriteStrategyId::ElideExactOnceRepetitionV1 => {
+                return Err(malformed_rewrite(
+                    input,
+                    &decision.requirement.node_id,
+                    "request-only exact-once rewrite cannot enter a portability lowering plan",
+                ));
+            }
         }
         if by_node
             .insert(
@@ -823,6 +830,13 @@ fn lower_node(
                     input,
                     node.node_id(),
                     "atomic-literal rewrite reached a non-atomic lowering branch",
+                ));
+            }
+            (RewriteStrategyId::ElideExactOnceRepetitionV1, _) => {
+                return Err(malformed_rewrite(
+                    input,
+                    node.node_id(),
+                    "request-only exact-once rewrite reached Python re lowering",
                 ));
             }
         }

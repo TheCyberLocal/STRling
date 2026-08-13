@@ -30,6 +30,7 @@ try:
         python_re_runtime_certification_boundary_violation,
         python_re_target_lowering_boundary_violation,
         python_re_target_serialization_boundary_violation,
+        semantic_rewrite_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 except ModuleNotFoundError:  # pragma: no cover - import path differs under tests
@@ -49,6 +50,7 @@ except ModuleNotFoundError:  # pragma: no cover - import path differs under test
         python_re_runtime_certification_boundary_violation,
         python_re_target_lowering_boundary_violation,
         python_re_target_serialization_boundary_violation,
+        semantic_rewrite_boundary_violation,
         target_neutral_reverse_dependency_violation,
     )
 
@@ -329,9 +331,110 @@ def validate_equivalence_registry(root: Path = ROOT) -> int:
     strategy_ids = [strategy["strategy_id"] for strategy in strategies]
     if len(strategy_ids) != len(set(strategy_ids)):
         raise CoreContractError("equivalence registry strategy IDs must be unique")
+    expected_strategy_ids = [
+        "rewrite.atomic_literal.elide.v1",
+        "rewrite.repeat_exactly_once.elide.v1",
+    ]
+    if strategy_ids != expected_strategy_ids:
+        raise CoreContractError(
+            "equivalence registry must contain both and only the locked strategies in canonical order"
+        )
+    expected_profiles = [
+        "profile:ecmascript/2024",
+        "profile:pcre2/10.42",
+        "profile:pcre2/10.43",
+        "profile:python-re/3.11",
+        "profile:python-re/3.11-bytes",
+    ]
+    expected_execution = [
+        (
+            "runtime.ecmascript.rewrite.v1",
+            "tests/conformance/ecmascript-runtime-certification.json",
+            ["profile:ecmascript/2024"],
+        ),
+        (
+            "runtime.pcre2.rewrite.v1",
+            "tests/conformance/pcre2-runtime-certification.json",
+            ["profile:pcre2/10.42", "profile:pcre2/10.43"],
+        ),
+        (
+            "runtime.python-re.rewrite.v1",
+            "tests/conformance/python-re-runtime-certification.json",
+            ["profile:python-re/3.11", "profile:python-re/3.11-bytes"],
+        ),
+    ]
+    expected_definitions = {
+        "rewrite.atomic_literal.elide.v1": {
+            "application_kind": "mandatory_portability",
+            "shape": {
+                "original_node_kind": "atomic",
+                "direct_body_node_kind": "literal",
+            },
+            "capability_effects": {
+                "original_requirement_kind": "atomic",
+                "replacement_requirement_kinds": [],
+            },
+            "selection": "unsupported_original_capability",
+            "conformance_id": "conformance.atomic_literal_elision.v1",
+            "conformance_path": "spec/portability/equivalence/1.0/atomic-literal-elision.cases.json",
+        },
+        "rewrite.repeat_exactly_once.elide.v1": {
+            "application_kind": "optional_optimization",
+            "shape": {
+                "original_node_kind": "repeat",
+                "direct_body_node_kind": None,
+            },
+            "capability_effects": {
+                "original_requirement_kind": None,
+                "replacement_requirement_kinds": [],
+            },
+            "selection": "explicit_request_only",
+            "conformance_id": "conformance.exact_once_repetition_elision.v1",
+            "conformance_path": "spec/portability/equivalence/1.0/exact-once-repetition-elision.cases.json",
+        },
+    }
     resolved_root = root.resolve()
     for strategy in strategies:
+        expected_definition = expected_definitions[strategy["strategy_id"]]
+        if strategy["application_kind"] != expected_definition["application_kind"]:
+            raise CoreContractError(
+                f"{strategy['strategy_id']}: application kind differs from locked policy"
+            )
+        if strategy["applicable_semantic_shape"] != expected_definition["shape"]:
+            raise CoreContractError(
+                f"{strategy['strategy_id']}: certified semantic shape was widened"
+            )
+        if strategy["transformation"] != {
+            "operation": "elide_wrapper",
+            "replacement": "direct_body",
+        }:
+            raise CoreContractError(
+                f"{strategy['strategy_id']}: transformation differs from the closed library"
+            )
+        if strategy["capability_effects"] != expected_definition["capability_effects"]:
+            raise CoreContractError(
+                f"{strategy['strategy_id']}: capability effects differ from locked policy"
+            )
+        applicability = strategy["target_applicability"]
+        if applicability != {
+            "profiles": expected_profiles,
+            "selection": expected_definition["selection"],
+        }:
+            raise CoreContractError(
+                f"{strategy['strategy_id']}: target applicability or selection policy is incomplete"
+            )
+        if not any(test.startswith("runtime.") for test in strategy["required_tests"]):
+            raise CoreContractError(
+                f"{strategy['strategy_id']}: exact runtime comparison is not a required test"
+            )
         evidence = strategy["conformance_evidence"]
+        if (
+            evidence["evidence_id"] != expected_definition["conformance_id"]
+            or evidence["path"] != expected_definition["conformance_path"]
+        ):
+            raise CoreContractError(
+                f"{strategy['strategy_id']}: conformance evidence differs from the locked suite"
+            )
         evidence_path = (root / evidence["path"]).resolve()
         if (
             not evidence_path.is_relative_to(resolved_root)
@@ -348,6 +451,50 @@ def validate_equivalence_registry(root: Path = ROOT) -> int:
         if evidence["evidence_id"] not in strategy["required_tests"]:
             raise CoreContractError(
                 f"equivalence evidence is not a required test: {evidence['evidence_id']}"
+            )
+        execution_evidence = strategy["execution_evidence"]
+        actual_execution = [
+            (item["evidence_id"], item["path"], item["profiles"])
+            for item in execution_evidence
+        ]
+        if actual_execution != expected_execution:
+            raise CoreContractError(
+                f"{strategy['strategy_id']}: execution evidence must cover the exact five-profile denominator"
+            )
+        execution_profiles: list[str] = []
+        for execution in execution_evidence:
+            execution_path = (root / execution["path"]).resolve()
+            if (
+                not execution_path.is_relative_to(resolved_root)
+                or not execution_path.is_file()
+            ):
+                raise CoreContractError(
+                    f"rewrite execution evidence does not resolve: {execution['path']}"
+                )
+            actual = hashlib.sha256(execution_path.read_bytes()).hexdigest()
+            if execution["sha256"] != actual:
+                raise CoreContractError(
+                    f"rewrite execution evidence fingerprint is stale: {execution['path']}"
+                )
+            try:
+                runtime_corpus = json.loads(execution_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError as error:
+                raise CoreContractError(
+                    f"rewrite execution evidence is invalid JSON: {execution['path']}"
+                ) from error
+            rewrite_cases = runtime_corpus.get("rewrite_cases")
+            if not isinstance(rewrite_cases, list) or not any(
+                case.get("strategy_id") == strategy["strategy_id"]
+                for case in rewrite_cases
+                if isinstance(case, dict)
+            ):
+                raise CoreContractError(
+                    f"{strategy['strategy_id']}: runtime corpus has no bound rewrite vector: {execution['path']}"
+                )
+            execution_profiles.extend(execution["profiles"])
+        if execution_profiles != expected_profiles:
+            raise CoreContractError(
+                f"{strategy['strategy_id']}: execution profile coverage is incomplete or reordered"
             )
     return len(strategies)
 
@@ -672,6 +819,7 @@ def validate_source_boundaries(
         kernel_boundary_violation,
         capability_evaluation_boundary_violation,
         portability_planning_boundary_violation,
+        semantic_rewrite_boundary_violation,
         portability_diagnostics_boundary_violation,
         portability_pipeline_boundary_violation,
         python_re_target_lowering_boundary_violation,
@@ -694,6 +842,9 @@ def canonical_fixture_paths(root: Path = ROOT) -> set[Path]:
         *sorted((root / "spec" / "conformance" / "cases").glob("*.json")),
         root / "spec" / "conformance" / "manifest.json",
         *sorted((root / "spec" / "portability" / "equivalence" / "1.0").glob("*.json")),
+        root / "tests" / "conformance" / "ecmascript-runtime-certification.json",
+        root / "tests" / "conformance" / "pcre2-runtime-certification.json",
+        root / "tests" / "conformance" / "python-re-runtime-certification.json",
     }
     return {path.resolve() for path in paths}
 

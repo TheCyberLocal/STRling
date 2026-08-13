@@ -63,7 +63,8 @@ one of:
     the semantic requirement, node, target profile, complete capability result,
     constraint facts, and constraint evaluations.
 -   **Equivalent rewrite:** native capability is explicitly `Unsupported` or a
-    `ConstraintViolation`; one registered strategy applies; every proof
+    `ConstraintViolation`; one registered mandatory-portability strategy
+    applies; every proof
     precondition is satisfied by certified semantic or structural evidence; and
     every replacement semantic requirement is supported for the same target
     profile. The planner records a rewrite plan but does not apply it.
@@ -138,32 +139,49 @@ rewrites commute and does not optimize for the fewest rewrites.
 
 The versioned registry and its schema live under
 `spec/portability/equivalence/1.0`. Registry certification validates the schema
-shape, the closed reviewed strategy set, obligation and test identities,
-evidence path and bytes, and later-executable hook declaration before planning
-can select a rewrite. A stale or missing registry, strategy fingerprint,
-conformance fingerprint, required test, or proof obligation makes selection or
-plan validation fail. Strategy selection is by stable identity after
-applicability, so declaration order cannot change the result.
+shape, both and only the closed reviewed strategies, application and selection
+kind, transformation and capability effects, obligation and test identities,
+conformance evidence bytes, and exact PCRE2 10.42/10.43, ECMAScript 2024, and
+Python `re` str/bytes execution-corpus bytes and vector coverage. A stale or
+missing registry, strategy fingerprint, conformance/runtime fingerprint,
+required test, profile, vector, or proof obligation makes registration fail.
+Portability selection considers only `mandatory_portability` entries and is by
+stable identity after applicability, so an optional strategy or declaration
+order cannot change a target plan.
 
 The current `rewrite.atomic_literal.elide.v1` definition has canonical strategy
 fingerprint
-`d1ac04c04241dff1423c22b5962fc7336c57e664e2510d557edb6e41f885a7d6`.
+`43f866c83d9e2dfbe3d2f9f4686a2578311c37060d2592dbdfae7560c332c6e1`.
 Its `conformance.atomic_literal_elision.v1` evidence fingerprint is
 `ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2`.
 These identities are part of the selected-plan evidence, not comments or test
 metadata.
 
+The registry also contains the optional
+`rewrite.repeat_exactly_once.elide.v1` definition with canonical strategy
+fingerprint
+`2d8c705478481947db9bd57f73f09e6f687a67f49200ebb191e82f7e8e2f8831`.
+It is `explicit_request_only`: a separate pure stage may return a certified
+replacement action for a greedy or lazy repeat whose minimum and finite maximum
+are both one. The action retains the removed wrapper identity/origin and the
+existing direct body identity/provenance, never mutates the program, and cannot
+be called by diagnostics or selected by portability planning. Possessive mode
+and every non-exact bound return no action.
+
 | Candidate                                                                          | Classification                                      | Boundary                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ---------------------------------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Elide an atomic wrapper whose body is one literal                                  | Provably semantics-preserving and implementable now | `rewrite.atomic_literal.elide.v1`; requires an `Atomic` node, its exact literal body node, and certified node-kind correspondence. A literal has one fixed consuming path and no internal capture/reference action, so atomic commitment adds no observable semantic behavior. Replacement requirements are empty; requirements independently created by a non-ASCII literal remain independently planned. This is the existing normative `literal_atomicity_redundant` case. |
+| Elide a greedy or lazy repetition wrapper with exact bounds `{1}`                  | Proven request-only optimization                    | `rewrite.repeat_exactly_once.elide.v1`; requires an explicit stable node request, exact authored minimum/maximum, direct-body relationship, and non-possessive mode. It is certified across all five initial profiles but has no capability effect, so it cannot participate in portability planning.                                                                                                                                                                         |
 | Rewrite variable-length lookbehind to a different assertion structure              | Requires additional semantic analysis               | Historical emitters provide prose advice only. General equivalence depends on assertion context, alternatives, captures/references, length, and target assertion semantics not currently proved.                                                                                                                                                                                                                                                                              |
 | Convert nested repetition to atomic or possessive form to address a safety warning | Not proven and unavailable                          | Historical raw-source remediation is safety-oriented and can change backtracking, captures, or accepted matches. Safety findings remain independent from portability.                                                                                                                                                                                                                                                                                                         |
 | Interchange arbitrary atomic groups and possessive repetitions                     | Requires additional semantic analysis               | Equivalence needs explicit backtracking-choice and capture-effect analysis; current facts do not prove the general case.                                                                                                                                                                                                                                                                                                                                                      |
 | Replace a named capture or named backreference with target numbering               | Target-specific lowering concern                    | Logical `CaptureId` preservation, final numbering, capture maps, and target spelling belong to later lowering. The portability planner does not lower captures.                                                                                                                                                                                                                                                                                                               |
 | Choose engine flags, anchor spellings, Unicode modes, escaping, or syntax aliases  | Target-specific lowering concern                    | These choices serialize an already certified representation and are not semantic rewrite identities.                                                                                                                                                                                                                                                                                                                                                                          |
 
-Only the first row may participate in `equivalent_rewrite`. The other candidates
-remain unavailable even if they would increase an apparent portability score.
+Only the atomic-literal row may participate in `equivalent_rewrite`. The
+exact-once row is available only through the explicit action boundary; the
+remaining candidates stay unavailable even if they would increase an apparent
+portability score.
 
 ## Program aggregation
 

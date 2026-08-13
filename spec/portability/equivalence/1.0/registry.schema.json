@@ -9,7 +9,8 @@
         "registry_version": { "const": "1.0.0" },
         "strategies": {
             "type": "array",
-            "minItems": 1,
+            "minItems": 2,
+            "maxItems": 2,
             "items": { "$ref": "#/$defs/Strategy" }
         }
     },
@@ -18,53 +19,95 @@
             "type": "string",
             "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)+$"
         },
+        "Sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
         "Strategy": {
             "type": "object",
             "additionalProperties": false,
             "required": [
                 "strategy_id",
+                "application_kind",
                 "applicable_semantic_shape",
-                "original_requirement_kind",
+                "transformation",
+                "capability_effects",
+                "target_applicability",
                 "preconditions",
                 "semantic_invariants",
                 "unsupported_conditions",
+                "provenance_behavior",
                 "explanation",
                 "proof_method",
                 "target_scope",
                 "required_tests",
                 "conformance_evidence",
-                "execution_hooks"
+                "execution_evidence"
             ],
             "properties": {
                 "strategy_id": { "$ref": "#/$defs/ScopedId" },
+                "application_kind": {
+                    "enum": ["mandatory_portability", "optional_optimization"]
+                },
                 "applicable_semantic_shape": {
                     "type": "object",
                     "additionalProperties": false,
                     "required": ["original_node_kind", "direct_body_node_kind"],
                     "properties": {
-                        "original_node_kind": { "const": "atomic" },
-                        "direct_body_node_kind": { "const": "literal" }
+                        "original_node_kind": { "enum": ["atomic", "repeat"] },
+                        "direct_body_node_kind": {
+                            "type": ["string", "null"],
+                            "enum": ["literal", null]
+                        }
                     }
                 },
-                "original_requirement_kind": { "const": "atomic" },
-                "preconditions": {
-                    "type": "array",
-                    "minItems": 1,
-                    "uniqueItems": true,
-                    "items": { "$ref": "#/$defs/Obligation" }
+                "transformation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["operation", "replacement"],
+                    "properties": {
+                        "operation": { "const": "elide_wrapper" },
+                        "replacement": { "const": "direct_body" }
+                    }
                 },
-                "semantic_invariants": {
-                    "type": "array",
-                    "minItems": 1,
-                    "uniqueItems": true,
-                    "items": { "$ref": "#/$defs/Obligation" }
+                "capability_effects": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "original_requirement_kind",
+                        "replacement_requirement_kinds"
+                    ],
+                    "properties": {
+                        "original_requirement_kind": {
+                            "type": ["string", "null"]
+                        },
+                        "replacement_requirement_kinds": {
+                            "type": "array",
+                            "maxItems": 0
+                        }
+                    }
                 },
-                "unsupported_conditions": {
-                    "type": "array",
-                    "minItems": 1,
-                    "uniqueItems": true,
-                    "items": { "$ref": "#/$defs/Obligation" }
+                "target_applicability": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["profiles", "selection"],
+                    "properties": {
+                        "profiles": {
+                            "type": "array",
+                            "minItems": 5,
+                            "maxItems": 5,
+                            "uniqueItems": true,
+                            "items": { "$ref": "#/$defs/ProfileId" }
+                        },
+                        "selection": {
+                            "enum": [
+                                "unsupported_original_capability",
+                                "explicit_request_only"
+                            ]
+                        }
+                    }
                 },
+                "preconditions": { "$ref": "#/$defs/Obligations" },
+                "semantic_invariants": { "$ref": "#/$defs/Obligations" },
+                "unsupported_conditions": { "$ref": "#/$defs/Obligations" },
+                "provenance_behavior": { "type": "string", "minLength": 1 },
                 "explanation": { "type": "string", "minLength": 1 },
                 "proof_method": { "const": "structural" },
                 "target_scope": { "const": "target_neutral" },
@@ -74,27 +117,29 @@
                     "uniqueItems": true,
                     "items": { "$ref": "#/$defs/ScopedId" }
                 },
-                "conformance_evidence": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": ["evidence_id", "path", "sha256"],
-                    "properties": {
-                        "evidence_id": { "$ref": "#/$defs/ScopedId" },
-                        "path": {
-                            "const": "spec/portability/equivalence/1.0/atomic-literal-elision.cases.json"
-                        },
-                        "sha256": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{64}$"
-                        }
-                    }
-                },
-                "execution_hooks": {
+                "conformance_evidence": { "$ref": "#/$defs/Evidence" },
+                "execution_evidence": {
                     "type": "array",
-                    "minItems": 1,
-                    "items": { "$ref": "#/$defs/ExecutionHook" }
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": { "$ref": "#/$defs/ExecutionEvidence" }
                 }
             }
+        },
+        "ProfileId": {
+            "enum": [
+                "profile:ecmascript/2024",
+                "profile:pcre2/10.42",
+                "profile:pcre2/10.43",
+                "profile:python-re/3.11",
+                "profile:python-re/3.11-bytes"
+            ]
+        },
+        "Obligations": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/Obligation" }
         },
         "Obligation": {
             "type": "object",
@@ -105,14 +150,42 @@
                 "text": { "type": "string", "minLength": 1 }
             }
         },
-        "ExecutionHook": {
+        "Evidence": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["hook_id", "status", "obligation"],
+            "required": ["evidence_id", "path", "sha256"],
             "properties": {
-                "hook_id": { "$ref": "#/$defs/ScopedId" },
-                "status": { "const": "deferred_until_target_emitter" },
-                "obligation": { "type": "string", "minLength": 1 }
+                "evidence_id": { "$ref": "#/$defs/ScopedId" },
+                "path": {
+                    "enum": [
+                        "spec/portability/equivalence/1.0/atomic-literal-elision.cases.json",
+                        "spec/portability/equivalence/1.0/exact-once-repetition-elision.cases.json"
+                    ]
+                },
+                "sha256": { "$ref": "#/$defs/Sha256" }
+            }
+        },
+        "ExecutionEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["evidence_id", "path", "sha256", "profiles"],
+            "properties": {
+                "evidence_id": { "$ref": "#/$defs/ScopedId" },
+                "path": {
+                    "enum": [
+                        "tests/conformance/ecmascript-runtime-certification.json",
+                        "tests/conformance/pcre2-runtime-certification.json",
+                        "tests/conformance/python-re-runtime-certification.json"
+                    ]
+                },
+                "sha256": { "$ref": "#/$defs/Sha256" },
+                "profiles": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 2,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/ProfileId" }
+                }
             }
         }
     }

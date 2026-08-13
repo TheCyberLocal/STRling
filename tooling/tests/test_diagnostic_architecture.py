@@ -171,5 +171,54 @@ class CompilerPipelineBoundaryTests(unittest.TestCase):
                 validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 
 
+class SemanticRewriteBoundaryTests(unittest.TestCase):
+    def test_request_boundary_and_certified_prerequisites_are_required(self) -> None:
+        sources = source_texts()
+        sources["core/src/semantic_rewrite.rs"] = sources[
+            "core/src/semantic_rewrite.rs"
+        ].replace("pub fn request_semantic_rewrite(", "fn request_semantic_rewrite(")
+        with self.assertRaisesRegex(CoreContractError, "semantic rewrite request"):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+        for prerequisite in (
+            "crate::capability_evaluation::validate_prerequisites",
+            "crate::portability_planning::{",
+            "crate::semantic_analysis::{",
+            "crate::structural_analysis::StructuralFacts",
+        ):
+            sources = source_texts()
+            sources["core/src/semantic_rewrite.rs"] = sources[
+                "core/src/semantic_rewrite.rs"
+            ].replace(prerequisite, "crate::missing_prerequisite", 1)
+            with (
+                self.subTest(prerequisite=prerequisite),
+                self.assertRaisesRegex(CoreContractError, "semantic rewrite request"),
+            ):
+                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_diagnostic_runtime_and_target_dependencies_fail(self) -> None:
+        for forbidden in (
+            "use crate::diagnostic_generation;",
+            "use crate::target::profile;",
+            'let raw_source = "regex text";',
+            'std::process::Command::new("runtime");',
+        ):
+            sources = source_texts()
+            sources["core/src/semantic_rewrite.rs"] += f"\n// {forbidden}\n"
+            with (
+                self.subTest(forbidden=forbidden),
+                self.assertRaisesRegex(CoreContractError, "semantic rewrite request"),
+            ):
+                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_diagnostics_cannot_call_the_optional_action(self) -> None:
+        sources = source_texts()
+        sources["core/src/diagnostic_generation.rs"] += (
+            "\n// request_semantic_rewrite(input, foundational, structural, request)\n"
+        )
+        with self.assertRaisesRegex(CoreContractError, "ungoverned direct caller"):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+
 if __name__ == "__main__":
     unittest.main()

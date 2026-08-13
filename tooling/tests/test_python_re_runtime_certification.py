@@ -111,7 +111,14 @@ class PythonReRuntimeCertificationTests(unittest.TestCase):
         self.assertEqual(
             len(request["cases"]), len({case["id"] for case in request["cases"]})
         )
-        self.assertEqual(2, len(rewrite_ids))
+        self.assertEqual(10, len(rewrite_ids))
+        self.assertEqual(
+            {
+                "rewrite.atomic_literal.elide.v1",
+                "rewrite.repeat_exactly_once.elide.v1",
+            },
+            {case["strategy_id"] for case in corpus["rewrite_cases"]},
+        )
         boundaries = {
             case["id"]
             for case in corpus["cases"]
@@ -205,8 +212,8 @@ class PythonReRuntimeCertificationTests(unittest.TestCase):
         evidence = result["checks"][0]["evidence"]
         self.assertEqual(128, evidence["generated_cases"])
         self.assertEqual(2, evidence["repeat_runs"])
-        self.assertEqual(81, evidence["str_cases"])
-        self.assertEqual(68, evidence["bytes_cases"])
+        self.assertEqual(87, evidence["str_cases"])
+        self.assertEqual(70, evidence["bytes_cases"])
         self.assertEqual(EXPECTED_EXECUTABLE_SHA256, evidence["executable_sha256"])
         self.assertEqual(result["deterministic_result_sha256"], result_digest(result))
 

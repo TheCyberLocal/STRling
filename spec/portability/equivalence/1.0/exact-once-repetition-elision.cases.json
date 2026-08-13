@@ -1,0 +1,121 @@
+{
+  "suite_version": "1.0.0",
+  "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+  "cases": [
+    {
+      "case_id": "exact-once-greedy-literal",
+      "semantic_root": {
+        "node_id": "node:equivalence.exact-once.greedy",
+        "kind": "repeat",
+        "body": {
+          "node_id": "node:equivalence.exact-once.greedy.body",
+          "kind": "literal",
+          "text": "a"
+        },
+        "min": 1,
+        "max": 1,
+        "mode": "greedy"
+      },
+      "expected_disposition": "applicable"
+    },
+    {
+      "case_id": "exact-once-lazy-capture",
+      "semantic_root": {
+        "node_id": "node:equivalence.exact-once.lazy",
+        "kind": "repeat",
+        "body": {
+          "node_id": "node:equivalence.exact-once.lazy.capture",
+          "kind": "capture",
+          "capture_id": "capture:equivalence.exact-once",
+          "name": "value",
+          "body": {
+            "node_id": "node:equivalence.exact-once.lazy.body",
+            "kind": "literal",
+            "text": "λ"
+          }
+        },
+        "min": 1,
+        "max": 1,
+        "mode": "lazy"
+      },
+      "expected_disposition": "applicable"
+    },
+    {
+      "case_id": "exact-once-possessive-rejected",
+      "semantic_root": {
+        "node_id": "node:equivalence.exact-once.possessive",
+        "kind": "repeat",
+        "body": {
+          "node_id": "node:equivalence.exact-once.possessive.body",
+          "kind": "alternation",
+          "branches": [
+            {
+              "node_id": "node:equivalence.exact-once.possessive.left",
+              "kind": "literal",
+              "text": "a"
+            },
+            {
+              "node_id": "node:equivalence.exact-once.possessive.right",
+              "kind": "literal",
+              "text": "ab"
+            }
+          ]
+        },
+        "min": 1,
+        "max": 1,
+        "mode": "possessive"
+      },
+      "expected_disposition": "proof_failed"
+    },
+    {
+      "case_id": "bounded-repeat-not-exactly-once",
+      "semantic_root": {
+        "node_id": "node:equivalence.exact-once.bounded",
+        "kind": "repeat",
+        "body": {
+          "node_id": "node:equivalence.exact-once.bounded.body",
+          "kind": "literal",
+          "text": "a"
+        },
+        "min": 1,
+        "max": 2,
+        "mode": "greedy"
+      },
+      "expected_disposition": "proof_failed"
+    },
+    {
+      "case_id": "optional-repeat-not-exactly-once",
+      "semantic_root": {
+        "node_id": "node:equivalence.exact-once.optional",
+        "kind": "repeat",
+        "body": {
+          "node_id": "node:equivalence.exact-once.optional.body",
+          "kind": "literal",
+          "text": "a"
+        },
+        "min": 0,
+        "max": 1,
+        "mode": "lazy"
+      },
+      "expected_disposition": "proof_failed"
+    }
+  ],
+  "preserved_invariants": [
+    "accepted_language",
+    "matched_text_and_span",
+    "capture_participation_and_values",
+    "alternative_priority",
+    "zero_length_behavior",
+    "unicode_and_case_options",
+    "diagnostic_identity",
+    "input_immutability"
+  ],
+  "rejected_candidates": [
+    "possessive_exact_once",
+    "non_exact_repetition",
+    "zero_count_repetition",
+    "duplicate_alternative",
+    "general_atomic_or_possessive_change",
+    "character_set_overlap_cleanup"
+  ]
+}

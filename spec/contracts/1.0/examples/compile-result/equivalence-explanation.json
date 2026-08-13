@@ -63,7 +63,7 @@
                 },
                 {
                     "kind": "note",
-                    "message": "Certification: registry 1.0.0; strategy rewrite.atomic_literal.elide.v1 sha256:d1ac04c04241dff1423c22b5962fc7336c57e664e2510d557edb6e41f885a7d6; conformance conformance.atomic_literal_elision.v1 sha256:ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2."
+                    "message": "Certification: registry 1.0.0; strategy rewrite.atomic_literal.elide.v1 sha256:43f866c83d9e2dfbe3d2f9f4686a2578311c37060d2592dbdfae7560c332c6e1; conformance conformance.atomic_literal_elision.v1 sha256:ca9a1a3f80e946fad14a231d9c9322756892fc75d84f1f8201d30072dff1b4d2."
                 },
                 {
                     "kind": "note",

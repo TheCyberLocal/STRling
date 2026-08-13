@@ -334,6 +334,7 @@ def portability_diagnostics_boundary_violation(
             "plan_portability(",
             "apply_rewrite(",
             "apply_semantic_rewrite(",
+            "request_semantic_rewrite(",
             "lower_to_target(",
             "emit_target(",
             "crate::normalization",
@@ -382,6 +383,116 @@ def portability_diagnostics_boundary_violation(
             "portability diagnostics violates evidence-only explanation boundary: "
             f"{forbidden}"
         )
+    return None
+
+
+def semantic_rewrite_boundary_violation(
+    source_texts: Mapping[str, str],
+) -> str | None:
+    """Return the first request-only certified rewrite-stage violation."""
+
+    path = "core/src/semantic_rewrite.rs"
+    source = source_texts.get(path, "").lower()
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub fn request_semantic_rewrite(" not in source:
+        return "canonical semantic rewrite request boundary cannot be located"
+
+    prerequisites = (
+        (
+            "crate::capability_evaluation::validate_prerequisites",
+            "cross-stage prerequisite validation",
+        ),
+        ("crate::portability_planning::{", "certified rewrite registry"),
+        ("crate::semantic::{", "normalized Semantic IR"),
+        ("crate::semantic_analysis::{", "certified foundational facts"),
+        ("crate::structural_analysis::structuralfacts", "certified structural facts"),
+        ("crate::source::{", "canonical identity and provenance contracts"),
+        ("crate::validation::canonical_sha256", "canonical input fingerprinting"),
+    )
+    for marker, description in prerequisites:
+        if marker not in source:
+            return f"semantic rewrite request must consume {description}"
+
+    for marker in (
+        "rewriteapplicationkind::optionaloptimization",
+        "rewritestrategyid::elideexactoncerepetitionv1",
+        "repetitionmaximum::bounded(1)",
+        "repetitionmode::possessive",
+        "certified_rewrite_registry()",
+        "validate_prerequisites(",
+        "canonical_sha256(input)",
+        "return ok(none)",
+    ):
+        if marker not in source:
+            return (
+                "semantic rewrite request must fail closed on the exact optional proof: "
+                f"{marker}"
+            )
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "crate::normalization",
+            "crate::safety_analysis",
+            "crate::diagnostic",
+            "crate::diagnostic_generation",
+            "crate::target",
+            "crate::protocol",
+            "crate::conformance",
+            "crate::compiler_pipeline",
+            "crate::capability_pipeline",
+            "crate::kernel",
+            "crate::regex_frontend",
+            "crate::target_lowering",
+            "crate::ecmascript_lowering",
+            "crate::python_re_lowering",
+            "crate::ecmascript_serialization",
+            "crate::python_re_serialization",
+            "crate::target_serialization",
+            "crate::emitter",
+            "crate::emitters",
+            "crate::bindings",
+            "crate::frontend",
+            "crate::lsp",
+            "crate::editor",
+            "crate::parser",
+            "bindings::",
+            "frontend::",
+            "emitters::",
+            "std::env",
+            "std::fs",
+            "std::net",
+            "std::path",
+            "std::process",
+            "std::thread",
+            "std::time",
+            "systemtime",
+            "thread_rng",
+            "rand::",
+            "raw_source",
+            "source_text",
+            "regex_source",
+            "parse_regex",
+            "scan_regex",
+            "target_profile",
+            "engine_options",
+            "emitted_pattern",
+            "target_artifact",
+            "pcre2",
+            "ecmascript",
+            "python_re",
+        ),
+    )
+    if forbidden is not None:
+        return f"semantic rewrite request violates pure explicit-action boundary: {forbidden}"
+
+    for candidate, text in source_texts.items():
+        if candidate in {path, "core/src/lib.rs"}:
+            continue
+        if "request_semantic_rewrite(" in text.lower():
+            return (
+                f"semantic rewrite request has an ungoverned direct caller: {candidate}"
+            )
     return None
 
 

@@ -74,8 +74,20 @@ Its [canonical contract](portability-planning.md) preserves incomplete evidence
 as unresolved outside the final portability vocabulary. Engine capabilities
 are version/profile-sensitive, and planning neither applies rewrites nor emits
 target syntax. An equivalent rewrite must be bound to the versioned authored
-registry, exact strategy fingerprint, and exact conformance-evidence
-fingerprint.
+registry, exact strategy fingerprint, exact conformance-evidence fingerprint,
+and complete exact-runtime evidence for its applicable profiles. Planning
+enumerates only strategies registered as `mandatory_portability`; a
+request-only optimization cannot become a target representation decision.
+
+**Certified semantic rewrite actions** are a separate explicit-request stage.
+The current action admits only greedy or lazy exact-once repetition wrapper
+elision, validates the same normalized program and certified fact stores, and
+returns the existing direct body plus proof and removed-wrapper provenance
+without mutating Semantic IR. It has no diagnostic, target-policy, lowering,
+serialization, runtime, frontend, binding, or product caller. Mandatory
+portability strategies cannot cross this boundary, and diagnostics cannot call
+it. See the
+[semantics-preserving rewrite library](migration/semantics-preserving-rewrite-library.md).
 
 **Portability explanations** consume the immutable Semantic IR and completed
 certified plan. They project native, rewrite, unsupported, and unresolved

@@ -488,6 +488,30 @@
             "rewritten_source": "^a(?![\\s\\S])",
             "flags": ["u"],
             "subjects": ["a", "b", "aa"]
+        },
+        {
+            "id": "exact-once-capture-priority",
+            "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+            "original_source": "^(?:(a|ab)){1}b(?![\\s\\S])",
+            "rewritten_source": "^(a|ab)b(?![\\s\\S])",
+            "flags": ["u"],
+            "subjects": ["ab", "abb", "a", "abbb"]
+        },
+        {
+            "id": "exact-once-zero-width",
+            "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+            "original_source": "^(?:(?=a)){1}a(?![\\s\\S])",
+            "rewritten_source": "^(?=a)a(?![\\s\\S])",
+            "flags": ["u"],
+            "subjects": ["a", "b", "aa"]
+        },
+        {
+            "id": "exact-once-unicode-caseless",
+            "strategy_id": "rewrite.repeat_exactly_once.elide.v1",
+            "original_source": "^(?:k){1}(?![\\s\\S])",
+            "rewritten_source": "^k(?![\\s\\S])",
+            "flags": ["i", "u"],
+            "subjects": ["k", "K", "K", "x"]
         }
     ],
     "generated_cases": {

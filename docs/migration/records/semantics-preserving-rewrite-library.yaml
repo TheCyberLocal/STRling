@@ -8,18 +8,23 @@ scope:
         head: working-tree
     allowed_paths:
         - core/src/lib.rs
+        - core/src/ecmascript_lowering.rs
         - core/src/portability_planning.rs
         - core/src/portability_planning/equivalence.rs
+        - core/src/portability_planning/validation.rs
+        - core/src/python_re_lowering.rs
         - core/src/semantic_rewrite.rs
+        - core/src/target_lowering.rs
         - core/tests/ecmascript_runtime_certification.rs
         - core/tests/pcre2_runtime_certification.rs
+        - core/tests/portability_diagnostics.rs
         - core/tests/python_re_runtime_certification.rs
         - core/tests/rewrite_equivalence_registry.rs
         - core/tests/semantic_rewrite.rs
         - core/tests/semantic_rewrite_properties.rs
         - docs/architecture.md
         - docs/migration/ledger.md
-        - docs/migration/portability-planning.md
+        - docs/portability-planning.md
         - docs/migration/records/semantics-preserving-rewrite-library.yaml
         - docs/migration/semantics-preserving-rewrite-library.md
         - governance/change-control.json
@@ -27,6 +32,7 @@ scope:
         - spec/portability/equivalence/1.0/exact-once-repetition-elision.cases.json
         - spec/portability/equivalence/1.0/registry.json
         - spec/portability/equivalence/1.0/registry.schema.json
+        - spec/contracts/1.0/examples/compile-result/equivalence-explanation.json
         - tests/conformance/ecmascript-runtime-certification.json
         - tests/conformance/pcre2-runtime-certification.json
         - tests/conformance/python-re-runtime-certification.json
@@ -54,9 +60,6 @@ scope:
         - core/src/structural_analysis.rs
         - core/src/structural_analysis/**
         - core/src/target/**
-        - core/src/target_lowering.rs
-        - core/src/ecmascript_lowering.rs
-        - core/src/python_re_lowering.rs
         - packages/**
         - spec/conformance/**
         - spec/grammar/**
@@ -64,10 +67,41 @@ scope:
         - spec/targets/profiles/**
         - tests/spec/**
     expected_files:
+        - core/src/ecmascript_lowering.rs
+        - core/src/lib.rs
+        - core/src/portability_planning.rs
+        - core/src/portability_planning/equivalence.rs
+        - core/src/portability_planning/validation.rs
+        - core/src/python_re_lowering.rs
+        - core/src/semantic_rewrite.rs
+        - core/src/target_lowering.rs
+        - core/tests/portability_diagnostics.rs
+        - core/tests/rewrite_equivalence_registry.rs
+        - core/tests/semantic_rewrite.rs
+        - core/tests/semantic_rewrite_properties.rs
+        - docs/architecture.md
         - docs/migration/ledger.md
         - docs/migration/records/semantics-preserving-rewrite-library.yaml
         - docs/migration/semantics-preserving-rewrite-library.md
+        - docs/portability-planning.md
         - governance/change-control.json
+        - spec/contracts/1.0/examples/compile-result/equivalence-explanation.json
+        - spec/portability/equivalence/1.0/exact-once-repetition-elision.cases.json
+        - spec/portability/equivalence/1.0/registry.json
+        - spec/portability/equivalence/1.0/registry.schema.json
+        - tests/conformance/ecmascript-runtime-certification.json
+        - tests/conformance/pcre2-runtime-certification.json
+        - tests/conformance/python-re-runtime-certification.json
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
+        - tooling/shared_cross_engine_corpus.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_diagnostic_architecture.py
+        - tooling/tests/test_ecmascript_runtime_certification.py
+        - tooling/tests/test_pcre2_runtime_certification.py
+        - tooling/tests/test_python_re_runtime_certification.py
+        - tooling/tests/test_shared_cross_engine_corpus.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -91,12 +125,11 @@ change_classification:
         level: additive
         evidence:
             - The internal equivalence registry schema gains application-kind, transformation, capability, provenance, target-applicability, and exact-execution evidence fields while retaining registry contract version 1.0.0.
-        affected_surfaces:
-            - equivalence-registry
+        affected_surfaces: []
     diagnostic_change:
-        level: none
+        level: additive
         evidence:
-            - Existing safety, quality, portability, and target diagnostics remain unchanged and cannot authorize a rewrite.
+            - Existing safety, quality, and target diagnostics remain unchanged. The certified portability-rewrite explanation retains its stable code, severity, meaning, and proof, while its authored strategy fingerprint advances to the expanded registry definition; no diagnostic can authorize a rewrite.
     target_behavior_change:
         level: additive
         evidence:

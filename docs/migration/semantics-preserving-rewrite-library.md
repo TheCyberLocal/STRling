@@ -12,9 +12,9 @@ automatic application.
 
 The task admits exactly two strategies:
 
-| Strategy | Kind | Certified input | Transformation |
-| --- | --- | --- | --- |
-| `rewrite.atomic_literal.elide.v1` | mandatory portability | An atomic node whose direct body is a literal | Lower the direct literal body without the unsupported atomic wrapper. |
+| Strategy                               | Kind                  | Certified input                                                              | Transformation                                                                     |
+| -------------------------------------- | --------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `rewrite.atomic_literal.elide.v1`      | mandatory portability | An atomic node whose direct body is a literal                                | Lower the direct literal body without the unsupported atomic wrapper.              |
 | `rewrite.repeat_exactly_once.elide.v1` | optional optimization | A repeat node with minimum one, bounded maximum one, and greedy or lazy mode | Offer the direct body as a request-only replacement for the count-neutral wrapper. |
 
 Atomic-literal elision remains selected only when an exact target profile lacks
