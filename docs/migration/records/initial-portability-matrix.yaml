@@ -1,0 +1,141 @@
+record_version: 2.0.0
+title: Initial evidence-backed cross-engine portability matrix
+status: in_progress
+objective: Derive a deterministic machine-authoritative feature, requirement, vector, and exact-profile portability matrix from the fixed specification-authored shared corpus and preserved exact-engine observations; classify every representation or semantic divergence explicitly; block unresolved differences; generate a human summary; and integrate the matrix gate into Full and Release without changing language, target, product, binding, package, version, or publication behavior.
+scope:
+    diff:
+        base: ae6de142cccf8ad73bd780d7c673dc5c7a3aceed
+        head: working-tree
+    allowed_paths:
+        - docs/architecture.md
+        - docs/migration/initial-portability-matrix.md
+        - docs/migration/ledger.md
+        - docs/migration/records/initial-portability-matrix.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/formatting.json
+        - governance/generated-artifacts.json
+        - governance/schemas/portability-matrix-evidence.schema.json
+        - tests/conformance/evidence/initial-portability-matrix.json
+        - tests/conformance/evidence/initial-portability-matrix.md
+        - toolchain.json
+        - tooling/portability_matrix.py
+        - tooling/tests/test_portability_matrix.py
+        - tooling/tests/test_portability_matrix_architecture.py
+        - tooling/tests/test_quality.py
+    forbidden_paths:
+        - bindings/**
+        - core/**
+        - packages/**
+        - spec/conformance/cases/**
+        - spec/conformance/manifest.json
+        - spec/conformance/shared-corpus-v1.json
+        - spec/conformance/shared-corpus-v1.schema.json
+        - spec/contracts/**
+        - spec/grammar/**
+        - spec/portability/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - tests/conformance/evidence/shared-cross-engine-observations.json
+        - tests/spec/**
+        - tooling/ecmascript_runtime_certification.py
+        - tooling/node_regexp_harness.mjs
+        - tooling/pcre2_feature_probe.py
+        - tooling/pcre2_runtime_certification.py
+        - tooling/python_re_harness.py
+        - tooling/python_re_runtime_certification.py
+        - tooling/shared_cross_engine_corpus.py
+    expected_files:
+        - docs/migration/initial-portability-matrix.md
+        - docs/migration/ledger.md
+        - docs/migration/records/initial-portability-matrix.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - The matrix consumes fixed authored expectations and checked observations; it cannot alter canonical semantics, corpus cases, target profiles, or rewrite authority.
+    public_api_change:
+        level: none
+        evidence:
+            - The controller, machine artifact, generated summary, and certification operation are repository-only evidence surfaces.
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Adds one governance evidence schema for a derived portability matrix without changing specification or compiler contracts.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: none
+        evidence:
+            - Matrix dispositions describe already-authored portability plans and exact observations and do not change planning, lowering, serialization, harnesses, or runtime behavior.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds an evidence-only controller and Full/Release certification gate strictly downstream of the fixed shared-corpus observation artifact.
+    generated_output_change:
+        level: none
+        evidence:
+            - This read-first checkpoint defines future generated-artifact ownership but does not create or change checked generated output.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Matrix schema, identity, classification, and completeness certification
+      command: python3 -m unittest tooling.tests.test_portability_matrix && python3 -m tooling.portability_matrix --check
+      expected_result: Every and only fixed vector/profile pair is present with exact corpus, case, vector, profile, runtime, observation, mode, feature, and requirement identity; native, rewrite, unsupported, and not-applicable states classify deterministically; stale or missing evidence and every unresolved semantic difference fail closed.
+    - name: Evidence-only architecture fitness
+      command: python3 -m unittest tooling.tests.test_portability_matrix_architecture tooling.tests.test_quality && python3 tooling/governance.py && python3 tooling/documentation_integrity.py
+      expected_result: The matrix depends only on specification authority and checked certification evidence, never executes runtimes, inspects emitted syntax, changes target behavior, votes across engines, or enters product/public paths; generated machine and Markdown outputs retain exclusive ownership.
+    - name: Exact cross-engine and matrix certification
+      command: STRLING_PCRE2_1042_LIBRARY=/exact/libpcre2-10.42.so STRLING_PCRE2_1043_LIBRARY=/exact/libpcre2-10.43.so STRLING_NODE_22_BINARY=/exact/node-v22.23.2/bin/node STRLING_CPYTHON_311_BINARY=/exact/cpython-3.11.15/bin/python3.11 python3 -m tooling.shared_cross_engine_corpus --json --check --repeat-runs 2 && python3 -m tooling.portability_matrix --json --check
+      expected_result: Two exact executions reproduce the fixed observation fingerprint, the matrix reproduces byte-identically, all six declared representation/support divergences have explicit dispositions, normalized execute results form one canonical semantic class per vector, and unresolved count is zero.
+    - name: Complete repository and phase-closing certification
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && python3 tooling/documentation_integrity.py && python3 tooling/migration_differential.py --repeat-runs 3 && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check
+      expected_result: Every available hardgate passes, Full executes all exact runtime certifications before matrix certification, no unresolved divergence exists, inherited host-only gaps remain explicit without waiver, the phase gate is evidence-backed, and the final committed tree is clean.
+checkpoints:
+    - name: Existing portability authority, corpus, observation, and certification inventory
+      status: passed
+      evidence:
+          - check: Fixed authority and denominator
+            result: passed
+            details: The specification manifest and shared-corpus v1 document own 20 cases, five exact profiles, 100 explicit applications, canonical modes, feature and requirement tags, target plan status, and applicability. P11-T06 neither needs nor permits changes to those sources.
+          - check: Preserved exact observation input
+            result: passed
+            details: The checked evidence contains all 100 ordered case/profile pairs, 88 executed normalized results, five declared unsupported applications, seven not-applicable applications, exact PCRE2 10.42/10.43, Node 22.23.2, and CPython 3.11.15 identities, and observation SHA-256 9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c.
+          - check: Initial divergence denominator
+            result: passed
+            details: Eighty-seven applications are native, one ECMAScript atomic-literal application is a planner-certified equivalent rewrite, five applications are target unsupported or constrained, seven are not applicable, and no executed normalized result currently differs from its canonical expectation. The one rewrite plus five unsupported applications are the six explicit initial representation/support divergences.
+          - check: Missing phase-closing evidence layer
+            result: passed
+            details: Full and Release reproduce the exact shared observations, but no versioned matrix schema, derived machine artifact, generated human summary, feature/profile aggregation, cross-profile semantic-class check, divergence taxonomy, unresolved hardgate, or dedicated matrix operation exists yet.
+    - name: Versioned matrix contract and authority boundary
+      status: planned
+      evidence:
+          - check: Evidence schema and architecture
+            result: not_run
+            details: Awaiting the additive governance schema, identity model, classification taxonomy, evidence-only architecture rule/test, generated-artifact ownership, and Full/Release operation declaration after this scope checkpoint.
+    - name: Deterministic matrix and human summary generation
+      status: planned
+      evidence:
+          - check: Complete vector/profile and feature/profile projections
+            result: not_run
+            details: Awaiting deterministic generation, schema validation, exact denominator and fingerprint guards, canonical and cross-profile comparison, aggregation, mutation coverage, unresolved blocking, and byte-stable JSON/Markdown outputs.
+    - name: Complete repository and P11 phase certification
+      status: planned
+      evidence:
+          - check: Phase-closing hardgate evidence
+            result: not_run
+            details: Awaiting repeated exact shared execution, matrix check, all target certifications, contracts, architecture, security, generated/public checks, reviewed migration differential, Local/Pull Request/Full profiles, final clean commit, and P11 readiness handoff.
+commits: []

@@ -3079,3 +3079,42 @@ feature-by-profile portability matrix and explicit classification of every
 preserved cross-target divergence; it must consume this fixed corpus and
 evidence without changing target behavior or treating engine majority as
 authority.
+
+## Certify the initial cross-engine portability matrix
+
+P11-T06 starts from clean certified commit
+`ae6de142cccf8ad73bd780d7c673dc5c7a3aceed`. The fixed input is the
+specification-owned 20-case shared corpus with five exact profiles and 100
+ordered case/profile applications plus checked observation SHA-256
+`9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c`.
+The matrix is a downstream certification artifact; it cannot change authored
+expectations, target profiles, planner decisions, rewrite authority, target
+implementation, harnesses, product behavior, or public contracts.
+
+Read-first inventory records 87 native applications, one ECMAScript
+planner-certified atomic-literal rewrite, five target unsupported or constrained
+applications, seven not-applicable applications, and no currently observed
+canonical semantic mismatch. The rewrite plus unsupported set forms six
+explicit representation/support divergences. Matrix certification will retain
+one row for every vector/profile pair, exact corpus/case/profile/runtime and
+observation identities, modes/options, feature and requirement tags, normalized
+observation fingerprints, and one explicit disposition. Feature-by-profile and
+requirement-by-profile aggregates will name every contributing row rather than
+hiding exclusions behind percentages.
+
+A separate evidence-only controller will consume validated corpus and checked
+observation bytes without executing runtimes, invoking target projection, or
+inspecting emitted pattern syntax. It will require canonical expectation
+agreement and one normalized semantic class across every comparable executed
+profile. Missing or stale identities, absent rows, observations on unsupported
+or not-applicable applications, semantic splits, unknown classifications, and
+any unresolved difference fail closed. Engine consensus and historical output
+remain non-authoritative.
+
+The machine JSON will be authoritative and will deterministically generate a
+human-readable Markdown projection. Both checked outputs will have exclusive
+generated-artifact ownership. Full and Release will run the four exact runtime
+and shared-corpus operations before the matrix check, preserving structured
+unavailability rather than substituting ambient engines. This task closes P11
+only after repeated exact execution, matrix determinism, all available
+hardgates, explicit environment carry-forward, and a clean final commit.
