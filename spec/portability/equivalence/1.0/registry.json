@@ -193,7 +193,7 @@
             "conformance_evidence": {
                 "evidence_id": "conformance.exact_once_repetition_elision.v1",
                 "path": "spec/portability/equivalence/1.0/exact-once-repetition-elision.cases.json",
-                "sha256": "44cf3f948818ed42d2feec3e430490b78351ae19d3a55d4397f8e0c8c28b9677"
+                "sha256": "8394784b6b8d60853a044499ea58d51a5fac1179db37f00c0f89f66c135f9535"
             },
             "execution_evidence": [
                 {

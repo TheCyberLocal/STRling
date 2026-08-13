@@ -89,7 +89,7 @@ fn greedy_and_lazy_exact_once_requests_return_certified_unapplied_actions() {
         assert_eq!(first.proof.len(), 4);
         assert_eq!(
             first.certification.strategy_fingerprint.as_str(),
-            "2d8c705478481947db9bd57f73f09e6f687a67f49200ebb191e82f7e8e2f8831"
+            "7116e5773e64815db90f31c78ca6ad90069925c0e43242346a95b3d01d62c837"
         );
         assert!(first.explanation.contains("explicit consumer"));
     }

@@ -160,7 +160,7 @@ metadata.
 The registry also contains the optional
 `rewrite.repeat_exactly_once.elide.v1` definition with canonical strategy
 fingerprint
-`2d8c705478481947db9bd57f73f09e6f687a67f49200ebb191e82f7e8e2f8831`.
+`7116e5773e64815db90f31c78ca6ad90069925c0e43242346a95b3d01d62c837`.
 It is `explicit_request_only`: a separate pure stage may return a certified
 replacement action for a greedy or lazy repeat whose minimum and finite maximum
 are both one. The action retains the removed wrapper identity/origin and the

@@ -114,7 +114,7 @@ fn authored_library_reproduces_complete_strategy_and_evidence_fingerprints() {
     );
     assert_eq!(
         direct.strategies[1].strategy_fingerprint.as_str(),
-        "2d8c705478481947db9bd57f73f09e6f687a67f49200ebb191e82f7e8e2f8831"
+        "7116e5773e64815db90f31c78ca6ad90069925c0e43242346a95b3d01d62c837"
     );
     for strategy in &direct.strategies {
         assert_eq!(strategy.definition.execution_evidence.len(), 3);
