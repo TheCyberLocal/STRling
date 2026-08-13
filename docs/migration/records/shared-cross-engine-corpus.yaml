@@ -1,0 +1,146 @@
+record_version: 2.0.0
+title: Specification-authored shared cross-engine behavioral corpus
+status: in_progress
+objective: Build a versioned target-neutral corpus of canonical semantic, diagnostic, match, capture, support, and applicability expectations; project it through the completed PCRE2, ECMAScript, and Python re target stages; and preserve exact raw engine observations without claiming the final portability matrix or adding product execution behavior.
+scope:
+    diff:
+        base: 868c4a671aa5cc51db8daf0b377675616ee32279
+        head: working-tree
+    allowed_paths:
+        - core/examples/shared_conformance_projection.rs
+        - core/tests/conformance_contracts.rs
+        - docs/architecture.md
+        - docs/migration/ledger.md
+        - docs/migration/records/shared-cross-engine-corpus.yaml
+        - docs/migration/shared-cross-engine-corpus.md
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - spec/conformance/README.md
+        - spec/conformance/cases/**
+        - spec/conformance/manifest.json
+        - spec/conformance/shared-corpus-v1.schema.json
+        - spec/conformance/shared-corpus-v1.json
+        - tests/conformance/evidence/shared-cross-engine-observations.json
+        - toolchain.json
+        - tooling/contract_validation.py
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
+        - tooling/shared_cross_engine_corpus.py
+        - tooling/tests/test_canonical_contracts.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_quality.py
+        - tooling/tests/test_shared_cross_engine_corpus.py
+        - tooling/tests/test_shared_cross_engine_corpus_architecture.py
+    forbidden_paths:
+        - bindings/**
+        - core/cli/**
+        - core/src/capability_evaluation.rs
+        - core/src/compiler_pipeline.rs
+        - core/src/ecmascript_lowering.rs
+        - core/src/ecmascript_serialization.rs
+        - core/src/kernel.rs
+        - core/src/pcre2_lowering.rs
+        - core/src/portability_planning.rs
+        - core/src/python_re_lowering.rs
+        - core/src/python_re_serialization.rs
+        - core/src/semantic/**
+        - core/src/target_lowering.rs
+        - core/src/target_serialization.rs
+        - packages/**
+        - spec/contracts/1.0/*.schema.json
+        - spec/grammar/**
+        - spec/stdlib/**
+        - spec/targets/profiles/**
+        - tests/spec/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/records/shared-cross-engine-corpus.yaml
+        - docs/migration/shared-cross-engine-corpus.md
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Cases state already-defined canonical Semantic IR, diagnostic, matching, and portability expectations; they do not change language meaning.
+    public_api_change:
+        level: none
+        evidence:
+            - The projection adapter is a repository-only Cargo example and no facade, protocol, binding, package, or published interface changes.
+        affected_surfaces: []
+    schema_change:
+        level: additive
+        evidence:
+            - Adds a corpus-specific execution/applicability and coverage schema outside the versioned compiler contract suite; existing compiler contracts remain unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence: []
+    target_behavior_change:
+        level: additive
+        evidence:
+            - Adds shared behavioral vectors and preserved exact-engine observations without modifying target profiles, lowering, serializers, or product execution routes.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds one repository-only projection adapter and one isolated exact-runtime orchestration boundary downstream of specification-owned expectations.
+    generated_output_change:
+        level: none
+        evidence:
+            - The scope checkpoint adds no generated output; registration and checked evidence will land atomically in the implementation checkpoint.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Corpus schema, authority, coverage, and fingerprint certification
+      command: python3 -m unittest tooling.tests.test_canonical_contracts tooling.tests.test_shared_cross_engine_corpus && python3 tooling/contract_validation.py
+      expected_result: Every and only owned case validates and fingerprints, every profile receives an explicit execute/unsupported/not-applicable disposition, feature/rewrite obligations are complete, and denominator shrinkage or stale identity fails closed.
+    - name: Canonical projection and architecture fitness
+      command: cargo test --manifest-path core/Cargo.toml --test conformance_contracts --locked && cargo run --manifest-path core/Cargo.toml --example shared_conformance_projection --locked --quiet && python3 -m unittest tooling.tests.test_shared_cross_engine_corpus_architecture tooling.tests.test_core_contracts
+      expected_result: Canonical stages project executable cases to deterministic artifacts and logical capture maps without runtime access, target-output authority, peer-majority inference, or product/API expansion.
+    - name: Exact shared-corpus execution certification
+      command: STRLING_PCRE2_1042_LIBRARY=/exact/libpcre2-10.42.so STRLING_PCRE2_1043_LIBRARY=/exact/libpcre2-10.43.so STRLING_NODE_22_BINARY=/exact/node-v22.23.2/bin/node STRLING_CPYTHON_311_BINARY=/exact/cpython-3.11.15/bin/python3.11 python3 -m tooling.shared_cross_engine_corpus --json --check --repeat-runs 2
+      expected_result: Every execute application runs twice against its exact profile runtime, raw observations normalize to authored UTF-8/logical-capture expectations, unsupported and not-applicable entries do not execute, and evidence bytes and fingerprints match the checked artifact.
+    - name: Complete repository certification
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && python3 tooling/documentation_integrity.py && python3 tooling/migration_differential.py --repeat-runs 3 && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check
+      expected_result: Every available hardgate passes, exact shared execution is recorded by Full, inherited host-only gaps remain explicit without waiver, and the final committed tree is clean.
+checkpoints:
+    - name: Existing conformance authority, target stages, and harness inventory
+      status: passed
+      evidence:
+          - check: Specification-owned seed contract
+            result: passed
+            details: Existing conformance-case and manifest contracts already separate semantic, diagnostic, match/capture, and target-support expectations from compatibility evidence; the manifest is correctly draft pending specification ratification and pins every case by canonical fingerprint.
+          - check: Target and runtime prerequisites
+            result: passed
+            details: PCRE2 10.42/10.43, ECMAScript 2024, Python re 3.11 str, and Python re 3.11 bytes have immutable profiles, completed lowering and serialization, and independently certified exact runtime adapters. No target contract or implementation change is required.
+          - check: Required corpus-specific extension
+            result: passed
+            details: The compiler case schema intentionally lacks execution applicability and coverage-denominator policy. P11-T05 therefore adds a separate corpus-v1 schema that references unchanged case documents, explicitly covers every governed profile, and records coverage obligations without changing compiler contract version 1.0.0.
+    - name: Shared authored vectors and completeness guards
+      status: planned
+      evidence:
+          - check: Corpus implementation
+            result: not_run
+            details: Awaiting authored case expansion, exact fingerprints, applicability manifest, coverage obligations, and mutation tests after this scope checkpoint.
+    - name: Deterministic target projection and exact engine execution
+      status: planned
+      evidence:
+          - check: Projection and preserved observation proof
+            result: not_run
+            details: Awaiting repository-only Rust projection, exact runtime orchestration, raw/normalized evidence artifact, repeated determinism, and Full/Release registration.
+    - name: Complete repository and migration certification
+      status: planned
+      evidence:
+          - check: Full hardgate evidence
+            result: not_run
+            details: Awaiting implementation checkpoint, reviewed boundary renewal if required, final profiles, and clean-tree evidence.
+commits: []

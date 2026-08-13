@@ -3023,3 +3023,29 @@ P11-T04 is `READY WITH RECORDED CARRY-FORWARD`. P11-T05 is the next ordered
 task and owns the shared specification-authored cross-engine conformance corpus
 without reopening serializer, lowering, product, binding, package, version, or
 publication scope.
+
+## Build the shared cross-engine behavioral corpus
+
+P11-T05 starts from clean certified commit
+`868c4a671aa5cc51db8daf0b377675616ee32279`. The existing draft
+specification-owned cases already separate canonical semantic, diagnostic,
+match/capture, and target-support expectations from implementation evidence.
+This task expands that authority set and adds a separate corpus-v1 execution
+manifest rather than changing the compiler contract suite or allowing runtime
+observations to author expectations.
+
+The exact denominator is PCRE2 10.42, PCRE2 10.43, ECMAScript 2024 on Node
+22.23.2, Python `re` 3.11 `str`, and Python `re` 3.11 `bytes`. Every vector
+must explicitly be executable, unsupported, or not applicable for every
+profile. Coverage obligations and minimum counts guard literals/classes,
+composition, repetition modes, captures/references, assertions, anchors,
+Unicode/case behavior, the certified atomic-literal rewrite, diagnostic and
+unsupported cases, and interactions against silent shrinkage.
+
+A repository-only Rust adapter will project authored Semantic IR through the
+completed canonical planning/lowering/serialization stages. A separate Python
+orchestrator will execute only declared applications through the already-fixed
+exact PCRE2, Node, and CPython harnesses, normalize engine offsets to UTF-8 and
+capture slots to logical IDs, and preserve raw plus normalized observations in
+one deterministic checked evidence artifact. P11-T06—not this task—will build
+the portability matrix and classify every cross-target divergence.
