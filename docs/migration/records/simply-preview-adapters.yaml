@@ -1,11 +1,11 @@
 record_version: 2.0.0
 title: TypeScript and Python Simply Preview adapters
-status: in_progress
+status: complete
 objective: Bridge TypeScript and Python to the ratified Simply 1.0.0 protocol and sole Rust compiler through thin Preview adapters with stable serialization, canonical error translation, deterministic identities, complete compatibility dispositions, and cross-language equivalence, without binding-private semantic, compiler, target, or runtime authority in the Preview path.
 scope:
     diff:
         base: 7d25b5fe0fe511c7942d0f6c32d808e5af30ce45
-        head: working-tree
+        head: 4c1ff024f58047a91430f3a110e1a1393ba74ae3
     allowed_paths:
         - bindings/python/src/STRling/simply/__init__.py
         - bindings/python/src/STRling/simply/preview.py
@@ -193,6 +193,47 @@ checkpoints:
             result: passed
             details: Public contract checks classify TypeScript, Python, strling-kernel types, and the root simply command as additive; generated-artifact, architecture, governance, documentation, hygiene, static-analysis, security, and whitespace hardgates pass.
     - name: Complete repository and task certification
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: Complete language and repository hardgates
+            command: cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; cargo test --manifest-path core/Cargo.toml --all-targets --locked; ./strling format --check repository; ./strling lint repository; ./strling hygiene; ./strling generate --check --json; ./strling contracts --check --json; ./strling governance --json; python3 -m unittest discover -s tooling/tests; ./strling migration-differential --repeat-runs 3; git diff --check
+            result: passed
+            details: Warning-denied Clippy and every Rust target pass; TypeScript format/typecheck/build/full tests pass; Python format/lint/typecheck/build and all 795 tests pass; all 508 tooling tests, 11 schema mappings and 108 fixtures, canonical/public/generated contracts, documentation across 152 files, architecture, governance, hygiene, static analysis, security, and patch integrity pass from clean implementation commit 4c1ff024f58047a91430f3a110e1a1393ba74ae3.
+          - check: Certification profiles and clean tree
+            command: ./strling profile local; ./strling profile pull-request; STRLING_NODE_22_BINARY=<exact-node-22.23.2> STRLING_CPYTHON_311_BINARY=<exact-cpython-3.11.15> STRLING_PCRE2_1042_LIBRARY=<exact-10.42> STRLING_PCRE2_1043_LIBRARY=<exact-10.43> ./strling profile full; git status --short
+            result: passed
+            details: Local passes 26/26. Pull Request has 44 passed and no failures or waivers; only inherited Ruby Bundler-version lint and missing-Swift typecheck are unavailable. Full has 76 passed and no failures or waivers, including exact PCRE2, ECMAScript, Python re, shared cross-engine, and portability-matrix certifications; network dependency-risk, three Ruby operations, and three Swift operations remain explicitly unavailable. The generated Python venv was removed and the final tracked tree is clean.
+commits:
+    - sha: 0cb73d4d0c8f777607b2d04ca9ebba9fb9f7fb76
+      subject: "docs(frontend): define Simply preview adapters"
+    - sha: 4c1ff024f58047a91430f3a110e1a1393ba74ae3
+      subject: "feat(frontend): add Simply Preview adapters"
+completion:
+    accomplished:
+        - Added additive TypeScript and Python SimplyPreviewBuilder/value/error/transport surfaces covering every ratified operation while leaving historical Pattern APIs unchanged and evidence-only.
+        - Added typed Rust BuilderRequest decoding/replay and the bounded additive strling simply JSON transport over SimplyBuilder and the sole compile facade.
+        - Added the response schema, exhaustive compatibility inventory, adapter contract/mutation hardgate, cross-language request/error/target-profile tests, public snapshots, architecture documentation, and reviewed migration route.
+    verified:
+        - All 15 protocol operations, all 12 stable errors, all nine positive fixtures, all 13 negative fixtures, imports, deterministic identities, explicit PCRE2 10.43 routing, malformed transport behavior, and direct canonical CompileResult equivalence pass.
+        - The compatibility inventory classifies 55 TypeScript and 53 Python reachable historical operations with no unresolved item; its formatted source fingerprint is sha256:6e8a143592cd80e40507135f3f8bdc8684212fd324e695bb50b819e378abc09b.
+        - Warning-denied Rust, complete TypeScript and Python binding suites, 508 tooling tests, canonical/core/public/generated contracts, governance, documentation, security, formatting, hygiene, and patch integrity pass.
+        - The three-run migration differential passes with zero blocking unresolved replacements at baseline sha256:ba08a6c0c4718309bfa66c80fddeba7c62f0d997ec8970718da4b4d8058f896f. Local passes 26/26; Pull Request and Full have no failed or waived operations and explicitly record inherited unavailable tools/environment.
+    behavior_changed: TypeScript and Python now expose additive Preview protocol adapters and the repository CLI accepts additive simply requests; existing stable binding APIs, compiler semantics, targets, emitted artifacts, and runtimes are unchanged.
+    intentional_behavior_changes:
+        - Preview callers can construct all Simply 1.0.0 operations, serialize one host-neutral BuilderRequest, and receive canonical CompileRequest and CompileResult objects or stable STRL-SIMPLY code/path errors.
+        - Target profiles are explicit transport inputs loaded only by the Rust CLI; a canonical failed compile remains a successfully decoded adapter envelope.
+        - The public root CLI adds the simply command without changing compile or other quality commands.
+    preserved_behavior:
+        - The one Rust semantic model, SimplyBuilder rules, normalizer, compiler facade, diagnostics, portability planning, target lowering/serialization, and runtime certification remain authoritative and unchanged.
+        - Historical TypeScript/Python Pattern constructors, rendering, target convenience, runtime execution, exceptions, and standard recipes remain reachable only through their existing APIs and are not invoked by Preview.
+        - The max=0 legacy sentinel is not promoted; protocol null remains the sole unbounded maximum in Preview.
+    transitional_architecture:
+        - Preview adapters require an explicit process or injected equivalent transport; installed binding packaging and product-default transport discovery remain later convergence work.
+        - Ruby's repository-managed Bundler version is not installed in this environment, Swift is absent, and network dependency-risk evidence is unavailable; none is task-owned, waived, or a failed P13-T03 operation.
+    deferred_work:
+        - P13-T04 will design and ratify the Semantic STRling DSL grammar as a specification-first language before parser or formatter implementation.
+        - Frontend convergence, product-default adoption, packaging/provenance, publication review, and all release actions remain later ordered tasks.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P13-T04 — Design and ratify the Semantic STRling DSL grammar.
+    rationale: P13-T03 satisfies every task-owned design, implementation, compatibility, equivalence, architecture, public-contract, documentation, migration, Local, Pull Request, Full-as-available, and clean-tree requirement. Only inherited environment/tool availability remains explicit, with no failed or waived operation.

@@ -3471,3 +3471,34 @@ cross-language and direct-IR `CompileResult` equality, historical differential
 review, intentional public snapshots, controlled one-core architecture
 mutations, all affected binding/Rust/repository checks, Local, Pull Request,
 Full, and a clean tree.
+
+P13-T03 closes from clean implementation commit
+`4c1ff024f58047a91430f3a110e1a1393ba74ae3`. The additive TypeScript and Python
+Preview adapters cover all 15 operations using opaque builder-owned values,
+deterministic protocol serialization, explicit/injected transports, and stable
+construction errors. Typed Rust replay owns every graph and semantic rule, and
+`strling simply` delegates only to `SimplyBuilder` plus the existing `compile`
+facade. Historical binding compilers, emitters, target strings, runtime helpers,
+and standard recipes are not invoked or promoted.
+
+All nine positive and 13 negative fixtures, 12 stable errors, imports,
+identities, explicit PCRE2 10.43 routing, malformed transport behavior, and
+direct canonical `CompileResult` equivalence pass. The compatibility baseline
+classifies 55 TypeScript and 53 Python operations with no unresolved entry at
+source fingerprint
+`sha256:6e8a143592cd80e40507135f3f8bdc8684212fd324e695bb50b819e378abc09b`.
+Warning-denied Rust, complete TypeScript and Python suites, 508 tooling tests,
+11 schema mappings and 108 fixtures, canonical/public/generated contracts,
+architecture, governance, documentation, security, formatting, hygiene, and
+patch integrity pass.
+
+The reviewed three-run migration differential has zero blocking unresolved
+replacements at baseline
+`sha256:ba08a6c0c4718309bfa66c80fddeba7c62f0d997ec8970718da4b4d8058f896f`.
+Local passes 26/26. Pull Request has 44 passed with no failures or waivers and
+records only the inherited Ruby Bundler mismatch and missing Swift. Full has 76
+passed with no failures or waivers, including every exact-runtime/cross-engine
+gate; network dependency risk plus the inherited Ruby and Swift operations are
+explicitly unavailable. The generated venv was removed and the final tree is
+clean. P13-T03 is `READY WITH RECORDED CARRY-FORWARD`; P13-T04 is next and will
+ratify the Semantic STRling DSL grammar before parser implementation.
