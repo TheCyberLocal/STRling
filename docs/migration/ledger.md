@@ -3367,3 +3367,17 @@ schema, raw/target authority, evidence, failure-identity, runtime/process, and
 frontend-authority drift. Canonical kernel fixture accounting advances from 100
 to 107 solely for the seven bound Simply JSON artifacts. Complete repository
 and Local certification remain before task closure.
+
+P13-T01 closes from clean review commit
+`1d35c309acf2e3c6188bfae3b253d8951240b638`. All Rust targets,
+warning-denied Clippy, 498 tooling tests, canonical/core/public/generated
+contracts, formatting, linting, governance, security, documentation integrity
+across 150 files, and the reviewed three-run migration differential pass. The
+migration baseline remains
+`sha256:c6552f544b307f7ca9bb01c52fd79ea4c046248fcd03dedf57fb501b570aa0d0`
+and the canonical boundary remains
+`sha256:2f58ec3fe3e9f1c4498a40b43c5a44eeb386e15973ae0cef7b4aaa47ab2998ed`.
+Local passes 26/26 from a clean tree with zero failures, waivers, unavailable
+operations, or incomplete operations. The task is READY; P13-T02 is next and
+will implement the native Rust Simply API as a thin protocol/kernel layer
+without a parallel semantic model or compiler.

@@ -142,3 +142,22 @@ inventory drift, stale manifest bytes, raw/target field widening, missing
 historical evidence, changed failure identities, runtime/process dependencies,
 and expanded frontend authority. The canonical kernel fixture hardgate now
 accounts for 107 files, including all seven Simply artifacts.
+
+## Completion certification
+
+P13-T01 closes from clean review commit
+`1d35c309acf2e3c6188bfae3b253d8951240b638`. All Rust targets,
+warning-denied Clippy, 498 tooling tests, canonical/core/public/generated
+contracts, formatters and linters, governance, security, documentation
+integrity across 150 files, patch integrity, and the reviewed three-run
+migration differential pass. The migration baseline remains
+`sha256:c6552f544b307f7ca9bb01c52fd79ea4c046248fcd03dedf57fb501b570aa0d0`
+and the canonical boundary remains
+`sha256:2f58ec3fe3e9f1c4498a40b43c5a44eeb386e15973ae0cef7b4aaa47ab2998ed`.
+Local passes 26/26 from a clean tree with no failures, waivers, unavailable
+operations, or incomplete operations.
+
+P13-T02 may now implement the native Rust Simply API as an idiomatic thin
+construction layer over protocol `1.0.0` and the canonical kernel. It must not
+create a host AST authority, second semantic model, second compiler, hidden
+target syntax, or runtime execution route.
