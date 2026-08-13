@@ -3195,3 +3195,14 @@ negative examples, while core contract mapping covers 96 fixtures. Forty-four
 focused Python contract and architecture tests pass, including missing quality
 ownership and injected target, portability, raw-source, and process
 dependencies.
+
+The implementation changes the migration differential's canonical-boundary
+identity, as required for any governed core implementation edit. A reviewed
+three-run candidate differs from the preceding checked baseline only in the
+canonical-boundary fingerprint and the baseline's self-fingerprint. Corpus
+identities, route coverage, source observations, historical peer evidence,
+replacement reviews, and the full-corpus fingerprint remain byte-identical.
+The renewed canonical-boundary fingerprint is
+`sha256:23813360fc95b4a7f26dd07efcd5a126502f60e6a5e7fa12c2e813cefbafa6dd` and
+the renewed baseline fingerprint is
+`sha256:67d84aa74329f649c57c8f4004e749a567c7649ea71272a6b4e36aedda710f3b`.

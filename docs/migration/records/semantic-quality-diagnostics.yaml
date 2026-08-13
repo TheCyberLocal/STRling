@@ -27,6 +27,7 @@ scope:
         - governance/change-control.json
         - spec/contracts/1.0/examples/diagnostic/semantic-quality-warning.json
         - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
         - tooling/tests/test_canonical_contracts.py
         - tooling/tests/test_core_contracts.py
         - tooling/tests/test_diagnostic_architecture.py
@@ -71,6 +72,7 @@ scope:
         - governance/change-control.json
         - spec/contracts/1.0/examples/diagnostic/semantic-quality-warning.json
         - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
         - tooling/tests/test_canonical_contracts.py
         - tooling/tests/test_core_contracts.py
         - tooling/tests/test_diagnostic_architecture.py
@@ -126,6 +128,9 @@ required_verification:
     - name: Contract and architecture certification
       command: python3 tooling/contract_validation.py && python3 tooling/core_contract_validation.py && python3 tooling/core_stage_boundaries.py && python3 -m unittest tooling.tests.test_canonical_contracts tooling.tests.test_diagnostic_architecture tooling.tests.test_core_contracts
       expected_result: The new diagnostic fixture validates under the unchanged schema and controlled mutations prove certified-fact dependency, target neutrality, no raw-source scanning, and no parallel analyzer or product route.
+    - name: Reviewed migration and exact cross-engine non-regression
+      command: ./strling migration-differential --repeat-runs 3 && STRLING_PCRE2_1042_LIBRARY=/exact/libpcre2-10.42.so STRLING_PCRE2_1043_LIBRARY=/exact/libpcre2-10.43.so STRLING_NODE_22_BINARY=/exact/node-v22.23.2/bin/node STRLING_CPYTHON_311_BINARY=/exact/cpython-3.11.15/bin/python3.11 python3 -m tooling.shared_cross_engine_corpus --json --check --repeat-runs 2 && python3 -m tooling.portability_matrix --json --check
+      expected_result: The reviewed canonical-boundary identity changes only for the intended diagnostic implementation; every corpus, route, source-observation, historical-peer, and replacement-review identity remains stable; exact shared observations and the zero-unresolved portability matrix reproduce unchanged.
     - name: Repository and profile certification
       command: python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && python3 tooling/documentation_integrity.py && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check
       expected_result: All available hardgates pass, no public or generated surface drifts, inherited host-only gaps remain explicit without waiver, and the final committed tree is clean.
@@ -169,3 +174,5 @@ checkpoints:
 commits:
     - sha: 68ef4556153d11711f9180d6ce3c0a09d91447cf
       subject: "docs(core): define proof-backed quality diagnostics"
+    - sha: 1e8cd7c49ceac6a3ed02204e2796f1055168cbb0
+      subject: "feat(core): add proof-backed quality diagnostics"
