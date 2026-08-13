@@ -3502,3 +3502,35 @@ gate; network dependency risk plus the inherited Ruby and Swift operations are
 explicitly unavailable. The generated venv was removed and the final tree is
 clean. P13-T03 is `READY WITH RECORDED CARRY-FORWARD`; P13-T04 is next and will
 ratify the Semantic STRling DSL grammar before parser implementation.
+
+## Semantic STRling textual language contract
+
+-   Status: In progress
+-   Starting commit: `ff85bbe381e8dbfb0ed9c689611280dc60922657`
+-   Behavior change: Additive specification only; no parser, formatter, compiler,
+    target, runtime, or package behavior
+-   Task record:
+    [`semantic-strling-language.yaml`](records/semantic-strling-language.yaml)
+-   Readiness: Pending formal-contract and Local certification
+
+P13-T04 locks `strling.semantic` dialect `1.0.0` as a contained, versioned
+frontend ratification. It uses an exact `semantic strling 1.0;` selector,
+explicit case intent, keyword-led leaf statements, and brace-delimited
+composition. Regex operators, implicit concatenation, postfix quantifiers,
+grouping punctuation, precedence, target flags, and emitter spellings are not
+part of the language.
+
+The ratified surface will cover every canonical Semantic IR node and member
+variant with explicit wildcard/domain/repetition/lookaround intent, named-only
+captures, completed-prior references, UTF-8 byte spans, closed string escapes,
+stable source diagnostics, and canonical formatting rules. Target/profile
+selection remains in `CompileRequest`; modules/imports and portability/safety
+directives are deferred because their canonical linkage or source-policy models
+do not exist.
+
+Completion requires formal EBNF, a complete Semantic IR mapping catalog,
+positive and negative authored fixture coverage for every production, stable
+diagnostic coverage, content-addressed manifests, grammar/ambiguity checks,
+specification-sovereignty mutations, canonical contract integration,
+repository documentation consistency, Local, and a clean tree. This task does
+not implement the parser or formatter.

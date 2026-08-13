@@ -1,0 +1,131 @@
+record_version: 2.0.0
+title: Semantic STRling textual language contract
+status: in_progress
+objective: Ratify a readable, explicit, versioned Semantic STRling 1.0 textual frontend whose complete syntax and source diagnostics map deterministically to canonical Semantic IR, without implementing a parser or formatter or introducing target, runtime, module, portability-policy, or safety-policy authority.
+scope:
+    diff:
+        base: ff85bbe381e8dbfb0ed9c689611280dc60922657
+        head: working-tree
+    allowed_paths:
+        - README.md
+        - core/tests/normalization.rs
+        - docs/architecture.md
+        - docs/migration/ledger.md
+        - docs/migration/records/semantic-strling-language.yaml
+        - docs/migration/semantic-strling-language.md
+        - docs/testing_workflow.md
+        - docs/tutorial/first_contribution.md
+        - governance/architecture-rules.json
+        - governance/architecture.md
+        - governance/change-control.json
+        - governance/product.md
+        - governance/terminology.md
+        - spec/README.md
+        - spec/contracts/1.0/examples/semantic-ir/semantic-all-nodes.json
+        - spec/drafts/1.0/README.md
+        - spec/frontends/README.md
+        - spec/frontends/semantic/**
+        - tooling/contract_validation.py
+        - tooling/semantic_strling_contract.py
+        - tooling/tests/test_semantic_strling_contract.py
+    forbidden_paths:
+        - bindings/**
+        - core/cli/**
+        - core/src/**
+        - packages/**
+        - spec/conformance/**
+        - spec/frontends/legacy-regex/**
+        - spec/frontends/simply/**
+        - spec/grammar/**
+        - spec/schema/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - tests/**
+        - tooling/lsp-server/**
+    expected_files:
+        - docs/migration/ledger.md
+        - docs/migration/records/semantic-strling-language.yaml
+        - docs/migration/semantic-strling-language.md
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels: [contract, unit, quality, certification]
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: additive
+        evidence:
+            - A new versioned source language and deterministic mapping are ratified without changing any existing frontend or canonical Semantic IR meaning.
+    public_api_change:
+        level: none
+        evidence:
+            - No parser, formatter, CLI route, binding, package, or compiler surface is implemented in this task.
+    schema_change:
+        level: additive
+        evidence:
+            - New frontend-local schemas validate the language catalog, Semantic IR mapping table, and authored fixtures without altering canonical schemas.
+        affected_surfaces: []
+    diagnostic_change:
+        level: additive
+        evidence:
+            - Stable STRL-DSL diagnostic identities and source triggers are specified for future implementations; no current compiler emits them.
+        affected_surfaces: []
+    target_behavior_change:
+        level: none
+        evidence:
+            - Target selection, capability evaluation, planning, lowering, serialization, and runtimes are unchanged and remain out of source syntax.
+    architecture_change:
+        level: additive
+        evidence:
+            - Adds a versioned flagship textual frontend contract and an enforced specification-sovereignty boundary while preserving one canonical semantic authority.
+    generated_output_change:
+        level: none
+        evidence:
+            - All new catalogs, schemas, mappings, fixtures, manifests, and documentation are specification-authored inputs.
+    documentation_only: false
+    internal_implementation: false
+required_verification:
+    - name: Semantic language contract and grammar consistency
+      command: python3 tooling/semantic_strling_contract.py && python3 -m unittest tooling.tests.test_semantic_strling_contract
+      expected_result: Schemas, formal EBNF, production graph, disjoint construct phrases, reserved words, mappings, diagnostics, fixtures, spans, manifests, and fingerprints pass; controlled mutations fail closed.
+    - name: Semantic IR mapping completeness
+      command: python3 tooling/contract_validation.py
+      expected_result: Every canonical node/member/enum variant is mapped, every grammar production has positive and negative authored coverage, and the new suite participates in canonical contract certification.
+    - name: Specification sovereignty and documentation integrity
+      command: python3 tooling/architecture_fitness.py && python3 tooling/governance.py && python3 tooling/documentation_integrity.py
+      expected_result: The frontend owns syntax and mapping only; no implementation or target authority enters the contract; all authoritative language status and links are consistent.
+    - name: Repository and Local certification
+      command: ./strling format --check repository && ./strling lint repository && ./strling hygiene && ./strling contracts --check --json && ./strling governance --json && python3 -m unittest discover -s tooling/tests && ./strling profile local && git diff --check && git status --short
+      expected_result: All task-owned and available checks pass, no parser or formatter implementation exists, and the final tracked tree is clean.
+checkpoints:
+    - name: Authority, identity, and edition boundary
+      status: passed
+      evidence:
+          - check: Narrow frontend ratification
+            result: passed
+            details: The versioned identity is strling.semantic dialect 1.0.0 with in-source selector 1.0. The contract owns syntax, lowering mapping, and frontend diagnostics but not canonical semantics, targets, runtimes, or the broader still-draft Semantic Specification.
+          - check: Implementation exclusion
+            result: passed
+            details: Parser, formatter, CLI, binding, compiler, target, runtime, module/import, portability-policy, and safety-policy implementation are forbidden by scope.
+    - name: Readable explicit language design
+      status: passed
+      evidence:
+          - check: Ambiguity-free structural surface
+            result: passed
+            details: Keyword-led leaf statements and explicit brace containers replace regex punctuation, implicit concatenation, postfix operators, grouping, precedence, and associativity.
+          - check: Canonical semantic coverage
+            result: passed
+            details: The design covers all 12 canonical nodes, four set-member forms, global case intent, both wildcard behaviors/domains, all repetitions, positions, and lookaround variants with explicit source-span rules.
+          - check: Deliberate deferrals
+            result: passed
+            details: Exact targets remain in CompileRequest; modules/imports lack a canonical linkage model; portability/safety directives lack source-policy contracts; all are unavailable rather than hidden syntax.
+    - name: Formal grammar, mappings, and authored fixtures
+      status: planned
+      evidence: []
+    - name: No-parser consistency and sovereignty hardgates
+      status: planned
+      evidence: []
+    - name: Repository and Local certification
+      status: planned
+      evidence: []
+commits: []
