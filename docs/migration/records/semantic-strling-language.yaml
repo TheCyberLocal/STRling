@@ -1,11 +1,11 @@
 record_version: 2.0.0
 title: Semantic STRling textual language contract
-status: in_progress
+status: complete
 objective: Ratify a readable, explicit, versioned Semantic STRling 1.0 textual frontend whose complete syntax and source diagnostics map deterministically to canonical Semantic IR, without implementing a parser or formatter or introducing target, runtime, module, portability-policy, or safety-policy authority.
 scope:
     diff:
         base: ff85bbe381e8dbfb0ed9c689611280dc60922657
-        head: working-tree
+        head: 3be9a678c80fb3a4bb2aeff460b5ffd20161b580
     allowed_paths:
         - README.md
         - core/tests/normalization.rs
@@ -151,7 +151,7 @@ checkpoints:
           - check: Complete formal language bundle
             command: python3 tooling/semantic_strling_contract.py
             result: passed
-            details: Three schemas, 55 reachable grammar productions, 17 complete Semantic IR mappings, deterministic one-based material/capture preorder identities, 27 stable diagnostics, 10 explicit unavailable constructs, 12 positive cases, and 30 negative cases pass at fingerprint sha256:7e31ea7cf5560b6899acc61d6a3526ed5b1a85254f3599859169099385680546.
+            details: Three schemas, 55 reachable grammar productions, 17 complete Semantic IR mappings, deterministic one-based material/capture preorder identities, 27 stable diagnostics, 10 explicit unavailable constructs, 12 positive cases, and 30 negative cases pass at fingerprint sha256:7f3a0bf23a4ba17a5caf58406b497aa4274f26f6d8d51eeeb3b87cb36f8f5f0c.
           - check: Semantic IR and fixture completeness
             command: python3 tooling/contract_validation.py
             result: passed
@@ -168,8 +168,49 @@ checkpoints:
             result: passed
             details: The enforced semantic-strling-authority-boundary keeps strling.semantic identity out of canonical semantic/target authority and rejects parser, formatter, runtime, target, or canonical-semantic claims in the contract.
     - name: Repository and Local certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Complete contract and repository hardgates
+            command: python3 tooling/semantic_strling_contract.py; python3 -m unittest tooling.tests.test_semantic_strling_contract; python3 tooling/contract_validation.py; python3 tooling/architecture_fitness.py; python3 tooling/governance.py; python3 tooling/documentation_integrity.py; ./strling format --check repository; ./strling lint repository; ./strling hygiene; ./strling generate --check --json; ./strling contracts --check --json; ./strling governance --json; python3 -m unittest discover -s tooling/tests; git diff --check
+            result: passed
+            details: The final formatted contract passes with fingerprint sha256:7f3a0bf23a4ba17a5caf58406b497aa4274f26f6d8d51eeeb3b87cb36f8f5f0c; all 14 focused mutation tests and all 522 tooling tests pass. Canonical contracts, three frontend schemas, authored fixtures, architecture, governance, documentation across 156 files, generated-artifact integrity, public contracts, formatting, lint, hygiene, and patch integrity pass from clean corrected implementation commit 3be9a678c80fb3a4bb2aeff460b5ffd20161b580.
+          - check: Local profile and clean tree
+            command: ./strling profile local; git status --short
+            result: passed
+            details: Local passes all 26 operations with no failures, waivers, unavailable, or incomplete operations from clean commit 3be9a678c80fb3a4bb2aeff460b5ffd20161b580; the final tracked tree is clean.
 commits:
     - sha: 36f66bdf6fa3575a42fc619dc42bde9a0e46b0bd
       subject: "docs(frontend): define Semantic STRling language"
+    - sha: 850247d5677148148577ebae30a835d407af830d
+      subject: "docs(frontend): ratify Semantic STRling 1.0"
+    - sha: 3be9a678c80fb3a4bb2aeff460b5ffd20161b580
+      subject: "style(frontend): normalize Semantic STRling contracts"
+completion:
+    accomplished:
+        - Ratified the versioned strling.semantic 1.0.0 textual frontend with explicit keyword-and-block syntax, closed lexical and formatting rules, stable diagnostics, UTF-8 span semantics, and deterministic material-node and capture identities.
+        - Added formal EBNF, complete Semantic IR mappings, three frontend-local schemas, content-addressed manifests, 12 positive cases, 30 negative cases, and explicit dispositions for ten unavailable construct families.
+        - Added a no-parser contract certifier, controlled mutation tests, canonical contract integration, architecture enforcement, and authoritative documentation without implementing parser, formatter, compiler, target, runtime, or policy behavior.
+    verified:
+        - All 55 reachable grammar productions have positive and negative authored coverage; all 17 mappings cover every canonical node, set-member kind, and governed enum value with positive evidence.
+        - All 27 diagnostics are governed; all 26 fixture-required identities have negative evidence and the resource-limit diagnostic remains an explicit synthetic parser-boundary obligation.
+        - The final formatted contract fingerprint is sha256:7f3a0bf23a4ba17a5caf58406b497aa4274f26f6d8d51eeeb3b87cb36f8f5f0c. All 14 focused mutation tests, all 522 tooling tests, canonical contracts, architecture, governance, documentation across 156 files, formatting, lint, hygiene, and integrity gates pass.
+        - Local passes 26/26 with no failures, waivers, unavailable, or incomplete operations from clean commit 3be9a678c80fb3a4bb2aeff460b5ffd20161b580.
+    behavior_changed: The repository now contains the normative Semantic STRling 1.0 textual-language specification and certification inputs; no executable parser, formatter, compiler, CLI, target, runtime, binding, or package behavior changes.
+    intentional_behavior_changes:
+        - strling.semantic 1.0.0 is the ratified flagship textual frontend identity and semantic strling 1.0; is its exact source edition header.
+        - Explicit containers eliminate precedence and implicit concatenation; deterministic mappings and stable diagnostics constrain every future implementation.
+        - Canonical formatting, UTF-8 source spans, opaque preorder identities, versioning, extension rules, and unavailable constructs are now normative.
+    preserved_behavior:
+        - Canonical Semantic IR, normalization, analysis, diagnostics, CompileRequest target selection, planning, lowering, serialization, and runtime certification remain the sole Rust authorities and are unchanged.
+        - Legacy regex and Simply frontend contracts, implementations, defaults, compatibility behavior, and public surfaces remain unchanged.
+        - No parser, formatter, emitter, target syntax, runtime, policy syntax, module linkage, or release surface is introduced by this task.
+    transitional_architecture:
+        - P13-T05 must implement the parser and formatter as pure Rust frontends to this specification and the existing canonical pipeline; they may not become semantic authorities.
+        - Modules/imports, source portability directives, and source safety directives remain unavailable until canonical linkage or source-policy models exist.
+    deferred_work:
+        - P13-T05 will implement the Semantic DSL parser and canonical formatter in Rust with exact grammar, source-span, diagnostic, resource-limit, and stability properties.
+        - Frontend convergence, product-default adoption, packaging/provenance, publication review, and every release action remain later ordered tasks.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P13-T05 — Implement the Semantic DSL parser and formatter in Rust.
+    rationale: P13-T04 satisfies every task-owned design, formal-grammar, mapping, fixture, diagnostic, versioning, authority, documentation, repository, Local, and clean-tree requirement. Executable parsing and formatting are intentionally carried forward to the next ordered task rather than omitted from this specification-only scope.

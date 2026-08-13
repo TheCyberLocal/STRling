@@ -3505,13 +3505,13 @@ ratify the Semantic STRling DSL grammar before parser implementation.
 
 ## Semantic STRling textual language contract
 
--   Status: In progress
+-   Status: Complete
 -   Starting commit: `ff85bbe381e8dbfb0ed9c689611280dc60922657`
 -   Behavior change: Additive specification only; no parser, formatter, compiler,
     target, runtime, or package behavior
 -   Task record:
     [`semantic-strling-language.yaml`](records/semantic-strling-language.yaml)
--   Readiness: Pending formal-contract and Local certification
+-   Readiness: READY WITH RECORDED CARRY-FORWARD
 
 P13-T04 locks `strling.semantic` dialect `1.0.0` as a contained, versioned
 frontend ratification. It uses an exact `semantic strling 1.0;` selector,
@@ -3550,7 +3550,7 @@ directions, every mapping, and all 26 fixture-required diagnostics; the
 resource-limit diagnostic remains a synthetic boundary obligation. Ten
 unsupported families are explicitly unavailable. The complete contract
 fingerprint is
-`sha256:7e31ea7cf5560b6899acc61d6a3526ed5b1a85254f3599859169099385680546`.
+`sha256:7f3a0bf23a4ba17a5caf58406b497aa4274f26f6d8d51eeeb3b87cb36f8f5f0c`.
 
 The no-parser certifier and 14 mutation tests reject grammar reachability and
 phrase ambiguity failures, missing mappings or fixture coverage, invalid UTF-8
@@ -3558,3 +3558,25 @@ offsets, stale manifests, and authority promotion. Canonical contract
 aggregation includes this suite, and a new enforced architecture rule prevents
 the frontend identity or implementation claims from entering canonical
 semantic or target authority.
+
+P13-T04 closes from clean corrected implementation commit
+`3be9a678c80fb3a4bb2aeff460b5ffd20161b580`. The versioned bundle contains
+three schemas, 55 reachable grammar productions, 17 complete Semantic IR
+mappings, 27 stable diagnostics, ten explicit unavailable construct families,
+12 positive cases, and 30 negative cases. Every production has positive and
+negative authored coverage, every mapping has positive evidence, and all 26
+fixture-required diagnostics have negative evidence; the resource-limit
+diagnostic remains the documented synthetic parser-boundary obligation.
+
+The formatter-normalized contract fingerprint is
+`sha256:7f3a0bf23a4ba17a5caf58406b497aa4274f26f6d8d51eeeb3b87cb36f8f5f0c`.
+All 14 focused mutation tests and all 522 tooling tests pass. Canonical
+contracts, architecture, governance, documentation across 156 files,
+generated-artifact and public-contract integrity, formatting, lint, hygiene,
+and patch checks pass. Local passes 26/26 with no failures, waivers,
+unavailable, or incomplete operations, and the tracked tree is clean.
+
+P13-T04 is `READY WITH RECORDED CARRY-FORWARD`. P13-T05 is next and will
+implement the exact parser and canonical formatter in Rust as pure frontends to
+the existing semantic kernel; the ratified specification, not that
+implementation, remains the syntax and mapping authority.
