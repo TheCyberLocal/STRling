@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import sys
 from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from typing import Any
@@ -1275,6 +1276,11 @@ def iter_nodes(root: Mapping[str, Any]) -> Iterator[Mapping[str, Any]]:
 
 
 def main() -> int:
+    repository_path = str(ROOT)
+    if repository_path not in sys.path:
+        sys.path.insert(0, repository_path)
+    from tooling.shared_cross_engine_corpus import validate_corpus
+
     suite = ContractSuite()
     stdlib_suite = StandardLibraryGuaranteeSuite()
     legacy_regex_suite = LegacyRegexContractSuite()
@@ -1285,6 +1291,7 @@ def main() -> int:
     stdlib_positive_count = stdlib_suite.validate_positive_examples()
     stdlib_negative_count = stdlib_suite.validate_negative_examples()
     legacy_regex = legacy_regex_suite.certify()
+    shared_corpus = validate_corpus()
     print(
         "CANONICAL_CONTRACTS status=passed "
         f"schemas={len(suite.schemas)} positive={positive_count} "
@@ -1295,7 +1302,9 @@ def main() -> int:
         f"legacy_regex_features={legacy_regex['features']} "
         f"legacy_regex_positive={legacy_regex['positive']} "
         f"legacy_regex_negative={legacy_regex['negative']} "
-        f"legacy_regex_fingerprint={legacy_regex['fingerprint']}"
+        f"legacy_regex_fingerprint={legacy_regex['fingerprint']} "
+        f"shared_cases={shared_corpus['case_count']} "
+        f"shared_fingerprint={shared_corpus['corpus_sha256']}"
     )
     return 0
 

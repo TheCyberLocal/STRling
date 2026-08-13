@@ -45,7 +45,7 @@ class CanonicalContractTests(unittest.TestCase):
         )
 
     def test_positive_examples_validate(self) -> None:
-        self.assertEqual(42, self.suite.validate_positive_examples())
+        self.assertEqual(59, self.suite.validate_positive_examples())
 
     def test_controlled_negative_examples_are_rejected(self) -> None:
         self.assertEqual(33, self.suite.validate_negative_examples())
@@ -162,6 +162,8 @@ class CanonicalContractTests(unittest.TestCase):
             )
         conformance_paths = [
             CONFORMANCE_ROOT / "manifest.json",
+            CONFORMANCE_ROOT / "shared-corpus-v1.json",
+            CONFORMANCE_ROOT / "shared-corpus-v1.schema.json",
             *sorted((CONFORMANCE_ROOT / "cases").glob("*.json")),
         ]
         for path in conformance_paths:

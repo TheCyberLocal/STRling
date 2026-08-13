@@ -1,79 +1,83 @@
 use std::convert::TryFrom;
+use std::fs;
+use std::path::{Path, PathBuf};
 
 use serde_json::Value;
 use strling_kernel::conformance::{CasePath, ConformanceCase, ConformanceManifest};
 use strling_kernel::target::{TargetProfile, TargetProfileSet};
 use strling_kernel::validation::{from_json, to_json, ContractError, ValidationCode};
 
-const CASES: &[(&str, &str, &str)] = &[
-    (
-        "spec/conformance/cases/parser-diagnostic.json",
-        include_str!("../../spec/conformance/cases/parser-diagnostic.json"),
-        "94d6c18f9812868852883c39531f8e961614486f6ea06278f37b57632153d674",
-    ),
-    (
-        "spec/conformance/cases/capture-match.json",
-        include_str!("../../spec/conformance/cases/capture-match.json"),
-        "480463d7e35098d237e626fe6336b222256d0b97bfda5c765017765ddad1efd3",
-    ),
-    (
-        "spec/conformance/cases/semantic-literal.json",
-        include_str!("../../spec/conformance/cases/semantic-literal.json"),
-        "a3ca1a49b8c77ca761b3801938fe01525b7307c6229f9abf63cace1e0d3f7772",
-    ),
-    (
-        "spec/conformance/cases/lookbehind-targets.json",
-        include_str!("../../spec/conformance/cases/lookbehind-targets.json"),
-        "7a44eace04fef701cdff469aa74e0ff08e101fc1e053f2149bcebbd00fae238d",
-    ),
-];
+fn repository_root() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("core has repository parent")
+        .to_path_buf()
+}
 
-const MANIFEST: &str = include_str!("../../spec/conformance/manifest.json");
+fn read(path: impl AsRef<Path>) -> String {
+    fs::read_to_string(path).expect("authored repository fixture")
+}
+
+fn manifest() -> ConformanceManifest {
+    from_json(&read(
+        repository_root().join("spec/conformance/manifest.json"),
+    ))
+    .expect("manifest validates")
+}
 
 fn profiles() -> TargetProfileSet {
+    let root = repository_root();
     let profiles: Vec<TargetProfile> = [
-        include_str!("../../spec/targets/profiles/pcre2-10.42.json"),
-        include_str!("../../spec/targets/profiles/pcre2-10.43.json"),
-        include_str!("../../spec/targets/profiles/ecmascript-2024.json"),
-        include_str!("../../spec/targets/profiles/python-re-3.11.json"),
+        "pcre2-10.42.json",
+        "pcre2-10.43.json",
+        "ecmascript-2024.json",
+        "python-re-3.11.json",
+        "python-re-3.11-bytes.json",
     ]
     .iter()
-    .map(|fixture| from_json(fixture).expect("authored profile"))
+    .map(|name| {
+        from_json(&read(root.join("spec/targets/profiles").join(name))).expect("authored profile")
+    })
     .collect();
     TargetProfileSet::new(profiles).expect("profile set")
 }
 
-fn corpus() -> Vec<(CasePath, ConformanceCase)> {
-    CASES
+fn corpus(manifest: &ConformanceManifest) -> Vec<(CasePath, ConformanceCase)> {
+    let root = repository_root();
+    manifest
+        .cases
         .iter()
-        .map(|(path, fixture, _)| {
+        .map(|entry| {
+            let path = entry.path.as_str();
             (
-                CasePath::try_from(*path).expect("case path"),
-                from_json(fixture).expect("authored case"),
+                CasePath::try_from(path).expect("case path"),
+                from_json(&read(root.join(path))).expect("authored case"),
             )
         })
         .collect()
 }
 
 #[test]
-fn every_specification_authored_seed_case_validates_and_fingerprints() {
-    for (path, fixture, expected) in CASES {
-        let case: ConformanceCase =
-            from_json(fixture).unwrap_or_else(|error| panic!("{path}: {error}"));
+fn every_specification_authored_case_validates_and_fingerprints() {
+    let manifest = manifest();
+    assert_eq!(manifest.cases.len(), 20, "anti-shrinkage case denominator");
+    for (entry, (_, case)) in manifest.cases.iter().zip(corpus(&manifest)) {
         assert_eq!(
-            case.fingerprint().expect("case fingerprint").as_str(),
-            *expected
+            case.fingerprint().expect("case fingerprint"),
+            entry.sha256,
+            "{}",
+            entry.path.as_str()
         );
         case.validate_against_profiles(&profiles())
-            .unwrap_or_else(|errors| panic!("{path}: {:?}", errors.errors));
+            .unwrap_or_else(|errors| panic!("{}: {:?}", entry.path.as_str(), errors.errors));
     }
 }
 
 #[test]
-fn draft_manifest_certifies_every_and_only_seed_case() {
-    let manifest: ConformanceManifest = from_json(MANIFEST).expect("manifest validates");
+fn draft_manifest_certifies_every_and_only_shared_case() {
+    let manifest = manifest();
     manifest
-        .certify_cases(&corpus(), &profiles())
+        .certify_cases(&corpus(&manifest), &profiles())
         .unwrap_or_else(|errors| panic!("manifest failed: {:?}", errors.errors));
 }
 
@@ -138,10 +142,11 @@ fn invalid_authority_states_and_case_fingerprints_fail() {
     let fixture = include_str!(
         "../../spec/contracts/1.0/invalid/conformance-manifest/wrong-case-fingerprint.json"
     );
-    let manifest: ConformanceManifest =
+    let bad_manifest: ConformanceManifest =
         from_json(fixture).expect("fingerprint requires corpus context");
-    let errors = manifest
-        .certify_cases(&corpus(), &profiles())
+    let current = manifest();
+    let errors = bad_manifest
+        .certify_cases(&corpus(&current), &profiles())
         .expect_err("wrong fingerprint must fail");
     assert!(errors
         .errors
@@ -151,12 +156,12 @@ fn invalid_authority_states_and_case_fingerprints_fail() {
 
 #[test]
 fn manifest_rejects_missing_and_unowned_case_documents() {
-    let manifest: ConformanceManifest = from_json(MANIFEST).expect("manifest");
-    let mut missing = corpus();
+    let manifest = manifest();
+    let mut missing = corpus(&manifest);
     missing.pop();
     assert!(manifest.certify_cases(&missing, &profiles()).is_err());
 
-    let mut extra = corpus();
+    let mut extra = corpus(&manifest);
     let case = extra[0].1.clone();
     extra.push((
         CasePath::try_from("spec/conformance/cases/unowned.json").expect("path"),
@@ -167,18 +172,19 @@ fn manifest_rejects_missing_and_unowned_case_documents() {
 
 #[test]
 fn conformance_round_trips_preserve_structural_content() {
-    for (_, fixture, _) in CASES {
-        let case: ConformanceCase = from_json(fixture).expect("case");
+    let manifest = manifest();
+    for (entry, (_, case)) in manifest.cases.iter().zip(corpus(&manifest)) {
+        let fixture = read(repository_root().join(entry.path.as_str()));
         let first = to_json(&case).expect("case serialization");
         assert_eq!(first, to_json(&case).expect("deterministic serialization"));
         assert_eq!(
-            serde_json::from_str::<Value>(fixture).expect("fixture"),
+            serde_json::from_str::<Value>(&fixture).expect("fixture"),
             serde_json::from_str::<Value>(&first).expect("serialized case")
         );
     }
-    let manifest: ConformanceManifest = from_json(MANIFEST).expect("manifest");
+    let fixture = read(repository_root().join("spec/conformance/manifest.json"));
     assert_eq!(
-        serde_json::from_str::<Value>(MANIFEST).expect("fixture"),
+        serde_json::from_str::<Value>(&fixture).expect("fixture"),
         serde_json::from_str::<Value>(&to_json(&manifest).expect("manifest serialization"))
             .expect("serialized manifest")
     );
@@ -186,11 +192,11 @@ fn conformance_round_trips_preserve_structural_content() {
 
 #[test]
 fn optional_case_fields_reject_explicit_null() {
-    let invalid = CASES[3]
-        .1
-        .replace(r#""title":"#, r#""delegation": null, "title":"#);
-    assert!(matches!(
-        from_json::<ConformanceCase>(&invalid),
-        Err(ContractError::Deserialization(_))
-    ));
+    let manifest = manifest();
+    let entry = &manifest.cases[0];
+    let mut invalid: Value =
+        serde_json::from_str(&read(repository_root().join(entry.path.as_str())))
+            .expect("case JSON");
+    invalid["title"] = Value::Null;
+    assert!(serde_json::from_value::<ConformanceCase>(invalid).is_err());
 }

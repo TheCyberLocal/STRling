@@ -1,0 +1,348 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/conformance/shared-corpus-v1.schema.json",
+    "title": "STRling shared cross-engine behavioral corpus",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "corpus_version",
+        "corpus_id",
+        "specification_version",
+        "authority",
+        "profiles",
+        "coverage",
+        "vectors"
+    ],
+    "properties": {
+        "corpus_version": {
+            "const": "1.0.0"
+        },
+        "corpus_id": {
+            "const": "corpus:shared-cross-engine/1"
+        },
+        "specification_version": {
+            "const": "1.0-draft.1"
+        },
+        "authority": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "manifest_id",
+                "status",
+                "expectation_source"
+            ],
+            "properties": {
+                "manifest_id": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "status": {
+                    "enum": [
+                        "draft",
+                        "delegated_normative"
+                    ]
+                },
+                "expectation_source": {
+                    "const": "specification"
+                }
+            }
+        },
+        "profiles": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "items": {
+                "$ref": "#/$defs/Profile"
+            }
+        },
+        "coverage": {
+            "$ref": "#/$defs/Coverage"
+        },
+        "vectors": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/Vector"
+            }
+        }
+    },
+    "$defs": {
+        "Sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        },
+        "ProfileRef": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "profile_id",
+                "profile_version",
+                "sha256"
+            ],
+            "properties": {
+                "profile_id": {
+                    "type": "string",
+                    "pattern": "^profile:[a-z0-9./-]+$"
+                },
+                "profile_version": {
+                    "type": "string",
+                    "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+                },
+                "sha256": {
+                    "$ref": "#/$defs/Sha256"
+                }
+            }
+        },
+        "Profile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "target_profile",
+                "execution_adapter",
+                "subject_representation"
+            ],
+            "properties": {
+                "target_profile": {
+                    "$ref": "#/$defs/ProfileRef"
+                },
+                "execution_adapter": {
+                    "enum": [
+                        "pcre2-ctypes-v1",
+                        "node-regexp-v1",
+                        "python-re-v1"
+                    ]
+                },
+                "subject_representation": {
+                    "enum": [
+                        "utf8-text",
+                        "ascii-bytes"
+                    ]
+                }
+            }
+        },
+        "StringSet": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "type": "string",
+                "minLength": 1
+            }
+        },
+        "Coverage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "required_feature_tags",
+                "required_requirement_tags",
+                "required_rewrite_strategies",
+                "required_application_states",
+                "expected_case_count",
+                "expected_application_counts",
+                "case_set_sha256",
+                "vector_set_sha256"
+            ],
+            "properties": {
+                "required_feature_tags": {
+                    "$ref": "#/$defs/StringSet"
+                },
+                "required_requirement_tags": {
+                    "$ref": "#/$defs/StringSet"
+                },
+                "required_rewrite_strategies": {
+                    "$ref": "#/$defs/StringSet"
+                },
+                "required_application_states": {
+                    "$ref": "#/$defs/StringSet"
+                },
+                "expected_case_count": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "expected_application_counts": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "execute",
+                        "unsupported",
+                        "not_applicable"
+                    ],
+                    "properties": {
+                        "execute": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "unsupported": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "not_applicable": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                },
+                "case_set_sha256": {
+                    "$ref": "#/$defs/Sha256"
+                },
+                "vector_set_sha256": {
+                    "$ref": "#/$defs/Sha256"
+                }
+            }
+        },
+        "Application": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "target_profile",
+                "predicate",
+                "state",
+                "reason"
+            ],
+            "properties": {
+                "target_profile": {
+                    "$ref": "#/$defs/ProfileRef"
+                },
+                "predicate": {
+                    "const": "exact_profile"
+                },
+                "state": {
+                    "enum": [
+                        "execute",
+                        "unsupported",
+                        "not_applicable"
+                    ]
+                },
+                "portability_status": {
+                    "enum": [
+                        "native",
+                        "equivalent_rewrite",
+                        "unsupported"
+                    ]
+                },
+                "reason": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "state": {
+                                "enum": [
+                                    "execute",
+                                    "unsupported"
+                                ]
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "portability_status"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "state": {
+                                "const": "not_applicable"
+                            }
+                        }
+                    },
+                    "then": {
+                        "not": {
+                            "required": [
+                                "portability_status"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "Vector": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "case_id",
+                "path",
+                "sha256",
+                "input_kind",
+                "features",
+                "requirements",
+                "rewrite_strategies",
+                "modes",
+                "rationale",
+                "evidence_refs",
+                "applications"
+            ],
+            "properties": {
+                "case_id": {
+                    "type": "string",
+                    "pattern": "^case:[a-z0-9._/-]+$"
+                },
+                "path": {
+                    "type": "string",
+                    "pattern": "^spec/conformance/cases/[a-z0-9-]+\\.json$"
+                },
+                "sha256": {
+                    "$ref": "#/$defs/Sha256"
+                },
+                "input_kind": {
+                    "enum": [
+                        "semantic",
+                        "source"
+                    ]
+                },
+                "features": {
+                    "$ref": "#/$defs/StringSet"
+                },
+                "requirements": {
+                    "$ref": "#/$defs/StringSet"
+                },
+                "rewrite_strategies": {
+                    "$ref": "#/$defs/StringSet"
+                },
+                "modes": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "case_matching",
+                        "operation"
+                    ],
+                    "properties": {
+                        "case_matching": {
+                            "enum": [
+                                "sensitive",
+                                "insensitive",
+                                "not_applicable"
+                            ]
+                        },
+                        "operation": {
+                            "enum": [
+                                "full_match",
+                                "search",
+                                "diagnostic"
+                            ]
+                        }
+                    }
+                },
+                "rationale": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "evidence_refs": {
+                    "$ref": "#/$defs/StringSet"
+                },
+                "applications": {
+                    "type": "array",
+                    "minItems": 5,
+                    "maxItems": 5,
+                    "items": {
+                        "$ref": "#/$defs/Application"
+                    }
+                }
+            }
+        }
+    }
+}

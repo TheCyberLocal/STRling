@@ -1,8 +1,8 @@
 {
     "contract_version": "1.0.0",
-    "case_id": "case:targets/variable-lookbehind",
+    "case_id": "case:matching/input-anchors-word-boundaries",
     "specification_version": "1.0-draft.1",
-    "title": "Variable-length lookbehind support is profile version dependent",
+    "title": "Input anchors and word boundaries compose around a token",
     "authorship": {
         "kind": "specification_authored",
         "intent_source": "spec/drafts/1.0/README.md"
@@ -15,31 +15,33 @@
             "normalization": "canonical-v1",
             "case_matching": "sensitive",
             "root": {
-                "node_id": "node:case.variable-lookbehind",
+                "node_id": "node:case.anchored-word",
                 "kind": "sequence",
                 "items": [
                     {
-                        "node_id": "node:case.variable-lookbehind.assertion",
-                        "kind": "lookaround",
-                        "direction": "behind",
-                        "polarity": "positive",
-                        "body": {
-                            "node_id": "node:case.variable-lookbehind.repeat",
-                            "kind": "repeat",
-                            "body": {
-                                "node_id": "node:case.variable-lookbehind.literal",
-                                "kind": "literal",
-                                "text": "a"
-                            },
-                            "min": 1,
-                            "max": 3,
-                            "mode": "greedy"
-                        }
+                        "node_id": "node:case.anchored-word.start",
+                        "kind": "position",
+                        "position": "input_start"
                     },
                     {
-                        "node_id": "node:case.variable-lookbehind.suffix",
+                        "node_id": "node:case.anchored-word.leading-boundary",
+                        "kind": "position",
+                        "position": "word_boundary"
+                    },
+                    {
+                        "node_id": "node:case.anchored-word.token",
                         "kind": "literal",
-                        "text": "b"
+                        "text": "cat"
+                    },
+                    {
+                        "node_id": "node:case.anchored-word.trailing-boundary",
+                        "kind": "position",
+                        "position": "word_boundary"
+                    },
+                    {
+                        "node_id": "node:case.anchored-word.end",
+                        "kind": "position",
+                        "position": "input_end"
                     }
                 ]
             }
@@ -53,49 +55,55 @@
                 "normalization": "canonical-v1",
                 "case_matching": "sensitive",
                 "root": {
-                    "node_id": "node:case.variable-lookbehind",
+                    "node_id": "node:case.anchored-word",
                     "kind": "sequence",
                     "items": [
                         {
-                            "node_id": "node:case.variable-lookbehind.assertion",
-                            "kind": "lookaround",
-                            "direction": "behind",
-                            "polarity": "positive",
-                            "body": {
-                                "node_id": "node:case.variable-lookbehind.repeat",
-                                "kind": "repeat",
-                                "body": {
-                                    "node_id": "node:case.variable-lookbehind.literal",
-                                    "kind": "literal",
-                                    "text": "a"
-                                },
-                                "min": 1,
-                                "max": 3,
-                                "mode": "greedy"
-                            }
+                            "node_id": "node:case.anchored-word.start",
+                            "kind": "position",
+                            "position": "input_start"
                         },
                         {
-                            "node_id": "node:case.variable-lookbehind.suffix",
+                            "node_id": "node:case.anchored-word.leading-boundary",
+                            "kind": "position",
+                            "position": "word_boundary"
+                        },
+                        {
+                            "node_id": "node:case.anchored-word.token",
                             "kind": "literal",
-                            "text": "b"
+                            "text": "cat"
+                        },
+                        {
+                            "node_id": "node:case.anchored-word.trailing-boundary",
+                            "kind": "position",
+                            "position": "word_boundary"
+                        },
+                        {
+                            "node_id": "node:case.anchored-word.end",
+                            "kind": "position",
+                            "position": "input_end"
                         }
                     ]
                 }
             }
         },
         "matches": {
-            "operation": "search",
+            "operation": "full_match",
             "positive": [
                 {
-                    "match_id": "bounded_prefix",
-                    "subject": "aab",
+                    "match_id": "token",
+                    "subject": "cat",
                     "captures": []
                 }
             ],
             "negative": [
                 {
-                    "match_id": "missing_prefix",
-                    "subject": "ccb"
+                    "match_id": "leading_space",
+                    "subject": " cat"
+                },
+                {
+                    "match_id": "suffix",
+                    "subject": "cats"
                 }
             ]
         },
@@ -133,10 +141,7 @@
                     "profile_version": "1.2.0",
                     "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
                 },
-                "status": "unsupported",
-                "reason_codes": [
-                    "profile_capability_unavailable"
-                ]
+                "status": "native"
             },
             {
                 "target_profile": {
@@ -144,22 +149,13 @@
                     "profile_version": "1.0.0",
                     "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
                 },
-                "status": "unsupported",
-                "reason_codes": [
-                    "profile_capability_unavailable"
-                ]
+                "status": "native"
             }
         ]
     },
     "tags": [
-        "lookbehind",
-        "matching",
-        "portability"
-    ],
-    "compatibility_evidence": [
-        {
-            "kind": "legacy_fixture",
-            "reference": "tests/spec/lookbehind_pos.json"
-        }
+        "anchor",
+        "boundary",
+        "matching"
     ]
 }

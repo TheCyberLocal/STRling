@@ -702,7 +702,8 @@ def referenced_fixture_paths(root: Path = ROOT) -> set[Path]:
     references: set[Path] = set()
     pattern = re.compile(r'include_str!\s*\(\s*"([^"]+)"\s*\)')
     for test in sorted((root / "core" / "tests").glob("*.rs")):
-        for relative in pattern.findall(test.read_text(encoding="utf-8")):
+        source = test.read_text(encoding="utf-8")
+        for relative in pattern.findall(source):
             resolved = (test.parent / relative).resolve()
             if "/tests/spec/" in resolved.as_posix():
                 raise CoreContractError(
@@ -710,6 +711,17 @@ def referenced_fixture_paths(root: Path = ROOT) -> set[Path]:
                 )
             if resolved.suffix == ".json":
                 references.add(resolved)
+        if (
+            test.name == "conformance_contracts.rs"
+            and 'join("spec/conformance/manifest.json")' in source
+            and "manifest.cases.iter()" in source
+            and "root.join(path)" in source
+        ):
+            manifest_path = (root / "spec" / "conformance" / "manifest.json").resolve()
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            references.add(manifest_path)
+            for entry in manifest["cases"]:
+                references.add((root / entry["path"]).resolve())
     return references
 
 

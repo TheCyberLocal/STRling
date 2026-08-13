@@ -110,6 +110,17 @@ cryptographically pinned runtimes. Missing or mismatched engines are
 flags, spans, captures, failures, and repeat determinism; it does not become a
 kernel or product execution route.
 
+The specification-owned shared cross-engine corpus fixes one explicit
+five-profile denominator and derives expected semantics, diagnostics, matches,
+logical captures, support, and applicability only from its content-addressed
+case manifest. A repository-only Rust example projects Semantic IR through the
+public canonical stages without process or runtime access. An isolated Python
+controller owns exact PCRE2, Node/V8, and CPython process/ABI interaction,
+coordinate normalization, and checked raw-observation evidence. The corpus
+does not vote across engines, learn expectations from emitted text, or expose a
+product execution API; subsequent portability-matrix work classifies any
+observed differences without rewriting the authored expectations.
+
 ## Simply
 
 Simply is first-class semantic authoring. APIs may remain idiomatic in Rust,

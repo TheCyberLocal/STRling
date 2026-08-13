@@ -1,8 +1,8 @@
 {
     "contract_version": "1.0.0",
-    "case_id": "case:matching/logical-capture",
+    "case_id": "case:matching/sequence",
     "specification_version": "1.0-draft.1",
-    "title": "Capture expectations use logical capture identity",
+    "title": "Sequence preserves ordered concatenation",
     "authorship": {
         "kind": "specification_authored",
         "intent_source": "spec/drafts/1.0/README.md"
@@ -15,15 +15,26 @@
             "normalization": "canonical-v1",
             "case_matching": "sensitive",
             "root": {
-                "node_id": "node:case.capture",
-                "kind": "capture",
-                "capture_id": "capture:case.word",
-                "name": "word",
-                "body": {
-                    "node_id": "node:case.capture.body",
-                    "kind": "literal",
-                    "text": "ab"
-                }
+                "node_id": "node:case.sequence",
+                "kind": "sequence",
+                "items": [
+                    {
+                        "node_id": "node:case.sequence.prefix",
+                        "kind": "literal",
+                        "text": "ab"
+                    },
+                    {
+                        "node_id": "node:case.sequence.suffix",
+                        "kind": "character_set",
+                        "negated": false,
+                        "members": [
+                            {
+                                "kind": "literal",
+                                "value": "c"
+                            }
+                        ]
+                    }
+                ]
             }
         }
     },
@@ -35,15 +46,26 @@
                 "normalization": "canonical-v1",
                 "case_matching": "sensitive",
                 "root": {
-                    "node_id": "node:case.capture",
-                    "kind": "capture",
-                    "capture_id": "capture:case.word",
-                    "name": "word",
-                    "body": {
-                        "node_id": "node:case.capture.body",
-                        "kind": "literal",
-                        "text": "ab"
-                    }
+                    "node_id": "node:case.sequence",
+                    "kind": "sequence",
+                    "items": [
+                        {
+                            "node_id": "node:case.sequence.prefix",
+                            "kind": "literal",
+                            "text": "ab"
+                        },
+                        {
+                            "node_id": "node:case.sequence.suffix",
+                            "kind": "character_set",
+                            "negated": false,
+                            "members": [
+                                {
+                                    "kind": "literal",
+                                    "value": "c"
+                                }
+                            ]
+                        }
+                    ]
                 }
             }
         },
@@ -51,26 +73,15 @@
             "operation": "full_match",
             "positive": [
                 {
-                    "match_id": "exact",
-                    "subject": "ab",
-                    "captures": [
-                        {
-                            "capture_id": "capture:case.word",
-                            "matched": true,
-                            "text": "ab",
-                            "subject_span": {
-                                "coordinate_system": "utf8-bytes",
-                                "start": 0,
-                                "end": 2
-                            }
-                        }
-                    ]
+                    "match_id": "ordered",
+                    "subject": "abc",
+                    "captures": []
                 }
             ],
             "negative": [
                 {
-                    "match_id": "different_suffix",
-                    "subject": "ac"
+                    "match_id": "reversed",
+                    "subject": "cab"
                 }
             ]
         },
@@ -118,13 +129,7 @@
         ]
     },
     "tags": [
-        "capture",
-        "matching"
-    ],
-    "compatibility_evidence": [
-        {
-            "kind": "legacy_fixture",
-            "reference": "tests/spec/in_capturing_group.json"
-        }
+        "matching",
+        "sequence"
     ]
 }

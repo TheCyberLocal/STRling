@@ -1,8 +1,8 @@
 {
     "contract_version": "1.0.0",
-    "case_id": "case:matching/logical-capture",
+    "case_id": "case:matching/line-anchors",
     "specification_version": "1.0-draft.1",
-    "title": "Capture expectations use logical capture identity",
+    "title": "Line anchors isolate a complete line",
     "authorship": {
         "kind": "specification_authored",
         "intent_source": "spec/drafts/1.0/README.md"
@@ -15,15 +15,25 @@
             "normalization": "canonical-v1",
             "case_matching": "sensitive",
             "root": {
-                "node_id": "node:case.capture",
-                "kind": "capture",
-                "capture_id": "capture:case.word",
-                "name": "word",
-                "body": {
-                    "node_id": "node:case.capture.body",
-                    "kind": "literal",
-                    "text": "ab"
-                }
+                "node_id": "node:case.line-anchors",
+                "kind": "sequence",
+                "items": [
+                    {
+                        "node_id": "node:case.line-anchors.start",
+                        "kind": "position",
+                        "position": "line_start"
+                    },
+                    {
+                        "node_id": "node:case.line-anchors.token",
+                        "kind": "literal",
+                        "text": "cat"
+                    },
+                    {
+                        "node_id": "node:case.line-anchors.end",
+                        "kind": "position",
+                        "position": "line_end"
+                    }
+                ]
             }
         }
     },
@@ -35,42 +45,46 @@
                 "normalization": "canonical-v1",
                 "case_matching": "sensitive",
                 "root": {
-                    "node_id": "node:case.capture",
-                    "kind": "capture",
-                    "capture_id": "capture:case.word",
-                    "name": "word",
-                    "body": {
-                        "node_id": "node:case.capture.body",
-                        "kind": "literal",
-                        "text": "ab"
-                    }
+                    "node_id": "node:case.line-anchors",
+                    "kind": "sequence",
+                    "items": [
+                        {
+                            "node_id": "node:case.line-anchors.start",
+                            "kind": "position",
+                            "position": "line_start"
+                        },
+                        {
+                            "node_id": "node:case.line-anchors.token",
+                            "kind": "literal",
+                            "text": "cat"
+                        },
+                        {
+                            "node_id": "node:case.line-anchors.end",
+                            "kind": "position",
+                            "position": "line_end"
+                        }
+                    ]
                 }
             }
         },
         "matches": {
-            "operation": "full_match",
+            "operation": "search",
             "positive": [
                 {
-                    "match_id": "exact",
-                    "subject": "ab",
-                    "captures": [
-                        {
-                            "capture_id": "capture:case.word",
-                            "matched": true,
-                            "text": "ab",
-                            "subject_span": {
-                                "coordinate_system": "utf8-bytes",
-                                "start": 0,
-                                "end": 2
-                            }
-                        }
-                    ]
+                    "match_id": "embedded_line",
+                    "subject": "x\ncat\ny",
+                    "captures": []
+                },
+                {
+                    "match_id": "only_line",
+                    "subject": "cat",
+                    "captures": []
                 }
             ],
             "negative": [
                 {
-                    "match_id": "different_suffix",
-                    "subject": "ac"
+                    "match_id": "inside_word",
+                    "subject": "scatter"
                 }
             ]
         },
@@ -118,13 +132,7 @@
         ]
     },
     "tags": [
-        "capture",
+        "anchor",
         "matching"
-    ],
-    "compatibility_evidence": [
-        {
-            "kind": "legacy_fixture",
-            "reference": "tests/spec/in_capturing_group.json"
-        }
     ]
 }

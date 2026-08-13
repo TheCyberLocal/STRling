@@ -1,6 +1,6 @@
 {
     "contract_version": "1.0.0",
-    "manifest_id": "manifest:semantic-1.0-draft.seed",
+    "manifest_id": "manifest:semantic-1.0-draft.shared-cross-engine-v1",
     "specification_version": "1.0-draft.1",
     "ownership": "specification",
     "authority_status": "draft",
@@ -11,19 +11,99 @@
             "sha256": "94d6c18f9812868852883c39531f8e961614486f6ea06278f37b57632153d674"
         },
         {
+            "case_id": "case:matching/alternation",
+            "path": "spec/conformance/cases/alternation-match.json",
+            "sha256": "41a560e280bdf5af97a001db8ec5c11643e735f2e21e8b7098115933f05a3dd9"
+        },
+        {
+            "case_id": "case:matching/ascii-character-class",
+            "path": "spec/conformance/cases/ascii-character-class.json",
+            "sha256": "3eff6d7a35f95aedf633458796c6aa037ef9bb3ceb0f62328ad2d875995bb8dd"
+        },
+        {
+            "case_id": "case:matching/atomic-literal-rewrite",
+            "path": "spec/conformance/cases/atomic-literal-rewrite.json",
+            "sha256": "d17aec9a50ad5901521b5e4f79a31654107ff1bae2a9ec2102ba9081894b6d5a"
+        },
+        {
+            "case_id": "case:matching/backreference",
+            "path": "spec/conformance/cases/backreference-match.json",
+            "sha256": "e43a3b78bea7cbf49897b5bc5ff03c24a5dbac3d7c49bc8592969d75bc14203f"
+        },
+        {
+            "case_id": "case:matching/fixed-lookbehind",
+            "path": "spec/conformance/cases/fixed-lookbehind.json",
+            "sha256": "08d1efba9a85de6b5d0d875206997a022e3786a7073865b61ab3c5f54aa82822"
+        },
+        {
+            "case_id": "case:matching/greedy-repeat",
+            "path": "spec/conformance/cases/greedy-repeat.json",
+            "sha256": "0583aaa35d891508a765cd47994b4e5d45f6d1e165ae1160ad1c00d51ce18a5d"
+        },
+        {
+            "case_id": "case:matching/input-anchors-word-boundaries",
+            "path": "spec/conformance/cases/input-anchors-word-boundaries.json",
+            "sha256": "83b63af7c777f6c16d1174acd873becf432a94c9b6eaf9b97b54ea835c76f88d"
+        },
+        {
+            "case_id": "case:matching/lazy-repeat-interaction",
+            "path": "spec/conformance/cases/lazy-repeat-interaction.json",
+            "sha256": "a2f22b3e485ebf3f309094719938b819f4d1e9eb0271bd6c9d5bf041ce1b790b"
+        },
+        {
+            "case_id": "case:matching/line-anchors",
+            "path": "spec/conformance/cases/line-anchors.json",
+            "sha256": "a0221206175526bd98297f537ba9634c04ba79c5618f647c4f8aeea8dc1704c6"
+        },
+        {
             "case_id": "case:matching/logical-capture",
             "path": "spec/conformance/cases/capture-match.json",
-            "sha256": "480463d7e35098d237e626fe6336b222256d0b97bfda5c765017765ddad1efd3"
+            "sha256": "f1be03617a6eaa4b9333bdb4cb950197c1b2a22474edf3dcdd08ba68a35644d9"
+        },
+        {
+            "case_id": "case:matching/negated-character-class",
+            "path": "spec/conformance/cases/negated-character-class.json",
+            "sha256": "679a20a9df8b0b397ff0b3f48709d4d5ac6a0447028aafdb39ee3b75abf8fb77"
+        },
+        {
+            "case_id": "case:matching/positive-lookahead",
+            "path": "spec/conformance/cases/positive-lookahead.json",
+            "sha256": "15a30f3f58979ecc8e64b60f8e0670db6780f1cd1e79b9ee7dfd704fb9659994"
+        },
+        {
+            "case_id": "case:matching/possessive-repeat-interaction",
+            "path": "spec/conformance/cases/possessive-repeat-interaction.json",
+            "sha256": "b6a93c506b72ba6ec1fd00e4cf05b04d05c2fd4ad2c7b6658f4c358545764af5"
+        },
+        {
+            "case_id": "case:matching/sequence",
+            "path": "spec/conformance/cases/sequence-match.json",
+            "sha256": "6d206b75ea74653660eb7ee1ca58b86561dcc9fd57f1bb3c7ff1abf4a21d397c"
+        },
+        {
+            "case_id": "case:matching/unicode-case-insensitive-literal",
+            "path": "spec/conformance/cases/unicode-case-insensitive-literal.json",
+            "sha256": "dfbe7a82a67ac98aa298a62acbf2d37d8e8b37381a34100311a54d46584e4829"
+        },
+        {
+            "case_id": "case:matching/unicode-digit-class",
+            "path": "spec/conformance/cases/unicode-digit-class.json",
+            "sha256": "084e51637e4c00e1b0f7c52e9d27b0381c031106d0a518a09302ccc01eb5eb4c"
+        },
+        {
+            "case_id": "case:matching/wildcard-including-lines",
+            "path": "spec/conformance/cases/wildcard-including-lines.json",
+            "sha256": "b0e8466e4cdc9dbe57dd0bb6bfb91eda675cc2e20552630098b78ccaa62f4331"
         },
         {
             "case_id": "case:semantic/literal",
             "path": "spec/conformance/cases/semantic-literal.json",
-            "sha256": "a3ca1a49b8c77ca761b3801938fe01525b7307c6229f9abf63cace1e0d3f7772"
+            "sha256": "eaf036c46ca6edf1e71680d37fbb41f96b37a454076c6a6f12aedc1e3dad0b06"
         },
         {
             "case_id": "case:targets/variable-lookbehind",
             "path": "spec/conformance/cases/lookbehind-targets.json",
-            "sha256": "7a44eace04fef701cdff469aa74e0ff08e101fc1e053f2149bcebbd00fae238d"
+            "sha256": "a88fce3c1d425bc4bffde0980a2c853ca1b2a8eb84dcd1d5022e33fe4d39abae"
         }
     ]
 }

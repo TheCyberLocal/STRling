@@ -1,8 +1,8 @@
 {
     "contract_version": "1.0.0",
-    "case_id": "case:matching/logical-capture",
+    "case_id": "case:matching/positive-lookahead",
     "specification_version": "1.0-draft.1",
-    "title": "Capture expectations use logical capture identity",
+    "title": "Positive lookahead asserts without consuming",
     "authorship": {
         "kind": "specification_authored",
         "intent_source": "spec/drafts/1.0/README.md"
@@ -15,15 +15,26 @@
             "normalization": "canonical-v1",
             "case_matching": "sensitive",
             "root": {
-                "node_id": "node:case.capture",
-                "kind": "capture",
-                "capture_id": "capture:case.word",
-                "name": "word",
-                "body": {
-                    "node_id": "node:case.capture.body",
-                    "kind": "literal",
-                    "text": "ab"
-                }
+                "node_id": "node:case.positive-lookahead",
+                "kind": "sequence",
+                "items": [
+                    {
+                        "node_id": "node:case.positive-lookahead.assertion",
+                        "kind": "lookaround",
+                        "direction": "ahead",
+                        "polarity": "positive",
+                        "body": {
+                            "node_id": "node:case.positive-lookahead.body",
+                            "kind": "literal",
+                            "text": "ab"
+                        }
+                    },
+                    {
+                        "node_id": "node:case.positive-lookahead.consume",
+                        "kind": "literal",
+                        "text": "ab"
+                    }
+                ]
             }
         }
     },
@@ -35,15 +46,26 @@
                 "normalization": "canonical-v1",
                 "case_matching": "sensitive",
                 "root": {
-                    "node_id": "node:case.capture",
-                    "kind": "capture",
-                    "capture_id": "capture:case.word",
-                    "name": "word",
-                    "body": {
-                        "node_id": "node:case.capture.body",
-                        "kind": "literal",
-                        "text": "ab"
-                    }
+                    "node_id": "node:case.positive-lookahead",
+                    "kind": "sequence",
+                    "items": [
+                        {
+                            "node_id": "node:case.positive-lookahead.assertion",
+                            "kind": "lookaround",
+                            "direction": "ahead",
+                            "polarity": "positive",
+                            "body": {
+                                "node_id": "node:case.positive-lookahead.body",
+                                "kind": "literal",
+                                "text": "ab"
+                            }
+                        },
+                        {
+                            "node_id": "node:case.positive-lookahead.consume",
+                            "kind": "literal",
+                            "text": "ab"
+                        }
+                    ]
                 }
             }
         },
@@ -51,25 +73,14 @@
             "operation": "full_match",
             "positive": [
                 {
-                    "match_id": "exact",
+                    "match_id": "asserted",
                     "subject": "ab",
-                    "captures": [
-                        {
-                            "capture_id": "capture:case.word",
-                            "matched": true,
-                            "text": "ab",
-                            "subject_span": {
-                                "coordinate_system": "utf8-bytes",
-                                "start": 0,
-                                "end": 2
-                            }
-                        }
-                    ]
+                    "captures": []
                 }
             ],
             "negative": [
                 {
-                    "match_id": "different_suffix",
+                    "match_id": "assertion_fails",
                     "subject": "ac"
                 }
             ]
@@ -118,13 +129,7 @@
         ]
     },
     "tags": [
-        "capture",
+        "lookahead",
         "matching"
-    ],
-    "compatibility_evidence": [
-        {
-            "kind": "legacy_fixture",
-            "reference": "tests/spec/in_capturing_group.json"
-        }
     ]
 }

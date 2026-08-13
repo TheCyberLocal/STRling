@@ -708,6 +708,18 @@ class QualityRoutingTests(unittest.TestCase):
             ],
             toolchain.operation("python_re_runtime_certification")["command"],
         )
+        self.assertEqual(
+            [
+                "python3",
+                "-m",
+                "tooling.shared_cross_engine_corpus",
+                "--json",
+                "--check",
+                "--repeat-runs",
+                "2",
+            ],
+            toolchain.operation("shared_cross_engine_certification")["command"],
+        )
         release_ids = [
             member["operation"] for member in toolchain.profile("release")["operations"]
         ]
@@ -715,8 +727,12 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("ecmascript_runtime_certification") + 1,
             release_ids.index("python_re_runtime_certification"),
         )
-        self.assertEqual("1.7.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.7.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual(
+            release_ids.index("python_re_runtime_certification") + 1,
+            release_ids.index("shared_cross_engine_certification"),
+        )
+        self.assertEqual("1.8.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.8.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

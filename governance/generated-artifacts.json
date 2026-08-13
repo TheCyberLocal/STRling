@@ -395,6 +395,63 @@
             }
         },
         {
+            "id": "shared-cross-engine-observations",
+            "category": "audit-certification-output",
+            "description": "Deterministic raw and normalized observations from the specification-authored shared corpus executed on the exact governed PCRE2, Node/V8, and CPython runtimes.",
+            "authoritative_sources": [
+                "spec/conformance/cases/*.json",
+                "spec/conformance/manifest.json",
+                "spec/conformance/shared-corpus-v1.json",
+                "spec/conformance/shared-corpus-v1.schema.json",
+                "spec/portability/equivalence/1.0/registry.json",
+                "spec/targets/profiles/*.json"
+            ],
+            "generator_inputs": [
+                "core/src/**",
+                "core/examples/shared_conformance_projection.rs",
+                "spec/conformance/cases/*.json",
+                "spec/conformance/manifest.json",
+                "spec/conformance/shared-corpus-v1.json",
+                "spec/portability/equivalence/1.0/registry.json",
+                "spec/targets/profiles/*.json",
+                "tooling/node_regexp_harness.mjs",
+                "tooling/pcre2_feature_probe.py",
+                "tooling/python_re_harness.py",
+                "tooling/shared_cross_engine_corpus.py"
+            ],
+            "generator": {
+                "implementation_paths": [
+                    "core/examples/shared_conformance_projection.rs",
+                    "tooling/shared_cross_engine_corpus.py"
+                ],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.shared_cross_engine_corpus",
+                    "--write",
+                    "--repeat-runs",
+                    "2"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "tests/conformance/evidence/shared-cross-engine-observations.json"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "certification-evidence",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.shared_cross_engine_corpus",
+                    "--verify-evidence"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "rust-conformance-build-source",
             "category": "build-output",
             "description": "Rust conformance source generated into Cargo OUT_DIR during a build.",

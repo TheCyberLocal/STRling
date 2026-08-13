@@ -1,8 +1,8 @@
 {
     "contract_version": "1.0.0",
-    "case_id": "case:matching/logical-capture",
+    "case_id": "case:matching/possessive-repeat-interaction",
     "specification_version": "1.0-draft.1",
-    "title": "Capture expectations use logical capture identity",
+    "title": "Possessive repetition does not backtrack for a following item",
     "authorship": {
         "kind": "specification_authored",
         "intent_source": "spec/drafts/1.0/README.md"
@@ -15,15 +15,27 @@
             "normalization": "canonical-v1",
             "case_matching": "sensitive",
             "root": {
-                "node_id": "node:case.capture",
-                "kind": "capture",
-                "capture_id": "capture:case.word",
-                "name": "word",
-                "body": {
-                    "node_id": "node:case.capture.body",
-                    "kind": "literal",
-                    "text": "ab"
-                }
+                "node_id": "node:case.possessive-interaction",
+                "kind": "sequence",
+                "items": [
+                    {
+                        "node_id": "node:case.possessive-interaction.repeat",
+                        "kind": "repeat",
+                        "body": {
+                            "node_id": "node:case.possessive-interaction.body",
+                            "kind": "literal",
+                            "text": "a"
+                        },
+                        "min": 1,
+                        "max": 3,
+                        "mode": "possessive"
+                    },
+                    {
+                        "node_id": "node:case.possessive-interaction.suffix",
+                        "kind": "literal",
+                        "text": "a"
+                    }
+                ]
             }
         }
     },
@@ -35,15 +47,27 @@
                 "normalization": "canonical-v1",
                 "case_matching": "sensitive",
                 "root": {
-                    "node_id": "node:case.capture",
-                    "kind": "capture",
-                    "capture_id": "capture:case.word",
-                    "name": "word",
-                    "body": {
-                        "node_id": "node:case.capture.body",
-                        "kind": "literal",
-                        "text": "ab"
-                    }
+                    "node_id": "node:case.possessive-interaction",
+                    "kind": "sequence",
+                    "items": [
+                        {
+                            "node_id": "node:case.possessive-interaction.repeat",
+                            "kind": "repeat",
+                            "body": {
+                                "node_id": "node:case.possessive-interaction.body",
+                                "kind": "literal",
+                                "text": "a"
+                            },
+                            "min": 1,
+                            "max": 3,
+                            "mode": "possessive"
+                        },
+                        {
+                            "node_id": "node:case.possessive-interaction.suffix",
+                            "kind": "literal",
+                            "text": "a"
+                        }
+                    ]
                 }
             }
         },
@@ -51,26 +75,15 @@
             "operation": "full_match",
             "positive": [
                 {
-                    "match_id": "exact",
-                    "subject": "ab",
-                    "captures": [
-                        {
-                            "capture_id": "capture:case.word",
-                            "matched": true,
-                            "text": "ab",
-                            "subject_span": {
-                                "coordinate_system": "utf8-bytes",
-                                "start": 0,
-                                "end": 2
-                            }
-                        }
-                    ]
+                    "match_id": "capacity_for_suffix",
+                    "subject": "aaaa",
+                    "captures": []
                 }
             ],
             "negative": [
                 {
-                    "match_id": "different_suffix",
-                    "subject": "ac"
+                    "match_id": "consumed_suffix",
+                    "subject": "aa"
                 }
             ]
         },
@@ -81,7 +94,10 @@
                     "profile_version": "1.1.0",
                     "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
                 },
-                "status": "native"
+                "status": "unsupported",
+                "reason_codes": [
+                    "profile_capability_unavailable"
+                ]
             },
             {
                 "target_profile": {
@@ -118,13 +134,8 @@
         ]
     },
     "tags": [
-        "capture",
-        "matching"
-    ],
-    "compatibility_evidence": [
-        {
-            "kind": "legacy_fixture",
-            "reference": "tests/spec/in_capturing_group.json"
-        }
+        "interaction",
+        "matching",
+        "repeat"
     ]
 }

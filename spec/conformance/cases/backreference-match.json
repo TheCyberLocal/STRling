@@ -1,8 +1,8 @@
 {
     "contract_version": "1.0.0",
-    "case_id": "case:matching/logical-capture",
+    "case_id": "case:matching/backreference",
     "specification_version": "1.0-draft.1",
-    "title": "Capture expectations use logical capture identity",
+    "title": "Backreferences resolve through logical capture identity",
     "authorship": {
         "kind": "specification_authored",
         "intent_source": "spec/drafts/1.0/README.md"
@@ -15,15 +15,26 @@
             "normalization": "canonical-v1",
             "case_matching": "sensitive",
             "root": {
-                "node_id": "node:case.capture",
-                "kind": "capture",
-                "capture_id": "capture:case.word",
-                "name": "word",
-                "body": {
-                    "node_id": "node:case.capture.body",
-                    "kind": "literal",
-                    "text": "ab"
-                }
+                "node_id": "node:case.backreference",
+                "kind": "sequence",
+                "items": [
+                    {
+                        "node_id": "node:case.backreference.capture",
+                        "kind": "capture",
+                        "capture_id": "capture:case.backref-word",
+                        "name": "word",
+                        "body": {
+                            "node_id": "node:case.backreference.body",
+                            "kind": "literal",
+                            "text": "ab"
+                        }
+                    },
+                    {
+                        "node_id": "node:case.backreference.reference",
+                        "kind": "backreference",
+                        "capture_id": "capture:case.backref-word"
+                    }
+                ]
             }
         }
     },
@@ -35,15 +46,26 @@
                 "normalization": "canonical-v1",
                 "case_matching": "sensitive",
                 "root": {
-                    "node_id": "node:case.capture",
-                    "kind": "capture",
-                    "capture_id": "capture:case.word",
-                    "name": "word",
-                    "body": {
-                        "node_id": "node:case.capture.body",
-                        "kind": "literal",
-                        "text": "ab"
-                    }
+                    "node_id": "node:case.backreference",
+                    "kind": "sequence",
+                    "items": [
+                        {
+                            "node_id": "node:case.backreference.capture",
+                            "kind": "capture",
+                            "capture_id": "capture:case.backref-word",
+                            "name": "word",
+                            "body": {
+                                "node_id": "node:case.backreference.body",
+                                "kind": "literal",
+                                "text": "ab"
+                            }
+                        },
+                        {
+                            "node_id": "node:case.backreference.reference",
+                            "kind": "backreference",
+                            "capture_id": "capture:case.backref-word"
+                        }
+                    ]
                 }
             }
         },
@@ -51,11 +73,11 @@
             "operation": "full_match",
             "positive": [
                 {
-                    "match_id": "exact",
-                    "subject": "ab",
+                    "match_id": "repeated",
+                    "subject": "abab",
                     "captures": [
                         {
-                            "capture_id": "capture:case.word",
+                            "capture_id": "capture:case.backref-word",
                             "matched": true,
                             "text": "ab",
                             "subject_span": {
@@ -69,8 +91,8 @@
             ],
             "negative": [
                 {
-                    "match_id": "different_suffix",
-                    "subject": "ac"
+                    "match_id": "different_second",
+                    "subject": "abac"
                 }
             ]
         },
@@ -118,13 +140,8 @@
         ]
     },
     "tags": [
+        "backreference",
         "capture",
         "matching"
-    ],
-    "compatibility_evidence": [
-        {
-            "kind": "legacy_fixture",
-            "reference": "tests/spec/in_capturing_group.json"
-        }
     ]
 }

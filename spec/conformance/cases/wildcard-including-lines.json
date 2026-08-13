@@ -1,8 +1,8 @@
 {
     "contract_version": "1.0.0",
-    "case_id": "case:matching/logical-capture",
+    "case_id": "case:matching/wildcard-including-lines",
     "specification_version": "1.0-draft.1",
-    "title": "Capture expectations use logical capture identity",
+    "title": "Inclusive wildcard consumes line terminators",
     "authorship": {
         "kind": "specification_authored",
         "intent_source": "spec/drafts/1.0/README.md"
@@ -15,15 +15,25 @@
             "normalization": "canonical-v1",
             "case_matching": "sensitive",
             "root": {
-                "node_id": "node:case.capture",
-                "kind": "capture",
-                "capture_id": "capture:case.word",
-                "name": "word",
-                "body": {
-                    "node_id": "node:case.capture.body",
-                    "kind": "literal",
-                    "text": "ab"
-                }
+                "node_id": "node:case.wildcard-lines",
+                "kind": "sequence",
+                "items": [
+                    {
+                        "node_id": "node:case.wildcard-lines.prefix",
+                        "kind": "literal",
+                        "text": "a"
+                    },
+                    {
+                        "node_id": "node:case.wildcard-lines.any",
+                        "kind": "wildcard",
+                        "line_terminators": "include"
+                    },
+                    {
+                        "node_id": "node:case.wildcard-lines.suffix",
+                        "kind": "literal",
+                        "text": "b"
+                    }
+                ]
             }
         }
     },
@@ -35,15 +45,25 @@
                 "normalization": "canonical-v1",
                 "case_matching": "sensitive",
                 "root": {
-                    "node_id": "node:case.capture",
-                    "kind": "capture",
-                    "capture_id": "capture:case.word",
-                    "name": "word",
-                    "body": {
-                        "node_id": "node:case.capture.body",
-                        "kind": "literal",
-                        "text": "ab"
-                    }
+                    "node_id": "node:case.wildcard-lines",
+                    "kind": "sequence",
+                    "items": [
+                        {
+                            "node_id": "node:case.wildcard-lines.prefix",
+                            "kind": "literal",
+                            "text": "a"
+                        },
+                        {
+                            "node_id": "node:case.wildcard-lines.any",
+                            "kind": "wildcard",
+                            "line_terminators": "include"
+                        },
+                        {
+                            "node_id": "node:case.wildcard-lines.suffix",
+                            "kind": "literal",
+                            "text": "b"
+                        }
+                    ]
                 }
             }
         },
@@ -51,26 +71,20 @@
             "operation": "full_match",
             "positive": [
                 {
-                    "match_id": "exact",
-                    "subject": "ab",
-                    "captures": [
-                        {
-                            "capture_id": "capture:case.word",
-                            "matched": true,
-                            "text": "ab",
-                            "subject_span": {
-                                "coordinate_system": "utf8-bytes",
-                                "start": 0,
-                                "end": 2
-                            }
-                        }
-                    ]
+                    "match_id": "line_terminator",
+                    "subject": "a\nb",
+                    "captures": []
+                },
+                {
+                    "match_id": "ordinary",
+                    "subject": "acb",
+                    "captures": []
                 }
             ],
             "negative": [
                 {
-                    "match_id": "different_suffix",
-                    "subject": "ac"
+                    "match_id": "missing_middle",
+                    "subject": "ab"
                 }
             ]
         },
@@ -118,13 +132,7 @@
         ]
     },
     "tags": [
-        "capture",
-        "matching"
-    ],
-    "compatibility_evidence": [
-        {
-            "kind": "legacy_fixture",
-            "reference": "tests/spec/in_capturing_group.json"
-        }
+        "matching",
+        "wildcard"
     ]
 }

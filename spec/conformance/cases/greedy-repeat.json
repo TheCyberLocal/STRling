@@ -1,8 +1,8 @@
 {
     "contract_version": "1.0.0",
-    "case_id": "case:matching/logical-capture",
+    "case_id": "case:matching/greedy-repeat",
     "specification_version": "1.0-draft.1",
-    "title": "Capture expectations use logical capture identity",
+    "title": "Greedy repetition respects authored bounds",
     "authorship": {
         "kind": "specification_authored",
         "intent_source": "spec/drafts/1.0/README.md"
@@ -15,15 +15,16 @@
             "normalization": "canonical-v1",
             "case_matching": "sensitive",
             "root": {
-                "node_id": "node:case.capture",
-                "kind": "capture",
-                "capture_id": "capture:case.word",
-                "name": "word",
+                "node_id": "node:case.greedy-repeat",
+                "kind": "repeat",
                 "body": {
-                    "node_id": "node:case.capture.body",
+                    "node_id": "node:case.greedy-repeat.body",
                     "kind": "literal",
-                    "text": "ab"
-                }
+                    "text": "a"
+                },
+                "min": 1,
+                "max": 3,
+                "mode": "greedy"
             }
         }
     },
@@ -35,15 +36,16 @@
                 "normalization": "canonical-v1",
                 "case_matching": "sensitive",
                 "root": {
-                    "node_id": "node:case.capture",
-                    "kind": "capture",
-                    "capture_id": "capture:case.word",
-                    "name": "word",
+                    "node_id": "node:case.greedy-repeat",
+                    "kind": "repeat",
                     "body": {
-                        "node_id": "node:case.capture.body",
+                        "node_id": "node:case.greedy-repeat.body",
                         "kind": "literal",
-                        "text": "ab"
-                    }
+                        "text": "a"
+                    },
+                    "min": 1,
+                    "max": 3,
+                    "mode": "greedy"
                 }
             }
         },
@@ -51,26 +53,24 @@
             "operation": "full_match",
             "positive": [
                 {
-                    "match_id": "exact",
-                    "subject": "ab",
-                    "captures": [
-                        {
-                            "capture_id": "capture:case.word",
-                            "matched": true,
-                            "text": "ab",
-                            "subject_span": {
-                                "coordinate_system": "utf8-bytes",
-                                "start": 0,
-                                "end": 2
-                            }
-                        }
-                    ]
+                    "match_id": "maximum",
+                    "subject": "aaa",
+                    "captures": []
+                },
+                {
+                    "match_id": "minimum",
+                    "subject": "a",
+                    "captures": []
                 }
             ],
             "negative": [
                 {
-                    "match_id": "different_suffix",
-                    "subject": "ac"
+                    "match_id": "above_maximum",
+                    "subject": "aaaa"
+                },
+                {
+                    "match_id": "below_minimum",
+                    "subject": ""
                 }
             ]
         },
@@ -118,13 +118,7 @@
         ]
     },
     "tags": [
-        "capture",
-        "matching"
-    ],
-    "compatibility_evidence": [
-        {
-            "kind": "legacy_fixture",
-            "reference": "tests/spec/in_capturing_group.json"
-        }
+        "matching",
+        "repeat"
     ]
 }

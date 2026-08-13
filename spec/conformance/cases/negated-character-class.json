@@ -1,8 +1,8 @@
 {
     "contract_version": "1.0.0",
-    "case_id": "case:matching/logical-capture",
+    "case_id": "case:matching/negated-character-class",
     "specification_version": "1.0-draft.1",
-    "title": "Capture expectations use logical capture identity",
+    "title": "Outer character-set negation applies after member union",
     "authorship": {
         "kind": "specification_authored",
         "intent_source": "spec/drafts/1.0/README.md"
@@ -15,15 +15,20 @@
             "normalization": "canonical-v1",
             "case_matching": "sensitive",
             "root": {
-                "node_id": "node:case.capture",
-                "kind": "capture",
-                "capture_id": "capture:case.word",
-                "name": "word",
-                "body": {
-                    "node_id": "node:case.capture.body",
-                    "kind": "literal",
-                    "text": "ab"
-                }
+                "node_id": "node:case.negated-class",
+                "kind": "character_set",
+                "negated": true,
+                "members": [
+                    {
+                        "kind": "literal",
+                        "value": "x"
+                    },
+                    {
+                        "kind": "range",
+                        "start": "0",
+                        "end": "9"
+                    }
+                ]
             }
         }
     },
@@ -35,15 +40,20 @@
                 "normalization": "canonical-v1",
                 "case_matching": "sensitive",
                 "root": {
-                    "node_id": "node:case.capture",
-                    "kind": "capture",
-                    "capture_id": "capture:case.word",
-                    "name": "word",
-                    "body": {
-                        "node_id": "node:case.capture.body",
-                        "kind": "literal",
-                        "text": "ab"
-                    }
+                    "node_id": "node:case.negated-class",
+                    "kind": "character_set",
+                    "negated": true,
+                    "members": [
+                        {
+                            "kind": "literal",
+                            "value": "x"
+                        },
+                        {
+                            "kind": "range",
+                            "start": "0",
+                            "end": "9"
+                        }
+                    ]
                 }
             }
         },
@@ -51,26 +61,19 @@
             "operation": "full_match",
             "positive": [
                 {
-                    "match_id": "exact",
-                    "subject": "ab",
-                    "captures": [
-                        {
-                            "capture_id": "capture:case.word",
-                            "matched": true,
-                            "text": "ab",
-                            "subject_span": {
-                                "coordinate_system": "utf8-bytes",
-                                "start": 0,
-                                "end": 2
-                            }
-                        }
-                    ]
+                    "match_id": "outside_union",
+                    "subject": "a",
+                    "captures": []
                 }
             ],
             "negative": [
                 {
-                    "match_id": "different_suffix",
-                    "subject": "ac"
+                    "match_id": "literal_member",
+                    "subject": "x"
+                },
+                {
+                    "match_id": "range_member",
+                    "subject": "5"
                 }
             ]
         },
@@ -118,13 +121,9 @@
         ]
     },
     "tags": [
-        "capture",
-        "matching"
-    ],
-    "compatibility_evidence": [
-        {
-            "kind": "legacy_fixture",
-            "reference": "tests/spec/in_capturing_group.json"
-        }
+        "character_class",
+        "interaction",
+        "matching",
+        "negation"
     ]
 }

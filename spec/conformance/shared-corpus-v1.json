@@ -1,0 +1,1675 @@
+{
+    "corpus_version": "1.0.0",
+    "corpus_id": "corpus:shared-cross-engine/1",
+    "specification_version": "1.0-draft.1",
+    "authority": {
+        "manifest_id": "manifest:semantic-1.0-draft.shared-cross-engine-v1",
+        "status": "draft",
+        "expectation_source": "specification"
+    },
+    "profiles": [
+        {
+            "target_profile": {
+                "profile_id": "profile:ecmascript/2024",
+                "profile_version": "1.1.0",
+                "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+            },
+            "execution_adapter": "node-regexp-v1",
+            "subject_representation": "utf8-text"
+        },
+        {
+            "target_profile": {
+                "profile_id": "profile:pcre2/10.42",
+                "profile_version": "1.1.0",
+                "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+            },
+            "execution_adapter": "pcre2-ctypes-v1",
+            "subject_representation": "utf8-text"
+        },
+        {
+            "target_profile": {
+                "profile_id": "profile:pcre2/10.43",
+                "profile_version": "1.1.0",
+                "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+            },
+            "execution_adapter": "pcre2-ctypes-v1",
+            "subject_representation": "utf8-text"
+        },
+        {
+            "target_profile": {
+                "profile_id": "profile:python-re/3.11",
+                "profile_version": "1.2.0",
+                "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+            },
+            "execution_adapter": "python-re-v1",
+            "subject_representation": "utf8-text"
+        },
+        {
+            "target_profile": {
+                "profile_id": "profile:python-re/3.11-bytes",
+                "profile_version": "1.0.0",
+                "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+            },
+            "execution_adapter": "python-re-v1",
+            "subject_representation": "ascii-bytes"
+        }
+    ],
+    "coverage": {
+        "required_feature_tags": [
+            "alternation",
+            "anchors.input",
+            "anchors.line",
+            "assertions.lookahead",
+            "assertions.lookbehind.fixed",
+            "assertions.lookbehind.variable",
+            "backreference",
+            "boundary.word",
+            "capture.logical",
+            "character_class.ascii",
+            "character_class.negated",
+            "character_class.unicode",
+            "diagnostic.malformed",
+            "literal",
+            "repeat.greedy",
+            "repeat.lazy",
+            "repeat.possessive",
+            "rewrite.atomic_literal_elision",
+            "sequence",
+            "unicode.case_insensitive",
+            "wildcard.include_line_terminators"
+        ],
+        "required_requirement_tags": [
+            "anchors.input_end",
+            "anchors.input_start",
+            "anchors.line_end",
+            "anchors.line_start",
+            "assertions.lookahead",
+            "assertions.lookbehind.fixed_length",
+            "assertions.lookbehind.variable_length",
+            "boundaries.word",
+            "character_classes.unicode",
+            "character_semantics.unicode_scalar",
+            "groups.atomic",
+            "groups.named_capture",
+            "matching.case_insensitive",
+            "references.backreference",
+            "repetition.lazy",
+            "repetition.possessive"
+        ],
+        "required_rewrite_strategies": [
+            "rewrite.atomic_literal.elide.v1"
+        ],
+        "required_application_states": [
+            "execute",
+            "not_applicable",
+            "unsupported"
+        ],
+        "expected_case_count": 20,
+        "expected_application_counts": {
+            "execute": 88,
+            "unsupported": 5,
+            "not_applicable": 7
+        },
+        "case_set_sha256": "8ce5b9874312e9527944960f84c722a8293e9030bc6d9d8550aca53012ae849d",
+        "vector_set_sha256": "8d6fc71842065e7d1e8796e4ee3e210669220c2b129530e70d9e05ff08e17afc"
+    },
+    "vectors": [
+        {
+            "case_id": "case:diagnostic/unterminated-group",
+            "path": "spec/conformance/cases/parser-diagnostic.json",
+            "sha256": "94d6c18f9812868852883c39531f8e961614486f6ea06278f37b57632153d674",
+            "input_kind": "source",
+            "features": [
+                "diagnostic.malformed"
+            ],
+            "requirements": [],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "not_applicable",
+                "operation": "diagnostic"
+            },
+            "rationale": "Malformed source is a canonical structured diagnostic and has no target execution semantics.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "not_applicable",
+                    "reason": "Source diagnostic has no target execution semantics."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "not_applicable",
+                    "reason": "Source diagnostic has no target execution semantics."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "not_applicable",
+                    "reason": "Source diagnostic has no target execution semantics."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "not_applicable",
+                    "reason": "Source diagnostic has no target execution semantics."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "not_applicable",
+                    "reason": "Source diagnostic has no target execution semantics."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/alternation",
+            "path": "spec/conformance/cases/alternation-match.json",
+            "sha256": "41a560e280bdf5af97a001db8ec5c11643e735f2e21e8b7098115933f05a3dd9",
+            "input_kind": "semantic",
+            "features": [
+                "alternation"
+            ],
+            "requirements": [],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Each branch is authored semantic intent rather than inferred target behavior.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/ascii-character-class",
+            "path": "spec/conformance/cases/ascii-character-class.json",
+            "sha256": "3eff6d7a35f95aedf633458796c6aa037ef9bb3ceb0f62328ad2d875995bb8dd",
+            "input_kind": "semantic",
+            "features": [
+                "character_class.ascii"
+            ],
+            "requirements": [],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Literal, range, and ASCII built-in members share one canonical set meaning.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/atomic-literal-rewrite",
+            "path": "spec/conformance/cases/atomic-literal-rewrite.json",
+            "sha256": "d17aec9a50ad5901521b5e4f79a31654107ff1bae2a9ec2102ba9081894b6d5a",
+            "input_kind": "semantic",
+            "features": [
+                "rewrite.atomic_literal_elision"
+            ],
+            "requirements": [
+                "groups.atomic"
+            ],
+            "rewrite_strategies": [
+                "rewrite.atomic_literal.elide.v1"
+            ],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "The registered structural proof permits only the redundant atomic wrapper to be elided.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md",
+                "spec/portability/equivalence/1.0/registry.json"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "equivalent_rewrite",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/backreference",
+            "path": "spec/conformance/cases/backreference-match.json",
+            "sha256": "e43a3b78bea7cbf49897b5bc5ff03c24a5dbac3d7c49bc8592969d75bc14203f",
+            "input_kind": "semantic",
+            "features": [
+                "backreference",
+                "capture.logical",
+                "sequence"
+            ],
+            "requirements": [
+                "groups.named_capture",
+                "references.backreference"
+            ],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Target capture slots may differ, but the referenced logical capture and its value do not.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/fixed-lookbehind",
+            "path": "spec/conformance/cases/fixed-lookbehind.json",
+            "sha256": "08d1efba9a85de6b5d0d875206997a022e3786a7073865b61ab3c5f54aa82822",
+            "input_kind": "semantic",
+            "features": [
+                "assertions.lookbehind.fixed",
+                "sequence"
+            ],
+            "requirements": [
+                "assertions.lookbehind.fixed_length"
+            ],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "search"
+            },
+            "rationale": "A one-scalar lookbehind satisfies every governed profile's fixed-width contract.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/greedy-repeat",
+            "path": "spec/conformance/cases/greedy-repeat.json",
+            "sha256": "0583aaa35d891508a765cd47994b4e5d45f6d1e165ae1160ad1c00d51ce18a5d",
+            "input_kind": "semantic",
+            "features": [
+                "repeat.greedy"
+            ],
+            "requirements": [],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Greedy mode affects choice order without changing the bounded accepted language.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/input-anchors-word-boundaries",
+            "path": "spec/conformance/cases/input-anchors-word-boundaries.json",
+            "sha256": "83b63af7c777f6c16d1174acd873becf432a94c9b6eaf9b97b54ea835c76f88d",
+            "input_kind": "semantic",
+            "features": [
+                "anchors.input",
+                "boundary.word",
+                "sequence"
+            ],
+            "requirements": [
+                "anchors.input_end",
+                "anchors.input_start",
+                "boundaries.word"
+            ],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "The authored token must occupy the complete input and both word transitions.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "unsupported",
+                    "portability_status": "unsupported",
+                    "reason": "The exact profile's portability plan is explicitly unsupported; no runtime is invoked."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/lazy-repeat-interaction",
+            "path": "spec/conformance/cases/lazy-repeat-interaction.json",
+            "sha256": "a2f22b3e485ebf3f309094719938b819f4d1e9eb0271bd6c9d5bf041ce1b790b",
+            "input_kind": "semantic",
+            "features": [
+                "repeat.lazy",
+                "sequence"
+            ],
+            "requirements": [
+                "repetition.lazy"
+            ],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "The following literal observes lazy choice order without relying on emitted spelling.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/line-anchors",
+            "path": "spec/conformance/cases/line-anchors.json",
+            "sha256": "a0221206175526bd98297f537ba9634c04ba79c5618f647c4f8aeea8dc1704c6",
+            "input_kind": "semantic",
+            "features": [
+                "anchors.line",
+                "sequence"
+            ],
+            "requirements": [
+                "anchors.line_end",
+                "anchors.line_start"
+            ],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "search"
+            },
+            "rationale": "Line positioning is canonical while each serializer selects its certified spelling and options.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/logical-capture",
+            "path": "spec/conformance/cases/capture-match.json",
+            "sha256": "f1be03617a6eaa4b9333bdb4cb950197c1b2a22474edf3dcdd08ba68a35644d9",
+            "input_kind": "semantic",
+            "features": [
+                "capture.logical"
+            ],
+            "requirements": [
+                "groups.named_capture"
+            ],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Logical capture identity and UTF-8 spans are independent of target capture syntax.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/negated-character-class",
+            "path": "spec/conformance/cases/negated-character-class.json",
+            "sha256": "679a20a9df8b0b397ff0b3f48709d4d5ac6a0447028aafdb39ee3b75abf8fb77",
+            "input_kind": "semantic",
+            "features": [
+                "character_class.negated"
+            ],
+            "requirements": [],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Negation applies to the complete canonical member union, not to target-specific fragments.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/positive-lookahead",
+            "path": "spec/conformance/cases/positive-lookahead.json",
+            "sha256": "15a30f3f58979ecc8e64b60f8e0670db6780f1cd1e79b9ee7dfd704fb9659994",
+            "input_kind": "semantic",
+            "features": [
+                "assertions.lookahead",
+                "sequence"
+            ],
+            "requirements": [
+                "assertions.lookahead"
+            ],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Lookahead observes following input while leaving consumption to the next semantic node.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/possessive-repeat-interaction",
+            "path": "spec/conformance/cases/possessive-repeat-interaction.json",
+            "sha256": "b6a93c506b72ba6ec1fd00e4cf05b04d05c2fd4ad2c7b6658f4c358545764af5",
+            "input_kind": "semantic",
+            "features": [
+                "repeat.possessive",
+                "sequence"
+            ],
+            "requirements": [
+                "repetition.possessive"
+            ],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Possessive choice behavior is observable and explicitly unsupported where the profile lacks it.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "unsupported",
+                    "portability_status": "unsupported",
+                    "reason": "The exact profile's portability plan is explicitly unsupported; no runtime is invoked."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/sequence",
+            "path": "spec/conformance/cases/sequence-match.json",
+            "sha256": "6d206b75ea74653660eb7ee1ca58b86561dcc9fd57f1bb3c7ff1abf4a21d397c",
+            "input_kind": "semantic",
+            "features": [
+                "sequence"
+            ],
+            "requirements": [],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Sequence order is canonical and target neutral.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/unicode-case-insensitive-literal",
+            "path": "spec/conformance/cases/unicode-case-insensitive-literal.json",
+            "sha256": "dfbe7a82a67ac98aa298a62acbf2d37d8e8b37381a34100311a54d46584e4829",
+            "input_kind": "semantic",
+            "features": [
+                "literal",
+                "unicode.case_insensitive"
+            ],
+            "requirements": [
+                "character_semantics.unicode_scalar",
+                "matching.case_insensitive"
+            ],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "insensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Unicode scalar identity and case-insensitive intent are in Semantic IR; the bytes profile is explicitly inapplicable.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "not_applicable",
+                    "reason": "This semantic vector requires Unicode text and cannot be represented by the ASCII bytes profile."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/unicode-digit-class",
+            "path": "spec/conformance/cases/unicode-digit-class.json",
+            "sha256": "084e51637e4c00e1b0f7c52e9d27b0381c031106d0a518a09302ccc01eb5eb4c",
+            "input_kind": "semantic",
+            "features": [
+                "character_class.unicode"
+            ],
+            "requirements": [
+                "character_classes.unicode"
+            ],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Unicode digit membership is authored independently of each engine's class spelling; bytes is inapplicable.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "not_applicable",
+                    "reason": "This semantic vector requires Unicode text and cannot be represented by the ASCII bytes profile."
+                }
+            ]
+        },
+        {
+            "case_id": "case:matching/wildcard-including-lines",
+            "path": "spec/conformance/cases/wildcard-including-lines.json",
+            "sha256": "b0e8466e4cdc9dbe57dd0bb6bfb91eda675cc2e20552630098b78ccaa62f4331",
+            "input_kind": "semantic",
+            "features": [
+                "sequence",
+                "wildcard.include_line_terminators"
+            ],
+            "requirements": [],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "Inclusive wildcard semantics are expressed structurally rather than by a target dot-all flag.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:semantic/literal",
+            "path": "spec/conformance/cases/semantic-literal.json",
+            "sha256": "eaf036c46ca6edf1e71680d37fbb41f96b37a454076c6a6f12aedc1e3dad0b06",
+            "input_kind": "semantic",
+            "features": [
+                "literal"
+            ],
+            "requirements": [],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "full_match"
+            },
+            "rationale": "A target-neutral literal accepts exactly the authored scalar sequence.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                }
+            ]
+        },
+        {
+            "case_id": "case:targets/variable-lookbehind",
+            "path": "spec/conformance/cases/lookbehind-targets.json",
+            "sha256": "a88fce3c1d425bc4bffde0980a2c853ca1b2a8eb84dcd1d5022e33fe4d39abae",
+            "input_kind": "semantic",
+            "features": [
+                "assertions.lookbehind.variable",
+                "sequence"
+            ],
+            "requirements": [
+                "assertions.lookbehind.variable_length"
+            ],
+            "rewrite_strategies": [],
+            "modes": {
+                "case_matching": "sensitive",
+                "operation": "search"
+            },
+            "rationale": "The same bounded lookbehind is executable only on profiles that certify variable-width support.",
+            "evidence_refs": [
+                "spec/drafts/1.0/README.md"
+            ],
+            "applications": [
+                {
+                    "target_profile": {
+                        "profile_id": "profile:ecmascript/2024",
+                        "profile_version": "1.1.0",
+                        "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.42",
+                        "profile_version": "1.1.0",
+                        "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "unsupported",
+                    "portability_status": "unsupported",
+                    "reason": "The exact profile's portability plan is explicitly unsupported; no runtime is invoked."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:pcre2/10.43",
+                        "profile_version": "1.1.0",
+                        "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "execute",
+                    "portability_status": "native",
+                    "reason": "The exact profile has an authored native or certified equivalent representation and must execute."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11",
+                        "profile_version": "1.2.0",
+                        "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "unsupported",
+                    "portability_status": "unsupported",
+                    "reason": "The exact profile's portability plan is explicitly unsupported; no runtime is invoked."
+                },
+                {
+                    "target_profile": {
+                        "profile_id": "profile:python-re/3.11-bytes",
+                        "profile_version": "1.0.0",
+                        "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                    },
+                    "predicate": "exact_profile",
+                    "state": "unsupported",
+                    "portability_status": "unsupported",
+                    "reason": "The exact profile's portability plan is explicitly unsupported; no runtime is invoked."
+                }
+            ]
+        }
+    ]
+}

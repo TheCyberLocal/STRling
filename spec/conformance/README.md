@@ -17,14 +17,14 @@ The specification-owned manifest determines authority:
 -   `delegated_normative` requires an explicit ratified specification source,
     section, and approval record.
 
-The current seed manifest is `draft` because STRling Semantic Specification
+The current shared manifest is `draft` because STRling Semantic Specification
 1.0 is not ratified. Moving it to normative status requires ratification and a
 real delegation; changing an implementation or copying implementation output is
 insufficient. The manifest pins every case by stable case ID, repository path,
 and canonical JSON SHA-256.
 
 Files under `tests/spec/` remain implementation-derived compatibility evidence.
-They are not included in this authority manifest. A seed case may cite one in
+They are not included in this authority manifest. A case may cite one in
 `compatibility_evidence`, but that reference is review context and never
 controls the case's expected result.
 
@@ -57,3 +57,27 @@ Exact expected semantics and all inputs use the case specification version.
 Target expectations resolve to an authored profile identity/revision/fingerprint.
 Manifest membership must match case ID, path, specification version, authorship,
 and canonical content fingerprint exactly.
+
+## Shared cross-engine execution corpus
+
+[`shared-corpus-v1.json`](shared-corpus-v1.json) is the versioned execution and
+coverage index over these unchanged case contracts. It fixes a denominator of
+PCRE2 10.42, PCRE2 10.43, ECMAScript 2024, Python `re` 3.11 text, and Python
+`re` 3.11 bytes. Every case has an explicit `execute`, `unsupported`, or
+`not_applicable` disposition for every profile; omission is not an
+applicability signal.
+
+The corpus records feature, capability-requirement, rewrite-strategy, mode, and
+rationale metadata, but matching and support expectations remain in the
+specification-authored case documents. Target artifacts and runtime
+observations are forbidden as expectation sources. Completeness guards pin the
+case count, application-state counts, case-set fingerprint, vector-set
+fingerprint, portable feature tags, and every registered equivalence strategy.
+
+The repository-only Rust projection applies the canonical analysis,
+capability, planning, lowering, and serialization stages. The isolated Python
+controller then executes only `execute` entries on exact governed engines,
+normalizes UTF-16/code-point offsets to UTF-8 bytes and target capture slots to
+logical capture IDs, and preserves raw plus normalized observations under
+`tests/conformance/evidence/`. Those observations are certification evidence,
+never semantic authority. P11-T06 owns classification of any future divergence.

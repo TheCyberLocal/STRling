@@ -15,6 +15,7 @@ scope:
         - docs/migration/shared-cross-engine-corpus.md
         - governance/architecture-rules.json
         - governance/change-control.json
+        - governance/generated-artifacts.json
         - spec/conformance/README.md
         - spec/conformance/cases/**
         - spec/conformance/manifest.json
@@ -54,12 +55,22 @@ scope:
         - spec/targets/profiles/**
         - tests/spec/**
     expected_files:
+        - core/examples/shared_conformance_projection.rs
         - docs/migration/ledger.md
         - docs/migration/records/shared-cross-engine-corpus.yaml
         - docs/migration/shared-cross-engine-corpus.md
         - governance/change-control.json
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+        - governance/generated-artifacts.json
+        - spec/conformance/cases/**
+        - spec/conformance/shared-corpus-v1.json
+        - spec/conformance/shared-corpus-v1.schema.json
+        - tests/conformance/evidence/shared-cross-engine-observations.json
+        - toolchain.json
+        - tooling/shared_cross_engine_corpus.py
+    permitted_generated_changes:
+        - shared-cross-engine-observations
+    expected_generated_outputs:
+        - shared-cross-engine-observations
     required_verification_levels:
         - contract
         - unit
@@ -94,9 +105,9 @@ change_classification:
         evidence:
             - Adds one repository-only projection adapter and one isolated exact-runtime orchestration boundary downstream of specification-owned expectations.
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - The scope checkpoint adds no generated output; registration and checked evidence will land atomically in the implementation checkpoint.
+            - Registers and checks one deterministic certification-evidence artifact containing the complete five-profile raw and normalized observation denominator.
     documentation_only: false
     internal_implementation: true
 required_verification:

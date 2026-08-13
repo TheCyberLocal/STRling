@@ -1,8 +1,8 @@
 {
     "contract_version": "1.0.0",
-    "case_id": "case:matching/logical-capture",
+    "case_id": "case:matching/atomic-literal-rewrite",
     "specification_version": "1.0-draft.1",
-    "title": "Capture expectations use logical capture identity",
+    "title": "Atomic literal elision preserves behavior",
     "authorship": {
         "kind": "specification_authored",
         "intent_source": "spec/drafts/1.0/README.md"
@@ -15,12 +15,10 @@
             "normalization": "canonical-v1",
             "case_matching": "sensitive",
             "root": {
-                "node_id": "node:case.capture",
-                "kind": "capture",
-                "capture_id": "capture:case.word",
-                "name": "word",
+                "node_id": "node:case.atomic-literal",
+                "kind": "atomic",
                 "body": {
-                    "node_id": "node:case.capture.body",
+                    "node_id": "node:case.atomic-literal.body",
                     "kind": "literal",
                     "text": "ab"
                 }
@@ -35,12 +33,10 @@
                 "normalization": "canonical-v1",
                 "case_matching": "sensitive",
                 "root": {
-                    "node_id": "node:case.capture",
-                    "kind": "capture",
-                    "capture_id": "capture:case.word",
-                    "name": "word",
+                    "node_id": "node:case.atomic-literal",
+                    "kind": "atomic",
                     "body": {
-                        "node_id": "node:case.capture.body",
+                        "node_id": "node:case.atomic-literal.body",
                         "kind": "literal",
                         "text": "ab"
                     }
@@ -51,25 +47,14 @@
             "operation": "full_match",
             "positive": [
                 {
-                    "match_id": "exact",
+                    "match_id": "literal",
                     "subject": "ab",
-                    "captures": [
-                        {
-                            "capture_id": "capture:case.word",
-                            "matched": true,
-                            "text": "ab",
-                            "subject_span": {
-                                "coordinate_system": "utf8-bytes",
-                                "start": 0,
-                                "end": 2
-                            }
-                        }
-                    ]
+                    "captures": []
                 }
             ],
             "negative": [
                 {
-                    "match_id": "different_suffix",
+                    "match_id": "different",
                     "subject": "ac"
                 }
             ]
@@ -81,7 +66,10 @@
                     "profile_version": "1.1.0",
                     "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
                 },
-                "status": "native"
+                "status": "equivalent_rewrite",
+                "reason_codes": [
+                    "equivalence_proof_certified"
+                ]
             },
             {
                 "target_profile": {
@@ -118,13 +106,8 @@
         ]
     },
     "tags": [
-        "capture",
-        "matching"
-    ],
-    "compatibility_evidence": [
-        {
-            "kind": "legacy_fixture",
-            "reference": "tests/spec/in_capturing_group.json"
-        }
+        "atomic",
+        "matching",
+        "rewrite"
     ]
 }
