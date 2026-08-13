@@ -23,6 +23,7 @@ scope:
         - governance/architecture-rules.json
         - governance/change-control.json
         - tooling/core_contract_validation.py
+        - tooling/migration_differential_baseline.json
         - tooling/tests/test_core_contracts.py
         - tooling/tests/test_frontend_orchestration_architecture.py
         - tooling/tests/test_regex_frontend_architecture.py
@@ -60,6 +61,7 @@ scope:
         - docs/testing_workflow.md
         - governance/change-control.json
         - tooling/core_contract_validation.py
+        - tooling/migration_differential_baseline.json
         - tooling/tests/test_frontend_orchestration_architecture.py
         - tooling/tests/test_regex_frontend_architecture.py
         - tooling/tests/test_semantic_frontend_architecture.py
@@ -161,12 +163,17 @@ checkpoints:
           - check: Kernel and architecture integration
             result: passed
             details: Explicit strling.semantic requests reuse the existing semantic and analysis pipeline; failures return one frozen diagnostic with no partial IR; unresolved references retain the protocol route. Contract mapping, single dispatch ownership, dependency boundaries, and controlled architecture mutations pass.
+          - check: Reviewed migration differential renewal
+            result: passed
+            details: Three repeated full-corpus runs have zero mismatches. Only the canonical-boundary fingerprint moved from sha256:b5c6542a1c43788f7f3f8be256747e0e1789124a42065ff0195968b4d09bbb42 to sha256:71b8adfbab3b965cbd381317b3da9a8192ba5ab3d7f8a12b13b7b5c75058b255 and the baseline self-fingerprint moved to sha256:59c75727d33ad965a65c9ff880cb8e2aab17f495a21d213d675af7cf9cd3a934; contract, full corpus, routes, source observations, historical peers, classifications, and every other reviewed baseline field remain byte-identical.
     - name: Repository, Local, Pull Request, and clean-tree certification
       status: planned
       evidence: []
 commits:
     - sha: b57f097e3fb797f36a102ae3089c2168d5ee57df
       subject: "docs(frontend): define Semantic DSL parser and formatter"
+    - sha: af280826e5ae208b6a744f97f0f9ac840a73f11c
+      subject: "feat(frontend): implement Semantic STRling parser"
 readiness:
     status: BLOCKED
     next_task: Complete repository, Local, Pull Request, reproducibility, and clean-tree certification before frontend convergence.
