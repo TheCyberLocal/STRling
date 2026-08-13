@@ -3695,14 +3695,14 @@ taken here.
 
 ## Frontend convergence and canonical tutorials
 
--   Status: In progress
+-   Status: Complete
 -   Starting commit: `f6dacb380f826207518f8285306fb5f922078aa5`
 -   Behavior change: Test evidence and public documentation only; no semantic,
     target, runtime, binding implementation, public API, package, or release
     behavior
 -   Task record:
     [`frontend-convergence.yaml`](records/frontend-convergence.yaml)
--   Readiness: Pending executable corpus and phase certification
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
 
 P13-T06 locks an eleven-case convergence denominator spanning authored Semantic
 STRling, native Rust Simply, TypeScript and Python Simply Preview, source-less
@@ -3722,3 +3722,34 @@ developer entry points, canonical tutorial/testing examples, frontend
 references, architecture wording, and four binding README passages that still
 call regex-compatible input the canonical DSL. Dedicated import/migration and
 normative dialect documentation remains intact.
+
+P13-T06 closes from reviewed commit
+`7fe029c9b233e29974a95537def20b051cc6355a`. All eleven convergence cases,
+15 Simply operations, 17 Semantic mappings, 38 accepted or compatibility-only
+legacy features across ten families, 13 governed rejections, three exact
+profiles, and three host routes pass with zero unresolved entry. Canonical
+Rust execution performs 132 deterministic route/profile comparisons while the
+TypeScript and Python Preview adapters reconstruct all shared builder requests
+exactly.
+
+All 379 Rust tests, 542 tooling tests, 970 TypeScript tests, and 796 Python
+tests pass. Documentation integrity validates 158 Markdown files and seven
+executable examples. Exact PCRE2 10.42/10.43, Node.js 22.23.2, and CPython
+3.11.15 certification passes; the 20-case shared corpus and 100-entry
+portability matrix retain zero semantic divergences and zero unresolved
+entries. The three-repeat migration differential has zero determinism
+mismatches and no blocking unresolved replacement.
+
+Local passes 26/26. Pull Request records 44 passed and only inherited Ruby
+Bundler drift plus missing Swift. Full records 76 passed, zero failed,
+incomplete, or waived operations, and seven explicit unavailable results for
+dependency-risk scanning plus Ruby lint/build/test and Swift
+typecheck/build/test. A fresh no-hardlink clone of the reviewed commit remains
+Git-clean and reproduces all Rust/tooling, focused Preview, documentation,
+contract, architecture, governance, shared-corpus, and portability checks.
+
+P13 and P13-T06 are `READY WITH RECORDED CARRY-FORWARD`. P14-T01 is next and
+owns the complete Essential 5 and standard-library guarantee audit. No
+compiler semantics, target behavior, binding implementation, public API,
+package, default, version, tag, upload, publication, or product redesign was
+changed here.

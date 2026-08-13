@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Frontend convergence and canonical tutorials
-status: in_progress
+status: complete
 objective: Certify that Semantic STRling, native Rust Simply, TypeScript Simply Preview, Python Simply Preview, source-less Semantic IR, and structurally equivalent regex-compatible imports converge on one canonical semantic and target pipeline, then make the public authoring hierarchy unambiguous without adding semantics or redesigning the product.
 scope:
     diff:
@@ -163,14 +163,56 @@ checkpoints:
             result: passed
             details: Exact repository formatting passes; documentation integrity validates 158 Markdown files and seven executable parser examples; public-contract, generated-artifact, architecture-fitness, patch-integrity, and convergence checks pass without a production or public API change. The Semantic contract manifest renews only the changed README content hash and preserves every grammar, mapping, diagnostic, fixture, and case count.
     - name: Full repository and phase certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Complete repository suites
+            result: passed
+            details: Exact Rust 1.75.0 formatting and clippy pass with warnings denied; all 379 Rust tests and all 542 tooling tests pass. The complete TypeScript suite passes 970 tests and the complete Python suite passes 796 tests after governed Prettier 3.3.3 and Ruff 0.15.21 formatting. Public contracts, generated artifacts, documentation integrity over 158 Markdown files and seven executable examples, architecture fitness, core contracts, and governance all pass.
+          - check: Exact runtime and portability certification
+            result: passed
+            details: Official PCRE2 10.42 and 10.43 libraries, Node.js 22.23.2, and CPython 3.11.15 pass exact two-run certification. The shared five-profile corpus passes all 20 cases with 88 executed, seven not-applicable, and five unsupported applications; the 100-entry portability matrix has 87 native, one planner-certified rewrite, seven not applicable, five explicitly unsupported, zero semantic divergences, and zero unresolved entries.
+          - check: Migration and profile certification
+            result: passed
+            details: The migration differential passes three repeated Node-18 observations with zero determinism mismatches, baseline fingerprint sha256:59c75727d33ad965a65c9ff880cb8e2aab17f495a21d213d675af7cf9cd3a934, and canonical-boundary fingerprint sha256:71b8adfbab3b965cbd381317b3da9a8192ba5ab3d7f8a12b13b7b5c75058b255. Local passes 26/26. Pull Request records 44 passed and only inherited Ruby Bundler drift plus missing Swift availability. Full records 76 passed, zero failed, zero incomplete, zero waived, and seven explicit unavailable results comprising dependency-risk scanning plus Ruby lint/build/test and Swift typecheck/build/test.
+          - check: Clean-room reproducibility and clean tree
+            result: passed
+            details: A fresh no-hardlink clone of 7fe029c9b233e29974a95537def20b051cc6355a, using ignored hard-linked dependency directories, remains Git-clean and reproduces all 379 Rust tests, all 542 tooling tests, seven TypeScript and seven Python focused Preview convergence tests, the complete convergence/documentation/public/generated/architecture/core/governance checks, exact shared cross-engine certification, and the checked portability matrix.
 commits:
     - sha: b7cc79804c95c7a57ee05207772566e4f5bf680f
       subject: "docs(frontend): define convergence certification"
     - sha: f194ef1fe4feaa7a871d06d611ff2afa4986747d
       subject: "test(frontend): certify authoring convergence"
+    - sha: a7af7686dfab4d393fb9afc15d30c23fe15777b0
+      subject: "docs(frontend): establish canonical authoring hierarchy"
+    - sha: 3bb30e0837b070248e92ee318260c8f38b3f3fb8
+      subject: "chore(frontend): renew Semantic documentation fingerprint"
+    - sha: 7fe029c9b233e29974a95537def20b051cc6355a
+      subject: "chore(frontend): format convergence tests"
+completion:
+    accomplished:
+        - Locked one fail-closed eleven-case convergence denominator across authored Semantic STRling, native Rust Simply, TypeScript and Python Simply Preview, source-less Semantic IR, and representative regex-compatible imports.
+        - Proved equivalent intent converges on identical normalized semantics, facts, diagnostics, portability plans, rewrites, target options, artifacts, and outcomes while excluding only governed representation metadata.
+        - Replaced the public authoring hierarchy across fourteen surfaces so Semantic STRling is the flagship textual language, Simply is the programmatic intent API, and regex-compatible syntax is explicitly import/compatibility input.
+    verified:
+        - All 15 Simply operations, 17 Semantic mappings, 38 accepted or compatibility-only legacy features across ten families, all 13 rejected legacy dispositions, three exact profiles, three host routes, and zero unresolved entries are covered and mutation-guarded.
+        - All 379 Rust, 542 tooling, 970 TypeScript, and 796 Python tests pass with exact formatting, lint, contracts, generated/documentation/architecture/governance integrity, runtime, shared-corpus, portability, migration, and clean-room evidence.
+        - Local passes 26/26; Pull Request has 44 passed with two inherited availability findings; Full has 76 passed, zero failed/incomplete/waived, and only seven explicit host/scanner availability findings.
+    behavior_changed: Canonical public documentation now teaches Semantic STRling first, Simply second, and regex-compatible import third; compiler semantics, target behavior, runtimes, bindings, public APIs, packages, defaults, and release behavior do not change.
+    intentional_behavior_changes:
+        - Fourteen public documentation surfaces and the canonical first-contribution tutorial now use the ratified authoring hierarchy and executable Semantic request path.
+        - Additive convergence fixtures, schema, validation tooling, Rust tests, and Preview tests certify already-ratified frontend behavior without creating a new semantic authority.
+        - The Semantic frontend manifest renews only the changed README content hash; no grammar, mapping, diagnostic, fixture, contract, or generated artifact authority changes.
+    preserved_behavior:
+        - Semantic IR, normalization, analysis, diagnostics, capability evaluation, portability planning, lowering, serialization, exact target profiles, and runtime behavior remain unchanged.
+        - Dedicated regex import/migration and normative legacy-dialect documentation remain available without presenting regex syntax as the flagship language.
+        - No binding implementation, package surface, version, release tag, registry upload, publication, or product redesign is introduced.
+    transitional_architecture:
+        - Pull Request carries forward only repository-managed Ruby Bundler drift and missing Swift availability.
+        - Full additionally records the unavailable dependency-risk scanner and Ruby/Swift lint, typecheck, build, and test operations; every available operation passes and no waiver is used.
+    deferred_work:
+        - P14-T01 owns the ordered audit and exact guarantee classification for every Essential 5 and standard-library helper.
+        - Publication, versioning, tagging, and registry upload remain owner-authorized release actions outside this task.
 readiness:
-    status: BLOCKED
-    next_task: Run full repository, profile, reproducibility, and clean-tree certification for the completed convergence implementation and documentation hierarchy.
-    rationale: The locked denominator, executable multi-route convergence evidence, host Preview reuse, and canonical tutorial migration pass their focused hardgates; aggregate profiles and clean-state closure remain incomplete.
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P14-T01 by inventorying every Essential 5 and standard-library helper, current guarantees and claims, standards references, target dependencies, tests, and historical binding behavior before assigning dispositions.
+    rationale: P13-T06 and phase P13 satisfy their complete convergence, documentation, exact runtime, portability, migration, profile, and clean-room acceptance requirements. Every available operation passes with zero failure, incomplete result, or waiver; only the dependency-risk scanner plus inherited Ruby Bundler and Swift host availability are carried forward explicitly.
