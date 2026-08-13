@@ -158,7 +158,9 @@ def test_all_convergence_requests_are_exact_and_compile_through_rust() -> None:
         response = transport.execute(request)
         assert response["status"] == "success", case["id"]
         assert response["compile_request"]["input"]["kind"] == "semantic", case["id"]
-        assert response["compile_result"]["semantic_result"]["status"] == "complete", case["id"]
+        assert response["compile_result"]["semantic_result"]["status"] == "complete", (
+            case["id"]
+        )
 
 
 def test_exact_target_profile_is_transport_only() -> None:

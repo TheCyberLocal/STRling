@@ -25,10 +25,7 @@ const POSITIVE = JSON.parse(
 );
 const CONVERGENCE = JSON.parse(
     fs.readFileSync(
-        path.join(
-            REPOSITORY,
-            "tests/convergence/frontend-convergence.json",
-        ),
+        path.join(REPOSITORY, "tests/convergence/frontend-convergence.json"),
         "utf8",
     ),
 );
@@ -135,7 +132,9 @@ function rebuildFixture(request: SimplyBuilderRequest): SimplyBuilderRequest {
     );
 }
 
-function convergenceRequest(testCase: Record<string, any>): SimplyBuilderRequest {
+function convergenceRequest(
+    testCase: Record<string, any>,
+): SimplyBuilderRequest {
     return {
         protocol_version: "1.0.0",
         contract_version: "1.0.0",
