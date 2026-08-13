@@ -29,6 +29,7 @@ scope:
         - spec/README.md
         - spec/frontends/README.md
         - spec/frontends/semantic/1.0/README.md
+        - spec/frontends/semantic/1.0/fixtures/manifest.json
         - tests/convergence/frontend-convergence.json
         - tests/convergence/frontend-convergence.schema.json
         - tooling/frontend_convergence.py
@@ -68,6 +69,7 @@ scope:
         - spec/README.md
         - spec/frontends/README.md
         - spec/frontends/semantic/1.0/README.md
+        - spec/frontends/semantic/1.0/fixtures/manifest.json
         - tests/convergence/frontend-convergence.json
         - tests/convergence/frontend-convergence.schema.json
         - tooling/frontend_convergence.py
@@ -159,7 +161,7 @@ checkpoints:
             details: The convergence checker requires all fourteen surfaces, rejects stale transition-era claims and binding-as-oracle guidance, and proves denominator shrinkage, stale claims, missing markers, and tutorial reordering fail closed; all fourteen checker tests pass.
           - check: Documentation and boundary integrity
             result: passed
-            details: Exact repository formatting passes; documentation integrity validates 158 Markdown files and seven executable parser examples; public-contract, generated-artifact, architecture-fitness, patch-integrity, and convergence checks pass without a production or public API change.
+            details: Exact repository formatting passes; documentation integrity validates 158 Markdown files and seven executable parser examples; public-contract, generated-artifact, architecture-fitness, patch-integrity, and convergence checks pass without a production or public API change. The Semantic contract manifest renews only the changed README content hash and preserves every grammar, mapping, diagnostic, fixture, and case count.
     - name: Full repository and phase certification
       status: planned
       evidence: []
