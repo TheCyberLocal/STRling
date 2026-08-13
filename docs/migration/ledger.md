@@ -3118,3 +3118,32 @@ and shared-corpus operations before the matrix check, preserving structured
 unavailability rather than substituting ambient engines. This task closes P11
 only after repeated exact execution, matrix determinism, all available
 hardgates, explicit environment carry-forward, and a clean final commit.
+
+The evidence-only controller, schema, machine artifact, generated summary,
+mutation hardgates, and Full/Release routing are complete at implementation
+commit `a38a42fdad264143a553a64b404c24f6fb3c1d53`. The certified matrix has 100
+entries: 87 native, one planner-certified equivalent rewrite, five target
+unsupported or constrained, seven not applicable, six explicit nonblocking
+representation/support divergences, zero semantic-divergent cases, and zero
+unresolved entries. All 19 comparable executed cases form one normalized
+semantic class; the diagnostic-only case remains explicitly not compared.
+Matrix SHA-256 is
+`11f70923cdc200b132d7f68077fd840f3d38cf9aff63949fae24d703b68ea205`.
+
+Exact PCRE2 10.42/10.43, Node 22.23.2, CPython 3.11.15, shared-corpus, and matrix
+certifications pass. Rust all-target tests, warning-denied Clippy, 485 tooling
+tests, canonical and core contracts, stage boundaries, public/generated
+contracts, formatting, governance, documentation integrity across 145 files,
+patch integrity, and the reviewed three-run migration differential pass. The
+migration candidate matches checked baseline
+`sha256:8127c22a016013ff9751540ce39615fa780291da675082f2668bae5d63e4da5c`;
+no baseline renewal is required.
+
+On the clean implementation commit, Local passes 26/26. Pull Request records
+44/46 passed and Full 1.9.0 records 76/83 passed, with zero failures,
+incomplete operations, or waivers. Only the inherited repository-managed Ruby
+Bundler mismatch, missing Swift, and structured dependency-risk scanner remain
+unavailable. P11-T06 and P11 are `READY WITH RECORDED CARRY-FORWARD`. P12-T04
+is the next ordered task and resumes the partially completed overlap,
+unreachable, degenerate, and suspicious-pattern diagnostics work without
+reopening the completed cross-engine target boundary.

@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Initial evidence-backed cross-engine portability matrix
-status: in_progress
+status: complete
 objective: Derive a deterministic machine-authoritative feature, requirement, vector, and exact-profile portability matrix from the fixed specification-authored shared corpus and preserved exact-engine observations; classify every representation or semantic divergence explicitly; block unresolved differences; generate a human summary; and integrate the matrix gate into Full and Release without changing language, target, product, binding, package, version, or publication behavior.
 scope:
     diff:
@@ -150,13 +150,53 @@ checkpoints:
             details: The machine artifact records 100 ordered entries, 105 feature/profile rows, 80 requirement/profile rows, five exact profile/runtime identities, 87 native, one planner-certified rewrite, five target unsupported/constraint, seven not applicable, six explicit nonblocking divergences, zero semantic-divergent cases, and zero unresolved entries. Nineteen executed cases form one normalized semantic class each; the diagnostic-only case is explicitly not compared. Matrix SHA-256 is 11f70923cdc200b132d7f68077fd840f3d38cf9aff63949fae24d703b68ea205.
           - check: Mutation, determinism, and checked-output proof
             result: passed
-            details: Sixty-six focused matrix, architecture, and quality-routing tests pass. Missing pairs, state drift, runtime fingerprint drift, and normalized semantic differences fail closed; a semantic mutation becomes unresolved and blocked. Repeated in-memory generation is identical, producer --write matches --check, and both checked outputs verify against current inputs.
+            details: Sixty-seven focused matrix, architecture, and quality-routing tests pass. Missing pairs, state drift, runtime fingerprint drift, and normalized semantic differences fail closed; a semantic mutation becomes unresolved and blocked. Repeated in-memory generation is identical, producer --write matches --check, and both checked outputs verify against current inputs.
     - name: Complete repository and P11 phase certification
-      status: planned
+      status: passed
       evidence:
           - check: Phase-closing hardgate evidence
-            result: not_run
-            details: Awaiting repeated exact shared execution, matrix check, all target certifications, contracts, architecture, security, generated/public checks, reviewed migration differential, Local/Pull Request/Full profiles, final clean commit, and P11 readiness handoff.
+            result: passed
+            details: All Rust all-target tests, warning-denied Clippy, 485 complete tooling tests, 67 focused matrix/architecture/quality-routing tests, exact PCRE2 10.42/10.43, Node 22.23.2, CPython 3.11.15, shared-corpus, and matrix certifications, canonical and core contracts, stage boundaries, exact Ruff, formatting, public/generated contracts, governance, documentation integrity across 145 files, and patch integrity pass. The matrix reproduces SHA-256 11f70923cdc200b132d7f68077fd840f3d38cf9aff63949fae24d703b68ea205 with zero unresolved entries.
+          - check: Reviewed migration differential
+            result: passed
+            details: Three repeat runs produce zero mismatches. The replacement result is sha256:33e702cfcb504b07fb79be7c65af2a7958395f66689cfa2da126a4494f50ed4, route coverage is sha256:96f519848f9a4ef3d3fe926c17ffcee81b98ba1fce33f216511ca7749044699e, and the candidate exactly matches checked baseline sha256:8127c22a016013ff9751540ce39615fa780291da675082f2668bae5d63e4da5c, so no baseline renewal is required. Forty-four source observations retain six historical peer unresolved evidence records while blocking replacement unresolved count remains zero.
+          - check: Clean Local, Pull Request, and Full profiles
+            result: passed
+            details: At clean implementation commit a38a42fdad264143a553a64b404c24f6fb3c1d53, Local passes all 26 operations. Pull Request records 44 passed and two unavailable. Full 1.9.0 records 76 passed and seven unavailable, including successful exact shared-corpus and portability-matrix operations. No operation failed, was incomplete, or was waived.
+          - check: Explicit environment carry-forward and P11 handoff
+            result: passed
+            details: Pull Request carries only the repository-managed Ruby Bundler mismatch and missing Swift. Full carries those Ruby and Swift host gaps plus the existing structured dependency-risk scanner unavailability. No unavailable operation is represented as passing, every P11-owned exact runtime and portability obligation passed, and P11 closes READY WITH RECORDED CARRY-FORWARD.
 commits:
     - sha: 2fc28e2f30ea6e5b52b9240e485e5e14beda9960
       subject: "docs(core): define initial portability matrix"
+    - sha: a38a42fdad264143a553a64b404c24f6fb3c1d53
+      subject: "feat(tooling): certify initial portability matrix"
+completion:
+    accomplished:
+        - Added a versioned machine-authoritative 100-entry portability matrix derived exclusively from the fixed specification-owned corpus and checked exact-engine observations.
+        - Added complete feature-by-profile and requirement-by-profile projections, explicit divergence records, normalized cross-profile semantic classes, deterministic matrix identity, and a generated human summary.
+        - Added an evidence-only certification controller, governance schema, generated-artifact ownership, fail-closed mutation coverage, and Full/Release routing immediately after exact shared-corpus certification.
+    verified:
+        - The certified matrix contains 87 native entries, one planner-certified equivalent rewrite, five target unsupported/constraint entries, seven not-applicable entries, six explicit nonblocking divergences, zero semantic-divergent cases, and zero unresolved entries.
+        - All 19 comparable executed cases form exactly one normalized semantic class; the diagnostic-only case is explicitly excluded from semantic comparison.
+        - All Rust, Python, contract, architecture, exact-runtime, shared-corpus, generated-artifact, formatting, governance, documentation, migration-differential, and patch-integrity checks pass.
+        - Local passes 26/26; Pull Request and Full record 44/46 and 76/83 passed respectively with zero failures and only explicit inherited host-tool/scanner unavailability.
+    behavior_changed: The repository can now deterministically certify and summarize the initial five-profile cross-engine portability boundary and fail closed on stale, missing, semantically split, or unresolved evidence; no STRling language semantics, target behavior, public API, binding, package, version, or publication behavior changed.
+    intentional_behavior_changes:
+        - Full and Release now certify the generated portability matrix after exact shared-corpus execution and report structured unavailability when prerequisite exact runtimes are absent.
+        - Every fixed vector/profile application now has one explicit evidence disposition and every representation, support, or semantic difference is preserved rather than hidden by aggregation.
+        - Any cross-profile normalized semantic split marks every affected executed row unresolved and blocks readiness until the owning layer is reviewed and corrected.
+    preserved_behavior:
+        - Specification-authored semantic and diagnostic expectations, immutable target profiles, planner-certified rewrites, and exact runtime observations remain the only inputs; the matrix cannot author semantics or change target behavior.
+        - Engine majority, emitted syntax spelling, historical compatibility evidence, and matrix aggregation cannot resolve discrepancies or create portability authority.
+        - Product orchestration, bindings, packages, versions, publication, and release actions remain unchanged and outside P11.
+    transitional_architecture:
+        - Exact runtime execution remains isolated in the existing certification adapters; the matrix controller is evidence-only and has no subprocess, target implementation, binding, package, or product route.
+        - Pull Request and Full are READY WITH RECORDED CARRY-FORWARD for inherited Ruby Bundler, Swift, and dependency-risk scanner availability only; every P11-owned and available operation passed.
+    deferred_work:
+        - P12-T04 resumes the partially completed semantic-diagnostics work for overlap, unreachable, degenerate, and suspicious patterns under the already-established canonical analysis boundary.
+        - Future target profiles must extend the authored shared corpus and this matrix mechanism instead of introducing a peer-majority or emitted-text compatibility authority.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Resume P12-T04 by reconciling its Partial tracker state with repository evidence, then implement and certify the remaining overlap, unreachable, degenerate, and suspicious-pattern diagnostics without reopening completed P11 target work.
+    rationale: P11-T06 and P11 are complete with a closed 100-entry denominator, deterministic exact-runtime and matrix evidence, zero unresolved differences, complete available hardgates, clean profile artifacts, zero failed operations, and only inherited host-tool/scanner availability carried forward explicitly.

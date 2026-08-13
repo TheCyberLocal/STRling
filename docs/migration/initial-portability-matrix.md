@@ -117,3 +117,34 @@ Bindings, packages, versions, publication, release notes, performance policy,
 new targets, and product-facing compiler orchestration remain outside this
 task. Future target profiles must extend the same authored corpus and matrix
 mechanism rather than creating a separate compatibility authority.
+
+## Certified outcome
+
+The initial matrix is complete at SHA-256
+`11f70923cdc200b132d7f68077fd840f3d38cf9aff63949fae24d703b68ea205`
+from corpus SHA-256
+`e8c069f068b8562518bfcf4f782a0961b53124660e4d40e63e49cbe8c6824fb1`
+and checked observation SHA-256
+`9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c`.
+Its 100 entries contain 87 native applications, one planner-certified
+equivalent rewrite, five target unsupported or constrained applications,
+seven not-applicable applications, six explicit nonblocking divergences, and
+zero unresolved entries. All 19 comparable executed cases form one normalized
+semantic class; the diagnostic-only case is explicitly not compared.
+
+Exact PCRE2 10.42 and 10.43, Node 22.23.2, CPython 3.11.15, shared-corpus, and
+matrix certifications pass. Rust all-target tests, warning-denied Clippy, all
+485 tooling tests, canonical and core contracts, stage boundaries, generated
+and public contracts, formatting, governance, documentation integrity, patch
+integrity, and the reviewed three-run migration differential also pass. The
+migration candidate matches baseline SHA-256
+`8127c22a016013ff9751540ce39615fa780291da675082f2668bae5d63e4da5c`,
+so no baseline renewal is required.
+
+At clean implementation commit
+`a38a42fdad264143a553a64b404c24f6fb3c1d53`, Local passes 26/26. Pull Request
+records 44/46 passed and Full 1.9.0 records 76/83 passed, with zero failures,
+incomplete operations, or waivers. The only unavailable operations are the
+inherited repository-managed Ruby Bundler mismatch, missing Swift, and Full's
+structured dependency-risk scanner gap. P11-T06 and P11 are therefore `READY
+WITH RECORDED CARRY-FORWARD`.
