@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical LSP code actions and embedded-island rebase
-status: in_progress
+status: complete
 objective: Expose only certified canonical semantic rewrites and canonical Semantic STRling formatting through the LSP while replacing binding-owned island extraction with one governed, source-safe, fail-closed tooling registry and coordinate adapter.
 scope:
     diff:
@@ -207,8 +207,20 @@ checkpoints:
             result: passed
             details: Architecture fitness, exact task scope and change declarations, documentation integrity, governance JSON, repository and LSP static analysis, the 71-suppression/four-waiver audit, closed island schema/registry mutation checks, Node syntax, task-owned formatting, and patch integrity pass. The canonical registry remains version 1.0.0 at sha256:f263465d9a49eb76aed8205d7fe72bec59cee2e7e7886651af4e8a60f82344c2. Generated VSIX payloads remain untouched for P16-T05.
     - name: Completion and next-task readiness
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Durable certified-action, formatting, and island closure
+            result: passed
+            details: >-
+                The LSP exposes exactly one optional refactor.rewrite action, rewrite.repeat_exactly_once.elide.v1 associated with STRL-QUALITY-0002, only after current-source, diagnostic, strategy, proof, node, and UTF-8 range identity all agree. STRL-SAFETY-0003, regex-compatible sources, host islands, stale or ambiguous evidence, source-loss cases, and every uncertified or target-dependent replacement return no action. Native Semantic STRling formatting is the exact canonical formatter projection; regex and host formatting remain unavailable rather than heuristic.
+          - check: Acceptance denominator and architecture movement
+            result: passed
+            details: >-
+                The 108-case manifest covers 18 action cases, six formatter cases, 36 literal forms, 18 refusal sources, eight Unicode/multiline mapping cases, 14 registry mutations, and eight lifecycle/service cases at sha256:42869a311689fc057d07614156c66da78c6efe2c794f43ef352052f075d9f554. The governed 1.0.0 registry covers native routing plus 17 hosts, 35 suffixes, 47 boundary spellings, and 36 identity-safe literal forms at sha256:f263465d9a49eb76aed8205d7fe72bec59cee2e7e7886651af4e8a60f82344c2. Binding defaults and permissive Node fallback authority are removed; architecture enforces zero LSP Python-binding semantic dependencies and the sole governed rewrite caller.
+          - check: P16-T05 readiness and recorded carry-forward
+            result: passed
+            details: >-
+                P16-T05 can package the certified editor-core process, canonical bridges, governed registry, and authored server without reopening editor semantics. Generated dist payloads, package manifests, lockfiles, and installers remain untouched. All 544 LSP tests, 637 tooling tests, Rust all-target, public/generated contracts, migration differential, explanation certification, architecture, governance, documentation, affected formatting, and patch integrity pass. Existing repository/binding formatting and hygiene debt, four untouched strict-Clippy findings, one Simply-preview target-evidence expectation, optional host toolchains, missing LSP packaging dependencies, and policy-limited Full dependency audit remain explicit; no unavailable result is represented as a product pass.
 commits:
     - sha: 081ae352e1cbc093dd60fb8fdcce292afe3241c0
       subject: "docs(lsp): lock canonical actions and islands"
@@ -216,3 +228,34 @@ commits:
       subject: "test(lsp): lock action and island evidence"
     - sha: f4d19f67eb6f1d2050f6f8e36daaf876b10bccc8
       subject: "feat(lsp): implement canonical actions and islands"
+    - sha: 07284de738db4bc77ef47ddbcf44964c05a9ed00
+      subject: "test(lsp): certify canonical actions and islands"
+completion:
+    accomplished:
+        - Replaced heuristic code actions with exact current-source projection of the sole certified optional semantic rewrite and replaced binding formatting with canonical Semantic STRling formatting.
+        - Replaced binding-owned island defaults and permissive consumer fallbacks with one closed, fingerprinted, resource-bounded registry and exact Unicode/multiline source-coordinate adapter.
+        - Removed the final LSP Python-binding semantic dependencies and enforced both that boundary and the sole governed certified-rewrite caller architecturally.
+        - Repaired deterministic Windows profile execution, resolved-path tool probes, UTF-8 subprocess evidence, and UTF-8 base contract reads without changing compiler or binding semantics.
+    verified:
+        - The 108-case evidence manifest covers 18 actions, six formatters, 36 literal forms, 18 refusals, eight mappings, 14 registry mutations, and eight lifecycle/service cases; the registry covers native routing plus 17 hosts, 35 suffixes, and 47 boundaries.
+        - All 544 LSP tests, 637 tooling tests, every Rust all-target test, public/generated contracts, migration differential, migration-explanation certification, architecture, governance, documentation integrity, affected formatting, and patch integrity pass.
+        - The three-run migration differential has zero repeat mismatches at baseline sha256:06c7eb7480e36d5d3ec9411d62013a64e01b93c0b37b5c8d70e593e77eb59ccf and full corpus sha256:0355728ce482487c7bae501fcda96cadb2a56f05a1fb25ab711b8fa7203dcd89.
+        - Local records 20 passed, six inherited failed, and one unavailable; Pull Request records 24, 12, and 11; safe network-restricted Full records nine, eight, and 68, with every inherited, unavailable, sandboxed, or policy-limited result explicitly classified.
+    behavior_changed: LSP code actions now expose only a certified exact-once Semantic STRling wrapper elision, native Semantic formatting uses the canonical formatter, and embedded host extraction follows one fail-closed governed registry with exact source mapping.
+    intentional_behavior_changes:
+        - The REDOS_RISK alias, heuristic atomic/possessive replacements, cached-diagnostic fallback, and every uncertified safety or target-dependent action are removed.
+        - Regex-compatible and host documents no longer receive binding formatter edits; only successful current native Semantic STRling documents may receive canonical full-document formatting.
+        - Processed escapes, interpolation, concatenation, malformed or ambiguous boundaries, unsupported literal forms, and registry drift now refuse island extraction instead of guessing a host value.
+    preserved_behavior:
+        - Semantic STRling, regex-compatible, Semantic IR, diagnostic, rewrite, target, runtime, stdlib, Simply, binding API, package, and public compiler semantics remain under their existing authorities.
+        - The existing certified rewrite predicates, immutable snapshot lifecycle, source identities, negotiated position encodings, cancellation, stale rejection, and failure isolation are reused rather than reimplemented.
+        - Island extraction remains a non-normative tooling coordinate adapter and never infers target, profile, runtime resolution, or host-language meaning.
+    transitional_architecture:
+        - The authored server still runs from source during development; P16-T05 owns packaging the editor-core process, bridge modules, governed registry, and extension payload.
+        - Repository-wide formatting/hygiene debt, four strict-Clippy findings in untouched core files, one Simply-preview target-evidence expectation, optional host toolchains, missing LSP package dependencies, and a policy-limited Full dependency audit remain explicit.
+    deferred_work:
+        - P16-T05 must assemble, package, install, and certify the complete canonical language-server runtime and all required non-generated inputs without duplicating editor semantics.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: P16-T05 — Assemble, package, and certify the canonical language-server runtime.
+    rationale: Every P16-T04-owned action, formatting, island, source-mapping, lifecycle, migration, architecture, documentation, and directly executable certification requirement passes. Remaining gaps are explicitly owned by P16-T05 or are inherited host/toolchain/security-profile limitations; none requires reopening canonical editor semantics.

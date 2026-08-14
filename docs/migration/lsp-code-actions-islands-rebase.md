@@ -227,6 +227,63 @@ tests; schema, Node syntax, architecture, static-analysis suppression,
 governance, formatting, and diff checks pass. Pytest cache writes remain an
 inherited managed-workspace limitation and do not change test results.
 
+CP4 passes all 544 LSP tests, 637 tooling tests, every Rust all-target test,
+public-contract verification, registered generated-artifact verification,
+architecture fitness, governance, documentation integrity, affected-file
+formatting, and patch integrity. The three-run migration differential has zero
+determinism mismatches at baseline
+`sha256:06c7eb7480e36d5d3ec9411d62013a64e01b93c0b37b5c8d70e593e77eb59ccf`,
+canonical boundary
+`sha256:2bb19e5dcc06feb76b3e684a873156e8844b4042cbf8be58fa8e59c3649bc4f3`,
+and full corpus
+`sha256:0355728ce482487c7bae501fcda96cadb2a56f05a1fb25ab711b8fa7203dcd89`.
+Migration-explanation certification passes nine round trips, 18 destination
+proofs, 24 no-match cases, 100 target observations, and eight mutations.
+
+The certification repair keeps the semantic frontend pure: only the governed
+editor-intelligence projection may request the existing certified rewrite.
+Windows profile execution now resolves declared tools and local `.cmd` shims,
+uses the active Python runtime, and decodes subprocess evidence as UTF-8.
+Local records 20 passed, six inherited failures, and one unavailable operation;
+Pull Request records 24 passed, 12 inherited or optional-host failures, and 11
+unavailable operations. The network-enabled Full run is not permitted because
+its dependency-risk audit may disclose repository dependency metadata. The
+established safer network-restricted Full records nine passed, eight
+sandbox/network failures, and 68 unavailable operations; every failed
+task-relevant canonical wrapper passes directly. No unavailable, inherited, or
+policy-limited operation is labeled passing.
+
+## Closure and handoff
+
+P16-T04 is `READY WITH RECORDED CARRY-FORWARD`. Its 108-case authored
+denominator covers 18 action cases, six formatter cases, 36 literal forms, 18
+island refusals, eight Unicode/multiline mapping cases, 14 registry mutations,
+and eight lifecycle/service cases. Exactly one optional action is exposed:
+`rewrite.repeat_exactly_once.elide.v1` associated with
+`STRL-QUALITY-0002`. `STRL-SAFETY-0003`, regex-compatible sources, host
+islands, stale evidence, ambiguous ranges, source-loss cases, and every
+uncertified or target-dependent rewrite remain non-actionable.
+
+The governed island registry remains `1.0.0` at
+`sha256:f263465d9a49eb76aed8205d7fe72bec59cee2e7e7886651af4e8a60f82344c2`.
+It covers native routing plus 17 hosts, 35 normalized suffixes, 47 boundary
+spellings, and 36 identity-safe literal forms with bounded monotonic Unicode
+source maps. Binding-owned defaults and the permissive Node fallback are no
+longer reachable from the LSP. The canonical architecture rules enforce both
+the zero-binding dependency and sole governed rewrite caller.
+
+The reviewed certification checkpoint is
+`07284de738db4bc77ef47ddbcf44964c05a9ed00`. P16-T05 is next and owns only
+assembly, packaging, installation, and packaged-runtime conformance for the
+canonical editor-core process, bridge modules, island registry, and extension
+payload. Generated `tooling/lsp-server/dist/**`, package manifests, lockfiles,
+and installer paths remain untouched. Existing repository/binding formatting
+and hygiene debt, four untouched strict-Clippy findings, the Simply-preview
+target-evidence expectation, optional host toolchains, missing LSP package
+dependencies, and the policy-limited Full dependency audit remain explicit
+carry-forward; none is silently waived or represented as a P16-T04 product
+pass.
+
 Rollback is the complete P16-T04 diff back to
 `ee831b1f6c027c37b06da0d7cf571996325e8da8`. Rollback does not restore the
 non-canonical diagnostic alias as authority, modify T02/T03 canonical editor
