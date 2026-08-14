@@ -1,348 +1,103 @@
-# STRling LSP Setup Guide
+# STRling LSP setup
 
-## Overview
-
-This guide explains how to set up the STRling Language Server Protocol (LSP) for real-time diagnostics in your code editor.
+The supported VS Code path is the platform-targeted VSIX described in
+`README.md`. Direct source-tree launch remains useful for editor integration
+development, but it is not an alternate semantic implementation.
 
 ## Prerequisites
 
--   Python 3.8 or higher
--   pip (Python package manager)
--   A compatible code editor (VS Code, Neovim, Sublime Text, etc.)
+-   Python 3.11 or newer for the LSP transport;
+-   Cargo and Rust for the canonical kernel/editor processes;
+-   Node and the locked `tooling/lsp-server/package-lock.json` dependencies only
+    when building the VS Code client or package.
 
-## Installation
+The server has no external Python package dependencies. Do not install the
+STRling Python binding or download `pygls`/`lsprotocol` to run it.
 
-### 1. Install STRling Python Package
+## Source-tree server
 
-```bash
-# From the repository root
-cd bindings/python
-pip install -e .
+Build the two canonical processes from the repository root:
+
+```text
+cargo build --manifest-path core/Cargo.toml --locked \
+  --bin strling-kernel --bin strling-editor-core
 ```
 
-### 2. Install LSP Server Dependencies
+Then launch the authored server over stdio:
 
-```bash
-cd tooling/lsp-server
-pip install -r requirements.txt
-npm install
-npm run assemble
+```text
+python tooling/lsp-server/server/server.py --stdio
 ```
 
-This will install:
+Source-tree discovery uses the built core executables and repository-governed
+Simply, standard-library, and island-boundary resources. You may instead set
+`STRLING_KERNEL`, `STRLING_EDITOR_CORE`, `STRLING_SIMPLY_PROTOCOL_PATH`,
+`STRLING_STDLIB_REGISTRY_PATH`, and `STRLING_ISLAND_BOUNDARIES_PATH` to explicit
+paths. Missing canonical inputs are fatal; there is no binding fallback.
 
--   `pygls` - Python Generic Language Server implementation
--   `lsprotocol` - LSP protocol types
+## VS Code package
 
-### 3. Verify Installation
-
-Test the parser CLI (which now wraps the unified intelligence core):
-
-```bash
-# Parse from stdin (exit 2 + JSON error envelope on failure)
-echo "(abc" | python3 tooling/parse_strl.py -
-
-# Parse a file
-python3 tooling/parse_strl.py path/to/file.strl
+```text
+npm ci --ignore-scripts --no-audit --no-fund --prefix tooling/lsp-server
+python tooling/lsp-server/package_extension.py package --target auto
+code --install-extension tooling/lsp-server/vscode-strling-1.0.0-<target>.vsix
 ```
 
-Test the LSP server imports:
+Replace `<target>` with the native target reported by the package command. The
+extension discovers Python 3.11+ automatically unless
+`strling.languageServer.command` is configured.
 
-```bash
-cd tooling/lsp-server
-python3 -c "from server.server import server; print('LSP Server ready!')"
+## Generic LSP clients
+
+Configure the client to start this command from the repository root:
+
+```text
+python /absolute/path/to/strling/tooling/lsp-server/server/server.py --stdio
 ```
 
-## Editor Configuration
+Use `strling` for native `.strl` documents. Host-language island support is
+available for the governed C, C++, C#, Dart, F#, Go, Java, JavaScript, Kotlin,
+Lua, Perl, PHP, Python, R, Ruby, Rust, Swift, and TypeScript routes when the
+client forwards the corresponding LSP language ID.
 
-### Visual Studio Code
-
-#### Option 1: Using Generic LSP Client Extension
-
-1. Install the "Generic Language Server" extension
-2. Create or edit `.vscode/settings.json` in your workspace:
-
-```json
-{
-    "genericLanguageServer.languageConfigs": {
-        "strling": {
-            "command": "python3",
-            "args": [
-                "/absolute/path/to/STRling/tooling/lsp-server/server/server.py",
-                "--stdio"
-            ],
-            "filetypes": ["strl", "strling"]
-        }
-    }
-}
-```
-
-#### Option 2: Bundled STRling Extension
-
-Build and install the repository's bundled extension:
-
-```bash
-cd tooling/lsp-server
-npm install
-npm run install:local
-```
-
-The local install step synchronizes the packaged extension into the active
-VS Code server profile under `~/.vscode-server/extensions/`, fixes ownership,
-and clears the cached VSIX metadata that can hide the new payload in WSL.
-
-### Neovim (with nvim-lspconfig)
-
-Add to your Neovim configuration:
+Example Neovim configuration:
 
 ```lua
-local lspconfig = require('lspconfig')
 local configs = require('lspconfig.configs')
+local lspconfig = require('lspconfig')
 
--- Define STRling LSP
-if not configs.strling then
-  configs.strling = {
-    default_config = {
-      cmd = {
-                'python3',
-                '/absolute/path/to/STRling/tooling/lsp-server/server/server.py',
-        '--stdio'
-      },
-      filetypes = {'strl', 'strling'},
-      root_dir = lspconfig.util.root_pattern('.git', 'pyproject.toml'),
-      settings = {},
+configs.strling = configs.strling or {
+  default_config = {
+    cmd = {
+      'python3',
+      '/absolute/path/to/strling/tooling/lsp-server/server/server.py',
+      '--stdio',
     },
-  }
-end
-
-lspconfig.strling.setup{}
-```
-
-### Sublime Text (with LSP package)
-
-1. Install the "LSP" package via Package Control
-2. Add to your LSP settings (`Preferences > Package Settings > LSP > Settings`):
-
-```json
-{
-    "clients": {
-        "strling": {
-            "enabled": true,
-            "command": [
-                "python3",
-                "/absolute/path/to/STRling/tooling/lsp-server/server/server.py",
-                "--stdio"
-            ],
-            "selector": "source.strling",
-            "schemes": ["file"]
-        }
-    }
+    filetypes = {'strling'},
+    root_dir = lspconfig.util.root_pattern('.git'),
+  },
 }
+lspconfig.strling.setup({})
 ```
 
-## File Extensions
+## Verification
 
-The LSP server will automatically activate for files with these extensions:
+Run the source and package checks from the repository root:
 
--   `.strl` - Recommended
--   `.strling` - Alternative
+```text
+python -m pytest tooling/lsp-server/tests -q -p no:cacheprovider
+python tooling/lsp-server/package_extension.py certify --target auto
+```
 
-You may need to configure your editor to recognize these file types.
-
-## Features
-
-### Current (MVP)
-
--   ✅ **Real-time Diagnostics**: Instant error detection as you type
--   ✅ **Instructional Hints**: Beginner-friendly error messages
--   ✅ **Position Tracking**: Accurate error location (line/column)
--   ✅ **Multi-line Support**: Handles patterns spanning multiple lines
--   ✅ **Rich Error Context**: Shows error line with caret indicator
-
-### Planned Features
-
--   🔨 Code completion for STRling syntax
--   🔨 Hover documentation
--   🔨 Go to definition for named groups
--   🔨 Symbol highlighting
--   🔨 Quick fixes and refactoring
--   🔨 Pattern snippets
-
-## Diagnostic Severity Levels
-
-The LSP server uses standard LSP severity levels:
-
-| Level       | Value | Description                         |
-| ----------- | ----- | ----------------------------------- |
-| Error       | 1     | Parse failures, syntax errors       |
-| Warning     | 2     | Deprecated features, best practices |
-| Information | 3     | Informational messages              |
-| Hint        | 4     | Optimization suggestions            |
-
-Currently, all diagnostics are reported as **Error** level.
+Package certification requires a clean Git tree and performs no marketplace
+publication or real-user installation.
 
 ## Troubleshooting
 
-### LSP Server Not Starting
-
-**Problem**: Editor shows "LSP server failed to start"
-
-**Solutions**:
-
-1. Verify Python is in your PATH: `python3 --version`
-2. Check the server imports correctly:
-    ```bash
-    cd tooling/lsp-server
-    python3 -c "from server.server import server; print('OK')"
-    ```
-3. Check editor logs for detailed error messages
-
-### No Diagnostics Appearing
-
-**Problem**: File opens but no errors are shown for invalid patterns
-
-**Solutions**:
-
-1. Verify file extension is `.strl` or `.strling`
-2. Check the parser CLI works:
-    ```bash
-    echo "(abc" | python3 tooling/parse_strl.py -
-    ```
-3. Check editor LSP logs (usually in Output panel)
-
-### Import Errors
-
-**Problem**: `ModuleNotFoundError: No module named 'STRling'`
-
-**Solutions**:
-
-1. Rebuild the hermetic payload so `dist/server/libs` is repopulated:
-    ```bash
-    cd tooling/lsp-server
-    npm run package
-    ```
-2. For direct source-tree runs, verify the binding imports:
-   `python3 -c "import sys; sys.path.insert(0, 'bindings/python/src'); import STRling; print('OK')"`
-
-### Diagnostics Too Slow
-
-**Problem**: Diagnostics appear with significant delay
-
-**Solutions**:
-
-1. The LSP debounces text changes by 50 ms; very complex patterns may exceed that.
-2. Consider breaking large patterns into smaller components.
-3. Check if your system is under high load.
-
-## Testing
-
-Run the test suite to verify everything is working:
-
-```bash
-# Test island extractor + LSP integration (uses the in-process intelligence core)
-cd tooling/lsp-server
-python3 -m pytest tests/test_island_extractor.py tests/test_lsp_server.py -v
-
-# Test LSP diagnostic conversion
-cd ../../bindings/python
-python -m pytest tests/unit/test_lsp_diagnostics.py -v
-
-# Test LSP server
-cd ../../tooling/lsp-server
-python3 -m pytest tests/test_lsp_server.py -v
-```
-
-All tests should pass.
-
-## Example Workflow
-
-1. Create a STRling pattern file: `touch pattern.strl`
-2. Open it in your editor (VS Code, Neovim, etc.)
-3. Start typing a pattern:
-    ```
-    (hello world
-    ```
-4. The LSP server will immediately show an error:
-
-    ```
-    Unterminated group
-
-    Hint: This group was opened with '(' but never closed.
-    Add a matching ')' to close the group.
-    ```
-
-5. Fix the error by adding the closing parenthesis:
-    ```
-    (hello world)
-    ```
-6. The error clears automatically!
-
-## Architecture
-
-```
-┌─────────────────┐
-│   Code Editor   │
-│   (VS Code)     │
-└────────┬────────┘
-         │ LSP Protocol
-         │ (JSON-RPC)
-         ▼
-┌─────────────────┐
-│   LSP Server    │
-│   (server.py)   │
-└────────┬────────┘
-         │ In-process Python call
-         ▼
-┌─────────────────────┐
-│ Intelligence Core   │
-│ (STRling.core.      │
-│  intelligence)      │
-└────────┬───────────┘
-         │ Python API
-         ▼
-┌─────────────────┐
-│  STRling Parser │
-│   (parser.py)   │
-└─────────────────┘
-```
-
-This architecture ensures:
-
--   One single source of truth for diagnostics (shared with `tooling/parse_strl.py`)
--   **Binding-agnostic** design
--   Future compatibility with Rust core
--   Clear separation of concerns
--   Easy to test and maintain
-
-## Performance
-
--   **Startup Time**: < 1 second
--   **Diagnostic Latency**: < 100ms for typical patterns (in-process, no subprocess hop)
--   **Memory Usage**: ~50MB base + pattern size
-
-## Security
-
--   The LSP server runs locally - no network requests
--   Pattern files are only read, never modified
--   No external dependencies beyond Python standard library + pygls
--   Subprocess execution is restricted to the STRling CLI
-
-## Contributing
-
-To contribute to the LSP server:
-
-1. Follow the main project contributing guidelines
-2. Add tests for new features
-3. Update documentation
-4. Ensure all tests pass before submitting PR
-
-## License
-
-Apache License 2.0 - See the root LICENSE file for details.
-
-## Support
-
-For issues or questions:
-
--   GitHub Issues: https://github.com/strling-lang/strling/issues
--   Documentation: https://github.com/strling-lang/strling/tree/main/docs
+-   If activation reports a missing Python runtime, install Python 3.11+ or set
+    `strling.languageServer.command` to an explicit executable.
+-   If source-tree launch cannot find the kernel/editor executables, build both
+    Cargo bins or set their environment paths explicitly.
+-   If a packaged resource or process is missing or has the wrong hash, rebuild
+    from a clean checkout; do not copy binding code into the payload.
+-   Set `strling.trace.server` to `messages` or `verbose` for LSP transport logs.

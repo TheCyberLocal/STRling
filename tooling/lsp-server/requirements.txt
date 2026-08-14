@@ -1,8 +1,4 @@
-# Language Server Protocol library
-pygls>=1.0.0
-
-# LSP protocol typed model library
-lsprotocol
-
-# STRling parser (installed in development mode from parent package)
-# -e ../../bindings/python
+# The packaged language server has no external Python package dependencies.
+# Its bounded pygls/lsprotocol-compatible transport is copied from repository
+# source by package_extension.py. Build dependencies are governed by
+# package-lock.json; canonical semantics execute in the packaged Rust binaries.

@@ -624,8 +624,9 @@ class QualityRoutingTests(unittest.TestCase):
                 "migration_comparison_check",
                 "migration_differential_gate",
                 "migration_explanation_certification",
+                "lsp_package_contract_check",
             ],
-            [member["operation"] for member in local_members[:13]],
+            [member["operation"] for member in local_members[:14]],
         )
         self.assertEqual(
             ["python3", "tooling/security.py", "integrity", "--json"],
@@ -635,7 +636,7 @@ class QualityRoutingTests(unittest.TestCase):
             member for member in local_members if member["operation"] == "test"
         )
         self.assertEqual(["core"], local_test["targets"])
-        self.assertEqual("1.6.0", toolchain.profile("local")["definition_version"])
+        self.assertEqual("1.7.0", toolchain.profile("local")["definition_version"])
 
         self.assertEqual(
             ["python3", "tooling/core_contract_validation.py"],
@@ -692,12 +693,29 @@ class QualityRoutingTests(unittest.TestCase):
                 "result_operation_id"
             ],
         )
+        self.assertEqual(
+            [
+                "python3",
+                "tooling/lsp-server/package_extension.py",
+                "certify",
+                "--target",
+                "auto",
+            ],
+            toolchain.operation("lsp_package_certification")["command"],
+        )
         for profile_id in ["local", "pull-request", "full", "release"]:
             members = toolchain.profile(profile_id)["operations"]
             self.assertEqual(
                 1,
                 sum(
                     member["operation"] == "legacy_reference_check"
+                    for member in members
+                ),
+            )
+            self.assertEqual(
+                1,
+                sum(
+                    member["operation"] == "lsp_package_contract_check"
                     for member in members
                 ),
             )
@@ -737,6 +755,7 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertIn("shared_cross_engine_certification", full_ids)
         self.assertIn("stdlib_runtime_certification", full_ids)
         self.assertIn("portability_matrix_certification", full_ids)
+        self.assertIn("lsp_package_certification", full_ids)
         self.assertEqual(
             full_ids.index("pcre2_runtime_certification") + 1,
             full_ids.index("ecmascript_runtime_certification"),
@@ -756,6 +775,14 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertEqual(
             full_ids.index("stdlib_runtime_certification") + 1,
             full_ids.index("portability_matrix_certification"),
+        )
+        self.assertEqual(
+            full_ids.index("portability_matrix_certification") + 1,
+            full_ids.index("lsp_package_contract_check"),
+        )
+        self.assertEqual(
+            full_ids.index("lsp_package_contract_check") + 1,
+            full_ids.index("lsp_package_certification"),
         )
         self.assertNotIn(
             "pcre2_runtime_certification",
@@ -779,6 +806,17 @@ class QualityRoutingTests(unittest.TestCase):
         )
         self.assertNotIn(
             "pcre2_runtime_certification",
+            [
+                member["operation"]
+                for member in toolchain.profile("pull-request")["operations"]
+            ],
+        )
+        self.assertNotIn(
+            "lsp_package_certification",
+            [member["operation"] for member in local_members],
+        )
+        self.assertNotIn(
+            "lsp_package_certification",
             [
                 member["operation"]
                 for member in toolchain.profile("pull-request")["operations"]
@@ -898,8 +936,8 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("stdlib_runtime_certification") + 1,
             release_ids.index("portability_matrix_certification"),
         )
-        self.assertEqual("1.11.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.11.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual("1.12.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.12.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

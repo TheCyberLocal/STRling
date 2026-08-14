@@ -302,11 +302,40 @@
                 "network": "offline",
                 "result_contract": "certification-result-v1",
                 "result_operation_id": "certification.initial-portability-matrix"
+            },
+            "lsp_package_contract_check": {
+                "kind": "repository",
+                "component": "lsp",
+                "command": [
+                    "python3",
+                    "-m",
+                    "pytest",
+                    "tooling/lsp-server/tests/test_package_contract.py",
+                    "tooling/lsp-server/tests/test_package_evidence.py",
+                    "tooling/lsp-server/tests/test_package_builder.py",
+                    "tooling/lsp-server/tests/test_client_runtime.py",
+                    "-q",
+                    "-p",
+                    "no:cacheprovider"
+                ],
+                "network": "offline"
+            },
+            "lsp_package_certification": {
+                "kind": "repository",
+                "component": "lsp",
+                "command": [
+                    "python3",
+                    "tooling/lsp-server/package_extension.py",
+                    "certify",
+                    "--target",
+                    "auto"
+                ],
+                "network": "offline"
             }
         },
         "profiles": {
             "local": {
-                "definition_version": "1.6.0",
+                "definition_version": "1.7.0",
                 "purpose": "Fast deterministic developer feedback.",
                 "network_policy": "offline",
                 "operations": [
@@ -350,6 +379,9 @@
                         "operation": "migration_explanation_certification"
                     },
                     {
+                        "operation": "lsp_package_contract_check"
+                    },
+                    {
                         "operation": "format_check",
                         "targets": [
                             "repository",
@@ -378,7 +410,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.5.0",
+                "definition_version": "1.6.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -420,6 +452,9 @@
                     },
                     {
                         "operation": "migration_explanation_certification"
+                    },
+                    {
+                        "operation": "lsp_package_contract_check"
                     },
                     {
                         "operation": "format_check",
@@ -473,12 +508,12 @@
                     },
                     {
                         "operation": "test",
-                        "targets": ["core", "typescript"]
+                        "targets": ["lsp", "core", "typescript"]
                     }
                 ]
             },
             "full": {
-                "definition_version": "1.11.0",
+                "definition_version": "1.12.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -543,6 +578,12 @@
                         "operation": "portability_matrix_certification"
                     },
                     {
+                        "operation": "lsp_package_contract_check"
+                    },
+                    {
+                        "operation": "lsp_package_certification"
+                    },
+                    {
                         "operation": "format_check",
                         "targets": [
                             "repository",
@@ -595,6 +636,7 @@
                     {
                         "operation": "build",
                         "targets": [
+                            "lsp",
                             "core",
                             "c",
                             "cpp",
@@ -615,6 +657,7 @@
                     {
                         "operation": "test",
                         "targets": [
+                            "lsp",
                             "core",
                             "c",
                             "cpp",
@@ -638,7 +681,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.11.0",
+                "definition_version": "1.12.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -703,6 +746,12 @@
                         "operation": "portability_matrix_certification"
                     },
                     {
+                        "operation": "lsp_package_contract_check"
+                    },
+                    {
+                        "operation": "lsp_package_certification"
+                    },
+                    {
                         "operation": "format_check",
                         "targets": [
                             "repository",
@@ -755,6 +804,7 @@
                     {
                         "operation": "build",
                         "targets": [
+                            "lsp",
                             "core",
                             "c",
                             "cpp",
@@ -775,6 +825,7 @@
                     {
                         "operation": "test",
                         "targets": [
+                            "lsp",
                             "core",
                             "c",
                             "cpp",
@@ -1209,15 +1260,19 @@
             "path": "tooling/lsp-server",
             "language": "TypeScript and Python",
             "runtime": "python3",
-            "required_bins": ["python3", "node", "npm"],
+            "required_bins": ["python3", "node", "npm", "cargo", "rustc"],
             "dependency_resolution": {
-                "model": "deferred",
-                "reason": "Node dependencies are locked, while Python LSP dependencies are unbounded and unlocked."
+                "model": "repository_managed",
+                "reason": "Node build dependencies and canonical Rust runtime dependencies are lockfile-governed; the packaged Python transport has no external package dependencies."
             },
             "files": {
                 "manifests": ["package.json", "requirements.txt"],
                 "locks": ["package-lock.json"],
-                "configs": []
+                "configs": [
+                    "package_contract.json",
+                    "package_contract.schema.json",
+                    "package_manifest.schema.json"
+                ]
             },
             "capabilities": {
                 "format": "configured",
@@ -1225,15 +1280,23 @@
                 "hygiene": "not_applicable",
                 "lint": "enforced",
                 "typecheck": "enforced",
-                "build": "not_yet_configured",
-                "test": "not_yet_configured"
+                "build": "configured",
+                "test": "enforced"
             },
             "formatters": ["Prettier 3.3.3", "Ruff 0.15.21"],
             "operation_tools": {
                 "format": ["prettier", "ruff"],
                 "format_check": ["prettier", "ruff"],
                 "lint": ["ruff"],
-                "typecheck": ["typescript-lsp"]
+                "typecheck": ["typescript-lsp"],
+                "build": [
+                    "python3",
+                    "node",
+                    "cargo",
+                    "rustc",
+                    "typescript-lsp"
+                ],
+                "test": ["python3", "node", "cargo", "rustc"]
             },
             "format": ["python3", "../formatting.py", "lsp"],
             "format_check": ["python3", "../formatting.py", "lsp", "--check"],
@@ -1251,6 +1314,22 @@
                 "--types",
                 "node,vscode",
                 "client/extension.ts"
+            ],
+            "build": [
+                "python3",
+                "package_extension.py",
+                "assemble",
+                "--target",
+                "auto"
+            ],
+            "test": [
+                "python3",
+                "-m",
+                "pytest",
+                "tests",
+                "-q",
+                "-p",
+                "no:cacheprovider"
             ]
         }
     },

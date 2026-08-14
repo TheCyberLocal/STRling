@@ -1,7 +1,7 @@
 {
     "name": "vscode-strling",
     "displayName": "STRling Language Support",
-    "description": "Real-time STRling diagnostics, hovers, and quick-fixes for embedded patterns across 17 host languages (TypeScript, Python, Rust, Java, C, C++, C#, F#, Go, Kotlin, Swift, Dart, PHP, Ruby, Perl, Lua, R) and native .strl files.",
+    "description": "Canonical STRling diagnostics, editor intelligence, certified actions, and governed embedded-pattern support for native STRling and 17 host-language routes.",
     "version": "1.0.0",
     "icon": "strling-icon.png",
     "publisher": "strling-lang",
@@ -15,26 +15,27 @@
         "Linters"
     ],
     "activationEvents": [
-        "onLanguage:typescript",
-        "onLanguage:typescriptreact",
-        "onLanguage:javascript",
-        "onLanguage:javascriptreact",
-        "onLanguage:python",
-        "onLanguage:rust",
-        "onLanguage:java",
+        "onLanguage:strling",
         "onLanguage:c",
         "onLanguage:cpp",
         "onLanguage:csharp",
+        "onLanguage:dart",
         "onLanguage:fsharp",
         "onLanguage:go",
+        "onLanguage:java",
+        "onLanguage:javascript",
+        "onLanguage:javascriptreact",
         "onLanguage:kotlin",
-        "onLanguage:swift",
-        "onLanguage:dart",
-        "onLanguage:php",
-        "onLanguage:ruby",
-        "onLanguage:perl",
         "onLanguage:lua",
-        "onLanguage:r"
+        "onLanguage:perl",
+        "onLanguage:php",
+        "onLanguage:python",
+        "onLanguage:r",
+        "onLanguage:ruby",
+        "onLanguage:rust",
+        "onLanguage:swift",
+        "onLanguage:typescript",
+        "onLanguage:typescriptreact"
     ],
     "main": "./out/extension.js",
     "contributes": {
@@ -49,96 +50,6 @@
                     ".strl"
                 ],
                 "configuration": "./language-configuration.json"
-            },
-            {
-                "id": "c",
-                "extensions": [
-                    ".c",
-                    ".h"
-                ]
-            },
-            {
-                "id": "cpp",
-                "extensions": [
-                    ".cpp",
-                    ".cc",
-                    ".cxx",
-                    ".hpp",
-                    ".hh",
-                    ".hxx"
-                ]
-            },
-            {
-                "id": "csharp",
-                "extensions": [
-                    ".cs"
-                ]
-            },
-            {
-                "id": "fsharp",
-                "extensions": [
-                    ".fs",
-                    ".fsi",
-                    ".fsx"
-                ]
-            },
-            {
-                "id": "go",
-                "extensions": [
-                    ".go"
-                ]
-            },
-            {
-                "id": "kotlin",
-                "extensions": [
-                    ".kt",
-                    ".kts"
-                ]
-            },
-            {
-                "id": "swift",
-                "extensions": [
-                    ".swift"
-                ]
-            },
-            {
-                "id": "dart",
-                "extensions": [
-                    ".dart"
-                ]
-            },
-            {
-                "id": "php",
-                "extensions": [
-                    ".php"
-                ]
-            },
-            {
-                "id": "ruby",
-                "extensions": [
-                    ".rb"
-                ]
-            },
-            {
-                "id": "perl",
-                "extensions": [
-                    ".pl",
-                    ".pm",
-                    ".t"
-                ]
-            },
-            {
-                "id": "lua",
-                "extensions": [
-                    ".lua"
-                ]
-            },
-            {
-                "id": "r",
-                "extensions": [
-                    ".r",
-                    ".R"
-                ]
             }
         ],
         "configuration": {
@@ -148,12 +59,12 @@
                 "strling.languageServer.command": {
                     "type": "string",
                     "default": "",
-                    "description": "Executable used to launch the STRling language server. Leave blank to auto-detect python3/python from the extension host environment."
+                    "description": "Python 3.11+ executable used to launch the bundled STRling language server. Leave blank for platform discovery."
                 },
                 "strling.languageServer.args": {
                     "type": "array",
                     "default": [],
-                    "description": "Arguments passed to the language-server command. Defaults to the bundled server/server.py."
+                    "description": "Arguments passed to the language-server command. Defaults to the bundled server/server.py over stdio."
                 },
                 "strling.trace.server": {
                     "type": "string",
@@ -170,11 +81,10 @@
     },
     "scripts": {
         "vscode:prepublish": "node -e \"process.exit(0)\"",
-        "bundle": "npx esbuild ./client/extension.ts --bundle --outfile=./dist/out/extension.js --external:vscode --platform=node",
-        "assemble": "bash ./assemble.sh",
+        "assemble": "python package_extension.py assemble --target auto",
         "build:dist": "npm run assemble",
-        "package": "npm run assemble && node -e \"const version=require('./package.json').version; const { execSync } = require('node:child_process'); execSync('cd dist && npx @vscode/vsce package --out ../vscode-strling-' + version + '.vsix', { stdio: 'inherit' });\"",
-        "install:local": "npm run package && bash ./sync-local-install.sh"
+        "package": "python package_extension.py package --target auto",
+        "certify": "python package_extension.py certify --target auto"
     },
     "devDependencies": {
         "@types/node": "^18.0.0",

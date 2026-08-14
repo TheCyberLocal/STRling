@@ -374,37 +374,80 @@
         {
             "id": "lsp-extension-payload",
             "category": "build-output",
-            "description": "Disposable assembled language-server extension payload.",
+            "description": "Platform-targeted disposable VS Code extension payload containing the canonical Rust kernel and editor projection, authored LSP adapters, and governed runtime resources.",
             "authoritative_sources": [
+                "core/Cargo.toml",
+                "core/Cargo.lock",
+                "core/cli/strling-kernel.rs",
+                "core/cli/strling-editor-core.rs",
+                "core/src/**",
+                "spec/frontends/simply/1.1/protocol.json",
+                "spec/stdlib/registry/1.0/registry.json",
+                "spec/tooling/island_boundaries.json",
                 "tooling/lsp-server/client/**",
                 "tooling/lsp-server/server/**",
-                "tooling/lsp-server/package.json"
+                "tooling/lsp-server/pygls/**",
+                "tooling/lsp-server/lsprotocol/**",
+                "tooling/lsp-server/package.json",
+                "tooling/lsp-server/package_contract.json"
             ],
             "generator_inputs": [
+                "LICENSE",
+                "core/Cargo.toml",
+                "core/Cargo.lock",
+                "core/cli/strling-kernel.rs",
+                "core/cli/strling-editor-core.rs",
+                "core/src/**",
+                "spec/frontends/simply/1.1/protocol.json",
+                "spec/stdlib/registry/1.0/registry.json",
+                "spec/tooling/island_boundaries.json",
                 "tooling/lsp-server/client/**",
                 "tooling/lsp-server/server/**",
-                "tooling/lsp-server/package.json"
+                "tooling/lsp-server/pygls/**",
+                "tooling/lsp-server/lsprotocol/**",
+                "tooling/lsp-server/.vscodeignore",
+                "tooling/lsp-server/README.md",
+                "tooling/lsp-server/language-configuration.json",
+                "tooling/lsp-server/package.json",
+                "tooling/lsp-server/package-lock.json",
+                "tooling/lsp-server/package_contract.json",
+                "tooling/lsp-server/package_contract.schema.json",
+                "tooling/lsp-server/package_manifest.schema.json",
+                "tooling/lsp-server/strling-icon.png"
             ],
             "generator": {
                 "implementation_paths": [
+                    "tooling/lsp-server/package_extension.py",
                     "tooling/lsp-server/assemble.sh",
                     "tooling/lsp-server/build_extension.sh"
                 ],
-                "command": ["bash", "tooling/lsp-server/assemble.sh"],
+                "command": [
+                    "python3",
+                    "tooling/lsp-server/package_extension.py",
+                    "assemble",
+                    "--target",
+                    "auto"
+                ],
                 "working_directory": "."
             },
             "outputs": ["tooling/lsp-server/dist/**"],
-            "determinism": "unverified",
+            "determinism": "verified",
             "checked_in": false,
             "authority": "non-normative-projection",
             "verification": {
-                "method": "not-enforced",
-                "command": null
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/lsp-server/package_extension.py",
+                    "certify",
+                    "--target",
+                    "auto"
+                ]
             },
-            "enforcement": "transitional",
+            "enforcement": "candidate",
             "transition": {
-                "rationale": "The payload is intentionally disposable and not checked in; release-package integrity is outside the current repository-state hardgate.",
-                "retirement_condition": "Certify the extension package from pinned inputs in the release-artifact hardgate."
+                "rationale": "The payload is intentionally untracked and its clean-checkout certification is expensive. Dedicated full/release-profile and four-platform CI hardgates execute the registered verification command; the generic generated-artifact check currently enforces only checked-in output families.",
+                "retirement_condition": "Teach the generated-artifact orchestrator to enforce self-cleaning certification outputs without adding the expensive package rebuild to fast local and pull-request generation checks, then promote this candidate without changing its command or content contract."
             }
         },
         {

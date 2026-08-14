@@ -37,19 +37,19 @@ unenforced, transitional payload. Its input set omits the Rust core, lockfile,
 transport subsets, package assets, and governed registries. The assembler has
 the following concrete defects:
 
-- it copies only `server.py` and `island_extractor.py`, omitting
-  `canonical_core.py` and `canonical_intelligence.py`;
-- it creates a temporary virtual environment and downloads unpinned `pygls`
-  and `lsprotocol` wheels during every build;
-- it copies the complete legacy Python binding into `server/libs/STRling`,
-  creating an inappropriate second semantic bundle;
-- it packages neither canonical Rust executable nor the Simply, stdlib, and
-  island registry resources required by the authored adapters;
-- its repository-relative runtime discovery cannot resolve packaged paths;
-- it invokes `npx` rather than lock-resolved local Node executables and has no
-  content manifest, target identity, reproducibility check, or package smoke
-  test; and
-- it depends on a POSIX shell even for the Windows package path.
+-   it copies only `server.py` and `island_extractor.py`, omitting
+    `canonical_core.py` and `canonical_intelligence.py`;
+-   it creates a temporary virtual environment and downloads unpinned `pygls`
+    and `lsprotocol` wheels during every build;
+-   it copies the complete legacy Python binding into `server/libs/STRling`,
+    creating an inappropriate second semantic bundle;
+-   it packages neither canonical Rust executable nor the Simply, stdlib, and
+    island registry resources required by the authored adapters;
+-   its repository-relative runtime discovery cannot resolve packaged paths;
+-   it invokes `npx` rather than lock-resolved local Node executables and has no
+    content manifest, target identity, reproducibility check, or package smoke
+    test; and
+-   it depends on a POSIX shell even for the Windows package path.
 
 The manifest and lock root also disagree: `package.json` is version `1.0.0`
 under Apache-2.0 while the lock root still records version `0.1.0` under MIT.
@@ -67,12 +67,12 @@ donor inventory is already absent and will not be recreated.
 
 P16-T05 certifies four native VSIX families, each built on its matching runner:
 
-| Package target | Runtime architecture | Certification runner |
-| --- | --- | --- |
-| `linux-x64` | `x86_64-unknown-linux-gnu` | `ubuntu-latest` |
-| `win32-x64` | `x86_64-pc-windows-msvc` | `windows-latest` |
-| `darwin-x64` | `x86_64-apple-darwin` | `macos-15-intel` |
-| `darwin-arm64` | `aarch64-apple-darwin` | `macos-latest` |
+| Package target | Runtime architecture       | Certification runner |
+| -------------- | -------------------------- | -------------------- |
+| `linux-x64`    | `x86_64-unknown-linux-gnu` | `ubuntu-latest`      |
+| `win32-x64`    | `x86_64-pc-windows-msvc`   | `windows-latest`     |
+| `darwin-x64`   | `x86_64-apple-darwin`      | `macos-15-intel`     |
+| `darwin-arm64` | `aarch64-apple-darwin`     | `macos-latest`       |
 
 The package contract will reject every undeclared target and every mismatch
 between the requested target, host OS, host architecture, executable suffix,
@@ -88,6 +88,8 @@ Every generated target has this closed logical layout:
 ```text
 dist/
   package.json
+  readme.md
+  LICENSE.txt
   out/extension.js
   server/
     server.py
@@ -167,7 +169,7 @@ command, arguments, environment, selector set, and error reporting. It does
 not treat source-tree unit tests as packaged-runtime evidence.
 
 The frozen package contract is `1.0.0` at
-`sha256:ebe8345bbb9a4ac974f93990d716acfdb25acbe002f306bd3e4a72d9d4853bcd`.
+`sha256:3387c3aa55afdb2bee3c987a0e92038fc5a0caebbd1826709ba907f701c10945`.
 It declares 17 copied source/resource paths, two generated files, two canonical
 runtime binaries, 21 required payload paths, 15 forbidden path patterns, six
 absolute runtime environment bindings, four exact target/runner pairs, ten

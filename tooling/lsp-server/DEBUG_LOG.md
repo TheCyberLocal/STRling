@@ -1,5 +1,10 @@
 # DEBUG LOG
 
+> Historical debugging record. The vendoring, user-home installation, package
+> layout, and runtime conclusions below describe superseded iterations. Current
+> commands and guarantees are defined by `README.md`, `package_contract.json`,
+> and `package_extension.py`; do not execute historical remediation steps.
+
 ## Attempt Number: 1
 
 **Changes Made:**

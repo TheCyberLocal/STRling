@@ -50,8 +50,10 @@ scope:
         - tooling/lsp-server/tests/fixtures/package-certification/manifest.json
         - tooling/lsp-server/tests/test_package_contract.py
         - tooling/lsp-server/tests/test_package_evidence.py
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+    permitted_generated_changes:
+        - package-manager-lockfiles
+    expected_generated_outputs:
+        - package-manager-lockfiles
     required_verification_levels:
         - contract
         - unit
@@ -88,9 +90,9 @@ change_classification:
             - The payload will remove the complete legacy Python binding and unpinned downloaded transport as package dependencies, then wire the authored adapters exclusively to packaged canonical Rust processes and governed resources.
         affected_surfaces: []
     generated_output_change:
-        level: none
+        level: compatible
         evidence:
-            - Disposable dist and VSIX artifacts remain ignored and uncommitted; the task changes their authoritative inputs, generator, and verification contract rather than checking generated payloads into Git.
+            - The LSP package-lock root metadata is normalized to the existing extension identity and license without changing resolved dependency names or versions. Disposable dist and VSIX artifacts remain ignored and uncommitted; the task changes their authoritative inputs, generator, and verification contract rather than checking generated payloads into Git.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -121,7 +123,8 @@ checkpoints:
       evidence:
           - check: Closed package and runtime contract
             result: passed
-            details: Package contract 1.0.0 at sha256:ebe8345bbb9a4ac974f93990d716acfdb25acbe002f306bd3e4a72d9d4853bcd fixes four native target/runner pairs, 17 copied inputs, two generated files, two canonical runtime processes, 21 required and 15 forbidden payload patterns, 21 selectors, ten features, six absolute runtime bindings, Python 3.11 minimum, zero external Python packages, byte-exact payload equivalence, normalized VSIX entry equivalence, and an explicit publication prohibition.
+            details: >-
+                Package contract 1.0.0 fixes four native target/runner pairs, 17 copied inputs, two generated files, two canonical runtime processes, 21 required and 15 forbidden payload patterns, 21 selectors, ten features, six absolute runtime bindings, Python 3.11 minimum, zero external Python packages, byte-exact payload equivalence, normalized VSIX entry equivalence, and an explicit publication prohibition. CP3 made two evidence-driven container corrections: the normalized epoch moved from 1980-01-01 to DOS-ZIP-safe 1980-01-02 UTC because the former becomes 1979 west of UTC, and logical README/license destinations became VSCE's installed readme.md/LICENSE.txt names. No target, content, case, or semantic contract changed; the current fingerprint is recorded in the CP3 evidence.
           - check: Shrinkage-resistant packaging evidence denominator
             command: python -m pytest tooling/lsp-server/tests/test_package_contract.py tooling/lsp-server/tests/test_package_evidence.py -q -p no:cacheprovider
             result: passed

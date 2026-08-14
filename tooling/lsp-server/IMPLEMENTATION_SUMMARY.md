@@ -1,12 +1,10 @@
 # STRling LSP Implementation Summary
 
-> **Historical note (consolidation rev):** The original MVP shipped with a
-> dedicated CLI shadow server (`STRling.cli_server`) that the LSP invoked as
-> a subprocess. That layer has since been removed. The LSP server now calls
-> the unified language-intelligence core (`STRling.core.intelligence`)
-> in-process, and `tooling/parse_strl.py` is a thin CLI wrapper over the
-> same module. See `README.md` and `LSP_SETUP.md` for the current
-> architecture; the file lists below describe the original scope.
+> Historical record (November 2024). This document preserves the original MVP
+> implementation account; its commands, dependency model, feature inventory,
+> production-readiness claims, and package layout are superseded by `README.md`,
+> `LSP_SETUP.md`, and `package_contract.json`. It is not current operational or
+> architecture authority.
 
 ## Project Overview
 

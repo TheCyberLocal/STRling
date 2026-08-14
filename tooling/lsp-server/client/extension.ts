@@ -1,20 +1,13 @@
 /**
- * STRling VS Code Reference Client
- * --------------------------------
+ * STRling VS Code reference client.
  *
- * Spawns the Python-based STRling language server bundled in this extension
- * (`server/server.py`) over stdio and registers it for both native `.strl`
- * files and a curated set of host languages (TypeScript / Python / Rust /
- * Java). The server is
- * responsible for the Island Grammar bridge — this client only ships the
- * coordinate-faithful diagnostics back to VS Code so the existing host
- * language services (TS Server, Pylance, rust-analyzer, JDT.LS) keep their
- * own syntax highlighting untouched.
+ * The client launches the bundled Python LSP transport over stdio and binds it
+ * to the two packaged canonical Rust processes. Host language services retain
+ * ownership of their own syntax highlighting and language semantics.
  */
 
-import * as path from "path";
 import { spawnSync } from "child_process";
-import { ExtensionContext, workspace } from "vscode";
+import { ExtensionContext, window, workspace } from "vscode";
 import {
     ExecutableOptions,
     LanguageClient,
@@ -22,93 +15,83 @@ import {
     ServerOptions,
     TransportKind,
 } from "vscode-languageclient/node";
+import {
+    bundledRuntime,
+    documentSelectors,
+    missingPythonError,
+    resolveLanguageServerCommand,
+} from "./runtime";
 
 let client: LanguageClient | undefined;
 
-function resolveLanguageServerCommand(configuredCommand?: string): string {
-    if (configuredCommand && configuredCommand.trim().length > 0) {
-        return configuredCommand;
-    }
-
-    const candidates =
-        process.platform === "win32" ? ["python", "py"] : ["python3", "python"];
-
-    for (const candidate of candidates) {
-        const probe = spawnSync(candidate, ["--version"], {
-            encoding: "utf8",
-        });
-        if (!probe.error && probe.status === 0) {
-            return candidate;
-        }
-    }
-
-    return candidates[0];
+function pythonProbe(command: string, prefixArgs: string[]): boolean {
+    const probe = spawnSync(
+        command,
+        [
+            ...prefixArgs,
+            "-c",
+            "import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)",
+        ],
+        { encoding: "utf8" },
+    );
+    return !probe.error && probe.status === 0;
 }
 
 export function activate(context: ExtensionContext): void {
     const config = workspace.getConfiguration("strling");
     const extensionRoot = context.extensionPath;
-    const bundledServerPath = context.asAbsolutePath(
-        path.join("server", "server.py"),
-    );
-    const bundledVendorPath = context.asAbsolutePath(
-        path.join("server", "libs"),
+    const runtime = bundledRuntime(
+        extensionRoot,
+        process.platform,
+        process.env.PYTHONPATH,
     );
 
     const configuredCommand = config.get<string>("languageServer.command", "");
-    const command = resolveLanguageServerCommand(configuredCommand);
+    const resolvedCommand = resolveLanguageServerCommand(
+        configuredCommand,
+        process.platform,
+        pythonProbe,
+    );
+    if (!resolvedCommand) {
+        void window.showErrorMessage(missingPythonError);
+        return;
+    }
     const configuredArgs = config.get<string[]>("languageServer.args", []);
-    const args = configuredArgs.length
-        ? configuredArgs
-        : [
-              // Default: launch the bundled server that ships inside the
-              // extension package. Advanced users can still override this with
-              // `strling.languageServer.args`.
-              bundledServerPath,
-              "--stdio",
-          ];
+    const args = [
+        ...resolvedCommand.prefixArgs,
+        ...(configuredArgs.length
+            ? configuredArgs
+            : [runtime.serverPath, "--stdio"]),
+    ];
 
-    const inheritedPythonPath = process.env.PYTHONPATH;
-    const pythonPathEntries = inheritedPythonPath
-        ? [bundledVendorPath, inheritedPythonPath]
-        : [bundledVendorPath];
     const executableOptions: ExecutableOptions = {
         cwd: extensionRoot,
         env: {
             ...process.env,
-            PYTHONPATH: pythonPathEntries.join(path.delimiter),
+            ...runtime.environment,
         },
     };
 
     const serverOptions: ServerOptions = {
         run: {
-            command,
+            command: resolvedCommand.command,
             args,
             options: executableOptions,
             transport: TransportKind.stdio,
         },
         debug: {
-            command,
+            command: resolvedCommand.command,
             args,
             options: executableOptions,
             transport: TransportKind.stdio,
         },
     };
 
-    // Document selectors: every language we want to receive Island Grammar
-    // diagnostics for. Keep this list aligned with `_LANGUAGE_BY_SUFFIX`
-    // in `island_extractor.py`.
     const clientOptions: LanguageClientOptions = {
-        documentSelector: [
-            { scheme: "file", language: "strling" },
-            { scheme: "file", language: "typescript" },
-            { scheme: "file", language: "typescriptreact" },
-            { scheme: "file", language: "javascript" },
-            { scheme: "file", language: "javascriptreact" },
-            { scheme: "file", language: "python" },
-            { scheme: "file", language: "rust" },
-            { scheme: "file", language: "java" },
-        ],
+        documentSelector: documentSelectors.map((language) => ({
+            scheme: "file",
+            language,
+        })),
         synchronize: {
             configurationSection: "strling",
         },
@@ -120,6 +103,7 @@ export function activate(context: ExtensionContext): void {
                 codeAction: true,
                 documentSymbol: true,
                 definition: true,
+                references: true,
                 formatting: true,
             },
         },

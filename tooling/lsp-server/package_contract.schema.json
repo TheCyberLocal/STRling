@@ -73,7 +73,9 @@
             "properties": {
                 "package_name": { "const": "vscode-strling" },
                 "publisher": { "const": "strling-lang" },
-                "version_source": { "const": "tooling/lsp-server/package.json" },
+                "version_source": {
+                    "const": "tooling/lsp-server/package.json"
+                },
                 "license": { "const": "Apache-2.0" },
                 "main": { "const": "out/extension.js" },
                 "owned_language": {
@@ -248,7 +250,7 @@
                 "source_state": { "const": "clean-git-archive" },
                 "payload_equivalence": { "const": "byte-for-byte" },
                 "vsix_equivalence": { "const": "normalized-entry-manifest" },
-                "normalized_timestamp": { "const": "1980-01-01T00:00:00Z" },
+                "normalized_timestamp": { "const": "1980-01-02T00:00:00Z" },
                 "manifest_hash_algorithm": { "const": "sha256" },
                 "publication": { "const": "forbidden" }
             }
@@ -256,7 +258,11 @@
         "limits": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["max_payload_files", "max_payload_bytes", "max_path_bytes"],
+            "required": [
+                "max_payload_files",
+                "max_payload_bytes",
+                "max_path_bytes"
+            ],
             "properties": {
                 "max_payload_files": { "type": "integer", "minimum": 1 },
                 "max_payload_bytes": { "type": "integer", "minimum": 1 },

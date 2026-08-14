@@ -1,0 +1,80 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tooling/vscode-package-manifest.schema.json",
+    "title": "STRling generated VS Code package content manifest",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "manifest_version",
+        "contract_version",
+        "contract_fingerprint",
+        "extension_version",
+        "target",
+        "rust_host",
+        "source_commit",
+        "source_commit_timestamp",
+        "inputs",
+        "entries",
+        "payload_fingerprint",
+        "manifest_fingerprint"
+    ],
+    "properties": {
+        "manifest_version": { "const": "1.0.0" },
+        "contract_version": { "const": "1.0.0" },
+        "contract_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "extension_version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "target": {
+            "enum": ["darwin-arm64", "darwin-x64", "linux-x64", "win32-x64"]
+        },
+        "rust_host": {
+            "enum": [
+                "aarch64-apple-darwin",
+                "x86_64-apple-darwin",
+                "x86_64-pc-windows-msvc",
+                "x86_64-unknown-linux-gnu"
+            ]
+        },
+        "source_commit": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+        },
+        "source_commit_timestamp": { "type": "integer", "minimum": 0 },
+        "inputs": {
+            "type": "object",
+            "minProperties": 6,
+            "additionalProperties": { "$ref": "#/$defs/fingerprint" }
+        },
+        "entries": {
+            "type": "array",
+            "minItems": 20,
+            "maxItems": 127,
+            "items": { "$ref": "#/$defs/entry" }
+        },
+        "payload_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "manifest_fingerprint": { "$ref": "#/$defs/fingerprint" }
+    },
+    "$defs": {
+        "fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "entry": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "size", "mode", "sha256"],
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+                },
+                "size": { "type": "integer", "minimum": 0 },
+                "mode": { "enum": ["0644", "0755"] },
+                "sha256": { "$ref": "#/$defs/fingerprint" }
+            }
+        }
+    }
+}

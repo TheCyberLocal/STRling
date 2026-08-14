@@ -39,11 +39,22 @@ MAX_CAPTURE_LOCATIONS = 16_384
 MAX_REWRITE_ACTIONS = 256
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
-SIMPLY_PROTOCOL_PATH = (
-    REPOSITORY_ROOT / "spec" / "frontends" / "simply" / "1.1" / "protocol.json"
+
+
+def _resource_path(environment_name: str, repository_path: Path) -> Path:
+    configured = os.environ.get(environment_name)
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return repository_path
+
+
+SIMPLY_PROTOCOL_PATH = _resource_path(
+    "STRLING_SIMPLY_PROTOCOL_PATH",
+    REPOSITORY_ROOT / "spec" / "frontends" / "simply" / "1.1" / "protocol.json",
 )
-STDLIB_REGISTRY_PATH = (
-    REPOSITORY_ROOT / "spec" / "stdlib" / "registry" / "1.0" / "registry.json"
+STDLIB_REGISTRY_PATH = _resource_path(
+    "STRLING_STDLIB_REGISTRY_PATH",
+    REPOSITORY_ROOT / "spec" / "stdlib" / "registry" / "1.0" / "registry.json",
 )
 
 

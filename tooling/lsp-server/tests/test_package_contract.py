@@ -110,3 +110,26 @@ def test_package_metadata_has_one_owned_language_surface() -> None:
         "id": "strling",
         "extensions": [".strl"],
     }
+    assert package["activationEvents"] == contract["extension"]["activation_events"]
+    assert package["contributes"]["languages"] == [
+        {
+            "id": "strling",
+            "aliases": ["STRling", "strling"],
+            "extensions": [".strl"],
+            "configuration": "./language-configuration.json",
+        }
+    ]
+    settings = package["contributes"]["configuration"]["properties"]
+    assert [setting["name"] for setting in contract["extension"]["settings"]] == list(
+        settings
+    )
+
+
+def test_node_lock_root_matches_extension_identity() -> None:
+    package = _load(LSP_ROOT / "package.json")
+    lock = _load(LSP_ROOT / "package-lock.json")
+    assert lock["name"] == package["name"]
+    assert lock["version"] == package["version"]
+    assert lock["packages"][""]["name"] == package["name"]
+    assert lock["packages"][""]["version"] == package["version"]
+    assert lock["packages"][""]["license"] == package["license"]

@@ -225,13 +225,13 @@
         {
             "id": "lsp-python",
             "ecosystem": "python",
-            "classification": "transitional",
-            "usage": "tooling_only",
+            "classification": "actively_governed",
+            "usage": "runtime",
             "manifests": ["tooling/lsp-server/requirements.txt"],
             "locks": [],
-            "lock_policy": "transitional_missing",
-            "integrity_mode": "inventory_only",
-            "risk_mode": "unavailable"
+            "lock_policy": "not_used_no_external_dependencies",
+            "integrity_mode": "exact_requirements",
+            "risk_mode": "no_dependencies"
         },
         {
             "id": "quality-python",

@@ -144,10 +144,10 @@
     ],
     "payload": {
         "copies": [
-            { "source": "LICENSE", "destination": "LICENSE" },
+            { "source": "LICENSE", "destination": "LICENSE.txt" },
             {
                 "source": "tooling/lsp-server/README.md",
-                "destination": "README.md"
+                "destination": "readme.md"
             },
             {
                 "source": "tooling/lsp-server/language-configuration.json",
@@ -219,8 +219,8 @@
             "server/bin/strling-editor-core{executable_suffix}"
         ],
         "required_paths": [
-            "LICENSE",
-            "README.md",
+            "LICENSE.txt",
+            "readme.md",
             "language-configuration.json",
             "package.json",
             "strling-icon.png",
@@ -289,7 +289,7 @@
         "source_state": "clean-git-archive",
         "payload_equivalence": "byte-for-byte",
         "vsix_equivalence": "normalized-entry-manifest",
-        "normalized_timestamp": "1980-01-01T00:00:00Z",
+        "normalized_timestamp": "1980-01-02T00:00:00Z",
         "manifest_hash_algorithm": "sha256",
         "publication": "forbidden"
     },
@@ -298,5 +298,5 @@
         "max_payload_bytes": 67108864,
         "max_path_bytes": 240
     },
-    "contract_fingerprint": "sha256:ebe8345bbb9a4ac974f93990d716acfdb25acbe002f306bd3e4a72d9d4853bcd"
+    "contract_fingerprint": "sha256:3387c3aa55afdb2bee3c987a0e92038fc5a0caebbd1826709ba907f701c10945"
 }

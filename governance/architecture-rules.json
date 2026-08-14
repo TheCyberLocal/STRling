@@ -252,6 +252,25 @@
             }
         },
         {
+            "id": "lsp-package-canonical-runtime-boundary",
+            "description": "The extension package generator, packaged-runtime certification, and authored server adapters must not import the transitional Python binding as a semantic or runtime dependency.",
+            "status": "enforced",
+            "kind": "forbidden-import",
+            "configuration": {
+                "sources": [
+                    "tooling/lsp-server/package_extension.py",
+                    "tooling/lsp-server/server/canonical_core.py",
+                    "tooling/lsp-server/server/canonical_intelligence.py",
+                    "tooling/lsp-server/server/island_extractor.py",
+                    "tooling/lsp-server/server/server.py",
+                    "tooling/lsp-server/tests/packaged_runtime_evidence.py",
+                    "tooling/lsp-server/tests/test_package_builder.py",
+                    "tooling/lsp-server/tests/test_package_contract.py"
+                ],
+                "forbidden_modules": ["STRling"]
+            }
+        },
+        {
             "id": "lsp-canonical-diagnostics-hover-boundary",
             "description": "Canonical LSP diagnostics, hover, lifecycle, and their evidence must not import the transitional Python binding.",
             "status": "enforced",

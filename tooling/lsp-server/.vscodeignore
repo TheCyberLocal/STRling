@@ -1,8 +1,8 @@
 # STRling VS Code extension package exclusions.
 # Applied during `vsce package` from inside dist/.
-# Keep this list aligned with assemble.sh (which controls what lands in dist/).
+# package_contract.json and package_extension.py define the exact closed payload.
 
-# Python bytecode and packaging metadata produced by the vendored install.
+# Python bytecode and packaging metadata must never enter the payload.
 **/__pycache__
 **/*.pyc
 **/*.pyo
@@ -23,10 +23,6 @@
 .vscode/**
 .git/**
 .gitignore
-
-# Vendor venv must never ship; cleanup trap in assemble.sh removes it,
-# but exclude defensively.
-.vendor-venv/**
 
 # This file itself.
 .vscodeignore
