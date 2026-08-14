@@ -154,7 +154,7 @@ pub enum CharacterSetMember {
 }
 
 impl CharacterSetMember {
-    fn canonical_key(&self) -> (u8, String, String, bool) {
+    pub(crate) fn canonical_key(&self) -> (u8, String, String, bool) {
         match self {
             Self::Literal { value } => (0, value.to_string(), String::new(), false),
             Self::Range { start, end } => (1, start.to_string(), end.to_string(), false),

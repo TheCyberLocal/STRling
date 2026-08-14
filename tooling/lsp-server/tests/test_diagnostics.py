@@ -5,9 +5,9 @@ in the live extension:
 
 * Host-language extraction must find STRling patterns behind every supported
     anchor, including ``s.parse(...)`` and ``STRling.parse(...)``.
-* Published diagnostics must obey the single-line invariant. Unterminated
-    ranges may point at a virtual EOF, but the LSP squiggle must still stop at
-    the end of the starting line.
+* Native diagnostics must preserve canonical half-open UTF-8 source spans;
+  embedded diagnostics must project those spans through the island algebra
+  without widening or clamping them.
 
 The tests run in-process so ``python3 -m pytest tests/test_diagnostics.py``
 from ``tooling/lsp-server`` is enough to validate extraction, projection, and
@@ -144,9 +144,9 @@ def _expected_island_layout() -> List[tuple[int, int, str]]:
 def server_module():
     """Import the LSP server module and reset its per-URI caches.
 
-    Importing ``server.server`` triggers ``sys.path`` mutations that load
-    the in-tree STRling Python binding; the caches are cleared so each
-    test sees a pristine state. We deliberately import the inner module
+    Importing ``server.server`` loads the canonical bridge and the explicitly
+    deferred editor adapters; caches are cleared so each test sees a pristine
+    state. We deliberately import the inner module
     rather than the package because the package ``__init__`` is a thin
     pedagogy shim with no re-exports.
     """
@@ -159,8 +159,8 @@ def server_module():
 
 @pytest.fixture
 def islands_module():
-    """Import the canonical island extractor surface."""
-    from STRling.core.intelligence import (  # noqa: WPS433 — local import by design
+    """Import the explicitly deferred island-extractor adapter."""
+    from server.island_extractor import (  # noqa: WPS433 — local import by design
         extract_islands_for_uri,
     )
 
@@ -352,15 +352,20 @@ class TestDiagnosticPublication:
                 f"Single-line invariant regressed on line {line}: {diag.range}"
             )
 
-    def test_clamp_stops_eof_bleed_for_large_documents(self, server_module) -> None:
+    def test_native_multiline_eof_preserves_canonical_span(self, server_module) -> None:
         source = "[a-z\n" + "\n".join(f"line_{index}" for index in range(1, 101))
         diagnostics = server_module._diagnostics_for_host(
             "file:///fixtures/bleed.strl", source
         )
-        assert diagnostics, "Expected an unterminated-class diagnostic for line 0."
-        for diag in diagnostics:
-            assert diag.range.start.line == 0
-            assert diag.range.end.line == 0
+        assert len(diagnostics) == 1
+        diagnostic = diagnostics[0]
+        assert diagnostic.code == "STRL-FRONTEND-2018"
+        assert (
+            diagnostic.range.start.line,
+            diagnostic.range.start.character,
+            diagnostic.range.end.line,
+            diagnostic.range.end.character,
+        ) == (100, len("line_100"), 100, len("line_100"))
 
     def test_validate_document_publishes_all_diagnostics(self, server_module) -> None:
         """Drive ``validate_document`` end-to-end with a stub workspace.

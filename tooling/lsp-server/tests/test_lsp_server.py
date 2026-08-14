@@ -32,7 +32,7 @@ class TestLSPServerStartup:
         assert result.returncode == 0, f"Import failed: {result.stderr}"
 
     def test_cli_integration(self):
-        """Test that the server can call the CLI server."""
+        """Test that the server projects a canonical CLI diagnostic."""
         # Test the get_diagnostics_from_cli function
         test_code = """
 import sys
@@ -56,7 +56,7 @@ print(diagnostics[0].message if diagnostics else "No diagnostics")
         lines = result.stdout.strip().split("\n")
         assert len(lines) >= 2
         assert lines[0] == "1"  # One diagnostic
-        assert "Unterminated group" in lines[1]
+        assert lines[1] == "group or lookaround is not closed"
 
     def test_server_help_message(self):
         """Test that the server prints help."""

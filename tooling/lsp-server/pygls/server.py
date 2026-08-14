@@ -48,11 +48,16 @@ def _to_json(value: Any) -> Any:
 
 class _WorkspaceDocument:
     def __init__(
-        self, uri: str, source: str = "", language_id: Optional[str] = None
+        self,
+        uri: str,
+        source: str = "",
+        language_id: Optional[str] = None,
+        version: Optional[int] = None,
     ) -> None:
         self.uri = uri
         self.source = source
         self.language_id = language_id
+        self.version = version
 
 
 class _Workspace:
@@ -60,9 +65,16 @@ class _Workspace:
         self._documents: Dict[str, _WorkspaceDocument] = {}
 
     def upsert(
-        self, uri: str, source: str = "", language_id: Optional[str] = None
+        self,
+        uri: str,
+        source: str = "",
+        language_id: Optional[str] = None,
+        version: Optional[int] = None,
     ) -> None:
-        self._documents[uri] = _WorkspaceDocument(uri, source, language_id)
+        self._documents[uri] = _WorkspaceDocument(uri, source, language_id, version)
+
+    def remove(self, uri: str) -> None:
+        self._documents.pop(uri, None)
 
     def get_text_document(self, uri: str) -> _WorkspaceDocument:
         document = self._documents.get(uri)
@@ -195,14 +207,14 @@ class JsonRPCServer:
         if method == "initialize":
             from lsprotocol import types as lsp
 
-            if message_id is not None:
-                self._respond(message_id, self._initialize_result())
             handlers = self._features.get(lsp.INITIALIZE, [])
             for handler in handlers:
                 try:
                     handler(self, self._coerce_params(method, params))
                 except Exception as exc:
                     self.show_message_log(f"initialize handler failed: {exc}")
+            if message_id is not None:
+                self._respond(message_id, self._initialize_result())
             return
 
         if method in ("initialized",):
@@ -218,6 +230,9 @@ class JsonRPCServer:
             return
         if method == lsp.TEXT_DOCUMENT_DID_SAVE:
             self._handle_did_save(params)
+            return
+        if method == lsp.TEXT_DOCUMENT_DID_CLOSE:
+            self._handle_did_close(params)
             return
 
         handlers = self._features.get(method, [])
@@ -245,7 +260,8 @@ class JsonRPCServer:
         language_id = text_document.get("languageId") or text_document.get(
             "language_id"
         )
-        self.workspace.upsert(uri, source, language_id)
+        version = text_document.get("version")
+        self.workspace.upsert(uri, source, language_id, version)
         handler = self._features.get(lsp.TEXT_DOCUMENT_DID_OPEN, [])
         if handler:
             handler[0](self, self._coerce_params(lsp.TEXT_DOCUMENT_DID_OPEN, params))
@@ -256,6 +272,9 @@ class JsonRPCServer:
         text_document = params.get("textDocument") or params.get("text_document") or {}
         uri = str(text_document.get("uri", ""))
         document = self.workspace.get_text_document(uri)
+        version = text_document.get("version")
+        if isinstance(version, int):
+            document.version = version
         changes = params.get("contentChanges") or params.get("content_changes") or []
         if changes:
             first_change = changes[0] or {}
@@ -281,6 +300,16 @@ class JsonRPCServer:
         if handler:
             handler[0](self, self._coerce_params(lsp.TEXT_DOCUMENT_DID_SAVE, params))
 
+    def _handle_did_close(self, params: Dict[str, Any]) -> None:
+        from lsprotocol import types as lsp
+
+        text_document = params.get("textDocument") or params.get("text_document") or {}
+        uri = str(text_document.get("uri", ""))
+        handler = self._features.get(lsp.TEXT_DOCUMENT_DID_CLOSE, [])
+        if handler:
+            handler[0](self, self._coerce_params(lsp.TEXT_DOCUMENT_DID_CLOSE, params))
+        self.workspace.remove(uri)
+
     def _coerce_params(self, method: str, params: Dict[str, Any]) -> Any:
         from lsprotocol import types as lsp
 
@@ -292,16 +321,24 @@ class JsonRPCServer:
             text=text_document_data.get("text") or text_document_data.get("source"),
             language_id=text_document_data.get("languageId")
             or text_document_data.get("language_id"),
+            version=text_document_data.get("version"),
         )
 
         if method == "initialize":
-            return lsp.InitializeParams()
+            return lsp.InitializeParams(
+                capabilities=params.get("capabilities") or {},
+                initialization_options=params.get("initializationOptions")
+                or params.get("initialization_options")
+                or {},
+            )
         if method == lsp.TEXT_DOCUMENT_DID_OPEN:
             return lsp.DidOpenTextDocumentParams(text_document=text_document)
         if method == lsp.TEXT_DOCUMENT_DID_CHANGE:
             return lsp.DidChangeTextDocumentParams(text_document=text_document)
         if method == lsp.TEXT_DOCUMENT_DID_SAVE:
             return lsp.DidSaveTextDocumentParams(text_document=text_document)
+        if method == lsp.TEXT_DOCUMENT_DID_CLOSE:
+            return lsp.DidCloseTextDocumentParams(text_document=text_document)
         if method == lsp.TEXT_DOCUMENT_HOVER:
             position = params.get("position") or {}
             return lsp.HoverParams(
@@ -390,6 +427,7 @@ class JsonRPCServer:
     def _initialize_result(self) -> Dict[str, Any]:
         capabilities: Dict[str, Any] = {
             "textDocumentSync": 2,
+            "positionEncoding": getattr(self, "position_encoding", "utf-16"),
         }
         for method, handlers in self._features.items():
             if not handlers:

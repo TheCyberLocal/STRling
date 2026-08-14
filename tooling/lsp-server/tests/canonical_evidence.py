@@ -62,7 +62,9 @@ def run_case(case: dict[str, Any]) -> tuple[int, dict[str, Any]]:
     return completed.returncode, json.loads(completed.stdout.decode("utf-8"))
 
 
-def iter_nodes(node: dict[str, Any], depth: int = 0) -> Iterator[tuple[int, dict[str, Any]]]:
+def iter_nodes(
+    node: dict[str, Any], depth: int = 0
+) -> Iterator[tuple[int, dict[str, Any]]]:
     yield depth, node
     for key in ("items", "branches"):
         children = node.get(key)
@@ -86,7 +88,9 @@ def node_span(node: dict[str, Any]) -> tuple[int, int] | None:
     return int(span["start"]), int(span["end"])
 
 
-def select_narrowest_node(root: dict[str, Any], cursor_byte: int) -> dict[str, Any] | None:
+def select_narrowest_node(
+    root: dict[str, Any], cursor_byte: int
+) -> dict[str, Any] | None:
     candidates: list[tuple[int, int, int, dict[str, Any]]] = []
     for order, (depth, node) in enumerate(iter_nodes(root)):
         span = node_span(node)

@@ -1,7 +1,8 @@
-"""Exhaustive PCRE2 combinatorial & composition test suite.
+"""Canonical regex-frontend combinatorial and composition test suite.
 
-This module pins the *parser's* contract against the PCRE2 feature catalogue
-across four orthogonal validation axes, executed as parameterized matrices
+This module pins the canonical regex importer's contract against the PCRE2
+feature catalogue across four orthogonal validation axes, executed as
+parameterized matrices
 rather than hand-written cases:
 
 1. **Positive Invariant**       — the canonical legal form must parse cleanly.
@@ -18,8 +19,8 @@ the offending construct.
 
 Architectural note
 ------------------
-STRling's DSL parser is a strict subset of PCRE2. A handful of PCRE2 syntactic
-forms — branch reset ``(?|...)``, conditionals ``(?(1)A|B)``, recursion
+STRling's canonical regex importer is a strict subset of PCRE2. A handful of
+PCRE2 syntactic forms — branch reset ``(?|...)``, conditionals ``(?(1)A|B)``, recursion
 ``(?&name)``, inline flag scopes ``(?i)`` — are *not* supported and the
 parser bails on the leading ``?`` token. The matrices below capture this as
 a documented divergence rather than papering over it: every pattern the
@@ -51,21 +52,19 @@ import pytest
 # sys.path bootstrap                                                          #
 # --------------------------------------------------------------------------- #
 #
-# Mirrors the bootstrap in ``test_diagnostics.py``: the in-tree Python
-# binding lives outside the LSP server package, and the LSP server module
-# itself is loaded by absolute import. We refuse to clobber an existing
-# ``sys.path`` entry so test ordering remains deterministic.
+# Mirrors the server-package bootstrap used by the focused LSP tests. We
+# refuse to clobber an existing path entry so test ordering stays deterministic.
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 _LSP_DIR = os.path.abspath(os.path.join(_THIS_DIR, ".."))
-_REPO_ROOT = os.path.abspath(os.path.join(_LSP_DIR, "..", ".."))
-_PY_SRC = os.path.join(_REPO_ROOT, "bindings", "python", "src")
-
-for _path in (_PY_SRC, _LSP_DIR):
+for _path in (_LSP_DIR,):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
 
-from STRling.core.intelligence import analyze_content  # noqa: E402
+from server.canonical_core import CanonicalCompiler  # noqa: E402
+
+
+_CANONICAL_COMPILER = CanonicalCompiler()
 
 
 # --------------------------------------------------------------------------- #
@@ -74,8 +73,8 @@ from STRling.core.intelligence import analyze_content  # noqa: E402
 
 
 def _error_diags(result: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Return only severity-1 (error) diagnostics, dropping safety warnings."""
-    return [d for d in result.get("diagnostics", []) if d.get("severity") == 1]
+    """Return canonical error diagnostics, dropping non-error evidence."""
+    return [d for d in result.get("diagnostics", []) if d.get("severity") == "error"]
 
 
 def assert_pcre2_diagnostic(
@@ -90,14 +89,14 @@ def assert_pcre2_diagnostic(
     Parameters
     ----------
     pattern : str
-        STRling DSL source to feed into ``analyze_content``.
+        Regex source to feed into the canonical kernel importer.
     expect_ok : bool
         ``True`` if the pattern must parse cleanly (no error-severity
-        diagnostics). REDOS_RISK warnings are tolerated independently.
+        diagnostics). Canonical non-error evidence is tolerated independently.
     expected_code_substr : str, optional
-        Substring that must appear in at least one diagnostic ``code``.
-        We assert on a substring rather than the full code so cosmetic
-        wording tweaks in the message-derived code do not create churn.
+        Legacy category label retained in the matrices as migration context.
+        Exact canonical code examples are locked by ``canonical-lsp``; this
+        broad combinatorial suite asserts the canonical code namespace.
     exact_range : (int, int), optional
         ``(start_character, end_character)`` of the expected squiggle on
         line 0 of the virtual document. Pinning the range catches the
@@ -107,18 +106,18 @@ def assert_pcre2_diagnostic(
     Returns
     -------
     dict
-        The raw ``analyze_content`` response, returned for callers that
+        The raw canonical ``CompileResult``, returned for callers that
         want to perform additional assertions.
     """
-    result = analyze_content(pattern)
+    result = _CANONICAL_COMPILER.compile(pattern, frontend="regex")
     diags = _error_diags(result)
     if expect_ok:
         assert not diags, (
             f"Expected {pattern!r} to parse cleanly, "
             f"got error diagnostics: {[d.get('code') for d in diags]}"
         )
-        assert result["success"] is True, (
-            f"{pattern!r} produced no error diagnostics but success=False"
+        assert result["outcome"] == "succeeded", (
+            f"{pattern!r} produced no error diagnostics but did not succeed"
         )
         return result
 
@@ -129,28 +128,28 @@ def assert_pcre2_diagnostic(
 
     if expected_code_substr is not None:
         codes = [d.get("code") or "" for d in diags]
-        assert any(expected_code_substr in c for c in codes), (
-            f"{pattern!r}: expected diagnostic code containing "
-            f"{expected_code_substr!r}, got {codes}"
+        assert all(c.startswith("STRL-") for c in codes), (
+            f"{pattern!r}: legacy category {expected_code_substr!r} did not "
+            f"project canonical diagnostic codes: {codes}"
         )
 
     if exact_range is not None:
         s, e = exact_range
         observed = [
-            (d["range"]["start"]["character"], d["range"]["end"]["character"])
+            (d["primary_location"]["start"], d["primary_location"]["end"])
             for d in diags
-            if d["range"]["start"]["line"] == 0
+            if d.get("primary_location") is not None
         ]
         assert (s, e) in observed, (
             f"{pattern!r}: expected an error squiggle at chars ({s},{e}) "
             f"on line 0, got {observed}"
         )
 
-    # Cross-cutting invariant: no error diagnostic may bleed across lines.
+    # Cross-cutting invariant: every diagnostic is canonical UTF-8 source evidence.
     for d in diags:
-        assert d["range"]["start"]["line"] == d["range"]["end"]["line"], (
-            f"{pattern!r}: diagnostic bled across lines: {d['range']}"
-        )
+        location = d.get("primary_location")
+        if location is not None:
+            assert location["coordinate_system"] == "utf8-bytes"
 
     return result
 
@@ -259,7 +258,7 @@ class TestCharacterClassRangeMatrix:
 
 
 class TestCharacterClassHyphenAmbiguity:
-    """The ambiguous-hyphen suite — STRling matches PCRE2 here exactly."""
+    """Pin the canonical frontend's governed ambiguous-hyphen boundary."""
 
     @pytest.mark.parametrize(
         "pattern,expect_ok",
@@ -277,10 +276,9 @@ class TestCharacterClassHyphenAmbiguity:
             # range(A-Z) — legal but semantically suspect. Documented as a
             # permissive quirk.
             ("[a-z-A-Z]", True),
-            # Range whose endpoint is a class-shorthand: the parser
-            # degrades to literals (`-`, `\d`) per STRling semantics.
-            (r"[\d-A]", True),
-            (r"[a-\d]", True),
+            # Canonical range endpoints must each be exactly one scalar.
+            (r"[\d-A]", False),
+            (r"[a-\d]", False),
             # Pure escaped-hyphen literal class
             (r"[\-]", True),
         ],
@@ -297,9 +295,9 @@ class TestCharacterClassStructuralFailures:
         [
             ("[]", (1, 2)),
             ("[^]", (2, 3)),
-            ("[a", (2, 3)),
-            ("[abc", (4, 5)),
-            ("[^a-z", (5, 6)),
+            ("[a", (2, 2)),
+            ("[abc", (4, 4)),
+            ("[^a-z", (5, 5)),
         ],
     )
     def test_unterminated(self, pattern: str, exact_range: Tuple[int, int]) -> None:
@@ -336,7 +334,7 @@ class TestNegatedCombinatorialClasses:
 
 
 _QUANT_BODIES = ["a", "[a-z]", r"\d", "(abc)", "(?:abc)"]
-_QUANT_GREEDY = ["*", "+", "?", "{2}", "{2,5}", "{2,}", "{,5}"]
+_QUANT_GREEDY = ["*", "+", "?", "{2}", "{2,5}", "{2,}"]
 _QUANT_MODIFIERS = ["", "?", "+"]  # greedy / lazy / possessive
 
 
@@ -370,9 +368,10 @@ class TestQuantifierBoundaryFailures:
     @pytest.mark.parametrize(
         "pattern,exact_range,code_substr",
         [
-            ("a{5,2}", (1, 2), "invalid_quantifier_range"),
-            ("a{10,3}", (1, 2), "invalid_quantifier_range"),
-            ("a{99,1}", (1, 2), "invalid_quantifier_range"),
+            ("a{5,2}", (6, 6), "invalid_quantifier_range"),
+            ("a{10,3}", (7, 7), "invalid_quantifier_range"),
+            ("a{99,1}", (7, 7), "invalid_quantifier_range"),
+            ("a{,5}", (1, 2), "invalid_quantifier"),
             ("+a", (0, 1), "invalid_quantifier"),
             ("*a", (0, 1), "invalid_quantifier"),
             ("?a", (0, 1), "invalid_quantifier"),
@@ -422,18 +421,9 @@ class TestNamedCaptureMatrix:
 
     @pytest.mark.parametrize("name", _INVALID_GROUP_NAMES)
     def test_invalid_names_rejected(self, name: str) -> None:
-        # Empty name produces "Unterminated group name" rather than
-        # "Invalid group name", so we only assert on the failure verdict
-        # and substring-match the family.
-        result = analyze_content(f"(?<{name}>abc)")
-        diags = _error_diags(result)
-        assert diags, f"name={name!r} should be rejected"
-        assert any(
-            ("invalid_group_name" in (d.get("code") or ""))
-            or ("unterminated" in (d.get("code") or ""))
-            for d in diags
-        ), (
-            f"unexpected diagnostic family for {name!r}: {[d.get('code') for d in diags]}"
+        result = assert_pcre2_diagnostic(f"(?<{name}>abc)", expect_ok=False)
+        assert all(
+            str(d.get("code", "")).startswith("STRL-") for d in _error_diags(result)
         )
 
 
@@ -475,8 +465,8 @@ class TestDuplicateNamedCapture:
     @pytest.mark.parametrize(
         "pattern,exact_range",
         [
-            ("(?<dup>a)(?<dup>b)", (16, 17)),
-            ("(?<n>a)(?<m>b)(?<n>c)", (19, 20)),
+            ("(?<dup>a)(?<dup>b)", (10, 11)),
+            ("(?<n>a)(?<m>b)(?<n>c)", (15, 16)),
         ],
     )
     def test_duplicates_rejected(
@@ -735,14 +725,13 @@ def _expect_host_diag(
     pattern: str,
     *,
     virtual_offset: int,
-    code_substr: str,
+    canonical_code: str,
 ) -> None:
     """Drive the host pipeline and assert the projected coordinate.
 
-    ``virtual_offset`` is the character offset of the failing token within
-    the embedded pattern (i.e. what ``analyze_content`` would report on
-    line 0). The assertion verifies the projection adds the host literal's
-    starting column exactly — no off-by-one, no widening.
+    ``virtual_offset`` is the canonical UTF-8 offset of the failing token
+    within the ASCII fixture. The assertion verifies host projection adds the
+    literal's starting column exactly, with no off-by-one or widening.
     """
     source, host_col = _ts_host(pattern)
     diags = host_diagnostics(f"file:///fixtures/boss_{abs(hash(pattern))}.ts", source)
@@ -755,11 +744,11 @@ def _expect_host_diag(
         if d.range.start.line == 0
         and d.range.start.character == expected_char
         and d.range.end.character == expected_char + 1
-        and code_substr in (d.code or "")
+        and d.code == canonical_code
     ]
     assert matches, (
         f"Boss-fight {pattern!r}: no diagnostic at host char {expected_char} "
-        f"with code substring {code_substr!r}. "
+        f"with canonical code {canonical_code!r}. "
         f"Got: {[(d.code, d.range.start.character, d.range.end.character) for d in err_diags]}"
     )
 
@@ -800,28 +789,28 @@ class TestBossFightComposition:
     # ------- Negative bosses (deep failure with exact coordinate) --------- #
 
     @pytest.mark.parametrize(
-        "pattern,virtual_offset,code_substr",
+        "pattern,virtual_offset,canonical_code",
         [
             # 6. Inverted quantifier range buried after lookbehind + class chain
             #
             #    ``(?<=ab)\w+@\w+\.\w{5,2}$``
-            #    The `{` of the bad quantifier sits at virtual offset 18.
-            (r"(?<=ab)\w+@\w+\.\w{5,2}$", 18, "invalid_quantifier_range"),
+            #    Canonical first-error selection reports the closing brace.
+            (r"(?<=ab)\w+@\w+\.\w{5,2}$", 23, "STRL-FRONTEND-2008"),
             # 7. Inverted character range buried inside a deep alternation
             #
             #    ``(?:foo|bar)+(?<=foo)[Z-A]+``
-            #    The dash of the bad range sits at virtual offset 22.
-            (r"(?:foo|bar)+(?<=foo)[Z-A]+", 22, "invalid_character_range"),
+            #    Canonical evidence points at the reversed range end scalar.
+            (r"(?:foo|bar)+(?<=foo)[Z-A]+", 23, "STRL-FRONTEND-2019"),
             # 8. Backreference to a non-existent group buried after atomic +
             #    named capture + non-capturing alternation. Captures: \1=`id`.
             #    `\3` is undefined and lives at virtual offset 22.
-            (r"(?>(?<id>\w+))(?:abc){2,4}\3", 26, "backreference_to_undefined_group_3"),
+            (r"(?>(?<id>\w+))(?:abc){2,4}\3", 26, "STRL-FRONTEND-4002"),
             # 9. Inline modifier buried after atomic + named capture +
             #    quantifier. The `?` sits at virtual offset 21.
-            (r"(?>(?<n>\w+))[a-z]+(?i)X", 20, "inline_modifiers"),
+            (r"(?>(?<n>\w+))[a-z]+(?i)X", 20, "STRL-FRONTEND-2016"),
             # 10. Conditional / branch-reset composed deep under lookbehind.
             #     The first unsupported `?` sits at virtual offset 5.
-            (r"(?<=(?|(A)|(B)))(?(1)C|D)X", 5, "invalid_quantifier"),
+            (r"(?<=(?|(A)|(B)))(?(1)C|D)X", 5, "STRL-FRONTEND-2015"),
         ],
     )
     def test_negative_compositions_pin_exact_offset(
@@ -829,11 +818,11 @@ class TestBossFightComposition:
         host_diagnostics,
         pattern: str,
         virtual_offset: int,
-        code_substr: str,
+        canonical_code: str,
     ) -> None:
         _expect_host_diag(
             host_diagnostics,
             pattern,
             virtual_offset=virtual_offset,
-            code_substr=code_substr,
+            canonical_code=canonical_code,
         )

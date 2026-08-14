@@ -1355,7 +1355,7 @@ impl<'a> Parser<'a> {
                 });
             }
         }
-        members.sort();
+        members.sort_by_key(CharacterSetMember::canonical_key);
         members.dedup();
         Ok(SyntaxNode::cover(
             opener_offset,

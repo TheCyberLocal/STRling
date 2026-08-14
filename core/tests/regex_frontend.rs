@@ -438,6 +438,18 @@ fn lowers_global_flags_into_target_neutral_semantics() {
 }
 
 #[test]
+fn canonically_orders_multiple_builtin_class_members() {
+    for source in [r"[^\w\s]", r"[^\W\D\S]"] {
+        let parsed = parse(&document(source))
+            .unwrap_or_else(|error| panic!("{source} must lower to valid Semantic IR: {error}"));
+        parsed
+            .program
+            .validate()
+            .unwrap_or_else(|errors| panic!("{source} must remain canonical: {errors}"));
+    }
+}
+
+#[test]
 fn enforces_frozen_resource_limits() {
     let too_large = "a".repeat(MAX_SOURCE_BYTES + 1);
     assert_eq!(

@@ -14,11 +14,15 @@ scope:
         - governance/architecture-rules.json
         - governance/change-control.json
         - governance/static-analysis.json
+        - core/src/regex_frontend.rs
+        - core/src/semantic/mod.rs
+        - core/tests/regex_frontend.rs
         - tooling/lsp-server/README.md
         - tooling/lsp-server/lsprotocol/types.py
         - tooling/lsp-server/pygls/server.py
         - tooling/lsp-server/server/server.py
         - tooling/lsp-server/server/canonical_core.py
+        - tooling/lsp-server/server/deferred_intelligence.py
         - tooling/lsp-server/tests/test_canonical_core.py
         - tooling/lsp-server/tests/canonical_evidence.py
         - tooling/lsp-server/tests/fixtures/canonical-lsp/**
@@ -26,11 +30,11 @@ scope:
         - tooling/lsp-server/tests/test_hover.py
         - tooling/lsp-server/tests/test_lsp_lifecycle.py
         - tooling/lsp-server/tests/test_lsp_server.py
+        - tooling/lsp-server/tests/test_parser_exhaustive.py
         - tooling/tests/test_compiler_boundary_architecture.py
         - tooling/tests/test_governance.py
     forbidden_paths:
         - bindings/**
-        - core/**
         - packages/**
         - spec/**
         - tests/conformance/**
@@ -50,16 +54,26 @@ scope:
         - tooling/lsp-server/tests/test_code_actions.py
         - tooling/lsp-server/tests/test_island_extractor.py
         - tooling/lsp-server/tests/test_navigation.py
-        - tooling/lsp-server/tests/test_parser_exhaustive.py
     expected_files:
         - docs/migration/lsp-diagnostics-hover-rebase.md
         - docs/migration/records/lsp-diagnostics-hover-rebase.yaml
         - governance/change-control.json
+        - core/src/regex_frontend.rs
+        - core/src/semantic/mod.rs
+        - core/tests/regex_frontend.rs
+        - tooling/lsp-server/lsprotocol/types.py
+        - tooling/lsp-server/pygls/server.py
+        - tooling/lsp-server/server/server.py
         - tooling/lsp-server/tests/canonical_evidence.py
         - tooling/lsp-server/tests/fixtures/canonical-lsp/manifest.json
         - tooling/lsp-server/tests/test_canonical_core.py
+        - tooling/lsp-server/tests/test_diagnostics.py
         - tooling/lsp-server/tests/test_hover.py
         - tooling/lsp-server/tests/test_lsp_lifecycle.py
+        - tooling/lsp-server/tests/test_lsp_server.py
+        - tooling/lsp-server/tests/test_parser_exhaustive.py
+        - tooling/lsp-server/server/canonical_core.py
+        - tooling/lsp-server/server/deferred_intelligence.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -74,10 +88,11 @@ change_classification:
         level: none
         evidence:
             - The LSP consumes canonical CompileResult, Semantic IR, analysis, diagnostic, and optional exact-profile evidence without parsing source or defining language meaning.
+            - A bounded Rust repair sorts regex-imported character-set members by the existing Semantic IR canonical key instead of Rust enum declaration order; it restores contract-valid output for already-accepted syntax and changes no language contract.
     public_api_change:
         level: none
         evidence:
-            - CP1 changes no binding, compiler, schema, package, or editor protocol surface; it only locks the internal adapter boundary.
+            - The implementation changes no binding, compiler contract, schema, package, or normative editor protocol type; local transport shims only preserve document versions, close notifications, and negotiated position encoding already defined by LSP.
         affected_surfaces: []
     schema_change:
         level: none
@@ -87,7 +102,8 @@ change_classification:
     diagnostic_change:
         level: compatible
         evidence:
-            - Editor diagnostics will become exact projections of canonical compiler diagnostics; legacy heuristic or binding-only differences are resolved in favor of canonical code, severity, message, order, and UTF-8 span evidence.
+            - Editor diagnostics are exact projections of canonical compiler diagnostics; legacy heuristic names, range clamps, and REDOS aliases are removed in favor of canonical code, severity, message, order, and UTF-8 span evidence.
+            - The exhaustive migration differential records governed canonical rejections for shorthand range endpoints and `{,m}` quantifiers plus canonical EOF/duplicate-definition spans; T04 owns rebasing code actions that formerly consumed REDOS_RISK.
     target_behavior_change:
         level: none
         evidence:
@@ -99,7 +115,7 @@ change_classification:
     generated_output_change:
         level: none
         evidence:
-            - Generated extension payloads are explicitly excluded from direct edits in P16-T02.
+            - Generated extension payloads are explicitly excluded from direct edits in P16-T02; core/src is a registered input for checked-in runtime observations, so their registered checks must prove the ordering repair leaves those outputs unchanged.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -113,8 +129,8 @@ required_verification:
       command: python3 -m pytest tooling/lsp-server/tests/test_lsp_lifecycle.py tooling/lsp-server/tests/test_lsp_server.py -q
       expected_result: Open/change/save/close, debounce, version/profile invalidation, cancellation, timeout, stale completion rejection, bounded work, missing-kernel isolation, and later recovery preserve responsive deterministic publication.
     - name: Architecture, compatibility, and campaign certification
-      command: python3 -m pytest tooling/lsp-server/tests -q && python3 -m unittest discover -s tooling/tests && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/migration_differential.py --repeat-runs 3 && python3 -m tooling.governance --json && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
-      expected_result: LSP compatibility, canonical dependency direction, public/generated contracts, migration evidence, governance, profiles, patch integrity, and clean-tree checks pass or retain only explicitly recorded inherited environment limitations.
+      command: python3 -m pytest tooling/lsp-server/tests --ignore=tooling/lsp-server/tests/test_code_actions.py -q && python3 -m unittest discover -s tooling/tests && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/migration_differential.py --repeat-runs 3 && python3 -m tooling.governance --json && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
+      expected_result: T02-owned LSP compatibility, canonical dependency direction, public/generated contracts, migration evidence, governance, profiles, patch integrity, and clean-tree checks pass or retain only explicitly recorded inherited environment limitations. The separately executed code-action suite must retain exactly the documented T04-owned REDOS diagnostic coupling until that ordered task rebases it.
 checkpoints:
     - name: Scope and contract lock
       status: passed
@@ -144,8 +160,20 @@ checkpoints:
             result: passed
             details: Thirty-two focused tests pass, including 24 live canonical-kernel executions. LSP formatting, Ruff, governance, and git diff --check pass; the pytest cache warning is an inherited filesystem permission limitation and does not affect test execution.
     - name: Minimal implementation and local proof
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical compiler bridge and exact editor projection
+            result: passed
+            details: The authored server uses a bounded strling-kernel subprocess for regex-compatible and Semantic STRling sources, validates CompileResult identity and spans, distinguishes failed compilation data from service failure, projects UTF-8 byte spans into negotiated UTF-8/16/32 positions, and publishes exact code, severity, message, order, canonical payload, range, and document version. Source is bounded at 1,048,576 bytes, diagnostics at 256, host islands at 256, and each document compile at five seconds.
+          - check: Canonical hover and lifecycle behavior
+            result: passed
+            details: Hover selects the narrowest current Semantic IR node and renders only available construct, capture, analysis, safety, and exact-target portability evidence in deterministic order. Immutable snapshots, 50 ms change debounce, generation invalidation, pending and in-flight cancellation, close cleanup, cache identity, stale-result rejection, encoding/profile invalidation, timeout/unavailable/malformed/input-limit isolation, failed-result publication, and later recovery are executable.
+          - check: Legacy diagnostic migration differential
+            result: passed
+            details: The 287-case exhaustive frontend suite now executes the canonical importer rather than Python binding intelligence. Governed deltas reject shorthand-class range endpoints and `{,m}` quantifiers, preserve canonical EOF and duplicate-definition spans, and use exact STRL diagnostic identities. Rebase discovered and repaired a Rust enum-order/canonical-key mismatch that made multi-builtin sets such as `[^\w\s]` and `[^\W\D\S]` fail internally; the complete 11-test Rust frontend suite passes.
+          - check: Focused local proof and bounded deferred ownership
+            result: passed
+            details: Ruff, LSP Prettier/Ruff formatting, Rust formatting, governance, git diff --check, 467 T02-owned LSP tests, and all 11 regex-frontend Rust tests pass. The separately executed code-action suite has eight passing tests and exactly three legacy REDOS_RISK coupling failures owned by P16-T04; T02 does not fabricate a deprecated alias or modify that forbidden feature suite. The inherited pytest-cache permission warning does not affect execution.
     - name: Integration and certification
       status: planned
       evidence: []
@@ -155,3 +183,5 @@ checkpoints:
 commits:
     - sha: 34602232b1f2cb2732d53c622ec242d2cb180297
       subject: "docs(lsp): lock canonical diagnostics scope"
+    - sha: 704f8030ade256dcd81f6a04e2365fd6bfe5758e
+      subject: "test(lsp): define canonical intelligence evidence"

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 
 @dataclass
@@ -39,6 +39,7 @@ class Diagnostic:
 class PublishDiagnosticsParams:
     uri: str
     diagnostics: List[Diagnostic]
+    version: Optional[int] = None
 
 
 @dataclass
@@ -47,6 +48,7 @@ class TextDocument:
     # some implementations include text/source; keep optional for stubs/tests
     text: Optional[str] = None
     language_id: Optional[str] = None
+    version: Optional[int] = None
 
 
 @dataclass
@@ -55,20 +57,24 @@ class DidOpenTextDocumentParams:
 
 
 @dataclass
-@dataclass
 class DidChangeTextDocumentParams:
     text_document: TextDocument
 
 
-@dataclass
 @dataclass
 class DidSaveTextDocumentParams:
     text_document: TextDocument
 
 
 @dataclass
+class DidCloseTextDocumentParams:
+    text_document: TextDocument
+
+
+@dataclass
 class InitializeParams:
-    pass
+    capabilities: Optional[Dict[str, Any]] = None
+    initialization_options: Optional[Dict[str, Any]] = None
 
 
 class MarkupKind(str):
@@ -98,6 +104,7 @@ class HoverParams:
 TEXT_DOCUMENT_DID_OPEN = "textDocument/didOpen"
 TEXT_DOCUMENT_DID_CHANGE = "textDocument/didChange"
 TEXT_DOCUMENT_DID_SAVE = "textDocument/didSave"
+TEXT_DOCUMENT_DID_CLOSE = "textDocument/didClose"
 TEXT_DOCUMENT_HOVER = "textDocument/hover"
 TEXT_DOCUMENT_SEMANTIC_TOKENS_FULL = "textDocument/semanticTokens/full"
 TEXT_DOCUMENT_COMPLETION = "textDocument/completion"
