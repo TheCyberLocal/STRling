@@ -4,11 +4,17 @@
     "title": "Controlled invalid standard-library registry case",
     "type": "object",
     "additionalProperties": false,
-    "required": ["case_id", "expected_rule", "kind", "operations", "registry_reference"],
+    "required": [
+        "case_id",
+        "expected_rule",
+        "kind",
+        "operations",
+        "registry_reference"
+    ],
     "properties": {
-        "case_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]+$"},
-        "expected_rule": {"type": "string", "pattern": "^[a-z][a-z0-9.]+$"},
-        "kind": {"const": "strling.stdlib-registry-invalid-case"},
+        "case_id": { "type": "string", "pattern": "^[a-z][a-z0-9-]+$" },
+        "expected_rule": { "type": "string", "pattern": "^[a-z][a-z0-9.]+$" },
+        "kind": { "const": "strling.stdlib-registry-invalid-case" },
         "operations": {
             "type": "array",
             "minItems": 1,
@@ -17,23 +23,27 @@
                 "additionalProperties": false,
                 "required": ["op", "path"],
                 "properties": {
-                    "from": {"type": "string", "pattern": "^/"},
-                    "op": {"enum": ["copy", "remove", "replace"]},
-                    "path": {"type": "string", "pattern": "^/"},
+                    "from": { "type": "string", "pattern": "^/" },
+                    "op": { "enum": ["copy", "remove", "replace"] },
+                    "path": { "type": "string", "pattern": "^/" },
                     "value": true
                 },
                 "allOf": [
                     {
-                        "if": {"properties": {"op": {"const": "copy"}}},
-                        "then": {"required": ["from"]}
+                        "if": { "properties": { "op": { "const": "copy" } } },
+                        "then": { "required": ["from"] }
                     },
                     {
-                        "if": {"properties": {"op": {"const": "replace"}}},
-                        "then": {"required": ["value"]}
+                        "if": {
+                            "properties": { "op": { "const": "replace" } }
+                        },
+                        "then": { "required": ["value"] }
                     }
                 ]
             }
         },
-        "registry_reference": {"const": "spec/stdlib/registry/1.0/registry.json"}
+        "registry_reference": {
+            "const": "spec/stdlib/registry/1.0/registry.json"
+        }
     }
 }

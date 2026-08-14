@@ -12,13 +12,7 @@
             "regex": "[A-Za-z\\d._%+\\-]+@[A-Za-z\\d.\\-]+\\.[A-Za-z]{2,}",
             "ast_ref": "spec/stdlib/registry/1.0/registry.json#/helpers/1/semantic_definition/variants/0",
             "snippet": "email",
-            "trigger_keywords": [
-                "email",
-                "Email",
-                "mail",
-                "address",
-                "addr"
-            ]
+            "trigger_keywords": ["email", "Email", "mail", "address", "addr"]
         },
         {
             "name": "url",
@@ -48,13 +42,7 @@
             "regex": "[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}",
             "ast_ref": "spec/stdlib/registry/1.0/registry.json#/helpers/4/semantic_definition/variants/0",
             "snippet": "uuid",
-            "trigger_keywords": [
-                "uuid",
-                "UUID",
-                "Uuid",
-                "guid",
-                "GUID"
-            ]
+            "trigger_keywords": ["uuid", "UUID", "Uuid", "guid", "GUID"]
         },
         {
             "name": "ip",
@@ -65,14 +53,7 @@
             "regex": "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}",
             "ast_ref": "spec/stdlib/registry/1.0/registry.json#/helpers/2/semantic_definition/variants/2",
             "snippet": "ip",
-            "trigger_keywords": [
-                "ip",
-                "IP",
-                "Ip",
-                "ipv4",
-                "ipv6",
-                "address"
-            ]
+            "trigger_keywords": ["ip", "IP", "Ip", "ipv4", "ipv6", "address"]
         },
         {
             "name": "dateTime",

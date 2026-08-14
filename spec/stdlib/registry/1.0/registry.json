@@ -65,11 +65,7 @@
                         "snake": "uuid"
                     }
                 },
-                "pascal_case_export": [
-                    "go",
-                    "csharp",
-                    "fsharp"
-                ],
+                "pascal_case_export": ["go", "csharp", "fsharp"],
                 "snake_case": [
                     "python",
                     "ruby",
@@ -105,31 +101,21 @@
             "derivation_id": "canonical.registry",
             "kind": "authored_source",
             "normative": true,
-            "outputs": [
-                "spec/stdlib/registry/1.0/registry.json"
-            ]
+            "outputs": ["spec/stdlib/registry/1.0/registry.json"]
         },
         {
-            "depends_on": [
-                "canonical.registry"
-            ],
+            "depends_on": ["canonical.registry"],
             "derivation_id": "projection.essential-5",
             "kind": "generated_projection",
             "normative": false,
-            "outputs": [
-                "spec/stdlib/essential_5.json"
-            ]
+            "outputs": ["spec/stdlib/essential_5.json"]
         },
         {
-            "depends_on": [
-                "canonical.registry"
-            ],
+            "depends_on": ["canonical.registry"],
             "derivation_id": "projection.lsp-registry",
             "kind": "generated_projection",
             "normative": false,
-            "outputs": [
-                "spec/stdlib/registry.json"
-            ]
+            "outputs": ["spec/stdlib/registry.json"]
         }
     ],
     "fingerprint": {
@@ -257,10 +243,7 @@
                         {
                             "authority_id": "ietf.rfc3339",
                             "edition": "RFC 3339, July 2002",
-                            "provisions": [
-                                "5.6",
-                                "5.7"
-                            ],
+                            "provisions": ["5.6", "5.7"],
                             "title": "Date and Time on the Internet: Timestamps",
                             "uri": "https://www.rfc-editor.org/rfc/rfc3339.html"
                         }
@@ -479,9 +462,7 @@
                         {
                             "authority_id": "ietf.rfc5322",
                             "edition": "RFC 5322, October 2008",
-                            "provisions": [
-                                "3.4.1"
-                            ],
+                            "provisions": ["3.4.1"],
                             "title": "Internet Message Format",
                             "uri": "https://www.rfc-editor.org/rfc/rfc5322.html"
                         }
@@ -871,27 +852,21 @@
                         {
                             "authority_id": "ietf.rfc791",
                             "edition": "RFC 791, September 1981",
-                            "provisions": [
-                                "3.2"
-                            ],
+                            "provisions": ["3.2"],
                             "title": "Internet Protocol",
                             "uri": "https://www.rfc-editor.org/rfc/rfc791.html"
                         },
                         {
                             "authority_id": "ietf.rfc3986",
                             "edition": "RFC 3986, January 2005",
-                            "provisions": [
-                                "3.2.2"
-                            ],
+                            "provisions": ["3.2.2"],
                             "title": "Uniform Resource Identifier (URI): Generic Syntax",
                             "uri": "https://www.rfc-editor.org/rfc/rfc3986.html"
                         },
                         {
                             "authority_id": "ietf.rfc4291",
                             "edition": "RFC 4291, February 2006",
-                            "provisions": [
-                                "2.2"
-                            ],
+                            "provisions": ["2.2"],
                             "title": "IP Version 6 Addressing Architecture",
                             "uri": "https://www.rfc-editor.org/rfc/rfc4291.html"
                         }
@@ -920,11 +895,7 @@
             },
             "semantic_definition": {
                 "compatibility_fixtures": {
-                    "invalid_v4": [
-                        "1.2.3",
-                        "1.2.3.4.5",
-                        "abc.def.ghi.jkl"
-                    ],
+                    "invalid_v4": ["1.2.3", "1.2.3.4.5", "abc.def.ghi.jkl"],
                     "invalid_v6": [
                         "2001:db8::1",
                         "GGGG:0db8:85a3:0000:0000:8a2e:0370:7334",
@@ -980,17 +951,11 @@
                 ]
             },
             "signature": {
-                "accepted_input_types": [
-                    "integer",
-                    "null"
-                ],
+                "accepted_input_types": ["integer", "null"],
                 "output_type": "semantic_pattern",
                 "parameters": [
                     {
-                        "accepted_types": [
-                            "integer",
-                            "null"
-                        ],
+                        "accepted_types": ["integer", "null"],
                         "default": null,
                         "description": "Selects IPv4 for 4, full-form IPv6 for 6, and the compatibility either-branch for null or any other value.",
                         "name": "version",
@@ -1173,10 +1138,7 @@
                         {
                             "authority_id": "ietf.rfc3986",
                             "edition": "RFC 3986, January 2005",
-                            "provisions": [
-                                "3",
-                                "3.2.2"
-                            ],
+                            "provisions": ["3", "3.2.2"],
                             "title": "Uniform Resource Identifier (URI): Generic Syntax",
                             "uri": "https://www.rfc-editor.org/rfc/rfc3986.html"
                         }
@@ -1330,13 +1292,7 @@
                 "reference_url": "https://www.rfc-editor.org/rfc/rfc9562.html#section-4",
                 "snippet": "uuid",
                 "summary": "Matches the helper's declared 8-4-4-4-12 hexadecimal UUID-like shape.",
-                "trigger_keywords": [
-                    "uuid",
-                    "UUID",
-                    "Uuid",
-                    "guid",
-                    "GUID"
-                ]
+                "trigger_keywords": ["uuid", "UUID", "Uuid", "guid", "GUID"]
             },
             "evidence": [
                 {
@@ -1436,11 +1392,7 @@
                         {
                             "authority_id": "ietf.rfc9562",
                             "edition": "RFC 9562, May 2024 (obsoletes RFC 4122)",
-                            "provisions": [
-                                "4",
-                                "4.1",
-                                "4.2"
-                            ],
+                            "provisions": ["4", "4.1", "4.2"],
                             "title": "Universally Unique IDentifiers (UUIDs)",
                             "uri": "https://www.rfc-editor.org/rfc/rfc9562.html"
                         }
@@ -1521,17 +1473,11 @@
                 ]
             },
             "signature": {
-                "accepted_input_types": [
-                    "integer",
-                    "null"
-                ],
+                "accepted_input_types": ["integer", "null"],
                 "output_type": "semantic_pattern",
                 "parameters": [
                     {
-                        "accepted_types": [
-                            "integer",
-                            "null"
-                        ],
+                        "accepted_types": ["integer", "null"],
                         "default": null,
                         "description": "Selects the version-4 nibble-constrained branch for 4 and the generic compatibility branch for null or any other value.",
                         "name": "version",
@@ -1572,36 +1518,23 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "sl_date_time"
-                    ]
+                    "public_names": ["sl_date_time"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "sl_email"
-                    ]
+                    "public_names": ["sl_email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "sl_ip_any",
-                        "sl_ip_v4",
-                        "sl_ip_v6"
-                    ]
+                    "public_names": ["sl_ip_any", "sl_ip_v4", "sl_ip_v6"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "sl_url"
-                    ]
+                    "public_names": ["sl_url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "sl_uuid",
-                        "sl_uuid_v4"
-                    ]
+                    "public_names": ["sl_uuid", "sl_uuid_v4"]
                 }
             ],
             "implementation_references": [
@@ -1615,33 +1548,23 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "date_time"
-                    ]
+                    "public_names": ["date_time"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
             "implementation_references": [
@@ -1655,33 +1578,23 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "DateTime"
-                    ]
+                    "public_names": ["DateTime"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "Email"
-                    ]
+                    "public_names": ["Email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "Ip"
-                    ]
+                    "public_names": ["Ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "Url"
-                    ]
+                    "public_names": ["Url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "Uuid"
-                    ]
+                    "public_names": ["Uuid"]
                 }
             ],
             "implementation_references": [
@@ -1694,38 +1607,26 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "dateTime"
-                    ]
+                    "public_names": ["dateTime"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
-            "implementation_references": [
-                "bindings/dart/lib/essential.dart"
-            ],
+            "implementation_references": ["bindings/dart/lib/essential.dart"],
             "test_reference": "bindings/dart/test/essential_5_test.dart"
         },
         {
@@ -1733,35 +1634,23 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "dateTime"
-                    ]
+                    "public_names": ["dateTime"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip",
-                        "ipAny"
-                    ]
+                    "public_names": ["ip", "ipAny"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid",
-                        "uuidAny"
-                    ]
+                    "public_names": ["uuid", "uuidAny"]
                 }
             ],
             "implementation_references": [
@@ -1774,38 +1663,26 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "DateTime"
-                    ]
+                    "public_names": ["DateTime"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "Email"
-                    ]
+                    "public_names": ["Email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "IP"
-                    ]
+                    "public_names": ["IP"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "URL"
-                    ]
+                    "public_names": ["URL"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "UUID"
-                    ]
+                    "public_names": ["UUID"]
                 }
             ],
-            "implementation_references": [
-                "bindings/go/simply/essential.go"
-            ],
+            "implementation_references": ["bindings/go/simply/essential.go"],
             "test_reference": "bindings/go/simply/essential_test.go"
         },
         {
@@ -1813,33 +1690,23 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "dateTime"
-                    ]
+                    "public_names": ["dateTime"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
             "implementation_references": [
@@ -1852,33 +1719,23 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "dateTime"
-                    ]
+                    "public_names": ["dateTime"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
             "implementation_references": [
@@ -1891,38 +1748,26 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "date_time"
-                    ]
+                    "public_names": ["date_time"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
-            "implementation_references": [
-                "bindings/lua/src/essential.lua"
-            ],
+            "implementation_references": ["bindings/lua/src/essential.lua"],
             "test_reference": "bindings/lua/spec/essential_5_spec.lua"
         },
         {
@@ -1930,33 +1775,23 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "date_time"
-                    ]
+                    "public_names": ["date_time"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
             "implementation_references": [
@@ -1969,38 +1804,26 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "dateTime"
-                    ]
+                    "public_names": ["dateTime"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
-            "implementation_references": [
-                "bindings/php/src/Essential.php"
-            ],
+            "implementation_references": ["bindings/php/src/Essential.php"],
             "test_reference": "bindings/php/tests/Essential5Test.php"
         },
         {
@@ -2008,33 +1831,23 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "date_time"
-                    ]
+                    "public_names": ["date_time"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
             "implementation_references": [
@@ -2047,38 +1860,26 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "sl_date_time"
-                    ]
+                    "public_names": ["sl_date_time"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "sl_email"
-                    ]
+                    "public_names": ["sl_email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "sl_ip"
-                    ]
+                    "public_names": ["sl_ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "sl_url"
-                    ]
+                    "public_names": ["sl_url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "sl_uuid"
-                    ]
+                    "public_names": ["sl_uuid"]
                 }
             ],
-            "implementation_references": [
-                "bindings/r/R/essential.R"
-            ],
+            "implementation_references": ["bindings/r/R/essential.R"],
             "test_reference": "bindings/r/tests/testthat/test-essential-5.R"
         },
         {
@@ -2086,33 +1887,23 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "date_time"
-                    ]
+                    "public_names": ["date_time"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
             "implementation_references": [
@@ -2125,38 +1916,26 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "date_time"
-                    ]
+                    "public_names": ["date_time"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
-            "implementation_references": [
-                "bindings/rust/src/essential.rs"
-            ],
+            "implementation_references": ["bindings/rust/src/essential.rs"],
             "test_reference": "bindings/rust/tests/essential_5.rs"
         },
         {
@@ -2164,33 +1943,23 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "dateTime"
-                    ]
+                    "public_names": ["dateTime"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
             "implementation_references": [
@@ -2203,33 +1972,23 @@
             "exposures": [
                 {
                     "helper_id": "stdlib.date_time",
-                    "public_names": [
-                        "dateTime"
-                    ]
+                    "public_names": ["dateTime"]
                 },
                 {
                     "helper_id": "stdlib.email",
-                    "public_names": [
-                        "email"
-                    ]
+                    "public_names": ["email"]
                 },
                 {
                     "helper_id": "stdlib.ip",
-                    "public_names": [
-                        "ip"
-                    ]
+                    "public_names": ["ip"]
                 },
                 {
                     "helper_id": "stdlib.url",
-                    "public_names": [
-                        "url"
-                    ]
+                    "public_names": ["url"]
                 },
                 {
                     "helper_id": "stdlib.uuid",
-                    "public_names": [
-                        "uuid"
-                    ]
+                    "public_names": ["uuid"]
                 }
             ],
             "implementation_references": [

@@ -520,11 +520,7 @@
             ],
             "generator": {
                 "implementation_paths": ["tooling/stdlib_registry.py"],
-                "command": [
-                    "python3",
-                    "tooling/stdlib_registry.py",
-                    "--write"
-                ],
+                "command": ["python3", "tooling/stdlib_registry.py", "--write"],
                 "working_directory": "."
             },
             "outputs": [
@@ -536,11 +532,7 @@
             "authority": "non-normative-projection",
             "verification": {
                 "method": "command-check",
-                "command": [
-                    "python3",
-                    "tooling/stdlib_registry.py",
-                    "--check"
-                ]
+                "command": ["python3", "tooling/stdlib_registry.py", "--check"]
             },
             "enforcement": "enforced"
         },

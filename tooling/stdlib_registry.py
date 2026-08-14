@@ -7,6 +7,7 @@ import argparse
 import copy
 import hashlib
 import json
+import subprocess
 import sys
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -27,6 +28,7 @@ AUDIT_FIXTURES_PATH = ROOT / "spec" / "stdlib" / "stdlib-guarantee-audit-fixture
 TRANSITION_PATH = ROOT / "spec" / "stdlib" / "validation-guarantee-transition.json"
 ESSENTIAL_OUTPUT = ROOT / "spec" / "stdlib" / "essential_5.json"
 LSP_OUTPUT = ROOT / "spec" / "stdlib" / "registry.json"
+PRETTIER = ROOT / "node_modules" / ".bin" / "prettier"
 
 
 class StandardLibraryRegistryError(ValueError):
@@ -141,6 +143,20 @@ def _remove_pointer(value: Any, pointer: str) -> None:
 def _unique(values: Sequence[str], rule: str) -> None:
     if len(values) != len(set(values)):
         raise StandardLibraryRegistryError(rule)
+
+
+def _validate_sorted_keys(value: Any, path: str = "$") -> None:
+    if isinstance(value, dict):
+        keys = list(value)
+        if keys != sorted(keys):
+            raise StandardLibraryRegistryError(
+                f"serialization.nondeterministic: object keys are not sorted at {path}"
+            )
+        for key, child in value.items():
+            _validate_sorted_keys(child, f"{path}.{key}")
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            _validate_sorted_keys(child, f"{path}[{index}]")
 
 
 class StandardLibraryRegistrySuite:
@@ -577,11 +593,12 @@ class StandardLibraryRegistrySuite:
         """Validate content plus canonical checked-in serialization."""
         registry = load_json(self.registry_path)
         counts = self.validate_registry(registry)
-        expected = serialized_json(registry, sort_keys=True)
-        if self.registry_path.read_text(encoding="utf-8") != expected:
+        payload = self.registry_path.read_bytes()
+        if b"\r\n" in payload or not payload.endswith(b"\n"):
             raise StandardLibraryRegistryError(
-                "serialization.nondeterministic: canonical registry is not sorted deterministic JSON"
+                "serialization.nondeterministic: canonical registry must use LF and one trailing newline"
             )
+        _validate_sorted_keys(registry)
         return counts
 
     def materialize_invalid_case(self, case: Mapping[str, Any]) -> dict[str, Any]:
@@ -735,12 +752,38 @@ class StandardLibraryRegistrySuite:
             self.lsp_output: self.project_lsp(registry),
         }
 
+    def _formatted_projection(self, path: Path, value: Mapping[str, Any]) -> str:
+        if not PRETTIER.is_file():
+            raise StandardLibraryRegistryError(
+                f"projection.formatter.unavailable: missing {PRETTIER.relative_to(ROOT)}"
+            )
+        completed = subprocess.run(
+            [
+                str(PRETTIER),
+                "--stdin-filepath",
+                str(path.relative_to(self.root)),
+            ],
+            cwd=self.root,
+            input=serialized_json(value),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        if completed.returncode != 0:
+            raise StandardLibraryRegistryError(
+                "projection.formatter.failed: " + completed.stderr.strip()
+            )
+        return completed.stdout
+
     def write_projections(self) -> tuple[int, int, int, int]:
         """Validate the canonical source and deterministically write projections."""
         registry = load_json(self.registry_path)
         counts = self.validate_registry(registry)
         for path, value in self.projections(registry).items():
-            path.write_text(serialized_json(value), encoding="utf-8")
+            path.write_text(
+                self._formatted_projection(path, value), encoding="utf-8", newline="\n"
+            )
         return counts
 
     def check_projections(self) -> tuple[int, int, int, int]:
@@ -748,7 +791,7 @@ class StandardLibraryRegistrySuite:
         counts = self.validate_canonical_file()
         registry = load_json(self.registry_path)
         for path, value in self.projections(registry).items():
-            expected = serialized_json(value)
+            expected = self._formatted_projection(path, value)
             if not path.is_file() or path.read_text(encoding="utf-8") != expected:
                 raise StandardLibraryRegistryError(
                     f"projection.drift: regenerate {path.relative_to(self.root)}"
