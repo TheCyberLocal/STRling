@@ -166,6 +166,25 @@ against explicit VS Code and language-client doubles and proves the exact
 command, arguments, environment, selector set, and error reporting. It does
 not treat source-tree unit tests as packaged-runtime evidence.
 
+The frozen package contract is `1.0.0` at
+`sha256:ebe8345bbb9a4ac974f93990d716acfdb25acbe002f306bd3e4a72d9d4853bcd`.
+It declares 17 copied source/resource paths, two generated files, two canonical
+runtime binaries, 21 required payload paths, 15 forbidden path patterns, six
+absolute runtime environment bindings, four exact target/runner pairs, ten
+editor features, 21 VS Code document selectors, and zero external Python
+packages.
+
+The closed CP2 acceptance denominator contains 72 unique cases: four native
+targets, 21 selectors, ten features, 12 failure dispositions, three isolated
+lifecycle operations, six packaged/canonical identity groups, 12 controlled
+mutations, and four reproducibility properties. Its canonical fingerprint is
+`sha256:736f77bc8b912e5a3e48b5156cd4544a0c231c7e289164631686b983b1d91929`.
+Eleven integrity tests validate the closed schema and fingerprints, exact
+target/runner mapping, island-registry alignment, canonical-only payload,
+offline runtime, owned extension surface, all case dimensions, and
+denominator-removal resistance. These tests define evidence requirements; they
+do not claim that the starting implementation already satisfies them.
+
 CI will run the same certification command on all four supported runner/target
 pairs and retain the content manifest and VSIX as test evidence. No workflow in
 this task publishes, signs, uploads to a marketplace, changes release tags, or

@@ -45,6 +45,11 @@ scope:
         - docs/migration/lsp-packaging-certification.md
         - docs/migration/records/lsp-packaging-certification.yaml
         - governance/change-control.json
+        - tooling/lsp-server/package_contract.json
+        - tooling/lsp-server/package_contract.schema.json
+        - tooling/lsp-server/tests/fixtures/package-certification/manifest.json
+        - tooling/lsp-server/tests/test_package_contract.py
+        - tooling/lsp-server/tests/test_package_evidence.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -112,8 +117,18 @@ checkpoints:
             result: passed
             details: The contract locks linux-x64, win32-x64, darwin-x64, and darwin-arm64 to matching native CI runners; declares the two Rust processes as the sole semantic engines; packages only authored adapters, local transport subsets, and governed resources; requires an explicit preinstalled Python interpreter; rejects undeclared or host-mismatched targets; keeps all generated artifacts untracked; and forbids marketplace publication, user-home mutation, binding fallback, and language-semantic changes.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed package and runtime contract
+            result: passed
+            details: Package contract 1.0.0 at sha256:ebe8345bbb9a4ac974f93990d716acfdb25acbe002f306bd3e4a72d9d4853bcd fixes four native target/runner pairs, 17 copied inputs, two generated files, two canonical runtime processes, 21 required and 15 forbidden payload patterns, 21 selectors, ten features, six absolute runtime bindings, Python 3.11 minimum, zero external Python packages, byte-exact payload equivalence, normalized VSIX entry equivalence, and an explicit publication prohibition.
+          - check: Shrinkage-resistant packaging evidence denominator
+            command: python -m pytest tooling/lsp-server/tests/test_package_contract.py tooling/lsp-server/tests/test_package_evidence.py -q -p no:cacheprovider
+            result: passed
+            details: Eleven integrity tests pass. The manifest contains 72 unique cases across four targets, 21 selectors, ten features, 12 failures, three lifecycle operations, six identity groups, 12 mutations, and four reproducibility properties at sha256:736f77bc8b912e5a3e48b5156cd4544a0c231c7e289164631686b983b1d91929. Exact counts, IDs, governed island-route alignment, canonical-only contents, offline runtime, owned language surface, and one-case removal are enforced.
+          - check: Schema, formatting, governance, and patch integrity
+            result: passed
+            details: JSON Schema 2020-12 validates the closed contract; all three JSON files parse; the two focused Python test files pass Ruff check and format; task schema, scope/declaration governance, and architecture fitness pass; git diff --check passes. Repository formatting retains only the previously recorded four Python and two Markdown files outside P16-T05.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
@@ -123,4 +138,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: fff3727c05dbd99221cb71c967671f673aaa1f60
+      subject: "docs(lsp): lock packaging certification"

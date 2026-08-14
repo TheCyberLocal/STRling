@@ -1,0 +1,267 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tooling/vscode-package-contract.schema.json",
+    "title": "STRling VS Code package contract",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "contract_version",
+        "contract_id",
+        "extension",
+        "targets",
+        "payload",
+        "runtime",
+        "reproducibility",
+        "limits",
+        "contract_fingerprint"
+    ],
+    "properties": {
+        "$schema": { "const": "./package_contract.schema.json" },
+        "contract_version": { "const": "1.0.0" },
+        "contract_id": { "const": "strling.tooling.vscode-package" },
+        "extension": { "$ref": "#/$defs/extension" },
+        "targets": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": { "$ref": "#/$defs/target" }
+        },
+        "payload": { "$ref": "#/$defs/payload" },
+        "runtime": { "$ref": "#/$defs/runtime" },
+        "reproducibility": { "$ref": "#/$defs/reproducibility" },
+        "limits": { "$ref": "#/$defs/limits" },
+        "contract_fingerprint": { "$ref": "#/$defs/fingerprint" }
+    },
+    "$defs": {
+        "nonEmptyString": { "type": "string", "minLength": 1 },
+        "stringSet": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/nonEmptyString" },
+            "uniqueItems": true
+        },
+        "fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "setting": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "type", "default"],
+            "properties": {
+                "name": { "$ref": "#/$defs/nonEmptyString" },
+                "type": { "enum": ["string", "array"] },
+                "default": {}
+            }
+        },
+        "extension": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "package_name",
+                "publisher",
+                "version_source",
+                "license",
+                "main",
+                "owned_language",
+                "island_route_ids",
+                "document_selectors",
+                "activation_events",
+                "features",
+                "settings"
+            ],
+            "properties": {
+                "package_name": { "const": "vscode-strling" },
+                "publisher": { "const": "strling-lang" },
+                "version_source": { "const": "tooling/lsp-server/package.json" },
+                "license": { "const": "Apache-2.0" },
+                "main": { "const": "out/extension.js" },
+                "owned_language": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["id", "extensions"],
+                    "properties": {
+                        "id": { "const": "strling" },
+                        "extensions": {
+                            "type": "array",
+                            "prefixItems": [{ "const": ".strl" }],
+                            "items": false
+                        }
+                    }
+                },
+                "island_route_ids": { "$ref": "#/$defs/stringSet" },
+                "document_selectors": { "$ref": "#/$defs/stringSet" },
+                "activation_events": { "$ref": "#/$defs/stringSet" },
+                "features": { "$ref": "#/$defs/stringSet" },
+                "settings": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": { "$ref": "#/$defs/setting" }
+                }
+            }
+        },
+        "target": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "node_platform",
+                "node_arch",
+                "rust_host",
+                "executable_suffix",
+                "ci_runner"
+            ],
+            "properties": {
+                "id": {
+                    "enum": [
+                        "darwin-arm64",
+                        "darwin-x64",
+                        "linux-x64",
+                        "win32-x64"
+                    ]
+                },
+                "node_platform": { "enum": ["darwin", "linux", "win32"] },
+                "node_arch": { "enum": ["arm64", "x64"] },
+                "rust_host": {
+                    "enum": [
+                        "aarch64-apple-darwin",
+                        "x86_64-apple-darwin",
+                        "x86_64-pc-windows-msvc",
+                        "x86_64-unknown-linux-gnu"
+                    ]
+                },
+                "executable_suffix": { "enum": ["", ".exe"] },
+                "ci_runner": {
+                    "enum": [
+                        "macos-15-intel",
+                        "macos-latest",
+                        "ubuntu-latest",
+                        "windows-latest"
+                    ]
+                }
+            }
+        },
+        "copy": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "destination"],
+            "properties": {
+                "source": { "$ref": "#/$defs/nonEmptyString" },
+                "destination": { "$ref": "#/$defs/nonEmptyString" }
+            }
+        },
+        "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "copies",
+                "generated_files",
+                "runtime_binaries",
+                "required_paths",
+                "forbidden_path_patterns",
+                "manifest_path",
+                "vsix_name_template"
+            ],
+            "properties": {
+                "copies": {
+                    "type": "array",
+                    "minItems": 15,
+                    "items": { "$ref": "#/$defs/copy" }
+                },
+                "generated_files": { "$ref": "#/$defs/stringSet" },
+                "runtime_binaries": { "$ref": "#/$defs/stringSet" },
+                "required_paths": { "$ref": "#/$defs/stringSet" },
+                "forbidden_path_patterns": { "$ref": "#/$defs/stringSet" },
+                "manifest_path": { "const": "strling-package-manifest.json" },
+                "vsix_name_template": {
+                    "const": "vscode-strling-{version}-{target}.vsix"
+                }
+            }
+        },
+        "commandCandidate": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["command", "prefix_args"],
+            "properties": {
+                "command": { "$ref": "#/$defs/nonEmptyString" },
+                "prefix_args": { "$ref": "#/$defs/stringSet" }
+            }
+        },
+        "runtime": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "python_minimum",
+                "python_candidates",
+                "server_args",
+                "working_directory",
+                "environment",
+                "missing_python_error",
+                "network_after_dependency_install",
+                "external_python_packages"
+            ],
+            "properties": {
+                "python_minimum": { "const": "3.11" },
+                "python_candidates": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["posix", "win32"],
+                    "properties": {
+                        "posix": {
+                            "type": "array",
+                            "items": { "$ref": "#/$defs/commandCandidate" }
+                        },
+                        "win32": {
+                            "type": "array",
+                            "items": { "$ref": "#/$defs/commandCandidate" }
+                        }
+                    }
+                },
+                "server_args": { "$ref": "#/$defs/stringSet" },
+                "working_directory": { "const": "." },
+                "environment": {
+                    "type": "object",
+                    "minProperties": 6,
+                    "additionalProperties": { "$ref": "#/$defs/nonEmptyString" }
+                },
+                "missing_python_error": { "$ref": "#/$defs/nonEmptyString" },
+                "network_after_dependency_install": { "const": "forbidden" },
+                "external_python_packages": {
+                    "type": "array",
+                    "maxItems": 0
+                }
+            }
+        },
+        "reproducibility": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "source_state",
+                "payload_equivalence",
+                "vsix_equivalence",
+                "normalized_timestamp",
+                "manifest_hash_algorithm",
+                "publication"
+            ],
+            "properties": {
+                "source_state": { "const": "clean-git-archive" },
+                "payload_equivalence": { "const": "byte-for-byte" },
+                "vsix_equivalence": { "const": "normalized-entry-manifest" },
+                "normalized_timestamp": { "const": "1980-01-01T00:00:00Z" },
+                "manifest_hash_algorithm": { "const": "sha256" },
+                "publication": { "const": "forbidden" }
+            }
+        },
+        "limits": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["max_payload_files", "max_payload_bytes", "max_path_bytes"],
+            "properties": {
+                "max_payload_files": { "type": "integer", "minimum": 1 },
+                "max_payload_bytes": { "type": "integer", "minimum": 1 },
+                "max_path_bytes": { "type": "integer", "minimum": 1 }
+            }
+        }
+    }
+}

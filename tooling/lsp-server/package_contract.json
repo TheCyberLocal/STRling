@@ -1,0 +1,302 @@
+{
+    "$schema": "./package_contract.schema.json",
+    "contract_version": "1.0.0",
+    "contract_id": "strling.tooling.vscode-package",
+    "extension": {
+        "package_name": "vscode-strling",
+        "publisher": "strling-lang",
+        "version_source": "tooling/lsp-server/package.json",
+        "license": "Apache-2.0",
+        "main": "out/extension.js",
+        "owned_language": {
+            "id": "strling",
+            "extensions": [".strl"]
+        },
+        "island_route_ids": [
+            "strl",
+            "c",
+            "cpp",
+            "csharp",
+            "dart",
+            "fsharp",
+            "go",
+            "java",
+            "kotlin",
+            "lua",
+            "perl",
+            "php",
+            "python",
+            "r",
+            "ruby",
+            "rust",
+            "swift",
+            "typescript"
+        ],
+        "document_selectors": [
+            "strling",
+            "c",
+            "cpp",
+            "csharp",
+            "dart",
+            "fsharp",
+            "go",
+            "java",
+            "javascript",
+            "javascriptreact",
+            "kotlin",
+            "lua",
+            "perl",
+            "php",
+            "python",
+            "r",
+            "ruby",
+            "rust",
+            "swift",
+            "typescript",
+            "typescriptreact"
+        ],
+        "activation_events": [
+            "onLanguage:strling",
+            "onLanguage:c",
+            "onLanguage:cpp",
+            "onLanguage:csharp",
+            "onLanguage:dart",
+            "onLanguage:fsharp",
+            "onLanguage:go",
+            "onLanguage:java",
+            "onLanguage:javascript",
+            "onLanguage:javascriptreact",
+            "onLanguage:kotlin",
+            "onLanguage:lua",
+            "onLanguage:perl",
+            "onLanguage:php",
+            "onLanguage:python",
+            "onLanguage:r",
+            "onLanguage:ruby",
+            "onLanguage:rust",
+            "onLanguage:swift",
+            "onLanguage:typescript",
+            "onLanguage:typescriptreact"
+        ],
+        "features": [
+            "diagnostics",
+            "hover",
+            "completion",
+            "definition",
+            "references",
+            "document_symbols",
+            "semantic_tokens",
+            "code_actions",
+            "formatting",
+            "embedded_islands"
+        ],
+        "settings": [
+            {
+                "name": "strling.languageServer.command",
+                "type": "string",
+                "default": ""
+            },
+            {
+                "name": "strling.languageServer.args",
+                "type": "array",
+                "default": []
+            },
+            {
+                "name": "strling.trace.server",
+                "type": "string",
+                "default": "off"
+            }
+        ]
+    },
+    "targets": [
+        {
+            "id": "darwin-arm64",
+            "node_platform": "darwin",
+            "node_arch": "arm64",
+            "rust_host": "aarch64-apple-darwin",
+            "executable_suffix": "",
+            "ci_runner": "macos-latest"
+        },
+        {
+            "id": "darwin-x64",
+            "node_platform": "darwin",
+            "node_arch": "x64",
+            "rust_host": "x86_64-apple-darwin",
+            "executable_suffix": "",
+            "ci_runner": "macos-15-intel"
+        },
+        {
+            "id": "linux-x64",
+            "node_platform": "linux",
+            "node_arch": "x64",
+            "rust_host": "x86_64-unknown-linux-gnu",
+            "executable_suffix": "",
+            "ci_runner": "ubuntu-latest"
+        },
+        {
+            "id": "win32-x64",
+            "node_platform": "win32",
+            "node_arch": "x64",
+            "rust_host": "x86_64-pc-windows-msvc",
+            "executable_suffix": ".exe",
+            "ci_runner": "windows-latest"
+        }
+    ],
+    "payload": {
+        "copies": [
+            { "source": "LICENSE", "destination": "LICENSE" },
+            {
+                "source": "tooling/lsp-server/README.md",
+                "destination": "README.md"
+            },
+            {
+                "source": "tooling/lsp-server/language-configuration.json",
+                "destination": "language-configuration.json"
+            },
+            {
+                "source": "tooling/lsp-server/package.json",
+                "destination": "package.json"
+            },
+            {
+                "source": "tooling/lsp-server/strling-icon.png",
+                "destination": "strling-icon.png"
+            },
+            {
+                "source": "tooling/lsp-server/server/server.py",
+                "destination": "server/server.py"
+            },
+            {
+                "source": "tooling/lsp-server/server/canonical_core.py",
+                "destination": "server/canonical_core.py"
+            },
+            {
+                "source": "tooling/lsp-server/server/canonical_intelligence.py",
+                "destination": "server/canonical_intelligence.py"
+            },
+            {
+                "source": "tooling/lsp-server/server/island_extractor.py",
+                "destination": "server/island_extractor.py"
+            },
+            {
+                "source": "tooling/lsp-server/pygls/__init__.py",
+                "destination": "server/libs/pygls/__init__.py"
+            },
+            {
+                "source": "tooling/lsp-server/pygls/protocol.py",
+                "destination": "server/libs/pygls/protocol.py"
+            },
+            {
+                "source": "tooling/lsp-server/pygls/server.py",
+                "destination": "server/libs/pygls/server.py"
+            },
+            {
+                "source": "tooling/lsp-server/lsprotocol/__init__.py",
+                "destination": "server/libs/lsprotocol/__init__.py"
+            },
+            {
+                "source": "tooling/lsp-server/lsprotocol/types.py",
+                "destination": "server/libs/lsprotocol/types.py"
+            },
+            {
+                "source": "spec/frontends/simply/1.1/protocol.json",
+                "destination": "server/resources/simply-protocol.json"
+            },
+            {
+                "source": "spec/stdlib/registry/1.0/registry.json",
+                "destination": "server/resources/stdlib-registry.json"
+            },
+            {
+                "source": "spec/tooling/island_boundaries.json",
+                "destination": "server/resources/island-boundaries.json"
+            }
+        ],
+        "generated_files": [
+            "out/extension.js",
+            "strling-package-manifest.json"
+        ],
+        "runtime_binaries": [
+            "server/bin/strling-kernel{executable_suffix}",
+            "server/bin/strling-editor-core{executable_suffix}"
+        ],
+        "required_paths": [
+            "LICENSE",
+            "README.md",
+            "language-configuration.json",
+            "package.json",
+            "strling-icon.png",
+            "out/extension.js",
+            "server/server.py",
+            "server/canonical_core.py",
+            "server/canonical_intelligence.py",
+            "server/island_extractor.py",
+            "server/libs/pygls/__init__.py",
+            "server/libs/pygls/protocol.py",
+            "server/libs/pygls/server.py",
+            "server/libs/lsprotocol/__init__.py",
+            "server/libs/lsprotocol/types.py",
+            "server/resources/simply-protocol.json",
+            "server/resources/stdlib-registry.json",
+            "server/resources/island-boundaries.json",
+            "server/bin/strling-kernel{executable_suffix}",
+            "server/bin/strling-editor-core{executable_suffix}",
+            "strling-package-manifest.json"
+        ],
+        "forbidden_path_patterns": [
+            "**/__pycache__/**",
+            "**/*.pyc",
+            "**/*.pyo",
+            "**/*.dist-info/**",
+            "**/*.egg-info/**",
+            "**/*.map",
+            "**/tests/**",
+            "**/.git/**",
+            "**/node_modules/**",
+            "**/target/**",
+            "server/libs/STRling/**",
+            "server/deferred_intelligence.py",
+            "examples/**"
+        ],
+        "manifest_path": "strling-package-manifest.json",
+        "vsix_name_template": "vscode-strling-{version}-{target}.vsix"
+    },
+    "runtime": {
+        "python_minimum": "3.11",
+        "python_candidates": {
+            "posix": [
+                { "command": "python3", "prefix_args": [] },
+                { "command": "python", "prefix_args": [] }
+            ],
+            "win32": [
+                { "command": "python", "prefix_args": [] },
+                { "command": "py", "prefix_args": ["-3"] }
+            ]
+        },
+        "server_args": ["server/server.py", "--stdio"],
+        "working_directory": ".",
+        "environment": {
+            "PYTHONPATH": "server/libs",
+            "STRLING_KERNEL": "server/bin/strling-kernel{executable_suffix}",
+            "STRLING_EDITOR_CORE": "server/bin/strling-editor-core{executable_suffix}",
+            "STRLING_SIMPLY_PROTOCOL_PATH": "server/resources/simply-protocol.json",
+            "STRLING_STDLIB_REGISTRY_PATH": "server/resources/stdlib-registry.json",
+            "STRLING_ISLAND_BOUNDARIES_PATH": "server/resources/island-boundaries.json"
+        },
+        "missing_python_error": "STRling requires Python 3.11 or newer to start its bundled language server. Configure strling.languageServer.command or install Python.",
+        "network_after_dependency_install": "forbidden",
+        "external_python_packages": []
+    },
+    "reproducibility": {
+        "source_state": "clean-git-archive",
+        "payload_equivalence": "byte-for-byte",
+        "vsix_equivalence": "normalized-entry-manifest",
+        "normalized_timestamp": "1980-01-01T00:00:00Z",
+        "manifest_hash_algorithm": "sha256",
+        "publication": "forbidden"
+    },
+    "limits": {
+        "max_payload_files": 128,
+        "max_payload_bytes": 67108864,
+        "max_path_bytes": 240
+    },
+    "contract_fingerprint": "sha256:ebe8345bbb9a4ac974f93990d716acfdb25acbe002f306bd3e4a72d9d4853bcd"
+}
