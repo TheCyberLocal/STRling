@@ -1,0 +1,157 @@
+record_version: 2.0.0
+title: Bounded no-match explanation
+status: in_progress
+objective: Define and implement one deterministic, versioned no-match explanation result over canonical Semantic IR, exact structured explanation evidence, an explicit search subject, and optional completed target context, with conservative proven, likely, unknown, and unavailable dispositions under hard resource limits.
+scope:
+    diff:
+        base: 546df5ff5a7fe355a00c5dc245ad6a5eddec6405
+        head: working-tree
+    allowed_paths:
+        - core/README.md
+        - core/contract-mapping.json
+        - core/src/lib.rs
+        - core/src/no_match_explanation.rs
+        - core/tests/no_match_explanation.rs
+        - core/tests/no_match_explanation_frontend_convergence.rs
+        - core/tests/no_match_explanation_properties.rs
+        - core/tests/no_match_explanation_target_crosscheck.rs
+        - docs/index.md
+        - docs/migration/bounded-no-match-explanation.md
+        - docs/migration/ledger.md
+        - docs/migration/records/bounded-no-match-explanation.yaml
+        - governance/change-control.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - spec/README.md
+        - spec/explanations/no-match/**
+        - tooling/contract_validation.py
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/generated_artifacts.py
+        - tooling/migration_differential_baseline.json
+        - tooling/no_match_explanation_contract.py
+        - tooling/public_contracts.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_no_match_explanation_architecture.py
+        - tooling/tests/test_no_match_explanation_contract.py
+        - tooling/tests/test_public_contracts.py
+    forbidden_paths:
+        - bindings/**
+        - core/cli/**
+        - core/src/capability_evaluation.rs
+        - core/src/capability_pipeline.rs
+        - core/src/compiler_pipeline.rs
+        - core/src/diagnostic_generation.rs
+        - core/src/ecmascript_lowering.rs
+        - core/src/ecmascript_serialization.rs
+        - core/src/explanation.rs
+        - core/src/kernel.rs
+        - core/src/normalization.rs
+        - core/src/portability_diagnostics.rs
+        - core/src/portability_planning.rs
+        - core/src/python_re_lowering.rs
+        - core/src/python_re_serialization.rs
+        - core/src/regex_frontend.rs
+        - core/src/semantic_conversion.rs
+        - core/src/semantic_frontend.rs
+        - core/src/semantic_rewrite.rs
+        - core/src/simply.rs
+        - core/src/target_lowering.rs
+        - core/src/target_serialization.rs
+        - packages/**
+        - spec/contracts/**
+        - spec/conversions/**
+        - spec/explanations/semantic/**
+        - spec/frontends/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - tests/conformance/evidence/**
+        - tests/spec/**
+        - tests/target/**
+        - tooling/legacy_reference/**
+        - tooling/lsp-server/**
+        - tooling/node_regexp_harness.mjs
+        - tooling/pcre2_feature_probe.py
+        - tooling/python_re_harness.py
+    expected_files:
+        - docs/migration/bounded-no-match-explanation.md
+        - docs/migration/records/bounded-no-match-explanation.yaml
+        - governance/change-control.json
+    permitted_generated_changes:
+        - public-contract-snapshots
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - No-match explanation observes existing canonical semantics and cannot add accepted programs, matching behavior, or target meaning.
+    public_api_change:
+        level: none
+        evidence:
+            - CP1 records the intended future additive Rust data and producer surface but changes no public API.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - CP1 defines the independent contract boundary in migration documentation but adds no formal schema.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - No compiler diagnostic or advice taxonomy changes; future no-match reason codes belong only to the independent result.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Optional completed target context can make evaluation unavailable or target-dependent but cannot change planning, lowering, emission, or runtime results.
+    architecture_change:
+        level: none
+        evidence:
+            - CP1 records a contained future post-analysis evidence consumer without changing production dependencies or enforced architecture.
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 changes no registered generated artifact or public snapshot.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: No-match result contract and reason corpus
+      command: python3 -m tooling.no_match_explanation_contract && python3 -m unittest tooling.tests.test_no_match_explanation_contract
+      expected_result: The closed 1.0.0 schema, proven/likely/unknown/unavailable/matched examples, controlled negatives, reason taxonomy, source/subject correspondence, target context, and resource-limit invariants pass with a stable fingerprint.
+    - name: Bounded canonical evaluator and properties
+      command: cargo test --manifest-path core/Cargo.toml --test no_match_explanation --test no_match_explanation_frontend_convergence --test no_match_explanation_properties --locked
+      expected_result: Literals, classes, anchors, alternation, repetition, supported lookaround, captures/backreferences, Unicode scalars, ambiguity, malformed correspondence, logical and elapsed guards, no-panic behavior, frontend convergence, and repeated-byte determinism pass while unsupported semantics return unknown.
+    - name: Architecture, public contracts, and representative target cross-check
+      command: cargo test --manifest-path core/Cargo.toml --test no_match_explanation_target_crosscheck --locked && python3 tooling/core_contract_validation.py && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py
+      expected_result: Representative target executions agree with canonical matched/no-match outcomes, unsupported target plans return unavailable, the additive Rust API is snapshotted, generated ownership is complete, and the evaluator has no frontend, lowering, emitted-pattern, runtime-engine, binding, or UI dependency.
+    - name: Repository and campaign certification
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 -m unittest discover -s tooling/tests && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
+      expected_result: Adjacent kernel/tooling, architecture, resource bounds, Local/Pull Request/Full profiles, migration differential, patch integrity, and clean-tree checks pass or retain only explicitly recorded inherited environment limitations.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Clean ordered boundary and bounded evidence architecture
+            result: passed
+            details: P15-T03 begins on clean architecture/v4 closure 546df5ff5a7fe355a00c5dc245ad6a5eddec6405. The independent result identity, explicit search mode, semantic/explanation/target inputs, outcome and evidence dispositions, source and subject coordinates, hard default ceilings, allowed/forbidden paths, rollback boundary, and Local/PR/Full acceptance profile are frozen before schema or implementation.
+          - check: CP1 governance and documentation gate
+            result: passed
+            details: Governance validates the exact three-file scope-lock diff, change declarations, and architecture rules; all 35 governance unit tests pass; documentation integrity validates 177 Markdown files and seven executable examples; Prettier and git diff --check pass. No formal schema, Rust implementation, public API, generated artifact, diagnostic, semantic, target, binding, package, runtime engine, or product UX behavior is claimed.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+commits: []
