@@ -9,6 +9,8 @@ import unittest
 from tooling.stdlib_guarantee_contracts import (
     ROOT,
     STDLIB_EXAMPLE_ROOT,
+    STDLIB_GUARANTEE_AUDIT,
+    STDLIB_GUARANTEE_AUDIT_FIXTURES,
     STDLIB_INVALID_ROOT,
     STDLIB_TRANSITION_INVENTORY,
     StandardLibraryContractError,
@@ -27,7 +29,7 @@ class StandardLibraryGuaranteeContractTests(unittest.TestCase):
         self.assertEqual(3, self.suite.validate_suite_structure())
 
     def test_all_levels_and_transition_inventory_validate(self) -> None:
-        self.assertEqual(4, self.suite.validate_positive_examples())
+        self.assertEqual(6, self.suite.validate_positive_examples())
         levels = {
             load_json(path)["guarantee_level"]
             for path in STDLIB_EXAMPLE_ROOT.glob("*.json")
@@ -92,18 +94,86 @@ class StandardLibraryGuaranteeContractTests(unittest.TestCase):
         ):
             self.suite.validate_guarantee(invalid)
 
-    def test_historical_helpers_are_explicitly_unratified(self) -> None:
+    def test_historical_helpers_now_point_to_ratified_audit_decisions(self) -> None:
         inventory = load_json(STDLIB_TRANSITION_INVENTORY)
         self.suite.validate_transition_inventory(inventory)
         self.assertEqual(5, len(inventory["entries"]))
         self.assertEqual(
-            {"not_ratified"},
+            {"audit_ratified"},
             {entry["guarantee_status"] for entry in inventory["entries"]},
         )
         self.assertEqual(
-            {"no_validation_guarantee"},
+            {"lexical_shape"},
             {entry["strongest_permitted_claim"] for entry in inventory["entries"]},
         )
+
+    def test_transition_inventory_rejects_audit_pointer_mismatch(self) -> None:
+        inventory = load_json(STDLIB_TRANSITION_INVENTORY)
+        inventory["entries"][0]["audit_reference"] = (
+            "spec/stdlib/stdlib-guarantee-audit.json#/helpers/1"
+        )
+        with self.assertRaisesRegex(
+            StandardLibraryContractError, "transition.audit.correspondence"
+        ):
+            self.suite.validate_transition_inventory(inventory)
+
+    def test_complete_essential_five_audit_is_machine_validated(self) -> None:
+        audit = load_json(STDLIB_GUARANTEE_AUDIT)
+        fixtures = load_json(STDLIB_GUARANTEE_AUDIT_FIXTURES)
+        self.assertEqual((5, 8, 40), self.suite.validate_audit(audit, fixtures))
+        self.assertEqual(
+            {"lexical_shape"},
+            {helper["guarantee_level"] for helper in audit["helpers"]},
+        )
+        self.assertEqual(
+            {"retain"},
+            {helper["compatibility"]["disposition"] for helper in audit["helpers"]},
+        )
+
+    def test_audit_rejects_missing_helper_and_variant_evidence(self) -> None:
+        audit = load_json(STDLIB_GUARANTEE_AUDIT)
+        fixtures = load_json(STDLIB_GUARANTEE_AUDIT_FIXTURES)
+        audit["helpers"].pop()
+        with self.assertRaisesRegex(
+            StandardLibraryContractError, "audit.helpers.count"
+        ):
+            self.suite.validate_audit(audit, fixtures)
+
+        audit = load_json(STDLIB_GUARANTEE_AUDIT)
+        fixtures["groups"].pop()
+        with self.assertRaisesRegex(
+            StandardLibraryContractError, "audit.fixture_group.coverage"
+        ):
+            self.suite.validate_audit(audit, fixtures)
+
+    def test_audit_rejects_strengthening_and_behavior_reclassification(self) -> None:
+        audit = load_json(STDLIB_GUARANTEE_AUDIT)
+        fixtures = load_json(STDLIB_GUARANTEE_AUDIT_FIXTURES)
+        audit["helpers"][0]["guarantee_level"] = "semantic"
+        with self.assertRaisesRegex(StandardLibraryContractError, "audit.helper.level"):
+            self.suite.validate_audit(audit, fixtures)
+
+        audit = load_json(STDLIB_GUARANTEE_AUDIT)
+        audit["helpers"][0]["compatibility"]["classification"] = "intentional_breaking"
+        with self.assertRaisesRegex(
+            StandardLibraryContractError, "audit.helper.compatibility"
+        ):
+            self.suite.validate_audit(audit, fixtures)
+
+    def test_audit_rejects_erased_false_positive_or_false_negative_evidence(
+        self,
+    ) -> None:
+        audit = load_json(STDLIB_GUARANTEE_AUDIT)
+        fixtures = load_json(STDLIB_GUARANTEE_AUDIT_FIXTURES)
+        for group in fixtures["groups"]:
+            if group["helper_id"] == "stdlib.email":
+                for case in group["cases"]:
+                    if case["classification"] == "known_standard_false_negative":
+                        case["classification"] = "rejected_shape"
+        with self.assertRaisesRegex(
+            StandardLibraryContractError, "audit.fixture.claim_boundary"
+        ):
+            self.suite.validate_audit(audit, fixtures)
 
     def test_authored_evidence_fingerprint_is_stable_within_a_run(self) -> None:
         self.assertEqual(

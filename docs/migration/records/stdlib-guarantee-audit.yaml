@@ -54,9 +54,39 @@ scope:
         - spec/targets/**
         - tooling/legacy_reference/**
     expected_files:
+        - bindings/c/include/strling_essential.h
+        - bindings/c/src/strling_essential.c
+        - bindings/cpp/include/strling/essential.hpp
+        - bindings/cpp/src/essential.cpp
+        - bindings/csharp/src/STRling/Essential.cs
+        - bindings/dart/lib/essential.dart
+        - bindings/fsharp/src/STRling/Simply.fs
+        - bindings/go/simply/essential.go
+        - bindings/java/src/main/java/com/strling/simply/Essential.java
+        - bindings/kotlin/src/main/kotlin/strling/Essential.kt
+        - bindings/lua/src/essential.lua
+        - bindings/perl/lib/STRling/Essential.pm
+        - bindings/php/src/Essential.php
+        - bindings/python/src/STRling/core/intelligence.py
+        - bindings/python/src/STRling/simply/static.py
+        - bindings/r/R/essential.R
+        - bindings/ruby/lib/strling/essential.rb
+        - bindings/rust/src/essential.rs
+        - bindings/swift/Sources/STRling/Essential.swift
+        - bindings/typescript/src/STRling/simply/static.ts
         - docs/migration/records/stdlib-guarantee-audit.yaml
         - docs/migration/stdlib-guarantee-audit.md
         - governance/change-control.json
+        - spec/README.md
+        - spec/stdlib/contracts/1.0/transition-inventory.schema.json
+        - spec/stdlib/contracts/README.md
+        - spec/stdlib/essential_5.json
+        - spec/stdlib/registry.json
+        - spec/stdlib/stdlib-guarantee-audit-fixtures.json
+        - spec/stdlib/stdlib-guarantee-audit.json
+        - spec/stdlib/validation-guarantee-transition.json
+        - tooling/stdlib_guarantee_contracts.py
+        - tooling/tests/test_stdlib_guarantee_contracts.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -72,12 +102,12 @@ change_classification:
         level: compatible
         evidence:
             - Public names, signatures, defaults, return types, and helper output remain stable; only API documentation is corrected from standards-validity language to lexical-shape language.
-        affected_surfaces: [stdlib-helper-documentation]
+        affected_surfaces: []
     schema_change:
         level: additive
         evidence:
             - The existing transition inventory contract gains an audited-decision state while retaining the historical unclassified state; the future canonical registry schema remains deferred to P14-T02.
-        affected_surfaces: [stdlib-transition-inventory]
+        affected_surfaces: []
     diagnostic_change:
         level: none
         evidence:
@@ -99,7 +129,7 @@ change_classification:
 required_verification:
     - name: Audit format, completeness, and controlled edge cases
       command: python3 tooling/contract_validation.py && python3 -m unittest tooling.tests.test_stdlib_guarantee_contracts
-      expected_result: Five helpers, seven public variants, all 17 language bindings, exact standards scopes, compatibility dispositions, and every accepted/rejected/non-claim fixture validate deterministically with controlled mutations failing closed.
+      expected_result: Five helpers, eight public variants, all 17 language bindings, exact standards scopes, compatibility dispositions, and every accepted/rejected/non-claim fixture validate deterministically with controlled mutations failing closed.
     - name: Essential 5 binding behavior
       command: ./strling profile local
       expected_result: All available binding stdlib tests and canonical repository operations pass with unchanged helper behavior; any unavailable host operation remains explicit.

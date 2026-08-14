@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import re
 from collections.abc import Mapping, MutableMapping, MutableSequence
 from pathlib import Path
 from typing import Any
@@ -23,6 +24,10 @@ STDLIB_EXAMPLE_ROOT = STDLIB_CONTRACT_ROOT / "examples" / "helper-guarantee"
 STDLIB_INVALID_ROOT = STDLIB_CONTRACT_ROOT / "invalid" / "helper-guarantee"
 STDLIB_TRANSITION_INVENTORY = (
     ROOT / "spec" / "stdlib" / "validation-guarantee-transition.json"
+)
+STDLIB_GUARANTEE_AUDIT = ROOT / "spec" / "stdlib" / "stdlib-guarantee-audit.json"
+STDLIB_GUARANTEE_AUDIT_FIXTURES = (
+    ROOT / "spec" / "stdlib" / "stdlib-guarantee-audit-fixtures.json"
 )
 
 
@@ -413,12 +418,22 @@ class StandardLibraryGuaranteeSuite:
             raise StandardLibraryContractError(
                 "transition.order: helper IDs must be canonically sorted"
             )
+        inventory_classification = str(value["classification"])
+        expected_entry_classification = {
+            "transitional_unclassified": "transitional_unclassified",
+            "audited_decisions": "audited",
+        }[inventory_classification]
         for entry in entries:
-            for field in (
-                "source_references",
-                "known_claim_risks",
-                "required_later_work",
-            ):
+            if entry["classification"] != expected_entry_classification:
+                raise StandardLibraryContractError(
+                    "transition.classification: root and entry states must correspond"
+                )
+            ordered_fields = ["source_references"]
+            if inventory_classification == "transitional_unclassified":
+                ordered_fields.extend(["known_claim_risks", "required_later_work"])
+            else:
+                ordered_fields.append("remaining_work")
+            for field in ordered_fields:
                 values = entry[field]
                 if values != sorted(set(values)):
                     raise StandardLibraryContractError(
@@ -426,6 +441,20 @@ class StandardLibraryGuaranteeSuite:
                     )
             for reference in entry["source_references"]:
                 self._resolve_repository_reference(str(reference))
+            if inventory_classification == "audited_decisions":
+                audit_reference = str(entry["audit_reference"])
+                audit_path = self._resolve_repository_reference(audit_reference)
+                _, _, fragment = audit_reference.partition("#")
+                audit_helper = self._resolve_pointer(load_json(audit_path), fragment)
+                if (
+                    audit_helper["helper_id"] != entry["helper_id"]
+                    or audit_helper["registry_name"] != entry["registry_name"]
+                    or audit_helper["guarantee_level"]
+                    != entry["strongest_permitted_claim"]
+                ):
+                    raise StandardLibraryContractError(
+                        f"transition.audit.correspondence: {entry['helper_id']} disagrees with its audit"
+                    )
 
         registry = load_json(ROOT / "spec" / "stdlib" / "registry.json")
         essential = load_json(ROOT / "spec" / "stdlib" / "essential_5.json")
@@ -445,6 +474,513 @@ class StandardLibraryGuaranteeSuite:
                 "transition.identity: registry names must remain stable"
             )
 
+    @staticmethod
+    def _closed_object(value: Any, required: set[str], label: str) -> Mapping[str, Any]:
+        if not isinstance(value, Mapping):
+            raise StandardLibraryContractError(f"{label}.object: expected object")
+        actual = set(value)
+        if actual != required:
+            missing = sorted(required - actual)
+            unknown = sorted(actual - required)
+            raise StandardLibraryContractError(
+                f"{label}.fields: missing={missing}, unknown={unknown}"
+            )
+        return value
+
+    @staticmethod
+    def _non_empty_strings(value: Any, label: str) -> list[str]:
+        if (
+            not isinstance(value, list)
+            or not value
+            or not all(isinstance(item, str) and item for item in value)
+            or len(value) != len(set(value))
+        ):
+            raise StandardLibraryContractError(
+                f"{label}.strings: expected unique non-empty strings"
+            )
+        return value
+
+    def validate_audit(
+        self, audit: Mapping[str, Any], fixtures: Mapping[str, Any]
+    ) -> tuple[int, int, int]:
+        """Validate the complete Essential 5 audit and its observed edge corpus."""
+        self._closed_object(
+            audit,
+            {
+                "kind",
+                "audit_version",
+                "baseline_commit",
+                "taxonomy_reference",
+                "fixture_reference",
+                "binding_count",
+                "variant_count",
+                "bindings",
+                "helpers",
+            },
+            "audit",
+        )
+        if audit["kind"] != "strling.stdlib-guarantee-audit":
+            raise StandardLibraryContractError("audit.kind: unexpected kind")
+        if audit["audit_version"] != "1.0.0":
+            raise StandardLibraryContractError("audit.version: unsupported version")
+        if not re.fullmatch(r"[0-9a-f]{40}", str(audit["baseline_commit"])):
+            raise StandardLibraryContractError(
+                "audit.baseline: expected full commit SHA"
+            )
+        for reference_field in ("taxonomy_reference", "fixture_reference"):
+            self._resolve_repository_reference(str(audit[reference_field]))
+
+        bindings = audit["bindings"]
+        helpers = audit["helpers"]
+        if not isinstance(bindings, list) or not isinstance(helpers, list):
+            raise StandardLibraryContractError("audit.collections: expected arrays")
+        if audit["binding_count"] != len(bindings) or len(bindings) != 17:
+            raise StandardLibraryContractError("audit.bindings.count: expected 17")
+        if len(helpers) != 5:
+            raise StandardLibraryContractError("audit.helpers.count: expected 5")
+
+        binding_ids: list[str] = []
+        implementation_paths: list[Path] = []
+        public_name_keys = {"email", "url", "uuid", "ip", "date_time"}
+        for binding in bindings:
+            item = self._closed_object(
+                binding,
+                {
+                    "binding_id",
+                    "implementation_references",
+                    "test_reference",
+                    "public_names",
+                },
+                "audit.binding",
+            )
+            binding_id = str(item["binding_id"])
+            if not re.fullmatch(r"[a-z][a-z0-9_]*", binding_id):
+                raise StandardLibraryContractError(
+                    f"audit.binding.id: malformed {binding_id}"
+                )
+            binding_ids.append(binding_id)
+            implementations = self._non_empty_strings(
+                item["implementation_references"],
+                f"audit.binding.{binding_id}.implementations",
+            )
+            for reference in [*implementations, str(item["test_reference"])]:
+                resolved = self._resolve_repository_reference(reference)
+                if reference in implementations:
+                    implementation_paths.append(resolved)
+            test_text = (ROOT / str(item["test_reference"])).read_text(encoding="utf-8")
+            if "essential_5.json" not in test_text:
+                raise StandardLibraryContractError(
+                    f"audit.binding.fixtures: {binding_id} does not consume essential_5.json"
+                )
+            names = item["public_names"]
+            if not isinstance(names, Mapping) or set(names) != public_name_keys:
+                raise StandardLibraryContractError(
+                    f"audit.binding.names: {binding_id} must cover every helper"
+                )
+            for helper_key, spellings in names.items():
+                self._non_empty_strings(
+                    spellings, f"audit.binding.{binding_id}.{helper_key}.names"
+                )
+        if binding_ids != sorted(set(binding_ids)):
+            raise StandardLibraryContractError(
+                "audit.binding.order: binding IDs must be unique and sorted"
+            )
+        forbidden_public_claims = {
+            "canonical, RFC-grounded",
+            "RFC-grounded patterns",
+            "Matches an email address (RFC 5322",
+            "Matches an HTTP or HTTPS URL (RFC 3986",
+            "Matches a UUID (RFC 4122",
+            "standard 8-4-4-4-12 hexadecimal format (RFC 4122",
+            "Matches an IPv4 (RFC 791)",
+            "Matches an ISO 8601 / RFC 3339 datetime",
+            "ISO 8601 / RFC 3339 datetime pattern",
+        }
+        for path in implementation_paths:
+            source = path.read_text(encoding="utf-8")
+            if "lexical" not in source.lower():
+                raise StandardLibraryContractError(
+                    f"audit.public_claim.scope: {path.relative_to(ROOT)} lacks lexical qualification"
+                )
+            for claim in forbidden_public_claims:
+                if claim in source:
+                    raise StandardLibraryContractError(
+                        f"audit.public_claim.overstatement: {path.relative_to(ROOT)} retains {claim}"
+                    )
+
+        helper_ids: list[str] = []
+        registry_names: list[str] = []
+        helper_text_models: dict[str, str] = {}
+        variant_groups: dict[str, tuple[str, str]] = {}
+        for helper in helpers:
+            item = self._closed_object(
+                helper,
+                {
+                    "helper_id",
+                    "registry_name",
+                    "guarantee_level",
+                    "text_model",
+                    "match_scope",
+                    "variants",
+                    "accepts",
+                    "rejects",
+                    "normalizes",
+                    "does_not_claim",
+                    "standards",
+                    "compatibility",
+                    "source_references",
+                    "target_dependencies",
+                },
+                "audit.helper",
+            )
+            helper_id = str(item["helper_id"])
+            helper_ids.append(helper_id)
+            registry_names.append(str(item["registry_name"]))
+            helper_text_models[helper_id] = str(item["text_model"])
+            if item["guarantee_level"] != "lexical_shape":
+                raise StandardLibraryContractError(
+                    f"audit.helper.level: {helper_id} exceeds observed regex behavior"
+                )
+            if item["text_model"] not in {
+                "ascii",
+                "ascii_literals_with_target_digit_class",
+            }:
+                raise StandardLibraryContractError(
+                    f"audit.helper.text_model: unsupported for {helper_id}"
+                )
+            if item["match_scope"] != "whole_value_when_anchored_by_consumer":
+                raise StandardLibraryContractError(
+                    f"audit.helper.match_scope: incorrect for {helper_id}"
+                )
+            for field in (
+                "accepts",
+                "rejects",
+                "does_not_claim",
+                "source_references",
+                "target_dependencies",
+            ):
+                values = self._non_empty_strings(
+                    item[field], f"audit.helper.{helper_id}.{field}"
+                )
+                if field == "source_references":
+                    for reference in values:
+                        self._resolve_repository_reference(reference)
+            if item["normalizes"] != []:
+                raise StandardLibraryContractError(
+                    f"audit.helper.normalization: {helper_id} cannot claim normalization"
+                )
+
+            compatibility = self._closed_object(
+                item["compatibility"],
+                {"disposition", "classification", "future_surface"},
+                f"audit.helper.{helper_id}.compatibility",
+            )
+            if (
+                compatibility["disposition"] != "retain"
+                or compatibility["classification"]
+                != "behavior_preserved_claim_narrowed"
+            ):
+                raise StandardLibraryContractError(
+                    f"audit.helper.compatibility: unsupported disposition for {helper_id}"
+                )
+            if (
+                not isinstance(compatibility["future_surface"], str)
+                or not compatibility["future_surface"]
+            ):
+                raise StandardLibraryContractError(
+                    f"audit.helper.future_surface: missing for {helper_id}"
+                )
+
+            standards = item["standards"]
+            if not isinstance(standards, Mapping) or standards.get("scope") not in {
+                "inspired",
+                "subset",
+            }:
+                raise StandardLibraryContractError(
+                    f"audit.helper.standard_scope: missing for {helper_id}"
+                )
+            expected_standard_fields = (
+                {"scope", "references", "inspired_elements"}
+                if standards["scope"] == "inspired"
+                else {
+                    "scope",
+                    "references",
+                    "included_provisions",
+                    "excluded_provisions",
+                }
+            )
+            self._closed_object(
+                standards,
+                expected_standard_fields,
+                f"audit.helper.{helper_id}.standards",
+            )
+            standard_references = standards["references"]
+            if not isinstance(standard_references, list) or not standard_references:
+                raise StandardLibraryContractError(
+                    f"audit.helper.standard_references: missing for {helper_id}"
+                )
+            for reference in standard_references:
+                standard = self._closed_object(
+                    reference,
+                    {"authority_id", "title", "edition", "uri", "provisions"},
+                    f"audit.helper.{helper_id}.standard",
+                )
+                if not all(
+                    isinstance(standard[field], str) and standard[field]
+                    for field in ("authority_id", "title", "edition", "uri")
+                ) or not str(standard["uri"]).startswith(
+                    "https://www.rfc-editor.org/rfc/"
+                ):
+                    raise StandardLibraryContractError(
+                        f"audit.helper.standard_identity: malformed for {helper_id}"
+                    )
+                self._non_empty_strings(
+                    standard["provisions"],
+                    f"audit.helper.{helper_id}.standard.provisions",
+                )
+            scope_detail = (
+                "inspired_elements"
+                if standards["scope"] == "inspired"
+                else "included_provisions"
+            )
+            self._non_empty_strings(
+                standards[scope_detail],
+                f"audit.helper.{helper_id}.standards.{scope_detail}",
+            )
+            if standards["scope"] == "subset":
+                self._non_empty_strings(
+                    standards["excluded_provisions"],
+                    f"audit.helper.{helper_id}.standards.excluded_provisions",
+                )
+
+            variants = item["variants"]
+            if not isinstance(variants, list) or not variants:
+                raise StandardLibraryContractError(
+                    f"audit.helper.variants: missing for {helper_id}"
+                )
+            for variant in variants:
+                variant_item = self._closed_object(
+                    variant,
+                    {"variant_id", "selector", "fixture_group"},
+                    f"audit.helper.{helper_id}.variant",
+                )
+                variant_id = str(variant_item["variant_id"])
+                group_id = str(variant_item["fixture_group"])
+                if variant_id in variant_groups or not all(
+                    isinstance(variant_item[field], str) and variant_item[field]
+                    for field in ("variant_id", "selector", "fixture_group")
+                ):
+                    raise StandardLibraryContractError(
+                        f"audit.variant.identity: duplicate or malformed {variant_id}"
+                    )
+                variant_groups[group_id] = (helper_id, str(variant_item["selector"]))
+
+        if helper_ids != sorted(set(helper_ids)):
+            raise StandardLibraryContractError(
+                "audit.helper.order: helper IDs must be unique and sorted"
+            )
+        registry = load_json(ROOT / "spec" / "stdlib" / "registry.json")
+        essential = load_json(ROOT / "spec" / "stdlib" / "essential_5.json")
+        expected_registry_names = {str(item["name"]) for item in registry["patterns"]}
+        if set(registry_names) != expected_registry_names or set(registry_names) != set(
+            essential["patterns"]
+        ):
+            raise StandardLibraryContractError(
+                "audit.helper.coverage: audit must cover every current helper"
+            )
+        audit_by_name = {str(item["registry_name"]): item for item in helpers}
+        for registry_entry in registry["patterns"]:
+            name = str(registry_entry["name"])
+            scope = str(audit_by_name[name]["standards"]["scope"])
+            scope_prefix = "Subset:" if scope == "subset" else "Lexical inspiration:"
+            if not str(registry_entry["rfc"]).startswith(scope_prefix):
+                raise StandardLibraryContractError(
+                    f"audit.public_claim.registry_scope: {name} lacks {scope_prefix}"
+                )
+            documentation = str(registry_entry["documentation"])
+            if "does not" not in documentation and "do not" not in documentation:
+                raise StandardLibraryContractError(
+                    f"audit.public_claim.registry_nonclaim: {name} lacks explicit non-claims"
+                )
+            essential_entry = essential["patterns"][name]
+            if not str(essential_entry["rfc"]).startswith(scope_prefix):
+                raise StandardLibraryContractError(
+                    f"audit.public_claim.essential_scope: {name} lacks {scope_prefix}"
+                )
+        intelligence_source = (
+            ROOT
+            / "bindings"
+            / "python"
+            / "src"
+            / "STRling"
+            / "core"
+            / "intelligence.py"
+        ).read_text(encoding="utf-8")
+        if "_Reference scope:_" not in intelligence_source:
+            raise StandardLibraryContractError(
+                "audit.public_claim.language_intelligence: hover must label references by scope"
+            )
+        if audit["variant_count"] != len(variant_groups) or len(variant_groups) != 8:
+            raise StandardLibraryContractError("audit.variant.count: expected 8")
+
+        variant_patterns = {
+            "date_time.default": str(essential["patterns"]["dateTime"]["regex"]),
+            "email.default": str(essential["patterns"]["email"]["regex"]),
+            "ip.v4": str(essential["patterns"]["ip"]["regex_v4"]),
+            "ip.v6_full": str(essential["patterns"]["ip"]["regex_v6"]),
+            "ip.either": str(essential["patterns"]["ip"]["regex_default"]),
+            "url.default": str(essential["patterns"]["url"]["regex"]),
+            "uuid.generic": str(essential["patterns"]["uuid"]["regex_default"]),
+            "uuid.v4": str(essential["patterns"]["uuid"]["regex_v4"]),
+        }
+        if set(variant_patterns) != set(variant_groups):
+            raise StandardLibraryContractError(
+                "audit.variant.pattern_coverage: every variant needs observed regex evidence"
+            )
+
+        self._closed_object(
+            fixtures,
+            {"kind", "fixture_version", "groups"},
+            "audit.fixtures",
+        )
+        if fixtures["kind"] != "strling.stdlib-guarantee-audit-fixtures":
+            raise StandardLibraryContractError("audit.fixtures.kind: unexpected kind")
+        if fixtures["fixture_version"] != "1.0.0":
+            raise StandardLibraryContractError(
+                "audit.fixtures.version: unsupported version"
+            )
+        groups = fixtures["groups"]
+        if not isinstance(groups, list):
+            raise StandardLibraryContractError("audit.fixtures.groups: expected array")
+        seen_groups: set[str] = set()
+        seen_cases: set[str] = set()
+        helper_classifications: dict[str, set[str]] = {
+            helper_id: set() for helper_id in helper_ids
+        }
+        case_count = 0
+        for group in groups:
+            group_item = self._closed_object(
+                group,
+                {"group_id", "helper_id", "selector", "cases"},
+                "audit.fixture_group",
+            )
+            group_id = str(group_item["group_id"])
+            if group_id in seen_groups or group_id not in variant_groups:
+                raise StandardLibraryContractError(
+                    f"audit.fixture_group.identity: unknown or duplicate {group_id}"
+                )
+            seen_groups.add(group_id)
+            if variant_groups[group_id] != (
+                str(group_item["helper_id"]),
+                str(group_item["selector"]),
+            ):
+                raise StandardLibraryContractError(
+                    f"audit.fixture_group.correspondence: mismatch for {group_id}"
+                )
+            cases = group_item["cases"]
+            if not isinstance(cases, list) or not cases:
+                raise StandardLibraryContractError(
+                    f"audit.fixture_group.cases: missing for {group_id}"
+                )
+            outcomes: set[bool] = set()
+            for case in cases:
+                case_item = self._closed_object(
+                    case,
+                    {
+                        "case_id",
+                        "input",
+                        "expected_match",
+                        "classification",
+                        "rationale",
+                    },
+                    f"audit.fixture.{group_id}",
+                )
+                case_id = str(case_item["case_id"])
+                if case_id in seen_cases:
+                    raise StandardLibraryContractError(
+                        f"audit.fixture.identity: duplicate {case_id}"
+                    )
+                seen_cases.add(case_id)
+                expected_match = case_item["expected_match"]
+                if not isinstance(case_item["input"], str) or (
+                    expected_match is not None and not isinstance(expected_match, bool)
+                ):
+                    raise StandardLibraryContractError(
+                        f"audit.fixture.value: malformed {case_id}"
+                    )
+                if case_item["classification"] not in {
+                    "accepted_shape",
+                    "rejected_shape",
+                    "known_semantic_false_positive",
+                    "known_standard_false_negative",
+                    "policy_nonclaim",
+                    "target_dependent",
+                }:
+                    raise StandardLibraryContractError(
+                        f"audit.fixture.classification: malformed {case_id}"
+                    )
+                if (
+                    not isinstance(case_item["rationale"], str)
+                    or not case_item["rationale"]
+                ):
+                    raise StandardLibraryContractError(
+                        f"audit.fixture.rationale: missing {case_id}"
+                    )
+                if case_item["classification"] == "target_dependent":
+                    if expected_match is not None:
+                        raise StandardLibraryContractError(
+                            f"audit.fixture.target_dependent: {case_id} needs a null outcome"
+                        )
+                else:
+                    if expected_match is None:
+                        raise StandardLibraryContractError(
+                            f"audit.fixture.outcome: {case_id} needs a boolean outcome"
+                        )
+                    observed_match = (
+                        re.fullmatch(
+                            variant_patterns[group_id],
+                            str(case_item["input"]),
+                            flags=re.ASCII,
+                        )
+                        is not None
+                    )
+                    if observed_match != expected_match:
+                        raise StandardLibraryContractError(
+                            f"audit.fixture.observed_behavior: {case_id} disagrees with the compatibility manifest"
+                        )
+                    outcomes.add(expected_match)
+                helper_classifications[str(group_item["helper_id"])].add(
+                    str(case_item["classification"])
+                )
+                case_count += 1
+            if outcomes != {False, True}:
+                raise StandardLibraryContractError(
+                    f"audit.fixture_group.outcomes: {group_id} needs acceptance and rejection"
+                )
+        if seen_groups != set(variant_groups):
+            raise StandardLibraryContractError(
+                "audit.fixture_group.coverage: every variant needs one group"
+            )
+        for helper_id, classifications in helper_classifications.items():
+            if (
+                not classifications.intersection(
+                    {"known_semantic_false_positive", "policy_nonclaim"}
+                )
+                or "known_standard_false_negative" not in classifications
+            ):
+                raise StandardLibraryContractError(
+                    f"audit.fixture.claim_boundary: incomplete for {helper_id}"
+                )
+            if (
+                helper_text_models[helper_id]
+                == "ascii_literals_with_target_digit_class"
+                and "target_dependent" not in classifications
+            ):
+                raise StandardLibraryContractError(
+                    f"audit.fixture.target_dependency: missing for {helper_id}"
+                )
+        return len(helpers), len(variant_groups), case_count
+
     def validate_positive_examples(self) -> int:
         """Validate all guarantee examples plus the historical transition inventory."""
         count = 0
@@ -457,7 +993,11 @@ class StandardLibraryGuaranteeSuite:
                 )
             count += 1
         self.validate_transition_inventory(load_json(STDLIB_TRANSITION_INVENTORY))
-        return count + 1
+        self.validate_audit(
+            load_json(STDLIB_GUARANTEE_AUDIT),
+            load_json(STDLIB_GUARANTEE_AUDIT_FIXTURES),
+        )
+        return count + 3
 
     @classmethod
     def _mutate(
@@ -531,6 +1071,8 @@ class StandardLibraryGuaranteeSuite:
             *sorted(STDLIB_EXAMPLE_ROOT.glob("*.json")),
             *sorted(STDLIB_INVALID_ROOT.glob("*.json")),
             STDLIB_TRANSITION_INVENTORY,
+            STDLIB_GUARANTEE_AUDIT,
+            STDLIB_GUARANTEE_AUDIT_FIXTURES,
         ]
         digest = hashlib.sha256()
         for path in documents:

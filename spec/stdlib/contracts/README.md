@@ -4,9 +4,9 @@
 
 [`VALIDATION_GUARANTEES.md`](../VALIDATION_GUARANTEES.md) defines the normative
 validation vocabulary. The versioned schemas in this directory are normative
-for governed helper-guarantee metadata and controlled contract fixtures. They
-do not assign a guarantee to an existing helper or make example values
-normative.
+for governed helper-guarantee metadata and controlled contract fixtures. The
+separate audited-decision record applies that vocabulary to current helpers;
+example values here remain non-normative.
 
 Contract version `1.0.0` contains:
 
@@ -15,8 +15,8 @@ Contract version `1.0.0` contains:
 -   [`controlled-invalid-guarantee.schema.json`](1.0/controlled-invalid-guarantee.schema.json),
     the deterministic negative-fixture shape;
 -   [`transition-inventory.schema.json`](1.0/transition-inventory.schema.json),
-    the explicit non-grandfathering contract for historical helper
-    definitions;
+    the explicit state machine from unclassified historical helpers to
+    individually audited decisions;
 -   three positive examples covering `lexical_shape`,
     `normalized_structure`, and `semantic`; and
 -   controlled invalid cases for missing levels, unsupported strict claims,
@@ -29,10 +29,14 @@ MUST NOT be exposed as standard-library APIs or cited as ratified helper
 semantics.
 
 [`validation-guarantee-transition.json`](../validation-guarantee-transition.json)
-classifies every current Essential 5/registry helper as
-`transitional_unclassified`, `not_ratified`, and entitled to
-`no_validation_guarantee` until the later helper-by-helper audit supplies
-complete metadata and evidence.
+now points every current Essential 5/registry helper to its ratified P14-T01
+audit decision. [`stdlib-guarantee-audit.json`](../stdlib-guarantee-audit.json)
+assigns `lexical_shape` to all five helpers, and
+[`stdlib-guarantee-audit-fixtures.json`](../stdlib-guarantee-audit-fixtures.json)
+records eight public behavior variants plus accepted shapes, rejected shapes,
+semantic false positives, standard false negatives, and policy non-claims.
+The compatibility helpers remain non-semantic; P14-T02 owns their future
+canonical registry and generated contract surfaces.
 
 ## Cross-field invariants
 
@@ -50,11 +54,17 @@ validation additionally enforces:
 -   semantic evidence attached to every semantic check;
 -   standard-conformance evidence for `subset`, `profile`, and `complete` scope;
 -   repository-relative evidence paths whose file targets exist; and
+-   exact audited coverage for five helpers, eight variants, all 17 bindings,
+    every public spelling, and every edge-corpus group;
+-   correspondence among transition entries, audit decisions, current
+    manifests, binding implementations/tests, and scoped RFC references; and
 -   deterministic rejection of every controlled invalid mutation for its
     declared rule.
 
-The canonical validator must not infer helper semantics from prose, regexes,
-fixture names, citations, or implementation agreement.
+The canonical validator must not infer semantic validity from prose, regexes,
+fixture names, citations, or implementation agreement. P14-T01 records exact
+observed lexical behavior as an explicit product decision without promoting it
+to normalized or semantic validity.
 
 `python3 tooling/contract_validation.py` is the sole quality-runner entry point.
 It invokes the internal standard-library validator, materializes each negative

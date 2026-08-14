@@ -11,25 +11,26 @@ validator, or change any helper-generated AST or regex.
 
 The audited baseline is repository commit
 `82cf9e214b6747a1e831b529c699cda108cf8486`. Seventeen language bindings use
-nineteen source/header files and seventeen binding test files. Every binding
+nineteen source/header files, eight public behavior variants, and seventeen binding test files. Every binding
 test consumes [`essential_5.json`](../../spec/stdlib/essential_5.json) and
 wraps the generated pattern for whole-value matching. The exported patterns
 themselves remain composable and unanchored.
 
 ## Audit decisions
 
-| Helper | Current variants | Assigned guarantee | External reference scope | Current disposition | Stronger future claim |
-| --- | --- | --- | --- | --- | --- |
-| `email` | default | `lexical_shape` | inspired by RFC 5322 section 3.4.1 | retain the public helper and narrow its claim | use a separate structural or semantic validator; do not strengthen `email()` silently |
-| `url` | default | `lexical_shape` | inspired by RFC 3986 component spelling | retain the public helper and narrow its claim | use a separate parser/validator with an explicit scheme and host policy |
-| `uuid` | generic and version 4 | `lexical_shape` | subset of RFC 9562 textual format; v4 also checks version/variant nibbles | retain both behaviors and replace the obsolete RFC 4122 citation | use a separate parsed or generation-aware validator for stronger claims |
-| `ip` | IPv4, full-form IPv6, or either | `lexical_shape` | inspired IPv4 shape; subset-like full IPv6 form within an overall inspired claim | retain compatibility behavior and expose its false positives/negatives | use a separate strict address validator supporting numeric ranges and governed IPv6 forms |
-| `dateTime` | default | `lexical_shape` | inspired by RFC 3339 section 5.6 | retain the public helper and narrow its claim | use a separate RFC 3339 validator with calendar, clock, offset, and leap-second policy |
+| Helper     | Current variants                | Assigned guarantee | External reference scope                                                         | Current disposition                                                    | Stronger future claim                                                                     |
+| ---------- | ------------------------------- | ------------------ | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `email`    | default                         | `lexical_shape`    | inspired by RFC 5322 section 3.4.1                                               | retain the public helper and narrow its claim                          | use a separate structural or semantic validator; do not strengthen `email()` silently     |
+| `url`      | default                         | `lexical_shape`    | inspired by RFC 3986 component spelling                                          | retain the public helper and narrow its claim                          | use a separate parser/validator with an explicit scheme and host policy                   |
+| `uuid`     | generic and version 4           | `lexical_shape`    | subset of RFC 9562 textual format; v4 also checks version/variant nibbles        | retain both behaviors and replace the obsolete RFC 4122 citation       | use a separate parsed or generation-aware validator for stronger claims                   |
+| `ip`       | IPv4, full-form IPv6, or either | `lexical_shape`    | inspired IPv4 shape; subset-like full IPv6 form within an overall inspired claim | retain compatibility behavior and expose its false positives/negatives | use a separate strict address validator supporting numeric ranges and governed IPv6 forms |
+| `dateTime` | default                         | `lexical_shape`    | inspired by RFC 3339 section 5.6                                                 | retain the public helper and narrow its claim                          | use a separate RFC 3339 validator with calendar, clock, offset, and leap-second policy    |
 
-All five guarantees apply only to ASCII input under explicit whole-value
-evaluation. No helper normalizes input or produces a parsed value. Behavior for
-non-ASCII digits or letters is outside the guarantee because host regex engines
-do not share one Unicode shorthand model.
+All five guarantees apply under explicit whole-value evaluation. ASCII letter
+and hexadecimal ranges are fixed, but `email`, `url`, IPv4, and `dateTime` use
+the emitted `\\d` class. Its non-ASCII behavior is target-dependent and no
+cross-target Unicode-digit guarantee is made. No helper normalizes input or
+produces a parsed value.
 
 No current helper is renamed, deprecated, or retired. That preserves the
 public API while correcting the claim. Every future structural or semantic
@@ -40,9 +41,10 @@ cannot acquire rejection behavior under its current name.
 
 ### `email`
 
-The current pattern accepts one or more ASCII letters, digits, or `._%+-`, an
-`@`, one or more ASCII letters, digits, dots, or hyphens, a dot, and at least
-two ASCII letters. It does not enforce RFC 5322 dot-atom placement, domain-label
+The current pattern accepts one or more ASCII letters, target-engine `\\d`
+characters, or `._%+-`, an `@`, one or more ASCII letters, target-engine `\\d`
+characters, dots, or hyphens, a dot, and at least two ASCII letters. It does
+not enforce RFC 5322 dot-atom placement, domain-label
 rules, quoted strings, domain literals, comments, internationalized addresses,
 transport syntax, DNS existence, or deliverability. Leading/consecutive dots
 and malformed domain-label placement are known accepted non-claims; quoted
@@ -50,8 +52,8 @@ local parts and domain literals are known rejected standard forms.
 
 ### `url`
 
-The current pattern accepts lowercase `http` or `https`, `://`, an ASCII
-alphanumeric/dot/hyphen host-like field, an optional decimal port, and optional
+The current pattern accepts lowercase `http` or `https`, `://`, an ASCII-letter
+or target-engine-`\\d`/dot/hyphen host-like field, an optional `\\d` port, and optional
 path, query, and fragment character buckets. It does not parse generic URI
 grammar, validate percent-encoding, support user information or IP literals,
 apply scheme-specific HTTP requirements, normalize components, resolve DNS, or
@@ -70,8 +72,8 @@ obsoletes the historical RFC 4122 citation.
 
 ### `ip`
 
-The IPv4 branch accepts exactly four one-to-three-digit components but does not
-check the required 0-255 range or leading-zero policy. The IPv6 branch accepts
+The IPv4 branch accepts exactly four one-to-three-target-engine-`\\d`
+components but does not check the required 0-255 range or leading-zero policy. The IPv6 branch accepts
 exactly eight one-to-four-digit hexadecimal groups, corresponding only to the
 full conventional form in RFC 4291 section 2.2. It rejects compressed and
 mixed IPv6 forms. No branch normalizes an address, parses numeric fields, checks
@@ -80,7 +82,7 @@ prefixes or zones, or establishes network assignment/reachability.
 ### `dateTime`
 
 The current pattern accepts the uppercase textual skeleton
-`YYYY-MM-DDTHH:MM:SS`, optional fractional seconds, and an optional `Z` or
+`YYYY-MM-DDTHH:MM:SS` using the target engine's `\\d` class, optional fractional seconds, and an optional `Z` or
 signed `HH:MM` offset. RFC 3339 requires an offset and imposes calendar, clock,
 offset, and leap-second conditions that the helper does not check. Invalid
 months, dates, hours, offsets, and missing offsets are known accepted

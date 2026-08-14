@@ -1,0 +1,62 @@
+{
+    "kind": "strling.stdlib-guarantee-audit-fixtures",
+    "fixture_version": "1.0.0",
+    "groups": [
+        {"group_id": "date_time.default", "helper_id": "stdlib.date_time", "selector": "default", "cases": [
+            {"case_id": "date_time.accept.utc", "input": "2024-01-15T08:30:00Z", "expected_match": true, "classification": "accepted_shape", "rationale": "Declared timestamp skeleton with uppercase Z."},
+            {"case_id": "date_time.accept.missing_offset", "input": "2024-01-15T08:30:00", "expected_match": true, "classification": "known_semantic_false_positive", "rationale": "The compatibility helper makes the RFC 3339 offset optional."},
+            {"case_id": "date_time.accept.invalid_calendar", "input": "2024-02-31T25:61:61+24:99", "expected_match": true, "classification": "known_semantic_false_positive", "rationale": "Calendar, clock, leap-second, and offset ranges are not checked."},
+            {"case_id": "date_time.target.unicode_digits", "input": "٢٠٢٤-٠١-١٥T٠٨:٣٠:٠٠Z", "expected_match": null, "classification": "target_dependent", "rationale": "The emitted \\d class accepts Unicode digits on some target engines and only ASCII digits on others."},
+            {"case_id": "date_time.reject.lowercase", "input": "2024-01-15t08:30:00z", "expected_match": false, "classification": "known_standard_false_negative", "rationale": "RFC 3339 ABNF permits lowercase t/z, but the compatibility pattern requires uppercase."},
+            {"case_id": "date_time.reject.space", "input": "2024-01-15 08:30:00Z", "expected_match": false, "classification": "rejected_shape", "rationale": "The declared skeleton requires uppercase T."}
+        ]},
+        {"group_id": "email.default", "helper_id": "stdlib.email", "selector": "default", "cases": [
+            {"case_id": "email.accept.basic", "input": "alice@example.com", "expected_match": true, "classification": "accepted_shape", "rationale": "Fits every declared ASCII bucket."},
+            {"case_id": "email.accept.leading_dot", "input": ".alice@example.com", "expected_match": true, "classification": "known_semantic_false_positive", "rationale": "The local bucket does not enforce RFC dot-atom placement."},
+            {"case_id": "email.accept.domain_hyphen", "input": "alice@-example-.com", "expected_match": true, "classification": "known_semantic_false_positive", "rationale": "Domain-label start/end rules are not checked."},
+            {"case_id": "email.target.unicode_digit", "input": "١@example.com", "expected_match": null, "classification": "target_dependent", "rationale": "The emitted \\d class accepts Unicode digits on some target engines and only ASCII digits on others."},
+            {"case_id": "email.reject.quoted", "input": "\"alice smith\"@example.com", "expected_match": false, "classification": "known_standard_false_negative", "rationale": "RFC 5322 quoted local parts are outside the lexical helper."},
+            {"case_id": "email.reject.domain_literal", "input": "alice@[192.0.2.1]", "expected_match": false, "classification": "known_standard_false_negative", "rationale": "RFC 5322 domain literals are outside the lexical helper."}
+        ]},
+        {"group_id": "ip.v4", "helper_id": "stdlib.ip", "selector": "version=4", "cases": [
+            {"case_id": "ip.v4.accept.common", "input": "192.168.1.1", "expected_match": true, "classification": "accepted_shape", "rationale": "Four one-to-three-digit components."},
+            {"case_id": "ip.v4.accept.out_of_range", "input": "999.999.999.999", "expected_match": true, "classification": "known_semantic_false_positive", "rationale": "The 0-255 octet range is not checked."},
+            {"case_id": "ip.v4.accept.leading_zeroes", "input": "001.002.003.004", "expected_match": true, "classification": "policy_nonclaim", "rationale": "The helper has no leading-zero interpretation policy."},
+            {"case_id": "ip.v4.target.unicode_digits", "input": "١.٢.٣.٤", "expected_match": null, "classification": "target_dependent", "rationale": "The emitted \\d class accepts Unicode digits on some target engines and only ASCII digits on others."},
+            {"case_id": "ip.v4.reject.short", "input": "1.2.3", "expected_match": false, "classification": "rejected_shape", "rationale": "Exactly four components are required."}
+        ]},
+        {"group_id": "ip.v6_full", "helper_id": "stdlib.ip", "selector": "version=6", "cases": [
+            {"case_id": "ip.v6.accept.full", "input": "2001:db8:0:0:8:800:200c:417a", "expected_match": true, "classification": "accepted_shape", "rationale": "Eight groups of one-to-four hex digits."},
+            {"case_id": "ip.v6.reject.compressed", "input": "2001:db8::1", "expected_match": false, "classification": "known_standard_false_negative", "rationale": "RFC 4291 compressed form is outside the compatibility branch."},
+            {"case_id": "ip.v6.reject.mixed", "input": "0:0:0:0:0:ffff:192.0.2.1", "expected_match": false, "classification": "known_standard_false_negative", "rationale": "RFC 4291 mixed IPv6/IPv4 form is outside the compatibility branch."},
+            {"case_id": "ip.v6.reject.long_group", "input": "20010:db8:0:0:8:800:200c:417a", "expected_match": false, "classification": "rejected_shape", "rationale": "A group cannot exceed four hex digits."}
+        ]},
+        {"group_id": "ip.either", "helper_id": "stdlib.ip", "selector": "default_or_other", "cases": [
+            {"case_id": "ip.either.accept.v4_shape", "input": "999.999.999.999", "expected_match": true, "classification": "known_semantic_false_positive", "rationale": "The default retains the lexical IPv4 branch."},
+            {"case_id": "ip.either.accept.v6_full", "input": "2001:db8:0:0:8:800:200c:417a", "expected_match": true, "classification": "accepted_shape", "rationale": "The default includes the full-form IPv6 branch."},
+            {"case_id": "ip.either.reject.compressed", "input": "::1", "expected_match": false, "classification": "known_standard_false_negative", "rationale": "The default does not add compressed IPv6 support."}
+        ]},
+        {"group_id": "url.default", "helper_id": "stdlib.url", "selector": "default", "cases": [
+            {"case_id": "url.accept.common", "input": "https://example.com/path?q=1#top", "expected_match": true, "classification": "accepted_shape", "rationale": "Fits the declared component buckets."},
+            {"case_id": "url.accept.malformed_percent", "input": "https://example.com/%zz", "expected_match": true, "classification": "known_semantic_false_positive", "rationale": "Percent triplets are not validated."},
+            {"case_id": "url.accept.host_hyphen", "input": "https://-example-.com:99999", "expected_match": true, "classification": "known_semantic_false_positive", "rationale": "Host labels and port range are not validated."},
+            {"case_id": "url.target.unicode_digit", "input": "https://١.example/", "expected_match": null, "classification": "target_dependent", "rationale": "The emitted \\d class accepts Unicode digits on some target engines and only ASCII digits on others."},
+            {"case_id": "url.reject.userinfo", "input": "https://user@example.com/", "expected_match": false, "classification": "known_standard_false_negative", "rationale": "RFC 3986 userinfo is outside the host-like bucket."},
+            {"case_id": "url.reject.ipv6_literal", "input": "https://[2001:db8::1]/", "expected_match": false, "classification": "known_standard_false_negative", "rationale": "Bracketed IP literals are outside the compatibility helper."},
+            {"case_id": "url.reject.uppercase_scheme", "input": "HTTPS://example.com", "expected_match": false, "classification": "known_standard_false_negative", "rationale": "The helper emits lowercase scheme literals and does not add a case-insensitive flag."}
+        ]},
+        {"group_id": "uuid.generic", "helper_id": "stdlib.uuid", "selector": "default_or_other", "cases": [
+            {"case_id": "uuid.generic.accept.text", "input": "550e8400-e29b-41d4-a716-446655440000", "expected_match": true, "classification": "accepted_shape", "rationale": "RFC 9562 hex-and-dash string form."},
+            {"case_id": "uuid.generic.accept.nil", "input": "00000000-0000-0000-0000-000000000000", "expected_match": true, "classification": "accepted_shape", "rationale": "The nil text form fits the generic lexical guarantee."},
+            {"case_id": "uuid.generic.accept.reserved_bits", "input": "ffffffff-ffff-ffff-ffff-ffffffffffff", "expected_match": true, "classification": "policy_nonclaim", "rationale": "The generic helper does not interpret version or variant fields."},
+            {"case_id": "uuid.generic.reject.braces", "input": "{550e8400-e29b-41d4-a716-446655440000}", "expected_match": false, "classification": "rejected_shape", "rationale": "Braced noncanonical presentation is outside the declared text shape."},
+            {"case_id": "uuid.generic.reject.urn", "input": "urn:uuid:550e8400-e29b-41d4-a716-446655440000", "expected_match": false, "classification": "known_standard_false_negative", "rationale": "The RFC 9562 UUID URN presentation is excluded from the compatibility helper's text-shape subset."}
+        ]},
+        {"group_id": "uuid.v4", "helper_id": "stdlib.uuid", "selector": "version=4", "cases": [
+            {"case_id": "uuid.v4.accept.nibbles", "input": "550e8400-e29b-41d4-a716-446655440000", "expected_match": true, "classification": "accepted_shape", "rationale": "Version and variant nibbles fit RFC 9562."},
+            {"case_id": "uuid.v4.accept.zero_payload", "input": "00000000-0000-4000-8000-000000000000", "expected_match": true, "classification": "policy_nonclaim", "rationale": "The helper checks layout, not generation randomness."},
+            {"case_id": "uuid.v4.reject.version", "input": "550e8400-e29b-51d4-a716-446655440000", "expected_match": false, "classification": "rejected_shape", "rationale": "The version nibble is not 4."},
+            {"case_id": "uuid.v4.reject.variant", "input": "550e8400-e29b-41d4-7716-446655440000", "expected_match": false, "classification": "rejected_shape", "rationale": "The variant nibble is outside 8, 9, A, or B."}
+        ]}
+    ]
+}
