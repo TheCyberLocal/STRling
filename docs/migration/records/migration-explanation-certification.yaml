@@ -43,11 +43,14 @@ scope:
         - tooling/pcre2_feature_probe.py
         - tooling/python_re_harness.py
     expected_files:
+        - core/tests/migration_explanation_certification.rs
         - tests/certification/migration-explanation/1.0/certification.schema.json
         - tests/certification/migration-explanation/1.0/manifest.json
         - docs/migration/migration-explanation-certification.md
         - docs/migration/records/migration-explanation-certification.yaml
         - governance/change-control.json
+        - tooling/migration_explanation_certification.py
+        - tooling/tests/test_migration_explanation_certification.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -130,11 +133,25 @@ checkpoints:
             result: passed
             details: Eight unique controlled mutation categories cover capture relationships, branch order, repetition, semantic options, source authority, explanation evidence, conversion disposition, and authority fingerprints with named owning detectors. Nine pathological obligations cover all seven no-match guards, conversion depth 64, and the 119-evaluation no-match determinism grid. Every round-trip case maps only to registered shared target evidence, whose checked corpus contains execute=88, unsupported=5, and not_applicable=7 applications.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Offline joined-evidence validator and canonical Rust proof
+            result: passed
+            details: The deterministic offline validator certifies seven owning denominators, 21 authority/evidence paths, nine regex-import cases, 18 exact destination proofs, four conversion cases, four semantic-explanation cases, 24 no-match cases, 20 shared target cases, 100 governed observations, nine pathological obligations, and all eight mutations. It rejects schema expansion, unsigned or re-signed shrinkage, stale owner fingerprints, unregistered target evidence, duplicated mutation coverage, and missing proof hooks. The corrected manifest fingerprint is sha256:5c088c046ab1720276b8582f723278c05bf836c993a0468352b518944eebd4c6.
+          - check: End-to-end import, explanation, conversion, and reconstruction proof
+            result: passed
+            details: Three new Rust integration tests execute all nine registered regex imports, generate byte-stable semantic explanations, convert each program exactly to Semantic STRling and Simply, reconstruct both destinations, and compare relationship-preserving normalized alpha projections. They also require the conversion producer's exact source/reconstruction fingerprints to agree, run repeated bounded no-match explanations without subject disclosure, and require five-profile checked target evidence for every mapped representative case.
+          - check: Controlled semantic mutations and explicit non-exact states
+            result: passed
+            details: Capture retargeting, alternation branch reversal, repetition-bound change, and case-option change are detected by canonical alpha or target-artifact comparison. Source correspondence, UNKNOWN confidence, conversion disposition, and authority-denominator mutations are rejected by their owning contracts or manifest validator. Actual unnamed-capture conversion remains partial with both required issues and no proof fingerprint; forward-reference conversion remains unsupported with no output. The CP2 no-match determinism proof-hook label was corrected to the existing 119-evaluation Rust test without changing the obligation.
+          - check: Focused implementation and property verification
+            result: passed
+            details: All 10 new Python unit tests pass; 50 focused Python tests pass across the joined validator and frontend, semantic-explanation, conversion, no-match, and shared-target owners. Nineteen focused Rust tests pass across the new integration proof, frontend convergence, conversion convergence/properties, and no-match corpus/properties. Ruff format/check, rustfmt, Prettier, the structured hardgate command, governance, and patch integrity pass.
     - name: Integration and certification
       status: planned
       evidence: []
 commits:
     - sha: 48d29b6a16f81bef05ca1698ef412ea182cdca34
       subject: "docs(certification): lock migration evidence scope"
+    - sha: 618ff9c04220d7574e8e8fff90de24149085f809
+      subject: "test(certification): define migration evidence corpus"
