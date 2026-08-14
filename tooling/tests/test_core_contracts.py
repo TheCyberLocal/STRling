@@ -85,9 +85,9 @@ class CoreSchemaMappingTests(unittest.TestCase):
 class CoreArchitectureBoundaryTests(unittest.TestCase):
     def test_explanation_projection_boundary_is_required(self) -> None:
         sources = source_texts()
-        sources["core/src/explanation.rs"] = sources[
-            "core/src/explanation.rs"
-        ].replace("pub fn explain_semantics(", "fn explain_semantics(")
+        sources["core/src/explanation.rs"] = sources["core/src/explanation.rs"].replace(
+            "pub fn explain_semantics(", "fn explain_semantics("
+        )
         with self.assertRaisesRegex(CoreContractError, "explanation projection"):
             validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 
@@ -104,6 +104,36 @@ class CoreArchitectureBoundaryTests(unittest.TestCase):
         ):
             sources = source_texts()
             sources["core/src/explanation.rs"] += f"\n// {forbidden}\n"
+            with (
+                self.subTest(forbidden=forbidden),
+                self.assertRaises(CoreContractError),
+            ):
+                validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_semantic_conversion_reconstructs_only_through_canonical_frontends(
+        self,
+    ) -> None:
+        sources = source_texts()
+        sources["core/src/semantic_conversion.rs"] = sources[
+            "core/src/semantic_conversion.rs"
+        ].replace("semantic_frontend::parse", "parse_without_frontend_proof")
+        with self.assertRaisesRegex(
+            CoreContractError, "Semantic STRling reconstruction"
+        ):
+            validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
+    def test_semantic_conversion_cannot_import_regex_or_target_implementation(
+        self,
+    ) -> None:
+        for forbidden in (
+            "use crate::regex_frontend;",
+            "use crate::target_lowering;",
+            "std::fs::read",
+            "raw_source",
+            "why_no_match",
+        ):
+            sources = source_texts()
+            sources["core/src/semantic_conversion.rs"] += f"\n// {forbidden}\n"
             with (
                 self.subTest(forbidden=forbidden),
                 self.assertRaises(CoreContractError),

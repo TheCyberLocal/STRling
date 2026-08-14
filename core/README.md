@@ -31,6 +31,14 @@ into the independently versioned semantic-explanation model, and
 `explanation::explain_target` adds exact completed capability and portability
 evidence. These functions do not rerun stages, inspect source syntax, infer
 from emitted patterns, or add explanation data to `CompileResult` 1.0. The
+`semantic_conversion::convert_semantic_program` projection renders validated
+canonical Semantic IR to Semantic STRling or a direct-operation Simply 1.0
+request, reconstructs through the existing destination frontend, and publishes
+`exact` only when the normalized alpha projection is equal. Missing or invalid
+Semantic STRling capture names remain explicit partial conversions; unsupported
+backreference topology returns no executable output. Optional explanation and
+target evidence is correspondence-checked and cannot influence conversion
+semantics. The
 crate-private target-aware pipeline certifies that planning follows capability
 evaluation, while the existing `CompileResult` projection remains
 target-neutral and produces no portability plan or artifact.

@@ -68,6 +68,13 @@ scope:
         - tooling/legacy_reference/**
         - tooling/lsp-server/**
     expected_files:
+        - core/README.md
+        - core/contract-mapping.json
+        - core/src/lib.rs
+        - core/src/semantic_conversion.rs
+        - core/tests/semantic_conversion.rs
+        - core/tests/semantic_conversion_frontend_convergence.rs
+        - core/tests/semantic_conversion_properties.rs
         - docs/migration/semantic-conversion.md
         - docs/migration/records/semantic-conversion.yaml
         - governance/change-control.json
@@ -84,7 +91,10 @@ scope:
         - spec/conversions/semantic/1.0/invalid/missing-manual-decision.json
         - spec/conversions/semantic/1.0/invalid/output-on-unsupported.json
         - tooling/contract_validation.py
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
         - tooling/semantic_conversion_contract.py
+        - tooling/tests/test_core_contracts.py
         - tooling/tests/test_semantic_conversion_contract.py
     permitted_generated_changes:
         - public-contract-snapshots
@@ -102,10 +112,11 @@ change_classification:
         evidence:
             - Conversion projects existing canonical semantics into already-ratified frontend representations and cannot add, remove, or reinterpret a semantic construct.
     public_api_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 records the intended future additive Rust surface but changes no public API.
-        affected_surfaces: []
+            - CP3 adds the public semantic_conversion module with one pure conversion entrypoint and closed result, evidence, issue, mapping, annotation, and error types; existing compiler, frontend, Simply, and explanation APIs remain unchanged.
+        affected_surfaces:
+            - strling-kernel
     schema_change:
         level: additive
         evidence:
@@ -122,7 +133,7 @@ change_classification:
     architecture_change:
         level: additive
         evidence:
-            - CP2 establishes a specification-owned, contract-first conversion boundary and integrates its certification into aggregate canonical contract validation; it adds no product dependency or implementation yet.
+            - CP2 establishes a specification-owned, contract-first conversion boundary. CP3 implements it as a pure canonical-IR projection subordinate to existing Semantic STRling and Simply reconstruction frontends, adds enforced source-boundary checks, and does not depend on regex import, target planning/lowering/emission, bindings, filesystems, processes, or product UX.
     generated_output_change:
         level: none
         evidence:
@@ -162,8 +173,17 @@ checkpoints:
             result: passed
             details: Four positive fixtures certify two exact reconstructions, one partial capture-name substitution with a required manual decision, and one unsupported forward reference. Three controlled invalid fixtures fail false exact proof, missing manual decision, and executable output on unsupported status. Seven focused mutation tests additionally reject digest/span drift, target-routed or non-direct Simply output, destination/explanation mismatch, and duplicate mappings. The focused contract, unit suite, aggregate canonical contracts, governance, changed-file formatting, documentation, and patch-integrity checks pass with fingerprint sha256:70f12e19b559af4dab77458cf397694c644b69a18c8de66c4da503511b593ce0. The generated-artifact verifier reports every applicable output unchanged and retains only the inherited repository-wide missing-Go failure for go-public-api.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical conversion implementation and destination reconstruction
+            result: passed
+            details: The public pure converter validates canonical Semantic IR, derives full and normalized-alpha identities, renders all 12 node kinds and four set-member kinds to canonical Semantic STRling and direct-operation Simply 1.0 requests, reconstructs through the existing destination frontend, and publishes exact only when normalized alpha fingerprints match. Simply output requests semantic only, is target-neutral, and uses no import or stdlib-helper operation. Semantic DSL output records exact UTF-8 node/capture spans and digest.
+          - check: Partial, unsupported, explanation, and bounded property proof
+            result: passed
+            details: Missing/invalid DSL capture names yield deterministic usable text with paired substitution/manual-decision issues and not_proven status. Forward, self, and recursive references yield unsupported with no output or mappings. Exact explanation identity and node coverage are required before structured links/target annotations are copied; mismatches fail closed and evidence cannot influence output. Eleven focused Rust tests pass, including complete node/member coverage for both destinations, all three unsupported topologies, malformed input, serialized vocabulary, explanation correspondence, 96 programs converted twice to both destinations with byte equality, and nesting depths 1 through 64 without panic.
+          - check: Architecture, formatting, and lint disposition
+            result: passed
+            details: Core contract mapping and 24 focused architecture tests pass; the enforced boundary requires validation, both canonical reconstruction routes, alpha proof, explanation correspondence, and canonical hashing while rejecting regex, target implementation, process/filesystem, raw-source, emitted-pattern, and whyNoMatch dependencies. Rust all-target check and rustfmt pass. Strict Clippy reports only the same four inherited out-of-scope warnings recorded by P15-T01 in kernel.rs, protocol/request.rs, simply.rs, and source/mod.rs; an isolated all-target run suppressing exactly those four inherited lints passes with warnings denied for the new conversion code.
     - name: Integration and certification
       status: planned
       evidence: []

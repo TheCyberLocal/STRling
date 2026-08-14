@@ -158,6 +158,67 @@ def explanation_boundary_violation(source_texts: Mapping[str, str]) -> str | Non
     return None
 
 
+def semantic_conversion_boundary_violation(
+    source_texts: Mapping[str, str],
+) -> str | None:
+    """Keep semantic conversion proof-carrying and destination-subordinate."""
+
+    source = source_texts.get("core/src/semantic_conversion.rs", "").lower()
+    source = source.split("\n#[cfg(test)]", maxsplit=1)[0]
+    if "pub fn convert_semantic_program(" not in source:
+        return "canonical semantic conversion boundary cannot be located"
+
+    prerequisites = (
+        ("crate::semantic::{", "canonical Semantic IR"),
+        ("semanticconversionerrors::invalid_program", "canonical input validation"),
+        ("semantic_frontend::parse", "Semantic STRling reconstruction"),
+        ("decode_simply_builder_request", "Simply protocol decoding"),
+        ("replay_simply_builder_request", "Simply canonical reconstruction"),
+        ("alpha_fingerprint", "normalized alpha-equivalence proof"),
+        ("crate::explanation::{", "exact structured explanation evidence"),
+        ("canonical_sha256", "canonical semantic identity"),
+    )
+    for marker, description in prerequisites:
+        if marker not in source:
+            return f"semantic conversion must consume {description}"
+
+    forbidden = _first_forbidden(
+        source,
+        (
+            "crate::regex_frontend",
+            "crate::semantic_rewrite",
+            "crate::capability_evaluation",
+            "crate::portability_planning",
+            "crate::portability_diagnostics",
+            "crate::target_lowering",
+            "crate::target_serialization",
+            "crate::ecmascript_lowering",
+            "crate::ecmascript_serialization",
+            "crate::python_re_lowering",
+            "crate::python_re_serialization",
+            "crate::kernel",
+            "crate::compiler_pipeline",
+            "crate::capability_pipeline",
+            "std::env",
+            "std::fs",
+            "std::net",
+            "std::process",
+            "std::thread",
+            "std::time",
+            "bindings::",
+            "raw_source",
+            "regex_source",
+            "emitted_pattern",
+            "match_trace",
+            "why_no_match",
+            "whynomatch",
+        ),
+    )
+    if forbidden is not None:
+        return f"semantic conversion violates its pure projection boundary: {forbidden}"
+    return None
+
+
 def compiler_pipeline_boundary_violation(
     source_texts: Mapping[str, str],
 ) -> str | None:
