@@ -3942,3 +3942,57 @@ unchanged exact T03 portability evidence supplies the task's target proof.
 P14 and P14-T04 are `READY WITH RECORDED CARRY-FORWARD`. P15-T01 is next and
 owns the structured semantic explanation model. No package, default, version,
 tag, upload, publication, or release action was taken here.
+
+## Canonical VS Code and tooling packaging
+
+-   Status: Complete
+-   Starting commit: `76050f62204544c3ded857bd28080803aeeedc7b`
+-   Behavior change: Reproducible platform-targeted editor packaging,
+    activation, runtime discovery, and lifecycle proof only; no language,
+    target, diagnostic, rewrite, standard-library, binding, or publication
+    behavior
+-   Task record:
+    [`lsp-packaging-certification.yaml`](records/lsp-packaging-certification.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+P16-T05 replaces the incomplete extension assembler with a cross-platform,
+locked package builder and a closed 21-file payload. The only STRling semantic
+engines in that payload are `strling-kernel` and `strling-editor-core`; authored
+Python modules and local protocol subsets remain transport/projection adapters.
+The package includes exactly three governed runtime resources and excludes the
+legacy Python binding, downloaded Python dependencies, source-tree fallbacks,
+tests, caches, build trees, user-home synchronization, and repository metadata.
+
+Package contract
+`sha256:3387c3aa55afdb2bee3c987a0e92038fc5a0caebbd1826709ba907f701c10945`
+has a 72-case verification denominator across four targets, 21 selectors, ten
+features, twelve failures, three lifecycle operations, six identity groups,
+twelve mutations, and four reproducibility properties. The implementation
+commit is `b8b2d54cffb9d86093205964de2a2193314f80fc`.
+
+At integration commit `9459b41562b78ab2a7557cef89dae0859ab784bf`, two clean
+Windows builds reproduce all 21 payload files at
+`sha256:f2d1a60e1f3c87fc2df1788ba1689b9890e36049dae0dc289999647f078d042d`.
+The 23 normalized VSIX entries fingerprint to
+`sha256:a272fc108e805ed4bed570e9afc2882cf8b521cad532a5ccf43ee1ed8e3f8914`
+and the exact VSIX digest is
+`sha256:a20c30850964c68e70542688775c4aeb55b2481655897901b6d1d5abdb6d5b72`.
+Both canonical processes, all ten LSP feature families, canonical CLI/editor
+identity, and isolated install, upgrade, and uninstall pass.
+
+Rust all-targets passes, as do all 566 LSP tests, 645 tooling tests plus 699
+subtests, the reviewed 44-observation migration differential, governance,
+architecture, documentation, content/workflow security, task-owned generated
+verification, and patch integrity. Local records 12 passed, two failed, and 14
+unavailable operations; Pull Request records 12, two, and 35; the
+network-restricted Full profile records ten, nine, and 70, while its clean LSP
+package certification passes. Missing Go, denied network metadata egress,
+sandboxed wrappers, governed Node/Python/Ruff probes, and optional binding
+toolchains remain exact non-passing evidence.
+
+P16 and P16-T05 close as `READY WITH RECORDED CARRY-FORWARD`. Linux x64,
+macOS x64, and macOS arm64 retain exact native runner mappings and artifact
+retention but remain unavailable and unclaimed until remote CI executes them.
+P17-T01 is next and owns the stable serialized interop, C ABI, memory/error,
+threading, and WASM foundation. No package was published, signed, tagged, or
+uploaded.

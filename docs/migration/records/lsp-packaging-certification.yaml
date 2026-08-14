@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Canonical VS Code and tooling packaging certification
-status: in_progress
+status: complete
 objective: Build reproducible platform-targeted VSIX payloads whose only STRling semantic engines are the packaged canonical Rust kernel and editor projection, then certify activation, lifecycle, feature, identity, offline, and platform behavior without publishing.
 scope:
     diff:
@@ -176,8 +176,17 @@ checkpoints:
             result: not_run
             details: Linux x64, macOS x64, and macOS arm64 have exact native runner mappings and retained-artifact CI workflow coverage but no runner evidence on this unpublished branch. They remain explicitly unavailable and unclaimed as recorded carry-forward.
     - name: Completion and next-task readiness
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Package and phase acceptance
+            result: passed
+            details: The extension payload contains exactly 21 declared files, with the canonical Rust kernel and editor projection as its only semantic engines. The legacy Python binding, downloaded Python runtime dependencies, repository-relative packaged fallbacks, user-home installer, stale generated payloads, tests, caches, Node modules, Cargo outputs, and repository metadata are absent. No VSIX, dist payload, compiled binary, cache, or marketplace output is tracked.
+          - check: Reproducibility, identity, and lifecycle closure
+            result: passed
+            details: Native win32-x64 double-build reproducibility, package hashes, both canonical runtime fingerprints, all ten LSP feature families, CLI/editor canonical identity, and isolated install/upgrade/uninstall are recorded at 9459b41562b78ab2a7557cef89dae0859ab784bf. The implementation and evidence remain additive transport/package work and do not alter STRling semantics.
+          - check: Explicit carry-forward and next phase
+            result: passed
+            details: Linux x64, macOS x64, and macOS arm64 runner evidence remains unavailable and unclaimed on the unpublished branch; aggregate Go/public/generated and broader profile toolchain gaps remain exact non-passing evidence. These bounded dispositions do not block P17-T01 from defining stable interop, C ABI, and WASM foundations over the canonical compiler.
 commits:
     - sha: fff3727c05dbd99221cb71c967671f673aaa1f60
       subject: "docs(lsp): lock packaging certification"
@@ -189,3 +198,35 @@ commits:
       subject: "docs(lsp): record package certification evidence"
     - sha: 9459b41562b78ab2a7557cef89dae0859ab784bf
       subject: "test(migration): renew packaging integration baseline"
+    - sha: 4dc00acc756d0a6dcf6da89cebd88afcf05f18a4
+      subject: "docs(lsp): record package integration evidence"
+completion:
+    accomplished:
+        - Replaced the incomplete POSIX/unpinned extension assembler with one cross-platform, locked, closed-content package builder and deterministic certification path for four exact native targets.
+        - Packaged only the canonical Rust kernel/editor semantic processes, three governed runtime resources, authored Python adapters, bounded local protocol transport, generated TypeScript client, metadata, assets, and a signed content manifest.
+        - Corrected native STRling activation, all 21 governed document selectors, explicit Python 3.11+ probing, absolute installed-runtime/resource wiring, zero external Python dependencies, package metadata, isolated lifecycle testing, generated-artifact governance, and four-runner CI retention without adding publication.
+        - Removed the user-home synchronization script and prohibited legacy Python binding, shadow compiler, downloaded runtime, repository-relative package fallback, tracked payload, and undeclared residue from the built artifact.
+    verified:
+        - The package contract is sha256:3387c3aa55afdb2bee3c987a0e92038fc5a0caebbd1826709ba907f701c10945 with a 72-case shrinkage-resistant evidence denominator; focused package tests pass 22 cases and the complete LSP suite passes 566.
+        - At 9459b41562b78ab2a7557cef89dae0859ab784bf, two clean win32-x64 builds reproduce 21 payload files at sha256:f2d1a60e1f3c87fc2df1788ba1689b9890e36049dae0dc289999647f078d042d and 23 normalized VSIX entries at sha256:a272fc108e805ed4bed570e9afc2882cf8b521cad532a5ccf43ee1ed8e3f8914; exact VSIX digest is sha256:a20c30850964c68e70542688775c4aeb55b2481655897901b6d1d5abdb6d5b72.
+        - Rust all-targets, 645 tooling tests plus 699 subtests, 30 focused migration tests, documentation, governance, architecture, content/workflow security, task-owned generated verification, and patch integrity pass.
+        - Local, Pull Request, and network-restricted Full profiles were executed from clean committed state with exact failure/unavailable dispositions; Full's package certification passed and no unavailable operation was represented as passing.
+    behavior_changed: The engineering-only VS Code package now activates and launches a closed, reproducible canonical runtime payload instead of the incomplete legacy-binding assembler; STRling language and target behavior are unchanged.
+    intentional_behavior_changes:
+        - The extension now owns native STRling activation, covers all governed selectors, reports a specific missing-Python error, and resolves packaged canonical executables/resources by absolute installed paths.
+        - Packaging is platform-targeted, content-manifested, reproducibility-certified, lifecycle-tested, and routed through Full/Release plus four matching CI runners; no marketplace publication was added.
+    preserved_behavior:
+        - Grammar, Semantic IR, frontend meaning, diagnostics, rewrites, target profiles and artifacts, standard-library semantics, binding APIs, CLI contracts, package versions outside the extension, and publication state remain unchanged.
+        - Canonical LSP results remain identical to the certified source-tree/runtime evidence, including diagnostic STRL-QUALITY-0002 and all refusal/safety behavior.
+    transitional_architecture:
+        - The LSP payload remains an untracked verified-candidate artifact in the generic generated-artifact registry; its expensive clean proof is owned by dedicated Full/Release and CI operations.
+        - The installed extension still requires a separately installed Python 3.11+ interpreter for transport, while all STRling semantics execute in the packaged Rust processes.
+        - Linux x64, macOS x64, and macOS arm64 mappings are declared and CI-routed but remain unclaimed until matching runner evidence is retained.
+    deferred_work:
+        - Execute and retain linux-x64, darwin-x64, and darwin-arm64 package certification on their governed CI runners when the branch enters remote integration; do not infer a passing platform result from workflow presence.
+        - Repair the inherited repository Go/public-contract aggregate and governed Bash/python3/Ruff/Node 22 plus optional binding-toolchain availability in their owning environment/toolchain tasks.
+        - Publication, signing, marketplace upload, release tagging, and public installation verification remain separately authorized P20 work.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P17-T01, Stabilize interop protocols, C ABI, and WASM foundation, by locking version negotiation, serialized/opaque boundary data, ownership, memory, threading, panic/error, resource, and public-surface contracts before migrating any host package.
+    rationale: Canonical-only package semantics, Windows reproducibility/runtime/LSP/lifecycle proof, exact artifact identities, migration and repository integration, security/governance, and required profile executions are complete. Three non-Windows CI targets and inherited host/profile tool gaps remain explicit non-passing evidence, so they prevent unqualified READY without blocking the next contained interop-contract task.
