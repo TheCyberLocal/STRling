@@ -1,0 +1,527 @@
+{
+    "$schema": "certification.schema.json",
+    "certification_id": "strling.migration-explanation-certification",
+    "certification_version": "1.0.0",
+    "authority": {
+        "classification": "campaign_certification_evidence",
+        "normative": false,
+        "owner": "P15-T04",
+        "semantic_authorities": [
+            "spec/contracts/1.0/semantic-ir.schema.json",
+            "spec/frontends/legacy-regex/1.0/dialect.json",
+            "spec/frontends/semantic/1.0/language.json",
+            "spec/frontends/simply/1.0/protocol.json",
+            "spec/conversions/semantic/1.0/conversion-result.schema.json",
+            "spec/explanations/semantic/1.0/explanation.schema.json",
+            "spec/explanations/no-match/1.0/no-match-explanation.schema.json",
+            "spec/contracts/1.0/target-profile.schema.json"
+        ]
+    },
+    "pipeline": {
+        "stages": [
+            "regex_compatible_source",
+            "canonical_semantic_ir",
+            "structured_semantic_explanation",
+            "canonical_conversion",
+            "destination_reconstruction",
+            "normalized_semantic_alpha_equivalence",
+            "applicable_target_evidence"
+        ],
+        "equivalence_method": "normalized_semantic_alpha_equivalence@1.0.0",
+        "excluded_representation_evidence": [
+            "node_ids",
+            "capture_ids",
+            "origins",
+            "sources"
+        ],
+        "retained_semantics": [
+            "node_kind_and_order",
+            "capture_and_backreference_relationships",
+            "case_matching",
+            "character_domains",
+            "wildcard_and_line_behavior",
+            "repetition_bounds_and_modes",
+            "assertion_direction_and_polarity",
+            "target_requirements",
+            "diagnostics",
+            "portability_decisions",
+            "artifact_behavior"
+        ],
+        "status_policy": {
+            "exact": "reconstruction_and_alpha_proof_required",
+            "partial": "loss_substitution_and_manual_decisions_required",
+            "unsupported": "output_forbidden_and_issue_required"
+        }
+    },
+    "denominators": [
+        {
+            "id": "frontend_convergence",
+            "source": "tests/convergence/frontend-convergence.json",
+            "validator": "tooling.frontend_convergence.FrontendConvergenceSuite.certify",
+            "expected": {
+                "cases": 11,
+                "host_routes": 3,
+                "operations": 15,
+                "mappings": 17,
+                "legacy_cases": 9,
+                "legacy_features": 38,
+                "legacy_families": 10,
+                "rejected": 13,
+                "profiles": 3,
+                "documents": 14,
+                "fingerprint": "sha256:1ce3a851f55ac89bc5cb2825ee0a46bd701dd71f1bf09796edec5a3b5e596cb2"
+            }
+        },
+        {
+            "id": "semantic_explanation",
+            "source": "spec/explanations/semantic/1.0/explanation.schema.json",
+            "validator": "tooling.explanation_contract.ExplanationContractSuite.certify",
+            "expected": {
+                "schemas": 1,
+                "positive": 1,
+                "negative": 3,
+                "fingerprint": "sha256:6831dc6ae1ddc65cd06016f5e60f4907926e5c4c33d7e6d465e7d3adae3b0d6b"
+            }
+        },
+        {
+            "id": "semantic_conversion",
+            "source": "spec/conversions/semantic/1.0/conversion-result.schema.json",
+            "validator": "tooling.semantic_conversion_contract.SemanticConversionContractSuite.certify",
+            "expected": {
+                "schemas": 1,
+                "positive": 4,
+                "negative": 3,
+                "exact": 2,
+                "partial": 1,
+                "unsupported": 1,
+                "node_kinds": 12,
+                "member_kinds": 4,
+                "fingerprint": "sha256:70f12e19b559af4dab77458cf397694c644b69a18c8de66c4da503511b593ce0"
+            }
+        },
+        {
+            "id": "bounded_no_match",
+            "source": "spec/explanations/no-match/1.0/verification-corpus.json",
+            "validator": "tooling.no_match_explanation_contract.NoMatchExplanationContractSuite.certify",
+            "expected": {
+                "schemas": 1,
+                "positive": 5,
+                "negative": 5,
+                "reasons": 27,
+                "programs": 17,
+                "cases": 24,
+                "matched": 1,
+                "proven": 7,
+                "likely": 6,
+                "unknown": 9,
+                "unavailable": 1,
+                "fingerprint": "sha256:62dbff6a46849292eb277a18ecdcdddb3c71dbd0319b90689840515bd1204876"
+            }
+        },
+        {
+            "id": "shared_target_corpus",
+            "source": "spec/conformance/shared-corpus-v1.json",
+            "validator": "tooling.shared_cross_engine_corpus.validate_corpus",
+            "expected": {
+                "case_count": 20,
+                "execute": 88,
+                "unsupported": 5,
+                "not_applicable": 7,
+                "corpus_sha256": "sha256:e8c069f068b8562518bfcf4f782a0961b53124660e4d40e63e49cbe8c6824fb1",
+                "case_set_sha256": "sha256:8ce5b9874312e9527944960f84c722a8293e9030bc6d9d8550aca53012ae849d",
+                "vector_set_sha256": "sha256:8d6fc71842065e7d1e8796e4ee3e210669220c2b129530e70d9e05ff08e17afc"
+            }
+        },
+        {
+            "id": "shared_target_evidence",
+            "source": "tests/conformance/evidence/shared-cross-engine-observations.json",
+            "validator": "tooling.shared_cross_engine_corpus.verify_evidence",
+            "expected": {
+                "case_count": 20,
+                "observation_count": 100,
+                "result_sha256": "sha256:9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c"
+            }
+        },
+        {
+            "id": "migration_differential",
+            "source": "tooling/migration_differential_baseline.json",
+            "validator": "tooling.migration_differential.validate_baseline",
+            "expected": {
+                "baseline_schema_version": "1.0.0",
+                "baseline_fingerprint": "sha256:83edceb883623274bf2d6fa8cc2022765fd0a75fe21e5cc738c22817910e71da",
+                "canonical_boundary_fingerprint": "sha256:e4404ccc937c38c7bf676b4682e5cb16d1956ecbb91dc15e7a4e4c3364ca5811",
+                "full_corpus_fingerprint": "sha256:feedb6435b8b61ae6a004484feca0f0b23b6e578234f8ffc8daeca9eb0f04300",
+                "replacement_reviews": 0,
+                "historical_observations": 44
+            }
+        }
+    ],
+    "corpora": {
+        "round_trip_cases": [
+            {
+                "id": "round-trip/anchors-and-boundaries",
+                "source_case_id": "case:convergence/anchors-and-boundaries",
+                "destinations": ["semantic_strling", "simply_builder"],
+                "expected_status": "exact",
+                "coverage": ["anchors", "boundaries", "options"],
+                "target_evidence_case_ids": [
+                    "case:matching/input-anchors-word-boundaries",
+                    "case:matching/line-anchors"
+                ]
+            },
+            {
+                "id": "round-trip/lookaround-matrix",
+                "source_case_id": "case:convergence/lookaround-matrix",
+                "destinations": ["semantic_strling", "simply_builder"],
+                "expected_status": "exact",
+                "coverage": ["lookahead", "lookbehind", "assertion_polarity"],
+                "target_evidence_case_ids": [
+                    "case:matching/positive-lookahead",
+                    "case:matching/fixed-lookbehind",
+                    "case:targets/variable-lookbehind"
+                ]
+            },
+            {
+                "id": "round-trip/captures-and-references",
+                "source_case_id": "case:convergence/captures-and-references",
+                "destinations": ["semantic_strling", "simply_builder"],
+                "expected_status": "exact",
+                "coverage": ["captures", "backreferences", "empty"],
+                "target_evidence_case_ids": [
+                    "case:matching/backreference",
+                    "case:matching/logical-capture"
+                ]
+            },
+            {
+                "id": "round-trip/character-classes",
+                "source_case_id": "case:convergence/character-classes",
+                "destinations": ["semantic_strling", "simply_builder"],
+                "expected_status": "exact",
+                "coverage": ["character_classes", "unicode", "negation"],
+                "target_evidence_case_ids": [
+                    "case:matching/ascii-character-class",
+                    "case:matching/negated-character-class",
+                    "case:matching/unicode-digit-class"
+                ]
+            },
+            {
+                "id": "round-trip/composition-and-empty",
+                "source_case_id": "case:convergence/composition-and-empty",
+                "destinations": ["semantic_strling", "simply_builder"],
+                "expected_status": "exact",
+                "coverage": ["alternation", "sequence", "empty"],
+                "target_evidence_case_ids": [
+                    "case:matching/alternation",
+                    "case:matching/sequence"
+                ]
+            },
+            {
+                "id": "round-trip/repetition-modes",
+                "source_case_id": "case:convergence/repetition-modes",
+                "destinations": ["semantic_strling", "simply_builder"],
+                "expected_status": "exact",
+                "coverage": [
+                    "repetition_bounds",
+                    "greedy",
+                    "lazy",
+                    "possessive"
+                ],
+                "target_evidence_case_ids": [
+                    "case:matching/greedy-repeat",
+                    "case:matching/lazy-repeat-interaction",
+                    "case:matching/possessive-repeat-interaction"
+                ]
+            },
+            {
+                "id": "round-trip/atomic-composition",
+                "source_case_id": "case:convergence/atomic-composition",
+                "destinations": ["semantic_strling", "simply_builder"],
+                "expected_status": "exact",
+                "coverage": ["atomic", "alternation", "portability_rewrite"],
+                "target_evidence_case_ids": [
+                    "case:matching/atomic-literal-rewrite"
+                ]
+            },
+            {
+                "id": "round-trip/flags-layout-and-escapes",
+                "source_case_id": "case:convergence/flags-layout-and-escapes",
+                "destinations": ["semantic_strling", "simply_builder"],
+                "expected_status": "exact",
+                "coverage": ["case_matching", "unicode", "wildcard", "escapes"],
+                "target_evidence_case_ids": [
+                    "case:matching/unicode-case-insensitive-literal",
+                    "case:matching/wildcard-including-lines"
+                ]
+            },
+            {
+                "id": "round-trip/literal-whitespace",
+                "source_case_id": "case:convergence/literal-whitespace",
+                "destinations": ["semantic_strling", "simply_builder"],
+                "expected_status": "exact",
+                "coverage": ["literal_whitespace", "unicode_scalar_text"],
+                "target_evidence_case_ids": [
+                    "case:matching/sequence",
+                    "case:semantic/literal"
+                ]
+            }
+        ],
+        "surface_only_case_ids": [
+            "case:convergence/import-node",
+            "case:convergence/import-program"
+        ],
+        "conversion_dispositions": [
+            {
+                "id": "conversion/exact-semantic-strling",
+                "path": "spec/conversions/semantic/1.0/examples/exact-semantic-dsl.json",
+                "expected": "exact"
+            },
+            {
+                "id": "conversion/exact-simply",
+                "path": "spec/conversions/semantic/1.0/examples/exact-simply.json",
+                "expected": "exact"
+            },
+            {
+                "id": "conversion/partial-capture-name",
+                "path": "spec/conversions/semantic/1.0/examples/partial-capture-name.json",
+                "expected": "partial"
+            },
+            {
+                "id": "conversion/unsupported-forward-reference",
+                "path": "spec/conversions/semantic/1.0/examples/unsupported-forward-reference.json",
+                "expected": "unsupported"
+            }
+        ],
+        "semantic_explanations": [
+            {
+                "id": "explanation/source-less-literal",
+                "path": "spec/explanations/semantic/1.0/examples/source-less-literal.json",
+                "expected": "valid"
+            },
+            {
+                "id": "explanation/stale-concise-count",
+                "path": "spec/explanations/semantic/1.0/invalid/stale-concise-count.json",
+                "expected": "rejected"
+            },
+            {
+                "id": "explanation/ui-specific-field",
+                "path": "spec/explanations/semantic/1.0/invalid/ui-specific-field.json",
+                "expected": "rejected"
+            },
+            {
+                "id": "explanation/wrong-model-version",
+                "path": "spec/explanations/semantic/1.0/invalid/wrong-model-version.json",
+                "expected": "rejected"
+            }
+        ],
+        "no_match": {
+            "source": "spec/explanations/no-match/1.0/verification-corpus.json",
+            "required_case_ids": [
+                "matched-literal",
+                "proven-literal-mismatch",
+                "unicode-literal-mismatch",
+                "ascii-class-mismatch",
+                "wildcard-line-terminator",
+                "input-start-multiple-blockers",
+                "input-end-multiple-blockers",
+                "line-start-multiple-blockers",
+                "word-boundary-empty-subject",
+                "alternation-exhausted",
+                "repetition-minimum-unmet",
+                "positive-lookahead-failed",
+                "negative-lookahead-blocked",
+                "backreference-mismatch",
+                "unicode-property-unknown",
+                "target-native-class-unknown",
+                "subject-scalar-limit",
+                "subject-utf8-limit",
+                "step-limit",
+                "depth-limit",
+                "branch-limit",
+                "finding-limit",
+                "elapsed-limit",
+                "target-unsupported"
+            ],
+            "expected_dispositions": {
+                "not_applicable": 1,
+                "proven": 7,
+                "likely": 6,
+                "unknown": 9,
+                "unavailable": 1
+            }
+        }
+    },
+    "target_evidence": {
+        "source": "spec/conformance/shared-corpus-v1.json",
+        "evidence": "tests/conformance/evidence/shared-cross-engine-observations.json",
+        "profiles": [
+            "profile:ecmascript/2024",
+            "profile:pcre2/10.42",
+            "profile:pcre2/10.43",
+            "profile:python-re/3.11",
+            "profile:python-re/3.11-bytes"
+        ],
+        "required_case_ids": [
+            "case:diagnostic/unterminated-group",
+            "case:matching/alternation",
+            "case:matching/ascii-character-class",
+            "case:matching/atomic-literal-rewrite",
+            "case:matching/backreference",
+            "case:matching/fixed-lookbehind",
+            "case:matching/greedy-repeat",
+            "case:matching/input-anchors-word-boundaries",
+            "case:matching/lazy-repeat-interaction",
+            "case:matching/line-anchors",
+            "case:matching/logical-capture",
+            "case:matching/negated-character-class",
+            "case:matching/positive-lookahead",
+            "case:matching/possessive-repeat-interaction",
+            "case:matching/sequence",
+            "case:matching/unicode-case-insensitive-literal",
+            "case:matching/unicode-digit-class",
+            "case:matching/wildcard-including-lines",
+            "case:semantic/literal",
+            "case:targets/variable-lookbehind"
+        ],
+        "expected_applications": {
+            "execute": 88,
+            "unsupported": 5,
+            "not_applicable": 7
+        },
+        "observation_count": 100
+    },
+    "pathological_cases": [
+        {
+            "id": "pathological/subject-scalar-limit",
+            "owner": "bounded_no_match",
+            "source_case": "subject-scalar-limit",
+            "expected": "unknown_without_false_proof"
+        },
+        {
+            "id": "pathological/subject-utf8-limit",
+            "owner": "bounded_no_match",
+            "source_case": "subject-utf8-limit",
+            "expected": "unknown_without_false_proof"
+        },
+        {
+            "id": "pathological/step-limit",
+            "owner": "bounded_no_match",
+            "source_case": "step-limit",
+            "expected": "unknown_without_false_proof"
+        },
+        {
+            "id": "pathological/depth-limit",
+            "owner": "bounded_no_match",
+            "source_case": "depth-limit",
+            "expected": "unknown_without_false_proof"
+        },
+        {
+            "id": "pathological/branch-limit",
+            "owner": "bounded_no_match",
+            "source_case": "branch-limit",
+            "expected": "unknown_without_false_proof"
+        },
+        {
+            "id": "pathological/finding-limit",
+            "owner": "bounded_no_match",
+            "source_case": "finding-limit",
+            "expected": "unknown_without_false_proof"
+        },
+        {
+            "id": "pathological/elapsed-limit",
+            "owner": "bounded_no_match",
+            "source_case": "elapsed-limit",
+            "expected": "unknown_without_false_proof"
+        },
+        {
+            "id": "pathological/conversion-depth-64",
+            "owner": "semantic_conversion",
+            "source_case": "core/tests/semantic_conversion_properties.rs#bounded_nested_inputs_convert_without_panicking",
+            "expected": "both_destinations_exact_without_panic"
+        },
+        {
+            "id": "pathological/no-match-determinism-119",
+            "owner": "bounded_no_match",
+            "source_case": "core/tests/no_match_explanation_properties.rs#bounded_property_grid",
+            "expected": "byte_stable_without_panic"
+        }
+    ],
+    "mutations": [
+        {
+            "id": "mutation/capture-relationship",
+            "category": "capture_relationship",
+            "detector": "canonical_alpha_proof",
+            "fixture": "round-trip/captures-and-references",
+            "mutation": "retarget one backreference to a different capture identity",
+            "expected": "detected"
+        },
+        {
+            "id": "mutation/branch-order",
+            "category": "branch_order",
+            "detector": "canonical_alpha_proof",
+            "fixture": "round-trip/composition-and-empty",
+            "mutation": "swap two alternation branches",
+            "expected": "detected"
+        },
+        {
+            "id": "mutation/repetition-bound",
+            "category": "repetition",
+            "detector": "canonical_alpha_proof",
+            "fixture": "round-trip/repetition-modes",
+            "mutation": "change a repetition maximum or mode",
+            "expected": "detected"
+        },
+        {
+            "id": "mutation/case-option",
+            "category": "semantic_options",
+            "detector": "target_artifact_comparison",
+            "fixture": "round-trip/flags-layout-and-escapes",
+            "mutation": "change case matching or wildcard line behavior",
+            "expected": "detected"
+        },
+        {
+            "id": "mutation/source-span",
+            "category": "source_authority",
+            "detector": "semantic_explanation_contract",
+            "fixture": "spec/explanations/semantic/1.0/examples/source-less-literal.json",
+            "mutation": "introduce a stale source or node correspondence",
+            "expected": "detected"
+        },
+        {
+            "id": "mutation/explanation-confidence",
+            "category": "explanation_evidence",
+            "detector": "no_match_contract",
+            "fixture": "spec/explanations/no-match/1.0/examples/unknown-step-limit.json",
+            "mutation": "promote UNKNOWN limit evidence to proven",
+            "expected": "detected"
+        },
+        {
+            "id": "mutation/conversion-loss",
+            "category": "conversion_disposition",
+            "detector": "semantic_conversion_contract",
+            "fixture": "spec/conversions/semantic/1.0/examples/partial-capture-name.json",
+            "mutation": "remove the manual decision or falsely claim exact equivalence",
+            "expected": "detected"
+        },
+        {
+            "id": "mutation/authority-fingerprint",
+            "category": "authority_evidence",
+            "detector": "certification_manifest",
+            "fixture": "denominators/frontend_convergence/expected/fingerprint",
+            "mutation": "replace an accepted fingerprint or shrink a denominator count",
+            "expected": "detected"
+        }
+    ],
+    "anti_shrinkage": {
+        "round_trip_cases": 9,
+        "round_trip_destination_proofs": 18,
+        "surface_only_cases": 2,
+        "conversion_cases": 4,
+        "semantic_explanation_cases": 4,
+        "no_match_cases": 24,
+        "target_cases": 20,
+        "target_observations": 100,
+        "pathological_cases": 9,
+        "mutation_categories": 8,
+        "manifest_sha256": "sha256:859e0dc86c01437807aeef16ef99f03244bcddbd2f6ed38661cc3a35e30f5b2e"
+    }
+}

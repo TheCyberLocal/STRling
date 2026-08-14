@@ -43,6 +43,8 @@ scope:
         - tooling/pcre2_feature_probe.py
         - tooling/python_re_harness.py
     expected_files:
+        - tests/certification/migration-explanation/1.0/certification.schema.json
+        - tests/certification/migration-explanation/1.0/manifest.json
         - docs/migration/migration-explanation-certification.md
         - docs/migration/records/migration-explanation-certification.yaml
         - governance/change-control.json
@@ -66,10 +68,11 @@ change_classification:
             - The task adds only test and repository-certification surfaces; production Rust and binding APIs are read-only.
         affected_surfaces: []
     schema_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 defines a future non-normative certification-manifest schema under tests but adds no formal schema in this checkpoint.
-        affected_surfaces: []
+            - The versioned schema under tests governs only non-normative campaign certification evidence and cannot define product semantics, public payloads, or generated APIs.
+        affected_surfaces:
+            - migration-explanation-certification
     diagnostic_change:
         level: none
         evidence:
@@ -79,9 +82,9 @@ change_classification:
         evidence:
             - Target profiles, planning, lowering, serialization, and observations are compared but cannot be changed by the certification harness.
     architecture_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 records a future offline repository hardgate without changing toolchain membership or production dependencies.
+            - The task adds a versioned test-evidence island and will register one offline repository hardgate without changing production dependencies or semantic authority.
     generated_output_change:
         level: none
         evidence:
@@ -115,12 +118,23 @@ checkpoints:
             result: passed
             details: Governance validates the exact three-file scope-lock diff and change declarations; focused authority validators reproduce the accepted frontend, explanation, conversion, and no-match denominators; documentation formatting and git diff checks pass. No schema, corpus, test harness, toolchain membership, semantic behavior, public API, generated output, target behavior, binding, package, or product feature is changed.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Versioned certification manifest and schema
+            result: passed
+            details: The closed Draft 2020-12 schema validates the non-normative strling.migration-explanation-certification 1.0.0 manifest. Its canonical fingerprint is sha256:859e0dc86c01437807aeef16ef99f03244bcddbd2f6ed38661cc3a35e30f5b2e. All referenced authority and evidence paths exist, exact status requires reconstruction plus normalized alpha proof, partial retains loss and manual-decision evidence, and unsupported forbids output.
+          - check: Complete joined acceptance denominator
+            result: passed
+            details: The manifest accounts for all nine regex-import convergence cases and both destinations (18 exact proofs), two source-only convergence cases, four conversion dispositions (exact=2, partial=1, unsupported=1), four semantic-explanation documents, all 24 no-match cases (matched=1, proven=7, likely=6, unknown=9, unavailable=1), all 20 shared target cases and 100 governed observations across five profiles, and the unchanged 44-observation migration baseline. Direct owning validators reproduce every recorded fingerprint and count.
+          - check: Mutation, pathological, and target evidence design
+            result: passed
+            details: Eight unique controlled mutation categories cover capture relationships, branch order, repetition, semantic options, source authority, explanation evidence, conversion disposition, and authority fingerprints with named owning detectors. Nine pathological obligations cover all seven no-match guards, conversion depth 64, and the 119-evaluation no-match determinism grid. Every round-trip case maps only to registered shared target evidence, whose checked corpus contains execute=88, unsupported=5, and not_applicable=7 applications.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
     - name: Integration and certification
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 48d29b6a16f81bef05ca1698ef412ea182cdca34
+      subject: "docs(certification): lock migration evidence scope"

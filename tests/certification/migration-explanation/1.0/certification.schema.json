@@ -1,0 +1,379 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/certification/migration-explanation/1.0/certification.schema.json",
+    "title": "STRling migration and explanation certification manifest",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "certification_id",
+        "certification_version",
+        "authority",
+        "pipeline",
+        "denominators",
+        "corpora",
+        "target_evidence",
+        "pathological_cases",
+        "mutations",
+        "anti_shrinkage"
+    ],
+    "properties": {
+        "$schema": { "type": "string", "format": "uri-reference" },
+        "certification_id": {
+            "const": "strling.migration-explanation-certification"
+        },
+        "certification_version": { "const": "1.0.0" },
+        "authority": { "$ref": "#/$defs/authority" },
+        "pipeline": { "$ref": "#/$defs/pipeline" },
+        "denominators": {
+            "type": "array",
+            "minItems": 7,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/denominator" }
+        },
+        "corpora": { "$ref": "#/$defs/corpora" },
+        "target_evidence": { "$ref": "#/$defs/targetEvidence" },
+        "pathological_cases": {
+            "type": "array",
+            "minItems": 9,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/pathologicalCase" }
+        },
+        "mutations": {
+            "type": "array",
+            "minItems": 8,
+            "maxItems": 8,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/mutation" }
+        },
+        "anti_shrinkage": { "$ref": "#/$defs/antiShrinkage" }
+    },
+    "$defs": {
+        "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)+$"
+        },
+        "sha256": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "stringSet": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+        },
+        "authority": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "classification",
+                "normative",
+                "owner",
+                "semantic_authorities"
+            ],
+            "properties": {
+                "classification": {
+                    "const": "campaign_certification_evidence"
+                },
+                "normative": { "const": false },
+                "owner": { "const": "P15-T04" },
+                "semantic_authorities": {
+                    "type": "array",
+                    "minItems": 6,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/path" }
+                }
+            }
+        },
+        "pipeline": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "stages",
+                "equivalence_method",
+                "excluded_representation_evidence",
+                "retained_semantics",
+                "status_policy"
+            ],
+            "properties": {
+                "stages": {
+                    "type": "array",
+                    "prefixItems": [
+                        { "const": "regex_compatible_source" },
+                        { "const": "canonical_semantic_ir" },
+                        { "const": "structured_semantic_explanation" },
+                        { "const": "canonical_conversion" },
+                        { "const": "destination_reconstruction" },
+                        { "const": "normalized_semantic_alpha_equivalence" },
+                        { "const": "applicable_target_evidence" }
+                    ],
+                    "items": false
+                },
+                "equivalence_method": {
+                    "const": "normalized_semantic_alpha_equivalence@1.0.0"
+                },
+                "excluded_representation_evidence": {
+                    "const": ["node_ids", "capture_ids", "origins", "sources"]
+                },
+                "retained_semantics": { "$ref": "#/$defs/stringSet" },
+                "status_policy": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["exact", "partial", "unsupported"],
+                    "properties": {
+                        "exact": {
+                            "const": "reconstruction_and_alpha_proof_required"
+                        },
+                        "partial": {
+                            "const": "loss_substitution_and_manual_decisions_required"
+                        },
+                        "unsupported": {
+                            "const": "output_forbidden_and_issue_required"
+                        }
+                    }
+                }
+            }
+        },
+        "denominator": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "source", "validator", "expected"],
+            "properties": {
+                "id": {
+                    "enum": [
+                        "frontend_convergence",
+                        "semantic_explanation",
+                        "semantic_conversion",
+                        "bounded_no_match",
+                        "shared_target_corpus",
+                        "shared_target_evidence",
+                        "migration_differential"
+                    ]
+                },
+                "source": { "$ref": "#/$defs/path" },
+                "validator": { "type": "string", "minLength": 1 },
+                "expected": {
+                    "type": "object",
+                    "minProperties": 1,
+                    "additionalProperties": {
+                        "type": ["string", "integer", "object"]
+                    }
+                }
+            }
+        },
+        "roundTripCase": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "source_case_id",
+                "destinations",
+                "expected_status",
+                "coverage",
+                "target_evidence_case_ids"
+            ],
+            "properties": {
+                "id": { "type": "string", "pattern": "^round-trip/" },
+                "source_case_id": {
+                    "type": "string",
+                    "pattern": "^case:convergence/"
+                },
+                "destinations": {
+                    "const": ["semantic_strling", "simply_builder"]
+                },
+                "expected_status": { "const": "exact" },
+                "coverage": { "$ref": "#/$defs/stringSet" },
+                "target_evidence_case_ids": { "$ref": "#/$defs/stringSet" }
+            }
+        },
+        "evidenceReference": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "path", "expected"],
+            "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "path": { "$ref": "#/$defs/path" },
+                "expected": { "type": "string", "minLength": 1 }
+            }
+        },
+        "corpora": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "round_trip_cases",
+                "surface_only_case_ids",
+                "conversion_dispositions",
+                "semantic_explanations",
+                "no_match"
+            ],
+            "properties": {
+                "round_trip_cases": {
+                    "type": "array",
+                    "minItems": 9,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/roundTripCase" }
+                },
+                "surface_only_case_ids": { "$ref": "#/$defs/stringSet" },
+                "conversion_dispositions": {
+                    "type": "array",
+                    "minItems": 4,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/evidenceReference" }
+                },
+                "semantic_explanations": {
+                    "type": "array",
+                    "minItems": 4,
+                    "uniqueItems": true,
+                    "items": { "$ref": "#/$defs/evidenceReference" }
+                },
+                "no_match": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "source",
+                        "required_case_ids",
+                        "expected_dispositions"
+                    ],
+                    "properties": {
+                        "source": { "$ref": "#/$defs/path" },
+                        "required_case_ids": { "$ref": "#/$defs/stringSet" },
+                        "expected_dispositions": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                                "not_applicable",
+                                "proven",
+                                "likely",
+                                "unknown",
+                                "unavailable"
+                            ],
+                            "properties": {
+                                "not_applicable": {
+                                    "type": "integer",
+                                    "const": 1
+                                },
+                                "proven": { "type": "integer", "const": 7 },
+                                "likely": { "type": "integer", "const": 6 },
+                                "unknown": { "type": "integer", "const": 9 },
+                                "unavailable": { "type": "integer", "const": 1 }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "targetEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "source",
+                "evidence",
+                "profiles",
+                "required_case_ids",
+                "expected_applications",
+                "observation_count"
+            ],
+            "properties": {
+                "source": { "$ref": "#/$defs/path" },
+                "evidence": { "$ref": "#/$defs/path" },
+                "profiles": { "$ref": "#/$defs/stringSet" },
+                "required_case_ids": { "$ref": "#/$defs/stringSet" },
+                "expected_applications": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["execute", "unsupported", "not_applicable"],
+                    "properties": {
+                        "execute": { "const": 88 },
+                        "unsupported": { "const": 5 },
+                        "not_applicable": { "const": 7 }
+                    }
+                },
+                "observation_count": { "const": 100 }
+            }
+        },
+        "pathologicalCase": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "owner", "source_case", "expected"],
+            "properties": {
+                "id": { "type": "string", "pattern": "^pathological/" },
+                "owner": {
+                    "enum": ["bounded_no_match", "semantic_conversion"]
+                },
+                "source_case": { "type": "string", "minLength": 1 },
+                "expected": { "type": "string", "minLength": 1 }
+            }
+        },
+        "mutation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "category",
+                "detector",
+                "fixture",
+                "mutation",
+                "expected"
+            ],
+            "properties": {
+                "id": { "type": "string", "pattern": "^mutation/" },
+                "category": {
+                    "enum": [
+                        "capture_relationship",
+                        "branch_order",
+                        "repetition",
+                        "semantic_options",
+                        "source_authority",
+                        "explanation_evidence",
+                        "conversion_disposition",
+                        "authority_evidence"
+                    ]
+                },
+                "detector": {
+                    "enum": [
+                        "canonical_alpha_proof",
+                        "target_artifact_comparison",
+                        "semantic_explanation_contract",
+                        "no_match_contract",
+                        "semantic_conversion_contract",
+                        "certification_manifest"
+                    ]
+                },
+                "fixture": { "type": "string", "minLength": 1 },
+                "mutation": { "type": "string", "minLength": 1 },
+                "expected": { "const": "detected" }
+            }
+        },
+        "antiShrinkage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "round_trip_cases",
+                "round_trip_destination_proofs",
+                "surface_only_cases",
+                "conversion_cases",
+                "semantic_explanation_cases",
+                "no_match_cases",
+                "target_cases",
+                "target_observations",
+                "pathological_cases",
+                "mutation_categories",
+                "manifest_sha256"
+            ],
+            "properties": {
+                "round_trip_cases": { "const": 9 },
+                "round_trip_destination_proofs": { "const": 18 },
+                "surface_only_cases": { "const": 2 },
+                "conversion_cases": { "const": 4 },
+                "semantic_explanation_cases": { "const": 4 },
+                "no_match_cases": { "const": 24 },
+                "target_cases": { "const": 20 },
+                "target_observations": { "const": 100 },
+                "pathological_cases": { "const": 9 },
+                "mutation_categories": { "const": 8 },
+                "manifest_sha256": { "$ref": "#/$defs/sha256" }
+            }
+        }
+    }
+}
