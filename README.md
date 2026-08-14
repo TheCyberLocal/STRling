@@ -9,6 +9,12 @@ STRling is a compiler platform built around semantic pattern intent. It is not a
 set of seventeen independent regex libraries, cosmetic syntax for raw regex, a
 PCRE2 wrapper, a TypeScript-centric builder, or an editor-only tool.
 
+This repository is the engineering authority for the STRling language,
+specifications, canonical compiler, host integrations, and developer tooling.
+It is under active pre-release architectural migration: versioned contracts,
+draft specifications, implemented capability, and certified behavior are
+identified separately in the linked authority documents.
+
 ## Why STRling
 
 -   **Semantic authoring:** Describe matching intent through Semantic STRling or
@@ -125,3 +131,26 @@ versions, capability states, and structured output.
 The current versioned schemas keep their declared contract scopes. The
 [`STRling Semantic Specification 1.0 draft`](spec/drafts/1.0/README.md) is
 unratified and makes no current implementation-conformance claim.
+
+## Contributing, security, and support
+
+- Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before changing semantic behavior,
+  generated artifacts, public APIs, targets, or compatibility evidence.
+- Report suspected vulnerabilities privately according to
+  [`SECURITY.md`](SECURITY.md).
+- Use the organization [support and issue-routing guide](https://github.com/strling-lang/.github/blob/main/SUPPORT.md)
+  for implementation help and cross-repository questions.
+- Community participation is governed by the organization
+  [Code of Conduct](https://github.com/strling-lang/.github/blob/main/CODE_OF_CONDUCT.md).
+
+## Ecosystem and license
+
+- [`regex-conformance`](https://github.com/strling-lang/regex-conformance)
+  owns controlled regex-system observations and conformance evidence.
+- [`research-intelligence`](https://github.com/strling-lang/research-intelligence)
+  owns research synthesis and non-normative recommendations.
+- [`website`](https://github.com/strling-lang/website) owns the public web
+  product and user-facing documentation.
+
+STRling source and documentation are licensed under the
+[Apache License 2.0](LICENSE).

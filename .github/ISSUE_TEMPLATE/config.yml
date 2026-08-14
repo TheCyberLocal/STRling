@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-    - name: 🔐 Security Vulnerability
-      url: https://github.com/strling-lang/strling/blob/main/SECURITY.md
-      about: Please report ReDoS or compiler panics privately.
-    - name: 💬 Question / Support
-      url: https://github.com/strling-lang/strling/blob/main/README.md#support
-      about: Ask questions or discuss features.
+  - name: Security vulnerability
+    url: https://github.com/strling-lang/strling/security/policy
+    about: Report compiler, package, tooling, or supply-chain vulnerabilities privately.
+  - name: Support and issue routing
+    url: https://github.com/strling-lang/.github/blob/main/SUPPORT.md
+    about: Find help or route a question to the repository that owns it.

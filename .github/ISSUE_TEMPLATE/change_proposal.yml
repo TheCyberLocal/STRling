@@ -1,0 +1,48 @@
+name: Language or architecture proposal
+description: Propose a scoped semantic, compiler, target, API, tooling, or documentation change
+title: "[Proposal]: "
+body:
+  - type: dropdown
+    id: change_class
+    attributes:
+      label: Change class
+      multiple: true
+      options:
+        - Semantic behavior or source language
+        - Public API
+        - Schema or versioned contract
+        - Diagnostics or explanation
+        - Target behavior or profile
+        - Architecture or migration
+        - Generated or compatibility evidence
+        - Tooling or documentation
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and authority
+      description: Explain the need and identify the controlling specification, contract, architecture rule, or explicit gap.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Proposed outcome
+      description: Describe the intended behavior and distinguish host bindings from target profiles.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope, compatibility, and generated surfaces
+      description: Identify affected frontends, canonical model, targets, APIs, fixtures, packages, documentation, and migration concerns.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Acceptance and certification
+      description: State the focused tests, contract checks, compatibility evidence, and certification needed to establish completion.
+    validations:
+      required: true

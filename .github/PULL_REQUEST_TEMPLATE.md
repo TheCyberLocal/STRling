@@ -1,5 +1,8 @@
 ## Description
 
+Link the controlling issue, specification, contract, or decision and summarize
+the permanent repository outcome. Follow [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+
 ## Change classification
 
 -   [ ] Semantic behavior
@@ -67,3 +70,7 @@ source. It does not version the semantic specification.
         campaign.
 -   [ ] No runtime semantic change is claimed unless explicitly declared and
         versioned.
+-   [ ] I reviewed security implications and did not include credentials,
+        machine-local state, or unintended generated output.
+-   [ ] Suspected vulnerabilities are being handled privately under
+        [`SECURITY.md`](../SECURITY.md), not disclosed in this pull request.

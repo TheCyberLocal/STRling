@@ -2,6 +2,10 @@
 
 [← Back to Developer Hub](docs/index.md)
 
+The organization-wide
+[`contribution principles`](https://github.com/strling-lang/.github/blob/main/CONTRIBUTING.md)
+apply alongside this repository-specific guide.
+
 STRling is governed by the
 [`Engineering Constitution`](governance/ENGINEERING_CONSTITUTION.md),
 [`authority hierarchy`](governance/authority.md), and
@@ -69,3 +73,6 @@ converge on the canonical compiler rather than create another semantic island.
 -   [`Specification Versioning`](spec/VERSIONING.md)
 -   [`Canonical Terminology`](governance/terminology.md)
 -   [`Test Suite Guide`](tests/README.md)
+-   [`Security Policy`](SECURITY.md)
+-   [`Organization Support`](https://github.com/strling-lang/.github/blob/main/SUPPORT.md)
+-   [`Code of Conduct`](https://github.com/strling-lang/.github/blob/main/CODE_OF_CONDUCT.md)
