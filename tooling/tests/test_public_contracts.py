@@ -43,6 +43,7 @@ def rust_kernel_surface() -> dict[str, object]:
             "core/src/kernel.rs",
             "core/src/simply.rs",
             "core/src/explanation.rs",
+            "core/src/semantic_conversion.rs",
         ],
         "snapshot_path": "snapshots/kernel.json",
         "comparison": "symbol-signatures",
@@ -70,13 +71,23 @@ class PublicContractTests(unittest.TestCase):
             "pub mod kernel;\n"
             "pub mod simply;\n"
             "pub mod explanation;\n"
+            "pub mod semantic_conversion;\n"
             "pub use kernel::{compile, KernelCompileError, KernelStage};\n"
             "pub use simply::{SimplyBuilder, SimplyValue};\n",
             encoding="utf-8",
         )
         (source / "explanation.rs").write_text(
-            "pub fn explain_semantics() {}\n"
-            "pub fn explain_target() {}\n",
+            "pub fn explain_semantics() {}\npub fn explain_target() {}\n",
+            encoding="utf-8",
+        )
+        (source / "semantic_conversion.rs").write_text(
+            'pub const SEMANTIC_CONVERSION_VERSION: &str = "1.0.0";\n'
+            'pub const SEMANTIC_ALPHA_EQUIVALENCE_METHOD: &str = "alpha@1.0.0";\n'
+            "pub enum SemanticConversionDestination { SemanticStrling, SimplyBuilder }\n"
+            "pub enum SemanticConversionStatus { Exact, Partial, Unsupported }\n"
+            "pub struct SemanticConversionResult { pub status: SemanticConversionStatus, }\n"
+            "pub struct SemanticConversionErrors { pub errors: Vec<String>, }\n"
+            "pub fn convert_semantic_program() {}\n",
             encoding="utf-8",
         )
         (source / "simply.rs").write_text(
@@ -355,22 +366,30 @@ type Flags struct {
                 "enum:KernelCompileError",
                 "enum:KernelStage",
                 "fn:compile",
+                "fn:convert_semantic_program",
                 "fn:explain_semantics",
                 "fn:explain_target",
                 "module:explanation",
                 "module:kernel",
+                "module:semantic_conversion",
                 "module:simply",
                 "reexport:kernel",
                 "reexport:simply",
                 "const:SIMPLY_PROTOCOL_VERSION",
                 "enum:SimplyCharacterSetMember",
                 "enum:SimplyErrorCode",
+                "enum:SemanticConversionDestination",
+                "enum:SemanticConversionStatus",
                 "struct:SimplyBuilder",
                 "struct:SimplyCompileProjection",
                 "struct:SimplyError",
                 "struct:SimplyErrors",
                 "struct:SimplyOptions",
                 "struct:SimplyValue",
+                "struct:SemanticConversionErrors",
+                "struct:SemanticConversionResult",
+                "const:SEMANTIC_ALPHA_EQUIVALENCE_METHOD",
+                "const:SEMANTIC_CONVERSION_VERSION",
                 "method:SimplyBuilder::alternation",
                 "method:SimplyBuilder::atomic",
                 "method:SimplyBuilder::backreference",

@@ -55,15 +55,22 @@ class FrontendOrchestrationArchitectureTests(unittest.TestCase):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, binary.lower())
 
-    def test_frontend_dispatch_has_one_production_owner(self) -> None:
-        for call in ("regex_frontend::parse(", "semantic_frontend::parse("):
+    def test_frontend_dispatch_and_conversion_proof_have_explicit_owners(self) -> None:
+        expected = {
+            "regex_frontend::parse(": ["core/src/kernel.rs"],
+            "semantic_frontend::parse(": [
+                "core/src/kernel.rs",
+                "core/src/semantic_conversion.rs",
+            ],
+        }
+        for call, expected_owners in expected.items():
             owners = []
             for path in sorted((ROOT / "core/src").rglob("*.rs")):
                 source = path.read_text(encoding="utf-8")
                 if call in source:
                     owners.append(path.relative_to(ROOT).as_posix())
             with self.subTest(call=call):
-                self.assertEqual(owners, ["core/src/kernel.rs"])
+                self.assertEqual(owners, expected_owners)
 
     def test_frontend_module_cannot_lower_targets_or_emit_artifacts(self) -> None:
         for relative in ("core/src/regex_frontend.rs", "core/src/semantic_frontend.rs"):

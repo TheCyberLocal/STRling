@@ -240,12 +240,13 @@ def extract_rust_source_boundary(
     surface: Mapping[str, object], root: Path
 ) -> dict[str, object]:
     locations = surface["source_locations"]
-    assert isinstance(locations, list) and len(locations) == 4
+    assert isinstance(locations, list) and len(locations) == 5
     try:
         lib = (root / str(locations[0])).read_text(encoding="utf-8")
         kernel = (root / str(locations[1])).read_text(encoding="utf-8")
         simply = (root / str(locations[2])).read_text(encoding="utf-8")
         explanation = (root / str(locations[3])).read_text(encoding="utf-8")
+        semantic_conversion = (root / str(locations[4])).read_text(encoding="utf-8")
     except OSError as exc:
         raise ContractError(f"cannot read Rust kernel boundary source: {exc}") from exc
 
@@ -256,6 +257,8 @@ def extract_rust_source_boundary(
         symbols["module:simply"] = "pub mod simply;"
     if re.search(r"(?m)^pub mod explanation;\s*$", lib):
         symbols["module:explanation"] = "pub mod explanation;"
+    if re.search(r"(?m)^pub mod semantic_conversion;\s*$", lib):
+        symbols["module:semantic_conversion"] = "pub mod semantic_conversion;"
     reexport = re.search(r"pub use kernel::\{([^}]+)\};", lib, re.DOTALL)
     if reexport is not None:
         symbols["reexport:kernel"] = canonical_space(reexport.group(0))
@@ -263,13 +266,13 @@ def extract_rust_source_boundary(
     if reexport is not None:
         symbols["reexport:simply"] = canonical_space(reexport.group(0))
 
-    for source in (kernel, simply, explanation):
+    for source in (kernel, simply, explanation, semantic_conversion):
         for match in re.finditer(
             r"(?m)^pub const ([A-Z][A-Z0-9_]*):\s*([^;]+);\s*$", source
         ):
             symbols[f"const:{match.group(1)}"] = canonical_space(match.group(0))
 
-    for source in (kernel, simply, explanation):
+    for source in (kernel, simply, explanation, semantic_conversion):
         for match in re.finditer(
             r"(?m)^pub enum ([A-Za-z_][A-Za-z0-9_]*)\s*\{", source
         ):
@@ -281,12 +284,11 @@ def extract_rust_source_boundary(
 
     symbols.update(_rust_public_structs(simply))
     symbols.update(_rust_public_structs(explanation))
+    symbols.update(_rust_public_structs(semantic_conversion))
     symbols.update(_rust_public_methods(simply))
 
-    for source in (kernel, explanation):
-        for match in re.finditer(
-            r"(?m)^pub fn ([A-Za-z_][A-Za-z0-9_]*)\s*\(", source
-        ):
+    for source in (kernel, explanation, semantic_conversion):
+        for match in re.finditer(r"(?m)^pub fn ([A-Za-z_][A-Za-z0-9_]*)\s*\(", source):
             opening = source.find("{", match.end())
             if opening < 0:
                 raise ContractError(
@@ -300,19 +302,25 @@ def extract_rust_source_boundary(
         "module:kernel",
         "module:simply",
         "module:explanation",
+        "module:semantic_conversion",
         "reexport:kernel",
         "reexport:simply",
         "enum:KernelCompileError",
         "enum:KernelStage",
         "enum:SimplyCharacterSetMember",
         "enum:SimplyErrorCode",
+        "enum:SemanticConversionDestination",
+        "enum:SemanticConversionStatus",
         "struct:SimplyBuilder",
         "struct:SimplyCompileProjection",
         "struct:SimplyError",
         "struct:SimplyErrors",
         "struct:SimplyOptions",
         "struct:SimplyValue",
+        "struct:SemanticConversionErrors",
+        "struct:SemanticConversionResult",
         "fn:compile",
+        "fn:convert_semantic_program",
         "fn:explain_semantics",
         "fn:explain_target",
         "method:SimplyBuilder::new",
@@ -335,6 +343,8 @@ def extract_rust_source_boundary(
         "method:SimplyBuilder::finish_request",
         "method:SimplyErrorCode::as_str",
         "method:SimplyValue::step_id",
+        "const:SEMANTIC_ALPHA_EQUIVALENCE_METHOD",
+        "const:SEMANTIC_CONVERSION_VERSION",
     }
     missing = sorted(required - set(symbols))
     if missing:

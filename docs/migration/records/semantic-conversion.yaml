@@ -35,6 +35,9 @@ scope:
         - tooling/tests/test_core_contracts.py
         - tooling/tests/test_generated_artifacts.py
         - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_frontend_orchestration_architecture.py
+        - tooling/tests/test_regex_frontend_architecture.py
+        - tooling/tests/test_semantic_frontend_architecture.py
         - tooling/tests/test_semantic_conversion_contract.py
     forbidden_paths:
         - bindings/**
@@ -78,6 +81,9 @@ scope:
         - docs/migration/semantic-conversion.md
         - docs/migration/records/semantic-conversion.yaml
         - governance/change-control.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
         - spec/README.md
         - spec/conversions/README.md
         - spec/conversions/semantic/1.0/README.md
@@ -93,12 +99,19 @@ scope:
         - tooling/contract_validation.py
         - tooling/core_contract_validation.py
         - tooling/core_stage_boundaries.py
+        - tooling/migration_differential_baseline.json
+        - tooling/public_contracts.py
         - tooling/semantic_conversion_contract.py
         - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_frontend_orchestration_architecture.py
+        - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_regex_frontend_architecture.py
+        - tooling/tests/test_semantic_frontend_architecture.py
         - tooling/tests/test_semantic_conversion_contract.py
     permitted_generated_changes:
         - public-contract-snapshots
-    expected_generated_outputs: []
+    expected_generated_outputs:
+        - public-contract-snapshots
     required_verification_levels:
         - contract
         - unit
@@ -135,9 +148,10 @@ change_classification:
         evidence:
             - CP2 establishes a specification-owned, contract-first conversion boundary. CP3 implements it as a pure canonical-IR projection subordinate to existing Semantic STRling and Simply reconstruction frontends, adds enforced source-boundary checks, and does not depend on regex import, target planning/lowering/emission, bindings, filesystems, processes, or product UX.
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 changes no registered generated artifact or public snapshot.
+            - CP1 through CP3 changed no registered generated artifact or public snapshot.
+            - CP4 registers semantic_conversion.rs as an authoritative strling-kernel public-contract input, extends the governed Rust source-boundary extractor, and regenerates only governance/contracts/snapshots/strling-kernel.json with the additive conversion API.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -185,6 +199,15 @@ checkpoints:
             result: passed
             details: Core contract mapping and 24 focused architecture tests pass; the enforced boundary requires validation, both canonical reconstruction routes, alpha proof, explanation correspondence, and canonical hashing while rejecting regex, target implementation, process/filesystem, raw-source, emitted-pattern, and whyNoMatch dependencies. Rust all-target check and rustfmt pass. Strict Clippy reports only the same four inherited out-of-scope warnings recorded by P15-T01 in kernel.rs, protocol/request.rs, simply.rs, and source/mod.rs; an isolated all-target run suppressing exactly those four inherited lints passes with warnings denied for the new conversion code.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Imported frontend convergence and representative engine execution
+            result: passed
+            details: The imported regex (?<word>a)\\k<word> parses once to canonical Semantic IR, converts with exact proof to both Semantic STRling and direct-operation Simply, reconstructs through each existing frontend, and lowers all three programs against the governed ECMAScript 2024 profile. Every route produces the same native pattern (?<word>a)(?:\\k<word>), sorted u flag, and engine options; a live Node execution accepts aa and rejects ab. Node and capture identities and source maps remain provenance-specific and are intentionally excluded from semantic artifact comparison.
+          - check: Additive public contract and generated ownership
+            result: passed
+            details: The public-surface registry and generated-artifact registry now name semantic_conversion.rs as authoritative strling-kernel input. The governed extractor and its 19 focused tests cover the new boundary, and generator output adds exactly 30 public symbols (two constants, 14 enums, 12 structs, one function, and one module) to the kernel snapshot. Direct registered-wrapper execution is unavailable because this Windows runner has no /bin/bash; the wrapper's exact Python generator entrypoint regenerates only strling-kernel, whose focused generation and check both pass. Aggregate generated/public checks pass every executable surface except the inherited missing-Go go-public-api check.
+          - check: Migration differential and repository certification
+            result: passed
+            details: The reviewed three-run migration differential passes with zero determinism mismatches. All 44 historical cases, peer corpus/result identities, route coverage, contract fingerprint, and source-observation fingerprint remain unchanged; only the intentionally expanded canonical-boundary fingerprint advances to sha256:9c64b5f5437c63d737d48fccca930ed2d5ec01b9658ff6e4e68f9d0a2e17d848 and derived baseline to sha256:9c60f062dabd3cc4c9c77dfd23f996823753382edf8bee49a7f7552d39a31471. All Rust targets and 600 tooling tests pass. Strict Clippy retains only the four inherited P15-T01 warnings, and an all-target run suppressing exactly those four passes with warnings denied elsewhere. Local and Pull Request each pass 10 executable operations and fail only the two aggregate views of missing Go; Full passes 11 operations and additionally records inherited security-waiver/license drift. After activating the installed MSVC environment, shared-cross-engine and stdlib runtime projection build successfully and report structured unavailable solely because exact PCRE2 10.42/10.43 libraries are not configured; the focused ECMAScript execution required by this task passes.
 commits: []
