@@ -1,0 +1,126 @@
+record_version: 2.0.0
+title: Migration and explanation behavior certification
+status: in_progress
+objective: Certify regex import, canonical semantic explanation, Semantic STRling and Simply conversion, bounded no-match evidence, and representative target behavior as one deterministic, mutation-resistant, resource-bounded subsystem without adding product semantics.
+scope:
+    diff:
+        base: 75b8c2b0b2ebe6a311d90ef74cc04c1efd556dbe
+        head: working-tree
+    allowed_paths:
+        - core/tests/migration_explanation_certification.rs
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/migration-explanation-certification.md
+        - docs/migration/records/migration-explanation-certification.yaml
+        - governance/change-control.json
+        - tests/certification/migration-explanation/**
+        - toolchain.json
+        - tooling/migration_explanation_certification.py
+        - tooling/tests/test_migration_explanation_certification.py
+        - tooling/tests/test_profile_certification.py
+        - tooling/tests/test_quality.py
+    forbidden_paths:
+        - bindings/**
+        - core/cli/**
+        - core/src/**
+        - governance/contracts/snapshots/**
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - packages/**
+        - spec/contracts/**
+        - spec/conversions/**
+        - spec/explanations/**
+        - spec/frontends/**
+        - spec/stdlib/**
+        - spec/targets/**
+        - tests/conformance/evidence/**
+        - tests/convergence/**
+        - tests/spec/**
+        - tests/target/**
+        - tooling/legacy_reference/**
+        - tooling/lsp-server/**
+        - tooling/node_regexp_harness.mjs
+        - tooling/pcre2_feature_probe.py
+        - tooling/python_re_harness.py
+    expected_files:
+        - docs/migration/migration-explanation-certification.md
+        - docs/migration/records/migration-explanation-certification.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Certification observes existing canonical semantics and must route any difference back to its owning versioned contract or implementation layer.
+    public_api_change:
+        level: none
+        evidence:
+            - The task adds only test and repository-certification surfaces; production Rust and binding APIs are read-only.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - CP1 defines a future non-normative certification-manifest schema under tests but adds no formal schema in this checkpoint.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Existing compiler, conversion, explanation, and no-match diagnostic or reason vocabularies are immutable certification inputs.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Target profiles, planning, lowering, serialization, and observations are compared but cannot be changed by the certification harness.
+    architecture_change:
+        level: none
+        evidence:
+            - CP1 records a future offline repository hardgate without changing toolchain membership or production dependencies.
+    generated_output_change:
+        level: none
+        evidence:
+            - The task owns no generated artifact and CP1 changes no generated output.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Certification manifest and mutation contract
+      command: python3 -m tooling.migration_explanation_certification --check && python3 -m unittest tooling.tests.test_migration_explanation_certification
+      expected_result: The versioned non-normative manifest locks every required source identity, count, fingerprint, coverage class, mutation category, pathological case, and resource expectation and rejects shrinkage, staleness, authority changes, and altered evidence.
+    - name: End-to-end canonical round-trip and explanation proof
+      command: cargo test --manifest-path core/Cargo.toml --test migration_explanation_certification --locked
+      expected_result: Regex-compatible imports produce canonical explanations, exact conversions reconstruct alpha-equivalent Semantic IR through Semantic STRling and Simply, partial/unsupported states retain their evidence, bounded no-match remains conservative, and controlled semantic mutations are detected.
+    - name: Owning-layer and target evidence regression
+      command: python3 tooling/frontend_convergence.py --check && python3 -m tooling.explanation_contract && python3 -m tooling.semantic_conversion_contract && python3 -m tooling.no_match_explanation_contract && python3 -m tooling.shared_cross_engine_corpus --verify-evidence && cargo test --manifest-path core/Cargo.toml --all-targets --locked
+      expected_result: Every locked denominator and all adjacent Rust tests pass without changing an owning contract, accepted runtime observation, target profile, or production implementation.
+    - name: Repository and campaign certification
+      command: python3 tooling/migration_differential.py --repeat-runs 3 && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/governance.py && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
+      expected_result: The new hardgate participates in all canonical profiles; migration, architecture, public/generated/docs/security, patch integrity, and clean-tree checks pass or retain only explicitly recorded inherited environment limitations.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Clean phase-closing boundary and immutable owning layers
+            result: passed
+            details: P15-T04 begins on clean architecture/v4 closure 75b8c2b0b2ebe6a311d90ef74cc04c1efd556dbe. Existing regex import, semantic explanation, canonical conversion, bounded no-match, target evidence, and migration-differential identities are frozen as read-only denominators. Production core, bindings, packages, normative contracts, target evidence, and historical runners are prohibited change paths.
+          - check: Certification pipeline, mutation inventory, and hardgate scope
+            result: passed
+            details: The non-normative manifest identity, exact import-to-reconstruction pipeline, alpha-equivalence retention rules, exact/partial/unsupported policy, eight required mutation categories, pathological/resource expectations, offline profile hardgate, allowed paths, rollback boundary, and Local/PR/Full acceptance profile are locked before fixture or harness implementation.
+          - check: CP1 governance and documentation gate
+            result: passed
+            details: Governance validates the exact three-file scope-lock diff and change declarations; focused authority validators reproduce the accepted frontend, explanation, conversion, and no-match denominators; documentation formatting and git diff checks pass. No schema, corpus, test harness, toolchain membership, semantic behavior, public API, generated output, target behavior, binding, package, or product feature is changed.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+commits: []
