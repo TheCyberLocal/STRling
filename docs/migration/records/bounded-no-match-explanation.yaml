@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Bounded no-match explanation
-status: in_progress
+status: complete
 objective: Define and implement one deterministic, versioned no-match explanation result over canonical Semantic IR, exact structured explanation evidence, an explicit search subject, and optional completed target context, with conservative proven, likely, unknown, and unavailable dispositions under hard resource limits.
 scope:
     diff:
@@ -215,6 +215,15 @@ checkpoints:
           - check: Repository profile and inherited-environment disposition
             result: failed
             details: Rust all-target tests pass. Strict Clippy reports only the four inherited untouched-file classes already recorded in kernel.rs, protocol/request.rs, simply.rs, and source/mod.rs; allowing exactly those four yields a clean all-target result. Local and Pull Request each pass 10 repository hardgates and Full passes 11, including canonical/core contracts, governance, legacy comparison, migration differential, and Full portability-matrix certification. Aggregate profile results are Local 10 passed/2 failed/14 unavailable, Pull Request 10/2/34, and Full 11/5/68 because the image lacks Go and multiple optional binding/runtime toolchains, exposes a broken Windows Store python3 alias, and has Node 24 where the repository requires Node 22. Full fresh security/cross-engine/stdlib runtime operations therefore remain environment carry-forward; governed checked-in cross-engine and stdlib evidence verify independently and no task-specific failure is hidden.
+    - name: Completion and next-task readiness
+      status: passed
+      evidence:
+          - check: Durable bounded-explanation acceptance record
+            result: passed
+            details: strling.no-match-explanation 1.0.0 closes with seven hard ceilings (16 KiB subject bytes, 4096 subject scalars, 100000 logical steps, depth 128, 4096 branch expansions, 32 findings, and 250 ms elapsed), 27 ordered reason codes, and a 17-program/24-case corpus containing matched=1, proven=7, likely=6, unknown=9, and unavailable=1. The contract fingerprint is sha256:62dbff6a46849292eb277a18ecdcdddb3c71dbd0319b90689840515bd1204876. Subject text is never serialized, exact semantic/explanation correspondence is mandatory, and every unsupported semantic, budget, or target state remains UNKNOWN or UNAVAILABLE.
+          - check: Ordered P15-T04 handoff
+            result: passed
+            details: P15-T04 may compose the now-complete import, structured explanation, canonical Semantic STRling/Simply conversion, and bounded no-match contracts into a phase-wide certification corpus. It must prove normalized Semantic IR equivalence for every exact migration, retain stable explanation evidence and conservative UNKNOWN behavior, classify every difference in its owning layer, and add no new product semantics or engine-internal trace claims.
 commits:
     - sha: 3f52931e853f26985dde2b1892c78cb4ba9618b3
       subject: "docs(no-match): lock bounded explanation scope"
@@ -222,3 +231,37 @@ commits:
       subject: "feat(no-match): define bounded evidence contract"
     - sha: e6943bc7fb7eb8014b695b03a5c1ae6b2c77d5de
       subject: "feat(no-match): implement bounded canonical evaluator"
+    - sha: f1f20d5481b89acfab97eb38ad4e17795b458e1c
+      subject: "test(no-match): certify target and public integration"
+completion:
+    accomplished:
+        - Established strling.no-match-explanation 1.0.0 as a closed reusable result with matched/no_match/unknown/unavailable outcomes, proven/likely/unknown/unavailable explanation dispositions, stable reason codes, source and subject coordinates, optional completed target context, and structured errors.
+        - Implemented one deterministic bounded evaluator over validated canonical Semantic IR and its exact structured semantic explanation, without frontend, lowering, emitted-pattern, runtime-engine, binding, or product dependencies.
+        - Covered literals, wildcard, ASCII classes, input/line/word anchors, alternation, repetition, supported lookaround, captures/backreferences, Unicode scalars, target uncertainty, multiple blockers, and all seven resource guards while preserving conservative UNKNOWN and UNAVAILABLE results.
+        - Registered the additive public Rust kernel surface, proved four-frontend alpha convergence, and cross-checked representative canonical outcomes against governed execution evidence for five target profiles.
+    verified:
+        - The contract passes one schema, five exact positive documents, five controlled-invalid documents, 27 reasons, 17 programs, and 24 cases with fingerprint sha256:62dbff6a46849292eb277a18ecdcdddb3c71dbd0319b90689840515bd1204876; outcome/disposition totals are matched=1, proven=7, likely=6, unknown=9, unavailable=1.
+        - Five evaluator tests, one four-frontend convergence test, two bounded property tests, and one target crosscheck pass; the property grid performs 119 deterministic evaluations and the target check compares 67 supported subjects plus one unsupported plan against pinned ECMAScript, PCRE2, and Python re evidence.
+        - All Rust targets, 63 focused CP4 Python tests plus 123 subtests, the selected strling-kernel public snapshot, canonical/core contracts at mappings=11/fixtures=122, governed evidence verification, Ruff, rustfmt, authored-input Prettier, governance, architecture, and patch integrity pass.
+        - The renewed three-run migration differential passes with 44 unchanged observations, zero determinism mismatches, canonical boundary sha256:e4404ccc937c38c7bf676b4682e5cb16d1956ecbb91dc15e7a4e4c3364ca5811, baseline sha256:83edceb883623274bf2d6fa8cc2022765fd0a75fe21e5cc738c22817910e71da, result sha256:95a9fd66f04d19d66ee7378cf71b4897a99ea44163be7b33b992aedd7bf2baed, and unchanged full-corpus sha256:feedb6435b8b61ae6a004484feca0f0b23b6e578234f8ffc8daeca9eb0f04300.
+    behavior_changed: The Rust kernel gains an additive typed bounded no-match explanation API and governed public snapshot. Compiler acceptance, canonical semantics, diagnostics, target planning/lowering/serialization, runtime behavior, bindings, packages, and existing protocol shapes do not change.
+    intentional_behavior_changes:
+        - Search-mode evaluation can now return bounded structured evidence for a supplied subject, but proven results require complete supported canonical evaluation and any reached proof-affecting limit downgrades the result to UNKNOWN.
+        - Unsupported or unresolved completed target plans return UNAVAILABLE with explicit target evidence; target-native semantics and unsupported Unicode-property evaluation never become regex-shape approximations.
+        - The enforced public kernel snapshot and generated-artifact ownership registry now include the no_match_explanation module as a canonical input.
+    preserved_behavior:
+        - Canonical Semantic IR remains the sole semantic authority; Simply, Semantic STRling, and imported regex routes converge before evaluation and cannot independently define matching meaning.
+        - Subject bytes are used only for bounded evaluation and digest/length identity; raw subject text is never serialized into the explanation result.
+        - The evaluator does not claim exhaustive target-engine backtracking history, does not turn likely evidence into proof, and does not silently strengthen lexical or uncertain behavior into semantic correctness.
+    transitional_architecture:
+        - Repository-wide public-contract and generated-artifact checks remain host-limited by absent Go/go doc; the selected strling-kernel generator and check pass.
+        - "Exact profile toolchains are not installed on this workstation: Go and several binding runtimes are absent, the Windows Store python3 alias is broken, and installed Node 24 does not satisfy the governed Node 22 range. Local, Pull Request, and Full were executed with exact aggregate results recorded in CP4 rather than reported as green."
+        - Full fresh dependency-risk, shared-cross-engine, and stdlib-runtime operations retain inherited host/toolchain failures; the governed checked-in cross-engine and stdlib evidence verify independently. Four pre-existing warning-denied Clippy findings remain outside task scope, while this change is warning-free when those exact findings are isolated.
+    deferred_work:
+        - P15-T04 owns phase-wide round-trip, equivalence, mutation, pathological, explanation, no-match, and cross-engine certification and must route any discovered semantic defect back to its owning layer.
+        - Product Evaluate/Regex Lab UI, debugger controls, localization, CLI/LSP commands, binding adapters, and engine-internal trace narratives remain outside this reusable core contract.
+        - The owning quality/toolchain campaign must restore Go extraction, governed Node/Python/runtime versions, optional binding toolchains, fresh runtime certification, and inherited security/Clippy baselines.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Begin P15-T04 — Certify migration and explanation behavior.
+    rationale: Every task-owned contract, implementation, property, frontend convergence, representative target crosscheck, architecture, selected public/generated surface, migration, documentation, and patch-integrity requirement passes. Remaining aggregate profile gaps are inherited host/toolchain availability with exact direct task evidence, so P15-T04 can begin without weakening no-match conservatism or reopening canonical semantics.
