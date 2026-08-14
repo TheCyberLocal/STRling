@@ -1,0 +1,222 @@
+{
+    "contract": {
+        "$defs": {
+            "CompileRequest": {
+                "$ref": "https://strling.dev/contracts/1.0/compile-request.schema.json"
+            },
+            "CompileResult": {
+                "$ref": "https://strling.dev/contracts/1.0/compile-result.schema.json"
+            },
+            "ConversionResult": {
+                "$ref": "https://strling.dev/conversions/semantic/1.0/conversion-result.schema.json"
+            },
+            "ExplainCompileFailed": {
+                "additionalProperties": false,
+                "properties": {
+                    "cli_contract_version": {
+                        "const": "1.0.0"
+                    },
+                    "command": {
+                        "const": "explain"
+                    },
+                    "compile_request": {
+                        "$ref": "#/$defs/CompileRequest"
+                    },
+                    "compile_result": {
+                        "$ref": "#/$defs/CompileResult"
+                    },
+                    "status": {
+                        "const": "compile_failed"
+                    }
+                },
+                "required": [
+                    "cli_contract_version",
+                    "command",
+                    "status",
+                    "compile_request",
+                    "compile_result"
+                ],
+                "type": "object"
+            },
+            "ExplainCompleted": {
+                "additionalProperties": false,
+                "properties": {
+                    "cli_contract_version": {
+                        "const": "1.0.0"
+                    },
+                    "command": {
+                        "const": "explain"
+                    },
+                    "compile_request": {
+                        "$ref": "#/$defs/CompileRequest"
+                    },
+                    "compile_result": {
+                        "$ref": "#/$defs/CompileResult"
+                    },
+                    "explanation": {
+                        "$ref": "#/$defs/Explanation"
+                    },
+                    "no_match": {
+                        "$ref": "#/$defs/NoMatchExplanation"
+                    },
+                    "status": {
+                        "const": "completed"
+                    }
+                },
+                "required": [
+                    "cli_contract_version",
+                    "command",
+                    "status",
+                    "compile_request",
+                    "compile_result",
+                    "explanation"
+                ],
+                "type": "object"
+            },
+            "Explanation": {
+                "$ref": "https://strling.dev/explanations/semantic/1.0/explanation.schema.json"
+            },
+            "MigrateCompileFailed": {
+                "additionalProperties": false,
+                "properties": {
+                    "cli_contract_version": {
+                        "const": "1.0.0"
+                    },
+                    "command": {
+                        "const": "migrate"
+                    },
+                    "compile_request": {
+                        "$ref": "#/$defs/CompileRequest"
+                    },
+                    "compile_result": {
+                        "$ref": "#/$defs/CompileResult"
+                    },
+                    "status": {
+                        "const": "compile_failed"
+                    }
+                },
+                "required": [
+                    "cli_contract_version",
+                    "command",
+                    "status",
+                    "compile_request",
+                    "compile_result"
+                ],
+                "type": "object"
+            },
+            "MigrateCompleted": {
+                "additionalProperties": false,
+                "properties": {
+                    "cli_contract_version": {
+                        "const": "1.0.0"
+                    },
+                    "command": {
+                        "const": "migrate"
+                    },
+                    "compile_request": {
+                        "$ref": "#/$defs/CompileRequest"
+                    },
+                    "compile_result": {
+                        "$ref": "#/$defs/CompileResult"
+                    },
+                    "conversion": {
+                        "$ref": "#/$defs/ConversionResult"
+                    },
+                    "status": {
+                        "const": "completed"
+                    }
+                },
+                "required": [
+                    "cli_contract_version",
+                    "command",
+                    "status",
+                    "compile_request",
+                    "compile_result",
+                    "conversion"
+                ],
+                "type": "object"
+            },
+            "NoMatchExplanation": {
+                "$ref": "https://strling.dev/explanations/no-match/1.0/no-match-explanation.schema.json"
+            },
+            "TargetInspect": {
+                "additionalProperties": false,
+                "properties": {
+                    "cli_contract_version": {
+                        "const": "1.0.0"
+                    },
+                    "command": {
+                        "const": "target.inspect"
+                    },
+                    "profile": {
+                        "$ref": "#/$defs/TargetProfile"
+                    },
+                    "profile_reference": {
+                        "$ref": "#/$defs/TargetProfileReference"
+                    }
+                },
+                "required": [
+                    "cli_contract_version",
+                    "command",
+                    "profile_reference",
+                    "profile"
+                ],
+                "type": "object"
+            },
+            "TargetList": {
+                "additionalProperties": false,
+                "properties": {
+                    "cli_contract_version": {
+                        "const": "1.0.0"
+                    },
+                    "command": {
+                        "const": "target.list"
+                    },
+                    "profiles": {
+                        "items": {
+                            "$ref": "#/$defs/TargetProfileReference"
+                        },
+                        "maxItems": 64,
+                        "minItems": 1,
+                        "type": "array"
+                    }
+                },
+                "required": ["cli_contract_version", "command", "profiles"],
+                "type": "object"
+            },
+            "TargetProfile": {
+                "$ref": "https://strling.dev/contracts/1.0/target-profile.schema.json"
+            },
+            "TargetProfileReference": {
+                "$ref": "https://strling.dev/contracts/1.0/portability.schema.json#/$defs/TargetProfileReference"
+            }
+        },
+        "$id": "https://strling.dev/cli/1.0/cli-response.schema.json",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "Closed transport envelopes for CLI operations that are not already represented directly by CompileResult or the Simply adapter response.",
+        "oneOf": [
+            {
+                "$ref": "#/$defs/ExplainCompleted"
+            },
+            {
+                "$ref": "#/$defs/ExplainCompileFailed"
+            },
+            {
+                "$ref": "#/$defs/MigrateCompleted"
+            },
+            {
+                "$ref": "#/$defs/MigrateCompileFailed"
+            },
+            {
+                "$ref": "#/$defs/TargetList"
+            },
+            {
+                "$ref": "#/$defs/TargetInspect"
+            }
+        ],
+        "title": "STRling CLI response contract 1.0"
+    },
+    "format": "json-schema",
+    "snapshot_version": 1,
+    "surface": "schema-cli"
+}

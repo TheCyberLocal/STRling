@@ -387,26 +387,64 @@ def shell_function(text: str, name: str) -> str:
     return "\n".join(body)
 
 
-def extract_cli(surface: Mapping[str, object], root: Path) -> dict[str, object]:
-    locations = surface["source_locations"]
-    assert isinstance(locations, list) and len(locations) == 1
-    path = root / str(locations[0])
-    try:
-        body = shell_function(path.read_text(encoding="utf-8"), "print_help")
-    except OSError as exc:
-        raise ContractError(f"cannot read CLI source {path}: {exc}") from exc
-    command_rows: dict[str, str] = {}
-    for match in re.finditer(r'^\s*echo\s+"  ([a-z][^"\n]+)"\s*$', body, re.MULTILINE):
+def powershell_function(text: str, name: str) -> str:
+    match = re.search(rf"(?m)^function\s+{re.escape(name)}\s*\{{\s*$", text)
+    if not match:
+        raise ContractError(f"PowerShell function {name} was not found")
+    lines = text[match.end() :].splitlines()
+    body: list[str] = []
+    depth = 1
+    for line in lines:
+        depth += line.count("{") - line.count("}")
+        if depth <= 0:
+            break
+        body.append(line)
+    if depth != 0:
+        raise ContractError(f"PowerShell function {name} is not balanced")
+    return "\n".join(body)
+
+
+def cli_command_rows(body: str, pattern: str) -> dict[str, str]:
+    rows: dict[str, set[str]] = {}
+    for match in re.finditer(pattern, body, re.MULTILINE):
         row = canonical_space(match.group(1))
         if row.startswith(("./", "-")):
             continue
         command = row.split(maxsplit=1)[0]
         if command == "_run-configured":
             continue
-        command_rows[command] = row
-    if not command_rows or "help" not in command_rows:
+        rows.setdefault(command, set()).add(row)
+    return {
+        command: " | ".join(sorted(overloads))
+        for command, overloads in sorted(rows.items())
+    }
+
+
+def extract_cli(surface: Mapping[str, object], root: Path) -> dict[str, object]:
+    locations = surface["source_locations"]
+    assert isinstance(locations, list) and len(locations) == 2
+    posix_path = root / str(locations[0])
+    powershell_path = root / str(locations[1])
+    try:
+        posix_body = shell_function(
+            posix_path.read_text(encoding="utf-8"), "print_help"
+        )
+        powershell_body = powershell_function(
+            powershell_path.read_text(encoding="utf-8"), "Show-Help"
+        )
+    except OSError as exc:
+        raise ContractError(f"cannot read CLI wrapper source: {exc}") from exc
+    posix_rows = cli_command_rows(
+        posix_body, r'^\s*echo\s+"  ([a-z][^"\n]+)"\s*$'
+    )
+    powershell_rows = cli_command_rows(
+        powershell_body, r'^\s*Write-Host\s+"  ([a-z][^"\n]+)"\s*$'
+    )
+    if posix_rows != powershell_rows:
+        raise ContractError("POSIX and PowerShell CLI help command rows diverge")
+    if not posix_rows or "help" not in posix_rows:
         raise ContractError("CLI help command rows could not be extracted")
-    return snapshot(str(surface["id"]), "cli-commands", command_rows)
+    return snapshot(str(surface["id"]), "cli-commands", posix_rows)
 
 
 def extract_json_schema(surface: Mapping[str, object], root: Path) -> dict[str, object]:

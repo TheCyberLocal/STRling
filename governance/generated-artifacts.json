@@ -23,7 +23,9 @@
                 "spec/schema/base.schema.json",
                 "spec/schema/conformance-fixture.schema.json",
                 "spec/schema/pcre2.v1.schema.json",
-                "strling"
+                "spec/cli/1.0/cli-response.schema.json",
+                "strling",
+                "strling.ps1"
             ],
             "generator_inputs": [
                 "governance/public-surfaces.json",
@@ -43,7 +45,9 @@
                 "bindings/typescript/package.json",
                 "bindings/typescript/src/**",
                 "spec/schema/*.json",
-                "strling"
+                "spec/cli/1.0/cli-response.schema.json",
+                "strling",
+                "strling.ps1"
             ],
             "generator": {
                 "implementation_paths": [
@@ -60,6 +64,7 @@
                 "governance/contracts/snapshots/strling-kernel.json",
                 "governance/contracts/snapshots/r-public-api.json",
                 "governance/contracts/snapshots/root-cli.json",
+                "governance/contracts/snapshots/schema-cli.json",
                 "governance/contracts/snapshots/schema-conformance-fixture.json",
                 "governance/contracts/snapshots/schema-pcre2-target.json",
                 "governance/contracts/snapshots/schema-target-artifact.json",

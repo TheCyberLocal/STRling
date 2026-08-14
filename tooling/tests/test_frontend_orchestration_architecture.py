@@ -8,29 +8,49 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class FrontendOrchestrationArchitectureTests(unittest.TestCase):
-    def test_root_cli_is_only_a_rust_kernel_transport(self) -> None:
+    def test_root_clis_are_only_rust_kernel_transports(self) -> None:
         root_cli = (ROOT / "strling").read_text(encoding="utf-8")
-        start = root_cli.index('if [[ "${1:-}" == "compile" ]]')
-        end = root_cli.index("\nfi", start) + len("\nfi")
-        compile_route = root_cli[start:end]
+        powershell_cli = (ROOT / "strling.ps1").read_text(encoding="utf-8")
+        posix_route = root_cli[
+            root_cli.index("PRODUCT_COMMAND=false") : root_cli.index(
+                'if ! command -v python3', root_cli.index("PRODUCT_COMMAND=false")
+            )
+        ]
+        powershell_route = powershell_cli[
+            powershell_cli.index("$ProductCommand =") : powershell_cli.index(
+                "$QualityCommands =", powershell_cli.index("$ProductCommand =")
+            )
+        ]
 
-        self.assertIn("cargo run", compile_route)
-        self.assertIn("--bin strling-kernel", compile_route)
-        for forbidden in (
-            "python",
-            "node",
-            "typescript",
-            "regex_frontend",
-            "semantic_frontend",
-            "strling.regex-compat",
-            "strling.semantic",
-            "%flags",
-            "parse",
-            "target lowering",
-            "emit",
-        ):
-            with self.subTest(forbidden=forbidden):
-                self.assertNotIn(forbidden, compile_route.lower())
+        for route in (posix_route, powershell_route):
+            with self.subTest(wrapper="powershell" if "$Product" in route else "posix"):
+                self.assertIn("cargo", route.lower())
+                self.assertIn("strling-kernel", route)
+                self.assertIn("--input", route)
+                self.assertIn("--request", route)
+                for command in (
+                    "compile",
+                    "import",
+                    "explain",
+                    "migrate",
+                    "simply",
+                    "target",
+                    "check",
+                ):
+                    self.assertIn(command, route)
+                for forbidden in (
+                    "python",
+                    "node",
+                    "typescript",
+                    "regex_frontend",
+                    "semantic_frontend",
+                    "strling.regex-compat",
+                    "strling.semantic",
+                    "%flags",
+                    "target lowering",
+                    "emit",
+                ):
+                    self.assertNotIn(forbidden, route.lower())
 
     def test_rust_cli_decodes_contracts_and_calls_only_the_public_facade(self) -> None:
         binary = (ROOT / "core/cli/strling-kernel.rs").read_text(encoding="utf-8")
@@ -47,7 +67,12 @@ class FrontendOrchestrationArchitectureTests(unittest.TestCase):
             "scan_regex",
             "compile_semantic_diagnostics",
             "compile_semantic_portability",
-            "target_artifact",
+            "lower_pcre2",
+            "lower_ecmascript",
+            "lower_python_re",
+            "serialize_pcre2",
+            "serialize_ecmascript",
+            "serialize_python_re",
             "emitters",
             "bindings",
             "std::net",

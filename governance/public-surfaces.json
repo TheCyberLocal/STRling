@@ -611,7 +611,7 @@
             "ecosystem": "POSIX shell CLI",
             "component": "repository",
             "kind": "cli",
-            "source_locations": ["strling"],
+            "source_locations": ["strling", "strling.ps1"],
             "extraction": {
                 "mechanism": "cli-help-parser",
                 "command": [
@@ -621,7 +621,8 @@
                     "root-cli"
                 ],
                 "normalization": [
-                    "parse command usage rows from print_help",
+                    "parse command usage rows from POSIX print_help and PowerShell Show-Help",
+                    "require exact normalized wrapper help parity",
                     "exclude environment-dependent binding readiness output",
                     "sort command names"
                 ],
@@ -635,6 +636,33 @@
             "comparison": "cli-command-set",
             "enforcement": "enforced",
             "activation_condition": "Activate after help-source parsing, command option, addition, removal, private-command, and malformed-help tests pass."
+        },
+        {
+            "id": "schema-cli",
+            "ecosystem": "JSON Schema 2020-12",
+            "component": "spec",
+            "kind": "schema",
+            "source_locations": ["spec/cli/1.0/cli-response.schema.json"],
+            "extraction": {
+                "mechanism": "json-schema",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "schema-cli"
+                ],
+                "normalization": [
+                    "parse JSON and sort object keys recursively"
+                ],
+                "exclusions": [
+                    "none; composed canonical contract references are retained"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/schema-cli.json",
+            "authority": "versioned-contract",
+            "comparison": "json-schema-structure",
+            "enforcement": "enforced",
+            "activation_condition": "Active with the strling.cli 1.0 closed response alternatives and mutation corpus."
         },
         {
             "id": "schema-conformance-fixture",

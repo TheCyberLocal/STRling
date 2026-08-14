@@ -11,6 +11,7 @@ from tooling.public_contracts import (
     compare_schema_value,
     declaration_units,
     extract_c_header,
+    extract_cli,
     extract_rust_source_boundary,
     extract_typescript,
     load_registry,
@@ -64,6 +65,39 @@ class PublicContractTests(unittest.TestCase):
 
     def write_header(self, text: str) -> None:
         (self.root / "include/api.h").write_text(text, encoding="utf-8")
+
+    def write_cli_wrappers(self, posix_row: str, powershell_row: str) -> None:
+        (self.root / "strling").write_text(
+            'print_help() {\n    echo "  ' + posix_row + '"\n}\n',
+            encoding="utf-8",
+        )
+        (self.root / "strling.ps1").write_text(
+            'function Show-Help {\n    Write-Host "  '
+            + powershell_row
+            + '"\n}\n',
+            encoding="utf-8",
+        )
+
+    @staticmethod
+    def cli_surface() -> dict[str, object]:
+        return {
+            "id": "test-root-cli",
+            "component": "repository",
+            "source_locations": ["strling", "strling.ps1"],
+            "snapshot_path": "snapshots/cli.json",
+            "comparison": "cli-command-set",
+            "enforcement": "enforced",
+            "extraction": {"mechanism": "cli-help-parser"},
+        }
+
+    def test_cli_extraction_requires_posix_powershell_parity(self) -> None:
+        self.write_cli_wrappers("help Show help", "help Show help")
+        result = extract_cli(self.cli_surface(), self.root)
+        self.assertEqual(result["symbols"], {"help": "help Show help"})
+
+        self.write_cli_wrappers("help Show help", "help Different help")
+        with self.assertRaisesRegex(ContractError, "help command rows diverge"):
+            extract_cli(self.cli_surface(), self.root)
 
     def write_kernel(self, profile_type: str = "Option<&TargetProfile>") -> None:
         source = self.root / "core/src"

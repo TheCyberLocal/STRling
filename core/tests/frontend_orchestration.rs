@@ -403,7 +403,19 @@ fn cli_help_and_malformed_contract_use_stable_transport_semantics() {
         .output()
         .expect("run CLI help");
     assert_eq!(help.status.code(), Some(0));
-    assert!(String::from_utf8_lossy(&help.stdout).contains("Usage: strling compile"));
+    assert!(String::from_utf8_lossy(&help.stdout).contains("Usage: strling <command>"));
+    for command in [
+        "compile",
+        "import",
+        "explain",
+        "migrate",
+        "check",
+        "target list",
+        "target inspect",
+        "simply",
+    ] {
+        assert!(String::from_utf8_lossy(&help.stdout).contains(command));
+    }
     assert!(help.stderr.is_empty());
 
     let mut child = Command::new(env!("CARGO_BIN_EXE_strling-kernel"))

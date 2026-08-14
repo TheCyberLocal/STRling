@@ -122,15 +122,30 @@ scope:
         - spec/cli/1.0/cli-response.schema.json
         - core/src/kernel.rs
         - core/src/lib.rs
+        - core/cli/strling-kernel.rs
+        - core/tests/canonical_cli.rs
         - core/tests/compiler_boundary.rs
+        - core/tests/frontend_orchestration.rs
         - core/tests/simply_compile_through.rs
         - core/tests/target_artifact_orchestration.rs
+        - governance/contracts/snapshots/root-cli.json
+        - governance/contracts/snapshots/schema-cli.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/generated-artifacts.json
+        - governance/public-surfaces.json
+        - strling
+        - strling.ps1
         - tests/cli/1.0/manifest.json
         - tests/cli/1.0/manifest.schema.json
         - tooling/canonical_cli_contract.py
+        - tooling/public_contracts.py
         - tooling/tests/test_canonical_cli_contract.py
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+        - tooling/tests/test_frontend_orchestration_architecture.py
+        - tooling/tests/test_public_contracts.py
+    permitted_generated_changes:
+        - public-contract-snapshots
+    expected_generated_outputs:
+        - public-contract-snapshots
     required_verification_levels:
         - contract
         - unit
@@ -146,10 +161,11 @@ change_classification:
     public_api_change:
         level: additive
         evidence:
-            - CP2 adds the independent strling.cli 1.0 response contract; CP3 adds a KernelCompileOutput projection and compile_with_evidence facade while preserving the existing compile signature and byte-equivalent CompileResult value.
+            - CP2 adds the independent strling.cli 1.0 response contract; CP3 adds a KernelCompileOutput projection and compile_with_evidence facade while preserving the existing compile signature and byte-equivalent CompileResult value, and adds the coherent root product command tree without changing binding APIs.
         affected_surfaces:
             - schema-cli
             - strling-kernel
+            - root-cli
     schema_change:
         level: additive
         evidence:
@@ -167,11 +183,11 @@ change_classification:
     architecture_change:
         level: additive
         evidence:
-            - CP2 adds a versioned CLI transport-contract island and offline validation corpus; CP3 exposes same-execution explanation evidence and composes existing target backends inside the canonical kernel facade without adding a semantic oracle.
+            - CP2 adds a versioned CLI transport-contract island and offline validation corpus; CP3 exposes same-execution explanation evidence, composes existing target backends inside the canonical kernel facade, and routes POSIX/PowerShell product commands through that facade without adding a semantic oracle.
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 changes no registered generated artifact.
+            - Registered generation adds the strling.cli schema snapshot and refreshes the additive Rust kernel and root CLI snapshots from their declared sources; generated files are not edited manually.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -216,8 +232,20 @@ checkpoints:
             details: >-
                 The offline validator composes six positive response alternatives from existing canonical request/result, explanation, no-match, conversion, and target-profile examples rather than copying semantic values. Six controlled mutations covering wrong version/tag, missing required evidence, illegal evidence on compile failure, and unknown fields are rejected. Ten focused tests cover denominator shrinkage, duplicate identities, missing coverage, profile-fingerprint drift, schema positives/negatives, and privacy boundaries. The suite fingerprint is sha256:b28e6d10d278b60a0690d784bac2af930f130736b4bf95257b439e4f5bbeb8e2.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical kernel target and evidence composition
+            result: passed
+            details: >-
+                Commit 2d4bb71aff5fbdc822e5bc84014ff033668c3e4b composes the existing certified PCRE2, ECMAScript, and Python re lowerer/serializer paths for TargetArtifact requests and exposes the explanation produced by the same stage execution. All five authored profiles equal their direct backend artifacts; repeated evidence is deterministic; compile() remains result-identical; unsupported targets remain explicit without fabricated output.
+          - check: Canonical command transport and safety
+            result: passed
+            details: >-
+                The Rust binary implements compile, import, explain, migrate, semantic check, target list/inspect, and retained Simply/raw-request forms. Eleven executable CLI tests cover direct request/result and artifact parity, deterministic source provenance, imported provenance, subject privacy, exact migration, failed-output absence, create-new output refusal, canonical output-option ordering, five-profile inspection, exits 2/64/69/74, human diagnostic streams, and retired legacy option rejection. Existing frontend and Simply transport suites remain green.
+          - check: Wrapper, architecture, and generated public surfaces
+            result: passed
+            details: >-
+                Static architecture tests prove both wrappers dispatch the same product commands only to strling-kernel and keep quality check deterministic; live PowerShell target-list dispatch exits 0. Root CLI, strling-kernel, and new schema-cli snapshots are generator-produced and their individual checks pass. Aggregate POSIX-wrapper verification is deferred to CP4 because this Windows host rejects Bash/WSL instance creation; no contract drift is hidden by that host limitation.
     - name: Integration and certification
       status: planned
       evidence: []
@@ -229,3 +257,5 @@ commits:
       subject: "docs(cli): lock canonical transport scope"
     - sha: dc9ed99019ffb510b0a4b9be5ddcd3369155c9f2
       subject: "spec(cli): define canonical transport contract"
+    - sha: 2d4bb71aff5fbdc822e5bc84014ff033668c3e4b
+      subject: "feat(kernel): project certified target artifacts"

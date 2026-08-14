@@ -284,29 +284,69 @@ function Show-Bindings {
 }
 
 function Show-Help {
-    Write-Host "Usage: .\strling.ps1 <command> <language>"
+    Write-Host "Usage: .\strling.ps1 <command> [language|all] [options]"
     Write-Host ""
     Write-Host "Commands:"
+    Write-Host "  format [--check] [lang|all]  Run or verify configured formatters"
+    Write-Host "  lint [lang|all]              Run configured static analyzers"
+    Write-Host "  hygiene                      Validate tracked repository artifacts"
+    Write-Host "  generate [--check] [--json]  Regenerate or verify registered artifacts"
+    Write-Host "  governance [--json]          Validate task scope and architecture rules"
+    Write-Host "  contracts [--check] [--json] Regenerate or verify public contracts"
+    Write-Host "  compile [options]           Compile a canonical request or Semantic STRling source"
+    Write-Host "  import --input PATH|-       Import regex-compatible source into canonical semantics"
+    Write-Host "  explain --input|--request   Return semantic and optional no-match evidence"
+    Write-Host "  migrate --input|--request   Convert canonical semantics to Semantic STRling or Simply"
+    Write-Host "  check --input|--request     Check source through canonical compiler diagnostics"
+    Write-Host "  target list|inspect         List or inspect exact target profiles"
+    Write-Host "  simply [options]            Compile a Simply BuilderRequest through the canonical kernel"
+    Write-Host "  legacy-reference [options]   Run isolated historical reference observations"
+    Write-Host "  migration-differential [options]  Gate the complete migration corpus"
+    Write-Host "  typecheck [lang|all]         Run configured type/static analysis"
     Write-Host "  setup <lang|all>      Install prerequisites and dependencies"
     Write-Host "  build <lang|all>      Build a binding if it has a build step"
     Write-Host "  test <lang|all>       Run tests for one binding or all bindings"
+    Write-Host "  check [lang|all]      Run the fast quality aggregate"
+    Write-Host "  certify [lang|all]    Run the current certification aggregate"
+    Write-Host "  profile <local|pull-request|full|release> [lang|all]  Run a certification profile"
+    Write-Host "  environment [lang|all]  Validate declared tool versions"
     Write-Host "  bootstrap <lang|all>  Run setup, build, and test in sequence"
     Write-Host "  clean <lang|all>      Clean artifacts"
-    Write-Host "  format, hygiene, lint, typecheck, build, test [lang|all]"
-    Write-Host "  check, certify [lang|all]"
-    Write-Host "  profile <local|pull-request|full|release> [lang|all]"
-    Write-Host "  environment [lang|all]"
-    Write-Host "  generate [--check]    Regenerate or verify registered artifacts"
-    Write-Host "  governance [--json]   Validate task scope and architecture rules"
-    Write-Host "  contracts [--check]   Regenerate or verify public contracts"
-    Write-Host "  legacy-reference [options] Run isolated historical reference observations"
     Write-Host "  audit                 Run the final audit report generator"
-    Write-Host "  cache-dir <lang>      Print cache directory path"
-    Write-Host "  lockfile <lang>       Print cache key lockfile"
+    Write-Host "  cache-dir <lang>      Print cache directory path (for CI)"
+    Write-Host "  lockfile <lang>       Print lockfile name (for CI)"
     Write-Host "  list                  List all bindings and tool status"
-    Write-Host "  help                  Show this help text"
+    Write-Host "  help                  Show this help message"
     Write-Host ""
     Show-Bindings
+}
+
+$ProductCommand = @("compile", "import", "explain", "migrate", "simply", "target") -contains $Command
+$SemanticCheck = $Command -eq "check" -and (
+    @("--input", "--request") -contains $Language -or
+    ($Options | Where-Object { @("--input", "--request") -contains $_ }).Count -gt 0
+)
+if ($ProductCommand -or $SemanticCheck) {
+    $cargoCommand = Resolve-CommandName "cargo"
+    if (-not $cargoCommand) {
+        Write-Error "Cargo is required to run the canonical compiler."
+        exit 69
+    }
+    $productArguments = @($Command)
+    if ($Language) {
+        $productArguments += $Language
+    }
+    if ($Options) {
+        $productArguments += $Options
+    }
+    Push-Location $PSScriptRoot
+    try {
+        & $cargoCommand run --quiet --manifest-path "core/Cargo.toml" --bin strling-kernel -- @productArguments
+        exit $LASTEXITCODE
+    }
+    finally {
+        Pop-Location
+    }
 }
 
 $QualityCommands = @(
@@ -435,6 +475,28 @@ switch ($Command) {
         Push-Location $PSScriptRoot
         try {
             & $pythonCommand "tooling/legacy_reference/launch.py" @referenceArguments
+            exit $LASTEXITCODE
+        }
+        finally {
+            Pop-Location
+        }
+    }
+    "migration-differential" {
+        $pythonCommand = Resolve-CommandName "python3"
+        if (-not $pythonCommand) {
+            Write-Error "Python is required to run migration differential certification."
+            exit 1
+        }
+        $differentialArguments = @()
+        if ($Language) {
+            $differentialArguments += $Language
+        }
+        if ($Options) {
+            $differentialArguments += $Options
+        }
+        Push-Location $PSScriptRoot
+        try {
+            & $pythonCommand "tooling/migration_differential.py" @differentialArguments
             exit $LASTEXITCODE
         }
         finally {

@@ -372,7 +372,7 @@ fn compile_semantic_request(
                 })?;
             result.diagnostics.extend(output.portability_diagnostics);
             match artifact {
-                ArtifactProjection::Produced(value) => result.artifact = Some(value),
+                ArtifactProjection::Produced(value) => result.artifact = Some(*value),
                 ArtifactProjection::Unsupported => result.diagnostics.push(diagnostic(
                     request.contract_version,
                     TARGET_ARTIFACT_UNAVAILABLE_DIAGNOSTIC,
@@ -448,7 +448,7 @@ fn compile_semantic_request(
 
 enum ArtifactProjection {
     NotRequested,
-    Produced(TargetArtifact),
+    Produced(Box<TargetArtifact>),
     Unsupported,
     Incomplete,
     BackendUnavailable,
@@ -503,7 +503,7 @@ fn project_target_artifact(
         }
         _ => return Ok(ArtifactProjection::BackendUnavailable),
     };
-    Ok(ArtifactProjection::Produced(artifact))
+    Ok(ArtifactProjection::Produced(Box::new(artifact)))
 }
 
 #[derive(Debug)]

@@ -13,22 +13,28 @@ MIGRATION_DIFFERENTIAL_RUNNER="$DIR/tooling/migration_differential.py"
 BASELINE_RUNNER="$DIR/tooling/baseline.py"
 KERNEL_MANIFEST="$DIR/core/Cargo.toml"
 
-if [[ "${1:-}" == "compile" ]]; then
-    if ! command -v cargo >/dev/null 2>&1; then
-        echo "Error: cargo is required to run the canonical compiler." >&2
-        exit 69
-    fi
-    cd "$DIR" || exit 74
-    exec cargo run --quiet --manifest-path "$KERNEL_MANIFEST" --bin strling-kernel -- "${@:2}"
-fi
+PRODUCT_COMMAND=false
+case "${1:-}" in
+    compile|import|explain|migrate|simply|target)
+        PRODUCT_COMMAND=true
+        ;;
+    check)
+        for argument in "${@:2}"; do
+            if [[ "$argument" == "--input" || "$argument" == "--request" ]]; then
+                PRODUCT_COMMAND=true
+                break
+            fi
+        done
+        ;;
+esac
 
-if [[ "${1:-}" == "simply" ]]; then
+if [[ "$PRODUCT_COMMAND" == "true" ]]; then
     if ! command -v cargo >/dev/null 2>&1; then
         echo "Error: cargo is required to run the canonical compiler." >&2
         exit 69
     fi
     cd "$DIR" || exit 74
-    exec cargo run --quiet --manifest-path "$KERNEL_MANIFEST" --bin strling-kernel -- --simply "${@:2}"
+    exec cargo run --quiet --manifest-path "$KERNEL_MANIFEST" --bin strling-kernel -- "$@"
 fi
 
 if ! command -v python3 >/dev/null 2>&1; then
@@ -425,8 +431,13 @@ print_help() {
     echo "  generate [--check] [--json]  Regenerate or verify registered artifacts"
     echo "  governance [--json]          Validate task scope and architecture rules"
     echo "  contracts [--check] [--json] Regenerate or verify public contracts"
-    echo "  compile [--target-profile PATH]  Compile canonical request JSON from standard input"
-    echo "  simply [--target-profile PATH]  Compile Simply BuilderRequest JSON through the canonical kernel"
+    echo "  compile [options]           Compile a canonical request or Semantic STRling source"
+    echo "  import --input PATH|-       Import regex-compatible source into canonical semantics"
+    echo "  explain --input|--request   Return semantic and optional no-match evidence"
+    echo "  migrate --input|--request   Convert canonical semantics to Semantic STRling or Simply"
+    echo "  check --input|--request     Check source through canonical compiler diagnostics"
+    echo "  target list|inspect         List or inspect exact target profiles"
+    echo "  simply [options]            Compile a Simply BuilderRequest through the canonical kernel"
     echo "  legacy-reference [options]   Run isolated historical reference observations"
     echo "  migration-differential [options]  Gate the complete migration corpus"
     echo "  typecheck [lang|all]         Run configured type/static analysis"
