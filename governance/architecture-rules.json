@@ -233,7 +233,7 @@
         },
         {
             "id": "lsp-python-binding-semantic-dependency",
-            "description": "Deferred editor features and host-island extraction still reach the transitional Python binding; diagnostics and hover have migrated to the canonical compiler.",
+            "description": "Deferred formatting/code-action support and host-island extraction still reach the transitional Python binding; canonical editor evidence does not.",
             "status": "transitional",
             "kind": "forbidden-import",
             "configuration": {
@@ -241,13 +241,12 @@
                     "tooling/lsp-server/island_extractor.py",
                     "tooling/lsp-server/server/island_extractor.py",
                     "tooling/lsp-server/server/deferred_intelligence.py",
-                    "tooling/lsp-server/tests/test_navigation.py",
                     "tooling/lsp-server/tests/test_code_actions.py"
                 ],
                 "forbidden_modules": ["STRling"]
             },
-            "rationale": "P16-T02 removed the binding semantic dependency from diagnostics, hover, lifecycle evidence, and exhaustive frontend diagnostics. P16-T03 owns completion/navigation/tokens and P16-T04 owns code actions; island extraction remains a bounded coordinate adapter until those tasks retire the final binding imports.",
-            "retirement_condition": "Route the remaining deferred editor features and island extraction through canonical evidence, remove every direct STRling binding import from tooling, and promote the whole LSP boundary to enforced."
+            "rationale": "P16-T02 removed the binding semantic dependency from diagnostics and hover. P16-T03 removed it from completion, navigation, semantic tokens, symbols, and references. P16-T04 owns formatting/code actions; island extraction remains a bounded coordinate adapter until those tasks retire the final binding imports.",
+            "retirement_condition": "Route formatting, code actions, and island extraction through canonical evidence, remove every direct STRling binding import from tooling, and promote the whole LSP boundary to enforced."
         },
         {
             "id": "lsp-canonical-diagnostics-hover-boundary",
@@ -265,6 +264,24 @@
                     "tooling/lsp-server/tests/test_lsp_lifecycle.py",
                     "tooling/lsp-server/tests/test_lsp_server.py",
                     "tooling/lsp-server/tests/test_parser_exhaustive.py"
+                ],
+                "forbidden_modules": ["STRling"]
+            }
+        },
+        {
+            "id": "lsp-canonical-editor-intelligence-boundary",
+            "description": "Completion, navigation, symbols, references, semantic tokens, and their closed evidence must not import the transitional Python binding.",
+            "status": "enforced",
+            "kind": "forbidden-import",
+            "configuration": {
+                "sources": [
+                    "tooling/lsp-server/server/canonical_intelligence.py",
+                    "tooling/lsp-server/server/server.py",
+                    "tooling/lsp-server/tests/canonical_intelligence_evidence.py",
+                    "tooling/lsp-server/tests/test_canonical_intelligence.py",
+                    "tooling/lsp-server/tests/test_completion.py",
+                    "tooling/lsp-server/tests/test_navigation.py",
+                    "tooling/lsp-server/tests/test_semantic_tokens.py"
                 ],
                 "forbidden_modules": ["STRling"]
             }

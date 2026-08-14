@@ -5,13 +5,17 @@
 //! direct lowering into canonical Semantic IR. It deliberately has no target,
 //! emitter, binding, filesystem, environment, or legacy-runtime dependency.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::fmt;
 
 use crate::diagnostic::{
     CompilerPhase, Diagnostic, DiagnosticCategory, DiagnosticCode, DiagnosticOccurrence,
     RelatedLocation, RelatedLocationRole, Severity, SeverityBasis,
+};
+use crate::editor_intelligence::{
+    EditorCaptureLink, EditorCompletion, EditorCompletionTier, EditorParseStatus, EditorSpan,
+    EditorSymbol, EditorToken, EditorTokenType, FrontendEditorEvidence,
 };
 use crate::semantic::{
     AssertionPolarity, BuiltinClassName, CaseMatching, CharacterDomain, CharacterSetMember,
@@ -409,6 +413,9 @@ pub struct ParsedRegex {
     pub flags: RegexFrontendFlags,
     pub flags_directive: Option<SourceSpan>,
     pub program: SemanticProgram,
+    body_start: usize,
+    capture_declarations: Vec<RegexCaptureDeclaration>,
+    references: Vec<RegexReference>,
 }
 
 /// Parse one resolved inline SourceDocument under the frozen frontend contract.
@@ -449,6 +456,8 @@ pub fn parse(document: &SourceDocument) -> Result<ParsedRegex, RegexFrontendFail
     let syntax = parser.parse().map_err(|error| {
         RegexFrontendFailure::Diagnostic(Box::new(error.attach(document, text)))
     })?;
+    let capture_declarations = parser.capture_declarations.clone();
+    let references = parser.references.clone();
     let root = Lowerer::new(
         flags.dot_matches_line_terminators,
         document.source_id.clone(),
@@ -477,7 +486,550 @@ pub fn parse(document: &SourceDocument) -> Result<ParsedRegex, RegexFrontendFail
         flags,
         flags_directive,
         program,
+        body_start,
+        capture_declarations,
+        references,
     })
+}
+
+pub(crate) fn project_editor(
+    document: &SourceDocument,
+    text: &str,
+    cursor_byte: Option<usize>,
+) -> FrontendEditorEvidence {
+    let parsed = parse(document).ok();
+    let parser_state = regex_parser_state(text);
+    let captures = parsed.as_ref().map_or_else(Vec::new, regex_capture_links);
+    let symbols = parsed.as_ref().map_or_else(Vec::new, |parsed| {
+        vec![regex_symbol(&parsed.program.root, parsed)]
+    });
+    let tokens = parsed
+        .as_ref()
+        .map_or_else(Vec::new, |parsed| regex_editor_tokens(text, parsed));
+    let (completions, replacement_span) = cursor_byte.map_or_else(
+        || (Vec::new(), None),
+        |cursor| regex_completions(text, cursor, parser_state.as_ref()),
+    );
+    FrontendEditorEvidence {
+        parse_status: if parsed.is_some() {
+            EditorParseStatus::Complete
+        } else {
+            EditorParseStatus::Incomplete
+        },
+        tokens,
+        symbols,
+        captures,
+        completions,
+        replacement_span,
+    }
+}
+
+fn regex_parser_state(text: &str) -> Option<Parser<'_>> {
+    let preamble = parse_preamble(text).ok()?;
+    let mut parser = Parser::new(text, preamble.body_start, preamble.flags);
+    let _ = parser.parse();
+    Some(parser)
+}
+
+fn regex_capture_id(index: usize) -> String {
+    format!("capture:regex-compat/{index:05}")
+}
+
+fn regex_capture_links(parsed: &ParsedRegex) -> Vec<EditorCaptureLink> {
+    let mut references: BTreeMap<usize, Vec<EditorSpan>> = BTreeMap::new();
+    for reference in &parsed.references {
+        references
+            .entry(reference.index)
+            .or_default()
+            .push(EditorSpan::new(reference.span.0, reference.span.1));
+    }
+    parsed
+        .capture_declarations
+        .iter()
+        .map(|declaration| EditorCaptureLink {
+            capture_id: regex_capture_id(declaration.index),
+            name: declaration.name.clone(),
+            declaration: EditorSpan::new(declaration.span.0, declaration.span.1),
+            references: references.remove(&declaration.index).unwrap_or_default(),
+        })
+        .collect()
+}
+
+fn regex_symbol(node: &Node, parsed: &ParsedRegex) -> EditorSymbol {
+    let span = regex_origin_span(node);
+    let (kind, name, capture_id, children) = match node {
+        Node::Empty { .. } => ("empty", "empty".to_owned(), None, Vec::new()),
+        Node::Sequence { items, .. } => (
+            "sequence",
+            "sequence".to_owned(),
+            None,
+            items
+                .iter()
+                .map(|child| regex_symbol(child, parsed))
+                .collect(),
+        ),
+        Node::Alternation { branches, .. } => (
+            "alternation",
+            "alternation".to_owned(),
+            None,
+            branches
+                .iter()
+                .map(|child| regex_symbol(child, parsed))
+                .collect(),
+        ),
+        Node::Literal { .. } => ("literal", "literal".to_owned(), None, Vec::new()),
+        Node::Wildcard { .. } => ("wildcard", "wildcard".to_owned(), None, Vec::new()),
+        Node::CharacterSet { .. } => (
+            "character_set",
+            "character set".to_owned(),
+            None,
+            Vec::new(),
+        ),
+        Node::Repeat { body, .. } => (
+            "repeat",
+            "repeat".to_owned(),
+            None,
+            vec![regex_symbol(body, parsed)],
+        ),
+        Node::Position { .. } => ("position", "position".to_owned(), None, Vec::new()),
+        Node::Capture {
+            capture_id,
+            name,
+            body,
+            ..
+        } => (
+            "capture",
+            name.clone()
+                .unwrap_or_else(|| capture_id.as_str().to_owned()),
+            Some(capture_id.as_str().to_owned()),
+            vec![regex_symbol(body, parsed)],
+        ),
+        Node::Backreference { capture_id, .. } => (
+            "backreference",
+            capture_id.as_str().to_owned(),
+            Some(capture_id.as_str().to_owned()),
+            Vec::new(),
+        ),
+        Node::Lookaround { body, .. } => (
+            "lookaround",
+            "lookaround".to_owned(),
+            None,
+            vec![regex_symbol(body, parsed)],
+        ),
+        Node::Atomic { body, .. } => (
+            "atomic",
+            "atomic".to_owned(),
+            None,
+            vec![regex_symbol(body, parsed)],
+        ),
+    };
+    let selection_span = match node {
+        Node::Capture { capture_id, .. } => parsed
+            .capture_declarations
+            .iter()
+            .find(|declaration| regex_capture_id(declaration.index) == capture_id.as_str())
+            .map_or(span, |declaration| {
+                EditorSpan::new(declaration.span.0, declaration.span.1)
+            }),
+        Node::Backreference { capture_id, .. } => parsed
+            .references
+            .iter()
+            .find(|reference| {
+                regex_capture_id(reference.index) == capture_id.as_str()
+                    && span.start <= reference.span.0
+                    && reference.span.1 <= span.end
+            })
+            .map_or(span, |reference| {
+                EditorSpan::new(reference.span.0, reference.span.1)
+            }),
+        _ => span,
+    };
+    EditorSymbol {
+        node_id: node.node_id().as_str().to_owned(),
+        kind: kind.to_owned(),
+        name,
+        span,
+        selection_span,
+        capture_id,
+        children,
+    }
+}
+
+fn regex_origin_span(node: &Node) -> EditorSpan {
+    node.origin()
+        .and_then(|origin| origin.source_spans.as_ref())
+        .and_then(|spans| spans.first())
+        .map_or(EditorSpan::new(0, 0), |span| {
+            EditorSpan::new(span.start as usize, span.end as usize)
+        })
+}
+
+fn regex_completions(
+    text: &str,
+    cursor: usize,
+    parser: Option<&Parser<'_>>,
+) -> (Vec<EditorCompletion>, Option<EditorSpan>) {
+    let (start, end) = regex_replacement_span(text, cursor);
+    let prefix = &text[start..cursor];
+    let before_line = &text[..cursor];
+    let line_start = before_line.rfind(['\n', '\r']).map_or(0, |index| index + 1);
+    let line_prefix = &text[line_start..cursor];
+    let trimmed_line = line_prefix.trim_start_matches([' ', '\t']);
+    let mut labels: Vec<(String, EditorCompletionTier, String)> = Vec::new();
+    if trimmed_line.starts_with("%flags") {
+        let flag_content = trimmed_line
+            .strip_prefix("%flags")
+            .expect("checked flags prefix");
+        let used: BTreeSet<char> = flag_content
+            .chars()
+            .filter(|character| {
+                matches!(character.to_ascii_lowercase(), 'i' | 'm' | 's' | 'u' | 'x')
+            })
+            .map(|character| character.to_ascii_lowercase())
+            .collect();
+        labels.extend(
+            ['i', 'm', 's', 'u', 'x']
+                .into_iter()
+                .filter(|letter| !used.contains(letter) || prefix == letter.to_string())
+                .map(|letter| {
+                    (
+                        letter.to_string(),
+                        EditorCompletionTier::ParserExpectedTerminal,
+                        "Regex-compatible %flags letter".to_owned(),
+                    )
+                }),
+        );
+    } else if text[..cursor].trim().is_empty() {
+        labels.push((
+            "%flags".to_owned(),
+            EditorCompletionTier::ParserExpectedTerminal,
+            "Regex-compatible preamble directive".to_owned(),
+        ));
+    } else if start >= 3 && &text[start - 3..start] == "\\k<" {
+        if let Some(parser) = parser {
+            labels.extend(
+                parser
+                    .capture_declarations
+                    .iter()
+                    .filter(|declaration| declaration.span.1 <= cursor)
+                    .filter_map(|declaration| declaration.name.as_ref())
+                    .map(|name| {
+                        (
+                            name.clone(),
+                            EditorCompletionTier::CanonicalCaptureIdentity,
+                            "Canonical named capture declared before this reference".to_owned(),
+                        )
+                    }),
+            );
+        }
+    } else if start > 0 && text.as_bytes()[start - 1] == b'\\' {
+        if let Some(parser) = parser {
+            labels.extend(
+                parser
+                    .capture_declarations
+                    .iter()
+                    .filter(|declaration| declaration.span.1 <= cursor)
+                    .map(|declaration| {
+                        (
+                            declaration.index.to_string(),
+                            EditorCompletionTier::CanonicalCaptureIdentity,
+                            "Canonical numeric capture declared before this reference".to_owned(),
+                        )
+                    }),
+            );
+        }
+    }
+    let completions = labels
+        .into_iter()
+        .filter(|(label, _, _)| label.starts_with(prefix))
+        .map(|(label, tier, detail)| EditorCompletion {
+            identity: match tier {
+                EditorCompletionTier::ParserExpectedTerminal => {
+                    format!("regex-terminal:{label}")
+                }
+                EditorCompletionTier::CanonicalCaptureIdentity => {
+                    format!("regex-capture:{label}")
+                }
+            },
+            label,
+            tier,
+            detail,
+        })
+        .collect();
+    (completions, Some(EditorSpan::new(start, end)))
+}
+
+fn regex_replacement_span(text: &str, cursor: usize) -> (usize, usize) {
+    let bytes = text.as_bytes();
+    let is_word = |byte: u8| byte.is_ascii_alphanumeric() || byte == b'_';
+    let mut start = cursor;
+    while start > 0 && is_word(bytes[start - 1]) {
+        start -= 1;
+    }
+    let mut end = cursor;
+    while end < bytes.len() && is_word(bytes[end]) {
+        end += 1;
+    }
+    (start, end)
+}
+
+fn regex_editor_tokens(text: &str, parsed: &ParsedRegex) -> Vec<EditorToken> {
+    let declarations: BTreeMap<usize, &RegexCaptureDeclaration> = parsed
+        .capture_declarations
+        .iter()
+        .map(|declaration| (declaration.span.0, declaration))
+        .collect();
+    let references: BTreeMap<usize, &RegexReference> = parsed
+        .references
+        .iter()
+        .map(|reference| (reference.span.0, reference))
+        .collect();
+    let mut tokens = Vec::new();
+    regex_preamble_tokens(text, parsed.body_start, &mut tokens);
+    let mut position = parsed.body_start;
+    while position < text.len() {
+        let character = text[position..]
+            .chars()
+            .next()
+            .expect("position is a character boundary");
+        if character == '\r' || character == '\n' {
+            position += character.len_utf8();
+            continue;
+        }
+        if parsed.flags.extended_layout && matches!(character, ' ' | '\t') {
+            position += 1;
+            continue;
+        }
+        if parsed.flags.extended_layout && character == '#' {
+            let end = text[position..]
+                .find(['\r', '\n'])
+                .map_or(text.len(), |offset| position + offset);
+            push_regex_token(&mut tokens, position, end, EditorTokenType::Comment);
+            position = end;
+            continue;
+        }
+        if text[position..].starts_with("(?<")
+            && !text[position..].starts_with("(?<=")
+            && !text[position..].starts_with("(?<!")
+        {
+            push_regex_token(
+                &mut tokens,
+                position,
+                position + 3,
+                EditorTokenType::Operator,
+            );
+            if let Some(declaration) = declarations.get(&(position + 3)) {
+                push_regex_token(
+                    &mut tokens,
+                    declaration.span.0,
+                    declaration.span.1,
+                    EditorTokenType::Function,
+                );
+                position = declaration.span.1;
+                continue;
+            }
+        }
+        if text[position..].starts_with("\\k<") {
+            push_regex_token(
+                &mut tokens,
+                position,
+                position + 3,
+                EditorTokenType::Operator,
+            );
+            if let Some(reference) = references.get(&(position + 3)) {
+                push_regex_token(
+                    &mut tokens,
+                    reference.span.0,
+                    reference.span.1,
+                    EditorTokenType::Variable,
+                );
+                position = reference.span.1;
+                continue;
+            }
+        }
+        if character == '[' {
+            push_regex_token(
+                &mut tokens,
+                position,
+                position + 1,
+                EditorTokenType::Operator,
+            );
+            let content_start = position + 1;
+            let mut end = content_start;
+            let mut escaped = false;
+            while end < text.len() {
+                let next = text[end..].chars().next().expect("class scalar");
+                if next == ']' && !escaped {
+                    break;
+                }
+                escaped = next == '\\' && !escaped;
+                if next != '\\' {
+                    escaped = false;
+                }
+                end += next.len_utf8();
+            }
+            push_regex_token(&mut tokens, content_start, end, EditorTokenType::Regexp);
+            if end < text.len() {
+                push_regex_token(&mut tokens, end, end + 1, EditorTokenType::Operator);
+                position = end + 1;
+            } else {
+                position = end;
+            }
+            continue;
+        }
+        if character == '{' {
+            push_regex_token(
+                &mut tokens,
+                position,
+                position + 1,
+                EditorTokenType::Operator,
+            );
+            position += 1;
+            while position < text.len() && text.as_bytes()[position] != b'}' {
+                let start = position;
+                if text.as_bytes()[position].is_ascii_digit() {
+                    while position < text.len() && text.as_bytes()[position].is_ascii_digit() {
+                        position += 1;
+                    }
+                    push_regex_token(&mut tokens, start, position, EditorTokenType::Number);
+                } else {
+                    position += 1;
+                    push_regex_token(&mut tokens, start, position, EditorTokenType::Operator);
+                }
+            }
+            if position < text.len() {
+                push_regex_token(
+                    &mut tokens,
+                    position,
+                    position + 1,
+                    EditorTokenType::Operator,
+                );
+                position += 1;
+            }
+            continue;
+        }
+        if character == '\\' {
+            if let Some(reference) = references.get(&(position + 1)) {
+                push_regex_token(
+                    &mut tokens,
+                    position,
+                    reference.span.1,
+                    EditorTokenType::Variable,
+                );
+                position = reference.span.1;
+                continue;
+            }
+            let end = text[position + 1..]
+                .chars()
+                .next()
+                .map_or(position + 1, |next| position + 1 + next.len_utf8());
+            let token_type = if text
+                .get(position..end)
+                .is_some_and(|value| matches!(value, "\\b" | "\\B" | "\\A" | "\\Z"))
+            {
+                EditorTokenType::Keyword
+            } else {
+                EditorTokenType::Regexp
+            };
+            push_regex_token(&mut tokens, position, end, token_type);
+            position = end;
+            continue;
+        }
+        if matches!(character, '(' | ')' | '|' | '*' | '+' | '?' | '>' | ',') {
+            let end = position + character.len_utf8();
+            push_regex_token(&mut tokens, position, end, EditorTokenType::Operator);
+            position = end;
+            continue;
+        }
+        if matches!(character, '^' | '$') {
+            let end = position + 1;
+            push_regex_token(&mut tokens, position, end, EditorTokenType::Keyword);
+            position = end;
+            continue;
+        }
+        if character == '.' {
+            push_regex_token(&mut tokens, position, position + 1, EditorTokenType::Regexp);
+            position += 1;
+            continue;
+        }
+        let start = position;
+        while position < text.len() {
+            let next = text[position..].chars().next().expect("literal scalar");
+            if matches!(
+                next,
+                '\r' | '\n'
+                    | '['
+                    | '{'
+                    | '('
+                    | ')'
+                    | '|'
+                    | '*'
+                    | '+'
+                    | '?'
+                    | '\\'
+                    | '^'
+                    | '$'
+                    | '.'
+                    | '>'
+                    | ','
+            ) || (parsed.flags.extended_layout && matches!(next, ' ' | '\t' | '#'))
+            {
+                break;
+            }
+            position += next.len_utf8();
+        }
+        push_regex_token(&mut tokens, start, position, EditorTokenType::Regexp);
+    }
+    tokens.sort_by_key(|token| (token.span.start, token.span.end));
+    tokens
+}
+
+fn regex_preamble_tokens(text: &str, body_start: usize, tokens: &mut Vec<EditorToken>) {
+    for line in physical_lines(&text[..body_start]) {
+        let (trimmed, indentation) = trim_horizontal_start(line.content);
+        let start = line.start + indentation;
+        if trimmed.starts_with('#') {
+            push_regex_token(
+                tokens,
+                start,
+                line.start + line.content.len(),
+                EditorTokenType::Comment,
+            );
+            continue;
+        }
+        if !trimmed.starts_with("%flags") {
+            continue;
+        }
+        push_regex_token(tokens, start, start + 6, EditorTokenType::Keyword);
+        let mut position = start + 6;
+        let end = line.start + line.content.len();
+        while position < end {
+            let byte = text.as_bytes()[position];
+            if matches!(
+                byte,
+                b'i' | b'I' | b'm' | b'M' | b's' | b'S' | b'u' | b'U' | b'x' | b'X'
+            ) {
+                push_regex_token(tokens, position, position + 1, EditorTokenType::Keyword);
+            } else if byte == b',' {
+                push_regex_token(tokens, position, position + 1, EditorTokenType::Operator);
+            }
+            position += 1;
+        }
+    }
+}
+
+fn push_regex_token(
+    tokens: &mut Vec<EditorToken>,
+    start: usize,
+    end: usize,
+    token_type: EditorTokenType,
+) {
+    if start < end {
+        tokens.push(EditorToken {
+            span: EditorSpan::new(start, end),
+            token_type,
+        });
+    }
 }
 
 fn diagnostic(code: RegexFrontendErrorCode, byte_offset: usize) -> RawFrontendError {
@@ -774,6 +1326,19 @@ struct PendingReference {
     target: PendingTarget,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct RegexCaptureDeclaration {
+    index: usize,
+    name: Option<String>,
+    span: (usize, usize),
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+struct RegexReference {
+    index: usize,
+    span: (usize, usize),
+}
+
 struct Parser<'a> {
     text: &'a str,
     position: usize,
@@ -782,6 +1347,8 @@ struct Parser<'a> {
     capture_count: usize,
     capture_names: BTreeMap<String, (usize, usize)>,
     pending_references: Vec<PendingReference>,
+    capture_declarations: Vec<RegexCaptureDeclaration>,
+    references: Vec<RegexReference>,
 }
 
 impl<'a> Parser<'a> {
@@ -794,6 +1361,8 @@ impl<'a> Parser<'a> {
             capture_count: 0,
             capture_names: BTreeMap::new(),
             pending_references: Vec::new(),
+            capture_declarations: Vec::new(),
+            references: Vec::new(),
         }
     }
 
@@ -1170,7 +1739,9 @@ impl<'a> Parser<'a> {
                 lookaround = Some((LookaroundDirection::Behind, AssertionPolarity::Negative));
             } else if self.starts_with("<") {
                 self.take();
+                let name_start = self.position;
                 let name = self.parse_identifier(RegexFrontendErrorCode::InvalidCaptureName)?;
+                let name_end = self.position;
                 if self.peek() != Some('>') {
                     return Err(diagnostic(
                         RegexFrontendErrorCode::InvalidCaptureName,
@@ -1192,6 +1763,11 @@ impl<'a> Parser<'a> {
                 let index = self.new_capture(opener_offset)?;
                 self.capture_names
                     .insert(name.clone(), (index, opener_offset));
+                self.capture_declarations.push(RegexCaptureDeclaration {
+                    index,
+                    name: Some(name.clone()),
+                    span: (name_start, name_end),
+                });
                 capture = Some((index, Some(name)));
             } else if matches!(
                 self.peek(),
@@ -1209,6 +1785,11 @@ impl<'a> Parser<'a> {
             }
         } else {
             let index = self.new_capture(opener_offset)?;
+            self.capture_declarations.push(RegexCaptureDeclaration {
+                index,
+                name: None,
+                span: (opener_offset, opener_offset + 1),
+            });
             capture = Some((index, None));
         }
 
@@ -1449,6 +2030,10 @@ impl<'a> Parser<'a> {
                 }
                 let index = digits.parse::<usize>().unwrap_or(usize::MAX);
                 if index <= self.capture_count {
+                    self.references.push(RegexReference {
+                        index,
+                        span: (start, self.position),
+                    });
                     Ok(EscapeValue::Backreference(index))
                 } else {
                     self.pending_references.push(PendingReference {
@@ -1574,6 +2159,7 @@ impl<'a> Parser<'a> {
             ));
         }
         self.take();
+        let name_start = self.position;
         let name = match self.parse_identifier(RegexFrontendErrorCode::MalformedNamedBackreference)
         {
             Ok(name) => name,
@@ -1584,6 +2170,7 @@ impl<'a> Parser<'a> {
                 ))
             }
         };
+        let name_end = self.position;
         if self.peek() != Some('>') {
             return Err(diagnostic(
                 RegexFrontendErrorCode::MalformedNamedBackreference,
@@ -1592,6 +2179,10 @@ impl<'a> Parser<'a> {
         }
         self.take();
         if let Some((index, _)) = self.capture_names.get(&name) {
+            self.references.push(RegexReference {
+                index: *index,
+                span: (name_start, name_end),
+            });
             Ok(EscapeValue::Backreference(*index))
         } else {
             self.pending_references.push(PendingReference {

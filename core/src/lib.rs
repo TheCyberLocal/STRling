@@ -26,6 +26,8 @@ pub mod diagnostic;
 pub mod diagnostic_generation;
 pub mod ecmascript_lowering;
 pub mod ecmascript_serialization;
+#[doc(hidden)]
+pub mod editor_intelligence;
 pub mod explanation;
 pub mod no_match_explanation;
 pub mod normalization;

@@ -13,7 +13,11 @@ import sys
 
 import pytest
 
-from canonical_intelligence_evidence import load_catalog, load_manifest
+from canonical_intelligence_evidence import (
+    load_catalog,
+    load_manifest,
+    materialize_completion_case,
+)
 
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
@@ -25,80 +29,12 @@ for path in (PY_SRC, LSP_SRC):
         sys.path.insert(0, path)
 
 
-from STRling.core.intelligence import (  # noqa: E402
-    extract_document_symbols,
-    find_registry_definition,
-    format_pattern,
-)
+from server.deferred_intelligence import format_pattern  # noqa: E402
 
 
 # --------------------------------------------------------------------------- #
 # Pure intelligence layer                                                     #
 # --------------------------------------------------------------------------- #
-
-
-class TestDocumentSymbolScanner:
-    def test_top_level_group(self) -> None:
-        syms = extract_document_symbols("(abc)+")
-        assert len(syms) == 1
-        outer = syms[0]
-        assert outer["kind"] == 13  # SymbolKind.Variable for capturing group
-        assert outer["range"]["start"] == {"line": 0, "character": 0}
-        assert outer["range"]["end"]["character"] == 5
-
-    def test_nested_groups_form_tree(self) -> None:
-        syms = extract_document_symbols("(a(b(c)))")
-        assert len(syms) == 1
-        depth = 0
-        node = syms[0]
-        while node.get("children"):
-            child_groups = [
-                c for c in node["children"] if c["detail"].endswith("group")
-            ]
-            if not child_groups:
-                break
-            node = child_groups[0]
-            depth += 1
-        assert depth == 2
-
-    def test_named_atomic_lookaround(self) -> None:
-        syms = extract_document_symbols("(?>x)(?=y)(?<n>z)(?<!q)")
-        kinds = [(s["name"], s["detail"]) for s in syms]
-        assert ("atomic", "atomic group") in kinds
-        assert ("lookahead", "positive lookahead") in kinds
-        assert ("n", "named group") in kinds
-        assert ("lookbehind", "negative lookbehind") in kinds
-
-    def test_alternation_branches_become_children(self) -> None:
-        syms = extract_document_symbols("(foo|bar|baz)")
-        assert len(syms) == 1
-        branch_names = [c["name"] for c in syms[0]["children"]]
-        assert "foo" in branch_names
-        assert "bar" in branch_names
-        assert "baz" in branch_names
-
-    def test_character_class_does_not_open_group(self) -> None:
-        # Brackets with a literal '(' inside must not confuse the scanner.
-        syms = extract_document_symbols("[(]+")
-        assert syms == []
-
-
-class TestRegistryDefinition:
-    def test_canonical_name_resolves_to_registry_file(self) -> None:
-        loc = find_registry_definition("ip")
-        assert loc is not None
-        assert loc["uri"].endswith("/spec/stdlib/registry.json")
-        assert loc["range"]["start"]["character"] >= 0
-
-    def test_trigger_keyword_resolves_to_canonical_entry(self) -> None:
-        canonical = find_registry_definition("email")
-        keyword = find_registry_definition("mail")
-        assert canonical is not None and keyword is not None
-        assert canonical == keyword
-
-    def test_unknown_word_returns_none(self) -> None:
-        assert find_registry_definition("not_a_real_pattern_name") is None
-        assert find_registry_definition("") is None
 
 
 class TestFormatter:
@@ -113,11 +49,9 @@ class TestFormatter:
         ],
     )
     def test_round_trip_through_parser(self, src: str) -> None:
-        from STRling.core.parser import parse
-
         out = format_pattern(src)
         assert out["success"], out
-        parse(out["formatted"])  # must not raise
+        assert format_pattern(out["formatted"])["success"]
 
     def test_blank_input_returns_unchanged(self) -> None:
         assert format_pattern("")["formatted"] == ""
@@ -141,8 +75,13 @@ def server_module():
     # caches and handler functions.
     from server import server as server_mod  # type: ignore[import-not-found]
 
-    server_mod._LAST_DIAGNOSTICS.clear()
-    server_mod._ISLANDS_BY_URI.clear()
+    with server_mod._STATE_LOCK:
+        server_mod._LAST_DIAGNOSTICS.clear()
+        server_mod._ISLANDS_BY_URI.clear()
+        server_mod._CANONICAL_RESULTS_BY_URI.clear()
+        server_mod._SNAPSHOTS_BY_URI.clear()
+        server_mod._EDITOR_CACHE.clear()
+        server_mod._EDITOR_CACHE_ORDER.clear()
     return server_mod
 
 
@@ -170,31 +109,42 @@ def _patch_workspace(server_module, source: str) -> None:
     server_module.server.workspace = _FakeWorkspace(source)  # type: ignore[attr-defined]
 
 
+def _compile_current(server_module, uri: str, source: str) -> None:
+    _patch_workspace(server_module, source)
+    snapshot = server_module._capture_snapshot(server_module.server, uri, 1)
+    compiled = server_module._compile_snapshot(snapshot)
+    with server_module._STATE_LOCK:
+        server_module._CANONICAL_RESULTS_BY_URI[uri] = compiled
+        server_module._ISLANDS_BY_URI[uri] = list(compiled.islands)
+
+
 class TestDocumentSymbolHandler:
     def test_native_strl_outline(self, server_module, lsp_module) -> None:
-        _patch_workspace(server_module, "(foo|bar)+")
+        source = "(?<word>é+)x\\k<word>"
+        uri = "file:///tmp/x.strl"
+        _compile_current(server_module, uri, source)
         params = lsp_module.DocumentSymbolParams(
-            text_document=lsp_module.TextDocument(uri="file:///tmp/x.strl"),
+            text_document=lsp_module.TextDocument(uri=uri),
         )
         symbols = server_module.document_symbol(server_module.server, params)
         assert len(symbols) == 1
-        # The group span covers ``(foo|bar)`` (9 characters); the
-        # trailing ``+`` quantifier sits outside the group symbol.
-        assert symbols[0].range.end.character == 9
-        # Outer group has two alt branches as children.
-        assert {c.name for c in symbols[0].children} >= {"foo", "bar"}
+        assert symbols[0].detail == "sequence · node:regex-compat/00000001"
+        assert symbols[0].range.end.character == len(source)
+        assert symbols[0].children[0].detail.endswith(
+            "capture:regex-compat/00001"
+        )
 
     def test_host_outline_projects_to_host_coordinates(
         self, server_module, lsp_module
     ) -> None:
         py_src = 'pattern = s.parse("(foo|bar)")\n'
-        _patch_workspace(server_module, py_src)
+        uri = "file:///tmp/x.py"
+        _compile_current(server_module, uri, py_src)
         params = lsp_module.DocumentSymbolParams(
-            text_document=lsp_module.TextDocument(uri="file:///tmp/x.py"),
+            text_document=lsp_module.TextDocument(uri=uri),
         )
         symbols = server_module.document_symbol(server_module.server, params)
         assert len(symbols) == 1
-        # The literal opens at the index of "(foo|bar)" inside py_src.
         expected_col = py_src.index("(foo|bar)")
         assert symbols[0].range.start.line == 0
         assert symbols[0].range.start.character == expected_col
@@ -202,40 +152,130 @@ class TestDocumentSymbolHandler:
 
 class TestDefinitionHandler:
     def test_jump_to_registry_from_host_call(self, server_module, lsp_module) -> None:
-        # ``email`` is *outside* any island here \u2014 it is the host method
-        # name. The handler must still fall back to host-buffer word
-        # extraction so calls like ``s.email()`` resolve.
-        py_src = "value = s.email()\n"
-        _patch_workspace(server_module, py_src)
-        col = py_src.index("email") + 1  # cursor mid-word
+        py_src = "value = s.date_time()\n"
+        uri = "file:///tmp/x.py"
+        _compile_current(server_module, uri, py_src)
+        col = py_src.index("date_time") + 1
         params = lsp_module.DefinitionParams(
-            text_document=lsp_module.TextDocument(uri="file:///tmp/x.py"),
+            text_document=lsp_module.TextDocument(uri=uri),
             position=lsp_module.Position(line=0, character=col),
         )
         loc = server_module.definition(server_module.server, params)
         assert loc is not None
-        assert loc.uri.endswith("/spec/stdlib/registry.json")
+        assert loc.uri.endswith("/spec/stdlib/registry/1.0/registry.json")
 
     def test_jump_inside_island(self, server_module, lsp_module) -> None:
-        py_src = 'pattern = s.parse("ip")\n'
-        _patch_workspace(server_module, py_src)
-        col = py_src.index("ip") + 1
+        py_src = 'pattern = s.parse(r"(?<word>a)\\k<word>")\n'
+        uri = "file:///tmp/x.py"
+        _compile_current(server_module, uri, py_src)
+        col = py_src.rindex("word") + 1
         params = lsp_module.DefinitionParams(
-            text_document=lsp_module.TextDocument(uri="file:///tmp/x.py"),
+            text_document=lsp_module.TextDocument(uri=uri),
             position=lsp_module.Position(line=0, character=col),
         )
         loc = server_module.definition(server_module.server, params)
         assert loc is not None
-        # The ip entry's name field sits on a known line in the registry.
-        assert loc.range.start.line >= 0
+        assert loc.uri == uri
+        assert loc.range.start.character == py_src.index("word")
 
-    def test_unknown_word_returns_none(self, server_module, lsp_module) -> None:
-        _patch_workspace(server_module, "value = nothing_useful\n")
+    def test_trigger_alias_returns_none(self, server_module, lsp_module) -> None:
+        source = "value = s.mail()\n"
+        uri = "file:///tmp/x.py"
+        _compile_current(server_module, uri, source)
         params = lsp_module.DefinitionParams(
-            text_document=lsp_module.TextDocument(uri="file:///tmp/x.py"),
-            position=lsp_module.Position(line=0, character=10),
+            text_document=lsp_module.TextDocument(uri=uri),
+            position=lsp_module.Position(line=0, character=source.index("mail") + 1),
         )
         assert server_module.definition(server_module.server, params) is None
+
+
+class TestReferencesHandler:
+    def test_reference_feature_and_capability_are_registered(
+        self, server_module, lsp_module
+    ) -> None:
+        assert lsp_module.TEXT_DOCUMENT_REFERENCES in server_module.server._features
+        capabilities = server_module.server._initialize_result()["capabilities"]
+        assert capabilities["referencesProvider"] is True
+        params = server_module.server._coerce_params(
+            lsp_module.TEXT_DOCUMENT_REFERENCES,
+            {
+                "textDocument": {"uri": "file:///tmp/reference.strl"},
+                "position": {"line": 2, "character": 3},
+                "context": {"includeDeclaration": True},
+            },
+        )
+        assert params.position == lsp_module.Position(line=2, character=3)
+        assert params.context.include_declaration is True
+
+    def test_capture_references_share_canonical_identity(
+        self, server_module, lsp_module
+    ) -> None:
+        source = "(?<word>é+)x\\k<word>"
+        uri = "file:///tmp/references.strl"
+        _compile_current(server_module, uri, source)
+        params = lsp_module.ReferenceParams(
+            text_document=lsp_module.TextDocument(uri=uri),
+            position=lsp_module.Position(line=0, character=4),
+            context=lsp_module.ReferenceContext(include_declaration=True),
+        )
+        locations = server_module.references(server_module.server, params)
+        assert len(locations) == 2
+        assert [location.range.start.character for location in locations] == [3, 15]
+
+
+class TestCompletionAndTokenHandlers:
+    def test_partial_semantic_completion_uses_exact_text_edit(
+        self, server_module, lsp_module
+    ) -> None:
+        case = next(
+            item
+            for item in load_manifest()["completion_cases"]
+            if item["id"] == "semantic-root-prefix"
+        )
+        source, cursor, replacement_start = materialize_completion_case(case)
+        uri = "file:///tmp/completion.semantic.strling"
+        _compile_current(server_module, uri, source)
+        params = lsp_module.CompletionParams(
+            text_document=lsp_module.TextDocument(uri=uri),
+            position=lsp_module.Position(line=2, character=len("pattern se")),
+        )
+        result = server_module.completion(server_module.server, params)
+        assert [item.label for item in result.items] == ["sequence"]
+        edit = result.items[0].text_edit
+        assert edit is not None
+        assert edit.range.start.character == len("pattern ")
+        assert edit.range.end.character == len("pattern se")
+        assert cursor - replacement_start == 2
+
+    def test_host_completion_is_exactly_scoped_to_s_member_boundary(
+        self, server_module, lsp_module
+    ) -> None:
+        source = "value = s.da\n"
+        uri = "file:///tmp/completion.py"
+        _compile_current(server_module, uri, source)
+        params = lsp_module.CompletionParams(
+            text_document=lsp_module.TextDocument(uri=uri),
+            position=lsp_module.Position(line=0, character=source.index("da") + 2),
+        )
+        result = server_module.completion(server_module.server, params)
+        assert [item.label for item in result.items] == ["date_time"]
+
+    def test_host_semantic_tokens_project_inside_literal(
+        self, server_module, lsp_module
+    ) -> None:
+        source = 'pattern = s.parse("é+")\n'
+        uri = "file:///tmp/tokens.py"
+        _compile_current(server_module, uri, source)
+        params = lsp_module.SemanticTokensParams(
+            text_document=lsp_module.TextDocument(uri=uri)
+        )
+        result = server_module.semantic_tokens_full(server_module.server, params)
+        assert len(result.data) == 10
+        first = result.data[:5]
+        second = result.data[5:]
+        start = source.index("é")
+        assert first == [0, start, 1, server_module.TOKEN_TYPES.index("regexp"), 0]
+        assert second == [0, 1, 1, server_module.TOKEN_TYPES.index("operator"), 0]
 
 
 class TestFormattingHandler:

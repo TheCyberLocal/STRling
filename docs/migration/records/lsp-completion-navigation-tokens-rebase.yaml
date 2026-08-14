@@ -148,8 +148,17 @@ checkpoints:
             result: passed
             details: Thirty-nine focused tests pass across the new evidence, completion, semantic-token, and navigation modules. Exact section counts, 65 unique case IDs, catalog equality, bounded UTF-8 spans, and an explicit evidence-removal mutation close shrinkage and semantic-drift detection. The manifest fingerprint is sha256:b1d5be9de0b0a9e7664e3ea63e99960e0f810875c4291db213452dd956ec276f. No editor-projection implementation is claimed by CP2.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical Rust editor projection and bounded transport
+            result: passed
+            details: One source-tree strling-editor-core process projects the actual Semantic STRling lexer/parser and regex-compatible parser into versioned tokens, successful canonical symbol trees, capture declaration/reference links, parser-probed completions, exact replacement spans, and explicit incomplete status. The 1 MiB source, 256 completion, 16384 token, 4096 symbol, 16384 capture-location, and five-second adapter limits fail closed; no normative contract, target behavior, or public strling-kernel command changed.
+          - check: Current-snapshot LSP adaptation and governed catalog views
+            result: passed
+            details: Completion, symbols, definition, references, and full semantic tokens now reuse P16-T02 immutable snapshots, source identity, process cancellation, stale-result rejection, profile/encoding cache identity, Unicode coordinate projection, and failure isolation. Exact host s. completion/definition reads Simply 1.1 and the authored stdlib registry; arbitrary aliases and regex stdlib syntax return no result. Deferred Python binding reachability is reduced to the P16-T04 formatter/code-action and island-extraction boundary.
+          - check: Closed local execution and architecture proof
+            result: passed
+            details: All 21 authored completion contexts, eight token streams, 13 navigation/identity cases, and the new lifecycle mutations execute through the Rust/Python boundary. Sixty-three focused Python tests, five Rust editor-intelligence tests, Rust all-target check, Rust format check, Ruff, five compiler-boundary tests with 40 mutation subtests, governance scope/contracts/architecture validation, and git diff --check pass. Pytest cache writes remain unavailable in this managed workspace and do not affect test outcomes.
     - name: Integration and certification
       status: planned
       evidence: []

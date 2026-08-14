@@ -1,26 +1,10 @@
-"""Explicit transitional imports for P16-T03/P16-T04 editor features.
+"""Explicit transitional imports for P16-T04 editor features.
 
-P16-T02 removes diagnostics and hover from this dependency. Completion,
-navigation, semantic tokens, formatting, and code actions retain their legacy
-implementation until their ordered tasks replace them.
+P16-T02 removes diagnostics and hover from this dependency. P16-T03 removes
+completion, navigation, document symbols, and semantic tokens. Formatting and
+code actions retain their legacy implementation until P16-T04 replaces them.
 """
 
-from STRling.core.intelligence import (
-    SEMANTIC_TOKEN_MODIFIERS,
-    SEMANTIC_TOKEN_TYPES,
-    extract_document_symbols,
-    find_registry_definition,
-    format_pattern,
-    get_completion_items,
-    tokenize_pattern,
-)
+from STRling.core.intelligence import format_pattern
 
-__all__ = [
-    "SEMANTIC_TOKEN_MODIFIERS",
-    "SEMANTIC_TOKEN_TYPES",
-    "extract_document_symbols",
-    "find_registry_definition",
-    "format_pattern",
-    "get_completion_items",
-    "tokenize_pattern",
-]
+__all__ = ["format_pattern"]

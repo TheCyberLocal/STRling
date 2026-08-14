@@ -11,8 +11,10 @@ Architecture:
       coordinate projection.
     - Canonical Core Bridge (``server.canonical_core``) ← invokes the Rust
       kernel and projects immutable CompileResult evidence.
+    - Canonical Editor Bridge (``server.canonical_intelligence``) ← projects
+      completion, navigation, symbols, and tokens from canonical frontends.
     - Deferred Intelligence (``server.deferred_intelligence``) ← isolates
-      completion/navigation/token/formatting compatibility until P16-T03/T04.
+      formatting and code-action compatibility until P16-T04.
 
 Usage:
     python server/server.py [--tcp]
@@ -131,15 +133,18 @@ try:
             project_span,
             render_hover,
         )
-        from .deferred_intelligence import (
-            SEMANTIC_TOKEN_MODIFIERS,
-            SEMANTIC_TOKEN_TYPES,
-            extract_document_symbols,
-            find_registry_definition,
-            format_pattern,
-            get_completion_items,
-            tokenize_pattern,
+        from .canonical_intelligence import (
+            EDITOR_PROJECTION_VERSION,
+            MAX_SYMBOLS,
+            MAX_TOKENS,
+            TOKEN_MODIFIERS,
+            TOKEN_TYPES,
+            CanonicalIntelligence,
+            EditorServiceError,
+            catalog_definition,
+            host_completion,
         )
+        from .deferred_intelligence import format_pattern
         from .island_extractor import (
             Island,
             extract_islands_for_uri,
@@ -158,14 +163,19 @@ try:
         project_span = canonical_core.project_span
         render_hover = canonical_core.render_hover
 
+        canonical_intelligence = import_module("canonical_intelligence")
+        EDITOR_PROJECTION_VERSION = canonical_intelligence.EDITOR_PROJECTION_VERSION
+        MAX_SYMBOLS = canonical_intelligence.MAX_SYMBOLS
+        MAX_TOKENS = canonical_intelligence.MAX_TOKENS
+        TOKEN_MODIFIERS = canonical_intelligence.TOKEN_MODIFIERS
+        TOKEN_TYPES = canonical_intelligence.TOKEN_TYPES
+        CanonicalIntelligence = canonical_intelligence.CanonicalIntelligence
+        EditorServiceError = canonical_intelligence.EditorServiceError
+        catalog_definition = canonical_intelligence.catalog_definition
+        host_completion = canonical_intelligence.host_completion
+
         deferred = import_module("deferred_intelligence")
-        SEMANTIC_TOKEN_MODIFIERS = deferred.SEMANTIC_TOKEN_MODIFIERS
-        SEMANTIC_TOKEN_TYPES = deferred.SEMANTIC_TOKEN_TYPES
-        extract_document_symbols = deferred.extract_document_symbols
-        find_registry_definition = deferred.find_registry_definition
         format_pattern = deferred.format_pattern
-        get_completion_items = deferred.get_completion_items
-        tokenize_pattern = deferred.tokenize_pattern
 
         from island_extractor import (  # type: ignore[no-redef]
             Island,
@@ -228,23 +238,6 @@ def _diagnostic_from_dict(diag: Dict[str, Any]) -> lsp.Diagnostic:
         code=diag.get("code"),
         data=diag.get("data"),
     )
-
-
-def _word_at(text: str, character: int) -> Optional[str]:
-    """Return the host identifier under a cursor for deferred navigation."""
-    if not text or character < 0 or character > len(text):
-        return None
-    if character == len(text):
-        character -= 1
-    if not (text[character].isalnum() or text[character] == "_"):
-        return None
-    start = character
-    while start > 0 and (text[start - 1].isalnum() or text[start - 1] == "_"):
-        start -= 1
-    end = character
-    while end < len(text) and (text[end].isalnum() or text[end] == "_"):
-        end += 1
-    return text[start:end]
 
 
 def get_diagnostics_for_pattern(content: str) -> List[lsp.Diagnostic]:
@@ -321,6 +314,7 @@ class _SnapshotResult:
 
 
 _COMPILER = CanonicalCompiler()
+_EDITOR = CanonicalIntelligence()
 _POSITION_ENCODING = DEFAULT_POSITION_ENCODING
 _TARGET_PROFILE: Optional[str] = None
 _MAX_ISLANDS = 256
@@ -332,6 +326,12 @@ _ACTIVE_PROCESSES: Dict[str, Tuple[int, Any]] = {}
 _GENERATIONS: Dict[str, int] = {}
 _RESULT_CACHE: Dict[Tuple[str, str, Optional[str], str], Dict[str, Any]] = {}
 _RESULT_CACHE_ORDER: List[Tuple[str, str, Optional[str], str]] = []
+_EDITOR_CACHE: Dict[
+    Tuple[str, str, Optional[int], Optional[str], str, str], Dict[str, Any]
+] = {}
+_EDITOR_CACHE_ORDER: List[
+    Tuple[str, str, Optional[int], Optional[str], str, str]
+] = []
 _STATE_LOCK = threading.RLock()
 
 
@@ -382,6 +382,70 @@ def _compile_cached(
                 expired = _RESULT_CACHE_ORDER.pop(0)
                 _RESULT_CACHE.pop(expired, None)
         return _RESULT_CACHE[key]
+
+
+def _editor_cached(
+    source: str,
+    frontend: str,
+    cursor_byte: Optional[int],
+    target: Optional[str],
+    encoding: str,
+    *,
+    timeout_seconds: Optional[float] = None,
+    process_observer=None,
+) -> Dict[str, Any]:
+    key = (
+        canonical_source_id(source),
+        frontend,
+        cursor_byte,
+        target,
+        encoding,
+        EDITOR_PROJECTION_VERSION,
+    )
+    with _STATE_LOCK:
+        cached = _EDITOR_CACHE.get(key)
+        if cached is not None:
+            return cached
+    result = _EDITOR.project(
+        source,
+        frontend=frontend,
+        cursor_byte=cursor_byte,
+        timeout_seconds=timeout_seconds,
+        process_observer=process_observer,
+    )
+    with _STATE_LOCK:
+        if key not in _EDITOR_CACHE:
+            _EDITOR_CACHE[key] = result
+            _EDITOR_CACHE_ORDER.append(key)
+            while len(_EDITOR_CACHE_ORDER) > _RESULT_CACHE_LIMIT:
+                expired = _EDITOR_CACHE_ORDER.pop(0)
+                _EDITOR_CACHE.pop(expired, None)
+        return _EDITOR_CACHE[key]
+
+
+def _project_editor_unit(
+    compiled: _SnapshotResult,
+    unit: _CompiledUnit,
+    cursor_byte: Optional[int],
+    *,
+    timeout_seconds: Optional[float] = None,
+) -> Optional[Dict[str, Any]]:
+    snapshot = compiled.snapshot
+    if not _is_current(snapshot):
+        return None
+    try:
+        result = _editor_cached(
+            unit.source,
+            unit.frontend,
+            cursor_byte,
+            snapshot.target_profile,
+            snapshot.position_encoding,
+            timeout_seconds=timeout_seconds,
+            process_observer=lambda process: _observe_process(snapshot, process),
+        )
+    except EditorServiceError:
+        return None
+    return result if _is_current(snapshot) else None
 
 
 def _host_position(position, host_source: str):
@@ -710,6 +774,8 @@ def _set_session_options(
         _CANONICAL_RESULTS_BY_URI.clear()
         _ISLANDS_BY_URI.clear()
         _LAST_DIAGNOSTICS.clear()
+        _EDITOR_CACHE.clear()
+        _EDITOR_CACHE_ORDER.clear()
 
 
 def _snapshot_result_for_hover(
@@ -814,8 +880,8 @@ def hover(ls: STRlingLanguageServer, params: lsp.HoverParams) -> Optional[lsp.Ho
 # colouring (DoD #2).
 
 _SEMANTIC_TOKENS_LEGEND = lsp.SemanticTokensLegend(
-    token_types=list(SEMANTIC_TOKEN_TYPES),
-    token_modifiers=list(SEMANTIC_TOKEN_MODIFIERS),
+    token_types=list(TOKEN_TYPES),
+    token_modifiers=list(TOKEN_MODIFIERS),
 )
 
 
@@ -841,18 +907,31 @@ def _delta_encode_tokens(
     return out
 
 
-def _tokens_for_host(uri: str, source: str) -> List[tuple]:
-    """Run the island extractor and return projected absolute tokens."""
-    islands = extract_islands_for_uri(source, uri)
-    _ISLANDS_BY_URI[uri] = islands
-    projected: List[tuple] = []
-    for island in islands:
-        for line, char, length, token_type, modifier in tokenize_pattern(
-            island.virtual_content
-        ):
-            host = island.to_host(line, char)
-            projected.append((host.line, host.character, length, token_type, modifier))
-    return projected
+def _editor_span_range(
+    span: Dict[str, Any], unit: _CompiledUnit, host_source: str
+) -> lsp.Range:
+    start, end = project_span(
+        unit.source, int(span["start"]), int(span["end"]), "utf-32"
+    )
+    if unit.island is not None:
+        host_start = unit.island.to_host(start.line, start.character)
+        host_end = unit.island.to_host(end.line, end.character)
+        return lsp.Range(
+            start=_host_position(host_start, host_source),
+            end=_host_position(host_end, host_source),
+        )
+    projected_start, projected_end = project_span(
+        unit.source,
+        int(span["start"]),
+        int(span["end"]),
+        _POSITION_ENCODING,
+    )
+    return lsp.Range(
+        start=lsp.Position(
+            line=projected_start.line, character=projected_start.character
+        ),
+        end=lsp.Position(line=projected_end.line, character=projected_end.character),
+    )
 
 
 @server.feature(
@@ -870,19 +949,40 @@ def semantic_tokens_full(
     literals without disturbing the host LSP's own highlighting.
     """
     uri = params.text_document.uri
-    try:
-        doc = ls.workspace.get_text_document(uri)
-        source = doc.source
-    except Exception:
+    compiled = _snapshot_result_for_hover(ls, uri)
+    if compiled is None:
         return lsp.SemanticTokens(data=[])
-
-    if language_for_uri(uri) is not None:
-        absolute = _tokens_for_host(uri, source)
-    else:
-        absolute = [
-            (line, char, length, ttype, mod)
-            for (line, char, length, ttype, mod) in tokenize_pattern(source)
-        ]
+    deadline = time.monotonic() + _EDITOR.timeout_seconds
+    absolute: List[tuple] = []
+    for unit in compiled.units:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return lsp.SemanticTokens(data=[])
+        evidence = _project_editor_unit(
+            compiled, unit, None, timeout_seconds=remaining
+        )
+        if evidence is None:
+            continue
+        for token in evidence["tokens"]:
+            token_range = _editor_span_range(
+                token["span"], unit, compiled.snapshot.source
+            )
+            if token_range.start.line != token_range.end.line:
+                return lsp.SemanticTokens(data=[])
+            length = token_range.end.character - token_range.start.character
+            if length <= 0:
+                continue
+            absolute.append(
+                (
+                    token_range.start.line,
+                    token_range.start.character,
+                    length,
+                    TOKEN_TYPES.index(token["type"]),
+                    0,
+                )
+            )
+            if len(absolute) > MAX_TOKENS:
+                return lsp.SemanticTokens(data=[])
     return lsp.SemanticTokens(data=_delta_encode_tokens(absolute))
 
 
@@ -890,11 +990,9 @@ def semantic_tokens_full(
 # Completion                                                                  #
 # --------------------------------------------------------------------------- #
 #
-# When the user is editing inside a STRling island and types a member-access
-# trigger (``.``), the registry is queried for every known stdlib pattern and
-# the items are returned as an LSP ``CompletionList``. The trigger character
-# is registered alongside the feature so VS Code only invokes the handler at
-# the right moments instead of polling on every keystroke.
+# Canonical frontends return parser-expected terminals and already-declared
+# capture identities. The compatibility adapter exposes governed Simply and
+# stdlib metadata only at the retained exact ``s.`` member boundary.
 
 _COMPLETION_OPTIONS = lsp.CompletionOptions(
     trigger_characters=["."],
@@ -902,60 +1000,100 @@ _COMPLETION_OPTIONS = lsp.CompletionOptions(
 )
 
 
-def _completion_item_from_dict(item: Dict[str, Any]) -> lsp.CompletionItem:
-    """Adapt the registry-shaped dict into an ``lsp.CompletionItem``."""
-    documentation = item.get("documentation")
-    if isinstance(documentation, dict):
-        documentation = lsp.MarkupContent(
-            kind=lsp.MarkupKind.Markdown,
-            value=str(documentation.get("value", "")),
-        )
-    kind_value = item.get("kind", lsp.CompletionItemKind.Function)
-    try:
-        kind = lsp.CompletionItemKind(int(kind_value))
-    except (ValueError, TypeError):
-        kind = lsp.CompletionItemKind.Function
+def _completion_item_from_dict(
+    item: Dict[str, Any], replacement: lsp.Range, order: int
+) -> lsp.CompletionItem:
+    kind = (
+        lsp.CompletionItemKind.Variable
+        if item.get("tier") == "canonical_capture_identity"
+        else lsp.CompletionItemKind.Function
+    )
+    label = str(item.get("label", ""))
     return lsp.CompletionItem(
-        label=str(item.get("label", "")),
+        label=label,
         kind=kind,
         detail=item.get("detail"),
-        documentation=documentation,
-        insert_text=item.get("insertText", item.get("label", "")),
+        insert_text=label,
         insert_text_format=lsp.InsertTextFormat.PlainText,
-        filter_text=item.get("filterText"),
-        data=item.get("data"),
+        filter_text=label,
+        sort_text=f"{order:04d}:{item.get('identity', label)}",
+        text_edit=lsp.TextEdit(range=replacement, new_text=label),
+        data={"canonical_id": item.get("identity"), "tier": item.get("tier")},
     )
 
 
-def _cursor_inside_island(uri: str, line: int, character: int) -> bool:
-    """Return True when the cursor sits inside any cached island for ``uri``.
-
-    Native ``.strl`` files have no host wrapper, so the entire document is
-    treated as an island for completion purposes.
-    """
-    if language_for_uri(uri) is None:
-        return True
-    for island in _ISLANDS_BY_URI.get(uri, []):
-        if island.contains_host(line, character):
-            return True
-    return False
+def _position_for_host_byte(source: str, byte_offset: int) -> lsp.Position:
+    position = byte_offset_to_position(source, byte_offset, _POSITION_ENCODING)
+    return lsp.Position(line=position.line, character=position.character)
 
 
 @server.feature(lsp.TEXT_DOCUMENT_COMPLETION, _COMPLETION_OPTIONS)
 def completion(
     ls: STRlingLanguageServer, params: lsp.CompletionParams
 ) -> lsp.CompletionList:
-    """Return registry-backed completion items inside STRling islands.
-
-    The handler stays silent when the cursor is not inside an island so
-    the host language server (Pylance, TS Server, etc.) keeps owning
-    completion for ordinary host code.
-    """
+    """Return context-valid canonical completions for the current snapshot."""
     uri = params.text_document.uri
-    if not _cursor_inside_island(uri, params.position.line, params.position.character):
+    compiled = _snapshot_result_for_hover(ls, uri)
+    if compiled is None:
+        return lsp.CompletionList(is_incomplete=False, items=[])
+    try:
+        host_byte = position_to_byte_offset(
+            compiled.snapshot.source,
+            params.position.line,
+            params.position.character,
+            _POSITION_ENCODING,
+        )
+        host_utf32 = byte_offset_to_position(
+            compiled.snapshot.source, host_byte, "utf-32"
+        )
+    except ValueError:
         return lsp.CompletionList(is_incomplete=False, items=[])
 
-    items = [_completion_item_from_dict(d) for d in get_completion_items()]
+    candidates: Optional[Dict[str, Any]] = None
+    replacement: Optional[lsp.Range] = None
+    for unit in compiled.units:
+        if unit.island is None:
+            cursor_byte = host_byte
+        else:
+            mapped = unit.island.from_host(host_utf32.line, host_utf32.character)
+            if mapped is None:
+                continue
+            try:
+                cursor_byte = position_to_byte_offset(
+                    unit.source, mapped[0], mapped[1], "utf-32"
+                )
+            except ValueError:
+                return lsp.CompletionList(is_incomplete=False, items=[])
+        candidates = _project_editor_unit(compiled, unit, cursor_byte)
+        if candidates is not None and candidates.get("replacement_span") is not None:
+            replacement = _editor_span_range(
+                candidates["replacement_span"], unit, compiled.snapshot.source
+            )
+        break
+
+    if candidates is None and _is_host_uri(uri):
+        binding_id = language_for_uri(uri)
+        if binding_id is not None:
+            candidates = host_completion(
+                compiled.snapshot.source, host_byte, binding_id=binding_id
+            )
+            if candidates is not None:
+                span = candidates["replacement_span"]
+                replacement = lsp.Range(
+                    start=_position_for_host_byte(
+                        compiled.snapshot.source, int(span["start"])
+                    ),
+                    end=_position_for_host_byte(
+                        compiled.snapshot.source, int(span["end"])
+                    ),
+                )
+
+    if candidates is None or replacement is None:
+        return lsp.CompletionList(is_incomplete=False, items=[])
+    items = [
+        _completion_item_from_dict(item, replacement, order)
+        for order, item in enumerate(candidates["completions"])
+    ]
     return lsp.CompletionList(is_incomplete=False, items=items)
 
 
@@ -1057,69 +1195,48 @@ def code_action(
 # Document symbols                                                            #
 # --------------------------------------------------------------------------- #
 #
-# The intelligence layer returns a hierarchical outline in virtual-document
-# coordinates. The LSP layer projects each range onto the host file when
-# the document is a host language, then converts the dict shape into the
-# typed ``DocumentSymbol`` dataclass tree the protocol expects.
+_SYMBOL_KINDS = {
+    "empty": lsp.SymbolKind.Null,
+    "sequence": lsp.SymbolKind.Array,
+    "alternation": lsp.SymbolKind.Enum,
+    "literal": lsp.SymbolKind.String,
+    "wildcard": lsp.SymbolKind.String,
+    "character_set": lsp.SymbolKind.Array,
+    "repeat": lsp.SymbolKind.Operator,
+    "position": lsp.SymbolKind.Constant,
+    "capture": lsp.SymbolKind.Function,
+    "backreference": lsp.SymbolKind.Variable,
+    "lookaround": lsp.SymbolKind.Function,
+    "atomic": lsp.SymbolKind.Function,
+}
 
 
-def _project_range_dict_to_host(
-    range_dict: Dict[str, Any], island: Island
-) -> Dict[str, Any]:
-    """Translate a virtual-doc LSP range dict onto host coordinates."""
-    start = island.to_host(
-        range_dict["start"]["line"], range_dict["start"]["character"]
+def _editor_symbol_to_lsp(
+    symbol: Dict[str, Any], unit: _CompiledUnit, host_source: str
+) -> lsp.DocumentSymbol:
+    symbol_range = _editor_span_range(symbol["span"], unit, host_source)
+    selection_range = _editor_span_range(
+        symbol["selection_span"], unit, host_source
     )
-    end = island.to_host(range_dict["end"]["line"], range_dict["end"]["character"])
-    return {
-        "start": {"line": start.line, "character": start.character},
-        "end": {"line": end.line, "character": end.character},
-    }
-
-
-def _project_symbol_dict(
-    symbol: Dict[str, Any], island: Optional[Island]
-) -> Dict[str, Any]:
-    """Recursively project a symbol dict; identity transform when native."""
-    if island is None:
-        return symbol
-    return {
-        "name": symbol["name"],
-        "detail": symbol.get("detail"),
-        "kind": symbol["kind"],
-        "range": _project_range_dict_to_host(symbol["range"], island),
-        "selectionRange": _project_range_dict_to_host(symbol["selectionRange"], island),
-        "children": [
-            _project_symbol_dict(c, island) for c in symbol.get("children", [])
-        ],
-    }
-
-
-def _symbol_dict_to_lsp(symbol: Dict[str, Any]) -> lsp.DocumentSymbol:
-    """Convert a JSON-shaped symbol into an ``lsp.DocumentSymbol`` tree."""
-    rng = symbol["range"]
-    sel = symbol["selectionRange"]
+    identity = symbol["node_id"]
+    if symbol.get("capture_id"):
+        identity += f" · {symbol['capture_id']}"
     return lsp.DocumentSymbol(
         name=symbol["name"],
-        detail=symbol.get("detail"),
-        kind=lsp.SymbolKind(int(symbol["kind"])),
-        range=lsp.Range(
-            start=lsp.Position(
-                line=rng["start"]["line"], character=rng["start"]["character"]
-            ),
-            end=lsp.Position(
-                line=rng["end"]["line"], character=rng["end"]["character"]
-            ),
-        ),
-        selection_range=lsp.Range(
-            start=lsp.Position(
-                line=sel["start"]["line"], character=sel["start"]["character"]
-            ),
-            end=lsp.Position(
-                line=sel["end"]["line"], character=sel["end"]["character"]
-            ),
-        ),
-        children=[_symbol_dict_to_lsp(c) for c in symbol.get("children", [])],
+        detail=f"{symbol['kind']} · {identity}",
+        kind=_SYMBOL_KINDS.get(symbol["kind"], lsp.SymbolKind.Object),
+        range=symbol_range,
+        selection_range=selection_range,
+        children=[
+            _editor_symbol_to_lsp(child, unit, host_source)
+            for child in symbol.get("children", [])
+        ],
+    )
+
+
+def _editor_symbol_count(symbols: List[Dict[str, Any]]) -> int:
+    return sum(
+        1 + _editor_symbol_count(symbol.get("children", [])) for symbol in symbols
     )
 
 
@@ -1127,109 +1244,186 @@ def _symbol_dict_to_lsp(symbol: Dict[str, Any]) -> lsp.DocumentSymbol:
 def document_symbol(
     ls: STRlingLanguageServer, params: lsp.DocumentSymbolParams
 ) -> List[lsp.DocumentSymbol]:
-    """Return the structural outline of a STRling document.
-
-    Native ``.strl`` files outline the entire buffer; host-language
-    files outline every island and project each symbol's range onto
-    host coordinates so the editor's outline view collapses naturally
-    into the surrounding source.
-    """
+    """Return only canonical node/capture identities from the current snapshot."""
     uri = params.text_document.uri
-    try:
-        doc = ls.workspace.get_text_document(uri)
-        source = doc.source
-    except Exception:
+    compiled = _snapshot_result_for_hover(ls, uri)
+    if compiled is None:
         return []
-
-    symbols: List[Dict[str, Any]] = []
-    if language_for_uri(uri) is not None:
-        islands = _ISLANDS_BY_URI.get(uri) or extract_islands_for_uri(source, uri)
-        _ISLANDS_BY_URI[uri] = islands
-        for island in islands:
-            for sym in extract_document_symbols(island.virtual_content):
-                symbols.append(_project_symbol_dict(sym, island))
-    else:
-        symbols = extract_document_symbols(source)
-
-    return [_symbol_dict_to_lsp(s) for s in symbols]
+    deadline = time.monotonic() + _EDITOR.timeout_seconds
+    symbols: List[lsp.DocumentSymbol] = []
+    symbol_count = 0
+    for unit in compiled.units:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return []
+        evidence = _project_editor_unit(
+            compiled, unit, None, timeout_seconds=remaining
+        )
+        if evidence is None:
+            continue
+        unit_symbol_count = _editor_symbol_count(evidence["symbols"])
+        if symbol_count + unit_symbol_count > MAX_SYMBOLS:
+            return []
+        symbol_count += unit_symbol_count
+        symbols.extend(
+            _editor_symbol_to_lsp(symbol, unit, compiled.snapshot.source)
+            for symbol in evidence["symbols"]
+        )
+    return symbols
 
 
 # --------------------------------------------------------------------------- #
 # Go-to-definition: registry navigation                                       #
 # --------------------------------------------------------------------------- #
 #
-# The cursor word is matched against the central registry (canonical
-# names plus trigger keywords). When an entry is found, the location of
-# its ``"name"`` declaration inside ``spec/stdlib/registry.json`` is
-# returned. Words inside an island use the virtual-document character
-# at the cursor; words in host code use the host buffer directly so
-# calls like ``s.email()`` resolve from the host token.
+# Capture navigation resolves only current canonical capture identities.
+# Host member navigation resolves exact Simply operations and binding names to
+# their authored protocol/registry declarations; trigger-keyword guessing is
+# intentionally absent.
 
 
-def _word_at_host(content: str, line: int, character: int) -> Optional[str]:
-    """Return the identifier under a ``(line, character)`` host coordinate."""
-    lines = content.split("\n")
-    if line < 0 or line >= len(lines):
+def _cursor_unit(
+    compiled: _SnapshotResult, position: lsp.Position
+) -> Tuple[Optional[_CompiledUnit], Optional[int], Optional[int]]:
+    try:
+        host_byte = position_to_byte_offset(
+            compiled.snapshot.source,
+            position.line,
+            position.character,
+            _POSITION_ENCODING,
+        )
+        host_utf32 = byte_offset_to_position(
+            compiled.snapshot.source, host_byte, "utf-32"
+        )
+    except ValueError:
+        return None, None, None
+    for unit in compiled.units:
+        if unit.island is None:
+            return unit, host_byte, host_byte
+        mapped = unit.island.from_host(host_utf32.line, host_utf32.character)
+        if mapped is None:
+            continue
+        try:
+            unit_byte = position_to_byte_offset(
+                unit.source, mapped[0], mapped[1], "utf-32"
+            )
+        except ValueError:
+            return None, None, host_byte
+        return unit, unit_byte, host_byte
+    return None, None, host_byte
+
+
+def _capture_at(evidence: Dict[str, Any], cursor_byte: int) -> Optional[Dict[str, Any]]:
+    for capture in evidence["captures"]:
+        locations = [capture["declaration"], *capture["references"]]
+        if any(
+            int(location["start"]) <= cursor_byte < int(location["end"])
+            for location in locations
+        ):
+            return capture
+    return None
+
+
+def _catalog_word(source: str, cursor_byte: int) -> Optional[str]:
+    encoded = source.encode("utf-8")
+    if not 0 <= cursor_byte <= len(encoded):
         return None
-    return _word_at(lines[line], character)
+    start = cursor_byte
+    while start > 0 and (
+        chr(encoded[start - 1]).isalnum() or encoded[start - 1] == ord("_")
+    ):
+        start -= 1
+    end = cursor_byte
+    while end < len(encoded) and (
+        chr(encoded[end]).isalnum() or encoded[end] == ord("_")
+    ):
+        end += 1
+    if encoded[:start][-2:] != b"s." or start == end:
+        return None
+    try:
+        return encoded[start:end].decode("ascii")
+    except UnicodeDecodeError:
+        return None
+
+
+def _catalog_location(definition) -> lsp.Location:
+    source = definition.path.read_text(encoding="utf-8")
+    start, end = project_span(
+        source, definition.start, definition.end, _POSITION_ENCODING
+    )
+    return lsp.Location(
+        uri=definition.path.as_uri(),
+        range=lsp.Range(
+            start=lsp.Position(line=start.line, character=start.character),
+            end=lsp.Position(line=end.line, character=end.character),
+        ),
+    )
 
 
 @server.feature(lsp.TEXT_DOCUMENT_DEFINITION)
 def definition(
     ls: STRlingLanguageServer, params: lsp.DefinitionParams
 ) -> Optional[lsp.Location]:
-    """Resolve the cursor word to a registry entry and return its location."""
+    """Resolve a canonical capture or governed host catalog identity."""
     uri = params.text_document.uri
+    compiled = _snapshot_result_for_hover(ls, uri)
+    if compiled is None:
+        return None
+    unit, cursor_byte, host_byte = _cursor_unit(compiled, params.position)
+    if unit is not None and cursor_byte is not None:
+        evidence = _project_editor_unit(compiled, unit, None)
+        if evidence is None:
+            return None
+        capture = _capture_at(evidence, cursor_byte)
+        if capture is None:
+            return None
+        return lsp.Location(
+            uri=uri,
+            range=_editor_span_range(
+                capture["declaration"], unit, compiled.snapshot.source
+            ),
+        )
+    if not _is_host_uri(uri) or host_byte is None:
+        return None
+    word = _catalog_word(compiled.snapshot.source, host_byte)
+    binding_id = language_for_uri(uri)
+    if word is None or binding_id is None:
+        return None
     try:
-        doc = ls.workspace.get_text_document(uri)
-        source = doc.source
-    except Exception:
+        target = catalog_definition(word, binding_id=binding_id)
+    except EditorServiceError:
         return None
+    return None if target is None else _catalog_location(target)
 
-    word: Optional[str] = None
-    line = params.position.line
-    character = params.position.character
 
-    # Inside a host-language island the cursor coordinate is in host
-    # space -- translate it back to virtual space so the word extraction
-    # uses the unescaped pattern text.
-    if language_for_uri(uri) is not None:
-        islands = _ISLANDS_BY_URI.get(uri) or extract_islands_for_uri(source, uri)
-        _ISLANDS_BY_URI[uri] = islands
-        for island in islands:
-            mapped = island.from_host(line, character)
-            if mapped is None:
-                continue
-            vd_line, vd_char = mapped
-            vd_lines = island.virtual_content.split("\n")
-            if vd_line < len(vd_lines):
-                word = _word_at(vd_lines[vd_line], vd_char)
-            break
-        # Fall back to the host buffer so calls like ``s.email()`` (where
-        # ``email`` is *outside* any island) still resolve to the registry.
-        if word is None:
-            word = _word_at_host(source, line, character)
-    else:
-        word = _word_at_host(source, line, character)
-
-    if not word:
-        return None
-
-    location_dict = find_registry_definition(word)
-    if location_dict is None:
-        return None
-    rng = location_dict["range"]
-    return lsp.Location(
-        uri=location_dict["uri"],
-        range=lsp.Range(
-            start=lsp.Position(
-                line=rng["start"]["line"], character=rng["start"]["character"]
-            ),
-            end=lsp.Position(
-                line=rng["end"]["line"], character=rng["end"]["character"]
-            ),
-        ),
-    )
+@server.feature(lsp.TEXT_DOCUMENT_REFERENCES)
+def references(
+    ls: STRlingLanguageServer, params: lsp.ReferenceParams
+) -> List[lsp.Location]:
+    """Return current-source locations sharing one canonical capture identity."""
+    uri = params.text_document.uri
+    compiled = _snapshot_result_for_hover(ls, uri)
+    if compiled is None:
+        return []
+    unit, cursor_byte, _ = _cursor_unit(compiled, params.position)
+    if unit is None or cursor_byte is None:
+        return []
+    evidence = _project_editor_unit(compiled, unit, None)
+    if evidence is None:
+        return []
+    capture = _capture_at(evidence, cursor_byte)
+    if capture is None:
+        return []
+    spans = list(capture["references"])
+    if params.context.include_declaration:
+        spans.insert(0, capture["declaration"])
+    return [
+        lsp.Location(
+            uri=uri,
+            range=_editor_span_range(span, unit, compiled.snapshot.source),
+        )
+        for span in spans
+    ]
 
 
 # --------------------------------------------------------------------------- #

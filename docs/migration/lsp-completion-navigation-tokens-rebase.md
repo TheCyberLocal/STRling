@@ -127,7 +127,7 @@ Ranking is deterministic:
    boundary;
 4. explicit governed option/profile values.
 
-Within a tier, items sort by stable canonical identity and label. Prefix
+Within a tier, items sort by label and then stable canonical identity. Prefix
 filtering is case-sensitive for Semantic STRling syntax and follows the
 declared binding spelling for host helpers. Every item carries a stable data
 identity, detail/source authority, plain text or explicitly tested snippet,
@@ -246,9 +246,16 @@ classes, and an explicit evidence-shrink mutation make denominator loss or
 authority drift fail closed. These are authored acceptance expectations, not
 claims that the editor projection already exists.
 
-CP3 adds the smallest Rust projection and Python adapter needed to pass that
-evidence, removes the four replaced binding-intelligence imports, and proves
-focused Rust/LSP/architecture behavior. CP4 runs the complete owned LSP suite,
+CP3 added the smallest Rust projection and Python adapter needed to pass that
+evidence, removed the four replaced binding-intelligence imports, and proved
+focused Rust/LSP/architecture behavior. One bounded `strling-editor-core`
+process now projects both frontend token streams, successful canonical symbol
+trees and capture links, and parser-probed cursor completions. The Python
+adapter validates every version, identity, UTF-8 boundary, collection bound,
+and source span before projecting it into the current immutable LSP snapshot.
+Exact `s.` host completion and definition are catalog views over Simply 1.1 and
+the authored stdlib registry; trigger aliases and regex stdlib guesses return
+no result. CP4 runs the complete owned LSP suite,
 canonical frontend/formatter tests, affected Rust all-target tests, public and
 generated checks, migration differential, formatting/static analysis,
 governance, and Local, Pull Request, and Full profiles as safely available.

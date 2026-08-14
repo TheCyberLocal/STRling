@@ -19,3 +19,7 @@ path = "src/lib.rs"
 [[bin]]
 name = "strling-kernel"
 path = "cli/strling-kernel.rs"
+
+[[bin]]
+name = "strling-editor-core"
+path = "cli/strling-editor-core.rs"

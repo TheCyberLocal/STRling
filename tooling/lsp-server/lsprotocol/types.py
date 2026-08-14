@@ -111,6 +111,7 @@ TEXT_DOCUMENT_COMPLETION = "textDocument/completion"
 TEXT_DOCUMENT_CODE_ACTION = "textDocument/codeAction"
 TEXT_DOCUMENT_DOCUMENT_SYMBOL = "textDocument/documentSymbol"
 TEXT_DOCUMENT_DEFINITION = "textDocument/definition"
+TEXT_DOCUMENT_REFERENCES = "textDocument/references"
 TEXT_DOCUMENT_FORMATTING = "textDocument/formatting"
 INITIALIZE = "initialize"
 
@@ -169,6 +170,18 @@ class Location:
 class DefinitionParams:
     text_document: TextDocument
     position: Position
+
+
+@dataclass
+class ReferenceContext:
+    include_declaration: bool = False
+
+
+@dataclass
+class ReferenceParams:
+    text_document: TextDocument
+    position: Position
+    context: ReferenceContext
 
 
 @dataclass
@@ -261,6 +274,7 @@ class CompletionItem:
     insert_text_format: Optional[InsertTextFormat] = None
     filter_text: Optional[str] = None
     sort_text: Optional[str] = None
+    text_edit: Optional[TextEdit] = None
     data: Optional[dict] = None
 
 

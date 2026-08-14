@@ -91,6 +91,7 @@ def server_module():
     from server import server as module
 
     original_compiler = module._COMPILER
+    original_editor = module._EDITOR
     with module._STATE_LOCK:
         for uri in list(module._DEBOUNCE_TIMERS):
             module._cancel_uri_locked(uri)
@@ -102,6 +103,8 @@ def server_module():
         module._GENERATIONS.clear()
         module._RESULT_CACHE.clear()
         module._RESULT_CACHE_ORDER.clear()
+        module._EDITOR_CACHE.clear()
+        module._EDITOR_CACHE_ORDER.clear()
         module._POSITION_ENCODING = module.DEFAULT_POSITION_ENCODING
         module._TARGET_PROFILE = None
     yield module
@@ -116,9 +119,12 @@ def server_module():
         module._GENERATIONS.clear()
         module._RESULT_CACHE.clear()
         module._RESULT_CACHE_ORDER.clear()
+        module._EDITOR_CACHE.clear()
+        module._EDITOR_CACHE_ORDER.clear()
         module._POSITION_ENCODING = module.DEFAULT_POSITION_ENCODING
         module._TARGET_PROFILE = None
         module._COMPILER = original_compiler
+        module._EDITOR = original_editor
 
 
 def _empty_result(module: Any, snapshot: Any) -> Any:
@@ -360,3 +366,73 @@ def test_compile_failure_is_data_and_service_recovers(
     )
     server_module._execute_snapshot(ls, snapshot)
     assert server_module._CANONICAL_RESULTS_BY_URI[uri].snapshot == snapshot
+
+
+def test_editor_cache_separates_cursor_and_frontend_identity(server_module) -> None:
+    class _Editor:
+        timeout_seconds = 1.0
+
+        def __init__(self) -> None:
+            self.calls: list[tuple[str, str, int | None]] = []
+
+        def project(self, source: str, *, frontend: str, cursor_byte=None, **_kwargs):
+            self.calls.append((source, frontend, cursor_byte))
+            return {"source": source, "frontend": frontend, "cursor": cursor_byte}
+
+    editor = _Editor()
+    server_module._EDITOR = editor
+    first = server_module._editor_cached("abc", "regex", 1, None, "utf-16")
+    assert server_module._editor_cached(
+        "abc", "regex", 1, None, "utf-16"
+    ) is first
+    server_module._editor_cached("abc", "regex", 2, None, "utf-16")
+    server_module._editor_cached("abc", "semantic", 1, None, "utf-16")
+    server_module._editor_cached("abc", "regex", 1, "target:test", "utf-16")
+    server_module._editor_cached("abc", "regex", 1, None, "utf-8")
+    assert len(editor.calls) == 5
+
+
+def test_stale_editor_result_is_discarded(server_module) -> None:
+    uri = "file:///lifecycle/editor-stale.strl"
+    ls = _Server(uri, "abc", 1)
+    snapshot = server_module._capture_snapshot(ls, uri, 1)
+    unit = server_module._CompiledUnit("abc", "regex", {}, None)
+    compiled = server_module._SnapshotResult(snapshot, (unit,), (), ())
+
+    class _Editor:
+        timeout_seconds = 1.0
+
+        def project(self, *_args, **_kwargs):
+            ls.workspace.documents[uri] = _Document("abcd", 2)
+            server_module._capture_snapshot(ls, uri, 2)
+            return {"projection": "stale"}
+
+    server_module._EDITOR = _Editor()
+    assert server_module._project_editor_unit(compiled, unit, None) is None
+
+
+def test_editor_failure_is_isolated_and_next_request_recovers(server_module) -> None:
+    uri = "file:///lifecycle/editor-recovery.strl"
+    ls = _Server(uri, "abc", 1)
+    snapshot = server_module._capture_snapshot(ls, uri, 1)
+    unit = server_module._CompiledUnit("abc", "regex", {}, None)
+    compiled = server_module._SnapshotResult(snapshot, (unit,), (), ())
+
+    class _FailingEditor:
+        timeout_seconds = 1.0
+
+        def project(self, *_args, **_kwargs):
+            raise server_module.EditorServiceError("timeout", "timeout")
+
+    class _WorkingEditor:
+        timeout_seconds = 1.0
+
+        def project(self, *_args, **_kwargs):
+            return {"projection": "current"}
+
+    server_module._EDITOR = _FailingEditor()
+    assert server_module._project_editor_unit(compiled, unit, None) is None
+    server_module._EDITOR = _WorkingEditor()
+    assert server_module._project_editor_unit(compiled, unit, None) == {
+        "projection": "current"
+    }

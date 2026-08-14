@@ -359,6 +359,24 @@ class JsonRPCServer:
                     character=int(position.get("character", 0)),
                 ),
             )
+        if method == lsp.TEXT_DOCUMENT_REFERENCES:
+            position = params.get("position") or {}
+            context = params.get("context") or {}
+            return lsp.ReferenceParams(
+                text_document=text_document,
+                position=lsp.Position(
+                    line=int(position.get("line", 0)),
+                    character=int(position.get("character", 0)),
+                ),
+                context=lsp.ReferenceContext(
+                    include_declaration=bool(
+                        context.get(
+                            "includeDeclaration",
+                            context.get("include_declaration", False),
+                        )
+                    )
+                ),
+            )
         if method == lsp.TEXT_DOCUMENT_COMPLETION:
             position = params.get("position") or {}
             return lsp.CompletionParams(
@@ -368,6 +386,8 @@ class JsonRPCServer:
                     character=int(position.get("character", 0)),
                 ),
             )
+        if method == lsp.TEXT_DOCUMENT_SEMANTIC_TOKENS_FULL:
+            return lsp.SemanticTokensParams(text_document=text_document)
         if method == lsp.TEXT_DOCUMENT_CODE_ACTION:
             range_data = params.get("range") or {}
             context_data = params.get("context") or {}
@@ -449,6 +469,8 @@ class JsonRPCServer:
                 capabilities["documentSymbolProvider"] = True
             elif method.endswith("/definition"):
                 capabilities["definitionProvider"] = True
+            elif method.endswith("/references"):
+                capabilities["referencesProvider"] = True
             elif method.endswith("/formatting"):
                 capabilities["documentFormattingProvider"] = True
         return {

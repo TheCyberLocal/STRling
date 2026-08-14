@@ -13,6 +13,10 @@ use crate::diagnostic::{
     CompilerPhase, Diagnostic, DiagnosticCategory, DiagnosticCode, DiagnosticOccurrence, Severity,
     SeverityBasis,
 };
+use crate::editor_intelligence::{
+    EditorCaptureLink, EditorCompletion, EditorCompletionTier, EditorParseStatus, EditorSpan,
+    EditorSymbol, EditorToken, EditorTokenType, FrontendEditorEvidence,
+};
 use crate::normalization::{normalize, NormalizationErrors};
 use crate::semantic::{
     AssertionPolarity, BuiltinClassName, CaseMatching, CharacterDomain, CharacterSetMember,
@@ -56,6 +60,64 @@ const RESERVED_WORDS: &[&str] = &[
     "text",
     "unless",
     "without",
+];
+
+pub(crate) const KEYWORD_TERMINALS: &[&str] = &[
+    "any",
+    "as",
+    "ascii",
+    "at",
+    "backtracking",
+    "before",
+    "boundary",
+    "by",
+    "capture",
+    "case",
+    "character",
+    "choice",
+    "digit",
+    "empty",
+    "end",
+    "except",
+    "excluding",
+    "final",
+    "followed",
+    "from",
+    "greedy",
+    "if",
+    "including",
+    "input",
+    "insensitive",
+    "lazy",
+    "line",
+    "not",
+    "pattern",
+    "possessive",
+    "preceded",
+    "property",
+    "range",
+    "repeat",
+    "same",
+    "scalar",
+    "semantic",
+    "sensitive",
+    "sequence",
+    "start",
+    "strling",
+    "target",
+    "terminator",
+    "terminators",
+    "text",
+    "through",
+    "to",
+    "unbounded",
+    "unicode",
+    "unless",
+    "using",
+    "value",
+    "whitespace",
+    "without",
+    "word",
 ];
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
@@ -640,6 +702,7 @@ struct Parser<'a> {
     current: Token,
     material_nodes: usize,
     captures: usize,
+    capture_declarations: Vec<SyntaxIdentifier>,
 }
 
 impl<'a> Parser<'a> {
@@ -651,10 +714,15 @@ impl<'a> Parser<'a> {
             current,
             material_nodes: 0,
             captures: 0,
+            capture_declarations: Vec::new(),
         })
     }
 
     fn parse(mut self) -> Result<SyntaxDocument, RawError> {
+        self.parse_document()
+    }
+
+    fn parse_document(&mut self) -> Result<SyntaxDocument, RawError> {
         let header_start = self.parse_header()?;
         let (case_start, case_matching) = self.parse_case_declaration()?;
         if self.word_is("case") {
@@ -688,7 +756,7 @@ impl<'a> Parser<'a> {
             pattern_start,
             case_matching,
             root,
-            comments: self.lexer.comments,
+            comments: std::mem::take(&mut self.lexer.comments),
         })
     }
 
@@ -1115,6 +1183,7 @@ impl<'a> Parser<'a> {
         self.bump()?;
         self.require_layout(SemanticFrontendErrorCode::InvalidIdentifier)?;
         let name = self.parse_identifier()?;
+        self.capture_declarations.push(name.clone());
         self.captures += 1;
         if self.captures > MAX_CAPTURES {
             return Err(RawError::new(
@@ -1744,6 +1813,426 @@ fn lower_set_member(member: &SyntaxSetMember) -> CharacterSetMember {
 pub struct ParsedSemantic {
     pub program: SemanticProgram,
     syntax: SyntaxDocument,
+}
+
+pub(crate) fn project_editor(
+    document: &SourceDocument,
+    text: &str,
+    cursor_byte: Option<usize>,
+) -> FrontendEditorEvidence {
+    let parsed = parse(document).ok();
+    let parser_state = semantic_parser_state(text);
+    let mut node_spans = BTreeMap::new();
+    let mut selection_spans = BTreeMap::new();
+    let mut declarations = BTreeMap::new();
+    let mut references: BTreeMap<String, Vec<EditorSpan>> = BTreeMap::new();
+    if let Some(parsed) = &parsed {
+        collect_semantic_editor_maps(
+            &parsed.syntax.root,
+            &parsed.program.root,
+            &mut node_spans,
+            &mut selection_spans,
+            &mut declarations,
+            &mut references,
+        );
+    }
+    let captures = declarations
+        .into_iter()
+        .map(|(capture_id, (name, declaration))| EditorCaptureLink {
+            references: references.remove(&capture_id).unwrap_or_default(),
+            capture_id,
+            name: Some(name),
+            declaration,
+        })
+        .collect();
+    let symbols = parsed.as_ref().map_or_else(Vec::new, |parsed| {
+        vec![semantic_symbol(
+            &parsed.program.root,
+            &node_spans,
+            &selection_spans,
+        )]
+    });
+    let (completions, replacement_span) = cursor_byte.map_or_else(
+        || (Vec::new(), None),
+        |cursor| semantic_completions(text, cursor, parser_state.as_ref()),
+    );
+    FrontendEditorEvidence {
+        parse_status: if parsed.is_some() {
+            EditorParseStatus::Complete
+        } else {
+            EditorParseStatus::Incomplete
+        },
+        tokens: semantic_editor_tokens(text, &selection_spans),
+        symbols,
+        captures,
+        completions,
+        replacement_span,
+    }
+}
+
+fn semantic_parser_state(text: &str) -> Option<Parser<'_>> {
+    let mut parser = Parser::new(text).ok()?;
+    let _ = parser.parse_document();
+    Some(parser)
+}
+
+type SemanticDeclarationMap = BTreeMap<String, (String, EditorSpan)>;
+
+fn collect_semantic_editor_maps(
+    syntax: &SyntaxNode,
+    node: &Node,
+    node_spans: &mut BTreeMap<String, EditorSpan>,
+    selections: &mut BTreeMap<String, EditorSpan>,
+    declarations: &mut SemanticDeclarationMap,
+    references: &mut BTreeMap<String, Vec<EditorSpan>>,
+) {
+    let node_id = node.node_id().as_str().to_owned();
+    let span = EditorSpan::new(syntax.span.start, syntax.span.end);
+    node_spans.insert(node_id.clone(), span);
+    selections.insert(node_id, span);
+    match (&syntax.kind, node) {
+        (SyntaxNodeKind::Sequence(syntax_items), Node::Sequence { items, .. })
+        | (
+            SyntaxNodeKind::Alternation(syntax_items),
+            Node::Alternation {
+                branches: items, ..
+            },
+        ) => {
+            for (syntax_child, child) in syntax_items.iter().zip(items) {
+                collect_semantic_editor_maps(
+                    syntax_child,
+                    child,
+                    node_spans,
+                    selections,
+                    declarations,
+                    references,
+                );
+            }
+        }
+        (
+            SyntaxNodeKind::Repeat {
+                body: syntax_body, ..
+            },
+            Node::Repeat { body, .. },
+        )
+        | (
+            SyntaxNodeKind::Lookaround {
+                body: syntax_body, ..
+            },
+            Node::Lookaround { body, .. },
+        )
+        | (SyntaxNodeKind::Atomic(syntax_body), Node::Atomic { body, .. }) => {
+            collect_semantic_editor_maps(
+                syntax_body,
+                body,
+                node_spans,
+                selections,
+                declarations,
+                references,
+            );
+        }
+        (
+            SyntaxNodeKind::Capture {
+                name: syntax_name,
+                body: syntax_body,
+            },
+            Node::Capture {
+                node_id,
+                capture_id,
+                name,
+                body,
+                ..
+            },
+        ) => {
+            let declaration = EditorSpan::new(syntax_name.span.start, syntax_name.span.end);
+            selections.insert(node_id.as_str().to_owned(), declaration);
+            declarations.insert(
+                capture_id.as_str().to_owned(),
+                (
+                    name.as_deref()
+                        .unwrap_or(syntax_name.value.as_str())
+                        .to_owned(),
+                    declaration,
+                ),
+            );
+            collect_semantic_editor_maps(
+                syntax_body,
+                body,
+                node_spans,
+                selections,
+                declarations,
+                references,
+            );
+        }
+        (
+            SyntaxNodeKind::Backreference(syntax_name),
+            Node::Backreference {
+                node_id,
+                capture_id,
+                ..
+            },
+        ) => {
+            let reference = EditorSpan::new(syntax_name.span.start, syntax_name.span.end);
+            selections.insert(node_id.as_str().to_owned(), reference);
+            references
+                .entry(capture_id.as_str().to_owned())
+                .or_default()
+                .push(reference);
+        }
+        _ => {}
+    }
+}
+
+fn semantic_symbol(
+    node: &Node,
+    node_spans: &BTreeMap<String, EditorSpan>,
+    selections: &BTreeMap<String, EditorSpan>,
+) -> EditorSymbol {
+    let node_id = node.node_id().as_str().to_owned();
+    let span = node_spans
+        .get(&node_id)
+        .copied()
+        .unwrap_or_else(|| semantic_origin_span(node));
+    let (kind, name, capture_id, children) = match node {
+        Node::Empty { .. } => ("empty", "empty".to_owned(), None, Vec::new()),
+        Node::Sequence { items, .. } => (
+            "sequence",
+            "sequence".to_owned(),
+            None,
+            items
+                .iter()
+                .map(|child| semantic_symbol(child, node_spans, selections))
+                .collect(),
+        ),
+        Node::Alternation { branches, .. } => (
+            "alternation",
+            "choice".to_owned(),
+            None,
+            branches
+                .iter()
+                .map(|child| semantic_symbol(child, node_spans, selections))
+                .collect(),
+        ),
+        Node::Literal { .. } => ("literal", "text".to_owned(), None, Vec::new()),
+        Node::Wildcard { .. } => ("wildcard", "any character".to_owned(), None, Vec::new()),
+        Node::CharacterSet { .. } => (
+            "character_set",
+            "character set".to_owned(),
+            None,
+            Vec::new(),
+        ),
+        Node::Repeat { body, .. } => (
+            "repeat",
+            "repeat".to_owned(),
+            None,
+            vec![semantic_symbol(body, node_spans, selections)],
+        ),
+        Node::Position { .. } => ("position", "position".to_owned(), None, Vec::new()),
+        Node::Capture {
+            capture_id,
+            name,
+            body,
+            ..
+        } => (
+            "capture",
+            name.clone()
+                .unwrap_or_else(|| capture_id.as_str().to_owned()),
+            Some(capture_id.as_str().to_owned()),
+            vec![semantic_symbol(body, node_spans, selections)],
+        ),
+        Node::Backreference { capture_id, .. } => (
+            "backreference",
+            capture_id.as_str().to_owned(),
+            Some(capture_id.as_str().to_owned()),
+            Vec::new(),
+        ),
+        Node::Lookaround { body, .. } => (
+            "lookaround",
+            "lookaround".to_owned(),
+            None,
+            vec![semantic_symbol(body, node_spans, selections)],
+        ),
+        Node::Atomic { body, .. } => (
+            "atomic",
+            "without backtracking".to_owned(),
+            None,
+            vec![semantic_symbol(body, node_spans, selections)],
+        ),
+    };
+    EditorSymbol {
+        selection_span: selections.get(&node_id).copied().unwrap_or(span),
+        node_id,
+        kind: kind.to_owned(),
+        name,
+        span,
+        capture_id,
+        children,
+    }
+}
+
+fn semantic_origin_span(node: &Node) -> EditorSpan {
+    node.origin()
+        .and_then(|origin| origin.source_spans.as_ref())
+        .and_then(|spans| spans.first())
+        .map_or(EditorSpan::new(0, 0), |span| {
+            EditorSpan::new(span.start as usize, span.end as usize)
+        })
+}
+
+fn semantic_editor_tokens(
+    text: &str,
+    selections: &BTreeMap<String, EditorSpan>,
+) -> Vec<EditorToken> {
+    let keywords = semantic_keywords();
+    let mut declaration_spans = BTreeSet::new();
+    let mut reference_spans = BTreeSet::new();
+    for (node_id, span) in selections {
+        if node_id.is_empty() {
+            continue;
+        }
+        if text.get(span.start..span.end).is_some_and(valid_identifier) && node_id.contains("/n") {
+            // Classification is refined below from the source phrase.
+            let prefix = &text[..span.start];
+            if prefix.ends_with("capture ") {
+                declaration_spans.insert((span.start, span.end));
+            } else if prefix.ends_with("same text as ") {
+                reference_spans.insert((span.start, span.end));
+            }
+        }
+    }
+    let mut lexer = Lexer::new(text);
+    let mut tokens = Vec::new();
+    while let Ok(token) = lexer.next_token() {
+        let token_type = match &token.kind {
+            TokenKind::Eof => break,
+            TokenKind::String(_) => Some(EditorTokenType::String),
+            TokenKind::Number(_) => Some(EditorTokenType::Number),
+            TokenKind::LeftBrace
+            | TokenKind::RightBrace
+            | TokenKind::Semicolon
+            | TokenKind::Symbol(_) => Some(EditorTokenType::Operator),
+            TokenKind::Word(value) => {
+                if declaration_spans.contains(&(token.start, token.end)) {
+                    Some(EditorTokenType::Function)
+                } else if reference_spans.contains(&(token.start, token.end)) {
+                    Some(EditorTokenType::Variable)
+                } else if keywords.contains(value) {
+                    Some(EditorTokenType::Keyword)
+                } else {
+                    None
+                }
+            }
+        };
+        if let Some(token_type) = token_type {
+            tokens.push(EditorToken {
+                span: EditorSpan::new(token.start, token.end),
+                token_type,
+            });
+        }
+    }
+    for comment in lexer.comments {
+        tokens.push(EditorToken {
+            span: EditorSpan::new(comment.start, comment.start + 1 + comment.text.len()),
+            token_type: EditorTokenType::Comment,
+        });
+    }
+    tokens.sort_by_key(|token| (token.span.start, token.span.end));
+    tokens
+}
+
+fn semantic_completions(
+    text: &str,
+    cursor: usize,
+    parser: Option<&Parser<'_>>,
+) -> (Vec<EditorCompletion>, Option<EditorSpan>) {
+    let (start, end) = replacement_span(text, cursor, false);
+    let prefix = &text[start..cursor];
+    let capture_context = text[..start].ends_with("same text as ");
+    let mut candidates: Vec<(String, EditorCompletionTier, String)> = Vec::new();
+    if !capture_context {
+        candidates.extend(semantic_keywords().into_iter().map(|label| {
+            (
+                label,
+                EditorCompletionTier::ParserExpectedTerminal,
+                "Semantic STRling 1.0 terminal".to_owned(),
+            )
+        }));
+        candidates.push((
+            SOURCE_EDITION.to_owned(),
+            EditorCompletionTier::ParserExpectedTerminal,
+            "Semantic STRling source edition".to_owned(),
+        ));
+    }
+    if capture_context {
+        if let Some(parser) = parser {
+            candidates.extend(
+                parser
+                    .capture_declarations
+                    .iter()
+                    .filter(|name| name.span.end <= cursor)
+                    .map(|name| {
+                        (
+                            name.value.clone(),
+                            EditorCompletionTier::CanonicalCaptureIdentity,
+                            "Canonical capture declared before this reference".to_owned(),
+                        )
+                    }),
+            );
+        }
+    }
+    let completions = candidates
+        .into_iter()
+        .filter(|(label, _, _)| label.starts_with(prefix))
+        .filter(|(label, _, _)| semantic_candidate_consumed(text, start, end, label))
+        .map(|(label, tier, detail)| EditorCompletion {
+            identity: match tier {
+                EditorCompletionTier::ParserExpectedTerminal => {
+                    format!("semantic-terminal:{label}")
+                }
+                EditorCompletionTier::CanonicalCaptureIdentity => {
+                    format!("semantic-capture:{label}")
+                }
+            },
+            label,
+            tier,
+            detail,
+        })
+        .collect();
+    (completions, Some(EditorSpan::new(start, end)))
+}
+
+fn semantic_candidate_consumed(text: &str, start: usize, end: usize, label: &str) -> bool {
+    let mut trial = String::with_capacity(text.len() + label.len());
+    trial.push_str(&text[..start]);
+    trial.push_str(label);
+    trial.push_str(&text[end..]);
+    let inserted_end = start + label.len();
+    let Ok(mut parser) = Parser::new(&trial) else {
+        return false;
+    };
+    parser.parse_document().is_ok() || parser.current.start >= inserted_end
+}
+
+fn semantic_keywords() -> BTreeSet<String> {
+    KEYWORD_TERMINALS
+        .iter()
+        .map(|value| (*value).to_owned())
+        .collect()
+}
+
+fn replacement_span(text: &str, cursor: usize, allow_percent: bool) -> (usize, usize) {
+    let is_word =
+        |byte: u8| byte.is_ascii_alphanumeric() || byte == b'_' || (allow_percent && byte == b'%');
+    let bytes = text.as_bytes();
+    let mut start = cursor;
+    while start > 0 && is_word(bytes[start - 1]) {
+        start -= 1;
+    }
+    let mut end = cursor;
+    while end < bytes.len() && is_word(bytes[end]) {
+        end += 1;
+    }
+    (start, end)
 }
 
 /// Parse one resolved inline `strling.semantic@1.0.0` source document.

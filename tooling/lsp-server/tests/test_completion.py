@@ -2,10 +2,21 @@
 
 from __future__ import annotations
 
-from canonical_intelligence_evidence import (
+from pathlib import Path
+import sys
+
+LSP_ROOT = str(Path(__file__).resolve().parents[1])
+if LSP_ROOT not in sys.path:
+    sys.path.insert(0, LSP_ROOT)
+
+from canonical_intelligence_evidence import (  # noqa: E402
     load_catalog,
     load_manifest,
     materialize_completion_case,
+)
+from server.canonical_intelligence import (  # noqa: E402
+    CanonicalIntelligence,
+    host_completion,
 )
 
 
@@ -69,3 +80,27 @@ def test_completion_denominator_preserves_scope_and_non_guessing_rules() -> None
     assert cases["semantic-malformed-no-guess"]["expected_labels"] == []
     assert cases["regex-no-stdlib-syntax"]["expected_labels"] == []
     assert cases["host-unrecognized-member"]["expected_labels"] == []
+
+
+def test_canonical_completion_execution_matches_every_authored_case() -> None:
+    editor = CanonicalIntelligence()
+    assert editor.command is not None
+    for case in load_manifest()["completion_cases"]:
+        source, cursor, replacement_start = materialize_completion_case(case)
+        if case["frontend"] == "host":
+            result = host_completion(
+                source, cursor, binding_id=case.get("binding_id", "python")
+            )
+        else:
+            result = editor.project(
+                source, frontend=case["frontend"], cursor_byte=cursor
+            )
+        labels = [] if result is None else [
+            item["label"] for item in result["completions"]
+        ]
+        assert labels == case["expected_labels"], case["id"]
+        if result is not None and "replacement_prefix" in case:
+            assert result["replacement_span"] == {
+                "start": replacement_start,
+                "end": cursor,
+            }, case["id"]

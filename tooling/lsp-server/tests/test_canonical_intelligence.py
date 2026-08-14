@@ -3,14 +3,27 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from pathlib import Path
+import sys
 
-from canonical_intelligence_evidence import (
+import pytest
+
+LSP_ROOT = str(Path(__file__).resolve().parents[1])
+if LSP_ROOT not in sys.path:
+    sys.path.insert(0, LSP_ROOT)
+
+from canonical_intelligence_evidence import (  # noqa: E402
     CATALOG_PATHS,
     file_fingerprint,
     iter_case_ids,
     load_catalog,
     load_manifest,
     manifest_fingerprint,
+)
+from server.canonical_intelligence import (  # noqa: E402
+    CanonicalIntelligence,
+    EditorServiceError,
+    catalog_definition,
 )
 
 
@@ -139,3 +152,22 @@ def test_lifecycle_denominator_covers_mutation_identity_failure_and_recovery() -
         "editor-projection-version-invalidates",
         "editor-recovery-after-failure",
     } <= ids
+
+
+def test_editor_transport_rejects_stale_identity_and_invalid_utf8_cursor() -> None:
+    editor = CanonicalIntelligence()
+    result = editor.project("é", frontend="regex")
+    stale = deepcopy(result)
+    stale["source_id"] = "src:cli.stale"
+    with pytest.raises(EditorServiceError, match="stale"):
+        editor._validate(stale, "é", "regex", None)
+    with pytest.raises(EditorServiceError, match="UTF-8 boundary"):
+        editor.project("é", frontend="regex", cursor_byte=1)
+
+
+def test_catalog_navigation_resolves_only_exact_authored_identities() -> None:
+    stdlib = catalog_definition("date_time", binding_id="python")
+    simply = catalog_definition("sequence", binding_id="python")
+    assert stdlib is not None and stdlib.path == CATALOG_PATHS["stdlib_registry"]
+    assert simply is not None and simply.path == CATALOG_PATHS["simply_protocol"]
+    assert catalog_definition("mail", binding_id="python") is None
