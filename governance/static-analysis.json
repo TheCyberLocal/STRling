@@ -19,12 +19,12 @@
             "obsolete_removable",
             "suspected_product_defect"
         ],
-        "baseline_total": 77,
+        "baseline_total": 71,
         "baseline_sha": "bb334b0980327b8f3599cd6da0562022c365641a",
         "inventory_groups": [
             {
                 "kind": "python",
-                "count": 66,
+                "count": 60,
                 "classification": "bounded_transition",
                 "reason": "Import-order exceptions support explicit path bootstrapping or re-exports; type-checker directives predate a governed Python type checker and must not expand.",
                 "retirement_condition": "Keep only narrowly coded import/re-export exceptions and retire broad type ignores as a governed Python type checker is introduced.",
@@ -45,19 +45,14 @@
                         31, 36, 39, 40, 45, 56, 58, 64, 65, 90
                     ],
                     "tooling/hygiene.py": [278, 282, 293, 448],
-                    "tooling/lsp-server/island_extractor.py": [23],
                     "tooling/lsp-server/server.py": [104],
-                    "tooling/lsp-server/server/island_extractor.py": [23],
-                    "tooling/lsp-server/server/server.py": [120],
-                    "tooling/lsp-server/tests/test_code_actions.py": [
-                        26, 94, 103
-                    ],
+                    "tooling/lsp-server/server/server.py": [144],
                     "tooling/lsp-server/tests/test_diagnostics.py": [
                         153, 163, 375
                     ],
-                    "tooling/lsp-server/tests/test_island_extractor.py": [15],
+                    "tooling/lsp-server/tests/test_island_extractor.py": [17],
                     "tooling/lsp-server/tests/test_navigation.py": [
-                        26, 140, 149, 168
+                        42, 56, 75
                     ],
                     "tooling/lsp-server/tests/test_parser_exhaustive.py": [
                         68, 714
@@ -119,14 +114,11 @@
                     "bindings/python/tests/unit/test_conformance.py": 3,
                     "tooling/audit_hints.py": 10,
                     "tooling/hygiene.py": 4,
-                    "tooling/lsp-server/island_extractor.py": 1,
                     "tooling/lsp-server/server.py": 1,
-                    "tooling/lsp-server/server/island_extractor.py": 1,
                     "tooling/lsp-server/server/server.py": 1,
-                    "tooling/lsp-server/tests/test_code_actions.py": 3,
                     "tooling/lsp-server/tests/test_diagnostics.py": 3,
                     "tooling/lsp-server/tests/test_island_extractor.py": 1,
-                    "tooling/lsp-server/tests/test_navigation.py": 4,
+                    "tooling/lsp-server/tests/test_navigation.py": 3,
                     "tooling/lsp-server/tests/test_parser_exhaustive.py": 2,
                     "tooling/quality.py": 3,
                     "tooling/tests/test_formatting.py": 2,

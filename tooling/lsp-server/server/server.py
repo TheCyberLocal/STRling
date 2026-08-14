@@ -13,8 +13,8 @@ Architecture:
       kernel and projects immutable CompileResult evidence.
     - Canonical Editor Bridge (``server.canonical_intelligence``) ← projects
       completion, navigation, symbols, and tokens from canonical frontends.
-    - Deferred Intelligence (``server.deferred_intelligence``) ← isolates
-      formatting and code-action compatibility until P16-T04.
+    - Island Extractor (``server.island_extractor``) ← recognizes governed,
+      source-identity-preserving host literal forms.
 
 Usage:
     python server/server.py [--tcp]
@@ -27,7 +27,6 @@ import threading
 import time
 from dataclasses import dataclass
 from importlib import import_module
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 _SERVER_FILE = os.path.realpath(os.path.abspath(__file__))
@@ -46,24 +45,6 @@ if _SOURCE_ROOT not in sys.path:
     sys.path.insert(insert_index, _SOURCE_ROOT)
 
 
-def _find_python_binding_src() -> Optional[str]:
-    """Return the in-repo Python binding source directory when available."""
-    candidates = [
-        os.path.realpath(os.path.join(_SERVER_DIR, "..", "..")),
-        os.path.realpath(os.path.join(_SERVER_DIR, "..", "..", "..")),
-    ]
-    for repo_root in candidates:
-        python_src = os.path.join(repo_root, "bindings", "python", "src")
-        if os.path.isdir(python_src):
-            return python_src
-    return None
-
-
-_PYTHON_SRC = _find_python_binding_src()
-if _PYTHON_SRC is not None and _PYTHON_SRC not in sys.path:
-    sys.path.insert(0, _PYTHON_SRC)
-
-
 def _format_sys_path_matrix() -> str:
     """Render ``sys.path`` as an indexed matrix for stderr forensics."""
     return "\n".join(
@@ -80,14 +61,13 @@ def _exit_with_import_context(import_target: str, import_error: ImportError) -> 
         f"Server directory: {_SERVER_DIR}\n"
         f"Target vendor directory: {_VENDOR_DIR}\n"
         f"Vendor directory exists: {os.path.isdir(_VENDOR_DIR)}\n"
-        f"Resolved STRling Python source: {_PYTHON_SRC or '<not found>'}\n"
         f"Current working directory: {os.getcwd()}\n"
         f"Python executable: {sys.executable}\n"
         f"PYTHONPATH env: {os.environ.get('PYTHONPATH', '<unset>')}\n"
         "sys.path matrix:\n"
         f"{_format_sys_path_matrix()}\n"
         "Next step: rebuild the extension dist folder so dist/server/libs contains "
-        "pygls, lsprotocol, and the STRling Python binding before relaunching the server.\n"
+        "the packaged transport and canonical editor adapters before relaunching the server.\n"
     )
     sys.exit(1)
 
@@ -106,18 +86,6 @@ try:
         _USING_REAL_PYGLS = False
 except ImportError as import_error:
     _exit_with_import_context("its transport dependencies", import_error)
-
-# Make the in-tree Python binding importable when running the LSP server
-# directly out of the repository (the common development path). Production
-# installs that already have ``STRling`` on ``sys.path`` are unaffected
-# because :func:`Path.insert` is idempotent for duplicate entries here.
-_PYTHON_SRC_PATH = Path(_PYTHON_SRC) if _PYTHON_SRC is not None else None
-if (
-    _PYTHON_SRC_PATH is not None
-    and _PYTHON_SRC_PATH.is_dir()
-    and str(_PYTHON_SRC_PATH) not in sys.path
-):
-    sys.path.insert(0, str(_PYTHON_SRC_PATH))
 
 try:
     try:
@@ -144,7 +112,6 @@ try:
             catalog_definition,
             host_completion,
         )
-        from .deferred_intelligence import format_pattern
         from .island_extractor import (
             Island,
             extract_islands_for_uri,
@@ -174,16 +141,13 @@ try:
         catalog_definition = canonical_intelligence.catalog_definition
         host_completion = canonical_intelligence.host_completion
 
-        deferred = import_module("deferred_intelligence")
-        format_pattern = deferred.format_pattern
-
         from island_extractor import (  # type: ignore[no-redef]
             Island,
             extract_islands_for_uri,
             language_for_uri,
         )
 except ImportError as import_error:
-    _exit_with_import_context("its canonical/deferred editor adapters", import_error)
+    _exit_with_import_context("its canonical editor adapters", import_error)
 
 
 # Define the server with proper protocol
@@ -264,16 +228,15 @@ get_diagnostics_from_cli = get_diagnostics_for_pattern
 # bridge extracts those literals into Virtual Documents, runs the unified
 # intelligence layer on each, and then *projects* the diagnostics back onto
 # the host file's coordinate system so editors render the squigglies in the
-# right place. See ``STRling.core.islands`` for the projection algebra.
+# right place. ``server.island_extractor`` owns this tooling-only projection.
 #
 # Per-URI cache of the most recent island layout — used by hover routing
 # without re-scanning the source.
 _ISLANDS_BY_URI: Dict[str, List[Island]] = {}
 
-# Per-URI cache of the last published diagnostics. The code-action handler
-# consults this cache when the LSP client does not forward the diagnostics
-# in ``CodeActionContext`` (older clients, custom hosts) so the lightbulb
-# still resolves to the correct quick-fix.
+# Per-URI cache of the last published diagnostics. Code actions intentionally
+# do not consult this cache: the client must return the exact diagnostic for
+# the current immutable snapshot before a certified rewrite is materialized.
 _LAST_DIAGNOSTICS: Dict[str, List["lsp.Diagnostic"]] = {}
 
 # Debounce table: ``uri -> Timer``. Rapid keystrokes only trigger one
@@ -1098,7 +1061,7 @@ def completion(
 
 
 # --------------------------------------------------------------------------- #
-# Code actions: REDOS_RISK quick-fixes                                        #
+# Code actions: certified canonical Semantic rewrites                          #
 # --------------------------------------------------------------------------- #
 #
 # When the parser flags a nested unbounded quantifier (the canonical
@@ -1110,7 +1073,7 @@ def completion(
 # line literals and inside multi-line raw strings.
 
 _CODE_ACTION_OPTIONS = lsp.CodeActionOptions(
-    code_action_kinds=[lsp.CodeActionKind.QuickFix, lsp.CodeActionKind.RefactorRewrite],
+    code_action_kinds=[lsp.CodeActionKind.RefactorRewrite],
     resolve_provider=False,
 )
 
@@ -1126,68 +1089,86 @@ def _ranges_overlap(a: lsp.Range, b: lsp.Range) -> bool:
     return True
 
 
-def _redos_actions_for_diagnostic(
-    uri: str, diag: lsp.Diagnostic
-) -> List[lsp.CodeAction]:
-    """Materialise the rewrites attached to a REDOS_RISK diagnostic.
+def _ranges_equal(a: lsp.Range, b: lsp.Range) -> bool:
+    return (
+        a.start.line == b.start.line
+        and a.start.character == b.start.character
+        and a.end.line == b.end.line
+        and a.end.character == b.end.character
+    )
 
-    The diagnostic's ``range`` is already in host coordinates (projected
-    by :func:`_project_diagnostic` for host languages, or native for
-    ``.strl`` files), so the ``TextEdit`` simply replaces that range with
-    the proposed text. The first action is marked ``isPreferred`` so the
-    editor's default lightbulb keystroke applies the safest rewrite.
-    """
-    data = diag.data or {}
-    replacements = data.get("replacements") or []
-    if not replacements:
-        return []
-    actions: List[lsp.CodeAction] = []
-    for idx, replacement in enumerate(replacements):
-        new_text = replacement.get("newText") or replacement.get("text") or ""
-        title = replacement.get("title") or "Apply STRling safety rewrite"
-        edit = lsp.WorkspaceEdit(
-            changes={uri: [lsp.TextEdit(range=diag.range, new_text=new_text)]}
-        )
-        actions.append(
-            lsp.CodeAction(
-                title=title,
-                kind=lsp.CodeActionKind.QuickFix,
-                diagnostics=[diag],
-                edit=edit,
-                is_preferred=(idx == 0),
-            )
-        )
-    return actions
+
+def _canonical_diagnostic_source_id(diag: lsp.Diagnostic) -> Optional[str]:
+    data = diag.data if isinstance(diag.data, dict) else {}
+    canonical = data.get("canonical")
+    if not isinstance(canonical, dict):
+        return None
+    location = canonical.get("primary_location")
+    if not isinstance(location, dict):
+        return None
+    source_id = location.get("source_id")
+    return source_id if isinstance(source_id, str) else None
 
 
 @server.feature(lsp.TEXT_DOCUMENT_CODE_ACTION, _CODE_ACTION_OPTIONS)
 def code_action(
     ls: STRlingLanguageServer, params: lsp.CodeActionParams
 ) -> List[lsp.CodeAction]:
-    """Return quick-fix code actions for STRling-emitted diagnostics.
-
-    Walks ``params.context.diagnostics`` (LSP guarantees these are scoped
-    to the requested ``range``) and produces a quick-fix per safety
-    rewrite carried in each diagnostic's ``data`` payload. Diagnostics
-    without a ``data.replacements`` payload are ignored, leaving room
-    for non-actionable warnings to coexist alongside actionable ones.
-    """
+    """Materialize certified rewrites for exact current Semantic evidence."""
     uri = params.text_document.uri
-    actions: List[lsp.CodeAction] = []
     context = params.context
     diagnostics = list(context.diagnostics) if context else []
-
-    # Fall back to the full per-URI diagnostic cache when the client did
-    # not pre-filter (older clients sometimes pass an empty list).
     if not diagnostics:
-        diagnostics = list(_LAST_DIAGNOSTICS.get(uri, []))
+        return []
+    compiled = _snapshot_result_for_hover(ls, uri)
+    if compiled is None or len(compiled.units) != 1:
+        return []
+    unit = compiled.units[0]
+    if unit.frontend != "semantic" or unit.island is not None:
+        return []
+    evidence = _project_editor_unit(compiled, unit, None)
+    if evidence is None:
+        return []
 
-    for diag in diagnostics:
-        if diag.code != "REDOS_RISK":
+    actions: List[lsp.CodeAction] = []
+    for rewrite in evidence["rewrite_actions"]:
+        action_range = _editor_span_range(
+            rewrite["wrapper_span"], unit, compiled.snapshot.source
+        )
+        if not _ranges_overlap(action_range, params.range):
             continue
-        if not _ranges_overlap(diag.range, params.range):
+        matching = next(
+            (
+                diagnostic
+                for diagnostic in diagnostics
+                if str(diagnostic.code) == rewrite["diagnostic_code"]
+                and _canonical_diagnostic_source_id(diagnostic)
+                == rewrite["source_id"]
+                and _ranges_equal(diagnostic.range, action_range)
+                and _ranges_overlap(diagnostic.range, params.range)
+            ),
+            None,
+        )
+        if matching is None:
             continue
-        actions.extend(_redos_actions_for_diagnostic(uri, diag))
+        actions.append(
+            lsp.CodeAction(
+                title=rewrite["explanation"],
+                kind=lsp.CodeActionKind.RefactorRewrite,
+                diagnostics=[matching],
+                edit=lsp.WorkspaceEdit(
+                    changes={
+                        uri: [
+                            lsp.TextEdit(
+                                range=action_range,
+                                new_text=rewrite["replacement_text"],
+                            )
+                        ]
+                    }
+                ),
+                is_preferred=False,
+            )
+        )
     return actions
 
 
@@ -1430,91 +1411,35 @@ def references(
 # Document formatting                                                         #
 # --------------------------------------------------------------------------- #
 #
-# Native ``.strl`` files are formatted end-to-end. Host-language files
-# format each island independently and emit one ``TextEdit`` per island
-# whose range covers only the *interior* of the literal, leaving the
-# host-language quotes, brackets, and surrounding code untouched.
-
-
-def _island_host_range(island: Island) -> lsp.Range:
-    """Return the host-coordinate range covering an island's interior."""
-    lines = island.virtual_content.split("\n")
-    last_line_idx = max(0, len(lines) - 1)
-    last_len = len(lines[last_line_idx])
-    end = island.to_host(last_line_idx, last_len)
-    return lsp.Range(
-        start=lsp.Position(
-            line=island.host_start.line, character=island.host_start.character
-        ),
-        end=lsp.Position(line=end.line, character=end.character),
-    )
-
-
-def _indent_string(options: Optional[lsp.FormattingOptions]) -> str:
-    """Build the per-level indent token from the client's options."""
-    if options is None:
-        return "  "
-    if not options.insert_spaces:
-        return "\t"
-    size = max(1, int(options.tab_size or 2))
-    return " " * size
-
-
-def _format_islands_into_host(islands: List[Island], indent: str) -> List[lsp.TextEdit]:
-    """Pretty-print each island and turn the result into host-scoped edits."""
-    edits: List[lsp.TextEdit] = []
-    for island in islands:
-        result = format_pattern(island.virtual_content, indent=indent)
-        if not result.get("success"):
-            continue
-        formatted = str(result.get("formatted") or "").rstrip("\n")
-        if formatted == island.virtual_content:
-            continue
-        edits.append(lsp.TextEdit(range=_island_host_range(island), new_text=formatted))
-    return edits
+# Only complete, native ``*.semantic.strling`` snapshots have a canonical
+# formatter projection. Regex-compatible sources and host islands are
+# intentionally non-formatting surfaces.
 
 
 @server.feature(lsp.TEXT_DOCUMENT_FORMATTING)
 def formatting(
     ls: STRlingLanguageServer, params: lsp.DocumentFormattingParams
 ) -> List[lsp.TextEdit]:
-    """Format the document and return the minimal set of replacement edits.
-
-    Host-language files only rewrite the *interior* of each island so
-    the surrounding quotes, brackets, and host syntax stay intact --
-    formatting an embedded pattern can never corrupt the surrounding
-    Python/TypeScript/Rust/Java code.
-    """
+    """Return one canonical full-document Semantic formatting edit."""
     uri = params.text_document.uri
-    try:
-        doc = ls.workspace.get_text_document(uri)
-        source = doc.source
-    except Exception:
+    compiled = _snapshot_result_for_hover(ls, uri)
+    if compiled is None or len(compiled.units) != 1:
         return []
-
-    indent = _indent_string(params.options)
-
-    if language_for_uri(uri) is not None:
-        islands = _ISLANDS_BY_URI.get(uri) or extract_islands_for_uri(source, uri)
-        _ISLANDS_BY_URI[uri] = islands
-        return _format_islands_into_host(islands, indent)
-
-    result = format_pattern(source, indent=indent)
-    if not result.get("success"):
+    unit = compiled.units[0]
+    if unit.frontend != "semantic" or unit.island is not None:
         return []
-    formatted = str(result.get("formatted") or "")
-    if formatted == source:
+    evidence = _project_editor_unit(compiled, unit, None)
+    if evidence is None:
         return []
-    # Replace the entire native document. The end-of-document position is
-    # computed from the last line so the edit covers every existing byte.
-    lines = source.split("\n")
-    end_line = max(0, len(lines) - 1)
-    end_char = len(lines[end_line])
+    formatted = evidence.get("formatted_source")
+    if not isinstance(formatted, str) or formatted == compiled.snapshot.source:
+        return []
     return [
         lsp.TextEdit(
-            range=lsp.Range(
-                start=lsp.Position(line=0, character=0),
-                end=lsp.Position(line=end_line, character=end_char),
+            range=_editor_span_range(
+                {"start": 0, "end": len(compiled.snapshot.source.encode("utf-8"))},
+                unit,
+                compiled.snapshot.source,
             ),
             new_text=formatted,
         )

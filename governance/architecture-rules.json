@@ -233,20 +233,23 @@
         },
         {
             "id": "lsp-python-binding-semantic-dependency",
-            "description": "Deferred formatting/code-action support and host-island extraction still reach the transitional Python binding; canonical editor evidence does not.",
-            "status": "transitional",
+            "description": "Canonical LSP code actions, formatting, island extraction, and their closed evidence must not import the transitional Python binding.",
+            "status": "enforced",
             "kind": "forbidden-import",
             "configuration": {
                 "sources": [
                     "tooling/lsp-server/island_extractor.py",
+                    "tooling/lsp-server/server/canonical_intelligence.py",
                     "tooling/lsp-server/server/island_extractor.py",
-                    "tooling/lsp-server/server/deferred_intelligence.py",
-                    "tooling/lsp-server/tests/test_code_actions.py"
+                    "tooling/lsp-server/server/server.py",
+                    "tooling/lsp-server/tests/canonical_actions_islands_evidence.py",
+                    "tooling/lsp-server/tests/test_canonical_actions_islands_evidence.py",
+                    "tooling/lsp-server/tests/test_code_actions.py",
+                    "tooling/lsp-server/tests/test_formatting.py",
+                    "tooling/lsp-server/tests/test_island_extractor.py"
                 ],
                 "forbidden_modules": ["STRling"]
-            },
-            "rationale": "P16-T02 removed the binding semantic dependency from diagnostics and hover. P16-T03 removed it from completion, navigation, semantic tokens, symbols, and references. P16-T04 owns formatting/code actions; island extraction remains a bounded coordinate adapter until those tasks retire the final binding imports.",
-            "retirement_condition": "Route formatting, code actions, and island extraction through canonical evidence, remove every direct STRling binding import from tooling, and promote the whole LSP boundary to enforced."
+            }
         },
         {
             "id": "lsp-canonical-diagnostics-hover-boundary",

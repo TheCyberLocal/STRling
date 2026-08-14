@@ -521,6 +521,8 @@ pub(crate) fn project_editor(
         captures,
         completions,
         replacement_span,
+        formatted_source: None,
+        rewrite_actions: Vec::new(),
     }
 }
 

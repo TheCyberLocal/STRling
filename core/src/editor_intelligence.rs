@@ -11,11 +11,12 @@ use crate::source::SourceDocument;
 use crate::{regex_frontend, semantic_frontend};
 
 pub const EDITOR_EVIDENCE_CONTRACT_VERSION: &str = "1.0.0";
-pub const EDITOR_PROJECTION_VERSION: &str = "1.0.0";
+pub const EDITOR_PROJECTION_VERSION: &str = "1.1.0";
 pub const MAX_COMPLETION_ITEMS: usize = 256;
 pub const MAX_TOKENS: usize = 16_384;
 pub const MAX_SYMBOLS: usize = 4_096;
 pub const MAX_CAPTURE_LOCATIONS: usize = 16_384;
+pub const MAX_REWRITE_ACTIONS: usize = 256;
 
 /// Return the frontend-owned editor classification catalog for drift tests.
 #[must_use]
@@ -136,6 +137,31 @@ pub struct EditorCompletion {
     pub detail: String,
 }
 
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum EditorRewriteProofCondition {
+    OriginalNodeIsRepeat,
+    DirectBodyRelationship,
+    BoundsExactlyOne,
+    ModeNonPossessive,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
+pub struct EditorRewriteAction {
+    pub source_id: String,
+    pub diagnostic_code: String,
+    pub strategy_id: String,
+    pub strategy_fingerprint: String,
+    pub semantic_program: String,
+    pub removed_wrapper_node_id: String,
+    pub replacement_node_id: String,
+    pub wrapper_span: EditorSpan,
+    pub replacement_span: EditorSpan,
+    pub replacement_text: String,
+    pub proof_conditions: Vec<EditorRewriteProofCondition>,
+    pub explanation: String,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct FrontendEditorEvidence {
     pub parse_status: EditorParseStatus,
@@ -144,6 +170,8 @@ pub(crate) struct FrontendEditorEvidence {
     pub captures: Vec<EditorCaptureLink>,
     pub completions: Vec<EditorCompletion>,
     pub replacement_span: Option<EditorSpan>,
+    pub formatted_source: Option<String>,
+    pub rewrite_actions: Vec<EditorRewriteAction>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
@@ -159,6 +187,9 @@ pub struct EditorEvidence {
     pub completions: Vec<EditorCompletion>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub replacement_span: Option<EditorSpan>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub formatted_source: Option<String>,
+    pub rewrite_actions: Vec<EditorRewriteAction>,
     pub truncated: bool,
 }
 
@@ -211,6 +242,7 @@ pub fn project(request: &EditorRequest) -> Result<EditorEvidence, EditorRequestE
     let mut truncated = false;
     truncated |= truncate(&mut projected.completions, MAX_COMPLETION_ITEMS);
     truncated |= truncate(&mut projected.tokens, MAX_TOKENS);
+    truncated |= truncate(&mut projected.rewrite_actions, MAX_REWRITE_ACTIONS);
     let symbol_count = count_symbols(&projected.symbols);
     if symbol_count > MAX_SYMBOLS {
         projected.symbols.clear();
@@ -236,6 +268,8 @@ pub fn project(request: &EditorRequest) -> Result<EditorEvidence, EditorRequestE
         captures: projected.captures,
         completions: projected.completions,
         replacement_span: projected.replacement_span,
+        formatted_source: projected.formatted_source,
+        rewrite_actions: projected.rewrite_actions,
         truncated,
     })
 }

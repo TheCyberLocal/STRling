@@ -1,199 +1,254 @@
-"""Code-action coverage for the STRling language server.
-
-The tests verify that nested unbounded quantifiers are surfaced as
-``REDOS_RISK`` warnings *and* materialise as concrete quick-fix code
-actions whose ``WorkspaceEdit`` targets the correct host coordinates
-inside both native ``.strl`` files and embedded host-language literals.
-"""
+"""Certified canonical code-action coverage for the STRling LSP."""
 
 from __future__ import annotations
 
-import os
+import json
+from pathlib import Path
 import sys
+from typing import Any
 
 import pytest
 
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-PY_SRC = os.path.join(ROOT, "bindings", "python", "src")
-LSP_SRC = os.path.join(ROOT, "tooling", "lsp-server")
-
-for path in (PY_SRC, LSP_SRC):
-    if path not in sys.path:
-        sys.path.insert(0, path)
-
-
-from STRling.core.intelligence import (  # noqa: E402
-    analyze_content,
-    detect_safety_diagnostics,
+LSP_ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY_ROOT = LSP_ROOT.parents[1]
+MANIFEST_PATH = (
+    LSP_ROOT / "tests" / "fixtures" / "canonical-actions-islands" / "manifest.json"
 )
+if str(LSP_ROOT) not in sys.path:
+    sys.path.insert(0, str(LSP_ROOT))
 
 
-# --------------------------------------------------------------------------- #
-# Detector                                                                    #
-# --------------------------------------------------------------------------- #
+def _manifest() -> dict[str, Any]:
+    return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
 
-class TestRedosDetector:
-    def test_canonical_nested_quantifier_flagged(self) -> None:
-        diags = detect_safety_diagnostics("(a+)+")
-        assert len(diags) == 1
-        d = diags[0]
-        assert d["code"] == "REDOS_RISK"
-        assert d["severity"] == 2
-        assert d["range"]["start"] == {"line": 0, "character": 0}
-        assert d["range"]["end"] == {"line": 0, "character": 5}
-
-    def test_replacements_payload_shape(self) -> None:
-        d = detect_safety_diagnostics("(a+)+")[0]
-        replacements = d["data"]["replacements"]
-        assert len(replacements) == 2
-        atomic, possessive = replacements
-        assert atomic["newText"] == "(?>a+)+"
-        assert possessive["newText"] == "(a++)+"
-        assert "atomic" in atomic["title"].lower()
-        assert "possessive" in possessive["title"].lower()
-
-    def test_star_inner_and_outer(self) -> None:
-        diags = detect_safety_diagnostics("(a*)*")
-        assert len(diags) == 1
-        replacements = diags[0]["data"]["replacements"]
-        assert replacements[0]["newText"] == "(?>a*)*"
-        assert replacements[1]["newText"] == "(a*+)*"
-
-    def test_no_warning_for_safe_patterns(self) -> None:
-        assert detect_safety_diagnostics("(abc)+") == []
-        assert detect_safety_diagnostics("a+") == []
-        assert detect_safety_diagnostics("") == []
-
-    def test_multiline_range_projection(self) -> None:
-        src = "Word()\n  (a+)+\n"
-        diags = detect_safety_diagnostics(src)
-        assert len(diags) == 1
-        rng = diags[0]["range"]
-        assert rng["start"] == {"line": 1, "character": 2}
-        assert rng["end"] == {"line": 1, "character": 7}
-
-    def test_analyze_content_threads_safety_warnings(self) -> None:
-        out = analyze_content("(a+)+")
-        assert out["success"] is True
-        assert any(d["code"] == "REDOS_RISK" for d in out["diagnostics"])
+def _case(identifier: str) -> dict[str, Any]:
+    return next(case for case in _manifest()["action_cases"] if case["id"] == identifier)
 
 
-# --------------------------------------------------------------------------- #
-# Server-level code action handler                                            #
-# --------------------------------------------------------------------------- #
+class _Document:
+    def __init__(self, source: str, version: int = 1) -> None:
+        self.source = source
+        self.version = version
+
+
+class _Workspace:
+    def __init__(self, uri: str, source: str) -> None:
+        self.documents = {uri: _Document(source)}
+
+    def get_text_document(self, uri: str) -> _Document:
+        return self.documents[uri]
 
 
 @pytest.fixture
 def server_module():
-    # ``server`` is a package whose hand-authored implementation lives in
-    # ``server/server.py``; the package ``__init__`` is intentionally empty,
-    # so we import the inner submodule directly to access the in-process
-    # caches and handler functions.
-    from server import server as server_mod  # type: ignore[import-not-found]
+    from server import server as module
 
-    server_mod._LAST_DIAGNOSTICS.clear()
-    server_mod._ISLANDS_BY_URI.clear()
-    return server_mod
+    with module._STATE_LOCK:
+        module._ISLANDS_BY_URI.clear()
+        module._LAST_DIAGNOSTICS.clear()
+        module._CANONICAL_RESULTS_BY_URI.clear()
+        module._SNAPSHOTS_BY_URI.clear()
+        module._RESULT_CACHE.clear()
+        module._RESULT_CACHE_ORDER.clear()
+        module._EDITOR_CACHE.clear()
+        module._EDITOR_CACHE_ORDER.clear()
+    return module
 
 
 @pytest.fixture
 def lsp_module():
-    from lsprotocol import types as lsp  # type: ignore[import-not-found]
+    from lsprotocol import types as lsp
 
     return lsp
 
 
-class TestCodeActionRegistration:
-    def test_feature_registered(self, server_module, lsp_module) -> None:
-        assert lsp_module.TEXT_DOCUMENT_CODE_ACTION in server_module.server._features
-        opts = server_module.server._feature_options[
-            lsp_module.TEXT_DOCUMENT_CODE_ACTION
-        ]
-        assert lsp_module.CodeActionKind.QuickFix in opts.code_action_kinds
+def _compile_current(module: Any, uri: str, source: str) -> Any:
+    module.server.workspace = _Workspace(uri, source)
+    snapshot = module._capture_snapshot(module.server, uri, 1)
+    compiled = module._compile_snapshot(snapshot)
+    with module._STATE_LOCK:
+        module._CANONICAL_RESULTS_BY_URI[uri] = compiled
+    return compiled
 
 
-class TestNativeStrlCodeActions:
-    def test_redos_quickfix_in_native_pattern(self, server_module, lsp_module) -> None:
-        diags = server_module.get_diagnostics_for_pattern("(a+)+")
-        redos = [d for d in diags if d.code == "REDOS_RISK"]
-        assert len(redos) == 1
-        diag = redos[0]
-        assert diag.range.start.character == 0
-        assert diag.range.end.character == 5
-
-        params = lsp_module.CodeActionParams(
-            text_document=lsp_module.TextDocument(uri="file:///tmp/x.strl"),
-            range=diag.range,
-            context=lsp_module.CodeActionContext(diagnostics=diags),
-        )
-        actions = server_module.code_action(server_module.server, params)
-        assert len(actions) == 2
-        assert actions[0].is_preferred is True
-        assert actions[0].kind == lsp_module.CodeActionKind.QuickFix
-        edit = actions[0].edit.changes["file:///tmp/x.strl"][0]
-        assert edit.new_text == "(?>a+)+"
-        assert edit.range.start.character == 0
-        assert edit.range.end.character == 5
+def _request(lsp: Any, uri: str, request_range: Any, diagnostics: list[Any]) -> Any:
+    return lsp.CodeActionParams(
+        text_document=lsp.TextDocument(uri=uri),
+        range=request_range,
+        context=lsp.CodeActionContext(diagnostics=diagnostics),
+    )
 
 
-class TestHostLiteralCodeActions:
-    def test_python_literal_pixel_perfect(self, server_module, lsp_module) -> None:
-        py_src = 'pattern = s.parse("(a+)+")\n'
-        uri = "file:///tmp/x.py"
-        host_diags = server_module._diagnostics_for_host(uri, py_src)
-        redos = [d for d in host_diags if d.code == "REDOS_RISK"]
-        assert len(redos) == 1
-        expected_col = py_src.index("(a+)+")
-        assert redos[0].range.start.line == 0
-        assert redos[0].range.start.character == expected_col
-        assert redos[0].range.end.character == expected_col + 5
+def test_only_certified_refactor_rewrites_are_advertised(
+    server_module: Any, lsp_module: Any
+) -> None:
+    options = server_module.server._feature_options[lsp_module.TEXT_DOCUMENT_CODE_ACTION]
+    assert options.code_action_kinds == [lsp_module.CodeActionKind.RefactorRewrite]
 
-        params = lsp_module.CodeActionParams(
-            text_document=lsp_module.TextDocument(uri=uri),
-            range=redos[0].range,
-            context=lsp_module.CodeActionContext(diagnostics=host_diags),
-        )
-        actions = server_module.code_action(server_module.server, params)
-        assert {a.title for a in actions} == {
-            actions[0].title,
-            actions[1].title,
-        }
-        atomic_edit = actions[0].edit.changes[uri][0]
-        assert atomic_edit.new_text == "(?>a+)+"
-        assert atomic_edit.range.start.character == expected_col
-        assert atomic_edit.range.end.character == expected_col + 5
 
-    def test_typescript_template_literal_multiline(
-        self, server_module, lsp_module
-    ) -> None:
-        # Template literals can span multiple lines; the projector must
-        # walk the per-line offsets table to land the edit on the right row.
-        ts_src = "const p = strl.simply.parse(`\n  (a+)+\n`);\n"
-        uri = "file:///tmp/x.ts"
-        host_diags = server_module._diagnostics_for_host(uri, ts_src)
-        redos = [d for d in host_diags if d.code == "REDOS_RISK"]
-        assert len(redos) == 1
-        # The literal opens on line 0, but `(a+)+` lives on line 1 of the
-        # host file (continuation lines start at col 0 in virtual coords,
-        # which projects back to host col == virtual col).
-        assert redos[0].range.start.line == 1
-        assert redos[0].range.start.character == 2
-        assert redos[0].range.end.character == 7
+def test_exact_current_semantic_diagnostic_materializes_certified_edit(
+    server_module: Any, lsp_module: Any
+) -> None:
+    case = _case("action.semantic.greedy")
+    uri = "file:///actions/positive.semantic.strling"
+    compiled = _compile_current(server_module, uri, case["source"])
+    diagnostic = next(
+        item for item in compiled.diagnostics if item.code == case["diagnostic_code"]
+    )
 
-    def test_outside_range_yields_no_actions(self, server_module, lsp_module) -> None:
-        py_src = 'pattern = s.parse("(a+)+")\n'
-        uri = "file:///tmp/x.py"
-        host_diags = server_module._diagnostics_for_host(uri, py_src)
-        outside = lsp_module.Range(
+    actions = server_module.code_action(
+        server_module.server,
+        _request(lsp_module, uri, diagnostic.range, [diagnostic]),
+    )
+
+    assert len(actions) == 1
+    action = actions[0]
+    assert action.kind == lsp_module.CodeActionKind.RefactorRewrite
+    assert action.is_preferred is False
+    assert action.diagnostics == [diagnostic]
+    edit = action.edit.changes[uri][0]
+    assert edit.range == diagnostic.range
+    assert edit.new_text == case["replacement_text"]
+
+
+def test_nested_exact_once_nodes_remain_independent_single_edits(
+    server_module: Any, lsp_module: Any
+) -> None:
+    case = _case("action.semantic.nested_outer")
+    uri = "file:///actions/nested.semantic.strling"
+    compiled = _compile_current(server_module, uri, case["source"])
+    diagnostics = [
+        item for item in compiled.diagnostics if item.code == "STRL-QUALITY-0002"
+    ]
+    whole_document = lsp_module.Range(
+        start=lsp_module.Position(line=0, character=0),
+        end=lsp_module.Position(line=20, character=0),
+    )
+
+    actions = server_module.code_action(
+        server_module.server,
+        _request(lsp_module, uri, whole_document, diagnostics),
+    )
+
+    assert len(actions) == 2
+    edits = [action.edit.changes[uri] for action in actions]
+    assert all(len(group) == 1 for group in edits)
+    assert len({group[0].range.start.character for group in edits}) == 2
+
+
+@pytest.mark.parametrize(
+    "identifier,uri",
+    [
+        ("action.refuse.regex_exact", "file:///actions/refuse.strl"),
+        ("action.refuse.redos", "file:///actions/redos.strl"),
+        ("action.refuse.safety_code", "file:///actions/safety.semantic.strling"),
+        ("action.refuse.comment_loss", "file:///actions/comment.semantic.strling"),
+        ("action.refuse.malformed", "file:///actions/malformed.semantic.strling"),
+    ],
+)
+def test_unproved_frontends_shapes_and_source_loss_return_no_action(
+    server_module: Any, lsp_module: Any, identifier: str, uri: str
+) -> None:
+    case = _case(identifier)
+    compiled = _compile_current(server_module, uri, case["source"])
+    diagnostics = list(compiled.diagnostics)
+    request_range = (
+        diagnostics[0].range
+        if diagnostics
+        else lsp_module.Range(
             start=lsp_module.Position(line=0, character=0),
-            end=lsp_module.Position(line=0, character=2),
+            end=lsp_module.Position(line=20, character=0),
         )
-        params = lsp_module.CodeActionParams(
-            text_document=lsp_module.TextDocument(uri=uri),
-            range=outside,
-            context=lsp_module.CodeActionContext(diagnostics=host_diags),
+    )
+    assert (
+        server_module.code_action(
+            server_module.server,
+            _request(lsp_module, uri, request_range, diagnostics),
         )
-        actions = server_module.code_action(server_module.server, params)
-        assert actions == []
+        == []
+    )
+
+
+def test_empty_mismatched_stale_and_host_contexts_fail_closed(
+    server_module: Any, lsp_module: Any
+) -> None:
+    case = _case("action.semantic.greedy")
+    uri = "file:///actions/refusal.semantic.strling"
+    compiled = _compile_current(server_module, uri, case["source"])
+    diagnostic = compiled.diagnostics[0]
+
+    assert (
+        server_module.code_action(
+            server_module.server,
+            _request(lsp_module, uri, diagnostic.range, []),
+        )
+        == []
+    )
+
+    mismatched = lsp_module.Diagnostic(
+        range=diagnostic.range,
+        message=diagnostic.message,
+        severity=diagnostic.severity,
+        source=diagnostic.source,
+        code="STRL-SAFETY-0003",
+        data=diagnostic.data,
+    )
+    assert (
+        server_module.code_action(
+            server_module.server,
+            _request(lsp_module, uri, diagnostic.range, [mismatched]),
+        )
+        == []
+    )
+
+    server_module.server.workspace.documents[uri].source = case["source"].replace(
+        'text "a"', 'text "b"'
+    )
+    assert (
+        server_module.code_action(
+            server_module.server,
+            _request(lsp_module, uri, diagnostic.range, [diagnostic]),
+        )
+        == []
+    )
+
+    host_uri = "file:///actions/host.py"
+    host_source = 'pattern = s.parse("a{1}")\n'
+    host = _compile_current(server_module, host_uri, host_source)
+    assert (
+        server_module.code_action(
+            server_module.server,
+            _request(
+                lsp_module,
+                host_uri,
+                lsp_module.Range(
+                    start=lsp_module.Position(line=0, character=0),
+                    end=lsp_module.Position(line=0, character=len(host_source)),
+                ),
+                list(host.diagnostics),
+            ),
+        )
+        == []
+    )
+
+
+def test_disjoint_request_range_returns_no_action(
+    server_module: Any, lsp_module: Any
+) -> None:
+    case = _case("action.semantic.greedy")
+    uri = "file:///actions/outside.semantic.strling"
+    compiled = _compile_current(server_module, uri, case["source"])
+    diagnostic = compiled.diagnostics[0]
+    outside = lsp_module.Range(
+        start=lsp_module.Position(line=0, character=0),
+        end=lsp_module.Position(line=0, character=1),
+    )
+    assert (
+        server_module.code_action(
+            server_module.server,
+            _request(lsp_module, uri, outside, [diagnostic]),
+        )
+        == []
+    )

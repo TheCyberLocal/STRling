@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const testsDir = path.join(__dirname, "../../bindings/javascript/__tests__");
 const outDir = path.join(__dirname, "fixtures");
@@ -8,11 +9,10 @@ const outDir = path.join(__dirname, "fixtures");
 // --------------------------------------------------------------------------
 // Shared Island-Grammar boundary registry.
 //
-// The Python language-intelligence layer (bindings/python/src/STRling/core/islands.py)
-// and this Node-side test extractor read boundary-call regexes from the same
-// canonical JSON file: spec/tooling/island_boundaries.json. Keeping a single
-// source of truth prevents the LSP and the test-fixture pipeline from drifting
-// on which call shapes count as "embedded STRling".
+// The LSP source-coordinate adapter and this Node-side fixture extractor read
+// the same closed tooling registry. Missing, malformed, stale, or unsupported
+// registry data is fatal: this consumer must never widen extraction through a
+// local fallback.
 // --------------------------------------------------------------------------
 const BOUNDARY_SPEC_PATH = path.join(
     __dirname,
@@ -26,9 +26,54 @@ const BOUNDARY_SPEC_PATH = path.join(
 function loadTypescriptBoundaryRegex() {
     try {
         const spec = JSON.parse(fs.readFileSync(BOUNDARY_SPEC_PATH, "utf8"));
-        const entry = (spec.languages && spec.languages.typescript) || {};
-        const patterns = entry.boundaries || [];
-        if (patterns.length === 0) return null;
+        if (
+            spec.contract_version !== "1.0.0" ||
+            spec.registry_id !== "strling.tooling.island-boundaries" ||
+            !Array.isArray(spec.hosts)
+        ) {
+            throw new Error("unsupported island boundary registry");
+        }
+        const canonicalJson = (value) => {
+            if (Array.isArray(value))
+                return `[${value.map(canonicalJson).join(",")}]`;
+            if (value !== null && typeof value === "object") {
+                return `{${Object.keys(value)
+                    .sort()
+                    .map(
+                        (key) =>
+                            `${JSON.stringify(key)}:${canonicalJson(value[key])}`,
+                    )
+                    .join(",")}}`;
+            }
+            return JSON.stringify(value);
+        };
+        const payload = { ...spec };
+        delete payload.fingerprint;
+        const fingerprint =
+            "sha256:" +
+            crypto
+                .createHash("sha256")
+                .update(canonicalJson(payload), "utf8")
+                .digest("hex");
+        if (spec.fingerprint !== fingerprint) {
+            throw new Error("island boundary registry fingerprint mismatch");
+        }
+        const entry = spec.hosts.find(
+            (host) => host.language_id === "typescript",
+        );
+        if (
+            !entry ||
+            entry.scanner !== "typescript" ||
+            entry.target_profile_policy !== "never_infer"
+        ) {
+            throw new Error("TypeScript island route is unavailable");
+        }
+        const patterns = (entry.boundaries || []).map(
+            (boundary) => boundary.expression,
+        );
+        if (patterns.length === 0) {
+            throw new Error("TypeScript island boundaries are unavailable");
+        }
         // Boundaries terminate immediately before the opening string
         // delimiter; we anchor a literal scanner directly after the match.
         const combined = patterns.map((p) => `(?:${p})`).join("|");
@@ -37,15 +82,29 @@ function loadTypescriptBoundaryRegex() {
             "g",
         );
     } catch (err) {
-        console.warn(
-            `[extract_patterns] Could not load shared boundary spec at ${BOUNDARY_SPEC_PATH}; falling back to permissive parse() match.`,
-            err && err.message,
+        throw new Error(
+            `[extract_patterns] governed island registry unavailable: ${err && err.message}`,
         );
-        return null;
     }
 }
 
 const BOUNDARY_REGEX = loadTypescriptBoundaryRegex();
+
+function identityLiteralContent(literal) {
+    if (!literal || literal.includes("\\")) return null;
+    if (literal.startsWith("String.raw`")) return null;
+    if (literal.startsWith("`") && literal.endsWith("`")) {
+        const content = literal.slice(1, -1);
+        return content.includes("${") ? null : content;
+    }
+    if (
+        (literal.startsWith('"') && literal.endsWith('"')) ||
+        (literal.startsWith("'") && literal.endsWith("'"))
+    ) {
+        return literal.slice(1, -1);
+    }
+    return null;
+}
 
 // Statistics tracking
 const stats = {
@@ -279,15 +338,13 @@ function extractPatternsFromText(fileContent, filePath) {
     // strl.parse(`...`), s.parse('...'), new Pattern("...")). The boundary
     // registry is loaded from the shared spec so this stays in lockstep with
     // the Python LSP island extractor.
-    const parseRegex =
-        BOUNDARY_REGEX ||
-        /parse\(\s*(String\.raw`[\s\S]*?`|`[\s\S]*?`|"(?:\\.|[^\\"])*"|'(?:\\.|[^\\'])*')\s*\)/g;
+    const parseRegex = BOUNDARY_REGEX;
     parseRegex.lastIndex = 0;
     let match;
     while ((match = parseRegex.exec(fileContent)) !== null) {
         const literal = match[1];
         if (!literal) continue;
-        const pattern = unquote(literal);
+        const pattern = identityLiteralContent(literal);
         if (pattern) {
             patterns.push(pattern);
             stats.literalParse++;

@@ -1,9 +1,8 @@
-"""Coverage for document symbols, definition, and formatting handlers.
+"""Coverage for document symbols and definition handlers.
 
 These tests pin the structural-navigation surface of the STRling LSP:
-the outline tree exposed via ``textDocument/documentSymbol``, the
-registry-backed ``textDocument/definition`` jump, and the safe
-host-aware ``textDocument/formatting`` rewrite.
+the outline tree exposed via ``textDocument/documentSymbol`` and the
+registry-backed ``textDocument/definition`` jump.
 """
 
 from __future__ import annotations
@@ -27,39 +26,6 @@ LSP_SRC = os.path.join(ROOT, "tooling", "lsp-server")
 for path in (PY_SRC, LSP_SRC):
     if path not in sys.path:
         sys.path.insert(0, path)
-
-
-from server.deferred_intelligence import format_pattern  # noqa: E402
-
-
-# --------------------------------------------------------------------------- #
-# Pure intelligence layer                                                     #
-# --------------------------------------------------------------------------- #
-
-
-class TestFormatter:
-    @pytest.mark.parametrize(
-        "src",
-        [
-            "(a|bc)+(?=d)hello",
-            "(?<year>\\d{4})-(?<month>\\d{2})",
-            "(foo|bar|baz){2,5}?",
-            "[a-z]+@[a-z]+\\.[a-z]{2,}",
-            "(a(b(c(d))))",
-        ],
-    )
-    def test_round_trip_through_parser(self, src: str) -> None:
-        out = format_pattern(src)
-        assert out["success"], out
-        assert format_pattern(out["formatted"])["success"]
-
-    def test_blank_input_returns_unchanged(self) -> None:
-        assert format_pattern("")["formatted"] == ""
-
-    def test_invalid_input_surfaces_diagnostic(self) -> None:
-        out = format_pattern("(unclosed")
-        assert out["success"] is False
-        assert len(out["diagnostics"]) == 1
 
 
 # --------------------------------------------------------------------------- #
@@ -276,59 +242,6 @@ class TestCompletionAndTokenHandlers:
         start = source.index("é")
         assert first == [0, start, 1, server_module.TOKEN_TYPES.index("regexp"), 0]
         assert second == [0, 1, 1, server_module.TOKEN_TYPES.index("operator"), 0]
-
-
-class TestFormattingHandler:
-    def test_native_strl_formats_whole_document(
-        self, server_module, lsp_module
-    ) -> None:
-        src = "(a|b)+xyz"
-        _patch_workspace(server_module, src)
-        params = lsp_module.DocumentFormattingParams(
-            text_document=lsp_module.TextDocument(uri="file:///tmp/x.strl"),
-            options=lsp_module.FormattingOptions(tab_size=2, insert_spaces=True),
-        )
-        edits = server_module.formatting(server_module.server, params)
-        assert len(edits) == 1
-        assert edits[0].range.start.line == 0
-        assert edits[0].range.start.character == 0
-        # Native edit covers the whole single-line source.
-        assert edits[0].range.end.character == len(src)
-        assert "\n" in edits[0].new_text
-
-    def test_host_formatting_preserves_quotes(self, server_module, lsp_module) -> None:
-        py_src = 'pattern = s.parse("(a|b)+xyz")\n'
-        _patch_workspace(server_module, py_src)
-        params = lsp_module.DocumentFormattingParams(
-            text_document=lsp_module.TextDocument(uri="file:///tmp/x.py"),
-            options=lsp_module.FormattingOptions(tab_size=2, insert_spaces=True),
-        )
-        edits = server_module.formatting(server_module.server, params)
-        assert len(edits) == 1
-        # The edit range covers ONLY the interior of the literal: it must
-        # not include the surrounding quotes or the host code around it.
-        literal_start = py_src.index('"') + 1
-        literal_end = py_src.rindex('"')
-        assert edits[0].range.start.character == literal_start
-        assert edits[0].range.end.character == literal_end
-        assert '"' not in edits[0].new_text
-        # Applying the edit by string slicing must yield syntactically
-        # valid Python (parens balanced, quotes intact).
-        rewritten = py_src[:literal_start] + edits[0].new_text + py_src[literal_end:]
-        assert rewritten.count('"') == py_src.count('"')
-        # Parenthesis balance check on the host source.
-        assert rewritten.count("(") - rewritten.count(")") == 0
-
-    def test_no_change_returns_empty_edits(self, server_module, lsp_module) -> None:
-        src = "abc"  # already \"formatted\" \u2014 no nested groups
-        _patch_workspace(server_module, src)
-        params = lsp_module.DocumentFormattingParams(
-            text_document=lsp_module.TextDocument(uri="file:///tmp/y.strl"),
-            options=lsp_module.FormattingOptions(),
-        )
-        edits = server_module.formatting(server_module.server, params)
-        # Identity formatter result -> zero edits.
-        assert edits == [] or edits[0].new_text.strip() == "abc"
 
 
 class TestCanonicalNavigationEvidence:

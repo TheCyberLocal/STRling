@@ -15,6 +15,13 @@ fn manifest() -> Value {
         .expect("parse editor manifest")
 }
 
+fn actions_islands_manifest() -> Value {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../tooling/lsp-server/tests/fixtures/canonical-actions-islands/manifest.json");
+    serde_json::from_str(&std::fs::read_to_string(path).expect("read action/island manifest"))
+        .expect("parse action/island manifest")
+}
+
 fn request(frontend: EditorFrontend, source: &str, cursor_byte: Option<usize>) -> EditorRequest {
     EditorRequest {
         contract_version: EDITOR_EVIDENCE_CONTRACT_VERSION.to_owned(),
@@ -301,4 +308,125 @@ fn editor_transport_is_versioned_json_and_rejects_invalid_cursor_boundaries() {
     assert_eq!(value["parse_status"], "complete");
     assert_eq!(value["truncated"], false);
     assert_eq!(value["replacement_span"], json!({ "start": 0, "end": 1 }));
+    assert_eq!(value["rewrite_actions"], json!([]));
+    assert!(value.get("formatted_source").is_none());
+}
+
+#[test]
+fn semantic_editor_actions_match_certified_authored_expectations() {
+    let evidence_manifest = actions_islands_manifest();
+    for case in evidence_manifest["action_cases"]
+        .as_array()
+        .expect("action cases")
+        .iter()
+        .filter(|case| {
+            case["disposition"] == "emit_one_certified_rewrite"
+                || case["disposition"] == "emit_independent_single_edit"
+        })
+    {
+        let source = case["source"].as_str().expect("source");
+        let wrapper = case["wrapper_text"].as_str().expect("wrapper");
+        let start = source.find(wrapper).expect("unique wrapper");
+        let end = start + wrapper.len();
+        let evidence = project(&request(EditorFrontend::Semantic, source, None))
+            .unwrap_or_else(|error| panic!("{}: {error}", case["id"]));
+        let action = evidence
+            .rewrite_actions
+            .iter()
+            .find(|action| {
+                action.wrapper_span
+                    == strling_kernel::editor_intelligence::EditorSpan::new(start, end)
+            })
+            .unwrap_or_else(|| panic!("{}: missing action", case["id"]));
+        assert_eq!(action.source_id, "src:editor.test", "{}", case["id"]);
+        assert_eq!(
+            action.diagnostic_code,
+            case["diagnostic_code"].as_str().expect("diagnostic code"),
+            "{}",
+            case["id"]
+        );
+        assert_eq!(
+            action.strategy_id, "rewrite.repeat_exactly_once.elide.v1",
+            "{}",
+            case["id"]
+        );
+        assert_eq!(
+            action.strategy_fingerprint,
+            "7116e5773e64815db90f31c78ca6ad90069925c0e43242346a95b3d01d62c837"
+        );
+        assert_eq!(
+            action.replacement_text,
+            case["replacement_text"].as_str().expect("replacement"),
+            "{}",
+            case["id"]
+        );
+        assert_eq!(action.proof_conditions.len(), 4, "{}", case["id"]);
+    }
+}
+
+#[test]
+fn editor_action_authority_refuses_unproved_frontends_and_shapes() {
+    let refused = [
+        "action.refuse.possessive",
+        "action.refuse.minimum",
+        "action.refuse.maximum",
+        "action.refuse.regex_exact",
+        "action.refuse.redos",
+        "action.refuse.safety_code",
+        "action.refuse.malformed",
+        "action.refuse.comment_loss",
+        "action.refuse.mandatory",
+        "action.refuse.migration",
+    ];
+    let evidence_manifest = actions_islands_manifest();
+    for identifier in refused {
+        let case = evidence_manifest["action_cases"]
+            .as_array()
+            .expect("action cases")
+            .iter()
+            .find(|case| case["id"] == identifier)
+            .expect("refusal case");
+        let frontend = if case["frontend"] == "semantic" {
+            EditorFrontend::Semantic
+        } else {
+            EditorFrontend::Regex
+        };
+        let evidence = project(&request(
+            frontend,
+            case["source"].as_str().expect("source"),
+            None,
+        ))
+        .expect("refusal projection remains transport data");
+        assert!(evidence.rewrite_actions.is_empty(), "{identifier}");
+    }
+}
+
+#[test]
+fn formatter_evidence_is_semantic_complete_and_exact() {
+    let evidence_manifest = actions_islands_manifest();
+    for case in evidence_manifest["formatting_cases"]
+        .as_array()
+        .expect("formatting cases")
+    {
+        let frontend = if case["frontend"] == "semantic" {
+            EditorFrontend::Semantic
+        } else {
+            EditorFrontend::Regex
+        };
+        let evidence = project(&request(
+            frontend,
+            case["source"].as_str().expect("source"),
+            None,
+        ))
+        .expect("formatter projection");
+        assert_eq!(
+            evidence.formatted_source.as_deref(),
+            case["expected"].as_str(),
+            "{}",
+            case["id"]
+        );
+        if frontend == EditorFrontend::Regex {
+            assert!(evidence.rewrite_actions.is_empty());
+        }
+    }
 }

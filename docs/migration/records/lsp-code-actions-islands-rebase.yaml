@@ -8,6 +8,7 @@ scope:
         head: working-tree
     allowed_paths:
         - core/src/editor_intelligence.rs
+        - core/src/regex_frontend.rs
         - core/src/semantic_frontend.rs
         - core/tests/editor_intelligence.rs
         - core/tests/semantic_frontend.rs
@@ -38,6 +39,8 @@ scope:
         - tooling/lsp-server/tests/test_island_extractor.py
         - tooling/lsp-server/tests/test_lsp_lifecycle.py
         - tooling/lsp-server/tests/test_lsp_server.py
+        - tooling/lsp-server/tests/test_navigation.py
+        - tooling/lsp-server/tests/test_parser_exhaustive.py
         - tooling/migration_differential_baseline.json
         - tooling/tests/test_compiler_boundary_architecture.py
         - tooling/tests/test_governance.py
@@ -47,7 +50,6 @@ scope:
         - core/src/diagnostic_generation/**
         - core/src/portability_planning.rs
         - core/src/portability_planning/**
-        - core/src/regex_frontend.rs
         - core/src/semantic/**
         - core/src/semantic_analysis.rs
         - core/src/semantic_analysis/**
@@ -160,8 +162,23 @@ checkpoints:
             result: passed
             details: Six focused integrity tests pass. Exact counts, 108 unique IDs, catalog byte fingerprints, starting-registry fingerprint, host/suffix/boundary coverage, concrete source expectations, closed refusal/mutation/lifecycle sets, resource ceilings, and a denominator-removal mutation are enforced. The manifest fingerprint is sha256:42869a311689fc057d07614156c66da78c6efe2c794f43ef352052f075d9f554. Pytest cache writes remain unavailable in the managed workspace and do not affect outcomes.
     - name: Minimal implementation and local proof
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Certified canonical action and formatter projection
+            command: cargo test --manifest-path core/Cargo.toml --test editor_intelligence --test semantic_frontend --test semantic_frontend_properties --locked
+            result: passed
+            details: Seventeen focused Rust tests pass. Projection 1.1.0 adds a 256-action bound, exact source/diagnostic/strategy/program/node/span/proof evidence, and canonical formatted_source while retaining editor evidence contract 1.0.0. Regex evidence initializes the shared fields empty and remains non-actionable/non-formatting. The Semantic projection calls the existing analyses and certified rewrite request; comments, ambiguous spans, possessive or non-exact shapes, regex sources, and every unproved request are refused.
+          - check: Complete authored LSP behavior and closed acceptance denominator
+            command: python -m pytest tooling/lsp-server/tests -q
+            result: passed
+            details: All 544 LSP tests pass. Exact current Semantic STRling diagnostics materialize only refactor.rewrite exact-once wrapper elision; empty, stale, mismatched, safety, regex, host, malformed, source-loss, disjoint, and service contexts return no action. Canonical native Semantic formatting is exact, idempotent sources return no edit, and regex/host/incomplete sources return no edit. Three obsolete TypeScript processed-escape boss-fight expectations were narrowed to the registry-mandated fail-closed disposition rather than weakening source identity.
+          - check: Governed island registry, mapping, refusal, and mutation proof
+            command: python -m pytest tooling/lsp-server/tests/test_island_extractor.py -q
+            result: passed
+            details: All 84 extractor tests pass across 18 routes, 35 normalized suffixes, 47 boundary expressions, 36 literal forms, 18 refusal sources, eight mapping cases, all 14 registry mutations, and document/island/comment/literal/mapping ceilings. The closed 1.0.0 schema validates and the canonical registry fingerprint is sha256:f263465d9a49eb76aed8205d7fe72bec59cee2e7e7886651af4e8a60f82344c2. Missing, malformed, stale, duplicated, unsorted, unknown, invalid-regex, fingerprint-drifted, and over-limit registries yield no routes or islands; the Node consumer has no permissive fallback.
+          - check: Architecture, governance, static-analysis, formatting, and source hygiene
+            result: passed
+            details: The lsp-python-binding-semantic-dependency rule is enforced with zero findings; governance validates the declared task scope and change classes; 46 governance tests plus five subtests pass when run outside the managed temp-directory restriction; the suppression audit passes with the exact reduced total of 71; cargo fmt --check, Node syntax, JSON Schema 2020-12 validation, git diff --check, and governance JSON all pass. Pytest cache writes remain unavailable in the managed workspace and do not affect outcomes.
     - name: Integration and certification
       status: planned
       evidence: []
@@ -171,3 +188,5 @@ checkpoints:
 commits:
     - sha: 081ae352e1cbc093dd60fb8fdcce292afe3241c0
       subject: "docs(lsp): lock canonical actions and islands"
+    - sha: 7a0b861cafdc0c3dae9ca7a6cc16d1eb194c32b2
+      subject: "test(lsp): lock action and island evidence"

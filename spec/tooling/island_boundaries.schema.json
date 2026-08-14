@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://strling.dev/schemas/tooling/island-boundaries/1.0.0",
+  "title": "STRling tooling island boundary registry",
+  "description": "Closed tooling contract for source-identity-preserving embedded STRling routing. This schema governs tooling shape, not STRling semantics.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "contract_version",
+    "registry_id",
+    "source_model",
+    "resource_limits",
+    "hosts",
+    "fingerprint"
+  ],
+  "properties": {
+    "$schema": {"const": "./island_boundaries.schema.json"},
+    "contract_version": {"const": "1.0.0"},
+    "registry_id": {"const": "strling.tooling.island-boundaries"},
+    "source_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coordinate_system", "content_policy", "target_profile_policy", "native_language_id"],
+      "properties": {
+        "coordinate_system": {"const": "unicode-scalars"},
+        "content_policy": {"const": "identity_only"},
+        "target_profile_policy": {"const": "never_infer"},
+        "native_language_id": {"const": "strl"}
+      }
+    },
+    "resource_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "boundary_expression_bytes",
+        "comment_nesting",
+        "document_bytes",
+        "hosts",
+        "islands_per_document",
+        "literal_delimiter_bytes",
+        "literal_scan_bytes",
+        "mappings_per_document",
+        "per_host_boundaries",
+        "request_seconds"
+      ],
+      "properties": {
+        "boundary_expression_bytes": {"const": 1024},
+        "comment_nesting": {"const": 64},
+        "document_bytes": {"const": 1048576},
+        "hosts": {"const": 18},
+        "islands_per_document": {"const": 256},
+        "literal_delimiter_bytes": {"const": 32},
+        "literal_scan_bytes": {"const": 1048576},
+        "mappings_per_document": {"const": 1048577},
+        "per_host_boundaries": {"const": 16},
+        "request_seconds": {"const": 5}
+      }
+    },
+    "hosts": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "items": {"$ref": "#/$defs/host"}
+    },
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language_id",
+        "suffixes",
+        "frontend",
+        "scanner",
+        "target_profile_policy",
+        "comments",
+        "boundaries",
+        "literal_forms"
+      ],
+      "properties": {
+        "language_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*$"},
+        "suffixes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^\\.[a-z0-9]+$"}
+        },
+        "frontend": {"enum": ["native", "regex"]},
+        "scanner": {
+          "enum": [
+            "native", "c", "cpp", "csharp", "dart", "fsharp", "go",
+            "java", "kotlin", "lua", "perl", "php", "python", "r",
+            "ruby", "rust", "swift", "typescript"
+          ]
+        },
+        "target_profile_policy": {"const": "never_infer"},
+        "comments": {"$ref": "#/$defs/comments"},
+        "boundaries": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {"$ref": "#/$defs/boundary"}
+        },
+        "literal_forms": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/literal_form"}
+        }
+      }
+    },
+    "comments": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["line", "block", "nested", "lua_long_bracket"],
+      "properties": {
+        "line": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 4}},
+        "block": {"type": "array", "items": {"$ref": "#/$defs/block_comment"}},
+        "nested": {"type": "boolean"},
+        "lua_long_bracket": {"type": "boolean"}
+      }
+    },
+    "block_comment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["open", "close"],
+      "properties": {
+        "open": {"type": "string", "minLength": 1, "maxLength": 4},
+        "close": {"type": "string", "minLength": 1, "maxLength": 4}
+      }
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "spelling", "expression"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^boundary\\.[a-z0-9_.]+$"},
+        "spelling": {"type": "string", "minLength": 1, "maxLength": 128},
+        "expression": {"type": "string", "minLength": 1, "maxLength": 1024}
+      }
+    },
+    "literal_form": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "content_policy", "escape_policy", "interpolation_policy"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^literal\\.[a-z0-9_.]+$"},
+        "kind": {
+          "enum": [
+            "double", "single", "triple_double", "triple_single", "template",
+            "backtick_raw", "cpp_raw", "lua_long", "python_raw_double",
+            "python_raw_single", "rust_raw", "swift_hashed"
+          ]
+        },
+        "content_policy": {"const": "identity_only"},
+        "escape_policy": {"enum": ["forbid", "raw_identity"]},
+        "interpolation_policy": {"const": "forbid"}
+      }
+    }
+  }
+}

@@ -18,7 +18,7 @@ except ImportError:  # pragma: no cover - source-tree script fallback
 
 
 EDITOR_CONTRACT_VERSION = "1.0.0"
-EDITOR_PROJECTION_VERSION = "1.0.0"
+EDITOR_PROJECTION_VERSION = "1.1.0"
 TOKEN_TYPES = (
     "string",
     "number",
@@ -36,6 +36,7 @@ MAX_COMPLETION_ITEMS = 256
 MAX_TOKENS = 16_384
 MAX_SYMBOLS = 4_096
 MAX_CAPTURE_LOCATIONS = 16_384
+MAX_REWRITE_ACTIONS = 256
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 SIMPLY_PROTOCOL_PATH = (
@@ -204,6 +205,7 @@ class CanonicalIntelligence:
             "symbols",
             "captures",
             "completions",
+            "rewrite_actions",
             "truncated",
         }
         if not required <= result.keys():
@@ -226,6 +228,21 @@ class CanonicalIntelligence:
         self._validate_symbols(result["symbols"], source_size, boundaries)
         self._validate_captures(result["captures"], source_size, boundaries)
         self._validate_completions(result["completions"])
+        formatted = result.get("formatted_source")
+        if frontend == "regex" or result["parse_status"] == "incomplete":
+            if formatted is not None:
+                raise EditorServiceError(
+                    "malformed_result", "unsupported editor formatting evidence"
+                )
+        elif not isinstance(formatted, str) or len(formatted.encode("utf-8")) > (
+            self.max_source_bytes * 6 + 4096
+        ):
+            raise EditorServiceError(
+                "malformed_result", "formatted source evidence is invalid or unbounded"
+            )
+        self._validate_rewrite_actions(
+            result["rewrite_actions"], result["source_id"], source, frontend
+        )
         replacement = result.get("replacement_span")
         if cursor_byte is None:
             if replacement is not None or result["completions"]:
@@ -337,6 +354,97 @@ class CanonicalIntelligence:
             if completion["identity"] in identities:
                 raise EditorServiceError("malformed_result", "duplicate completion identity")
             identities.add(completion["identity"])
+
+    def _validate_rewrite_actions(
+        self, value: Any, source_id: str, source: str, frontend: str
+    ) -> None:
+        if not isinstance(value, list) or len(value) > MAX_REWRITE_ACTIONS:
+            raise EditorServiceError(
+                "malformed_result", "rewrite action collection is invalid"
+            )
+        if frontend != "semantic" and value:
+            raise EditorServiceError(
+                "malformed_result", "regex editor evidence contains rewrite actions"
+            )
+        source_bytes = source.encode("utf-8")
+        boundaries = _utf8_boundaries(source)
+        previous: tuple[int, int, str] | None = None
+        for action in value:
+            if not isinstance(action, dict):
+                raise EditorServiceError(
+                    "malformed_result", "rewrite action is not an object"
+                )
+            required_strings = (
+                "source_id",
+                "diagnostic_code",
+                "strategy_id",
+                "strategy_fingerprint",
+                "semantic_program",
+                "removed_wrapper_node_id",
+                "replacement_node_id",
+                "replacement_text",
+                "explanation",
+            )
+            if not all(isinstance(action.get(key), str) for key in required_strings):
+                raise EditorServiceError(
+                    "malformed_result", "rewrite action identity is invalid"
+                )
+            if (
+                action["source_id"] != source_id
+                or action["diagnostic_code"] != "STRL-QUALITY-0002"
+                or action["strategy_id"]
+                != "rewrite.repeat_exactly_once.elide.v1"
+                or not action["explanation"]
+            ):
+                raise EditorServiceError(
+                    "malformed_result", "rewrite action authority is invalid or stale"
+                )
+            for fingerprint_key in ("strategy_fingerprint", "semantic_program"):
+                fingerprint = action[fingerprint_key]
+                if len(fingerprint) != 64 or any(
+                    character not in "0123456789abcdef" for character in fingerprint
+                ):
+                    raise EditorServiceError(
+                        "malformed_result", "rewrite fingerprint is invalid"
+                    )
+            wrapper_start, wrapper_end = _validate_span(
+                action.get("wrapper_span"), len(source_bytes), boundaries
+            )
+            replacement_start, replacement_end = _validate_span(
+                action.get("replacement_span"), len(source_bytes), boundaries
+            )
+            if not (
+                wrapper_start <= replacement_start <= replacement_end <= wrapper_end
+            ):
+                raise EditorServiceError(
+                    "malformed_result", "rewrite replacement is outside its wrapper"
+                )
+            replacement = source_bytes[replacement_start:replacement_end].decode(
+                "utf-8"
+            )
+            if action["replacement_text"] != replacement:
+                raise EditorServiceError(
+                    "malformed_result", "rewrite replacement text is not current source"
+                )
+            if action.get("proof_conditions") != [
+                "original_node_is_repeat",
+                "direct_body_relationship",
+                "bounds_exactly_one",
+                "mode_non_possessive",
+            ]:
+                raise EditorServiceError(
+                    "malformed_result", "rewrite proof conditions are incomplete"
+                )
+            order = (
+                wrapper_start,
+                wrapper_end,
+                action["removed_wrapper_node_id"],
+            )
+            if previous is not None and order <= previous:
+                raise EditorServiceError(
+                    "malformed_result", "rewrite actions are duplicated or unsorted"
+                )
+            previous = order
 
 
 def _utf8_boundaries(source: str) -> set[int]:

@@ -13,20 +13,28 @@ use crate::diagnostic::{
     CompilerPhase, Diagnostic, DiagnosticCategory, DiagnosticCode, DiagnosticOccurrence, Severity,
     SeverityBasis,
 };
+use crate::diagnostic_generation::QUALITY_REDUNDANT_SINGLE_REPETITION;
 use crate::editor_intelligence::{
-    EditorCaptureLink, EditorCompletion, EditorCompletionTier, EditorParseStatus, EditorSpan,
-    EditorSymbol, EditorToken, EditorTokenType, FrontendEditorEvidence,
+    EditorCaptureLink, EditorCompletion, EditorCompletionTier, EditorParseStatus,
+    EditorRewriteAction, EditorRewriteProofCondition, EditorSpan, EditorSymbol, EditorToken,
+    EditorTokenType, FrontendEditorEvidence,
 };
 use crate::normalization::{normalize, NormalizationErrors};
+use crate::portability_planning::RewriteStrategyId;
 use crate::semantic::{
     AssertionPolarity, BuiltinClassName, CaseMatching, CharacterDomain, CharacterSetMember,
     LineTerminators, LookaroundDirection, Node, Normalization, PositionKind, RepetitionMaximum,
     RepetitionMode, SemanticProgram, UnicodeScalar,
 };
+use crate::semantic_analysis::analyze;
+use crate::semantic_rewrite::{
+    request_semantic_rewrite, SemanticRewriteProofCondition, SemanticRewriteRequest,
+};
 use crate::source::{
     CaptureId, FrontendIdentity, NodeId, Provenance, SourceContent, SourceDocument, SourceId,
     SourceOrigin, SourceSpan,
 };
+use crate::structural_analysis::analyze_structure;
 use crate::validation::{Validate, ValidationErrors};
 
 pub const FRONTEND_ID: &str = "strling.semantic";
@@ -1856,6 +1864,10 @@ pub(crate) fn project_editor(
         || (Vec::new(), None),
         |cursor| semantic_completions(text, cursor, parser_state.as_ref()),
     );
+    let formatted_source = parsed.as_ref().map(format);
+    let rewrite_actions = parsed.as_ref().map_or_else(Vec::new, |parsed| {
+        semantic_rewrite_actions(document, text, parsed, &node_spans)
+    });
     FrontendEditorEvidence {
         parse_status: if parsed.is_some() {
             EditorParseStatus::Complete
@@ -1867,7 +1879,176 @@ pub(crate) fn project_editor(
         captures,
         completions,
         replacement_span,
+        formatted_source,
+        rewrite_actions,
     }
+}
+
+fn semantic_rewrite_actions(
+    document: &SourceDocument,
+    text: &str,
+    parsed: &ParsedSemantic,
+    node_spans: &BTreeMap<String, EditorSpan>,
+) -> Vec<EditorRewriteAction> {
+    let Ok(foundational) = analyze(&parsed.program) else {
+        return Vec::new();
+    };
+    let Ok(structural) = analyze_structure(&parsed.program, &foundational) else {
+        return Vec::new();
+    };
+    let mut nodes = Vec::new();
+    collect_nodes(&parsed.program.root, &mut nodes);
+    let mut actions = Vec::new();
+    for node in nodes {
+        let request = SemanticRewriteRequest {
+            contract_version: parsed.program.contract_version,
+            strategy_id: RewriteStrategyId::ElideExactOnceRepetitionV1,
+            node_id: node.node_id().clone(),
+        };
+        let Ok(Some(action)) =
+            request_semantic_rewrite(&parsed.program, &foundational, &structural, &request)
+        else {
+            continue;
+        };
+        let Some(wrapper_span) = node_spans
+            .get(action.removed_wrapper_node_id.as_str())
+            .copied()
+        else {
+            continue;
+        };
+        let Some(replacement_span) = node_spans.get(action.replacement_node_id.as_str()).copied()
+        else {
+            continue;
+        };
+        if !source_action_is_exact(
+            document,
+            text,
+            action.removed_wrapper_origin.as_ref(),
+            action.replacement_subtree.origin(),
+            wrapper_span,
+            replacement_span,
+        ) {
+            continue;
+        }
+        let Some(replacement_text) = text.get(replacement_span.start..replacement_span.end) else {
+            continue;
+        };
+        let proof_conditions = action
+            .proof
+            .iter()
+            .map(|evaluation| match evaluation.condition {
+                SemanticRewriteProofCondition::OriginalNodeIsRepeat { .. } => {
+                    EditorRewriteProofCondition::OriginalNodeIsRepeat
+                }
+                SemanticRewriteProofCondition::DirectBodyRelationship { .. } => {
+                    EditorRewriteProofCondition::DirectBodyRelationship
+                }
+                SemanticRewriteProofCondition::BoundsExactlyOne { .. } => {
+                    EditorRewriteProofCondition::BoundsExactlyOne
+                }
+                SemanticRewriteProofCondition::ModeNonPossessive { .. } => {
+                    EditorRewriteProofCondition::ModeNonPossessive
+                }
+            })
+            .collect();
+        actions.push(EditorRewriteAction {
+            source_id: document.source_id.as_str().to_owned(),
+            diagnostic_code: QUALITY_REDUNDANT_SINGLE_REPETITION.to_owned(),
+            strategy_id: action.strategy_id.as_str().to_owned(),
+            strategy_fingerprint: action
+                .certification
+                .strategy_fingerprint
+                .as_str()
+                .to_owned(),
+            semantic_program: action.semantic_program.as_str().to_owned(),
+            removed_wrapper_node_id: action.removed_wrapper_node_id.as_str().to_owned(),
+            replacement_node_id: action.replacement_node_id.as_str().to_owned(),
+            wrapper_span,
+            replacement_span,
+            replacement_text: replacement_text.to_owned(),
+            proof_conditions,
+            explanation: action.explanation,
+        });
+    }
+    actions.sort_by_key(|action| {
+        (
+            action.wrapper_span.start,
+            action.wrapper_span.end,
+            action.removed_wrapper_node_id.clone(),
+        )
+    });
+    actions
+}
+
+fn collect_nodes<'a>(node: &'a Node, output: &mut Vec<&'a Node>) {
+    output.push(node);
+    match node {
+        Node::Sequence { items, .. } => {
+            for child in items {
+                collect_nodes(child, output);
+            }
+        }
+        Node::Alternation { branches, .. } => {
+            for child in branches {
+                collect_nodes(child, output);
+            }
+        }
+        Node::Repeat { body, .. }
+        | Node::Capture { body, .. }
+        | Node::Lookaround { body, .. }
+        | Node::Atomic { body, .. } => collect_nodes(body, output),
+        Node::Empty { .. }
+        | Node::Literal { .. }
+        | Node::Wildcard { .. }
+        | Node::CharacterSet { .. }
+        | Node::Position { .. }
+        | Node::Backreference { .. } => {}
+    }
+}
+
+fn source_action_is_exact(
+    document: &SourceDocument,
+    text: &str,
+    wrapper_origin: Option<&SourceOrigin>,
+    replacement_origin: Option<&SourceOrigin>,
+    wrapper_span: EditorSpan,
+    replacement_span: EditorSpan,
+) -> bool {
+    if wrapper_span.start > replacement_span.start
+        || replacement_span.end > wrapper_span.end
+        || !text.is_char_boundary(wrapper_span.start)
+        || !text.is_char_boundary(wrapper_span.end)
+        || !text.is_char_boundary(replacement_span.start)
+        || !text.is_char_boundary(replacement_span.end)
+    {
+        return false;
+    }
+    if sole_editor_span(wrapper_origin, &document.source_id) != Some(wrapper_span)
+        || sole_editor_span(replacement_origin, &document.source_id) != Some(replacement_span)
+    {
+        return false;
+    }
+    let Some(prefix) = text.get(wrapper_span.start..replacement_span.start) else {
+        return false;
+    };
+    let Some(suffix) = text.get(replacement_span.end..wrapper_span.end) else {
+        return false;
+    };
+    !prefix.contains('#') && !suffix.contains('#')
+}
+
+fn sole_editor_span(origin: Option<&SourceOrigin>, source_id: &SourceId) -> Option<EditorSpan> {
+    let spans = origin?.source_spans.as_ref()?;
+    let [span] = spans.as_slice() else {
+        return None;
+    };
+    if &span.source_id != source_id {
+        return None;
+    }
+    Some(EditorSpan::new(
+        usize::try_from(span.start).ok()?,
+        usize::try_from(span.end).ok()?,
+    ))
 }
 
 fn semantic_parser_state(text: &str) -> Option<Parser<'_>> {

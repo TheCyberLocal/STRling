@@ -1,10 +1,12 @@
-"""Unit tests for the Island Grammar extractor.
+"""Unit tests for the governed Island Grammar coordinate adapter.
 
-These tests exercise the regex-based boundary sweep, the raw literal scanner,
-and the coordinate-mirror algebra. They run without any LSP transport so they
-are safe to execute under plain ``pytest``.
+These tests exercise the closed registry, literal refusal policy, boundary
+sweep, and coordinate-mirror algebra without LSP transport.
 """
 
+from copy import deepcopy
+import hashlib
+import json
 from pathlib import Path
 import sys
 
@@ -14,10 +16,41 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from island_extractor import (  # noqa: E402
     HostPosition,
+    boundary_calls,
     extract_islands,
     extract_islands_for_uri,
     language_for_uri,
+    language_suffixes,
+    registry_status,
+    reload_boundary_spec,
 )
+
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
+REGISTRY_PATH = REPOSITORY_ROOT / "spec" / "tooling" / "island_boundaries.json"
+MANIFEST_PATH = (
+    Path(__file__).parent
+    / "fixtures"
+    / "canonical-actions-islands"
+    / "manifest.json"
+)
+
+
+def _manifest():
+    return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+
+
+def _registry():
+    return json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+
+
+def _fingerprint(value):
+    payload = dict(value)
+    payload.pop("fingerprint", None)
+    canonical = json.dumps(
+        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return f"sha256:{hashlib.sha256(canonical).hexdigest()}"
 
 
 # --------------------------------------------------------------------------- #
@@ -325,13 +358,10 @@ class TestRobustness:
         src = 'x = s.parse("never closed\n'
         assert extract_islands(src, "python") == []
 
-    def test_escape_preserves_length(self):
-        # Escape should be skipped for matching purposes but characters
-        # remain in the virtual content (no unfolding).
+    def test_processed_escape_is_refused(self):
+        # A processed host escape cannot preserve a one-to-one source map.
         src = r'x = s.parse("a\"b")'
-        islands = extract_islands(src, "python")
-        assert len(islands) == 1
-        assert islands[0].virtual_content == r"a\"b"
+        assert extract_islands(src, "python") == []
 
     def test_multiple_islands_in_one_file(self):
         src = 'a = s.parse("one")\nb = s.parse("two")\n'
@@ -339,6 +369,175 @@ class TestRobustness:
         assert [i.virtual_content for i in islands] == ["one", "two"]
         assert islands[0].host_start.line == 0
         assert islands[1].host_start.line == 1
+
+
+# --------------------------------------------------------------------------- #
+# Closed P16-T04 registry and source-safety evidence                           #
+# --------------------------------------------------------------------------- #
+
+
+class TestGovernedRegistry:
+    def test_registry_identity_counts_order_and_fingerprint(self):
+        manifest = _manifest()
+        registry = _registry()
+        assert registry_status() == {
+            "status": "ready",
+            "fingerprint": registry["fingerprint"],
+            "error": None,
+        }
+        assert _fingerprint(registry) == registry["fingerprint"]
+        assert [host["language_id"] for host in registry["hosts"]] == [
+            host["language_id"] for host in manifest["host_contracts"]
+        ]
+        assert len(language_suffixes()) == manifest["expected_counts"][
+            "normalized_suffixes"
+        ]
+        assert sum(len(values) for values in boundary_calls().values()) == manifest[
+            "expected_counts"
+        ]["registry_boundaries"]
+        assert sum(len(host["literal_forms"]) for host in registry["hosts"]) == 36
+
+    def test_every_boundary_spelling_extracts_exactly_once(self):
+        for host in _manifest()["host_contracts"]:
+            language = host["language_id"]
+            if language == "strl":
+                continue
+            for spelling in host["boundary_spellings"]:
+                source = f'value = {spelling}("abc")'
+                islands = extract_islands(source, language)
+                assert [island.virtual_content for island in islands] == ["abc"], (
+                    language,
+                    spelling,
+                )
+                assert islands[0].boundary_call == spelling
+
+    def test_every_declared_literal_form_preserves_source_identity(self):
+        for host in _manifest()["host_contracts"]:
+            for form in host["literal_forms"]:
+                source = form["source_template"].replace("<PATTERN>", "é😀+")
+                islands = extract_islands(source, host["language_id"])
+                assert [island.virtual_content for island in islands] == ["é😀+"], form[
+                    "id"
+                ]
+                island = islands[0]
+                start = source.index("é😀+")
+                assert source[start : start + len(island.virtual_content)] == (
+                    island.virtual_content
+                )
+
+
+class TestClosedRefusalEvidence:
+    @pytest.mark.parametrize(
+        "case", _manifest()["refusal_cases"], ids=lambda case: case["id"]
+    )
+    def test_unsafe_or_ambiguous_host_values_fail_closed(self, case):
+        source = case["source"]
+        if source == "<OVER_1_MIB>":
+            source = 'value = s.parse("' + ("a" * 1_048_577) + '")'
+        assert extract_islands(source, case["language_id"]) == []
+
+    def test_island_limit_fails_closed(self):
+        source = "\n".join(f'v{index} = s.parse("a")' for index in range(257))
+        assert extract_islands(source, "python") == []
+
+
+class TestClosedMappingEvidence:
+    @pytest.mark.parametrize(
+        "case", _manifest()["mapping_cases"], ids=lambda case: case["id"]
+    )
+    def test_mapping_and_inverse_are_exact(self, case):
+        if case["id"] == "mapping.multiple.islands":
+            source = case["source_template"]
+            islands = extract_islands(source, case["language_id"])
+            assert [island.virtual_content for island in islands] == ["one", "two"]
+        else:
+            source = case["source_template"].replace("<PATTERN>", case["virtual"])
+            islands = extract_islands(source, case["language_id"])
+            assert [island.virtual_content for island in islands] == [case["virtual"]]
+
+        for island in islands:
+            for line, content in enumerate(island.virtual_content.split("\n")):
+                for character in range(len(content) + 1):
+                    host = island.to_host(line, character)
+                    assert island.from_host(host.line, host.character) == (
+                        line,
+                        character,
+                    )
+
+
+def _mutated_registry(mutation):
+    value = deepcopy(_registry())
+    hosts = value["hosts"]
+    if mutation == "unsupported_version":
+        value["contract_version"] = "2.0.0"
+    elif mutation == "fingerprint_mismatch":
+        value["fingerprint"] = "sha256:" + ("0" * 64)
+        return value
+    elif mutation == "duplicate_host_id":
+        hosts[1]["language_id"] = "strl"
+    elif mutation == "noncanonical_order":
+        hosts[1], hosts[2] = hosts[2], hosts[1]
+    elif mutation == "duplicate_suffix":
+        host = next(host for host in hosts if host["language_id"] == "typescript")
+        host["suffixes"] = sorted([*host["suffixes"], ".py"])
+    elif mutation == "duplicate_boundary_id":
+        host = next(host for host in hosts if host["language_id"] == "typescript")
+        host["boundaries"][1]["id"] = host["boundaries"][0]["id"]
+    elif mutation == "unknown_scanner":
+        hosts[1]["scanner"] = "generic-host-parser"
+    elif mutation == "invalid_regex":
+        hosts[1]["boundaries"][0]["expression"] = "["
+    elif mutation == "host_limit":
+        extra = deepcopy(hosts[-1])
+        extra["language_id"] = "zhost"
+        extra["scanner"] = "zhost"
+        hosts.append(extra)
+    elif mutation == "per_host_boundary_limit":
+        host = next(host for host in hosts if host["language_id"] == "typescript")
+        template = host["boundaries"][0]
+        while len(host["boundaries"]) <= 16:
+            item = deepcopy(template)
+            item["id"] = f"boundary.typescript.extra_{len(host['boundaries'])}"
+            item["expression"] = f"\\bextra{len(host['boundaries'])}\\s*\\(\\s*"
+            host["boundaries"].append(item)
+    elif mutation == "boundary_expression_too_long":
+        hosts[1]["boundaries"][0]["expression"] = "a" * 1025
+    elif mutation == "unknown_literal_form":
+        hosts[1]["literal_forms"][0]["kind"] = "host_evaluated"
+    else:
+        raise AssertionError(f"unhandled mutation {mutation}")
+    value["fingerprint"] = _fingerprint(value)
+    return value
+
+
+class TestRegistryMutationFailure:
+    @pytest.mark.parametrize(
+        "case", _manifest()["registry_mutations"], ids=lambda case: case["id"]
+    )
+    def test_every_registry_mutation_fails_closed(self, case, monkeypatch):
+        path = Path(__file__).parent / ".island-boundaries-mutation.json"
+        if path.exists():
+            path.unlink()
+        mutation = case["mutation"]
+        if mutation == "malformed_json":
+            path.write_text("{", encoding="utf-8")
+        elif mutation != "missing_registry":
+            path.write_text(
+                json.dumps(_mutated_registry(mutation), ensure_ascii=False),
+                encoding="utf-8",
+            )
+        monkeypatch.setenv("STRLING_ISLAND_BOUNDARIES_PATH", str(path))
+        reload_boundary_spec()
+        try:
+            assert registry_status()["status"] == "unavailable"
+            assert boundary_calls() == {}
+            assert language_suffixes() == {}
+            assert extract_islands('value = s.parse("abc")', "python") == []
+        finally:
+            monkeypatch.delenv("STRLING_ISLAND_BOUNDARIES_PATH")
+            reload_boundary_spec()
+            if path.exists():
+                path.unlink()
 
 
 if __name__ == "__main__":

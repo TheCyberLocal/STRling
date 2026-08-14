@@ -10,10 +10,11 @@ hermetic build pipeline that assembles a disposable extension payload under
 -   `server/server.py` is the canonical Python entrypoint for the language server.
 -   `server/canonical_core.py` is the bounded process adapter and exact
     `CompileResult`/LSP position projector used by diagnostics and hover.
--   `server/deferred_intelligence.py` isolates the transitional Python-binding
-    imports still owned by the later completion, navigation, semantic-token,
-    code-action, and island tasks.
--   `server/island_extractor.py` is the compatibility shim for island extraction.
+-   `server/canonical_intelligence.py` validates bounded canonical editor
+    evidence for completion, navigation, formatting, tokens, and certified
+    rewrites.
+-   `server/island_extractor.py` is the governed, fail-closed host-source
+    coordinate adapter; the top-level `island_extractor.py` only re-exports it.
 -   `client/extension.ts` launches the bundled server with an explicit `cwd` and
     `PYTHONPATH`, and auto-detects `python3` or `python` when the user has not
     configured a command override.
@@ -55,7 +56,7 @@ without requiring global `pip` installs.
 ## Runtime Behavior
 
 The Python bootstrap at the top of `server/server.py` inserts `libs/` at
-`sys.path[0]` before importing transport or deferred compatibility modules. On
+`sys.path[0]` before importing transport and canonical adapter modules. On
 import failure it emits a forensic stderr report that includes:
 
 -   the resolved server path
@@ -68,8 +69,9 @@ In source-tree runs, the same bootstrap also falls back to the local shim
 packages under `tooling/lsp-server/` so tests can execute without building a
 VSIX first.
 
-Diagnostics and hover do not import the Python binding. They execute the
-canonical `strling-kernel` process and consume its immutable `CompileResult`.
+The authored server does not import the Python binding. Diagnostics and hover
+execute the canonical `strling-kernel` process and consume its immutable
+`CompileResult`.
 Set `STRLING_KERNEL` to an explicit executable when needed; source-tree runs
 also discover a built debug or release kernel. Regex-compatible islands use the
 canonical `import` route, while Semantic STRling documents use `compile`.
@@ -85,19 +87,26 @@ and each compiler request to five seconds. Document versions, content,
 position encoding, and exact target profile are cache inputs; superseded work
 is cancelled and stale completions are discarded.
 
-The canonical bridge and deferred-intelligence split are not yet copied by the
-VSIX assembly pipeline. Shipping the kernel and the complete authored module
-set is intentionally assigned to P16-T05. A missing kernel is therefore a
-reported service limitation, never a reason to fall back to Python semantics.
+The complete canonical bridge, governed registry, and kernel executable are not
+yet copied by the VSIX assembly pipeline. Shipping that complete authored set
+and removing obsolete vendored compatibility payload is assigned to P16-T05. A
+missing kernel or registry is therefore a reported service limitation, never a
+reason to fall back to Python semantics or permissive host extraction.
 
-Island extraction now operates in two modes:
+Island routing operates in two modes:
 
 -   Host-language mode scans known boundary calls such as `s.parse(...)`,
     `simply.parse(...)`, and `STRling.parse(...)`, then projects diagnostics back
     into the original TypeScript/JavaScript/Python/Rust/Java document.
--   Pure `.strl` mode bypasses boundary regexes and treats each source line as a
-    standalone STRling island so unterminated constructs stay clamped to the line
-    being edited instead of bleeding to the file EOF.
+-   Native `.strl` mode bypasses host extraction and compiles the document as a
+    regex-compatible source. Native `*.semantic.strling` documents use the
+    Semantic frontend and are the only formatting surface.
+
+Only current native Semantic documents can expose certified
+`STRL-QUALITY-0002` exact-once wrapper rewrites, and only through
+`refactor.rewrite`. `STRL-SAFETY-0003`, regex-compatible sources, host islands,
+stale diagnostics, processed escapes, interpolation, and ambiguous host values
+remain non-actionable.
 
 ## Local Installation
 
@@ -140,16 +149,15 @@ Useful checks while iterating:
 
 ```bash
 cd tooling/lsp-server
-python3 -m pytest tests --ignore=tests/test_code_actions.py -q
+python3 -m pytest tests -q
 npm run assemble
 npm run package
 npm run install:local
 python3 dist/server/server.py --help
 ```
 
-The excluded code-action suite is rebased in P16-T04. Until then, its three
-legacy `REDOS_RISK` expectations intentionally remain visible instead of being
-satisfied by a fabricated diagnostic alias.
+P16-T04 code-action, formatting, and island tests are included in the standard
+suite; generated `dist/**` remains outside authored source work.
 
 For direct source-tree setup outside the packaged VS Code flow, see
 `LSP_SETUP.md`.

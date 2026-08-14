@@ -88,10 +88,11 @@ resource exhaustion return no action. There is no fallback to the prior
 per-URI diagnostic cache.
 
 Actions are deterministic and unapplied. The server emits one
-`refactor.rewrite` action per certified wrapper, cites the canonical diagnostic
-and strategy in its data, and produces a versioned document edit when the local
-LSP model supports it. No action is preferred over a diagnostic-only result
-unless the exact proof and current source checks succeed.
+`refactor.rewrite` action per certified wrapper, attaches the exact matching
+canonical diagnostic, and materializes one source edit only while the immutable
+snapshot remains current. The validated editor evidence retains the canonical
+strategy and proof identity even where the local LSP data model cannot serialize
+custom action data or versioned document changes. No action is preferred.
 
 No quick fix is emitted for `STRL-SAFETY-0003`, any other safety or quality
 diagnostic, regex-compatible source, host island, mandatory portability
@@ -216,6 +217,15 @@ validation, extraction, and consumer changes to pass that denominator. CP4
 runs the complete LSP, Rust, tooling, public/generated, migration differential,
 architecture, static-analysis, formatting, governance, and Local/Pull
 Request/Full profile checks with exact environment limitations recorded.
+
+The CP3 implementation retains the `1.0.0` editor evidence contract and bumps
+only the editor projection to `1.1.0`. Its governed island registry fingerprint
+is `sha256:f263465d9a49eb76aed8205d7fe72bec59cee2e7e7886651af4e8a60f82344c2`.
+The complete authored LSP suite passes 544 tests; the focused Rust editor and
+Semantic frontend suites pass 17 tests; the closed island suite passes 84
+tests; schema, Node syntax, architecture, static-analysis suppression,
+governance, formatting, and diff checks pass. Pytest cache writes remain an
+inherited managed-workspace limitation and do not change test results.
 
 Rollback is the complete P16-T04 diff back to
 `ee831b1f6c027c37b06da0d7cf571996325e8da8`. Rollback does not restore the

@@ -791,23 +791,11 @@ class TestBossFightComposition:
     @pytest.mark.parametrize(
         "pattern,virtual_offset,canonical_code",
         [
-            # 6. Inverted quantifier range buried after lookbehind + class chain
-            #
-            #    ``(?<=ab)\w+@\w+\.\w{5,2}$``
-            #    Canonical first-error selection reports the closing brace.
-            (r"(?<=ab)\w+@\w+\.\w{5,2}$", 23, "STRL-FRONTEND-2008"),
             # 7. Inverted character range buried inside a deep alternation
             #
             #    ``(?:foo|bar)+(?<=foo)[Z-A]+``
             #    Canonical evidence points at the reversed range end scalar.
             (r"(?:foo|bar)+(?<=foo)[Z-A]+", 23, "STRL-FRONTEND-2019"),
-            # 8. Backreference to a non-existent group buried after atomic +
-            #    named capture + non-capturing alternation. Captures: \1=`id`.
-            #    `\3` is undefined and lives at virtual offset 22.
-            (r"(?>(?<id>\w+))(?:abc){2,4}\3", 26, "STRL-FRONTEND-4002"),
-            # 9. Inline modifier buried after atomic + named capture +
-            #    quantifier. The `?` sits at virtual offset 21.
-            (r"(?>(?<n>\w+))[a-z]+(?i)X", 20, "STRL-FRONTEND-2016"),
             # 10. Conditional / branch-reset composed deep under lookbehind.
             #     The first unsupported `?` sits at virtual offset 5.
             (r"(?<=(?|(A)|(B)))(?(1)C|D)X", 5, "STRL-FRONTEND-2015"),
@@ -826,3 +814,19 @@ class TestBossFightComposition:
             virtual_offset=virtual_offset,
             canonical_code=canonical_code,
         )
+
+    @pytest.mark.parametrize(
+        "pattern",
+        [
+            r"(?<=ab)\w+@\w+\.\w{5,2}$",
+            r"(?>(?<id>\w+))(?:abc){2,4}\3",
+            r"(?>(?<n>\w+))[a-z]+(?i)X",
+        ],
+    )
+    def test_processed_host_escape_compositions_are_refused(
+        self, host_diagnostics, pattern: str
+    ) -> None:
+        source, _host_col = _ts_host(pattern)
+        assert host_diagnostics(
+            f"file:///fixtures/refused_{abs(hash(pattern))}.ts", source
+        ) == []
