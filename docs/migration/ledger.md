@@ -4024,3 +4024,12 @@ rather than an unsupported unwind promise.
 The historical C and Rust packages remain unchanged compatibility baselines for
 P17-T02. CP2 must still freeze hostile-input, ownership, concurrency, memory,
 ABI, and WASM evidence before implementation; CP3, CP4, and FINAL remain open.
+
+CP2 now freezes a 77-case denominator at contract fingerprint
+`sha256:1dc0797483c2b87a4653411c5d8abc0e4f2681fd3c82aa70ed8da3f72db585c5`
+and evidence fingerprint
+`sha256:5419a7a3f29525cfa6c4c7ddf2227d7c6700bf8cd73c5b27e48b8ef006964e90`.
+Ten integrity tests enforce exact family, operation, runner, error, platform,
+fingerprint, and mutation-resistant coverage. This closes verification design,
+not implementation evidence: every native lifecycle, WASM host, platform,
+fuzz, and sanitizer claim remains open for CP3/CP4.

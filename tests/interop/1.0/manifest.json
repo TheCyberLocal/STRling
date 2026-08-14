@@ -1,0 +1,585 @@
+{
+    "$schema": "evidence.schema.json",
+    "suite_id": "strling.interop-evidence",
+    "suite_version": "1.0.0",
+    "contract_fingerprint": "sha256:1dc0797483c2b87a4653411c5d8abc0e4f2681fd3c82aa70ed8da3f72db585c5",
+    "counts": {
+        "total": 77,
+        "families": {
+            "protocol_success": 10,
+            "protocol_failure": 16,
+            "native_memory": 12,
+            "native_concurrency": 4,
+            "wasm_memory": 12,
+            "abi_snapshot": 6,
+            "architecture_security": 4,
+            "platform_build": 5,
+            "fuzz_property": 6,
+            "sanitizer": 2
+        }
+    },
+    "cases": [
+        {
+            "id": "protocol-describe-identity",
+            "family": "protocol_success",
+            "surface": "protocol",
+            "runner": "contract",
+            "operation": "describe",
+            "claim": "Describe returns the exact governed ABI descriptor."
+        },
+        {
+            "id": "protocol-describe-determinism",
+            "family": "protocol_success",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "describe",
+            "claim": "Repeated describe requests produce identical bytes."
+        },
+        {
+            "id": "protocol-compile-source-success",
+            "family": "protocol_success",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "compile",
+            "claim": "A canonical source request returns the canonical successful CompileResult unchanged."
+        },
+        {
+            "id": "protocol-compile-failed-result",
+            "family": "protocol_success",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "compile",
+            "claim": "Semantic or syntax invalidity returns a completed exchange containing a failed CompileResult."
+        },
+        {
+            "id": "protocol-compile-target-success",
+            "family": "protocol_success",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "compile",
+            "claim": "Target-aware compilation uses only the exact supplied matching profile."
+        },
+        {
+            "id": "protocol-profile-inspect",
+            "family": "protocol_success",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "target_profile.inspect",
+            "claim": "Profile inspection returns the validated profile and computed immutable reference."
+        },
+        {
+            "id": "protocol-profile-reference-determinism",
+            "family": "protocol_success",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "target_profile.inspect",
+            "claim": "Repeated profile inspection returns identical reference and response bytes."
+        },
+        {
+            "id": "protocol-simply-10-success",
+            "family": "protocol_success",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "simply.compile",
+            "claim": "Simply 1.0 replay returns the exact versioned adapter success response."
+        },
+        {
+            "id": "protocol-simply-11-stdlib",
+            "family": "protocol_success",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "simply.compile",
+            "claim": "Simply 1.1 standard-helper replay delegates to canonical semantics and retains its lexical guarantee."
+        },
+        {
+            "id": "protocol-simply-failed-response",
+            "family": "protocol_success",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "simply.compile",
+            "claim": "A governed Simply construction failure remains a completed versioned adapter failure response."
+        },
+        {
+            "id": "failure-invalid-utf8",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "contract",
+            "claim": "Invalid UTF-8 maps only to STRL-INTEROP-0001."
+        },
+        {
+            "id": "failure-invalid-json",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "contract",
+            "claim": "Malformed JSON maps only to STRL-INTEROP-0002."
+        },
+        {
+            "id": "failure-invalid-envelope",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "contract",
+            "claim": "Invalid envelope shape maps only to STRL-INTEROP-0003."
+        },
+        {
+            "id": "failure-unsupported-version",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "contract",
+            "claim": "Unsupported version maps only to STRL-INTEROP-0004 without fallback."
+        },
+        {
+            "id": "failure-unsupported-operation",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "contract",
+            "claim": "Unsupported operation maps only to STRL-INTEROP-0005."
+        },
+        {
+            "id": "failure-request-too-large",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "claim": "A request above 10 MiB is rejected before parsing with STRL-INTEROP-0006."
+        },
+        {
+            "id": "failure-invalid-payload",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "claim": "Referenced-contract shape failure maps only to STRL-INTEROP-0007."
+        },
+        {
+            "id": "failure-canonical-boundary",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "claim": "Typed canonical boundary rejection maps only to STRL-INTEROP-0008."
+        },
+        {
+            "id": "failure-response-too-large",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "claim": "A response above 32 MiB maps only to STRL-INTEROP-0009."
+        },
+        {
+            "id": "failure-serialization-injection",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "claim": "A controlled serializer failure maps only to STRL-INTEROP-0010."
+        },
+        {
+            "id": "failure-json-scalar",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "contract",
+            "claim": "A valid JSON scalar is rejected as an invalid envelope."
+        },
+        {
+            "id": "failure-trailing-bytes",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "contract",
+            "claim": "Trailing non-whitespace bytes are rejected as invalid JSON."
+        },
+        {
+            "id": "failure-unknown-field",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "contract",
+            "claim": "Unknown envelope and payload fields are rejected."
+        },
+        {
+            "id": "failure-missing-profile",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "compile",
+            "claim": "A target-aware request without supplied profile is a typed boundary failure."
+        },
+        {
+            "id": "failure-unexpected-profile",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "compile",
+            "claim": "A target-neutral request with supplied profile is a typed boundary failure."
+        },
+        {
+            "id": "failure-profile-mismatch",
+            "family": "protocol_failure",
+            "surface": "protocol",
+            "runner": "native-rust",
+            "operation": "compile",
+            "claim": "A supplied profile with mismatched identity, version, or fingerprint is rejected."
+        },
+        {
+            "id": "native-null-output",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "A null output descriptor returns INVALID_ARGUMENT without dereference."
+        },
+        {
+            "id": "native-null-input-nonzero",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "A null input pointer with nonzero length returns INVALID_ARGUMENT."
+        },
+        {
+            "id": "native-empty-input",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "A null input pointer with zero length produces the bounded invalid-JSON response."
+        },
+        {
+            "id": "native-output-not-empty",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "A nonempty output descriptor is rejected without mutation or free."
+        },
+        {
+            "id": "native-free-null-descriptor",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "Freeing a null descriptor pointer is a no-op."
+        },
+        {
+            "id": "native-free-zero-descriptor",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "Freeing a zeroed descriptor is a no-op."
+        },
+        {
+            "id": "native-free-same-descriptor-twice",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "Freeing the same descriptor twice is safe because the first free zeroes it."
+        },
+        {
+            "id": "native-output-owned-until-free",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "Response bytes remain readable and immutable until library free."
+        },
+        {
+            "id": "native-input-not-retained",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "Input storage can be reused immediately after execute returns."
+        },
+        {
+            "id": "native-panic-contained",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-rust",
+            "claim": "A controlled internal panic returns PANIC with an empty output descriptor."
+        },
+        {
+            "id": "native-status-layout",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "All five status constants retain their exact numeric values."
+        },
+        {
+            "id": "native-request-response-no-alias",
+            "family": "native_memory",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "Valid calls copy input before allocating output and never alias caller storage."
+        },
+        {
+            "id": "native-reentrant-repeat",
+            "family": "native_concurrency",
+            "surface": "native",
+            "runner": "native-rust",
+            "claim": "Nested safe dispatch and repeated calls use no mutable global state."
+        },
+        {
+            "id": "native-concurrent-success",
+            "family": "native_concurrency",
+            "surface": "native",
+            "runner": "native-rust",
+            "claim": "At least 32 concurrent successful calls complete independently."
+        },
+        {
+            "id": "native-concurrent-failure-isolation",
+            "family": "native_concurrency",
+            "surface": "native",
+            "runner": "native-rust",
+            "claim": "Malformed calls cannot corrupt concurrent valid calls."
+        },
+        {
+            "id": "native-concurrent-byte-determinism",
+            "family": "native_concurrency",
+            "surface": "native",
+            "runner": "native-rust",
+            "claim": "Equivalent concurrent calls produce identical response bytes."
+        },
+        {
+            "id": "wasm-export-closure",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "The module exports only memory and the five governed v1 functions."
+        },
+        {
+            "id": "wasm-import-closure",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "The module imports no host capability."
+        },
+        {
+            "id": "wasm-alloc-execute-free",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "Host allocation, request write, execute, response read, free, and deallocation complete."
+        },
+        {
+            "id": "wasm-memory-growth-copy",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "Execution copies validated input before response allocation can grow memory."
+        },
+        {
+            "id": "wasm-descriptor-alignment",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "A misaligned output descriptor is rejected without a write."
+        },
+        {
+            "id": "wasm-input-range",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "Overflowing or out-of-memory input ranges are rejected before dereference."
+        },
+        {
+            "id": "wasm-output-range",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "Overflowing or out-of-memory output descriptor ranges are rejected."
+        },
+        {
+            "id": "wasm-zero-allocation",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "Zero-length allocation and null-zero deallocation have stable no-op behavior."
+        },
+        {
+            "id": "wasm-free-same-descriptor-twice",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "Freeing the same response descriptor twice is safe after zeroing."
+        },
+        {
+            "id": "wasm-dealloc-contract",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "Owned host buffers are deallocated exactly once with the original pointer and length."
+        },
+        {
+            "id": "wasm-oversize-allocation",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "Allocation beyond the request ceiling returns zero without memory mutation."
+        },
+        {
+            "id": "wasm-instance-isolation",
+            "family": "wasm_memory",
+            "surface": "wasm",
+            "runner": "wasm-host",
+            "claim": "A trapped or discarded instance cannot affect a second instance."
+        },
+        {
+            "id": "abi-generated-header",
+            "family": "abi_snapshot",
+            "surface": "native",
+            "runner": "generated-artifact",
+            "claim": "The checked C header is generated only from the governed ABI descriptor."
+        },
+        {
+            "id": "abi-header-c-compile",
+            "family": "abi_snapshot",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "A C11 translation unit compiles against the generated header."
+        },
+        {
+            "id": "abi-native-symbol-snapshot",
+            "family": "abi_snapshot",
+            "surface": "native",
+            "runner": "public-contract",
+            "claim": "The native dynamic library exports exactly the governed public symbols."
+        },
+        {
+            "id": "abi-wasm-symbol-snapshot",
+            "family": "abi_snapshot",
+            "surface": "wasm",
+            "runner": "public-contract",
+            "claim": "The WASM module import/export snapshot matches the governed descriptor."
+        },
+        {
+            "id": "abi-native-descriptor-layout",
+            "family": "abi_snapshot",
+            "surface": "native",
+            "runner": "native-c",
+            "claim": "Native descriptor field order, size, alignment, and offsets match C layout."
+        },
+        {
+            "id": "abi-public-contract-snapshot",
+            "family": "abi_snapshot",
+            "surface": "repository",
+            "runner": "public-contract",
+            "claim": "The governed strling-interop public snapshot rejects accidental drift."
+        },
+        {
+            "id": "architecture-kernel-unsafe-free",
+            "family": "architecture_security",
+            "surface": "repository",
+            "runner": "governance",
+            "claim": "The canonical kernel retains forbid unsafe code and contains no FFI module."
+        },
+        {
+            "id": "architecture-public-kernel-only",
+            "family": "architecture_security",
+            "surface": "repository",
+            "runner": "governance",
+            "claim": "The bridge depends only on the public kernel crate interface."
+        },
+        {
+            "id": "architecture-no-semantic-island",
+            "family": "architecture_security",
+            "surface": "repository",
+            "runner": "governance",
+            "claim": "The bridge contains no parser, validator semantics, planner, lowerer, emitter, or target registry."
+        },
+        {
+            "id": "architecture-no-legacy-binding",
+            "family": "architecture_security",
+            "surface": "repository",
+            "runner": "governance",
+            "claim": "The bridge has no source or dependency path to historical binding implementations."
+        },
+        {
+            "id": "platform-linux-x64",
+            "family": "platform_build",
+            "surface": "native",
+            "runner": "platform-ci",
+            "target": "x86_64-unknown-linux-gnu",
+            "claim": "The native ABI builds and passes lifecycle evidence on the governed Linux x64 runner."
+        },
+        {
+            "id": "platform-windows-x64",
+            "family": "platform_build",
+            "surface": "native",
+            "runner": "platform-ci",
+            "target": "x86_64-pc-windows-msvc",
+            "claim": "The native ABI builds and passes lifecycle evidence on the governed Windows x64 runner."
+        },
+        {
+            "id": "platform-macos-x64",
+            "family": "platform_build",
+            "surface": "native",
+            "runner": "platform-ci",
+            "target": "x86_64-apple-darwin",
+            "claim": "The native ABI builds and passes lifecycle evidence on the governed macOS x64 runner."
+        },
+        {
+            "id": "platform-macos-arm64",
+            "family": "platform_build",
+            "surface": "native",
+            "runner": "platform-ci",
+            "target": "aarch64-apple-darwin",
+            "claim": "The native ABI builds and passes lifecycle evidence on the governed macOS arm64 runner."
+        },
+        {
+            "id": "platform-wasm32-unknown",
+            "family": "platform_build",
+            "surface": "wasm",
+            "runner": "platform-ci",
+            "target": "wasm32-unknown-unknown",
+            "claim": "The raw WASM ABI builds reproducibly and passes host evidence on its governed runtime."
+        },
+        {
+            "id": "fuzz-arbitrary-bytes",
+            "family": "fuzz_property",
+            "surface": "protocol",
+            "runner": "cargo-fuzz",
+            "claim": "Arbitrary bounded byte slices never panic and return one stable disposition."
+        },
+        {
+            "id": "fuzz-structured-envelope",
+            "family": "fuzz_property",
+            "surface": "protocol",
+            "runner": "cargo-fuzz",
+            "claim": "Structured envelope mutations never bypass version, operation, or unknown-field checks."
+        },
+        {
+            "id": "fuzz-length-boundaries",
+            "family": "fuzz_property",
+            "surface": "native",
+            "runner": "cargo-fuzz",
+            "claim": "Lengths around zero, descriptor size, request ceiling, and integer overflow remain safe."
+        },
+        {
+            "id": "fuzz-simply-graphs",
+            "family": "fuzz_property",
+            "surface": "protocol",
+            "runner": "cargo-fuzz",
+            "operation": "simply.compile",
+            "claim": "Bounded Simply graph mutations return governed construction or interop failures without panic."
+        },
+        {
+            "id": "fuzz-target-profiles",
+            "family": "fuzz_property",
+            "surface": "protocol",
+            "runner": "cargo-fuzz",
+            "operation": "target_profile.inspect",
+            "claim": "Bounded target-profile mutations never produce an invalid computed reference."
+        },
+        {
+            "id": "fuzz-ownership-sequences",
+            "family": "fuzz_property",
+            "surface": "native",
+            "runner": "cargo-fuzz",
+            "claim": "Valid execute/free/no-op sequences preserve ownership state without leak or double free."
+        },
+        {
+            "id": "sanitizer-native-address-leak",
+            "family": "sanitizer",
+            "surface": "native",
+            "runner": "sanitizer-ci",
+            "target": "x86_64-unknown-linux-gnu",
+            "claim": "Address and leak sanitizer execution covers native lifecycle, malformed input, and concurrency cases."
+        },
+        {
+            "id": "sanitizer-wasm-host-memory",
+            "family": "sanitizer",
+            "surface": "wasm",
+            "runner": "sanitizer-ci",
+            "target": "wasm32-unknown-unknown",
+            "claim": "The WASM host harness checks range, growth, release, and instance isolation without retained allocation."
+        }
+    ],
+    "fingerprint": "sha256:5419a7a3f29525cfa6c4c7ddf2227d7c6700bf8cd73c5b27e48b8ef006964e90"
+}

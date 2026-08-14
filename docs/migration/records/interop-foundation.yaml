@@ -48,6 +48,10 @@ scope:
         - spec/interop/1.0/abi.json
         - spec/interop/1.0/abi.schema.json
         - spec/interop/1.0/interop.schema.json
+        - tests/interop/1.0/evidence.schema.json
+        - tests/interop/1.0/manifest.json
+        - tooling/interop_contract.py
+        - tooling/tests/test_interop_contract.py
         - docs/migration/interop-foundation.md
         - docs/migration/records/interop-foundation.yaml
     permitted_generated_changes:
@@ -122,8 +126,20 @@ checkpoints:
             result: passed
             details: strling.interop, strling.c-abi, and strling.wasm-abi 1.0.0 fix four operations, exact UTF-8 JSON envelopes, 10 MiB request and 32 MiB response limits, stable transport errors, stateless native ownership and unwind containment, raw wasm32 memory rules, thread/cancellation dispositions, certification targets, generated-header authority, and no host migration or semantic implementation.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed interop evidence denominator
+            command: python tooling/interop_contract.py --json
+            result: passed
+            details: The contract fingerprint is sha256:1dc0797483c2b87a4653411c5d8abc0e4f2681fd3c82aa70ed8da3f72db585c5. The evidence fingerprint is sha256:5419a7a3f29525cfa6c4c7ddf2227d7c6700bf8cd73c5b27e48b8ef006964e90. All 77 unique cases validate across ten exact families, four operations, ten error codes, ten runner dispositions, four native targets, and wasm32-unknown-unknown.
+          - check: Shrinkage and mutation resistance
+            command: python -m unittest tooling.tests.test_interop_contract -v
+            result: passed
+            details: Ten integrity tests pass. They reject governed-input or evidence fingerprint drift, case removal after count edits, duplicate identity, family substitution, operation or platform shrinkage, error-code mutation, and any WASM host import/shared-memory claim.
+          - check: Focused quality and patch integrity
+            command: python -m ruff check tooling/interop_contract.py tooling/tests/test_interop_contract.py && python -m ruff format --check tooling/interop_contract.py tooling/tests/test_interop_contract.py && prettier --check tests/interop/1.0/evidence.schema.json tests/interop/1.0/manifest.json && git diff --check
+            result: passed
+            details: The validator and tests pass Ruff check/format; the evidence schema and manifest pass Prettier; patch whitespace is valid. Platform, native lifecycle, fuzz, sanitizer, and WASM-host case claims remain planned evidence rather than implementation passes.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
@@ -133,4 +149,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 421693b83da5a81f07fccb26ac4021ddaf61a73c
+      subject: "docs(interop): lock canonical ABI contract"

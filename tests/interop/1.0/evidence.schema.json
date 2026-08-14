@@ -1,0 +1,133 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/tests/interop/1.0/evidence.schema.json",
+    "title": "STRling interop certification evidence denominator 1.0",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "suite_id",
+        "suite_version",
+        "contract_fingerprint",
+        "counts",
+        "cases",
+        "fingerprint"
+    ],
+    "properties": {
+        "$schema": { "const": "evidence.schema.json" },
+        "suite_id": { "const": "strling.interop-evidence" },
+        "suite_version": { "const": "1.0.0" },
+        "contract_fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["total", "families"],
+            "properties": {
+                "total": { "const": 77 },
+                "families": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "protocol_success",
+                        "protocol_failure",
+                        "native_memory",
+                        "native_concurrency",
+                        "wasm_memory",
+                        "abi_snapshot",
+                        "architecture_security",
+                        "platform_build",
+                        "fuzz_property",
+                        "sanitizer"
+                    ],
+                    "properties": {
+                        "protocol_success": { "const": 10 },
+                        "protocol_failure": { "const": 16 },
+                        "native_memory": { "const": 12 },
+                        "native_concurrency": { "const": 4 },
+                        "wasm_memory": { "const": 12 },
+                        "abi_snapshot": { "const": 6 },
+                        "architecture_security": { "const": 4 },
+                        "platform_build": { "const": 5 },
+                        "fuzz_property": { "const": 6 },
+                        "sanitizer": { "const": 2 }
+                    }
+                }
+            }
+        },
+        "cases": {
+            "type": "array",
+            "minItems": 77,
+            "maxItems": 77,
+            "items": { "$ref": "#/$defs/Case" }
+        },
+        "fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+    },
+    "$defs": {
+        "Case": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "family", "surface", "runner", "claim"],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$"
+                },
+                "family": {
+                    "enum": [
+                        "protocol_success",
+                        "protocol_failure",
+                        "native_memory",
+                        "native_concurrency",
+                        "wasm_memory",
+                        "abi_snapshot",
+                        "architecture_security",
+                        "platform_build",
+                        "fuzz_property",
+                        "sanitizer"
+                    ]
+                },
+                "surface": {
+                    "enum": ["protocol", "native", "wasm", "repository"]
+                },
+                "runner": {
+                    "enum": [
+                        "contract",
+                        "native-rust",
+                        "native-c",
+                        "wasm-host",
+                        "governance",
+                        "public-contract",
+                        "generated-artifact",
+                        "platform-ci",
+                        "cargo-fuzz",
+                        "sanitizer-ci"
+                    ]
+                },
+                "operation": {
+                    "enum": [
+                        "describe",
+                        "compile",
+                        "target_profile.inspect",
+                        "simply.compile"
+                    ]
+                },
+                "target": {
+                    "enum": [
+                        "x86_64-unknown-linux-gnu",
+                        "x86_64-pc-windows-msvc",
+                        "x86_64-apple-darwin",
+                        "aarch64-apple-darwin",
+                        "wasm32-unknown-unknown"
+                    ]
+                },
+                "claim": { "type": "string", "minLength": 1 }
+            }
+        }
+    }
+}

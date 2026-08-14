@@ -78,11 +78,30 @@ Before implementation, CP2 will create a shrinkage-resistant corpus covering:
 Passing a schema test alone will not certify memory safety, binary layout,
 thread behavior, target availability, or host lifecycle.
 
+CP2 freezes 77 unique cases at contract fingerprint
+`sha256:1dc0797483c2b87a4653411c5d8abc0e4f2681fd3c82aa70ed8da3f72db585c5`
+and evidence fingerprint
+`sha256:5419a7a3f29525cfa6c4c7ddf2227d7c6700bf8cd73c5b27e48b8ef006964e90`.
+The denominator is ten protocol successes, sixteen protocol failures, twelve
+native-memory cases, four native-concurrency cases, twelve WASM-memory cases,
+six ABI snapshots, four architecture/security cases, five platform builds, six
+fuzz properties, and two sanitizer hooks.
+
+Ten integrity tests enforce JSON Schema validity, both fingerprints, exact
+family and total counts, unique identities, closed operation and platform
+coverage, the ten error identities, and the no-import/no-shared-memory WASM
+boundary. Removing or substituting a case remains invalid even after changing
+declared counts or resigning the evidence fingerprint. These are frozen
+requirements, not implementation results: platform, fuzz, sanitizer, native
+lifecycle, and WASM-host claims remain unpassed until their named runners
+execute in CP3/CP4.
+
 ## Checkpoint state
 
 CP1 locks the boundary above without implementing or migrating a host package.
-CP2 owns the closed evidence denominator and mutation-resistant verification.
-CP3 will add the minimal bridge, generated C header, and local native/WASM proof.
+CP2 owns the now-frozen closed evidence denominator and mutation-resistant
+verification. CP3 will add the minimal bridge, generated C header, and local
+native/WASM proof.
 CP4 will run ABI/public snapshots, platform/toolchain coverage, differential and
 repository profiles. FINAL will record exact protocol/ABI fingerprints,
 operation counts, memory/thread dispositions, fuzz/sanitizer evidence, platform
