@@ -3865,3 +3865,80 @@ strict validators required by registry guarantees. P14-T04 retains broad
 binding, frontend, adapter, documentation, and portability-surface generation.
 No package, default, version, tag, upload, publication, or release action was
 taken here.
+
+## Canonical standard-library semantics
+
+-   Status: Complete
+-   Starting commit: `6860b16d8e85bef3856303b95a7f28d95726aed0`
+-   Behavior change: One canonical Rust semantic implementation for all
+    registered helper variants plus exact target-runtime evidence; no public
+    binding exposure and no semantic-validator claim
+-   Task record:
+    [`canonical-stdlib-semantics.yaml`](records/canonical-stdlib-semantics.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+P14-T03 implements five lexical-shape helpers and eight variants through one
+crate-private Rust builder source, with closed Semantic IR, Simply, and
+Semantic DSL forms. The 117-record evidence denominator contains 40 audited,
+60 compatibility, and 17 stress records. It deliberately retains known
+semantic false positives and standards false negatives because registry 1.0.0
+authorizes zero semantic validators; lexical shape is not semantic validity.
+
+Exact two-pass execution on the governed Node 22.23.2, CPython 3.11.15, PCRE2
+10.42, and PCRE2 10.43 runtimes passes all 580 applicable profile applications;
+five Python bytes applications remain explicitly not applicable. All 575
+tooling tests, Rust 1.75 all-target tests and warning-denied Clippy, public and
+generated contracts, governance, formatting, static analysis, and the
+three-run migration differential pass. The task closes through certification
+commit `cde140daea2fc173f3822685c772916fc7d5f29d` and documentation closure
+`2058190efbaffd91fad84bf5f1ef26004f7dc2e3`.
+
+P14-T03 is `READY WITH RECORDED CARRY-FORWARD`. P14-T04 owns generated public
+surfaces and adapter exposure; missing Windows ecosystem tools and inherited
+dependency-risk state remain explicit without waiver.
+
+## Generated standard-library surfaces and portability
+
+-   Status: Complete
+-   Starting commit: `adab09bcf5569e454958d080fd70bd33f3c46dc6`
+-   Behavior change: Additive Simply 1.1 helper transport, supported canonical
+    Rust/TypeScript/Python surfaces, and generated documentation, metadata, and
+    portability views; no new helper semantics or target expectations
+-   Task record:
+    [`stdlib-surface-convergence.yaml`](records/stdlib-surface-convergence.yaml)
+-   Readiness: `READY WITH RECORDED CARRY-FORWARD`
+
+P14-T04 derives fourteen checked outputs from one canonical registry and the
+sole Rust implementation. The generated denominator is five helpers, eight
+variants, seventeen binding spellings, two supported Preview adapters, fifteen
+compatibility-only bindings, five target profiles, forty portability cells,
+580 executable applications, five explicit not-applicable applications, and
+zero semantic validators. The output fingerprint is
+`f8f165ccd26970e8b0d2e9e5db907fa8fd9d8806b505011794a4c8e1268ef132`.
+
+Simply 1.1 adds one `stdlib_helper` operation while 1.0 remains immutable.
+Rust, TypeScript Preview, and Python Preview delegate helper identity and
+parameters through the canonical transport; no generated wrapper or document
+contains an independent regex or validator. Cross-frontend convergence proves
+all eight variants are equivalent after removing only representation identity
+and provenance.
+
+The reviewed implementation commit is
+`7da56c7134f60747cfa5f467ef8a73c1d009c02b`. Certification commit
+`6d0789af53e076497baa8dac673c3b108e839f5d` also repairs deterministic Windows
+projection execution by preserving the bounded MSVC linker, SDK-library, and
+temporary-directory environment. All 583 tooling tests, Rust all-target tests,
+Rust 1.75 warning-denied Clippy, affected public snapshots, generated surfaces,
+documentation, governance, affected-file formatting, and the three-run migration
+differential pass.
+
+At the clean certification commit, Local records 10 passed, 2 failed, and 14
+unavailable operations; Pull Request records 10, 2, and 34; Full records 11,
+3, and 70. The remaining failures are repository-wide Go-dependent wrappers
+and inherited dependency-risk license/waiver drift. Exact-runtime and missing
+ecosystem operations remain unavailable, never waived or labeled passing; the
+unchanged exact T03 portability evidence supplies the task's target proof.
+
+P14 and P14-T04 are `READY WITH RECORDED CARRY-FORWARD`. P15-T01 is next and
+owns the structured semantic explanation model. No package, default, version,
+tag, upload, publication, or release action was taken here.

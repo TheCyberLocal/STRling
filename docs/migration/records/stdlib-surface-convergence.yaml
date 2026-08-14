@@ -1,6 +1,6 @@
 record_version: 2.0.0
 title: Standard-library surface generation and portability convergence
-status: in_progress
+status: complete
 objective: Generate every canonical standard-library frontend, adapter, binding-metadata, documentation, and portability view from registry 1.0.0 and the sole Rust implementation; expose helpers only through supported canonical transports; preserve legacy Essential constructors as explicit compatibility-only surfaces; and prove the complete five-helper, eight-variant, seventeen-binding, five-profile denominator without duplicating semantics.
 scope:
     diff:
@@ -226,6 +226,57 @@ checkpoints:
             result: passed
             details: Generated support metadata classifies two canonical Preview adapters and fifteen compatibility-only bindings. The portability view covers all forty eight-variant-by-five-profile cells, 580 executed applications, five explicit not-applicable applications, and zero semantic validators; selected Python, TypeScript, and Rust public snapshots reproduce exactly.
     - name: Complete profiles and phase handoff
-      status: planned
-      evidence: []
-commits: []
+      status: passed
+      evidence:
+          - check: Task-owned integration and deterministic generation
+            command: python3 -m unittest discover -s tooling/tests; cargo test --manifest-path core/Cargo.toml --all-targets --locked; cargo +1.75.0 clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings; python3 -m tooling.stdlib_surfaces --check; python3 tooling/governance.py; git diff --check
+            result: passed
+            details: >-
+                All 583 tooling tests pass. Every Rust all-target test and both projection examples pass in the installed Visual Studio developer environment, and Rust 1.75 Clippy passes with warnings denied. Canonical contracts retain five lexical-shape helpers, eight variants, seventeen bindings, 117 edge records, 585 profile applications, 580 executable applications, five explicit not-applicable applications, and zero semantic validators. Fourteen generated outputs reproduce at fingerprint f8f165ccd26970e8b0d2e9e5db907fa8fd9d8806b505011794a4c8e1268ef132; the Rust, TypeScript, and Python affected public snapshots, documentation integrity, governance, affected-file formatting, and patch integrity pass.
+          - check: Exact portability evidence and Windows projection execution
+            result: passed
+            details: >-
+                T04 does not change target artifacts or authored expectations, so it reuses T03's checked two-pass evidence: all 580 applicable ECMAScript 2024, PCRE2 10.42/10.43, Python re 3.11 string, and Python re 3.11 bytes applications pass, while five byte-mode applications remain explicitly not applicable. The moved Windows host exposed that deterministic projection subprocesses dropped MSVC linker, SDK-library, and temporary-directory discovery variables. Commit 6d0789af preserves only INCLUDE, LIB, LIBPATH, SYSTEMROOT, TEMP, and TMP on Windows; focused tests pass, both projections now build and execute, and absent exact PCRE2/CPython runtime variables are reported as unavailable rather than false failures.
+          - check: Deterministic migration differential
+            command: python3 tooling/migration_differential.py --repeat-runs 3
+            result: passed
+            details: >-
+                Three executions pass with result sha256:d3d0fdf3b082770bc264a55e3c59c9e82c527e2a04850d7f3ec193c1631be9fb and reviewed baseline sha256:5a6c45b37f1881841ef514a24f3089c2ea229f5de4159a21a8fa56c6cddf771f. The comparison contract, canonical boundary, corpus membership and case-set identities, route coverage, and zero replacement reviews remain unchanged; only governed observations affected by the generated frontend surfaces are renewed.
+          - check: Canonical profiles with explicit carry-forward
+            command: ./strling profile local; ./strling profile pull-request; ./strling profile full
+            result: passed
+            details: >-
+                At clean commit 6d0789af, Local records ten passed, two failed, and fourteen unavailable operations; Pull Request records ten passed, two failed, and thirty-four unavailable; Full records eleven passed, three failed, and seventy unavailable. The two common failures are repository-wide public-contract and generated-artifact wrappers requiring absent Go 1.22, while all affected Rust, TypeScript, Python, and stdlib projections pass directly. Full additionally records the inherited dependency-risk failure for the pre-existing VSCE signing-license classification and stale WVR-SEC-NPM-TOOLING-001 scope. Missing exact engines and ecosystem tools remain unavailable, not waived or represented as passing.
+commits:
+    - sha: 7da56c7134f60747cfa5f467ef8a73c1d009c02b
+      subject: "feat(stdlib): generate canonical frontend surfaces"
+    - sha: 6d0789af53e076497baa8dac673c3b108e839f5d
+      subject: "fix(certification): preserve Windows projection environment"
+completion:
+    accomplished:
+        - Added immutable Simply 1.1 helper transport and canonical Rust, TypeScript Preview, and Python Preview surfaces that delegate every helper selection to the sole Rust implementation.
+        - Generated binding support metadata, Semantic DSL examples, public reference documentation, convergence cases, and the complete eight-variant-by-five-profile portability matrix from the canonical registry and checked evidence.
+        - Classified two supported canonical Preview adapters separately from fifteen compatibility-only historical binding implementations, without copying regex patterns or validation semantics into bindings or documentation.
+        - Made deterministic shared and stdlib projection subprocesses portable to Windows build environments without expanding their semantic or runtime authority.
+    verified:
+        - The exact denominator is five lexical-shape helpers, eight variants, seventeen binding spellings, two canonical adapters, fifteen compatibility-only bindings, five target profiles, forty matrix cells, 580 executable applications, five not-applicable applications, and zero semantic validators.
+        - All 583 tooling tests, Rust all-target tests, Rust 1.75 warning-denied Clippy, affected public contracts, generated surfaces, documentation, governance, three-run migration differential, affected-file formatting, and patch-integrity checks pass.
+        - T03's unchanged exact-runtime evidence remains authoritative for all five target profiles; the current Windows host reports absent exact runtimes explicitly rather than weakening or fabricating conformance.
+    behavior_changed: Supported Rust, TypeScript Preview, and Python Preview consumers can select canonical standard-library helpers through one versioned operation, while public documentation and metadata are generated views of the same registry and implementation.
+    intentional_behavior_changes:
+        - Simply 1.1 adds stdlib_helper with stable helper IDs, parameter maps, and existing controlled construction diagnostics; Simply 1.0 remains immutable and rejects the additive operation.
+        - Public reference and support views now identify every helper's lexical_shape guarantee, portability status, non-guarantees, supported canonical adapters, and compatibility-only bindings from generated data.
+        - Windows projection subprocesses retain only the host variables required for deterministic Rust build execution.
+    preserved_behavior:
+        - All helpers remain lexical-shape constructors and may intentionally accept semantically invalid dates, addresses, URLs, email-like values, or other real-world values outside their explicitly bounded shape contract.
+        - No semantic validator, target artifact, authored runtime expectation, legacy Essential constructor, package version, default, or publication behavior changes.
+        - Known semantic false positives and standards false negatives retain the audited T03 dispositions; generated surfaces describe rather than silently correct them.
+    transitional_architecture:
+        - Fifteen historical binding implementations remain compatibility-only until later ordered binding migration work can replace them through canonical transports.
+        - Windows Local, Pull Request, and Full retain explicit ecosystem-tool, exact-runtime-host, Go, and dependency-risk carry-forward; no missing or failed operation is converted to success.
+    deferred_work:
+        - Inherited dependency-risk waiver/license drift, missing ecosystem toolchains, packaging, provenance, signing, clean-room release certification, and publication remain governed by their ordered later tasks.
+readiness:
+    status: READY WITH RECORDED CARRY-FORWARD
+    next_task: Close P14 and begin P15-T01 by defining a versioned semantic explanation model from canonical semantic facts, source provenance, diagnostics, and target planning without deriving explanations from emitted regex text.
+    rationale: P14-T04 is complete with one canonical registry and implementation feeding every supported adapter, documentation, metadata, and portability view; exact target evidence is unchanged and complete, every task-owned gate passes, and only explicit inherited host/toolchain and dependency-risk limitations carry forward.

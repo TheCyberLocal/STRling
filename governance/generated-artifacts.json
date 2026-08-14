@@ -610,7 +610,12 @@
             ],
             "generator": {
                 "implementation_paths": ["tooling/stdlib_surfaces.py"],
-                "command": ["python3", "-m", "tooling.stdlib_surfaces", "--write"],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.stdlib_surfaces",
+                    "--write"
+                ],
                 "working_directory": "."
             },
             "outputs": [
@@ -627,7 +632,12 @@
             "authority": "non-normative-projection",
             "verification": {
                 "method": "command-check",
-                "command": ["python3", "-m", "tooling.stdlib_surfaces", "--check"]
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.stdlib_surfaces",
+                    "--check"
+                ]
             },
             "enforcement": "enforced"
         },
