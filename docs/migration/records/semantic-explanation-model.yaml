@@ -42,6 +42,8 @@ scope:
         - tooling/tests/test_explanation_fixtures.py
         - tooling/tests/test_generated_artifacts.py
         - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_regex_frontend_architecture.py
+        - tooling/tests/test_semantic_frontend_architecture.py
     forbidden_paths:
         - bindings/**
         - core/src/ecmascript_lowering.rs
@@ -101,6 +103,8 @@ scope:
         - tooling/tests/test_explanation_contract.py
         - tooling/tests/test_explanation_fixtures.py
         - tooling/tests/test_public_contracts.py
+        - tooling/tests/test_regex_frontend_architecture.py
+        - tooling/tests/test_semantic_frontend_architecture.py
     permitted_generated_changes:
         - explanation-rendering-fixtures
         - public-contract-snapshots
@@ -199,10 +203,22 @@ checkpoints:
             result: passed
             details: Rust all-target tests and rustfmt passed; 41 focused core/public-contract tests passed; the explanation contract certified schemas=1, positive=1, negative=3 with fingerprint sha256:6831dc6ae1ddc65cd06016f5e60f4907926e5c4c33d7e6d465e7d3adae3b0d6b; two registered renderings reproduced fingerprint 65def9f16ad8ea677f3a4c3f7176f9c0b4d8705db30978b20074679d5b5a1abc; core mappings=11 and fixtures=116, the selected strling-kernel public snapshot, governance, patch integrity, and migration differential all passed.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Adjacent architecture and quality integration
+            result: passed
+            details: The complete 591-test tooling suite passes with Cargo available. Rust all-target tests, rustfmt, focused explanation tests, core mappings=11/fixtures=116, selected strling-kernel public contracts, explanation generated artifacts, governance, and patch integrity pass. The new explanation code is warning-free under clippy -D warnings after isolating four pre-existing repository findings in kernel.rs, protocol/request.rs, simply.rs, and source/mod.rs.
+          - check: Migration differential renewal
+            result: passed
+            details: The CP4 source-only Clippy correction was reviewed through three complete deterministic corpus runs. Baseline fingerprint sha256:e6b28d36e7278a72b33e1dfb22ab32f1e831504466d8113f76d7e1ccd1ee4899 and canonical boundary sha256:0f4a7b31d693299db9998a48bae003b0c84d092ff038ca137bf7f57f1d03a3d7 retain 44 observations, zero determinism mismatches, zero blocking canonical replacements, and full corpus sha256:feedb6435b8b61ae6a004484feca0f0b23b6e578234f8ffc8daeca9eb0f04300.
+          - check: Local and Pull Request profiles
+            result: passed
+            details: >-
+                Both machine-defined profiles pass all ten executable task-owned hardgates, including canonical/core contracts, governance, legacy reference, migration comparison, and migration differential. Repository-wide contracts_check and generate_check fail only because the inherited Go public-API extractor cannot execute go doc. Remaining operations are unavailable because this workstation lacks the declared pinned environment: Python/Bash probes, Ruff, Node >=22,<23 and dependent Prettier/npm/TypeScript tools, LSP dependencies, and PR-only language toolchains. These limitations predate and are independent of the explanation model; selected public/generated checks and direct Rust/tooling coverage pass.
 commits:
     - sha: 1b8b02d61a0f689ae5f3d11969bcc610645ce89a
       subject: "docs(explanation): lock semantic model scope"
     - sha: 9b7d1e1e89483da05d605e5b96f9d4484f9e240d
       subject: "feat(explanation): define semantic model contract"
+    - sha: 36e98e4bc9e275d0241ecbd38af108fc01c72557
+      subject: "feat(explanation): implement canonical projections"

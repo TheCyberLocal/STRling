@@ -682,9 +682,8 @@ pub fn explain_semantics(
                     })?;
             let reference_node_ids = foundational
                 .backreferences()
-                .filter_map(|(node_id, resolution)| {
-                    (&resolution.capture_id == capture_id).then(|| node_id.clone())
-                })
+                .filter(|(_, resolution)| &resolution.capture_id == capture_id)
+                .map(|(node_id, _)| node_id.clone())
                 .collect();
             Ok(CaptureExplanation {
                 evidence_class: EvidenceClass::SemanticFact,

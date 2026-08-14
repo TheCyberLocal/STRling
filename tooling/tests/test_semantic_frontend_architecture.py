@@ -30,7 +30,7 @@ class SemanticFrontendArchitectureTests(unittest.TestCase):
         mapping = load_mapping(ROOT / "core" / "contract-mapping.json")
         schemas = {entry["schema"]: entry for entry in mapping["schemas"]}
         self.assertEqual(
-            ["source", "regex_frontend", "semantic_frontend"],
+            ["source", "regex_frontend", "semantic_frontend", "explanation"],
             schemas["spec/contracts/1.0/source.schema.json"]["rust_modules"],
         )
         self.assertEqual(
