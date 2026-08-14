@@ -1,0 +1,150 @@
+record_version: 2.0.0
+title: Canonical LSP completion, navigation, and semantic-token rebase
+status: in_progress
+objective: Derive completion, navigation, document symbols, references, and semantic tokens from canonical frontend syntax, Semantic IR/source identities, and governed registries without retaining an LSP-local parser or semantic oracle.
+scope:
+    diff:
+        base: fadcc60f2e8b4fcd9f3c70d83aa0117f0ba8f7a1
+        head: working-tree
+    allowed_paths:
+        - core/Cargo.toml
+        - core/cli/strling-editor-core.rs
+        - core/src/editor_intelligence.rs
+        - core/src/lib.rs
+        - core/src/regex_frontend.rs
+        - core/src/semantic_frontend.rs
+        - core/tests/editor_intelligence.rs
+        - core/tests/regex_frontend.rs
+        - core/tests/semantic_frontend.rs
+        - core/tests/semantic_frontend_properties.rs
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/lsp-completion-navigation-tokens-rebase.md
+        - docs/migration/records/lsp-completion-navigation-tokens-rebase.yaml
+        - governance/architecture-rules.json
+        - governance/change-control.json
+        - governance/static-analysis.json
+        - tests/certification/migration-explanation/1.0/manifest.json
+        - tooling/lsp-server/README.md
+        - tooling/lsp-server/lsprotocol/types.py
+        - tooling/lsp-server/pygls/server.py
+        - tooling/lsp-server/server/canonical_core.py
+        - tooling/lsp-server/server/canonical_intelligence.py
+        - tooling/lsp-server/server/deferred_intelligence.py
+        - tooling/lsp-server/server/server.py
+        - tooling/lsp-server/tests/canonical_intelligence_evidence.py
+        - tooling/lsp-server/tests/fixtures/canonical-intelligence/**
+        - tooling/lsp-server/tests/test_canonical_intelligence.py
+        - tooling/lsp-server/tests/test_completion.py
+        - tooling/lsp-server/tests/test_lsp_lifecycle.py
+        - tooling/lsp-server/tests/test_lsp_server.py
+        - tooling/lsp-server/tests/test_navigation.py
+        - tooling/lsp-server/tests/test_semantic_tokens.py
+        - tooling/migration_differential_baseline.json
+        - tooling/tests/test_compiler_boundary_architecture.py
+        - tooling/tests/test_governance.py
+    forbidden_paths:
+        - bindings/**
+        - packages/**
+        - spec/**
+        - tests/conformance/**
+        - tests/convergence/**
+        - tests/spec/**
+        - tooling/legacy_reference/**
+        - tooling/lsp-server/assemble.sh
+        - tooling/lsp-server/build_extension.sh
+        - tooling/lsp-server/client/**
+        - tooling/lsp-server/dist/**
+        - tooling/lsp-server/island_extractor.py
+        - tooling/lsp-server/package-lock.json
+        - tooling/lsp-server/package.json
+        - tooling/lsp-server/server.py
+        - tooling/lsp-server/server/island_extractor.py
+        - tooling/lsp-server/sync-local-install.sh
+        - tooling/lsp-server/tests/test_code_actions.py
+        - tooling/lsp-server/tests/test_island_extractor.py
+    expected_files:
+        - docs/migration/lsp-completion-navigation-tokens-rebase.md
+        - docs/migration/records/lsp-completion-navigation-tokens-rebase.yaml
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - Editor evidence consumes the same canonical frontend syntax, Semantic IR, source identities, and registries as the compiler; it cannot accept syntax, resolve identities, or create meaning independently.
+    public_api_change:
+        level: compatible
+        evidence:
+            - LSP completion, definition, references, symbols, and token responses become canonical projections. No binding, normative compiler contract, package, or released extension surface changes in T03; the Rust projection transport is internal implementation data pending P16-T05 packaging.
+        affected_surfaces: []
+    schema_change:
+        level: none
+        evidence:
+            - The task consumes existing normative contracts and adds no normative schema. Its closed editor evidence is non-normative task implementation data.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - P16-T02 canonical diagnostic identity, severity, message, order, and source-range behavior remain unchanged.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Completion may list an explicitly governed profile value but cannot infer, evaluate, lower, serialize, or execute a target.
+    architecture_change:
+        level: additive
+        evidence:
+            - Frontend-owned Rust editor projections and one bounded adapter replace four Python-binding intelligence imports while reusing T02 snapshots and the canonical kernel boundary.
+    generated_output_change:
+        level: none
+        evidence:
+            - Generated LSP payloads and stdlib surfaces are excluded. Because core/src is an input to registered runtime observations, their registered checks must prove outputs remain unchanged.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Canonical completion contexts and registries
+      command: python3 -m pytest tooling/lsp-server/tests/test_canonical_intelligence.py tooling/lsp-server/tests/test_completion.py -q && cargo test --manifest-path core/Cargo.toml --test editor_intelligence --locked
+      expected_result: Parser-expected Semantic STRling terminals, completed capture references, conservative regex contexts, Simply operations, canonical helper metadata, deterministic ranking, exact replacement spans, malformed inputs, and bounded no-result cases match the frozen evidence without Python parsing.
+    - name: Canonical navigation and source identity
+      command: python3 -m pytest tooling/lsp-server/tests/test_navigation.py -q
+      expected_result: Symbols, definitions, and references use current canonical node/capture/source identities, survive canonical formatter round trips by recomputation, project Unicode ranges exactly, and return no speculative result for unresolved or stale evidence.
+    - name: Canonical semantic tokens and lifecycle
+      command: python3 -m pytest tooling/lsp-server/tests/test_semantic_tokens.py tooling/lsp-server/tests/test_lsp_lifecycle.py tooling/lsp-server/tests/test_lsp_server.py -q
+      expected_result: The frozen eight-type legend, frontend token classes, UTF-8/16/32 and multiline/host projection, full-response encoding, version invalidation, cancellation, stale rejection, limits, service failure, and recovery are deterministic.
+    - name: Architecture, compatibility, and campaign certification
+      command: python3 -m pytest tooling/lsp-server/tests --ignore=tooling/lsp-server/tests/test_code_actions.py --ignore=tooling/lsp-server/tests/test_island_extractor.py -q && cargo test --manifest-path core/Cargo.toml --all-targets --locked && python3 -m unittest discover -s tooling/tests && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 tooling/migration_differential.py --repeat-runs 3 && python3 -m tooling.governance --json && ./strling profile local && ./strling profile pull-request && ./strling profile full && git diff --check && git status --short
+      expected_result: T03-owned LSP behavior, canonical dependency direction, frontend/formatter properties, public/generated contracts, migration evidence, governance, profiles, patch integrity, and clean-tree checks pass or retain only explicitly recorded inherited environment limitations. Code actions and island extraction remain separately bounded P16-T04 evidence.
+checkpoints:
+    - name: Scope and contract lock
+      status: passed
+      evidence:
+          - check: Repository and operational starting boundary
+            result: passed
+            details: P16-T03 begins on architecture/v4 at clean P16-T02 closure fadcc60f2e8b4fcd9f3c70d83aa0117f0ba8f7a1 with five normalized Notion checkpoints. The four deferred Python-binding imports, authored server handlers, local LSP shims, current test denominator, generated registry lookup, snapshot bridge, package boundary, and T04/T05 exclusions were inventoried before implementation.
+          - check: Canonical authority and editor-evidence boundary
+            result: passed
+            details: Semantic STRling grammar/language/formatter, regex-compatible frontend, Semantic IR/source contracts, Simply 1.1, and canonical stdlib registry 1.0 are the only syntax, identity, and catalog inputs. One internal Rust projection reuses the actual frontend token/syntax implementations; Python owns only LSP adaptation, registry presentation, coordinate projection, lifecycle, and bounded transport.
+          - check: Completion, navigation, token, lifecycle, and compatibility contracts
+            result: passed
+            details: Parser-expected candidates, deterministic ranking, exact replacement ranges, completed capture scope, canonical helper/operation identity, symbol/reference rules, the existing eight-type token legend, current-source recomputation, UTF-8/16/32 projection, immutable snapshot identity, cancellation, stale rejection, resource limits, malformed no-guess behavior, task exclusions, rollback, and verification profile are frozen without implementation claims.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+    - name: Completion and next-task readiness
+      status: planned
+      evidence: []
+commits: []
