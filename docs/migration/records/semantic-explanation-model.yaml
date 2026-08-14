@@ -1,0 +1,141 @@
+record_version: 2.0.0
+title: Canonical semantic explanation model
+status: in_progress
+objective: Define and implement one independently versioned, deterministic semantic explanation model derived only from canonical Semantic IR, certified analysis evidence, diagnostics, and completed target planning, with structured concise and detailed forms and conservative uncertainty.
+scope:
+    diff:
+        base: 771edac04b776891a2102d0c6d7832393dea23d6
+        head: working-tree
+    allowed_paths:
+        - core/contract-mapping.json
+        - core/README.md
+        - core/src/capability_pipeline.rs
+        - core/src/compiler_pipeline.rs
+        - core/src/explanation.rs
+        - core/src/lib.rs
+        - core/tests/explanation.rs
+        - core/tests/explanation_frontend_convergence.rs
+        - core/tests/explanation_properties.rs
+        - docs/index.md
+        - docs/migration/ledger.md
+        - docs/migration/records/semantic-explanation-model.yaml
+        - docs/migration/semantic-explanation-model.md
+        - governance/change-control.json
+        - governance/contracts/snapshots/strling-kernel.json
+        - governance/generated-artifacts.json
+        - spec/README.md
+        - spec/explanations/semantic/1.0/**
+        - spec/explanations/semantic/generated/**
+        - tooling/contract_validation.py
+        - tooling/core_contract_validation.py
+        - tooling/core_stage_boundaries.py
+        - tooling/explanation_contract.py
+        - tooling/explanation_fixtures.py
+        - tooling/generated_artifacts.py
+        - tooling/migration_differential_baseline.json
+        - tooling/public_contracts.py
+        - tooling/tests/test_core_contracts.py
+        - tooling/tests/test_explanation_architecture.py
+        - tooling/tests/test_explanation_contract.py
+        - tooling/tests/test_explanation_fixtures.py
+        - tooling/tests/test_generated_artifacts.py
+        - tooling/tests/test_public_contracts.py
+    forbidden_paths:
+        - bindings/**
+        - core/src/ecmascript_lowering.rs
+        - core/src/ecmascript_serialization.rs
+        - core/src/kernel.rs
+        - core/src/normalization.rs
+        - core/src/portability_diagnostics.rs
+        - core/src/portability_planning.rs
+        - core/src/python_re_lowering.rs
+        - core/src/python_re_serialization.rs
+        - core/src/regex_frontend.rs
+        - core/src/semantic_frontend.rs
+        - core/src/semantic_rewrite.rs
+        - core/src/simply.rs
+        - core/src/target_lowering.rs
+        - core/src/target_serialization.rs
+        - packages/**
+        - spec/contracts/1.0/**
+        - spec/frontends/**
+        - spec/targets/**
+        - tooling/legacy_reference/**
+        - tooling/lsp-server/**
+    expected_files:
+        - docs/migration/records/semantic-explanation-model.yaml
+        - docs/migration/semantic-explanation-model.md
+        - governance/change-control.json
+    permitted_generated_changes: []
+    expected_generated_outputs: []
+    required_verification_levels:
+        - contract
+        - unit
+        - integration
+        - quality
+        - certification
+    bounded_exemptions: []
+change_classification:
+    semantic_change:
+        level: none
+        evidence:
+            - The model projects existing canonical meaning and certified evidence without changing accepted programs, matching semantics, diagnostics, or target behavior.
+    public_api_change:
+        level: additive
+        evidence:
+            - The Rust kernel gains a reusable typed explanation producer; existing compile and Simply APIs remain unchanged.
+        affected_surfaces:
+            - strling-kernel
+    schema_change:
+        level: additive
+        evidence:
+            - A separately versioned explanation schema is added outside the immutable compiler contract suite; CompileResult 1.0 is unchanged.
+        affected_surfaces: []
+    diagnostic_change:
+        level: none
+        evidence:
+            - Existing diagnostics and advice are referenced as immutable evidence and are not regenerated or reclassified.
+    target_behavior_change:
+        level: none
+        evidence:
+            - Target sections consume completed capability evaluation and portability planning without changing plans, rewrites, lowering, emission, or runtime execution.
+    architecture_change:
+        level: additive
+        evidence:
+            - A pure explanation projection follows canonical target-neutral evidence and optional completed target planning while remaining independent of frontends, emitters, bindings, and presentation.
+    generated_output_change:
+        level: none
+        evidence:
+            - CP1 locks the future generated-rendering boundary but creates no generated output; CP2 and CP3 will update this declaration with registered generated evidence.
+    documentation_only: false
+    internal_implementation: true
+required_verification:
+    - name: Explanation contract and generated rendering fixtures
+      command: python3 -m tooling.explanation_contract && python3 -m tooling.explanation_fixtures --check
+      expected_result: Version 1.0.0 schemas, positive and controlled-invalid fixtures, cross-object invariants, and non-normative concise/detailed renderings validate and reproduce exactly.
+    - name: Canonical explanation kernel and properties
+      command: cargo test --manifest-path core/Cargo.toml --test explanation --test explanation_frontend_convergence --test explanation_properties --locked
+      expected_result: Every semantic node and evidence class is projected from certified inputs; source-less, frontend-equivalent, target-sensitive, uncertainty, correspondence, and repeated-byte determinism cases pass.
+    - name: Architecture and public contracts
+      command: python3 tooling/core_contract_validation.py && python3 tooling/public_contracts.py --check && python3 tooling/generated_artifacts.py --check && python3 -m tooling.governance --json
+      expected_result: The explanation boundary consumes only certified canonical evidence, existing public surfaces remain compatible except for the declared additive Rust API, generated ownership is complete, and governed scope passes.
+    - name: Integration and campaign certification
+      command: cargo test --manifest-path core/Cargo.toml --all-targets --locked && cargo clippy --manifest-path core/Cargo.toml --all-targets --locked -- -D warnings && python3 -m unittest discover -s tooling/tests && ./strling profile local && ./strling profile pull-request && git diff --check && git status --short
+      expected_result: Adjacent kernel and frontend convergence, tooling, quality, Local/Pull Request profiles, patch integrity, and clean-tree checks pass or retain only explicitly recorded inherited environment limitations.
+checkpoints:
+    - name: Scope and contract lock
+      status: in_progress
+      evidence:
+          - check: Ordered task and clean starting boundary
+            result: passed
+            details: P15-T01 began on architecture/v4 at clean P14 closure 771edac04b776891a2102d0c6d7832393dea23d6. The independently versioned explanation contract, canonical evidence dependencies, forbidden protocol and whyNoMatch scope, rollback boundary, and required acceptance evidence are frozen before product implementation.
+    - name: Verification design and evidence
+      status: planned
+      evidence: []
+    - name: Minimal implementation and local proof
+      status: planned
+      evidence: []
+    - name: Integration and certification
+      status: planned
+      evidence: []
+commits: []
