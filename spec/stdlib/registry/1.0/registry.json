@@ -3,7 +3,7 @@
     "audit_reference": "spec/stdlib/stdlib-guarantee-audit.json",
     "authority": {
         "generated_outputs": "non-normative",
-        "implementation_status": "canonical-core-pending",
+        "implementation_status": "canonical-core-implemented",
         "scope": "Helper identity, audited guarantee metadata, logical signatures, target constraints, host-language spellings, documentation metadata, examples, evidence, and derivation identities.",
         "status": "normative"
     },
@@ -121,7 +121,7 @@
     "fingerprint": {
         "algorithm": "sha256",
         "canonicalization": "utf8-json-sort-keys-excluding-fingerprint",
-        "value": "sha256:07065e1cb66d3277e4f482df0d9cf91c94be0417e05f1b157f15658ae504a382"
+        "value": "sha256:b741f44634f70ce402a002bd74945d4a581e1a5c26f45a107e540c12de0a4b1c"
     },
     "helpers": [
         {
@@ -290,10 +290,11 @@
                 },
                 "construction_identity": "registry://stdlib.date_time",
                 "derivation_id": "canonical.registry",
-                "implementation_status": "compatibility-definition-pending-canonical-core",
+                "implementation_status": "canonical-core-implemented",
                 "kind": "registry_pattern_variants",
                 "variants": [
                     {
+                        "canonical_semantics_ref": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/0",
                         "fixture_group": "date_time.default",
                         "parameter_values": {},
                         "regex": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+\\-]\\d{2}:\\d{2})?",
@@ -508,10 +509,11 @@
                 },
                 "construction_identity": "registry://stdlib.email",
                 "derivation_id": "canonical.registry",
-                "implementation_status": "compatibility-definition-pending-canonical-core",
+                "implementation_status": "canonical-core-implemented",
                 "kind": "registry_pattern_variants",
                 "variants": [
                     {
+                        "canonical_semantics_ref": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/1",
                         "fixture_group": "email.default",
                         "parameter_values": {},
                         "regex": "[A-Za-z\\d._%+\\-]+@[A-Za-z\\d.\\-]+\\.[A-Za-z]{2,}",
@@ -915,10 +917,11 @@
                 },
                 "construction_identity": "registry://stdlib.ip",
                 "derivation_id": "canonical.registry",
-                "implementation_status": "compatibility-definition-pending-canonical-core",
+                "implementation_status": "canonical-core-implemented",
                 "kind": "registry_pattern_variants",
                 "variants": [
                     {
+                        "canonical_semantics_ref": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/2",
                         "fixture_group": "ip.v4",
                         "parameter_values": {
                             "version": 4
@@ -929,6 +932,7 @@
                         "variant_id": "ip.v4"
                     },
                     {
+                        "canonical_semantics_ref": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/3",
                         "fixture_group": "ip.v6_full",
                         "parameter_values": {
                             "version": 6
@@ -939,6 +943,7 @@
                         "variant_id": "ip.v6_full"
                     },
                     {
+                        "canonical_semantics_ref": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/4",
                         "fixture_group": "ip.either",
                         "parameter_values": {
                             "version": "default_or_other"
@@ -1185,10 +1190,11 @@
                 },
                 "construction_identity": "registry://stdlib.url",
                 "derivation_id": "canonical.registry",
-                "implementation_status": "compatibility-definition-pending-canonical-core",
+                "implementation_status": "canonical-core-implemented",
                 "kind": "registry_pattern_variants",
                 "variants": [
                     {
+                        "canonical_semantics_ref": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/5",
                         "fixture_group": "url.default",
                         "parameter_values": {},
                         "regex": "https?:\\/\\/[A-Za-z\\d.\\-]+(?::\\d+)?(?:\\/[A-Za-z\\d\\/_\\-.~%&=:@!$'()*+,;]*)?(?:\\?[A-Za-z\\d\\/_\\-.~%&=:@!$'()*+,;?]*)?(?:#[A-Za-z\\d\\/_\\-.~%&=:@!$'()*+,;?#]*)?",
@@ -1447,10 +1453,11 @@
                 },
                 "construction_identity": "registry://stdlib.uuid",
                 "derivation_id": "canonical.registry",
-                "implementation_status": "compatibility-definition-pending-canonical-core",
+                "implementation_status": "canonical-core-implemented",
                 "kind": "registry_pattern_variants",
                 "variants": [
                     {
+                        "canonical_semantics_ref": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/6",
                         "fixture_group": "uuid.generic",
                         "parameter_values": {
                             "version": "default_or_other"
@@ -1461,6 +1468,7 @@
                         "variant_id": "uuid.generic"
                     },
                     {
+                        "canonical_semantics_ref": "spec/stdlib/registry/1.0/canonical-semantics.json#/entries/7",
                         "fixture_group": "uuid.v4",
                         "parameter_values": {
                             "version": 4

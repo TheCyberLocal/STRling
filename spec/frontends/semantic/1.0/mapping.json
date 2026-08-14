@@ -158,7 +158,7 @@
             "id": "member.builtin",
             "production": "BuiltinMember",
             "member_kind": "builtin",
-            "source_form": "[not] ascii|unicode digit|word|whitespace;",
+            "source_form": "[not] ascii|target|unicode digit|word|whitespace;",
             "field_mapping": {
                 "domain keyword": "domain",
                 "class keyword": "name",
@@ -202,7 +202,7 @@
         "case_matching": ["insensitive", "sensitive"],
         "line_terminators": ["exclude", "include"],
         "builtin_class_names": ["digit", "whitespace", "word"],
-        "character_domains": ["ascii", "unicode"],
+        "character_domains": ["ascii", "target_native", "unicode"],
         "repetition_modes": ["greedy", "lazy", "possessive"],
         "position_kinds": [
             "end_before_final_line_terminator",

@@ -1,0 +1,111 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/spec/stdlib/registry/1.0/canonical-semantics.schema.json",
+    "title": "Canonical standard-library Semantic IR and builder definitions",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "$schema",
+        "entries",
+        "kind",
+        "registry_version",
+        "semantic_validator_count",
+        "stress_cases"
+    ],
+    "properties": {
+        "$schema": { "const": "./canonical-semantics.schema.json" },
+        "entries": {
+            "type": "array",
+            "minItems": 8,
+            "maxItems": 8,
+            "items": { "$ref": "#/$defs/Entry" }
+        },
+        "kind": { "const": "strling.canonical-stdlib-semantics" },
+        "registry_version": { "const": "1.0.0" },
+        "semantic_validator_count": { "const": 0 },
+        "stress_cases": {
+            "type": "array",
+            "minItems": 17,
+            "items": { "$ref": "#/$defs/StressCase" }
+        }
+    },
+    "$defs": {
+        "Entry": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "builder_identity",
+                "guarantee_level",
+                "helper_id",
+                "semantic_dsl_lines",
+                "variant_id"
+            ],
+            "properties": {
+                "builder_identity": {
+                    "type": "string",
+                    "pattern": "^core::stdlib::[A-Za-z0-9_(), ]+$"
+                },
+                "guarantee_level": { "const": "lexical_shape" },
+                "helper_id": {
+                    "type": "string",
+                    "pattern": "^stdlib\\.[a-z][a-z0-9_]*$"
+                },
+                "semantic_dsl_lines": {
+                    "type": "array",
+                    "minItems": 4,
+                    "items": { "type": "string" }
+                },
+                "variant_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_.]+$"
+                }
+            }
+        },
+        "InputRecipe": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["count", "prefix", "repeat", "suffix"],
+            "properties": {
+                "count": { "type": "integer", "minimum": 1, "maximum": 10000 },
+                "prefix": { "type": "string" },
+                "repeat": { "type": "string", "minLength": 1, "maxLength": 1 },
+                "suffix": { "type": "string" }
+            }
+        },
+        "StressCase": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "case_id",
+                "classification",
+                "expected_match",
+                "variant_id"
+            ],
+            "properties": {
+                "case_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_.-]+$"
+                },
+                "classification": {
+                    "enum": [
+                        "adversarial",
+                        "empty",
+                        "normalization",
+                        "oversized"
+                    ]
+                },
+                "expected_match": { "type": "boolean" },
+                "input": { "type": "string" },
+                "input_recipe": { "$ref": "#/$defs/InputRecipe" },
+                "variant_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_.]+$"
+                }
+            },
+            "oneOf": [
+                { "required": ["input"] },
+                { "required": ["input_recipe"] }
+            ]
+        }
+    }
+}

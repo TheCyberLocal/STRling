@@ -32,7 +32,7 @@ EXPECTED_ENUM_COVERAGE = {
     "case_matching": ["insensitive", "sensitive"],
     "line_terminators": ["exclude", "include"],
     "builtin_class_names": ["digit", "whitespace", "word"],
-    "character_domains": ["ascii", "unicode"],
+    "character_domains": ["ascii", "target_native", "unicode"],
     "repetition_modes": ["greedy", "lazy", "possessive"],
     "position_kinds": [
         "end_before_final_line_terminator",

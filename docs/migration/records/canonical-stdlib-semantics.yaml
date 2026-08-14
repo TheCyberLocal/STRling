@@ -49,9 +49,36 @@ scope:
         - tooling/legacy_reference/**
         - tooling/lsp-server/**
     expected_files:
+        - core/src/capability_evaluation.rs
+        - core/src/ecmascript_lowering.rs
+        - core/src/ecmascript_serialization.rs
+        - core/src/lib.rs
+        - core/src/normalization.rs
+        - core/src/python_re_lowering.rs
+        - core/src/python_re_serialization.rs
+        - core/src/semantic/mod.rs
+        - core/src/semantic_frontend.rs
+        - core/src/stdlib.rs
+        - core/src/target_lowering.rs
+        - core/src/target_serialization.rs
         - docs/migration/canonical-stdlib-semantics.md
         - docs/migration/records/canonical-stdlib-semantics.yaml
         - governance/change-control.json
+        - spec/contracts/1.0/semantic-ir.schema.json
+        - spec/frontends/semantic/1.0/fixtures/manifest.json
+        - spec/frontends/semantic/1.0/grammar.ebnf
+        - spec/frontends/semantic/1.0/language.json
+        - spec/frontends/semantic/1.0/mapping.json
+        - spec/frontends/simply/1.0/builder-request.schema.json
+        - spec/frontends/simply/1.0/fixtures/manifest.json
+        - spec/stdlib/registry/1.0/canonical-semantics.json
+        - spec/stdlib/registry/1.0/canonical-semantics.schema.json
+        - spec/stdlib/registry/1.0/registry.json
+        - spec/stdlib/registry/1.0/stdlib-registry.schema.json
+        - tooling/contract_validation.py
+        - tooling/semantic_strling_contract.py
+        - tooling/stdlib_registry.py
+        - tooling/tests/test_stdlib_registry.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -126,15 +153,36 @@ checkpoints:
             details: >-
                 Date/time, email, IPv4, and URL deliberately retain target-engine digit semantics. Existing ASCII and Unicode Semantic IR domains cannot represent that policy without strengthening one target or weakening another, so this task will add one explicit target_native domain and prove exact ECMAScript, PCRE2 UCP, Python string, and Python bytes behavior through existing backend stages.
     - name: Canonical helper and edge-corpus contract
-      status: in_progress
-      evidence: []
+      status: passed
+      evidence:
+          - check: Closed canonical forms and bounded edge denominator
+            command: python3 tooling/contract_validation.py; python3 tooling/stdlib_registry.py --check
+            result: passed
+            details: >-
+                Registry 1.0.0 now resolves all five helpers and eight lexical-shape variants to closed canonical Semantic IR, Simply builder identities, and authored Semantic DSL forms. The governed corpus contains forty audited registry cases, sixty compatibility fixture values, and seventeen empty, oversized, adversarial, or normalization stress cases for an exact edge denominator of 117; semantic validator count remains zero. The canonical registry fingerprint is sha256:b741f44634f70ce402a002bd74945d4a581e1a5c26f45a107e540c12de0a4b1c.
+          - check: Frontend and registry contract negatives
+            command: python3 -m unittest tooling.tests.test_stdlib_registry tooling.tests.test_semantic_strling_contract tooling.tests.test_simply_contract
+            result: passed
+            details: Thirty-three focused tests pass, including canonical reference completeness, schema closures, target_native coverage, controlled negatives, fixture integrity, and exact stress-case accounting.
     - name: Rust implementation and form equivalence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical Rust builder implementation
+            command: cargo test --manifest-path core/Cargo.toml --lib stdlib --locked
+            result: passed
+            details: >-
+                Five focused tests prove the five-helper/eight-variant denominator, deterministic construction, every i64 and null selector fallback class, exact target-native helper membership, zero semantic validators, and alpha-equivalence across registry Semantic IR, Simply-built programs, and parse/format/parse Semantic DSL forms.
+          - check: Backend integration and patch integrity
+            command: cargo check --manifest-path core/Cargo.toml --all-targets --locked; cargo fmt --manifest-path core/Cargo.toml --all --check; git diff --check
+            result: passed
+            details: >-
+                All Rust targets compile with the additive target_native domain flowing through capability evaluation, normalization, PCRE2, ECMAScript, Python string, and Python bytes lowering and serialization. Formatting and whitespace checks are clean.
     - name: Cross-engine and property certification
       status: planned
       evidence: []
     - name: Repository profiles and handoff
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 5485bbf304385c35769a22cf3b1e4b0714088f6b
+      subject: "docs(stdlib): define canonical semantics scope"

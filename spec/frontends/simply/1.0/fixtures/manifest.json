@@ -11,7 +11,7 @@
         },
         {
             "path": "builder-request.schema.json",
-            "sha256": "sha256:51c33b974d07a8f75143eadd40990ba82e3023971ecd5c4f896448c2a877920e"
+            "sha256": "sha256:d996701f7c590f9193216eea80fc9101a5770ce046945e737c227fd9d50b6dbe"
         },
         {
             "path": "case.schema.json",

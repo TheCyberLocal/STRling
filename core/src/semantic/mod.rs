@@ -102,11 +102,16 @@ impl BuiltinClassName {
     }
 }
 
-/// ASCII or Unicode interpretation for a built-in class.
+/// Interpretation policy for a built-in class.
+///
+/// `TargetNative` preserves the selected engine's shorthand-class meaning.
+/// It exists for governed compatibility semantics whose accepted character
+/// set is intentionally profile-dependent.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CharacterDomain {
     Ascii,
+    TargetNative,
     Unicode,
 }
 
@@ -114,6 +119,7 @@ impl CharacterDomain {
     fn as_str(self) -> &'static str {
         match self {
             Self::Ascii => "ascii",
+            Self::TargetNative => "target_native",
             Self::Unicode => "unicode",
         }
     }

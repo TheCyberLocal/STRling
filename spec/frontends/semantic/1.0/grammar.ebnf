@@ -39,7 +39,7 @@ RangeMember             = "range", RequiredLayout, ScalarString, RequiredLayout,
                           "through", RequiredLayout, ScalarString, Layout, ";" ;
 BuiltinMember           = [ "not", RequiredLayout ], CharacterDomain,
                           RequiredLayout, BuiltinClass, Layout, ";" ;
-CharacterDomain         = "ascii" | "unicode" ;
+CharacterDomain         = "ascii" | "target" | "unicode" ;
 BuiltinClass            = "digit" | "word" | "whitespace" ;
 UnicodePropertyMember   = [ "not", RequiredLayout ], "property", RequiredLayout,
                           String, [ RequiredLayout, "value", RequiredLayout, String ],

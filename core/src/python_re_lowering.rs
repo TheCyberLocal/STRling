@@ -171,6 +171,7 @@ pub enum PythonReBuiltinClass {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PythonReCharacterDomain {
     Ascii,
+    TargetNative,
     Unicode,
 }
 
@@ -999,6 +1000,7 @@ fn lower_set_member(member: &CharacterSetMember) -> PythonReCharacterSetMember {
             },
             domain: match domain {
                 CharacterDomain::Ascii => PythonReCharacterDomain::Ascii,
+                CharacterDomain::TargetNative => PythonReCharacterDomain::TargetNative,
                 CharacterDomain::Unicode => PythonReCharacterDomain::Unicode,
             },
             negated: *negated,

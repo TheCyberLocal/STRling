@@ -160,6 +160,7 @@ pub enum Pcre2BuiltinClass {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Pcre2CharacterDomain {
     Ascii,
+    TargetNative,
     Unicode,
 }
 
@@ -889,6 +890,7 @@ fn lower_set_member(member: &CharacterSetMember) -> Pcre2CharacterSetMember {
             },
             domain: match domain {
                 CharacterDomain::Ascii => Pcre2CharacterDomain::Ascii,
+                CharacterDomain::TargetNative => Pcre2CharacterDomain::TargetNative,
                 CharacterDomain::Unicode => Pcre2CharacterDomain::Unicode,
             },
             negated: *negated,

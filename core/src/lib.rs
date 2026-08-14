@@ -39,6 +39,8 @@ pub mod semantic_frontend;
 pub mod semantic_rewrite;
 pub mod simply;
 pub mod source;
+#[allow(dead_code)]
+mod stdlib;
 pub mod structural_analysis;
 pub mod target;
 pub mod target_lowering;

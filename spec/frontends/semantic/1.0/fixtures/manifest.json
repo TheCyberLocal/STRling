@@ -18,11 +18,11 @@
         },
         {
             "path": "grammar.ebnf",
-            "sha256": "sha256:2cbdbe792d2fc7c8dee7f8f55122e04ee6d6bf648e380ab1ce5e42615489ece2"
+            "sha256": "sha256:362d1d305e718b22f5bc1f0394bf69affd2a3f797c319b0c668d364f67efb3a9"
         },
         {
             "path": "language.json",
-            "sha256": "sha256:e2b40984a758085dce358ee24d434fa5b769e9f2e5a2e04bbee021fed097f663"
+            "sha256": "sha256:0c1a14b4c6575782cecfd2d681da193bac0c1c9bed171b4496a74c3524505a8d"
         },
         {
             "path": "language.schema.json",
@@ -30,7 +30,7 @@
         },
         {
             "path": "mapping.json",
-            "sha256": "sha256:3f27f951fc7d8b2207fbc122b68e93840efb77b0d6940a8669cd3e856d77d0bf"
+            "sha256": "sha256:cc8db31f524ab88e189820d3f642ad48d97d8260a444734f55be88955046ee46"
         },
         {
             "path": "mapping.schema.json",

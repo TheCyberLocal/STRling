@@ -23,7 +23,7 @@ class StandardLibraryRegistryTests(unittest.TestCase):
         cls.registry = load_json(REGISTRY_PATH)
 
     def test_schema_family_is_closed_and_versioned(self) -> None:
-        self.assertEqual(2, self.suite.validate_suite_structure())
+        self.assertEqual(3, self.suite.validate_suite_structure())
 
     def test_registry_reconciles_complete_audited_denominator(self) -> None:
         self.assertEqual((5, 8, 17, 40), self.suite.validate_canonical_file())
@@ -35,6 +35,21 @@ class StandardLibraryRegistryTests(unittest.TestCase):
             {"compatibility"},
             {helper["support_tier"] for helper in self.registry["helpers"]},
         )
+
+    def test_canonical_semantics_cover_every_variant_and_zero_validators(self) -> None:
+        self.suite._validate_canonical_semantics(self.registry)
+        self.assertEqual(8, len(self.suite.semantics["entries"]))
+        self.assertEqual(17, len(self.suite.semantics["stress_cases"]))
+        self.assertEqual(0, self.suite.semantics["semantic_validator_count"])
+        self.assertEqual(
+            {"canonical-core-implemented"},
+            {
+                helper["semantic_definition"]["implementation_status"]
+                for helper in self.registry["helpers"]
+            },
+        )
+        result = self.suite.certify()
+        self.assertEqual(117, result["edge_case_count"])
 
     def test_helper_identity_is_separate_from_host_language_spelling(self) -> None:
         helper_ids = {helper["id"] for helper in self.registry["helpers"]}

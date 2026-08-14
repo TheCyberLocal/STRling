@@ -62,7 +62,9 @@
             ],
             "properties": {
                 "generated_outputs": { "const": "non-normative" },
-                "implementation_status": { "const": "canonical-core-pending" },
+                "implementation_status": {
+                    "const": "canonical-core-implemented"
+                },
                 "scope": { "type": "string", "minLength": 1 },
                 "status": { "const": "normative" }
             }
@@ -123,6 +125,7 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
+                "canonical_semantics_ref",
                 "fixture_group",
                 "parameter_values",
                 "regex",
@@ -131,6 +134,9 @@
                 "variant_id"
             ],
             "properties": {
+                "canonical_semantics_ref": {
+                    "$ref": "#/$defs/repositoryReference"
+                },
                 "fixture_group": {
                     "type": "string",
                     "pattern": "^[a-z][a-z0-9_.]+$"
@@ -526,7 +532,7 @@
                     "pattern": "^[a-z][a-z0-9_.-]+$"
                 },
                 "implementation_status": {
-                    "const": "compatibility-definition-pending-canonical-core"
+                    "const": "canonical-core-implemented"
                 },
                 "kind": { "const": "registry_pattern_variants" },
                 "variants": {

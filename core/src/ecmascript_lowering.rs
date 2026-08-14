@@ -160,6 +160,7 @@ pub enum EcmascriptBuiltinClass {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum EcmascriptCharacterDomain {
     Ascii,
+    TargetNative,
     Unicode,
 }
 
@@ -904,6 +905,7 @@ fn lower_set_member(member: &CharacterSetMember) -> EcmascriptCharacterSetMember
             },
             domain: match domain {
                 CharacterDomain::Ascii => EcmascriptCharacterDomain::Ascii,
+                CharacterDomain::TargetNative => EcmascriptCharacterDomain::TargetNative,
                 CharacterDomain::Unicode => EcmascriptCharacterDomain::Unicode,
             },
             negated: *negated,

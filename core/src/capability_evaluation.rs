@@ -1053,7 +1053,7 @@ fn extract_node_requirements(
                     CharacterSetMember::Literal { .. }
                     | CharacterSetMember::Range { .. }
                     | CharacterSetMember::Builtin {
-                        domain: CharacterDomain::Ascii,
+                        domain: CharacterDomain::Ascii | CharacterDomain::TargetNative,
                         ..
                     } => {}
                 }

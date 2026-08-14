@@ -709,6 +709,16 @@ fn builtin_atom(
         (EcmascriptCharacterDomain::Ascii, EcmascriptBuiltinClass::Whitespace, true) => {
             r"[^\x09-\x0d\x20]"
         }
+        (EcmascriptCharacterDomain::TargetNative, EcmascriptBuiltinClass::Digit, false) => r"\d",
+        (EcmascriptCharacterDomain::TargetNative, EcmascriptBuiltinClass::Digit, true) => r"\D",
+        (EcmascriptCharacterDomain::TargetNative, EcmascriptBuiltinClass::Word, false) => r"\w",
+        (EcmascriptCharacterDomain::TargetNative, EcmascriptBuiltinClass::Word, true) => r"\W",
+        (EcmascriptCharacterDomain::TargetNative, EcmascriptBuiltinClass::Whitespace, false) => {
+            r"\s"
+        }
+        (EcmascriptCharacterDomain::TargetNative, EcmascriptBuiltinClass::Whitespace, true) => {
+            r"\S"
+        }
         (EcmascriptCharacterDomain::Unicode, EcmascriptBuiltinClass::Digit, false) => {
             r"\p{Decimal_Number}"
         }

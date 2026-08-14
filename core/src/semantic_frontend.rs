@@ -969,6 +969,9 @@ impl<'a> Parser<'a> {
         let domain = if self.word_is("ascii") {
             self.bump()?;
             CharacterDomain::Ascii
+        } else if self.word_is("target") {
+            self.bump()?;
+            CharacterDomain::TargetNative
         } else if self.word_is("unicode") {
             self.bump()?;
             CharacterDomain::Unicode
@@ -2036,6 +2039,7 @@ fn format_set_member(member: &SyntaxSetMember, output: &mut String) {
             }
             output.push_str(match domain {
                 CharacterDomain::Ascii => "ascii ",
+                CharacterDomain::TargetNative => "target ",
                 CharacterDomain::Unicode => "unicode ",
             });
             output.push_str(match name {

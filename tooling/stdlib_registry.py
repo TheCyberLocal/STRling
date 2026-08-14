@@ -21,6 +21,8 @@ ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_ROOT = ROOT / "spec" / "stdlib" / "registry" / "1.0"
 REGISTRY_PATH = REGISTRY_ROOT / "registry.json"
 REGISTRY_SCHEMA_PATH = REGISTRY_ROOT / "stdlib-registry.schema.json"
+SEMANTICS_PATH = REGISTRY_ROOT / "canonical-semantics.json"
+SEMANTICS_SCHEMA_PATH = REGISTRY_ROOT / "canonical-semantics.schema.json"
 INVALID_SCHEMA_PATH = REGISTRY_ROOT / "controlled-invalid-registry.schema.json"
 INVALID_ROOT = REGISTRY_ROOT / "fixtures" / "invalid"
 AUDIT_PATH = ROOT / "spec" / "stdlib" / "stdlib-guarantee-audit.json"
@@ -166,6 +168,8 @@ class StandardLibraryRegistrySuite:
         self.root = root
         self.registry_path = root / REGISTRY_PATH.relative_to(ROOT)
         self.registry_schema_path = root / REGISTRY_SCHEMA_PATH.relative_to(ROOT)
+        self.semantics_path = root / SEMANTICS_PATH.relative_to(ROOT)
+        self.semantics_schema_path = root / SEMANTICS_SCHEMA_PATH.relative_to(ROOT)
         self.invalid_schema_path = root / INVALID_SCHEMA_PATH.relative_to(ROOT)
         self.invalid_root = root / INVALID_ROOT.relative_to(ROOT)
         self.audit_path = root / AUDIT_PATH.relative_to(ROOT)
@@ -175,9 +179,12 @@ class StandardLibraryRegistrySuite:
         self.lsp_output = root / LSP_OUTPUT.relative_to(ROOT)
 
         self.registry_schema = load_json(self.registry_schema_path)
+        self.semantics = load_json(self.semantics_path)
+        self.semantics_schema = load_json(self.semantics_schema_path)
         self.invalid_schema = load_json(self.invalid_schema_path)
         try:
             Draft202012Validator.check_schema(self.registry_schema)
+            Draft202012Validator.check_schema(self.semantics_schema)
             Draft202012Validator.check_schema(self.invalid_schema)
         except SchemaError as exc:
             raise StandardLibraryRegistryError(
@@ -186,15 +193,21 @@ class StandardLibraryRegistrySuite:
         self.registry_validator = Draft202012Validator(
             self.registry_schema, format_checker=FormatChecker()
         )
+        self.semantics_validator = Draft202012Validator(self.semantics_schema)
         self.invalid_validator = Draft202012Validator(self.invalid_schema)
 
     def validate_suite_structure(self) -> int:
         """Validate the closed, versioned schema family."""
         expected = {
             "https://strling.dev/spec/stdlib/registry/1.0/stdlib-registry.schema.json",
+            "https://strling.dev/spec/stdlib/registry/1.0/canonical-semantics.schema.json",
             "https://strling.dev/spec/stdlib/registry/1.0/controlled-invalid-registry.schema.json",
         }
-        actual = {self.registry_schema["$id"], self.invalid_schema["$id"]}
+        actual = {
+            self.registry_schema["$id"],
+            self.semantics_schema["$id"],
+            self.invalid_schema["$id"],
+        }
         if actual != expected:
             raise StandardLibraryRegistryError(
                 "schema.family.closed: unexpected registry schema identity"
@@ -202,6 +215,10 @@ class StandardLibraryRegistrySuite:
         if self.registry_schema.get("additionalProperties") is not False:
             raise StandardLibraryRegistryError(
                 "schema.root.closed: registry root must reject unknown properties"
+            )
+        if self.semantics_schema.get("additionalProperties") is not False:
+            raise StandardLibraryRegistryError(
+                "schema.root.closed: semantics root must reject unknown properties"
             )
         return len(actual)
 
@@ -263,10 +280,118 @@ class StandardLibraryRegistrySuite:
         for helper in registry["helpers"]:
             for evidence in helper["evidence"]:
                 self._resolve_repository_reference(str(evidence["reference"]))
+            for variant in helper["semantic_definition"]["variants"]:
+                self._resolve_repository_reference(
+                    str(variant["canonical_semantics_ref"])
+                )
         for binding in registry["host_bindings"]:
             for reference in binding["implementation_references"]:
                 self._resolve_repository_reference(str(reference))
             self._resolve_repository_reference(str(binding["test_reference"]))
+
+    def _validate_canonical_semantics(self, registry: Mapping[str, Any]) -> None:
+        errors = sorted(
+            self.semantics_validator.iter_errors(self.semantics),
+            key=lambda error: list(error.path),
+        )
+        if errors:
+            error = errors[0]
+            raise StandardLibraryRegistryError(
+                f"semantics.schema.invalid: {_json_path(list(error.path))}: {error.message}"
+            )
+        payload = self.semantics_path.read_bytes()
+        if b"\r\n" in payload or not payload.endswith(b"\n"):
+            raise StandardLibraryRegistryError(
+                "semantics.serialization.nondeterministic: canonical semantics must use LF and one trailing newline"
+            )
+        _validate_sorted_keys(self.semantics)
+
+        entries = self.semantics["entries"]
+        entry_ids = [str(entry["variant_id"]) for entry in entries]
+        _unique(
+            entry_ids,
+            "semantics.variant.unique: canonical semantics variant IDs must be unique",
+        )
+        builder_ids = [str(entry["builder_identity"]) for entry in entries]
+        _unique(
+            builder_ids,
+            "semantics.builder.unique: canonical builder identities must be unique",
+        )
+        stress_cases = self.semantics["stress_cases"]
+        stress_ids = [str(case["case_id"]) for case in stress_cases]
+        _unique(
+            stress_ids,
+            "semantics.stress.unique: stress case identities must be unique",
+        )
+        known_variants = set(entry_ids)
+        if any(str(case["variant_id"]) not in known_variants for case in stress_cases):
+            raise StandardLibraryRegistryError(
+                "semantics.stress.variant: every stress case must resolve to a canonical variant"
+            )
+        classifications = {str(case["classification"]) for case in stress_cases}
+        if classifications != {"adversarial", "empty", "normalization", "oversized"}:
+            raise StandardLibraryRegistryError(
+                "semantics.stress.classification: stress corpus must cover every required class"
+            )
+        empty_variants = {
+            str(case["variant_id"])
+            for case in stress_cases
+            if case["classification"] == "empty" and case["expected_match"] is False
+        }
+        if empty_variants != known_variants:
+            raise StandardLibraryRegistryError(
+                "semantics.stress.empty: every variant must reject the empty value"
+            )
+
+        semantic_helpers = sum(
+            helper["guarantee"]["level"] == "semantic"
+            for helper in registry["helpers"]
+        )
+        if self.semantics["semantic_validator_count"] != semantic_helpers:
+            raise StandardLibraryRegistryError(
+                "semantics.validator.correspondence: validator count must equal semantic-guarantee helper count"
+            )
+
+        expected_entries: list[tuple[str, str]] = []
+        for helper in registry["helpers"]:
+            if (
+                helper["semantic_definition"]["implementation_status"]
+                != "canonical-core-implemented"
+            ):
+                raise StandardLibraryRegistryError(
+                    "semantics.implementation.status: every helper must be implemented"
+                )
+            for variant in helper["semantic_definition"]["variants"]:
+                reference = str(variant["canonical_semantics_ref"])
+                entry = self._resolve_repository_reference(reference)
+                if not isinstance(entry, Mapping):
+                    raise StandardLibraryRegistryError(
+                        "semantics.reference.shape: variant reference must resolve to an entry"
+                    )
+                expected_entries.append((str(helper["id"]), str(variant["variant_id"])))
+                if (
+                    entry["helper_id"] != helper["id"]
+                    or entry["variant_id"] != variant["variant_id"]
+                    or entry["guarantee_level"] != helper["guarantee"]["level"]
+                ):
+                    raise StandardLibraryRegistryError(
+                        "semantics.reference.correspondence: registry variant and semantics entry differ"
+                    )
+                source = "\n".join(str(line) for line in entry["semantic_dsl_lines"])
+                uses_target_digit = "target digit;" in source
+                declares_target_digit = "\\d" in str(variant["regex"])
+                if uses_target_digit != declares_target_digit:
+                    raise StandardLibraryRegistryError(
+                        "semantics.target-digit.correspondence: DSL target-native use must match the compatibility regex"
+                    )
+
+        actual_entries = [
+            (str(entry["helper_id"]), str(entry["variant_id"])) for entry in entries
+        ]
+        if actual_entries != expected_entries:
+            raise StandardLibraryRegistryError(
+                "semantics.variant.correspondence: canonical semantics must exactly follow registry variant order"
+            )
 
     def _validate_helper_identity(self, registry: Mapping[str, Any]) -> None:
         helpers = registry["helpers"]
@@ -572,6 +697,7 @@ class StandardLibraryRegistrySuite:
         self._validate_references(registry)
         if reconcile_audit:
             self._validate_audit_reconciliation(registry)
+        self._validate_canonical_semantics(registry)
         self._validate_fingerprint(registry)
         helpers = registry["helpers"]
         return (
@@ -814,6 +940,18 @@ class StandardLibraryRegistrySuite:
             "helper_count": helper_count,
             "negative_count": negative_count,
             "schema_count": schema_count,
+            "semantic_form_count": len(self.semantics["entries"]),
+            "semantic_stress_count": len(self.semantics["stress_cases"]),
+            "semantic_validator_count": self.semantics["semantic_validator_count"],
+            "edge_case_count": case_count
+            + sum(
+                len(values)
+                for helper in registry["helpers"]
+                for values in helper["semantic_definition"][
+                    "compatibility_fixtures"
+                ].values()
+            )
+            + len(self.semantics["stress_cases"]),
             "variant_count": variant_count,
         }
 
@@ -849,6 +987,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         "STDLIB_REGISTRY status=passed "
         f"mode={mode} helpers={helper_count} variants={variant_count} "
         f"bindings={binding_count} cases={case_count} "
+        f"semantic_forms={len(suite.semantics['entries'])} "
+        f"stress_cases={len(suite.semantics['stress_cases'])} "
+        f"semantic_validators={suite.semantics['semantic_validator_count']} "
         f"fingerprint={registry['fingerprint']['value']}"
     )
     return 0

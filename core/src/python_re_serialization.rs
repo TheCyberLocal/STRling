@@ -698,6 +698,22 @@ fn builtin_atom(
     pattern_kind: PythonRePatternKind,
 ) -> Option<&'static str> {
     match (pattern_kind, domain, name, negated) {
+        (_, PythonReCharacterDomain::TargetNative, PythonReBuiltinClass::Digit, false) => {
+            Some(r"\d")
+        }
+        (_, PythonReCharacterDomain::TargetNative, PythonReBuiltinClass::Digit, true) => {
+            Some(r"\D")
+        }
+        (_, PythonReCharacterDomain::TargetNative, PythonReBuiltinClass::Word, false) => {
+            Some(r"\w")
+        }
+        (_, PythonReCharacterDomain::TargetNative, PythonReBuiltinClass::Word, true) => Some(r"\W"),
+        (_, PythonReCharacterDomain::TargetNative, PythonReBuiltinClass::Whitespace, false) => {
+            Some(r"\s")
+        }
+        (_, PythonReCharacterDomain::TargetNative, PythonReBuiltinClass::Whitespace, true) => {
+            Some(r"\S")
+        }
         (PythonRePatternKind::Bytes, PythonReCharacterDomain::Unicode, _, _) => None,
         (_, PythonReCharacterDomain::Ascii, PythonReBuiltinClass::Digit, false) => Some(r"(?a:\d)"),
         (_, PythonReCharacterDomain::Ascii, PythonReBuiltinClass::Digit, true) => Some(r"(?a:\D)"),

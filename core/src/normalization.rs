@@ -726,6 +726,7 @@ fn character_set_key(member: &CharacterSetMember) -> (u8, String, String, bool) 
             .to_owned(),
             match domain {
                 CharacterDomain::Ascii => "ascii",
+                CharacterDomain::TargetNative => "target_native",
                 CharacterDomain::Unicode => "unicode",
             }
             .to_owned(),

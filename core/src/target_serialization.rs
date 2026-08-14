@@ -578,7 +578,7 @@ fn emit_class_member(
         }
         Pcre2CharacterSetMember::Builtin {
             name,
-            domain: Pcre2CharacterDomain::Unicode,
+            domain: Pcre2CharacterDomain::TargetNative | Pcre2CharacterDomain::Unicode,
             negated,
         } => emitter.push(builtin_escape(*name, *negated), &node.provenance),
         Pcre2CharacterSetMember::Builtin {
@@ -613,7 +613,7 @@ fn emit_member_atom(
         }
         Pcre2CharacterSetMember::Builtin {
             name,
-            domain: Pcre2CharacterDomain::Unicode,
+            domain: Pcre2CharacterDomain::TargetNative | Pcre2CharacterDomain::Unicode,
             negated,
         } => emitter.push(builtin_escape(*name, *negated), &node.provenance),
         Pcre2CharacterSetMember::Builtin {
