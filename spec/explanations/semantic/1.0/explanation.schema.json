@@ -1,0 +1,937 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://strling.dev/explanations/semantic/1.0/explanation.schema.json",
+    "title": "STRling semantic explanation model 1.0",
+    "description": "Deterministic structured explanations derived from canonical semantic and target-planning evidence.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "model_version",
+        "contract_version",
+        "specification_version",
+        "semantic_program",
+        "concise",
+        "program",
+        "nodes",
+        "captures",
+        "safety_findings",
+        "uncertainties",
+        "diagnostics"
+    ],
+    "properties": {
+        "model_version": { "const": "1.0.0" },
+        "contract_version": {
+            "$ref": "https://strling.dev/contracts/1.0/source.schema.json#/$defs/ContractVersion"
+        },
+        "specification_version": {
+            "$ref": "https://strling.dev/contracts/1.0/source.schema.json#/$defs/SpecificationVersion"
+        },
+        "semantic_program": { "$ref": "#/$defs/Sha256" },
+        "concise": { "$ref": "#/$defs/ConciseExplanation" },
+        "program": { "$ref": "#/$defs/ProgramExplanation" },
+        "nodes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 65536,
+            "items": { "$ref": "#/$defs/NodeExplanation" }
+        },
+        "captures": {
+            "type": "array",
+            "maxItems": 65536,
+            "items": { "$ref": "#/$defs/CaptureExplanation" }
+        },
+        "safety_findings": {
+            "type": "array",
+            "maxItems": 4096,
+            "items": { "$ref": "#/$defs/SafetyExplanation" }
+        },
+        "uncertainties": {
+            "type": "array",
+            "maxItems": 4096,
+            "items": { "$ref": "#/$defs/UncertaintyExplanation" }
+        },
+        "diagnostics": {
+            "type": "array",
+            "maxItems": 8192,
+            "items": { "$ref": "#/$defs/DiagnosticExplanation" }
+        },
+        "target": { "$ref": "#/$defs/TargetExplanation" }
+    },
+    "$defs": {
+        "Sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+        },
+        "NodeId": {
+            "$ref": "https://strling.dev/contracts/1.0/source.schema.json#/$defs/NodeId"
+        },
+        "CaptureId": {
+            "$ref": "https://strling.dev/contracts/1.0/semantic-ir.schema.json#/$defs/CaptureId"
+        },
+        "SourceSpan": {
+            "$ref": "https://strling.dev/contracts/1.0/source.schema.json#/$defs/SourceSpan"
+        },
+        "EvidenceClass": {
+            "enum": [
+                "semantic_fact",
+                "target_plan",
+                "diagnostic_advice",
+                "uncertainty"
+            ]
+        },
+        "SourceLink": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source_spans", "derived_from_node_ids"],
+            "properties": {
+                "source_spans": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/SourceSpan" }
+                },
+                "derived_from_node_ids": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/NodeId" }
+                }
+            }
+        },
+        "LengthMaximum": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "value"],
+                    "properties": {
+                        "kind": { "const": "bounded" },
+                        "value": { "type": "integer", "minimum": 0 }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind"],
+                    "properties": { "kind": { "const": "unbounded" } }
+                }
+            ]
+        },
+        "NodeFacts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "nullability",
+                "minimum_consumption",
+                "maximum_consumption",
+                "consumption"
+            ],
+            "properties": {
+                "nullability": {
+                    "enum": ["nullable", "non_nullable", "unknown"]
+                },
+                "minimum_consumption": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "maximum_consumption": { "$ref": "#/$defs/LengthMaximum" },
+                "consumption": {
+                    "enum": [
+                        "always_zero_width",
+                        "always_consuming",
+                        "variable",
+                        "indeterminate"
+                    ]
+                }
+            }
+        },
+        "ConciseTarget": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "target_profile",
+                "status",
+                "decision_count",
+                "unresolved_count",
+                "diagnostic_count"
+            ],
+            "properties": {
+                "target_profile": {
+                    "$ref": "https://strling.dev/contracts/1.0/portability.schema.json#/$defs/TargetProfileReference"
+                },
+                "status": { "$ref": "#/$defs/TargetStatus" },
+                "decision_count": { "type": "integer", "minimum": 0 },
+                "unresolved_count": { "type": "integer", "minimum": 0 },
+                "diagnostic_count": { "type": "integer", "minimum": 0 }
+            }
+        },
+        "ConciseExplanation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "evidence_class",
+                "root_node_id",
+                "source_mode",
+                "node_count",
+                "capture_count",
+                "backreference_count",
+                "safety_finding_count",
+                "uncertainty_count",
+                "diagnostic_count",
+                "root_facts"
+            ],
+            "properties": {
+                "evidence_class": { "const": "semantic_fact" },
+                "root_node_id": { "$ref": "#/$defs/NodeId" },
+                "source_mode": {
+                    "enum": ["source_less", "provenance_available"]
+                },
+                "node_count": { "type": "integer", "minimum": 1 },
+                "capture_count": { "type": "integer", "minimum": 0 },
+                "backreference_count": { "type": "integer", "minimum": 0 },
+                "safety_finding_count": { "type": "integer", "minimum": 0 },
+                "uncertainty_count": { "type": "integer", "minimum": 0 },
+                "diagnostic_count": { "type": "integer", "minimum": 0 },
+                "root_facts": { "$ref": "#/$defs/NodeFacts" },
+                "target": { "$ref": "#/$defs/ConciseTarget" }
+            }
+        },
+        "ProgramExplanation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "evidence_class",
+                "root_node_id",
+                "case_matching",
+                "source_mode",
+                "source_ids"
+            ],
+            "properties": {
+                "evidence_class": { "const": "semantic_fact" },
+                "root_node_id": { "$ref": "#/$defs/NodeId" },
+                "case_matching": { "enum": ["sensitive", "insensitive"] },
+                "source_mode": {
+                    "enum": ["source_less", "provenance_available"]
+                },
+                "source_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^src:[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$"
+                    }
+                }
+            }
+        },
+        "RepetitionMaximum": {
+            "$ref": "#/$defs/LengthMaximum"
+        },
+        "NodeSemantic": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind"],
+                    "properties": { "kind": { "const": "empty" } }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "items"],
+                    "properties": {
+                        "kind": { "const": "sequence" },
+                        "items": {
+                            "type": "array",
+                            "minItems": 2,
+                            "items": { "$ref": "#/$defs/NodeId" }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "branches"],
+                    "properties": {
+                        "kind": { "const": "alternation" },
+                        "branches": {
+                            "type": "array",
+                            "minItems": 2,
+                            "items": { "$ref": "#/$defs/NodeId" }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "text"],
+                    "properties": {
+                        "kind": { "const": "literal" },
+                        "text": { "type": "string", "minLength": 1 }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "line_terminators"],
+                    "properties": {
+                        "kind": { "const": "wildcard" },
+                        "line_terminators": { "enum": ["exclude", "include"] }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "negated", "members"],
+                    "properties": {
+                        "kind": { "const": "character_set" },
+                        "negated": { "type": "boolean" },
+                        "members": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "https://strling.dev/contracts/1.0/semantic-ir.schema.json#/$defs/CharacterSetMember"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "kind",
+                        "body_node_id",
+                        "minimum",
+                        "maximum",
+                        "mode"
+                    ],
+                    "properties": {
+                        "kind": { "const": "repeat" },
+                        "body_node_id": { "$ref": "#/$defs/NodeId" },
+                        "minimum": { "type": "integer", "minimum": 0 },
+                        "maximum": { "$ref": "#/$defs/RepetitionMaximum" },
+                        "mode": { "enum": ["greedy", "lazy", "possessive"] }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "position"],
+                    "properties": {
+                        "kind": { "const": "position" },
+                        "position": {
+                            "enum": [
+                                "input_start",
+                                "input_end",
+                                "line_start",
+                                "line_end",
+                                "word_boundary",
+                                "not_word_boundary",
+                                "end_before_final_line_terminator"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "capture_id", "body_node_id"],
+                    "properties": {
+                        "kind": { "const": "capture" },
+                        "capture_id": { "$ref": "#/$defs/CaptureId" },
+                        "name": { "type": "string", "minLength": 1 },
+                        "body_node_id": { "$ref": "#/$defs/NodeId" }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "capture_id", "definition_node_id"],
+                    "properties": {
+                        "kind": { "const": "backreference" },
+                        "capture_id": { "$ref": "#/$defs/CaptureId" },
+                        "definition_node_id": { "$ref": "#/$defs/NodeId" }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "kind",
+                        "direction",
+                        "polarity",
+                        "body_node_id"
+                    ],
+                    "properties": {
+                        "kind": { "const": "lookaround" },
+                        "direction": { "enum": ["ahead", "behind"] },
+                        "polarity": { "enum": ["positive", "negative"] },
+                        "body_node_id": { "$ref": "#/$defs/NodeId" }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "body_node_id"],
+                    "properties": {
+                        "kind": { "const": "atomic" },
+                        "body_node_id": { "$ref": "#/$defs/NodeId" }
+                    }
+                }
+            ]
+        },
+        "LeadingTerm": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind"],
+                    "properties": { "kind": { "const": "empty" } }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "value"],
+                    "properties": {
+                        "kind": { "const": "scalar" },
+                        "value": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 4
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "negated", "members"],
+                    "properties": {
+                        "kind": { "const": "character_set" },
+                        "negated": { "type": "boolean" },
+                        "members": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "https://strling.dev/contracts/1.0/semantic-ir.schema.json#/$defs/CharacterSetMember"
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "line_terminators"],
+                    "properties": {
+                        "kind": { "const": "wildcard" },
+                        "line_terminators": { "enum": ["exclude", "include"] }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "reason"],
+                    "properties": {
+                        "kind": { "const": "unknown" },
+                        "reason": {
+                            "enum": [
+                                "backreference",
+                                "nullable_prefix",
+                                "nullability",
+                                "term_limit_exceeded"
+                            ]
+                        },
+                        "node_id": { "$ref": "#/$defs/NodeId" }
+                    }
+                }
+            ]
+        },
+        "LengthClassification": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "value"],
+                    "properties": {
+                        "kind": { "const": "fixed" },
+                        "value": { "type": "integer", "minimum": 0 }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind"],
+                    "properties": {
+                        "kind": {
+                            "enum": [
+                                "finite_variable",
+                                "unbounded",
+                                "indeterminate"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "OverlapRelation": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind"],
+                    "properties": {
+                        "kind": { "enum": ["disjoint", "overlapping"] }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "reason"],
+                    "properties": {
+                        "kind": { "const": "unknown" },
+                        "reason": {
+                            "enum": [
+                                "leading_unknown",
+                                "case_folding",
+                                "character_category",
+                                "line_terminator_exclusion",
+                                "comparison_limit_exceeded"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "RepetitionStructural": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["body_node_id", "extent", "operand_progress"],
+            "properties": {
+                "body_node_id": { "$ref": "#/$defs/NodeId" },
+                "extent": { "enum": ["finite", "unbounded"] },
+                "operand_progress": {
+                    "enum": [
+                        "always_consuming",
+                        "potentially_zero_consuming",
+                        "indeterminate"
+                    ]
+                }
+            }
+        },
+        "AlternationOverlap": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "left_branch_index",
+                "left_node_id",
+                "right_branch_index",
+                "right_node_id",
+                "relation"
+            ],
+            "properties": {
+                "left_branch_index": { "type": "integer", "minimum": 0 },
+                "left_node_id": { "$ref": "#/$defs/NodeId" },
+                "right_branch_index": { "type": "integer", "minimum": 0 },
+                "right_node_id": { "$ref": "#/$defs/NodeId" },
+                "relation": { "$ref": "#/$defs/OverlapRelation" }
+            }
+        },
+        "RepetitionFollowerOverlap": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "repetition_index",
+                "repetition_node_id",
+                "operand_node_id",
+                "following_index",
+                "following_node_id",
+                "relation"
+            ],
+            "properties": {
+                "repetition_index": { "type": "integer", "minimum": 0 },
+                "repetition_node_id": { "$ref": "#/$defs/NodeId" },
+                "operand_node_id": { "$ref": "#/$defs/NodeId" },
+                "following_index": { "type": "integer", "minimum": 0 },
+                "following_node_id": { "$ref": "#/$defs/NodeId" },
+                "relation": { "$ref": "#/$defs/OverlapRelation" }
+            }
+        },
+        "StructuralExplanation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "leading_consumption",
+                "length",
+                "alternation_branch_overlaps",
+                "repetition_follower_overlaps"
+            ],
+            "properties": {
+                "leading_consumption": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/LeadingTerm" }
+                },
+                "length": { "$ref": "#/$defs/LengthClassification" },
+                "repetition": { "$ref": "#/$defs/RepetitionStructural" },
+                "alternation_branch_overlaps": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/AlternationOverlap" }
+                },
+                "repetition_follower_overlaps": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/RepetitionFollowerOverlap" }
+                }
+            }
+        },
+        "NodeExplanation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "evidence_class",
+                "node_id",
+                "source",
+                "semantic",
+                "facts",
+                "structural"
+            ],
+            "properties": {
+                "evidence_class": { "const": "semantic_fact" },
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "source": { "$ref": "#/$defs/SourceLink" },
+                "semantic": { "$ref": "#/$defs/NodeSemantic" },
+                "facts": { "$ref": "#/$defs/NodeFacts" },
+                "structural": { "$ref": "#/$defs/StructuralExplanation" }
+            }
+        },
+        "CaptureExplanation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "evidence_class",
+                "capture_id",
+                "definition_node_id",
+                "body_node_id",
+                "reference_node_ids",
+                "source"
+            ],
+            "properties": {
+                "evidence_class": { "const": "semantic_fact" },
+                "capture_id": { "$ref": "#/$defs/CaptureId" },
+                "definition_node_id": { "$ref": "#/$defs/NodeId" },
+                "body_node_id": { "$ref": "#/$defs/NodeId" },
+                "name": { "type": "string", "minLength": 1 },
+                "reference_node_ids": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/NodeId" }
+                },
+                "source": { "$ref": "#/$defs/SourceLink" }
+            }
+        },
+        "SafetyExplanation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "evidence_class",
+                "code",
+                "category",
+                "primary_node_id",
+                "contributing_node_ids",
+                "proof",
+                "source"
+            ],
+            "properties": {
+                "evidence_class": { "const": "semantic_fact" },
+                "code": {
+                    "enum": [
+                        "unbounded_nullable_repetition",
+                        "unbounded_indeterminate_progress",
+                        "nested_repetition_overlap",
+                        "repeated_alternation_overlap",
+                        "repetition_follower_overlap"
+                    ]
+                },
+                "category": {
+                    "enum": [
+                        "repetition_progress",
+                        "nested_repetition",
+                        "repeated_alternation",
+                        "repetition_follower_competition"
+                    ]
+                },
+                "primary_node_id": { "$ref": "#/$defs/NodeId" },
+                "contributing_node_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/NodeId" }
+                },
+                "proof": { "const": "proven_structural" },
+                "source": { "$ref": "#/$defs/SourceLink" }
+            }
+        },
+        "UncertaintyExplanation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "evidence_class",
+                "code",
+                "reason",
+                "primary_node_id",
+                "contributing_node_ids",
+                "source"
+            ],
+            "properties": {
+                "evidence_class": { "const": "uncertainty" },
+                "code": {
+                    "enum": [
+                        "nested_repetition_not_proven",
+                        "repeated_alternation_not_proven",
+                        "repetition_follower_not_proven"
+                    ]
+                },
+                "reason": {
+                    "enum": [
+                        "indeterminate_progress",
+                        "unknown_leading_consumption",
+                        "nullable_only_overlap",
+                        "structural_overlap_leading_unknown",
+                        "structural_overlap_case_folding",
+                        "structural_overlap_character_category",
+                        "structural_overlap_line_terminator_exclusion",
+                        "structural_overlap_comparison_limit_exceeded"
+                    ]
+                },
+                "primary_node_id": { "$ref": "#/$defs/NodeId" },
+                "contributing_node_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/NodeId" }
+                },
+                "source": { "$ref": "#/$defs/SourceLink" }
+            }
+        },
+        "DiagnosticExplanation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "evidence_class",
+                "diagnostic",
+                "primary_node_id",
+                "contributing_node_ids",
+                "source"
+            ],
+            "properties": {
+                "evidence_class": { "const": "diagnostic_advice" },
+                "diagnostic": {
+                    "$ref": "https://strling.dev/contracts/1.0/diagnostic.schema.json"
+                },
+                "primary_node_id": { "$ref": "#/$defs/NodeId" },
+                "contributing_node_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/NodeId" }
+                },
+                "source": { "$ref": "#/$defs/SourceLink" }
+            }
+        },
+        "ConstraintExplanation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["constraint", "disposition", "evidence"],
+            "properties": {
+                "constraint": {
+                    "$ref": "https://strling.dev/contracts/1.0/target-profile.schema.json#/$defs/CapabilityConstraint"
+                },
+                "disposition": { "enum": ["satisfied", "violated", "unknown"] },
+                "evidence": {
+                    "enum": [
+                        "requirement_fact",
+                        "profile_option",
+                        "missing_requirement_fact"
+                    ]
+                }
+            }
+        },
+        "RewriteAttempt": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["strategy_id", "disposition"],
+            "properties": {
+                "strategy_id": {
+                    "enum": [
+                        "rewrite.atomic_literal.elide.v1",
+                        "rewrite.repeat_exactly_once.elide.v1"
+                    ]
+                },
+                "disposition": {
+                    "enum": [
+                        "not_applicable",
+                        "proof_failed",
+                        "proof_indeterminate",
+                        "replacement_unsupported",
+                        "replacement_unknown",
+                        "applicable"
+                    ]
+                }
+            }
+        },
+        "TargetOutcome": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind"],
+                    "properties": { "kind": { "const": "native" } }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "kind",
+                        "strategy_id",
+                        "affected_node_ids",
+                        "dependency_ordinals",
+                        "proof_dispositions"
+                    ],
+                    "properties": {
+                        "kind": { "const": "equivalent_rewrite" },
+                        "strategy_id": {
+                            "enum": [
+                                "rewrite.atomic_literal.elide.v1",
+                                "rewrite.repeat_exactly_once.elide.v1"
+                            ]
+                        },
+                        "affected_node_ids": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": { "$ref": "#/$defs/NodeId" }
+                        },
+                        "dependency_ordinals": {
+                            "type": "array",
+                            "items": { "type": "integer", "minimum": 0 }
+                        },
+                        "proof_dispositions": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "enum": ["satisfied", "failed", "indeterminate"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "rewrite_attempts"],
+                    "properties": {
+                        "kind": { "const": "unsupported" },
+                        "rewrite_attempts": {
+                            "type": "array",
+                            "items": { "$ref": "#/$defs/RewriteAttempt" }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "reason", "rewrite_attempts"],
+                    "properties": {
+                        "kind": { "const": "unresolved" },
+                        "reason": {
+                            "enum": [
+                                "capability_unknown",
+                                "rewrite_proof_indeterminate",
+                                "replacement_capability_unknown"
+                            ]
+                        },
+                        "rewrite_attempts": {
+                            "type": "array",
+                            "items": { "$ref": "#/$defs/RewriteAttempt" }
+                        }
+                    }
+                }
+            ]
+        },
+        "TargetDecision": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "ordinal",
+                "evidence_class",
+                "node_id",
+                "capability_id",
+                "capability_availability",
+                "capability_disposition",
+                "constraints",
+                "outcome",
+                "source"
+            ],
+            "properties": {
+                "ordinal": { "type": "integer", "minimum": 0 },
+                "evidence_class": { "$ref": "#/$defs/EvidenceClass" },
+                "node_id": { "$ref": "#/$defs/NodeId" },
+                "capability_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+                },
+                "capability_availability": {
+                    "enum": [
+                        "available",
+                        "constrained",
+                        "unavailable",
+                        "unknown"
+                    ]
+                },
+                "capability_disposition": {
+                    "enum": [
+                        "supported",
+                        "unsupported",
+                        "constraint_violation",
+                        "unknown"
+                    ]
+                },
+                "constraints": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/ConstraintExplanation" }
+                },
+                "outcome": { "$ref": "#/$defs/TargetOutcome" },
+                "source": { "$ref": "#/$defs/SourceLink" }
+            }
+        },
+        "TargetStatus": {
+            "enum": [
+                "native",
+                "equivalent_rewrite",
+                "unsupported",
+                "unresolved"
+            ]
+        },
+        "TargetExplanation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "evidence_class",
+                "target_profile",
+                "engine",
+                "status",
+                "decisions",
+                "diagnostics"
+            ],
+            "properties": {
+                "evidence_class": { "const": "target_plan" },
+                "target_profile": {
+                    "$ref": "https://strling.dev/contracts/1.0/portability.schema.json#/$defs/TargetProfileReference"
+                },
+                "engine": {
+                    "$ref": "https://strling.dev/contracts/1.0/target-profile.schema.json#/$defs/EngineIdentity"
+                },
+                "runtime": {
+                    "$ref": "https://strling.dev/contracts/1.0/target-profile.schema.json#/$defs/RuntimeIdentity"
+                },
+                "status": { "$ref": "#/$defs/TargetStatus" },
+                "decisions": {
+                    "type": "array",
+                    "maxItems": 4096,
+                    "items": { "$ref": "#/$defs/TargetDecision" }
+                },
+                "diagnostics": {
+                    "type": "array",
+                    "maxItems": 4096,
+                    "items": { "$ref": "#/$defs/DiagnosticExplanation" }
+                }
+            }
+        }
+    }
+}

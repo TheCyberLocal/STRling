@@ -1,0 +1,54 @@
+{
+    "model_version": "1.0.0",
+    "contract_version": "1.0.0",
+    "specification_version": "1.0-draft.1",
+    "semantic_program": "5034c0175e074698c078a64a3ad7dd456948afccb62b9cd1bae0c12fee8f9fc1",
+    "concise": {
+        "evidence_class": "semantic_fact",
+        "root_node_id": "node:root",
+        "source_mode": "source_less",
+        "node_count": 1,
+        "capture_count": 0,
+        "backreference_count": 0,
+        "safety_finding_count": 0,
+        "uncertainty_count": 0,
+        "diagnostic_count": 0,
+        "root_facts": {
+            "nullability": "non_nullable",
+            "minimum_consumption": 1,
+            "maximum_consumption": { "kind": "bounded", "value": 1 },
+            "consumption": "always_consuming"
+        }
+    },
+    "program": {
+        "evidence_class": "semantic_fact",
+        "root_node_id": "node:root",
+        "case_matching": "sensitive",
+        "source_mode": "source_less",
+        "source_ids": []
+    },
+    "nodes": [
+        {
+            "evidence_class": "semantic_fact",
+            "node_id": "node:root",
+            "source": { "source_spans": [], "derived_from_node_ids": [] },
+            "semantic": { "kind": "literal", "text": "a" },
+            "facts": {
+                "nullability": "non_nullable",
+                "minimum_consumption": 1,
+                "maximum_consumption": { "kind": "bounded", "value": 1 },
+                "consumption": "always_consuming"
+            },
+            "structural": {
+                "leading_consumption": [{ "kind": "scalar", "value": "a" }],
+                "length": { "kind": "fixed", "value": 1 },
+                "alternation_branch_overlaps": [],
+                "repetition_follower_overlaps": []
+            }
+        }
+    ],
+    "captures": [],
+    "safety_findings": [],
+    "uncertainties": [],
+    "diagnostics": []
+}

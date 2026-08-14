@@ -14,11 +14,13 @@ from typing import Any
 from jsonschema import Draft202012Validator, FormatChecker, RefResolver
 
 if __package__:
+    from tooling.explanation_contract import ExplanationContractSuite
     from tooling.legacy_regex_contract import LegacyRegexContractSuite
     from tooling.semantic_strling_contract import SemanticStrlingContractSuite
     from tooling.stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
     from tooling.stdlib_registry import StandardLibraryRegistrySuite
 else:
+    from explanation_contract import ExplanationContractSuite
     from legacy_regex_contract import LegacyRegexContractSuite
     from semantic_strling_contract import SemanticStrlingContractSuite
     from stdlib_guarantee_contracts import StandardLibraryGuaranteeSuite
@@ -1288,12 +1290,14 @@ def main() -> int:
     from tooling.simply_contract import Simply11ContractSuite, SimplyContractSuite
 
     suite = ContractSuite()
+    explanation_suite = ExplanationContractSuite()
     stdlib_suite = StandardLibraryGuaranteeSuite()
     stdlib_registry_suite = StandardLibraryRegistrySuite()
     legacy_regex_suite = LegacyRegexContractSuite()
     semantic_strling_suite = SemanticStrlingContractSuite()
     simply_suite = SimplyContractSuite()
     simply_1_1_suite = Simply11ContractSuite()
+    explanation = explanation_suite.certify()
     document_count = suite.validate_suite_structure()
     positive_count = suite.validate_positive_examples()
     negative_count = suite.validate_negative_examples()
@@ -1311,6 +1315,10 @@ def main() -> int:
         "CANONICAL_CONTRACTS status=passed "
         f"schemas={len(suite.schemas)} positive={positive_count} "
         f"negative={negative_count} documents={document_count} "
+        f"explanation_schemas={explanation['schemas']} "
+        f"explanation_positive={explanation['positive']} "
+        f"explanation_negative={explanation['negative']} "
+        f"explanation_fingerprint={explanation['fingerprint']} "
         f"stdlib_schemas={stdlib_schema_count} stdlib_positive={stdlib_positive_count} "
         f"stdlib_negative={stdlib_negative_count} "
         f"stdlib_registry_schemas={stdlib_registry['schema_count']} "

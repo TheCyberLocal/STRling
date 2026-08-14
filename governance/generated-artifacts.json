@@ -642,6 +642,48 @@
             "enforcement": "enforced"
         },
         {
+            "id": "explanation-rendering-fixtures",
+            "category": "spec-derived-fixture",
+            "description": "Deterministic non-normative concise and detailed text renderings generated from authoritative structured semantic explanation examples.",
+            "authoritative_sources": [
+                "spec/explanations/semantic/1.0/explanation.schema.json",
+                "spec/explanations/semantic/1.0/examples/*.json"
+            ],
+            "generator_inputs": [
+                "spec/explanations/semantic/1.0/explanation.schema.json",
+                "spec/explanations/semantic/1.0/examples/*.json",
+                "tooling/explanation_contract.py",
+                "tooling/explanation_fixtures.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/explanation_fixtures.py"],
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.explanation_fixtures",
+                    "--write"
+                ],
+                "working_directory": "."
+            },
+            "outputs": [
+                "spec/explanations/semantic/generated/*.concise.txt",
+                "spec/explanations/semantic/generated/*.detailed.txt"
+            ],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "non-normative-projection",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.explanation_fixtures",
+                    "--check"
+                ]
+            },
+            "enforcement": "enforced"
+        },
+        {
             "id": "rust-conformance-build-source",
             "category": "build-output",
             "description": "Rust conformance source generated into Cargo OUT_DIR during a build.",

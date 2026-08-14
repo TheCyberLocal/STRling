@@ -63,11 +63,29 @@ scope:
         - tooling/legacy_reference/**
         - tooling/lsp-server/**
     expected_files:
+        - docs/index.md
         - docs/migration/records/semantic-explanation-model.yaml
         - docs/migration/semantic-explanation-model.md
         - governance/change-control.json
-    permitted_generated_changes: []
-    expected_generated_outputs: []
+        - governance/generated-artifacts.json
+        - spec/README.md
+        - spec/explanations/semantic/1.0/README.md
+        - spec/explanations/semantic/1.0/examples/source-less-literal.json
+        - spec/explanations/semantic/1.0/explanation.schema.json
+        - spec/explanations/semantic/1.0/invalid/stale-concise-count.json
+        - spec/explanations/semantic/1.0/invalid/ui-specific-field.json
+        - spec/explanations/semantic/1.0/invalid/wrong-model-version.json
+        - spec/explanations/semantic/generated/source-less-literal.concise.txt
+        - spec/explanations/semantic/generated/source-less-literal.detailed.txt
+        - tooling/contract_validation.py
+        - tooling/explanation_contract.py
+        - tooling/explanation_fixtures.py
+        - tooling/tests/test_explanation_contract.py
+        - tooling/tests/test_explanation_fixtures.py
+    permitted_generated_changes:
+        - explanation-rendering-fixtures
+    expected_generated_outputs:
+        - explanation-rendering-fixtures
     required_verification_levels:
         - contract
         - unit
@@ -104,9 +122,9 @@ change_classification:
         evidence:
             - A pure explanation projection follows canonical target-neutral evidence and optional completed target planning while remaining independent of frontends, emitters, bindings, and presentation.
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 locks the future generated-rendering boundary but creates no generated output; CP2 and CP3 will update this declaration with registered generated evidence.
+            - Concise and detailed text examples are registered generated non-normative views of the authoritative structured fixture.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -124,18 +142,26 @@ required_verification:
       expected_result: Adjacent kernel and frontend convergence, tooling, quality, Local/Pull Request profiles, patch integrity, and clean-tree checks pass or retain only explicitly recorded inherited environment limitations.
 checkpoints:
     - name: Scope and contract lock
-      status: in_progress
+      status: passed
       evidence:
           - check: Ordered task and clean starting boundary
             result: passed
             details: P15-T01 began on architecture/v4 at clean P14 closure 771edac04b776891a2102d0c6d7832393dea23d6. The independently versioned explanation contract, canonical evidence dependencies, forbidden protocol and whyNoMatch scope, rollback boundary, and required acceptance evidence are frozen before product implementation.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: in_progress
+      evidence:
+          - check: Closed explanation schema and correspondence validator
+            result: passed
+            details: Model 1.0.0 defines closed concise and detailed program, node, capture/reference, semantic/structural fact, safety, diagnostic/advice, uncertainty, target-plan, constraint, rewrite, target-diagnostic, and provenance entities. The validator enforces canonical order, references, counts, source modes, evidence classes, target status, and local diagnostic occurrences.
+          - check: Authored and generated evidence boundary
+            result: passed
+            details: One authored source-less positive example and three isolated controlled-invalid examples validate the initial contract. Two registered text views are deterministic non-normative projections and cannot override structured JSON.
     - name: Minimal implementation and local proof
       status: planned
       evidence: []
     - name: Integration and certification
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 1b8b02d61a0f689ae5f3d11969bcc610645ce89a
+      subject: "docs(explanation): lock semantic model scope"

@@ -52,6 +52,7 @@ sources; they do not create behavior and must be corrected when they conflict.
 | [`frontends/semantic/`](frontends/semantic/)                                       | Normative `strling.semantic` flagship textual frontend syntax and mapping, currently dialect `1.0.0`               | Keep the certified Rust parser/formatter conformant to the ratified grammar, mapping, formatting, diagnostics, and authored fixtures without redefining them.                |
 | [`frontends/legacy-regex/`](frontends/legacy-regex/)                               | Normative `strling.regex-compat` compatibility/import frontend syntax, currently dialect `1.0.0`                   | Parse only its versioned grammar and fixtures, then lower structurally to canonical Semantic IR without target inference or raw passthrough.                                 |
 | [`frontends/simply/`](frontends/simply/)                                           | Normative host-neutral Simply construction protocols: immutable `1.0.0` plus backward-compatible `1.1.0`           | Project the closed operation graph and registry-selected standard helpers into canonical Semantic IR and `CompileRequest`; keep host APIs, targets, and runtimes outside it. |
+| [`explanations/semantic/`](explanations/semantic/1.0/README.md)                    | Independently versioned structured semantic explanation contract, currently model `1.0.0`                          | Derive concise and detailed entities only from canonical facts, diagnostics, and completed plans; preserve uncertainty and keep generated text non-normative.                |
 | [`conformance/`](conformance/)                                                     | Specification-owned draft seed corpus; not yet normative language semantics                                        | Activate cases only through a ratified specification delegation and its content-addressed manifest.                                                                          |
 | [`targets/profiles/`](targets/profiles/)                                           | Version-aware authored target-profile facts with explicitly enumerated scope                                       | Expand capability coverage deliberately; never infer support for an unlisted capability.                                                                                     |
 | [`grammar/dsl.ebnf`](grammar/dsl.ebnf)                                             | Superseded transitional regex-frontend grammar and compatibility evidence                                          | Retain for migration traceability; the versioned frontend contract resolves its contradictions and owns new parser requirements.                                             |
@@ -102,6 +103,7 @@ spec/
     drafts/<major>.<minor>/
     versions/<major>.<minor>/
     frontends/        # versioned syntax and construction frontend contracts
+    explanations/     # independently versioned structured explanation contracts
     grammar/          # current regex-frontend material; future dialect grammars
     semantics/        # future versioned semantic material
     schema/           # versioned formal contracts

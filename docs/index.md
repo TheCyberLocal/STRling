@@ -29,6 +29,9 @@
     with authority labels.
 -   [`Migration Evidence`](migration/README.md) — frozen baseline, preservation,
     donor, contradiction, and readiness records.
+-   [`Semantic Explanation Model`](migration/semantic-explanation-model.md) —
+    canonical evidence boundary, structured entity taxonomy, uncertainty, and
+    rendering rules for explanation model `1.0.0`.
 
 ## Development
 

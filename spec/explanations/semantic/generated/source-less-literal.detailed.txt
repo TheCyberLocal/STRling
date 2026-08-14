@@ -1,0 +1,11 @@
+# Non-normative detailed semantic explanation
+model=1.0.0
+semantic_program=5034c0175e074698c078a64a3ad7dd456948afccb62b9cd1bae0c12fee8f9fc1
+
+node=node:root semantic=literal text="a" nullability=non_nullable length=1..1 consumption=always_consuming leading=scalar:a structural_length=fixed:1 source_spans=0 derived_nodes=0
+
+captures=0
+safety_findings=0
+uncertainties=0
+diagnostics=0
+target=none
