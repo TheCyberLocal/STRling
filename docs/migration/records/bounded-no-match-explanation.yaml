@@ -82,6 +82,7 @@ scope:
         - core/tests/no_match_explanation.rs
         - core/tests/no_match_explanation_frontend_convergence.rs
         - core/tests/no_match_explanation_properties.rs
+        - core/tests/no_match_explanation_target_crosscheck.rs
         - docs/migration/bounded-no-match-explanation.md
         - docs/migration/records/bounded-no-match-explanation.yaml
         - governance/change-control.json
@@ -109,7 +110,8 @@ scope:
         - tooling/tests/test_no_match_explanation_contract.py
     permitted_generated_changes:
         - public-contract-snapshots
-    expected_generated_outputs: []
+    expected_generated_outputs:
+        - public-contract-snapshots
     required_verification_levels:
         - contract
         - unit
@@ -146,9 +148,9 @@ change_classification:
         evidence:
             - A pre-implementation fitness rule enforces the future no-match evaluator's canonical inputs, monotonic fail-safe, named ceilings, and prohibited frontend, compiler-stage, runtime-engine, binding, and product dependencies.
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 changes no registered generated artifact or public snapshot.
+            - CP1-CP3 changed no registered generated artifact; CP4 adds the governed no-match module, function, constants, enums, and structs to the generated strling-kernel public-contract snapshot without changing existing symbols.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -199,10 +201,24 @@ checkpoints:
             result: passed
             details: Canonical aggregate contracts pass with no-match fingerprint sha256:62dbff6a46849292eb277a18ecdcdddb3c71dbd0319b90689840515bd1204876; core contracts pass at mappings=11/fixtures=122; 34 focused Python tests with 123 subtests, Rust all-target check, Ruff, Prettier, governance, and git diff --check pass. Clippy is clean for this change with only four pre-existing repository lint classes explicitly exempted; unmodified kernel.rs, protocol/request.rs, simply.rs, and source/mod.rs remain the direct -D warnings baseline findings for CP4/profile disposition.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Governed target execution cross-check
+            result: passed
+            details: Five representative canonical cases (alternation, ASCII character class, positive lookahead, backreference, and input anchors with word boundaries) agree for 67 subjects with the pinned shared-cross-engine observations across ECMAScript 2024, PCRE2 10.42/10.43, and Python re string/bytes profiles. One completed unsupported target plan returns UNAVAILABLE with target_unsupported rather than fabricating a semantic cause. The governed evidence independently verifies at sha256:9a575b86e8ea43590b24fcc2bda2d3a7b80ed25fa98694f46924b247abd3493c.
+          - check: Public and generated canonical-source integration
+            result: failed
+            details: The strling-kernel registry, extractor, and generated compatibility snapshot now derive the additive no_match_explanation module, function, bounds, enums, and structs from core/src/no_match_explanation.rs. The focused snapshot check and all 19 extractor tests pass; 63 focused CP4 Python tests plus 123 subtests pass. The aggregate generated-artifact registry verifies every task-relevant artifact, including shared-cross-engine, stdlib runtime/surface, explanation rendering, and public kernel evidence, but its unchanged Go public surface cannot execute because Go is absent from this Windows image.
+          - check: Migration differential and architecture certification
+            result: passed
+            details: The reviewed migration baseline changes only its baseline and canonical-boundary fingerprints to include the new module. Three complete runs pass with zero determinism mismatches, 44 unchanged source observations, unchanged corpus/route/historical fingerprints, zero blocking unresolved replacements, and result fingerprint sha256:95a9fd66f04d19d66ee7378cf71b4897a99ea44163be7b33b992aedd7bf2baed. Core contracts remain mappings=11/fixtures=122; governance, generated ownership, architecture boundaries, Ruff, rustfmt, and git diff --check pass.
+          - check: Repository profile and inherited-environment disposition
+            result: failed
+            details: Rust all-target tests pass. Strict Clippy reports only the four inherited untouched-file classes already recorded in kernel.rs, protocol/request.rs, simply.rs, and source/mod.rs; allowing exactly those four yields a clean all-target result. Local and Pull Request each pass 10 repository hardgates and Full passes 11, including canonical/core contracts, governance, legacy comparison, migration differential, and Full portability-matrix certification. Aggregate profile results are Local 10 passed/2 failed/14 unavailable, Pull Request 10/2/34, and Full 11/5/68 because the image lacks Go and multiple optional binding/runtime toolchains, exposes a broken Windows Store python3 alias, and has Node 24 where the repository requires Node 22. Full fresh security/cross-engine/stdlib runtime operations therefore remain environment carry-forward; governed checked-in cross-engine and stdlib evidence verify independently and no task-specific failure is hidden.
 commits:
     - sha: 3f52931e853f26985dde2b1892c78cb4ba9618b3
       subject: "docs(no-match): lock bounded explanation scope"
     - sha: b620884afa8e010a74e1815b242b210ef274f18e
       subject: "feat(no-match): define bounded evidence contract"
+    - sha: e6943bc7fb7eb8014b695b03a5c1ae6b2c77d5de
+      subject: "feat(no-match): implement bounded canonical evaluator"

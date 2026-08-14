@@ -952,7 +952,12 @@ def canonical_fixture_paths(root: Path = ROOT) -> set[Path]:
                 "*.json"
             )
         ),
-        root / "spec" / "explanations" / "no-match" / "1.0" / "verification-corpus.json",
+        root
+        / "spec"
+        / "explanations"
+        / "no-match"
+        / "1.0"
+        / "verification-corpus.json",
     }
     return {path.resolve() for path in paths}
 

@@ -240,13 +240,14 @@ def extract_rust_source_boundary(
     surface: Mapping[str, object], root: Path
 ) -> dict[str, object]:
     locations = surface["source_locations"]
-    assert isinstance(locations, list) and len(locations) == 5
+    assert isinstance(locations, list) and len(locations) == 6
     try:
         lib = (root / str(locations[0])).read_text(encoding="utf-8")
         kernel = (root / str(locations[1])).read_text(encoding="utf-8")
         simply = (root / str(locations[2])).read_text(encoding="utf-8")
         explanation = (root / str(locations[3])).read_text(encoding="utf-8")
-        semantic_conversion = (root / str(locations[4])).read_text(encoding="utf-8")
+        no_match_explanation = (root / str(locations[4])).read_text(encoding="utf-8")
+        semantic_conversion = (root / str(locations[5])).read_text(encoding="utf-8")
     except OSError as exc:
         raise ContractError(f"cannot read Rust kernel boundary source: {exc}") from exc
 
@@ -257,6 +258,8 @@ def extract_rust_source_boundary(
         symbols["module:simply"] = "pub mod simply;"
     if re.search(r"(?m)^pub mod explanation;\s*$", lib):
         symbols["module:explanation"] = "pub mod explanation;"
+    if re.search(r"(?m)^pub mod no_match_explanation;\s*$", lib):
+        symbols["module:no_match_explanation"] = "pub mod no_match_explanation;"
     if re.search(r"(?m)^pub mod semantic_conversion;\s*$", lib):
         symbols["module:semantic_conversion"] = "pub mod semantic_conversion;"
     reexport = re.search(r"pub use kernel::\{([^}]+)\};", lib, re.DOTALL)
@@ -266,13 +269,25 @@ def extract_rust_source_boundary(
     if reexport is not None:
         symbols["reexport:simply"] = canonical_space(reexport.group(0))
 
-    for source in (kernel, simply, explanation, semantic_conversion):
+    for source in (
+        kernel,
+        simply,
+        explanation,
+        no_match_explanation,
+        semantic_conversion,
+    ):
         for match in re.finditer(
             r"(?m)^pub const ([A-Z][A-Z0-9_]*):\s*([^;]+);\s*$", source
         ):
             symbols[f"const:{match.group(1)}"] = canonical_space(match.group(0))
 
-    for source in (kernel, simply, explanation, semantic_conversion):
+    for source in (
+        kernel,
+        simply,
+        explanation,
+        no_match_explanation,
+        semantic_conversion,
+    ):
         for match in re.finditer(
             r"(?m)^pub enum ([A-Za-z_][A-Za-z0-9_]*)\s*\{", source
         ):
@@ -284,10 +299,11 @@ def extract_rust_source_boundary(
 
     symbols.update(_rust_public_structs(simply))
     symbols.update(_rust_public_structs(explanation))
+    symbols.update(_rust_public_structs(no_match_explanation))
     symbols.update(_rust_public_structs(semantic_conversion))
     symbols.update(_rust_public_methods(simply))
 
-    for source in (kernel, explanation, semantic_conversion):
+    for source in (kernel, explanation, no_match_explanation, semantic_conversion):
         for match in re.finditer(r"(?m)^pub fn ([A-Za-z_][A-Za-z0-9_]*)\s*\(", source):
             opening = source.find("{", match.end())
             if opening < 0:
@@ -302,6 +318,7 @@ def extract_rust_source_boundary(
         "module:kernel",
         "module:simply",
         "module:explanation",
+        "module:no_match_explanation",
         "module:semantic_conversion",
         "reexport:kernel",
         "reexport:simply",
@@ -323,6 +340,7 @@ def extract_rust_source_boundary(
         "fn:convert_semantic_program",
         "fn:explain_semantics",
         "fn:explain_target",
+        "fn:explain_no_match",
         "method:SimplyBuilder::new",
         "method:SimplyBuilder::empty",
         "method:SimplyBuilder::literal",

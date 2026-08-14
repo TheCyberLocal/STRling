@@ -43,6 +43,7 @@ def rust_kernel_surface() -> dict[str, object]:
             "core/src/kernel.rs",
             "core/src/simply.rs",
             "core/src/explanation.rs",
+            "core/src/no_match_explanation.rs",
             "core/src/semantic_conversion.rs",
         ],
         "snapshot_path": "snapshots/kernel.json",
@@ -71,6 +72,7 @@ class PublicContractTests(unittest.TestCase):
             "pub mod kernel;\n"
             "pub mod simply;\n"
             "pub mod explanation;\n"
+            "pub mod no_match_explanation;\n"
             "pub mod semantic_conversion;\n"
             "pub use kernel::{compile, KernelCompileError, KernelStage};\n"
             "pub use simply::{SimplyBuilder, SimplyValue};\n",
@@ -78,6 +80,13 @@ class PublicContractTests(unittest.TestCase):
         )
         (source / "explanation.rs").write_text(
             "pub fn explain_semantics() {}\npub fn explain_target() {}\n",
+            encoding="utf-8",
+        )
+        (source / "no_match_explanation.rs").write_text(
+            'pub const NO_MATCH_EXPLANATION_MODEL_VERSION: &str = "1.0.0";\n'
+            "pub enum NoMatchOutcome { Matched, NoMatch }\n"
+            "pub struct NoMatchExplanationDocument { pub outcome: NoMatchOutcome, }\n"
+            "pub fn explain_no_match() {}\n",
             encoding="utf-8",
         )
         (source / "semantic_conversion.rs").write_text(
@@ -369,8 +378,10 @@ type Flags struct {
                 "fn:convert_semantic_program",
                 "fn:explain_semantics",
                 "fn:explain_target",
+                "fn:explain_no_match",
                 "module:explanation",
                 "module:kernel",
+                "module:no_match_explanation",
                 "module:semantic_conversion",
                 "module:simply",
                 "reexport:kernel",
@@ -388,6 +399,9 @@ type Flags struct {
                 "struct:SimplyValue",
                 "struct:SemanticConversionErrors",
                 "struct:SemanticConversionResult",
+                "struct:NoMatchExplanationDocument",
+                "enum:NoMatchOutcome",
+                "const:NO_MATCH_EXPLANATION_MODEL_VERSION",
                 "const:SEMANTIC_ALPHA_EQUIVALENCE_METHOD",
                 "const:SEMANTIC_CONVERSION_VERSION",
                 "method:SimplyBuilder::alternation",
