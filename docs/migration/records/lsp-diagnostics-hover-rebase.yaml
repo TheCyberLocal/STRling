@@ -20,6 +20,8 @@ scope:
         - tooling/lsp-server/server/server.py
         - tooling/lsp-server/server/canonical_core.py
         - tooling/lsp-server/tests/test_canonical_core.py
+        - tooling/lsp-server/tests/canonical_evidence.py
+        - tooling/lsp-server/tests/fixtures/canonical-lsp/**
         - tooling/lsp-server/tests/test_diagnostics.py
         - tooling/lsp-server/tests/test_hover.py
         - tooling/lsp-server/tests/test_lsp_lifecycle.py
@@ -53,6 +55,11 @@ scope:
         - docs/migration/lsp-diagnostics-hover-rebase.md
         - docs/migration/records/lsp-diagnostics-hover-rebase.yaml
         - governance/change-control.json
+        - tooling/lsp-server/tests/canonical_evidence.py
+        - tooling/lsp-server/tests/fixtures/canonical-lsp/manifest.json
+        - tooling/lsp-server/tests/test_canonical_core.py
+        - tooling/lsp-server/tests/test_hover.py
+        - tooling/lsp-server/tests/test_lsp_lifecycle.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -122,10 +129,22 @@ checkpoints:
             result: passed
             details: Half-open UTF-8 spans, negotiated LSP projection, native/virtual/host mapping, narrowest-node hover selection, immutable versioned snapshots, cancellation, stale rejection, bounded work, close cleanup, compatibility dispositions, task exclusions, verification profile, and rollback boundary are frozen without claiming implementation evidence.
     - name: Verification design and evidence
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Canonical diagnostic and profile parity denominator
+            result: passed
+            details: Twelve authored cases cover regex-compatible and Semantic STRling frontends, successful and failed outcomes, exact error and warning identity/message/severity/order/span evidence, BMP Unicode, multiline EOF, and exact PCRE2 10.42 and Python re 3.11 profile selection. All twelve execute against strling-kernel and match the recorded CompileResult evidence.
+          - check: Position and deterministic hover denominator
+            result: passed
+            details: Six position cases freeze half-open UTF-8 byte conversion across ASCII, BMP, astral, multiline, CRLF, and Unicode EOF inputs for UTF-8, UTF-16, and UTF-32 LSP encodings. Twelve live hover cases cover each Semantic IR node kind exactly once, including narrowest-node selection, canonical source span, deterministic node identity, and foundational nullable/length evidence.
+          - check: Lifecycle, mutation, and resource denominator
+            result: passed
+            details: Sixteen unique mutations cover open/change/save/close publication, debounce, pending and in-flight cancellation, stale rejection, profile/encoding invalidation, cache hits/misses, timeout, missing kernel, malformed output, failed CompileResult-as-data, and recovery. Resource ceilings are frozen at 1,048,576 source bytes, 256 diagnostics, 256 islands, five seconds per compile, and 50 ms debounce. The 46-case manifest fingerprint is sha256:bf99891daf0ee32fec022b54cc29aefec6d083ed05acf01e03c334c3128ce951.
+          - check: Executable verification design
+            result: passed
+            details: Thirty-two focused tests pass, including 24 live canonical-kernel executions. LSP formatting, Ruff, governance, and git diff --check pass; the pytest cache warning is an inherited filesystem permission limitation and does not affect test execution.
     - name: Minimal implementation and local proof
-      status: planned
+      status: in_progress
       evidence: []
     - name: Integration and certification
       status: planned
@@ -133,4 +152,6 @@ checkpoints:
     - name: Completion and next-task readiness
       status: planned
       evidence: []
-commits: []
+commits:
+    - sha: 34602232b1f2cb2732d53c622ec242d2cb180297
+      subject: "docs(lsp): lock canonical diagnostics scope"
