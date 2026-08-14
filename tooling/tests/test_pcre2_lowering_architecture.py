@@ -157,6 +157,13 @@ class Pcre2LoweringBoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(CoreContractError, "direct caller"):
             validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
 
+    def test_test_only_direct_caller_is_not_a_product_bypass(self) -> None:
+        sources = source_texts()
+        sources["core/src/stdlib.rs"] += (
+            "\n#[cfg(test)]\nmod tests { fn projection() { lower_pcre2(); } }\n"
+        )
+        validate_source_boundaries(sources, ALLOWED_RUNTIME_DEPENDENCIES)
+
 
 if __name__ == "__main__":
     unittest.main()

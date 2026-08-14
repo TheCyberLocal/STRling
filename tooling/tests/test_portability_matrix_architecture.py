@@ -79,6 +79,10 @@ class PortabilityMatrixArchitectureTests(unittest.TestCase):
             ]
             self.assertEqual(
                 operations.index("shared_cross_engine_certification") + 1,
+                operations.index("stdlib_runtime_certification"),
+            )
+            self.assertEqual(
+                operations.index("stdlib_runtime_certification") + 1,
                 operations.index("portability_matrix_certification"),
             )
         for profile_id in ("local", "pull-request"):
@@ -90,8 +94,8 @@ class PortabilityMatrixArchitectureTests(unittest.TestCase):
     def test_exact_outputs_are_excluded_from_competing_formatter(self) -> None:
         policy = load_json(ROOT / "governance/formatting.json")
         paths = {
-            str(MATRIX_PATH.relative_to(ROOT)),
-            str(SUMMARY_PATH.relative_to(ROOT)),
+            MATRIX_PATH.relative_to(ROOT).as_posix(),
+            SUMMARY_PATH.relative_to(ROOT).as_posix(),
         }
         ownership = [
             item

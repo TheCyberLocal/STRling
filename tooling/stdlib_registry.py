@@ -7,6 +7,7 @@ import argparse
 import copy
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from collections.abc import Mapping, Sequence
@@ -31,6 +32,10 @@ TRANSITION_PATH = ROOT / "spec" / "stdlib" / "validation-guarantee-transition.js
 ESSENTIAL_OUTPUT = ROOT / "spec" / "stdlib" / "essential_5.json"
 LSP_OUTPUT = ROOT / "spec" / "stdlib" / "registry.json"
 PRETTIER = ROOT / "node_modules" / ".bin" / "prettier"
+PRETTIER_COMMAND = [str(PRETTIER)]
+if os.name == "nt":
+    PRETTIER = ROOT / "node_modules" / "prettier" / "bin" / "prettier.cjs"
+    PRETTIER_COMMAND = ["node", str(PRETTIER)]
 
 
 class StandardLibraryRegistryError(ValueError):
@@ -289,6 +294,184 @@ class StandardLibraryRegistrySuite:
                 self._resolve_repository_reference(str(reference))
             self._resolve_repository_reference(str(binding["test_reference"]))
 
+    @staticmethod
+    def _stress_input(case: Mapping[str, Any]) -> str:
+        value = case.get("input")
+        if isinstance(value, str):
+            return value
+        recipe = case.get("input_recipe")
+        if not isinstance(recipe, Mapping):
+            raise StandardLibraryRegistryError(
+                "semantics.runtime.input: stress case has no materializable input"
+            )
+        return (
+            str(recipe["prefix"])
+            + str(recipe["repeat"]) * int(recipe["count"])
+            + str(recipe["suffix"])
+        )
+
+    def materialize_runtime_cases(
+        self, registry: Mapping[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
+        """Materialize the exact specification-authored 117-record denominator."""
+
+        source = load_json(self.registry_path) if registry is None else registry
+        runtime = self.semantics["runtime_certification"]
+        helpers = {str(helper["id"]): helper for helper in source["helpers"]}
+        variants: dict[tuple[str, str], Mapping[str, Any]] = {}
+        fixture_groups: dict[tuple[str, str], str] = {}
+        for helper_id, helper in helpers.items():
+            for variant in helper["semantic_definition"]["variants"]:
+                variant_id = str(variant["variant_id"])
+                variants[(helper_id, variant_id)] = variant
+                fixture_groups[(helper_id, str(variant["fixture_group"]))] = variant_id
+
+        records: list[dict[str, Any]] = []
+        for helper_id, helper in helpers.items():
+            for collection in (
+                "examples",
+                "counterexamples",
+                "target_dependent_examples",
+            ):
+                for case in helper[collection]:
+                    fixture_group = str(case["fixture_group"])
+                    variant_id = fixture_groups.get((helper_id, fixture_group))
+                    if variant_id is None:
+                        raise StandardLibraryRegistryError(
+                            "semantics.runtime.audited-variant: audited case fixture group must resolve to one variant"
+                        )
+                    records.append(
+                        {
+                            "case_id": str(case["case_id"]),
+                            "classification": str(case["classification"]),
+                            "expected_match": case["expected_match"],
+                            "helper_id": helper_id,
+                            "input": str(case["input"]),
+                            "source": "audited",
+                            "variant_id": variant_id,
+                        }
+                    )
+
+        bound_fixture_keys: set[tuple[str, str]] = set()
+        for binding in runtime["fixture_bindings"]:
+            helper_id = str(binding["helper_id"])
+            fixture_key = str(binding["fixture_key"])
+            variant_id = str(binding["variant_id"])
+            helper = helpers.get(helper_id)
+            if helper is None or (helper_id, variant_id) not in variants:
+                raise StandardLibraryRegistryError(
+                    "semantics.runtime.fixture-variant: fixture binding must resolve to one helper variant"
+                )
+            fixtures = helper["semantic_definition"]["compatibility_fixtures"]
+            values = fixtures.get(fixture_key)
+            if not isinstance(values, list):
+                raise StandardLibraryRegistryError(
+                    "semantics.runtime.fixture-key: fixture binding must resolve to one compatibility list"
+                )
+            key = (helper_id, fixture_key)
+            if key in bound_fixture_keys:
+                raise StandardLibraryRegistryError(
+                    "semantics.runtime.fixture-unique: compatibility fixture keys must be bound once"
+                )
+            bound_fixture_keys.add(key)
+            helper_token = helper_id.removeprefix("stdlib.")
+            for index, value in enumerate(values):
+                records.append(
+                    {
+                        "case_id": f"fixture.{helper_token}.{fixture_key}.{index:03d}",
+                        "classification": "compatibility_fixture",
+                        "expected_match": bool(binding["expected_match"]),
+                        "helper_id": helper_id,
+                        "input": str(value),
+                        "source": "compatibility",
+                        "variant_id": variant_id,
+                    }
+                )
+
+        expected_fixture_keys = {
+            (str(helper["id"]), str(fixture_key))
+            for helper in source["helpers"]
+            for fixture_key in helper["semantic_definition"]["compatibility_fixtures"]
+        }
+        if bound_fixture_keys != expected_fixture_keys:
+            raise StandardLibraryRegistryError(
+                "semantics.runtime.fixture-completeness: every compatibility fixture list must be bound exactly once"
+            )
+
+        helper_for_variant = {
+            str(entry["variant_id"]): str(entry["helper_id"])
+            for entry in self.semantics["entries"]
+        }
+        for case in self.semantics["stress_cases"]:
+            variant_id = str(case["variant_id"])
+            records.append(
+                {
+                    "case_id": str(case["case_id"]),
+                    "classification": str(case["classification"]),
+                    "expected_match": bool(case["expected_match"]),
+                    "helper_id": helper_for_variant[variant_id],
+                    "input": self._stress_input(case),
+                    "source": "stress",
+                    "variant_id": variant_id,
+                }
+            )
+
+        case_ids = [record["case_id"] for record in records]
+        _unique(
+            case_ids,
+            "semantics.runtime.case-unique: runtime case identities must be unique",
+        )
+        actual_counts = {
+            "audited": sum(record["source"] == "audited" for record in records),
+            "compatibility": sum(
+                record["source"] == "compatibility" for record in records
+            ),
+            "stress": sum(record["source"] == "stress" for record in records),
+            "total": len(records),
+        }
+        if actual_counts != runtime["record_counts"]:
+            raise StandardLibraryRegistryError(
+                "semantics.runtime.record-counts: materialized runtime denominator differs from the authored anti-shrinkage counts"
+            )
+        return records
+
+    def runtime_applications(
+        self,
+        records: Sequence[Mapping[str, Any]] | None = None,
+    ) -> list[dict[str, Any]]:
+        """Project each runtime record across the exact governed profile order."""
+
+        materialized = self.materialize_runtime_cases() if records is None else records
+        applications: list[dict[str, Any]] = []
+        for record in materialized:
+            subject = str(record["input"])
+            for profile in self.semantics["runtime_certification"]["profiles"]:
+                profile_id = str(profile["target_profile"]["profile_id"])
+                if (
+                    not subject.isascii()
+                    and profile["non_ascii_subjects"] == "not_applicable"
+                ):
+                    state = "not_applicable"
+                    expected_match = None
+                else:
+                    state = "execute"
+                    authored = record["expected_match"]
+                    expected_match = (
+                        profile["target_native_digit_model"] == "unicode"
+                        if authored is None
+                        else bool(authored)
+                    )
+                applications.append(
+                    {
+                        "case_id": str(record["case_id"]),
+                        "expected_match": expected_match,
+                        "profile_id": profile_id,
+                        "state": state,
+                        "variant_id": str(record["variant_id"]),
+                    }
+                )
+        return applications
+
     def _validate_canonical_semantics(self, registry: Mapping[str, Any]) -> None:
         errors = sorted(
             self.semantics_validator.iter_errors(self.semantics),
@@ -344,8 +527,7 @@ class StandardLibraryRegistrySuite:
             )
 
         semantic_helpers = sum(
-            helper["guarantee"]["level"] == "semantic"
-            for helper in registry["helpers"]
+            helper["guarantee"]["level"] == "semantic" for helper in registry["helpers"]
         )
         if self.semantics["semantic_validator_count"] != semantic_helpers:
             raise StandardLibraryRegistryError(
@@ -391,6 +573,66 @@ class StandardLibraryRegistrySuite:
         if actual_entries != expected_entries:
             raise StandardLibraryRegistryError(
                 "semantics.variant.correspondence: canonical semantics must exactly follow registry variant order"
+            )
+
+        runtime = self.semantics["runtime_certification"]
+        runtime_profile_ids = [
+            str(profile["target_profile"]["profile_id"])
+            for profile in runtime["profiles"]
+        ]
+        registry_profile_ids = [
+            str(profile["profile_id"])
+            for profile in registry["target_catalog"]["profiles"]
+        ]
+        if runtime_profile_ids != registry_profile_ids:
+            raise StandardLibraryRegistryError(
+                "semantics.runtime.profile-order: runtime profiles must exactly follow the registry target catalog"
+            )
+        for runtime_profile, catalog_profile in zip(
+            runtime["profiles"], registry["target_catalog"]["profiles"]
+        ):
+            profile = load_json(self.root / str(catalog_profile["reference"]))
+            expected_reference = {
+                "profile_id": profile["profile_id"],
+                "profile_version": profile["profile_version"],
+                "sha256": hashlib.sha256(canonical_json(profile)).hexdigest(),
+            }
+            if runtime_profile["target_profile"] != expected_reference:
+                raise StandardLibraryRegistryError(
+                    "semantics.runtime.profile-reference: runtime profile reference is stale"
+                )
+        for helper in registry["helpers"]:
+            if list(helper["targeting"]["profiles"]) != runtime_profile_ids:
+                raise StandardLibraryRegistryError(
+                    "semantics.runtime.helper-profiles: every current helper must cover the exact runtime profile denominator"
+                )
+
+        target_digit_variants = {
+            str(entry["variant_id"])
+            for entry in entries
+            if "target digit;" in "\n".join(entry["semantic_dsl_lines"])
+        }
+        records = self.materialize_runtime_cases(registry)
+        for record in records:
+            if record["expected_match"] is None:
+                if (
+                    record["source"] != "audited"
+                    or record["variant_id"] not in target_digit_variants
+                    or str(record["input"]).isascii()
+                ):
+                    raise StandardLibraryRegistryError(
+                        "semantics.runtime.target-dependent: unresolved expectations are reserved for non-ASCII audited target-digit cases"
+                    )
+        applications = self.runtime_applications(records)
+        application_counts = {
+            "execute": sum(item["state"] == "execute" for item in applications),
+            "not_applicable": sum(
+                item["state"] == "not_applicable" for item in applications
+            ),
+        }
+        if application_counts != runtime["application_counts"]:
+            raise StandardLibraryRegistryError(
+                "semantics.runtime.application-counts: profile applications differ from the authored anti-shrinkage counts"
             )
 
     def _validate_helper_identity(self, registry: Mapping[str, Any]) -> None:
@@ -885,13 +1127,14 @@ class StandardLibraryRegistrySuite:
             )
         completed = subprocess.run(
             [
-                str(PRETTIER),
+                *PRETTIER_COMMAND,
                 "--stdin-filepath",
                 str(path.relative_to(self.root)),
             ],
             cwd=self.root,
             input=serialized_json(value),
             text=True,
+            encoding="utf-8",
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=False,
@@ -933,12 +1176,23 @@ class StandardLibraryRegistrySuite:
         negative_count = self.validate_negative_fixtures()
         self.check_projections()
         registry = load_json(self.registry_path)
+        runtime_cases = self.materialize_runtime_cases(registry)
+        runtime_applications = self.runtime_applications(runtime_cases)
         return {
             "binding_count": binding_count,
             "case_count": case_count,
             "fingerprint": registry["fingerprint"]["value"],
             "helper_count": helper_count,
             "negative_count": negative_count,
+            "runtime_application_count": len(runtime_applications),
+            "runtime_execute_count": sum(
+                application["state"] == "execute"
+                for application in runtime_applications
+            ),
+            "runtime_not_applicable_count": sum(
+                application["state"] == "not_applicable"
+                for application in runtime_applications
+            ),
             "schema_count": schema_count,
             "semantic_form_count": len(self.semantics["entries"]),
             "semantic_stress_count": len(self.semantics["stress_cases"]),
@@ -989,6 +1243,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         f"bindings={binding_count} cases={case_count} "
         f"semantic_forms={len(suite.semantics['entries'])} "
         f"stress_cases={len(suite.semantics['stress_cases'])} "
+        f"runtime_applications={len(suite.runtime_applications())} "
         f"semantic_validators={suite.semantics['semantic_validator_count']} "
         f"fingerprint={registry['fingerprint']['value']}"
     )

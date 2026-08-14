@@ -62,6 +62,13 @@ class PathMatchingTests(unittest.TestCase):
         self.assertEqual(("old/name.py", "new/name.py"), changes[0].paths)
         self.assertEqual(("removed/file.py",), changes[1].paths)
 
+    def test_git_for_windows_path_separators_are_normalized_at_ingestion(self) -> None:
+        changes = parse_name_status(
+            b"M\0tooling\\architecture_fitness.py\0R100\0old\\name.py\0new\\name.py\0"
+        )
+        self.assertEqual(("tooling/architecture_fitness.py",), changes[0].paths)
+        self.assertEqual(("old/name.py", "new/name.py"), changes[1].paths)
+
 
 class ScopeValidationTests(unittest.TestCase):
     def test_allowed_change_passes(self) -> None:

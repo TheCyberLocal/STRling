@@ -259,6 +259,22 @@
                 "result_contract": "certification-result-v1",
                 "result_operation_id": "certification.shared-cross-engine-corpus"
             },
+            "stdlib_runtime_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.stdlib_runtime_certification",
+                    "--json",
+                    "--check",
+                    "--repeat-runs",
+                    "2"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.stdlib-runtime"
+            },
             "portability_matrix_certification": {
                 "kind": "repository",
                 "component": "repository",
@@ -442,7 +458,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.9.0",
+                "definition_version": "1.10.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -496,6 +512,9 @@
                     },
                     {
                         "operation": "shared_cross_engine_certification"
+                    },
+                    {
+                        "operation": "stdlib_runtime_certification"
                     },
                     {
                         "operation": "portability_matrix_certification"
@@ -596,7 +615,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.9.0",
+                "definition_version": "1.10.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -650,6 +669,9 @@
                     },
                     {
                         "operation": "shared_cross_engine_certification"
+                    },
+                    {
+                        "operation": "stdlib_runtime_certification"
                     },
                     {
                         "operation": "portability_matrix_certification"

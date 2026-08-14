@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 TOOLING_DIR = Path(__file__).resolve().parents[1]
@@ -10,7 +11,9 @@ sys.path.insert(0, str(TOOLING_DIR))
 
 from formatting import (  # noqa: E402
     FormattingConfigurationError,
+    MAXIMUM_BATCH_ARGUMENT_CHARACTERS,
     build_command,
+    file_batches,
     format_target,
     load_policy,
     select_files,
@@ -69,10 +72,39 @@ class FormattingPolicyTests(unittest.TestCase):
         )
         self.assertIn("--check", prettier)
         self.assertNotIn("--write", prettier)
-        self.assertEqual(["ruff", "format", "--check", "tooling/quality.py"], ruff)
+        self.assertEqual(["ruff", "format", "--check", "tooling/quality.py"], ruff[-4:])
         self.assertIn("--output=none", dart)
         self.assertIn("--set-exit-if-changed", dart)
         self.assertIn("--verify-no-changes", dotnet)
+
+    def test_prettier_uses_utf8_safe_windows_node_entrypoint(self) -> None:
+        root = Path("C:/repo")
+        entrypoint = root / "node_modules" / "prettier" / "bin" / "prettier.cjs"
+        with patch("formatting.os.name", "nt"):
+            command = build_command("prettier", True, ["package.json"], [], root)
+        self.assertEqual(["node", str(entrypoint)], command[:2])
+
+    def test_ruff_uses_the_active_python_on_windows(self) -> None:
+        with patch("formatting.os.name", "nt"):
+            command = build_command(
+                "ruff-format", True, ["tooling/quality.py"], [], Path("C:/repo")
+            )
+        self.assertEqual([sys.executable, "-m", "ruff"], command[:3])
+
+    def test_long_formatter_file_lists_are_split_deterministically(self) -> None:
+        files = [
+            f"tooling/generated_{index:04d}_{'x' * 120}.py" for index in range(200)
+        ]
+        batches = file_batches(files)
+        self.assertGreater(len(batches), 1)
+        self.assertEqual(files, [path for batch in batches for path in batch])
+        self.assertTrue(
+            all(
+                sum(len(path) + 1 for path in batch)
+                <= MAXIMUM_BATCH_ARGUMENT_CHARACTERS
+                for batch in batches
+            )
+        )
 
     def test_all_steps_run_and_first_failure_propagates(self) -> None:
         policy = {

@@ -127,10 +127,26 @@ def validate_artifact_relationships(registry: Mapping[str, object], root: Path) 
             )
 
 
+def host_command(command: Sequence[str], cwd: Path) -> list[str]:
+    arguments = list(command)
+    if os.name != "nt" or not arguments:
+        return arguments
+    if arguments[0] == "python3":
+        arguments[0] = sys.executable
+    elif arguments[:2] == ["./strling", "contracts"]:
+        arguments = [
+            sys.executable,
+            str(cwd / "tooling/public_contracts.py"),
+            *arguments[2:],
+        ]
+    return arguments
+
+
 def execute_command(command: Sequence[str], cwd: Path) -> CommandResult:
+    arguments = host_command(command, cwd)
     try:
         completed = subprocess.run(
-            list(command),
+            arguments,
             cwd=cwd,
             text=True,
             stdout=subprocess.PIPE,

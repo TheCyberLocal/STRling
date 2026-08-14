@@ -17,6 +17,7 @@ static_analysis = __import__("static_analysis")
 Suppression = static_analysis.Suppression
 detect_line = static_analysis.detect_line
 run_suppression_audit = static_analysis.run_suppression_audit
+run_ruff = static_analysis.run_ruff
 validate_suppressions = static_analysis.validate_suppressions
 run_command = static_analysis._run
 
@@ -116,6 +117,20 @@ class SuppressionGovernanceTests(unittest.TestCase):
                 1,
                 run_command(["fixture"], Path.cwd(), warnings_are_errors=True),
             )
+
+    def test_ruff_uses_the_active_python_on_windows(self) -> None:
+        completed = CompletedProcess(["fixture"], 0, stdout="", stderr="")
+        with (
+            patch.object(static_analysis.sys, "platform", "win32"),
+            patch.object(
+                static_analysis.subprocess, "run", return_value=completed
+            ) as run,
+        ):
+            self.assertEqual(0, run_ruff("repository"))
+        self.assertEqual(
+            [sys.executable, "-m", "ruff", "check"],
+            run.call_args.args[0][:4],
+        )
 
 
 if __name__ == "__main__":

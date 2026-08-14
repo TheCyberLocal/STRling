@@ -71,11 +71,12 @@
         },
         {
             "schema": "spec/contracts/1.0/semantic-ir.schema.json",
-            "sha256": "bf641bdf129dd5ced9d9f89d0170cefbb4dd976117d9e0c61000fd03041468db",
+            "sha256": "4712f7fa76e7d21adcdfb70533b243d3e89f7c561b89156b604aeb044af08743",
             "rust_modules": [
                 "regex_frontend",
                 "semantic_frontend",
                 "normalization",
+                "stdlib",
                 "semantic",
                 "semantic_analysis",
                 "structural_analysis",

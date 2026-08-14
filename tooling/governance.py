@@ -180,6 +180,12 @@ def matches_any(path: str, patterns: Iterable[str]) -> bool:
     return any(path_matches(path, pattern) for pattern in patterns)
 
 
+def decode_git_path(value: bytes) -> str:
+    """Decode Git's platform path spelling to canonical repository slashes."""
+
+    return value.decode("utf-8", errors="surrogateescape").replace("\\", "/")
+
+
 def parse_name_status(data: bytes) -> list[Change]:
     fields = data.split(b"\0")
     if fields and fields[-1] == b"":
@@ -192,14 +198,14 @@ def parse_name_status(data: bytes) -> list[Change]:
         if status.startswith(("R", "C")):
             if index + 1 >= len(fields):
                 raise GovernanceError("truncated Git rename/copy record")
-            old_path = fields[index].decode("utf-8", errors="surrogateescape")
-            new_path = fields[index + 1].decode("utf-8", errors="surrogateescape")
+            old_path = decode_git_path(fields[index])
+            new_path = decode_git_path(fields[index + 1])
             index += 2
             changes.append(Change(status, old_path, new_path))
         else:
             if index >= len(fields):
                 raise GovernanceError("truncated Git change record")
-            path = fields[index].decode("utf-8", errors="surrogateescape")
+            path = decode_git_path(fields[index])
             index += 1
             if status.startswith("D"):
                 changes.append(Change(status, path, None))
@@ -246,7 +252,7 @@ def collect_changes(root: Path, base: str, head: str) -> list[Change]:
         for raw_path in untracked.split(b"\0"):
             if not raw_path:
                 continue
-            path = raw_path.decode("utf-8", errors="surrogateescape")
+            path = decode_git_path(raw_path)
             normalize_repository_path(path)
             if path not in known:
                 changes.append(Change("A", None, path))
@@ -515,10 +521,10 @@ def rule_result(
         source_paths = [
             path
             for path in root.rglob("*.py")
-            if matches_any(str(path.relative_to(root)), source_patterns)
+            if matches_any(path.relative_to(root).as_posix(), source_patterns)
         ]
         for source_path in source_paths:
-            relative = str(source_path.relative_to(root))
+            relative = source_path.relative_to(root).as_posix()
             dependencies, errors = python_dependencies(source_path)
             findings.extend((error, relative) for error in errors)
             for dependency in sorted(dependencies):

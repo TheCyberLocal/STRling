@@ -12,6 +12,7 @@ from tooling.public_contracts import (
     declaration_units,
     extract_c_header,
     extract_rust_source_boundary,
+    extract_typescript,
     load_registry,
     parse_go_doc,
     process_surface,
@@ -263,6 +264,29 @@ type Flags struct {
         self.assertTrue(
             any("compile(text: string)" in value for value in symbols.values())
         )
+
+    def test_typescript_extraction_uses_node_compiler_entrypoint(self) -> None:
+        compiler = self.root / "bindings/typescript/node_modules/typescript/bin/tsc"
+        compiler.parent.mkdir(parents=True)
+        compiler.write_text("", encoding="utf-8")
+        commands: list[list[str]] = []
+
+        def runner(arguments: list[str], **_kwargs: object) -> CompletedProcess[str]:
+            commands.append(arguments)
+            output = Path(arguments[arguments.index("--outDir") + 1])
+            output.mkdir(parents=True, exist_ok=True)
+            (output / "index.d.ts").write_text(
+                "export declare function compile(text: string): string;\n",
+                encoding="utf-8",
+            )
+            return CompletedProcess(arguments, 0, "", "")
+
+        snapshot = extract_typescript(
+            {"id": "test-typescript-api"}, self.root, runner=runner
+        )
+
+        self.assertEqual(["node", str(compiler)], commands[0][:2])
+        self.assertTrue(snapshot["symbols"])
 
     def test_schema_optional_property_addition_is_additive(self) -> None:
         old = {

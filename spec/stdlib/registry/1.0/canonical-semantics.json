@@ -307,6 +307,162 @@
     ],
     "kind": "strling.canonical-stdlib-semantics",
     "registry_version": "1.0.0",
+    "runtime_certification": {
+        "application_counts": {
+            "execute": 580,
+            "not_applicable": 5
+        },
+        "fixture_bindings": [
+            {
+                "expected_match": false,
+                "fixture_key": "invalid",
+                "helper_id": "stdlib.date_time",
+                "variant_id": "date_time.default"
+            },
+            {
+                "expected_match": true,
+                "fixture_key": "valid",
+                "helper_id": "stdlib.date_time",
+                "variant_id": "date_time.default"
+            },
+            {
+                "expected_match": false,
+                "fixture_key": "invalid",
+                "helper_id": "stdlib.email",
+                "variant_id": "email.default"
+            },
+            {
+                "expected_match": true,
+                "fixture_key": "valid",
+                "helper_id": "stdlib.email",
+                "variant_id": "email.default"
+            },
+            {
+                "expected_match": false,
+                "fixture_key": "invalid_v4",
+                "helper_id": "stdlib.ip",
+                "variant_id": "ip.v4"
+            },
+            {
+                "expected_match": false,
+                "fixture_key": "invalid_v6",
+                "helper_id": "stdlib.ip",
+                "variant_id": "ip.v6_full"
+            },
+            {
+                "expected_match": true,
+                "fixture_key": "valid_v4",
+                "helper_id": "stdlib.ip",
+                "variant_id": "ip.v4"
+            },
+            {
+                "expected_match": true,
+                "fixture_key": "valid_v6",
+                "helper_id": "stdlib.ip",
+                "variant_id": "ip.v6_full"
+            },
+            {
+                "expected_match": false,
+                "fixture_key": "invalid",
+                "helper_id": "stdlib.url",
+                "variant_id": "url.default"
+            },
+            {
+                "expected_match": true,
+                "fixture_key": "valid",
+                "helper_id": "stdlib.url",
+                "variant_id": "url.default"
+            },
+            {
+                "expected_match": false,
+                "fixture_key": "invalid_default",
+                "helper_id": "stdlib.uuid",
+                "variant_id": "uuid.generic"
+            },
+            {
+                "expected_match": false,
+                "fixture_key": "invalid_v4",
+                "helper_id": "stdlib.uuid",
+                "variant_id": "uuid.v4"
+            },
+            {
+                "expected_match": true,
+                "fixture_key": "valid_default",
+                "helper_id": "stdlib.uuid",
+                "variant_id": "uuid.generic"
+            },
+            {
+                "expected_match": true,
+                "fixture_key": "valid_v4",
+                "helper_id": "stdlib.uuid",
+                "variant_id": "uuid.v4"
+            }
+        ],
+        "profiles": [
+            {
+                "execution_adapter": "node-regexp-v1",
+                "non_ascii_subjects": "execute",
+                "subject_representation": "utf8-text",
+                "target_native_digit_model": "ascii",
+                "target_profile": {
+                    "profile_id": "profile:ecmascript/2024",
+                    "profile_version": "1.1.0",
+                    "sha256": "5117ff6e6c30da54eb31a4621dce5f4807ab0e95f183848e70a01731a4bb4c9f"
+                }
+            },
+            {
+                "execution_adapter": "pcre2-ctypes-v1",
+                "non_ascii_subjects": "execute",
+                "subject_representation": "utf8-text",
+                "target_native_digit_model": "unicode",
+                "target_profile": {
+                    "profile_id": "profile:pcre2/10.42",
+                    "profile_version": "1.1.0",
+                    "sha256": "0204c9b8ac96ac04a73497ec9ef9f07a2b21728c9cf5f1ff580fa154b4c53a6d"
+                }
+            },
+            {
+                "execution_adapter": "pcre2-ctypes-v1",
+                "non_ascii_subjects": "execute",
+                "subject_representation": "utf8-text",
+                "target_native_digit_model": "unicode",
+                "target_profile": {
+                    "profile_id": "profile:pcre2/10.43",
+                    "profile_version": "1.1.0",
+                    "sha256": "0a40fef0e89ab341a031f335438d42203d21fa438358ab9a4aa1177fb8b9bbb4"
+                }
+            },
+            {
+                "execution_adapter": "python-re-v1",
+                "non_ascii_subjects": "execute",
+                "subject_representation": "utf8-text",
+                "target_native_digit_model": "unicode",
+                "target_profile": {
+                    "profile_id": "profile:python-re/3.11",
+                    "profile_version": "1.2.0",
+                    "sha256": "55e7f0bc93e2192d5f09f6c4ef65b6bff0dc831571059d80edf9b8b661f80a6c"
+                }
+            },
+            {
+                "execution_adapter": "python-re-v1",
+                "non_ascii_subjects": "not_applicable",
+                "subject_representation": "ascii-bytes",
+                "target_native_digit_model": "ascii",
+                "target_profile": {
+                    "profile_id": "profile:python-re/3.11-bytes",
+                    "profile_version": "1.0.0",
+                    "sha256": "2ba10d0f9ba00c0f5685fc20a40ae436937952074558d8bba89ffe6bb244dfca"
+                }
+            }
+        ],
+        "record_counts": {
+            "audited": 40,
+            "compatibility": 60,
+            "stress": 17,
+            "total": 117
+        },
+        "repeat_runs": 2
+    },
     "semantic_validator_count": 0,
     "stress_cases": [
         {

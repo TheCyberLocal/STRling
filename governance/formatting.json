@@ -307,11 +307,12 @@
         },
         {
             "paths": [
-                "tests/conformance/evidence/shared-cross-engine-observations.json"
+                "tests/conformance/evidence/shared-cross-engine-observations.json",
+                "tests/conformance/evidence/stdlib-runtime-observations.json"
             ],
             "disposition": "not_applicable",
-            "strategy": "Shared cross-engine corpus controller",
-            "reason": "The checked exact-runtime observation artifact is deterministically serialized and verified by its owning controller; a competing formatter would make --check disagree with --write."
+            "strategy": "Exact-runtime evidence controllers",
+            "reason": "Checked exact-runtime observation artifacts are deterministically serialized and verified by their owning controllers; a competing formatter would make --check disagree with --write."
         },
         {
             "paths": [
@@ -346,6 +347,7 @@
                         "governance/contracts/snapshots/*",
                         "docs/generated/*",
                         "tests/conformance/evidence/shared-cross-engine-observations.json",
+                        "tests/conformance/evidence/stdlib-runtime-observations.json",
                         "tests/conformance/evidence/initial-portability-matrix.json",
                         "tests/conformance/evidence/initial-portability-matrix.md",
                         "tooling/js_to_json_ast/out/*",

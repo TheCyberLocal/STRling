@@ -342,7 +342,8 @@ def run_ruff(component: str) -> int:
     if scope is None:
         print(f"unknown Ruff component: {component}", file=sys.stderr)
         return 2
-    return _run(["ruff", "check", *scope], ROOT)
+    prefix = ["ruff"] if sys.platform != "win32" else [sys.executable, "-m", "ruff"]
+    return _run([*prefix, "check", *scope], ROOT)
 
 
 def run_native(component: str) -> int:

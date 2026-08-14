@@ -643,13 +643,14 @@ def extract_typescript(
     surface: Mapping[str, object], root: Path, runner: Runner = subprocess.run
 ) -> dict[str, object]:
     binding = root / "bindings/typescript"
-    compiler = binding / "node_modules/.bin/tsc"
+    compiler = binding / "node_modules/typescript/bin/tsc"
     if not compiler.is_file():
         raise ContractError(f"TypeScript compiler is unavailable at {compiler}")
     with tempfile.TemporaryDirectory(prefix="strling-contract-ts-") as directory:
         output = Path(directory)
         run_command(
             [
+                "node",
                 str(compiler),
                 "-p",
                 "tsconfig.json",

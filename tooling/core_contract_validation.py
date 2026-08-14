@@ -109,6 +109,7 @@ MODULE_PATHS = {
     "protocol::result": "core/src/protocol/result.rs",
     "regex_frontend": "core/src/regex_frontend.rs",
     "semantic": "core/src/semantic/mod.rs",
+    "stdlib": "core/src/stdlib.rs",
     "semantic_frontend": "core/src/semantic_frontend.rs",
     "semantic_analysis": "core/src/semantic_analysis.rs",
     "safety_analysis": "core/src/safety_analysis.rs",
@@ -251,6 +252,7 @@ def validate_mapping_document(
             "regex_frontend",
             "semantic_frontend",
             "normalization",
+            "stdlib",
             "semantic",
             "semantic_analysis",
             "structural_analysis",
@@ -264,7 +266,7 @@ def validate_mapping_document(
             "target_lowering",
         ]:
             raise CoreContractError(
-                "Semantic IR mapping must register target-neutral stages, capability requirement extraction, portability planning, evidence-only explanations, and structured target lowering in dependency order"
+                "Semantic IR mapping must register target-neutral stages, canonical standard-library construction, capability requirement extraction, portability planning, evidence-only explanations, and structured target lowering in dependency order"
             )
         if relative == "spec/contracts/1.0/source.schema.json" and modules != [
             "source",

@@ -982,6 +982,13 @@ Executor = Callable[[Target, str, list[str]], Execution]
 HardgateExecutor = Callable[[str, list[str]], Execution]
 
 
+def host_command(command: Sequence[str]) -> list[str]:
+    arguments = list(command)
+    if sys.platform == "win32" and arguments and arguments[0] == "python3":
+        arguments[0] = sys.executable
+    return arguments
+
+
 class QualityRunner:
     """Dispatch configured commands and preserve their exact status."""
 
@@ -995,6 +1002,7 @@ class QualityRunner:
         self.toolchain = toolchain
         self.executor = executor or self._execute
         self.inspector = inspector or EnvironmentInspector(toolchain)
+        self.inspect_leaf_environment = inspector is not None or executor is None
         self.hardgate_executor = hardgate_executor or self._execute_hardgate
 
     def run_leaf(self, operation: str, target: Target) -> OperationResult:
@@ -1016,7 +1024,11 @@ class QualityRunner:
             )
         resolved, command = self.toolchain.resolve_command(target, operation)
         formatters = self.toolchain.formatter_names(target, operation)
-        environment = self.inspector.check_target(target, operation)
+        environment = (
+            self.inspector.check_target(target, operation)
+            if self.inspect_leaf_environment
+            else []
+        )
         blockers = [
             result
             for result in environment
@@ -1216,9 +1228,10 @@ class QualityRunner:
         return Execution(completed.returncode, completed.stdout, completed.stderr)
 
     def _execute_hardgate(self, _operation: str, command: list[str]) -> Execution:
+        invocation = host_command(command)
         try:
             completed = subprocess.run(
-                command,
+                invocation,
                 cwd=self.toolchain.root,
                 text=True,
                 stdout=subprocess.PIPE,

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -15,6 +16,7 @@ from typing import Callable, Mapping, Sequence
 ROOT = Path(__file__).resolve().parent.parent
 POLICY_PATH = ROOT / "governance" / "formatting.json"
 Runner = Callable[[Sequence[str], Path], int]
+MAXIMUM_BATCH_ARGUMENT_CHARACTERS = 4_000
 
 
 class FormattingConfigurationError(ValueError):
@@ -60,7 +62,7 @@ def tracked_files(root: Path = ROOT) -> list[str]:
             f"git tracked-file inventory failed: {details}"
         )
     return sorted(
-        item.decode("utf-8", errors="strict")
+        item.decode("utf-8", errors="strict").replace("\\", "/")
         for item in completed.stdout.split(b"\0")
         if item
     )
@@ -82,6 +84,25 @@ def select_files(
     ]
 
 
+def file_batches(files: Sequence[str]) -> list[list[str]]:
+    """Bound formatter arguments below conservative cross-platform limits."""
+
+    batches: list[list[str]] = []
+    current: list[str] = []
+    current_size = 0
+    for path in files:
+        path_size = len(path) + 1
+        if current and current_size + path_size > MAXIMUM_BATCH_ARGUMENT_CHARACTERS:
+            batches.append(current)
+            current = []
+            current_size = 0
+        current.append(path)
+        current_size += path_size
+    if current:
+        batches.append(current)
+    return batches
+
+
 def build_command(
     formatter: str,
     check: bool,
@@ -91,9 +112,15 @@ def build_command(
 ) -> list[str]:
     if formatter == "prettier":
         executable = root / "node_modules" / ".bin" / "prettier"
+        prefix = [str(executable)]
+        if os.name == "nt":
+            prefix = [
+                "node",
+                str(root / "node_modules" / "prettier" / "bin" / "prettier.cjs"),
+            ]
         mode = "--check" if check else "--write"
         return [
-            str(executable),
+            *prefix,
             mode,
             "--config",
             str(root / ".prettierrc"),
@@ -101,7 +128,10 @@ def build_command(
         ]
     if formatter == "ruff-format":
         mode = ["--check"] if check else []
-        return ["ruff", "format", *mode, *files]
+        prefix = ["ruff"]
+        if os.name == "nt":
+            prefix = [sys.executable, "-m", "ruff"]
+        return [*prefix, "format", *mode, *files]
     if formatter == "dart-format":
         mode = ["--output=none", "--set-exit-if-changed"] if check else []
         return ["dart", "format", *mode, *files]
@@ -165,8 +195,14 @@ def format_target(
             raise FormattingConfigurationError(
                 f"component '{target}' formatter '{formatter}' selected no tracked files"
             )
-        command = build_command(formatter, check, files, arguments, root)
-        exit_code = runner(command, root)
+        exit_code = 0
+        batches = file_batches(files) if files else [[]]
+        for batch in batches:
+            result = runner(
+                build_command(formatter, check, batch, arguments, root), root
+            )
+            if result != 0 and exit_code == 0:
+                exit_code = result
         status = "passed" if exit_code == 0 else "failed"
         print(
             "FORMATTER_RESULT "

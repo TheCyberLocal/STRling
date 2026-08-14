@@ -50,6 +50,68 @@ class StandardLibraryRegistryTests(unittest.TestCase):
         )
         result = self.suite.certify()
         self.assertEqual(117, result["edge_case_count"])
+        self.assertEqual(585, result["runtime_application_count"])
+        self.assertEqual(580, result["runtime_execute_count"])
+        self.assertEqual(5, result["runtime_not_applicable_count"])
+
+    def test_runtime_denominator_materialization_is_exact_and_deterministic(
+        self,
+    ) -> None:
+        first = self.suite.materialize_runtime_cases()
+        second = self.suite.materialize_runtime_cases()
+        self.assertEqual(canonical_json(first), canonical_json(second))
+        self.assertEqual(117, len(first))
+        self.assertEqual(117, len({case["case_id"] for case in first}))
+        self.assertEqual(8, len({case["variant_id"] for case in first}))
+        self.assertEqual(
+            {"audited": 40, "compatibility": 60, "stress": 17},
+            {
+                source: sum(case["source"] == source for case in first)
+                for source in ("audited", "compatibility", "stress")
+            },
+        )
+        oversized_email = next(
+            case for case in first if case["case_id"] == "email.oversized.local"
+        )
+        self.assertEqual(10012, len(oversized_email["input"]))
+
+    def test_target_dependent_digits_follow_explicit_profile_models(self) -> None:
+        records = {
+            case["case_id"]: case for case in self.suite.materialize_runtime_cases()
+        }
+        target_case = next(
+            case for case in records.values() if case["expected_match"] is None
+        )
+        applications = {
+            application["profile_id"]: application
+            for application in self.suite.runtime_applications([target_case])
+        }
+        self.assertEqual(
+            ("execute", False),
+            (
+                applications["profile:ecmascript/2024"]["state"],
+                applications["profile:ecmascript/2024"]["expected_match"],
+            ),
+        )
+        for profile_id in (
+            "profile:pcre2/10.42",
+            "profile:pcre2/10.43",
+            "profile:python-re/3.11",
+        ):
+            self.assertEqual(
+                ("execute", True),
+                (
+                    applications[profile_id]["state"],
+                    applications[profile_id]["expected_match"],
+                ),
+            )
+        self.assertEqual(
+            ("not_applicable", None),
+            (
+                applications["profile:python-re/3.11-bytes"]["state"],
+                applications["profile:python-re/3.11-bytes"]["expected_match"],
+            ),
+        )
 
     def test_helper_identity_is_separate_from_host_language_spelling(self) -> None:
         helper_ids = {helper["id"] for helper in self.registry["helpers"]}

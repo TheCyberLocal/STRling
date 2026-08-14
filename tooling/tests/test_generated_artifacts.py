@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import copy
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tooling.generated_artifacts import (
     CommandResult,
     RegistryError,
+    host_command,
     load_json,
     run_registry,
     validate_registry,
@@ -162,6 +165,21 @@ class GeneratedArtifactTests(unittest.TestCase):
             executor=lambda *_args: CommandResult(0),
         )[0]
         json.dumps(result.as_dict())
+
+    def test_windows_host_commands_use_native_python_entrypoints(self) -> None:
+        with mock.patch("tooling.generated_artifacts.os.name", "nt"):
+            self.assertEqual(
+                [sys.executable, "tooling/check.py", "--check"],
+                host_command(["python3", "tooling/check.py", "--check"], self.root),
+            )
+            self.assertEqual(
+                [
+                    sys.executable,
+                    str(self.root / "tooling/public_contracts.py"),
+                    "--check",
+                ],
+                host_command(["./strling", "contracts", "--check"], self.root),
+            )
 
 
 if __name__ == "__main__":

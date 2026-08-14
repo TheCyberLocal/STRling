@@ -569,10 +569,21 @@ mod tests {
     use serde::Deserialize;
     use serde_json::{json, Value};
 
+    use crate::capability_evaluation::evaluate_capabilities;
+    use crate::ecmascript_lowering::lower_ecmascript;
+    use crate::ecmascript_serialization::serialize_ecmascript;
+    use crate::portability_planning::plan_portability;
+    use crate::python_re_lowering::{lower_python_re, PythonRePatternKind};
+    use crate::python_re_serialization::serialize_python_re;
     use crate::semantic::{CharacterDomain, CharacterSetMember, Node};
+    use crate::semantic_analysis::analyze;
     use crate::semantic_frontend::{format, parse, DIALECT_VERSION, FRONTEND_ID, MEDIA_TYPE};
     use crate::source::SourceDocument;
-    use crate::validation::Validate;
+    use crate::structural_analysis::analyze_structure;
+    use crate::target::TargetProfile;
+    use crate::target_lowering::lower_pcre2;
+    use crate::target_serialization::serialize_pcre2;
+    use crate::validation::{from_json, Validate};
 
     use super::{
         date_time, email, ip, url, uuid, HELPER_COUNT, REGISTRY_VERSION, SEMANTIC_VALIDATOR_COUNT,
@@ -581,6 +592,13 @@ mod tests {
 
     const CANONICAL_SEMANTICS: &str =
         include_str!("../../spec/stdlib/registry/1.0/canonical-semantics.json");
+    const TARGET_PROFILES: [&str; 5] = [
+        include_str!("../../spec/targets/profiles/ecmascript-2024.json"),
+        include_str!("../../spec/targets/profiles/pcre2-10.42.json"),
+        include_str!("../../spec/targets/profiles/pcre2-10.43.json"),
+        include_str!("../../spec/targets/profiles/python-re-3.11.json"),
+        include_str!("../../spec/targets/profiles/python-re-3.11-bytes.json"),
+    ];
 
     #[derive(Debug, Deserialize)]
     struct SemanticContract {
@@ -642,7 +660,7 @@ mod tests {
             },
             "provenance": {
                 "kind": "authored",
-                "description": "P14-T03 canonical standard-library Semantic DSL"
+                "description": "canonical standard-library Semantic DSL"
             }
         }))
         .expect("valid canonical stdlib source")
@@ -692,6 +710,55 @@ mod tests {
             | Node::Position { .. }
             | Node::Backreference { .. } => 0,
         }
+    }
+
+    fn target_artifact_projection(
+        program: &crate::semantic::SemanticProgram,
+        profile: &TargetProfile,
+    ) -> Value {
+        let foundational = analyze(program).expect("foundational analysis");
+        let structural = analyze_structure(program, &foundational).expect("structural analysis");
+        let evaluation = evaluate_capabilities(program, &foundational, &structural, profile)
+            .expect("capability evaluation");
+        let plan = plan_portability(program, &foundational, &structural, profile, &evaluation)
+            .expect("portability plan");
+        let profile_id = profile.profile_id.as_str();
+        if profile_id.starts_with("profile:pcre2/") {
+            let lowered = lower_pcre2(program, profile, &plan).expect("PCRE2 lowering");
+            let artifact =
+                serde_json::to_value(serialize_pcre2(&lowered).expect("PCRE2 serialization"))
+                    .expect("serialize PCRE2 artifact");
+            json!({"pattern": artifact["pattern"], "status": plan.status})
+        } else if profile_id.starts_with("profile:ecmascript/") {
+            let lowered = lower_ecmascript(program, profile, &plan).expect("ECMAScript lowering");
+            let artifact = serde_json::to_value(
+                serialize_ecmascript(&lowered).expect("ECMAScript serialization"),
+            )
+            .expect("serialize ECMAScript artifact");
+            json!({"pattern": artifact["pattern"], "status": plan.status})
+        } else {
+            let lowered = lower_python_re(program, profile, &plan).expect("Python re lowering");
+            let pattern_kind = match lowered.pattern_kind {
+                PythonRePatternKind::Str => "str",
+                PythonRePatternKind::Bytes => "bytes",
+            };
+            let artifact = serde_json::to_value(
+                serialize_python_re(&lowered).expect("Python re serialization"),
+            )
+            .expect("serialize Python re artifact");
+            json!({
+                "pattern": artifact["pattern"],
+                "pattern_kind": pattern_kind,
+                "status": plan.status,
+            })
+        }
+    }
+
+    fn next_seed(seed: &mut u64) -> u64 {
+        *seed ^= *seed << 13;
+        *seed ^= *seed >> 7;
+        *seed ^= *seed << 17;
+        *seed
     }
 
     #[test]
@@ -802,7 +869,7 @@ mod tests {
                 },
                 "provenance": {
                     "kind": "authored",
-                    "description": "P14-T03 formatted standard-library Semantic DSL"
+                    "description": "formatted canonical standard-library Semantic DSL"
                 }
             }))
             .expect("valid formatted source");
@@ -819,6 +886,81 @@ mod tests {
                 semantic_projection(&reparsed.program),
                 "parse/format/parse differs for {}",
                 entry.variant_id
+            );
+        }
+    }
+
+    #[test]
+    fn fixed_seed_selectors_forms_and_target_artifacts_are_deterministic() {
+        let contract: SemanticContract =
+            serde_json::from_str(CANONICAL_SEMANTICS).expect("canonical semantics contract");
+        let profiles: Vec<TargetProfile> = TARGET_PROFILES
+            .iter()
+            .map(|source| from_json(source).expect("valid target profile"))
+            .collect();
+        let mut seed = 0x5e71_1a9d_c4b3_082fu64;
+
+        for _ in 0..128 {
+            let entry = &contract.entries[next_seed(&mut seed) as usize % contract.entries.len()];
+            let first = build_variant(&entry.variant_id);
+            let second = build_variant(&entry.variant_id);
+            assert_eq!(first, second, "builder differs for {}", entry.variant_id);
+            let parsed = parse(&semantic_document(entry)).expect("parse canonical stdlib DSL");
+            assert_eq!(
+                semantic_projection(&first.program),
+                semantic_projection(&parsed.program),
+                "builder and DSL differ for {}",
+                entry.variant_id
+            );
+            for profile in &profiles {
+                let built_artifact = target_artifact_projection(&first.program, profile);
+                assert_eq!(
+                    built_artifact,
+                    target_artifact_projection(&second.program, profile),
+                    "repeated artifact differs for {}/{}",
+                    entry.variant_id,
+                    profile.profile_id.as_str()
+                );
+                assert_eq!(
+                    built_artifact,
+                    target_artifact_projection(&parsed.program, profile),
+                    "builder and DSL artifacts differ for {}/{}",
+                    entry.variant_id,
+                    profile.profile_id.as_str()
+                );
+            }
+        }
+
+        let selector_values = [
+            None,
+            Some(i64::MIN),
+            Some(-1),
+            Some(0),
+            Some(4),
+            Some(6),
+            Some(i64::MAX),
+        ];
+        for _ in 0..128 {
+            let generated = next_seed(&mut seed) as i64;
+            let selector = if next_seed(&mut seed) & 1 == 0 {
+                Some(generated)
+            } else {
+                selector_values[next_seed(&mut seed) as usize % selector_values.len()]
+            };
+            let expected_ip = match selector {
+                Some(4) => "ip.v4",
+                Some(6) => "ip.v6_full",
+                _ => "ip.either",
+            };
+            let expected_uuid = if selector == Some(4) {
+                "uuid.v4"
+            } else {
+                "uuid.generic"
+            };
+            assert_eq!(ip(selector).expect("IP selector").variant_id, expected_ip);
+            assert_eq!(
+                uuid(selector).expect("UUID selector").variant_id,
+                expected_uuid
             );
         }
     }

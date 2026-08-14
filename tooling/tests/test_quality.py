@@ -5,6 +5,7 @@ import sys
 import unittest
 from pathlib import Path
 from typing import cast
+from unittest.mock import patch
 
 
 TOOLING_DIR = Path(__file__).resolve().parents[1]
@@ -21,6 +22,7 @@ from quality import (  # noqa: E402
     _profile_exit,
     _profile_status,
     _parse_cli,
+    host_command,
     version_satisfies,
 )
 
@@ -168,6 +170,14 @@ def policy(
 
 
 class QualityRoutingTests(unittest.TestCase):
+    def test_repository_python_hardgates_use_the_active_windows_runtime(self) -> None:
+        with patch("quality.sys.platform", "win32"):
+            command = host_command(["python3", "tooling/governance.py"])
+        self.assertEqual(
+            [sys.executable, "tooling/governance.py"],
+            command,
+        )
+
     def test_valid_and_all_selection(self) -> None:
         toolchain = Toolchain(policy(), Path.cwd())
         self.assertEqual(
@@ -635,6 +645,7 @@ class QualityRoutingTests(unittest.TestCase):
         self.assertIn("ecmascript_runtime_certification", full_ids)
         self.assertIn("python_re_runtime_certification", full_ids)
         self.assertIn("shared_cross_engine_certification", full_ids)
+        self.assertIn("stdlib_runtime_certification", full_ids)
         self.assertIn("portability_matrix_certification", full_ids)
         self.assertEqual(
             full_ids.index("pcre2_runtime_certification") + 1,
@@ -650,6 +661,10 @@ class QualityRoutingTests(unittest.TestCase):
         )
         self.assertEqual(
             full_ids.index("shared_cross_engine_certification") + 1,
+            full_ids.index("stdlib_runtime_certification"),
+        )
+        self.assertEqual(
+            full_ids.index("stdlib_runtime_certification") + 1,
             full_ids.index("portability_matrix_certification"),
         )
         self.assertNotIn(
@@ -669,6 +684,10 @@ class QualityRoutingTests(unittest.TestCase):
             [member["operation"] for member in local_members],
         )
         self.assertNotIn(
+            "stdlib_runtime_certification",
+            [member["operation"] for member in local_members],
+        )
+        self.assertNotIn(
             "pcre2_runtime_certification",
             [
                 member["operation"]
@@ -691,6 +710,13 @@ class QualityRoutingTests(unittest.TestCase):
         )
         self.assertNotIn(
             "portability_matrix_certification",
+            [
+                member["operation"]
+                for member in toolchain.profile("pull-request")["operations"]
+            ],
+        )
+        self.assertNotIn(
+            "stdlib_runtime_certification",
             [
                 member["operation"]
                 for member in toolchain.profile("pull-request")["operations"]
@@ -745,6 +771,18 @@ class QualityRoutingTests(unittest.TestCase):
             [
                 "python3",
                 "-m",
+                "tooling.stdlib_runtime_certification",
+                "--json",
+                "--check",
+                "--repeat-runs",
+                "2",
+            ],
+            toolchain.operation("stdlib_runtime_certification")["command"],
+        )
+        self.assertEqual(
+            [
+                "python3",
+                "-m",
                 "tooling.portability_matrix",
                 "--json",
                 "--check",
@@ -764,10 +802,14 @@ class QualityRoutingTests(unittest.TestCase):
         )
         self.assertEqual(
             release_ids.index("shared_cross_engine_certification") + 1,
+            release_ids.index("stdlib_runtime_certification"),
+        )
+        self.assertEqual(
+            release_ids.index("stdlib_runtime_certification") + 1,
             release_ids.index("portability_matrix_certification"),
         )
-        self.assertEqual("1.9.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.9.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual("1.10.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.10.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

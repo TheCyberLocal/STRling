@@ -9,6 +9,7 @@
         "entries",
         "kind",
         "registry_version",
+        "runtime_certification",
         "semantic_validator_count",
         "stress_cases"
     ],
@@ -22,6 +23,7 @@
         },
         "kind": { "const": "strling.canonical-stdlib-semantics" },
         "registry_version": { "const": "1.0.0" },
+        "runtime_certification": { "$ref": "#/$defs/RuntimeCertification" },
         "semantic_validator_count": { "const": 0 },
         "stress_cases": {
             "type": "array",
@@ -61,6 +63,31 @@
                 }
             }
         },
+        "FixtureBinding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "expected_match",
+                "fixture_key",
+                "helper_id",
+                "variant_id"
+            ],
+            "properties": {
+                "expected_match": { "type": "boolean" },
+                "fixture_key": {
+                    "type": "string",
+                    "pattern": "^(?:invalid|valid)(?:_[a-z0-9]+)?$"
+                },
+                "helper_id": {
+                    "type": "string",
+                    "pattern": "^stdlib\\.[a-z][a-z0-9_]*$"
+                },
+                "variant_id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_.]+$"
+                }
+            }
+        },
         "InputRecipe": {
             "type": "object",
             "additionalProperties": false,
@@ -70,6 +97,96 @@
                 "prefix": { "type": "string" },
                 "repeat": { "type": "string", "minLength": 1, "maxLength": 1 },
                 "suffix": { "type": "string" }
+            }
+        },
+        "RuntimeCertification": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "application_counts",
+                "fixture_bindings",
+                "profiles",
+                "record_counts",
+                "repeat_runs"
+            ],
+            "properties": {
+                "application_counts": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["execute", "not_applicable"],
+                    "properties": {
+                        "execute": { "const": 580 },
+                        "not_applicable": { "const": 5 }
+                    }
+                },
+                "fixture_bindings": {
+                    "type": "array",
+                    "minItems": 14,
+                    "maxItems": 14,
+                    "items": { "$ref": "#/$defs/FixtureBinding" }
+                },
+                "profiles": {
+                    "type": "array",
+                    "minItems": 5,
+                    "maxItems": 5,
+                    "items": { "$ref": "#/$defs/RuntimeProfile" }
+                },
+                "record_counts": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["audited", "compatibility", "stress", "total"],
+                    "properties": {
+                        "audited": { "const": 40 },
+                        "compatibility": { "const": 60 },
+                        "stress": { "const": 17 },
+                        "total": { "const": 117 }
+                    }
+                },
+                "repeat_runs": { "const": 2 }
+            }
+        },
+        "RuntimeProfile": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "execution_adapter",
+                "non_ascii_subjects",
+                "subject_representation",
+                "target_native_digit_model",
+                "target_profile"
+            ],
+            "properties": {
+                "execution_adapter": {
+                    "enum": [
+                        "node-regexp-v1",
+                        "pcre2-ctypes-v1",
+                        "python-re-v1"
+                    ]
+                },
+                "non_ascii_subjects": { "enum": ["execute", "not_applicable"] },
+                "subject_representation": {
+                    "enum": ["ascii-bytes", "utf8-text"]
+                },
+                "target_native_digit_model": { "enum": ["ascii", "unicode"] },
+                "target_profile": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["profile_id", "profile_version", "sha256"],
+                    "properties": {
+                        "profile_id": {
+                            "pattern": "^profile:[a-z0-9-]+/[A-Za-z0-9.-]+$",
+                            "type": "string"
+                        },
+                        "profile_version": {
+                            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+                            "type": "string"
+                        },
+                        "sha256": {
+                            "pattern": "^[0-9a-f]{64}$",
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "StressCase": {

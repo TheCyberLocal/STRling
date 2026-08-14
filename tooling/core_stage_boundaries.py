@@ -9,6 +9,10 @@ def _first_forbidden(source: str, markers: tuple[str, ...]) -> str | None:
     return next((marker for marker in markers if marker in source), None)
 
 
+def _production_source(source: str) -> str:
+    return source.lower().split("\n#[cfg(test)]", maxsplit=1)[0]
+
+
 def diagnostic_generation_boundary_violation(
     source_texts: Mapping[str, str],
 ) -> str | None:
@@ -489,7 +493,7 @@ def semantic_rewrite_boundary_violation(
     for candidate, text in source_texts.items():
         if candidate in {path, "core/src/lib.rs"}:
             continue
-        if "request_semantic_rewrite(" in text.lower():
+        if "request_semantic_rewrite(" in _production_source(text):
             return (
                 f"semantic rewrite request has an ungoverned direct caller: {candidate}"
             )
@@ -773,7 +777,7 @@ def pcre2_target_lowering_boundary_violation(
     for candidate, text in source_texts.items():
         if candidate in {path, "core/src/lib.rs"}:
             continue
-        if "lower_pcre2(" in text.lower():
+        if "lower_pcre2(" in _production_source(text):
             return (
                 "PCRE2 target lowering has an ungoverned direct caller before "
                 f"canonical orchestration exists: {candidate}"
@@ -884,7 +888,7 @@ def ecmascript_target_lowering_boundary_violation(
     for candidate, text in source_texts.items():
         if candidate in {path, "core/src/lib.rs"}:
             continue
-        if "lower_ecmascript(" in text.lower():
+        if "lower_ecmascript(" in _production_source(text):
             return (
                 "ECMAScript target lowering has an ungoverned direct caller before "
                 f"canonical orchestration exists: {candidate}"
@@ -1006,7 +1010,7 @@ def python_re_target_lowering_boundary_violation(
     for candidate, text in source_texts.items():
         if candidate in {path, "core/src/lib.rs"}:
             continue
-        if "lower_python_re(" in text.lower():
+        if "lower_python_re(" in _production_source(text):
             return (
                 "Python re target lowering has an ungoverned direct caller before "
                 f"canonical orchestration exists: {candidate}"
@@ -1130,7 +1134,7 @@ def python_re_target_serialization_boundary_violation(
     for candidate, text in source_texts.items():
         if candidate in {path, "core/src/lib.rs"}:
             continue
-        if "serialize_python_re(" in text.lower():
+        if "serialize_python_re(" in _production_source(text):
             return (
                 "Python re target serialization has an ungoverned direct caller before "
                 f"canonical orchestration exists: {candidate}"
@@ -1250,7 +1254,7 @@ def ecmascript_target_serialization_boundary_violation(
     for candidate, text in source_texts.items():
         if candidate in {path, "core/src/lib.rs"}:
             continue
-        if "serialize_ecmascript(" in text.lower():
+        if "serialize_ecmascript(" in _production_source(text):
             return (
                 "ECMAScript target serialization has an ungoverned direct caller before "
                 f"canonical orchestration exists: {candidate}"
@@ -1575,7 +1579,7 @@ def pcre2_target_serialization_boundary_violation(
     for candidate, text in source_texts.items():
         if candidate in {path, "core/src/lib.rs"}:
             continue
-        if "serialize_pcre2(" in text.lower():
+        if "serialize_pcre2(" in _production_source(text):
             return (
                 "PCRE2 target serialization has an ungoverned direct caller before "
                 f"canonical orchestration exists: {candidate}"
