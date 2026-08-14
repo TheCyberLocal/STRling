@@ -147,19 +147,23 @@ if an upstream VSIX field is inherently variable, certification compares the
 closed extracted-entry manifest and records the excluded field explicitly.
 There is no whole-directory or filename-only equivalence.
 
-The registered generated-artifact entry will name every authoritative input,
-run the cross-platform builder, require the certification verifier, and retire
-its transitional status. `dist/**` and `*.vsix` stay ignored and unchecked in.
+The registered generated-artifact entry names every authoritative input, runs
+the cross-platform builder, and requires the certification verifier. It is a
+verified candidate because the generic generated-artifact check enforces only
+checked-in projections; the dedicated Full/Release profile and CI checks own
+the expensive, self-cleaning package certification. `dist/**` and `*.vsix`
+stay ignored and unchecked in.
 
 ## Closed verification design
 
 CP2 will freeze a shrinkage-resistant package corpus before implementation. It
 will cover exact target mappings, required and forbidden paths, resource and
-executable hashes, manifest mutation cases, activation and all 18 language
-routes, settings and override behavior, Python-missing failure, both canonical
-processes, every LSP feature, embedded islands, CLI/editor identity, bounded
-service failures, offline execution, install/upgrade/uninstall in an isolated
-extension directory, and duplicate-build equivalence.
+executable hashes, manifest mutation cases, activation and every declared
+document selector, settings and override behavior, Python-missing failure,
+both canonical processes, every LSP feature, embedded islands, CLI/editor
+identity, bounded service failures, offline execution,
+install/upgrade/uninstall in an isolated extension directory, and
+duplicate-build equivalence.
 
 Package end-to-end cases launch the generated server over stdio and compare
 its diagnostics and editor projections with the packaged canonical processes
@@ -186,6 +190,44 @@ target/runner mapping, island-registry alignment, canonical-only payload,
 offline runtime, owned extension surface, all case dimensions, and
 denominator-removal resistance. These tests define evidence requirements; they
 do not claim that the starting implementation already satisfies them.
+
+## CP3 implementation and local certification evidence
+
+Commit `b8b2d54cffb9d86093205964de2a2193314f80fc` implements the closed
+package contract with the cross-platform canonical builder, packaged runtime
+wiring, zero-external-dependency Python transport, client activation harness,
+payload mutation tests, generated-artifact governance, security inventory,
+profile membership, documentation, and four-target CI matrix. The complete
+source-tree LSP suite passed with 566 tests; the focused package suite passed
+with 22 tests; focused governance, security, and profile coverage passed with
+122 tests and 15 subtests.
+
+The clean-tree `win32-x64` certification at that commit completed two
+independent locked release builds and produced the following evidence:
+
+-   21 payload files; reproducible payload fingerprint
+    `sha256:f2d1a60e1f3c87fc2df1788ba1689b9890e36049dae0dc289999647f078d042d`;
+-   23 normalized VSIX entries; reproducible entry fingerprint
+    `sha256:a2e8ed3266da4c18d734a34747d3de68684b8f419144b10d964de3a62533f55f`;
+-   certified VSIX digest
+    `sha256:594c358c776162047bc13482aa3c0ad43a2edf7469427d14b4c2b0fc2307eea7`;
+-   kernel and editor runtime fingerprints
+    `sha256:a1856b3c02db54ebf6436e35528c25e474cef3031b948d335fc298eaebb0bc46`
+    and
+    `sha256:ec13294dfe735c7d9a6de382a43e79ea25a95cd45ad34bfd0c67845dc0319b88`;
+-   all ten editor feature families passed over packaged stdio, with canonical
+    result fingerprint
+    `sha256:1f7e58e5d51ba5b8c7df420d3f32424ffee1631159a0e42ed99960f671f984d7`
+    and evidence fingerprint
+    `sha256:79c940ea423706c8ee25800e7b0cb26b669a07413da28caa18b0da3da1c6f2d7`;
+    and
+-   isolated install, upgrade, and uninstall all passed.
+
+The post-commit repository content/workflow security scan passed all four
+checks with zero failed, incomplete, unavailable, or waived results. This is
+native Windows evidence only. Linux x64, macOS x64, and macOS arm64 retain
+their declared matching CI runners and remain unclaimed until those runners
+produce retained artifacts and evidence.
 
 CI will run the same certification command on all four supported runner/target
 pairs and retain the content manifest and VSIX as test evidence. No workflow in
