@@ -14,6 +14,7 @@
                 "core/src/semantic_conversion.rs",
                 "core/src/simply.rs",
                 "bindings/c/include/strling.h",
+                "bindings/interop/include/strling_interop.h",
                 "bindings/go/*.go",
                 "bindings/python/src/STRling/**",
                 "bindings/r/NAMESPACE",
@@ -38,6 +39,7 @@
                 "core/src/semantic_conversion.rs",
                 "core/src/simply.rs",
                 "bindings/c/include/strling.h",
+                "bindings/interop/include/strling_interop.h",
                 "bindings/go/*.go",
                 "bindings/python/src/STRling/**",
                 "bindings/r/NAMESPACE",
@@ -59,6 +61,7 @@
             },
             "outputs": [
                 "governance/contracts/snapshots/c-public-api.json",
+                "governance/contracts/snapshots/strling-interop.json",
                 "governance/contracts/snapshots/go-public-api.json",
                 "governance/contracts/snapshots/python-public-api.json",
                 "governance/contracts/snapshots/strling-kernel.json",
@@ -77,6 +80,39 @@
             "verification": {
                 "method": "command-check",
                 "command": ["./strling", "contracts", "--check"]
+            },
+            "enforcement": "enforced"
+        },
+        {
+            "id": "interop-c-header",
+            "category": "binding-generated-asset",
+            "description": "Installed native C declarations projected from the versioned canonical interop ABI descriptor.",
+            "authoritative_sources": ["spec/interop/1.0/abi.json"],
+            "generator_inputs": [
+                "spec/interop/1.0/abi.json",
+                "spec/interop/1.0/abi.schema.json",
+                "tooling/interop_contract.py"
+            ],
+            "generator": {
+                "implementation_paths": ["tooling/interop_contract.py"],
+                "command": [
+                    "python3",
+                    "tooling/interop_contract.py",
+                    "--write-header"
+                ],
+                "working_directory": "."
+            },
+            "outputs": ["bindings/interop/include/strling_interop.h"],
+            "determinism": "verified",
+            "checked_in": true,
+            "authority": "operational-projection",
+            "verification": {
+                "method": "command-check",
+                "command": [
+                    "python3",
+                    "tooling/interop_contract.py",
+                    "--check-header"
+                ]
             },
             "enforcement": "enforced"
         },
@@ -303,6 +339,7 @@
                 "bindings/dart/pubspec.yaml",
                 "bindings/php/composer.json",
                 "bindings/ruby/Gemfile",
+                "bindings/interop/Cargo.toml",
                 "bindings/rust/Cargo.toml",
                 "bindings/typescript/package.json",
                 "tooling/lsp-server/package.json"
@@ -312,6 +349,7 @@
                 "bindings/dart/pubspec.yaml",
                 "bindings/php/composer.json",
                 "bindings/ruby/Gemfile",
+                "bindings/interop/Cargo.toml",
                 "bindings/rust/Cargo.toml",
                 "bindings/typescript/package.json",
                 "tooling/lsp-server/package.json"
@@ -326,6 +364,7 @@
                 "bindings/dart/pubspec.lock",
                 "bindings/php/composer.lock",
                 "bindings/ruby/Gemfile.lock",
+                "bindings/interop/Cargo.lock",
                 "bindings/rust/Cargo.lock",
                 "bindings/typescript/package-lock.json",
                 "tooling/lsp-server/package-lock.json"

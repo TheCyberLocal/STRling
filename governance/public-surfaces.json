@@ -39,6 +39,36 @@
             "activation_condition": "Activate after declaration parsing, normalization, stale-snapshot, symbol-addition, removal, and signature-change tests pass."
         },
         {
+            "id": "strling-interop",
+            "ecosystem": "C",
+            "component": "interop",
+            "kind": "host-api",
+            "source_locations": ["bindings/interop/include/strling_interop.h"],
+            "extraction": {
+                "mechanism": "c-header-declarations",
+                "command": [
+                    "python3",
+                    "tooling/public_contracts.py",
+                    "--surface",
+                    "strling-interop"
+                ],
+                "normalization": [
+                    "strip comments and include guards",
+                    "collapse declaration whitespace",
+                    "preserve function, typedef, field, and constant structure"
+                ],
+                "exclusions": [
+                    "Rust implementation details under bindings/interop/src",
+                    "raw WebAssembly exports governed directly by spec/interop/1.0/abi.json"
+                ]
+            },
+            "snapshot_path": "governance/contracts/snapshots/strling-interop.json",
+            "authority": "versioned-contract",
+            "comparison": "declaration-set",
+            "enforcement": "enforced",
+            "activation_condition": "Active with P17-T01 after generated-header determinism, stale-snapshot detection, symbol addition/removal, and signature-change checks pass."
+        },
+        {
             "id": "cpp-public-api",
             "ecosystem": "C++",
             "component": "cpp",

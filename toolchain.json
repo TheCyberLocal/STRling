@@ -1196,6 +1196,60 @@
             "test": ["cargo", "test", "--all-targets"],
             "required_bins": ["cargo", "rustc"]
         },
+        "interop": {
+            "path": "bindings/interop",
+            "language": "Rust",
+            "runtime": "rustc",
+            "dependency_resolution": {
+                "model": "repository_managed",
+                "reason": "bindings/interop/Cargo.lock governs the isolated native and raw WebAssembly adapter dependency graph."
+            },
+            "files": {
+                "manifests": ["Cargo.toml"],
+                "locks": ["Cargo.lock"],
+                "configs": []
+            },
+            "capabilities": {
+                "format": "configured",
+                "format_check": "enforced",
+                "hygiene": "not_applicable",
+                "lint": "enforced",
+                "typecheck": "enforced",
+                "build": "configured",
+                "test": "enforced"
+            },
+            "formatters": ["rustfmt 1.7.0"],
+            "operation_tools": {
+                "format": ["rustfmt"],
+                "format_check": ["rustfmt"],
+                "lint": ["clippy"],
+                "typecheck": ["cargo", "rustc"],
+                "build": ["cargo", "rustc"],
+                "test": ["cargo", "rustc"]
+            },
+            "format": ["cargo", "fmt"],
+            "format_check": ["cargo", "fmt", "--", "--check"],
+            "lint": [
+                "cargo",
+                "clippy",
+                "--all-targets",
+                "--locked",
+                "--",
+                "-D",
+                "warnings"
+            ],
+            "typecheck": [
+                "env",
+                "RUSTFLAGS=-Dwarnings",
+                "cargo",
+                "check",
+                "--all-targets",
+                "--locked"
+            ],
+            "build": ["cargo", "build", "--locked"],
+            "test": ["cargo", "test", "--all-targets", "--locked"],
+            "required_bins": ["cargo", "rustc"]
+        },
         "repository": {
             "path": ".",
             "language": "Repository tooling",

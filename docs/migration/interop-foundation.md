@@ -9,7 +9,7 @@ live under [`spec/interop/1.0`](../../spec/interop/1.0/README.md). Embedded
 retain their existing authority. The migration record controls task evidence;
 it does not create language semantics.
 
-The additive reference bridge will live under `bindings/interop` and depend
+The additive reference bridge lives under `bindings/interop` and depends
 only on the public `strling-kernel` facade. It may own JSON transport, raw C and
 WebAssembly buffer handling, panic/error conversion, generated headers, and
 package artifacts. It may not own a parser, semantic validator, target planner,
@@ -57,7 +57,7 @@ hostile-input corpus must remain panic-free. All pointer retention, allocator
 crossing, implicit profile selection, filesystem/network access, shared-memory
 WASM, publication, and host package migration are excluded.
 
-## Verification design to freeze in CP2
+## Frozen verification design
 
 Before implementation, CP2 will create a shrinkage-resistant corpus covering:
 
@@ -96,11 +96,42 @@ requirements, not implementation results: platform, fuzz, sanitizer, native
 lifecycle, and WASM-host claims remain unpassed until their named runners
 execute in CP3/CP4.
 
+## Minimal implementation and local proof
+
+CP3 implements the four operations once in a safe byte dispatcher and places
+all unsafe code at the native and raw WASM pointer edges. Native entrypoints
+contain unwinding, retain no caller memory, use an owned response descriptor,
+and remain reentrant. The WebAssembly build uses the same dispatcher, imports
+no host capability, validates linear-memory ranges, copies request bytes before
+response allocation, and isolates ownership per module instance.
+
+The installed C header is generated only from `abi.json`, then captured by the
+enforced `strling-interop` public declaration snapshot. The Rust dependency
+graph is isolated by its own manifest and lockfile. The Rust toolchain normally
+exports `__data_end` and `__heap_base` metadata globals for a `cdylib`; the
+deterministic sealing step removes only those two known globals and rejects any
+other unexpected export, producing the exact governed surface of memory plus
+five functions.
+
+Local proof at the pinned Rust 1.75 floor passes 19 Rust tests: three internal
+serialization/panic tests, three native lifecycle tests, ten protocol tests,
+and three bounded property tests. The property corpus executes 517 arbitrary
+byte lengths, five structured envelope mutations, and 256 execute/free cycles.
+The sealed WASM module passes exact six-export/zero-import inspection plus a
+two-instance Node lifecycle covering allocate, write, execute, read, response
+free, request/descriptor deallocation, malformed UTF-8, misalignment,
+out-of-range pointers, nonempty descriptors, and instance isolation.
+
+These local results certify `x86_64-pc-windows-msvc` behavior and
+`wasm32-unknown-unknown` under the available Node host. They do not certify the
+three other declared native targets, sanitizer runners, or cargo-fuzz; those
+remain CP4 requirements.
+
 ## Checkpoint state
 
 CP1 locks the boundary above without implementing or migrating a host package.
 CP2 owns the now-frozen closed evidence denominator and mutation-resistant
-verification. CP3 will add the minimal bridge, generated C header, and local
+verification. CP3 adds the minimal bridge, generated C header, and local
 native/WASM proof.
 CP4 will run ABI/public snapshots, platform/toolchain coverage, differential and
 repository profiles. FINAL will record exact protocol/ABI fingerprints,

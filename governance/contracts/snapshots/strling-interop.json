@@ -1,0 +1,16 @@
+{
+    "format": "declarations",
+    "snapshot_version": 1,
+    "surface": "strling-interop",
+    "symbols": {
+        "#define STRLING_INTEROP_API __attribute__((visibility(\"default\")))": "#define STRLING_INTEROP_API __attribute__((visibility(\"default\")))",
+        "#define STRLING_INTEROP_API __declspec(dllexport)": "#define STRLING_INTEROP_API __declspec(dllexport)",
+        "#define STRLING_INTEROP_API __declspec(dllimport)": "#define STRLING_INTEROP_API __declspec(dllimport)",
+        "STRLING_INTEROP_API strling_interop_status_v1 strling_interop_execute_v1(const uint8_t *request_data, size_t request_len, strling_interop_owned_bytes_v1 *output);": "STRLING_INTEROP_API strling_interop_status_v1 strling_interop_execute_v1(const uint8_t *request_data, size_t request_len, strling_interop_owned_bytes_v1 *output);",
+        "STRLING_INTEROP_API strling_interop_status_v1 strling_interop_owned_bytes_free_v1(strling_interop_owned_bytes_v1 *output);": "STRLING_INTEROP_API strling_interop_status_v1 strling_interop_owned_bytes_free_v1(strling_interop_owned_bytes_v1 *output);",
+        "STRLING_INTEROP_API uint32_t strling_interop_abi_version_v1(void);": "STRLING_INTEROP_API uint32_t strling_interop_abi_version_v1(void);",
+        "enum { STRLING_INTEROP_STATUS_RESPONSE_WRITTEN = 0, STRLING_INTEROP_STATUS_INVALID_ARGUMENT = 1, STRLING_INTEROP_STATUS_OUTPUT_NOT_EMPTY = 2, STRLING_INTEROP_STATUS_PANIC = 3, STRLING_INTEROP_STATUS_INTERNAL_FAILURE = 4, };": "enum { STRLING_INTEROP_STATUS_RESPONSE_WRITTEN = 0, STRLING_INTEROP_STATUS_INVALID_ARGUMENT = 1, STRLING_INTEROP_STATUS_OUTPUT_NOT_EMPTY = 2, STRLING_INTEROP_STATUS_PANIC = 3, STRLING_INTEROP_STATUS_INTERNAL_FAILURE = 4, };",
+        "typedef struct strling_interop_owned_bytes_v1 { uint8_t *data; size_t len; } strling_interop_owned_bytes_v1;": "typedef struct strling_interop_owned_bytes_v1 { uint8_t *data; size_t len; } strling_interop_owned_bytes_v1;",
+        "typedef uint32_t strling_interop_status_v1;": "typedef uint32_t strling_interop_status_v1;"
+    }
+}

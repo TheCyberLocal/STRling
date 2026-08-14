@@ -9,6 +9,7 @@ from tooling.interop_contract import (
     InteropContractError,
     InteropContractSuite,
     _fingerprint_json,
+    render_c_header,
 )
 
 
@@ -98,6 +99,21 @@ class InteropContractTests(unittest.TestCase):
         abi["wasm_abi"]["host_imports"] = ["wasi_snapshot_preview1"]
         with self.assertRaises(InteropContractError):
             self.suite.certify_documents(abi, self.manifest)
+
+    def test_c_header_is_derived_from_exact_native_descriptor(self) -> None:
+        header = render_c_header(self.abi)
+        for symbol in self.abi["native_abi"]["symbols"]:
+            self.assertEqual(1, header.count(symbol["name"]))
+        for status in self.abi["native_abi"]["status_values"]:
+            self.assertIn(f"{status['name']} = {status['value']}", header)
+        self.assertIn("uint8_t *data;", header)
+        self.assertIn("size_t len;", header)
+
+    def test_c_header_rejects_unmapped_native_signature(self) -> None:
+        abi = deepcopy(self.abi)
+        abi["native_abi"]["symbols"][0]["signature"] = "opaque(void)"
+        with self.assertRaisesRegex(InteropContractError, "unsupported native"):
+            render_c_header(abi)
 
 
 if __name__ == "__main__":

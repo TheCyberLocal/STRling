@@ -62,6 +62,17 @@
             "risk_mode": "cargo_audit"
         },
         {
+            "id": "interop-cargo",
+            "ecosystem": "cargo",
+            "classification": "actively_governed",
+            "usage": "runtime",
+            "manifests": ["bindings/interop/Cargo.toml"],
+            "locks": ["bindings/interop/Cargo.lock"],
+            "lock_policy": "required",
+            "integrity_mode": "cargo_lock",
+            "risk_mode": "cargo_audit"
+        },
+        {
             "id": "rust-binding-cargo",
             "ecosystem": "cargo",
             "classification": "actively_governed",

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
@@ -14,6 +15,18 @@ from jsonschema import Draft202012Validator
 
 
 ROOT = Path(__file__).resolve().parents[1]
+HEADER_PATH = ROOT / "bindings" / "interop" / "include" / "strling_interop.h"
+WASM_RAW_PATH = (
+    ROOT
+    / "bindings"
+    / "interop"
+    / "target"
+    / "wasm32-unknown-unknown"
+    / "release"
+    / "strling_interop.wasm"
+)
+WASM_CLOSED_PATH = WASM_RAW_PATH.with_name("strling_interop.closed.wasm")
+WASM_HOST_PATH = ROOT / "tests" / "interop" / "wasm_host.mjs"
 CONTRACT_FILES = (
     "spec/interop/1.0/README.md",
     "spec/interop/1.0/abi.json",
@@ -257,12 +270,156 @@ class InteropContractSuite:
             raise InteropContractError("WASM host capability boundary changed")
 
 
+def render_c_header(abi: dict[str, Any]) -> str:
+    """Render the native C surface solely from the canonical ABI descriptor."""
+    InteropContractSuite._validate_abi(abi)
+    native = abi["native_abi"]
+    descriptor = native["output_descriptor"]
+    if descriptor != {
+        "name": "strling_interop_owned_bytes_v1",
+        "fields": [
+            {"name": "data", "type": "uint8_pointer"},
+            {"name": "len", "type": "size_t"},
+        ],
+    }:
+        raise InteropContractError("unsupported native output descriptor")
+    signatures = {
+        "uint32_t(void)": "uint32_t {name}(void);",
+        "status(const uint8_t*,size_t,owned_bytes*)": (
+            "strling_interop_status_v1 {name}(const uint8_t *request_data, "
+            "size_t request_len, strling_interop_owned_bytes_v1 *output);"
+        ),
+        "status(owned_bytes*)": (
+            "strling_interop_status_v1 {name}(strling_interop_owned_bytes_v1 *output);"
+        ),
+    }
+    declarations: list[str] = []
+    for symbol in native["symbols"]:
+        template = signatures.get(symbol["signature"])
+        if template is None:
+            raise InteropContractError(
+                f"unsupported native symbol signature: {symbol['signature']}"
+            )
+        declarations.append(
+            "STRLING_INTEROP_API " + template.format(name=symbol["name"])
+        )
+    statuses = "\n".join(
+        f"    {item['name']} = {item['value']}," for item in native["status_values"]
+    )
+    symbols = "\n".join(declarations)
+    return f"""/* Generated from spec/interop/1.0/abi.json. Do not edit. */
+#ifndef STRLING_INTEROP_H
+#define STRLING_INTEROP_H
+
+#include <stddef.h>
+#include <stdint.h>
+
+#if defined(_WIN32) && defined(STRLING_INTEROP_SHARED)
+#  if defined(STRLING_INTEROP_BUILD)
+#    define STRLING_INTEROP_API __declspec(dllexport)
+#  else
+#    define STRLING_INTEROP_API __declspec(dllimport)
+#  endif
+#elif defined(__GNUC__) && defined(STRLING_INTEROP_SHARED)
+#  define STRLING_INTEROP_API __attribute__((visibility("default")))
+#else
+#  define STRLING_INTEROP_API
+#endif
+
+#ifdef __cplusplus
+extern "C" {{
+#endif
+
+typedef uint32_t strling_interop_status_v1;
+
+enum {{
+{statuses}
+}};
+
+typedef struct strling_interop_owned_bytes_v1 {{
+    uint8_t *data;
+    size_t len;
+}} strling_interop_owned_bytes_v1;
+
+{symbols}
+
+#ifdef __cplusplus
+}}
+#endif
+
+#endif /* STRLING_INTEROP_H */
+"""
+
+
+def write_or_check_header(*, check: bool) -> None:
+    abi = _read_json(ROOT / "spec" / "interop" / "1.0" / "abi.json")
+    expected = render_c_header(abi)
+    if check:
+        try:
+            actual = HEADER_PATH.read_text(encoding="utf-8")
+        except OSError as error:
+            raise InteropContractError(f"cannot read {HEADER_PATH}: {error}") from error
+        if actual != expected:
+            raise InteropContractError("generated interop C header is stale")
+        return
+    HEADER_PATH.parent.mkdir(parents=True, exist_ok=True)
+    HEADER_PATH.write_text(expected, encoding="utf-8")
+
+
+def certify_runtime() -> dict[str, Any]:
+    """Seal and execute the already-built WASM artifact through the Node host."""
+    try:
+        from tooling.interop_wasm import WasmContractError, inspect_module, seal_module
+    except ModuleNotFoundError:
+        from interop_wasm import WasmContractError, inspect_module, seal_module
+
+    write_or_check_header(check=True)
+    try:
+        sealed = seal_module(WASM_RAW_PATH.read_bytes())
+        WASM_CLOSED_PATH.write_bytes(sealed)
+        exports = inspect_module(sealed)
+        completed = subprocess.run(
+            ["node", str(WASM_HOST_PATH), str(WASM_CLOSED_PATH)],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, WasmContractError) as error:
+        raise InteropContractError(
+            f"WASM certification setup failed: {error}"
+        ) from error
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or completed.stdout.strip()
+        raise InteropContractError(f"WASM host certification failed: {detail}")
+    lines = [line for line in completed.stdout.splitlines() if line.strip()]
+    try:
+        host = json.loads(lines[-1])
+    except (IndexError, json.JSONDecodeError) as error:
+        raise InteropContractError("WASM host emitted no structured result") from error
+    if not isinstance(host, dict) or host.get("status") != "passed":
+        raise InteropContractError("WASM host did not report a passing result")
+    return {
+        "wasm_exports": len(exports),
+        "wasm_imports": 0,
+        "wasm_instances": host.get("instances"),
+        "wasm_lifecycle": host.get("lifecycle"),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true", help="emit JSON evidence")
+    header = parser.add_mutually_exclusive_group()
+    header.add_argument("--write-header", action="store_true")
+    header.add_argument("--check-header", action="store_true")
+    header.add_argument("--certify", action="store_true")
     args = parser.parse_args(argv)
     try:
         report = InteropContractSuite().certify()
+        if args.write_header or args.check_header:
+            write_or_check_header(check=args.check_header)
+        runtime = certify_runtime() if args.certify else {}
     except InteropContractError as error:
         print(f"INTEROP_CONTRACT status=failed error={error}")
         return 1
@@ -272,6 +429,7 @@ def main(argv: list[str] | None = None) -> int:
         "evidence_fingerprint": report.evidence_fingerprint,
         "case_count": report.case_count,
         "family_counts": report.family_counts,
+        **runtime,
     }
     if args.json:
         print(json.dumps(payload, sort_keys=True))

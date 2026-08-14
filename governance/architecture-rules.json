@@ -100,6 +100,22 @@
             }
         },
         {
+            "id": "canonical-interop-dependency-boundary",
+            "description": "The canonical interop bridge may transport versioned contracts and call the public kernel, but must not depend on historical bindings or repository tooling implementations.",
+            "status": "enforced",
+            "kind": "rust-crate-boundary",
+            "configuration": {
+                "manifest": "bindings/interop/Cargo.toml",
+                "sources": ["bindings/interop/src/**/*.rs"],
+                "forbidden_repository_roots": [
+                    "bindings/c",
+                    "bindings/cpp",
+                    "bindings/rust",
+                    "tooling"
+                ]
+            }
+        },
+        {
             "id": "canonical-ci-profile-routing",
             "description": "CI and release workflows must use canonical profiles as certification authority and retain their structured artifacts without redefining pass or fail.",
             "status": "enforced",

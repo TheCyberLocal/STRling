@@ -25,10 +25,12 @@ scope:
         - tests/interop/**
         - toolchain.json
         - tooling/interop_contract.py
+        - tooling/interop_wasm.py
         - tooling/public_contracts.py
         - tooling/tests/test_generated_artifacts.py
         - tooling/tests/test_governance.py
         - tooling/tests/test_interop_contract.py
+        - tooling/tests/test_interop_wasm.py
         - tooling/tests/test_public_contracts.py
         - tooling/tests/test_quality.py
         - tooling/tests/test_security.py
@@ -52,12 +54,31 @@ scope:
         - tests/interop/1.0/manifest.json
         - tooling/interop_contract.py
         - tooling/tests/test_interop_contract.py
+        - tooling/interop_wasm.py
+        - tooling/tests/test_interop_wasm.py
+        - bindings/interop/Cargo.toml
+        - bindings/interop/Cargo.lock
+        - bindings/interop/README.md
+        - bindings/interop/src/lib.rs
+        - bindings/interop/src/native.rs
+        - bindings/interop/src/protocol.rs
+        - bindings/interop/src/wasm.rs
+        - bindings/interop/tests/native.rs
+        - bindings/interop/tests/protocol.rs
+        - bindings/interop/tests/property.rs
+        - tests/interop/wasm_host.mjs
+        - bindings/interop/include/strling_interop.h
+        - governance/contracts/snapshots/strling-interop.json
         - docs/migration/interop-foundation.md
         - docs/migration/records/interop-foundation.yaml
     permitted_generated_changes:
         - public-contract-snapshots
         - interop-c-header
-    expected_generated_outputs: []
+        - package-manager-lockfiles
+    expected_generated_outputs:
+        - public-contract-snapshots
+        - interop-c-header
+        - package-manager-lockfiles
     required_verification_levels:
         - contract
         - unit
@@ -97,9 +118,9 @@ change_classification:
         affected_surfaces:
             - host-interop-boundary
     generated_output_change:
-        level: none
+        level: additive
         evidence:
-            - CP1 changes only authoritative contract inputs; CP3 will update this declaration before generating the C header and public ABI snapshot.
+            - CP3 derives the installed C header from the canonical ABI descriptor, snapshots that enforced declaration surface, and resolves the isolated interop crate through its Cargo lockfile.
     documentation_only: false
     internal_implementation: true
 required_verification:
@@ -141,8 +162,24 @@ checkpoints:
             result: passed
             details: The validator and tests pass Ruff check/format; the evidence schema and manifest pass Prettier; patch whitespace is valid. Platform, native lifecycle, fuzz, sanitizer, and WASM-host case claims remain planned evidence rather than implementation passes.
     - name: Minimal implementation and local proof
-      status: planned
-      evidence: []
+      status: passed
+      evidence:
+          - check: Shared canonical dispatcher and native boundary
+            command: cargo +1.75.0 clippy --manifest-path bindings/interop/Cargo.toml --all-targets --locked --offline -- -D warnings && cargo +1.75.0 test --manifest-path bindings/interop/Cargo.toml --all-targets --locked --offline
+            result: passed
+            details: One safe dispatcher implements describe, compile, target_profile.inspect, and simply.compile through public kernel types. Nineteen Rust tests pass across internal serialization/panic containment, native lifecycle, protocol success/failure/profile/Simply behavior, 32-thread determinism, 517 bounded arbitrary-byte lengths, five structured mutations, and 256 execute/free sequences. Rustfmt and Clippy pass at the declared 1.75 floor.
+          - check: Raw WebAssembly build, closure, and host lifecycle
+            command: cargo +1.75.0 build --manifest-path bindings/interop/Cargo.toml --target wasm32-unknown-unknown --release --locked --offline && python tooling/interop_contract.py --certify --json
+            result: passed
+            details: The raw module builds at wasm32-unknown-unknown. Deterministic sealing removes only the Rust linker metadata globals and rejects every other extra export. The resulting module exposes exactly memory plus five governed functions, imports zero capabilities, and passes Node execution with two isolated instances through alloc/write/execute/read/free/dealloc, hostile UTF-8, alignment, range, and descriptor-state cases.
+          - check: Generated C surface and dependency isolation
+            command: python tooling/interop_contract.py --check-header && python tooling/public_contracts.py --surface strling-interop --check && python tooling/governance.py
+            result: passed
+            details: The installed header exactly reproduces from abi.json, the enforced strling-interop declaration snapshot is current, the interop Cargo lock resolves offline, and the new crate boundary forbids dependencies on historical C/C++/Rust bindings or repository tooling.
+          - check: Focused tooling and artifact quality
+            command: python -m unittest tooling.tests.test_interop_contract tooling.tests.test_interop_wasm -v && python -m ruff check tooling/interop_contract.py tooling/interop_wasm.py tooling/tests/test_interop_contract.py tooling/tests/test_interop_wasm.py && git diff --check
+            result: passed
+            details: Seventeen tooling tests pass, including evidence shrinkage, generated-header derivation, WASM section encoding/sealing, import closure, and unexpected-export rejection. The focused public surface passes. The repository-wide public-contract command reaches all other enforced surfaces but cannot execute the unchanged Go surface because Go is absent locally; that broader environment requirement remains CP4, not a CP3 pass.
     - name: Integration and certification
       status: planned
       evidence: []
@@ -152,3 +189,5 @@ checkpoints:
 commits:
     - sha: 421693b83da5a81f07fccb26ac4021ddaf61a73c
       subject: "docs(interop): lock canonical ABI contract"
+    - sha: eafbd514df8260be96c290f0fd29f8ef14f43ad6
+      subject: "test(interop): lock boundary evidence"
