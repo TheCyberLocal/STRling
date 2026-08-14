@@ -46,11 +46,13 @@ scope:
         - core/tests/migration_explanation_certification.rs
         - tests/certification/migration-explanation/1.0/certification.schema.json
         - tests/certification/migration-explanation/1.0/manifest.json
+        - toolchain.json
         - docs/migration/migration-explanation-certification.md
         - docs/migration/records/migration-explanation-certification.yaml
         - governance/change-control.json
         - tooling/migration_explanation_certification.py
         - tooling/tests/test_migration_explanation_certification.py
+        - tooling/tests/test_quality.py
     permitted_generated_changes: []
     expected_generated_outputs: []
     required_verification_levels:
@@ -148,10 +150,15 @@ checkpoints:
             result: passed
             details: All 10 new Python unit tests pass; 50 focused Python tests pass across the joined validator and frontend, semantic-explanation, conversion, no-match, and shared-target owners. Nineteen focused Rust tests pass across the new integration proof, frontend convergence, conversion convergence/properties, and no-match corpus/properties. Ruff format/check, rustfmt, Prettier, the structured hardgate command, governance, and patch integrity pass.
     - name: Integration and certification
-      status: planned
-      evidence: []
+      status: in_progress
+      evidence:
+          - check: Canonical profile registration and repository certification
+            result: not_run
+            details: CP4 registers the same structured offline certification operation exactly once after the migration differential in Local, Pull Request, Full, and Release. Quality/profile membership, adjacent subsystem, all-target, cross-engine, migration, architecture/public/generated/docs/security, Local/PR/Full, and clean-tree evidence must be recorded before this checkpoint closes.
 commits:
     - sha: 48d29b6a16f81bef05ca1698ef412ea182cdca34
       subject: "docs(certification): lock migration evidence scope"
     - sha: 618ff9c04220d7574e8e8fff90de24149085f809
       subject: "test(certification): define migration evidence corpus"
+    - sha: d92a6f835c6609dd5291ab247b2535c935916631
+      subject: "test(certification): implement migration proof gate"

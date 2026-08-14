@@ -568,8 +568,9 @@ class QualityRoutingTests(unittest.TestCase):
                 "legacy_reference_check",
                 "migration_comparison_check",
                 "migration_differential_gate",
+                "migration_explanation_certification",
             ],
-            [member["operation"] for member in local_members[:12]],
+            [member["operation"] for member in local_members[:13]],
         )
         self.assertEqual(
             ["python3", "tooling/security.py", "integrity", "--json"],
@@ -579,7 +580,7 @@ class QualityRoutingTests(unittest.TestCase):
             member for member in local_members if member["operation"] == "test"
         )
         self.assertEqual(["core"], local_test["targets"])
-        self.assertEqual("1.5.0", toolchain.profile("local")["definition_version"])
+        self.assertEqual("1.6.0", toolchain.profile("local")["definition_version"])
 
         self.assertEqual(
             ["python3", "tooling/core_contract_validation.py"],
@@ -614,6 +615,28 @@ class QualityRoutingTests(unittest.TestCase):
             ],
             toolchain.operation("migration_differential_gate")["command"],
         )
+        self.assertEqual(
+            [
+                "python3",
+                "-m",
+                "tooling.migration_explanation_certification",
+                "--json",
+                "--check",
+            ],
+            toolchain.operation("migration_explanation_certification")["command"],
+        )
+        self.assertEqual(
+            "certification-result-v1",
+            toolchain.operation("migration_explanation_certification")[
+                "result_contract"
+            ],
+        )
+        self.assertEqual(
+            "certification.migration-explanation",
+            toolchain.operation("migration_explanation_certification")[
+                "result_operation_id"
+            ],
+        )
         for profile_id in ["local", "pull-request", "full", "release"]:
             members = toolchain.profile(profile_id)["operations"]
             self.assertEqual(
@@ -622,6 +645,18 @@ class QualityRoutingTests(unittest.TestCase):
                     member["operation"] == "legacy_reference_check"
                     for member in members
                 ),
+            )
+            self.assertEqual(
+                1,
+                sum(
+                    member["operation"] == "migration_explanation_certification"
+                    for member in members
+                ),
+            )
+            ids = [member["operation"] for member in members]
+            self.assertEqual(
+                ids.index("migration_differential_gate") + 1,
+                ids.index("migration_explanation_certification"),
             )
             self.assertEqual(
                 1,
@@ -808,8 +843,8 @@ class QualityRoutingTests(unittest.TestCase):
             release_ids.index("stdlib_runtime_certification") + 1,
             release_ids.index("portability_matrix_certification"),
         )
-        self.assertEqual("1.10.0", toolchain.profile("full")["definition_version"])
-        self.assertEqual("1.10.0", toolchain.profile("release")["definition_version"])
+        self.assertEqual("1.11.0", toolchain.profile("full")["definition_version"])
+        self.assertEqual("1.11.0", toolchain.profile("release")["definition_version"])
         self.assertNotIn(
             "security_dependency_risk",
             [member["operation"] for member in local_members],

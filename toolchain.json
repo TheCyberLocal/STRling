@@ -198,6 +198,20 @@
                 ],
                 "network": "offline"
             },
+            "migration_explanation_certification": {
+                "kind": "repository",
+                "component": "repository",
+                "command": [
+                    "python3",
+                    "-m",
+                    "tooling.migration_explanation_certification",
+                    "--json",
+                    "--check"
+                ],
+                "network": "offline",
+                "result_contract": "certification-result-v1",
+                "result_operation_id": "certification.migration-explanation"
+            },
             "pcre2_runtime_certification": {
                 "kind": "repository",
                 "component": "repository",
@@ -292,7 +306,7 @@
         },
         "profiles": {
             "local": {
-                "definition_version": "1.5.0",
+                "definition_version": "1.6.0",
                 "purpose": "Fast deterministic developer feedback.",
                 "network_policy": "offline",
                 "operations": [
@@ -333,6 +347,9 @@
                         "operation": "migration_differential_gate"
                     },
                     {
+                        "operation": "migration_explanation_certification"
+                    },
+                    {
                         "operation": "format_check",
                         "targets": [
                             "repository",
@@ -361,7 +378,7 @@
                 ]
             },
             "pull-request": {
-                "definition_version": "1.4.0",
+                "definition_version": "1.5.0",
                 "purpose": "Deterministic merge confidence.",
                 "network_policy": "offline",
                 "operations": [
@@ -400,6 +417,9 @@
                     },
                     {
                         "operation": "migration_differential_gate"
+                    },
+                    {
+                        "operation": "migration_explanation_certification"
                     },
                     {
                         "operation": "format_check",
@@ -458,7 +478,7 @@
                 ]
             },
             "full": {
-                "definition_version": "1.10.0",
+                "definition_version": "1.11.0",
                 "purpose": "Broad repository certification.",
                 "network_policy": "allowed",
                 "operations": [
@@ -500,6 +520,9 @@
                     },
                     {
                         "operation": "migration_differential_gate"
+                    },
+                    {
+                        "operation": "migration_explanation_certification"
                     },
                     {
                         "operation": "pcre2_runtime_certification"
@@ -615,7 +638,7 @@
                 ]
             },
             "release": {
-                "definition_version": "1.10.0",
+                "definition_version": "1.11.0",
                 "purpose": "Highest currently implemented pre-release envelope.",
                 "network_policy": "allowed",
                 "operations": [
@@ -657,6 +680,9 @@
                     },
                     {
                         "operation": "migration_differential_gate"
+                    },
+                    {
+                        "operation": "migration_explanation_certification"
                     },
                     {
                         "operation": "pcre2_runtime_certification"
